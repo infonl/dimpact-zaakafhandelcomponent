@@ -7,7 +7,6 @@ import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
-  DestroyRef,
   effect,
   inject,
   input,
@@ -15,7 +14,6 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import {
@@ -31,9 +29,13 @@ import { MatSort, MatSortHeader, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  injectQuery,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { finalize } from "rxjs";
+import { lastValueFrom } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -85,7 +87,6 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly utilService = inject(UtilService);
   private readonly identityService = inject(IdentityService);
   private readonly queryClient = inject(QueryClient);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loggedInUser = injectQuery(() =>
     this.identityService.readLoggedInUser(),
@@ -209,10 +210,32 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     this.allTakenExpanded = filter.length === 0;
   }
 
-  private readonly assigningTaakIds = new Set<string>();
+  protected readonly assignToMeMutation = injectMutation(() => ({
+    mutationFn: (taak: GeneratedType<"RestTask">) =>
+      lastValueFrom(
+        this.takenService.toekennenAanIngelogdeMedewerker({
+          taakId: taak.id!,
+          zaakUuid: taak.zaakUuid,
+          groepId: taak.groep!.id!,
+        }),
+      ),
+    onMutate: () => {
+      this.websocketService.suspendListener(this.zaakTakenListener);
+    },
+    onSuccess: (returnTaak, taak) => {
+      taak.behandelaar = returnTaak.behandelaar;
+      taak.status = returnTaak.status;
+      this.utilService.openSnackbar("msg.taak.toegekend", {
+        behandelaar: taak.behandelaar?.naam,
+      });
+    },
+  }));
 
   protected isAssigningTaakToMe(taak: GeneratedType<"RestTask">) {
-    return !!taak.id && this.assigningTaakIds.has(taak.id);
+    return (
+      this.assignToMeMutation.isPending() &&
+      this.assignToMeMutation.variables()?.id === taak.id
+    );
   }
 
   protected showAssignTaakToMe(taak: GeneratedType<"RestTask">) {
@@ -230,27 +253,9 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     $event: MouseEvent,
   ) {
     $event.stopPropagation();
-    if (!taak.id || this.assigningTaakIds.has(taak.id)) return;
+    if (!taak.id || this.isAssigningTaakToMe(taak)) return;
 
-    this.assigningTaakIds.add(taak.id);
-    this.websocketService.suspendListener(this.zaakTakenListener);
-    this.takenService
-      .toekennenAanIngelogdeMedewerker({
-        taakId: taak.id,
-        zaakUuid: taak.zaakUuid,
-        groepId: taak.groep!.id!,
-      })
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.assigningTaakIds.delete(taak.id!)),
-      )
-      .subscribe((returnTaak) => {
-        taak.behandelaar = returnTaak.behandelaar;
-        taak.status = returnTaak.status;
-        this.utilService.openSnackbar("msg.taak.toegekend", {
-          behandelaar: taak.behandelaar?.naam,
-        });
-      });
+    this.assignToMeMutation.mutate(taak);
   }
 
   protected filterTakenOpStatus() {
