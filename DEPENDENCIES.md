@@ -14,7 +14,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **gotenberg**: 8.34.0
 - **otel/opentelemetry-collector-contrib**: 0.156.0
 - **grafana/tempo**: 3.0.2
-- **prom/prometheus**: v3.13.0
+- **prom/prometheus**: v3.13.1
 - **grafana/grafana**: 13.1.0
 - **greenmail/standalone**: 2.1.9
 - **rabbitmq**: 4.2.7-alpine
