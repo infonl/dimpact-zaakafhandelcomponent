@@ -94,6 +94,7 @@ export class InformatieObjectAddComponent {
         oldValues.titel = null;
         oldValues.bestand = null;
         this.form.reset(oldValues);
+        this.createDocumentMutation.reset();
         return;
       }
       this.resetAndClose();

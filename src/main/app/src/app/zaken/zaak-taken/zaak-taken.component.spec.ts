@@ -13,7 +13,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
@@ -473,6 +473,39 @@ describe(ZaakTakenComponent.name, () => {
       component["assignTaakToMe"](taak, mouseEvent);
 
       expect(websocketService.suspendListener).toHaveBeenCalled();
+    });
+
+    it("ignores a second click while the first assignment is still in flight", () => {
+      const inFlight = new Subject<GeneratedType<"RestTask">>();
+      const serviceSpy = jest
+        .spyOn(takenService, "toekennenAanIngelogdeMedewerker")
+        .mockReturnValue(inFlight.asObservable());
+
+      const taak = makeTaak();
+      component["assignTaakToMe"](taak, new MouseEvent("click"));
+      component["assignTaakToMe"](taak, new MouseEvent("click"));
+
+      expect(serviceSpy).toHaveBeenCalledTimes(1);
+      expect(component["isAssigningTaakToMe"](taak)).toBe(true);
+    });
+
+    it("re-enables the assignment once the request settles", () => {
+      const inFlight = new Subject<GeneratedType<"RestTask">>();
+      jest
+        .spyOn(takenService, "toekennenAanIngelogdeMedewerker")
+        .mockReturnValue(inFlight.asObservable());
+      jest
+        .spyOn(utilService, "openSnackbar")
+        .mockReturnValue(undefined as never);
+
+      const taak = makeTaak();
+      component["assignTaakToMe"](taak, new MouseEvent("click"));
+      expect(component["isAssigningTaakToMe"](taak)).toBe(true);
+
+      inFlight.next(makeTaak());
+      inFlight.complete();
+
+      expect(component["isAssigningTaakToMe"](taak)).toBe(false);
     });
   });
 });

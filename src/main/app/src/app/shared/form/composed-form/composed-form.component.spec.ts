@@ -185,6 +185,33 @@ describe(ZacComposedForm.name, () => {
       );
       expect(submitButton.disabled).toBe(true);
     });
+
+    it("should stay enabled on success by default", () => {
+      const form = createTestForm();
+      createComponent(form, [{ type: "input", key: "name" }]);
+
+      componentRef.setInput("success", true);
+      fixture.detectChanges();
+
+      const submitButton = fixture.nativeElement.querySelector(
+        "button[type=submit]",
+      );
+      expect(submitButton.disabled).toBe(false);
+    });
+
+    it("should be disabled on success when disableAfterSuccess is set", () => {
+      const form = createTestForm();
+      createComponent(form, [{ type: "input", key: "name" }]);
+
+      componentRef.setInput("disableAfterSuccess", true);
+      componentRef.setInput("success", true);
+      fixture.detectChanges();
+
+      const submitButton = fixture.nativeElement.querySelector(
+        "button[type=submit]",
+      );
+      expect(submitButton.disabled).toBe(true);
+    });
   });
 
   describe("outputs", () => {

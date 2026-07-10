@@ -33,6 +33,7 @@ import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
+import { finalize } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -208,6 +209,12 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     this.allTakenExpanded = filter.length === 0;
   }
 
+  private readonly assigningTaakIds = new Set<string>();
+
+  protected isAssigningTaakToMe(taak: GeneratedType<"RestTask">) {
+    return !!taak.id && this.assigningTaakIds.has(taak.id);
+  }
+
   protected showAssignTaakToMe(taak: GeneratedType<"RestTask">) {
     if (taak.status === "AFGEROND") return false;
     if (!taak.rechten.toekennen) return false;
@@ -223,14 +230,20 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     $event: MouseEvent,
   ) {
     $event.stopPropagation();
+    if (!taak.id || this.assigningTaakIds.has(taak.id)) return;
+
+    this.assigningTaakIds.add(taak.id);
     this.websocketService.suspendListener(this.zaakTakenListener);
     this.takenService
       .toekennenAanIngelogdeMedewerker({
-        taakId: taak.id!,
+        taakId: taak.id,
         zaakUuid: taak.zaakUuid,
         groepId: taak.groep!.id!,
       })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.assigningTaakIds.delete(taak.id!)),
+      )
       .subscribe((returnTaak) => {
         taak.behandelaar = returnTaak.behandelaar;
         taak.status = returnTaak.status;
