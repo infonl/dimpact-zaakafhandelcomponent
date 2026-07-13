@@ -217,7 +217,9 @@ class ZaakKoppelenRestService @Inject constructor(
     ) = ZoekParameters(ZoekObjectType.ZAAK).apply {
         start = pageNo * rowsNo
         rows = rowsNo
-        addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, zoekZaakIdentifier.trim())
+        val trimmedSearchText = zoekZaakIdentifier.trim()
+        addOrZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, trimmedSearchText)
+        addOrZoekVeld(ZoekVeld.ZAAK_OMSCHRIJVING, trimmedSearchText)
         addFilter(FilterVeld.ZAAK_IDENTIFICATIE, FilterParameters(listOf(zaak.identificatie), true))
     }
 

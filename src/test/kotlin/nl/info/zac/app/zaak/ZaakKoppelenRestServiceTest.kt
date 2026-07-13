@@ -1018,7 +1018,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
             Then("the used search parameters should be as expected") {
                 with(zoekParametersSlot.captured) {
-                    getZoeken()[ZoekVeld.ZAAK_IDENTIFICATIE] shouldBe zaakSearchTextTrimmed
+                    getOrZoeken() shouldBe listOf(
+                        ZoekVeld.ZAAK_IDENTIFICATIE to zaakSearchTextTrimmed,
+                        ZoekVeld.ZAAK_OMSCHRIJVING to zaakSearchTextTrimmed
+                    )
                 }
             }
 

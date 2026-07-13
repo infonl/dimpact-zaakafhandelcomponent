@@ -59,6 +59,7 @@ class SearchService @Inject constructor(
         applyAllowedZaaktypenPolicy(query)
         zoekParameters.type?.let { query.addFilterQuery("type:${zoekParameters.type}") }
         getFilterQueriesForZoekenParameters(zoekParameters).forEach(query::addFilterQuery)
+        getFilterQueryForOrZoekenParameters(zoekParameters)?.let { query.addFilterQuery(it) }
         getFilterQueriesForDatumsParameters(zoekParameters).forEach(query::addFilterQuery)
         zoekParameters.getFilters().forEach { (filter, filterParameters) ->
             query.addFacetField("{!ex=$filter}${filter.veld}")
@@ -153,20 +154,21 @@ class SearchService @Inject constructor(
         }
 
     private fun getFilterQueriesForZoekenParameters(zoekParameters: ZoekParameters): List<String> =
-        zoekParameters.getZoeken().mapNotNull { (searchField, text) ->
-            if (text.isNotBlank()) {
-                val queryText = if (
-                    searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID
-                ) {
-                    "(*${encoded(text)}* OR *${encoded(text.uppercase())}* OR *${encoded(text.lowercase())})"
-                } else {
-                    "(${encoded(text)})"
-                }
-                "${searchField.veld}:$queryText"
-            } else {
-                null
-            }
-        }
+        zoekParameters.getZoeken().mapNotNull { (searchField, text) -> getQueryText(searchField, text) }
+
+    private fun getQueryText(searchField: ZoekVeld, text: String) =
+        if(text.isBlank()) null
+        else if(searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID)
+            "${searchField.veld}:(*${encoded(text)}* " +
+                "OR *${encoded(text.uppercase())}* OR *${encoded(text.lowercase())})"
+        else
+            "${searchField.veld}:(${encoded(text)})"
+
+    private fun getFilterQueryForOrZoekenParameters(zoekParameters: ZoekParameters): String? =
+        zoekParameters.getOrZoeken()
+            .mapNotNull { (searchField, text) -> getQueryText(searchField, text) }
+            .takeIf { it.isNotEmpty() }
+            ?.joinToString(" OR ")
 
     @Suppress("NestedBlockDepth")
     private fun applyAllowedZaaktypenPolicy(query: SolrQuery) {

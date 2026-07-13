@@ -11,6 +11,7 @@ import java.util.EnumMap
 @Suppress("TooManyFunctions")
 class ZoekParameters(val type: ZoekObjectType?) {
     private val zoeken = EnumMap<ZoekVeld, String>(ZoekVeld::class.java)
+    private val orZoeken = mutableListOf<Pair<ZoekVeld, String>>()
     private val filters = EnumMap<FilterVeld, FilterParameters>(FilterVeld::class.java).apply {
         getAvailableFilterFields(type).forEach { this[it] = FilterParameters(arrayListOf(), false) }
     }
@@ -26,6 +27,17 @@ class ZoekParameters(val type: ZoekObjectType?) {
     fun addZoekVeld(zoekVeld: ZoekVeld, zoekTekst: String) {
         zoeken[zoekVeld] = zoekTekst
     }
+
+    /**
+     * Adds a zoek veld that will be combined with other OR zoek velden using OR logic.
+     * Unlike [addZoekVeld] where multiple fields are ANDed, fields added via this method
+     * are combined into a single Solr filter query using OR, so a match in any field suffices.
+     */
+    fun addOrZoekVeld(zoekVeld: ZoekVeld, zoekTekst: String) {
+        orZoeken.add(zoekVeld to zoekTekst)
+    }
+
+    fun getOrZoeken(): List<Pair<ZoekVeld, String>> = orZoeken
 
     fun addDatum(zoekVeld: DatumVeld, range: DatumRange) {
         datums[zoekVeld] = range
