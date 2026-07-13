@@ -14,6 +14,8 @@ data-source add \
     --connection-url=jdbc:postgresql://${env.DB_HOST:localhost}/${env.DB_NAME} \
     --driver-name=postgresql --user-name=${env.DB_USER} --password=${env.DB_PASSWORD} \
     --use-java-context=true \
+    --check-valid-connection-sql="SELECT 1" \
+    --validate-on-match=true \
     --statistics-enabled=${wildfly.datasources.statistics-enabled:${wildfly.statistics-enabled:false}}
 
 ## Add flowable datasource
@@ -24,6 +26,8 @@ data-source add \
     --jta=false \
     --driver-name=postgresql --user-name=${env.DB_USER} --password=${env.DB_PASSWORD} \
     --use-java-context=true \
+    --check-valid-connection-sql="SELECT 1" \
+    --validate-on-match=true \
     --statistics-enabled=${wildfly.datasources.statistics-enabled:${wildfly.statistics-enabled:false}}
 
 # Enable the usage of JSON-B for RESTEasy and disable the default preference for Jackson.
