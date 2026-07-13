@@ -156,13 +156,14 @@ class SearchService @Inject constructor(
     private fun getFilterQueriesForZoekenParameters(zoekParameters: ZoekParameters): List<String> =
         zoekParameters.getZoeken().mapNotNull { (searchField, text) -> getQueryText(searchField, text) }
 
-    private fun getQueryText(searchField: ZoekVeld, text: String) =
-        if(text.isBlank()) null
-        else if(searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID)
-            "${searchField.veld}:(*${encoded(text)}* " +
-                "OR *${encoded(text.uppercase())}* OR *${encoded(text.lowercase())})"
-        else
-            "${searchField.veld}:(${encoded(text)})"
+    private fun getQueryText(searchField: ZoekVeld, text: String): String? =
+        when {
+            text.isBlank() -> null
+            searchField == ZoekVeld.ZAAK_IDENTIFICATIE || searchField == ZoekVeld.TAAK_ZAAK_ID ->
+                "${searchField.veld}:(*${encoded(text)}* OR *${encoded(text.uppercase())}* OR *${encoded(text.lowercase())})"
+            else ->
+                "${searchField.veld}:(${encoded(text)})"
+        }
 
     private fun getFilterQueryForOrZoekenParameters(zoekParameters: ZoekParameters): String? =
         zoekParameters.getOrZoeken()
