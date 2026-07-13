@@ -122,7 +122,7 @@ export class ReferentieTabellenComponent
     this.expandedId.set(this.expandedId() === tabel.id ? null : tabel.id);
   }
 
-  protected isLoadingWaarden(tabel: GeneratedType<"RestReferenceTable">) {
+  protected isLoadingValues(tabel: GeneratedType<"RestReferenceTable">) {
     return this.expandedId() === tabel.id && this.tabelDetailQuery.isLoading();
   }
 

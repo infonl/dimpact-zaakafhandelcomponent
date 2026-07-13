@@ -37,13 +37,13 @@ import { ReferentieTabelValueDialogComponent } from "./referentie-tabel-value-di
 export class ReferentieTabelItemComponent {
   readonly tabel = input.required<GeneratedType<"RestReferenceTable">>();
 
-  protected readonly columns = ["index", "naam", "actions"] as const;
+  protected readonly columns = ["index", "name", "actions"] as const;
 
   private readonly service = inject(ReferentieTabelService);
   private readonly dialog = inject(MatDialog);
   private readonly utilService = inject(UtilService);
 
-  protected addWaarde() {
+  protected addValue() {
     this.dialog.open(ReferentieTabelValueDialogComponent, {
       data: { tabel: this.tabel() },
       width: "500px",
@@ -51,30 +51,30 @@ export class ReferentieTabelItemComponent {
     });
   }
 
-  protected editWaarde(waarde: GeneratedType<"RestReferenceTableValue">) {
+  protected editValue(value: GeneratedType<"RestReferenceTableValue">) {
     this.dialog.open(ReferentieTabelValueDialogComponent, {
-      data: { tabel: this.tabel(), waarde },
+      data: { tabel: this.tabel(), value },
       width: "500px",
       autoFocus: "input:not([disabled])",
     });
   }
 
-  protected deleteWaarde(waarde: GeneratedType<"RestReferenceTableValue">) {
+  protected deleteValue(value: GeneratedType<"RestReferenceTableValue">) {
     const tabel = this.tabel();
     const existing: GeneratedType<"RestReferenceTableValue">[] =
-      tabel.waarden ?? [];
-    const waarden = existing.filter((current) => current.id !== waarde.id);
+      tabel.values ?? [];
+    const values = existing.filter((current) => current.id !== value.id);
     this.dialog
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           {
             key: "msg.referentietabel.waarde-verwijderen-bevestigen",
-            args: { waarde: waarde.naam },
+            args: { value: value.name },
           },
           this.service.updateReferentieTabelWithRefresh(tabel.id!, {
             code: tabel.code,
-            naam: tabel.naam,
-            waarden,
+            name: tabel.name,
+            values,
           }),
         ),
       })
@@ -83,7 +83,7 @@ export class ReferentieTabelItemComponent {
         if (confirmed) {
           this.utilService.openSnackbar(
             "msg.referentietabel.waarde-verwijderd",
-            { waarde: waarde.naam },
+            { value: value.name },
           );
         }
       });

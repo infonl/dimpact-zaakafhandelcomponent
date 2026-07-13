@@ -79,16 +79,16 @@ describe(ReferentieTabelCreateDialogComponent.name, () => {
 
     component["form"].setValue({
       code: "a".repeat(256),
-      naam: "a".repeat(256),
+      name: "a".repeat(256),
     });
     expect(component["form"].valid).toBe(true);
 
     component["form"].setValue({
       code: "a".repeat(257),
-      naam: "a".repeat(257),
+      name: "a".repeat(257),
     });
     expect(component["form"].controls.code.invalid).toBe(true);
-    expect(component["form"].controls.naam.invalid).toBe(true);
+    expect(component["form"].controls.name.invalid).toBe(true);
 
     component["submit"]();
     httpTestingController.expectNone("/rest/referentietabellen");
@@ -97,7 +97,7 @@ describe(ReferentieTabelCreateDialogComponent.name, () => {
   it("creates the table, closes with true and shows a snackbar", async () => {
     const { component, httpTestingController, dialogRef, openSnackbar } =
       await setup();
-    component["form"].setValue({ code: "NEW_CODE", naam: "New name" });
+    component["form"].setValue({ code: "NEW_CODE", name: "New name" });
     component["form"].markAsDirty();
 
     component["submit"]();
@@ -107,11 +107,11 @@ describe(ReferentieTabelCreateDialogComponent.name, () => {
     expect(request.request.method).toBe("POST");
     expect(request.request.body).toEqual({
       code: "NEW_CODE",
-      naam: "New name",
-      systeem: false,
-      waarden: [],
+      name: "New name",
+      systemTable: false,
+      values: [],
     });
-    request.flush({ id: 7, code: "NEW_CODE", naam: "New name" });
+    request.flush({ id: 7, code: "NEW_CODE", name: "New name" });
     await sleep();
 
     expect(openSnackbar).toHaveBeenCalledWith(

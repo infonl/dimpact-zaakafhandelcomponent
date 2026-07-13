@@ -20,33 +20,34 @@ class RestReferenceTable(
     var id: Long? = null,
 
     @field:NotBlank
-    @field:Size(max = CODE_MAX_LENGTH)
+    @field:Size(max = REFERENCE_TABLE_CODE_MAX_LENGTH)
     var code: String,
 
     @field:NotBlank
-    @field:Size(max = NAAM_MAX_LENGTH)
-    var naam: String,
+    @field:Size(max = REFERENCE_TABLE_NAME_MAX_LENGTH)
+    var name: String,
 
-    var systeem: Boolean = false,
+    /**
+     * A system table is a table automatically created by the application. It cannot be deleted.
+     */
+    var isSystemTable: Boolean = false,
 
-    var aantalWaarden: Int = 0,
+    var valuesCount: Int = 0,
 
     @field:Valid
-    var waarden: List<RestReferenceTableValue> = emptyList()
+    var values: List<RestReferenceTableValue> = emptyList()
 ) {
     companion object {
-        const val CODE_MAX_LENGTH = 256
-        const val NAAM_MAX_LENGTH = 256
+        const val REFERENCE_TABLE_CODE_MAX_LENGTH = 256
+        const val REFERENCE_TABLE_NAME_MAX_LENGTH = 256
     }
 }
 
-fun RestReferenceTable.toReferenceTable(): ReferenceTable {
-    return ReferenceTable().apply {
-        // the data model only supports uppercase codes so convert it here to be sure
+fun RestReferenceTable.toReferenceTable() = ReferenceTable().apply {
+        // the data model only supports uppercase codes, so convert it here to be sure
         code = this@toReferenceTable.code.uppercase()
-        name = this@toReferenceTable.naam
-        values = this@toReferenceTable.waarden
-            .map { referenceTableValue -> referenceTableValue.toReferenceTableValue(this) }
+        name = this@toReferenceTable.name
+        values = this@toReferenceTable.values
+            .map { it.toReferenceTableValue(this) }
             .toMutableList()
-    }
 }

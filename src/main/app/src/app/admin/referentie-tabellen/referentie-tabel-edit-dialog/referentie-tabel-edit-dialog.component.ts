@@ -58,7 +58,7 @@ export class ReferentieTabelEditDialogComponent {
       { value: this.data.code, disabled: true },
       { nonNullable: true },
     ),
-    naam: new FormControl(this.data.naam, {
+    name: new FormControl(this.data.name, {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(256)],
     }),
@@ -68,8 +68,8 @@ export class ReferentieTabelEditDialogComponent {
     mutationFn: () =>
       this.service.updateReferentieTabelAsync(this.data.id!, {
         code: this.data.code,
-        naam: this.form.getRawValue().naam,
-        waarden: this.data.waarden ?? [],
+        name: this.form.getRawValue().name,
+        values: this.data.values ?? [],
       }),
     onMutate: () => {
       this.dialogRef.disableClose = true;

@@ -29,10 +29,10 @@ import {
 const tabel = fromPartial<GeneratedType<"RestReferenceTable">>({
   id: 1,
   code: "TABEL_A",
-  naam: "Tabel A",
-  waarden: [
-    { id: 10, naam: "Waarde A1" },
-    { id: 11, naam: "Waarde A2" },
+  name: "Tabel A",
+  values: [
+    { id: 10, name: "Waarde A1" },
+    { id: 11, name: "Waarde A2" },
   ],
 });
 
@@ -82,12 +82,12 @@ describe(ReferentieTabelValueDialogComponent.name, () => {
   it("shows the edit title and pre-fills the name when a value is passed", async () => {
     const { component, fixture } = await setup({
       tabel,
-      waarde: tabel.waarden![0],
+      value: tabel.values![0],
     });
     expect(fixture.nativeElement.textContent).toContain(
       "referentietabel.waarde-titel-wijzigen",
     );
-    expect(component["form"].getRawValue().naam).toBe("Waarde A1");
+    expect(component["form"].getRawValue().name).toBe("Waarde A1");
   });
 
   it("closes with false on cancel", async () => {
@@ -105,10 +105,10 @@ describe(ReferentieTabelValueDialogComponent.name, () => {
   it("accepts a value of 1000 characters but does not submit a longer one", async () => {
     const { component, httpTestingController } = await setup({ tabel });
 
-    component["form"].setValue({ naam: "a".repeat(1000) });
+    component["form"].setValue({ name: "a".repeat(1000) });
     expect(component["form"].valid).toBe(true);
 
-    component["form"].setValue({ naam: "a".repeat(1001) });
+    component["form"].setValue({ name: "a".repeat(1001) });
     expect(component["form"].invalid).toBe(true);
 
     component["submit"]();
@@ -118,7 +118,7 @@ describe(ReferentieTabelValueDialogComponent.name, () => {
   it("appends the new value, closes with true and shows a snackbar when adding", async () => {
     const { component, httpTestingController, dialogRef, openSnackbar } =
       await setup({ tabel });
-    component["form"].setValue({ naam: "Waarde A3" });
+    component["form"].setValue({ name: "Waarde A3" });
     component["form"].markAsDirty();
 
     component["submit"]();
@@ -130,11 +130,11 @@ describe(ReferentieTabelValueDialogComponent.name, () => {
     expect(request.request.method).toBe("PUT");
     expect(request.request.body).toEqual({
       code: "TABEL_A",
-      naam: "Tabel A",
-      waarden: [
-        { id: 10, naam: "Waarde A1" },
-        { id: 11, naam: "Waarde A2" },
-        { naam: "Waarde A3" },
+      name: "Tabel A",
+      values: [
+        { id: 10, name: "Waarde A1" },
+        { id: 11, name: "Waarde A2" },
+        { name: "Waarde A3" },
       ],
     });
     request.flush({});
@@ -142,15 +142,15 @@ describe(ReferentieTabelValueDialogComponent.name, () => {
 
     expect(openSnackbar).toHaveBeenCalledWith(
       "msg.referentietabel.waarde-toegevoegd",
-      { waarde: "Waarde A3" },
+      { value: "Waarde A3" },
     );
     expect(dialogRef.close).toHaveBeenCalledWith(true);
   });
 
   it("renames the selected value when editing", async () => {
     const { component, httpTestingController, dialogRef, openSnackbar } =
-      await setup({ tabel, waarde: tabel.waarden![0] });
-    component["form"].setValue({ naam: "Waarde A1 gewijzigd" });
+      await setup({ tabel, value: tabel.values![0] });
+    component["form"].setValue({ name: "Waarde A1 gewijzigd" });
     component["form"].markAsDirty();
 
     component["submit"]();
@@ -162,10 +162,10 @@ describe(ReferentieTabelValueDialogComponent.name, () => {
     expect(request.request.method).toBe("PUT");
     expect(request.request.body).toEqual({
       code: "TABEL_A",
-      naam: "Tabel A",
-      waarden: [
-        { id: 10, naam: "Waarde A1 gewijzigd" },
-        { id: 11, naam: "Waarde A2" },
+      name: "Tabel A",
+      values: [
+        { id: 10, name: "Waarde A1 gewijzigd" },
+        { id: 11, name: "Waarde A2" },
       ],
     });
     request.flush({});
@@ -173,7 +173,7 @@ describe(ReferentieTabelValueDialogComponent.name, () => {
 
     expect(openSnackbar).toHaveBeenCalledWith(
       "msg.referentietabel.waarde-gewijzigd",
-      { waarde: "Waarde A1 gewijzigd" },
+      { value: "Waarde A1 gewijzigd" },
     );
     expect(dialogRef.close).toHaveBeenCalledWith(true);
   });

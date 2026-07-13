@@ -269,7 +269,7 @@ export class FormioSetupService {
             referenceTableCode,
           ),
         );
-        return data.waarden;
+        return data.values;
       },
     };
   }
