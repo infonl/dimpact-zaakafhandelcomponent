@@ -7,7 +7,6 @@ import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
-  DestroyRef,
   effect,
   inject,
   input,
@@ -15,7 +14,6 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import {
@@ -31,8 +29,13 @@ import { MatSort, MatSortHeader, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  injectQuery,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import moment from "moment";
+import { lastValueFrom } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -84,7 +87,6 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly utilService = inject(UtilService);
   private readonly identityService = inject(IdentityService);
   private readonly queryClient = inject(QueryClient);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly loggedInUser = injectQuery(() =>
     this.identityService.readLoggedInUser(),
@@ -208,6 +210,34 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     this.allTakenExpanded = filter.length === 0;
   }
 
+  protected readonly assignToMeMutation = injectMutation(() => ({
+    mutationFn: (taak: GeneratedType<"RestTask">) =>
+      lastValueFrom(
+        this.takenService.toekennenAanIngelogdeMedewerker({
+          taakId: taak.id!,
+          zaakUuid: taak.zaakUuid,
+          groepId: taak.groep!.id!,
+        }),
+      ),
+    onMutate: () => {
+      this.websocketService.suspendListener(this.zaakTakenListener);
+    },
+    onSuccess: (returnTaak, taak) => {
+      taak.behandelaar = returnTaak.behandelaar;
+      taak.status = returnTaak.status;
+      this.utilService.openSnackbar("msg.taak.toegekend", {
+        behandelaar: taak.behandelaar?.naam,
+      });
+    },
+  }));
+
+  protected isAssigningTaakToMe(taak: GeneratedType<"RestTask">) {
+    return (
+      this.assignToMeMutation.isPending() &&
+      this.assignToMeMutation.variables()?.id === taak.id
+    );
+  }
+
   protected showAssignTaakToMe(taak: GeneratedType<"RestTask">) {
     if (taak.status === "AFGEROND") return false;
     if (!taak.rechten.toekennen) return false;
@@ -223,21 +253,9 @@ export class ZaakTakenComponent implements OnInit, AfterViewInit, OnDestroy {
     $event: MouseEvent,
   ) {
     $event.stopPropagation();
-    this.websocketService.suspendListener(this.zaakTakenListener);
-    this.takenService
-      .toekennenAanIngelogdeMedewerker({
-        taakId: taak.id!,
-        zaakUuid: taak.zaakUuid,
-        groepId: taak.groep!.id!,
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((returnTaak) => {
-        taak.behandelaar = returnTaak.behandelaar;
-        taak.status = returnTaak.status;
-        this.utilService.openSnackbar("msg.taak.toegekend", {
-          behandelaar: taak.behandelaar?.naam,
-        });
-      });
+    if (!taak.id || this.isAssigningTaakToMe(taak)) return;
+
+    this.assignToMeMutation.mutate(taak);
   }
 
   protected filterTakenOpStatus() {

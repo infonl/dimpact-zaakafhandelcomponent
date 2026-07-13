@@ -49,6 +49,10 @@
     <zac-documents [form]="form" key="bijlagen" [options]="documents" />
   </fieldset>
   <fieldset>
-    <zac-form-actions [form]="form" [mutation]="sendMailMutation" />
+    <zac-form-actions
+      [form]="form"
+      [mutation]="sendMailMutation"
+      disableAfterSuccess
+    />
   </fieldset>
 </form>

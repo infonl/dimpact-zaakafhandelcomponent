@@ -119,7 +119,7 @@
         type="submit"
         mat-raised-button
         color="primary"
-        [disabled]="form().invalid || loading()"
+        [disabled]="isSubmitDisabled()"
       >
         <mat-icon *ngIf="loading()">
           <mat-spinner diameter="18"></mat-spinner>
