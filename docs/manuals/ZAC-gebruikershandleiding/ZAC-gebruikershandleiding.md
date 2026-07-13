@@ -45,7 +45,11 @@ Versiegeschiedenis:
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
- 
+
+- [Zaakafhandelcomponent](#zaakafhandelcomponent)
+  - [Wat is de Zaakafhandelcomponent?](#wat-is-de-zaakafhandelcomponent)
+  - [Indeling van ZAC](#indeling-van-zac)
+  - [Rollen en rechten](#rollen-en-rechten)
 - [Profiel](#profiel)
   - [Uitloggen](#uitloggen)
   - [Versie software](#versie-software)
