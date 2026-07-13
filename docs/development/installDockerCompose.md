@@ -23,7 +23,7 @@ Make sure you clone the repository to the WSL filesystem itself
 
 ### Linux with nftables
 - Run [setup-linux.sh script](../../scripts/docker-compose/setup-linux.sh)
-- Deinstall docker.io (on Debian and derivates): `apt remove $(dpkg --get-selections docker.io docker-compose docker-doc podman-docker containerd runc | cut -f1)` 
+- Uninstall docker.io (on Debian and derivatives): `sudo apt remove $(dpkg --get-selections docker.io docker-compose docker-doc podman-docker containerd runc | cut -f1)`
 - Install docker-ce, minimum version >= 29.0.0 (check: https://docs.docker.com/engine/install/debian/#install-using-the-repository)
 - Create or update `/etc/docker/daemon.json` to contain at least:
 ```json
