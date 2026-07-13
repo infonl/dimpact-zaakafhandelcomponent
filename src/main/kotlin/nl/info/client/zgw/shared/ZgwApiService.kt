@@ -115,9 +115,6 @@ class ZgwApiService @Inject constructor(
     /**
      * Closes a [Zaak].
      *
-     * This function will also process the brondatum procedure when needed for
-     * the given [resultaatTypeUUID].
-     *
      * @param zaak [Zaak] to be closed.
      * @param resultaatTypeUUID [UUID] the UUID of the resultaat for closing the [Zaak].
      * @param description [String] of the [Resultaat] and [Status].
