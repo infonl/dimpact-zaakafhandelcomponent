@@ -34,27 +34,27 @@ Make sure you clone the repository to the WSL filesystem itself
 - Ensure the nftables configuration, most likely `/etc/nftables.conf`, contains at least:
 ```nft
 #!/usr/sbin/nft -f
-   
+
 # Clean
 flush ruleset
-   
+
 # IPv4 filtering
 table filter {
-   chain input {
-       type filter hook input priority 0;
-       ct state invalid counter drop
-       ct state {established, related} counter accept
-       iif lo accept
-       <PUT YOUR FIREWALL RULES HERE>  
-   }
-   chain forward {
-       type filter hook forward priority filter
-       policy drop
-       ct state invalid counter drop
-       ct state {established, related} counter accept
-       iifname "docker0" oifname "docker0" counter accept comment "Docker default bridge ICC"
-       iifname "br-*" oifname "br-*" counter accept comment "Docker Compose / user-defined bridge ICC"
-   }
+    chain input {
+        type filter hook input priority 0;
+        ct state invalid counter drop;
+        ct state { established, related } counter accept;
+        iif lo accept;
+        # PUT YOUR FIREWALL RULES HERE
+    }
+    chain forward {
+        type filter hook forward priority filter;
+        policy drop;
+        ct state invalid counter drop;
+        ct state { established, related } counter accept;
+        iifname "docker0" oifname "docker0" counter accept comment "Docker default bridge ICC";
+        iifname "br-*" oifname "br-*" counter accept comment "Docker Compose / user-defined bridge ICC";
+    }
 }
 ```
 - The docker service should start after nftables and restart on nftables restart:
