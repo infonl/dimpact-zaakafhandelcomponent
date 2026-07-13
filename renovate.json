@@ -744,6 +744,21 @@
       "description": [
         "The BRP API Personen Mock Docker image uses a custom versioning scheme that Renovate does not support by default. Example: '2.7.0-202506301511'"
       ]
+    },
+    {
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "engines"
+      ],
+      "matchPackageNames": [
+        "npm"
+      ],
+      "constraintsFiltering": "strict",
+      "description": [
+        "Only propose npm engines updates that are compatible with the Node.js version pinned in .nvmrc, which Renovate detects automatically"
+      ]
     }
   ]
 }
