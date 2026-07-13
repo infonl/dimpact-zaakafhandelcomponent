@@ -63,8 +63,10 @@ Versiegeschiedenis:
 - [Groepsignalering inschakelen](#groepsignalering-inschakelen)
 
 [*Identiteits- en toegangsbeheer*](#identiteits--en-toegangsbeheer)
-- [Oude IAM architectuur](#oude-iam-architectuur)
-- [Nieuwe IAM architectuur](#nieuwe-iam-architectuur)
+- [IAM architectuur](#iam-architectuur)
+- [Keycloak](#keycloak)
+- [PABC](#pabc)
+- [Migratie van de oude naar de nieuwe IAM-architectuur](#migratie-van-de-oude-naar-de-nieuwe-iam-architectuur)
 
 [*Groepen*](#groepen)
 - [Beheer van groepen](#beheer-van-groepen)

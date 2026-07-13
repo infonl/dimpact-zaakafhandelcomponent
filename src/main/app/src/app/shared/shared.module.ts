@@ -18,7 +18,6 @@ import { RouterModule } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { ZaakdataComponent } from "../zaken/zaakdata/zaakdata.component";
 import { ConfirmDialogComponent } from "./confirm-dialog/confirm-dialog.component";
-import { DialogComponent } from "./dialog/dialog.component";
 import { OutsideClickDirective } from "./directives/outside-click.directive";
 import { DocumentViewerComponent } from "./document-viewer/document-viewer.component";
 import { ColumnPickerComponent } from "./dynamic-table/column-picker/column-picker.component";
@@ -62,7 +61,6 @@ import { VersionComponent } from "./version/version.component";
     FacetFilterComponent,
     ConfirmDialogComponent,
     ColumnPickerComponent,
-    DialogComponent,
     SideNavComponent,
     VersionComponent,
     SortPipe,
@@ -96,7 +94,6 @@ import { VersionComponent } from "./version/version.component";
     FacetFilterComponent,
     TekstFilterComponent,
     ToggleFilterComponent,
-    DialogComponent,
     ConfirmDialogComponent,
     DocumentViewerComponent,
     ColumnPickerComponent,

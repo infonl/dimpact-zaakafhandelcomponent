@@ -11,7 +11,7 @@ import {
 } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { MatDialogRef } from "@angular/material/dialog";
 import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
@@ -24,9 +24,9 @@ import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { KlantenService } from "../../klanten/klanten.service";
-import { DialogData } from "../../shared/dialog/dialog-data";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
+import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
 import { ZaakBetrokkeneListComponent } from "./zaak-betrokkene-list.component";
 
@@ -66,7 +66,7 @@ describe(ZaakBetrokkeneListComponent.name, () => {
   let websocketService: WebsocketService;
   let utilService: UtilService;
   let dialogRef: MatDialogRef<unknown>;
-  let dialogOpenSpy: jest.Mock;
+  let openOntkoppelBetrokkeneSpy: jest.Mock;
 
   const fakeZaak = makeZaak();
 
@@ -84,7 +84,7 @@ describe(ZaakBetrokkeneListComponent.name, () => {
     dialogRef = fromPartial<MatDialogRef<unknown>>({
       afterClosed: jest.fn().mockReturnValue(of(undefined)),
     });
-    dialogOpenSpy = jest.fn().mockReturnValue(dialogRef);
+    openOntkoppelBetrokkeneSpy = jest.fn().mockReturnValue(dialogRef);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -97,8 +97,8 @@ describe(ZaakBetrokkeneListComponent.name, () => {
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         {
-          provide: MatDialog,
-          useValue: { open: dialogOpenSpy },
+          provide: ZaakDialogService,
+          useValue: { openOntkoppelBetrokkene: openOntkoppelBetrokkeneSpy },
         },
       ],
     }).compileComponents();
@@ -249,11 +249,10 @@ describe(ZaakBetrokkeneListComponent.name, () => {
 
       component["deleteBetrokkene"](betrokkene);
 
-      const dialogData = dialogOpenSpy.mock.calls[0][1].data as DialogData<
-        unknown,
-        { reden: string }
-      >;
-      dialogData.options.callback?.({ reden: "fake-reden" });
+      const callback = openOntkoppelBetrokkeneSpy.mock.calls[0][1] as (
+        reden: string,
+      ) => unknown;
+      callback("fake-reden");
 
       expect(zakenService.deleteBetrokkene).toHaveBeenCalledWith(
         "fake-rol-id",
