@@ -14,34 +14,62 @@ It was extended and made specific for the needs of ZAC.
 - [Docker Desktop](https://docs.docker.com/desktop/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [1Password CLI extensions](https://developer.1password.com/docs/cli/) (optional)
-- On Linux: run [setup-linux.sh script](../../scripts/docker-compose/setup-linux.sh)
-- On WSL2: make sure you clone the repository to the WSL filesystem itself
 
-#### Steps to Add host.docker.internal Entry to /etc/hosts File
-When working with Docker, adding host.docker.internal to your /etc/hosts file allows Docker containers to access services running on the host machine. Follow these steps to add this entry:
+### WSL2
+Make sure you clone the repository to the WSL filesystem itself
 
-1. Open the /etc/hosts File:
-   - You need administrative privileges to edit the /etc/hosts file. For WSL2, you need to edit the windows hosts file at `C:\Windows\System32\drivers\etc\hosts`
-   - Open the file in a text editor of your choice. For example, using vim, you would use the following command:
-    ```sh
-        sudo vim /etc/hosts
-    ```
-2. Add the host.docker.internal Entry:
-   - In the /etc/hosts file, add a new line to link host.docker.internal to the IP address of your host machine. This is typically 127.0.0.1 (localhost).
-   - The entry should look like this:
-    ```sh
-        # ZAC
-        127.0.0.1 host.docker.internal
-    ```
-   - Save the file and exit the text editor.
-3. Verify the Entry:
+### Linux with iptables
+- Run [setup-linux.sh script](../../scripts/docker-compose/setup-linux.sh)
 
-   - After adding the entry, you can verify it by running a command that references host.docker.internal from within a Docker container. For example, using a simple ping test:
-    ```bash
-        docker run --rm alpine ping -c 4 host.docker.internal
-    ```
-This command runs a temporary Alpine Linux container and pings host.docker.internal four times. Successful ping responses indicate that the entry is correctly configured.
-
+### Linux with nftables
+- Run [setup-linux.sh script](../../scripts/docker-compose/setup-linux.sh)
+- Deinstall docker.io (on Debian and derivates): `apt remove $(dpkg --get-selections docker.io docker-compose docker-doc podman-docker containerd runc | cut -f1)` 
+- Install docker-ce, minimum version >= 29.0.0 (check: https://docs.docker.com/engine/install/debian/#install-using-the-repository)
+- Create or update `/etc/docker/daemon.json` to contain at least:
+```json
+{
+   "firewall-backend": "nftables"
+}
+```
+- Ensure the nftables configuration, most likely `/etc/nftables.conf`, contains at least:
+```nft
+#!/usr/sbin/nft -f
+   
+# Clean
+flush ruleset
+   
+# IPv4 filtering
+table filter {
+   chain input {
+       type filter hook input priority 0;
+       ct state invalid counter drop
+       ct state {established, related} counter accept
+       iif lo accept
+       <PUT YOUR FIREWALL RULES HERE>  
+   }
+   chain forward {
+       type filter hook forward priority filter
+       policy drop
+       ct state invalid counter drop
+       ct state {established, related} counter accept
+       iifname "docker0" oifname "docker0" counter accept comment "Docker default bridge ICC"
+       iifname "br-*" oifname "br-*" counter accept comment "Docker Compose / user-defined bridge ICC"
+   }
+}
+```
+- The docker service should start after nftables and restart on nftables restart:
+```bash
+mkdir systemd/system/docker.service.d
+# If your distro is not Debian: check that the names in After and PartOf are correct !!
+cat > systemd/system/docker.service.d/override.conf << EOF
+[Unit]
+After=network-online.target nss-lookup.target docker.socket nftables.service containerd.service time-set.target
+PartOf=nftables.service
+EOF
+systemctl daemon-reload
+systemctl restart nftables
+systemctl restart docker
+```
 
 ## Starting Docker Compose
 
