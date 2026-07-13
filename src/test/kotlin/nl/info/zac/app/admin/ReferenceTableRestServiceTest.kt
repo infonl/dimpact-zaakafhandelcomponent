@@ -161,10 +161,10 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                     with(updatedRestReferenceTable) {
                         id shouldBe updatedReferenceTable.id
                         code shouldBe updatedReferenceTable.code
-                        naam shouldBe updatedReferenceTable.name
-                        systeem shouldBe updatedReferenceTable.isSystemReferenceTable
-                        aantalWaarden shouldBe updatedReferenceTable.values.size
-                        waarden.size shouldBe updatedReferenceTable.values.size
+                        name shouldBe updatedReferenceTable.name
+                        isSystemTable shouldBe updatedReferenceTable.isSystemReferenceTable
+                        valuesCount shouldBe updatedReferenceTable.values.size
+                        values.size shouldBe updatedReferenceTable.values.size
                     }
                     with(updatedReferenceTableSlot.captured) {
                         code shouldBe referenceTable.code

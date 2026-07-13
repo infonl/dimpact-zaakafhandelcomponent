@@ -59,7 +59,7 @@ class ReferenceTableRestService @Inject constructor(
     }
 
     @POST
-    fun createReferenceTable(restReferenceTable: RestReferenceTable): RestReferenceTable {
+    fun createReferenceTable(@Valid restReferenceTable: RestReferenceTable): RestReferenceTable {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return referenceTableAdminService.createReferenceTable(
             restReferenceTable.toReferenceTable()
@@ -175,8 +175,8 @@ class ReferenceTableRestService @Inject constructor(
                 code = it.uppercase()
             }
         }
-        name = restReferenceTableUpdate.naam
-        values = restReferenceTableUpdate.waarden
+        name = restReferenceTableUpdate.name
+        values = restReferenceTableUpdate.values
             .map { it.toReferenceTableValue(this) }
             .toMutableList()
     }

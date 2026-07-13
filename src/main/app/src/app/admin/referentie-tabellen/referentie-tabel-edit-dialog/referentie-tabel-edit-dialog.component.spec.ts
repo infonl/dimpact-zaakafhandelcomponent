@@ -26,8 +26,8 @@ import { ReferentieTabelEditDialogComponent } from "./referentie-tabel-edit-dial
 const tabel = fromPartial<GeneratedType<"RestReferenceTable">>({
   id: 1,
   code: "TABEL_A",
-  naam: "Tabel A",
-  waarden: [{ id: 10, naam: "Waarde A1" }],
+  name: "Tabel A",
+  values: [{ id: 10, name: "Waarde A1" }],
 });
 
 async function setup() {
@@ -68,7 +68,7 @@ describe(ReferentieTabelEditDialogComponent.name, () => {
     const { component } = await setup();
     expect(component["form"].getRawValue()).toEqual({
       code: "TABEL_A",
-      naam: "Tabel A",
+      name: "Tabel A",
     });
     expect(component["form"].controls.code.disabled).toBe(true);
   });
@@ -81,7 +81,20 @@ describe(ReferentieTabelEditDialogComponent.name, () => {
 
   it("does not submit when the name is cleared (invalid)", async () => {
     const { component, httpTestingController } = await setup();
-    component["form"].controls.naam.setValue("");
+    component["form"].controls.name.setValue("");
+    component["submit"]();
+    httpTestingController.expectNone("/rest/referentietabellen/1");
+  });
+
+  it("accepts a name of 256 characters but does not submit a longer one", async () => {
+    const { component, httpTestingController } = await setup();
+
+    component["form"].controls.name.setValue("a".repeat(256));
+    expect(component["form"].valid).toBe(true);
+
+    component["form"].controls.name.setValue("a".repeat(257));
+    expect(component["form"].controls.name.invalid).toBe(true);
+
     component["submit"]();
     httpTestingController.expectNone("/rest/referentietabellen/1");
   });
@@ -89,7 +102,7 @@ describe(ReferentieTabelEditDialogComponent.name, () => {
   it("updates the name (keeping code and values), closes with true and shows a snackbar", async () => {
     const { component, httpTestingController, dialogRef, openSnackbar } =
       await setup();
-    component["form"].controls.naam.setValue("Tabel A gewijzigd");
+    component["form"].controls.name.setValue("Tabel A gewijzigd");
     component["form"].markAsDirty();
 
     component["submit"]();
@@ -101,8 +114,8 @@ describe(ReferentieTabelEditDialogComponent.name, () => {
     expect(request.request.method).toBe("PUT");
     expect(request.request.body).toEqual({
       code: "TABEL_A",
-      naam: "Tabel A gewijzigd",
-      waarden: [{ id: 10, naam: "Waarde A1" }],
+      name: "Tabel A gewijzigd",
+      values: [{ id: 10, name: "Waarde A1" }],
     });
     request.flush({});
     await sleep();

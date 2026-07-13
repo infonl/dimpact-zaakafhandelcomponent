@@ -30,6 +30,7 @@ import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 
 @Suppress("MagicNumber")
@@ -61,46 +62,46 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                         """
                         [
                             {
-                                "aantalWaarden": 5,
+                                "valuesCount": 5,
                                 "code": "$REFERENCE_TABLE_ADVIES_CODE", 
-                                "naam": "$REFERENCE_TABLE_ADVIES_NAME", 
-                                "systeem": true
+                                "name": "$REFERENCE_TABLE_ADVIES_NAME", 
+                                "systemTable": true
                             },
                             {
-                                "aantalWaarden": 0,
+                                "valuesCount": 0,
                                 "code": "$REFERENCE_TABLE_AFZENDER_CODE", 
-                                "naam": "$REFERENCE_TABLE_AFZENDER_NAME", 
-                                "systeem": true
+                                "name": "$REFERENCE_TABLE_AFZENDER_NAME", 
+                                "systemTable": true
                             },
                             {
-                                "aantalWaarden": 15,
+                                "valuesCount": 15,
                                 "code": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_CODE",
-                                "naam": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_NAAM",
-                                "systeem": true
+                                "name": "$REFERENCE_TABLE_BRP_DOELBINDING_RAADPLEEG_WAARDE_NAAM",
+                                "systemTable": true
                             },
                             {
-                                "aantalWaarden": 4,
+                                "valuesCount": 4,
                                 "code": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_CODE",
-                                "naam": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_NAAM",
-                                "systeem": true
+                                "name": "$REFERENCE_TABLE_BRP_DOELBINDING_ZOEK_WAARDE_NAAM",
+                                "systemTable": true
                             },
                             {
-                                "aantalWaarden": 1,
+                                "valuesCount": 1,
                                 "code": "$REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_CODE",
-                                "naam": "$REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_NAAM",
-                                "systeem": true
+                                "name": "$REFERENCE_TABLE_BRP_VERWERKINGSREGISTER_WAARDE_NAAM",
+                                "systemTable": true
                             },
                             {
-                                "aantalWaarden": 8,
+                                "valuesCount": 8,
                                 "code": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE", 
-                                "naam": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME", 
-                                "systeem": true
+                                "name": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME", 
+                                "systemTable": true
                             },                
                             {
-                                "aantalWaarden": 0,
+                                "valuesCount": 0,
                                 "code": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE", 
-                                "naam": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME", 
-                                "systeem": true
+                                "name": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_NAME", 
+                                "systemTable": true
                             }
                         ]
                         """.trimIndent()
@@ -146,18 +147,18 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                         """
                         {
                             "code": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_CODE",
-                            "naam": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME",
-                            "systeem": true,
-                            "aantalWaarden": 8,
-                            "waarden": [
-                                {"naam": "Balie", "systemValue": false},
-                                {"naam": "E-formulier", "systemValue": true},
-                                {"naam": "E-mail", "systemValue": false},
-                                {"naam": "Intern", "systemValue": false},
-                                {"naam": "Internet", "systemValue": false},
-                                {"naam": "Medewerkersportaal", "systemValue": false},
-                                {"naam": "Post", "systemValue": false},
-                                {"naam": "Telefoon", "systemValue": false}
+                            "name": "$REFERENCE_TABLE_COMMUNICATIEKANAAL_NAME",
+                            "systemTable": true,
+                            "valuesCount": 8,
+                            "values": [
+                                {"name": "Balie", "systemValue": false},
+                                {"name": "E-formulier", "systemValue": true},
+                                {"name": "E-mail", "systemValue": false},
+                                {"name": "Intern", "systemValue": false},
+                                {"name": "Internet", "systemValue": false},
+                                {"name": "Medewerkersportaal", "systemValue": false},
+                                {"name": "Post", "systemValue": false},
+                                {"name": "Telefoon", "systemValue": false}
                             ]
                         }
                         """.trimIndent()
@@ -218,8 +219,8 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/referentietabellen/$serverErrorTextErrorReferenceTableId",
                 requestBodyAsString = """
                     {       
-                        "naam": "Updated server error error pagina tekst",
-                        "waarden":[{"naam":"fakeServerErrorErrorPageText"}]
+                        "name": "Updated server error error pagina tekst",
+                        "values":[ {"name":"fakeServerErrorErrorPageText"} ]
                     }
                 """.trimIndent(),
                 testUser = BEHEERDER_1,
@@ -234,10 +235,10 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                         """
                         {
                             "code": "$REFERENCE_TABLE_SERVER_ERROR_ERROR_PAGINA_TEKST_CODE",
-                            "naam": "Updated server error error pagina tekst",
-                            "systeem": true,
-                            "aantalWaarden": 1,
-                            "waarden": [{"naam": "fakeServerErrorErrorPageText", "systemValue": false}]
+                            "name": "Updated server error error pagina tekst",
+                            "systemTable": true,
+                            "valuesCount": 1,
+                            "values": [ {"name": "fakeServerErrorErrorPageText", "systemValue": false} ]
                         }
                         """.trimIndent()
                     )
@@ -265,6 +266,46 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
         }
 
+        When("a new reference table is added with a code and naam exceeding the maximum length") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/referentietabellen",
+                requestBodyAsString = """
+                    {
+                    "code": "${"a".repeat(257)}",
+                    "name": "${"a".repeat(257)}",
+                    "values": []
+                    }
+                """.trimIndent(),
+                testUser = BEHEERDER_1,
+            )
+
+            Then("the response should be 'bad request'") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_BAD_REQUEST
+            }
+        }
+
+        When("a new reference table is added with a value name exceeding the maximum length") {
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/referentietabellen",
+                requestBodyAsString = """
+                    {
+                    "code": "fakeReferenceTableCode2",
+                    "name": "fakeReferenceTableName2",
+                    "values": [{"name": "${"a".repeat(1001)}"}]
+                    }
+                """.trimIndent(),
+                testUser = BEHEERDER_1,
+            )
+
+            Then("the response should be 'bad request'") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_BAD_REQUEST
+            }
+        }
+
         When("a new reference table is added") {
             val referenceTableCode = "fakeReferenceTableCode1"
             val referenceTableName = "fakeReferenceTableName1"
@@ -273,8 +314,8 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     {       
                     "code": "$referenceTableCode",
-                    "naam": "$referenceTableName",
-                    "waarden":[{"naam":"fakeReferenceTableValue1"}, {"naam":"fakeReferenceTableValue2"}]
+                    "name": "$referenceTableName",
+                    "values": [{"name":"fakeReferenceTableValue1"}, {"name":"fakeReferenceTableValue2"}]
                     }
                 """.trimIndent(),
                 testUser = BEHEERDER_1,
@@ -289,12 +330,12 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                         """
                         {
                             "code": "${referenceTableCode.uppercase()}",
-                            "naam": "$referenceTableName",
-                            "systeem": false,
-                            "aantalWaarden": 2,
-                            "waarden": [
-                                {"naam": "fakeReferenceTableValue1", "systemValue": false},
-                                {"naam": "fakeReferenceTableValue2", "systemValue": false}
+                            "name": "$referenceTableName",
+                            "systemTable": false,
+                            "valuesCount": 2,
+                            "values": [
+                                {"name": "fakeReferenceTableValue1", "systemValue": false},
+                                {"name": "fakeReferenceTableValue2", "systemValue": false}
                             ]
                         }
                         """.trimIndent()

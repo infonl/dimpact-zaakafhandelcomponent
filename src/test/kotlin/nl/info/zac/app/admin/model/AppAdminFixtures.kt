@@ -32,10 +32,10 @@ fun createRestReferenceTable(
 ) = RestReferenceTable(
     id = id,
     code = code,
-    naam = naam,
-    systeem = systeem,
-    aantalWaarden = aantalWaarden,
-    waarden = waarden
+    name = naam,
+    isSystemTable = systeem,
+    valuesCount = aantalWaarden,
+    values = waarden
 )
 
 fun createRestReferenceTableUpdate(
@@ -46,9 +46,9 @@ fun createRestReferenceTableUpdate(
         createRestReferenceTableValue()
     )
 ) = RestReferenceTableUpdate(
-    naam = naam,
+    name = naam,
     code = code,
-    waarden = waarden
+    values = waarden
 )
 
 fun createRestReferenceTableValue(
@@ -57,7 +57,7 @@ fun createRestReferenceTableValue(
     isSystemValue: Boolean = false
 ) = RestReferenceTableValue(
     id = id,
-    naam = name,
+    name = name,
     isSystemValue = isSystemValue
 )
 

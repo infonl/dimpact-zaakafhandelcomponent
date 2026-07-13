@@ -29,7 +29,7 @@ import { ReferentieTabelService } from "../../../referentie-tabel.service";
 
 export interface ReferentieTabelValueDialogData {
   tabel: GeneratedType<"RestReferenceTable">;
-  waarde?: GeneratedType<"RestReferenceTableValue">;
+  value?: GeneratedType<"RestReferenceTableValue">;
 }
 
 @Component({
@@ -58,14 +58,14 @@ export class ReferentieTabelValueDialogComponent {
   private readonly service = inject(ReferentieTabelService);
   private readonly utilService = inject(UtilService);
 
-  protected readonly isEdit = this.data.waarde != null;
+  protected readonly isEdit = this.data.value != null;
   protected readonly titel = this.isEdit
     ? "referentietabel.waarde-titel-wijzigen"
     : "referentietabel.waarde-toevoegen";
   protected readonly icoon = this.isEdit ? "edit" : "add_circle";
 
   protected readonly form = new FormGroup({
-    naam: new FormControl(this.data.waarde?.naam ?? "", {
+    name: new FormControl(this.data.value?.name ?? "", {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(1000)],
     }),
@@ -88,7 +88,7 @@ export class ReferentieTabelValueDialogComponent {
         this.isEdit
           ? "msg.referentietabel.waarde-gewijzigd"
           : "msg.referentietabel.waarde-toegevoegd",
-        { waarde: this.form.getRawValue().naam },
+        { value: this.form.getRawValue().name },
       );
       this.dialogRef.close(true);
     },
@@ -106,15 +106,15 @@ export class ReferentieTabelValueDialogComponent {
   }
 
   private buildBody(): GeneratedType<"RestReferenceTableUpdate"> {
-    const { tabel, waarde } = this.data;
-    const naam = this.form.getRawValue().naam;
+    const { tabel, value } = this.data;
+    const name = this.form.getRawValue().name;
     const existing: GeneratedType<"RestReferenceTableValue">[] =
-      tabel.waarden ?? [];
-    const waarden = waarde
+      tabel.values ?? [];
+    const values = value
       ? existing.map((current) =>
-          current.id === waarde.id ? { ...current, naam } : current,
+          current.id === value.id ? { ...current, name } : current,
         )
-      : [...existing, { naam }];
-    return { code: tabel.code, naam: tabel.naam, waarden };
+      : [...existing, { name }];
+    return { code: tabel.code, name: tabel.name, values };
   }
 }

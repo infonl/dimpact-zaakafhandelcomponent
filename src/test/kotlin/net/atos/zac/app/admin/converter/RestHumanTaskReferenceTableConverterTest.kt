@@ -70,7 +70,7 @@ class RestHumanTaskReferenceTableConverterTest : BehaviorSpec({
             val restEntry = net.atos.zac.app.admin.model.RestHumanTaskReferenceTable().apply {
                 id = 5L
                 veld = "fakeVeld"
-                tabel = RestReferenceTable(id = 99L, code = "fakeCode", naam = "fakeNaam")
+                tabel = RestReferenceTable(id = 99L, code = "fakeCode", name = "fakeNaam")
             }
             every { referenceTableService.readReferenceTable(99L) } returns fakeReferenceTable
 

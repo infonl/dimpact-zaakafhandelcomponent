@@ -212,11 +212,11 @@ class ZacClient(
                     {
                       "veld": "ADVIES",
                       "tabel": {
-                        "aantalWaarden": 5,
+                        "valuesCount": 5,
                         "code": "ADVIES",
                         "id": 1,
-                        "naam": "Advies",
-                        "systeem": true
+                        "name": "Advies",
+                        "systemTable": true
                       }
                     }
                   ],

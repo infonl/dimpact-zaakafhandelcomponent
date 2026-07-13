@@ -65,13 +65,13 @@
                     (click)="toggle(tabel)"
                   >
                     <span class="tabel-code">{{ tabel.code }}</span>
-                    <span class="tabel-naam">{{ tabel.naam }}</span>
+                    <span class="tabel-naam">{{ tabel.name }}</span>
                   </div>
                   <span
                     class="tabel-count tabel-toggle"
                     (click)="toggle(tabel)"
                   >
-                    {{ "rijen" | translate }} ({{ tabel.aantalWaarden }})
+                    {{ "rijen" | translate }} ({{ tabel.valuesCount }})
                   </span>
                   <div class="tabel-actions flex-row items-center">
                     <button
@@ -83,7 +83,7 @@
                     </button>
                     <span
                       [matTooltip]="
-                        tabel.systeem
+                        tabel.systemTable
                           ? ('referentietabel.systeem.niet-verwijderbaar'
                             | translate)
                           : ('actie.verwijderen' | translate)
@@ -91,7 +91,7 @@
                     >
                       <button
                         mat-icon-button
-                        [disabled]="tabel.systeem"
+                        [disabled]="tabel.systemTable"
                         (click)="verwijderReferentieTabel(tabel)"
                       >
                         <mat-icon>delete</mat-icon>
@@ -100,7 +100,7 @@
                   </div>
                 </div>
                 <div [hidden]="expandedId() !== tabel.id">
-                  @if (isLoadingWaarden(tabel)) {
+                  @if (isLoadingValues(tabel)) {
                     <div
                       class="loading-shade flex-row justify-center items-center"
                     >
