@@ -479,4 +479,104 @@ class SearchServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("A logged-in user and OR zoek velden for zaak identificatie and omschrijving") {
+        val searchText = "fakeSearchText"
+        val zaakType = "fakeZaaktype"
+        val queryResponse = mockk<QueryResponse>()
+        val solrDocumentList = mockk<SolrDocumentList>()
+        val solrDocument = mockk<SolrDocument>()
+        val documentObjectBinder = mockk<DocumentObjectBinder>()
+        val zaakZoekObject = mockk<ZaakZoekObject>()
+        val solrParamsSlot = slot<SolrParams>()
+        val loggedInUser = createLoggedInUser(
+            applicationRolesPerZaaktype = mapOf(
+                zaakType to setOf("fakeApplicationRole")
+            )
+        )
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { queryResponse.results } returns solrDocumentList
+        every { solrDocumentList.size } returns 1
+        every {
+            solrDocumentList.iterator()
+        } returns listOf(solrDocument).iterator() as MutableIterator<SolrDocument>
+        every { solrDocument["type"] } returns "ZAAK"
+        every { solrClient.binder } returns documentObjectBinder
+        every { documentObjectBinder.getBean(ZaakZoekObject::class.java, solrDocument) } returns zaakZoekObject
+        every { solrDocumentList.numFound } returns 1
+        every { queryResponse.facetFields } returns emptyList()
+
+        When("searching with OR zoek velden for identificatie and omschrijving") {
+            zoekService.zoek(
+                createZoekParameters(zoekObjectType = ZoekObjectType.ZAAK).apply {
+                    addOrZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, searchText)
+                    addOrZoekVeld(ZoekVeld.ZAAK_OMSCHRIJVING, searchText)
+                }
+            )
+
+            Then("it should produce a single OR filter query for both fields") {
+                val filterQueries = solrParamsSlot.captured.getParams("fq")
+                val orFilterQuery = filterQueries.single {
+                    it.contains("zaak_identificatie") && it.contains("zaak_omschrijving")
+                }
+                orFilterQuery shouldBe "zaak_identificatie:" +
+                    "(*$searchText* OR *${searchText.uppercase()}* OR *${searchText.lowercase()})" +
+                    " OR zaak_omschrijving:($searchText)"
+            }
+        }
+
+        When("searching with a single OR zoek veld for identificatie") {
+            zoekService.zoek(
+                createZoekParameters(zoekObjectType = ZoekObjectType.ZAAK).apply {
+                    addOrZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, searchText)
+                }
+            )
+
+            Then("it should produce a single filter query without OR") {
+                val filterQueries = solrParamsSlot.captured.getParams("fq")
+                val identifierFilterQuery = filterQueries.single { it.contains("zaak_identificatie") }
+                identifierFilterQuery shouldBe "zaak_identificatie:" +
+                    "(*$searchText* OR *${searchText.uppercase()}* OR *${searchText.lowercase()})"
+            }
+        }
+
+        When("searching with OR zoek velden where one has blank text") {
+            zoekService.zoek(
+                createZoekParameters(zoekObjectType = ZoekObjectType.ZAAK).apply {
+                    addOrZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, searchText)
+                    addOrZoekVeld(ZoekVeld.ZAAK_OMSCHRIJVING, "  ")
+                }
+            )
+
+            Then("the blank field should be excluded from the filter query") {
+                val filterQueries = solrParamsSlot.captured.getParams("fq")
+                val identifierFilterQuery = filterQueries.single { it.contains("zaak_identificatie") }
+                identifierFilterQuery shouldNotInclude "zaak_omschrijving"
+            }
+        }
+
+        When("searching with both AND and OR zoek velden") {
+            val andSearchText = "fakeAndSearchText"
+            zoekService.zoek(
+                createZoekParameters(zoekObjectType = ZoekObjectType.ZAAK).apply {
+                    addZoekVeld(ZoekVeld.ZAAK_TOELICHTING, andSearchText)
+                    addOrZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, searchText)
+                    addOrZoekVeld(ZoekVeld.ZAAK_OMSCHRIJVING, searchText)
+                }
+            )
+
+            Then("it should produce separate filter queries for AND and OR fields") {
+                val filterQueries = solrParamsSlot.captured.getParams("fq")
+                filterQueries.single { it.contains("zaak_toelichting") } shouldBe
+                    "zaak_toelichting:($andSearchText)"
+                filterQueries.single {
+                    it.contains("zaak_identificatie") && it.contains("zaak_omschrijving")
+                } shouldBe "zaak_identificatie:" +
+                    "(*$searchText* OR *${searchText.uppercase()}* OR *${searchText.lowercase()})" +
+                    " OR zaak_omschrijving:($searchText)"
+            }
+        }
+    }
 })
