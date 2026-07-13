@@ -30,8 +30,20 @@ import { ReferentieTabelEditDialogComponent } from "./referentie-tabel-edit-dial
 import { ReferentieTabellenComponent } from "./referentie-tabellen.component";
 
 const tabellen = fromPartial<GeneratedType<"RestReferenceTable">[]>([
-  { id: 1, code: "TABEL_A", name: "Tabel A", systemTable: false, valuesCount: 2 },
-  { id: 2, code: "TABEL_B", name: "Tabel B", systemTable: true, valuesCount: 1 },
+  {
+    id: 1,
+    code: "TABEL_A",
+    name: "Tabel A",
+    systemTable: false,
+    valuesCount: 2,
+  },
+  {
+    id: 2,
+    code: "TABEL_B",
+    name: "Tabel B",
+    systemTable: true,
+    valuesCount: 1,
+  },
 ]);
 
 const geladenTabelA = fromPartial<GeneratedType<"RestReferenceTable">>({
