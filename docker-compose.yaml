@@ -464,7 +464,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: greenmail/standalone:2.1.9@sha256:3ac5a83dd6727cf95e4d50e18907fb8ee7bbf5f67e8534714dee2fb1b5b2e1d4
+    image: greenmail/standalone:2.1.10@sha256:e14c74ed55891afda7b9d8a8bc476af605175871b8a6dd0c5bd578f3f6db9d2b
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
