@@ -867,7 +867,11 @@ tasks {
         description = "Generates a WildFly bootable JAR"
         group = "build"
         dependsOn("war")
-        execGoal("wildfly:package")
+        // Gradle already tracks the relevant inputs (WAR, pom.xml, wildfly/*.cli) and only re-runs
+        // this task when one of them changes. Without this flag, the wildfly-maven-plugin would still
+        // silently skip provisioning a new server whenever 'target/server' already exists from a
+        // previous run, leaving Gradle's invalidation decision without effect.
+        execGoal("wildfly:package", "-Dwildfly.provisioning.overwrite-provisioned-server=true")
 
         val wildflyResources = srcResources.dir("wildfly")
         inputs.files(wildflyResources.asFileTree)
