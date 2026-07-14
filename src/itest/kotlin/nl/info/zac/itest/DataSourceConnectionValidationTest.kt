@@ -30,10 +30,7 @@ class DataSourceConnectionValidationTest : BehaviorSpec({
             testUser = BEHEERDER_1,
         ).code shouldBe HTTP_OK
 
-        When(
-            """all PostgreSQL backend connections to the zac database are terminated
-                and the reference tables are requested again"""
-        ) {
+        And("all connections to the zac database are lost") {
             val databaseContainer = dockerComposeContainer
                 .getContainerByServiceName(ZAC_DATABASE_CONTAINER_SERVICE_NAME)
                 .get()
@@ -47,15 +44,17 @@ class DataSourceConnectionValidationTest : BehaviorSpec({
                 "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'zac' AND pid <> pg_backend_pid();"
             )
             logger.info { "pg_terminate_backend stdout: ${execResult.stdout}, stderr: ${execResult.stderr}" }
+            execResult.exitCode shouldBe 0
+        }
+
+        When(
+            """the reference tables are requested again"""
+        ) {
 
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen",
                 testUser = BEHEERDER_1,
             )
-
-            Then("the terminate command should succeed") {
-                execResult.exitCode shouldBe 0
-            }
 
             Then(
                 """the request still succeeds because the connection pool detects the
