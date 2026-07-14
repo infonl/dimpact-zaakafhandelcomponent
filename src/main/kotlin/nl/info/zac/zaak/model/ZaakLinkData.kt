@@ -31,6 +31,24 @@ fun Zaak.toZaakLinkData(rechten: ZaakRechten) = ZaakLinkData(
     koppelen = rechten.koppelen
 )
 
+fun ZaakLinkData.canBeRelatedTo(to: ZaakLinkData): Boolean =
+    allowGerelateerd(this, to)
+
+fun ZaakLinkData.canBeHoofdzaakFor(
+    deelzaak: ZaakLinkData,
+    allowedDeelzaaktypes: Set<UUID>
+): Boolean =
+    allowHoofdAndDeelzaak(this, deelzaak) &&
+        canBeHoofdzaak(this) &&
+        canBeNewDeelzaak(deelzaak) &&
+        allowedDeelzaaktypes.contains(deelzaak.zaaktypeUUID)
+
+fun ZaakLinkData.canBeUnlinkedFromDeelzaak(deelzaak: ZaakLinkData) =
+    allowHoofdAndDeelzaak(this, deelzaak)
+
+fun ZaakLinkData.canBeUnlinkedFromRelatedZaak(to: ZaakLinkData) =
+    allowGerelateerd(this, to)
+
 private fun allowGerelateerd(from: ZaakLinkData, to: ZaakLinkData) =
     from.koppelen && to.lezen
 
@@ -42,21 +60,3 @@ private fun canBeHoofdzaak(zaak: ZaakLinkData): Boolean = !zaak.isDeelzaak
 
 // a deelzaak CANNOT be a deelzaak to multiple hoofdzaken, and CANNOT be a hoofdzaak itself
 private fun canBeNewDeelzaak(zaak: ZaakLinkData): Boolean = !zaak.isDeelzaak && !zaak.isHoofdzaak
-
-fun ZaakLinkData.canBeRelatedTo(to: ZaakLinkData): Boolean =
-    allowGerelateerd(this, to)
-
-fun ZaakLinkData.canBeHoofdzaakFor(
-    deelzaak: ZaakLinkData,
-    allowedDeelzaaktypes: Set<UUID>
-): Boolean =
-    allowHoofdAndDeelzaak(this, deelzaak) &&
-            canBeHoofdzaak(this) &&
-            canBeNewDeelzaak(deelzaak) &&
-            allowedDeelzaaktypes.contains(deelzaak.zaaktypeUUID)
-
-fun ZaakLinkData.canBeUnlinkedFromDeelzaak(deelzaak: ZaakLinkData) =
-    allowHoofdAndDeelzaak(this, deelzaak)
-
-fun ZaakLinkData.canBeUnlinkedFromRelatedZaak(to: ZaakLinkData) =
-    allowGerelateerd(this, to)
