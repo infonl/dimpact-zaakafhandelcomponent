@@ -1,6 +1,8 @@
 # Inrichting Zaakafhandelcomponent
 
-The manual is in [inrichting-zaakafhandelcomponent.md](./inrichting-zaakafhandelcomponent.md).
+The most recent version of the ZAC setup manual is in [inrichting-zaakafhandelcomponent.md](./inrichting-zaakafhandelcomponent.md) (Dutch only.
+
+Versions for specific releases of ZAC can be found as PDF files in this folder. 
 
 ## Updating the table of contents
 

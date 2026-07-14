@@ -1,6 +1,8 @@
 # ZAC Gebruikershandleiding
 
-The manual is in [ZAC-gebruikershandleiding.md](./ZAC-gebruikershandleiding.md).
+The most recent version of the end-user manual is in [ZAC-gebruikershandleiding.md](./ZAC-gebruikershandleiding.md) (Dutch only).
+
+Versions for specific releases of ZAC can be found as PDF files in this folder.
 
 ## Updating the table of contents
 
