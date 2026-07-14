@@ -61,8 +61,9 @@ class ZgwApiService @Inject constructor(
         const val ZAAK_OBJECT_DELETION_PREFIX = "Verwijderd"
 
         /**
-         * The role type omschrijving that ZAC interprets as a (zaak) behandelaar.
-         * This only applies to role types that also have the 'omschrijving generiek' set to [OmschrijvingGeneriekEnum.BEHANDELAAR].
+         * The role type description for a zaak behandelaar in ZAC.
+         * ZAC requires that the behandelaar role type has this exact rol descripton _and_ has the 'omschrijving generiek' set to [OmschrijvingGeneriekEnum.BEHANDELAAR].
+         * This so that ZAC can support other non-behandelaar role types with this same 'omschrijving generiek' but with a different description.
          */
         const val ROLTYPE_OMSCHRIJVING_BEHANDELAAR = "Behandelaar"
 

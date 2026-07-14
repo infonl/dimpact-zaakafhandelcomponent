@@ -255,9 +255,9 @@ class ZaakService @Inject constructor(
         RolMedewerker(
             zaak.url,
             ztcClientService.readRoltype(
-                zaak.zaaktype,
-                OmschrijvingGeneriekEnum.BEHANDELAAR,
-                "Behandelaar" // TODO: filter on Behandelaar roltype
+                zaaktypeURI = zaak.zaaktype,
+                omschrijvingGeneriekEnum = OmschrijvingGeneriekEnum.BEHANDELAAR,
+                omschrijving = ROLTYPE_OMSCHRIJVING_BEHANDELAAR
             ),
             "Behandelaar van de zaak",
             MedewerkerIdentificatie().apply {
