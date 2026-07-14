@@ -13,7 +13,7 @@ import java.util.UUID
 
 class RESTFindLinkableZakenRequest {
     @PathParam("zaakUuid")
-    @field:NotBlank
+    @field:jakarta.validation.constraints.NotNull
     lateinit var zaakUuid: UUID
 
     @QueryParam("zoekZaakIdentifier")
@@ -21,12 +21,14 @@ class RESTFindLinkableZakenRequest {
     lateinit var zoekZaakIdentifier: String
 
     @QueryParam("relationType")
-    @field:NotBlank
+    @field:jakarta.validation.constraints.NotNull
     lateinit var relationType: RelatieType
 
     @QueryParam("page") @DefaultValue("0")
+    @field:jakarta.validation.constraints.PositiveOrZero
     var page: Int = 0
 
     @QueryParam("rows") @DefaultValue("10")
+    @field:jakarta.validation.constraints.Positive
     var rows: Int = 10
 }
