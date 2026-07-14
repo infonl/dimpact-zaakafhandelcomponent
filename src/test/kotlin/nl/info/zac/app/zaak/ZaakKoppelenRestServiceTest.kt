@@ -37,11 +37,7 @@ import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.SearchService
-import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
-import nl.info.zac.search.model.ZaakIndicatie.HOOFDZAAK
-import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekResultaat
-import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType.ZAAK
 import nl.info.zac.zaak.ZaakService
