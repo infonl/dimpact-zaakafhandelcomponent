@@ -25,8 +25,6 @@
 }
 
 .mat-column-status,
-.mat-column-zaak-identificatie,
-.mat-column-zaakIdentificatie,
 .mat-column-zaaktype,
 .mat-column-zaaktypeOmschrijving,
 .mat-column-naam,
@@ -40,6 +38,29 @@
   min-width: @min-column-width;
 }
 
+/*
+ * `width: 1%` pins a column to its content width so the auto-layout table never stretches it to fill
+ * leftover viewport space. Every column below is pinned this way, which leaves the free-text description
+ * columns (omschrijving, toelichting, ...) as the ones that absorb that space and clamp their long text
+ * (see the line-clamp rule further down).
+ */
+.mat-column-zaak-identificatie,
+.mat-column-zaakIdentificatie {
+  width: 1%;
+  min-width: @min-column-width;
+  white-space: nowrap;
+}
+
+.mat-column-status,
+.mat-column-zaaktype,
+.mat-column-zaaktypeOmschrijving,
+.mat-column-naam,
+.mat-column-groep,
+.mat-column-behandelaar,
+.mat-column-indicaties {
+  width: 1%;
+}
+
 .mat-column-startdatum,
 .mat-column-creatiedatum,
 .mat-column-fataledatum,
@@ -47,6 +68,7 @@
 .mat-column-uiterlijkeEinddatumAfdoening,
 .mat-column-einddatumGepland,
 .mat-column-registratiedatum {
+  width: 1%;
   min-width: 150px;
   max-width: 220px;
 }
@@ -76,6 +98,7 @@
 
 .mat-column-dagenTotFataledatum,
 .mat-column-dagenTotStreefdatum {
+  width: 1%;
   min-width: 100px;
   max-width: 150px;
 }
