@@ -27,8 +27,9 @@ import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.zac.app.zaak.model.RESTFindLinkableZakenRequest
+import nl.info.zac.app.zaak.model.RestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.RelatieType
+import nl.info.zac.app.zaak.model.createRestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
 import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
 import nl.info.zac.authentication.LoggedInUser
@@ -45,19 +46,8 @@ import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.util.UUID
 
-private const val OMSCHRIJVING = "fakeOmschrijving"
-private const val ZAAK_TYPE_OMSCHRIJVING = "fakeZaakTypeOmschrijving"
-private const val STATUS_TYPE_OMSCHRIJVING = "Afgerond"
-
 class ZaakKoppelenRestServiceTest : BehaviorSpec({
     isolationMode = IsolationMode.InstancePerTest
-    val zoekZaakIdentifier = "ZAAK-2000-00002"
-    val zaakTypeUuid = UUID.randomUUID()
-    val zaakTypeURI = URI(zaakTypeUuid.toString())
-    val zaakZoekObjectTypeUuid = UUID.randomUUID().toString()
-    val page = 0
-    val rows = 10
-
     val eventingService = mockk<EventingService>()
     val indexingService = mockk<IndexingService>()
     val policyService = mockk<PolicyService>()
@@ -83,23 +73,16 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
     Given("A source zaak which is not linked and a target not linked zaak") {
         val sourceZaak = createZaak(
-            identificatie = "ZAAK-2000-00001",
             archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
-            zaaktypeUri = zaakTypeURI
         )
         val zaakZoekObject = createZaakZoekObject(
             type = ZAAK,
-            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
-            identificatie = zoekZaakIdentifier,
-            omschrijving = OMSCHRIJVING,
-            statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
-            zaaktypeUuid = zaakZoekObjectTypeUuid,
             archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
         val zaakType = createZaakType().apply {
-            deelzaaktypen = listOf(URI(zaakZoekObjectTypeUuid))
+            deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
         }
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
@@ -112,13 +95,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                RESTFindLinkableZakenRequest().apply {
-                    this.zaakUuid = sourceZaak.uuid
-                    this.zoekZaakIdentifier = zoekZaakIdentifier
-                    this.relationType = RelatieType.GERELATEERD
-                    this.page = page
-                    this.rows = rows
-                }
+                createRestFindLinkableZakenRequest(
+                    zaakUuid = sourceZaak.uuid,
+                    zoekZaakIdentifier = zaakZoekObject.identificatie,
+                    relationType = RelatieType.GERELATEERD
+                )
             )
 
             Then("a single linkable zaak should be returned") {
@@ -129,10 +110,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
-                    identificatie shouldBe zoekZaakIdentifier
-                    omschrijving shouldBe OMSCHRIJVING
-                    zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
-                    statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
+                    identificatie shouldBe zaakZoekObject.identificatie
+                    omschrijving shouldBe zaakZoekObject.omschrijving
+                    zaaktypeOmschrijving shouldBe zaakZoekObject.zaaktypeOmschrijving
+                    statustypeOmschrijving shouldBe zaakZoekObject.statustypeOmschrijving
                     isKoppelbaar shouldBe true
                 }
             }
@@ -151,17 +132,15 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         When("findLinkableZaken with HOOFDZAAK is called") {
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             every {
-                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
-            } returns listOf(zaakTypeURI)
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObject.zaaktypeUuid)).deelzaaktypen
+            } returns listOf(sourceZaak.zaaktype)
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                RESTFindLinkableZakenRequest().apply {
-                    this.zaakUuid = sourceZaak.uuid
-                    this.zoekZaakIdentifier = zoekZaakIdentifier
-                    this.relationType = RelatieType.HOOFDZAAK
-                    this.page = page
-                    this.rows = rows
-                }
+                createRestFindLinkableZakenRequest(
+                    zaakUuid = sourceZaak.uuid,
+                    zoekZaakIdentifier = zaakZoekObject.identificatie,
+                    relationType = RelatieType.HOOFDZAAK
+                )
             )
 
             Then("a single linkable zaak should be returned") {
@@ -172,10 +151,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
-                    identificatie shouldBe zoekZaakIdentifier
-                    omschrijving shouldBe OMSCHRIJVING
-                    zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
-                    statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
+                    identificatie shouldBe zaakZoekObject.identificatie
+                    omschrijving shouldBe zaakZoekObject.omschrijving
+                    zaaktypeOmschrijving shouldBe zaakZoekObject.zaaktypeOmschrijving
+                    statustypeOmschrijving shouldBe zaakZoekObject.statustypeOmschrijving
                     isKoppelbaar shouldBe true
                 }
             }
@@ -189,7 +168,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
                 verify(exactly = 1) {
-                    ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid))
+                    ztcClientService.readZaaktype(UUID.fromString(zaakZoekObject.zaaktypeUuid)).deelzaaktypen
                 }
             }
         }
@@ -198,13 +177,11 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                RESTFindLinkableZakenRequest().apply {
-                    this.zaakUuid = sourceZaak.uuid
-                    this.zoekZaakIdentifier = zoekZaakIdentifier
-                    this.relationType = RelatieType.DEELZAAK
-                    this.page = page
-                    this.rows = rows
-                }
+                createRestFindLinkableZakenRequest(
+                    zaakUuid = sourceZaak.uuid,
+                    zoekZaakIdentifier = zaakZoekObject.identificatie,
+                    relationType = RelatieType.DEELZAAK
+                )
             )
 
             Then("a single linkable zaak should be returned") {
@@ -215,10 +192,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
-                    identificatie shouldBe zoekZaakIdentifier
-                    omschrijving shouldBe OMSCHRIJVING
-                    zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
-                    statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
+                    identificatie shouldBe zaakZoekObject.identificatie
+                    omschrijving shouldBe zaakZoekObject.omschrijving
+                    zaaktypeOmschrijving shouldBe zaakZoekObject.zaaktypeOmschrijving
+                    statustypeOmschrijving shouldBe zaakZoekObject.statustypeOmschrijving
                     isKoppelbaar shouldBe true
                 }
             }

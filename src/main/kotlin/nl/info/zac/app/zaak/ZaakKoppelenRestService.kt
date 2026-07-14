@@ -27,7 +27,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekResultaat
-import nl.info.zac.app.zaak.model.RESTFindLinkableZakenRequest
+import nl.info.zac.app.zaak.model.RestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestZaakLinkData
 import nl.info.zac.app.zaak.model.RestZaakUnlinkData
@@ -79,7 +79,7 @@ class ZaakKoppelenRestService @Inject constructor(
     @Path("gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken")
     @Suppress("UnusedParameter")
     fun findLinkableZaken(
-        @BeanParam @Valid request: RESTFindLinkableZakenRequest
+        @BeanParam @Valid request: RestFindLinkableZakenRequest
     ): RestZoekResultaat<RestZaakKoppelenZoekObject> {
         val zaak = zrcClientService.readZaak(request.zaakUuid)
         val searchResults = searchService.zoek(
@@ -211,7 +211,7 @@ class ZaakKoppelenRestService @Inject constructor(
 
     private fun buildZoekParameters(
         zaak: Zaak,
-        request: RESTFindLinkableZakenRequest
+        request: RestFindLinkableZakenRequest
     ) = ZoekParameters(ZoekObjectType.ZAAK).apply {
         start = request.page * request.rows
         rows = request.rows
