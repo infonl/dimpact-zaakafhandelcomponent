@@ -18,7 +18,7 @@ class HistoryLine(
     @get:JsonbProperty("oudeWaarde") val oldValue: String?,
     @get:JsonbProperty("nieuweWaarde") val newValue: String?
 ) {
-    @get:JsonbProperty("applicatie")
+    @get:JsonbProperty("datumTijd")
     var zonedDateTime: ZonedDateTime? = null
 
     @get:JsonbProperty("door")
