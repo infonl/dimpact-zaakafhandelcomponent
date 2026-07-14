@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.282](https://img.shields.io/badge/Version-1.0.282-informational?style=flat-square) ![AppVersion: 5.3](https://img.shields.io/badge/AppVersion-5.3-informational?style=flat-square)
+![Version: 1.0.283](https://img.shields.io/badge/Version-1.0.283-informational?style=flat-square) ![AppVersion: 5.3](https://img.shields.io/badge/AppVersion-5.3-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -48,6 +48,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 |-----|------|---------|-------------|
 | affinity | object | `{}` | set affinity parameters |
 | auth.clientId | string | `""` | Client ID and secret as defined in the Keycloak ZAC realm |
+| auth.enablePkce | bool | `false` | Whether to enable PKCE (Proof Key for Code Exchange) for the OpenID Connect authorization code flow. |
 | auth.realm | string | `""` |  |
 | auth.secret | string | `""` |  |
 | auth.server | string | `""` |  |
