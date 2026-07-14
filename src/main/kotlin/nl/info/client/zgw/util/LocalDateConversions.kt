@@ -8,6 +8,4 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-const val DATE_TIME_FORMAT_WITH_MILLISECONDS = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSX"
-
 fun LocalDate.convertToDateTime(): ZonedDateTime = atStartOfDay(ZoneId.systemDefault())

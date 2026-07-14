@@ -12,6 +12,10 @@ import nl.info.client.zgw.zrc.jsonb.DeleteGeoJSONGeometryJsonbSerializer
 import nl.info.client.zgw.zrc.jsonb.RolJsonbDeserializer
 import nl.info.client.zgw.zrc.jsonb.ZaakObjectJsonbDeserializer
 
+/**
+ * JAX-RS provider that configures the Jsonb instance used to (de)serialize ZGW REST client entities,
+ * registering the custom serializers/deserializers required for polymorphic types such as `Rol` and `ZaakObject`.
+ */
 class JsonbConfiguration : ContextResolver<Jsonb> {
     override fun getContext(type: Class<*>): Jsonb = jsonb
 

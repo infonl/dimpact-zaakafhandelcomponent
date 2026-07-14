@@ -11,7 +11,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 
-class DateTimeUtilTest : BehaviorSpec({
+class LocalDateConversionsTest : BehaviorSpec({
     afterEach {
         checkUnnecessaryStub()
     }
