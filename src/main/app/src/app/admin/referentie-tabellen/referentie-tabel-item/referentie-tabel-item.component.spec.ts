@@ -28,10 +28,10 @@ import { ReferentieTabelValueDialogComponent } from "./referentie-tabel-value-di
 const tabel = fromPartial<GeneratedType<"RestReferenceTable">>({
   id: 1,
   code: "TABEL_A",
-  naam: "Tabel A",
-  waarden: [
-    { id: 10, naam: "Waarde A1", systemValue: false },
-    { id: 11, naam: "Waarde A2", systemValue: true },
+  name: "Tabel A",
+  values: [
+    { id: 10, name: "Waarde A1", systemValue: false },
+    { id: 11, name: "Waarde A2", systemValue: true },
   ],
 });
 
@@ -89,7 +89,7 @@ describe(ReferentieTabelItemComponent.name, () => {
     await setup(
       fromPartial<GeneratedType<"RestReferenceTable">>({
         ...tabel,
-        waarden: [],
+        values: [],
       }),
     );
     const rows = await loader.getAllHarnesses(MatRowHarness);
@@ -111,7 +111,7 @@ describe(ReferentieTabelItemComponent.name, () => {
 
   it("opens the value dialog to add a value", async () => {
     await setup();
-    component["addWaarde"]();
+    component["addValue"]();
     expect(dialogOpen).toHaveBeenCalledWith(
       ReferentieTabelValueDialogComponent,
       expect.objectContaining({ data: { tabel } }),
@@ -120,31 +120,31 @@ describe(ReferentieTabelItemComponent.name, () => {
 
   it("opens the value dialog to edit the selected value", async () => {
     await setup();
-    component["editWaarde"](tabel.waarden![0]);
+    component["editValue"](tabel.values![0]);
     expect(dialogOpen).toHaveBeenCalledWith(
       ReferentieTabelValueDialogComponent,
-      expect.objectContaining({ data: { tabel, waarde: tabel.waarden![0] } }),
+      expect.objectContaining({ data: { tabel, value: tabel.values![0] } }),
     );
   });
 
   it("confirms deletion and shows a snackbar when confirmed", async () => {
     await setup(tabel, true);
-    component["deleteWaarde"](tabel.waarden![0]);
+    component["deleteValue"](tabel.values![0]);
 
     const dialogData = dialogOpen.mock.calls[0][1].data;
     expect(dialogData._melding.key).toBe(
       "msg.referentietabel.waarde-verwijderen-bevestigen",
     );
-    expect(dialogData._melding.args).toEqual({ waarde: "Waarde A1" });
+    expect(dialogData._melding.args).toEqual({ value: "Waarde A1" });
     expect(openSnackbar).toHaveBeenCalledWith(
       "msg.referentietabel.waarde-verwijderd",
-      { waarde: "Waarde A1" },
+      { value: "Waarde A1" },
     );
   });
 
   it("does not show a snackbar when deletion is cancelled", async () => {
     await setup(tabel, false);
-    component["deleteWaarde"](tabel.waarden![0]);
+    component["deleteValue"](tabel.values![0]);
     expect(openSnackbar).not.toHaveBeenCalled();
   });
 });

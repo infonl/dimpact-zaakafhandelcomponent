@@ -52,7 +52,7 @@ export class ReferentieTabelCreateDialogComponent {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(256)],
     }),
-    naam: new FormControl("", {
+    name: new FormControl("", {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(256)],
     }),
@@ -72,9 +72,9 @@ export class ReferentieTabelCreateDialogComponent {
     if (this.form.invalid) {
       return;
     }
-    const { code, naam } = this.form.getRawValue();
+    const { code, name } = this.form.getRawValue();
     this.mutation.mutate(
-      { code, naam, systeem: false, waarden: [] },
+      { code, name, systemTable: false, values: [] },
       {
         onSuccess: (created) => {
           this.utilService.openSnackbar("msg.referentietabel.toegevoegd", {

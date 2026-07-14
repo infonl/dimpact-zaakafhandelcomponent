@@ -19,6 +19,7 @@ describe(ZacFormActions.name, () => {
   let loader: HarnessLoader;
   let form: FormGroup;
   let isPendingSignal: ReturnType<typeof signal>;
+  let isSuccessSignal: ReturnType<typeof signal>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -36,9 +37,11 @@ describe(ZacFormActions.name, () => {
     loader = TestbedHarnessEnvironment.loader(fixture);
 
     isPendingSignal = signal(false);
+    isSuccessSignal = signal(false);
     fixture.componentRef.setInput("form", form);
     fixture.componentRef.setInput("mutation", {
       isPending: () => isPendingSignal(),
+      isSuccess: () => isSuccessSignal(),
     });
 
     fixture.detectChanges();
@@ -148,6 +151,59 @@ describe(ZacFormActions.name, () => {
         );
         expect(await cancelButton.isDisabled()).toBe(false);
       });
+    });
+  });
+
+  describe("when the mutation has succeeded", () => {
+    beforeEach(() => {
+      form.markAsDirty();
+      isPendingSignal.set(false);
+      isSuccessSignal.set(true);
+      fixture.detectChanges();
+    });
+
+    it("keeps the submit button enabled by default", async () => {
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.verstuur" }),
+      );
+      expect(await submitButton.isDisabled()).toBe(false);
+    });
+
+    it("disables the submit button when disableAfterSuccess is set", async () => {
+      fixture.componentRef.setInput("disableAfterSuccess", true);
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.verstuur" }),
+      );
+      expect(await submitButton.isDisabled()).toBe(true);
+    });
+
+    it("keeps the cancel button enabled even with disableAfterSuccess", async () => {
+      fixture.componentRef.setInput("disableAfterSuccess", true);
+      fixture.detectChanges();
+
+      const cancelButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.annuleren" }),
+      );
+      expect(await cancelButton.isDisabled()).toBe(false);
+    });
+  });
+
+  describe("when the mutation has failed", () => {
+    beforeEach(() => {
+      form.markAsDirty();
+      fixture.componentRef.setInput("disableAfterSuccess", true);
+      isPendingSignal.set(false);
+      isSuccessSignal.set(false);
+      fixture.detectChanges();
+    });
+
+    it("re-enables the submit button so the action can be retried", async () => {
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.verstuur" }),
+      );
+      expect(await submitButton.isDisabled()).toBe(false);
     });
   });
 

@@ -5,6 +5,7 @@
 
 import { NgTemplateOutlet } from "@angular/common";
 import {
+  booleanAttribute,
   Component,
   computed,
   ElementRef,
@@ -69,11 +70,31 @@ export class ZacFormActions {
    */
   protected readonly mutation = input<{
     isPending: Signal<boolean>;
+    isSuccess: Signal<boolean>;
   }>();
   protected readonly loading = input(false);
 
+  protected readonly disableAfterSuccess = input(false, {
+    transform: booleanAttribute,
+  });
+
   protected isPending() {
     return this.mutation()?.isPending() ?? this.loading();
+  }
+
+  protected isSuccess() {
+    return this.mutation()?.isSuccess() ?? false;
+  }
+
+  protected isSubmitDisabled() {
+    const form = this.form();
+    return (
+      form.disabled ||
+      !form.valid ||
+      !form.dirty ||
+      this.isPending() ||
+      (this.disableAfterSuccess() && this.isSuccess())
+    );
   }
 
   protected readonly onCancel = (event: MouseEvent) => {

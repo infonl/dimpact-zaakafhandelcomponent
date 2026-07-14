@@ -1,0 +1,57 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: Check manual table of contents
+
+on:
+  pull_request:
+    paths:
+      - "docs/manuals/**/*.md"
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !contains(github.ref, 'main') }}
+
+jobs:
+  check-manual-toc:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Install doctoc
+        run: npm install -g doctoc
+
+      - name: Regenerate TOC - ZAC-gebruikershandleiding
+        run: doctoc --github --notitle --maxlevel 3 docs/manuals/ZAC-gebruikershandleiding/ZAC-gebruikershandleiding.md
+
+      - name: Fail if TOC is stale - ZAC-gebruikershandleiding
+        run: |
+          if ! git diff --exit-code docs/manuals/ZAC-gebruikershandleiding/ZAC-gebruikershandleiding.md; then
+            echo ""
+            echo "The table of contents in ZAC-gebruikershandleiding.md is out of date."
+            echo "Run the following script locally and commit the result:"
+            echo ""
+            echo "  docs/manuals/ZAC-gebruikershandleiding/update-toc.sh"
+            exit 1
+          fi
+
+      - name: Regenerate TOC - inrichting-zaakafhandelcomponent
+        run: doctoc --github --notitle --maxlevel 3 docs/manuals/inrichting-zaakafhandelcomponent/inrichting-zaakafhandelcomponent.md
+
+      - name: Fail if TOC is stale - inrichting-zaakafhandelcomponent
+        run: |
+          if ! git diff --exit-code docs/manuals/inrichting-zaakafhandelcomponent/inrichting-zaakafhandelcomponent.md; then
+            echo ""
+            echo "The table of contents in inrichting-zaakafhandelcomponent.md is out of date."
+            echo "Run the following script locally and commit the result:"
+            echo ""
+            echo "  docs/manuals/inrichting-zaakafhandelcomponent/update-toc.sh"
+            exit 1
+          fi

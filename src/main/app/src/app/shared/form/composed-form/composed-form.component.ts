@@ -59,6 +59,10 @@ export class ZacComposedForm<F extends Form> {
   protected readonly config = input<FormConfig>({ hideCancelButton: false });
   protected readonly readonly = input(false, { transform: booleanAttribute });
   protected readonly loading = input(false, { transform: booleanAttribute });
+  protected readonly success = input(false, { transform: booleanAttribute });
+  protected readonly disableAfterSuccess = input(false, {
+    transform: booleanAttribute,
+  });
 
   protected readonly formSubmitted = output<FormGroup<F>>();
   protected readonly formPartiallySubmitted = output<FormGroup<F>>();
@@ -82,6 +86,14 @@ export class ZacComposedForm<F extends Form> {
         }
       }
     });
+  }
+
+  protected isSubmitDisabled() {
+    return (
+      this.form().invalid ||
+      this.loading() ||
+      (this.disableAfterSuccess() && this.success())
+    );
   }
 
   protected submitForm() {

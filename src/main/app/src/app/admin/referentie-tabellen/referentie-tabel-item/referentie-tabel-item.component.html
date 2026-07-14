@@ -4,15 +4,15 @@
   -->
 
 <div class="referentie-tabel-item">
-  <table mat-table [dataSource]="tabel().waarden ?? []">
+  <table mat-table [dataSource]="tabel().values ?? []">
     <ng-container matColumnDef="index">
       <th mat-header-cell *matHeaderCellDef>#</th>
       <td mat-cell *matCellDef="let row; index as i">{{ i + 1 }}</td>
     </ng-container>
 
-    <ng-container matColumnDef="naam">
+    <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>{{ "rij" | translate }}</th>
-      <td mat-cell *matCellDef="let row">{{ row.naam | empty }}</td>
+      <td mat-cell *matCellDef="let row">{{ row.name | empty }}</td>
     </ng-container>
 
     <ng-container matColumnDef="actions" stickyEnd>
@@ -22,7 +22,7 @@
             mat-raised-button
             color="primary"
             [matTooltip]="'actie.toevoegen' | translate"
-            (click)="addWaarde()"
+            (click)="addValue()"
           >
             {{ "referentietabel.waarde-toevoegen" | translate }}
           </button>
@@ -41,7 +41,7 @@
             <button
               mat-icon-button
               [disabled]="row.systemValue"
-              (click)="editWaarde(row)"
+              (click)="editValue(row)"
             >
               <mat-icon>edit</mat-icon>
             </button>
@@ -57,7 +57,7 @@
             <button
               mat-icon-button
               [disabled]="row.systemValue"
-              (click)="deleteWaarde(row)"
+              (click)="deleteValue(row)"
             >
               <mat-icon>delete</mat-icon>
             </button>
@@ -70,7 +70,7 @@
     <tr mat-row *matRowDef="let row; columns: columns"></tr>
   </table>
 
-  @if ((tabel().waarden?.length ?? 0) === 0) {
+  @if ((tabel().values?.length ?? 0) === 0) {
     <p class="no-data">{{ "msg.geen.gegevens.gevonden" | translate }}</p>
   }
 </div>

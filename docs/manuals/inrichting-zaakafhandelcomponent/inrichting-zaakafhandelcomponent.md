@@ -32,42 +32,44 @@ Versiegeschiedenis:
 
 # Inhoud
 
-[*Inrichting Zaakafhandelcomponent*](#inrichting-zaakafhandelcomponent)
-- [Zaakafhandelcomponent](#zaakafhandelcomponent)
-- [Beheerinstellingen](#beheerinstellingen)
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-[*Zaakafhandel-parameters*](#zaakafhandel-parameters)
-- [Werking van de zaakafhandel-parameters](#werking-van-de-zaakafhandel-parameters)
-- [Inrichten van een zaaktype](#inrichten-van-een-zaaktype)
+- [Inrichting Zaakafhandelcomponent](#inrichting-zaakafhandelcomponent)
+  - [Zaakafhandelcomponent](#zaakafhandelcomponent)
+  - [Beheerinstellingen](#beheerinstellingen)
+- [Zaakafhandel-parameters](#zaakafhandel-parameters)
+  - [Werking van de zaakafhandel-parameters](#werking-van-de-zaakafhandel-parameters)
+  - [Inrichten van een zaaktype](#inrichten-van-een-zaaktype)
+  - [CMMN/BPMN](#cmmnbpmn)
+  - [BPMN inrichten](#bpmn-inrichten)
+  - [CMMN inrichten](#cmmn-inrichten)
+- [BPMN Definities](#bpmn-definities)
+- [Referentietabellen](#referentietabellen)
+  - [Referentietabel bewerken](#referentietabel-bewerken)
+- [Mailafzenders](#mailafzenders)
+  - [Werking van de mailafzenders](#werking-van-de-mailafzenders)
+  - [Mailafzender bewerken](#mailafzender-bewerken)
+  - [Mailafzender aan de referentietabel toevoegen](#mailafzender-aan-de-referentietabel-toevoegen)
+- [Mailtemplates](#mailtemplates)
+  - [Werking van de mailtemplates](#werking-van-de-mailtemplates)
+  - [Mailtemplate bewerken](#mailtemplate-bewerken)
+  - [Mailtemplate aanmaken](#mailtemplate-aanmaken)
+- [Inrichtingscheck](#inrichtingscheck)
+  - [Zaaktypecatalogus synchronisatie](#zaaktypecatalogus-synchronisatie)
+  - [Zaaktype inrichtingscheck](#zaaktype-inrichtingscheck)
+  - [Roltypen](#roltypen)
+- [Signaleringen](#signaleringen)
+  - [Werking van de signaleringen](#werking-van-de-signaleringen)
+  - [E-mailadres instellen voor een groep](#e-mailadres-instellen-voor-een-groep)
+  - [Groepsignalering inschakelen](#groepsignalering-inschakelen)
+- [Identiteits- en toegangsbeheer](#identiteits--en-toegangsbeheer)
+  - [IAM architectuur](#iam-architectuur)
+  - [Migratie van de oude naar de nieuwe IAM-architectuur](#migratie-van-de-oude-naar-de-nieuwe-iam-architectuur)
+- [Groepen](#groepen)
+  - [Beheer van groepen](#beheer-van-groepen)
 
-[*Referentietabellen*](#referentietabellen)
-- [Referentietabel bewerken](#referentietabel-bewerken)
-
-[*Mailafzenders*](#mailafzenders)
-- [Werking van de mailafzenders](#werking-van-de-mailafzenders)
-- [Mailafzender bewerken](#mailafzender-bewerken)
-- [Mailafzender aan de referentietabel toevoegen](#mailafzender-aan-de-referentietabel-toevoegen)
-
-[*Mailtemplates*](#mailtemplates)
-- [Werking van de mailtemplates](#werking-van-de-mailtemplates)
-- [Mailtemplate bewerken](#mailtemplate-bewerken)
-- [Mailtemplate aanmaken](#mailtemplate-aanmaken)
-
-[*Inrichtingscheck*](#inrichtingscheck)
-- [Zaaktypecatalogus synchronisatie](#zaaktypecatalogus-synchronisatie)
-- [Zaaktype inrichtingscheck](#zaaktype-inrichtingscheck)
-- [Roltypen](#roltypen)
-
-[*Signaleringen*](#signaleringen)
-- [Werking van de signaleringen](#werking-van-de-signaleringen)
-- [Groepsignalering inschakelen](#groepsignalering-inschakelen)
-
-[*Identiteits- en toegangsbeheer*](#identiteits--en-toegangsbeheer)
-- [Oude IAM architectuur](#oude-iam-architectuur)
-- [Nieuwe IAM architectuur](#nieuwe-iam-architectuur)
-
-[*Groepen*](#groepen)
-- [Beheer van groepen](#beheer-van-groepen)
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Inrichting Zaakafhandelcomponent 
 

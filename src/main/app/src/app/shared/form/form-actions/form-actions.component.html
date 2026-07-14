@@ -24,9 +24,7 @@
     type="submit"
     color="primary"
     class="flex-row gap-8"
-    [disabled]="
-      form().disabled || !form().valid || !form().dirty || isPending()
-    "
+    [disabled]="isSubmitDisabled()"
   >
     @if (isPending()) {
       <mat-icon>

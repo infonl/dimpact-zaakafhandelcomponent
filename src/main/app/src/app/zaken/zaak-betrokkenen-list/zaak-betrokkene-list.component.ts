@@ -4,26 +4,22 @@
  */
 
 import { Component, computed, inject, input } from "@angular/core";
-import { Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
-import { MatDialog } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { KlantenService } from "../../klanten/klanten.service";
-import { DialogData } from "../../shared/dialog/dialog-data";
-import { DialogComponent } from "../../shared/dialog/dialog.component";
-import { TextareaFormFieldBuilder } from "../../shared/material-form-builder/form-components/textarea/textarea-form-field-builder";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { BetrokkeneLinkComponent } from "../zaak-betrokkenen/betrokkene-link.component";
+import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -45,8 +41,7 @@ export class ZaakBetrokkeneListComponent {
   private readonly zakenService = inject(ZakenService);
   private readonly klantenService = inject(KlantenService);
   private readonly websocketService = inject(WebsocketService);
-  private readonly dialog = inject(MatDialog);
-  private readonly translate = inject(TranslateService);
+  private readonly zaakDialogService = inject(ZaakDialogService);
   private readonly utilService = inject(UtilService);
   private readonly queryClient = inject(QueryClient);
   private readonly datumPipe = new DatumPipe("nl");
@@ -126,28 +121,10 @@ export class ZaakBetrokkeneListComponent {
         betrokkene.kvkNummer ??
         betrokkene.bsn ??
         betrokkene.naam);
-    this.dialog
-      .open(DialogComponent, {
-        data: new DialogData<unknown, { reden: string }>({
-          formFields: [
-            new TextareaFormFieldBuilder()
-              .id("reden")
-              .label("reden")
-              .validators(Validators.required)
-              .build(),
-          ],
-          callback: ({ reden }) =>
-            this.zakenService.deleteBetrokkene(betrokkene.rolid, reden),
-          melding: this.translate.instant(
-            "msg.betrokkene.ontkoppelen.bevestigen",
-            {
-              betrokkene: betrokkeneIdentificatie,
-            },
-          ),
-          confirmButtonActionKey: "actie.betrokkene.ontkoppelen",
-          icon: "link_off",
-        }),
-      })
+    this.zaakDialogService
+      .openOntkoppelBetrokkene(betrokkeneIdentificatie, (reden) =>
+        this.zakenService.deleteBetrokkene(betrokkene.rolid, reden),
+      )
       .afterClosed()
       .subscribe((result) => {
         if (result) {

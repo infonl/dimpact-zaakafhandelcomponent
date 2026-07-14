@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "engines": {
     "node": "22.23.1",
-    "npm": "10.9.8"
+    "npm": "11.18.0"
   },
   "scripts": {
     "e2e:run": "./node_modules/.bin/cucumber-js -p default",
@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.61.1",
-    "@types/node": "22.20.0",
+    "@types/node": "22.20.1",
     "multiple-cucumber-html-reporter": "4.1.0",
     "dotenv": "17.4.2",
     "playwright-bdd": "9.2.0",

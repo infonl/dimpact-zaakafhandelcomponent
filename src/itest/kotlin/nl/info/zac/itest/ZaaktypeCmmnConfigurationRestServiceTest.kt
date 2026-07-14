@@ -185,12 +185,12 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                         },
                         "referentieTabellen" : [ {
                           "tabel" : {
-                            "aantalWaarden" : 5,
+                            "valuesCount" : 5,
                             "code" : "ADVIES",
                             "id" : 1,
-                            "naam" : "Advies",
-                            "systeem" : true,
-                            "waarden" : [ ]
+                            "name" : "Advies",
+                            "systemTable" : true,
+                            "values" : [ ]
                           },
                           "veld" : "ADVIES"
                         } ]

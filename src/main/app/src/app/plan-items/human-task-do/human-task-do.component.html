@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 Lifey
+  ~ SPDX-FileCopyrightText: 2021 Atos, 2025 Lifey, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -28,6 +28,8 @@
     [fields]="formFields"
     [config]="formConfig"
     [loading]="doHumanTaskPlanItemMutation.isPending()"
+    [success]="doHumanTaskPlanItemMutation.isSuccess()"
+    disableAfterSuccess
     (formSubmitted)="onFormSubmit($event)"
     (formCancelled)="onFormCancel()"
   />
