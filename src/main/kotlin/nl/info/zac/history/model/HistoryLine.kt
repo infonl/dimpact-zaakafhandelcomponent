@@ -14,23 +14,23 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 class HistoryLine(
-    @get:JsonbProperty("attribuutLabel") val attributeLabel: String,
-    @get:JsonbProperty("oudeWaarde") val oldValue: String?,
-    @get:JsonbProperty("nieuweWaarde") val newValue: String?
+    @field:JsonbProperty("attribuutLabel") val attributeLabel: String,
+    @field:JsonbProperty("oudeWaarde") val oldValue: String?,
+    @field:JsonbProperty("nieuweWaarde") val newValue: String?
 ) {
-    @get:JsonbProperty("datumTijd")
+    @field:JsonbProperty("datumTijd")
     var zonedDateTime: ZonedDateTime? = null
 
-    @get:JsonbProperty("door")
+    @field:JsonbProperty("door")
     var by: String? = null
 
-    @get:JsonbProperty("applicatie")
+    @field:JsonbProperty("applicatie")
     var application: String? = null
 
-    @get:JsonbProperty("toelichting")
+    @field:JsonbProperty("toelichting")
     var explanation: String? = null
 
-    @get:JsonbProperty("actie")
+    @field:JsonbProperty("actie")
     var action: HistoryAction? = null
 
     constructor(attributeLabel: String, oldValue: LocalDate?, newValue: LocalDate?) : this(
