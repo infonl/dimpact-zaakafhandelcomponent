@@ -7,15 +7,13 @@ package nl.info.zac.app.zaak
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.validation.Valid
 import jakarta.ws.rs.BeanParam
 import jakarta.ws.rs.Consumes
-import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.PATCH
 import jakarta.ws.rs.Path
-import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
-import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.event.EventingService
 import net.atos.zac.websocket.event.ScreenEventType
@@ -81,7 +79,7 @@ class ZaakKoppelenRestService @Inject constructor(
     @Path("gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken")
     @Suppress("UnusedParameter")
     fun findLinkableZaken(
-        @BeanParam request: RESTFindLinkableZakenRequest
+        @BeanParam @Valid request: RESTFindLinkableZakenRequest
     ): RestZoekResultaat<RestZaakKoppelenZoekObject> {
         val zaak = zrcClientService.readZaak(request.zaakUuid)
         val searchResults = searchService.zoek(
