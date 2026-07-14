@@ -138,7 +138,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             ?.let(identityService::readUser)
 
     private fun findGroup(zaak: Zaak): Group? =
-        zgwApiService.findGroepForZaak(zaak)
+        zgwApiService.findBehandelaarGroupForZaak(zaak)
             ?.betrokkeneIdentificatie
             ?.identificatie
             ?.let(identityService::readGroup)

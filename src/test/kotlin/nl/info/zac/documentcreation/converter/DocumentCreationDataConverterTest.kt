@@ -88,7 +88,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         } returns persoon
         every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
-        every { zgwApiService.findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
+        every { zgwApiService.findBehandelaarGroupForZaak(zaak) } returns rolOrganisatorischeEenheid
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
         When("SmartDocuments data is created") {
@@ -139,7 +139,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         } returns resultaatItem
         every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { zgwApiService.findBehandelaarGroupForZaak(zaak) } returns null
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
         When("SmartDocuments data is created") {
@@ -199,7 +199,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         } returns resultaatItem
         every { zrcClientService.listZaakobjecten(any()) } returns Results(emptyList(), 0)
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { zgwApiService.findBehandelaarGroupForZaak(zaak) } returns null
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
         When("SmartDocuments data is created") {

@@ -85,7 +85,7 @@ class RestZaakConverter @Inject constructor(
         status: Status?,
         statustype: StatusType?
     ): RestZaak {
-        val groep = zgwApiService.findGroepForZaak(zaak)?.let { rolOrganisatorischeEenheid ->
+        val groep = zgwApiService.findBehandelaarGroupForZaak(zaak)?.let { rolOrganisatorischeEenheid ->
             rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
                 restGroupConverter.convertGroupId(it.identificatie)
             }

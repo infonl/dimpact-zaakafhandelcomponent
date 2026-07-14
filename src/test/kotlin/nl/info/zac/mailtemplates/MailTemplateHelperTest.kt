@@ -129,7 +129,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { configurationService.zaakTonenUrl(zaak.identificatie) } returns zaakTonenURL
             every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
-            every { zgwApiService.findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
+            every { zgwApiService.findBehandelaarGroupForZaak(zaak) } returns rolOrganisatorischeEenheid
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
 

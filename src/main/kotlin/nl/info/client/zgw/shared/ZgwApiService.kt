@@ -59,6 +59,13 @@ class ZgwApiService @Inject constructor(
         // Page numbering in ZGW APIs starts with 1
         const val FIRST_PAGE_NUMBER_ZGW_APIS: Int = 1
         const val ZAAK_OBJECT_DELETION_PREFIX = "Verwijderd"
+
+        /**
+         * The role type omschrijving that ZAC interprets as a (zaak) behandelaar.
+         * This only applies to role types that also have the 'omschrijving generiek' set to [OmschrijvingGeneriekEnum.BEHANDELAAR].
+         */
+        const val ROLTYPE_OMSCHRIJVING_BEHANDELAAR = "Behandelaar"
+
     }
 
     /**
@@ -209,12 +216,12 @@ class ZgwApiService @Inject constructor(
     }
 
     /**
-     * Find [RolOrganisatorischeEenheid] for [Zaak] with initiator [OmschrijvingGeneriekEnum].
+     * Find the behandelaar group for a [Zaak], if any, as a [RolOrganisatorischeEenheid].
      *
      * @param zaak [Zaak].
      * @return [RolOrganisatorischeEenheid] or 'null'.
      */
-    fun findGroepForZaak(zaak: Zaak): RolOrganisatorischeEenheid? =
+    fun findBehandelaarGroupForZaak(zaak: Zaak): RolOrganisatorischeEenheid? =
         findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID)?.let {
             it as RolOrganisatorischeEenheid
         }
@@ -252,12 +259,14 @@ class ZgwApiService @Inject constructor(
         zaak: Zaak,
         betrokkeneType: BetrokkeneTypeEnum
     ): Rol<*>? {
-        val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).also {
-            if (it.size > 1) {
-                LOG.warning(
+        val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            .filter { it.omschrijving == ROLTYPE_OMSCHRIJVING_BEHANDELAAR }
+            .also {
+                if (it.size > 1) {
+                    LOG.warning(
                     "Multiple behandelaar role types found for zaaktype: '${zaak.zaaktype}', using the first one."
-                )
-            }
+                    )
+                }
         }
         return roleTypes.firstOrNull()?.let { roleType ->
             val roles = zrcClientService.listRollen(

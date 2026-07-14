@@ -127,7 +127,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
 
         with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
+            every { findBehandelaarGroupForZaak(zaak) } returns rolOrganisatorischeEenheid
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
             every { findInitiatorRoleForZaak(zaak) } returns rolNatuurlijkPersoon
         }
@@ -195,7 +195,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
         with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns rolOrganistorischeEenheid
+            every { findBehandelaarGroupForZaak(zaak) } returns rolOrganistorischeEenheid
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
             every { findInitiatorRoleForZaak(zaak) } returns rol
         }
@@ -260,7 +260,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
         with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns rolOrganistorischeEenheid
+            every { findBehandelaarGroupForZaak(zaak) } returns rolOrganistorischeEenheid
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
             every { findInitiatorRoleForZaak(zaak) } returns rol
         }
@@ -312,7 +312,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
         with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarGroupForZaak(zaak) } returns null
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
             every { findInitiatorRoleForZaak(zaak) } returns null
         }
@@ -351,7 +351,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val loggedInUser = createLoggedInUser()
 
         with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarGroupForZaak(zaak) } returns null
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
             every { findInitiatorRoleForZaak(zaak) } returns null
         }
@@ -382,7 +382,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
         with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarGroupForZaak(zaak) } returns null
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
             every { findInitiatorRoleForZaak(zaak) } returns null
         }
@@ -415,7 +415,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
         with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarGroupForZaak(zaak) } returns null
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
             every { findInitiatorRoleForZaak(zaak) } returns rolNatuurlijkPersoon
         }
@@ -496,7 +496,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakdata = mapOf("fakeKey" to "fakeValue")
 
         with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarGroupForZaak(zaak) } returns null
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
             every { findInitiatorRoleForZaak(zaak) } returns null
         }
@@ -549,7 +549,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
 
         with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarGroupForZaak(zaak) } returns null
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
             every { findInitiatorRoleForZaak(zaak) } returns null
         }
@@ -587,7 +587,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val contactDetails = ContactDetails(telephoneNumber = "0612345678", emailAddress = "test@example.com")
 
         with(zgwApiService) {
-            every { findGroepForZaak(zaak) } returns null
+            every { findBehandelaarGroupForZaak(zaak) } returns null
             every { findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
             every { findInitiatorRoleForZaak(zaak) } returns rolNatuurlijkPersoon
         }

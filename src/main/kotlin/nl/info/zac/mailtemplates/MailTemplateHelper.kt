@@ -124,7 +124,7 @@ class MailTemplateHelper @Inject constructor(
             } ?: replaceInitiatorVariablesWithEmptyText(resolvedTekst)
         }
         if (resolvedTekst.contains(MailTemplateVariables.ZAAK_BEHANDELAAR_GROEP.getVariable())) {
-            val groupName = zgwApiService.findGroepForZaak(zaak)?.getNaam()
+            val groupName = zgwApiService.findBehandelaarGroupForZaak(zaak)?.getNaam()
             resolvedTekst = replaceVariable(
                 targetString = resolvedTekst,
                 mailTemplateVariable = MailTemplateVariables.ZAAK_BEHANDELAAR_GROEP,

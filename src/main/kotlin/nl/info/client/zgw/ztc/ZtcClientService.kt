@@ -347,6 +347,14 @@ class ZtcClientService @Inject constructor(
                 "Roltype with aard '$omschrijvingGeneriekEnum' not found for zaaktype '$zaaktypeURI':"
             )
 
+    fun readRoltype(zaaktypeURI: URI, omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum, omschrijving: String): RolType =
+        uriOmschrijvingGeneriekEnumToRolTypeCache.get("$zaaktypeURI$omschrijvingGeneriekEnum") {
+            ztcClient.roltypeListGeneriek(RoltypeListGeneriekParameters(zaaktypeURI, omschrijvingGeneriekEnum)).results()
+        }.filter { it.omschrijving == omschrijving }.firstOrNull() ?: throw
+        RoltypeNotFoundException(
+            "Roltype with aard '$omschrijvingGeneriekEnum' not found for zaaktype '$zaaktypeURI':"
+        )
+
     /**
      * Read [InformatieObjectType] via its URI.
      * Throws a RuntimeException if the [InformatieObjectType] can not be read.

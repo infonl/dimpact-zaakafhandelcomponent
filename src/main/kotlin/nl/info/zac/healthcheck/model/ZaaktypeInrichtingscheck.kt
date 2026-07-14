@@ -42,7 +42,7 @@ class ZaaktypeInrichtingscheck(val zaaktype: ZaakType) {
             this.isStatustypeAfgerondLaatsteVolgnummer &&
             this.isStatustypeAanvullendeInformatieVereist &&
             this.aantalInitiatorroltypen == 1 &&
-            this.aantalBehandelaarroltypen == 1 &&
+            //this.aantalBehandelaarroltypen == 1 &&
             this.isRolOverigeAanwezig &&
             this.isInformatieobjecttypeEmailAanwezig &&
             this.isResultaattypeAanwezig &&

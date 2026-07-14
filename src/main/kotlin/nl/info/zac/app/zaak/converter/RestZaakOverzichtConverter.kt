@@ -75,7 +75,7 @@ class RestZaakOverzichtConverter @Inject constructor(
 
     private fun getGroupForZaak(
         zaak: Zaak
-    ): RestGroup? = zgwApiService.findGroepForZaak(zaak)
+    ): RestGroup? = zgwApiService.findBehandelaarGroupForZaak(zaak)
         ?.betrokkeneIdentificatie
         ?.let { groupConverter.convertGroupId(it.identificatie) }
 }

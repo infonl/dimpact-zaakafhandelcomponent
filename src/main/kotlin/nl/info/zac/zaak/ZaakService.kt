@@ -18,6 +18,7 @@ import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
@@ -255,7 +256,8 @@ class ZaakService @Inject constructor(
             zaak.url,
             ztcClientService.readRoltype(
                 zaak.zaaktype,
-                OmschrijvingGeneriekEnum.BEHANDELAAR
+                OmschrijvingGeneriekEnum.BEHANDELAAR,
+                "Behandelaar" // TODO: filter on Behandelaar roltype
             ),
             "Behandelaar van de zaak",
             MedewerkerIdentificatie().apply {
@@ -365,7 +367,7 @@ class ZaakService @Inject constructor(
         group: Group,
         reason: String?
     ): Boolean =
-        zgwApiService.findGroepForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
+        zgwApiService.findBehandelaarGroupForZaak(zaak)?.betrokkeneIdentificatie?.identificatie.let { currentGroupId ->
             if (currentGroupId == null || currentGroupId != group.name) {
                 // if the zaak is not already assigned to the requested group, assign it to this group
                 zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), reason)
@@ -380,21 +382,21 @@ class ZaakService @Inject constructor(
         user: User,
         reason: String?,
     ): Boolean {
-        val medewerkerRoles = zrcClientService.listRollen(zaak)
+        val behandelaarRoles = zrcClientService.listRollen(zaak)
             .filter { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER }
-
-        if (medewerkerRoles.size > 1) {
+            .filter { it.omschrijving == ROLTYPE_OMSCHRIJVING_BEHANDELAAR }
+        if (behandelaarRoles.size > 1) {
             log(
                 LOG,
                 Level.WARNING,
-                "Zaak ${zaak.uuid} has ${medewerkerRoles.size} duplicate MEDEWERKER behandelaar roles; purging all before reassignment"
+                "Zaak ${zaak.uuid} has ${behandelaarRoles.size} duplicate MEDEWERKER behandelaar roles; purging all before reassignment"
             )
         }
 
-        val currentBehandelaarId = (medewerkerRoles.singleOrNull() as? RolMedewerker)
+        val currentBehandelaarId = (behandelaarRoles.singleOrNull() as? RolMedewerker)
             ?.betrokkeneIdentificatie?.identificatie
 
-        return if (medewerkerRoles.size != 1 || currentBehandelaarId != user.id) {
+        return if (behandelaarRoles.size != 1 || currentBehandelaarId != user.id) {
             zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
             zrcClientService.createRol(bepaalRolMedewerker(user, zaak), reason)
             true

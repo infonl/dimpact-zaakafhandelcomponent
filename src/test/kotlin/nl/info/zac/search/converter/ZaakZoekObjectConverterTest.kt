@@ -99,7 +99,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
         every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolInitiator
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { zgwApiService.findBehandelaarGroupForZaak(zaak) } returns null
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerkerBehandelaar
         every {
             identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie!!.identificatie)
@@ -175,7 +175,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolInitiator
         every { zrcClientService.listRollen(zaak) } returns rollenZaak
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
+        every { zgwApiService.findBehandelaarGroupForZaak(zaak) } returns null
         every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerkerBehandelaar
         every {
             identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie!!.identificatie)

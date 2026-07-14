@@ -161,7 +161,7 @@ class BpmnTaskFormRuntimeService @Inject constructor(
         }
 
     private fun getGroepForZaakDefaultValue(zaak: Zaak) =
-        zgwApiService.findGroepForZaak(zaak).let { group ->
+        zgwApiService.findBehandelaarGroupForZaak(zaak).let { group ->
             group?.betrokkeneIdentificatie?.identificatie?.let {
                 identityService.readGroup(it).name
             }

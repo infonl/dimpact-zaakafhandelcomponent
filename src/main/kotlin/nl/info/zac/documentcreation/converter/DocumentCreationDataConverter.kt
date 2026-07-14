@@ -91,7 +91,7 @@ class DocumentCreationDataConverter @Inject constructor(
             communicatiekanaal = zaak.communicatiekanaalNaam,
             einddatum = zaak.einddatum,
             einddatumGepland = zaak.einddatumGepland,
-            groep = zgwApiService.findGroepForZaak(zaak)?.naam,
+            groep = zgwApiService.findBehandelaarGroupForZaak(zaak)?.naam,
             identificatie = zaak.identificatie,
             omschrijving = zaak.omschrijving,
             opschortingReden = if (zaak.isOpgeschort()) { zaak.opschorting.reden } else null,
