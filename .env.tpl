@@ -3,16 +3,17 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-# This file contains a list of environment variables that need to, or in case of optional variables can be, set when running ZAC locally.
+# This file contains the environment variables that are used when running ZAC locally by the ICATT ZAC team.
+# It is used when you run ZAC locally from IntelliJ (see: docs/development/ideConfig.md), but not when you run ZAC from Docker Compose itself.
 
-# To use this file you need to use the 1Password CLI extensions.
-# Please see the docs/INSTALL.md file for instructions.
+# To use this file you need to use the 1Password CLI extensions and you need to have access to the corresponding INFO/ICATT 1Password vault.
 # Please see .env.example for descriptions of the environment variables.
 
 # -------------------------
 # ZAC environment variables
 # -------------------------
 
+AUTH_ENABLE_PKCE=true
 AUTH_REALM=zaakafhandelcomponent
 AUTH_RESOURCE=zaakafhandelcomponent
 AUTH_SECRET=keycloakZaakafhandelcomponentClientSecret
