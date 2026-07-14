@@ -55,11 +55,11 @@ class ZaakHistoryLineConverter @Inject constructor(
 
     private fun convertAuditTrailBasis(historieRegel: HistoryLine, auditTrailRegel: AuditTrailRegel) =
         historieRegel.apply {
-            actie = convertActie(auditTrailRegel.actie)
-            applicatie = auditTrailRegel.applicatieWeergave
-            datumTijd = auditTrailRegel.aanmaakdatum
-            door = auditTrailRegel.gebruikersWeergave
-            toelichting = auditTrailRegel.toelichting
+            action = convertActie(auditTrailRegel.actie)
+            application = auditTrailRegel.applicatieWeergave
+            zonedDateTime = auditTrailRegel.aanmaakdatum
+            by = auditTrailRegel.gebruikersWeergave
+            explanation = auditTrailRegel.toelichting
         }
 
     private fun convertActie(auditTrailActie: String): HistoryAction? =

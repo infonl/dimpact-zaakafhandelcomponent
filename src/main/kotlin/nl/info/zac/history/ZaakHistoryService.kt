@@ -59,8 +59,8 @@ class ZaakHistoryService @Inject constructor(
             .flatMap(::convertZaakHistoryLine)
             // we filter out certain audit trail lines because they add no value
             // and are confusing for the end-user
-            .filter { it.attribuutLabel != RESOURCE_EXTENSION && it.attribuutLabel != RESOURCE_SUSPENSION }
-            .sortedByDescending { it.datumTijd }
+            .filter { it.attributeLabel != RESOURCE_EXTENSION && it.attributeLabel != RESOURCE_SUSPENSION }
+            .sortedByDescending { it.zonedDateTime }
 
     private fun convertZaakHistoryLine(auditTrailLine: ZRCAuditTrailRegel): List<HistoryLine> {
         val old = (auditTrailLine.wijzigingen.oud as? Map<*, *>)?.asMapWithKeyOfString()
@@ -93,10 +93,10 @@ class ZaakHistoryService @Inject constructor(
                 )
             }
             ?.apply {
-                datumTijd = auditTrail.aanmaakdatum
-                toelichting = auditTrail.toelichting
-                door = auditTrail.gebruikersWeergave
-                actie = convertActie(auditTrail.resource, auditTrail.actie)
+                zonedDateTime = auditTrail.aanmaakdatum
+                explanation = auditTrail.toelichting
+                by = auditTrail.gebruikersWeergave
+                action = convertActie(auditTrail.resource, auditTrail.actie)
             }
 
     private fun convertResource(resource: String, obj: Map<String, *>): String? = when (resource) {

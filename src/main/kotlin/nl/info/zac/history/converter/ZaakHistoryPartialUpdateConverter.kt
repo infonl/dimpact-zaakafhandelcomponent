@@ -53,14 +53,14 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
         actie: HistoryAction?,
         change: Map.Entry<String, Pair<*, *>>
     ) = HistoryLine(
-        attribuutLabel = change.key,
+        attributeLabel = change.key,
         oldValue = change.value.first?.let { convertValue(change.key, it) },
         newValue = change.value.second?.let { convertValue(change.key, it) },
     ).apply {
-        datumTijd = aanmaakdatum
-        door = gebruikersWeergave
-        this.toelichting = toelichting
-        this.actie = actie
+        zonedDateTime = aanmaakdatum
+        by = gebruikersWeergave
+        this.explanation = toelichting
+        this.action = actie
     }
 
     @Suppress("CyclomaticComplexMethod")

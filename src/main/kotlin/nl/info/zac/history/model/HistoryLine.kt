@@ -14,45 +14,54 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 class HistoryLine(
-    val attribuutLabel: String,
+    @get:JsonbProperty("attribuutLabel") val attributeLabel: String,
     @get:JsonbProperty("oudeWaarde") val oldValue: String?,
     @get:JsonbProperty("nieuweWaarde") val newValue: String?
 ) {
-    var datumTijd: ZonedDateTime? = null
-    var door: String? = null
-    var applicatie: String? = null
-    var toelichting: String? = null
-    var actie: HistoryAction? = null
+    @get:JsonbProperty("applicatie")
+    var zonedDateTime: ZonedDateTime? = null
 
-    constructor(attribuutLabel: String, oldValue: LocalDate?, newValue: LocalDate?) : this(
-        attribuutLabel,
+    @get:JsonbProperty("door")
+    var by: String? = null
+
+    @get:JsonbProperty("applicatie")
+    var application: String? = null
+
+    @get:JsonbProperty("toelichting")
+    var explanation: String? = null
+
+    @get:JsonbProperty("actie")
+    var action: HistoryAction? = null
+
+    constructor(attributeLabel: String, oldValue: LocalDate?, newValue: LocalDate?) : this(
+        attributeLabel,
         oldValue?.toValue(),
         newValue?.toValue()
     )
 
-    constructor(attribuutLabel: String, oldValue: ZonedDateTime?, newValue: ZonedDateTime?) : this(
-        attribuutLabel,
+    constructor(attributeLabel: String, oldValue: ZonedDateTime?, newValue: ZonedDateTime?) : this(
+        attributeLabel,
         oldValue?.toValue(),
         newValue?.toValue()
     )
 
-    constructor(attribuutLabel: String, oldValue: Boolean?, newValue: Boolean?) : this(
-        attribuutLabel,
+    constructor(attributeLabel: String, oldValue: Boolean?, newValue: Boolean?) : this(
+        attributeLabel,
         oldValue?.toValue(),
         newValue?.toValue()
     )
 
     constructor(
-        attribuutLabel: String,
+        attributeLabel: String,
         oldValue: StatusEnum?,
         newValue: StatusEnum?
-    ) : this(attribuutLabel, oldValue?.toValue(), newValue?.toValue())
+    ) : this(attributeLabel, oldValue?.toValue(), newValue?.toValue())
 
     constructor(
-        attribuutLabel: String,
+        attributeLabel: String,
         oldValue: VertrouwelijkheidaanduidingEnum?,
         newValue: VertrouwelijkheidaanduidingEnum?
-    ) : this(attribuutLabel, oldValue?.toValue(), newValue?.toValue())
+    ) : this(attributeLabel, oldValue?.toValue(), newValue?.toValue())
 }
 
 fun LocalDate.toValue(): String = DATE_FORMATTER.format(this)

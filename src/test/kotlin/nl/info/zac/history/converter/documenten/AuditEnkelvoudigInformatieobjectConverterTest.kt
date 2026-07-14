@@ -70,7 +70,7 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
                 val result = converter.convert(wijziging)
 
                 Then("one HistoryLine with label 'titel' is returned") {
-                    result.any { it.attribuutLabel == "titel" } shouldBe true
+                    result.any { it.attributeLabel == "titel" } shouldBe true
                 }
             }
         }
@@ -107,7 +107,7 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
                 val result = converter.convert(wijziging)
 
                 Then("a HistoryLine with label 'documentType' is returned") {
-                    result.any { it.attribuutLabel == "documentType" } shouldBe true
+                    result.any { it.attributeLabel == "documentType" } shouldBe true
                 }
             }
         }
@@ -123,7 +123,7 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
 
                 Then("a single HistoryLine with label 'informatieobject' is returned") {
                     result.size shouldBe 1
-                    result[0].attribuutLabel shouldBe "informatieobject"
+                    result[0].attributeLabel shouldBe "informatieobject"
                 }
             }
         }
@@ -139,7 +139,7 @@ class AuditEnkelvoudigInformatieobjectConverterTest : BehaviorSpec({
 
                 Then("a single HistoryLine with label 'informatieobject' is returned") {
                     result.size shouldBe 1
-                    result[0].attribuutLabel shouldBe "informatieobject"
+                    result[0].attributeLabel shouldBe "informatieobject"
                 }
             }
         }
