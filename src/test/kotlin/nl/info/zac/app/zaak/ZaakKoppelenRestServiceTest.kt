@@ -27,6 +27,7 @@ import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.app.zaak.model.RESTFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
 import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
@@ -48,7 +49,6 @@ private const val OMSCHRIJVING = "fakeOmschrijving"
 private const val ZAAK_TYPE_OMSCHRIJVING = "fakeZaakTypeOmschrijving"
 private const val STATUS_TYPE_OMSCHRIJVING = "Afgerond"
 
-@Suppress("LargeClass")
 class ZaakKoppelenRestServiceTest : BehaviorSpec({
     isolationMode = IsolationMode.InstancePerTest
     val zoekZaakIdentifier = "ZAAK-2000-00002"
@@ -112,11 +112,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.GERELATEERD,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.GERELATEERD
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -153,11 +155,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns listOf(zaakTypeURI)
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -194,11 +198,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
