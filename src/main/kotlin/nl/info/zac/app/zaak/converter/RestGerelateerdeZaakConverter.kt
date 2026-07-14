@@ -15,9 +15,9 @@ import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.output.ZaakRechten
-import nl.info.zac.zaak.hoofdAndDeelzaakCanBeOntkoppeld
+import nl.info.zac.zaak.model.canBeUnlinkedFromDeelzaak
+import nl.info.zac.zaak.model.canBeUnlinkedFromRelatedZaak
 import nl.info.zac.zaak.model.toZaakLinkData
-import nl.info.zac.zaak.relatedZakenCanBeOntkoppeld
 
 class RestGerelateerdeZaakConverter @Inject constructor(
     private val zrcClientService: ZrcClientService,
@@ -47,18 +47,20 @@ class RestGerelateerdeZaakConverter @Inject constructor(
                 }
             },
             ontkoppelen = when (relatieType) {
-                RelatieType.GERELATEERD -> relatedZakenCanBeOntkoppeld(
-                    fromZaak.toZaakLinkData(fromZaakRechten),
-                    gerelateerdeZaak.toZaakLinkData(zaakrechten)
-                )
-                RelatieType.HOOFDZAAK -> hoofdAndDeelzaakCanBeOntkoppeld(
-                    gerelateerdeZaak.toZaakLinkData(zaakrechten),
-                    fromZaak.toZaakLinkData(fromZaakRechten)
-                )
-                RelatieType.DEELZAAK -> hoofdAndDeelzaakCanBeOntkoppeld(
-                    fromZaak.toZaakLinkData(fromZaakRechten),
-                    gerelateerdeZaak.toZaakLinkData(zaakrechten)
-                )
+                RelatieType.GERELATEERD -> fromZaak
+                    .toZaakLinkData(fromZaakRechten)
+                    .canBeUnlinkedFromRelatedZaak(
+                        gerelateerdeZaak.toZaakLinkData(zaakrechten)
+                    )
+                RelatieType.HOOFDZAAK -> gerelateerdeZaak
+                    .toZaakLinkData(zaakrechten)
+                    .canBeUnlinkedFromDeelzaak(
+                        fromZaak.toZaakLinkData(fromZaakRechten)
+                    )
+                RelatieType.DEELZAAK -> fromZaak.toZaakLinkData(fromZaakRechten)
+                    .canBeUnlinkedFromDeelzaak(
+                        gerelateerdeZaak.toZaakLinkData(zaakrechten)
+                    )
                 else -> false
             }
         )
