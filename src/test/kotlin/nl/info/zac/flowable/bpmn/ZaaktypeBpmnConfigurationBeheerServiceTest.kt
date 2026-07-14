@@ -299,8 +299,8 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
                 zaaktypeBpmnConfigurationBeheerService.copyConfiguration(zaakType)
 
                 Then("no copying is done") {
-                    verify(exactly = 0) { entityManager.persist(any()) }
-                    verify(exactly = 0) { entityManager.merge(any()) }
+                    verify(exactly = 0) { entityManager.persist(any<Any>()) }
+                    verify(exactly = 0) { entityManager.merge(any<Any>()) }
                 }
             }
         }
