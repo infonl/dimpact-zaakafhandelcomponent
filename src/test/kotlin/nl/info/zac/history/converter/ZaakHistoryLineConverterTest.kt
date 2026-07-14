@@ -81,8 +81,8 @@ class ZaakHistoryLineConverterTest : BehaviorSpec({
                 with(restHistorieRegel[1]) {
                     actie shouldBe HistoryAction.GEKOPPELD
                     attribuutLabel shouldBe "Besluit"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "fakeIdentificatie"
+                    oldValue shouldBe null
+                    newValue shouldBe "fakeIdentificatie"
                     door shouldBe "Test User"
                     applicatie shouldBe "ZAC"
                     toelichting shouldBe "description"
@@ -90,8 +90,8 @@ class ZaakHistoryLineConverterTest : BehaviorSpec({
                 with(restHistorieRegel[0]) {
                     actie shouldBe HistoryAction.GEKOPPELD
                     attribuutLabel shouldBe "informatieobject"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "fakeIdentificatie"
+                    oldValue shouldBe null
+                    newValue shouldBe "fakeIdentificatie"
                     door shouldBe "Test User"
                     applicatie shouldBe "ZAC"
                     toelichting shouldBe "123"

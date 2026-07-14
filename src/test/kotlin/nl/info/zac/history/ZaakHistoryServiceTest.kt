@@ -61,8 +61,8 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "zaak"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe zaakIdentificatie
+                    oldValue shouldBe null
+                    newValue shouldBe zaakIdentificatie
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
@@ -114,8 +114,8 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe rolType.omschrijving
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "fakeVoorletters fakeAchternaam"
+                    oldValue shouldBe null
+                    newValue shouldBe "fakeVoorletters fakeAchternaam"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
@@ -150,8 +150,8 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "zaakinformatieobject"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "title"
+                    oldValue shouldBe null
+                    newValue shouldBe "title"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
@@ -186,8 +186,8 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "klantcontact"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe zrcAuditTrailRegel.resourceWeergave
+                    oldValue shouldBe null
+                    newValue shouldBe zrcAuditTrailRegel.resourceWeergave
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
@@ -225,8 +225,8 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "resultaat"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "description"
+                    oldValue shouldBe null
+                    newValue shouldBe "description"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
@@ -264,8 +264,8 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "status"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "description"
+                    oldValue shouldBe null
+                    newValue shouldBe "description"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
@@ -311,8 +311,8 @@ class ZaakHistoryServiceTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "objecttype.ADRES"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "identity"
+                    oldValue shouldBe null
+                    newValue shouldBe "identity"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null
@@ -367,12 +367,12 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         When("converted to REST historie regel") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            Then("it should return correct data, with null values for oudeWaarde and nieuweWaarde") {
+            Then("it should return correct data, with null values for oldValue and newValue") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "some_unknown_value"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe null
+                    oldValue shouldBe null
+                    newValue shouldBe null
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     applicatie shouldBe null

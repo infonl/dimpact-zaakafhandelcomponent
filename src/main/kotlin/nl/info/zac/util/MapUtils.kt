@@ -4,7 +4,7 @@
  */
 package nl.info.zac.util
 
-import net.atos.client.zgw.shared.util.JsonbUtil
+import nl.info.client.zgw.util.JSONB
 import kotlin.collections.get
 
 fun Map<*, *>.asMapWithKeyOfString(): Map<String, *> = this
@@ -27,8 +27,8 @@ private fun compare(left: Any?, right: Any?): Boolean =
     }
 
 fun <T> Map<String, *>.getTypedValue(type: Class<T>): T? =
-    JsonbUtil.JSONB.toJson(this)
-        .let { JsonbUtil.JSONB.fromJson(it, type) }
+    JSONB.toJson(this)
+        .let { JSONB.fromJson(it, type) }
 
 fun Map<String, *>.stringProperty(propName: String): String? =
     this[propName] as? String

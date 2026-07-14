@@ -54,8 +54,8 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
         change: Map.Entry<String, Pair<*, *>>
     ) = HistoryLine(
         attribuutLabel = change.key,
-        oudeWaarde = change.value.first?.let { convertValue(change.key, it) },
-        nieuweWaarde = change.value.second?.let { convertValue(change.key, it) },
+        oldValue = change.value.first?.let { convertValue(change.key, it) },
+        newValue = change.value.second?.let { convertValue(change.key, it) },
     ).apply {
         datumTijd = aanmaakdatum
         door = gebruikersWeergave

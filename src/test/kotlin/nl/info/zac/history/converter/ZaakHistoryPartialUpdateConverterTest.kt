@@ -96,40 +96,40 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                     door shouldBe userName
                     toelichting shouldBe description
                     attribuutLabel shouldBe "startdatum"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "30-10-2024"
+                    oldValue shouldBe null
+                    newValue shouldBe "30-10-2024"
                 }
                 with(history[1]) {
                     datumTijd shouldBe creationDate
                     door shouldBe userName
                     toelichting shouldBe description
                     attribuutLabel shouldBe "uiterlijkeEinddatumAfdoening"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "30-11-2024"
+                    oldValue shouldBe null
+                    newValue shouldBe "30-11-2024"
                 }
                 with(history[2]) {
                     datumTijd shouldBe creationDate
                     door shouldBe userName
                     toelichting shouldBe description
                     attribuutLabel shouldBe "einddatumGepland"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "30-12-2024"
+                    oldValue shouldBe null
+                    newValue shouldBe "30-12-2024"
                 }
                 with(history[3]) {
                     datumTijd shouldBe creationDate
                     door shouldBe userName
                     toelichting shouldBe description
                     attribuutLabel shouldBe "zaakgeometrie"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "POINT(53.602182801494195 5.363728969647492)"
+                    oldValue shouldBe null
+                    newValue shouldBe "POINT(53.602182801494195 5.363728969647492)"
                 }
                 with(history[4]) {
                     datumTijd shouldBe creationDate
                     door shouldBe userName
                     toelichting shouldBe description
                     attribuutLabel shouldBe "fakeKey"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "fakeValue"
+                    oldValue shouldBe null
+                    newValue shouldBe "fakeValue"
                 }
             }
         }
@@ -178,8 +178,8 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "zaakgeometrie"
-                    oudeWaarde shouldBe "POINT(52.602182801494195 4.363728969647492)"
-                    nieuweWaarde shouldBe "POINT(53.602182801494195 5.363728969647492)"
+                    oldValue shouldBe "POINT(52.602182801494195 4.363728969647492)"
+                    newValue shouldBe "POINT(53.602182801494195 5.363728969647492)"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe "Test User"
                     toelichting shouldBe "xyz"
@@ -216,8 +216,8 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "communicatiekanaal"
-                    oudeWaarde shouldBe "old"
-                    nieuweWaarde shouldBe "new"
+                    oldValue shouldBe "old"
+                    newValue shouldBe "new"
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     toelichting shouldBe "hologram"
@@ -368,12 +368,12 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 newValues
             )
 
-            Then("it should return null for oudeWaarde and the zaak identificatie for nieuweWaarde") {
+            Then("it should return null for oldValue and the zaak identificatie for newValue") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "gerelateerdeZaken"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe gerelateerdeZaak.identificatie
+                    oldValue shouldBe null
+                    newValue shouldBe gerelateerdeZaak.identificatie
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe zrcAuditTrailRegel.gebruikersWeergave
                     toelichting shouldBe ""
@@ -419,8 +419,8 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "gerelateerdeZaken"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "${gerelateerdeZaak1.identificatie}, ${gerelateerdeZaak2.identificatie}"
+                    oldValue shouldBe null
+                    newValue shouldBe "${gerelateerdeZaak1.identificatie}, ${gerelateerdeZaak2.identificatie}"
                 }
             }
         }
@@ -460,7 +460,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "gerelateerdeZaken"
-                    nieuweWaarde shouldBe gerelateerdeZaak.identificatie
+                    newValue shouldBe gerelateerdeZaak.identificatie
                 }
             }
         }
@@ -495,7 +495,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "gerelateerdeZaken"
-                    nieuweWaarde shouldBe gerelateerdeZaakUri.toString()
+                    newValue shouldBe gerelateerdeZaakUri.toString()
                 }
             }
         }
@@ -535,11 +535,11 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 newValues
             )
 
-            Then("it should return null for nieuweWaarde") {
+            Then("it should return null for newValue") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "gerelateerdeZaken"
-                    nieuweWaarde shouldBe null
+                    newValue shouldBe null
                 }
             }
         }
@@ -576,8 +576,8 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attribuutLabel shouldBe "hoofdzaak"
-                    oudeWaarde shouldBe zaak1.identificatie
-                    nieuweWaarde shouldBe zaak2.identificatie
+                    oldValue shouldBe zaak1.identificatie
+                    newValue shouldBe zaak2.identificatie
                     datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
                     door shouldBe "Test User"
                     toelichting shouldBe "xyz"

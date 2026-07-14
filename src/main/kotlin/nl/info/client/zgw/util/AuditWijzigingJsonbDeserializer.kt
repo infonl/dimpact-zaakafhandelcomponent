@@ -3,14 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package nl.info.client.zgw.shared.util
+package nl.info.client.zgw.util
 
 import jakarta.json.JsonObject
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
 import net.atos.client.zgw.shared.model.ObjectType
-import net.atos.client.zgw.shared.util.JsonbUtil.JSONB
 import nl.info.client.zgw.shared.model.audit.AuditWijziging
 import java.lang.reflect.Type
 
