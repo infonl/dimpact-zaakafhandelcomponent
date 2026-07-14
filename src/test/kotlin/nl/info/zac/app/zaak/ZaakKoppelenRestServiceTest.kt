@@ -27,6 +27,7 @@ import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.app.zaak.model.RESTFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
 import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
@@ -116,11 +117,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.GERELATEERD,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.GERELATEERD
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -157,11 +160,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns listOf(zaakTypeURI)
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -198,11 +203,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -266,11 +273,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns emptyList()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -302,11 +311,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         When("findLinkableZaken with DEELZAAK link is called") {
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -370,11 +381,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns emptyList()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -406,11 +419,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         When("findLinkableZaken with DEELZAAK link is called") {
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -476,11 +491,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns emptyList()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = hoofdzaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = hoofdzaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -512,11 +529,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         When("findLinkableZaken with DEELZAAK link is called") {
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = hoofdzaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = hoofdzaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -582,11 +601,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns emptyList()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = hoofdzaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = hoofdzaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -618,11 +639,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         When("findLinkableZaken with DEELZAAK link is called") {
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = hoofdzaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = hoofdzaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -689,11 +712,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns emptyList()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = hoofdzaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = hoofdzaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -725,11 +750,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         When("findLinkableZaken with DEELZAAK link is called") {
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = hoofdzaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = hoofdzaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -795,11 +822,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns emptyList()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = deelzaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = deelzaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -831,11 +860,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         When("findLinkableZaken with DEELZAAK link is called") {
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = deelzaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = deelzaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -901,11 +932,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns emptyList()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = deelzaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = deelzaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -937,11 +970,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         When("findLinkableZaken with DEELZAAK link is called") {
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = deelzaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = deelzaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -1009,11 +1044,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns emptyList()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = deelzaak.uuid,
-                zoekZaakIdentifier = zaakSearchText,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = deelzaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("the used search parameters should be as expected") {
@@ -1051,11 +1088,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         When("findLinkableZaken with DEELZAAK link is called") {
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = deelzaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = deelzaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("a single linkable zaak should be returned") {
@@ -1114,11 +1153,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         When("findLinkableZaken with GERELATEERD is called") {
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.GERELATEERD,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.GERELATEERD
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("the target zaak should not be linkable") {
@@ -1156,11 +1197,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
         When("findLinkableZaken with GERELATEERD is called") {
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.GERELATEERD,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.GERELATEERD
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("the target zaak should not be linkable") {
@@ -1203,11 +1246,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns listOf(zaakTypeURI)
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("the target zaak should be linkable") {
@@ -1219,11 +1264,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         When("findLinkableZaken with DEELZAAK is called") {
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("the target zaak should be linkable") {
@@ -1235,11 +1282,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         When("findLinkableZaken with GERELATEERD is called") {
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.GERELATEERD,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.GERELATEERD
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("the target zaak should be linkable") {
@@ -1280,11 +1329,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns emptyList()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("the target zaak should not be linkable") {
@@ -1296,11 +1347,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         When("findLinkableZaken with DEELZAAK is called") {
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("the target zaak should not be linkable") {
@@ -1312,11 +1365,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         When("findLinkableZaken with GERELATEERD is called") {
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.GERELATEERD,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.GERELATEERD
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("the target zaak should be linkable") {
@@ -1358,11 +1413,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns emptyList()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.HOOFDZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("the target zaak should not be linkable") {
@@ -1374,11 +1431,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         When("findLinkableZaken with DEELZAAK is called") {
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.DEELZAAK
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("the target zaak should not be linkable") {
@@ -1390,11 +1449,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         When("findLinkableZaken with GERELATEERD is called") {
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.GERELATEERD,
-                page = page,
-                rows = rows
+                RESTFindLinkableZakenRequest().apply {
+                    this.zaakUuid = sourceZaak.uuid
+                    this.zoekZaakIdentifier = zoekZaakIdentifier
+                    this.relationType = RelatieType.GERELATEERD
+                    this.page = page
+                    this.rows = rows
+                }
             )
 
             Then("the target zaak should be linkable") {
