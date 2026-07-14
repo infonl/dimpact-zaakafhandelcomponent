@@ -190,8 +190,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Closing a zaak") {
-        Given("open zaak without locked informatieobjecten") {
+    context("Closing a zaak") {
+        given("open zaak without locked informatieobjecten") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val reden = "Fake reden"
@@ -204,10 +204,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zgwApiService.closeZaak(zaak, resultaattypeUuid, reden) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("zaak is closed") {
+            `when`("zaak is closed") {
                 zaakRestService.closeZaak(zaak.uuid, restZaakAfsluitenGegevens)
 
-                Then("result and status are correctly set") {
+                then("result and status are correctly set") {
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(zaak, resultaattypeUuid, reden)
                     }
@@ -216,9 +216,9 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Creating a zaak") {
-        Context("Creating a CMMN zaak") {
-            Given("CMMN zaak input data is provided") {
+    context("Creating a zaak") {
+        context("Creating a CMMN zaak") {
+            given("CMMN zaak input data is provided") {
                 val group = createGroup()
                 val bsn = "12345678"
                 val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
@@ -310,7 +310,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 } just runs
                 every { loggedInUserInstance.get() } returns loggedInUser
 
-                When(
+                `when`(
                     """
                 a zaak is created for a zaaktype for which the user has permissions and no BPMN process definition is found
                     """.trimMargin()
@@ -329,7 +329,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                     val restZaakReturned = zaakRestService.createZaak(restZaakAanmaakGegevens)
 
-                    Then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
+                    then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
                         restZaakReturned shouldBe restZaak
                         verify(exactly = 1) {
                             zgwApiService.createZaak(any())
@@ -361,8 +361,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Context("Creating a BPMN zaak") {
-            Given("BPMN zaak input data is provided") {
+        context("Creating a BPMN zaak") {
+            given("BPMN zaak input data is provided") {
                 val group = createGroup()
                 val bsn = "12345678"
                 val formulierData = mapOf(Pair("fakeKey", "fakeValue"))
@@ -459,7 +459,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { bpmnService.findProcessDefinitionForZaaktype(zaakTypeUUID) } returns zaaktypeBpmnConfiguration
                 every { loggedInUserInstance.get() } returns loggedInUser
 
-                When(
+                `when`(
                     """
                 a zaak is created for a zaaktype for which the user has permissions and no BPMN process definition is found
                     """.trimMargin()
@@ -478,7 +478,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                     val restZaakReturned = zaakRestService.createZaak(restZaakAanmaakGegevens)
 
-                    Then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
+                    then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
                         restZaakReturned shouldBe restZaak
                         verify(exactly = 1) {
                             zgwApiService.createZaak(any())
@@ -515,8 +515,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Context("Creating a zaak with no communication channel") {
-            Given("zaak input data has no communication channel") {
+        context("Creating a zaak with no communication channel") {
+            given("zaak input data has no communication channel") {
                 val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
                 val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
                     restZaakCreateData = createRestZaakCreateData(communicatiekanaal = null)
@@ -528,20 +528,20 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
                 every { loggedInUserInstance.get() } returns createLoggedInUser()
 
-                When("zaak creation is attempted") {
+                `when`("zaak creation is attempted") {
                     val exception = shouldThrow<CommunicationChannelNotFound> {
                         zaakRestService.createZaak(restZaakAanmaakGegevens)
                     }
 
-                    Then("an exception is thrown") {
+                    then("an exception is thrown") {
                         exception.errorCode shouldNotBe null
                     }
                 }
             }
         }
 
-        Context("Creating a zaak with blank communication channel") {
-            Given("zaak input data has blank communication channel") {
+        context("Creating a zaak with blank communication channel") {
+            given("zaak input data has blank communication channel") {
                 val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
                 val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
                     restZaakCreateData = createRestZaakCreateData(communicatiekanaal = "      ")
@@ -553,20 +553,20 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
                 every { loggedInUserInstance.get() } returns createLoggedInUser()
 
-                When("zaak creation is attempted") {
+                `when`("zaak creation is attempted") {
                     val exception = shouldThrow<CommunicationChannelNotFound> {
                         zaakRestService.createZaak(restZaakAanmaakGegevens)
                     }
 
-                    Then("an exception is thrown") {
+                    then("an exception is thrown") {
                         exception.errorCode shouldNotBe null
                     }
                 }
             }
         }
 
-        Context("Creating a zaak with due date when servicenorm is not specified") {
-            Given("zaak input data has due date when servicenorm is not specified in OpenZaak") {
+        context("Creating a zaak with due date when servicenorm is not specified") {
+            given("zaak input data has due date when servicenorm is not specified in OpenZaak") {
                 val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
                 val restZaakAanmaakGegevens = createRESTZaakAanmaakGegevens(
                     restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now())
@@ -578,21 +578,21 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
                 every { loggedInUserInstance.get() } returns createLoggedInUser()
 
-                When("zaak creation is attempted") {
+                `when`("zaak creation is attempted") {
                     val exception = shouldThrow<DueDateNotAllowed> {
                         zaakRestService.createZaak(restZaakAanmaakGegevens)
                     }
 
-                    Then("an exception is thrown") {
+                    then("an exception is thrown") {
                         exception.errorCode shouldNotBe null
                     }
                 }
             }
         }
 
-        Context("Creating a zaak with betrokkene not allowed") {
-            Given("A initiator is posted on a zaak create with an initiator") {
-                When("This is not allowed in the zaak afhandel parameters") {
+        context("Creating a zaak with betrokkene not allowed") {
+            given("A initiator is posted on a zaak create with an initiator") {
+                `when`("This is not allowed in the zaak afhandel parameters") {
                     val betrokkeneKoppelingen = createBetrokkeneKoppelingen(
                         brpKoppelen = false,
                         zaaktypeConfiguration = createZaaktypeCmmnConfiguration()
@@ -613,7 +613,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         zaakRestService.createZaak(zaakAanmaakGegevens)
                     }
 
-                    Then("An error should be thrown") {
+                    then("An error should be thrown") {
                         exception.errorCode shouldBe ErrorCode.ERROR_CODE_CASE_BETROKKENE_NOT_ALLOWED
                     }
                 }
@@ -621,8 +621,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Deleting an initiator") {
-        Given("A zaak with an initiator") {
+    context("Deleting an initiator") {
+        given("A zaak with an initiator") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten(toevoegenInitiatorPersoon = true)
@@ -638,10 +638,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns restZaak
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the initiator is deleted") {
+            `when`("the initiator is deleted") {
                 val updatedRestZaak = zaakRestService.deleteInitiator(zaak.uuid, RESTReden("fake reason"))
 
-                Then("the initiator should be removed from the zaak") {
+                then("the initiator should be removed from the zaak") {
                     updatedRestZaak shouldBe restZaak
                     verify(exactly = 1) {
                         zrcClientService.deleteRol(rolMedewerker, "fake reason")
@@ -651,8 +651,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Detaching an informatieobject from a zaak") {
-        Given(
+    context("Detaching an informatieobject from a zaak") {
+        given(
             "A zaak with a zaakinformatieobject where the corresponding informatieobject is only linked to this zaak"
         ) {
             val zaakUUID = UUID.randomUUID()
@@ -682,10 +682,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 detachedDocumentService.create(enkelvoudiginformatieobject, zaak, "veryFakeReason")
             } just Runs
 
-            When("a request is done to unlink the zaakinformatieobject from the zaak") {
+            `when`("a request is done to unlink the zaakinformatieobject from the zaak") {
                 zaakRestService.detachZaakinformatieobject(restOntkoppelGegevens)
 
-                Then(
+                then(
                     """
                     the zaakinformatieobject is unlinked from the zaak and the related informatieobject is removed from the search index
                     and is added as an inboxdocument
@@ -704,7 +704,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             "A zaak with a zaakinformatieobject where the corresponding informatieobject is also linked to another zaak"
         ) {
             val zaakUUID = UUID.randomUUID()
@@ -731,10 +731,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid, "veryFakeReason", "Ontkoppeld")
             } just Runs
 
-            When("a request is done to unlink the zaakinformatieobject from the zaak") {
+            `when`("a request is done to unlink the zaakinformatieobject from the zaak") {
                 zaakRestService.detachZaakinformatieobject(restOntkoppelGegevens)
 
-                Then(
+                then(
                     "the zaakinformatieobject is unlinked from the zaak"
                 ) {
                     verify(exactly = 1) {
@@ -759,8 +759,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Downloading a process diagram") {
-        Given("An existing BPMN process diagram for a given zaak UUID") {
+    context("Downloading a process diagram") {
+        given("An existing BPMN process diagram for a given zaak UUID") {
             val uuid = UUID.randomUUID()
             val zaak = createZaak(uuid = uuid)
             val zaakType = createZaakType()
@@ -770,10 +770,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns loggedInUser
             every { bpmnService.getProcessDiagram(uuid) } returns ByteArrayInputStream("fakeDiagram".toByteArray())
 
-            When("the process diagram is requested") {
+            `when`("the process diagram is requested") {
                 val response = zaakRestService.downloadProcessDiagram(uuid)
 
-                Then(
+                then(
                     "a HTTP OK response is returned with a 'Content-Disposition' HTTP header and the diagram as input stream"
                 ) {
                     with(response) {
@@ -786,8 +786,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing afzenders for zaak and reading the default afzender for a zaak") {
-        Given("ZaaktypeCmmnConfiguration object with zaakafzenders, one of which uses 'special mails'") {
+    context("Listing afzenders for zaak and reading the default afzender for a zaak") {
+        given("ZaaktypeCmmnConfiguration object with zaakafzenders, one of which uses 'special mails'") {
             val zaakUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val zaak = createZaak(
@@ -815,10 +815,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the zaakafzenders are requested") {
+            `when`("the zaakafzenders are requested") {
                 val returnedRestZaakAfzenders = zaakRestService.listAfzendersVoorZaak(zaakUUID)
 
-                Then("the zaakafzenders are returned, including special mails for GEMEENTE and MEDEWERKER") {
+                then("the zaakafzenders are returned, including special mails for GEMEENTE and MEDEWERKER") {
                     with(returnedRestZaakAfzenders) {
                         size shouldBe 3
                         first().apply {
@@ -846,10 +846,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the default afzender is read") {
+            `when`("the default afzender is read") {
                 val returnedDefaultRestZaakAfzender = zaakRestService.readDefaultAfzenderVoorZaak(zaakUUID)
 
-                Then("the default afzender is returned with the email address of the special mail type") {
+                then("the default afzender is returned with the email address of the special mail type") {
                     returnedDefaultRestZaakAfzender shouldNotBe null
                     with(returnedDefaultRestZaakAfzender!!) {
                         id shouldBe null
@@ -862,7 +862,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("ZaaktypeCmmnConfiguration without any zaakafzenders") {
+        given("ZaaktypeCmmnConfiguration without any zaakafzenders") {
             val zaakUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val zaak = createZaak(
@@ -881,10 +881,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { configurationService.readGemeenteMail() } returns "fake-gemeente@example.com"
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the zaakafzenders are requested") {
+            `when`("the zaakafzenders are requested") {
                 val returnedRestZaakAfzenders = zaakRestService.listAfzendersVoorZaak(zaakUUID)
 
-                Then("a list consisting of 'special mail' afzenders only should be returned") {
+                then("a list consisting of 'special mail' afzenders only should be returned") {
                     returnedRestZaakAfzenders shouldHaveSize 2
                     with(returnedRestZaakAfzenders) {
                         size shouldBe 2
@@ -906,18 +906,18 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the default afzender is read") {
+            `when`("the default afzender is read") {
                 val returnedDefaultRestZaakAfzender = zaakRestService.readDefaultAfzenderVoorZaak(zaakUUID)
 
-                Then("no default afzender should be returned") {
+                then("no default afzender should be returned") {
                     returnedDefaultRestZaakAfzender shouldBe null
                 }
             }
         }
     }
 
-    Context("Listing betrokkenen for a zaak") {
-        Given(
+    context("Listing betrokkenen for a zaak") {
+        given(
             """
             A zaak with a betrokkene of type natuurlijk persoon, a betrokkene of type niet-natuurlijk persoon
             with a vestigingsnummer, a betrokkene of type niet-natuurlijk persoon with a RSIN (=INN NNP ID),
@@ -954,10 +954,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { identificationService.replaceBsnWithKey(rolNatuurlijkPersoon.identificatienummer!!) } returns expectedPersonId
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the betrokkenen are retrieved") {
+            `when`("the betrokkenen are retrieved") {
                 val returnedBetrokkenen = zaakRestService.listBetrokkenenVoorZaak(zaak.uuid)
 
-                Then("the betrokkenen are correctly returned except the betrokkene without identification") {
+                then("the betrokkenen are correctly returned except the betrokkene without identification") {
                     with(returnedBetrokkenen) {
                         size shouldBe 3
                         with(first()) {
@@ -988,8 +988,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing zaak types that can be used for zaak creation") {
-        Given(
+    context("Listing zaak types that can be used for zaak creation") {
+        given(
             """
         Two existing CMMN zaaktypes in the configured catalogue for which the logged in user is authorised
         and which are valid on the current date
@@ -1023,10 +1023,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
             every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
 
-            When("the zaaktypes are requested") {
+            `when`("the zaaktypes are requested") {
                 val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
 
-                Then("only CMMN zaaktypes are returned for which the user is authorised") {
+                then("only CMMN zaaktypes are returned for which the user is authorised") {
                     verify(exactly = 1) {
                         ztcClientService.listZaaktypen(defaultCatalogueURI)
                     }
@@ -1036,7 +1036,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("Two CMMN and one BPMN zaaktypes valid on the current date") {
+        given("Two CMMN and one BPMN zaaktypes valid on the current date") {
             val defaultCatalogueURI = URI("http://example.com/fakeCatalogue")
             val now = LocalDate.now()
             val zaakType1UUID = UUID.randomUUID()
@@ -1089,10 +1089,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { configurationService.readDefaultCatalogusURI() } returns defaultCatalogueURI
                 every { ztcClientService.listZaaktypen(defaultCatalogueURI) } returns zaaktypes
 
-                When("the zaaktypes are listed") {
+                `when`("the zaaktypes are listed") {
                     val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
 
-                    Then("all zaaktypes are returned") {
+                    then("all zaaktypes are returned") {
                         verify(exactly = 1) {
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
@@ -1112,10 +1112,10 @@ class ZaakRestServiceTest : BehaviorSpec({
                     } returns createOverigeRechten(startenZaak = false)
                 }
 
-                When("the zaaktypes are listed") {
+                `when`("the zaaktypes are listed") {
                     val returnedRestZaaktypes = zaakRestService.listZaaktypesForZaakCreation()
 
-                    Then("only the zaaktypes for which the user is authorised are returned") {
+                    then("only the zaaktypes for which the user is authorised are returned") {
                         verify(exactly = 1) {
                             ztcClientService.listZaaktypen(defaultCatalogueURI)
                         }
@@ -1130,8 +1130,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading a zaak") {
-        Given("A zaak with an initiator of type BSN for which signaleringen exist") {
+    context("Reading a zaak") {
+        given("A zaak with an initiator of type BSN for which signaleringen exist") {
             val zaakUUID = UUID.randomUUID()
             val zaak = createZaak(uuid = zaakUUID)
             val zaakType = createZaakType()
@@ -1152,10 +1152,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { signaleringService.deleteSignaleringenForZaak(zaak) } returns 1
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the zaak is read") {
+            `when`("the zaak is read") {
                 val returnedRestZaak = zaakRestService.readZaak(zaakUUID)
 
-                Then("the zaak is returned and any zaak signaleringen are deleted") {
+                then("the zaak is returned and any zaak signaleringen are deleted") {
                     returnedRestZaak shouldBe restZaak
                     verify(exactly = 1) {
                         signaleringService.deleteSignaleringenForZaak(zaak)
@@ -1165,8 +1165,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Terminating a zaak") {
-        Given("A zaak and no managed zaakbeeindigreden") {
+    context("Terminating a zaak") {
+        given("A zaak and no managed zaakbeeindigreden") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
@@ -1184,13 +1184,13 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
+            `when`("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
                 zaakRestService.terminateZaak(
                     zaak.uuid,
                     RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
                 )
 
-                Then("it is ended with result") {
+                then("it is ended with result") {
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(
                             zaak,
@@ -1203,7 +1203,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak with a besluit cannot be terminated. A bad request is returned") {
+        given("A zaak with a besluit cannot be terminated. A bad request is returned") {
             val zaakUuid = UUID.randomUUID()
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaak = createZaak(
@@ -1217,7 +1217,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(afbreken = true)
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("trying to terminate the zaak") {
+            `when`("trying to terminate the zaak") {
                 shouldThrow<ZaakWithABesluitCannotBeTerminatedException> {
                     zaakRestService.terminateZaak(
                         zaakUuid,
@@ -1225,7 +1225,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     )
                 }
 
-                Then(
+                then(
                     "it throws ZaakWithADecisionCannotBeTerminatedException and no close or terminate calls are made"
                 ) {
                     verify(exactly = 0) {
@@ -1236,7 +1236,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak and managed zaakbeeindigreden") {
+        given("A zaak and managed zaakbeeindigreden") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
@@ -1255,7 +1255,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             val loggedInUser = createLoggedInUser()
 
-            When("aborted with managed zaakbeeindigreden") {
+            `when`("aborted with managed zaakbeeindigreden") {
                 every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
                 every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(afbreken = true)
                 every {
@@ -1266,7 +1266,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { loggedInUserInstance.get() } returns loggedInUser
                 zaakRestService.terminateZaak(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
 
-                Then("it is ended with result") {
+                then("it is ended with result") {
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name")
                         cmmnService.terminateCase(zaak.uuid)
@@ -1274,7 +1274,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("aborted with invalid zaakbeeindigreden id") {
+            `when`("aborted with invalid zaakbeeindigreden id") {
                 every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
                 every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(afbreken = true)
                 every {
@@ -1288,13 +1288,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                     )
                 }
 
-                Then("it throws an error") {
+                then("it throws an error") {
                     exception.message shouldBe "For input string: \"not a number\""
                 }
             }
         }
 
-        Given("A BPMN zaak and no managed zaakbeeindigreden") {
+        given("A BPMN zaak and no managed zaakbeeindigreden") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
@@ -1312,13 +1312,13 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { bpmnService.terminateCase(zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
+            `when`("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
                 zaakRestService.terminateZaak(
                     zaak.uuid,
                     RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
                 )
 
-                Then("it is ended with result") {
+                then("it is ended with result") {
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(
                             zaak,
@@ -1332,8 +1332,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Updating an initiator") {
-        Given("A zaak with an initiator and rest zaak betrokkene gegevens") {
+    context("Updating an initiator") {
+        given("A zaak with an initiator and rest zaak betrokkene gegevens") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten(toevoegenInitiatorPersoon = true)
@@ -1356,10 +1356,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns bsn
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("an initiator is updated") {
+            `when`("an initiator is updated") {
                 val updatedRestZaak = zaakRestService.updateInitiator(restZaakInitiatorGegevens)
 
-                Then("the old initiator should be removed and the new one should be added to the zaak") {
+                then("the old initiator should be removed and the new one should be added to the zaak") {
                     updatedRestZaak shouldBe restZaak
                     verify(exactly = 1) {
                         zrcClientService.deleteRol(
@@ -1377,7 +1377,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak without an initiator and an initiator of type vestiging") {
+        given("A zaak without an initiator and an initiator of type vestiging") {
             val kvkNummer = "1234567"
             val vestigingsnummer = "00012352546"
             val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
@@ -1408,14 +1408,14 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the initiator is updated") {
+            `when`("the initiator is updated") {
                 zaakRestService.updateInitiator(
                     restZaakInitiatorGegevens.apply {
                         toelichting = "test reden"
                     }
                 )
 
-                Then("the initiator should be added to the zaak") {
+                then("the initiator should be added to the zaak") {
                     verify(exactly = 1) {
                         zaakService.addInitiatorToZaak(
                             IdentificatieType.VN,
@@ -1427,14 +1427,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the initiator is updated without an explanation") {
+            `when`("the initiator is updated without an explanation") {
                 zaakRestService.updateInitiator(
                     restZaakInitiatorGegevens = restZaakInitiatorGegevens.apply {
                         toelichting = null
                     }
                 )
 
-                Then("the reason should be set to the default") {
+                then("the reason should be set to the default") {
                     verify(exactly = 1) {
                         zaakService.addInitiatorToZaak(
                             IdentificatieType.VN,
@@ -1447,7 +1447,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak without an initiator and an initiator of type rechtspersoon") {
+        given("A zaak without an initiator and an initiator of type rechtspersoon") {
             val kvkNummer = "1234567"
             val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
                 betrokkeneIdentificatie = BetrokkeneIdentificatie(
@@ -1476,14 +1476,14 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the initiator is updated") {
+            `when`("the initiator is updated") {
                 zaakRestService.updateInitiator(
                     restZaakInitiatorGegevens.apply {
                         toelichting = "test reden"
                     }
                 )
 
-                Then("the initiator should be added to the zaak") {
+                then("the initiator should be added to the zaak") {
                     verify(exactly = 1) {
                         zaakService.addInitiatorToZaak(
                             IdentificatieType.RSIN,
@@ -1496,7 +1496,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak without an initiator and an initiator of type rechtspersoon without a KVK nummer") {
+        given("A zaak without an initiator and an initiator of type rechtspersoon without a KVK nummer") {
             val restZaakInitiatorGegevens = createRestZaakInitiatorGegevens(
                 betrokkeneIdentificatie = BetrokkeneIdentificatie(
                     type = IdentificatieType.RSIN,
@@ -1515,12 +1515,12 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the initiator is updated without a required KVK nummer") {
+            `when`("the initiator is updated without a required KVK nummer") {
                 val exception = shouldThrow<IllegalArgumentException> {
                     zaakRestService.updateInitiator(restZaakInitiatorGegevens)
                 }
 
-                Then("and exception should be thrown and the initiator should not be added to the zaak") {
+                then("and exception should be thrown and the initiator should not be added to the zaak") {
                     exception.message shouldBe "KVK nummer is required for type RSIN"
                     verify(exactly = 0) {
                         zaakService.addInitiatorToZaak(any(), any(), any(), any())
@@ -1530,8 +1530,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Updating a zaak") {
-        Given("a BPMN zaak with tasks exists and zaak and tasks have final date and communication channel set") {
+    context("Updating a zaak") {
+        given("a BPMN zaak with tasks exists and zaak and tasks have final date and communication channel set") {
             val changeDescription = "change description"
             val zaak = createZaak()
             val zaakType = createZaakType(servicenorm = "P10D")
@@ -1570,14 +1570,14 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns zaaktypeBpmnConfiguration
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("zaak final date is set to a later date") {
+            `when`("zaak final date is set to a later date") {
                 every {
                     suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newZaakFinalDate)
                 } returns listOf(task, task)
 
                 val updatedRestZaak = zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
 
-                Then("zaak is updated with the new data") {
+                then("zaak is updated with the new data") {
                     updatedRestZaak shouldBe patchedRestZaak
                 }
 
@@ -1598,7 +1598,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a zaak and user not part of any group") {
+        given("a zaak and user not part of any group") {
             val changeDescription = "change description"
             val zaak = createZaak()
             val zaakType = createZaakType()
@@ -1616,16 +1616,16 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns createZaaktypeCmmnConfiguration()
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("zaak update is requested") {
+            `when`("zaak update is requested") {
                 shouldThrow<InputValidationFailedException> {
                     zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
                 }
 
-                Then("exception is thrown") {}
+                then("exception is thrown") {}
             }
         }
 
-        Given("no verlengenDoorlooptijd policy") {
+        given("no verlengenDoorlooptijd policy") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten(verlengenDoorlooptijd = false)
@@ -1641,17 +1641,17 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("zaak update is requested with a new final date") {
+            `when`("zaak update is requested with a new final date") {
                 val exception = shouldThrow<PolicyException> {
                     zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
                 }
 
-                Then("it fails") {
+                then("it fails") {
                     exception.message shouldBe null
                 }
             }
 
-            When("zaak update is requested without a new final date") {
+            `when`("zaak update is requested without a new final date") {
                 val restZaakCreateData = restZaakCreateData.copy(
                     uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
                 )
@@ -1667,7 +1667,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
 
-                Then("it succeeds") {
+                then("it succeeds") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(zaak.uuid, any(), any())
                     }
@@ -1675,7 +1675,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("no wijzigenDoorlooptijd policy") {
+        given("no wijzigenDoorlooptijd policy") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten(wijzigenDoorlooptijd = false)
@@ -1691,17 +1691,17 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("zaak update is requested with a new final date") {
+            `when`("zaak update is requested with a new final date") {
                 val exception = shouldThrow<PolicyException> {
                     zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
                 }
 
-                Then("it fails") {
+                then("it fails") {
                     exception.message shouldBe null
                 }
             }
 
-            When("zaak update is requested without a new final date") {
+            `when`("zaak update is requested without a new final date") {
                 val restZaak = createRestZaak(
                     uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
                 )
@@ -1720,7 +1720,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens.copy(zaak = restZaakCreateData))
 
-                Then("it succeeds") {
+                then("it succeeds") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(zaak.uuid, any(), any())
                     }
@@ -1728,7 +1728,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("due date change when servicenorm is not specified in OpenZaak") {
+        given("due date change when servicenorm is not specified in OpenZaak") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
@@ -1745,20 +1745,20 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns createZaaktypeCmmnConfiguration()
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("zaak update is requested with a new final date") {
+            `when`("zaak update is requested with a new final date") {
                 val exception = shouldThrow<DueDateNotAllowed> {
                     zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
                 }
 
-                Then("it fails") {
+                then("it fails") {
                     exception.message shouldBe null
                 }
             }
         }
     }
 
-    Context("Updating zaak data") {
-        Given("Rest zaak data") {
+    context("Updating zaak data") {
+        given("Rest zaak data") {
             val restZaakDataUpdate = createRestZaakDataUpdate()
             val zaak = createZaak()
             val zaakType = createZaakType()
@@ -1772,10 +1772,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { zaakVariabelenService.setZaakdata(restZaakDataUpdate.uuid, capture(zaakdataMap)) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the zaakdata is requested to be updated") {
+            `when`("the zaakdata is requested to be updated") {
                 zaakRestService.updateZaakdata(restZaakDataUpdate)
 
-                Then("the zaakdata is correctly updated") {
+                then("the zaakdata is correctly updated") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setZaakdata(restZaakDataUpdate.uuid, any())
                     }
@@ -1785,8 +1785,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Updating a zaak location") {
-        Given("An existing zaak") {
+    context("Updating a zaak location") {
+        given("An existing zaak") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
@@ -1809,10 +1809,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser) } returns updatedRestZaak
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("a zaak location is added to the zaak") {
+            `when`("a zaak location is added to the zaak") {
                 val restZaak = zaakRestService.updateZaakLocatie(zaak.uuid, restZaakLocatieGegevens)
 
-                Then("the zaak is updated correctly") {
+                then("the zaak is updated correctly") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(zaak.uuid, any(), reason)
                     }
@@ -1828,7 +1828,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("An existing zaak with a zaak location") {
+        given("An existing zaak with a zaak location") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
@@ -1850,10 +1850,10 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { restZaakConverter.toRestZaak(updatedZaak, zaakType, zaakRechten, loggedInUser) } returns updatedRestZaak
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the zaak location is deleted") {
+            `when`("the zaak location is deleted") {
                 val restZaak = zaakRestService.updateZaakLocatie(zaak.uuid, restZaakLocatieGegevens)
 
-                Then("the zaak is updated correctly") {
+                then("the zaak is updated correctly") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(zaak.uuid, any(), reason)
                     }

@@ -24,7 +24,7 @@ class ReferenceTableServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A reference table") {
+    given("A reference table") {
         val referenceTableID = 1234L
         val referenceTable = createReferenceTable(
             values = mutableListOf(
@@ -35,32 +35,32 @@ class ReferenceTableServiceTest : BehaviorSpec({
         )
         every { entityManager.find(ReferenceTable::class.java, referenceTableID) } returns referenceTable
 
-        When("the reference table is requested by id") {
+        `when`("the reference table is requested by id") {
             val returnedReferenceTable = referenceTableService.readReferenceTable(referenceTableID)
 
-            Then("the reference table is returned") {
+            then("the reference table is returned") {
                 returnedReferenceTable shouldBe referenceTable
             }
         }
 
-        When("the reference table values are requested") {
+        `when`("the reference table values are requested") {
             val referenceTableValues = referenceTableService.listReferenceTableValuesSorted(referenceTable)
 
-            Then("the reference table values are returned sorted by sort order") {
+            then("the reference table values are returned sorted by sort order") {
                 referenceTableValues shouldBe referenceTable.values.sortedBy { it.sortOrder }
             }
         }
     }
-    Given("No reference table for the given id") {
+    given("No reference table for the given id") {
         val referenceTableID = 1234L
         every { entityManager.find(ReferenceTable::class.java, referenceTableID) } returns null
 
-        When("the reference table is requested by id") {
+        `when`("the reference table is requested by id") {
             val exception = shouldThrow<RuntimeException> {
                 referenceTableService.readReferenceTable(referenceTableID)
             }
 
-            Then("the reference table is returned") {
+            then("the reference table is returned") {
                 exception.message shouldBe "No reference table found with id '$referenceTableID'"
             }
         }

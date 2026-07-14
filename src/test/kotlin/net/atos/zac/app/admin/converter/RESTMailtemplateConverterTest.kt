@@ -14,8 +14,8 @@ import nl.info.zac.mailtemplates.model.createMailTemplate
 
 class RESTMailtemplateConverterTest : BehaviorSpec({
 
-    Context("convertForCreate method") {
-        Given("A REST mail template with an ID") {
+    context("convertForCreate method") {
+        given("A REST mail template with an ID") {
             val restMailTemplate = createRestMailTemplate(
                 id = 999L,
                 mailTemplateName = "Test Template",
@@ -25,10 +25,10 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
                 defaultTemplate = true
             )
 
-            When("convertForCreate is called") {
+            `when`("convertForCreate is called") {
                 val domainMailTemplate = RESTMailtemplateConverter.convertForCreate(restMailTemplate)
 
-                Then("the domain model should not have an ID set") {
+                then("the domain model should not have an ID set") {
                     domainMailTemplate.id shouldBe 0L
                 }
 
@@ -42,31 +42,31 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
             }
         }
 
-        Given("A REST mail template with HTML paragraph tags in subject") {
+        given("A REST mail template with HTML paragraph tags in subject") {
             val restMailTemplate = createRestMailTemplate(
                 subject = "<p>Complex</p><p>Subject</p><p>With</p><p>Tags</p>"
             )
 
-            When("convertForCreate is called") {
+            `when`("convertForCreate is called") {
                 val domainMailTemplate = RESTMailtemplateConverter.convertForCreate(restMailTemplate)
 
-                Then("HTML paragraph tags should be stripped from subject") {
+                then("HTML paragraph tags should be stripped from subject") {
                     domainMailTemplate.onderwerp shouldBe "ComplexSubjectWithTags"
                 }
             }
         }
 
-        Given("A REST mail template with different mail types") {
+        given("A REST mail template with different mail types") {
             listOf(
                 Mail.ZAAK_ALGEMEEN,
                 Mail.SIGNALERING_TAAK_OP_NAAM,
             ).forEach { mailType ->
                 val restMailTemplate = createRestMailTemplate(mail = mailType)
 
-                When("convertForCreate is called with mail type ${mailType.name}") {
+                `when`("convertForCreate is called with mail type ${mailType.name}") {
                     val domainMailTemplate = RESTMailtemplateConverter.convertForCreate(restMailTemplate)
 
-                    Then("the mail enum should be correctly converted") {
+                    then("the mail enum should be correctly converted") {
                         domainMailTemplate.mail shouldBe mailType
                     }
                 }
@@ -74,8 +74,8 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convertForUpdate method") {
-        Given("A REST mail template with an ID") {
+    context("convertForUpdate method") {
+        given("A REST mail template with an ID") {
             val restMailTemplate = createRestMailTemplate(
                 id = 123L,
                 mailTemplateName = "Updated Template",
@@ -85,10 +85,10 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
                 defaultTemplate = false
             )
 
-            When("convertForUpdate is called") {
+            `when`("convertForUpdate is called") {
                 val domainMailTemplate = RESTMailtemplateConverter.convertForUpdate(restMailTemplate)
 
-                Then("the domain model should not have an ID set (will be set by service layer)") {
+                then("the domain model should not have an ID set (will be set by service layer)") {
                     domainMailTemplate.id shouldBe 0L
                 }
 
@@ -102,23 +102,23 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
             }
         }
 
-        Given("A REST mail template with complex HTML in subject") {
+        given("A REST mail template with complex HTML in subject") {
             val restMailTemplate = createRestMailTemplate(
                 subject = "<p>Start</p>Middle<p>End</p>"
             )
 
-            When("convertForUpdate is called") {
+            `when`("convertForUpdate is called") {
                 val domainMailTemplate = RESTMailtemplateConverter.convertForUpdate(restMailTemplate)
 
-                Then("HTML paragraph tags should be stripped correctly") {
+                then("HTML paragraph tags should be stripped correctly") {
                     domainMailTemplate.onderwerp shouldBe "StartMiddleEnd"
                 }
             }
         }
     }
 
-    Context("Comparison between convertForCreate and convertForUpdate") {
-        Given("The same REST mail template") {
+    context("Comparison between convertForCreate and convertForUpdate") {
+        given("The same REST mail template") {
             val restMailTemplate = createRestMailTemplate(
                 id = 456L,
                 mailTemplateName = "Same Template",
@@ -128,11 +128,11 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
                 defaultTemplate = true
             )
 
-            When("both convertForCreate and convertForUpdate are called") {
+            `when`("both convertForCreate and convertForUpdate are called") {
                 val createResult = RESTMailtemplateConverter.convertForCreate(restMailTemplate)
                 val updateResult = RESTMailtemplateConverter.convertForUpdate(restMailTemplate)
 
-                Then("both should produce identical domain models except for ID handling") {
+                then("both should produce identical domain models except for ID handling") {
                     createResult.id shouldBe 0L
                     updateResult.id shouldBe 0L
 
@@ -154,8 +154,8 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
         }
     }
 
-    Context("ID handling verification") {
-        Given("REST mail templates with various ID values") {
+    context("ID handling verification") {
+        given("REST mail templates with various ID values") {
             val testCases = listOf(
                 0L,
                 1L,
@@ -166,18 +166,18 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
             testCases.forEach { idValue ->
                 val restMailTemplate = createRestMailTemplate(id = idValue)
 
-                When("convertForCreate is called with ID $idValue") {
+                `when`("convertForCreate is called with ID $idValue") {
                     val result = RESTMailtemplateConverter.convertForCreate(restMailTemplate)
 
-                    Then("the result should always have ID = 0 regardless of input ID") {
+                    then("the result should always have ID = 0 regardless of input ID") {
                         result.id shouldBe 0L
                     }
                 }
 
-                When("convertForUpdate is called with ID $idValue") {
+                `when`("convertForUpdate is called with ID $idValue") {
                     val result = RESTMailtemplateConverter.convertForUpdate(restMailTemplate)
 
-                    Then("the result should always have ID = 0 regardless of input ID") {
+                    then("the result should always have ID = 0 regardless of input ID") {
                         result.id shouldBe 0L
                     }
                 }
@@ -185,33 +185,33 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
         }
     }
 
-    Context("Existing convert method behavior (for comparison)") {
-        Given("A REST mail template with ID") {
+    context("Existing convert method behavior (for comparison)") {
+        given("A REST mail template with ID") {
             val restMailTemplate = createRestMailTemplate(
                 id = 789L,
                 mailTemplateName = "Legacy Template"
             )
 
-            When("the existing convert method is called") {
+            `when`("the existing convert method is called") {
                 val result = RESTMailtemplateConverter.convert(restMailTemplate)
 
-                Then("it should preserve the ID (legacy behavior)") {
+                then("it should preserve the ID (legacy behavior)") {
                     result.id shouldBe 789L
                     result.mailTemplateNaam shouldBe "Legacy Template"
                 }
             }
         }
 
-        Given("A domain mail template") {
+        given("A domain mail template") {
             val domainMailTemplate = createMailTemplate(
                 id = 321L,
                 name = "Domain Template"
             )
 
-            When("the existing convert method is called") {
+            `when`("the existing convert method is called") {
                 val result = RESTMailtemplateConverter.convert(domainMailTemplate)
 
-                Then("it should correctly convert to REST model") {
+                then("it should correctly convert to REST model") {
                     result.id shouldBe 321L
                     result.mailTemplateNaam shouldBe "Domain Template"
                 }
@@ -219,9 +219,9 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
         }
     }
 
-    Given("Error handling for convertForCreate") {
-        When("convertForCreate is called with null input") {
-            Then("it should throw IllegalArgumentException") {
+    given("Error handling for convertForCreate") {
+        `when`("convertForCreate is called with null input") {
+            then("it should throw IllegalArgumentException") {
                 val exception = shouldThrow<IllegalArgumentException> {
                     RESTMailtemplateConverter.convertForCreate(null)
                 }
@@ -230,9 +230,9 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
         }
     }
 
-    Given("Error handling for convertForUpdate") {
-        When("convertForUpdate is called with null input") {
-            Then("it should throw IllegalArgumentException") {
+    given("Error handling for convertForUpdate") {
+        `when`("convertForUpdate is called with null input") {
+            then("it should throw IllegalArgumentException") {
                 val exception = shouldThrow<IllegalArgumentException> {
                     RESTMailtemplateConverter.convertForUpdate(null)
                 }
@@ -241,20 +241,20 @@ class RESTMailtemplateConverterTest : BehaviorSpec({
         }
     }
 
-    Given("Whitespace handling for template names") {
-        When("convertForCreate is called with template name containing whitespace") {
+    given("Whitespace handling for template names") {
+        `when`("convertForCreate is called with template name containing whitespace") {
             val restMailTemplate = createRestMailTemplate().apply { mailTemplateNaam = "  Test Template  " }
 
-            Then("it should trim whitespace and convert successfully") {
+            then("it should trim whitespace and convert successfully") {
                 val result = RESTMailtemplateConverter.convertForCreate(restMailTemplate)
                 result.mailTemplateNaam shouldBe "Test Template"
             }
         }
 
-        When("convertForUpdate is called with template name containing whitespace") {
+        `when`("convertForUpdate is called with template name containing whitespace") {
             val restMailTemplate = createRestMailTemplate().apply { mailTemplateNaam = "  Updated Template  " }
 
-            Then("it should trim whitespace and convert successfully") {
+            then("it should trim whitespace and convert successfully") {
                 val result = RESTMailtemplateConverter.convertForUpdate(restMailTemplate)
                 result.mailTemplateNaam shouldBe "Updated Template"
             }

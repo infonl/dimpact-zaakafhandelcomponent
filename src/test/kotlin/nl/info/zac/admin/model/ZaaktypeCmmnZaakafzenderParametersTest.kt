@@ -12,17 +12,17 @@ import jakarta.validation.Validation
 class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
     val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
-    Context("equals") {
-        Given("Two equal objects") {
+    context("equals") {
+        given("Two equal objects") {
             val zaakafzenderParameters1 = createZaakAfzender(zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration)
             val zaakafzenderParameters2 = createZaakAfzender(zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration)
 
-            When("they are compared") {
+            `when`("they are compared") {
                 val comparisonResult = zaakafzenderParameters1.equals(zaakafzenderParameters2)
                 val hashCode1 = zaakafzenderParameters1.hashCode()
                 val hashCode2 = zaakafzenderParameters2.hashCode()
 
-                Then("they should be equal") {
+                then("they should be equal") {
                     comparisonResult shouldBe true
                 }
 
@@ -32,7 +32,7 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
             }
         }
 
-        Given("Two objects differ in the defaultMail property") {
+        given("Two objects differ in the defaultMail property") {
             val zaakafzenderParameters1 = createZaakAfzender(
                 defaultMail = true,
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
@@ -42,12 +42,12 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
-            When("they are compared") {
+            `when`("they are compared") {
                 val comparisonResult = zaakafzenderParameters1.equals(zaakafzenderParameters2)
                 val hashCode1 = zaakafzenderParameters1.hashCode()
                 val hashCode2 = zaakafzenderParameters2.hashCode()
 
-                Then("they should be different") {
+                then("they should be different") {
                     comparisonResult shouldBe false
                 }
 
@@ -57,7 +57,7 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
             }
         }
 
-        Given("Two objects differ in the mail property") {
+        given("Two objects differ in the mail property") {
             val zaakafzenderParameters1 = createZaakAfzender(
                 mail = "mail1@example.com",
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
@@ -67,12 +67,12 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
-            When("they are compared") {
+            `when`("they are compared") {
                 val comparisonResult = zaakafzenderParameters1.equals(zaakafzenderParameters2)
                 val hashCode1 = zaakafzenderParameters1.hashCode()
                 val hashCode2 = zaakafzenderParameters2.hashCode()
 
-                Then("they should be different") {
+                then("they should be different") {
                     comparisonResult shouldBe false
                 }
 
@@ -82,7 +82,7 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
             }
         }
 
-        Given("Two objects differ in the replyTo property") {
+        given("Two objects differ in the replyTo property") {
             val zaakafzenderParameters1 = createZaakAfzender(
                 replyTo = "mail1@example.com",
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
@@ -92,12 +92,12 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
-            When("they are compared") {
+            `when`("they are compared") {
                 val comparisonResult = zaakafzenderParameters1.equals(zaakafzenderParameters2)
                 val hashCode1 = zaakafzenderParameters1.hashCode()
                 val hashCode2 = zaakafzenderParameters2.hashCode()
 
-                Then("they should be different") {
+                then("they should be different") {
                     comparisonResult shouldBe false
                 }
 
@@ -107,7 +107,7 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
             }
         }
 
-        Given("Two objects differ in multiple properties") {
+        given("Two objects differ in multiple properties") {
             val zaakafzenderParameters1 = createZaakAfzender(
                 defaultMail = true,
                 replyTo = "mail1@example.com",
@@ -119,12 +119,12 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
-            When("they are compared") {
+            `when`("they are compared") {
                 val comparisonResult = zaakafzenderParameters1.equals(zaakafzenderParameters2)
                 val hashCode1 = zaakafzenderParameters1.hashCode()
                 val hashCode2 = zaakafzenderParameters2.hashCode()
 
-                Then("they should be different") {
+                then("they should be different") {
                     comparisonResult shouldBe false
                 }
 
@@ -135,31 +135,31 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
         }
     }
 
-    Context("validation") {
+    context("validation") {
         val validator = Validation.buildDefaultValidatorFactory().validator
 
-        Given("a valid zaakafzender") {
+        given("a valid zaakafzender") {
             val zaakafzenderParameters = createZaakAfzender(zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration)
 
-            When("validating the zaakafzender") {
+            `when`("validating the zaakafzender") {
                 val validationResult = validator.validate(zaakafzenderParameters)
 
-                Then("there should be no validation errors") {
+                then("there should be no validation errors") {
                     validationResult.isEmpty() shouldBe true
                 }
             }
         }
 
-        Given("an empty replyTo") {
+        given("an empty replyTo") {
             val zaakafzenderParameters = createZaakAfzender(
                 replyTo = "",
                 zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration
             )
 
-            When("validating the zaakafzender") {
+            `when`("validating the zaakafzender") {
                 val validationResult = validator.validate(zaakafzenderParameters)
 
-                Then("there should be no validation errors") {
+                then("there should be no validation errors") {
                     validationResult.isEmpty() shouldBe true
                 }
             }

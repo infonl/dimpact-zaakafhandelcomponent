@@ -28,7 +28,7 @@ class FlowableTaskServiceTest : BehaviorSpec({
         historyService
     )
 
-    Given("An open task") {
+    given("An open task") {
         val taskId = "fakeTaskId"
         val task = mockk<Task>()
 
@@ -42,15 +42,15 @@ class FlowableTaskServiceTest : BehaviorSpec({
                 .singleResult()
         } returns task
 
-        When("the read open task method is called") {
+        `when`("the read open task method is called") {
             val returnedTask = flowableTaskService.readOpenTask(taskId)
 
-            Then("the open task is returned") {
+            then("the open task is returned") {
                 returnedTask shouldBe task
             }
         }
     }
-    Given("An closed task") {
+    given("An closed task") {
         val taskId = "fakeTaskId"
 
         every {
@@ -63,17 +63,17 @@ class FlowableTaskServiceTest : BehaviorSpec({
                 .singleResult()
         } returns null
 
-        When("the read open task method is called") {
+        `when`("the read open task method is called") {
             val taskNotFoundException = shouldThrow<TaskNotFoundException> {
                 flowableTaskService.readOpenTask(taskId)
             }
 
-            Then("the open task is returned") {
+            then("the open task is returned") {
                 taskNotFoundException.message shouldBe "No open task with id '$taskId' found"
             }
         }
     }
-    Given("A historic task") {
+    given("A historic task") {
         val taskId = "fakeTaskId"
         val historicTaskInstance = mockk<HistoricTaskInstance>()
 
@@ -87,15 +87,15 @@ class FlowableTaskServiceTest : BehaviorSpec({
                 .singleResult()
         } returns historicTaskInstance
 
-        When("the read closed task method is called") {
+        `when`("the read closed task method is called") {
             val returnedTask = flowableTaskService.readClosedTask(taskId)
 
-            Then("the historic task is returned") {
+            then("the historic task is returned") {
                 returnedTask shouldBe historicTaskInstance
             }
         }
     }
-    Given("No historic task for the given task id") {
+    given("No historic task for the given task id") {
         val taskId = "fakeTaskId"
 
         every {
@@ -108,12 +108,12 @@ class FlowableTaskServiceTest : BehaviorSpec({
                 .singleResult()
         } returns null
 
-        When("the read open task method is called") {
+        `when`("the read open task method is called") {
             val taskNotFoundException = shouldThrow<TaskNotFoundException> {
                 flowableTaskService.readClosedTask(taskId)
             }
 
-            Then("the open task is returned") {
+            then("the open task is returned") {
                 taskNotFoundException.message shouldBe "No historic task with id '$taskId' found"
             }
         }

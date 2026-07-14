@@ -13,88 +13,88 @@ import java.util.UUID
 class BetrokkeneIdentificatieValidatorTest : BehaviorSpec({
     val validator = BetrokkeneIdentificatieValidator()
 
-    Context("Validation of BSN type identification") {
-        Given("A BSN identification with temporaryPersonId set and blank kvkNummer and vestigingsnummer") {
+    context("Validation of BSN type identification") {
+        given("A BSN identification with temporaryPersonId set and blank kvkNummer and vestigingsnummer") {
             val identificatie = BetrokkeneIdentificatie(
                 type = IdentificatieType.BSN,
                 temporaryPersonId = UUID.randomUUID()
             )
 
-            When("isValid is called") {
+            `when`("isValid is called") {
                 val result = validator.isValid(identificatie, mockk())
 
-                Then("it should return true") {
+                then("it should return true") {
                     result shouldBe true
                 }
             }
         }
 
-        Given("A BSN identification with temporaryPersonId null") {
+        given("A BSN identification with temporaryPersonId null") {
             val identificatie = BetrokkeneIdentificatie(
                 type = IdentificatieType.BSN,
                 temporaryPersonId = null
             )
 
-            When("isValid is called") {
+            `when`("isValid is called") {
                 val result = validator.isValid(identificatie, mockk())
 
-                Then("it should return false") {
+                then("it should return false") {
                     result shouldBe false
                 }
             }
         }
 
-        Given("A BSN identification with kvkNummer present") {
+        given("A BSN identification with kvkNummer present") {
             val identificatie = BetrokkeneIdentificatie(
                 type = IdentificatieType.BSN,
                 temporaryPersonId = UUID.randomUUID(),
                 kvkNummer = "fakeKvkNummer"
             )
 
-            When("isValid is called") {
+            `when`("isValid is called") {
                 val result = validator.isValid(identificatie, mockk())
 
-                Then("it should return false") {
+                then("it should return false") {
                     result shouldBe false
                 }
             }
         }
     }
 
-    Context("Validation of VN type identification") {
-        Given("A VN identification with kvkNummer, vestigingsnummer set and temporaryPersonId null") {
+    context("Validation of VN type identification") {
+        given("A VN identification with kvkNummer, vestigingsnummer set and temporaryPersonId null") {
             val identificatie = BetrokkeneIdentificatie(
                 type = IdentificatieType.VN,
                 kvkNummer = "fakeKvkNummer",
                 vestigingsnummer = "fakeVestigingsnummer"
             )
 
-            When("isValid is called") {
+            `when`("isValid is called") {
                 val result = validator.isValid(identificatie, mockk())
 
-                Then("it should return true") {
+                then("it should return true") {
                     result shouldBe true
                 }
             }
         }
 
-        Given("A VN identification with blank kvkNummer") {
+        given("A VN identification with blank kvkNummer") {
             val identificatie = BetrokkeneIdentificatie(
                 type = IdentificatieType.VN,
                 kvkNummer = "",
                 vestigingsnummer = "fakeVestigingsnummer"
             )
 
-            When("isValid is called") {
+            `when`("isValid is called") {
                 val result = validator.isValid(identificatie, mockk())
 
-                Then("it should return false") {
+                then("it should return false") {
                     result shouldBe false
                 }
             }
         }
 
-        Given("A VN identification with temporaryPersonId set") {
+        given("A VN identification with temporaryPersonId set") {
             val identificatie = BetrokkeneIdentificatie(
                 type = IdentificatieType.VN,
                 kvkNummer = "fakeKvkNummer",
@@ -102,55 +102,55 @@ class BetrokkeneIdentificatieValidatorTest : BehaviorSpec({
                 temporaryPersonId = UUID.randomUUID()
             )
 
-            When("isValid is called") {
+            `when`("isValid is called") {
                 val result = validator.isValid(identificatie, mockk())
 
-                Then("it should return false") {
+                then("it should return false") {
                     result shouldBe false
                 }
             }
         }
     }
 
-    Context("Validation of RSIN type identification") {
-        Given("A RSIN identification with kvkNummer set, temporaryPersonId null, vestigingsnummer blank") {
+    context("Validation of RSIN type identification") {
+        given("A RSIN identification with kvkNummer set, temporaryPersonId null, vestigingsnummer blank") {
             val identificatie = BetrokkeneIdentificatie(
                 type = IdentificatieType.RSIN,
                 kvkNummer = "fakeKvkNummer"
             )
 
-            When("isValid is called") {
+            `when`("isValid is called") {
                 val result = validator.isValid(identificatie, mockk())
 
-                Then("it should return true") {
+                then("it should return true") {
                     result shouldBe true
                 }
             }
         }
 
-        Given("A RSIN identification with vestigingsnummer present") {
+        given("A RSIN identification with vestigingsnummer present") {
             val identificatie = BetrokkeneIdentificatie(
                 type = IdentificatieType.RSIN,
                 kvkNummer = "fakeKvkNummer",
                 vestigingsnummer = "fakeVestigingsnummer"
             )
 
-            When("isValid is called") {
+            `when`("isValid is called") {
                 val result = validator.isValid(identificatie, mockk())
 
-                Then("it should return false") {
+                then("it should return false") {
                     result shouldBe false
                 }
             }
         }
     }
 
-    Context("Validation of null input") {
-        Given("A null BetrokkeneIdentificatie") {
-            When("isValid is called with null") {
+    context("Validation of null input") {
+        given("A null BetrokkeneIdentificatie") {
+            `when`("isValid is called with null") {
                 val result = validator.isValid(null, mockk())
 
-                Then("it should return false") {
+                then("it should return false") {
                     result shouldBe false
                 }
             }

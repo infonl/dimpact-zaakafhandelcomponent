@@ -36,7 +36,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient()
     lateinit var humanTaskItemAanvullendeInformatieId: String
 
-    Given("A zaak has been created for test zaaktype 3 and a behandelaar is logged in") {
+    given("A zaak has been created for test zaaktype 3 and a behandelaar is logged in") {
         lateinit var zaakUuid: UUID
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
@@ -51,10 +51,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the list human task plan items endpoint is called") {
+        `when`("the list human task plan items endpoint is called") {
             val response = zacClient.getHumanTaskPlanItemsForZaak(zaakUuid, BEHANDELAAR_1)
 
-            Then("the list of human task plan items for this zaak contains the task 'aanvullende informatie'") {
+            then("the list of human task plan items for this zaak contains the task 'aanvullende informatie'") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -74,12 +74,12 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the get human task plan item endpoint is called for the task 'aanvullende informatie'") {
+        `when`("the get human task plan item endpoint is called for the task 'aanvullende informatie'") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/planitems/humanTaskPlanItem/$humanTaskItemAanvullendeInformatieId",
                 testUser = BEHANDELAAR_1
             )
-            Then("the human task plan item data for this task is returned") {
+            then("the human task plan item data for this task is returned") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -94,7 +94,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the start human task plan items endpoint is called with a fatal date") {
+        `when`("the start human task plan items endpoint is called with a fatal date") {
             val response = zacClient.startHumanTaskPlanItem(
                 planItemInstanceId = humanTaskItemAanvullendeInformatieId,
                 fatalDate = LocalDate.parse(UITERLIJKE_EINDDATUM_AFDOENING).minusDays(1),
@@ -103,14 +103,14 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("a task is started for this zaak") {
+            then("a task is started for this zaak") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
         }
 
-        When("creation of a new additional info task with fatal date past the zaak fatal date is requested") {
+        `when`("creation of a new additional info task with fatal date past the zaak fatal date is requested") {
             val newAdditionalTaskInfoResponse = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/planitems/zaak/$zaakUuid/humanTaskPlanItems",
                 testUser = BEHANDELAAR_1
@@ -136,7 +136,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("a new task is started for this zaak") {
+            then("a new task is started for this zaak") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT

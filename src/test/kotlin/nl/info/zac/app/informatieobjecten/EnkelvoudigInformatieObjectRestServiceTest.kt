@@ -121,7 +121,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
     isolationMode = IsolationMode.InstancePerTest
 
-    Given("an enkelvoudig informatieobject has been uploaded, and the zaak is open") {
+    given("an enkelvoudig informatieobject has been uploaded, and the zaak is open") {
         val zaak = createZaak()
         val documentReferentieId = "fakeDocumentReferentieId"
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
@@ -146,7 +146,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns zaakInformatieobject
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When(
+        `when`(
             "the enkelvoudig informatieobject update is done by a role that is allowed to change the zaak"
         ) {
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
@@ -161,7 +161,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     restEnkelvoudigInformatieobject
                 )
 
-            Then("the enkelvoudig informatieobject is added to the zaak") {
+            then("the enkelvoudig informatieobject is added to the zaak") {
                 returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
@@ -172,7 +172,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When(
+        `when`(
             "the enkelvoudig informatieobject update is triggered but the ZGW client service throws an exception"
         ) {
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
@@ -194,7 +194,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             }
 
-            Then("the enkelvoudig informatieobject is not added to the zaak but is removed from the HTTP session") {
+            then("the enkelvoudig informatieobject is not added to the zaak but is removed from the HTTP session") {
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                         zaak,
@@ -204,7 +204,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the enkelvoudig informatieobject is updated") {
+        `when`("the enkelvoudig informatieobject is updated") {
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 toevoegenDocument = true
             )
@@ -219,7 +219,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     restEnkelvoudigInformatieobject,
                 )
 
-            Then("the enkelvoudig informatieobject is added to the zaak") {
+            then("the enkelvoudig informatieobject is added to the zaak") {
                 returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
@@ -230,7 +230,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("enkelvoudig informatieobject is updated by a user that has no access") {
+        `when`("enkelvoudig informatieobject is updated by a user that has no access") {
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
@@ -242,13 +242,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             }
 
-            Then("it throws exception with no message") {
+            then("it throws exception with no message") {
                 exception.message shouldBe null
             }
         }
     }
 
-    Given("an enkelvoudig informatieobject has been uploaded, and the zaak is closed") {
+    given("an enkelvoudig informatieobject has been uploaded, and the zaak is closed") {
         val closedZaak = createZaak(
             archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
         )
@@ -275,7 +275,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns responseRestEnkelvoudigInformatieobject
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When(
+        `when`(
             "the enkelvoudig informatieobject is updated by a role that is allowed to change the zaak"
         ) {
             every { policyService.readZaakRechten(closedZaak, loggedInUser) } returns createZaakRechtenAllDeny(
@@ -290,7 +290,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     restEnkelvoudigInformatieobject
                 )
 
-            Then("the enkelvoudig informatieobject is added to the zaak") {
+            then("the enkelvoudig informatieobject is added to the zaak") {
                 returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
@@ -302,7 +302,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("enkelvoudig informatieobject has been uploaded, and the zaak is open") {
+    given("enkelvoudig informatieobject has been uploaded, and the zaak is open") {
         val zaak = createZaak()
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockRequest()
@@ -328,7 +328,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
         } returns restEnkelvoudigInformatieobject
 
-        When("the enkelvoudig informatieobject is updated from user with access") {
+        `when`("the enkelvoudig informatieobject is updated from user with access") {
             every {
                 policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
             } returns createDocumentRechtenAllDeny(toevoegenNieuweVersie = true)
@@ -338,7 +338,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     restEnkelvoudigInformatieObjectVersieGegevens
                 )
 
-            Then("the changes are stored in the backing services") {
+            then("the changes are stored in the backing services") {
                 returnedRESTEnkelvoudigInformatieobject shouldBe restEnkelvoudigInformatieobject
                 verify(exactly = 1) {
                     drcClientService.readEnkelvoudigInformatieobject(
@@ -353,7 +353,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the enkelvoudig informatieobject is updated by a user that has no access") {
+        `when`("the enkelvoudig informatieobject is updated by a user that has no access") {
             every {
                 policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
             } returns createDocumentRechtenAllDeny()
@@ -364,13 +364,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             }
 
-            Then("it throws exception with no message") {
+            then("it throws exception with no message") {
                 exception.message shouldBe null
             }
         }
     }
 
-    Given(
+    given(
         """
             REST informatieobject zoek parameters with an enkelvoudig informatieobject 
             containing informatie object uuids
@@ -393,13 +393,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             restInformatieobjectConverter.convertUUIDsToREST(informatieobjectUUIDs, zaak)
         } returns restEnkelvoudigInformatieobjecten
 
-        When("the list of enkelvoudig informatieobject is requested") {
+        `when`("the list of enkelvoudig informatieobject is requested") {
             val returnedRestEnkelvoudigInformatieobjecten =
                 enkelvoudigInformatieObjectRestService.listEnkelvoudigInformatieobjecten(
                     restInformatieobjectZoekParameters
                 )
 
-            Then("the returned enkelvoudige informatie objecten are as expected") {
+            then("the returned enkelvoudige informatie objecten are as expected") {
                 with(returnedRestEnkelvoudigInformatieobjecten) {
                     size shouldBe 2
                     this[0] shouldBe restEnkelvoudigInformatieobjecten[0]
@@ -409,7 +409,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """
             REST informatieobject zoek parameters with an enkelvoudig informatieobject 
             not containing informatie object uuids, and creating a deel with a deelzaak
@@ -457,13 +457,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns besluitType
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("the list of enkelvoudig informatieobject is requested") {
+        `when`("the list of enkelvoudig informatieobject is requested") {
             val returnedRestEnkelvoudigInformatieobjecten =
                 enkelvoudigInformatieObjectRestService.listEnkelvoudigInformatieobjecten(
                     restInformatieobjectZoekParameters
                 )
 
-            Then("the returned enkelvoudige informatie objecten are as expected") {
+            then("the returned enkelvoudige informatie objecten are as expected") {
                 with(returnedRestEnkelvoudigInformatieobjecten) {
                     size shouldBe 1
                     this[0] shouldBe restEnkelvoudigInformatieobjecten[0]
@@ -472,7 +472,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """
             REST informatieobject zoek parameters with an enkelvoudig informatieobject
             not containing informatie object uuids, and the zaak has a gerelateerde zaak
@@ -516,13 +516,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns restGekoppeldeZaakEnkelvoudigInformatieObject
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("the list of enkelvoudig informatieobject is requested") {
+        `when`("the list of enkelvoudig informatieobject is requested") {
             val returnedRestEnkelvoudigInformatieobjecten =
                 enkelvoudigInformatieObjectRestService.listEnkelvoudigInformatieobjecten(
                     restInformatieobjectZoekParameters
                 )
 
-            Then("the returned enkelvoudige informatie objecten include the gerelateerde zaak documents") {
+            then("the returned enkelvoudige informatie objecten include the gerelateerde zaak documents") {
                 with(returnedRestEnkelvoudigInformatieobjecten) {
                     size shouldBe 2
                     this[0] shouldBe restEnkelvoudigInformatieobjectVoorZaak
@@ -532,7 +532,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An enkelvoudig informatieobject") {
+    given("An enkelvoudig informatieobject") {
         val informatieobjectUUID = UUID.randomUUID()
         val zaak = createZaak()
         val enkelvoudiginformatieobject = createEnkelvoudigInformatieObject()
@@ -548,15 +548,15 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             restInformatieobjectConverter.convertToRestEnkelvoudigInformatieObjectVersieGegevens(enkelvoudiginformatieobject)
         } returns restEnkelvoudigInformatieObjectVersieGegevens
 
-        When("the current version of the enkelvoudig informatieobject is requested") {
+        `when`("the current version of the enkelvoudig informatieobject is requested") {
             val returnedEnkelvoudigInformatieObjectVersieGegevens =
                 enkelvoudigInformatieObjectRestService.readHuidigeVersieInformatieObject(informatieobjectUUID)
 
-            Then("the current version of the enkelvoudig informatieobject is returned") {
+            then("the current version of the enkelvoudig informatieobject is returned") {
                 returnedEnkelvoudigInformatieObjectVersieGegevens shouldBe restEnkelvoudigInformatieObjectVersieGegevens
             }
         }
-        When("the enkelvoudig informatieobject is converted") {
+        `when`("the enkelvoudig informatieobject is converted") {
             every {
                 enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
                     any(), any()
@@ -568,7 +568,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 zaak.uuid
             )
 
-            Then("the response should be no content") {
+            then("the response should be no content") {
                 response.status shouldBe 204
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
@@ -578,7 +578,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("the enkelvoudig informatieobject is converted but an exception was thrown") {
+        `when`("the enkelvoudig informatieobject is converted but an exception was thrown") {
             every {
                 enkelvoudigInformatieObjectConvertService.convertEnkelvoudigInformatieObjectToPDF(
                     any(),
@@ -593,7 +593,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             }
 
-            Then("the response should be an error message") {
+            then("the response should be an error message") {
                 val response = RestExceptionMapper().toResponse(exception)
                 response.status shouldBe 400
                 val entity = response.entity as String
@@ -601,7 +601,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("A zaak with two informatieobjecttypes") {
+    given("A zaak with two informatieobjecttypes") {
         val zaak = createZaak()
         val informatieObjectTypeUUID1 = UUID.randomUUID()
         val informatieObjectTypeUUID2 = UUID.randomUUID()
@@ -627,12 +627,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the informatieobjecttypes for the zaak are requested") {
+        `when`("the informatieobjecttypes for the zaak are requested") {
             val returnedRestInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(
                 zaak.uuid
             )
 
-            Then("the information object types are returned") {
+            then("the information object types are returned") {
                 returnedRestInformatieobjecttypes.size shouldBe 2
                 with(returnedRestInformatieobjecttypes) {
                     with(this[0]) {
@@ -652,7 +652,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """
             Valid REST document verzend gegevens with multiple informatieobjecten each with
             a status 'DEFINITIEF' and a vertrouwelijkheidaanduiding not equal to 'CONFIDENTIEEL', 
@@ -694,10 +694,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } just Runs
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("sendDocument is called") {
+        `when`("sendDocument is called") {
             enkelvoudigInformatieObjectRestService.sendDocument(restDocumentVerzendGegevens)
 
-            Then("all informatieobjecten are sent") {
+            then("all informatieobjecten are sent") {
                 verify(exactly = 2) {
                     enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(any(), any(), any())
                 }
@@ -705,7 +705,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Valid gegevens with an informatieobject that cannot be sent") {
+    given("Valid gegevens with an informatieobject that cannot be sent") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
         val enkelvoudigInformatieObjectUuids = listOf(UUID.randomUUID())
@@ -722,8 +722,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readZaakRechten(zaak, loggedInUser).wijzigen } returns false
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("sendDocument is called") {
-            Then("an exception is thrown") {
+        `when`("sendDocument is called") {
+            then("an exception is thrown") {
                 shouldThrow<PolicyException> {
                     enkelvoudigInformatieObjectRestService.sendDocument(restDocumentVerzendGegevens)
                 }
@@ -731,7 +731,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An existing document and the user has permission to download the document") {
+    given("An existing document and the user has permission to download the document") {
         val uuid = UUID.randomUUID()
         val byteArrayInputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
@@ -740,10 +740,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden } returns true
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns byteArrayInputStream
 
-        When("readFile is called") {
+        `when`("readFile is called") {
             val response = enkelvoudigInformatieObjectRestService.readFile(uuid)
 
-            Then("it should return the document content as a response") {
+            then("it should return the document content as a response") {
                 with(response) {
                     status shouldBe 200
                     headers["Content-Disposition"]!!.first() shouldBe
@@ -754,25 +754,25 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("The user does not have permission to download the document") {
+    given("The user does not have permission to download the document") {
         val uuid = UUID.randomUUID()
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden } returns false
 
-        When("readFile is called") {
+        `when`("readFile is called") {
             val exception = shouldThrow<PolicyException> {
                 enkelvoudigInformatieObjectRestService.readFile(uuid)
             }
 
-            Then("it should throw a PolicyException") {
+            then("it should throw a PolicyException") {
                 exception shouldNotBe null
             }
         }
     }
 
-    Given("An IOException occurs while retrieving the document content") {
+    given("An IOException occurs while retrieving the document content") {
         val uuid = UUID.randomUUID()
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
@@ -780,19 +780,19 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden } returns true
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } throws IOException("Failed to retrieve content")
 
-        When("readFile is called") {
+        `when`("readFile is called") {
             val exception = shouldThrow<RuntimeException> {
                 enkelvoudigInformatieObjectRestService.readFile(uuid)
             }
 
-            Then("it should throw a exception") {
+            then("it should throw a exception") {
                 exception.cause.shouldBeInstanceOf<IOException>()
                 exception.cause?.message shouldBe "Failed to retrieve content"
             }
         }
     }
 
-    Given("An enkelvoudig informatieobject and a zaak UUID") {
+    given("An enkelvoudig informatieobject and a zaak UUID") {
         val uuid = UUID.randomUUID()
         val zaakUUID = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUUID)
@@ -805,16 +805,16 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak)
         } returns restEnkelvoudigInformatieobject
 
-        When("readEnkelvoudigInformatieobject is called with a zaak UUID") {
+        `when`("readEnkelvoudigInformatieobject is called with a zaak UUID") {
             val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, zaakUUID)
 
-            Then("the REST representation is returned with zaak context") {
+            then("the REST representation is returned with zaak context") {
                 result shouldBe restEnkelvoudigInformatieobject
             }
         }
     }
 
-    Given("An enkelvoudig informatieobject and no zaak UUID") {
+    given("An enkelvoudig informatieobject and no zaak UUID") {
         val uuid = UUID.randomUUID()
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
@@ -824,16 +824,16 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
         } returns restEnkelvoudigInformatieobject
 
-        When("readEnkelvoudigInformatieobject is called without a zaak UUID") {
+        `when`("readEnkelvoudigInformatieobject is called without a zaak UUID") {
             val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, null)
 
-            Then("the REST representation is returned without zaak context") {
+            then("the REST representation is returned without zaak context") {
                 result shouldBe restEnkelvoudigInformatieobject
             }
         }
     }
 
-    Given("An enkelvoudig informatieobject at current version 1234 and a requested older version 1") {
+    given("An enkelvoudig informatieobject at current version 1234 and a requested older version 1") {
         val uuid = UUID.randomUUID()
         val currentVersionEnkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = uuid)
         val olderVersionEnkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = uuid)
@@ -847,17 +847,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             restInformatieobjectConverter.convertToREST(olderVersionEnkelvoudigInformatieObject)
         } returns restOlderEnkelvoudigInformatieobject
 
-        When("readEnkelvoudigInformatieobjectVersion is called with an older version") {
+        `when`("readEnkelvoudigInformatieobjectVersion is called with an older version") {
             val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobjectVersion(uuid, 1)
 
-            Then("the older version is fetched and returned") {
+            then("the older version is fetched and returned") {
                 result shouldBe restOlderEnkelvoudigInformatieobject
                 verify(exactly = 1) { drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, 1) }
             }
         }
     }
 
-    Given("An enkelvoudig informatieobject at current version 1234 and a requested version 1234") {
+    given("An enkelvoudig informatieobject at current version 1234 and a requested version 1234") {
         val uuid = UUID.randomUUID()
         val currentVersionEnkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = uuid)
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
@@ -867,17 +867,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             restInformatieobjectConverter.convertToREST(currentVersionEnkelvoudigInformatieObject)
         } returns restEnkelvoudigInformatieobject
 
-        When("readEnkelvoudigInformatieobjectVersion is called with the current version") {
+        `when`("readEnkelvoudigInformatieobjectVersion is called with the current version") {
             val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobjectVersion(uuid, 1234)
 
-            Then("the current version is returned directly without fetching an older version") {
+            then("the current version is returned directly without fetching an older version") {
                 result shouldBe restEnkelvoudigInformatieobject
                 verify(exactly = 0) { drcClientService.readEnkelvoudigInformatieobjectVersie(any(), any()) }
             }
         }
     }
 
-    Given("A zaak with a DEFINITIEF informatieobject eligible for verzending") {
+    given("A zaak with a DEFINITIEF informatieobject eligible for verzending") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
         val enkelvoudigInformatieObjectUuid = UUID.randomUUID()
@@ -906,16 +906,16 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns restEnkelvoudigInformatieobject
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("listEnkelvoudigInformatieobjectenVoorVerzenden is called") {
+        `when`("listEnkelvoudigInformatieobjectenVoorVerzenden is called") {
             val result = enkelvoudigInformatieObjectRestService.listEnkelvoudigInformatieobjectenVoorVerzenden(zaakUuid)
 
-            Then("the eligible informatieobjecten are returned") {
+            then("the eligible informatieobjecten are returned") {
                 result shouldBe listOf(restEnkelvoudigInformatieobject)
             }
         }
     }
 
-    Given("A zaaktype with informatieobjecttypen") {
+    given("A zaaktype with informatieobjecttypen") {
         val zaakTypeUuid = UUID.randomUUID()
         val informatieobjecttypeUri = URI("https://example.com/informatieobjecttype/${UUID.randomUUID()}")
         val zaakType = createZaakType(informatieObjectTypen = listOf(informatieobjecttypeUri))
@@ -926,16 +926,16 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             restInformatieobjecttypeConverter.convertFromUris(listOf(informatieobjecttypeUri))
         } returns listOf(restInformatieobjecttype)
 
-        When("listInformatieobjecttypes is called") {
+        `when`("listInformatieobjecttypes is called") {
             val result = enkelvoudigInformatieObjectRestService.listInformatieobjecttypes(zaakTypeUuid)
 
-            Then("the informatieobjecttypen are returned") {
+            then("the informatieobjecttypen are returned") {
                 result shouldBe listOf(restInformatieobjecttype)
             }
         }
     }
 
-    Given("A zaak informatieobject UUID linking to an enkelvoudig informatieobject") {
+    given("A zaak informatieobject UUID linking to an enkelvoudig informatieobject") {
         val zaakInformatieobjectUUID = UUID.randomUUID()
         val enkelvoudigInformatieObjectUuid = UUID.randomUUID()
         val enkelvoudigInformatieObjectUri = URI("https://example.com/$enkelvoudigInformatieObjectUuid")
@@ -952,18 +952,18 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
         } returns restEnkelvoudigInformatieobject
 
-        When("readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID is called") {
+        `when`("readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID is called") {
             val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
                 zaakInformatieobjectUUID
             )
 
-            Then("the enkelvoudig informatieobject is returned") {
+            then("the enkelvoudig informatieobject is returned") {
                 result shouldBe restEnkelvoudigInformatieobject
             }
         }
     }
 
-    Given("An enkelvoudig informatieobject linked to a zaak, and the user has permission to delete it") {
+    given("An enkelvoudig informatieobject linked to a zaak, and the user has permission to delete it") {
         val uuid = UUID.randomUUID()
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
@@ -977,13 +977,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             zgwApiService.removeEnkelvoudigInformatieObjectFromZaak(enkelvoudigInformatieObject, zaakUuid, reden)
         } just Runs
 
-        When("deleteEnkelvoudigInformatieObject is called with a zaak UUID") {
+        `when`("deleteEnkelvoudigInformatieObject is called with a zaak UUID") {
             enkelvoudigInformatieObjectRestService.deleteEnkelvoudigInformatieObject(
                 uuid,
                 RestDocumentVerwijderenGegevens(zaakUuid = zaakUuid, reden = reden)
             )
 
-            Then("the informatieobject is removed from the zaak via the API") {
+            then("the informatieobject is removed from the zaak via the API") {
                 verify(exactly = 1) {
                     zgwApiService.removeEnkelvoudigInformatieObjectFromZaak(
                         enkelvoudigInformatieObject,
@@ -995,7 +995,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An enkelvoudig informatieobject not linked to a zaak, and the user has permission to delete it") {
+    given("An enkelvoudig informatieobject not linked to a zaak, and the user has permission to delete it") {
         val enkelvoudigInformatieobjectUUID = UUID.randomUUID()
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
             uuid = enkelvoudigInformatieobjectUUID
@@ -1011,13 +1011,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
         } just Runs
 
-        When("deleteEnkelvoudigInformatieObject is called without a zaak UUID") {
+        `when`("deleteEnkelvoudigInformatieObject is called without a zaak UUID") {
             enkelvoudigInformatieObjectRestService.deleteEnkelvoudigInformatieObject(
                 enkelvoudigInformatieobjectUUID,
                 RestDocumentVerwijderenGegevens(zaakUuid = null, reden = null)
             )
 
-            Then("the related ontkoppeld document is deleted if it exists") {
+            then("the related ontkoppeld document is deleted if it exists") {
                 verify(exactly = 1) { detachedDocumentService.deleteIfExists(enkelvoudigInformatieobjectUUID) }
             }
 
@@ -1033,7 +1033,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An enkelvoudig informatieobject that the user can download, with a specific version") {
+    given("An enkelvoudig informatieobject that the user can download, with a specific version") {
         val uuid = UUID.randomUUID()
         val version = 2
         val byteArrayInputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
@@ -1043,10 +1043,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden } returns true
         every { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) } returns byteArrayInputStream
 
-        When("readFileWithVersion is called") {
+        `when`("readFileWithVersion is called") {
             val response = enkelvoudigInformatieObjectRestService.readFileWithVersion(uuid, version)
 
-            Then("the specific version is downloaded and returned") {
+            then("the specific version is downloaded and returned") {
                 response.status shouldBe 200
                 response.headers["Content-Disposition"]!!.first() shouldBe
                     """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
@@ -1055,7 +1055,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An enkelvoudig informatieobject that the user can preview with a specific version") {
+    given("An enkelvoudig informatieobject that the user can preview with a specific version") {
         val uuid = UUID.randomUUID()
         val version = 3
         val byteArrayInputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
@@ -1065,10 +1065,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
         every { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) } returns byteArrayInputStream
 
-        When("preview is called with a version") {
+        `when`("preview is called with a version") {
             val response = enkelvoudigInformatieObjectRestService.preview(uuid, version)
 
-            Then("the specific version is returned inline") {
+            then("the specific version is returned inline") {
                 response.status shouldBe 200
                 response.headers["Content-Disposition"]!!.first() shouldBe
                     """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
@@ -1078,7 +1078,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An enkelvoudig informatieobject that the user can preview without a version") {
+    given("An enkelvoudig informatieobject that the user can preview without a version") {
         val uuid = UUID.randomUUID()
         val byteArrayInputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
@@ -1087,17 +1087,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns byteArrayInputStream
 
-        When("preview is called without a version") {
+        `when`("preview is called without a version") {
             val response = enkelvoudigInformatieObjectRestService.preview(uuid, null)
 
-            Then("the current version is returned inline") {
+            then("the current version is returned inline") {
                 response.status shouldBe 200
                 verify(exactly = 0) { drcClientService.downloadEnkelvoudigInformatieobjectVersie(any(), any()) }
             }
         }
     }
 
-    Given("Multiple enkelvoudig informatieobjecten that the user can download as a zip") {
+    given("Multiple enkelvoudig informatieobjecten that the user can download as a zip") {
         val firstEnkelvoudigInformatieObjectUuid = UUID.randomUUID()
         val secondEnkelvoudigInformatieObjectUuid = UUID.randomUUID()
         val firstEnkelvoudigInformatieObject =
@@ -1120,7 +1120,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
         } returns streamingOutput
 
-        When("readFilesAsZip is called") {
+        `when`("readFilesAsZip is called") {
             val response = enkelvoudigInformatieObjectRestService.readFilesAsZip(
                 listOf(
                     firstEnkelvoudigInformatieObjectUuid.toString(),
@@ -1128,14 +1128,14 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             )
 
-            Then("a zip response is returned") {
+            then("a zip response is returned") {
                 response.status shouldBe 200
                 response.entity shouldBe streamingOutput
             }
         }
     }
 
-    Given("An unlocked enkelvoudig informatieobject and the user has permission to lock it") {
+    given("An unlocked enkelvoudig informatieobject and the user has permission to lock it") {
         val uuid = UUID.randomUUID()
         val zaakUUID = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUUID)
@@ -1151,17 +1151,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUser.id) } returns mockk()
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
-        When("lockDocument is called") {
+        `when`("lockDocument is called") {
             val response = enkelvoudigInformatieObjectRestService.lockDocument(uuid, zaakUUID)
 
-            Then("the document is locked and a 200 response is returned") {
+            then("the document is locked and a 200 response is returned") {
                 response.status shouldBe 200
                 verify(exactly = 1) { enkelvoudigInformatieObjectLockService.createLock(uuid, loggedInUser.id) }
             }
         }
     }
 
-    Given("A locked enkelvoudig informatieobject and the user has permission to unlock it") {
+    given("A locked enkelvoudig informatieobject and the user has permission to unlock it") {
         val uuid = UUID.randomUUID()
         val zaakUUID = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUUID)
@@ -1175,17 +1175,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
-        When("unlockDocument is called") {
+        `when`("unlockDocument is called") {
             val response = enkelvoudigInformatieObjectRestService.unlockDocument(uuid, zaakUUID)
 
-            Then("the document is unlocked and a 200 response is returned") {
+            then("the document is unlocked and a 200 response is returned") {
                 response.status shouldBe 200
                 verify(exactly = 1) { enkelvoudigInformatieObjectLockService.deleteLock(uuid) }
             }
         }
     }
 
-    Given("An enkelvoudig informatieobject that the user can view its history") {
+    given("An enkelvoudig informatieobject that the user can view its history") {
         val uuid = UUID.randomUUID()
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
         val historyLines = listOf<HistoryLine>()
@@ -1195,17 +1195,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { drcClientService.listAuditTrail(uuid) } returns emptyList()
         every { zaakHistoryLineConverter.convert(any()) } returns historyLines
 
-        When("listInformatieobjectHistory is called") {
+        `when`("listInformatieobjectHistory is called") {
             val result = enkelvoudigInformatieObjectRestService.listInformatieobjectHistory(uuid)
 
-            Then("the audit trail is converted and returned") {
+            then("the audit trail is converted and returned") {
                 result shouldBe historyLines
                 verify(exactly = 1) { drcClientService.listAuditTrail(uuid) }
             }
         }
     }
 
-    Given("An enkelvoudig informatieobject linked to a zaak") {
+    given("An enkelvoudig informatieobject linked to a zaak") {
         val informatieobjectUuid = UUID.randomUUID()
         val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
@@ -1217,18 +1217,18 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
         every { zrcClientService.readZaak(zaakUri) } returns zaak
 
-        When("listZaakIdentificatiesForInformatieobject is called") {
+        `when`("listZaakIdentificatiesForInformatieobject is called") {
             val result = enkelvoudigInformatieObjectRestService.listZaakIdentificatiesForInformatieobject(
                 informatieobjectUuid
             )
 
-            Then("the zaak identificaties are returned") {
+            then("the zaak identificaties are returned") {
                 result shouldBe listOf("ZAAK-2024-999")
             }
         }
     }
 
-    Given("A document in ontkoppelde-documenten and the user has permission to move it") {
+    given("A document in ontkoppelde-documenten and the user has permission to move it") {
         val documentUUID = UUID.randomUUID()
         val nieuweZaakID = "ZAAK-TARGET-001"
         val informatieobject = createEnkelvoudigInformatieObject()
@@ -1251,7 +1251,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
         every { detachedDocumentService.deleteIfExists(42L) } just Runs
 
-        When("verplaatsEnkelvoudigInformatieobject is called with bron ontkoppelde-documenten") {
+        `when`("verplaatsEnkelvoudigInformatieobject is called with bron ontkoppelde-documenten") {
             enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
                 RestDocumentVerplaatsGegevens(
                     documentUUID = documentUUID,
@@ -1260,7 +1260,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             )
 
-            Then("the document is linked to the target zaak and removed from ontkoppelde-documenten") {
+            then("the document is linked to the target zaak and removed from ontkoppelde-documenten") {
                 verify(exactly = 1) {
                     zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
                 }
@@ -1269,7 +1269,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("The detached document service throws an exception when retrieving a detached document") {
+    given("The detached document service throws an exception when retrieving a detached document") {
         val documentUUID = UUID.randomUUID()
         val nieuweZaakID = "ZAAK-TARGET-001"
         val informatieobject = createEnkelvoudigInformatieObject()
@@ -1292,7 +1292,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
         every { detachedDocumentService.deleteIfExists(42L) } just Runs
 
-        When("verplaatsEnkelvoudigInformatieobject is called for the detached document") {
+        `when`("verplaatsEnkelvoudigInformatieobject is called for the detached document") {
             val passedOnDetachedDocumentNotFoundException = shouldThrow<DetachedDocumentNotFoundException> {
                 enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
                     RestDocumentVerplaatsGegevens(
@@ -1303,7 +1303,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             }
 
-            Then("the exception should be passed on") {
+            then("the exception should be passed on") {
                 passedOnDetachedDocumentNotFoundException shouldBe detachedDocumentNotFoundException
             }
 
@@ -1316,7 +1316,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A document in inbox-documenten and the user has permission to move it") {
+    given("A document in inbox-documenten and the user has permission to move it") {
         val documentUUID = UUID.randomUUID()
         val nieuweZaakID = "ZAAK-TARGET-002"
         val informatieobject = createEnkelvoudigInformatieObject()
@@ -1339,7 +1339,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting) } just Runs
         every { inboxDocumentService.deleteIfExists(99L) } just Runs
 
-        When("verplaatsEnkelvoudigInformatieobject is called with bron inbox-documenten") {
+        `when`("verplaatsEnkelvoudigInformatieobject is called with bron inbox-documenten") {
             enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
                 RestDocumentVerplaatsGegevens(
                     documentUUID = documentUUID,
@@ -1348,7 +1348,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             )
 
-            Then("the document is linked to the target zaak and removed from inbox-documenten") {
+            then("the document is linked to the target zaak and removed from inbox-documenten") {
                 verify(exactly = 1) {
                     zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
                 }
@@ -1357,7 +1357,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A document linked to a source zaak and the user has permission to move it to another zaak") {
+    given("A document linked to a source zaak and the user has permission to move it to another zaak") {
         val documentUUID = UUID.randomUUID()
         val sourceZaakID = "fakeSourceZaakID"
         val targetZaakID = "fakeTargetZaakID"
@@ -1378,7 +1378,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaakByID(sourceZaakID) } returns sourceZaak
         every { zrcClientService.verplaatsInformatieobject(informatieobject, sourceZaak, targetZaak) } just Runs
 
-        When("verplaatsEnkelvoudigInformatieobject is called with bron being a zaak ID") {
+        `when`("verplaatsEnkelvoudigInformatieobject is called with bron being a zaak ID") {
             enkelvoudigInformatieObjectRestService.verplaatsEnkelvoudigInformatieobject(
                 RestDocumentVerplaatsGegevens(
                     documentUUID = documentUUID,
@@ -1387,7 +1387,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 )
             )
 
-            Then("the document is moved from the source zaak to the target zaak") {
+            then("the document is moved from the source zaak to the target zaak") {
                 verify(exactly = 1) {
                     zrcClientService.verplaatsInformatieobject(informatieobject, sourceZaak, targetZaak)
                 }
@@ -1395,7 +1395,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An enkelvoudig informatieobject linked to a zaak where the user has read access") {
+    given("An enkelvoudig informatieobject linked to a zaak where the user has read access") {
         val uuid = UUID.randomUUID()
         val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
@@ -1420,10 +1420,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
 
-        When("listZaakInformatieobjecten is called") {
+        `when`("listZaakInformatieobjecten is called") {
             val restZaakInformatieobjects = enkelvoudigInformatieObjectRestService.listZaakInformatieobjecten(uuid)
 
-            Then("the result contains enriched zaak data because the user can read the zaak") {
+            then("the result contains enriched zaak data because the user can read the zaak") {
                 restZaakInformatieobjects shouldHaveSize 1
                 with(restZaakInformatieobjects.first()) {
                     zaakIdentificatie shouldBe "faakZaakID"
@@ -1437,7 +1437,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An enkelvoudig informatieobject linked to a zaak where the user does not have read access") {
+    given("An enkelvoudig informatieobject linked to a zaak where the user does not have read access") {
         val uuid = UUID.randomUUID()
         val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
@@ -1459,10 +1459,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny()
 
-        When("listZaakInformatieobjecten is called") {
+        `when`("listZaakInformatieobjecten is called") {
             val restZaakInformatieobjects = enkelvoudigInformatieObjectRestService.listZaakInformatieobjecten(uuid)
 
-            Then("sensitive zaak fields are null because the user cannot read the zaak") {
+            then("sensitive zaak fields are null because the user cannot read the zaak") {
                 restZaakInformatieobjects shouldHaveSize 1
                 with(restZaakInformatieobjects.first()) {
                     zaakIdentificatie shouldBe "ZAAK-2024-NOACCESS"
@@ -1476,7 +1476,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An unsigned enkelvoudig informatieobject and the user has permission to sign it") {
+    given("An unsigned enkelvoudig informatieobject and the user has permission to sign it") {
         val uuid = UUID.randomUUID()
         val zaakUUID = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUUID)
@@ -1490,10 +1490,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
-        When("ondertekenInformatieObject is called") {
+        `when`("ondertekenInformatieObject is called") {
             val response = enkelvoudigInformatieObjectRestService.ondertekenInformatieObject(uuid, zaakUUID)
 
-            Then("the document is signed and a 200 response is returned") {
+            then("the document is signed and a 200 response is returned") {
                 response.status shouldBe 200
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid)
@@ -1502,7 +1502,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak with one currently valid and one expired informatieobjecttype") {
+    given("A zaak with one currently valid and one expired informatieobjecttype") {
         val zaakUUID = UUID.randomUUID()
         val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
         val validTypeUri = URI("https://example.com/informatieobjecttype/${UUID.randomUUID()}")
@@ -1518,19 +1518,19 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { ztcClientService.readInformatieobjecttype(validTypeUri) } returns validType
         every { ztcClientService.readInformatieobjecttype(invalidTypeUri) } returns invalidType
 
-        When("listInformatieobjecttypesForZaak is called") {
+        `when`("listInformatieobjecttypesForZaak is called") {
             val restInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(
                 zaakUUID
             )
 
-            Then("only the currently valid informatieobjecttype is returned") {
+            then("only the currently valid informatieobjecttype is returned") {
                 restInformatieobjecttypes shouldHaveSize 1
                 restInformatieobjecttypes.first().omschrijving shouldBe "validType"
             }
         }
     }
 
-    Given("A zaak with no informatieobjecttypen") {
+    given("A zaak with no informatieobjecttypen") {
         val zaakUUID = UUID.randomUUID()
         val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
         val zaak = createZaak(zaaktypeUri = zaakTypeUri)
@@ -1539,18 +1539,18 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaakUUID) } returns zaak
         every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
 
-        When("listInformatieobjecttypesForZaak is called") {
+        `when`("listInformatieobjecttypesForZaak is called") {
             val restInformatieobjecttypes = enkelvoudigInformatieObjectRestService.listInformatieobjecttypesForZaak(
                 zaakUUID
             )
 
-            Then("an empty list is returned") {
+            then("an empty list is returned") {
                 restInformatieobjecttypes shouldBe emptyList()
             }
         }
     }
 
-    Given("An enkelvoudig informatieobject returned by readEnkelvoudigInformatieobject with various indicator flags") {
+    given("An enkelvoudig informatieobject returned by readEnkelvoudigInformatieobject with various indicator flags") {
         data class TestCase(
             val gelockedDoor: RestUser? = null,
             val ondertekening: RestOndertekening? = null,
@@ -1620,13 +1620,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
             } returns restEnkelvoudigInformatieobject
 
-            When("readEnkelvoudigInformatieobject is called without a zaak UUID") {
+            `when`("readEnkelvoudigInformatieobject is called without a zaak UUID") {
                 val enkelvoudigInformatieobject = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(
                     uuid,
                     null
                 )
 
-                Then("getIndicaties() reflects the document's indicator flags") {
+                then("getIndicaties() reflects the document's indicator flags") {
                     enkelvoudigInformatieobject.getIndicaties().toSet() shouldBe testCase.expectedIndicaties
                 }
             }

@@ -70,7 +70,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("REST taak document data and REST file upload are provided") {
+    given("REST taak document data and REST file upload are provided") {
         val restTaakDocumentData = createRestTaskDocumentData()
         val restFileUpload = createRestFileUpload()
         val providedInformatieObjectType = createInformatieObjectType()
@@ -81,12 +81,12 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         } returns providedInformatieObjectType
         every { configurationService.readBronOrganisatie() } returns "123443210"
 
-        When("convert is invoked") {
+        `when`("convert is invoked") {
             val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convert(
                 restTaakDocumentData,
                 restFileUpload
             )
-            Then("the provided data is converted correctly") {
+            then("the provided data is converted correctly") {
                 with(enkelvoudigInformatieObjectData) {
                     bronorganisatie shouldBe "123443210"
                     creatiedatum shouldHaveSameDayAs LocalDate.now()
@@ -108,7 +108,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("REST enkelvoudig informatie object data and REST file upload are provided for a zaak") {
+    given("REST enkelvoudig informatie object data and REST file upload are provided for a zaak") {
         // when converting a zaak more fields in the RESTEnkelvoudigInformatieobject are used in the
         // conversion compared to when converting a taak
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject(
@@ -126,11 +126,11 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         } returns providedInformatieObjectType
         every { configurationService.readBronOrganisatie() } returns "123443210"
 
-        When("convert zaak object is invoked") {
+        `when`("convert zaak object is invoked") {
             val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertEnkelvoudigInformatieObject(
                 restEnkelvoudigInformatieobject
             )
-            Then("the provided data is converted correctly") {
+            then("the provided data is converted correctly") {
                 with(enkelvoudigInformatieObjectData) {
                     bronorganisatie shouldBe "123443210"
                     creatiedatum shouldHaveSameDayAs LocalDate.now()
@@ -148,7 +148,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("Enkelvoudig informatie object") {
+    given("Enkelvoudig informatie object") {
         val expectedUUID = UUID.randomUUID()
         val uri = URI("https://example.com/informatieobjecten/$expectedUUID")
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(url = uri).apply {
@@ -167,12 +167,12 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             ztcClientService.readInformatieobjecttype(any<URI>())
         } returns createInformatieObjectType()
 
-        When("converted to REST Enkelvoudig Informatie Object") {
+        `when`("converted to REST Enkelvoudig Informatie Object") {
             val restEnkelvoudigInformatieObject = restInformatieobjectConverter.convertToREST(
                 enkelvoudigInformatieObject
             )
 
-            Then("the provided data is converted correctly") {
+            then("the provided data is converted correctly") {
                 with(restEnkelvoudigInformatieObject) {
                     uuid shouldBe expectedUUID
                     informatieobjectTypeOmschrijving shouldBe "fakeOmschrijving"
@@ -186,7 +186,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A uuid that is found in open zaak") {
+    given("A uuid that is found in open zaak") {
         val rechten = createDocumentRechtenAllDeny()
         val uuid = UUID.randomUUID()
         val document = createEnkelvoudigInformatieObject(
@@ -202,9 +202,9 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         every {
             brcClientService.isInformatieObjectGekoppeldAanBesluit(document.url)
         } returns false
-        When("We try to convert a list with that uuid") {
+        `when`("We try to convert a list with that uuid") {
             val result = restInformatieobjectConverter.convertUUIDsToREST(ImmutableList.of(uuid), null)
-            Then("An list is returned containing the expected object") {
+            then("An list is returned containing the expected object") {
                 with(result) {
                     shouldHaveSize(1)
                     with(get(0).uuid) {
@@ -215,22 +215,22 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A uuid that's not found in open zaak") {
+    given("A uuid that's not found in open zaak") {
         val uuid = UUID.randomUUID()
         every {
             drcClientService.readEnkelvoudigInformatieobject(uuid)
         } throws ZgwErrorException(ZgwError(null, null, null, HttpStatus.NOT_FOUND_404, null, null))
 
-        When("We try to convert a list with that uuid") {
+        `when`("We try to convert a list with that uuid") {
             val result = restInformatieobjectConverter.convertUUIDsToREST(listOf(uuid), null)
 
-            Then("An empty list is returned") {
+            then("An empty list is returned") {
                 result.shouldBeEmpty()
             }
         }
     }
 
-    Given("A uuid that causes an error response other than 404 in open zaak") {
+    given("A uuid that causes an error response other than 404 in open zaak") {
         val uuid = UUID.randomUUID()
         every {
             drcClientService.readEnkelvoudigInformatieobject(uuid)
@@ -245,19 +245,19 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             )
         )
 
-        When("We try to convert a list with that uuid") {
+        `when`("We try to convert a list with that uuid") {
             val exception = shouldThrow<ZgwErrorException> {
                 restInformatieobjectConverter.convertUUIDsToREST(listOf(uuid), null)
             }
 
-            Then("The exception bubbles up") {
+            then("The exception bubbles up") {
                 exception.message shouldBe "fakeTitle [500 fakeCode] fakeDetail " +
                     "(https://example.com/fakeType https://example.com/fakeInstance)"
             }
         }
     }
 
-    Given("A 'REST enkelvoudiginformatieobject versie gegevens' object containing a file, bestandsnaam and formaat") {
+    given("A 'REST enkelvoudiginformatieobject versie gegevens' object containing a file, bestandsnaam and formaat") {
         val informatieobjectType = createInformatieObjectType()
         val restEnkelvoudigInformatieobjectVersieGegevens = createRestEnkelvoudigInformatieObjectVersieGegevens(
             vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR.name.lowercase()
@@ -267,11 +267,11 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             ztcClientService.readInformatieobjecttype(restEnkelvoudigInformatieobjectVersieGegevens.informatieobjectTypeUUID!!)
         } returns informatieobjectType
 
-        When("this object is converted") {
+        `when`("this object is converted") {
             val enkelvoudigInformatieObjectWithLockRequest =
                 restInformatieobjectConverter.convert(restEnkelvoudigInformatieobjectVersieGegevens)
 
-            Then("the obejct is correctly converted to a 'enkelvoudiginformatieobject with lock request'") {
+            then("the obejct is correctly converted to a 'enkelvoudiginformatieobject with lock request'") {
                 with(enkelvoudigInformatieObjectWithLockRequest) {
                     bestandsnaam shouldBe restEnkelvoudigInformatieobjectVersieGegevens.bestandsnaam
                     bestandsomvang shouldBe restEnkelvoudigInformatieobjectVersieGegevens.file!!.size

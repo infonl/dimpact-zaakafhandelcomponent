@@ -42,7 +42,7 @@ class DrcClientServiceTest : BehaviorSpec({
         clearAllMocks()
     }
 
-    Given("A valid UUID for an EnkelvoudigInformatieobject") {
+    given("A valid UUID for an EnkelvoudigInformatieobject") {
         val enkelvoudigInformatieobjectUUID = UUID.randomUUID()
         val lock = "fakeLock"
         val lockEnkelvoudigInformatieObject = createLockEnkelvoudigInformatieObject(lock = lock)
@@ -54,10 +54,10 @@ class DrcClientServiceTest : BehaviorSpec({
             )
         } returns lockEnkelvoudigInformatieObject
 
-        When("locking the EnkelvoudigInformatieobject") {
+        `when`("locking the EnkelvoudigInformatieobject") {
             val result = drcClientService.lockEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
 
-            Then(
+            then(
                 """
                 it should call the DRC client with a LockEnkelvoudigInformatieObject instance with a lock string
                 generated from a (random) UUID and return the lock ID
@@ -69,7 +69,7 @@ class DrcClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An EnkelvoudigInformatieobject UUID and a patch request with a non-null audit explanation") {
+    given("An EnkelvoudigInformatieobject UUID and a patch request with a non-null audit explanation") {
         val uuid = UUID.randomUUID()
         val patchRequest = createEnkelvoudigInformatieObjectWithLockRequest()
         val updatedDocument = createEnkelvoudigInformatieObject(uuid = uuid)
@@ -82,21 +82,21 @@ class DrcClientServiceTest : BehaviorSpec({
             )
         } returns updatedDocument
 
-        When("updating the EnkelvoudigInformatieobject") {
+        `when`("updating the EnkelvoudigInformatieobject") {
             val result = drcClientService.updateEnkelvoudigInformatieobject(
                 enkelvoudigInformatieobjectUUID = uuid,
                 enkelvoudigInformatieObjectWithLockRequest = patchRequest,
                 auditExplanation = auditExplanation
             )
 
-            Then("it should set the audit explanation and return the updated document") {
+            then("it should set the audit explanation and return the updated document") {
                 verify(exactly = 1) { zgwClientHeadersFactory.setAuditExplanation(auditExplanation) }
                 result shouldBe updatedDocument
             }
         }
     }
 
-    Given("An EnkelvoudigInformatieobject UUID and a patch request with a null audit explanation") {
+    given("An EnkelvoudigInformatieobject UUID and a patch request with a null audit explanation") {
         val uuid = UUID.randomUUID()
         val patchRequest = createEnkelvoudigInformatieObjectWithLockRequest()
         val updatedDocument = createEnkelvoudigInformatieObject(uuid = uuid)
@@ -107,25 +107,25 @@ class DrcClientServiceTest : BehaviorSpec({
             )
         } returns updatedDocument
 
-        When("updating the EnkelvoudigInformatieobject") {
+        `when`("updating the EnkelvoudigInformatieobject") {
             val result = drcClientService.updateEnkelvoudigInformatieobject(
                 enkelvoudigInformatieobjectUUID = uuid,
                 enkelvoudigInformatieObjectWithLockRequest = patchRequest,
                 auditExplanation = null
             )
 
-            Then("it should NOT call setAuditExplanation and should return the updated document") {
+            then("it should NOT call setAuditExplanation and should return the updated document") {
                 verify(exactly = 0) { zgwClientHeadersFactory.setAuditExplanation(any()) }
                 result shouldBe updatedDocument
             }
         }
     }
 
-    Given("An EnkelvoudigInformatieobject UUID for download") {
+    given("An EnkelvoudigInformatieobject UUID for download") {
         val uuid = UUID.randomUUID()
 
-        When("the entity can be buffered and downloadEnkelvoudigInformatieobject is called") {
-            Then("it should return the content stream") {
+        `when`("the entity can be buffered and downloadEnkelvoudigInformatieobject is called") {
+            then("it should return the content stream") {
                 val content = ByteArrayInputStream("fakeContent".toByteArray())
                 val response = mockk<Response>()
                 every { response.bufferEntity() } returns true
@@ -138,8 +138,8 @@ class DrcClientServiceTest : BehaviorSpec({
             }
         }
 
-        When("the entity cannot be buffered and downloadEnkelvoudigInformatieobject is called") {
-            Then("it should throw a DrcRuntimeException") {
+        `when`("the entity cannot be buffered and downloadEnkelvoudigInformatieobject is called") {
+            then("it should throw a DrcRuntimeException") {
                 val response = mockk<Response>()
                 every { response.bufferEntity() } returns false
                 every { drcClient.enkelvoudigInformatieobjectDownload(uuid) } returns response

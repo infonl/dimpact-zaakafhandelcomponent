@@ -21,31 +21,31 @@ class RestOpenstaandeTakenConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("convert") {
-        Given("a zaak UUID with two open tasks") {
+    context("convert") {
+        given("a zaak UUID with two open tasks") {
             val zaakUUID = UUID.randomUUID()
             val task1 = createTestTask(name = "fakeTaskName1")
             val task2 = createTestTask(name = "fakeTaskName2")
             every { flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns listOf(task1, task2)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = restOpenstaandeTakenConverter.convert(zaakUUID)
 
-                Then("it returns the correct count and task names") {
+                then("it returns the correct count and task names") {
                     result.aantalOpenstaandeTaken shouldBe 2
                     result.taakNamen shouldBe listOf("fakeTaskName1", "fakeTaskName2")
                 }
             }
         }
 
-        Given("a zaak UUID with no open tasks") {
+        given("a zaak UUID with no open tasks") {
             val zaakUUID = UUID.randomUUID()
             every { flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns emptyList()
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = restOpenstaandeTakenConverter.convert(zaakUUID)
 
-                Then("it returns zero count and empty task names") {
+                then("it returns zero count and empty task names") {
                     result.aantalOpenstaandeTaken shouldBe 0
                     result.taakNamen shouldBe emptyList()
                 }

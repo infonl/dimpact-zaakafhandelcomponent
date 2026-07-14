@@ -21,13 +21,13 @@ import java.util.UUID
 
 class SmartDocumentsTemplateConverterTest : BehaviorSpec({
 
-    Given("a template response from SmartDocuments") {
+    given("a template response from SmartDocuments") {
         val templateResponse = createsmartDocumentsTemplatesResponse()
 
-        When("convert to REST is called") {
+        `when`("convert to REST is called") {
             val restTemplateGroup = templateResponse.toRestSmartDocumentsTemplateGroupSet()
 
-            Then("it produces the right rest model") {
+            then("it produces the right rest model") {
                 restTemplateGroup.size shouldBe 1
                 with(restTemplateGroup.first()) {
                     id shouldBe templateResponse.documentsStructure.templatesStructure.templateGroups.first().id
@@ -56,7 +56,7 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
         }
     }
 
-    Given("a REST request") {
+    given("a REST request") {
         val expectedInformatieobjectTypeUUID = UUID.randomUUID()
         val restTemplateRequest = setOf(
             createRestMappedSmartDocumentsTemplateGroup(
@@ -104,11 +104,11 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
             )
         )
 
-        When("convert to JPA model is called") {
+        `when`("convert to JPA model is called") {
             val zaaktypeCmmnConfigurationFixture = createZaaktypeCmmnConfiguration()
             val jpaModel = restTemplateRequest.toSmartDocumentsTemplateGroupSet(zaaktypeCmmnConfigurationFixture)
 
-            Then("it produces a correct jpa representation") {
+            then("it produces a correct jpa representation") {
                 jpaModel.size shouldBe 1
                 with(jpaModel.first()) {
                     name shouldBe "root"
@@ -175,7 +175,7 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
         }
     }
 
-    Given("a JPA model") {
+    given("a JPA model") {
         val jpaRoot = createSmartDocumentsTemplateGroup(name = "root")
         val jpaTemplates = mutableSetOf(
             createSmartDocumentsTemplate(name = "template 1"),
@@ -200,10 +200,10 @@ class SmartDocumentsTemplateConverterTest : BehaviorSpec({
             }
         )
 
-        When("a convert to REST model is called") {
+        `when`("a convert to REST model is called") {
             val restModel = jpaModel.toRestSmartDocumentsTemplateGroup()
 
-            Then("it produces a correct REST model") {
+            then("it produces a correct REST model") {
                 restModel.size shouldBe 1
                 with(restModel.first()) {
                     id shouldBe jpaRoot.smartDocumentsId

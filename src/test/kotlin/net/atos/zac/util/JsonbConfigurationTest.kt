@@ -24,9 +24,9 @@ class JsonbConfigurationTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a JSON date-string with an ISO Z timezone") {
-        When("it is parsed with our context resolver") {
-            Then("the date-time string is correctly formatted") {
+    given("a JSON date-string with an ISO Z timezone") {
+        `when`("it is parsed with our context resolver") {
+            then("the date-time string is correctly formatted") {
                 val datum = contextResolver.fromJson("\"2021-06-23T00:00:00Z\"", LocalDate::class.java)
 
                 datum.format(DateTimeFormatter.ISO_DATE) shouldBe "2021-06-23"
@@ -34,9 +34,9 @@ class JsonbConfigurationTest : BehaviorSpec({
         }
     }
 
-    Given("a JSON date-string with a +02:00 timezone") {
-        When("it is parsed with our context resolver") {
-            Then("the date-time string is correctly formatted") {
+    given("a JSON date-string with a +02:00 timezone") {
+        `when`("it is parsed with our context resolver") {
+            then("the date-time string is correctly formatted") {
                 val datum = contextResolver.fromJson("\"2021-06-23T00:00:00+02:00\"", LocalDate::class.java)
 
                 datum.format(DateTimeFormatter.ISO_DATE) shouldBe "2021-06-23"
@@ -44,9 +44,9 @@ class JsonbConfigurationTest : BehaviorSpec({
         }
     }
 
-    Given("a JSON date-string with a -02:00 timezone") {
-        When("it is parsed with our context resolver") {
-            Then("the date-time string is correctly formatted") {
+    given("a JSON date-string with a -02:00 timezone") {
+        `when`("it is parsed with our context resolver") {
+            then("the date-time string is correctly formatted") {
                 val datum = contextResolver.fromJson("\"2021-06-23T00:00:00-02:00\"", LocalDate::class.java)
 
                 datum.format(DateTimeFormatter.ISO_DATE) shouldBe "2021-06-23"
@@ -54,9 +54,9 @@ class JsonbConfigurationTest : BehaviorSpec({
         }
     }
 
-    Given("a JSON date-string without a timezone") {
-        When("it is parsed with our context resolver") {
-            Then("the date-time string is correctly formatted") {
+    given("a JSON date-string without a timezone") {
+        `when`("it is parsed with our context resolver") {
+            then("the date-time string is correctly formatted") {
                 val datum = contextResolver.fromJson("\"2021-06-23\"", LocalDate::class.java)
 
                 datum.format(DateTimeFormatter.ISO_DATE) shouldBe "2021-06-23"

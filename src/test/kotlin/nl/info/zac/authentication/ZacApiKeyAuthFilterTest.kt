@@ -25,28 +25,28 @@ class ZacApiKeyAuthFilterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a valid API key in the request header") {
+    given("a valid API key in the request header") {
         val validApiKey = "validApiKey"
         every { containerRequestContext.getHeaderString("X-API-KEY") } returns validApiKey
 
-        When("filter is called") {
+        `when`("filter is called") {
             zacApiKeyAuthFilter.filter(containerRequestContext)
 
-            Then("the request should not be aborted") {
+            then("the request should not be aborted") {
                 verify(exactly = 0) { containerRequestContext.abortWith(any()) }
             }
         }
     }
 
-    Given("an invalid API key in the request header") {
+    given("an invalid API key in the request header") {
         val invalidApiKey = "invalidApiKey"
         every { containerRequestContext.getHeaderString("X-API-KEY") } returns invalidApiKey
         every { containerRequestContext.abortWith(any()) } just Runs
 
-        When("filter is called") {
+        `when`("filter is called") {
             zacApiKeyAuthFilter.filter(containerRequestContext)
 
-            Then("the request should be aborted with a 401 Unauthorized response") {
+            then("the request should be aborted with a 401 Unauthorized response") {
                 verify(exactly = 1) {
                     containerRequestContext.abortWith(
                         match { it.status == Response.Status.UNAUTHORIZED.statusCode }
@@ -56,14 +56,14 @@ class ZacApiKeyAuthFilterTest : BehaviorSpec({
         }
     }
 
-    Given("no API key in the request header") {
+    given("no API key in the request header") {
         every { containerRequestContext.getHeaderString("X-API-KEY") } returns null
         every { containerRequestContext.abortWith(any()) } just Runs
 
-        When("filter is called") {
+        `when`("filter is called") {
             zacApiKeyAuthFilter.filter(containerRequestContext)
 
-            Then("the request should be aborted with a 401 Unauthorized response") {
+            then("the request should be aborted with a 401 Unauthorized response") {
                 verify(exactly = 1) {
                     containerRequestContext.abortWith(
                         match { it.status == Response.Status.UNAUTHORIZED.statusCode }

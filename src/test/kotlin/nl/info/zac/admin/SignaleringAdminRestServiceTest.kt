@@ -40,16 +40,16 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A valid HTTP session") {
+    given("A valid HTTP session") {
         every { httpSessionInstance.get() } returns httpSession
         every { httpSession.setAttribute(any(), any()) } just Runs
         every { eventingService.send(any<JobEvent>()) } just Runs
         val loggedInUserSlot = slot<LoggedInUser>()
 
-        When("sendSignaleringen is called") {
+        `when`("sendSignaleringen is called") {
             val result = signaleringAdminRestService.sendSignaleringen()
 
-            Then("it should set the functioneel gebruiker in the HTTP session") {
+            then("it should set the functioneel gebruiker in the HTTP session") {
                 verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
                 with(loggedInUserSlot.captured) {
                     id shouldBe "FG"
@@ -69,15 +69,15 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An invalid HTTP session") {
+    given("An invalid HTTP session") {
         every { httpSessionInstance.get() } throws IllegalStateException("No active session")
 
-        When("sendSignaleringen is called") {
+        `when`("sendSignaleringen is called") {
             val exception = shouldThrow<IllegalStateException> {
                 signaleringAdminRestService.sendSignaleringen()
             }
 
-            Then("it should throw an IllegalStateException") {
+            then("it should throw an IllegalStateException") {
                 exception.message shouldBe "No active session"
             }
         }

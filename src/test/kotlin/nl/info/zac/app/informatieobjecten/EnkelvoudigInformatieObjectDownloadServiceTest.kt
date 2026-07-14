@@ -48,7 +48,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         return entries
     }
 
-    Given("a single inkomend informatieobject (ontvangstdatum set)") {
+    given("a single inkomend informatieobject (ontvangstdatum set)") {
         val uuid = UUID.randomUUID()
         val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val informatieobject = createEnkelvoudigInformatieObject(
@@ -66,12 +66,12 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns
             ByteArrayInputStream(fileContent.toByteArray())
 
-        When("getZipStreamOutput is called") {
+        `when`("getZipStreamOutput is called") {
             val output = ByteArrayOutputStream()
             service.getZipStreamOutput(listOf(informatieobject)).write(output)
             val entries = readZipEntries(output)
 
-            Then("the zip contains the document in the inkomend subfolder with correct content") {
+            then("the zip contains the document in the inkomend subfolder with correct content") {
                 entries.keys shouldContainExactlyInAnyOrder listOf(
                     "ZAAK-2024-001/inkomend/report-DOC-001.pdf",
                     "samenvatting.txt"
@@ -88,7 +88,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a single uitgaand informatieobject (verzenddatum set, ontvangstdatum null)") {
+    given("a single uitgaand informatieobject (verzenddatum set, ontvangstdatum null)") {
         val uuid = UUID.randomUUID()
         val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val informatieobject = createEnkelvoudigInformatieObject(uuid = uuid, ontvangstdatum = null).apply {
@@ -103,12 +103,12 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns
             ByteArrayInputStream(ByteArray(0))
 
-        When("getZipStreamOutput is called") {
+        `when`("getZipStreamOutput is called") {
             val output = ByteArrayOutputStream()
             service.getZipStreamOutput(listOf(informatieobject)).write(output)
             val entries = readZipEntries(output)
 
-            Then("the document entry is placed in the uitgaand subfolder") {
+            then("the document entry is placed in the uitgaand subfolder") {
                 entries.keys shouldContainExactlyInAnyOrder listOf(
                     "ZAAK-2024-002/uitgaand/letter-DOC-002.docx",
                     "samenvatting.txt"
@@ -117,7 +117,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a single intern informatieobject (both ontvangstdatum and verzenddatum are null)") {
+    given("a single intern informatieobject (both ontvangstdatum and verzenddatum are null)") {
         val uuid = UUID.randomUUID()
         val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val informatieobject = createEnkelvoudigInformatieObject(uuid = uuid, ontvangstdatum = null).apply {
@@ -131,12 +131,12 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns
             ByteArrayInputStream(ByteArray(0))
 
-        When("getZipStreamOutput is called") {
+        `when`("getZipStreamOutput is called") {
             val output = ByteArrayOutputStream()
             service.getZipStreamOutput(listOf(informatieobject)).write(output)
             val entries = readZipEntries(output)
 
-            Then("the document entry is placed in the intern subfolder") {
+            then("the document entry is placed in the intern subfolder") {
                 entries.keys shouldContainExactlyInAnyOrder listOf(
                     "ZAAK-2024-003/intern/memo-DOC-003.txt",
                     "samenvatting.txt"
@@ -145,7 +145,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         }
     }
 
-    Given("two informatieobjecten belonging to different zaken") {
+    given("two informatieobjecten belonging to different zaken") {
         val uuid1 = UUID.randomUUID()
         val uuid2 = UUID.randomUUID()
         val zaakUri1 = URI("https://example.com/zaak/${UUID.randomUUID()}")
@@ -171,12 +171,12 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid1) } returns ByteArrayInputStream(ByteArray(0))
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid2) } returns ByteArrayInputStream(ByteArray(0))
 
-        When("getZipStreamOutput is called") {
+        `when`("getZipStreamOutput is called") {
             val output = ByteArrayOutputStream()
             service.getZipStreamOutput(listOf(informatieobject1, informatieobject2)).write(output)
             val entries = readZipEntries(output)
 
-            Then("the zip contains an entry for each document in its respective zaak folder") {
+            then("the zip contains an entry for each document in its respective zaak folder") {
                 entries.keys shouldContainExactlyInAnyOrder listOf(
                     "ZAAK-A/inkomend/doc-a-DOC-A.pdf",
                     "ZAAK-B/intern/doc-b-DOC-B.pdf",
@@ -192,7 +192,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a download that fails with an IOException when reading the file content") {
+    given("a download that fails with an IOException when reading the file content") {
         val uuid = UUID.randomUUID()
         val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val informatieobject = createEnkelvoudigInformatieObject(
@@ -211,24 +211,24 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaakUri) } returns createZaak(identificatie = "ZAAK-ERR")
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns failingStream
 
-        When("getZipStreamOutput is called and the stream is written") {
+        `when`("getZipStreamOutput is called and the stream is written") {
             val thrownException = runCatching {
                 service.getZipStreamOutput(listOf(informatieobject)).write(ByteArrayOutputStream())
             }.exceptionOrNull()
 
-            Then("an EnkelvoudigInformatieObjectDownloadException is thrown") {
+            then("an EnkelvoudigInformatieObjectDownloadException is thrown") {
                 thrownException.shouldBeInstanceOf<EnkelvoudigInformatieObjectDownloadException>()
             }
         }
     }
 
-    Given("an empty list of informatieobjecten") {
-        When("getZipStreamOutput is called") {
+    given("an empty list of informatieobjecten") {
+        `when`("getZipStreamOutput is called") {
             val output = ByteArrayOutputStream()
             service.getZipStreamOutput(emptyList()).write(output)
             val entries = readZipEntries(output)
 
-            Then("the zip contains only a samenvatting.txt with no zaak entries") {
+            then("the zip contains only a samenvatting.txt with no zaak entries") {
                 entries.keys shouldBe setOf("samenvatting.txt")
                 entries["samenvatting.txt"] shouldBe ""
             }

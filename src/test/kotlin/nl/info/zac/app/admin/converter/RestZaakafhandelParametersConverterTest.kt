@@ -47,7 +47,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         smartDocumentsService
     )
 
-    Given("ZaakafhandelParameters CMMN with minimal content") {
+    given("ZaakafhandelParameters CMMN with minimal content") {
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         val zaakType = createZaakType().apply {
             beginGeldigheid = LocalDate.now().minusDays(1)
@@ -71,13 +71,13 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             )
         } returns null
 
-        When("converted to REST representation") {
+        `when`("converted to REST representation") {
             val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaakafhandelParameters(
                 zaaktypeCmmnConfiguration,
                 true
             )
 
-            Then("the created object is correct") {
+            then("the created object is correct") {
                 with(restZaakafhandelParameters) {
                     id shouldBe zaaktypeCmmnConfiguration.id
                     with(zaaktype) {
@@ -123,7 +123,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         }
     }
 
-    Given("RestZaakafhandelParameters CMMN with minimal content") {
+    given("RestZaakafhandelParameters CMMN with minimal content") {
         val restResultType = createResultaatType().toRestResultaatType()
         val restZaakafhandelParameters = createRestZaakafhandelParameters().apply {
             caseDefinition = RESTCaseDefinition()
@@ -135,12 +135,12 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns zaaktypeCmmnConfiguration
         every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
 
-        When("converted to DB model representation") {
+        `when`("converted to DB model representation") {
             val zaaktypeCmmnConfiguration = restZaakafhandelParametersConverter.toZaaktypeCmmnConfiguration(
                 restZaakafhandelParameters
             )
 
-            Then("the created object is correct") {
+            then("the created object is correct") {
                 with(zaaktypeCmmnConfiguration) {
                     id shouldBe restZaakafhandelParameters.id
                     zaaktypeUuid shouldBe restZaakafhandelParameters.zaaktype.uuid
@@ -161,7 +161,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         }
     }
 
-    Given("ZaakafhandelParameters BPMN with minimal content") {
+    given("ZaakafhandelParameters BPMN with minimal content") {
         val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
         val zaakType = createZaakType().apply {
             beginGeldigheid = LocalDate.now().minusDays(1)
@@ -179,12 +179,12 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns listOf(restZaakbeeindigParameter)
         every { smartDocumentsService.isEnabled() } returns true
 
-        When("converted to REST representation") {
+        `when`("converted to REST representation") {
             val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaakafhandelParameters(
                 zaaktypeBpmnConfiguration
             )
 
-            Then("the created object is correct") {
+            then("the created object is correct") {
                 with(restZaakafhandelParameters) {
                     id shouldBe zaaktypeBpmnConfiguration.id
                     with(zaaktype) {

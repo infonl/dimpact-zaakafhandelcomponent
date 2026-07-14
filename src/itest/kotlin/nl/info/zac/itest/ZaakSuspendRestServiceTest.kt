@@ -29,7 +29,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient(itestHttpClient)
     val logger = KotlinLogging.logger {}
 
-    Given("A zaak exists and a behandelaar is logged in") {
+    given("A zaak exists and a behandelaar is logged in") {
         lateinit var zaakUuid: String
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
@@ -45,7 +45,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the zaak is suspended") {
+        `when`("the zaak is suspended") {
             val suspensionDays = 5
             val suspensionReason = "fakeSuspensionReason"
             val suspendResponse = itestHttpClient.performPatchRequest(
@@ -58,7 +58,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
-            Then("the response should be OK and the returned zaak should indicate suspension") {
+            then("the response should be OK and the returned zaak should indicate suspension") {
                 val responseBody = suspendResponse.bodyAsString
                 logger.info { "Response: $responseBody" }
                 suspendResponse.code shouldBe HTTP_OK
@@ -71,7 +71,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                     url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/opschorting",
                     testUser = BEHANDELAAR_1
                 )
-                Then("the response should be OK and return the suspension details") {
+                then("the response should be OK and return the suspension details") {
                     val responseBody = readResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     readResponse.code shouldBe HTTP_OK
@@ -91,7 +91,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                     """.trimIndent(),
                     testUser = BEHANDELAAR_1
                 )
-                Then("the response should be OK and the returned zaak should not indicate suspension") {
+                then("the response should be OK and the returned zaak should not indicate suspension") {
                     val responseBody = resumeResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     resumeResponse.code shouldBe HTTP_OK
@@ -104,7 +104,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                         url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/opschorting",
                         testUser = BEHANDELAAR_1
                     )
-                    Then("the response should be OK and return no suspension date and zero days") {
+                    then("the response should be OK and return no suspension date and zero days") {
                         val responseBody = readAfterResumeResponse.bodyAsString
                         logger.info { "Response: $responseBody" }
                         readAfterResumeResponse.code shouldBe HTTP_OK

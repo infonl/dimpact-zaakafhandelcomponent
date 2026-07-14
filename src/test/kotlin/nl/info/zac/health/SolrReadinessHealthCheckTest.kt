@@ -44,12 +44,12 @@ class SolrReadinessHealthCheckTest : BehaviorSpec({
         clearAllMocks()
     }
 
-    Given("Solr is available and returns status 0") {
-        When("the health check is called") {
+    given("Solr is available and returns status 0") {
+        `when`("the health check is called") {
             every { solrPingResponse.status } returns 0
             val response = SolrReadinessHealthCheck(solrUrl).call()
 
-            Then("the health check should return UP status") {
+            then("the health check should return UP status") {
                 response.status shouldBe HealthCheckResponse.Status.UP
                 response.name shouldBe "nl.info.zac.health.SolrReadinessHealthCheck"
 
@@ -61,13 +61,13 @@ class SolrReadinessHealthCheckTest : BehaviorSpec({
         }
     }
 
-    Given("Solr is responding but returns a non-zero status") {
+    given("Solr is responding but returns a non-zero status") {
         listOf(1, -1).forEach { status ->
-            When("the health check is called with non-zero status $status") {
+            `when`("the health check is called with non-zero status $status") {
                 every { solrPingResponse.status } returns status
                 val response = SolrReadinessHealthCheck(solrUrl).call()
 
-                Then("the health check should return DOWN status") {
+                then("the health check should return DOWN status") {
                     response.status shouldBe HealthCheckResponse.Status.DOWN
 
                     with(response.data.get()) {
@@ -81,16 +81,16 @@ class SolrReadinessHealthCheckTest : BehaviorSpec({
         }
     }
 
-    Given("Solr is not available and throws an exception") {
+    given("Solr is not available and throws an exception") {
         listOf<Throwable>(
             SolrServerException("Connection refused to Solr server"),
             RuntimeException("Network timeout")
         ).forEach { err ->
-            When("the health check is called and error ${err.javaClass.simpleName} is thrown") {
+            `when`("the health check is called and error ${err.javaClass.simpleName} is thrown") {
                 every { solrPingResponse.status } throws err
                 val response = SolrReadinessHealthCheck(solrUrl).call()
 
-                Then("the health check should return DOWN status with error") {
+                then("the health check should return DOWN status with error") {
                     response.status shouldBe HealthCheckResponse.Status.DOWN
 
                     with(response.data.get()) {

@@ -57,7 +57,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("JUEL expression in a BPMN service task") {
+    given("JUEL expression in a BPMN service task") {
         val juelExpression = mockk<JuelExpression>()
         val updateZaakJavaDelegate = UpdateZaakJavaDelegate().apply {
             statustypeOmschrijving = juelExpression
@@ -80,10 +80,10 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
             zgwApiService.createStatusForZaak(zaak, zaakStatusName, "Aangepast vanuit proces")
         } returns zaakStatus
 
-        When("the delegate is called") {
+        `when`("the delegate is called") {
             updateZaakJavaDelegate.execute(delegateExecution)
 
-            Then("the expression was resolved") {
+            then("the expression was resolved") {
                 verify(exactly = 1) {
                     juelExpression.getValue(delegateExecution)
                 }
@@ -97,7 +97,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("Fixed value in a BPMN service task") {
+    given("Fixed value in a BPMN service task") {
         val fixedValueExpression = mockk<FixedValue>()
         val updateZaakJavaDelegate = UpdateZaakJavaDelegate().apply {
             statustypeOmschrijving = fixedValueExpression
@@ -120,10 +120,10 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
             zgwApiService.createStatusForZaak(zaak, zaakStatusName, "Aangepast vanuit proces")
         } returns zaakStatus
 
-        When("the delegate is called") {
+        `when`("the delegate is called") {
             updateZaakJavaDelegate.execute(delegateExecution)
 
-            Then("the value is obtained") {
+            then("the value is obtained") {
                 verify(exactly = 1) {
                     fixedValueExpression.getValue(delegateExecution)
                 }
@@ -137,7 +137,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("a resultaattype omschrijving is set in a BPMN service task") {
+    given("a resultaattype omschrijving is set in a BPMN service task") {
         val resultaattypeDescription = "fakeResultaattype"
         val resultaattypeUuid = UUID.randomUUID()
         val resultaatType = createResultaatType(url = URI("https://example.com/resultaattype/$resultaattypeUuid"))
@@ -163,10 +163,10 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         every { zgwApiService.getResultaatType(zaak.zaaktype, resultaattypeDescription) } returns resultaatType
         every { zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces") } just Runs
 
-        When("the delegate is called") {
+        `when`("the delegate is called") {
             updateZaakJavaDelegate.execute(delegateExecution)
 
-            Then("the resultaattype was looked up") {
+            then("the resultaattype was looked up") {
                 verify(exactly = 1) {
                     zgwApiService.getResultaatType(zaak.zaaktype, resultaattypeDescription)
                 }
@@ -180,7 +180,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("a resultaattype omschrijving is set but ZGW validation fails") {
+    given("a resultaattype omschrijving is set but ZGW validation fails") {
         val resultaattypeDescription = "fakeResultaattype"
         val resultaattypeUuid = UUID.randomUUID()
         val resultaatType = createResultaatType(url = URI("https://example.com/resultaattype/$resultaattypeUuid"))
@@ -207,18 +207,18 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         every { zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces") } throws
             ZgwValidationErrorException(createValidationZgwError())
 
-        When("the delegate is called") {
+        `when`("the delegate is called") {
             val exception = shouldThrow<FlowableZgwValidationErrorException> {
                 updateZaakJavaDelegate.execute(delegateExecution)
             }
 
-            Then("a FlowableZgwValidationErrorException is thrown") {
+            then("a FlowableZgwValidationErrorException is thrown") {
                 exception.message shouldBe "Failed to close zaak with UUID: '${zaak.uuid}'"
             }
         }
     }
 
-    Given("Policy denies handling zaak in a BPMN service task") {
+    given("Policy denies handling zaak in a BPMN service task") {
         val updateZaakJavaDelegate = UpdateZaakJavaDelegate().apply {
             statustypeOmschrijving = mockk()
         }
@@ -235,12 +235,12 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
             policyService.readZaakRechten(zaak, zaaktype, loggedInUser)
         } returns createZaakRechtenAllDeny()
 
-        When("the delegate is called") {
+        `when`("the delegate is called") {
             val policyException = shouldThrow<PolicyException> {
                 updateZaakJavaDelegate.execute(delegateExecution)
             }
 
-            Then("a PolicyException is thrown") {
+            then("a PolicyException is thrown") {
                 policyException shouldNotBe null
             }
 

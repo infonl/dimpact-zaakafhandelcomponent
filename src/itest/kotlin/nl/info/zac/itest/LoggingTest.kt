@@ -16,8 +16,8 @@ const val NUMBER_OF_LOG_LINES = 10
 class LoggingTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
 
-    Given("ZAC Docker container is running") {
-        When("the ZAC container log output is retrieved") {
+    given("ZAC Docker container is running") {
+        `when`("the ZAC container log output is retrieved") {
             val zacContainer = dockerComposeContainer
                 .getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME)
                 .get()
@@ -26,7 +26,7 @@ class LoggingTest : BehaviorSpec({
                 .filter { it.trimStart().startsWith("{") }
             logger.info { "Found ${jsonLogLines.size} JSON log lines in ZAC container output" }
 
-            Then("log lines should be structured as valid JSON with required fields including service metadata") {
+            then("log lines should be structured as valid JSON with required fields including service metadata") {
                 jsonLogLines.isNotEmpty() shouldBe true
 
                 jsonLogLines.take(NUMBER_OF_LOG_LINES).forEach { line ->

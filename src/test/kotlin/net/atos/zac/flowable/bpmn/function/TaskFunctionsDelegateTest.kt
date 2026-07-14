@@ -13,28 +13,28 @@ import io.kotest.matchers.shouldBe
 class TaskFunctionsDelegateTest : BehaviorSpec({
     val delegate = TaskFunctionsDelegate()
 
-    Given("a TaskFunctionsDelegate") {
-        When("getting the prefix") {
+    given("a TaskFunctionsDelegate") {
+        `when`("getting the prefix") {
             val prefix = delegate.prefix()
 
-            Then("it should return 'taken'") {
+            then("it should return 'taken'") {
                 prefix shouldBe "taken"
             }
         }
 
-        When("getting local names") {
+        `when`("getting local names") {
             val names = delegate.localNames()
 
-            Then("it should contain 'groep' and 'behandelaar'") {
+            then("it should contain 'groep' and 'behandelaar'") {
                 names.shouldContainExactlyInAnyOrder("groep", "behandelaar")
             }
         }
 
-        When("requesting functionMethod with correct prefix and local names") {
+        `when`("requesting functionMethod with correct prefix and local names") {
             val groepMethod = delegate.functionMethod("taken", "groep")
             val behandelaarMethod = delegate.functionMethod("taken", "behandelaar")
 
-            Then("it should return the correct methods") {
+            then("it should return the correct methods") {
                 groepMethod.shouldNotBeNull()
                 groepMethod.name shouldBe "groep"
                 behandelaarMethod.shouldNotBeNull()
@@ -42,18 +42,18 @@ class TaskFunctionsDelegateTest : BehaviorSpec({
             }
         }
 
-        When("requesting functionMethod with incorrect prefix") {
+        `when`("requesting functionMethod with incorrect prefix") {
             val method = delegate.functionMethod("wrong", "groep")
 
-            Then("it should return null") {
+            then("it should return null") {
                 method.shouldBeNull()
             }
         }
 
-        When("requesting functionMethod with unknown local name") {
+        `when`("requesting functionMethod with unknown local name") {
             val method = delegate.functionMethod("taken", "unknown")
 
-            Then("it should return null") {
+            then("it should return null") {
                 method.shouldBeNull()
             }
         }

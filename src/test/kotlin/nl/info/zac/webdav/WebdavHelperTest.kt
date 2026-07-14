@@ -52,7 +52,7 @@ class WebdavHelperTest : BehaviorSpec({
 
     // In SingleInstance BehaviorSpec, Given/When bodies run once at collection time.
     // createRedirectURL is called there; schemeSlot and storedGegevens are captured via closure.
-    Given("a Word document (.doc format)") {
+    given("a Word document (.doc format)") {
         val documentUUID = UUID.randomUUID()
         val document = createEnkelvoudigInformatieObject(
             uuid = documentUUID,
@@ -72,19 +72,19 @@ class WebdavHelperTest : BehaviorSpec({
         val newToken = (storedTokens().keys.toSet() - tokensBefore).first()
         val storedGegevens = webdavHelper.readWebdavTokenData(newToken)
 
-        When("createRedirectURL is called") {
-            Then("scheme uses ms-word protocol") {
+        `when`("createRedirectURL is called") {
+            then("scheme uses ms-word protocol") {
                 schemeSlot.captured shouldStartWith "ms-word:"
             }
 
-            Then("token is stored with the correct document UUID and logged-in user") {
+            then("token is stored with the correct document UUID and logged-in user") {
                 storedGegevens.enkelvoudigInformatieobjectUUID shouldBe documentUUID
                 storedGegevens.loggedInUser shouldBe loggedInUser
             }
         }
     }
 
-    Given("a Word document (.docx OpenXML format)") {
+    given("a Word document (.docx OpenXML format)") {
         val documentUUID = UUID.randomUUID()
         val document = createEnkelvoudigInformatieObject(
             uuid = documentUUID,
@@ -100,14 +100,14 @@ class WebdavHelperTest : BehaviorSpec({
         every { uriBuilder.build(*anyVararg<Any>()) } returns URI("ms-word:http://localhost:8080/webdav/folder/token.docx")
         webdavHelper.createRedirectURL(documentUUID, uriInfo)
 
-        When("createRedirectURL is called") {
-            Then("scheme uses ms-word protocol") {
+        `when`("createRedirectURL is called") {
+            then("scheme uses ms-word protocol") {
                 schemeSlot.captured shouldStartWith "ms-word:"
             }
         }
     }
 
-    Given("an Excel document (.xls format)") {
+    given("an Excel document (.xls format)") {
         val documentUUID = UUID.randomUUID()
         val document = createEnkelvoudigInformatieObject(
             uuid = documentUUID,
@@ -123,14 +123,14 @@ class WebdavHelperTest : BehaviorSpec({
         every { uriBuilder.build(*anyVararg<Any>()) } returns URI("ms-excel:http://localhost:8080/webdav/folder/token.xls")
         webdavHelper.createRedirectURL(documentUUID, uriInfo)
 
-        When("createRedirectURL is called") {
-            Then("scheme uses ms-excel protocol") {
+        `when`("createRedirectURL is called") {
+            then("scheme uses ms-excel protocol") {
                 schemeSlot.captured shouldStartWith "ms-excel:"
             }
         }
     }
 
-    Given("an Excel document (.xlsx OpenXML format)") {
+    given("an Excel document (.xlsx OpenXML format)") {
         val documentUUID = UUID.randomUUID()
         val document = createEnkelvoudigInformatieObject(
             uuid = documentUUID,
@@ -146,14 +146,14 @@ class WebdavHelperTest : BehaviorSpec({
         every { uriBuilder.build(*anyVararg<Any>()) } returns URI("ms-excel:http://localhost:8080/webdav/folder/token.xlsx")
         webdavHelper.createRedirectURL(documentUUID, uriInfo)
 
-        When("createRedirectURL is called") {
-            Then("scheme uses ms-excel protocol") {
+        `when`("createRedirectURL is called") {
+            then("scheme uses ms-excel protocol") {
                 schemeSlot.captured shouldStartWith "ms-excel:"
             }
         }
     }
 
-    Given("a PowerPoint document (.pptx OpenXML format)") {
+    given("a PowerPoint document (.pptx OpenXML format)") {
         val documentUUID = UUID.randomUUID()
         val document = createEnkelvoudigInformatieObject(
             uuid = documentUUID,
@@ -171,20 +171,20 @@ class WebdavHelperTest : BehaviorSpec({
         } returns URI("ms-powerpoint:http://localhost:8080/webdav/folder/token.pptx")
         webdavHelper.createRedirectURL(documentUUID, uriInfo)
 
-        When("createRedirectURL is called") {
-            Then("scheme uses ms-powerpoint protocol") {
+        `when`("createRedirectURL is called") {
+            then("scheme uses ms-powerpoint protocol") {
                 schemeSlot.captured shouldStartWith "ms-powerpoint:"
             }
         }
     }
 
-    Given("no token has been stored") {
-        When("readGegevens is called with an unknown token") {
+    given("no token has been stored") {
+        `when`("readGegevens is called with an unknown token") {
             val webdavException = shouldThrow<WebdavException> {
                 webdavHelper.readWebdavTokenData("nonexistent-token")
             }
 
-            Then("it throws a WebdavException with the correct message") {
+            then("it throws a WebdavException with the correct message") {
                 webdavException.message shouldBe "WebDAV token does not exist (anymore)."
             }
         }

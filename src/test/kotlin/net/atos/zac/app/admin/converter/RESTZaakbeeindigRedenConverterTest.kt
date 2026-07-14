@@ -9,17 +9,17 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.admin.model.ZaakbeeindigReden
 
 class RESTZaakbeeindigRedenConverterTest : BehaviorSpec({
-    Context("convertZaakbeeindigReden") {
-        Given("a ZaakbeeindigReden with id and naam") {
+    context("convertZaakbeeindigReden") {
+        given("a ZaakbeeindigReden with id and naam") {
             val zaakbeeindigReden = ZaakbeeindigReden().apply {
                 id = 42L
                 naam = "fakeReden"
             }
 
-            When("convertZaakbeeindigReden is called") {
+            `when`("convertZaakbeeindigReden is called") {
                 val result = RESTZaakbeeindigRedenConverter.convertZaakbeeindigReden(zaakbeeindigReden)
 
-                Then("it returns a REST model with matching id and naam") {
+                then("it returns a REST model with matching id and naam") {
                     result.id shouldBe "42"
                     result.naam shouldBe "fakeReden"
                 }
@@ -27,8 +27,8 @@ class RESTZaakbeeindigRedenConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convertZaakbeeindigRedenen") {
-        Given("a list of ZaakbeeindigRedenen") {
+    context("convertZaakbeeindigRedenen") {
+        given("a list of ZaakbeeindigRedenen") {
             val reden1 = ZaakbeeindigReden().apply {
                 id = 1L
                 naam = "fakeReden1"
@@ -38,10 +38,10 @@ class RESTZaakbeeindigRedenConverterTest : BehaviorSpec({
                 naam = "fakeReden2"
             }
 
-            When("convertZaakbeeindigRedenen is called") {
+            `when`("convertZaakbeeindigRedenen is called") {
                 val result = RESTZaakbeeindigRedenConverter.convertZaakbeeindigRedenen(listOf(reden1, reden2))
 
-                Then("it returns a list of REST models in order") {
+                then("it returns a list of REST models in order") {
                     result.size shouldBe 2
                     result[0].id shouldBe "1"
                     result[0].naam shouldBe "fakeReden1"
@@ -52,17 +52,17 @@ class RESTZaakbeeindigRedenConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convertRESTZaakbeeindigReden") {
-        Given("a RESTZaakbeeindigReden with id and naam") {
+    context("convertRESTZaakbeeindigReden") {
+        given("a RESTZaakbeeindigReden with id and naam") {
             val restZaakbeeindigReden = net.atos.zac.app.admin.model.RestZaakbeeindigReden().apply {
                 id = "99"
                 naam = "fakeNaam"
             }
 
-            When("convertRESTZaakbeeindigReden is called") {
+            `when`("convertRESTZaakbeeindigReden is called") {
                 val result = RESTZaakbeeindigRedenConverter.convertRESTZaakbeeindigReden(restZaakbeeindigReden)
 
-                Then("it returns a domain model with parsed id and matching naam") {
+                then("it returns a domain model with parsed id and matching naam") {
                     result.id shouldBe 99L
                     result.naam shouldBe "fakeNaam"
                 }

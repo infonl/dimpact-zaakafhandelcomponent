@@ -18,63 +18,63 @@ import nl.info.zac.exception.InputValidationFailedException
 class AbstractVerblijfplaatsJsonbDeserializerTest : BehaviorSpec({
     val deserializer = AbstractVerblijfplaatsJsonbDeserializer()
 
-    Context("deserialize") {
-        Given("JSON with type VerblijfplaatsBuitenland") {
+    context("deserialize") {
+        given("JSON with type VerblijfplaatsBuitenland") {
             val json = """{"type":"VerblijfplaatsBuitenland"}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a VerblijfplaatsBuitenland is returned") {
+                then("a VerblijfplaatsBuitenland is returned") {
                     result.shouldBeInstanceOf<VerblijfplaatsBuitenland>()
                 }
             }
         }
 
-        Given("JSON with type Adres") {
+        given("JSON with type Adres") {
             val json = """{"type":"Adres"}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("an Adres is returned") {
+                then("an Adres is returned") {
                     result.shouldBeInstanceOf<Adres>()
                 }
             }
         }
 
-        Given("JSON with type VerblijfplaatsOnbekend") {
+        given("JSON with type VerblijfplaatsOnbekend") {
             val json = """{"type":"VerblijfplaatsOnbekend"}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a VerblijfplaatsOnbekend is returned") {
+                then("a VerblijfplaatsOnbekend is returned") {
                     result.shouldBeInstanceOf<VerblijfplaatsOnbekend>()
                 }
             }
         }
 
-        Given("JSON with type Locatie") {
+        given("JSON with type Locatie") {
             val json = """{"type":"Locatie"}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a Locatie is returned") {
+                then("a Locatie is returned") {
                     result.shouldBeInstanceOf<Locatie>()
                 }
             }
         }
 
-        Given("JSON with an unknown verblijfplaats type") {
+        given("JSON with an unknown verblijfplaats type") {
             val json = """{"type":"OnbekendVerblijfplaatsType"}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val exception = shouldThrow<InputValidationFailedException> {
                     deserializer.deserialize(createJsonParser(json), mockk(), mockk())
                 }
-                Then("InputValidationFailedException is thrown") {
+                then("InputValidationFailedException is thrown") {
                     exception.message!!.contains("OnbekendVerblijfplaatsType") shouldBe true
                 }
             }

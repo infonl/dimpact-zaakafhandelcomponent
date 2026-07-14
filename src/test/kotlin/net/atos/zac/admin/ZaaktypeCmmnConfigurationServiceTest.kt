@@ -24,17 +24,17 @@ class ZaaktypeCmmnConfigurationServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a zaaktype UUID") {
+    given("a zaaktype UUID") {
         val uuid = UUID.randomUUID()
         val config = createZaaktypeCmmnConfiguration(zaaktypeUUID = uuid)
         val service = ZaaktypeCmmnConfigurationService(beheerService)
         every { beheerService.fetchZaaktypeCmmnConfiguration(uuid) } returns config
 
-        When("readZaaktypeCmmnConfiguration is called twice") {
+        `when`("readZaaktypeCmmnConfiguration is called twice") {
             val first = service.readZaaktypeCmmnConfiguration(uuid)
             val second = service.readZaaktypeCmmnConfiguration(uuid)
 
-            Then("the config is returned and beheer service is called only once (cache hit)") {
+            then("the config is returned and beheer service is called only once (cache hit)") {
                 first shouldBe config
                 second shouldBe config
                 verify(exactly = 1) { beheerService.fetchZaaktypeCmmnConfiguration(uuid) }
@@ -42,16 +42,16 @@ class ZaaktypeCmmnConfigurationServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a list of zaaktype CMMN configurations") {
+    given("a list of zaaktype CMMN configurations") {
         val configs = listOf(createZaaktypeCmmnConfiguration(), createZaaktypeCmmnConfiguration())
         val service = ZaaktypeCmmnConfigurationService(beheerService)
         every { beheerService.listZaaktypeCmmnConfiguration() } returns configs
 
-        When("listZaaktypeCmmnConfiguration is called twice") {
+        `when`("listZaaktypeCmmnConfiguration is called twice") {
             val first = service.listZaaktypeCmmnConfiguration()
             val second = service.listZaaktypeCmmnConfiguration()
 
-            Then("the list is returned and beheer service is called only once (cache hit)") {
+            then("the list is returned and beheer service is called only once (cache hit)") {
                 first shouldBe configs
                 second shouldBe configs
                 verify(exactly = 1) { beheerService.listZaaktypeCmmnConfiguration() }
@@ -59,24 +59,24 @@ class ZaaktypeCmmnConfigurationServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a cached zaaktype configuration") {
+    given("a cached zaaktype configuration") {
         val uuid = UUID.randomUUID()
         val config = createZaaktypeCmmnConfiguration(zaaktypeUUID = uuid)
         val service = ZaaktypeCmmnConfigurationService(beheerService)
         every { beheerService.fetchZaaktypeCmmnConfiguration(uuid) } returns config
 
-        When("cacheRemoveZaaktypeCmmnConfiguration is called after first read") {
+        `when`("cacheRemoveZaaktypeCmmnConfiguration is called after first read") {
             service.readZaaktypeCmmnConfiguration(uuid)
             service.cacheRemoveZaaktypeCmmnConfiguration(uuid)
             service.readZaaktypeCmmnConfiguration(uuid)
 
-            Then("beheer service is called twice because cache was invalidated") {
+            then("beheer service is called twice because cache was invalidated") {
                 verify(exactly = 2) { beheerService.fetchZaaktypeCmmnConfiguration(uuid) }
             }
         }
     }
 
-    Given("a populated managed cache") {
+    given("a populated managed cache") {
         val uuid = UUID.randomUUID()
         val config = createZaaktypeCmmnConfiguration(zaaktypeUUID = uuid)
         val service = ZaaktypeCmmnConfigurationService(beheerService)
@@ -84,10 +84,10 @@ class ZaaktypeCmmnConfigurationServiceTest : BehaviorSpec({
 
         service.readZaaktypeCmmnConfiguration(uuid)
 
-        When("clearManagedCache is called") {
+        `when`("clearManagedCache is called") {
             val result = service.clearManagedCache()
 
-            Then("return value contains cache name and beheer service is called again on next read") {
+            then("return value contains cache name and beheer service is called again on next read") {
                 result shouldContain Caching.ZAC_ZAAKTYPECMMNCONFIGURATION_MANAGED
                 service.readZaaktypeCmmnConfiguration(uuid)
                 verify(exactly = 2) { beheerService.fetchZaaktypeCmmnConfiguration(uuid) }
@@ -95,17 +95,17 @@ class ZaaktypeCmmnConfigurationServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a populated list cache") {
+    given("a populated list cache") {
         val configs = listOf(createZaaktypeCmmnConfiguration())
         val service = ZaaktypeCmmnConfigurationService(beheerService)
         every { beheerService.listZaaktypeCmmnConfiguration() } returns configs
 
         service.listZaaktypeCmmnConfiguration()
 
-        When("clearListCache is called") {
+        `when`("clearListCache is called") {
             val result = service.clearListCache()
 
-            Then("return value contains cache name and beheer service is called again on next list") {
+            then("return value contains cache name and beheer service is called again on next list") {
                 result shouldContain Caching.ZAC_ZAAKTYPECMMNCONFIGURATION
                 service.listZaaktypeCmmnConfiguration()
                 verify(exactly = 2) { beheerService.listZaaktypeCmmnConfiguration() }

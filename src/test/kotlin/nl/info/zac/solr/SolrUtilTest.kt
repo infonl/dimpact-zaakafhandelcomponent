@@ -9,82 +9,82 @@ import io.kotest.matchers.shouldBe
 
 class SolrUtilTest : BehaviorSpec({
 
-    Given("a string without Solr special characters") {
+    given("a string without Solr special characters") {
         val input = "abc123"
 
-        When("encoded") {
+        `when`("encoded") {
             val result = encoded(input)
 
-            Then("it should return the original string") {
+            then("it should return the original string") {
                 result shouldBe input
             }
         }
 
-        When("quoted") {
+        `when`("quoted") {
             val result = quoted(input)
 
-            Then("it should return the string wrapped in quotes") {
+            then("it should return the string wrapped in quotes") {
                 result shouldBe "\"$input\""
             }
         }
     }
 
-    Given("a string with a colon") {
+    given("a string with a colon") {
         val input = "key:value"
 
-        When("encoded") {
+        `when`("encoded") {
             val result = encoded(input)
 
-            Then("it should escape the colon") {
+            then("it should escape the colon") {
                 result shouldBe "key\\:value"
             }
         }
 
-        When("quoted") {
+        `when`("quoted") {
             val result = quoted(input)
 
-            Then("it should return quoted and escaped") {
+            then("it should return quoted and escaped") {
                 result shouldBe "\"key\\:value\""
             }
         }
     }
 
-    Given("a string with multiple Solr special characters") {
+    given("a string with multiple Solr special characters") {
         val input = "+hello:(world)?"
         val expectedEncoded = "\\+hello\\:\\(world\\)\\?"
 
-        When("encoded") {
+        `when`("encoded") {
             val result = encoded(input)
 
-            Then("it should escape all special characters") {
+            then("it should escape all special characters") {
                 result shouldBe expectedEncoded
             }
         }
 
-        When("quoted") {
+        `when`("quoted") {
             val result = quoted(input)
 
-            Then("it should return quoted and escaped string") {
+            then("it should return quoted and escaped string") {
                 result shouldBe "\"$expectedEncoded\""
             }
         }
     }
 
-    Given("an empty string") {
+    given("an empty string") {
         val input = ""
 
-        When("encoded") {
+        `when`("encoded") {
             val result = encoded(input)
 
-            Then("it should return an empty string") {
+            then("it should return an empty string") {
                 result shouldBe ""
             }
         }
 
-        When("quoted") {
+        `when`("quoted") {
             val result = quoted(input)
 
-            Then("it should return a pair of quotes") {
+            then("it should return a pair of quotes") {
                 result shouldBe "\"\""
             }
         }

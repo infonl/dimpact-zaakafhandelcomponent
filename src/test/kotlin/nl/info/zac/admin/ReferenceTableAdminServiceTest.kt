@@ -39,7 +39,7 @@ class ReferenceTableAdminServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given(
+    given(
         """
             A reference table that is not a system reference table and which is not in use by any human task reference tables
             """
@@ -66,10 +66,10 @@ class ReferenceTableAdminServiceTest : BehaviorSpec({
         every { entityManager.createQuery(criteriaQueryHumanTaskReferentieTabel).resultList } returns emptyList()
         every { entityManager.remove(referenceTable) } just Runs
 
-        When("the reference table is deleted") {
+        `when`("the reference table is deleted") {
             referenceTableAdminService.deleteReferenceTable(referenceTable.id!!)
 
-            Then("the reference table should be successfully deleted") {
+            then("the reference table should be successfully deleted") {
                 verify(exactly = 1) {
                     entityManager.remove(referenceTable)
                 }
@@ -77,7 +77,7 @@ class ReferenceTableAdminServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """
             A reference table that is not a system reference table and which is in use by a human task reference table
             """
@@ -105,12 +105,12 @@ class ReferenceTableAdminServiceTest : BehaviorSpec({
             entityManager.createQuery(criteriaQueryHumanTaskReferentieTabel).resultList
         } returns listOf(createHumanTaskReferentieTabel())
 
-        When("an attempt is made to delete the reference table") {
+        `when`("an attempt is made to delete the reference table") {
             val exception = shouldThrow<InputValidationFailedException> {
                 referenceTableAdminService.deleteReferenceTable(referenceTable.id!!)
             }
 
-            Then("an exception is thrown and the reference table is not deleted") {
+            then("an exception is thrown and the reference table is not deleted") {
                 exception.errorCode shouldBe ERROR_CODE_REFERENCE_TABLE_IS_IN_USE_BY_ZAAKTYPE_CMMN_CONFIGURATION
                 exception.message shouldBe null
                 verify(exactly = 0) {
@@ -120,18 +120,18 @@ class ReferenceTableAdminServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A system reference table") {
+    given("A system reference table") {
         val referenceTable = createReferenceTable(
             isSystemReferenceTable = true
         )
         every { referenceTableService.readReferenceTable(referenceTable.id!!) } returns referenceTable
 
-        When("an attempt is made to delete the system reference table") {
+        `when`("an attempt is made to delete the system reference table") {
             val exception = shouldThrow<InputValidationFailedException> {
                 referenceTableAdminService.deleteReferenceTable(referenceTable.id!!)
             }
 
-            Then(
+            then(
                 """
                     an exception should be thrown and the reference table is not deleted since it is not allowed
                     to delete system reference tables

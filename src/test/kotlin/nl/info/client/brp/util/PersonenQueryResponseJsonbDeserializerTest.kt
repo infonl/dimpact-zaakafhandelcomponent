@@ -20,88 +20,88 @@ import nl.info.zac.exception.InputValidationFailedException
 class PersonenQueryResponseJsonbDeserializerTest : BehaviorSpec({
     val deserializer = PersonenQueryResponseJsonbDeserializer()
 
-    Context("deserialize") {
-        Given("JSON with type RaadpleegMetBurgerservicenummer") {
+    context("deserialize") {
+        given("JSON with type RaadpleegMetBurgerservicenummer") {
             val json = """{"type":"RaadpleegMetBurgerservicenummer","personen":[]}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a RaadpleegMetBurgerservicenummerResponse is returned") {
+                then("a RaadpleegMetBurgerservicenummerResponse is returned") {
                     result.shouldBeInstanceOf<RaadpleegMetBurgerservicenummerResponse>()
                 }
             }
         }
 
-        Given("JSON with type ZoekMetGeslachtsnaamEnGeboortedatum") {
+        given("JSON with type ZoekMetGeslachtsnaamEnGeboortedatum") {
             val json = """{"type":"ZoekMetGeslachtsnaamEnGeboortedatum","personen":[]}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a ZoekMetGeslachtsnaamEnGeboortedatumResponse is returned") {
+                then("a ZoekMetGeslachtsnaamEnGeboortedatumResponse is returned") {
                     result.shouldBeInstanceOf<ZoekMetGeslachtsnaamEnGeboortedatumResponse>()
                 }
             }
         }
 
-        Given("JSON with type ZoekMetNaamEnGemeenteVanInschrijving") {
+        given("JSON with type ZoekMetNaamEnGemeenteVanInschrijving") {
             val json = """{"type":"ZoekMetNaamEnGemeenteVanInschrijving","personen":[]}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a ZoekMetNaamEnGemeenteVanInschrijvingResponse is returned") {
+                then("a ZoekMetNaamEnGemeenteVanInschrijvingResponse is returned") {
                     result.shouldBeInstanceOf<ZoekMetNaamEnGemeenteVanInschrijvingResponse>()
                 }
             }
         }
 
-        Given("JSON with type ZoekMetNummeraanduidingIdentificatie") {
+        given("JSON with type ZoekMetNummeraanduidingIdentificatie") {
             val json = """{"type":"ZoekMetNummeraanduidingIdentificatie","personen":[]}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a ZoekMetNummeraanduidingIdentificatieResponse is returned") {
+                then("a ZoekMetNummeraanduidingIdentificatieResponse is returned") {
                     result.shouldBeInstanceOf<ZoekMetNummeraanduidingIdentificatieResponse>()
                 }
             }
         }
 
-        Given("JSON with type ZoekMetPostcodeEnHuisnummer") {
+        given("JSON with type ZoekMetPostcodeEnHuisnummer") {
             val json = """{"type":"ZoekMetPostcodeEnHuisnummer","personen":[]}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a ZoekMetPostcodeEnHuisnummerResponse is returned") {
+                then("a ZoekMetPostcodeEnHuisnummerResponse is returned") {
                     result.shouldBeInstanceOf<ZoekMetPostcodeEnHuisnummerResponse>()
                 }
             }
         }
 
-        Given("JSON with type ZoekMetStraatHuisnummerEnGemeenteVanInschrijving") {
+        given("JSON with type ZoekMetStraatHuisnummerEnGemeenteVanInschrijving") {
             val json = """{"type":"ZoekMetStraatHuisnummerEnGemeenteVanInschrijving","personen":[]}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse is returned") {
+                then("a ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse is returned") {
                     result.shouldBeInstanceOf<ZoekMetStraatHuisnummerEnGemeenteVanInschrijvingResponse>()
                 }
             }
         }
 
-        Given("JSON with an unknown type") {
+        given("JSON with an unknown type") {
             val json = """{"type":"OnbekendType"}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val exception = shouldThrow<InputValidationFailedException> {
                     deserializer.deserialize(createJsonParser(json), mockk(), mockk())
                 }
 
-                Then("InputValidationFailedException is thrown") {
+                then("InputValidationFailedException is thrown") {
                     exception.message!!.contains("OnbekendType") shouldBe true
                 }
             }

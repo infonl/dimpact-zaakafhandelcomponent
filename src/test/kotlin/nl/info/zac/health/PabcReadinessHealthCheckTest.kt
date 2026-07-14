@@ -21,8 +21,8 @@ class PabcReadinessHealthCheckTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Calling the PABC readiness health check") {
-        Given(
+    context("Calling the PABC readiness health check") {
+        given(
             """
             The PABC client service returns a 'get application roles' response successfully
             """
@@ -31,24 +31,24 @@ class PabcReadinessHealthCheckTest : BehaviorSpec({
                 pabcClientService.getApplicationRoles(listOf("FAKE_FUNCTIONAL_ROLE"))
             } returns createApplicationRolesResponse()
 
-            When("the health check is called") {
+            `when`("the health check is called") {
                 val healthCheckResponse = pabcReadinessHealthCheck.call()
 
-                Then("the health check should return UP status") {
+                then("the health check should return UP status") {
                     healthCheckResponse.status shouldBe HealthCheckResponse.Status.UP
                     healthCheckResponse.name shouldBe "nl.info.zac.health.PabcReadinessHealthCheck"
                 }
             }
         }
 
-        Given("The PABC client service throws an exception") {
+        given("The PABC client service throws an exception") {
             val runtimeException = RuntimeException("fakeError")
             every { pabcClientService.getApplicationRoles(listOf("FAKE_FUNCTIONAL_ROLE")) } throws runtimeException
 
-            When("the health check is called") {
+            `when`("the health check is called") {
                 val healthCheckResponse = pabcReadinessHealthCheck.call()
 
-                Then("the health check should return DOWN status with error") {
+                then("the health check should return DOWN status with error") {
                     healthCheckResponse.status shouldBe HealthCheckResponse.Status.DOWN
                     healthCheckResponse.name shouldBe "nl.info.zac.health.PabcReadinessHealthCheck"
 

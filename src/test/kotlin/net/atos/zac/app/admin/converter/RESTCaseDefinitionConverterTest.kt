@@ -22,17 +22,17 @@ class RESTCaseDefinitionConverterTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
-    Context("Convert CaseDefinition without relations") {
-        Given("A CaseDefinition with name and key") {
+    context("Convert CaseDefinition without relations") {
+        given("A CaseDefinition with name and key") {
             val caseDefinition = mockk<CaseDefinition> {
                 every { name } returns "fakeCaseName"
                 every { key } returns "fakeCaseKey"
             }
 
-            When("convertToRESTCaseDefinition is called with inclusiefRelaties = false") {
+            `when`("convertToRESTCaseDefinition is called with inclusiefRelaties = false") {
                 val result = converter.convertToRESTCaseDefinition(caseDefinition, false)
 
-                Then("RESTCaseDefinition has correct name and key") {
+                then("RESTCaseDefinition has correct name and key") {
                     result.naam shouldBe "fakeCaseName"
                     result.key shouldBe "fakeCaseKey"
                 }
@@ -45,8 +45,8 @@ class RESTCaseDefinitionConverterTest : BehaviorSpec({
         }
     }
 
-    Context("Convert CaseDefinition with relations") {
-        Given("A CaseDefinition with human tasks and user event listeners") {
+    context("Convert CaseDefinition with relations") {
+        given("A CaseDefinition with human tasks and user event listeners") {
             val fakeCaseDefinitionId = "fakeCaseDefinitionId"
             val caseDefinition = mockk<CaseDefinition> {
                 every { name } returns "fakeCaseName"
@@ -64,10 +64,10 @@ class RESTCaseDefinitionConverterTest : BehaviorSpec({
             every { cmmnService.listHumanTasks(fakeCaseDefinitionId) } returns listOf(humanTask)
             every { cmmnService.listUserEventListeners(fakeCaseDefinitionId) } returns listOf(userEventListener)
 
-            When("convertToRESTCaseDefinition is called with inclusiefRelaties = true") {
+            `when`("convertToRESTCaseDefinition is called with inclusiefRelaties = true") {
                 val result = converter.convertToRESTCaseDefinition(caseDefinition, true)
 
-                Then("humanTaskDefinitions contains one entry with type HUMAN_TASK") {
+                then("humanTaskDefinitions contains one entry with type HUMAN_TASK") {
                     result.humanTaskDefinitions!!.size shouldBe 1
                     result.humanTaskDefinitions!![0].id shouldBe "fakeHumanTaskId"
                     result.humanTaskDefinitions!![0].naam shouldBe "fakeHumanTaskName"
@@ -83,8 +83,8 @@ class RESTCaseDefinitionConverterTest : BehaviorSpec({
         }
     }
 
-    Context("Convert by case definition key") {
-        Given("A case definition key") {
+    context("Convert by case definition key") {
+        given("A case definition key") {
             val fakeCaseDefinitionKey = "fakeCaseDefinitionKey"
             val caseDefinition = mockk<CaseDefinition> {
                 every { name } returns "fakeCaseName"
@@ -92,10 +92,10 @@ class RESTCaseDefinitionConverterTest : BehaviorSpec({
             }
             every { cmmnService.readCaseDefinition(fakeCaseDefinitionKey) } returns caseDefinition
 
-            When("convertToRESTCaseDefinition is called with a key string") {
+            `when`("convertToRESTCaseDefinition is called with a key string") {
                 val result = converter.convertToRESTCaseDefinition(fakeCaseDefinitionKey, false)
 
-                Then("CMMNService.readCaseDefinition is called and the result is converted") {
+                then("CMMNService.readCaseDefinition is called and the result is converted") {
                     result.key shouldBe fakeCaseDefinitionKey
                 }
             }

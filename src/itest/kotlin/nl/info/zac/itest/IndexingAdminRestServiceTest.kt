@@ -33,7 +33,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient(itestHttpClient)
     val taskHelper = TaskHelper(zacClient)
 
-    Given("A zaak, a task and a document have been created, and a beheerder is logged in") {
+    given("A zaak, a task and a document have been created, and a beheerder is logged in") {
         lateinit var zaakUuid: UUID
         lateinit var zaakIdentification: String
         zacClient.createZaak(
@@ -64,7 +64,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             testUser = BEHEERDER_1
         )
 
-        When("""the internal ZAC reindexing endpoint is called for type 'zaak'""") {
+        `when`("""the internal ZAC reindexing endpoint is called for type 'zaak'""") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
                 headers = mapOf(
@@ -72,7 +72,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                     "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
                 ).toHeaders()
             )
-            Then(
+            then(
                 """the response is successful and at least one zaak is indexed"""
             ) {
                 response.code shouldBe HTTP_NO_CONTENT
@@ -100,7 +100,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("""the reindexing endpoint is called for type 'task'""") {
+        `when`("""the reindexing endpoint is called for type 'task'""") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/internal/indexeren/herindexeren/TAAK",
                 headers = mapOf(
@@ -108,7 +108,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                     "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
                 ).toHeaders()
             )
-            Then(
+            then(
                 """the response is successful and at least one task is indexed"""
             ) {
                 response.code shouldBe HTTP_NO_CONTENT
@@ -136,7 +136,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When("""the reindexing endpoint is called for type 'document'""") {
+        `when`("""the reindexing endpoint is called for type 'document'""") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/internal/indexeren/herindexeren/DOCUMENT",
                 headers = mapOf(
@@ -144,7 +144,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                     "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
                 ).toHeaders()
             )
-            Then(
+            then(
                 """the response is successful and at least one document is indexed"""
             ) {
                 response.code shouldBe HTTP_NO_CONTENT

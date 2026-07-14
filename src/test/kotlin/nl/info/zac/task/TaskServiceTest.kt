@@ -51,7 +51,7 @@ class TaskServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A task that has not yet been assigned to a specific group and user") {
+    given("A task that has not yet been assigned to a specific group and user") {
         val taskId = "fakeTaskId"
         val restTaakToekennenGegevens = createRestTaskAssignData(taakId = taskId, behandelaarId = null)
         val task = mockk<Task>()
@@ -71,14 +71,14 @@ class TaskServiceTest : BehaviorSpec({
         every { eventingService.send(capture(screenEventSlot)) } just runs
         every { indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, any()) } returns Unit
 
-        When("the 'assign task' function is called with REST taak toekennen gegevens with a group and WITHOUT a user") {
+        `when`("the 'assign task' function is called with REST taak toekennen gegevens with a group and WITHOUT a user") {
             taskService.assignOrReleaseTask(
                 restTaakToekennenGegevens,
                 task,
                 loggedInUser
             )
 
-            Then("the task is assigned to the group") {
+            then("the task is assigned to the group") {
                 verify(exactly = 1) {
                     flowableTaskService.assignTaskToGroup(
                         task,
@@ -107,7 +107,7 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A task has already been assigned to a user") {
+    given("A task has already been assigned to a user") {
         val taskId = "fakeTaskId"
         val restTaakToekennenGegevens = createRestTaskAssignData(behandelaarId = null, taakId = taskId)
         val task = mockk<Task>()
@@ -137,10 +137,10 @@ class TaskServiceTest : BehaviorSpec({
             )
         } returns task
 
-        When("the 'assign task' function is called with REST taak toekennen gegevens with a group and WITHOUT a user") {
+        `when`("the 'assign task' function is called with REST taak toekennen gegevens with a group and WITHOUT a user") {
             taskService.assignOrReleaseTask(restTaakToekennenGegevens, task, loggedInUser)
 
-            Then("the task is released") {
+            then("the task is released") {
                 verify(exactly = 1) {
                     flowableTaskService.releaseTask(task, restTaakToekennenGegevens.reden)
                 }
@@ -154,7 +154,7 @@ class TaskServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Two tasks that have not yet been assigned to a specific group and user") {
+    given("Two tasks that have not yet been assigned to a specific group and user") {
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -195,10 +195,10 @@ class TaskServiceTest : BehaviorSpec({
             indexingService.commit()
         } just runs
 
-        When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
+        `when`("the 'assign tasks' function is called with REST taak verdelen gegevens") {
             taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser)
 
-            Then(
+            then(
                 """
                     the tasks are assigned to the group and user, the index is updated and 
                     signalering and screen events are sent
@@ -229,7 +229,7 @@ class TaskServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("REST taak vrijgeven gegevens with two tasks") {
+    given("REST taak vrijgeven gegevens with two tasks") {
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -266,14 +266,14 @@ class TaskServiceTest : BehaviorSpec({
             indexingService.commit()
         } just runs
 
-        When(
+        `when`(
             """"
                 the 'release tasks' function is called with REST taak vrijgeven gegevens               
             """
         ) {
             taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser)
 
-            Then(
+            then(
                 """taken are released, the index is updated and signalering and signaleringen and screen events are sent"""
             ) {
                 verify(exactly = 2) {
@@ -300,7 +300,7 @@ class TaskServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("Two open tasks that have not yet been assigned to a specific group and user") {
+    given("Two open tasks that have not yet been assigned to a specific group and user") {
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -332,14 +332,14 @@ class TaskServiceTest : BehaviorSpec({
             indexingService.commit()
         } just runs
 
-        When(
+        `when`(
             """
             the 'assign tasks' function is called with REST taak verdelen gegevens without a assignee
             """
         ) {
             taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser)
 
-            Then(
+            then(
                 """
                     the tasks are assigned to the group
                     """
@@ -355,7 +355,7 @@ class TaskServiceTest : BehaviorSpec({
             }
         }
     }
-    Given(
+    given(
         """
             Two tasks that have not yet been assigned to a specific group and user where the first
             task is a historical (closed) task and the second an open task 
@@ -392,10 +392,10 @@ class TaskServiceTest : BehaviorSpec({
             indexingService.commit()
         } just runs
 
-        When("the 'assign tasks' function is called with REST taak verdelen gegevens") {
+        `when`("the 'assign tasks' function is called with REST taak verdelen gegevens") {
             taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser)
 
-            Then(
+            then(
                 """
                     the first task is skipped and the second task is assigned to the group,
                     """
@@ -411,7 +411,7 @@ class TaskServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("Two open tasks that are already assigned to a specific group and user") {
+    given("Two open tasks that are already assigned to a specific group and user") {
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -452,14 +452,14 @@ class TaskServiceTest : BehaviorSpec({
             indexingService.commit()
         } just runs
 
-        When(
+        `when`(
             """
             the 'assign tasks' function is called with REST taak verdelen gegevens without a assignee
             """
         ) {
             taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser)
 
-            Then(
+            then(
                 """
                     the tasks are assigned to the group and released from the current assignee
                     """
@@ -478,7 +478,7 @@ class TaskServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("Two open tasks that have not yet been assigned") {
+    given("Two open tasks that have not yet been assigned") {
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -514,7 +514,7 @@ class TaskServiceTest : BehaviorSpec({
             indexingService.commit()
         } just runs
 
-        When(
+        `when`(
             """
             when assigning the tasks a generic runtime exception is thrown when reading the second task 
             """
@@ -526,7 +526,7 @@ class TaskServiceTest : BehaviorSpec({
                 )
             }
 
-            Then(
+            then(
                 """
                     the search index is still updated and the TAKEN_VERDELEN screen event is still sent
                     """
@@ -546,7 +546,7 @@ class TaskServiceTest : BehaviorSpec({
             }
         }
     }
-    Given(
+    given(
         """
             Two tasks that have not yet been assigned to a specific group and user where the first
             task is a historical (closed) task and the second an open task
@@ -584,10 +584,10 @@ class TaskServiceTest : BehaviorSpec({
             indexingService.commit()
         } just runs
 
-        When("the 'release tasks' function is called with REST taak vrijgeven gegevens") {
+        `when`("the 'release tasks' function is called with REST taak vrijgeven gegevens") {
             taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser)
 
-            Then(
+            then(
                 """
                     the first task is skipped and the second task is released to the user,
                     """
@@ -608,7 +608,7 @@ class TaskServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("Two open tasks") {
+    given("Two open tasks") {
         val restTaakVerdelenTaken = listOf(
             createRestTaskDistributeTask(
                 taakId = taskId1
@@ -639,7 +639,7 @@ class TaskServiceTest : BehaviorSpec({
             indexingService.commit()
         } just runs
 
-        When(
+        `when`(
             """
             when releasing the tasks a generic runtime exception is thrown when reading the second task 
             """
@@ -651,7 +651,7 @@ class TaskServiceTest : BehaviorSpec({
                 )
             }
 
-            Then(
+            then(
                 """
                     the search index is still updated and the TAKEN_VERDELEN screen event is still sent
                     """

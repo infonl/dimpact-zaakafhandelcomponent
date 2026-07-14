@@ -98,16 +98,16 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             "defaultBehandelaarId": "${BEHANDELAAR_1.username}"
         }
     """.trimIndent()
-    Given("A BPMN zaaktype configuration was created in the overall test setup") {
+    given("A BPMN zaaktype configuration was created in the overall test setup") {
         lateinit var responseBody: String
 
-        When("the BPMN zaaktype configuration is retrieved") {
+        `when`("the BPMN zaaktype configuration is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "${ZAC_API_URI}/zaaktype-bpmn-configuration/${BPMN_TEST_PROCESS_DEFINITION_KEY}",
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the response is successful") {
+            then("the response is successful") {
                 responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpURLConnection.HTTP_OK
@@ -118,7 +118,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("list of all BPMN zaaktype configurations is retrieved") {
+        `when`("list of all BPMN zaaktype configurations is retrieved") {
             lateinit var responseBody: String
 
             val response = itestHttpClient.performGetRequest(
@@ -126,7 +126,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the response is successful") {
+            then("the response is successful") {
                 responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpURLConnection.HTTP_OK

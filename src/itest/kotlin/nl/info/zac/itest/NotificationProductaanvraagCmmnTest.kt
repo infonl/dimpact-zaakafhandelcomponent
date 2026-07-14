@@ -87,8 +87,8 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
     lateinit var zaakProductaanvraag1Uuid: UUID
     lateinit var zaakProductaanvraagComboUuid: UUID
 
-    Context("Productaanvraag with an initiator of type person") {
-        Given(
+    context("Productaanvraag with an initiator of type person") {
+        given(
             """
             A productaanvraag object exists in Objecten with an initiator with a BSN number, 
             a zaaktype CMMN configuration is defined in ZAC with the same productaanvraag type
@@ -97,7 +97,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
             and the related productaanvraag PDF exists in Open Zaak
             """.trimIndent()
         ) {
-            When(
+            `when`(
                 """
                 the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header 
                 and initiator of type 'BSN'
@@ -127,7 +127,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                         )
                     ).toString()
                 )
-                Then(
+                then(
                     """the response should be 'no content', a zaak should be created in OpenZaak
                         using zaaktype 'melding klein evenement' and a zaak CMMN proces should be started in ZAC"""
                 ) {
@@ -191,13 +191,13 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                 }
             }
 
-            When("the get betrokkene endpoint is called for the zaak created from the productaanvraag") {
+            `when`("the get betrokkene endpoint is called for the zaak created from the productaanvraag") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraag1Uuid/betrokkene",
                     testUser = RAADPLEGER_1
                 )
 
-                Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
+                then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                     response.code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -227,14 +227,14 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             A productaanvraag object exists with an BSN initiator and product request specific contact details in Objecten, 
             a zaaktype CMMN configuration is defined in ZAC with the same productaanvraag type and with 'automatic acknowledgement of
             receipt' (ontvangstbevestiging) enabled, and the related productaanvraag PDF exists in Open Zaak
                 """
         ) {
-            When(
+            `when`(
                 """
                 the notificaties endpoint is called with a 'create productaanvraag' payload with a BSN initiator, 
                 and with product request specific contact details
@@ -264,7 +264,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                         )
                     ).toString()
                 )
-                Then(
+                then(
                     """the response should be 'no content', a zaak should be created in OpenZaak,
                         and a zaak CMMN proces should be started in ZAC
                         with the product request specific contact details as the zaak-specific contact details"""
@@ -326,18 +326,18 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
         }
     }
 
-    Context(
+    context(
         """Productaanvraag with a BSN initiator who saves a new preferred digital email address in Open Klant
             as part of the productaanvraag
         """
     ) {
-        Given(
+        given(
             """A productaanvraag object exists in Objecten with a BSN initiator (BSN 999992958) whose
             profile ('partij') exists in Open Klant. Open Klant has created an email digital address linked to BOTH the
             betrokkene and the partij (simulating a saved preferred digital address from a productaanvraag). 
             A CMMN zaaktype configuration exists in ZAC for the same productaanvraag type."""
         ) {
-            When(
+            `when`(
                 """the notificaties endpoint is called with a 'create productaanvraag' payload"""
             ) {
                 val response = itestHttpClient.performJSONPostRequest(
@@ -362,7 +362,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                         )
                     ).toString()
                 )
-                Then(
+                then(
                     """the response should be 'no content', a zaak should be created in OpenZaak,
                     a zaak CMMN proces should be started in ZAC,
                     and zaakSpecificContactDetails should be null because the digital address is
@@ -418,12 +418,12 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
         }
     }
 
-    Context("Productaanvraag with an initiator of type KVK rechtspersoon") {
-        Given(
+    context("Productaanvraag with an initiator of type KVK rechtspersoon") {
+        given(
             """A productaanvraag object exists in Objecten with an initiator with a KVK nummer,
              and a CMMN zaaktype configuration exists in ZAC for the same productaanvraag type"""
         ) {
-            When(
+            `when`(
                 """
                 the notificaties endpoint is called with a second 'create productaanvraag' payload with authentication header
                  and without zaakgegevens and with an initiator of type 'KVK nummer'
@@ -454,7 +454,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     ).toString()
                 )
 
-                Then(
+                then(
                     "the response should be 'no content', a zaak should be created and started in ZAC"
                 ) {
                     response.code shouldBe HTTP_NO_CONTENT
@@ -511,12 +511,12 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
         }
     }
 
-    Context("Productaanvraag with an initiator of type KVK vestiging") {
-        Given(
+    context("Productaanvraag with an initiator of type KVK vestiging") {
+        given(
             """A productaanvraag object exists in Objecten with an initiator with both a KVK nummer and a vestigingsnummer,
             and a CMMN zaaktype configuration exists in ZAC for the same productaanvraag type"""
         ) {
-            When(
+            `when`(
                 """
                 the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header
                  and with an initiator of type KVK number and vestigingsnummer
@@ -545,7 +545,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     ).toString()
                 )
 
-                Then(
+                then(
                     """the response should be 'no content', a zaak should be created in OpenZaak
                         and a zaak productaanvraag proces should be started in ZAC with both KVK number and vestigingsnummer"""
                 ) {
@@ -578,12 +578,12 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                 }
             }
 
-            When("the get betrokkene endpoint is called for the combo zaak created from the productaanvraag") {
+            `when`("the get betrokkene endpoint is called for the combo zaak created from the productaanvraag") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaakProductaanvraagComboUuid/betrokkene",
                     testUser = RAADPLEGER_1
                 )
-                Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
+                then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                     response.code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -600,11 +600,11 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             "A productaanvraag object exists in Objecten with an initiator with only a vestigingsnummer (invalid scenario)"
 
         ) {
-            When(
+            `when`(
                 """
                 the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header
                  and with an initiator of type 'vestigingsNummer' only (should be invalid)
@@ -638,7 +638,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     testUser = RAADPLEGER_1
                 )
 
-                Then(
+                then(
                     """the zaak should still be created in OpenZaak
                         even though only vestigingsNummer without KVK nummer is invalid"""
                 ) {
@@ -658,15 +658,15 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
         }
     }
 
-    Context("Productaanvraag without an initiator") {
-        Given(
+    context("Productaanvraag without an initiator") {
+        given(
             """
             A productaanvraag object exists without an initiator and with productaanvraag-specific contact details in Objecten, 
             a zaaktype CMMN configuration is defined in ZAC configured for the same productaanvraag type and with 'automatic acknowledgement of receipt'
             (ontvangstbevestiging) enabled, and the related productaanvraag PDF exists in Open Zaak
                 """
         ) {
-            When(
+            `when`(
                 """
                 the notification endpoint is called with a 'create productaanvraag' payload with authentication header, 
                 alternative email address without initiator'
@@ -696,7 +696,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                         )
                     ).toString()
                 )
-                Then(
+                then(
                     """the response should be 'no content', a zaak should be created in OpenZaak
                         using zaaktype 'melding klein evenement' and a zaak CMMN proces should be started in ZAC
                         with the correct identification"""

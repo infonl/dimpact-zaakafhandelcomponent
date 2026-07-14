@@ -11,20 +11,20 @@ import io.kotest.matchers.shouldBe
 
 class MailAdresTest : BehaviorSpec({
 
-    Given("a valid email address") {
-        When("constructing and object") {
+    given("a valid email address") {
+        `when`("constructing and object") {
             MailAdres("valid@example.com", "fakeName")
-            Then("it should succeed") {}
+            then("it should succeed") {}
         }
     }
 
-    Given("an invalid email address") {
-        When("constructing and object") {
+    given("an invalid email address") {
+        `when`("constructing and object") {
             val exception = shouldThrow<IllegalArgumentException> {
                 MailAdres("fake email", null)
             }
 
-            Then("it should error") {
+            then("it should error") {
                 exception.message shouldBe "Email 'fake email' is not valid"
             }
         }

@@ -40,7 +40,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("User has beheren rights and process definitions with forms exist") {
+    given("User has beheren rights and process definitions with forms exist") {
         val processDefinition1 = createProcessDefinition(
             id = "pd1",
             name = "Process 1",
@@ -133,16 +133,16 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         every { bpmnService.getProcessDefinitionMetadata(processDefinition1) } returns processDefinition1Metadata
         every { bpmnService.getProcessDefinitionMetadata(processDefinition2) } returns processDefinition2Metadata
 
-        When("listProcessDefinitions is called with details") {
+        `when`("listProcessDefinitions is called with details") {
             val result = restService.listProcessDefinitions(true)
 
-            Then("it should return all process definitions with correct details") {
+            then("it should return all process definitions with correct details") {
                 result.shouldBe(listOf(restBpmnProcessDefinition1, restBpmnProcessDefinition2))
             }
         }
     }
 
-    Given("User has beheren rights and process definitions exist") {
+    given("User has beheren rights and process definitions exist") {
         val processDefinition1 = createProcessDefinition(
             id = "pd1",
             name = "Process 1",
@@ -171,16 +171,16 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
         every { bpmnService.listProcessDefinitions() } returns listOf(processDefinition1, processDefinition2)
 
-        When("listProcessDefinitions is called without details") {
+        `when`("listProcessDefinitions is called without details") {
             val result = restService.listProcessDefinitions(false)
 
-            Then("it should return all process definitions with correct details") {
+            then("it should return all process definitions with correct details") {
                 result.shouldBe(listOf(restBpmnProcessDefinition1, restBpmnProcessDefinition2))
             }
         }
     }
 
-    Given("User has beheren rights and a process definition not in use exists") {
+    given("User has beheren rights and a process definition not in use exists") {
         val processDefinition = createProcessDefinition(
             id = "pd3",
             name = "Process 3",
@@ -201,17 +201,17 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         every { bpmnService.listProcessDefinitions() } returns listOf(processDefinition)
         every { bpmnService.getProcessDefinitionMetadata(processDefinition) } returns processDefinitionMetadata
 
-        When("listProcessDefinitions is called") {
+        `when`("listProcessDefinitions is called") {
             val result = restService.listProcessDefinitions(true)
 
-            Then("it should return the process definition with inUse as false") {
+            then("it should return the process definition with inUse as false") {
                 result.size shouldBe 1
                 result[0].details?.inUse shouldBe false
             }
         }
     }
 
-    Given("User has beheren rights and wants to create a process definition") {
+    given("User has beheren rights and wants to create a process definition") {
         val filename = "testProcess.bpmn"
         val content = "<bpmn:definitions>...</bpmn:definitions>"
         val processDefinitionContent = RestProcessDefinitionContent(filename, content)
@@ -220,43 +220,43 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
         every { bpmnService.addProcessDefinition(filename, content) } returns deployment
 
-        When("createProcessDefinition is called") {
+        `when`("createProcessDefinition is called") {
             val response = restService.createProcessDefinition(processDefinitionContent)
 
-            Then("it should create the process definition and return 201 Created") {
+            then("it should create the process definition and return 201 Created") {
                 response.status shouldBe Response.Status.CREATED.statusCode
                 verify(exactly = 1) { bpmnService.addProcessDefinition(filename, content) }
             }
         }
     }
 
-    Given("User has beheren rights and a process definition not in use needs deletion") {
+    given("User has beheren rights and a process definition not in use needs deletion") {
         val processDefinitionKey = "unusedProcess"
 
         every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
         every { bpmnService.isProcessDefinitionInUse(processDefinitionKey) } returns false
         every { bpmnService.deleteProcessDefinition(processDefinitionKey) } just Runs
 
-        When("deleteProcessDefinition is called") {
+        `when`("deleteProcessDefinition is called") {
             val response = restService.deleteProcessDefinition(processDefinitionKey)
 
-            Then("it should delete the process definition and return 204 No Content") {
+            then("it should delete the process definition and return 204 No Content") {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) { bpmnService.deleteProcessDefinition(processDefinitionKey) }
             }
         }
     }
 
-    Given("User has beheren rights and a process definition in use needs deletion") {
+    given("User has beheren rights and a process definition in use needs deletion") {
         val processDefinitionKey = "usedProcess"
 
         every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
         every { bpmnService.isProcessDefinitionInUse(processDefinitionKey) } returns true
 
-        When("deleteProcessDefinition is called") {
+        `when`("deleteProcessDefinition is called") {
             val response = restService.deleteProcessDefinition(processDefinitionKey)
 
-            Then("it should return 400 Bad Request with error message") {
+            then("it should return 400 Bad Request with error message") {
                 response.status shouldBe Response.Status.BAD_REQUEST.statusCode
                 val entity = response.entity as Map<*, *>
                 entity["message"] shouldBe "BPMN process definition 'usedProcess' cannot be deleted as it is in use"
@@ -265,7 +265,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("User has beheren rights and wants to create a form for a process definition") {
+    given("User has beheren rights and wants to create a form for a process definition") {
         val processDefinitionKey = "processKey"
         val filename = "testForm.json"
         val content = """{"name": "Test Form", "title": "Test Title"}"""
@@ -276,10 +276,10 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             bpmnProcessDefinitionTaskFormService.addForm(processDefinitionKey, filename, content)
         } just Runs
 
-        When("createForm is called") {
+        `when`("createForm is called") {
             val response = restService.createForm(processDefinitionKey, bpmnProcessDefinitionTaskFormContent)
 
-            Then("it should create the form and return 201 Created") {
+            then("it should create the form and return 201 Created") {
                 response.status shouldBe Response.Status.CREATED.statusCode
                 verify(exactly = 1) {
                     bpmnProcessDefinitionTaskFormService.addForm(processDefinitionKey, filename, content)
@@ -288,7 +288,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("User has beheren rights and wants to delete a form from a process definition which is not in use") {
+    given("User has beheren rights and wants to delete a form from a process definition which is not in use") {
         val processDefinitionKey = "processKey"
         val formName = "testForm"
 
@@ -298,10 +298,10 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             bpmnProcessDefinitionTaskFormService.deleteForm(processDefinitionKey, formName)
         } just Runs
 
-        When("deleteForm is called") {
+        `when`("deleteForm is called") {
             val response = restService.deleteForm(processDefinitionKey, formName)
 
-            Then("it should delete the form and return 204 No Content") {
+            then("it should delete the form and return 204 No Content") {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
                     bpmnProcessDefinitionTaskFormService.deleteForm(processDefinitionKey, formName)
@@ -310,7 +310,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         "User has beheren rights and wants to delete a form from a process definition which is in use, but the form is orphaned"
     ) {
         val processDefinitionKey = "processKey"
@@ -331,10 +331,10 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey) } returns processDefinition
         every { bpmnService.getProcessDefinitionMetadata(processDefinition) } returns metadata
 
-        When("deleteForm is called") {
+        `when`("deleteForm is called") {
             val response = restService.deleteForm(processDefinitionKey, formName)
 
-            Then("it should delete the form and return 204 No Content") {
+            then("it should delete the form and return 204 No Content") {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
                     bpmnProcessDefinitionTaskFormService.deleteForm(processDefinitionKey, formName)
@@ -343,7 +343,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("User has beheren rights and wants to delete a form from a process definition which is in use") {
+    given("User has beheren rights and wants to delete a form from a process definition which is in use") {
         val processDefinitionKey = "processKey"
         val formName = "testForm"
         val processDefinition = createProcessDefinition(
@@ -359,10 +359,10 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey) } returns processDefinition
         every { bpmnService.getProcessDefinitionMetadata(processDefinition) } returns metadata
 
-        When("deleteForm is called") {
+        `when`("deleteForm is called") {
             val response = restService.deleteForm(processDefinitionKey, formName)
 
-            Then("it should return 400 Bad Request with error message") {
+            then("it should return 400 Bad Request with error message") {
                 response.status shouldBe Response.Status.BAD_REQUEST.statusCode
                 val entity = response.entity as Map<*, *>
                 entity["message"] shouldBe "BPMN process definition form 'testForm' cannot be deleted as it is in use" +

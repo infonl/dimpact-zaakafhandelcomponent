@@ -56,13 +56,13 @@ class RestTaskConverterTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
-    Context("convert") {
+    context("convert") {
         val zaakUUID = UUID.randomUUID()
         val zaaktypeUUID = UUID.randomUUID()
         val fakeZaaktypeOmschrijving = "fakeZaaktypeOmschrijving"
         val taskDefinitionKey = "fakePlanItemDefinitionID"
 
-        Given("a CMMN task with full read access") {
+        given("a CMMN task with full read access") {
             val taskInfo = mockk<TaskInfo>()
             val taakRechten = createTaakRechten()
             val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
@@ -99,10 +99,10 @@ class RestTaskConverterTest : BehaviorSpec({
             every { zaaktypeCmmnConfiguration.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
             every { medewerkerConverter.convertUserId("fakeAssigneeId") } returns createRestUser(id = "fakeAssigneeId")
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val restTask = restTaskConverter.convert(taskInfo)
 
-                Then("basic fields are mapped correctly") {
+                then("basic fields are mapped correctly") {
                     restTask.id shouldBe "fakeTaskId"
                     restTask.naam shouldBe "fakeTaskName"
                     restTask.zaakUuid shouldBe zaakUUID
@@ -112,14 +112,14 @@ class RestTaskConverterTest : BehaviorSpec({
                     restTask.status shouldBe TaakStatus.NIET_TOEGEKEND
                 }
 
-                Then("CMMN formulier definition id is set") {
+                then("CMMN formulier definition id is set") {
                     restTask.formulierDefinitieId shouldBe "AANVULLENDE_INFORMATIE"
                     restTask.formioFormulier.shouldBeNull()
                 }
             }
         }
 
-        Given("a BPMN task with full read access") {
+        given("a BPMN task with full read access") {
             val taskInfo = mockk<TaskInfo>()
             val taakRechten = createTaakRechten()
             val fakeFormioFormulier = mockk<JsonObject>()
@@ -150,17 +150,17 @@ class RestTaskConverterTest : BehaviorSpec({
             every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns taakRechten
             every { bpmnProcessDefinitionTaskFormService.readForm(processDefinitionId, formKey) } returns fakeFormioFormulier
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val restTask = restTaskConverter.convert(taskInfo)
 
-                Then("formio formulier is set and formulierDefinitieId is null") {
+                then("formio formulier is set and formulierDefinitieId is null") {
                     restTask.formioFormulier shouldBe fakeFormioFormulier
                     restTask.formulierDefinitieId.shouldBeNull()
                 }
             }
         }
 
-        Given("a task with no read access") {
+        given("a task with no read access") {
             val taskInfo = mockk<TaskInfo>()
             val taakRechten = createTaakRechtenAllDeny()
 
@@ -179,10 +179,10 @@ class RestTaskConverterTest : BehaviorSpec({
             every { policyService.readTaakRechten(taskInfo, fakeZaaktypeOmschrijving) } returns taakRechten
             every { bpmnProcessDefinitionTaskFormService.readForm(any(), any()) } returns mockk()
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val restTask = restTaskConverter.convert(taskInfo)
 
-                Then("sensitive fields are null") {
+                then("sensitive fields are null") {
                     restTask.toelichting.shouldBeNull()
                     restTask.creatiedatumTijd.shouldBeNull()
                     restTask.toekenningsdatumTijd.shouldBeNull()
@@ -197,7 +197,7 @@ class RestTaskConverterTest : BehaviorSpec({
             }
         }
 
-        Given("a list of two tasks") {
+        given("a list of two tasks") {
             val taskInfo1 = mockk<TaskInfo>()
             val taskInfo2 = mockk<TaskInfo>()
             val taakRechten = createTaakRechten()
@@ -234,49 +234,49 @@ class RestTaskConverterTest : BehaviorSpec({
             }
             every { zaaktypeCmmnConfiguration.getHumanTaskParametersCollection() } returns setOf(humanTaskParameters)
 
-            When("convert is called with the list") {
+            `when`("convert is called with the list") {
                 val restTasks = restTaskConverter.convert(listOf(taskInfo1, taskInfo2))
 
-                Then("both tasks are converted") {
+                then("both tasks are converted") {
                     restTasks.size shouldBe 2
                 }
             }
         }
     }
 
-    Context("extractGroupId") {
-        Given("a CANDIDATE identity link") {
+    context("extractGroupId") {
+        given("a CANDIDATE identity link") {
             val identityLink = mockk<IdentityLinkInfo>()
             every { identityLink.type } returns IdentityLinkType.CANDIDATE
             every { identityLink.groupId } returns "fakeGroupId"
 
-            When("extractGroupId is called") {
+            `when`("extractGroupId is called") {
                 val groupId = restTaskConverter.extractGroupId(listOf(identityLink))
 
-                Then("it returns the group id") {
+                then("it returns the group id") {
                     groupId shouldBe "fakeGroupId"
                 }
             }
         }
 
-        Given("no CANDIDATE identity link") {
+        given("no CANDIDATE identity link") {
             val identityLink = mockk<IdentityLinkInfo>()
             every { identityLink.type } returns IdentityLinkType.PARTICIPANT
 
-            When("extractGroupId is called") {
+            `when`("extractGroupId is called") {
                 val groupId = restTaskConverter.extractGroupId(listOf(identityLink))
 
-                Then("it returns null") {
+                then("it returns null") {
                     groupId.shouldBeNull()
                 }
             }
         }
 
-        Given("an empty identity link list") {
-            When("extractGroupId is called") {
+        given("an empty identity link list") {
+            `when`("extractGroupId is called") {
                 val groupId = restTaskConverter.extractGroupId(emptyList())
 
-                Then("it returns null") {
+                then("it returns null") {
                     groupId.shouldBeNull()
                 }
             }

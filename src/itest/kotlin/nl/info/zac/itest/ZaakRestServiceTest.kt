@@ -108,20 +108,20 @@ class ZaakRestServiceTest : BehaviorSpec({
         BEHANDELAAR_1
     )
 
-    Context("Listing zaaktypes for creating zaken") {
-        Given(
+    context("Listing zaaktypes for creating zaken") {
+        given(
             """
             Zaakafhandelparameters is created and a user with access to all zaaktypes in all domains is logged-in
             """.trimIndent()
         ) {
-            When("zaak types are listed") {
+            `when`("zaak types are listed") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaaktypes-for-creation",
                     testUser = BEHEERDER_1
                 )
                 lateinit var responseBody: String
 
-                Then("the response should be a 200 HTTP response") {
+                then("the response should be a 200 HTTP response") {
                     responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -176,7 +176,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             ZAC Docker container is running and zaaktypeCmmnConfiguration have been created
             and a behandelaar user that is authorised for zaaktypes in domain test 2 only is logged-in
@@ -184,12 +184,12 @@ class ZaakRestServiceTest : BehaviorSpec({
         ) {
             lateinit var responseBody: String
 
-            When("zaak types for creation are listed") {
+            `when`("zaak types for creation are listed") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaaktypes-for-creation",
                     testUser = BEHANDELAAR_2
                 )
-                Then("the response should be a 200 HTTP response") {
+                then("the response should be a 200 HTTP response") {
                     responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -209,8 +209,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Creating and retrieving zaken") {
-        Given(
+    context("Creating and retrieving zaken") {
+        given(
             """
             zaaktype CMMN configuration has been created for zaaktype test 3 
             and a behandelaar authorised for this zaaktype is logged in
@@ -218,7 +218,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         ) {
             lateinit var responseBody: String
 
-            When("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
+            `when`("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
                 val response = zacClient.createZaak(
                     zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
                     groupId = GROUP_BEHANDELAARS_TEST_1.name,
@@ -231,7 +231,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     testUser = BEHANDELAAR_1
                 )
 
-                Then("the response should be a 200 HTTP response") {
+                then("the response should be a 200 HTTP response") {
                     responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -327,13 +327,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the get zaak endpoint is called as a behandelaar") {
+            `when`("the get zaak endpoint is called as a behandelaar") {
                 val response = zacClient.retrieveZaak(
                     zaakUUID = zaak2UUID,
                     testUser = BEHANDELAAR_1
                 )
 
-                Then(
+                then(
                     """the response should be a 200 HTTP response and contain the created zaak,
                      and the permissions should be those of a behandelaar (e.g. 'bekijkenZaakdata' should be false)"""
                 ) {
@@ -372,13 +372,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the get zaak endpoint is called as a beheerder") {
+            `when`("the get zaak endpoint is called as a beheerder") {
                 val response = zacClient.retrieveZaak(
                     zaakUUID = zaak2UUID,
                     testUser = BEHEERDER_1
                 )
 
-                Then(
+                then(
                     """the response should be a 200 HTTP response and contain the created zaak,
                      and the permissions should be those of a beheerder (e.g. 'bekijkenZaakdata' should be true)"""
                 ) {
@@ -418,8 +418,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Updating zaken and adding betrokkenen") {
-        Given("A zaak has been created and a behandelaar authorised for this zaaktype is logged in") {
+    context("Updating zaken and adding betrokkenen") {
+        given("A zaak has been created and a behandelaar authorised for this zaaktype is logged in") {
             zaak2UUID = zacClient.createZaak(
                 zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
                 groupId = GROUP_BEHANDELAARS_TEST_1.name,
@@ -431,7 +431,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 toelichting = ZAAK_EXPLANATION_1,
                 testUser = BEHANDELAAR_1
             ).let { JSONObject(it.bodyAsString).getString("uuid").let(UUID::fromString) }
-            When(
+            `when`(
                 "the add betrokkene to zaak endpoint is called with a natuurlijk persoon without a 'rol toelichting'"
             ) {
                 val response = itestHttpClient.performJSONPostRequest(
@@ -449,7 +449,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     """.trimIndent(),
                     testUser = BEHANDELAAR_1
                 )
-                Then("the response should be a 200 OK HTTP response") {
+                then("the response should be a 200 OK HTTP response") {
                     response.code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -459,7 +459,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When(
+            `when`(
                 """"
             the 'update zaak' endpoint is called where the communication channel and description are changed
             """
@@ -480,7 +480,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     testUser = BEHANDELAAR_1
                 )
 
-                Then("the response should be a 200 HTTP response with the changed zaak data") {
+                then("the response should be a 200 HTTP response with the changed zaak data") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -492,7 +492,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When(
+            `when`(
                 """
             the 'update zaak' endpoint is called with a description field that is longer than allowed
             """
@@ -512,7 +512,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     testUser = BEHANDELAAR_1
                 )
 
-                Then("the response should be a 400 HTTP response with the validation error message") {
+                then("the response should be a 400 HTTP response with the validation error message") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_BAD_REQUEST
@@ -532,7 +532,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the 'assign to zaak' endpoint is called with a group") {
+            `when`("the 'assign to zaak' endpoint is called with a group") {
                 val response = itestHttpClient.performPatchRequest(
                     url = "$ZAC_API_URI/zaken/toekennen",
                     requestBodyAsString = """
@@ -545,7 +545,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     testUser = BEHANDELAAR_1
                 )
 
-                Then("the zaak should be assigned to the group") {
+                then("the zaak should be assigned to the group") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -561,7 +561,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When(
+            `when`(
                 """
             the add betrokkene to zaak endpoint is called with a role type and betrokkene identification 
             that are not already added to the zaak
@@ -584,7 +584,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     testUser = BEHANDELAAR_1
                 )
 
-                Then("the response should be a 200 OK HTTP response") {
+                then("the response should be a 200 OK HTTP response") {
                     response.code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -594,7 +594,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the 'update Zaak Locatie' endpoint is called with a valid location") {
+            `when`("the 'update Zaak Locatie' endpoint is called with a valid location") {
                 val response = itestHttpClient.performPatchRequest(
                     url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",
                     requestBodyAsString = """
@@ -612,7 +612,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     testUser = BEHANDELAAR_1
                 )
 
-                Then("the response should be a 200 HTTP response with the changed zaak data") {
+                then("the response should be a 200 HTTP response with the changed zaak data") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -631,7 +631,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the update zaak endpoint is called with a changed zaak description") {
+            `when`("the update zaak endpoint is called with a changed zaak description") {
                 val response = itestHttpClient.performPatchRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID",
                     requestBodyAsString = """
@@ -647,7 +647,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     testUser = BEHANDELAAR_1
                 )
 
-                Then(
+                then(
                     "the response should be a 200 HTTP response with only the changed zaak description and no other changes"
                 ) {
                     val responseBody = response.bodyAsString
@@ -695,7 +695,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the 'update Zaak Locatie' endpoint is called with a null value as location") {
+            `when`("the 'update Zaak Locatie' endpoint is called with a null value as location") {
                 val response = itestHttpClient.performPatchRequest(
                     url = "$ZAC_API_URI/zaken/$zaak2UUID/zaaklocatie",
                     requestBodyAsString = """
@@ -706,7 +706,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     """.trimIndent(),
                     testUser = BEHANDELAAR_1
                 )
-                Then("the response should be a 200 HTTP response with the changed zaak data without zaakgeometrie") {
+                then("the response should be a 200 HTTP response with the changed zaak data without zaakgeometrie") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -716,7 +716,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("an initiator is added to the zaak with a vestigingsnummer") {
+            `when`("an initiator is added to the zaak with a vestigingsnummer") {
                 val vestigingsnummer = TEST_KVK_VESTIGINGSNUMMER_1
                 val response = itestHttpClient.performPatchRequest(
                     url = "$ZAC_API_URI/zaken/initiator",
@@ -732,7 +732,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     """.trimIndent(),
                     testUser = BEHANDELAAR_1
                 )
-                Then("the response should be a 200 HTTP response and the initiator should be added") {
+                then("the response should be a 200 HTTP response and the initiator should be added") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
@@ -743,12 +743,12 @@ class ZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the get betrokkene endpoint is called for a zaak") {
+            `when`("the get betrokkene endpoint is called for a zaak") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/betrokkene",
                     testUser = BEHANDELAAR_1
                 )
-                Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
+                then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                     response.code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -779,8 +779,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Assigning zaken from the list") {
-        Given(
+    context("Assigning zaken from the list") {
+        given(
             """
             Two zaken have been created and a websocket subscriptions has been created to listen for 'zaken verdelen' 
             screen events which will be sent by the asynchronous 'assign zaken from list',
@@ -814,7 +814,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             logger.info { "WebSocket created: '$websocket'" }
 
-            When(
+            `when`(
                 """the 'assign zaken from list' endpoint is called to start an asynchronous process 
                 to assign the two zaken to a group and a user using the unique resource ID 
                 that was used to create the websocket subscription"""
@@ -833,7 +833,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     testUser = COORDINATOR_1
                 )
 
-                Then(
+                then(
                     """the response should be a 204 HTTP response and eventually a screen event of type 'zaken verdelen'
                     should be received by the websocket listener and the two zaken should be assigned correctly"""
                 ) {
@@ -871,7 +871,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak exists and a websocket subscription has been created and a logged-in coordinator") {
+        given("A zaak exists and a websocket subscription has been created and a logged-in coordinator") {
             val (_, zaakUuid) = zaakHelper.createZaak(
                 zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
                 testUser = COORDINATOR_1
@@ -898,7 +898,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 testUser = RAADPLEGER_1
             )
 
-            When(
+            `when`(
                 """the 'assign zaken from list' endpoint is called to start an asynchronous process 
                 to assign the zaak to a group which is not authorised for the zaaktype of the zaak"""
             ) {
@@ -913,7 +913,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     """.trimIndent(),
                     testUser = COORDINATOR_1
                 )
-                Then(
+                then(
                     """a 204 HTTP response and a screen event of type 'zaken verdelen'
                     should be received by the websocket listener and the zaak should not be reassigned"""
                 ) {
@@ -943,8 +943,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Assigning a zaak to the logged-in user from the list") {
-        Given(
+    context("Assigning a zaak to the logged-in user from the list") {
+        given(
             """
         A zaak which has not been assigned to the currently logged in user, 
         and a behandelaar authorised for this zaaktype is logged in
@@ -955,7 +955,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            When("the 'assign to logged-in user from list' endpoint is called for the zaak") {
+            `when`("the 'assign to logged-in user from list' endpoint is called for the zaak") {
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/zaken/lijst/toekennen/mij",
                     requestBodyAsString = """{
@@ -966,7 +966,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     """.trimIndent(),
                     testUser = BEHANDELAAR_1
                 )
-                Then(
+                then(
                     "the response should be a 200 HTTP response with the expected zaak data"
                 ) {
                     val responseBody = response.bodyAsString
@@ -1000,8 +1000,8 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Releasing zaken from the list") {
-        Given(
+    context("Releasing zaken from the list") {
+        given(
             """Two zaken that have been assigned and a websocket subscription has been created to listen
             for a 'zaken vrijgeven' screen event which will be sent by the asynchronous 'assign zaken from list' job
             and a coordinator authorized for the zaaktypes of these zaken is logged in"""
@@ -1028,7 +1028,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 testUser = COORDINATOR_1
             )
 
-            When("the 'lijst vrijgeven' endpoint is called for the zaken") {
+            `when`("the 'lijst vrijgeven' endpoint is called for the zaken") {
                 val response = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/zaken/lijst/vrijgeven",
                     requestBodyAsString = """{
@@ -1038,7 +1038,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }""",
                     testUser = COORDINATOR_1
                 )
-                Then(
+                then(
                     """the response should be a 204 HTTP response, eventually a screen event of type 'zaken vrijgeven'
                     should be received by the websocket listener and the zaken should be released from the user
                     but should still be assigned to the previously assigned groups"""
@@ -1083,37 +1083,37 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing afzenders for a zaak") {
-        Given(
+    context("Listing afzenders for a zaak") {
+        given(
             """
             A CMMN zaak has been created and a behandelaar authorized for this zaaktype is logged in
             """
         ) {
-            When("the list afzenders voor zaak endpoint is called by an authorized behandelaar") {
+            `when`("the list afzenders voor zaak endpoint is called by an authorized behandelaar") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/afzender",
                     testUser = BEHANDELAAR_1
                 )
-                Then("the response should be a 200 HTTP response with the list of afzenders") {
+                then("the response should be a 200 HTTP response with the list of afzenders") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                 }
             }
-            When("the list afzenders voor zaak endpoint is called by a user not authorized for the zaaktype") {
+            `when`("the list afzenders voor zaak endpoint is called by a user not authorized for the zaaktype") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaak2UUID/afzender",
                     testUser = BEHANDELAAR_2
                 )
-                Then("the response should be a 403 HTTP response") {
+                then("the response should be a 403 HTTP response") {
                     response.code shouldBe HTTP_FORBIDDEN
                 }
             }
         }
     }
 
-    Context("Downloading a BPMN process diagram") {
-        Given(
+    context("Downloading a BPMN process diagram") {
+        given(
             """
             A BPMN zaak has been created and a behandelaar authorized for this zaaktype is logged in
             """
@@ -1123,29 +1123,29 @@ class ZaakRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            When("the download process diagram endpoint is called by an authorized behandelaar") {
+            `when`("the download process diagram endpoint is called by an authorized behandelaar") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/$bpmnZaakUuid/process-diagram",
                     testUser = BEHANDELAAR_1
                 )
-                Then("the response should be a 200 HTTP response with the process diagram") {
+                then("the response should be a 200 HTTP response with the process diagram") {
                     response.code shouldBe HTTP_OK
                 }
             }
-            When("the download process diagram endpoint is called by a user not authorized for the zaaktype") {
+            `when`("the download process diagram endpoint is called by a user not authorized for the zaaktype") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/$bpmnZaakUuid/process-diagram",
                     testUser = BEHANDELAAR_2
                 )
-                Then("the response should be a 403 HTTP response") {
+                then("the response should be a 403 HTTP response") {
                     response.code shouldBe HTTP_FORBIDDEN
                 }
             }
         }
     }
 
-    Context("Listing zaak warnings") {
-        Given(
+    context("Listing zaak warnings") {
+        given(
             """
             A zaak that is assigned to myself, with an planned fatal date set on tomorrow 
             which is before today plus the 'fatal date warning window' of the related zaaktype plus one day
@@ -1178,12 +1178,12 @@ class ZaakRestServiceTest : BehaviorSpec({
             )
             response.code shouldBe HTTP_OK
 
-            When("the 'list zaak warnings' endpoint is called for the zaak") {
+            `when`("the 'list zaak warnings' endpoint is called for the zaak") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/waarschuwing",
                     testUser = BEHANDELAAR_1
                 )
-                Then("the response should be a 200 HTTP response with the expected zaak") {
+                then("the response should be a 200 HTTP response with the expected zaak") {
                     response.code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -1235,14 +1235,14 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Creating a zaak with a group and behandelaar whose names are longer than 24 characters") {
-        Given(
+    context("Creating a zaak with a group and behandelaar whose names are longer than 24 characters") {
+        given(
             """
             a Keycloak group with a name of 50 characters and a behandelaar user with a username of 33 characters
             both exist in Keycloak, and an authorised behandelaar is logged in
             """
         ) {
-            When("the create zaak endpoint is called with the long-name group and the long-name user as behandelaar") {
+            `when`("the create zaak endpoint is called with the long-name group and the long-name user as behandelaar") {
                 val response = zacClient.createZaak(
                     zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
                     groupId = GROUP_BEHANDELAARS_LONG_NAME_TEST.name,
@@ -1252,7 +1252,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     behandelaarId = BEHANDELAAR_LONG_NAME_TEST.username,
                     behandelaarName = BEHANDELAAR_LONG_NAME_TEST.displayName
                 )
-                Then("the zaak is created and the response contains the full long group name and behandelaar name") {
+                then("the zaak is created and the response contains the full long group name and behandelaar name") {
                     response.code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }

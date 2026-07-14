@@ -23,8 +23,8 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("convertToREST(Nummeraanduiding)") {
-        Given("a valid Nummeraanduiding with all fields populated") {
+    context("convertToREST(Nummeraanduiding)") {
+        given("a valid Nummeraanduiding with all fields populated") {
             val nummeraanduiding = createNummeraanduiding(
                 identificatie = "fakeIdentificatie",
                 postcode = "1234AB",
@@ -34,10 +34,10 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
                 geconstateerd = Indicatie.J
             )
 
-            When("convertToREST is called") {
+            `when`("convertToREST is called") {
                 val result = RestNummeraanduidingConverter.convertToREST(nummeraanduiding)
 
-                Then("it should map the identificatie") {
+                then("it should map the identificatie") {
                     result.identificatie shouldBe "fakeIdentificatie"
                 }
 
@@ -75,7 +75,7 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
             }
         }
 
-        Given("a Nummeraanduiding with huisletter and huisnummertoevoeging set") {
+        given("a Nummeraanduiding with huisletter and huisnummertoevoeging set") {
             val nummeraanduiding = createNummeraanduiding(
                 identificatie = "fakeIdentificatie",
                 postcode = "5678CD",
@@ -87,10 +87,10 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
                 geconstateerd = Indicatie.N
             )
 
-            When("convertToREST is called") {
+            `when`("convertToREST is called") {
                 val result = RestNummeraanduidingConverter.convertToREST(nummeraanduiding)
 
-                Then("it should produce huisnummerWeergave combining huisnummer, huisletter and toevoeging") {
+                then("it should produce huisnummerWeergave combining huisnummer, huisletter and toevoeging") {
                     result.huisnummerWeergave shouldBe "42A-bis"
                 }
 
@@ -101,20 +101,20 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convertToREST(ZaakobjectNummeraanduiding)") {
-        Given("a null ZaakobjectNummeraanduiding") {
+    context("convertToREST(ZaakobjectNummeraanduiding)") {
+        given("a null ZaakobjectNummeraanduiding") {
             val zaakobjectNummeraanduiding: ZaakobjectNummeraanduiding? = null
 
-            When("convertToREST is called") {
+            `when`("convertToREST is called") {
                 val result = RestNummeraanduidingConverter.convertToREST(zaakobjectNummeraanduiding)
 
-                Then("it should return null") {
+                then("it should return null") {
                     result.shouldBeNull()
                 }
             }
         }
 
-        Given("a valid ZaakobjectNummeraanduiding with identificatie, postcode and huisnummer") {
+        given("a valid ZaakobjectNummeraanduiding with identificatie, postcode and huisnummer") {
             val fakeObjectUri = URI("https://example.com/bag/nummeraanduiding/fakeObjectUri")
             val fakeZaakUri = URI("https://example.com/zaken/fakeZaakUri")
             val objectNummeraanduiding = ObjectNummeraanduiding(
@@ -132,10 +132,10 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
                 objectNummeraanduiding
             )
 
-            When("convertToREST is called") {
+            `when`("convertToREST is called") {
                 val result = RestNummeraanduidingConverter.convertToREST(zaakobjectNummeraanduiding)
 
-                Then("it should map the url from the object URI") {
+                then("it should map the url from the object URI") {
                     result!!.url shouldBe fakeObjectUri
                 }
 
@@ -170,8 +170,8 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convertToZaakobject(RESTNummeraanduiding, Zaak)") {
-        Given("a RESTNummeraanduiding and a Zaak") {
+    context("convertToZaakobject(RESTNummeraanduiding, Zaak)") {
+        given("a RESTNummeraanduiding and a Zaak") {
             val fakeNummeraanduidingUrl = URI("https://example.com/bag/nummeraanduiding/fakeNummeraanduidingUrl")
             val restNummeraanduiding = RESTNummeraanduiding().apply {
                 url = fakeNummeraanduidingUrl
@@ -185,10 +185,10 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
             }
             val zaak = createZaak()
 
-            When("convertToZaakobject is called") {
+            `when`("convertToZaakobject is called") {
                 val result = RestNummeraanduidingConverter.convertToZaakobject(restNummeraanduiding, zaak)
 
-                Then("it should set the zaak URL from the provided zaak") {
+                then("it should set the zaak URL from the provided zaak") {
                     result.zaak shouldBe zaak.url
                 }
 

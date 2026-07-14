@@ -92,7 +92,7 @@ class IndexingServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Two zaken") {
+    given("Two zaken") {
         val ctx = setupContext()
         val zaakType = createZaakType()
         val zaaktypeURI = URI("http://example.com/${zaakType.url}")
@@ -113,12 +113,12 @@ class IndexingServiceTest : BehaviorSpec({
         }
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
-        When(
+        `when`(
             """The indexeer direct method is called to index the two zaken"""
         ) {
             ctx.indexingService.indexeerDirect(zaken.map { it.uuid.toString() }, ZoekObjectType.ZAAK, false)
 
-            Then(
+            then(
                 """
                 two zaak zoek objecten should be added to the Solr client and 
                 both related object ids should be removed as 'marked for indexing'                
@@ -131,7 +131,7 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Solr indexing exists") {
+    given("Solr indexing exists") {
         val ctx = setupContext()
         val queryResponse = mockk<QueryResponse>()
 
@@ -177,12 +177,12 @@ class IndexingServiceTest : BehaviorSpec({
             }
         }
 
-        When("reindexing of zaken is called") {
+        `when`("reindexing of zaken is called") {
             every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
             ctx.indexingService.reindex(ZoekObjectType.ZAAK)
 
-            Then("it finishes successfully") {
+            then("it finishes successfully") {
                 verify(exactly = 1) {
                     ctx.solrClient.deleteById(any<List<String>>())
                     ctx.solrClient.addBeans(any<Collection<*>>())
@@ -190,13 +190,13 @@ class IndexingServiceTest : BehaviorSpec({
             }
         }
 
-        When("adding beans in Solr errors") {
+        `when`("adding beans in Solr errors") {
             val solrException = SolrServerException("Solr exception")
             every { ctx.solrClient.addBeans(any<Collection<*>>()) } throws solrException
 
             ctx.indexingService.reindex(ZoekObjectType.ZAAK)
 
-            Then("ignores errors") {
+            then("ignores errors") {
                 verify(exactly = 1) {
                     ctx.solrClient.deleteById(any<List<String>>())
                     ctx.solrClient.addBeans(any<Collection<*>>())
@@ -205,7 +205,7 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Solr indexing exists and zaak count cannot be obtained") {
+    given("Solr indexing exists and zaak count cannot be obtained") {
         val ctx = setupContext()
         val queryResponse = mockk<QueryResponse>()
         val documentList = SolrDocumentList().apply {
@@ -224,10 +224,10 @@ class IndexingServiceTest : BehaviorSpec({
         val ioException = IOException("IO exception")
         every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } throws ioException
 
-        When("reading zaak count throws an error") {
+        `when`("reading zaak count throws an error") {
             ctx.indexingService.reindex(ZoekObjectType.ZAAK)
 
-            Then("aborts and does not try to list zaken") {
+            then("aborts and does not try to list zaken") {
                 verify(exactly = 1) {
                     ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
                 }
@@ -235,7 +235,7 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Solr indexing exists and zaak count is available") {
+    given("Solr indexing exists and zaak count is available") {
         val ctx = setupContext()
         val queryResponse = mockk<QueryResponse>()
         val documentList = SolrDocumentList().apply {
@@ -273,14 +273,14 @@ class IndexingServiceTest : BehaviorSpec({
             every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
         }
 
-        When("reading zaak list throws an `IOException`") {
+        `when`("reading zaak list throws an `IOException`") {
             every {
                 ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 2 })
             } throws IOException("exception")
 
             ctx.indexingService.reindex(ZoekObjectType.ZAAK)
 
-            Then("continues without exception") {
+            then("continues without exception") {
                 verify(exactly = 3) {
                     ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
                 }

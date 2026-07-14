@@ -44,7 +44,7 @@ class BpmnSendConfirmationEmailRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given(
+    given(
         """
             A productaanvraag object exists in Objecten with type 'bpmn-test-3-productaanvraagtype',
             a zaaktypeBpmnConfiguration is defined in ZAC for zaaktype 3 with the
@@ -52,7 +52,7 @@ class BpmnSendConfirmationEmailRestServiceTest : BehaviorSpec({
             (Hendrika Janse) has a known email address
         """.trimIndent()
     ) {
-        When("the notificaties endpoint is called with a 'create productaanvraag' payload") {
+        `when`("the notificaties endpoint is called with a 'create productaanvraag' payload") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
                 headers = Headers.headersOf(
@@ -76,7 +76,7 @@ class BpmnSendConfirmationEmailRestServiceTest : BehaviorSpec({
                 ).toString()
             )
 
-            Then("the response is 'no content' and a zaak is created with the BPMN zaaktype") {
+            then("the response is 'no content' and a zaak is created with the BPMN zaaktype") {
                 response.code shouldBe HTTP_NO_CONTENT
 
                 itestHttpClient.performGetRequest(

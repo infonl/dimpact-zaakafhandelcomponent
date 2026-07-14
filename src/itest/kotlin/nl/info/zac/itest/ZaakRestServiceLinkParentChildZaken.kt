@@ -31,7 +31,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    Given(
+    given(
         """
             Two zaken each of a different zaaktype and these two zaaktypes have been configured so
             that these zaken are allowed to have a parent-child relationship,
@@ -68,7 +68,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
             }
         }
 
-        When("a request is done to link the parent zaak to the child zaak") {
+        `when`("a request is done to link the parent zaak to the child zaak") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/koppel",
                 requestBodyAsString = """
@@ -81,7 +81,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the parent-child relationship between the two zaken should be established") {
+            then("the parent-child relationship between the two zaken should be established") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
@@ -108,7 +108,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
             }
         }
 
-        When("a request is done to unlink the linked parent zaak from the child zaak") {
+        `when`("a request is done to unlink the linked parent zaak from the child zaak") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/ontkoppel",
                 requestBodyAsString = """
@@ -122,7 +122,7 @@ class ZaakRestServiceLinkParentChildZaken : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the parent-child relationship between the two zaken should be removed") {
+            then("the parent-child relationship between the two zaken should be removed") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT

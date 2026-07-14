@@ -38,30 +38,30 @@ class ZtcClientServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("An existing catalogus for the given parameters") {
+    given("An existing catalogus for the given parameters") {
         val catalogusListParameters = createCatalogusListParameters()
         val expectedCatalogus = createCatalogus()
         every { ztcClient.catalogusList(catalogusListParameters).singleResult } returns Optional.of(expectedCatalogus)
 
-        When("readCatalogus is called") {
+        `when`("readCatalogus is called") {
             val result = ztcClientService.readCatalogus(catalogusListParameters)
 
-            Then("it should return the expected catalogus") {
+            then("it should return the expected catalogus") {
                 result shouldBe expectedCatalogus
             }
         }
     }
 
-    Given("No catalog for the given parameters") {
+    given("No catalog for the given parameters") {
         val catalogusListParameters = createCatalogusListParameters()
         every { ztcClient.catalogusList(catalogusListParameters).singleResult } returns Optional.empty()
 
-        When("readCatalogus is called") {
+        `when`("readCatalogus is called") {
             val exception = shouldThrow<CatalogusNotFoundException> {
                 ztcClientService.readCatalogus(catalogusListParameters)
             }
 
-            Then("it should throw an exception") {
+            then("it should throw an exception") {
                 exception.message shouldBe
                     "No catalogus found for catalogus list parameters " +
                     "'CatalogusListParameters(domein=null, domeinIn=null, rsin=null, rsinIn=null, page=null)'."
@@ -69,16 +69,16 @@ class ZtcClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("ZTC client service") {
+    given("ZTC client service") {
 
-        When("reading cache time for the first time") {
+        `when`("reading cache time for the first time") {
             initialDateTime = ztcClientService.resetCacheTimeToNow()
 
-            Then("it should return time after test was started") {
+            then("it should return time after test was started") {
                 initialDateTime shouldBeAfter testStartDateTime
             }
 
-            Then("it should generate the value and store it in the cache") {
+            then("it should generate the value and store it in the cache") {
                 with(ztcClientService.cacheStatistics()["ZTC Time"]) {
                     this?.hitCount() shouldBe 0
                     this?.missCount() shouldBe 1
@@ -86,14 +86,14 @@ class ZtcClientServiceTest : BehaviorSpec({
             }
         }
 
-        When("reading cache time for the second time") {
+        `when`("reading cache time for the second time") {
             val dateTime = ztcClientService.resetCacheTimeToNow()
 
-            Then("it should cached the same time") {
+            then("it should cached the same time") {
                 dateTime shouldBeEqual initialDateTime
             }
 
-            Then("it should fetch the value from the cache") {
+            then("it should fetch the value from the cache") {
                 with(ztcClientService.cacheStatistics()["ZTC Time"]) {
                     this?.hitCount() shouldBe 1
                     this?.missCount() shouldBe 1
@@ -101,15 +101,15 @@ class ZtcClientServiceTest : BehaviorSpec({
             }
         }
 
-        When("reading zaak type") {
+        `when`("reading zaak type") {
             every { ztcClient.zaaktypeRead(initialUUID) } returns expectedZaakType
             val zaakType = ztcClientService.readZaaktype(initialUUID)
 
-            Then("it should return valid zaaktype") {
+            then("it should return valid zaaktype") {
                 zaakType shouldBe expectedZaakType
             }
 
-            Then("it should generate the value and store it in the cache") {
+            then("it should generate the value and store it in the cache") {
                 with(ztcClientService.cacheStatistics()["ZTC UUID -> ZaakType"]) {
                     this?.hitCount() shouldBe 0
                     this?.missCount() shouldBe 1
@@ -117,7 +117,7 @@ class ZtcClientServiceTest : BehaviorSpec({
             }
         }
 
-        When("reading more zaak types than the cache can hold") {
+        `when`("reading more zaak types than the cache can hold") {
             (1..MAX_CACHE_SIZE + 1).forEach { _ ->
                 val generatedUUID = UUID.randomUUID()
                 every {
@@ -126,7 +126,7 @@ class ZtcClientServiceTest : BehaviorSpec({
                 ztcClientService.readZaaktype(generatedUUID)
             }
 
-            Then("cache starts evicting") {
+            then("cache starts evicting") {
                 eventually(5.seconds) {
                     with(ztcClientService.cacheStatistics()["ZTC UUID -> ZaakType"]) {
                         this?.hitCount() shouldBe 0
@@ -138,17 +138,17 @@ class ZtcClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("ZTC client service time cache was cleared") {
+    given("ZTC client service time cache was cleared") {
         ztcClientService.clearCacheTime()
 
-        When("reading the cache time") {
+        `when`("reading the cache time") {
             val cacheDateTime = ztcClientService.resetCacheTimeToNow()
 
-            Then("time should be updated") {
+            then("time should be updated") {
                 cacheDateTime shouldBeAfter initialDateTime
             }
 
-            Then("cache statistics should be ok") {
+            then("cache statistics should be ok") {
                 with(ztcClientService.cacheStatistics()["ZTC Time"]) {
                     this?.hitCount() shouldBe 1
                     this?.missCount() shouldBe 2

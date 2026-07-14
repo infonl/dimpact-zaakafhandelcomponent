@@ -38,7 +38,7 @@ class NotificationZaakDestroyTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
 
-    Given(
+    given(
         """
             A zaak in ZAC which has been started using the ZAC CMMN model 
             and which has been indexed in the Solr search index,
@@ -138,7 +138,7 @@ class NotificationZaakDestroyTest : BehaviorSpec({
             JSONObject(searchResponseBody).getInt("totaal") shouldBe 1
             searchResponseBody.shouldContainJsonKeyValue("$.resultaten[0].identificatie", zaakIdentificatie)
         }
-        When("the notificaties endpoint is called with a 'zaak destroy' payload") {
+        `when`("the notificaties endpoint is called with a 'zaak destroy' payload") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
                 headers = Headers.headersOf(
@@ -158,7 +158,7 @@ class NotificationZaakDestroyTest : BehaviorSpec({
                     )
                 ).toString()
             )
-            Then(
+            then(
                 """
                     the response should be 'no content', the Flowable CMMN zaak data should be deleted,
                     the task should be deleted and the zaak should be removed from the Solr index

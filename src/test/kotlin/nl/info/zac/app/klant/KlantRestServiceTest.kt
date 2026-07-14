@@ -75,8 +75,8 @@ class KlantRestServiceTest : BehaviorSpec({
         clearAllMocks()
     }
 
-    Context("Read vestiging by vestigingsnummer but without KVK nummer") {
-        Given(
+    context("Read vestiging by vestigingsnummer but without KVK nummer") {
+        given(
             """
         a vestiging for which a company exists in the KVK client
         """
@@ -91,13 +91,13 @@ class KlantRestServiceTest : BehaviorSpec({
                 vestingsnummer = vestigingsnummer
             )
 
-            When("a request is made to get the vestiging by vestigingsnummer") {
+            `when`("a request is made to get the vestiging by vestigingsnummer") {
                 every {
                     kvkClientService.findVestiging(vestigingsnummer)
                 } returns kvkResultaatItem
                 val restBedrijf = klantRestService.readVestigingByVestigingsnummer(vestigingsnummer)
 
-                Then("it should return the vestiging but not any contact details") {
+                then("it should return the vestiging but not any contact details") {
                     with(restBedrijf) {
                         this.vestigingsnummer shouldBe vestigingsnummer
                         with(this.adres!!) {
@@ -118,13 +118,13 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a vestiging by vestigingsnummer which does not exist in the KVK client") {
+        given("a vestiging by vestigingsnummer which does not exist in the KVK client") {
             val vestigingsnummer = "fakeVestigingsnummer"
             every {
                 kvkClientService.findVestiging(vestigingsnummer)
             } returns null
 
-            When("a request is made to get the vestiging") {
+            `when`("a request is made to get the vestiging") {
                 val exception =
                     shouldThrow<VestigingNotFoundException> {
                         klantRestService.readVestigingByVestigingsnummer(
@@ -132,15 +132,15 @@ class KlantRestServiceTest : BehaviorSpec({
                         )
                     }
 
-                Then("it should throw an exception") {
+                then("it should throw an exception") {
                     exception.message shouldBe "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer'"
                 }
             }
         }
     }
 
-    Context("Read vestiging by vestigingsnummer and KVK nummer") {
-        Given(
+    context("Read vestiging by vestigingsnummer and KVK nummer") {
+        given(
             """
         a vestiging for which a company exists in the KVK client and for which a customer exists in the klanten client
         """
@@ -160,7 +160,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 klantClientService.findDigitalAddressesForVestiging(vestigingsnummer, kvkNummer)
             } returns digitalAddressesList
 
-            When("a request is made to get the vestiging by vestigingsnummer and kvkNummer") {
+            `when`("a request is made to get the vestiging by vestigingsnummer and kvkNummer") {
                 every {
                     kvkClientService.findVestiging(vestigingsnummer, kvkResultaatItem.kvkNummer)
                 } returns kvkResultaatItem
@@ -170,7 +170,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     kvkResultaatItem.kvkNummer
                 )
 
-                Then("it should return the vestiging including contact details") {
+                then("it should return the vestiging including contact details") {
                     with(restBedrijf) {
                         this.vestigingsnummer shouldBe vestigingsnummer
                         with(this.adres!!) {
@@ -191,7 +191,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             "a vestiging which does not exist in the KVK client nor in in the klanten client"
         ) {
             val vestigingsnummer = "fakeVestigingsnummer"
@@ -200,7 +200,7 @@ class KlantRestServiceTest : BehaviorSpec({
                 kvkClientService.findVestiging(vestigingsnummer, kvkNummer)
             } returns null
 
-            When("a request is made to get the vestiging") {
+            `when`("a request is made to get the vestiging") {
                 val exception =
                     shouldThrow<VestigingNotFoundException> {
                         klantRestService.readVestigingByVestigingsnummerAndKvkNummer(
@@ -209,7 +209,7 @@ class KlantRestServiceTest : BehaviorSpec({
                         )
                     }
 
-                Then("it should throw an exception") {
+                then("it should throw an exception") {
                     exception.message shouldBe "Geen vestiging gevonden voor vestiging met vestigingsnummer '$vestigingsnummer' " +
                         "en KVK nummer '$kvkNummer'"
                 }
@@ -217,8 +217,8 @@ class KlantRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading a person") {
-        Given("A person with a BSN which exists in the klanten client and in the BRP client") {
+    context("Reading a person") {
+        given("A person with a BSN which exists in the klanten client and in the BRP client") {
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val telephoneNumber = "0612345678"
@@ -236,10 +236,10 @@ class KlantRestServiceTest : BehaviorSpec({
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns persoon
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
-            When("when the person is retrieved") {
+            `when`("when the person is retrieved") {
                 val restPersoon = klantRestService.readPersoon(temporaryPersonId, zaaktypeUuid)
 
-                Then("the person should be returned and should have contact details") {
+                then("the person should be returned and should have contact details") {
                     with(restPersoon) {
                         this.temporaryPersonId shouldBe temporaryPersonId
                         this.bsn shouldBe bsn
@@ -251,7 +251,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
+        given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
@@ -261,10 +261,10 @@ class KlantRestServiceTest : BehaviorSpec({
             every { klantClientService.findDigitalAddressesForNaturalPerson(bsn) } returns emptyList()
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
-            When("when the person is retrieved") {
+            `when`("when the person is retrieved") {
                 val restPersoon = klantRestService.readPersoon(temporaryPersonId, zaaktypeUuid)
 
-                Then("the person should be returned and should not have contact details") {
+                then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
                         this.temporaryPersonId shouldBe temporaryPersonId
                         this.bsn shouldBe bsn
@@ -276,7 +276,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A person with a BSN which exists in the klanten client but not in the BRP client") {
+        given("A person with a BSN which exists in the klanten client but not in the BRP client") {
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
@@ -284,18 +284,18 @@ class KlantRestServiceTest : BehaviorSpec({
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
-            When("when the person is retrieved") {
+            `when`("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
                     klantRestService.readPersoon(temporaryPersonId, zaaktypeUuid)
                 }
 
-                Then("an exception should be thrown") {
+                then("an exception should be thrown") {
                     exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
                 }
             }
         }
 
-        Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
+        given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
             val bsn = "123456789"
             val userName = "fakeUserName"
             val temporaryPersonId = UUID.randomUUID()
@@ -303,26 +303,26 @@ class KlantRestServiceTest : BehaviorSpec({
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
-            When("when the person is retrieved") {
+            `when`("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
                     klantRestService.readPersoon(temporaryPersonId)
                 }
 
-                Then("an exception should be thrown") {
+                then("an exception should be thrown") {
                     exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
                 }
             }
         }
 
-        Given("No logged-in user is available") {
+        given("No logged-in user is available") {
             val temporaryPersonId = UUID.randomUUID()
             every { loggedInUserInstance.get() } returns null
 
-            When("when the person is retrieved") {
+            `when`("when the person is retrieved") {
                 val exception =
                     shouldThrow<NullPointerException> { klantRestService.readPersoon(temporaryPersonId, zaaktypeUuid) }
 
-                Then(
+                then(
                     "a NullPointerException should be thrown since the logged-in user is required to retrieve a person"
                 ) {
                     exception.message shouldBe "Cannot invoke \"nl.info.zac.authentication.LoggedInUser.getId()\" because " +
@@ -332,8 +332,8 @@ class KlantRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading a rechtspersoon by RSIN") {
-        Given("A rechtspersoon with a matching RSIN in the KVK client") {
+    context("Reading a rechtspersoon by RSIN") {
+        given("A rechtspersoon with a matching RSIN in the KVK client") {
             val rsin = "123456789"
             val name = "fakeName"
             val kvkNummer = "912345678"
@@ -347,10 +347,10 @@ class KlantRestServiceTest : BehaviorSpec({
                 type = "fakeType"
             )
 
-            When("when the rechtspersoon is retrieved by RSIN") {
+            `when`("when the rechtspersoon is retrieved by RSIN") {
                 val restBedrijf = klantRestService.readRechtspersoonByRsin(rsin)
 
-                Then("the rechtspersoon should be returned") {
+                then("the rechtspersoon should be returned") {
                     with(restBedrijf) {
                         this.rsin shouldBe rsin
                         this.naam shouldBe name
@@ -367,7 +367,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
+        given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
@@ -377,10 +377,10 @@ class KlantRestServiceTest : BehaviorSpec({
             every { klantClientService.findDigitalAddressesForNaturalPerson(bsn) } returns emptyList()
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
-            When("when the person is retrieved") {
+            `when`("when the person is retrieved") {
                 val restPersoon = klantRestService.readPersoon(temporaryPersonId)
 
-                Then("the person should be returned and should not have contact details") {
+                then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
                         this.temporaryPersonId shouldBe temporaryPersonId
                         this.bsn shouldBe bsn
@@ -392,7 +392,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A person with a BSN which exists in the klanten client but not in the BRP client") {
+        given("A person with a BSN which exists in the klanten client but not in the BRP client") {
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
@@ -400,18 +400,18 @@ class KlantRestServiceTest : BehaviorSpec({
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
-            When("when the person is retrieved") {
+            `when`("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
                     klantRestService.readPersoon(temporaryPersonId)
                 }
 
-                Then("an exception should be thrown") {
+                then("an exception should be thrown") {
                     exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
                 }
             }
         }
 
-        Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
+        given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
@@ -419,20 +419,20 @@ class KlantRestServiceTest : BehaviorSpec({
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
-            When("when the person is retrieved") {
+            `when`("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
                     klantRestService.readPersoon(temporaryPersonId, zaaktypeUuid)
                 }
 
-                Then("an exception should be thrown") {
+                then("an exception should be thrown") {
                     exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
                 }
             }
         }
     }
 
-    Context("Reading a rechtspersoon by KVK nummer") {
-        Given(
+    context("Reading a rechtspersoon by KVK nummer") {
+        given(
             "A rechtspersoon with a matching KVK nummer in the KVK client and contact details in the klanten client"
         ) {
             val rsin = "123456789"
@@ -452,10 +452,10 @@ class KlantRestServiceTest : BehaviorSpec({
                 klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer)
             } returns digitalAddressesList
 
-            When("when the rechtspersoon is retrieved by KVK nummer") {
+            `when`("when the rechtspersoon is retrieved by KVK nummer") {
                 val restBedrijf = klantRestService.readRechtspersoonByKvkNummer(kvkNummer)
 
-                Then("the rechtspersoon should be returned including contact details") {
+                then("the rechtspersoon should be returned including contact details") {
                     with(restBedrijf) {
                         this.rsin shouldBe rsin
                         this.naam shouldBe name
@@ -474,7 +474,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             "A rechtspersoon with a matching KVK nummer in the KVK client but no contact details in the klanten client"
         ) {
             val rsin = "123456789"
@@ -493,10 +493,10 @@ class KlantRestServiceTest : BehaviorSpec({
                 klantClientService.findDigitalAddressesForNonNaturalPerson(kvkNummer)
             } returns emptyList()
 
-            When("when the rechtspersoon is retrieved by KVK nummer") {
+            `when`("when the rechtspersoon is retrieved by KVK nummer") {
                 val restBedrijf = klantRestService.readRechtspersoonByKvkNummer(kvkNummer)
 
-                Then("the rechtspersoon should be returned without contact details") {
+                then("the rechtspersoon should be returned without contact details") {
                     with(restBedrijf) {
                         this.rsin shouldBe rsin
                         this.naam shouldBe name
@@ -514,7 +514,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
+        given("A person with a BSN which does not exist in the klanten client but does exist in the BRP client") {
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
@@ -524,10 +524,10 @@ class KlantRestServiceTest : BehaviorSpec({
             every { klantClientService.findDigitalAddressesForNaturalPerson(bsn) } returns emptyList()
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
-            When("when the person is retrieved") {
+            `when`("when the person is retrieved") {
                 val restPersoon = klantRestService.readPersoon(temporaryPersonId)
 
-                Then("the person should be returned and should not have contact details") {
+                then("the person should be returned and should not have contact details") {
                     with(restPersoon) {
                         this.temporaryPersonId shouldBe temporaryPersonId
                         this.bsn shouldBe bsn
@@ -539,7 +539,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A person with a BSN which exists in the klanten client but not in the BRP client") {
+        given("A person with a BSN which exists in the klanten client but not in the BRP client") {
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
@@ -547,18 +547,18 @@ class KlantRestServiceTest : BehaviorSpec({
             every { brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
-            When("when the person is retrieved") {
+            `when`("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
                     klantRestService.readPersoon(temporaryPersonId, zaaktypeUuid)
                 }
 
-                Then("an exception should be thrown") {
+                then("an exception should be thrown") {
                     exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
                 }
             }
         }
 
-        Given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
+        given("A person with a BSN which does not exist in the klanten client nor in the BRP client") {
             val bsn = "123456789"
             val temporaryPersonId = UUID.randomUUID()
             val userName = "fakeUserName"
@@ -566,20 +566,20 @@ class KlantRestServiceTest : BehaviorSpec({
             every { brpClientService.retrievePersoon(bsn, null, userName) } returns null
             every { identificationService.replaceKeyWithBsn(temporaryPersonId) } returns bsn
 
-            When("when the person is retrieved") {
+            `when`("when the person is retrieved") {
                 val exception = shouldThrow<BrpPersonNotFoundException> {
                     klantRestService.readPersoon(temporaryPersonId)
                 }
 
-                Then("an exception should be thrown") {
+                then("an exception should be thrown") {
                     exception.message shouldBe "Geen persoon gevonden voor BSN '$bsn'"
                 }
             }
         }
     }
 
-    Context("Reading a vestigingsprofiel") {
-        Given("A KVK vestigingsprofiel including werkzame personen, activiteiten and adressen") {
+    context("Reading a vestigingsprofiel") {
+        given("A KVK vestigingsprofiel including werkzame personen, activiteiten and adressen") {
             val vestiging = createVestiging(
                 sbiActiviteiten = listOf(
                     createSBIActiviteit(
@@ -613,10 +613,10 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns vestiging
 
-            When("the vestigingsprofiel is requested for a given vestigingsnummer") {
+            `when`("the vestigingsprofiel is requested for a given vestigingsnummer") {
                 val vestigingsProfiel = klantRestService.readVestigingsprofiel(vestiging.vestigingsnummer)
 
-                Then("the vestigingsprofiel is returned correctly") {
+                then("the vestigingsprofiel is returned correctly") {
                     with(vestigingsProfiel) {
                         this.vestigingsnummer shouldBe vestiging.vestigingsnummer
                         this.kvkNummer shouldBe vestiging.kvkNummer
@@ -647,8 +647,8 @@ class KlantRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading a readbasisprofiel") {
-        Given("A KVK basisprofiel for a rechtspersoon with all fields populated") {
+    context("Reading a readbasisprofiel") {
+        given("A KVK basisprofiel for a rechtspersoon with all fields populated") {
             val kvkNummer = "12345678"
             val basisprofiel = createBasisprofiel(
                 kvkNummer = kvkNummer,
@@ -691,10 +691,10 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             every { kvkClientService.findBasisprofiel(kvkNummer) } returns basisprofiel
 
-            When("the basisprofiel is requested for a given KVK nummer") {
+            `when`("the basisprofiel is requested for a given KVK nummer") {
                 val restBedrijfsprofiel = klantRestService.readBasisprofiel(kvkNummer)
 
-                Then("the basisprofiel is returned with all fields mapped correctly") {
+                then("the basisprofiel is returned with all fields mapped correctly") {
                     with(restBedrijfsprofiel) {
                         this.kvkNummer shouldBe kvkNummer
                         this.totaalWerkzamePersonen shouldBe basisprofiel.totaalWerkzamePersonen
@@ -724,15 +724,15 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A KVK basisprofiel without an eigenaar") {
+        given("A KVK basisprofiel without an eigenaar") {
             val kvkNummer = "12345678"
             val basisprofiel = createBasisprofiel(kvkNummer = kvkNummer, eigenaar = null)
             every { kvkClientService.findBasisprofiel(kvkNummer) } returns basisprofiel
 
-            When("the basisprofiel is requested for a given KVK nummer") {
+            `when`("the basisprofiel is requested for a given KVK nummer") {
                 val restBedrijfsprofiel = klantRestService.readBasisprofiel(kvkNummer)
 
-                Then("the basisprofiel is returned with null eigenaar fields") {
+                then("the basisprofiel is returned with null eigenaar fields") {
                     with(restBedrijfsprofiel) {
                         this.kvkNummer shouldBe kvkNummer
                         this.rsin shouldBe null
@@ -745,24 +745,24 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("No KVK basisprofiel found for the given KVK nummer") {
+        given("No KVK basisprofiel found for the given KVK nummer") {
             val kvkNummer = "12345678"
             every { kvkClientService.findBasisprofiel(kvkNummer) } returns null
 
-            When("the basisprofiel is requested for a given KVK nummer") {
+            `when`("the basisprofiel is requested for a given KVK nummer") {
                 val exception = shouldThrow<RechtspersoonNotFoundException> {
                     klantRestService.readBasisprofiel(kvkNummer)
                 }
 
-                Then("a RechtspersoonNotFoundException is thrown") {
+                then("a RechtspersoonNotFoundException is thrown") {
                     exception.message shouldBe "Geen basisprofiel gevonden voor KVK nummer '$kvkNummer'"
                 }
             }
         }
     }
 
-    Context("Finding a vestigingsprofiel") {
-        Given("A KVK vestigingsprofiel without data about werkzame personen nor about activiteiten") {
+    context("Finding a vestigingsprofiel") {
+        given("A KVK vestigingsprofiel without data about werkzame personen nor about activiteiten") {
             val vestiging = createVestiging(
                 voltijdWerkzamePersonen = null,
                 deeltijdWerkzamePersonen = null,
@@ -772,10 +772,10 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             every { kvkClientService.findVestigingsprofiel(vestiging.vestigingsnummer) } returns vestiging
 
-            When("the vestigingsprofiel is requested for a given vestigingsnummer") {
+            `when`("the vestigingsprofiel is requested for a given vestigingsnummer") {
                 val vestigingsProfiel = klantRestService.readVestigingsprofiel(vestiging.vestigingsnummer)
 
-                Then("the vestigingsprofiel is returned correctly") {
+                then("the vestigingsprofiel is returned correctly") {
                     with(vestigingsProfiel) {
                         this.vestigingsnummer shouldBe vestiging.vestigingsnummer
                         this.kvkNummer shouldBe vestiging.kvkNummer
@@ -793,8 +793,8 @@ class KlantRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing bedrijven") {
-        Given("A KVK company with a KVK number and a vestigings number") {
+    context("Listing bedrijven") {
+        given("A KVK company with a KVK number and a vestigings number") {
             val restListBedrijvenParameters = createRestListBedrijvenParameters()
             val resultaatItem = createResultaatItem(
                 naam = "fakeName",
@@ -805,10 +805,10 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
 
-            When("the listBedrijven function is called") {
+            `when`("the listBedrijven function is called") {
                 val result = klantRestService.listBedrijven(restListBedrijvenParameters)
 
-                Then("the result should contain the expected company") {
+                then("the result should contain the expected company") {
                     result.resultaten.size shouldBe 1
                     with(result.resultaten.first()) {
                         this.naam shouldBe "fakeName"
@@ -821,7 +821,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A request with just a vestigings number") {
+        given("A request with just a vestigings number") {
             val restListBedrijvenParameters = createRestListBedrijvenParameters(
                 kvkNummer = null
             )
@@ -834,10 +834,10 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
 
-            When("the listBedrijven function is called") {
+            `when`("the listBedrijven function is called") {
                 val result = klantRestService.listBedrijven(restListBedrijvenParameters)
 
-                Then("the result should contain the CoC-number") {
+                then("the result should contain the CoC-number") {
                     result.resultaten.size shouldBe 1
                     with(result.resultaten.first()) {
                         this.kvkNummer shouldBe "fakeKvkNummer"
@@ -846,7 +846,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A KVK company with only a KVK nummer but without a vestigingsnummer and without a RSIN") {
+        given("A KVK company with only a KVK nummer but without a vestigingsnummer and without a RSIN") {
             val resultaatItem = createResultaatItem(
                 naam = "fakeName",
                 kvkNummer = "fakeKvkNummer",
@@ -856,10 +856,10 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
 
-            When("the listBedrijven function is called") {
+            `when`("the listBedrijven function is called") {
                 val result = klantRestService.listBedrijven(createRestListBedrijvenParameters())
 
-                Then(
+                then(
                     "the result should contain the company since the available company is koppelbaar since it has a KVK number"
                 ) {
                     result.resultaten.size shouldBe 1
@@ -867,7 +867,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A KVK company with a KVK nummer and an RSIN but without a vestigingsnummer") {
+        given("A KVK company with a KVK nummer and an RSIN but without a vestigingsnummer") {
             val resultaatItem = createResultaatItem(
                 naam = "fakeName",
                 kvkNummer = "fakeKvkNummer",
@@ -877,10 +877,10 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
 
-            When("the listBedrijven function is called") {
+            `when`("the listBedrijven function is called") {
                 val result = klantRestService.listBedrijven(createRestListBedrijvenParameters())
 
-                Then(
+                then(
                     "the result should contain the company since the available company is koppelbaar since it has a KVK number"
                 ) {
                     result.resultaten.size shouldBe 1
@@ -888,7 +888,7 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A KVK company without a KVK nummer and without a vestigingsnummer but with an RSIN") {
+        given("A KVK company without a KVK nummer and without a vestigingsnummer but with an RSIN") {
             val resultaatItem = createResultaatItem(
                 naam = "fakeName",
                 kvkNummer = null,
@@ -898,10 +898,10 @@ class KlantRestServiceTest : BehaviorSpec({
             )
             every { kvkClientService.search(any()).resultaten } returns listOf(resultaatItem)
 
-            When("the listBedrijven function is called") {
+            `when`("the listBedrijven function is called") {
                 val result = klantRestService.listBedrijven(createRestListBedrijvenParameters())
 
-                Then(
+                then(
                     """
                         the result should contain no results since the available company is not koppelbaar since it lacks a KVK number
                          or a vestigingsnummer
@@ -913,8 +913,8 @@ class KlantRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing personen") {
-        Given("A person exists for a given BSN") {
+    context("Listing personen") {
+        given("A person exists for a given BSN") {
             val bsn = "123456789"
             val userName = "testUser"
             val temporaryPersonId = UUID.randomUUID()
@@ -928,17 +928,17 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns person
             every { identificationService.replaceBsnWithKey(bsn) } returns temporaryPersonId
 
-            When("listPersonen is called") {
+            `when`("listPersonen is called") {
                 val result = klantRestService.listPersonen(restListPersonenParameters)
 
-                Then("it should return the found person in the result") {
+                then("it should return the found person in the result") {
                     verify { brpClientService.retrievePersoon(bsn, any(), any()) }
                     result.resultaten.size shouldBe 1
                 }
             }
         }
 
-        Given("No person exists for a given BSN") {
+        given("No person exists for a given BSN") {
             val bsn = "123456789"
             val userName = "testUser"
             val restListPersonenParameters = RestListPersonenParameters(bsn = bsn)
@@ -949,32 +949,32 @@ class KlantRestServiceTest : BehaviorSpec({
                 brpClientService.retrievePersoon(bsn, any(), any())
             } returns null
 
-            When("listPersonen is called no persoon is found") {
+            `when`("listPersonen is called no persoon is found") {
                 val result = klantRestService.listPersonen(restListPersonenParameters)
 
-                Then("the result should be empty") {
+                then("the result should be empty") {
                     result.resultaten shouldBe emptyList()
                 }
             }
         }
 
-        Given("The logged-in user does not have the brpZoeken permission") {
+        given("The logged-in user does not have the brpZoeken permission") {
             val restListPersonenParameters = RestListPersonenParameters(bsn = "123456789")
 
             every { policyService.readBrpRechten(gemeenteCode = null) } returns createBrpRechten(zoeken = false)
 
-            When("listPersonen is called") {
+            `when`("listPersonen is called") {
                 val exception = shouldThrow<PolicyException> {
                     klantRestService.listPersonen(restListPersonenParameters)
                 }
 
-                Then("a PolicyException should be thrown") {
+                then("a PolicyException should be thrown") {
                     exception::class shouldBe PolicyException::class
                 }
             }
         }
 
-        Given("The logged-in user does not have the brpZoeken permission for the specified gemeenteVanInschrijving") {
+        given("The logged-in user does not have the brpZoeken permission for the specified gemeenteVanInschrijving") {
             val restListPersonenParameters =
                 RestListPersonenParameters(bsn = "123456789", gemeenteVanInschrijving = "12345")
 
@@ -982,18 +982,18 @@ class KlantRestServiceTest : BehaviorSpec({
                 policyService.readBrpRechten(gemeenteCode = restListPersonenParameters.gemeenteVanInschrijving)
             } returns createBrpRechten(zoeken = false)
 
-            When("listPersonen is called") {
+            `when`("listPersonen is called") {
                 val exception = shouldThrow<PolicyException> {
                     klantRestService.listPersonen(restListPersonenParameters)
                 }
 
-                Then("a PolicyException should be thrown") {
+                then("a PolicyException should be thrown") {
                     exception::class shouldBe PolicyException::class
                 }
             }
         }
 
-        Given("Persons are queried using search parameters (no BSN)") {
+        given("Persons are queried using search parameters (no BSN)") {
             val restListPersonenParameters = RestListPersonenParameters(
                 geslachtsnaam = "Jansen",
                 geboortedatum = LocalDate.of(1990, 1, 1)
@@ -1011,10 +1011,10 @@ class KlantRestServiceTest : BehaviorSpec({
             } returns personenResponse
             every { identificationService.replaceBsnWithKey(bsn) } returns temporaryPersonId
 
-            When("listPersonen is called") {
+            `when`("listPersonen is called") {
                 val result = klantRestService.listPersonen(restListPersonenParameters)
 
-                Then("it should return the searched person in the result") {
+                then("it should return the searched person in the result") {
                     verify {
                         brpClientService.queryPersonen(
                             restListPersonenParameters.toPersonenQuery(),
@@ -1024,7 +1024,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     }
                     result.resultaten.size shouldBe 1
                 }
-                Then("retrievePersonen should not be called") {
+                then("retrievePersonen should not be called") {
                     verify(exactly = 0) {
                         brpClientService.retrievePersoon(any(), any(), any())
                     }
@@ -1033,31 +1033,31 @@ class KlantRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Personen parameters") {
-        Given("A user with the BRP zoeken overall role") {
+    context("Personen parameters") {
+        given("A user with the BRP zoeken overall role") {
             val loggedInUser = mockk<LoggedInUser>()
             every { loggedInUserInstance.get() } returns loggedInUser
             every { loggedInUser.overallRoles } returns setOf(ROLE_NAME_BRP_ZOEKEN)
 
-            When("personenParameters is called") {
+            `when`("personenParameters is called") {
                 val result = klantRestService.personenParameters()
 
-                Then("it should return valid queries with mustSpecifyGemeente set to false") {
+                then("it should return valid queries with mustSpecifyGemeente set to false") {
                     result.size shouldBe 5
                     result[0].gemeenteVanInschrijving shouldBe RestPersonenParameters.Cardinaliteit.NON
                 }
             }
         }
 
-        Given("A user without the BRP zoeken overall role") {
+        given("A user without the BRP zoeken overall role") {
             val loggedInUser = mockk<LoggedInUser>()
             every { loggedInUserInstance.get() } returns loggedInUser
             every { loggedInUser.overallRoles } returns emptySet()
 
-            When("personenParameters is called") {
+            `when`("personenParameters is called") {
                 val result = klantRestService.personenParameters()
 
-                Then("it should return valid queries with mustSpecifyGemeente set to true") {
+                then("it should return valid queries with mustSpecifyGemeente set to true") {
                     result.size shouldBe 5
                     result[0].gemeenteVanInschrijving shouldBe RestPersonenParameters.Cardinaliteit.REQ
                 }
@@ -1065,8 +1065,8 @@ class KlantRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing BRP gemeenten") {
-        Given("A user with BRP gemeenten") {
+    context("Listing BRP gemeenten") {
+        given("A user with BRP gemeenten") {
             val loggedInUser = mockk<LoggedInUser>()
             every { loggedInUserInstance.get() } returns loggedInUser
             every { loggedInUser.brpGemeenten } returns mapOf(
@@ -1074,10 +1074,10 @@ class KlantRestServiceTest : BehaviorSpec({
                 "0599" to "fakeGemeenteNaam2"
             )
 
-            When("listAuthorisedBrpGemeenten is called") {
+            `when`("listAuthorisedBrpGemeenten is called") {
                 val result = klantRestService.listAuthorisedBrpGemeenten()
 
-                Then("it should return the BRP gemeenten as RestBrpGemeente list") {
+                then("it should return the BRP gemeenten as RestBrpGemeente list") {
                     result.size shouldBe 2
                     result[0].code shouldBe "0344"
                     result[0].naam shouldBe "fakeGemeenteNaam1"
@@ -1087,15 +1087,15 @@ class KlantRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A user without BRP gemeenten") {
+        given("A user without BRP gemeenten") {
             val loggedInUser = mockk<LoggedInUser>()
             every { loggedInUserInstance.get() } returns loggedInUser
             every { loggedInUser.brpGemeenten } returns emptyMap()
 
-            When("listAuthorisedBrpGemeenten is called") {
+            `when`("listAuthorisedBrpGemeenten is called") {
                 val result = klantRestService.listAuthorisedBrpGemeenten()
 
-                Then("it should return an empty list") {
+                then("it should return an empty list") {
                     result shouldBe emptyList()
                 }
             }

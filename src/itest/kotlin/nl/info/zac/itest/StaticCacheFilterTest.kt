@@ -18,13 +18,13 @@ private val HASHED_SCRIPT_REGEX = Regex("""src="([^"]*-[A-Za-z0-9]{8}\.js)"""")
 class StaticCacheFilterTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
-    Given("index.html") {
-        When("the file is requested") {
+    given("index.html") {
+        `when`("the file is requested") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_BASE_URI/index.html",
                 testUser = BEHEERDER_1
             )
-            Then("the response is 200 and Cache-Control contains no-cache") {
+            then("the response is 200 and Cache-Control contains no-cache") {
                 response.code shouldBe HTTP_OK
                 // The OIDC layer may append ', no-store, must-revalidate' at exchange level on top of
                 // the filter's 'no-cache' value, so we check containment rather than exact equality.
@@ -33,17 +33,17 @@ class StaticCacheFilterTest : BehaviorSpec({
         }
     }
 
-    Given("the root path") {
-        When("the path is requested") {
+    given("the root path") {
+        `when`("the path is requested") {
             val response = itestHttpClient.performGetRequest("$ZAC_BASE_URI/", testUser = BEHEERDER_1)
-            Then("the response is 200 and Cache-Control contains no-cache") {
+            then("the response is 200 and Cache-Control contains no-cache") {
                 response.code shouldBe HTTP_OK
                 response.headers["Cache-Control"] shouldContain "no-cache"
             }
         }
     }
 
-    Given("a hashed JS bundle referenced from index.html") {
+    given("a hashed JS bundle referenced from index.html") {
         val indexBody = itestHttpClient.performGetRequest(
             "$ZAC_BASE_URI/index.html",
             testUser = BEHEERDER_1
@@ -51,49 +51,49 @@ class StaticCacheFilterTest : BehaviorSpec({
         val scriptName = requireNotNull(HASHED_SCRIPT_REGEX.find(indexBody)?.groupValues?.get(1)) {
             "Could not find a hashed JS bundle URL in index.html"
         }
-        When("the bundle is requested") {
+        `when`("the bundle is requested") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_BASE_URI/$scriptName",
                 testUser = BEHEERDER_1
             )
-            Then("the response is 200 with Cache-Control: immutable") {
+            then("the response is 200 with Cache-Control: immutable") {
                 response.code shouldBe HTTP_OK
                 response.headers["Cache-Control"] shouldBe "public, max-age=31536000, immutable"
             }
         }
     }
 
-    Given("a versioned asset with a valid 8-character hex v parameter") {
-        When("the asset is requested with ?v=395afa0f") {
+    given("a versioned asset with a valid 8-character hex v parameter") {
+        `when`("the asset is requested with ?v=395afa0f") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_BASE_URI/assets/i18n/nl.json?v=395afa0f",
                 testUser = BEHEERDER_1
             )
-            Then("Cache-Control is set to immutable") {
+            then("Cache-Control is set to immutable") {
                 response.headers["Cache-Control"] shouldBe "public, max-age=31536000, immutable"
             }
         }
     }
 
-    Given("a versioned asset with an invalid v parameter") {
-        When("the asset is requested with ?v=toolongval") {
+    given("a versioned asset with an invalid v parameter") {
+        `when`("the asset is requested with ?v=toolongval") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_BASE_URI/assets/i18n/nl.json?v=toolongval",
                 testUser = BEHEERDER_1
             )
-            Then("Cache-Control is not set to immutable") {
+            then("Cache-Control is not set to immutable") {
                 response.headers["Cache-Control"]?.shouldNotContain("immutable")
             }
         }
     }
 
-    Given("a REST API path") {
-        When("the health endpoint is requested") {
+    given("a REST API path") {
+        `when`("the health endpoint is requested") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_BASE_URI/rest/health",
                 testUser = BEHEERDER_1
             )
-            Then("Cache-Control is not set to immutable") {
+            then("Cache-Control is not set to immutable") {
                 response.headers["Cache-Control"]?.shouldNotContain("immutable")
             }
         }

@@ -32,129 +32,129 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Saving an inbox document") {
-        Given("an inbox document entity") {
+    context("Saving an inbox document") {
+        given("an inbox document entity") {
             val document = createInboxDocument()
 
-            When("save is called") {
+            `when`("save is called") {
                 inboxDocumentRepository.save(document)
 
-                Then("the entity is persisted") {
+                then("the entity is persisted") {
                     verify { entityManager.persist(document) }
                 }
             }
         }
     }
 
-    Context("Finding an inbox document by ID") {
-        Given("an existing inbox document with a known ID") {
+    context("Finding an inbox document by ID") {
+        given("an existing inbox document with a known ID") {
             val document = createInboxDocument()
             every { entityManager.find(InboxDocument::class.java, document.id) } returns document
 
-            When("find is called with that ID") {
+            `when`("find is called with that ID") {
                 val result = inboxDocumentRepository.find(document.id!!)
 
-                Then("the document is returned") {
+                then("the document is returned") {
                     result shouldBe document
                 }
             }
         }
 
-        Given("no document exists for a given ID") {
+        given("no document exists for a given ID") {
             val id = 999L
             every { entityManager.find(InboxDocument::class.java, id) } returns null
 
-            When("find is called with that ID") {
+            `when`("find is called with that ID") {
                 val result = inboxDocumentRepository.find(id)
 
-                Then("null is returned") {
+                then("null is returned") {
                     result shouldBe null
                 }
             }
         }
     }
 
-    Context("Finding an inbox document by UUID") {
-        Given("an existing inbox document with a known UUID") {
+    context("Finding an inbox document by UUID") {
+        given("an existing inbox document with a known UUID") {
             val document = createInboxDocument()
             val typedQuery = mockk<TypedQuery<InboxDocument>> {
                 every { resultList } returns listOf(document)
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("find is called with that UUID") {
+            `when`("find is called with that UUID") {
                 val result = inboxDocumentRepository.find(document.enkelvoudiginformatieobjectUUID)
 
-                Then("the document is returned") {
+                then("the document is returned") {
                     result shouldBe document
                 }
             }
         }
 
-        Given("no inbox document exists for a given UUID") {
+        given("no inbox document exists for a given UUID") {
             val unknownUuid = UUID.randomUUID()
             val typedQuery = mockk<TypedQuery<InboxDocument>> {
                 every { resultList } returns emptyList()
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("find is called with that UUID") {
+            `when`("find is called with that UUID") {
                 val result = inboxDocumentRepository.find(unknownUuid)
 
-                Then("null is returned") {
+                then("null is returned") {
                     result shouldBe null
                 }
             }
         }
     }
 
-    Context("Deleting an inbox document") {
-        Given("an existing inbox document") {
+    context("Deleting an inbox document") {
+        given("an existing inbox document") {
             val document = createInboxDocument()
 
-            When("delete is called for that document") {
+            `when`("delete is called for that document") {
                 inboxDocumentRepository.delete(document)
 
-                Then("the document is removed from the entity manager") {
+                then("the document is removed from the entity manager") {
                     verify { entityManager.remove(document) }
                 }
             }
         }
     }
 
-    Context("Listing inbox documents") {
-        Given("a relaxed entity manager and empty list parameters") {
+    context("Listing inbox documents") {
+        given("a relaxed entity manager and empty list parameters") {
             val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
                 every { resultList } returns emptyList()
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = inboxDocumentRepository.list(InboxDocumentListParameters())
 
-                Then("an empty list is returned") {
+                then("an empty list is returned") {
                     result shouldBe emptyList()
                 }
             }
         }
 
-        Given("inbox documents exist") {
+        given("inbox documents exist") {
             val documents = listOf(createInboxDocument(id = 1L), createInboxDocument(id = 2L))
             val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
                 every { resultList } returns documents
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("list is called with empty parameters") {
+            `when`("list is called with empty parameters") {
                 val result = inboxDocumentRepository.list(InboxDocumentListParameters())
 
-                Then("all matching documents are returned") {
+                then("all matching documents are returned") {
                     result shouldBe documents
                 }
             }
         }
 
-        Given("list parameters with paging configured") {
+        given("list parameters with paging configured") {
             val document = createInboxDocument()
             val paging = Paging(page = 2, maxResults = 10)
             val listParameters = InboxDocumentListParameters().apply {
@@ -165,10 +165,10 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = inboxDocumentRepository.list(listParameters)
 
-                Then("results are returned and paging is applied to the query") {
+                then("results are returned and paging is applied to the query") {
                     result shouldBe listOf(document)
                     verify { typedQuery.setFirstResult(paging.getFirstResult()) }
                     verify { typedQuery.setMaxResults(paging.maxResults) }
@@ -176,7 +176,7 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
         }
 
-        Given("list parameters with ascending sorting") {
+        given("list parameters with ascending sorting") {
             val documents = listOf(createInboxDocument())
             val listParameters = InboxDocumentListParameters().apply {
                 sorting = Sorting(InboxDocument.TITEL_PROPERTY_NAME, SorteerRichting.ASCENDING)
@@ -186,17 +186,17 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = inboxDocumentRepository.list(listParameters)
 
-                Then("results are returned and ascending order is applied") {
+                then("results are returned and ascending order is applied") {
                     result shouldBe documents
                     verify { entityManager.criteriaBuilder.asc(any()) }
                 }
             }
         }
 
-        Given("list parameters with descending sorting") {
+        given("list parameters with descending sorting") {
             val documents = listOf(createInboxDocument())
             val listParameters = InboxDocumentListParameters().apply {
                 sorting = Sorting(InboxDocument.TITEL_PROPERTY_NAME, SorteerRichting.DESCENDING)
@@ -206,17 +206,17 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = inboxDocumentRepository.list(listParameters)
 
-                Then("results are returned and descending order is applied") {
+                then("results are returned and descending order is applied") {
                     result shouldBe documents
                     verify { entityManager.criteriaBuilder.desc(any()) }
                 }
             }
         }
 
-        Given("list parameters with titel and identificatie filters") {
+        given("list parameters with titel and identificatie filters") {
             val documents = listOf(createInboxDocument())
             val listParameters = createInboxDocumentListParameters(
                 title = "test document",
@@ -227,16 +227,16 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = inboxDocumentRepository.list(listParameters)
 
-                Then("results are returned") {
+                then("results are returned") {
                     result shouldBe documents
                 }
             }
         }
 
-        Given("list parameters with a blank titel filter") {
+        given("list parameters with a blank titel filter") {
             val documents = listOf(createInboxDocument())
             val listParameters = createInboxDocumentListParameters(title = "  ", identification = null)
             val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
@@ -244,16 +244,16 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = inboxDocumentRepository.list(listParameters)
 
-                Then("results are returned without a titel predicate being applied") {
+                then("results are returned without a titel predicate being applied") {
                     result shouldBe documents
                 }
             }
         }
 
-        Given("list parameters with a blank identificatie filter") {
+        given("list parameters with a blank identificatie filter") {
             val documents = listOf(createInboxDocument())
             val listParameters = createInboxDocumentListParameters(title = null, identification = "  ")
             val typedQuery = mockk<TypedQuery<InboxDocument>>(relaxed = true) {
@@ -261,16 +261,16 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = inboxDocumentRepository.list(listParameters)
 
-                Then("results are returned without an identificatie predicate being applied") {
+                then("results are returned without an identificatie predicate being applied") {
                     result shouldBe documents
                 }
             }
         }
 
-        Given("list parameters with a creatiedatum range") {
+        given("list parameters with a creatiedatum range") {
             val documents = listOf(createInboxDocument())
             val listParameters = createInboxDocumentListParameters(
                 title = null,
@@ -285,16 +285,16 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = inboxDocumentRepository.list(listParameters)
 
-                Then("results are returned") {
+                then("results are returned") {
                     result shouldBe documents
                 }
             }
         }
 
-        Given("list parameters with only the creatiedatum van boundary") {
+        given("list parameters with only the creatiedatum van boundary") {
             val documents = listOf(createInboxDocument())
             val listParameters = createInboxDocumentListParameters(
                 title = null,
@@ -306,16 +306,16 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = inboxDocumentRepository.list(listParameters)
 
-                Then("results are returned") {
+                then("results are returned") {
                     result shouldBe documents
                 }
             }
         }
 
-        Given("list parameters with only the creatiedatum tot boundary") {
+        given("list parameters with only the creatiedatum tot boundary") {
             val documents = listOf(createInboxDocument())
             val listParameters = createInboxDocumentListParameters(
                 title = null,
@@ -327,69 +327,69 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxDocument>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = inboxDocumentRepository.list(listParameters)
 
-                Then("results are returned") {
+                then("results are returned") {
                     result shouldBe documents
                 }
             }
         }
     }
 
-    Context("Counting inbox documents") {
-        Given("a relaxed entity manager and empty list parameters") {
+    context("Counting inbox documents") {
+        given("a relaxed entity manager and empty list parameters") {
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
                 every { singleResult } returns 0L
             }
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
-            When("count is called") {
+            `when`("count is called") {
                 val result = inboxDocumentRepository.count(InboxDocumentListParameters())
 
-                Then("zero is returned") {
+                then("zero is returned") {
                     result shouldBe 0
                 }
             }
         }
 
-        Given("inbox documents exist") {
+        given("inbox documents exist") {
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
                 every { singleResult } returns 5L
             }
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
-            When("count is called") {
+            `when`("count is called") {
                 val result = inboxDocumentRepository.count(InboxDocumentListParameters())
 
-                Then("the document count is returned") {
+                then("the document count is returned") {
                     result shouldBe 5
                 }
             }
         }
 
-        Given("the query returns null as the count result") {
+        given("the query returns null as the count result") {
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
                 every { singleResult } returns null
             }
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
-            When("count is called") {
+            `when`("count is called") {
                 val result = inboxDocumentRepository.count(InboxDocumentListParameters())
 
-                Then("zero is returned as fallback") {
+                then("zero is returned as fallback") {
                     result shouldBe 0
                 }
             }
         }
 
-        Given("list parameters with titel and identificatie filters") {
+        given("list parameters with titel and identificatie filters") {
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
                 every { singleResult } returns 3L
             }
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
-            When("count is called") {
+            `when`("count is called") {
                 val result = inboxDocumentRepository.count(
                     createInboxDocumentListParameters(
                         title = "report",
@@ -397,19 +397,19 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
                     )
                 )
 
-                Then("the filtered count is returned") {
+                then("the filtered count is returned") {
                     result shouldBe 3
                 }
             }
         }
 
-        Given("list parameters with a full creatiedatum range") {
+        given("list parameters with a full creatiedatum range") {
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
                 every { singleResult } returns 2L
             }
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
-            When("count is called") {
+            `when`("count is called") {
                 val result = inboxDocumentRepository.count(
                     createInboxDocumentListParameters(
                         title = null,
@@ -421,19 +421,19 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
                     )
                 )
 
-                Then("the date-filtered count is returned") {
+                then("the date-filtered count is returned") {
                     result shouldBe 2
                 }
             }
         }
 
-        Given("list parameters with only the creatiedatum van boundary") {
+        given("list parameters with only the creatiedatum van boundary") {
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
                 every { singleResult } returns 4L
             }
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
-            When("count is called") {
+            `when`("count is called") {
                 val result = inboxDocumentRepository.count(
                     createInboxDocumentListParameters(
                         title = null,
@@ -442,19 +442,19 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
                     )
                 )
 
-                Then("the date-filtered count is returned") {
+                then("the date-filtered count is returned") {
                     result shouldBe 4
                 }
             }
         }
 
-        Given("list parameters with only the creatiedatum tot boundary") {
+        given("list parameters with only the creatiedatum tot boundary") {
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
                 every { singleResult } returns 7L
             }
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
-            When("count is called") {
+            `when`("count is called") {
                 val result = inboxDocumentRepository.count(
                     createInboxDocumentListParameters(
                         title = null,
@@ -463,7 +463,7 @@ class InboxDocumentRepositoryTest : BehaviorSpec({
                     )
                 )
 
-                Then("the date-filtered count is returned") {
+                then("the date-filtered count is returned") {
                     result shouldBe 7
                 }
             }

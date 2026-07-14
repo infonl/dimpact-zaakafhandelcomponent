@@ -41,7 +41,7 @@ class BagClientServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A nummeraanduidingIdentificatie") {
+    given("A nummeraanduidingIdentificatie") {
         val nummeraanduidingIdentificatie = "fakeId"
         val adresIOHal = createAdresIOHal()
         every {
@@ -51,10 +51,10 @@ class BagClientServiceTest : BehaviorSpec({
                 null
             )
         } returns adresIOHal
-        When("readAdres is called") {
+        `when`("readAdres is called") {
             val returnedAdresIOHal = bagClientService.readAdres(nummeraanduidingIdentificatie)
 
-            Then("it should call the Adres API with the expected arguments") {
+            then("it should call the Adres API with the expected arguments") {
                 returnedAdresIOHal shouldBe adresIOHal
                 verify(exactly = 1) {
                     adresApi.bevraagAdressenMetNumId(any(), any(), any())
@@ -63,17 +63,17 @@ class BagClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A woonplaatsIdentificatie") {
+    given("A woonplaatsIdentificatie") {
         val woonplaatsIdentificatie = "validId"
         val woonplaatsIOHal = createWoonplaatsIOHal()
         every {
             woonplaatsApi.woonplaatsIdentificatie(woonplaatsIdentificatie, null, null, null, null, null)
         } returns woonplaatsIOHal
 
-        When("readWoonplaats is called with a valid ID") {
+        `when`("readWoonplaats is called with a valid ID") {
             val returnedWoonplaatsIOHal = bagClientService.readWoonplaats(woonplaatsIdentificatie)
 
-            Then("it should return the expected WoonplaatsIOHal") {
+            then("it should return the expected WoonplaatsIOHal") {
                 returnedWoonplaatsIOHal shouldBe woonplaatsIOHal
                 verify(exactly = 1) {
                     woonplaatsApi.woonplaatsIdentificatie(woonplaatsIdentificatie, null, null, null, null, null)
@@ -82,7 +82,7 @@ class BagClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A nummeraanduidingIdentificatie for readNummeraanduiding") {
+    given("A nummeraanduidingIdentificatie for readNummeraanduiding") {
         val nummeraanduidingIdentificatie = "fakeNummeraanduidingId"
         val nummeraanduidingIOHal = createNummeraanduidingIOHal()
         every {
@@ -95,10 +95,10 @@ class BagClientServiceTest : BehaviorSpec({
             )
         } returns nummeraanduidingIOHal
 
-        When("readNummeraanduiding is called") {
+        `when`("readNummeraanduiding is called") {
             val returnedNummeraanduidingIOHal = bagClientService.readNummeraanduiding(nummeraanduidingIdentificatie)
 
-            Then("it should call the nummeraanduiding API and return the expected NummeraanduidingIOHal") {
+            then("it should call the nummeraanduiding API and return the expected NummeraanduidingIOHal") {
                 returnedNummeraanduidingIOHal shouldBe nummeraanduidingIOHal
                 verify(exactly = 1) {
                     nummeraanduidingApi.nummeraanduidingIdentificatie(any(), any(), any(), any(), any())
@@ -107,17 +107,17 @@ class BagClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A pandIdentificatie") {
+    given("A pandIdentificatie") {
         val pandIdentificatie = "fakePandId"
         val pandIOHal = createPandIOHal()
         every {
             pandApi.pandIdentificatie(pandIdentificatie, null, null, "epsg:28992", null)
         } returns pandIOHal
 
-        When("readPand is called") {
+        `when`("readPand is called") {
             val returnedPandIOHal = bagClientService.readPand(pandIdentificatie)
 
-            Then("it should call the pand API and return the expected PandIOHal") {
+            then("it should call the pand API and return the expected PandIOHal") {
                 returnedPandIOHal shouldBe pandIOHal
                 verify(exactly = 1) {
                     pandApi.pandIdentificatie(any(), any(), any(), any(), any())
@@ -126,7 +126,7 @@ class BagClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An openbareRuimteIdentificatie") {
+    given("An openbareRuimteIdentificatie") {
         val openbareRuimteIdentificatie = "fakeOpenbareRuimteId"
         val openbareRuimteIOHal = createOpenbareRuimteIOHal()
         every {
@@ -139,10 +139,10 @@ class BagClientServiceTest : BehaviorSpec({
             )
         } returns openbareRuimteIOHal
 
-        When("readOpenbareRuimte is called") {
+        `when`("readOpenbareRuimte is called") {
             val returnedOpenbareRuimteIOHal = bagClientService.readOpenbareRuimte(openbareRuimteIdentificatie)
 
-            Then("it should call the openbare ruimte API and return the expected OpenbareRuimteIOHal") {
+            then("it should call the openbare ruimte API and return the expected OpenbareRuimteIOHal") {
                 returnedOpenbareRuimteIOHal shouldBe openbareRuimteIOHal
                 verify(exactly = 1) {
                     openbareRuimteApi.openbareruimteIdentificatie(any(), any(), any(), any(), any())
@@ -151,18 +151,18 @@ class BagClientServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing addresses") {
-        Given("Valid list address parameters and available embedded addresses in the BAG API") {
+    context("Listing addresses") {
+        given("Valid list address parameters and available embedded addresses in the BAG API") {
             val bevraagAdressenParameters = createBevraagAdressenParameters()
             val adresIOHalCollectionEmbedded = createAdresIOHalCollectionEmbedded()
             every {
                 adresApi.bevraagAdressen(bevraagAdressenParameters).getEmbedded()
             } returns adresIOHalCollectionEmbedded
 
-            When("listAdressen is called") {
+            `when`("listAdressen is called") {
                 val returnedAddresses = bagClientService.listAdressen(bevraagAdressenParameters)
 
-                Then("it should invoke the BAG adres API and should return the list of addresses") {
+                then("it should invoke the BAG adres API and should return the list of addresses") {
                     verify(exactly = 1) {
                         adresApi.bevraagAdressen(bevraagAdressenParameters)
                     }
@@ -171,14 +171,14 @@ class BagClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("Valid list address parameters but no available embedded addresses in the BAG API") {
+        given("Valid list address parameters but no available embedded addresses in the BAG API") {
             val bevraagAdressenParameters = createBevraagAdressenParameters()
             every { adresApi.bevraagAdressen(bevraagAdressenParameters).getEmbedded() } returns null
 
-            When("listAdressen is called") {
+            `when`("listAdressen is called") {
                 val result = bagClientService.listAdressen(bevraagAdressenParameters)
 
-                Then("it should invoke the BAG adres API and should return an empty list") {
+                then("it should invoke the BAG adres API and should return an empty list") {
                     verify(exactly = 1) {
                         adresApi.bevraagAdressen(bevraagAdressenParameters)
                     }
@@ -187,7 +187,7 @@ class BagClientServiceTest : BehaviorSpec({
             }
         }
 
-        Given("Valid list address parameters but the BAG adres API return null embedded addresses") {
+        given("Valid list address parameters but the BAG adres API return null embedded addresses") {
             val bevraagAdressenParameters = createBevraagAdressenParameters()
             val adresIOHalCollectionEmbedded = createAdresIOHalCollectionEmbedded(
                 addressen = null
@@ -196,10 +196,10 @@ class BagClientServiceTest : BehaviorSpec({
                 adresApi.bevraagAdressen(bevraagAdressenParameters).getEmbedded()
             } returns adresIOHalCollectionEmbedded
 
-            When("listAdressen is called") {
+            `when`("listAdressen is called") {
                 val result = bagClientService.listAdressen(bevraagAdressenParameters)
 
-                Then("it should invoke the BAG adres API and return an empty list") {
+                then("it should invoke the BAG adres API and return an empty list") {
                     verify(exactly = 1) {
                         adresApi.bevraagAdressen(bevraagAdressenParameters)
                     }

@@ -35,7 +35,7 @@ class NoteRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Existing notes a logged in user with permission to read notes") {
+    given("Existing notes a logged in user with permission to read notes") {
         val zaakUUID = UUID.randomUUID()
         val notes = listOf(createNote(), createNote())
         val restNotes = listOf(createRestNote(), createRestNote())
@@ -46,16 +46,16 @@ class NoteRestServiceTest : BehaviorSpec({
             every { noteConverter.toRestNote(note) } returns restNotes[index]
         }
 
-        When("listNotes is called") {
+        `when`("listNotes is called") {
             val result = noteRestService.listNotes(zaakUUID)
 
-            Then("it should return a list of RestNotes") {
+            then("it should return a list of RestNotes") {
                 result shouldBe restNotes
             }
         }
     }
 
-    Given("New note input data and a user with permissions to create notes") {
+    given("New note input data and a user with permissions to create notes") {
         val restNote = createRestNote()
         val createdNote = createNote()
         val createdRestNote = createRestNote()
@@ -63,10 +63,10 @@ class NoteRestServiceTest : BehaviorSpec({
         every { noteService.createNote(any()) } returns createdNote
         every { noteConverter.toRestNote(createdNote) } returns createdRestNote
 
-        When("createNote is called") {
+        `when`("createNote is called") {
             val result = noteRestService.createNote(restNote)
 
-            Then("it should return the created RestNote") {
+            then("it should return the created RestNote") {
                 result shouldBe createdRestNote
                 verify(exactly = 1) {
                     noteService.createNote(any())
@@ -75,7 +75,7 @@ class NoteRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An existing note and note update data and a user with permissions to update notes") {
+    given("An existing note and note update data and a user with permissions to update notes") {
         val restNote = createRestNote()
         val updatedNote = createNote()
         val updatedRestNote = createRestNote()
@@ -84,10 +84,10 @@ class NoteRestServiceTest : BehaviorSpec({
         every { noteService.updateNote(any()) } returns updatedNote
         every { noteConverter.toRestNote(updatedNote) } returns updatedRestNote
 
-        When("updateNote is called") {
+        `when`("updateNote is called") {
             val result = noteRestService.updateNote(restNote)
 
-            Then("it should return the updated RestNote") {
+            then("it should return the updated RestNote") {
                 result shouldBe updatedRestNote
                 verify(exactly = 1) {
                     noteService.updateNote(any())
@@ -96,15 +96,15 @@ class NoteRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An existing note and a user with permissions to update notes") {
+    given("An existing note and a user with permissions to update notes") {
         val nodeId = 123L
         every { policyService.readNotitieRechten().wijzigen } returns true
         every { noteService.deleteNote(nodeId) } just Runs
 
-        When("deleteNote is called") {
+        `when`("deleteNote is called") {
             noteRestService.deleteNote(nodeId)
 
-            Then("the note is deleted") {
+            then("the note is deleted") {
                 verify(exactly = 1) {
                     noteService.deleteNote(nodeId)
                 }
@@ -112,40 +112,40 @@ class NoteRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A user who does not have permission to read notes") {
+    given("A user who does not have permission to read notes") {
         val zaakUUID = UUID.randomUUID()
         every { policyService.readNotitieRechten().lezen } returns false
 
-        When("listNotes is called") {
+        `when`("listNotes is called") {
             val exception = shouldThrow<PolicyException> {
                 noteRestService.listNotes(zaakUUID)
             }
-            Then("it should throw a PolicyException") {
+            then("it should throw a PolicyException") {
                 exception shouldNotBe null
             }
         }
     }
 
-    Given("A user who does not have permission to create notes") {
+    given("A user who does not have permission to create notes") {
         val restNote = createRestNote()
         every { policyService.readNotitieRechten().wijzigen } returns false
 
-        When("createNote is called") {
+        `when`("createNote is called") {
             val exception = shouldThrow<PolicyException> {
                 noteRestService.createNote(restNote)
             }
 
-            Then("it should throw a PolicyException") {
+            then("it should throw a PolicyException") {
                 exception shouldNotBe null
             }
         }
 
-        When("deleteNote is called") {
+        `when`("deleteNote is called") {
             val exception = shouldThrow<PolicyException> {
                 noteRestService.deleteNote(123L)
             }
 
-            Then("it should throw a PolicyException") {
+            then("it should throw a PolicyException") {
                 exception shouldNotBe null
             }
         }

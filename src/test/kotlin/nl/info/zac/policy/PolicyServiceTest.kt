@@ -71,8 +71,8 @@ class PolicyServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Reading zaakrechten") {
-        Given(
+    context("Reading zaakrechten") {
+        given(
             """
             A logged-in with functional roles, application roles per zaaktype mappings, 
             and a zaak
@@ -103,10 +103,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
 
-            When("policy rights are requested") {
+            `when`("policy rights are requested") {
                 val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
 
-                Then("the returned zaakrechten are correct") {
+                then("the returned zaakrechten are correct") {
                     zaakRechten shouldBe expectedZaakRechten
                 }
 
@@ -133,7 +133,7 @@ class PolicyServiceTest : BehaviorSpec({
             }
         }
 
-        Given("locked zaak that has intake status") {
+        given("locked zaak that has intake status") {
             val zaak = createZaak(
                 verlenging = createVerlenging(),
                 status = URI("https://example.com/status/${UUID.randomUUID()}"),
@@ -149,10 +149,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
 
-            When("policy rights are requested") {
+            `when`("policy rights are requested") {
                 val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
 
-                Then("correct ZaakData is sent to OPA") {
+                then("correct ZaakData is sent to OPA") {
                     zaakRechten shouldBe expectedZaakRechten
                     verify(exactly = 1) {
                         opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
@@ -170,7 +170,7 @@ class PolicyServiceTest : BehaviorSpec({
             }
         }
 
-        Given("zaak with status that was reopened") {
+        given("zaak with status that was reopened") {
             val zaak = createZaak(
                 verlenging = createVerlenging(),
                 status = URI("https://example.com/${UUID.randomUUID()}")
@@ -186,10 +186,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
 
-            When("policy rights are requested") {
+            `when`("policy rights are requested") {
                 val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
 
-                Then("correct ZaakData is sent to OPA") {
+                then("correct ZaakData is sent to OPA") {
                     zaakRechten shouldBe expectedZaakRechten
                     verify(exactly = 1) {
                         opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
@@ -208,8 +208,8 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading zaakrechten for searching zaken") {
-        Given("A ZaakZoekObject") {
+    context("Reading zaakrechten for searching zaken") {
+        given("A ZaakZoekObject") {
             val zaakZoekObject = createZaakZoekObject().apply {
                 this.setIndicatie(ZaakIndicatie.OPSCHORTING, true)
                 this.setIndicatie(ZaakIndicatie.VERLENGD, true)
@@ -220,10 +220,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
             every { loggedInUserInstance.get() } returns createLoggedInUser()
 
-            When("policy rights are requested") {
+            `when`("policy rights are requested") {
                 val zaakRechten = policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
 
-                Then("correct ZaakData is sent to OPA") {
+                then("correct ZaakData is sent to OPA") {
                     zaakRechten shouldBe expectedZaakRechten
                     verify(exactly = 1) {
                         opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
@@ -243,8 +243,8 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading taakrechten") {
-        Given(
+    context("Reading taakrechten") {
+        given(
             """
             An open CMMN task as part of a zaak and a logged in user with application roles for the zaaktype of the zaak            
             """
@@ -267,10 +267,10 @@ class PolicyServiceTest : BehaviorSpec({
             )
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("task policy rights are requested for the task") {
+            `when`("task policy rights are requested for the task") {
                 val taskPermissions = policyService.readTaakRechten(testTask)
 
-                Then("the response contains the expected taakrechten") {
+                then("the response contains the expected taakrechten") {
                     taskPermissions shouldBe expectedTaakRechten
                 }
                 And("the correct data is sent to the OPA evaluation client") {
@@ -291,8 +291,8 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading taakrechten for searching tasks") {
-        Given(
+    context("Reading taakrechten for searching tasks") {
+        given(
             """
             An open CMMN task as part of a zaak and a logged in user with application roles for the zaaktype of the zaak           
             """
@@ -315,10 +315,10 @@ class PolicyServiceTest : BehaviorSpec({
             )
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("task policy rights are requested for the task search object") {
+            `when`("task policy rights are requested for the task search object") {
                 val taskPermissions = policyService.readTaakRechten(taakZoekObject)
 
-                Then("the response contains the expected taakrechten") {
+                then("the response contains the expected taakrechten") {
                     taskPermissions shouldBe expectedTaakRechten
                 }
                 And("the correct data is sent to the OPA evaluation client") {
@@ -340,8 +340,8 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading werklijstrechten") {
-        Given("A logged-in user with functional roles, roles mappings") {
+    context("Reading werklijstrechten") {
+        given("A logged-in user with functional roles, roles mappings") {
             val expectedWerklijstRechten = createWerklijstRechten()
             val ruleQuerySlot = slot<RuleQuery<UserInput>>()
             val zaaktype1Omschrijving = "fakeZaaktype1"
@@ -360,10 +360,10 @@ class PolicyServiceTest : BehaviorSpec({
             } returns RuleResponse(expectedWerklijstRechten)
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the werklijst rechten are requested") {
+            `when`("the werklijst rechten are requested") {
                 val werklijstRechten = policyService.readWerklijstRechten()
 
-                Then("the evaluation client is called with the correct arguments") {
+                then("the evaluation client is called with the correct arguments") {
                     werklijstRechten shouldBe expectedWerklijstRechten
                     verify(exactly = 1) {
                         opaEvaluationClient.readWerklijstRechten(any<RuleQuery<UserInput>>())
@@ -381,8 +381,8 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading documentrechten") {
-        Given("An unsigned information object") {
+    context("Reading documentrechten") {
+        given("An unsigned information object") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val userApplicationRolesForZaakType = setOf("fakeApplicationRole1", "fakeApplicationRole2")
@@ -402,14 +402,14 @@ class PolicyServiceTest : BehaviorSpec({
             )
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("document policy rights are requested") {
+            `when`("document policy rights are requested") {
                 val documentRights = policyService.readDocumentRechten(
                     enkelvoudigInformatieobject,
                     enkelvoudigInformatieObjectLock,
                     zaak
                 )
 
-                Then("the correct data is sent to OPA") {
+                then("the correct data is sent to OPA") {
                     documentRights shouldBe expectedDocumentRights
 
                     verify(exactly = 1) {
@@ -432,7 +432,7 @@ class PolicyServiceTest : BehaviorSpec({
             }
         }
 
-        Given("signed and locked information object") {
+        given("signed and locked information object") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val userApplicationRolesForZaakType = setOf("fakeApplicationRole1")
@@ -457,14 +457,14 @@ class PolicyServiceTest : BehaviorSpec({
             } returns RuleResponse(expectedDocumentRights)
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("document policy rights are requested") {
+            `when`("document policy rights are requested") {
                 val documentRights = policyService.readDocumentRechten(
                     enkelvoudigInformatieobject,
                     enkelvoudigInformatieObjectLock,
                     zaak
                 )
 
-                Then("the correct data is sent to OPA") {
+                then("the correct data is sent to OPA") {
                     documentRights shouldBe expectedDocumentRights
 
                     verify(exactly = 1) {
@@ -488,10 +488,10 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading overige rechten") {
+    context("Reading overige rechten") {
         val functionalRoles = setOf("fakeRole1", "fakeRole2")
 
-        Given("A logged-in user with application roles per zaaktype") {
+        given("A logged-in user with application roles per zaaktype") {
             val zaaktype = "test-zaaktype"
             val pabcRolesForZaakType = setOf("applicationRole1", "applicationRole2")
             val loggedInUserWithMappings = LoggedInUser(
@@ -510,10 +510,10 @@ class PolicyServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns loggedInUserWithMappings
             every { opaEvaluationClient.readOverigeRechten(capture(rqSlot)) } returns RuleResponse(expected)
 
-            When("calling readOverigeRechten with a zaaktype") {
+            `when`("calling readOverigeRechten with a zaaktype") {
                 val actual = policyService.readOverigeRechten(zaaktype)
 
-                Then("OPA receives rollen from PABC for that zaaktype and zaaktypen contains only that zaaktype") {
+                then("OPA receives rollen from PABC for that zaaktype and zaaktypen contains only that zaaktype") {
                     actual shouldBe expected
 
                     verify(exactly = 1) { opaEvaluationClient.readOverigeRechten(any()) }

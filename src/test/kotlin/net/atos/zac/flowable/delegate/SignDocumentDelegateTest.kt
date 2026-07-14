@@ -55,7 +55,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a BPMN service task for signing documents") {
+    given("a BPMN service task for signing documents") {
         mockkObject(FlowableHelper)
         mockkStatic(CDI::class)
 
@@ -84,7 +84,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
         val documentenKeyExpression = mockk<Expression>()
         every { documentenKeyExpression.getValue(delegateExecution) } returns documentenKeyPrefix
 
-        When("a single unsigned document is found") {
+        `when`("a single unsigned document is found") {
             clearMocks(enkelvoudigInformatieObjectUpdateService, answers = false)
 
             val document = createEnkelvoudigInformatieObject(uuid = documentUuid, ondertekening = null)
@@ -97,7 +97,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
             SignDocumentDelegate().apply { documentenKey = documentenKeyExpression }
                 .execute(delegateExecution)
 
-            Then("the document is signed") {
+            then("the document is signed") {
                 verify(exactly = 1) { documentenKeyExpression.getValue(delegateExecution) }
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(documentUuid)
@@ -105,7 +105,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
             }
         }
 
-        When("the document is already signed") {
+        `when`("the document is already signed") {
             clearMocks(enkelvoudigInformatieObjectUpdateService, documentenKeyExpression, answers = false)
 
             val signedDocument = createEnkelvoudigInformatieObject(
@@ -123,7 +123,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
             SignDocumentDelegate().apply { documentenKey = documentenKeyExpression }
                 .execute(delegateExecution)
 
-            Then("the document is not signed again") {
+            then("the document is not signed again") {
                 verify(exactly = 1) { documentenKeyExpression.getValue(delegateExecution) }
                 verify(exactly = 0) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(any())
@@ -131,7 +131,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
             }
         }
 
-        When("no documents match the key prefix") {
+        `when`("no documents match the key prefix") {
             clearMocks(enkelvoudigInformatieObjectUpdateService, documentenKeyExpression, answers = false)
 
             every { zaakVariabelenService.readZaakdata(zaakUuid) } returns mapOf(
@@ -141,7 +141,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
             SignDocumentDelegate().apply { documentenKey = documentenKeyExpression }
                 .execute(delegateExecution)
 
-            Then("no documents are signed") {
+            then("no documents are signed") {
                 verify(exactly = 1) { documentenKeyExpression.getValue(delegateExecution) }
                 verify(exactly = 0) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(any())
@@ -149,7 +149,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
             }
         }
 
-        When("no documentenKey is configured") {
+        `when`("no documentenKey is configured") {
             clearMocks(enkelvoudigInformatieObjectUpdateService, answers = false)
 
             val defaultKey = "ZAAK_Documenten_Ondertekenen_Selectie"
@@ -162,14 +162,14 @@ class SignDocumentDelegateTest : BehaviorSpec({
 
             SignDocumentDelegate().execute(delegateExecution)
 
-            Then("the default key is used and the document is signed") {
+            then("the default key is used and the document is signed") {
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(documentUuid)
                 }
             }
         }
 
-        When("multiple documents are found across numbered keys") {
+        `when`("multiple documents are found across numbered keys") {
             clearMocks(enkelvoudigInformatieObjectUpdateService, documentenKeyExpression, answers = false)
 
             val documentUuid2 = UUID.randomUUID()
@@ -187,7 +187,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
             SignDocumentDelegate().apply { documentenKey = documentenKeyExpression }
                 .execute(delegateExecution)
 
-            Then("all documents are signed") {
+            then("all documents are signed") {
                 verify(exactly = 1) { documentenKeyExpression.getValue(delegateExecution) }
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(documentUuid)
@@ -198,7 +198,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
             }
         }
 
-        When("policy denies signing a document") {
+        `when`("policy denies signing a document") {
             clearMocks(enkelvoudigInformatieObjectUpdateService, documentenKeyExpression, answers = false)
 
             val document = createEnkelvoudigInformatieObject(uuid = documentUuid, ondertekening = null)
@@ -214,7 +214,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
                     .execute(delegateExecution)
             }
 
-            Then("a PolicyException is thrown") {
+            then("a PolicyException is thrown") {
                 policyException shouldNotBe null
             }
 

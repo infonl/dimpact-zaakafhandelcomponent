@@ -16,13 +16,13 @@ class LocalDateConversionsTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a LocalDate") {
+    given("a LocalDate") {
         val localDate = LocalDate.of(2026, 7, 14)
 
-        When("convertToDateTime is called") {
+        `when`("convertToDateTime is called") {
             val zonedDateTime = localDate.convertToDateTime()
 
-            Then("the result is start-of-day in the system default time zone") {
+            then("the result is start-of-day in the system default time zone") {
                 zonedDateTime.toLocalDate() shouldBe localDate
                 zonedDateTime.toLocalTime() shouldBe LocalTime.MIDNIGHT
                 zonedDateTime.zone shouldBe ZoneId.systemDefault()

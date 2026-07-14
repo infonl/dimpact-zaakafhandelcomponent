@@ -27,13 +27,13 @@ class ZaaktypeBpmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given(
+    given(
         """
         ZAC Docker container is running and zaaktypeBpmnConfiguration has been created,
         and a beheerder is logged in
         """
     ) {
-        When("the create mapping endpoint is called with a correct payload for a BPMN zaaktype") {
+        `when`("the create mapping endpoint is called with a correct payload for a BPMN zaaktype") {
             val smartDocumentsZaakafhandelParametersUrl =
                 "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_BPMN_TEST_1_UUID/smartdocuments-templates-mapping"
             val storeResponse = itestHttpClient.performJSONPostRequest(
@@ -51,7 +51,7 @@ class ZaaktypeBpmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
                     testUser = BEHEERDER_1
                 )
 
-                Then("the data is fetched correctly") {
+                then("the data is fetched correctly") {
                     val fetchResponseBody = fetchResponse.bodyAsString
                     logger.info { "Response: $fetchResponseBody" }
 
@@ -61,7 +61,7 @@ class ZaaktypeBpmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             }
         }
 
-        When("the create mapping endpoint is called with an invalid payload for a BPMN zaaktype") {
+        `when`("the create mapping endpoint is called with an invalid payload for a BPMN zaaktype") {
             val smartDocumentsZaakafhandelParametersUrl =
                 "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_BPMN_TEST_1_UUID/smartdocuments-templates-mapping"
             val restTemplateGroups = """
@@ -99,7 +99,7 @@ class ZaaktypeBpmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
                 testUser = BEHEERDER_1
             )
 
-            Then("the request errors") {
+            then("the request errors") {
                 val storeResponseBody = storeResponse.bodyAsString
                 logger.info { "Response: $storeResponseBody" }
 

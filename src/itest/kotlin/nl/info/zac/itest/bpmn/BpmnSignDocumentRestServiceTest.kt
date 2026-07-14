@@ -42,7 +42,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
         interval = 500.milliseconds
     }
 
-    Given("A BPMN sign document zaak exists with an uploaded document") {
+    given("A BPMN sign document zaak exists with an uploaded document") {
         var zaakUuid: UUID
         var zaakIdentificatie: String
         lateinit var documentUuid: UUID
@@ -78,14 +78,14 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
             documentUuid = UUID.fromString(JSONObject(responseBody).getString("uuid"))
         }
 
-        When("the select documents form is submitted with the document UUID") {
+        `when`("the select documents form is submitted with the document UUID") {
             val takenPatchResponse = zacClient.submitFormData(
                 bpmnZaakUuid = zaakUuid,
                 taakData = """{ "ZAAK_Documenten_Ondertekenen_Selectie": ["$documentUuid"] }""",
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the select documents task is completed") {
+            then("the select documents task is completed") {
                 JSONObject(takenPatchResponse).getString("status") shouldBe "AFGEROND"
             }
 
@@ -112,14 +112,14 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the summary form is submitted") {
+        `when`("the summary form is submitted") {
             val takenPatchResponse = zacClient.submitFormData(
                 bpmnZaakUuid = zaakUuid,
                 taakData = """{ "ZAAK_Documenten_Ondertekenen_Selectie": ["$documentUuid"] }""",
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the summary task is completed") {
+            then("the summary task is completed") {
                 JSONObject(takenPatchResponse).getString("status") shouldBe "AFGEROND"
             }
 

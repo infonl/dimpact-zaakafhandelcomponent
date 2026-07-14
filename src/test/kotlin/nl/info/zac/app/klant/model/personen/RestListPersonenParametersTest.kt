@@ -15,17 +15,17 @@ import nl.info.client.brp.model.generated.ZoekMetStraatHuisnummerEnGemeenteVanIn
 import java.time.LocalDate
 
 class RestListPersonenParametersTest : BehaviorSpec({
-    Context("toPersonenQuery") {
-        Given("Parameters with BSN and gemeenteVanInschrijving") {
+    context("toPersonenQuery") {
+        given("Parameters with BSN and gemeenteVanInschrijving") {
             val parameters = RestListPersonenParameters(
                 bsn = "fakeBsn",
                 gemeenteVanInschrijving = "0344"
             )
 
-            When("toPersonenQuery is called") {
+            `when`("toPersonenQuery is called") {
                 val query = parameters.toPersonenQuery()
 
-                Then("it should return a RaadpleegMetBurgerservicenummer with all properties set") {
+                then("it should return a RaadpleegMetBurgerservicenummer with all properties set") {
                     query.shouldBeInstanceOf<RaadpleegMetBurgerservicenummer>()
                     query.burgerservicenummer shouldBe listOf("fakeBsn")
                     query.gemeenteVanInschrijving shouldBe "0344"
@@ -33,7 +33,7 @@ class RestListPersonenParametersTest : BehaviorSpec({
             }
         }
 
-        Given("Parameters with geslachtsnaam, geboortedatum, voornamen, voorvoegsel and gemeenteVanInschrijving") {
+        given("Parameters with geslachtsnaam, geboortedatum, voornamen, voorvoegsel and gemeenteVanInschrijving") {
             val parameters = RestListPersonenParameters(
                 geslachtsnaam = "fakeGeslachtsnaam",
                 geboortedatum = LocalDate.of(1990, 1, 1),
@@ -42,10 +42,10 @@ class RestListPersonenParametersTest : BehaviorSpec({
                 gemeenteVanInschrijving = "0599"
             )
 
-            When("toPersonenQuery is called") {
+            `when`("toPersonenQuery is called") {
                 val query = parameters.toPersonenQuery()
 
-                Then("it should return a ZoekMetGeslachtsnaamEnGeboortedatum with all properties set") {
+                then("it should return a ZoekMetGeslachtsnaamEnGeboortedatum with all properties set") {
                     query.shouldBeInstanceOf<ZoekMetGeslachtsnaamEnGeboortedatum>()
                     query.geslachtsnaam shouldBe "fakeGeslachtsnaam"
                     query.geboortedatum shouldBe LocalDate.of(1990, 1, 1)
@@ -57,7 +57,7 @@ class RestListPersonenParametersTest : BehaviorSpec({
             }
         }
 
-        Given("Parameters with geslachtsnaam, voornamen, voorvoegsel and gemeenteVanInschrijving") {
+        given("Parameters with geslachtsnaam, voornamen, voorvoegsel and gemeenteVanInschrijving") {
             val parameters = RestListPersonenParameters(
                 geslachtsnaam = "fakeGeslachtsnaam",
                 voornamen = "fakeVoornamen",
@@ -65,10 +65,10 @@ class RestListPersonenParametersTest : BehaviorSpec({
                 gemeenteVanInschrijving = "0363"
             )
 
-            When("toPersonenQuery is called") {
+            `when`("toPersonenQuery is called") {
                 val query = parameters.toPersonenQuery()
 
-                Then("it should return a ZoekMetNaamEnGemeenteVanInschrijving with all properties set") {
+                then("it should return a ZoekMetNaamEnGemeenteVanInschrijving with all properties set") {
                     query.shouldBeInstanceOf<ZoekMetNaamEnGemeenteVanInschrijving>()
                     query.geslachtsnaam shouldBe "fakeGeslachtsnaam"
                     query.voornamen shouldBe "fakeVoornamen"
@@ -79,17 +79,17 @@ class RestListPersonenParametersTest : BehaviorSpec({
             }
         }
 
-        Given("Parameters with postcode, huisnummer and gemeenteVanInschrijving") {
+        given("Parameters with postcode, huisnummer and gemeenteVanInschrijving") {
             val parameters = RestListPersonenParameters(
                 postcode = "1234AB",
                 huisnummer = 42,
                 gemeenteVanInschrijving = "0518"
             )
 
-            When("toPersonenQuery is called") {
+            `when`("toPersonenQuery is called") {
                 val query = parameters.toPersonenQuery()
 
-                Then("it should return a ZoekMetPostcodeEnHuisnummer with all properties set") {
+                then("it should return a ZoekMetPostcodeEnHuisnummer with all properties set") {
                     query.shouldBeInstanceOf<ZoekMetPostcodeEnHuisnummer>()
                     query.postcode shouldBe "1234AB"
                     query.huisnummer shouldBe 42
@@ -99,17 +99,17 @@ class RestListPersonenParametersTest : BehaviorSpec({
             }
         }
 
-        Given("Parameters with straat, huisnummer and gemeenteVanInschrijving") {
+        given("Parameters with straat, huisnummer and gemeenteVanInschrijving") {
             val parameters = RestListPersonenParameters(
                 straat = "fakeStraat",
                 huisnummer = 10,
                 gemeenteVanInschrijving = "0772"
             )
 
-            When("toPersonenQuery is called") {
+            `when`("toPersonenQuery is called") {
                 val query = parameters.toPersonenQuery()
 
-                Then(
+                then(
                     "it should return a ZoekMetStraatHuisnummerEnGemeenteVanInschrijving " +
                         "with all properties set"
                 ) {

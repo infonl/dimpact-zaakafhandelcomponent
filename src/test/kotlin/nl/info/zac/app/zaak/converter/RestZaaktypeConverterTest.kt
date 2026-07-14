@@ -31,7 +31,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         zaaktypeBpmnConfigurationBeheerService
     )
 
-    Given("CMMN zaaktype") {
+    given("CMMN zaaktype") {
         val zaaktype = createZaakType()
         val zaaktypeUuid = zaaktype.url.extractUuid()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
@@ -44,10 +44,10 @@ class RestZaaktypeConverterTest : BehaviorSpec({
             zaakafhandelParametersConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
         } returns restZaakafhandelParameters
 
-        When("converted to REST") {
+        `when`("converted to REST") {
             val restZaaktype = restZaaktypeConverter.convert(zaaktype)
 
-            Then("the created object is correct") {
+            then("the created object is correct") {
                 with(restZaaktype) {
                     uuid shouldBe zaaktypeUuid
                     identificatie shouldBe "fakeIdentificatie"
@@ -71,7 +71,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         }
     }
 
-    Given("BPMN zaaktype") {
+    given("BPMN zaaktype") {
         val zaaktype = createZaakType()
         val zaaktypeUuid = zaaktype.url.extractUuid()
         val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
@@ -83,10 +83,10 @@ class RestZaaktypeConverterTest : BehaviorSpec({
             zaakafhandelParametersConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration)
         } returns restZaakafhandelParameters
 
-        When("converted to REST") {
+        `when`("converted to REST") {
             val restZaaktype = restZaaktypeConverter.convert(zaaktype)
 
-            Then("the created object is correct") {
+            then("the created object is correct") {
                 with(restZaaktype) {
                     uuid shouldBe zaaktypeUuid
                     identificatie shouldBe "fakeIdentificatie"
