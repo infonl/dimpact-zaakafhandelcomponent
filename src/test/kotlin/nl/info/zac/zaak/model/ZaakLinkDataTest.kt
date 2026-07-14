@@ -1,15 +1,10 @@
-/*
- * SPDX-FileCopyrightText: 2026 INFO.nl
- * SPDX-License-Identifier: EUPL-1.2+
- */
-package nl.info.zac.zaak
+package nl.info.zac.zaak.model
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import nl.info.zac.zaak.model.createZaakLinkData
 import java.util.UUID
 
-class ZaakLinkServiceTest : BehaviorSpec({
+class ZaakLinkDataTest : BehaviorSpec({
 
     Context("canBeRelated") {
         Given("a source zaak with koppelen rights and a target zaak with lezen rights") {
@@ -17,7 +12,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val to = createZaakLinkData(lezen = true)
 
             When("canBeRelated is called") {
-                val result = canBeRelated(from, to)
+                val result = from.canBeRelatedTo(to)
 
                 Then("it should return true") {
                     result shouldBe true
@@ -30,7 +25,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val to = createZaakLinkData(lezen = true)
 
             When("canBeRelated is called") {
-                val result = canBeRelated(from, to)
+                val result = from.canBeRelatedTo(to)
 
                 Then("it should return false") {
                     result shouldBe false
@@ -43,7 +38,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val to = createZaakLinkData(lezen = false)
 
             When("canBeRelated is called") {
-                val result = canBeRelated(from, to)
+                val result = from.canBeRelatedTo(to)
 
                 Then("it should return false") {
                     result shouldBe false
@@ -60,7 +55,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID)
 
             When("canBeHoofdAndDeelzaak is called") {
-                val result = canBeHoofdAndDeelzaak(hoofdzaak, deelzaak, setOf(zaaktypeUUID))
+                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 Then("it should return true") {
                     result shouldBe true
@@ -73,7 +68,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID)
 
             When("canBeHoofdAndDeelzaak is called") {
-                val result = canBeHoofdAndDeelzaak(hoofdzaak, deelzaak, setOf(zaaktypeUUID))
+                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 Then("it should return false") {
                     result shouldBe false
@@ -86,7 +81,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID)
 
             When("canBeHoofdAndDeelzaak is called") {
-                val result = canBeHoofdAndDeelzaak(hoofdzaak, deelzaak, setOf(zaaktypeUUID))
+                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 Then("it should return false") {
                     result shouldBe false
@@ -99,7 +94,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID, koppelen = false)
 
             When("canBeHoofdAndDeelzaak is called") {
-                val result = canBeHoofdAndDeelzaak(hoofdzaak, deelzaak, setOf(zaaktypeUUID))
+                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 Then("it should return false") {
                     result shouldBe false
@@ -112,7 +107,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID, isHoofdzaak = true)
 
             When("canBeHoofdAndDeelzaak is called") {
-                val result = canBeHoofdAndDeelzaak(hoofdzaak, deelzaak, setOf(zaaktypeUUID))
+                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 Then("it should return false") {
                     result shouldBe false
@@ -125,7 +120,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID, isDeelzaak = true)
 
             When("canBeHoofdAndDeelzaak is called") {
-                val result = canBeHoofdAndDeelzaak(hoofdzaak, deelzaak, setOf(zaaktypeUUID))
+                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 Then("it should return false") {
                     result shouldBe false
@@ -138,7 +133,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(zaaktypeUUID = zaaktypeUUID, isOpen = false)
 
             When("canBeHoofdAndDeelzaak is called") {
-                val result = canBeHoofdAndDeelzaak(hoofdzaak, deelzaak, setOf(zaaktypeUUID))
+                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 Then("it should return false") {
                     result shouldBe false
@@ -151,7 +146,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val deelzaak = createZaakLinkData()
 
             When("canBeHoofdAndDeelzaak is called") {
-                val result = canBeHoofdAndDeelzaak(hoofdzaak, deelzaak, setOf(zaaktypeUUID))
+                val result = hoofdzaak.canBeHoofdzaakFor(deelzaak, setOf(zaaktypeUUID))
 
                 Then("it should return false") {
                     result shouldBe false
@@ -166,7 +161,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(koppelen = true)
 
             When("hoofdAndDeelzaakCanBeOntkoppeld is called") {
-                val result = hoofdAndDeelzaakCanBeOntkoppeld(hoofdzaak, deelzaak)
+                val result = hoofdzaak.canBeUnlinkedFromDeelzaak(deelzaak)
 
                 Then("it should return true") {
                     result shouldBe true
@@ -179,7 +174,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(koppelen = true)
 
             When("hoofdAndDeelzaakCanBeOntkoppeld is called") {
-                val result = hoofdAndDeelzaakCanBeOntkoppeld(hoofdzaak, deelzaak)
+                val result = hoofdzaak.canBeUnlinkedFromDeelzaak(deelzaak)
 
                 Then("it should return false") {
                     result shouldBe false
@@ -192,7 +187,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val deelzaak = createZaakLinkData(koppelen = false)
 
             When("hoofdAndDeelzaakCanBeOntkoppeld is called") {
-                val result = hoofdAndDeelzaakCanBeOntkoppeld(hoofdzaak, deelzaak)
+                val result = hoofdzaak.canBeUnlinkedFromDeelzaak(deelzaak)
 
                 Then("it should return false") {
                     result shouldBe false
@@ -207,7 +202,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val to = createZaakLinkData(lezen = true)
 
             When("relatedZakenCanBeOntkoppeld is called") {
-                val result = relatedZakenCanBeOntkoppeld(from, to)
+                val result = from.canBeUnlinkedFromRelatedZaak(to)
 
                 Then("it should return true") {
                     result shouldBe true
@@ -220,7 +215,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val to = createZaakLinkData(lezen = true)
 
             When("relatedZakenCanBeOntkoppeld is called") {
-                val result = relatedZakenCanBeOntkoppeld(from, to)
+                val result = from.canBeUnlinkedFromRelatedZaak(to)
 
                 Then("it should return false") {
                     result shouldBe false
@@ -233,7 +228,7 @@ class ZaakLinkServiceTest : BehaviorSpec({
             val to = createZaakLinkData(lezen = false)
 
             When("relatedZakenCanBeOntkoppeld is called") {
-                val result = relatedZakenCanBeOntkoppeld(from, to)
+                val result = from.canBeUnlinkedFromRelatedZaak(to)
 
                 Then("it should return false") {
                     result shouldBe false
