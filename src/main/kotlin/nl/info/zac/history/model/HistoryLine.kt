@@ -4,46 +4,81 @@
  */
 package nl.info.zac.history.model
 
-import net.atos.client.zgw.shared.util.HistorieUtil
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
+import org.apache.commons.lang3.BooleanUtils
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
-class HistoryLine(val attribuutLabel: String, val oudeWaarde: String?, val nieuweWaarde: String?) {
-    var datumTijd: ZonedDateTime? = null
-    var door: String? = null
-    var applicatie: String? = null
-    var toelichting: String? = null
-    var actie: HistoryAction? = null
+class HistoryLine(
+    @field:JsonbProperty("attribuutLabel") val attributeLabel: String,
+    @field:JsonbProperty("oudeWaarde") val oldValue: String?,
+    @field:JsonbProperty("nieuweWaarde") val newValue: String?
+) {
+    @field:JsonbProperty("datumTijd")
+    var zonedDateTime: ZonedDateTime? = null
 
-    constructor(attribuutLabel: String, oudeWaarde: LocalDate?, nieuweWaarde: LocalDate?) : this(
-        attribuutLabel,
-        HistorieUtil.toWaarde(oudeWaarde),
-        HistorieUtil.toWaarde(nieuweWaarde)
+    @field:JsonbProperty("door")
+    var by: String? = null
+
+    @field:JsonbProperty("applicatie")
+    var application: String? = null
+
+    @field:JsonbProperty("toelichting")
+    var explanation: String? = null
+
+    @field:JsonbProperty("actie")
+    var action: HistoryAction? = null
+
+    constructor(attributeLabel: String, oldValue: LocalDate?, newValue: LocalDate?) : this(
+        attributeLabel,
+        oldValue?.toValue(),
+        newValue?.toValue()
     )
 
-    constructor(attribuutLabel: String, oudeWaarde: ZonedDateTime?, nieuweWaarde: ZonedDateTime?) : this(
-        attribuutLabel,
-        HistorieUtil.toWaarde(oudeWaarde),
-        HistorieUtil.toWaarde(nieuweWaarde)
+    constructor(attributeLabel: String, oldValue: ZonedDateTime?, newValue: ZonedDateTime?) : this(
+        attributeLabel,
+        oldValue?.toValue(),
+        newValue?.toValue()
     )
 
-    constructor(attribuutLabel: String, oudeWaarde: Boolean?, nieuweWaarde: Boolean?) : this(
-        attribuutLabel,
-        HistorieUtil.toWaarde(oudeWaarde),
-        HistorieUtil.toWaarde(nieuweWaarde)
+    constructor(attributeLabel: String, oldValue: Boolean?, newValue: Boolean?) : this(
+        attributeLabel,
+        oldValue?.toValue(),
+        newValue?.toValue()
     )
 
     constructor(
-        attribuutLabel: String,
-        oudeWaarde: StatusEnum?,
-        nieuweWaarde: StatusEnum?
-    ) : this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde))
+        attributeLabel: String,
+        oldValue: StatusEnum?,
+        newValue: StatusEnum?
+    ) : this(attributeLabel, oldValue?.toValue(), newValue?.toValue())
 
     constructor(
-        attribuutLabel: String,
-        oudeWaarde: VertrouwelijkheidaanduidingEnum?,
-        nieuweWaarde: VertrouwelijkheidaanduidingEnum?
-    ) : this(attribuutLabel, HistorieUtil.toWaarde(oudeWaarde), HistorieUtil.toWaarde(nieuweWaarde))
+        attributeLabel: String,
+        oldValue: VertrouwelijkheidaanduidingEnum?,
+        newValue: VertrouwelijkheidaanduidingEnum?
+    ) : this(attributeLabel, oldValue?.toValue(), newValue?.toValue())
 }
+
+fun LocalDate.toValue(): String = DATE_FORMATTER.format(this)
+
+fun ZonedDateTime.toValue(): String = DATE_TIME_FORMATTER.format(this)
+
+fun StatusEnum.toValue(): String = toString()
+
+fun VertrouwelijkheidaanduidingEnum.toValue(): String = toString()
+
+fun Boolean.toValue(): String = BooleanUtils.toString(this, TRUE, FALSE)
+
+private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+
+private val DATE_TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
+    .withZone(ZoneId.systemDefault())
+
+private const val TRUE = "Ja"
+
+private const val FALSE = "Nee"

@@ -92,44 +92,44 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
             Then("it is converted correctly") {
                 history.size shouldBe 5
                 with(history[0]) {
-                    datumTijd shouldBe creationDate
-                    door shouldBe userName
-                    toelichting shouldBe description
-                    attribuutLabel shouldBe "startdatum"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "30-10-2024"
+                    zonedDateTime shouldBe creationDate
+                    by shouldBe userName
+                    explanation shouldBe description
+                    attributeLabel shouldBe "startdatum"
+                    oldValue shouldBe null
+                    newValue shouldBe "30-10-2024"
                 }
                 with(history[1]) {
-                    datumTijd shouldBe creationDate
-                    door shouldBe userName
-                    toelichting shouldBe description
-                    attribuutLabel shouldBe "uiterlijkeEinddatumAfdoening"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "30-11-2024"
+                    zonedDateTime shouldBe creationDate
+                    by shouldBe userName
+                    explanation shouldBe description
+                    attributeLabel shouldBe "uiterlijkeEinddatumAfdoening"
+                    oldValue shouldBe null
+                    newValue shouldBe "30-11-2024"
                 }
                 with(history[2]) {
-                    datumTijd shouldBe creationDate
-                    door shouldBe userName
-                    toelichting shouldBe description
-                    attribuutLabel shouldBe "einddatumGepland"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "30-12-2024"
+                    zonedDateTime shouldBe creationDate
+                    by shouldBe userName
+                    explanation shouldBe description
+                    attributeLabel shouldBe "einddatumGepland"
+                    oldValue shouldBe null
+                    newValue shouldBe "30-12-2024"
                 }
                 with(history[3]) {
-                    datumTijd shouldBe creationDate
-                    door shouldBe userName
-                    toelichting shouldBe description
-                    attribuutLabel shouldBe "zaakgeometrie"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "POINT(53.602182801494195 5.363728969647492)"
+                    zonedDateTime shouldBe creationDate
+                    by shouldBe userName
+                    explanation shouldBe description
+                    attributeLabel shouldBe "zaakgeometrie"
+                    oldValue shouldBe null
+                    newValue shouldBe "POINT(53.602182801494195 5.363728969647492)"
                 }
                 with(history[4]) {
-                    datumTijd shouldBe creationDate
-                    door shouldBe userName
-                    toelichting shouldBe description
-                    attribuutLabel shouldBe "fakeKey"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "fakeValue"
+                    zonedDateTime shouldBe creationDate
+                    by shouldBe userName
+                    explanation shouldBe description
+                    attributeLabel shouldBe "fakeKey"
+                    oldValue shouldBe null
+                    newValue shouldBe "fakeValue"
                 }
             }
         }
@@ -177,13 +177,13 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
             Then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "zaakgeometrie"
-                    oudeWaarde shouldBe "POINT(52.602182801494195 4.363728969647492)"
-                    nieuweWaarde shouldBe "POINT(53.602182801494195 5.363728969647492)"
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe "Test User"
-                    toelichting shouldBe "xyz"
-                    actie shouldBe HistoryAction.GEWIJZIGD
+                    attributeLabel shouldBe "zaakgeometrie"
+                    oldValue shouldBe "POINT(52.602182801494195 4.363728969647492)"
+                    newValue shouldBe "POINT(53.602182801494195 5.363728969647492)"
+                    zonedDateTime shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    by shouldBe "Test User"
+                    explanation shouldBe "xyz"
+                    action shouldBe HistoryAction.GEWIJZIGD
                 }
             }
         }
@@ -215,13 +215,13 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
             Then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "communicatiekanaal"
-                    oudeWaarde shouldBe "old"
-                    nieuweWaarde shouldBe "new"
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
-                    toelichting shouldBe "hologram"
-                    actie shouldBe HistoryAction.GEWIJZIGD
+                    attributeLabel shouldBe "communicatiekanaal"
+                    oldValue shouldBe "old"
+                    newValue shouldBe "new"
+                    zonedDateTime shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    by shouldBe zrcAuditTrailRegel.gebruikersWeergave
+                    explanation shouldBe "hologram"
+                    action shouldBe HistoryAction.GEWIJZIGD
                 }
             }
         }
@@ -368,16 +368,16 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 newValues
             )
 
-            Then("it should return null for oudeWaarde and the zaak identificatie for nieuweWaarde") {
+            Then("it should return null for oldValue and the zaak identificatie for newValue") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "gerelateerdeZaken"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe gerelateerdeZaak.identificatie
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
-                    toelichting shouldBe ""
-                    actie shouldBe HistoryAction.GEWIJZIGD
+                    attributeLabel shouldBe "gerelateerdeZaken"
+                    oldValue shouldBe null
+                    newValue shouldBe gerelateerdeZaak.identificatie
+                    zonedDateTime shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    by shouldBe zrcAuditTrailRegel.gebruikersWeergave
+                    explanation shouldBe ""
+                    action shouldBe HistoryAction.GEWIJZIGD
                 }
             }
         }
@@ -418,9 +418,9 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
             Then("it should return the zaak identificaties joined by a comma") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "gerelateerdeZaken"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "${gerelateerdeZaak1.identificatie}, ${gerelateerdeZaak2.identificatie}"
+                    attributeLabel shouldBe "gerelateerdeZaken"
+                    oldValue shouldBe null
+                    newValue shouldBe "${gerelateerdeZaak1.identificatie}, ${gerelateerdeZaak2.identificatie}"
                 }
             }
         }
@@ -459,8 +459,8 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
             Then("it should return the zaak identificatie only once") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "gerelateerdeZaken"
-                    nieuweWaarde shouldBe gerelateerdeZaak.identificatie
+                    attributeLabel shouldBe "gerelateerdeZaken"
+                    newValue shouldBe gerelateerdeZaak.identificatie
                 }
             }
         }
@@ -494,8 +494,8 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
             Then("it should fall back to the zaak url") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "gerelateerdeZaken"
-                    nieuweWaarde shouldBe gerelateerdeZaakUri.toString()
+                    attributeLabel shouldBe "gerelateerdeZaken"
+                    newValue shouldBe gerelateerdeZaakUri.toString()
                 }
             }
         }
@@ -535,11 +535,11 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
                 newValues
             )
 
-            Then("it should return null for nieuweWaarde") {
+            Then("it should return null for newValue") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "gerelateerdeZaken"
-                    nieuweWaarde shouldBe null
+                    attributeLabel shouldBe "gerelateerdeZaken"
+                    newValue shouldBe null
                 }
             }
         }
@@ -575,13 +575,13 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
             Then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "hoofdzaak"
-                    oudeWaarde shouldBe zaak1.identificatie
-                    nieuweWaarde shouldBe zaak2.identificatie
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe "Test User"
-                    toelichting shouldBe "xyz"
-                    actie shouldBe HistoryAction.GEWIJZIGD
+                    attributeLabel shouldBe "hoofdzaak"
+                    oldValue shouldBe zaak1.identificatie
+                    newValue shouldBe zaak2.identificatie
+                    zonedDateTime shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    by shouldBe "Test User"
+                    explanation shouldBe "xyz"
+                    action shouldBe HistoryAction.GEWIJZIGD
                 }
             }
         }

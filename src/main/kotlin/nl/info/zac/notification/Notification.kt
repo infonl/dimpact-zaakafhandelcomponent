@@ -7,7 +7,7 @@ package nl.info.zac.notification
 import jakarta.json.bind.annotation.JsonbDateFormat
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.json.bind.annotation.JsonbTransient
-import net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT_WITH_MILLISECONDS
+import nl.info.client.zgw.util.DATE_TIME_FORMAT_WITH_MILLISECONDS
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI

@@ -7,7 +7,7 @@ package nl.info.client.zgw.zrc.jsonb
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
-import net.atos.client.zgw.shared.util.JsonbUtil.JSONB
+import nl.info.client.zgw.util.JSONB
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolMedewerker
 import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon

@@ -60,14 +60,14 @@ class ZaakHistoryServiceTest : BehaviorSpec({
             Then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "zaak"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe zaakIdentificatie
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
-                    applicatie shouldBe null
-                    toelichting shouldBe "zaak created"
-                    actie shouldBe HistoryAction.AANGEMAAKT
+                    attributeLabel shouldBe "zaak"
+                    oldValue shouldBe null
+                    newValue shouldBe zaakIdentificatie
+                    zonedDateTime shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    by shouldBe zrcAuditTrailRegel.gebruikersWeergave
+                    application shouldBe null
+                    explanation shouldBe "zaak created"
+                    action shouldBe HistoryAction.AANGEMAAKT
                 }
             }
         }
@@ -113,14 +113,14 @@ class ZaakHistoryServiceTest : BehaviorSpec({
             Then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe rolType.omschrijving
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "fakeVoorletters fakeAchternaam"
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
-                    applicatie shouldBe null
-                    toelichting shouldBe "rol updated"
-                    actie shouldBe HistoryAction.GEWIJZIGD
+                    attributeLabel shouldBe rolType.omschrijving
+                    oldValue shouldBe null
+                    newValue shouldBe "fakeVoorletters fakeAchternaam"
+                    zonedDateTime shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    by shouldBe zrcAuditTrailRegel.gebruikersWeergave
+                    application shouldBe null
+                    explanation shouldBe "rol updated"
+                    action shouldBe HistoryAction.GEWIJZIGD
                 }
             }
         }
@@ -149,14 +149,14 @@ class ZaakHistoryServiceTest : BehaviorSpec({
             Then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "zaakinformatieobject"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "title"
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
-                    applicatie shouldBe null
-                    toelichting shouldBe "file dropped"
-                    actie shouldBe HistoryAction.ONTKOPPELD
+                    attributeLabel shouldBe "zaakinformatieobject"
+                    oldValue shouldBe null
+                    newValue shouldBe "title"
+                    zonedDateTime shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    by shouldBe zrcAuditTrailRegel.gebruikersWeergave
+                    application shouldBe null
+                    explanation shouldBe "file dropped"
+                    action shouldBe HistoryAction.ONTKOPPELD
                 }
             }
         }
@@ -185,14 +185,14 @@ class ZaakHistoryServiceTest : BehaviorSpec({
             Then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "klantcontact"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe zrcAuditTrailRegel.resourceWeergave
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
-                    applicatie shouldBe null
-                    toelichting shouldBe "n/a"
-                    actie shouldBe HistoryAction.GEKOPPELD
+                    attributeLabel shouldBe "klantcontact"
+                    oldValue shouldBe null
+                    newValue shouldBe zrcAuditTrailRegel.resourceWeergave
+                    zonedDateTime shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    by shouldBe zrcAuditTrailRegel.gebruikersWeergave
+                    application shouldBe null
+                    explanation shouldBe "n/a"
+                    action shouldBe HistoryAction.GEKOPPELD
                 }
             }
         }
@@ -224,14 +224,14 @@ class ZaakHistoryServiceTest : BehaviorSpec({
             Then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "resultaat"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "description"
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
-                    applicatie shouldBe null
-                    toelichting shouldBe "n/a"
-                    actie shouldBe HistoryAction.GEWIJZIGD
+                    attributeLabel shouldBe "resultaat"
+                    oldValue shouldBe null
+                    newValue shouldBe "description"
+                    zonedDateTime shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    by shouldBe zrcAuditTrailRegel.gebruikersWeergave
+                    application shouldBe null
+                    explanation shouldBe "n/a"
+                    action shouldBe HistoryAction.GEWIJZIGD
                 }
             }
         }
@@ -263,14 +263,14 @@ class ZaakHistoryServiceTest : BehaviorSpec({
             Then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "status"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "description"
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
-                    applicatie shouldBe null
-                    toelichting shouldBe "n/a"
-                    actie shouldBe HistoryAction.GEWIJZIGD
+                    attributeLabel shouldBe "status"
+                    oldValue shouldBe null
+                    newValue shouldBe "description"
+                    zonedDateTime shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    by shouldBe zrcAuditTrailRegel.gebruikersWeergave
+                    application shouldBe null
+                    explanation shouldBe "n/a"
+                    action shouldBe HistoryAction.GEWIJZIGD
                 }
             }
         }
@@ -310,14 +310,14 @@ class ZaakHistoryServiceTest : BehaviorSpec({
             Then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "objecttype.ADRES"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "identity"
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
-                    applicatie shouldBe null
-                    toelichting shouldBe "n/a"
-                    actie shouldBe HistoryAction.ONTKOPPELD
+                    attributeLabel shouldBe "objecttype.ADRES"
+                    oldValue shouldBe null
+                    newValue shouldBe "identity"
+                    zonedDateTime shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    by shouldBe zrcAuditTrailRegel.gebruikersWeergave
+                    application shouldBe null
+                    explanation shouldBe "n/a"
+                    action shouldBe HistoryAction.ONTKOPPELD
                 }
             }
         }
@@ -367,17 +367,17 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         When("converted to REST historie regel") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            Then("it should return correct data, with null values for oudeWaarde and nieuweWaarde") {
+            Then("it should return correct data, with null values for oldValue and newValue") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
-                    attribuutLabel shouldBe "some_unknown_value"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe null
-                    datumTijd shouldBe zrcAuditTrailRegel.aanmaakdatum
-                    door shouldBe zrcAuditTrailRegel.gebruikersWeergave
-                    applicatie shouldBe null
-                    toelichting shouldBe "hologram"
-                    actie shouldBe HistoryAction.GEWIJZIGD
+                    attributeLabel shouldBe "some_unknown_value"
+                    oldValue shouldBe null
+                    newValue shouldBe null
+                    zonedDateTime shouldBe zrcAuditTrailRegel.aanmaakdatum
+                    by shouldBe zrcAuditTrailRegel.gebruikersWeergave
+                    application shouldBe null
+                    explanation shouldBe "hologram"
+                    action shouldBe HistoryAction.GEWIJZIGD
                 }
             }
         }

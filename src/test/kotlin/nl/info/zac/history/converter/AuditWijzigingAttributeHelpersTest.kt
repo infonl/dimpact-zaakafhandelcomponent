@@ -24,7 +24,7 @@ class AuditWijzigingAttributeHelpersTest : BehaviorSpec({
 
                 Then("a HistoryLine is added") {
                     list.size shouldBe 1
-                    list[0].attribuutLabel shouldBe "fakeLabel"
+                    list[0].attributeLabel shouldBe "fakeLabel"
                 }
             }
         }

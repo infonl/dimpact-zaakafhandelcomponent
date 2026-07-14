@@ -79,22 +79,22 @@ class ZaakHistoryLineConverterTest : BehaviorSpec({
             Then("it should return a correct regel list") {
                 restHistorieRegel.size shouldBe 2
                 with(restHistorieRegel[1]) {
-                    actie shouldBe HistoryAction.GEKOPPELD
-                    attribuutLabel shouldBe "Besluit"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "fakeIdentificatie"
-                    door shouldBe "Test User"
-                    applicatie shouldBe "ZAC"
-                    toelichting shouldBe "description"
+                    action shouldBe HistoryAction.GEKOPPELD
+                    attributeLabel shouldBe "Besluit"
+                    oldValue shouldBe null
+                    newValue shouldBe "fakeIdentificatie"
+                    by shouldBe "Test User"
+                    application shouldBe "ZAC"
+                    explanation shouldBe "description"
                 }
                 with(restHistorieRegel[0]) {
-                    actie shouldBe HistoryAction.GEKOPPELD
-                    attribuutLabel shouldBe "informatieobject"
-                    oudeWaarde shouldBe null
-                    nieuweWaarde shouldBe "fakeIdentificatie"
-                    door shouldBe "Test User"
-                    applicatie shouldBe "ZAC"
-                    toelichting shouldBe "123"
+                    action shouldBe HistoryAction.GEKOPPELD
+                    attributeLabel shouldBe "informatieobject"
+                    oldValue shouldBe null
+                    newValue shouldBe "fakeIdentificatie"
+                    by shouldBe "Test User"
+                    application shouldBe "ZAC"
+                    explanation shouldBe "123"
                 }
             }
         }

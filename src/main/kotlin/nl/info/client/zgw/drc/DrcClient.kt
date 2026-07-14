@@ -21,7 +21,7 @@ import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
-import net.atos.client.zgw.shared.util.JsonbConfiguration
+import nl.info.client.zgw.util.JsonbConfiguration
 import nl.info.client.zgw.drc.exception.DrcRuntimeResponseExceptionMapper
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.ObjectInformatieobjectListParameters
