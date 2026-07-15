@@ -40,11 +40,14 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.Eigenschap
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
 import java.net.URI
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.UUID
 
+@Suppress("LargeClass")
 class ZgwApiServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
@@ -587,6 +590,109 @@ class ZgwApiServiceTest : BehaviorSpec({
                 And("the zaak is closed") {
                     verify(exactly = 1) {
                         zrcClientService.closeCase(zaak.uuid, any())
+                    }
+                }
+            }
+        }
+
+        given("a resultaattype with EIGENSCHAP afleidingswijze and no brondatum") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val resultaatTypeUUID = UUID.randomUUID()
+            val resultaatType = createResultaatType(
+                url = URI("https://example.com/resultaattypes/$resultaatTypeUUID"),
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP,
+                    datumkenmerk = "testDatumkenmerk"
+                )
+            )
+            val statusType = createStatusType(
+                uri = URI("https://example.com/statustypes/${UUID.randomUUID()}"),
+                isEindstatus = true
+            )
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
+
+            `when`("closeZaak is called without a brondatum") {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                    zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", null)
+                }
+
+                then("an InputValidationFailedException is thrown and the zaak is not closed") {
+                    inputValidationFailedException.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
+                    verify(exactly = 0) {
+                        zrcClientService.createEigenschap(any(), any())
+                        zrcClientService.updateZaakeigenschap(any(), any(), any())
+                        zrcClientService.closeCase(any(), any())
+                    }
+                }
+            }
+        }
+
+        given("a resultaattype with EIGENSCHAP afleidingswijze and a blank datumkenmerk") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val resultaatTypeUUID = UUID.randomUUID()
+            val resultaatType = createResultaatType(
+                url = URI("https://example.com/resultaattypes/$resultaatTypeUUID"),
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP,
+                    datumkenmerk = " "
+                )
+            )
+            val statusType = createStatusType(
+                uri = URI("https://example.com/statustypes/${UUID.randomUUID()}"),
+                isEindstatus = true
+            )
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
+
+            `when`("closeZaak is called with a brondatum") {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                    zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", LocalDate.of(2023, 12, 1))
+                }
+
+                then("an InputValidationFailedException is thrown and the zaak is not closed") {
+                    inputValidationFailedException.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
+                    verify(exactly = 0) {
+                        zrcClientService.createEigenschap(any(), any())
+                        zrcClientService.updateZaakeigenschap(any(), any(), any())
+                        zrcClientService.closeCase(any(), any())
+                    }
+                }
+            }
+        }
+
+        given("a resultaattype without a brondatumArchiefprocedure") {
+            val zaakType = createZaakType()
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val resultaatTypeUUID = UUID.randomUUID()
+            val resultaatType = createResultaatType(
+                url = URI("https://example.com/resultaattypes/$resultaatTypeUUID"),
+                brondatumArchiefprocedure = null
+            )
+            val statusType = createStatusType(
+                uri = URI("https://example.com/statustypes/${UUID.randomUUID()}"),
+                isEindstatus = true
+            )
+            val zaakAfsluitenResult = mockk<ZaakAfsluiten>()
+
+            every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
+            every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
+            every { zrcClientService.closeCase(zaak.uuid, any()) } returns zaakAfsluitenResult
+
+            `when`("closeZaak is called") {
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", null)
+
+                then("the zaak is closed without processing a brondatum procedure") {
+                    verify(exactly = 1) {
+                        zrcClientService.closeCase(zaak.uuid, any())
+                    }
+                    verify(exactly = 0) {
+                        zrcClientService.createEigenschap(any(), any())
+                        zrcClientService.updateZaakeigenschap(any(), any(), any())
                     }
                 }
             }

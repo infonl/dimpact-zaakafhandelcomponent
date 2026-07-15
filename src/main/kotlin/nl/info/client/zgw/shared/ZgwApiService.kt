@@ -150,16 +150,13 @@ class ZgwApiService @Inject constructor(
             this.resultaat = resultaat
             this.status = status
         }
-        processBrondatumProcedure(zaakAfsluiten, brondatum)
+        processBrondatumProcedure(zaakAfsluiten, resultaatType, brondatum)
         zrcClientService.closeCase(zaak.uuid, zaakAfsluiten)
     }
 
-    private fun processBrondatumProcedure(zaakAfsluiten: ZaakAfsluiten, brondatum: LocalDate?) {
+    private fun processBrondatumProcedure(zaakAfsluiten: ZaakAfsluiten, resultaatType: ResultaatType, brondatum: LocalDate?) {
         LOG.fine { "Processing brondatum procedure with brondatum: '$brondatum'" }
-        val resultaatTypeUUID = zaakAfsluiten.resultaat.resultaattype.extractUuid()
-        val resultaattype = ztcClientService.readResultaattype(resultaatTypeUUID)
-
-        val brondatumArchiefprocedure = resultaattype.brondatumArchiefprocedure
+        val brondatumArchiefprocedure = resultaatType.brondatumArchiefprocedure ?: return
 
         when (brondatumArchiefprocedure.afleidingswijze) {
             AfleidingswijzeEnum.EIGENSCHAP -> {
@@ -176,7 +173,7 @@ class ZgwApiService @Inject constructor(
                     zaakAfsluiten.zaak
                 )
             }
-            else -> null
+            else -> Unit
         }
     }
 

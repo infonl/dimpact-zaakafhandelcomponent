@@ -34,6 +34,7 @@ import nl.info.zac.app.planitems.model.RESTPlanItem
 import nl.info.zac.app.planitems.model.RESTProcessTaskData
 import nl.info.zac.app.planitems.model.RESTUserEventListenerData
 import nl.info.zac.app.planitems.model.UserEventListenerActie
+import nl.info.zac.app.shared.toBrondatumEigenschap
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
@@ -52,8 +53,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
-import java.time.ZonedDateTime
-import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
@@ -268,25 +267,13 @@ class PlanItemsRestService @Inject constructor(
                 zaak = zaak,
                 resultaatTypeUUID = resultaattypeUUID,
                 description = userEventListenerData.resultaatToelichting,
-                brondatum = parseBrondatumEigenschap(userEventListenerData.brondatumEigenschap)
+                brondatum = userEventListenerData.brondatumEigenschap?.let(String::toBrondatumEigenschap)
             )
         } ?: throw InputValidationFailedException(
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
             message = "Resultaattype UUID moet gevuld zijn bij het afhandelen van een zaak."
         )
     }
-
-    private fun parseBrondatumEigenschap(brondatumEigenschap: String?): LocalDate? =
-        brondatumEigenschap?.let {
-            try {
-                ZonedDateTime.parse(it).toLocalDate()
-            } catch (exception: DateTimeParseException) {
-                throw InputValidationFailedException(
-                    errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
-                    message = "Brondatum eigenschap '$it' kon niet worden geparsed als een datum."
-                )
-            }
-        }
 
     private fun calculateFatalDate(
         humanTaskData: RESTHumanTaskData,
