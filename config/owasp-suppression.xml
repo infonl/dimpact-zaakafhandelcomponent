@@ -99,7 +99,7 @@
             target URI/Host header pair used for these outbound requests is not attacker-controlled. The described
             bypass scenarios do not apply to an outbound-only HTTP client use case.
         ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/(jetty-client|jetty-http|jetty-io|jetty-util|jetty-alpn-client|jetty-alpn-java-client|http2-client|http2-common|http2-http-client-transport)@.*$</packageUrl>
         <vulnerabilityName>CVE-2025-11143</vulnerabilityName>
         <vulnerabilityName>CVE-2026-6790</vulnerabilityName>
     </suppress>
