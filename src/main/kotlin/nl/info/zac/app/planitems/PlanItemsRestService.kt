@@ -52,6 +52,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
@@ -251,13 +252,23 @@ class PlanItemsRestService @Inject constructor(
             zaak.zaaktype.extractUuid()
         )
         zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let { resultaattypeUUID ->
-            zgwApiService.closeZaak(zaak, resultaattypeUUID, userEventListenerData.resultaatToelichting)
+            zgwApiService.closeZaak(
+                zaak = zaak,
+                resultaatTypeUUID = resultaattypeUUID,
+                description = userEventListenerData.resultaatToelichting,
+                brondatum = null
+            )
         }
     }
 
     private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
         userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
-            zgwApiService.closeZaak(zaak, resultaattypeUUID, userEventListenerData.resultaatToelichting)
+            zgwApiService.closeZaak(
+                zaak = zaak,
+                resultaatTypeUUID = resultaattypeUUID,
+                description = userEventListenerData.resultaatToelichting,
+                brondatum = userEventListenerData.brondatumEigenschap?.let { ZonedDateTime.parse(it).toLocalDate() }
+            )
         } ?: throw InputValidationFailedException(
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
             message = "Resultaattype UUID moet gevuld zijn bij het afhandelen van een zaak."

@@ -183,7 +183,12 @@ class ZaakRestService @Inject constructor(
     ) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).behandelen)
-        zgwApiService.closeZaak(zaak, afsluitenGegevens.resultaattypeUuid, afsluitenGegevens.reden)
+        zgwApiService.closeZaak(
+            zaak = zaak,
+            resultaatTypeUUID = afsluitenGegevens.resultaattypeUuid,
+            description = afsluitenGegevens.reden,
+            brondatum = null
+        )
     }
 
     @Suppress("LongMethod")
@@ -906,7 +911,12 @@ class ZaakRestService @Inject constructor(
         resultaattypeUUID: UUID,
         zaakbeeindigRedenNaam: String
     ) {
-        zgwApiService.closeZaak(zaak, resultaattypeUUID, zaakbeeindigRedenNaam)
+        zgwApiService.closeZaak(
+            zaak = zaak,
+            resultaatTypeUUID = resultaattypeUUID,
+            description = zaakbeeindigRedenNaam,
+            brondatum = null
+        )
     }
 
     /**

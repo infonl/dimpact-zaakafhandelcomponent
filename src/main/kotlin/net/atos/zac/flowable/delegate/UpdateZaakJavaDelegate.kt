@@ -56,7 +56,7 @@ class UpdateZaakJavaDelegate : AbstractDelegate() {
                     zaak.zaaktype,
                     resultaattypeDescription
                 )
-                flowableHelper.zgwApiService.closeZaak(zaak, resultaattype.url.extractUuid(), TOELICHTING)
+                flowableHelper.zgwApiService.closeZaak(zaak, resultaattype.url.extractUuid(), TOELICHTING, null)
             } catch (zgwValidationErrorException: ZgwValidationErrorException) {
                 // rethrow as a FlowableException
                 // just to ensure that it is logged in [CommandContext] at log level INFO instead of ERROR

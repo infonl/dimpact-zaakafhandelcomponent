@@ -161,7 +161,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         } returns createZaakRechtenAllDeny(behandelen = true)
         every { fixedValueExpression.getValue(delegateExecution) } returns resultaattypeDescription
         every { zgwApiService.getResultaatType(zaak.zaaktype, resultaattypeDescription) } returns resultaatType
-        every { zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces") } just Runs
+        every { zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces", null) } just Runs
 
         When("the delegate is called") {
             updateZaakJavaDelegate.execute(delegateExecution)
@@ -174,7 +174,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
 
             And("the zaak was closed via the ZGW API") {
                 verify(exactly = 1) {
-                    zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces")
+                    zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces", null)
                 }
             }
         }
@@ -204,7 +204,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         } returns createZaakRechtenAllDeny(behandelen = true)
         every { fixedValueExpression.getValue(delegateExecution) } returns resultaattypeDescription
         every { zgwApiService.getResultaatType(zaak.zaaktype, resultaattypeDescription) } returns resultaatType
-        every { zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces") } throws
+        every { zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces", null) } throws
             ZgwValidationErrorException(createValidationZgwError())
 
         When("the delegate is called") {
@@ -247,7 +247,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
             And("no ZGW API calls are made") {
                 verify(exactly = 0) {
                     zgwApiService.createStatusForZaak(any(), any(), any())
-                    zgwApiService.closeZaak(any(), any(), any())
+                    zgwApiService.closeZaak(any(), any(), any(), any())
                 }
             }
         }

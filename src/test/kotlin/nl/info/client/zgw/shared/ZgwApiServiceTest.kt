@@ -365,7 +365,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
 
             When("closeZaak is called") {
-                zgwApiService.closeZaak(zaak, resultaatTypeUUID, toelichting)
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, toelichting, null)
 
                 Then("the zaak is closed with correct resultaat and status") {
                     verify(exactly = 1) {
@@ -407,7 +407,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult2
 
             When("closeZaak is called with null toelichting") {
-                zgwApiService.closeZaak(zaak, resultaatTypeUUID, null)
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, null, null)
 
                 Then("the zaak is closed with null toelichting") {
                     verify(exactly = 1) {
@@ -441,7 +441,7 @@ class ZgwApiServiceTest : BehaviorSpec({
 
             When("closeZaak is called") {
                 val exception = shouldThrow<StatusTypeNotFoundException> {
-                    zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
+                    zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", null)
                 }
 
                 Then("an exception should be thrown") {
@@ -473,6 +473,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { existingZaakEigenschap.naam } returns datumkenmerk
             val zaakAfsluitenSlot = slot<ZaakAfsluiten>()
             val zaakAfsluitenResult = mockk<ZaakAfsluiten>()
+            val brondatum = LocalDate.of(2023, 12, 1)
 
             every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
             every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
@@ -481,7 +482,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
 
             When("closeZaak is called") {
-                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", brondatum)
 
                 Then("it should update the existing zaakeigenschap") {
                     verify { zrcClientService.updateZaakeigenschap(zaak.uuid, existingZaakEigenschapUUID, any()) }
@@ -521,6 +522,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             val createdZaakEigenschap = mockk<ZaakEigenschap>()
             val zaakAfsluitenSlot = slot<ZaakAfsluiten>()
             val zaakAfsluitenResult = mockk<ZaakAfsluiten>()
+            val brondatum = LocalDate.of(2023, 12, 1)
 
             every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
             every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
@@ -530,14 +532,14 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
 
             When("closeZaak is called") {
-                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", brondatum)
 
                 Then("it should create a new zaakeigenschap") {
                     verify { zrcClientService.createEigenschap(zaak.uuid, any()) }
                     with(zaakEigenschapSlot.captured) {
                         this.eigenschap shouldBe eigenschap.url
                         this.zaak shouldBe zaak.url
-                        this.waarde shouldBe datumkenmerk
+                        this.waarde shouldBe "20231201"
                     }
                 }
 
@@ -575,7 +577,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
 
             When("closeZaak is called") {
-                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", null)
 
                 Then("it should not create or update any zaakeigenschap") {
                     verify(exactly = 0) { zrcClientService.createEigenschap(zaak.uuid, any()) }

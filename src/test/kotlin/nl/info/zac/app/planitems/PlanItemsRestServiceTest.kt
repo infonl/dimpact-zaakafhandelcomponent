@@ -56,6 +56,7 @@ import nl.info.zac.shared.helper.SuspensionZaakHelper
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Suppress("LargeClass")
@@ -546,7 +547,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 versturenEmail = true
             )
             every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
-            every { zgwApiService.closeZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
+            every { zgwApiService.closeZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null, null) } just runs
             every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
             every { mailService.sendMail(mailGegevens, any()) } returns ""
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -568,7 +569,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
             val resultaattypeUuid = UUID.randomUUID()
             val datumkenmerk = "testDatumkenmerk"
-            val brondatumEigenschap = "20231201"
+            val brondatumEigenschap = "2023-12-01T00:00:00.000+01:00"
             val brondatumArchiefprocedure = BrondatumArchiefprocedure().apply {
                 afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
             }
@@ -585,7 +586,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
-            every { zgwApiService.closeZaak(zaak, resultaattypeUuid, null) } just runs
+            every {
+                zgwApiService.closeZaak(zaak, resultaattypeUuid, null, ZonedDateTime.parse(brondatumEigenschap).toLocalDate())
+            } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             When("the user event listener plan item is processed") {
@@ -593,7 +596,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 Then("the zaak is closed") {
                     verify(exactly = 1) {
-                        zgwApiService.closeZaak(zaak, resultaattypeUuid, null)
+                        zgwApiService.closeZaak(zaak, resultaattypeUuid, null, ZonedDateTime.parse(brondatumEigenschap).toLocalDate())
                     }
                 }
             }
@@ -612,7 +615,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
-            every { zgwApiService.closeZaak(zaak, resultaattypeUuid, null) } just runs
+            every { zgwApiService.closeZaak(zaak, resultaattypeUuid, null, null) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             When("doUserEventListenerPlanItem is called to close the zaak") {
@@ -620,7 +623,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 Then("closeZaak should be called to close the zaak") {
                     verify(exactly = 1) {
-                        zgwApiService.closeZaak(zaak, resultaattypeUuid, null)
+                        zgwApiService.closeZaak(zaak, resultaattypeUuid, null, null)
                     }
                 }
             }
@@ -642,7 +645,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
-            every { zgwApiService.closeZaak(zaak, resultaattypeUuid, resultaatToelichting) } just runs
+            every { zgwApiService.closeZaak(zaak, resultaattypeUuid, resultaatToelichting, null) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             When("doUserEventListenerPlanItem is called to handle zaak afhandelen") {
@@ -650,7 +653,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 Then("closeZaak should be called with the correct resultaattypeUuid and toelichting") {
                     verify(exactly = 1) {
-                        zgwApiService.closeZaak(zaak, resultaattypeUuid, resultaatToelichting)
+                        zgwApiService.closeZaak(zaak, resultaattypeUuid, resultaatToelichting, null)
                     }
                 }
             }
@@ -683,7 +686,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 And("closeZaak should not be called") {
                     verify(exactly = 0) {
-                        zgwApiService.closeZaak(any(), any(), any())
+                        zgwApiService.closeZaak(any(), any(), any(), any())
                     }
                 }
             }
@@ -716,7 +719,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             } returns intakeAfrondenZaaktypeCmmnConfiguration
             every { zaakVariabelenService.setOntvankelijk(planItemInstance, false) } just runs
             every {
-                zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, resultaatToelichting)
+                zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, resultaatToelichting, null)
             } just runs
             every { cmmnService.startUserEventListenerPlanItem(planItemInstanceId) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -726,7 +729,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 Then("closeZaak should be called with niet ontvankelijk resultaattype") {
                     verify(exactly = 1) {
-                        zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, resultaatToelichting)
+                        zgwApiService.closeZaak(zaak, nietOntvankelijkResultaattypeUuid, resultaatToelichting, null)
                     }
                 }
 
@@ -762,7 +765,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 Then("closeZaak should not be called") {
                     verify(exactly = 0) {
-                        zgwApiService.closeZaak(any(), any(), any())
+                        zgwApiService.closeZaak(any(), any(), any(), any())
                     }
                 }
 
@@ -808,7 +811,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 Then("closeZaak should not be called") {
                     verify(exactly = 0) {
-                        zgwApiService.closeZaak(any(), any(), any())
+                        zgwApiService.closeZaak(any(), any(), any(), any())
                     }
                 }
             }
