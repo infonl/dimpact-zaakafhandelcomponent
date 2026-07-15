@@ -215,8 +215,11 @@ class ZaakKoppelenRestService @Inject constructor(
     ) = ZoekParameters(ZoekObjectType.ZAAK).apply {
         start = request.page * request.rows
         rows = request.rows
-        addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, request.zoekZaakIdentifier.trim())
         addFilter(FilterVeld.ZAAK_IDENTIFICATIE, FilterParameters(listOf(zaak.identificatie), true))
+        if(!request.zoekZaakIdentifier.isNullOrBlank())
+            addZoekVeld(ZoekVeld.ZAAK_IDENTIFICATIE, request.zoekZaakIdentifier?.trim().orEmpty())
+        if(!request.zoekZaakOmschrijving.isNullOrBlank())
+            addZoekVeld(ZoekVeld.ZAAK_OMSCHRIJVING, request.zoekZaakOmschrijving?.trim().orEmpty())
     }
 
     private fun filterSearchResults(

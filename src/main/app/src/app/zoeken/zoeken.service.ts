@@ -31,18 +31,25 @@ export class ZoekenService {
     });
   }
 
-  findLinkableZaken(
-    zaakUuid: string,
-    zoekZaakIdentifier: string,
-    relationType: GeneratedType<"RelatieType">,
-  ) {
+  findLinkableZaken({
+    zaakUuid,
+    zoekZaakIdentifier,
+    zoekZaakOmschrijving,
+    relationType,
+  }: {
+    zaakUuid: string;
+    zoekZaakIdentifier: string | null | undefined;
+    zoekZaakOmschrijving: string | null | undefined;
+    relationType: GeneratedType<"RelatieType">;
+  }) {
     return this.zacHttpClient.GET(
       "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken",
       {
         path: { zaakUuid },
         query: {
-          zoekZaakIdentifier: zoekZaakIdentifier,
-          relationType: relationType,
+          zoekZaakIdentifier,
+          relationType,
+          zoekZaakOmschrijving,
           page: 0,
           rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
         },

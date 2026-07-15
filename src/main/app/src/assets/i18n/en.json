@@ -721,6 +721,7 @@
   "actie.zoeken.persoon": "Search person",
   "actie.zoeken.bedrijf": "Search company",
   "actie.zoeken.zac": "Search cases, tasks and documents",
+  "actie.zoeken.zaak": "Search case",
   "actie.zoeken.bagObject": "Search BAG object",
   "actie.zoekopdracht.wissen": "Clear the filter",
   "actie.zoekopdracht.verwijderen": "Delete this saved search query",

@@ -106,29 +106,31 @@ export class ZaakLinkComponent implements OnDestroy {
     caseRelationType: new FormControl<
       (typeof this.caseRelationOptionsList)[number] | null
     >(null, [Validators.required]),
-    caseToSearchFor: new FormControl<string>("", [
-      Validators.required,
+    caseNumberToSearchFor: new FormControl<string>("", [
+      Validators.minLength(2),
+    ]),
+    caseDescriptionToSearchFor: new FormControl<string>("", [
       Validators.minLength(2),
     ]),
   });
 
   constructor() {
-    this.form.controls.caseToSearchFor.disable();
+    this.form.controls.caseNumberToSearchFor.disable();
 
     this.form.controls.caseRelationType.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe(() => {
-        this.form.controls.caseToSearchFor.reset();
-        this.form.controls.caseToSearchFor.enable();
+        this.form.controls.caseNumberToSearchFor.reset();
+        this.form.controls.caseNumberToSearchFor.enable();
         this.clearSearchResult();
       });
 
-    this.form.controls.caseToSearchFor.valueChanges
+    this.form.controls.caseNumberToSearchFor.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe(() => {
         if (
           this.cases.data?.length > 0 &&
-          this.form.controls.caseToSearchFor.value === null
+          this.form.controls.caseNumberToSearchFor.value === null
         )
           this.clearSearchResult();
       });
@@ -139,11 +141,13 @@ export class ZaakLinkComponent implements OnDestroy {
     this.utilService.setLoading(true);
 
     this.zoekenService
-      .findLinkableZaken(
-        this.zaak.uuid,
-        this.form.controls.caseToSearchFor.value!,
-        this.form.controls.caseRelationType.value!.value!,
-      )
+      .findLinkableZaken({
+        zaakUuid: this.zaak.uuid,
+        zoekZaakIdentifier: this.form.controls.caseNumberToSearchFor.value,
+        zoekZaakOmschrijving:
+          this.form.controls.caseDescriptionToSearchFor.value,
+        relationType: this.form.controls.caseRelationType.value!.value!,
+      })
       .subscribe({
         next: (result) => {
           this.cases.data = result.resultaten ?? [];

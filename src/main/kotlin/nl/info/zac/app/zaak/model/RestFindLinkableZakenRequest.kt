@@ -20,12 +20,14 @@ class RestFindLinkableZakenRequest {
     lateinit var zaakUuid: UUID
 
     @QueryParam("zoekZaakIdentifier")
-    @field:NotBlank
-    lateinit var zoekZaakIdentifier: String
+    var zoekZaakIdentifier: String? = null
 
     @QueryParam("relationType")
     @field:NotNull
     lateinit var relationType: RelatieType
+
+    @QueryParam(value = "zoekZaakOmschrijving")
+    var zoekZaakOmschrijving: String? = null
 
     @QueryParam("page") @DefaultValue("0")
     @field:PositiveOrZero
