@@ -1501,10 +1501,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
             val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
             val formulierBron = createBron()
-            val groupName = "fakeGroup"
+            val groupName = "fakeGroupID"
             val group = createGroup(
                 id = groupName,
-                name = "Fake Group",
+                name = "fakeGroupName",
             )
             val behandelaarRolType = createRolType(
                 zaakTypeUri = zaakType.url,
@@ -1533,7 +1533,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
             val bpmnConfiguration = createZaaktypeBpmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
-                groupId = groupName,
+                groupId = group.name,
                 bpmnProcessDefinitionKey = "fakeBpmnProcessKey"
             )
             val zaakDataSlot = slot<Map<String, Any>>()
