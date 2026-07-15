@@ -1800,7 +1800,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             )
             val bpmnConfiguration = createZaaktypeBpmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
-                groupId = groupName,
+                groupId = group.name,
                 bpmnProcessDefinitionKey = "fakeBpmnProcessKey"
             )
             val formulierBron = createBron()
