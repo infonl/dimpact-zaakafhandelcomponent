@@ -16,7 +16,7 @@
             The actual application runtime and compile classpaths already resolve jackson-databind to the fixed
             2.22.1 version via the jackson-bom pin in gradle/libs.versions.toml.
         ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@2\.21\.1$</packageUrl>
         <vulnerabilityName>CVE-2026-54513</vulnerabilityName>
     </suppress>
     <suppress>
