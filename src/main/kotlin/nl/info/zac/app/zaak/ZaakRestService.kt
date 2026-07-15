@@ -90,6 +90,8 @@ import nl.info.zac.app.zaak.model.toZaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
+import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.history.ZaakHistoryService
@@ -110,6 +112,8 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import java.time.LocalDate
+import java.time.ZonedDateTime
+import java.time.format.DateTimeParseException
 import java.util.UUID
 
 @Path("zaken")
@@ -187,9 +191,21 @@ class ZaakRestService @Inject constructor(
             zaak = zaak,
             resultaatTypeUUID = afsluitenGegevens.resultaattypeUuid,
             description = afsluitenGegevens.reden,
-            brondatum = null
+            brondatum = parseBrondatumEigenschap(afsluitenGegevens.brondatumEigenschap)
         )
     }
+
+    private fun parseBrondatumEigenschap(brondatumEigenschap: String?): LocalDate? =
+        brondatumEigenschap?.let {
+            try {
+                ZonedDateTime.parse(it).toLocalDate()
+            } catch (exception: DateTimeParseException) {
+                throw InputValidationFailedException(
+                    errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+                    message = "Brondatum eigenschap '$it' kon niet worden geparsed als een datum."
+                )
+            }
+        }
 
     @Suppress("LongMethod")
     @POST

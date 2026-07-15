@@ -602,6 +602,37 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             }
         }
 
+        given("Zaak exists with an unparsable brondatumEigenschap") {
+            val zaak = createZaak(resultaat = null)
+            val resultaattypeUuid = UUID.randomUUID()
+            val loggedInUser = createLoggedInUser()
+
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+                restMailGegevens = null,
+                resultaattypeUuid = resultaattypeUuid,
+                brondatumEigenschap = "not-a-date"
+            )
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("the user event listener plan item is processed") {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                    planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+                }
+
+                then("an InputValidationFailedException is thrown and the zaak is not closed") {
+                    inputValidationFailedException.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
+                    verify(exactly = 0) {
+                        zgwApiService.closeZaak(any(), any(), any(), any())
+                    }
+                }
+            }
+        }
+
         given("Zaak without resultaat, when the zaak is closed") {
             val zaak = createZaak(resultaat = null)
             val resultaattypeUuid = UUID.randomUUID()

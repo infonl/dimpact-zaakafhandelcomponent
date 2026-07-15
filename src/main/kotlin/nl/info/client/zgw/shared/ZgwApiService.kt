@@ -166,10 +166,8 @@ class ZgwApiService @Inject constructor(
                 if (brondatumArchiefprocedure.datumkenmerk.isNullOrBlank() || brondatum == null) {
                     throw InputValidationFailedException(
                         errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
-                        message = """
-                    'brondatumEigenschap' moet gevuld zijn bij het afhandelen van een zaak met een resultaattype dat
-                    een 'brondatumArchiefprocedure' heeft met 'afleidingswijze' 'EIGENSCHAP'.
-                        """.trimIndent()
+                        message = "'brondatumEigenschap' moet gevuld zijn bij het afsluiten van een zaak met een " +
+                            "resultaattype dat een 'brondatumArchiefprocedure' heeft met 'afleidingswijze' 'EIGENSCHAP'."
                     )
                 }
                 this.upsertEigenschapToZaak(

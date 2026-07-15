@@ -120,6 +120,7 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.net.URI
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.util.*
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration as createAdminZaaktypeBpmnConfiguration
 
@@ -210,6 +211,64 @@ class ZaakRestServiceTest : BehaviorSpec({
                 then("result and status are correctly set") {
                     verify(exactly = 1) {
                         zgwApiService.closeZaak(zaak, resultaattypeUuid, reden, null)
+                    }
+                }
+            }
+        }
+
+        given("open zaak with a valid brondatumEigenschap") {
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val reden = "Fake reden"
+            val resultaattypeUuid = UUID.randomUUID()
+            val brondatumEigenschap = "2023-12-01T00:00:00.000+01:00"
+            val restZaakAfsluitenGegevens = RESTZaakAfsluitenGegevens(reden, resultaattypeUuid, brondatumEigenschap)
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(behandelen = true)
+            every {
+                zgwApiService.closeZaak(zaak, resultaattypeUuid, reden, ZonedDateTime.parse(brondatumEigenschap).toLocalDate())
+            } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("zaak is closed") {
+                zaakRestService.closeZaak(zaak.uuid, restZaakAfsluitenGegevens)
+
+                then("the brondatum is parsed and passed through") {
+                    verify(exactly = 1) {
+                        zgwApiService.closeZaak(
+                            zaak,
+                            resultaattypeUuid,
+                            reden,
+                            ZonedDateTime.parse(brondatumEigenschap).toLocalDate()
+                        )
+                    }
+                }
+            }
+        }
+
+        given("open zaak with an invalid brondatumEigenschap") {
+            val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+            val reden = "Fake reden"
+            val resultaattypeUuid = UUID.randomUUID()
+            val restZaakAfsluitenGegevens = RESTZaakAfsluitenGegevens(reden, resultaattypeUuid, "not-a-date")
+            val loggedInUser = createLoggedInUser()
+
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(behandelen = true)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("zaak is closed") {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                    zaakRestService.closeZaak(zaak.uuid, restZaakAfsluitenGegevens)
+                }
+
+                then("an InputValidationFailedException is thrown and no zaak is closed") {
+                    inputValidationFailedException.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
+                    verify(exactly = 0) {
+                        zgwApiService.closeZaak(any(), any(), any(), any())
                     }
                 }
             }
