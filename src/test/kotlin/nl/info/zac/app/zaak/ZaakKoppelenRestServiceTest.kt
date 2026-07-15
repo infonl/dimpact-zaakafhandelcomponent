@@ -48,6 +48,7 @@ import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.util.UUID
 
+@Suppress("LargeClass")
 class ZaakKoppelenRestServiceTest : BehaviorSpec({
     isolationMode = IsolationMode.InstancePerTest
     val eventingService = mockk<EventingService>()
