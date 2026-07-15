@@ -38,12 +38,6 @@
   min-width: @min-column-width;
 }
 
-/*
- * `width: 1%` pins a column to its content width so the auto-layout table never stretches it to fill
- * leftover viewport space. Every column below is pinned this way, which leaves the free-text description
- * columns (omschrijving, toelichting, ...) as the ones that absorb that space and clamp their long text
- * (see the line-clamp rule further down).
- */
 .mat-column-zaak-identificatie,
 .mat-column-zaakIdentificatie {
   width: 1%;
