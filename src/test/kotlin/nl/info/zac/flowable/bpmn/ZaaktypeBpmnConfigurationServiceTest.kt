@@ -11,8 +11,8 @@ import io.mockk.every
 import io.mockk.mockk
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.exception.InputValidationFailedException
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.util.UUID
 
 class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
@@ -24,7 +24,9 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
     }
 
     context("Checking if productaanvraagtype is in use for a change of a specific BPMN zaaktype") {
-        val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
+        val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(
+            productaanvraagtype = "fakeProductaanvraagtype"
+        )
 
         given("No productaanvraagtype is in use by a BPMN zaaktype") {
             every {
@@ -65,7 +67,10 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
                 zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(
                     zaaktypeBpmnProcessDefinition.productaanvraagtype!!
                 )
-            } returns createZaaktypeBpmnConfiguration(zaaktypeUuid = UUID.randomUUID())
+            } returns createZaaktypeBpmnConfiguration(
+                zaaktypeUUID = UUID.randomUUID(),
+                productaanvraagtype = "fakeProductaanvraagtype"
+            )
 
             `when`("checking if productaanvraagtype is in use") {
                 shouldThrow<InputValidationFailedException> {
