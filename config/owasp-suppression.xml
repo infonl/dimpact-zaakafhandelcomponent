@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ~ SPDX-FileCopyrightText: 2026 INFO.nl -->
+<!-- ~ SPDX-License-Identifier: EUPL-1.2+ -->
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.4.xsd">
+    <suppress>
+        <notes><![CDATA[
+            CVE-2026-54513 affects jackson-databind's BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray().
+            This vulnerable jackson-databind version is only pulled in transitively (via
+            org.wildfly.security:wildfly-elytron-jose-util -> wildfly-elytron-http-oidc) into the providedCompile
+            and providedRuntime configurations, which are compile-only scope against APIs supplied by WildFly at
+            deploy time and are not packaged into the deployable artifact.
+            Neither this codebase nor the WildFly Elytron libraries that pull in this version call
+            allowIfSubTypeIsArray() or use polymorphic type validation at all (verified by searching the compiled
+            classes of wildfly-elytron-jose-util, wildfly-elytron-jose-jwk, wildfly-elytron-http-oidc and
+            wildfly-elytron-auth), so the vulnerable code path is unreachable.
+            The actual application runtime and compile classpaths already resolve jackson-databind to the fixed
+            2.22.1 version via the jackson-bom pin in gradle/libs.versions.toml.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@.*$</packageUrl>
+        <vulnerabilityName>CVE-2026-54513</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            CVE-2026-41851 is a DoS caused by unbounded cache growth in Spring Expression Language (SpEL)
+            evaluation, specifically in the org.springframework.expression.spel package shipped in the
+            spring-expression artifact.
+            spring-core and spring-beans are only pulled in transitively via org.flowable:flowable-engine, which
+            uses them for utility classes (e.g. BeanUtils, ClassUtils), not for SpEL evaluation. Flowable evaluates
+            its own `${...}` expressions in BPMN/CMMN definitions using its own JUEL-based expression engine, not
+            Spring's SpelExpressionParser.
+            The spring-expression artifact that contains the vulnerable class is not a dependency of this project
+            at all (confirmed absent from both the compileClasspath and runtimeClasspath configurations), so the
+            vulnerable code path is unreachable regardless of the spring-core/spring-beans version present.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring-(core|beans)@.*$</packageUrl>
+        <vulnerabilityName>CVE-2026-41851</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            CVE-2026-41850 (SpEL algorithmic complexity DoS), CVE-2026-41848 (AntPathMatcher ReDoS),
+            CVE-2026-41842 (Spring MVC/WebFlux static resource DoS) and CVE-2026-41838 (predictable
+            spring-websocket session IDs) all require a Spring module that is not a dependency of this project:
+            spring-expression, spring-webmvc, spring-webflux and spring-websocket respectively are all absent from
+            both the compileClasspath and runtimeClasspath configurations.
+            spring-core and spring-beans are only pulled in transitively via org.flowable:flowable-engine.
+            Searching the compiled classes of every org.flowable jar (flowable-engine, flowable-engine-common, and
+            all other flowable-* modules on the classpath) for any reference to org/springframework/* returns no
+            matches at all, so Flowable does not call into AntPathMatcher or any other spring-core/spring-beans
+            class either. The vulnerable code is therefore unreachable for all four CVEs.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring-(core|beans)@.*$</packageUrl>
+        <vulnerabilityName>CVE-2026-41850</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-41848</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-41842</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-41838</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            CVE-2026-54428 (HTTP/2 HPACK decoder DoS) and CVE-2026-54399 (HTTP/1.1 message parser DoS) both affect
+            Apache HttpComponents Core 5.x (5.4.2 and earlier / 5.5-beta1 and earlier), i.e. the org.apache.hc.core5
+            codebase that ships in the org.apache.httpcomponents.core5:httpcore5 / httpcore5-h2 artifacts.
+            This project depends on the legacy, unrelated 4.x line (org.apache.httpcomponents:httpcore, package
+            org.apache.http.*), pulled in transitively via httpclient:4.5.14 <- org.apache.solr:solr-solrj. The 4.x
+            codebase was rewritten from scratch for 5.x and does not implement HTTP/2 at all, so it cannot contain
+            the vulnerable HPACK decoder, and its HTTP/1.1 parser is different code than the one fixed upstream.
+            httpcore5 / httpclient5 are not dependencies of this project. This is a known NVD/CPE name-collision
+            false positive between the 4.x and 5.x httpcore artifact families.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpcore@.*$</packageUrl>
+        <vulnerabilityName>CVE-2026-54428</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-54399</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            CVE-2026-5795 is a broken access control / privilege escalation issue caused by JASPIAuthenticator
+            leaving ThreadLocal values set across requests. That class lives in Jetty's server-side jetty-security
+            / jetty-jaspi module.
+            This project only depends on Jetty's client-side modules (jetty-client, jetty-io, jetty-http,
+            jetty-util, jetty-alpn-client, jetty-alpn-java-client, http2-client, http2-common,
+            http2-http-client-transport), pulled in transitively via org.apache.solr:solr-solrj as its HTTP/2
+            client transport. Confirmed there is no jetty-server, jetty-security or jetty-jaspi module anywhere in
+            the dependency graph, so the vulnerable class is not present at all.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*@.*$</packageUrl>
+        <vulnerabilityName>CVE-2026-5795</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            CVE-2025-11143 (differential URI parsing security bypass) and CVE-2026-6790 (request authority /
+            Host header mismatch not enforced) both describe attack scenarios where an untrusted, externally
+            supplied URI or Host header is interpreted differently by Jetty than by another component in the
+            request path (a WAF, reverse proxy, or the server generating a redirect) - i.e. they are server-side
+            request-handling concerns.
+            This project only uses Jetty's client-side modules (jetty-client, jetty-http, jetty-io, jetty-util,
+            jetty-alpn-client, jetty-alpn-java-client, http2-client, http2-common, http2-http-client-transport),
+            pulled in transitively via org.apache.solr:solr-solrj as its HTTP/2 client transport, to make outbound
+            requests to our own configured Solr endpoint. There is no jetty-server in the dependency graph, no
+            reverse proxy/WAF pair whose differing interpretation of the same URI could be exploited, and the
+            target URI/Host header pair used for these outbound requests is not attacker-controlled. The described
+            bypass scenarios do not apply to an outbound-only HTTP client use case.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*@.*$</packageUrl>
+        <vulnerabilityName>CVE-2025-11143</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-6790</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            CVE-2024-9329 is an open redirect in the Eclipse GlassFish *application server*'s admin console, via
+            the Host header on its '/management/domain' management REST endpoint.
+            relaxng-datatype and rngom are unrelated XML RELAX NG schema datatype libraries, part of the
+            Eclipse/GlassFish *JAXB* project (org.glassfish.jaxb), pulled in transitively via
+            org.jboss.resteasy:resteasy-jaxb-provider -> resteasy-multipart-provider. This application is deployed
+            on WildFly, not GlassFish, does not embed the GlassFish application server or its admin console, and
+            has no '/management/domain' endpoint. This is an NVD/CPE name-collision false positive between the
+            unrelated "GlassFish" application server product and the "GlassFish JAXB" reference implementation
+            project that happen to share the glassfish name.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.sun\.xml\.bind\.external/(relaxng-datatype|rngom)@.*$</packageUrl>
+        <vulnerabilityName>CVE-2024-9329</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            CVE-2026-0871 is an improper access control flaw in Keycloak's handling of "unmanaged" user profile
+            attributes. Per the GitHub Security Advisory, the actually affected Maven package is
+            org.keycloak:keycloak-server-spi-private (< 26.5.2) - a Keycloak *server*-side SPI module.
+            keycloak-admin-client and keycloak-client-common-synced are unrelated client SDK artifacts used by this
+            application only to call the Keycloak Admin REST API of an externally deployed Keycloak server; they do
+            not contain keycloak-server-spi-private or the vulnerable authorization logic. This repository does not
+            build or embed the Keycloak server itself, so this CVE is not fixable from this codebase - the actual
+            Keycloak server instance this application connects to should be kept at >= 26.5.2 independently.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.keycloak/keycloak-(admin-client|client-common-synced)@.*$</packageUrl>
+        <vulnerabilityName>CVE-2026-0871</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            The following CVEs all require a Spring module that is not a dependency of this project:
+            - CVE-2026-22737 (script template view path traversal), CVE-2026-22740 (WebFlux multipart temp file
+              leak), CVE-2026-22745 (MVC/WebFlux static resource DoS on Windows), CVE-2026-41839 (WebFlux session
+              fixation), CVE-2026-41840 (WebFlux multipart memory leak), CVE-2026-41841 (MVC/WebFlux static resource
+              info disclosure), CVE-2026-41843 (MVC/WebFlux static resource path traversal), CVE-2026-41844
+              (MVC/WebFlux open redirect via "/**" mapping) and CVE-2026-41853 (MVC/WebFlux multipart request
+              smuggling) all require spring-webmvc and/or spring-webflux.
+            - CVE-2026-41845 (JavaScriptUtils XSS) and CVE-2026-41854 (UriComponentsBuilder SSRF) both require
+              spring-web (org.springframework.web.util package).
+            - CVE-2026-41846 (JSP form tag XSS) requires the spring-webmvc JSP tag library.
+            spring-webmvc, spring-webflux and spring-web are all absent from both the compileClasspath and
+            runtimeClasspath configurations - this application is a Jakarta EE/JAX-RS app on WildFly and does not
+            use Spring MVC/WebFlux at all. spring-core and spring-beans are only pulled in transitively via
+            org.flowable:flowable-engine, which (as established for CVE-2026-41851/41850/41848/41842/41838 above)
+            does not call into any org.springframework class.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring-(core|beans)@.*$</packageUrl>
+        <vulnerabilityName>CVE-2026-22737</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-22740</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-22745</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-41839</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-41840</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-41841</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-41843</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-41844</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-41845</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-41846</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-41853</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-41854</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            CVE-2026-41852 is a Spring Expression Language (SpEL) authorization bypass allowing arbitrary
+            zero-argument method invocation, in the org.springframework.expression.spel package shipped in the
+            spring-expression artifact. As established above for CVE-2026-41851/41850, spring-expression is not a
+            dependency of this project at all, and Flowable (the only consumer of spring-core/spring-beans) does
+            not use Spring's SpEL evaluator, so this code path is unreachable.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring-(core|beans)@.*$</packageUrl>
+        <vulnerabilityName>CVE-2026-41852</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            CVE-2026-54514 (SSRF via eager DNS resolution in JDKFromStringDeserializer), CVE-2026-54515 and
+            CVE-2026-54516 (JsonIgnore/JsonProperty exclusion bypass), and CVE-2026-54517 and CVE-2026-54518
+            (@JsonView filter bypass) all affect jackson-databind versions that include 2.21.1, fixed in 2.18.8/
+            2.18.9, 2.21.4/2.21.5 and 3.1.4 depending on the specific CVE.
+            As established for CVE-2026-54513 above, this jackson-databind 2.21.1 is only pulled in transitively
+            (via org.wildfly.security:wildfly-elytron-jose-util -> wildfly-elytron-http-oidc) into the
+            providedCompile and providedRuntime configurations - compile-only scope against APIs supplied by
+            WildFly at deploy time, not packaged into the deployable artifact. The application's actual runtime and
+            compile classpaths resolve jackson-databind to 2.22.1 via the jackson-bom pin in
+            gradle/libs.versions.toml, which is already fixed for every one of these CVEs.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@.*$</packageUrl>
+        <vulnerabilityName>CVE-2026-54514</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-54515</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-54516</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-54517</vulnerabilityName>
+        <vulnerabilityName>CVE-2026-54518</vulnerabilityName>
+    </suppress>
+</suppressions>

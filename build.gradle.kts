@@ -937,7 +937,7 @@ dependencyCheck {
     data.directory = "${System.getProperty("user.home")}/.gradle/dependency-check-data"
 
     // Configure suppression file if we need to suppress false positives
-    // suppressionFile = "config/owasp-suppression.xml"
+    suppressionFile = "config/owasp-suppression.xml"
 
     // Configure analyzers - disable some that might not be relevant
     analyzers {
