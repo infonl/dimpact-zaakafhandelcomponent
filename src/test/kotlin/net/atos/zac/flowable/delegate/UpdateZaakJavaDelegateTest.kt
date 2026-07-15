@@ -247,7 +247,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
             And("no ZGW API calls are made") {
                 verify(exactly = 0) {
                     zgwApiService.createStatusForZaak(any(), any(), any())
-                    zgwApiService.closeZaak(any(), any(), any(), any())
+                    zgwApiService.closeZaak(any(), any(), any())
                 }
             }
         }

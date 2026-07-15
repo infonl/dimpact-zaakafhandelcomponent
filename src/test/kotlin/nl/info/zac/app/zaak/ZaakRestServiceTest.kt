@@ -1289,7 +1289,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     "it throws ZaakWithADecisionCannotBeTerminatedException and no close or terminate calls are made"
                 ) {
                     verify(exactly = 0) {
-                        zgwApiService.closeZaak(any<Zaak>(), any<UUID>(), any(), any())
+                        zgwApiService.closeZaak(any<Zaak>(), any<UUID>(), any())
                         cmmnService.terminateCase(any())
                     }
                 }
