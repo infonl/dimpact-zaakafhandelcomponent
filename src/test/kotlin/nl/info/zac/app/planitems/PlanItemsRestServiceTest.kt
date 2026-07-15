@@ -842,7 +842,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("closeZaak should not be called") {
                     verify(exactly = 0) {
-                        zgwApiService.closeZaak(any(), any(), any(), any())
+                        zgwApiService.closeZaak(any(), any(), any())
                     }
                 }
             }
