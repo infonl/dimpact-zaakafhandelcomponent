@@ -505,8 +505,6 @@ tasks {
         dependsOn("generateJavaClients")
 
         compilerOptions {
-            // see: https://youtrack.jetbrains.com/issue/KT-73255
-            freeCompilerArgs.add("-Xannotation-default-target=param-property")
             // Enable the experimental return value checker so that we can use the `@CheckReturnValue` annotation
             // in our codebase to report on unused return values.
             // see: https://kotlinlang.org/docs/whatsnew23.html#unused-return-value-checker
