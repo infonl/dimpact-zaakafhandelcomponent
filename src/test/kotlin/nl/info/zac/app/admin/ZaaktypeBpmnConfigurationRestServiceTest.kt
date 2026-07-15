@@ -22,6 +22,7 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.exception.MultipleZaaktypeConfigurationsFoundException
 import nl.info.zac.admin.model.createZaakbeeindigReden
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCompletionParameters
 import nl.info.zac.app.admin.converter.RestZaakbeeindigParameterConverter
 import nl.info.zac.app.admin.model.RestSmartDocuments
@@ -32,13 +33,14 @@ import nl.info.zac.app.zaak.model.isBesluitVerplicht
 import nl.info.zac.app.zaak.model.isDatumKenmerkVerplicht
 import nl.info.zac.app.zaak.model.isVervaldatumBesluitVerplicht
 import nl.info.zac.app.zaak.model.toRestResultaatType
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import java.util.UUID
 
 class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
-    val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
+    val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(
+        bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+    )
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
     val policyService = mockk<PolicyService>()
@@ -141,7 +143,9 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 groepNaam = "testGroep",
                 productaanvraagtype = "testProductaanvraag"
             )
-            val savedConfiguration = createZaaktypeBpmnConfiguration()
+            val savedConfiguration = createZaaktypeBpmnConfiguration(
+                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+            )
             every { policyService.readOverigeRechten().beheren } returns true
             every {
                 zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(any(), any())
@@ -172,8 +176,11 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
         }
 
         given("A valid REST zaaktype BPMN configuration for an existing zaaktype") {
-            val existingZaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
+            val existingZaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration(
+                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+            )
             val updatedZaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration(
+                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey",
                 zaaktypeCompletionParameters = setOf(
                     createZaaktypeCompletionParameters(
                         id = 1L,
@@ -251,8 +258,12 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
         }
 
         given("A REST zaaktype BPMN configuration with smartDocuments enabled for zaaktype") {
-            val existingConfiguration = createZaaktypeBpmnConfiguration()
-            val savedConfiguration = createZaaktypeBpmnConfiguration()
+            val existingConfiguration = createZaaktypeBpmnConfiguration(
+                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+            )
+            val savedConfiguration = createZaaktypeBpmnConfiguration(
+                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+            )
             val restZaaktypeBpmnConfiguration = createRestZaaktypeBpmnConfiguration(
                 zaaktypeUuid = existingConfiguration.zaaktypeUuid,
                 smartDocuments = RestSmartDocuments(enabledGlobally = true, enabledForZaaktype = true)

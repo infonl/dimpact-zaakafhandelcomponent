@@ -58,6 +58,7 @@ import nl.info.zac.admin.model.ZaakbeeindigReden
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
 import nl.info.zac.admin.model.createZaakAfzender
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.policy.model.toRestZaakRechten
@@ -92,7 +93,6 @@ import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.healthcheck.HealthCheckService
 import nl.info.zac.healthcheck.createZaaktypeInrichtingscheck
 import nl.info.zac.history.ZaakHistoryService
@@ -121,7 +121,6 @@ import java.io.InputStream
 import java.net.URI
 import java.time.LocalDate
 import java.util.*
-import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration as createAdminZaaktypeBpmnConfiguration
 
 @Suppress("LongParameterList", "LargeClass")
 class ZaakRestServiceTest : BehaviorSpec({
@@ -391,7 +390,9 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val rolMedewerker = createRolMedewerker()
                 val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
                 val user = createLoggedInUser()
-                val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
+                val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration(
+                    bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+                )
                 val zaakData = mapOf(
                     "zaakGroep" to restZaak.groep!!.id,
                     "zaakBehandelaar" to restZaak.behandelaar!!.id,
@@ -1298,7 +1299,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaakTypeUUID = zaakType.url.extractUuid()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
-            val zaaktypeConfiguration = createAdminZaaktypeBpmnConfiguration()
+            val zaaktypeConfiguration = createZaaktypeBpmnConfiguration()
             val loggedInUser = createLoggedInUser()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
