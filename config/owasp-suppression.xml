@@ -81,7 +81,7 @@
             client transport. Confirmed there is no jetty-server, jetty-security or jetty-jaspi module anywhere in
             the dependency graph, so the vulnerable class is not present at all.
         ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/(jetty-client|jetty-http|jetty-io|jetty-util|jetty-alpn-client|jetty-alpn-java-client|http2-client|http2-common|http2-http-client-transport)@.*$</packageUrl>
         <vulnerabilityName>CVE-2026-5795</vulnerabilityName>
     </suppress>
     <suppress>
