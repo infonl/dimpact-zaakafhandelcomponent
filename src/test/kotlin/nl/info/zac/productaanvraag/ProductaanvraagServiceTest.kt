@@ -45,12 +45,12 @@ import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.flowable.bpmn.BpmnService
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
@@ -1532,10 +1532,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             )
             val bpmnConfiguration = createZaaktypeBpmnConfiguration(
-                zaaktypeUuid = zaakTypeUUID,
-                groupName = groupName,
+                zaaktypeUUID = zaakTypeUUID,
+                groupId = groupName,
                 bpmnProcessDefinitionKey = "fakeBpmnProcessKey"
-
             )
             val zaakDataSlot = slot<Map<String, Any>>()
             val createdRolSlot = slot<Rol<*>>()
@@ -1800,8 +1799,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
             )
             val bpmnConfiguration = createZaaktypeBpmnConfiguration(
-                zaaktypeUuid = zaakTypeUUID,
-                groupName = groupName,
+                zaaktypeUUID = zaakTypeUUID,
+                groupId = groupName,
                 bpmnProcessDefinitionKey = "fakeBpmnProcessKey"
             )
             val formulierBron = createBron()

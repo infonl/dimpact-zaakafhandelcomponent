@@ -25,8 +25,8 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createHistoricProcessInstance
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import org.flowable.bpmn.model.BpmnModel
 import org.flowable.bpmn.model.ExtensionElement
 import org.flowable.bpmn.model.Process

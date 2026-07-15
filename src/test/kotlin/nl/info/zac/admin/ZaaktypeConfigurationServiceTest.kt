@@ -18,8 +18,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.net.URI
 import java.util.UUID
 
