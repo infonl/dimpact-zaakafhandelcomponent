@@ -255,8 +255,7 @@ class PlanItemsRestService @Inject constructor(
             zgwApiService.closeZaak(
                 zaak = zaak,
                 resultaatTypeUUID = resultaattypeUUID,
-                description = userEventListenerData.resultaatToelichting,
-                brondatum = null
+                description = userEventListenerData.resultaatToelichting
             )
         }
     }

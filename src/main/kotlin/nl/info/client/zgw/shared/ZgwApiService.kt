@@ -130,7 +130,7 @@ class ZgwApiService @Inject constructor(
      * @param description [String] of the [Resultaat] and [Status].
      * @param brondatum [LocalDate]
      */
-    fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, description: String?, brondatum: LocalDate?) {
+    fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, description: String?, brondatum: LocalDate? = null) {
         val resultaatType = getResultaatType(resultaatTypeUUID)
         val resultaat = ResultaatSub().apply {
             resultaattype = resultaatType.url

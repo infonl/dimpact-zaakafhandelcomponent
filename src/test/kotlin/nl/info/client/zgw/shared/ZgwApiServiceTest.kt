@@ -368,7 +368,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
 
             `when`("closeZaak is called") {
-                zgwApiService.closeZaak(zaak, resultaatTypeUUID, toelichting, null)
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, toelichting)
 
                 then("the zaak is closed with correct resultaat and status") {
                     verify(exactly = 1) {
@@ -410,7 +410,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult2
 
             `when`("closeZaak is called with null toelichting") {
-                zgwApiService.closeZaak(zaak, resultaatTypeUUID, null, null)
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, null)
 
                 then("the zaak is closed with null toelichting") {
                     verify(exactly = 1) {
@@ -444,7 +444,7 @@ class ZgwApiServiceTest : BehaviorSpec({
 
             `when`("closeZaak is called") {
                 val exception = shouldThrow<StatusTypeNotFoundException> {
-                    zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", null)
+                    zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
                 }
 
                 then("an exception should be thrown") {
@@ -580,7 +580,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
 
             When("closeZaak is called") {
-                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", null)
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
 
                 Then("it should not create or update any zaakeigenschap") {
                     verify(exactly = 0) { zrcClientService.createEigenschap(zaak.uuid, any()) }
@@ -616,7 +616,7 @@ class ZgwApiServiceTest : BehaviorSpec({
 
             `when`("closeZaak is called without a brondatum") {
                 val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
-                    zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", null)
+                    zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
                 }
 
                 then("an InputValidationFailedException is thrown and the zaak is not closed") {
@@ -684,7 +684,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.closeCase(zaak.uuid, any()) } returns zaakAfsluitenResult
 
             `when`("closeZaak is called") {
-                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", null)
+                zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
 
                 then("the zaak is closed without processing a brondatum procedure") {
                     verify(exactly = 1) {

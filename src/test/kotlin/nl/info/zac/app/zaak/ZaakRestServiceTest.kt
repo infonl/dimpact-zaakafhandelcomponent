@@ -201,7 +201,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(behandelen = true)
-            every { zgwApiService.closeZaak(zaak, resultaattypeUuid, reden, null) } just runs
+            every { zgwApiService.closeZaak(zaak, resultaattypeUuid, reden) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("zaak is closed") {
@@ -209,7 +209,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
                 then("result and status are correctly set") {
                     verify(exactly = 1) {
-                        zgwApiService.closeZaak(zaak, resultaattypeUuid, reden, null)
+                        zgwApiService.closeZaak(zaak, resultaattypeUuid, reden)
                     }
                 }
             }
@@ -1239,7 +1239,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
-                zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk", null)
+                zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
             every { cmmnService.terminateCase(zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -1255,8 +1255,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         zgwApiService.closeZaak(
                             zaak,
                             zaaktypeConfiguration.nietOntvankelijkResultaattype!!,
-                            "Zaak is niet ontvankelijk",
-                            null
+                            "Zaak is niet ontvankelijk"
                         )
                         cmmnService.terminateCase(zaak.uuid)
                     }
@@ -1322,14 +1321,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every {
                     zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
                 } returns zaaktypeCmmnConfiguration
-                every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name", null) } just runs
+                every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
                 every { cmmnService.terminateCase(zaak.uuid) } returns Unit
                 every { loggedInUserInstance.get() } returns loggedInUser
                 zaakRestService.terminateZaak(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
 
                 then("it is ended with result") {
                     verify(exactly = 1) {
-                        zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name", null)
+                        zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name")
                         cmmnService.terminateCase(zaak.uuid)
                     }
                 }
@@ -1368,7 +1367,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)
             } returns zaaktypeConfiguration
             every {
-                zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk", null)
+                zgwApiService.closeZaak(zaak, zaaktypeConfiguration.nietOntvankelijkResultaattype!!, "Zaak is niet ontvankelijk")
             } just runs
             every { bpmnService.terminateCase(zaak.uuid) } returns Unit
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -1384,8 +1383,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         zgwApiService.closeZaak(
                             zaak,
                             zaaktypeConfiguration.nietOntvankelijkResultaattype!!,
-                            "Zaak is niet ontvankelijk",
-                            null
+                            "Zaak is niet ontvankelijk"
                         )
                         bpmnService.terminateCase(zaak.uuid)
                     }

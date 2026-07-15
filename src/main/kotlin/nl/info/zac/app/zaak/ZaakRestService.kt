@@ -915,8 +915,7 @@ class ZaakRestService @Inject constructor(
         zgwApiService.closeZaak(
             zaak = zaak,
             resultaatTypeUUID = resultaattypeUUID,
-            description = zaakbeeindigRedenNaam,
-            brondatum = null
+            description = zaakbeeindigRedenNaam
         )
     }
 

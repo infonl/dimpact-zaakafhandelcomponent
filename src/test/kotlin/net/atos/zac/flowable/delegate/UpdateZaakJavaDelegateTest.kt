@@ -161,7 +161,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         } returns createZaakRechtenAllDeny(behandelen = true)
         every { fixedValueExpression.getValue(delegateExecution) } returns resultaattypeDescription
         every { zgwApiService.getResultaatType(zaak.zaaktype, resultaattypeDescription) } returns resultaatType
-        every { zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces", null) } just Runs
+        every { zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces") } just Runs
 
         `when`("the delegate is called") {
             updateZaakJavaDelegate.execute(delegateExecution)
@@ -174,7 +174,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
 
             And("the zaak was closed via the ZGW API") {
                 verify(exactly = 1) {
-                    zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces", null)
+                    zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces")
                 }
             }
         }
@@ -204,7 +204,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
         } returns createZaakRechtenAllDeny(behandelen = true)
         every { fixedValueExpression.getValue(delegateExecution) } returns resultaattypeDescription
         every { zgwApiService.getResultaatType(zaak.zaaktype, resultaattypeDescription) } returns resultaatType
-        every { zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces", null) } throws
+        every { zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces") } throws
             ZgwValidationErrorException(createValidationZgwError())
 
         `when`("the delegate is called") {
