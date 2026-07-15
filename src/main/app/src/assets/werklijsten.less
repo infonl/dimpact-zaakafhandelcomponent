@@ -19,65 +19,35 @@
   z-index: 10;
 }
 
-.mat-column-select {
-  width: 50px;
-  text-overflow: unset;
-}
+// rules for the columns
+:is([class^="mat-column-"],
+  [class*=" mat-column-"]) {
 
-.mat-column-status,
-.mat-column-zaaktype,
-.mat-column-zaaktypeOmschrijving,
-.mat-column-naam,
-.mat-column-omschrijving,
-.mat-column-zaakOmschrijving,
-.mat-column-zaakToelichting,
-.mat-column-groep,
-.mat-column-behandelaar,
-.mat-column-toelichting,
-.mat-column-indicaties {
-  min-width: @min-column-width;
-}
-
-.mat-column-zaak-identificatie,
-.mat-column-zaakIdentificatie {
+  // default column behavior: shrink to the min width
   width: 1%;
   min-width: @min-column-width;
-  white-space: nowrap;
-}
 
-.mat-column-status,
-.mat-column-zaaktype,
-.mat-column-zaaktypeOmschrijving,
-.mat-column-naam,
-.mat-column-groep,
-.mat-column-behandelaar,
-.mat-column-indicaties {
-  width: 1%;
-}
+  // in html/css, by default, columns wrap on dashes `-`
+  // opt out for identificatie and date columns so they always show on one line
+  &[class*="identificatie" i],
+  &[class*="datum" i] {
+    white-space: nowrap;
+    min-width: unset;
+  }
 
-.mat-column-startdatum,
-.mat-column-creatiedatum,
-.mat-column-fataledatum,
-.mat-column-einddatum,
-.mat-column-uiterlijkeEinddatumAfdoening,
-.mat-column-einddatumGepland,
-.mat-column-registratiedatum {
-  width: 1%;
-  min-width: 150px;
-  max-width: 220px;
-}
+  // extra rule to shrink the action column
+  &[class*="mat-column-url"] {
+    min-width: unset;
+  }
 
-.mat-column-zaakToelichting,
-.mat-column-zaaktypeOmschrijving {
-  max-width: 300px;
-}
+  // maximize omschrijving / toelichting columns
+  &[class*="omschrijving" i],
+  &[class*="toelichting" i] {
+    width: unset;
+    min-width: unset;
+    max-width: 300px;
 
-.mat-mdc-cell {
-  &.mat-column-omschrijving,
-  &.mat-column-toelichting,
-  &.mat-column-zaakOmschrijving,
-  &.mat-column-zaakToelichting {
-    & span {
+    span {
       display: block;
       display: -webkit-box;
       -webkit-box-orient: vertical;
@@ -88,13 +58,17 @@
       padding: 4px 0;
     }
   }
+
+  // don't maximize zaaktypeOmschrijving
+  &[class*="zaaktype" i] {
+    width: 1%;
+    min-width: @min-column-width;
+  }
 }
 
-.mat-column-dagenTotFataledatum,
-.mat-column-dagenTotStreefdatum {
-  width: 1%;
-  min-width: 100px;
-  max-width: 150px;
+.mat-column-select {
+  width: 50px;
+  text-overflow: unset;
 }
 
 .row-detail {
