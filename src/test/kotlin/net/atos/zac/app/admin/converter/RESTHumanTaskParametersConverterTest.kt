@@ -20,8 +20,8 @@ class RESTHumanTaskParametersConverterTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
-    Context("convertHumanTaskParametersCollection") {
-        Given("A plan item definition that matches an existing ZaaktypeCmmnHumantaskParameters") {
+    context("convertHumanTaskParametersCollection") {
+        given("A plan item definition that matches an existing ZaaktypeCmmnHumantaskParameters") {
             val fakePlanItemDefinition = createRESTPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
             val fakeHumantaskParameters = createZaaktypeCmmnHumantaskParameters(
                 planItemDefinitionId = "AANVULLENDE_INFORMATIE",
@@ -33,13 +33,13 @@ class RESTHumanTaskParametersConverterTest : BehaviorSpec({
                 restHumanTaskReferenceTableConverter.convert(fakeHumantaskParameters.getReferentieTabellen())
             } returns fakeReferentieTabellen
 
-            When("convertHumanTaskParametersCollection is called") {
+            `when`("convertHumanTaskParametersCollection is called") {
                 val result = converter.convertHumanTaskParametersCollection(
                     listOf(fakeHumantaskParameters),
                     listOf(fakePlanItemDefinition)
                 )
 
-                Then("the result contains one RESTHumanTaskParameters with populated fields") {
+                then("the result contains one RESTHumanTaskParameters with populated fields") {
                     result.size shouldBe 1
                     result[0].id shouldBe 42L
                     result[0].actief shouldBe true
@@ -50,16 +50,16 @@ class RESTHumanTaskParametersConverterTest : BehaviorSpec({
             }
         }
 
-        Given("A plan item definition with no matching ZaaktypeCmmnHumantaskParameters") {
+        given("A plan item definition with no matching ZaaktypeCmmnHumantaskParameters") {
             val fakePlanItemDefinition = createRESTPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
 
-            When("convertHumanTaskParametersCollection is called with empty parameters collection") {
+            `when`("convertHumanTaskParametersCollection is called with empty parameters collection") {
                 val result = converter.convertHumanTaskParametersCollection(
                     emptyList(),
                     listOf(fakePlanItemDefinition)
                 )
 
-                Then("the result contains one RESTHumanTaskParameters with default values") {
+                then("the result contains one RESTHumanTaskParameters with default values") {
                     result.size shouldBe 1
                     result[0].actief shouldBe false
                     result[0].planItemDefinition shouldBe fakePlanItemDefinition
@@ -70,8 +70,8 @@ class RESTHumanTaskParametersConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convertRESTHumanTaskParameters") {
-        Given("A list with one RESTHumanTaskParameters") {
+    context("convertRESTHumanTaskParameters") {
+        given("A list with one RESTHumanTaskParameters") {
             val fakePlanItemDefinition = createRESTPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
             val fakeReferentieTabellen = emptyList<RestHumanTaskReferenceTable>()
             val restParams = net.atos.zac.app.admin.model.RESTHumanTaskParameters().apply {
@@ -88,10 +88,10 @@ class RESTHumanTaskParametersConverterTest : BehaviorSpec({
                 restHumanTaskReferenceTableConverter.convert(fakeReferentieTabellen)
             } returns emptyList()
 
-            When("convertRESTHumanTaskParameters is called") {
+            `when`("convertRESTHumanTaskParameters is called") {
                 val result = converter.convertRESTHumanTaskParameters(listOf(restParams))
 
-                Then("the result contains one ZaaktypeCmmnHumantaskParameters with all fields mapped") {
+                then("the result contains one ZaaktypeCmmnHumantaskParameters with all fields mapped") {
                     result.size shouldBe 1
                     result[0].id shouldBe 10L
                     result[0].actief shouldBe true
@@ -102,7 +102,7 @@ class RESTHumanTaskParametersConverterTest : BehaviorSpec({
             }
         }
 
-        Given("A list with two RESTHumanTaskParameters") {
+        given("A list with two RESTHumanTaskParameters") {
             val fakeReferentieTabellen = emptyList<RestHumanTaskReferenceTable>()
             val restParams1 = net.atos.zac.app.admin.model.RESTHumanTaskParameters().apply {
                 planItemDefinition = createRESTPlanItemDefinition(id = "AANVULLENDE_INFORMATIE")
@@ -120,10 +120,10 @@ class RESTHumanTaskParametersConverterTest : BehaviorSpec({
                 restHumanTaskReferenceTableConverter.convert(fakeReferentieTabellen)
             } returns emptyList()
 
-            When("convertRESTHumanTaskParameters is called with two entries") {
+            `when`("convertRESTHumanTaskParameters is called with two entries") {
                 val result = converter.convertRESTHumanTaskParameters(listOf(restParams1, restParams2))
 
-                Then("the result list has size 2") {
+                then("the result list has size 2") {
                     result.size shouldBe 2
                 }
             }

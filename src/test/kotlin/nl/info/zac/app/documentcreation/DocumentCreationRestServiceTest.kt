@@ -56,7 +56,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
     isolationMode = IsolationMode.InstancePerTest
 
-    Given("document creation data is provided and zaaktype can use the 'bijlage' informatieobjecttype") {
+    given("document creation data is provided and zaaktype can use the 'bijlage' informatieobjecttype") {
         val zaakTypeUUID = UUID.randomUUID()
         val zaak = createZaak(
             zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
@@ -86,7 +86,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         } returns false
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("createDocument is called by a role that is allowed to change the zaak") {
+        `when`("createDocument is called by a role that is allowed to change the zaak") {
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 creerenDocument = true
             )
@@ -98,7 +98,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 restDocumentCreationAttendedData
             )
 
-            Then("the document creation service is called to create the document") {
+            then("the document creation service is called to create the document") {
                 restDocumentCreationResponse.message shouldBe documentCreationResponse.message
                 restDocumentCreationResponse.redirectURL shouldBe documentCreationResponse.redirectUrl
                 with(documentCreationDataAttended.captured) {
@@ -110,7 +110,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("createDocument is called by a role that is not allowed to create documents for tasks") {
+        `when`("createDocument is called by a role that is not allowed to create documents for tasks") {
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 creerenDocument = true
             )
@@ -121,12 +121,12 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
             }
 
-            Then("it throws exception with no message") {
+            then("it throws exception with no message") {
                 exception.message shouldBe null
             }
         }
 
-        When("createDocument is called for a task that is not opened") {
+        `when`("createDocument is called for a task that is not opened") {
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 creerenDocument = true
             )
@@ -136,24 +136,24 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
             }
 
-            Then("it throws exception with message that mentions the task id") {
+            then("it throws exception with message that mentions the task id") {
                 exception.message shouldBe "No open task found with task id: 'fakeTaskId'"
             }
         }
 
-        When("createDocument is called by a user that has no access") {
+        `when`("createDocument is called by a user that has no access") {
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
 
             val exception = shouldThrow<PolicyException> {
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
             }
 
-            Then("it throws exception with no message") {
+            then("it throws exception with no message") {
                 exception.message shouldBe null
             }
         }
 
-        When("createDocument is called with disabled document creation") {
+        `when`("createDocument is called with disabled document creation") {
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 creerenDocument = true
             )
@@ -165,7 +165,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 documentCreationRestService.createDocumentAttended(restDocumentCreationAttendedData)
             }
 
-            Then("it throws exception with correct message") {
+            then("it throws exception with correct message") {
                 exception.errorCode shouldBe ERROR_CODE_SMARTDOCUMENTS_DISABLED
                 exception.message shouldBe null
             }

@@ -45,7 +45,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given(
+    given(
         """
             An enkelvoudig informatieobject with no indicatiegebruiksrecht, no archiefnominatie 
             and a related zaakinformatieobject for a zaak
@@ -72,10 +72,10 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
 
-        When("convert is called on the UUID of the enkelvoudig informatieobject") {
+        `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
             val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
 
-            Then("it should return the expected DocumentZoekObject without any indicaties") {
+            then("it should return the expected DocumentZoekObject without any indicaties") {
                 with(documentZoekObject!!) {
                     identificatie shouldBe enkelvoudigInformatieObject.identificatie
                     titel shouldBe enkelvoudigInformatieObject.titel
@@ -93,7 +93,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """
             An enkelvoudig informatieobject with an 'indicatie gebruiksrecht', an archiefnominatie
             and a related zaakinformatieobject for a zaak
@@ -120,10 +120,10 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
 
-        When("convert is called on the UUID of the enkelvoudig informatieobject") {
+        `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
             val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
 
-            Then("it should return the expected DocumentZoekObject with an 'indicatie gebruiksrecht'") {
+            then("it should return the expected DocumentZoekObject with an 'indicatie gebruiksrecht'") {
                 with(documentZoekObject!!) {
                     identificatie shouldBe enkelvoudigInformatieObject.identificatie
                     titel shouldBe enkelvoudigInformatieObject.titel

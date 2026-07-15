@@ -11,35 +11,35 @@ import jakarta.ws.rs.core.MultivaluedHashMap
 class ORRuntimeResponseExceptionMapperTest : BehaviorSpec({
     val mapper = ORRuntimeResponseExceptionMapper()
 
-    Given("A HTTP status code of 499") {
+    given("A HTTP status code of 499") {
         val headers = MultivaluedHashMap<String, Any>()
 
-        When("the status code is handled") {
+        `when`("the status code is handled") {
             val result = mapper.handles(499, headers)
 
-            Then("The status code should not be mapped") {
+            then("The status code should not be mapped") {
                 result shouldBe false
             }
         }
     }
-    Given("A HTTP status code of 500") {
+    given("A HTTP status code of 500") {
         val headers = MultivaluedHashMap<String, Any>()
 
-        When("the status code is handled") {
+        `when`("the status code is handled") {
             val result = mapper.handles(500, headers)
 
-            Then("The status code should be mapped") {
+            then("The status code should be mapped") {
                 result shouldBe true
             }
         }
     }
-    Given("A HTTP status code of 503") {
+    given("A HTTP status code of 503") {
         val headers = MultivaluedHashMap<String, Any>()
 
-        When("the status code is handled") {
+        `when`("the status code is handled") {
             val result = mapper.handles(503, headers)
 
-            Then("The status code should be mapped") {
+            then("The status code should be mapped") {
                 result shouldBe true
             }
         }

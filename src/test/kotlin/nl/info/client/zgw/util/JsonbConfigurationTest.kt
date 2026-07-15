@@ -20,21 +20,21 @@ class JsonbConfigurationTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("the JsonbConfiguration context resolver") {
-        When("getContext is called for different types") {
+    given("the JsonbConfiguration context resolver") {
+        `when`("getContext is called for different types") {
             val jsonbForUri = jsonbConfiguration.getContext(SampleUriPayload::class.java)
             val jsonbForString = jsonbConfiguration.getContext(String::class.java)
 
-            Then("the same configured Jsonb instance is returned regardless of type") {
+            then("the same configured Jsonb instance is returned regardless of type") {
                 (jsonbForUri === jsonbForString) shouldBe true
             }
         }
 
-        When("a URI field is deserialized") {
+        `when`("a URI field is deserialized") {
             val jsonb = jsonbConfiguration.getContext(SampleUriPayload::class.java)
             val samplePayload = jsonb.fromJson("""{"url":"https://example.com/zaken/1"}""", SampleUriPayload::class.java)
 
-            Then("the URIJsonbDeserializer is used to parse it") {
+            then("the URIJsonbDeserializer is used to parse it") {
                 samplePayload.url shouldBe URI("https://example.com/zaken/1")
             }
         }

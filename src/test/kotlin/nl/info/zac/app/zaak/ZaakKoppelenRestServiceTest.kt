@@ -27,7 +27,9 @@ import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.app.zaak.model.RestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.RelatieType
+import nl.info.zac.app.zaak.model.createRestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
 import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
 import nl.info.zac.authentication.LoggedInUser
@@ -44,20 +46,8 @@ import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.util.UUID
 
-private const val OMSCHRIJVING = "fakeOmschrijving"
-private const val ZAAK_TYPE_OMSCHRIJVING = "fakeZaakTypeOmschrijving"
-private const val STATUS_TYPE_OMSCHRIJVING = "Afgerond"
-
-@Suppress("LargeClass")
 class ZaakKoppelenRestServiceTest : BehaviorSpec({
     isolationMode = IsolationMode.InstancePerTest
-    val zoekZaakIdentifier = "ZAAK-2000-00002"
-    val zaakTypeUuid = UUID.randomUUID()
-    val zaakTypeURI = URI(zaakTypeUuid.toString())
-    val zaakZoekObjectTypeUuid = UUID.randomUUID().toString()
-    val page = 0
-    val rows = 10
-
     val eventingService = mockk<EventingService>()
     val indexingService = mockk<IndexingService>()
     val policyService = mockk<PolicyService>()
@@ -81,25 +71,18 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A source zaak which is not linked and a target not linked zaak") {
+    given("A source zaak which is not linked and a target not linked zaak") {
         val sourceZaak = createZaak(
-            identificatie = "ZAAK-2000-00001",
             archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
-            zaaktypeUri = zaakTypeURI
         )
         val zaakZoekObject = createZaakZoekObject(
             type = ZAAK,
-            zaaktypeOmschrijving = ZAAK_TYPE_OMSCHRIJVING,
-            identificatie = zoekZaakIdentifier,
-            omschrijving = OMSCHRIJVING,
-            statustypeOmschrijving = STATUS_TYPE_OMSCHRIJVING,
-            zaaktypeUuid = zaakZoekObjectTypeUuid,
             archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
         )
         val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
         val loggedInUser = createLoggedInUser()
         val zaakType = createZaakType().apply {
-            deelzaaktypen = listOf(URI(zaakZoekObjectTypeUuid))
+            deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
         }
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
@@ -108,18 +91,18 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("findLinkableZaken with GERELATEERD is called") {
+        `when`("findLinkableZaken with GERELATEERD is called") {
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.GERELATEERD,
-                page = page,
-                rows = rows
+                createRestFindLinkableZakenRequest(
+                    zaakUuid = sourceZaak.uuid,
+                    zoekZaakIdentifier = zaakZoekObject.identificatie,
+                    relationType = RelatieType.GERELATEERD
+                )
             )
 
-            Then("a single linkable zaak should be returned") {
+            then("a single linkable zaak should be returned") {
                 result.resultCount shouldBe 1
             }
 
@@ -127,10 +110,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
-                    identificatie shouldBe zoekZaakIdentifier
-                    omschrijving shouldBe OMSCHRIJVING
-                    zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
-                    statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
+                    identificatie shouldBe zaakZoekObject.identificatie
+                    omschrijving shouldBe zaakZoekObject.omschrijving
+                    zaaktypeOmschrijving shouldBe zaakZoekObject.zaaktypeOmschrijving
+                    statustypeOmschrijving shouldBe zaakZoekObject.statustypeOmschrijving
                     isKoppelbaar shouldBe true
                 }
             }
@@ -146,21 +129,21 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("findLinkableZaken with HOOFDZAAK is called") {
+        `when`("findLinkableZaken with HOOFDZAAK is called") {
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
             every {
-                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid)).deelzaaktypen
-            } returns listOf(zaakTypeURI)
+                ztcClientService.readZaaktype(UUID.fromString(zaakZoekObject.zaaktypeUuid)).deelzaaktypen
+            } returns listOf(sourceZaak.zaaktype)
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.HOOFDZAAK,
-                page = page,
-                rows = rows
+                createRestFindLinkableZakenRequest(
+                    zaakUuid = sourceZaak.uuid,
+                    zoekZaakIdentifier = zaakZoekObject.identificatie,
+                    relationType = RelatieType.HOOFDZAAK
+                )
             )
 
-            Then("a single linkable zaak should be returned") {
+            then("a single linkable zaak should be returned") {
                 result.resultCount shouldBe 1
             }
 
@@ -168,10 +151,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
-                    identificatie shouldBe zoekZaakIdentifier
-                    omschrijving shouldBe OMSCHRIJVING
-                    zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
-                    statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
+                    identificatie shouldBe zaakZoekObject.identificatie
+                    omschrijving shouldBe zaakZoekObject.omschrijving
+                    zaaktypeOmschrijving shouldBe zaakZoekObject.zaaktypeOmschrijving
+                    statustypeOmschrijving shouldBe zaakZoekObject.statustypeOmschrijving
                     isKoppelbaar shouldBe true
                 }
             }
@@ -185,23 +168,23 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
                 }
                 verify(exactly = 1) {
-                    ztcClientService.readZaaktype(UUID.fromString(zaakZoekObjectTypeUuid))
+                    ztcClientService.readZaaktype(UUID.fromString(zaakZoekObject.zaaktypeUuid)).deelzaaktypen
                 }
             }
         }
 
-        When("findLinkableZaken with DEELZAAK is called") {
+        `when`("findLinkableZaken with DEELZAAK is called") {
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
-                zaakUuid = sourceZaak.uuid,
-                zoekZaakIdentifier = zoekZaakIdentifier,
-                relationType = RelatieType.DEELZAAK,
-                page = page,
-                rows = rows
+                createRestFindLinkableZakenRequest(
+                    zaakUuid = sourceZaak.uuid,
+                    zoekZaakIdentifier = zaakZoekObject.identificatie,
+                    relationType = RelatieType.DEELZAAK
+                )
             )
 
-            Then("a single linkable zaak should be returned") {
+            then("a single linkable zaak should be returned") {
                 result.resultCount shouldBe 1
             }
 
@@ -209,10 +192,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
-                    identificatie shouldBe zoekZaakIdentifier
-                    omschrijving shouldBe OMSCHRIJVING
-                    zaaktypeOmschrijving shouldBe ZAAK_TYPE_OMSCHRIJVING
-                    statustypeOmschrijving shouldBe STATUS_TYPE_OMSCHRIJVING
+                    identificatie shouldBe zaakZoekObject.identificatie
+                    omschrijving shouldBe zaakZoekObject.omschrijving
+                    zaaktypeOmschrijving shouldBe zaakZoekObject.zaaktypeOmschrijving
+                    statustypeOmschrijving shouldBe zaakZoekObject.statustypeOmschrijving
                     isKoppelbaar shouldBe true
                 }
             }
@@ -229,8 +212,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Linking a zaak") {
-        Given("Two open zaken with zaak link data using a 'hoofdzaak' relatie and no reverse relation") {
+    context("Linking a zaak") {
+        given("Two open zaken with zaak link data using a 'hoofdzaak' relatie and no reverse relation") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val teKoppelenZaak = createZaak()
@@ -254,10 +237,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the zaken are linked") {
+            `when`("the zaken are linked") {
                 zaakKoppelenRestService.linkZaak(restZaakLinkData)
 
-                Then("the two zaken are successfully linked, the index is updated and a screen event is sent") {
+                then("the two zaken are successfully linked, the index is updated and a screen event is sent") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(any(), any())
                     }
@@ -269,7 +252,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("Two open zaken with zaak link data using a 'deelzaak' relatie") {
+        given("Two open zaken with zaak link data using a 'deelzaak' relatie") {
             val zaak = createZaak()
             val teKoppelenZaak = createZaak()
             val zaakType = createZaakType().apply { deelzaaktypen = listOf(teKoppelenZaak.zaaktype) }
@@ -295,10 +278,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the zaken are linked") {
+            `when`("the zaken are linked") {
                 zaakKoppelenRestService.linkZaak(restZaakLinkData)
 
-                Then("the two zaken are successfully linked as hoofd- and deelzaak") {
+                then("the two zaken are successfully linked as hoofd- and deelzaak") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(any(), any())
                     }
@@ -310,7 +293,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("Zaak link data using an unsupported relatie type") {
+        given("Zaak link data using an unsupported relatie type") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val teKoppelenZaak = createZaak()
@@ -327,19 +310,19 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns Pair(teKoppelenZaak, teKoppelenZaakType)
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the zaken are linked") {
+            `when`("the zaken are linked") {
                 val illegalArgumentException = shouldThrow<IllegalArgumentException> {
                     zaakKoppelenRestService.linkZaak(restZaakLinkData)
                 }
 
-                Then("an IllegalArgumentException is thrown") {
+                then("an IllegalArgumentException is thrown") {
                     illegalArgumentException.message shouldBe
                         "RelatieType VERVOLG cannot be used for linking zaken"
                 }
             }
         }
 
-        Given("Two open zaken with zaak link data using a 'gerelateerd' relatie and a reason") {
+        given("Two open zaken with zaak link data using a 'gerelateerd' relatie and a reason") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             val teKoppelenZaak = createZaak()
@@ -366,17 +349,17 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns zaak
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the zaken are linked with relatie type GERELATEERD") {
+            `when`("the zaken are linked with relatie type GERELATEERD") {
                 zaakKoppelenRestService.linkZaak(restZaakLinkData)
 
-                Then("patchZaak is called once with the source zaak UUID") {
+                then("patchZaak is called once with the source zaak UUID") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(any(), any(), any())
                     }
                     patchZaakUUIDSlot.captured shouldBe zaak.uuid
                 }
 
-                Then("the patched zaak has one gerelateerdeZaken item pointing to the target zaak") {
+                then("the patched zaak has one gerelateerdeZaken item pointing to the target zaak") {
                     patchZaakSlot.captured.gerelateerdeZaken shouldHaveSize 1
                     patchZaakSlot.captured.gerelateerdeZaken[0].url shouldBe teKoppelenZaak.url
                 }
@@ -384,8 +367,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Unlinking a zaak") {
-        Given("A zaak with a gerelateerde zaak linked to it") {
+    context("Unlinking a zaak") {
+        given("A zaak with a gerelateerde zaak linked to it") {
             val gekoppeldeZaak = createZaak()
             val gekoppeldeZaakType = createZaakType()
             val zaak = createZaak().apply {
@@ -415,17 +398,17 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns zaak
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the gerelateerde zaak is unlinked") {
+            `when`("the gerelateerde zaak is unlinked") {
                 zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
 
-                Then("patchZaak is called once with the source zaak UUID") {
+                then("patchZaak is called once with the source zaak UUID") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(any(), any(), any())
                     }
                     patchZaakUUIDSlot.captured shouldBe zaak.uuid
                 }
 
-                Then(
+                then(
                     "the patched zaak is a GerelateerdeZakenZaakPatch with gerelateerdeZaken set to an empty list"
                 ) {
                     patchZaakSlot.captured.gerelateerdeZaken shouldBe emptyList()
@@ -433,7 +416,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak without koppelen right on the source zaak") {
+        given("A zaak without koppelen right on the source zaak") {
             val gekoppeldeZaak = createZaak()
             val gekoppeldeZaakType = createZaakType()
             val zaak = createZaak()
@@ -458,18 +441,18 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns createZaakRechten()
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("unlinkZaak is called") {
+            `when`("unlinkZaak is called") {
                 val policyException = shouldThrow<PolicyException> {
                     zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
                 }
 
-                Then("a PolicyException is thrown") {
+                then("a PolicyException is thrown") {
                     policyException shouldNotBe null
                 }
             }
         }
 
-        Given("A gerelateerde zaak without lezen right on the linked zaak") {
+        given("A gerelateerde zaak without lezen right on the linked zaak") {
             val gekoppeldeZaak = createZaak()
             val gekoppeldeZaakType = createZaakType()
             val zaak = createZaak()
@@ -494,18 +477,18 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns createZaakRechten(lezen = false)
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("unlinkZaak is called") {
+            `when`("unlinkZaak is called") {
                 val policyException = shouldThrow<PolicyException> {
                     zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
                 }
 
-                Then("a PolicyException is thrown") {
+                then("a PolicyException is thrown") {
                     policyException shouldNotBe null
                 }
             }
         }
 
-        Given("A hoofdzaak without koppelen right on the linked zaak") {
+        given("A hoofdzaak without koppelen right on the linked zaak") {
             val gekoppeldeZaak = createZaak()
             val gekoppeldeZaakType = createZaakType()
             val zaak = createZaak()
@@ -530,18 +513,18 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns createZaakRechten(koppelen = false)
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("unlinkZaak is called") {
+            `when`("unlinkZaak is called") {
                 val policyException = shouldThrow<PolicyException> {
                     zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
                 }
 
-                Then("a PolicyException is thrown") {
+                then("a PolicyException is thrown") {
                     policyException shouldNotBe null
                 }
             }
         }
 
-        Given("A deelzaak linked to a hoofdzaak") {
+        given("A deelzaak linked to a hoofdzaak") {
             val gekoppeldeZaak = createZaak()
             val gekoppeldeZaakType = createZaakType()
             val zaak = createZaak()
@@ -573,10 +556,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("unlinkZaak is called with DEELZAAK relatie type") {
+            `when`("unlinkZaak is called with DEELZAAK relatie type") {
                 zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
 
-                Then("the deelzaak is successfully unlinked from the hoofdzaak") {
+                then("the deelzaak is successfully unlinked from the hoofdzaak") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(any(), any(), any())
                     }
@@ -585,7 +568,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("Zaak unlink data using an unsupported relatie type") {
+        given("Zaak unlink data using an unsupported relatie type") {
             val gekoppeldeZaak = createZaak()
             val gekoppeldeZaakType = createZaakType()
             val zaak = createZaak()
@@ -602,19 +585,19 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 zaakService.readZaakAndZaakTypeByZaakID(restZaakUnlinkData.gekoppeldeZaakIdentificatie)
             } returns Pair(gekoppeldeZaak, gekoppeldeZaakType)
 
-            When("unlinkZaak is called") {
+            `when`("unlinkZaak is called") {
                 val illegalArgumentException = shouldThrow<IllegalArgumentException> {
                     zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
                 }
 
-                Then("an IllegalArgumentException is thrown") {
+                then("an IllegalArgumentException is thrown") {
                     illegalArgumentException.message shouldBe
                         "RelatieType VERVOLG cannot be used for unlinking zaken"
                 }
             }
         }
 
-        Given("A gerelateerde zaak with lezen but without koppelen on the linked zaak") {
+        given("A gerelateerde zaak with lezen but without koppelen on the linked zaak") {
             val gekoppeldeZaak = createZaak()
             val gekoppeldeZaakType = createZaakType()
             val zaak = createZaak().apply {
@@ -642,10 +625,10 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { zrcClientService.patchZaak(any(), any(), "fakeReden") } returns zaak
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("unlinkZaak is called") {
+            `when`("unlinkZaak is called") {
                 zaakKoppelenRestService.unlinkZaak(restZaakUnlinkData)
 
-                Then("unlinking succeeds without PolicyException") {
+                then("unlinking succeeds without PolicyException") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(any(), any(), any())
                     }

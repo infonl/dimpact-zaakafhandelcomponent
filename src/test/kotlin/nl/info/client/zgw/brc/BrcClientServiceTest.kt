@@ -31,21 +31,21 @@ class BrcClientServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A zaak and two besluiten") {
+    given("A zaak and two besluiten") {
         val zaak = createZaak()
         val besluiten = listOf(createBesluit(), createBesluit())
         val besluitResults = Results(besluiten, 1)
         every { brcClient.besluitList(any()) } returns besluitResults
 
-        When("list besluiten is called") {
+        `when`("list besluiten is called") {
             val returnedBesluiten = brcClientService.listBesluiten(zaak)
 
-            Then("it should return the list of besluiten") {
+            then("it should return the list of besluiten") {
                 returnedBesluiten shouldBe besluiten
             }
         }
     }
-    Given("An existing besluit") {
+    given("An existing besluit") {
         val besluitUuid = UUID.randomUUID()
         val besluit = createBesluit(
             url = URI("http://localhost/besluit/$besluitUuid")
@@ -55,21 +55,21 @@ class BrcClientServiceTest : BehaviorSpec({
         every { zgwClientHeadersFactory.setAuditExplanation(updateReason) } just Runs
         every { brcClient.besluitUpdate(besluitUuid, besluit) } returns returnedBesluit
 
-        When("update besluit is called with a reason string") {
+        `when`("update besluit is called with a reason string") {
             val updatedBesluit = brcClientService.updateBesluit(besluit, updateReason)
 
-            Then("the update reason should added as a HTTP header and the besluit should be updated") {
+            then("the update reason should added as a HTTP header and the besluit should be updated") {
                 updatedBesluit shouldBe returnedBesluit
             }
         }
 
-        When("patch besluit is called with a reason string") {
+        `when`("patch besluit is called with a reason string") {
             every { zgwClientHeadersFactory.setAuditExplanation(updateReason) } just Runs
             every { brcClient.besluitPartialUpdate(besluitUuid, besluit) } returns returnedBesluit
 
             val patchedBesluit = brcClientService.patchBesluit(besluitUuid, besluit, updateReason)
 
-            Then("the update reason should be added as a HTTP header and the besluit should be partially updated") {
+            then("the update reason should be added as a HTTP header and the besluit should be partially updated") {
                 patchedBesluit shouldBe returnedBesluit
             }
         }

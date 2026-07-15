@@ -14,43 +14,43 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
     val validator =
         ValidRestEnkelvoudigInformatieFileUploadFormValidator()
 
-    Given("a REST enkelvoudig informatie object with an allowed extension") {
+    given("a REST enkelvoudig informatie object with an allowed extension") {
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
             .apply {
                 bestandsnaam = "fakeFileName.txt"
                 formaat = "text/plain"
             }
 
-        When("no file content provided") {
+        `when`("no file content provided") {
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
-            Then("it detects it as invalid") {
+            then("it detects it as invalid") {
                 result shouldBe false
             }
         }
 
-        When("file is empty") {
+        `when`("file is empty") {
             restEnkelvoudigInformatieobject.file = "".toByteArray()
 
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
-            Then("it detects it as invalid") {
+            then("it detects it as invalid") {
                 result shouldBe false
             }
         }
 
-        When("file content is provided") {
+        `when`("file content is provided") {
             restEnkelvoudigInformatieobject.file = "fake content".toByteArray()
 
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
-            Then("it detects it as valid") {
+            then("it detects it as valid") {
                 result shouldBe true
             }
         }
     }
 
-    Given("a REST enkelvoudig informatie object with file bytes but no bestandsnaam") {
+    given("a REST enkelvoudig informatie object with file bytes but no bestandsnaam") {
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
             .apply {
                 bestandsnaam = null
@@ -58,16 +58,16 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
                 file = "fake content".toByteArray()
             }
 
-        When("validated") {
+        `when`("validated") {
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
-            Then("it is rejected because the allowlist can only be applied with a bestandsnaam") {
+            then("it is rejected because the allowlist can only be applied with a bestandsnaam") {
                 result shouldBe false
             }
         }
     }
 
-    Given("a REST enkelvoudig informatie object with file bytes but a blank bestandsnaam") {
+    given("a REST enkelvoudig informatie object with file bytes but a blank bestandsnaam") {
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
             .apply {
                 bestandsnaam = "   "
@@ -75,28 +75,28 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
                 file = "fake content".toByteArray()
             }
 
-        When("validated") {
+        `when`("validated") {
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
-            Then("it is rejected") {
+            then("it is rejected") {
                 result shouldBe false
             }
         }
     }
 
-    Given("a metadata-only update without a filename") {
+    given("a metadata-only update without a filename") {
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
 
-        When("validated") {
+        `when`("validated") {
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
-            Then("it is accepted because no upload is happening") {
+            then("it is accepted because no upload is happening") {
                 result shouldBe true
             }
         }
     }
 
-    Given("a REST enkelvoudig informatie object with a disallowed extension") {
+    given("a REST enkelvoudig informatie object with a disallowed extension") {
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
             .apply {
                 bestandsnaam = "malicious.exe"
@@ -104,16 +104,16 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
                 file = "MZ".toByteArray()
             }
 
-        When("validated") {
+        `when`("validated") {
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
-            Then("it is rejected") {
+            then("it is rejected") {
                 result shouldBe false
             }
         }
     }
 
-    Given("a REST enkelvoudig informatie object whose extension and media type disagree") {
+    given("a REST enkelvoudig informatie object whose extension and media type disagree") {
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
             .apply {
                 bestandsnaam = "document.pdf"
@@ -121,16 +121,16 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
                 file = "fake content".toByteArray()
             }
 
-        When("validated") {
+        `when`("validated") {
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
-            Then("it is accepted because only the extension is validated; the media type is OS-dependent") {
+            then("it is accepted because only the extension is validated; the media type is OS-dependent") {
                 result shouldBe true
             }
         }
     }
 
-    Given("a REST enkelvoudig informatie object with an allowed extension but no media type") {
+    given("a REST enkelvoudig informatie object with an allowed extension but no media type") {
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject()
             .apply {
                 bestandsnaam = "report.PDF"
@@ -138,10 +138,10 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
                 file = "fake content".toByteArray()
             }
 
-        When("validated") {
+        `when`("validated") {
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
-            Then("it is accepted because the extension check is the security gate") {
+            then("it is accepted because the extension check is the security gate") {
                 result shouldBe true
             }
         }

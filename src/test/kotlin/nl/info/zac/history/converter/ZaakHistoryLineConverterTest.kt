@@ -37,7 +37,7 @@ class ZaakHistoryLineConverterTest : BehaviorSpec({
         auditBesluitInformatieobjectConverter
     )
 
-    Given("Besluit audit trail list") {
+    given("Besluit audit trail list") {
         val auditTrailRegel = listOf(
             createAuditTrailRegel(
                 bron = Bron.BESLUITEN_API,
@@ -73,10 +73,10 @@ class ZaakHistoryLineConverterTest : BehaviorSpec({
 
         every { brcClientService.readBesluit(any()) } returns createBesluit()
 
-        When("converted to historie regel") {
+        `when`("converted to historie regel") {
             val restHistorieRegel = converter.convert(auditTrailRegel)
 
-            Then("it should return a correct regel list") {
+            then("it should return a correct regel list") {
                 restHistorieRegel.size shouldBe 2
                 with(restHistorieRegel[1]) {
                     action shouldBe HistoryAction.GEKOPPELD

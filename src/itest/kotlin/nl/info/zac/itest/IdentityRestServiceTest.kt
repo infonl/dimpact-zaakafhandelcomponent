@@ -102,14 +102,14 @@ val TEST_GROUPS_ACTIVE =
 class IdentityServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
-    Context("Getting all available groups") {
-        Given("The ZAC Keycloak realm contains several groups and a logged-in beheerder") {
-            When("the 'list groups' endpoint is called") {
+    context("Getting all available groups") {
+        given("The ZAC Keycloak realm contains several groups and a logged-in beheerder") {
+            `when`("the 'list groups' endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/identity/groups",
                     testUser = BEHEERDER_1
                 )
-                Then("only active groups are returned and the inactive group is absent") {
+                then("only active groups are returned and the inactive group is absent") {
                     response.code shouldBe HTTP_OK
                     response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder TEST_GROUPS_ACTIVE.trimIndent()
                     response.bodyAsString shouldNotContain GROUP_INACTIVE_TEST_1.name
@@ -118,14 +118,14 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Getting authorised behandelaar groups for a zaaktype") {
-        Given(
+    context("Getting authorised behandelaar groups for a zaaktype") {
+        given(
             """
             Authorised groups for the application role 'behandelaar' and the given zaaktype, 
             using the groups' functional roles and the available PABC mappings, and a logged-in beheerder
         """
         ) {
-            When(
+            `when`(
                 "the 'list behandelaar groups for a zaaktype' endpoint is called for this zaaktype"
             ) {
                 val response = itestHttpClient.performGetRequest(
@@ -133,7 +133,7 @@ class IdentityServiceTest : BehaviorSpec({
                     "$ZAC_API_URI/identity/zaaktype/${ZAAKTYPE_CMMN_TEST_2_DESCRIPTION.encodeUrlPathSegment()}/behandelaar-groups",
                     testUser = BEHEERDER_1
                 )
-                Then(
+                then(
                     """
                 only the groups authorised for the application role 'behandelaar' and
                 zaaktype test 2 (via the PABC mappings and the group's functional roles) are returned                
@@ -174,14 +174,14 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Getting all available users") {
-        Given("Keycloak contains all provisioned test users, and a logged-in beheerder") {
-            When("the 'list users' endpoint is called") {
+    context("Getting all available users") {
+        given("Keycloak contains all provisioned test users, and a logged-in beheerder") {
+            `when`("the 'list users' endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/identity/users",
                     testUser = BEHEERDER_1
                 )
-                Then("All available users in the Keycloak ZAC realm are returned") {
+                then("All available users in the Keycloak ZAC realm are returned") {
                     response.code shouldBe HTTP_OK
                     response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                             [                               
@@ -248,16 +248,16 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Getting users in a group") {
-        Given(
+    context("Getting users in a group") {
+        given(
             "Keycloak contains a test group with members, and a logged-in beheerder"
         ) {
-            When("the 'list users in group' endpoint is called for the group") {
+            `when`("the 'list users in group' endpoint is called for the group") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/identity/groups/${GROUP_BEHANDELAARS_TEST_1.name}/users",
                     testUser = BEHEERDER_1
                 )
-                Then("the group members are returned") {
+                then("the group members are returned") {
                     response.code shouldBe HTTP_OK
                     response.bodyAsString shouldEqualJson """
                         [
@@ -272,16 +272,16 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Getting users in an inactive group") {
-        Given(
+    context("Getting users in an inactive group") {
+        given(
             "Keycloak contains an inactive group '${GROUP_INACTIVE_TEST_1.name}' with one member, and a logged-in beheerder"
         ) {
-            When("the 'list users in group' endpoint is called for the inactive group") {
+            `when`("the 'list users in group' endpoint is called for the inactive group") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/identity/groups/${GROUP_INACTIVE_TEST_1.name}/users",
                     testUser = BEHEERDER_1
                 )
-                Then("the member of the inactive group is returned") {
+                then("the member of the inactive group is returned") {
                     response.code shouldBe HTTP_OK
                     response.bodyAsString shouldEqualJson """
                         [
@@ -296,15 +296,15 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Getting authorised behandelaar groups for multiple zaaktypes") {
-        Given(
+    context("Getting authorised behandelaar groups for multiple zaaktypes") {
+        given(
             """
             Authorised groups for the application role 'behandelaar' for zaaktype 1 and zaaktype 2,
             with only 'beheerders-elk-domein' (beheerder_elk_domein functional role) authorised for both,
             and a logged-in beheerder
         """
         ) {
-            When(
+            `when`(
                 """
                 the 'list behandelaar groups for multiple zaaktypes'
                 endpoint is called for zaaktype 1 and zaaktype 2
@@ -322,7 +322,7 @@ class IdentityServiceTest : BehaviorSpec({
                     """.trimIndent(),
                     testUser = BEHEERDER_1
                 )
-                Then(
+                then(
                     "only the group authorised as behandelaar for both zaaktypes (beheerders-elk-domein) is returned"
                 ) {
                     response.code shouldBe HTTP_OK
@@ -339,8 +339,8 @@ class IdentityServiceTest : BehaviorSpec({
             }
         }
 
-        Given("An empty zaaktype descriptions list and a logged-in beheerder") {
-            When(
+        given("An empty zaaktype descriptions list and a logged-in beheerder") {
+            `when`(
                 "the 'list behandelaar groups for multiple zaaktypes' endpoint is called with an empty list"
             ) {
                 val response = itestHttpClient.performJSONPostRequest(
@@ -348,24 +348,24 @@ class IdentityServiceTest : BehaviorSpec({
                     requestBodyAsString = """{"zaaktypeDescriptions": []}""",
                     testUser = BEHEERDER_1
                 )
-                Then("HTTP 400 is returned") {
+                then("HTTP 400 is returned") {
                     response.code shouldBe HTTP_BAD_REQUEST
                 }
             }
         }
     }
 
-    Context("Getting the logged-in user") {
-        Given("A beheerder is logged in to ZAC and is part one or more groups") {
+    context("Getting the logged-in user") {
+        given("A beheerder is logged in to ZAC and is part one or more groups") {
             val expectedGroupsString = "\"${GROUP_BEHEERDERS_ELK_DOMEIN.name}\""
 
-            When("the 'get logged in user' endpoint is called") {
+            `when`("the 'get logged in user' endpoint is called") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/identity/loggedInUser",
                     testUser = BEHEERDER_1
                 )
 
-                Then("the response is OK and the expected group IDs are returned") {
+                then("the response is OK and the expected group IDs are returned") {
                     response.code shouldBe HTTP_OK
                     response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                             {

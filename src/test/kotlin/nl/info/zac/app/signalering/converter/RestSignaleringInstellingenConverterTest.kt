@@ -28,8 +28,8 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("convert(SignaleringInstellingen)") {
-        Given("a SignaleringInstellingen with dashboard-enabled type for a USER owner") {
+    context("convert(SignaleringInstellingen)") {
+        given("a SignaleringInstellingen with dashboard-enabled type for a USER owner") {
             val type = createSignaleringType(type = SignaleringType.Type.ZAAK_OP_NAAM)
             val instellingen = createSignaleringInstellingen(
                 type = type,
@@ -38,22 +38,22 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
                 isMail = true
             )
 
-            When("convert(SignaleringInstellingen) is called") {
+            `when`("convert(SignaleringInstellingen) is called") {
                 val result = restSignaleringInstellingenConverter.convert(instellingen)
 
-                Then("dashboard is populated because type supports dashboard and owner is USER") {
+                then("dashboard is populated because type supports dashboard and owner is USER") {
                     result.dashboard shouldNotBe null
                     result.dashboard shouldBe true
                 }
 
-                Then("mail is populated because type supports mail") {
+                then("mail is populated because type supports mail") {
                     result.mail shouldNotBe null
                     result.mail shouldBe true
                 }
             }
         }
 
-        Given("a SignaleringInstellingen with dashboard-enabled type for a GROUP owner") {
+        given("a SignaleringInstellingen with dashboard-enabled type for a GROUP owner") {
             val type = createSignaleringType(type = SignaleringType.Type.ZAAK_OP_NAAM)
             val instellingen = createSignaleringInstellingen(
                 type = type,
@@ -62,20 +62,20 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
                 isMail = true
             )
 
-            When("convert(SignaleringInstellingen) is called") {
+            `when`("convert(SignaleringInstellingen) is called") {
                 val result = restSignaleringInstellingenConverter.convert(instellingen)
 
-                Then("dashboard is null because owner is GROUP") {
+                then("dashboard is null because owner is GROUP") {
                     result.dashboard shouldBe null
                 }
 
-                Then("mail is still populated") {
+                then("mail is still populated") {
                     result.mail shouldBe true
                 }
             }
         }
 
-        Given("a SignaleringInstellingen with a type that has no dashboard support (TAAK_VERLOPEN)") {
+        given("a SignaleringInstellingen with a type that has no dashboard support (TAAK_VERLOPEN)") {
             val type = createSignaleringType(type = SignaleringType.Type.TAAK_VERLOPEN)
             val instellingen = createSignaleringInstellingen(
                 type = type,
@@ -84,26 +84,26 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
                 isMail = true
             )
 
-            When("convert(SignaleringInstellingen) is called") {
+            `when`("convert(SignaleringInstellingen) is called") {
                 val result = restSignaleringInstellingenConverter.convert(instellingen)
 
-                Then("dashboard is null because type does not support dashboard") {
+                then("dashboard is null because type does not support dashboard") {
                     result.dashboard shouldBe null
                 }
             }
         }
     }
 
-    Context("convert(Collection<SignaleringInstellingen>)") {
-        Given("a collection of SignaleringInstellingen") {
+    context("convert(Collection<SignaleringInstellingen>)") {
+        given("a collection of SignaleringInstellingen") {
             val type = createSignaleringType()
             val instellingen1 = createSignaleringInstellingen(id = 1L, type = type)
             val instellingen2 = createSignaleringInstellingen(id = 2L, type = type)
 
-            When("convert(Collection) is called") {
+            `when`("convert(Collection) is called") {
                 val result = restSignaleringInstellingenConverter.convert(listOf(instellingen1, instellingen2))
 
-                Then("all items are converted") {
+                then("all items are converted") {
                     result.size shouldBe 2
                     result[0].id shouldBe 1L
                     result[1].id shouldBe 2L
@@ -112,8 +112,8 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convert(RestSignaleringInstellingen, Group)") {
-        Given("a RestSignaleringInstellingen and a Group") {
+    context("convert(RestSignaleringInstellingen, Group)") {
+        given("a RestSignaleringInstellingen and a Group") {
             val type = SignaleringType.Type.ZAAK_OP_NAAM
             val restInstellingen = createRestSignaleringInstellingen(
                 type = createSignaleringType(type = type, subjecttype = SignaleringSubject.ZAAK),
@@ -127,22 +127,22 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
             )
             every { signaleringService.readInstellingenGroup(type, group.name) } returns domainInstellingen
 
-            When("convert(RestSignaleringInstellingen, Group) is called") {
+            `when`("convert(RestSignaleringInstellingen, Group) is called") {
                 val result = restSignaleringInstellingenConverter.convert(restInstellingen, group)
 
-                Then("isMail is updated from REST model if type supports mail") {
+                then("isMail is updated from REST model if type supports mail") {
                     result.isMail shouldBe true
                 }
 
-                Then("isDashboard is always set to false for group") {
+                then("isDashboard is always set to false for group") {
                     result.isDashboard shouldBe false
                 }
             }
         }
     }
 
-    Context("convert(RestSignaleringInstellingen, User)") {
-        Given("a RestSignaleringInstellingen and a User") {
+    context("convert(RestSignaleringInstellingen, User)") {
+        given("a RestSignaleringInstellingen and a User") {
             val type = SignaleringType.Type.ZAAK_OP_NAAM
             val restInstellingen = createRestSignaleringInstellingen(
                 type = createSignaleringType(type = type, subjecttype = SignaleringSubject.ZAAK),
@@ -158,14 +158,14 @@ class RestSignaleringInstellingenConverterTest : BehaviorSpec({
             )
             every { signaleringService.readInstellingenUser(type, user.id) } returns domainInstellingen
 
-            When("convert(RestSignaleringInstellingen, User) is called") {
+            `when`("convert(RestSignaleringInstellingen, User) is called") {
                 val result = restSignaleringInstellingenConverter.convert(restInstellingen, user)
 
-                Then("isDashboard is updated from REST model if type supports dashboard") {
+                then("isDashboard is updated from REST model if type supports dashboard") {
                     result.isDashboard shouldBe true
                 }
 
-                Then("isMail is updated from REST model if type supports mail") {
+                then("isMail is updated from REST model if type supports mail") {
                     result.isMail shouldBe true
                 }
             }

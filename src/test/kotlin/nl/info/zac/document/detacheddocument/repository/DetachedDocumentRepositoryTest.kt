@@ -26,51 +26,51 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Saving a detached document") {
-        Given("a detached document entity") {
+    context("Saving a detached document") {
+        given("a detached document entity") {
             val document = createDetachedDocument()
 
-            When("save is called") {
+            `when`("save is called") {
                 detachedDocumentRepository.save(document)
 
-                Then("the entity is persisted") {
+                then("the entity is persisted") {
                     verify { entityManager.persist(document) }
                 }
             }
         }
     }
 
-    Context("Finding a detached document by ID") {
-        Given("an existing detached document with a known ID") {
+    context("Finding a detached document by ID") {
+        given("an existing detached document with a known ID") {
             val document = createDetachedDocument()
 
             every { entityManager.find(DetachedDocument::class.java, document.id) } returns document
 
-            When("find is called with that ID") {
+            `when`("find is called with that ID") {
                 val result = detachedDocumentRepository.find(document.id!!)
 
-                Then("the document is returned") {
+                then("the document is returned") {
                     result shouldBe document
                 }
             }
         }
 
-        Given("no document exists for a given ID") {
+        given("no document exists for a given ID") {
             val id = 999L
             every { entityManager.find(DetachedDocument::class.java, id) } returns null
 
-            When("find is called with that ID") {
+            `when`("find is called with that ID") {
                 val result = detachedDocumentRepository.find(id)
 
-                Then("null is returned") {
+                then("null is returned") {
                     result shouldBe null
                 }
             }
         }
     }
 
-    Context("Finding a detached document by UUID") {
-        Given("an existing detached document with a known UUID") {
+    context("Finding a detached document by UUID") {
+        given("an existing detached document with a known UUID") {
             val targetUuid = UUID.randomUUID()
             val document = createDetachedDocument(uuid = targetUuid)
             val typedQuery = mockk<TypedQuery<DetachedDocument>> {
@@ -80,16 +80,16 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
                 entityManager.createQuery(any<CriteriaQuery<DetachedDocument>>())
             } returns typedQuery
 
-            When("find is called with that UUID") {
+            `when`("find is called with that UUID") {
                 val result = detachedDocumentRepository.find(targetUuid)
 
-                Then("the document with that UUID is returned") {
+                then("the document with that UUID is returned") {
                     result shouldBe document
                 }
             }
         }
 
-        Given("no detached document for a certain UUID") {
+        given("no detached document for a certain UUID") {
             val targetUuid = UUID.randomUUID()
             val typedQuery = mockk<TypedQuery<DetachedDocument>> {
                 every { resultList } returns emptyList()
@@ -98,58 +98,58 @@ class DetachedDocumentRepositoryTest : BehaviorSpec({
                 entityManager.createQuery(any<CriteriaQuery<DetachedDocument>>())
             } returns typedQuery
 
-            When("find is called with that UUID") {
+            `when`("find is called with that UUID") {
                 val result = detachedDocumentRepository.find(targetUuid)
 
-                Then("null is returned") {
+                then("null is returned") {
                     result shouldBe null
                 }
             }
         }
     }
 
-    Context("Deleting a detached document") {
-        Given("an existing detached document") {
+    context("Deleting a detached document") {
+        given("an existing detached document") {
             val detachedDocument = createDetachedDocument()
 
-            When("delete is called for that document") {
+            `when`("delete is called for that document") {
                 detachedDocumentRepository.delete(detachedDocument)
 
-                Then("the document is removed from the entity manager") {
+                then("the document is removed from the entity manager") {
                     verify { entityManager.remove(detachedDocument) }
                 }
             }
         }
     }
 
-    Context("Listing detached documents") {
-        Given("a relaxed entity manager and empty list parameters") {
+    context("Listing detached documents") {
+        given("a relaxed entity manager and empty list parameters") {
             val typedQuery = mockk<TypedQuery<DetachedDocument>>(relaxed = true) {
                 every { resultList } returns emptyList()
             }
             every { entityManager.createQuery(any<CriteriaQuery<DetachedDocument>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = detachedDocumentRepository.list(DetachedDocumentListParameters())
 
-                Then("an empty list is returned") {
+                then("an empty list is returned") {
                     result shouldBe emptyList()
                 }
             }
         }
     }
 
-    Context("Counting detached documents") {
-        Given("a relaxed entity manager and empty list parameters") {
+    context("Counting detached documents") {
+        given("a relaxed entity manager and empty list parameters") {
             val typedQuery = mockk<TypedQuery<Long>>(relaxed = true) {
                 every { singleResult } returns 0L
             }
             every { entityManager.createQuery(any<CriteriaQuery<Long>>()) } returns typedQuery
 
-            When("count is called") {
+            `when`("count is called") {
                 val result = detachedDocumentRepository.count(DetachedDocumentListParameters())
 
-                Then("zero is returned") {
+                then("zero is returned") {
                     result shouldBe 0
                 }
             }

@@ -113,8 +113,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Get aanvraaggegevens") {
-        Given("a productaanvraag-dimpact object with aanvraaggegevens containing form steps with key-value pairs") {
+    context("Get aanvraaggegevens") {
+        given("a productaanvraag-dimpact object with aanvraaggegevens containing form steps with key-value pairs") {
             val type = "productaanvraag"
             val bron = createBron()
             val orObject = createORObject(
@@ -134,10 +134,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     )
                 )
             )
-            When("the form data is requested from the productaanvraag") {
+            `when`("the form data is requested from the productaanvraag") {
                 val formData = productaanvraagService.getAanvraaggegevens(orObject)
 
-                Then("all key-value pairs in the aanvraaggegevens are returned") {
+                then("all key-value pairs in the aanvraaggegevens are returned") {
                     with(formData) {
                         this["fakeKey1"] shouldBe "fakeValue1"
                         this["fakeKey2"] shouldBe "fakeValue2"
@@ -148,8 +148,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Get productaanvraag") {
-        Given("a productaanvraag-dimpact object registration object with zaakgegevens") {
+    context("Get productaanvraag") {
+        given("a productaanvraag-dimpact object registration object with zaakgegevens") {
             val type = "productaanvraag"
             val bron = createBron()
             val zaakIdentificatie = "fakeZaakIdentificatie"
@@ -173,10 +173,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     )
                 )
             )
-            When("the productaanvraag is requested from the product aanvraag service") {
+            `when`("the productaanvraag is requested from the product aanvraag service") {
                 val productAanVraagDimpact = productaanvraagService.getProductaanvraag(orObject)
 
-                Then(
+                then(
                     "the productaanvraag of type 'productaanvraag Dimpact' is returned and contains the expected data"
                 ) {
                     with(productAanVraagDimpact) {
@@ -200,7 +200,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a productaanvraag-dimpact object registration object without zaakgegevens") {
+        given("a productaanvraag-dimpact object registration object without zaakgegevens") {
             val type = "productaanvraag"
             val bron = createBron()
             val orObject = createORObject(
@@ -211,10 +211,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     )
                 )
             )
-            When("the productaanvraag is requested from the product aanvraag service") {
+            `when`("the productaanvraag is requested from the product aanvraag service") {
                 val productAanVraagDimpact = productaanvraagService.getProductaanvraag(orObject)
 
-                Then(
+                then(
                     "the productaanvraag of type 'productaanvraag Dimpact' is returned and contains the expected data"
                 ) {
                     with(productAanVraagDimpact) {
@@ -231,8 +231,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Handle productaanvraag") {
-        Given(
+    context("Handle productaanvraag") {
+        given(
             """
             a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist 
             containing zaakgegevens with a point geometry and a betrokkene with role initiator and type BSN 
@@ -331,10 +331,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
             every { configurationService.readBronOrganisatie() } returns "123443210"
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(
+                then(
                     """
                     a zaak should be created and an initiator role of type 'natuurlijk persoon' should be created for the zaak                   
                     """
@@ -393,7 +393,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist 
             containing gebruikersnaamMedewerker as well as a betrokkene with role initiator and type vestiging
@@ -485,10 +485,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
             every { configurationService.readBronOrganisatie() } returns "123443210"
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(
+                then(
                     """
                     a zaak should be created, an initiator role of type 'natuurlijk persoon' should be created for the zaak
                     and a CMMN case process should be started
@@ -525,7 +525,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist 
             containing gebruikersnaamMedewerker as well as a bsn and kvk betrokkene with roles initiator and behandelaar, but zaaktype
@@ -618,10 +618,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } just runs
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(
+                then(
                     """
                     a zaak should be created, an initiator role of type 'natuurlijk persoon' should be created for the zaak
                     and a CMMN case process should be started
@@ -653,7 +653,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
             containing a betrokkene with role initiator and type vestiging with an invalid kvk nummer
@@ -726,10 +726,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } just runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(
+                then(
                     """
                     a zaak should be created, an initiator role of type 'natuurlijk persoon' should be created for the zaak
                     and a CMMN case process should be started
@@ -755,7 +755,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
             containing a betrokkene with initiator role that's not supported by the zaaktype
@@ -825,10 +825,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } just runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then("a zaak and a zaak object should be created") {
+                then("a zaak and a zaak object should be created") {
                     verify(exactly = 1) {
                         zgwApiService.createZaak(any())
                         zrcClientService.createZaakobject(any())
@@ -857,7 +857,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
             containing a betrokkene with role initiator but no supported initiator identification
@@ -916,10 +916,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(
+                then(
                     """
                     a zaak should be created, no initiator role should be created for the zaak
                     and a CMMN case process should be started
@@ -945,7 +945,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist 
             not containing any betrokkenen
@@ -1004,10 +1004,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } just runs
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(
+                then(
                     """
                     a zaak should be created and a CMMN case process should be started
                     """
@@ -1032,7 +1032,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             a productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
             containing a list of supported betrokkenen including behandelaar but no initiator
@@ -1150,7 +1150,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productAanvraagType)
             } returns null
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
                 // here we simulate the case that no role types have been defined for the adviseur role
                 every { ztcClientService.findRoltypen(any(), OmschrijvingGeneriekEnum.ADVISEUR) } returns emptyList()
@@ -1197,7 +1197,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then("a zaak should be created") {
+                then("a zaak should be created") {
                     verify(exactly = 1) {
                         zgwApiService.createZaak(any())
                         zrcClientService.createZaakobject(any())
@@ -1270,7 +1270,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             A productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
             with a default group, but an exception occurs when adding a zaakinformatieobject
@@ -1315,10 +1315,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just Runs
             every { configurationService.readBronOrganisatie() } returns "123443210"
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then("a zaak should be created") {
+                then("a zaak should be created") {
                     verify(exactly = 1) {
                         zgwApiService.createZaak(any())
                     }
@@ -1349,7 +1349,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a productaanvraag-dimpact object registration object missing required aanvraaggegevens") {
+        given("a productaanvraag-dimpact object registration object missing required aanvraaggegevens") {
             clearAllMocks()
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -1366,10 +1366,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 objectsClientService.readObject(productAanvraagObjectUUID)
             } returns productAanvraagORObjectWithMissingAanvraaggegevens
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(
+                then(
                     """
                 an inbox productaanvraag should be created and a zaak should not be created, 
                 and no CMMN should be started
@@ -1385,7 +1385,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             a productaanvraag-dimpact object registration object containing required data but
             no betrokkenen and which contains a zaaktype for which no zaaktypeCmmnConfiguration are configured 
@@ -1428,10 +1428,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } returns null
             every { inboxProductaanvraagService.create(capture(inboxProductaanvraagSlot)) } just runs
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(
+                then(
                     """
                 an inbox productaanvraag should be created, 
                 no zaak should be created and no CMMN process should be started
@@ -1458,7 +1458,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             A productaanvraag-dimpact object that cannot be read from the objects client service
             """
@@ -1467,10 +1467,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val productAanvraagObjectUUID = UUID.randomUUID()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } throws RuntimeException("Failed")
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(
+                then(
                     """
                 no exception is thrown, and no further actions are taken
                 """
@@ -1486,7 +1486,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             A productaanvraag-dimpact object registration object with an initiator betrokkene, no matching zaaktypeCmmnConfiguration,
             but a BPMN definition for the productaanvraagtype
@@ -1567,10 +1567,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
             every { zrcClientService.createRol(capture(createdRolSlot)) } returns mockk()
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then(" A zaak should be created and a BPMN process should be started") {
+                then(" A zaak should be created and a BPMN process should be started") {
                     verify(exactly = 1) {
                         zgwApiService.createZaak(any())
                         bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
@@ -1621,7 +1621,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             A productaanvraag-dimpact object where both a CMMN mapping and a BPMN mapping exist for the productaanvraagtype
             """
@@ -1671,10 +1671,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } just runs
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then("CMMN should win: a CMMN process is started and BPMN is not started") {
+                then("CMMN should win: a CMMN process is started and BPMN is not started") {
                     verify(exactly = 1) {
                         zgwApiService.createZaak(any())
                         zrcClientService.createZaakobject(any())
@@ -1687,7 +1687,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             A productaanvraag-dimpact object registration object for which zaaktypeCmmnConfiguration exist
             and for which application-specific contact details are available
@@ -1748,10 +1748,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                 )
             } just runs
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then("the application-specific contact details are linked to the zaak") {
+                then("the application-specific contact details are linked to the zaak") {
                     verify(exactly = 1) {
                         klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(
                             contactDetails,
@@ -1772,7 +1772,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             A productaanvraag-dimpact object registration object with no matching zaaktypeCmmnConfiguration,
             a BPMN definition for the productaanvraagtype, and application-specific contact details
@@ -1838,10 +1838,10 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
             every { klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(contactDetails, createdZaak.uuid) } just runs
 
-            When("the productaanvraag is handled") {
+            `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
 
-                Then("the application-specific contact details are linked to the zaak") {
+                then("the application-specific contact details are linked to the zaak") {
                     verify(exactly = 1) {
                         klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(
                             contactDetails,

@@ -13,8 +13,8 @@ import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import java.util.UUID
 
 class ZaaktypeConfigurationTest : BehaviorSpec({
-    Context("mapCompletionParameters") {
-        Given("A previous zaaktype configuration with completion parameters") {
+    context("mapCompletionParameters") {
+        given("A previous zaaktype configuration with completion parameters") {
             val previousConfig = ZaaktypeBpmnConfiguration().apply {
                 zaaktypeUuid = UUID.randomUUID()
                 zaaktypeOmschrijving = "Previous Type"
@@ -39,7 +39,7 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
                 )
             }
 
-            When("completion parameters are mapped to a new configuration with the same zaaktypeUuid") {
+            `when`("completion parameters are mapped to a new configuration with the same zaaktypeUuid") {
                 val newConfig = ZaaktypeBpmnConfiguration().apply {
                     zaaktypeUuid = previousConfig.zaaktypeUuid
                     zaaktypeOmschrijving = "Updated Type"
@@ -47,7 +47,7 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
 
                 previousConfig.mapCompletionParameters(previousConfig, newConfig)
 
-                Then("the completion parameters should be copied with the same IDs") {
+                then("the completion parameters should be copied with the same IDs") {
                     newConfig.zaaktypeCompletionParameters shouldNotBe null
                     newConfig.zaaktypeCompletionParameters?.size shouldBe 2
 
@@ -62,7 +62,7 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
                 }
             }
 
-            When("completion parameters are mapped to a configuration with a different zaaktypeUuid") {
+            `when`("completion parameters are mapped to a configuration with a different zaaktypeUuid") {
                 val newConfig = ZaaktypeBpmnConfiguration().apply {
                     zaaktypeUuid = UUID.randomUUID()
                     zaaktypeOmschrijving = "New Type"
@@ -70,7 +70,7 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
 
                 previousConfig.mapCompletionParameters(previousConfig, newConfig)
 
-                Then("the completion parameters should be copied with null IDs for new entity creation") {
+                then("the completion parameters should be copied with null IDs for new entity creation") {
                     newConfig.zaaktypeCompletionParameters shouldNotBe null
                     newConfig.zaaktypeCompletionParameters?.size shouldBe 2
 
@@ -82,14 +82,14 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
             }
         }
 
-        Given("A previous configuration with no completion parameters") {
+        given("A previous configuration with no completion parameters") {
             val previousConfig = ZaaktypeBpmnConfiguration().apply {
                 zaaktypeUuid = UUID.randomUUID()
                 zaaktypeOmschrijving = "Previous Type"
                 zaaktypeCompletionParameters = null
             }
 
-            When("completion parameters are mapped to a new configuration") {
+            `when`("completion parameters are mapped to a new configuration") {
                 val newConfig = ZaaktypeBpmnConfiguration().apply {
                     zaaktypeUuid = UUID.randomUUID()
                     zaaktypeOmschrijving = "New Type"
@@ -97,21 +97,21 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
 
                 previousConfig.mapCompletionParameters(previousConfig, newConfig)
 
-                Then("the new configuration should have an empty set of completion parameters") {
+                then("the new configuration should have an empty set of completion parameters") {
                     newConfig.zaaktypeCompletionParameters shouldNotBe null
                     newConfig.zaaktypeCompletionParameters?.size shouldBe 0
                 }
             }
         }
 
-        Given("A previous configuration with empty completion parameters") {
+        given("A previous configuration with empty completion parameters") {
             val previousConfig = ZaaktypeBpmnConfiguration().apply {
                 zaaktypeUuid = UUID.randomUUID()
                 zaaktypeOmschrijving = "Previous Type"
                 zaaktypeCompletionParameters = mutableSetOf()
             }
 
-            When("completion parameters are mapped to a new configuration") {
+            `when`("completion parameters are mapped to a new configuration") {
                 val newConfig = ZaaktypeBpmnConfiguration().apply {
                     zaaktypeUuid = UUID.randomUUID()
                     zaaktypeOmschrijving = "New Type"
@@ -119,7 +119,7 @@ class ZaaktypeConfigurationTest : BehaviorSpec({
 
                 previousConfig.mapCompletionParameters(previousConfig, newConfig)
 
-                Then("the new configuration should have an empty set of completion parameters") {
+                then("the new configuration should have an empty set of completion parameters") {
                     newConfig.zaaktypeCompletionParameters shouldNotBe null
                     newConfig.zaaktypeCompletionParameters?.size shouldBe 0
                 }

@@ -62,7 +62,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A formio task with empty taakdata") {
+    given("A formio task with empty taakdata") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
         val task = createTestTask()
@@ -73,10 +73,10 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
 
-        When("submit is called") {
+        `when`("submit is called") {
             val result = service.submit(restTask, task, zaak)
 
-            Then("sets task info and data, updates zaak variables, and returns the original task") {
+            then("sets task info and data, updates zaak variables, and returns the original task") {
                 result shouldBe task
                 verify(exactly = 1) { taakVariabelenService.setTaskinformation(task, restTask.taakinformatie) }
                 verify(exactly = 1) { taakVariabelenService.setTaskData(task, restTask.taakdata) }
@@ -88,7 +88,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A formio task with toelichting in taakdata") {
+    given("A formio task with toelichting in taakdata") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
         val task = createTestTask()
@@ -104,17 +104,17 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
         every { flowableTaskService.updateTask(any()) } returns updatedTask
 
-        When("submit is called") {
+        `when`("submit is called") {
             val result = service.submit(restTask, task, zaak)
 
-            Then("updates the task description via flowableTaskService and returns the updated task") {
+            then("updates the task description via flowableTaskService and returns the updated task") {
                 result shouldBe updatedTask
                 verify(exactly = 1) { flowableTaskService.updateTask(any()) }
             }
         }
     }
 
-    Given("A formio task with zaak-opschorten=true and a non-suspended zaak") {
+    given("A formio task with zaak-opschorten=true and a non-suspended zaak") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
         val dueDate = Date.from(LocalDate.now().plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant())
@@ -130,16 +130,16 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
         every { suspensionZaakHelper.suspendZaak(any(), any(), any()) } returns zaak
 
-        When("submit is called") {
+        `when`("submit is called") {
             service.submit(restTask, task, zaak)
 
-            Then("suspends the zaak") {
+            then("suspends the zaak") {
                 verify(exactly = 1) { suspensionZaakHelper.suspendZaak(zaak, any(), any()) }
             }
         }
     }
 
-    Given("A formio task with zaak-opschorten=true and an already suspended zaak") {
+    given("A formio task with zaak-opschorten=true and an already suspended zaak") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid, opschorting = createOpschorting(indicatie = true))
         val dueDate = Date.from(LocalDate.now().plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant())
@@ -154,16 +154,16 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
 
-        When("submit is called") {
+        `when`("submit is called") {
             service.submit(restTask, task, zaak)
 
-            Then("does not suspend the zaak again") {
+            then("does not suspend the zaak again") {
                 verify(exactly = 0) { suspensionZaakHelper.suspendZaak(any(), any(), any()) }
             }
         }
     }
 
-    Given("A formio task with zaak-hervatten=true and a suspended zaak") {
+    given("A formio task with zaak-hervatten=true and a suspended zaak") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid, opschorting = createOpschorting(indicatie = true))
         val task = createTestTask()
@@ -178,16 +178,16 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
         every { suspensionZaakHelper.resumeZaak(any(), any(), any()) } returns zaak
 
-        When("submit is called") {
+        `when`("submit is called") {
             service.submit(restTask, task, zaak)
 
-            Then("resumes the zaak") {
+            then("resumes the zaak") {
                 verify(exactly = 1) { suspensionZaakHelper.resumeZaak(zaak, "Zaak hervat vanuit proces", any()) }
             }
         }
     }
 
-    Given("A formio task with zaak-hervatten=true and a non-suspended zaak") {
+    given("A formio task with zaak-hervatten=true and a non-suspended zaak") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
         val task = createTestTask()
@@ -201,16 +201,16 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
 
-        When("submit is called") {
+        `when`("submit is called") {
             service.submit(restTask, task, zaak)
 
-            Then("does not resume the zaak") {
+            then("does not resume the zaak") {
                 verify(exactly = 0) { suspensionZaakHelper.resumeZaak(any(), any()) }
             }
         }
     }
 
-    Given("A formio task with documenten-verzenden referencing one document") {
+    given("A formio task with documenten-verzenden referencing one document") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
         val task = createTestTask()
@@ -233,10 +233,10 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
             enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(any(), any(), any())
         } just runs
 
-        When("submit is called") {
+        `when`("submit is called") {
             service.submit(restTask, task, zaak)
 
-            Then("marks the document as sent") {
+            then("marks the document as sent") {
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
                         documentUuid,
@@ -248,7 +248,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A formio task with documenten-onderteken referencing an unsigned document") {
+    given("A formio task with documenten-onderteken referencing an unsigned document") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
         val task = createTestTask()
@@ -270,10 +270,10 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         every { drcClientService.readEnkelvoudigInformatieobject(documentUuid) } returns unsignedDocument
         every { enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(any()) } just runs
 
-        When("submit is called") {
+        `when`("submit is called") {
             service.submit(restTask, task, zaak)
 
-            Then("signs the document") {
+            then("signs the document") {
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(documentUuid)
                 }
@@ -281,7 +281,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A formio task with documenten-onderteken referencing an already signed document") {
+    given("A formio task with documenten-onderteken referencing an already signed document") {
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
         val task = createTestTask()
@@ -302,10 +302,10 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
         every { drcClientService.readEnkelvoudigInformatieobject(documentUuid) } returns signedDocument
 
-        When("submit is called") {
+        `when`("submit is called") {
             service.submit(restTask, task, zaak)
 
-            Then("skips signing the already-signed document") {
+            then("skips signing the already-signed document") {
                 verify(exactly = 0) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(any())
                 }
@@ -313,19 +313,19 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A task with no formio formulier") {
+    given("A task with no formio formulier") {
         val restTask = createRestTask(formioFormulier = null)
 
-        When("renderFormioFormulier is called") {
+        `when`("renderFormioFormulier is called") {
             val result = service.renderFormioFormulier(restTask)
 
-            Then("returns null") {
+            then("returns null") {
                 result shouldBe null
             }
         }
     }
 
-    Given("A formio formulier with a TAAK:STARTDATUM defaultValue") {
+    given("A formio formulier with a TAAK:STARTDATUM defaultValue") {
         val zaakUuid = UUID.randomUUID()
         val creationDateTime = ZonedDateTime.now()
         val restTask = createRestTask(
@@ -345,10 +345,10 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaakUuid) } returns createZaak(uuid = zaakUuid)
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
 
-        When("renderFormioFormulier is called") {
+        `when`("renderFormioFormulier is called") {
             val result = service.renderFormioFormulier(restTask)
 
-            Then("resolves the defaultValue to the formatted task creation date") {
+            then("resolves the defaultValue to the formatted task creation date") {
                 val resolvedDefault = result
                     ?.getJsonArray("components")
                     ?.getJsonObject(0)
@@ -358,7 +358,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A formio formulier with a zaakdata-prefixed defaultValue") {
+    given("A formio formulier with a zaakdata-prefixed defaultValue") {
         val zaakUuid = UUID.randomUUID()
         val restTask = createRestTask(
             zaakUuid = zaakUuid,
@@ -371,16 +371,16 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaakUuid) } returns createZaak(uuid = zaakUuid)
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns mapOf("myZaakKey" to "myZaakValue")
 
-        When("renderFormioFormulier is called") {
+        `when`("renderFormioFormulier is called") {
             val result = service.renderFormioFormulier(restTask)
 
-            Then("resolves the defaultValue from the zaakdata map") {
+            then("resolves the defaultValue from the zaakdata map") {
                 result?.getString("defaultValue") shouldBe "myZaakValue"
             }
         }
     }
 
-    Given("A formio formulier with an unrecognised defaultValue") {
+    given("A formio formulier with an unrecognised defaultValue") {
         val zaakUuid = UUID.randomUUID()
         val restTask = createRestTask(
             zaakUuid = zaakUuid,
@@ -393,10 +393,10 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaakUuid) } returns createZaak(uuid = zaakUuid)
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
 
-        When("renderFormioFormulier is called") {
+        `when`("renderFormioFormulier is called") {
             val result = service.renderFormioFormulier(restTask)
 
-            Then("returns the literal value unchanged") {
+            then("returns the literal value unchanged") {
                 result?.getString("defaultValue") shouldBe "some-literal-value"
             }
         }

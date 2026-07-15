@@ -20,21 +20,21 @@ class JsonbUtilTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a class with a public field and a getter that transforms its value") {
-        When("JSONB serializes an instance") {
+    given("a class with a public field and a getter that transforms its value") {
+        `when`("JSONB serializes an instance") {
             val samplePayload = SamplePayload().apply { value = "rawValue" }
             val json = JSONB.toJson(samplePayload)
 
-            Then("the raw field value is serialized, not the getter's transformed value") {
+            then("the raw field value is serialized, not the getter's transformed value") {
                 json shouldContain "rawValue"
                 json shouldNotContain "overridden-rawValue"
             }
         }
 
-        When("JSONB deserializes a JSON object") {
+        `when`("JSONB deserializes a JSON object") {
             val samplePayload = JSONB.fromJson("""{"value":"fromJson"}""", SamplePayload::class.java)
 
-            Then("the field is set directly and the getter transforms it on read") {
+            then("the field is set directly and the getter transforms it on read") {
                 samplePayload.value shouldBe "overridden-fromJson"
             }
         }

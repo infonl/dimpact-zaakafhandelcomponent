@@ -67,7 +67,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A logged-in user and a zaak with a behandelaar and an initiator of type natuurlijk persoon") {
+    given("A logged-in user and a zaak with a behandelaar and an initiator of type natuurlijk persoon") {
         val loggedInUser = createLoggedInUser()
         val rolNatuurlijkPersoon =
             createRolNatuurlijkPersoon(
@@ -91,13 +91,13 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         every { zgwApiService.findGroepForZaak(zaak) } returns rolOrganisatorischeEenheid
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
-        When("SmartDocuments data is created") {
+        `when`("SmartDocuments data is created") {
             val data = documentCreationDataConverter.createData(
                 loggedInUser = loggedInUser,
                 zaak = zaak
             )
 
-            Then("the data is created correctly") {
+            then("the data is created correctly") {
                 with(data) {
                     with(aanvragerData!!) {
                         naam shouldBe persoon.naam
@@ -123,7 +123,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A logged-in user and a zaak without a behandelaar and an initiator of type vestiging") {
+    given("A logged-in user and a zaak without a behandelaar and an initiator of type vestiging") {
         val loggedInUser = createLoggedInUser()
         val rolVestiging =
             createRolVestiging(
@@ -142,13 +142,13 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         every { zgwApiService.findGroepForZaak(zaak) } returns null
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
-        When("SmartDocuments data is created") {
+        `when`("SmartDocuments data is created") {
             val data = documentCreationDataConverter.createData(
                 loggedInUser = loggedInUser,
                 zaak = zaak
             )
 
-            Then("the data is created correctly") {
+            then("the data is created correctly") {
                 with(data) {
                     with(aanvragerData!!) {
                         naam shouldBe resultaatItem.naam
@@ -174,7 +174,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """
         A logged-in user and a zaak without a behandelaar and an initiator of type niet-natuurlijk persoon
         with a vestigingsnummer
@@ -202,13 +202,13 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         every { zgwApiService.findGroepForZaak(zaak) } returns null
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
-        When("SmartDocuments data is created") {
+        `when`("SmartDocuments data is created") {
             val data = documentCreationDataConverter.createData(
                 loggedInUser = loggedInUser,
                 zaak = zaak
             )
 
-            Then("the data is created correctly") {
+            then("the data is created correctly") {
                 with(data) {
                     with(aanvragerData!!) {
                         naam shouldBe resultaatItem.naam

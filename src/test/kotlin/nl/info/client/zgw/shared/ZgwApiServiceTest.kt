@@ -59,8 +59,8 @@ class ZgwApiServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Creating a zaak") {
-        Given("Zaak input data and a zaaktype with a doorlooptijd and no servicenorm was ever set") {
+    context("Creating a zaak") {
+        given("Zaak input data and a zaaktype with a doorlooptijd and no servicenorm was ever set") {
             val zaakType = createZaakType(doorloopTijd = "P5D")
             val zaak = createZaak(
                 startDate = LocalDate.of(1975, 12, 5),
@@ -71,10 +71,10 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
             every { zrcClientService.createZaak(capture(zaakSlot)) } returns createdZaak
 
-            When("a zaak is created") {
+            `when`("a zaak is created") {
                 val returnedZaak = zgwApiService.createZaak(zaak)
 
-                Then("the zaak is created in the ZGW API with the correct 'uiterlijke einddatum afdoening'") {
+                then("the zaak is created in the ZGW API with the correct 'uiterlijke einddatum afdoening'") {
                     returnedZaak shouldBe createdZaak
                     with(zaakSlot.captured) {
                         this.identificatie shouldBe zaak.identificatie
@@ -88,7 +88,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                 }
             }
         }
-        Given("Zaak input data and a zaaktype with a doorlooptijd and a servicenorm is set") {
+        given("Zaak input data and a zaaktype with a doorlooptijd and a servicenorm is set") {
             val zaakType = createZaakType(
                 doorloopTijd = "P5D",
                 servicenorm = "P10D"
@@ -102,10 +102,10 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
             every { zrcClientService.createZaak(capture(zaakSlot)) } returns createdZaak
 
-            When("a zaak is created") {
+            `when`("a zaak is created") {
                 val returnedZaak = zgwApiService.createZaak(zaak)
 
-                Then("the zaak is created in the ZGW API with the correct 'uiterlijke einddatum afdoening'") {
+                then("the zaak is created in the ZGW API with the correct 'uiterlijke einddatum afdoening'") {
                     returnedZaak shouldBe createdZaak
                     with(zaakSlot.captured) {
                         this.identificatie shouldBe zaak.identificatie
@@ -120,7 +120,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                 }
             }
         }
-        Given("Zaak input data and a zaaktype with a doorlooptijd and a servicenorm is set, and then cleared") {
+        given("Zaak input data and a zaaktype with a doorlooptijd and a servicenorm is set, and then cleared") {
             val zaakType = createZaakType(
                 doorloopTijd = "P5D",
                 servicenorm = "P0Y0M0D"
@@ -134,10 +134,10 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
             every { zrcClientService.createZaak(capture(zaakSlot)) } returns createdZaak
 
-            When("a zaak is created") {
+            `when`("a zaak is created") {
                 val returnedZaak = zgwApiService.createZaak(zaak)
 
-                Then("the zaak is created in the ZGW API with the correct 'uiterlijke einddatum afdoening'") {
+                then("the zaak is created in the ZGW API with the correct 'uiterlijke einddatum afdoening'") {
                     returnedZaak shouldBe createdZaak
                     with(zaakSlot.captured) {
                         this.identificatie shouldBe zaak.identificatie
@@ -153,8 +153,8 @@ class ZgwApiServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Finding a BehandelaarMedewerkerRole for zaak") {
-        Given("A zaak with a behandelaar medewerker role") {
+    context("Finding a BehandelaarMedewerkerRole for zaak") {
+        given("A zaak with a behandelaar medewerker role") {
             val zaak = createZaak()
             val rolMedewerker = createRolMedewerker(zaakURI = zaak.url)
             every {
@@ -162,10 +162,10 @@ class ZgwApiServiceTest : BehaviorSpec({
             } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR))
             every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(listOf(rolMedewerker), 1)
 
-            When("the behandelaar medewerker rol is requested") {
+            `when`("the behandelaar medewerker rol is requested") {
                 val rolMedewerker = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
 
-                Then("the behandelaar medewerker role should be returned") {
+                then("the behandelaar medewerker role should be returned") {
                     rolMedewerker shouldNotBe null
                     with(rolMedewerker!!) {
                         this.zaak shouldBe zaak.url
@@ -176,7 +176,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                 }
             }
         }
-        Given("A zaak with a behandelaar medewerker role without a betrokkene identificatie") {
+        given("A zaak with a behandelaar medewerker role without a betrokkene identificatie") {
             val zaak = createZaak()
             val rolMedewerker = createRolMedewerker(
                 zaakURI = zaak.url,
@@ -189,10 +189,10 @@ class ZgwApiServiceTest : BehaviorSpec({
             } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR))
             every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(listOf(rolMedewerker), 1)
 
-            When("the behandelaar medewerker rol is requested") {
+            `when`("the behandelaar medewerker rol is requested") {
                 val rolMedewerker = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
 
-                Then("a behandelaar medewerker role without a betrokkene identificatie should be returned") {
+                then("a behandelaar medewerker role without a betrokkene identificatie should be returned") {
                     rolMedewerker shouldNotBe null
                     with(rolMedewerker!!) {
                         this.zaak shouldBe zaak.url
@@ -203,7 +203,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                 }
             }
         }
-        Given("A zaak with multiple behandelaar medewerker roles") {
+        given("A zaak with multiple behandelaar medewerker roles") {
             val zaak = createZaak()
             val rolMedewerker = createRolMedewerker(zaakURI = zaak.url)
             every {
@@ -213,12 +213,12 @@ class ZgwApiServiceTest : BehaviorSpec({
                 zrcClientService.listRollen(any<RolListParameters>())
             } returns Results(listOf(rolMedewerker, rolMedewerker), 2)
 
-            When("the behandelaar medewerker rol is requested") {
+            `when`("the behandelaar medewerker rol is requested") {
                 val exception = shouldThrow<IllegalStateException> {
                     zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
                 }
 
-                Then("an exception should be thrown") {
+                then("an exception should be thrown") {
                     exception.message shouldBe
                         "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: 2)"
                 }
@@ -226,8 +226,8 @@ class ZgwApiServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Finding a group for zaak") {
-        Given("A zaak with a group") {
+    context("Finding a group for zaak") {
+        given("A zaak with a group") {
             val zaak = createZaak()
             val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid(zaakURI = zaak.url)
             every {
@@ -240,10 +240,10 @@ class ZgwApiServiceTest : BehaviorSpec({
                 1
             )
 
-            When("the group is requested") {
+            `when`("the group is requested") {
                 val group = zgwApiService.findGroepForZaak(zaak)
 
-                Then("the group should be returned") {
+                then("the group should be returned") {
                     group shouldNotBe null
                     with(group!!) {
                         this.zaak shouldBe zaak.url
@@ -253,39 +253,39 @@ class ZgwApiServiceTest : BehaviorSpec({
                 }
             }
         }
-        Given("A zaaktype without a behandelaar role type") {
+        given("A zaaktype without a behandelaar role type") {
             val zaak = createZaak()
             every {
                 ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
             } returns emptyList()
 
-            When("the group is requested") {
+            `when`("the group is requested") {
                 val group = zgwApiService.findGroepForZaak(zaak)
 
-                Then("no group should be returned") {
+                then("no group should be returned") {
                     group shouldBe null
                 }
             }
         }
-        Given("A zaak without a group") {
+        given("A zaak without a group") {
             val zaak = createZaak()
             every {
                 ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
             } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR))
             every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(emptyList(), 0)
 
-            When("the group is requested") {
+            `when`("the group is requested") {
                 val group = zgwApiService.findGroepForZaak(zaak)
 
-                Then("no group should be returned") {
+                then("no group should be returned") {
                     group shouldBe null
                 }
             }
         }
     }
 
-    Context("Finding an initiator role for zaak") {
-        Given("A zaak with an initiator") {
+    context("Finding an initiator role for zaak") {
+        given("A zaak with an initiator") {
             val zaak = createZaak()
             val rolMedewerker = createRolNatuurlijkPersoon(zaakURI = zaak.url)
             every {
@@ -293,10 +293,10 @@ class ZgwApiServiceTest : BehaviorSpec({
             } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR))
             every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(listOf(rolMedewerker), 1)
 
-            When("the initiator is requested") {
+            `when`("the initiator is requested") {
                 val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
 
-                Then("the initiator should be returned") {
+                then("the initiator should be returned") {
                     initiator shouldNotBe null
                     with(initiator!!) {
                         this.zaak shouldBe zaak.url
@@ -306,22 +306,22 @@ class ZgwApiServiceTest : BehaviorSpec({
                 }
             }
         }
-        Given("A zaak without an initiator") {
+        given("A zaak without an initiator") {
             val zaak = createZaak()
             every {
                 ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
             } returns listOf(createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR))
             every { zrcClientService.listRollen(any<RolListParameters>()) } returns Results(emptyList(), 0)
 
-            When("the initiator is requested") {
+            `when`("the initiator is requested") {
                 val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
 
-                Then("the initiator should be returned") {
+                then("the initiator should be returned") {
                     initiator shouldBe null
                 }
             }
         }
-        Given("A zaak with multiple initiator roles") {
+        given("A zaak with multiple initiator roles") {
             val zaak = createZaak()
             val rolMedewerker = createRolNatuurlijkPersoon(zaakURI = zaak.url)
             every {
@@ -331,18 +331,18 @@ class ZgwApiServiceTest : BehaviorSpec({
                 zrcClientService.listRollen(any<RolListParameters>())
             } returns Results(listOf(rolMedewerker, rolMedewerker), 2)
 
-            When("the initiator is requested") {
+            `when`("the initiator is requested") {
                 val exception = shouldThrow<IllegalStateException> { zgwApiService.findInitiatorRoleForZaak(zaak) }
 
-                Then("an exception should be thrown") {
+                then("an exception should be thrown") {
                     exception.message shouldBe "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: 2)"
                 }
             }
         }
     }
 
-    Context("Closing a zaak") {
-        Given("A zaak with resultaattype and statustype") {
+    context("Closing a zaak") {
+        given("A zaak with resultaattype and statustype") {
             val zaakType = createZaakType()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val resultaatTypeUUID = UUID.randomUUID()
@@ -364,10 +364,10 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
 
-            When("closeZaak is called") {
+            `when`("closeZaak is called") {
                 zgwApiService.closeZaak(zaak, resultaatTypeUUID, toelichting, null)
 
-                Then("the zaak is closed with correct resultaat and status") {
+                then("the zaak is closed with correct resultaat and status") {
                     verify(exactly = 1) {
                         zrcClientService.closeCase(zaak.uuid, any())
                     }
@@ -385,7 +385,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak with resultaattype and statustype, but toelichting is null") {
+        given("A zaak with resultaattype and statustype, but toelichting is null") {
             val zaakType = createZaakType()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val resultaatTypeUUID = UUID.randomUUID()
@@ -406,10 +406,10 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult2
 
-            When("closeZaak is called with null toelichting") {
+            `when`("closeZaak is called with null toelichting") {
                 zgwApiService.closeZaak(zaak, resultaatTypeUUID, null, null)
 
-                Then("the zaak is closed with null toelichting") {
+                then("the zaak is closed with null toelichting") {
                     verify(exactly = 1) {
                         zrcClientService.closeCase(zaak.uuid, any())
                     }
@@ -421,7 +421,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaaktype without an end status type") {
+        given("A zaaktype without an end status type") {
             val zaakType = createZaakType()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val resultaatTypeUUID = UUID.randomUUID()
@@ -439,12 +439,12 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
             every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
 
-            When("closeZaak is called") {
+            `when`("closeZaak is called") {
                 val exception = shouldThrow<StatusTypeNotFoundException> {
                     zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", null)
                 }
 
-                Then("an exception should be thrown") {
+                then("an exception should be thrown") {
                     exception.message shouldBe
                         "No status type with 'end state' found for zaaktype with URI: '${zaak.zaaktype}'."
                 }
@@ -593,8 +593,8 @@ class ZgwApiServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Creating a ZaakInformatieobject for zaak") {
-        Given("Valid input data for creating a ZaakInformatieobject") {
+    context("Creating a ZaakInformatieobject for zaak") {
+        given("Valid input data for creating a ZaakInformatieobject") {
             val today = LocalDate.now()
             val todayAtStartOfDay = today.atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime()
             val zaak = createZaak()
@@ -612,7 +612,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { drcClientService.createGebruiksrechten(capture(gebruiksrechtenSlot)) } returns gebruiksrechten
             every { zrcClientService.createZaakInformatieobject(capture(zaakInformatieObjectSlot)) } returns zaakInformatieobject
 
-            When("a ZaakInformatieobject is created") {
+            `when`("a ZaakInformatieobject is created") {
                 val returnedZaakInformatieobjectForZaak = zgwApiService.createZaakInformatieobjectForZaak(
                     zaak = zaak,
                     enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
@@ -621,7 +621,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                     omschrijvingVoorwaardenGebruiksrechten = "fakeConditions"
                 )
 
-                Then("a ZaakInformatieobject is created and returned") {
+                then("a ZaakInformatieobject is created and returned") {
                     returnedZaakInformatieobjectForZaak shouldBe zaakInformatieobject
                 }
 

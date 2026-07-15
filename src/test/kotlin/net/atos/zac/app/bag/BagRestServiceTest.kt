@@ -36,7 +36,7 @@ class BagRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Two addresses") {
+    given("Two addresses") {
         val listAdressenParameters = createRESTListAdressenParameters(
             bagObjectType = BAGObjectType.ADRES,
             trefwoorden = "fakeText1, fakeText2",
@@ -58,10 +58,10 @@ class BagRestServiceTest : BehaviorSpec({
         val bevraagAdressenParametersSlot = slot<BevraagAdressenParameters>()
         every { bagClientService.listAdressen(capture(bevraagAdressenParametersSlot)) } returns addresses
 
-        When("listAdressen is called") {
+        `when`("listAdressen is called") {
             val result = bagRestService.listAdressen(listAdressenParameters)
 
-            Then(
+            then(
                 "it should invoke the BAG client service with the correct arguments and return the expected addresses"
             ) {
                 with(result) {
@@ -85,15 +85,15 @@ class BagRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A BAG object of type address ") {
+    given("A BAG object of type address ") {
         val bagObjectId = "fakeBagObjectId"
         val bagAddress = createAdresIOHal()
         every { bagClientService.readAdres(bagObjectId) } returns bagAddress
 
-        When("the BAG object is read") {
+        `when`("the BAG object is read") {
             val restBagObject = bagRestService.read(BAGObjectType.ADRES, bagObjectId)
 
-            Then(
+            then(
                 "the expected BAG object should be returned"
             ) {
                 verify(exactly = 1) {

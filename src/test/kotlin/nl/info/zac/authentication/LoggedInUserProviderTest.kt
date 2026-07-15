@@ -18,41 +18,41 @@ class LoggedInUserProviderTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Get logged-in user") {
-        Given("a valid session with a logged-in user attribute") {
+    context("Get logged-in user") {
+        given("a valid session with a logged-in user attribute") {
             val loggedInUser = mockk<LoggedInUser>()
             every { httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE) } returns loggedInUser
 
-            When("getLoggedInUser is called") {
+            `when`("getLoggedInUser is called") {
                 val result = getLoggedInUser(httpSession)
 
-                Then("it returns the logged-in user") {
+                then("it returns the logged-in user") {
                     result shouldBe loggedInUser
                 }
             }
         }
 
-        Given("a valid session without a logged-in user attribute") {
+        given("a valid session without a logged-in user attribute") {
             every { httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE) } returns null
 
-            When("getLoggedInUser is called") {
+            `when`("getLoggedInUser is called") {
                 val result = getLoggedInUser(httpSession)
 
-                Then("it returns null") {
+                then("it returns null") {
                     result shouldBe null
                 }
             }
         }
 
-        Given("a session that has been invalidated (user logged out while request was in-flight)") {
+        given("a session that has been invalidated (user logged out while request was in-flight)") {
             every {
                 httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE)
             } throws IllegalStateException("UT000010: Session is invalid")
 
-            When("getLoggedInUser is called") {
+            `when`("getLoggedInUser is called") {
                 val result = getLoggedInUser(httpSession)
 
-                Then("it returns null instead of propagating the IllegalStateException") {
+                then("it returns null instead of propagating the IllegalStateException") {
                     result shouldBe null
                 }
             }

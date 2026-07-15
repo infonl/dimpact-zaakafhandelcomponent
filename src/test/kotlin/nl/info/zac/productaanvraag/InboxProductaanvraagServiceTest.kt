@@ -31,88 +31,88 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Creating an inbox productaanvraag") {
-        Given("an inbox productaanvraag entity") {
+    context("Creating an inbox productaanvraag") {
+        given("an inbox productaanvraag entity") {
             val item = createInboxProductaanvraag()
 
-            When("create is called") {
+            `when`("create is called") {
                 service.create(item)
 
-                Then("the entity is persisted") {
+                then("the entity is persisted") {
                     verify { entityManager.persist(item) }
                 }
             }
         }
     }
 
-    Context("Finding an inbox productaanvraag by ID") {
-        Given("an existing inbox productaanvraag") {
+    context("Finding an inbox productaanvraag by ID") {
+        given("an existing inbox productaanvraag") {
             val inboxProductaanvraag = createInboxProductaanvraag()
             every { entityManager.find(InboxProductaanvraag::class.java, inboxProductaanvraag.id) } returns inboxProductaanvraag
 
-            When("find is called with that ID") {
+            `when`("find is called with that ID") {
                 val result = service.find(inboxProductaanvraag.id!!)
 
-                Then("the entity is returned") {
+                then("the entity is returned") {
                     result shouldBe inboxProductaanvraag
                 }
             }
         }
 
-        Given("no inbox productaanvraag exists for the given ID") {
+        given("no inbox productaanvraag exists for the given ID") {
             val id = 999L
             every { entityManager.find(InboxProductaanvraag::class.java, id) } returns null
 
-            When("find is called with that ID") {
+            `when`("find is called with that ID") {
                 val result = service.find(id)
 
-                Then("null is returned") {
+                then("null is returned") {
                     result shouldBe null
                 }
             }
         }
     }
 
-    Context("Deleting an inbox productaanvraag") {
-        Given("an existing inbox productaanvraag") {
+    context("Deleting an inbox productaanvraag") {
+        given("an existing inbox productaanvraag") {
             val item = createInboxProductaanvraag()
             every { entityManager.find(InboxProductaanvraag::class.java, item.id) } returns item
 
-            When("delete is called with that ID") {
+            `when`("delete is called with that ID") {
                 service.delete(item.id!!)
 
-                Then("the entity is removed") {
+                then("the entity is removed") {
                     verify { entityManager.remove(item) }
                 }
             }
         }
 
-        Given("no inbox productaanvraag exists for the given ID") {
+        given("no inbox productaanvraag exists for the given ID") {
             val id = 999L
             every { entityManager.find(InboxProductaanvraag::class.java, id) } returns null
 
-            When("delete is called with that ID") {
+            `when`("delete is called with that ID") {
                 service.delete(id)
 
-                Then("remove is not called") {
+                then("remove is not called") {
                     verify(exactly = 0) { entityManager.remove(any()) }
                 }
             }
         }
     }
 
-    Context("Listing inbox productaanvragen") {
-        Given("empty list parameters") {
+    context("Listing inbox productaanvragen") {
+        given("empty list parameters") {
             val typedQuery = mockk<TypedQuery<InboxProductaanvraag>>(relaxed = true) {
                 every { resultList } returns emptyList()
                 every { singleResult } returns null
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxProductaanvraag>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = service.list(InboxProductaanvraagListParameters())
 
-                Then("an empty result is returned") {
+                then("an empty result is returned") {
                     result.items shouldBe emptyList()
                     result.count shouldBe 0L
                     result.typeFilter shouldBe emptyList()
@@ -120,7 +120,7 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             }
         }
 
-        Given("list parameters with paging configured") {
+        given("list parameters with paging configured") {
             val paging = Paging(page = 1, maxResults = 10)
             val listParameters = InboxProductaanvraagListParameters().apply { this.paging = paging }
             val typedQuery = mockk<TypedQuery<InboxProductaanvraag>>(relaxed = true) {
@@ -129,17 +129,17 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxProductaanvraag>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 service.list(listParameters)
 
-                Then("paging is applied to the query") {
+                then("paging is applied to the query") {
                     verify { typedQuery.setFirstResult(paging.getFirstResult()) }
                     verify { typedQuery.setMaxResults(paging.maxResults) }
                 }
             }
         }
 
-        Given("list parameters with ascending sorting") {
+        given("list parameters with ascending sorting") {
             val listParameters = InboxProductaanvraagListParameters().apply {
                 sorting = Sorting(InboxProductaanvraag.TYPE, SorteerRichting.ASCENDING)
             }
@@ -149,16 +149,16 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxProductaanvraag>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 service.list(listParameters)
 
-                Then("ascending order is applied") {
+                then("ascending order is applied") {
                     verify { entityManager.criteriaBuilder.asc(any()) }
                 }
             }
         }
 
-        Given("list parameters with descending sorting") {
+        given("list parameters with descending sorting") {
             val listParameters = InboxProductaanvraagListParameters().apply {
                 sorting = Sorting(InboxProductaanvraag.TYPE, SorteerRichting.DESCENDING)
             }
@@ -168,16 +168,16 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxProductaanvraag>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 service.list(listParameters)
 
-                Then("descending order is applied") {
+                then("descending order is applied") {
                     verify { entityManager.criteriaBuilder.desc(any()) }
                 }
             }
         }
 
-        Given("list parameters with an initiatorID filter") {
+        given("list parameters with an initiatorID filter") {
             val listParameters = createInboxProductaanvraagListParameters(initiatorID = "user123")
             val typedQuery = mockk<TypedQuery<InboxProductaanvraag>>(relaxed = true) {
                 every { resultList } returns emptyList()
@@ -185,16 +185,16 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxProductaanvraag>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 service.list(listParameters)
 
-                Then("a LIKE predicate is applied for the initiatorID") {
+                then("a LIKE predicate is applied for the initiatorID") {
                     verify { entityManager.criteriaBuilder.like(any(), "%user123%") }
                 }
             }
         }
 
-        Given("list parameters with a blank initiatorID") {
+        given("list parameters with a blank initiatorID") {
             val listParameters = createInboxProductaanvraagListParameters(initiatorID = "  ")
             val typedQuery = mockk<TypedQuery<InboxProductaanvraag>>(relaxed = true) {
                 every { resultList } returns emptyList()
@@ -202,16 +202,16 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxProductaanvraag>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 val result = service.list(listParameters)
 
-                Then("no LIKE predicate is applied and the call succeeds") {
+                then("no LIKE predicate is applied and the call succeeds") {
                     result.items shouldBe emptyList()
                 }
             }
         }
 
-        Given("list parameters with a type filter") {
+        given("list parameters with a type filter") {
             val listParameters = createInboxProductaanvraagListParameters(type = "aanvraag")
             val typedQuery = mockk<TypedQuery<InboxProductaanvraag>>(relaxed = true) {
                 every { resultList } returns emptyList()
@@ -219,16 +219,16 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxProductaanvraag>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 service.list(listParameters)
 
-                Then("an equal predicate is applied for the type") {
+                then("an equal predicate is applied for the type") {
                     verify { entityManager.criteriaBuilder.equal(any(), "aanvraag") }
                 }
             }
         }
 
-        Given("list parameters with a full ontvangstdatum range") {
+        given("list parameters with a full ontvangstdatum range") {
             val van = LocalDate.of(2024, 1, 1)
             val tot = LocalDate.of(2024, 12, 31)
             val listParameters = createInboxProductaanvraagListParameters(
@@ -240,17 +240,17 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxProductaanvraag>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 service.list(listParameters)
 
-                Then("both greaterThanOrEqualTo and lessThanOrEqualTo predicates are applied") {
+                then("both greaterThanOrEqualTo and lessThanOrEqualTo predicates are applied") {
                     verify { entityManager.criteriaBuilder.greaterThanOrEqualTo(any(), van) }
                     verify { entityManager.criteriaBuilder.lessThanOrEqualTo(any(), tot) }
                 }
             }
         }
 
-        Given("list parameters with only the ontvangstdatum van boundary") {
+        given("list parameters with only the ontvangstdatum van boundary") {
             val van = LocalDate.of(2024, 6, 1)
             val listParameters = createInboxProductaanvraagListParameters(
                 ontvangstdatumRange = DatumRange(van = van, tot = null)
@@ -261,16 +261,16 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxProductaanvraag>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 service.list(listParameters)
 
-                Then("greaterThanOrEqualTo predicate is applied") {
+                then("greaterThanOrEqualTo predicate is applied") {
                     verify { entityManager.criteriaBuilder.greaterThanOrEqualTo(any(), van) }
                 }
             }
         }
 
-        Given("list parameters with only the ontvangstdatum tot boundary") {
+        given("list parameters with only the ontvangstdatum tot boundary") {
             val tot = LocalDate.of(2024, 6, 30)
             val listParameters = createInboxProductaanvraagListParameters(
                 ontvangstdatumRange = DatumRange(van = null, tot = tot)
@@ -281,10 +281,10 @@ class InboxProductaanvraagServiceTest : BehaviorSpec({
             }
             every { entityManager.createQuery(any<CriteriaQuery<InboxProductaanvraag>>()) } returns typedQuery
 
-            When("list is called") {
+            `when`("list is called") {
                 service.list(listParameters)
 
-                Then("lessThanOrEqualTo predicate is applied") {
+                then("lessThanOrEqualTo predicate is applied") {
                     verify { entityManager.criteriaBuilder.lessThanOrEqualTo(any(), tot) }
                 }
             }

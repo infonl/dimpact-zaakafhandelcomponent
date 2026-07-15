@@ -10,65 +10,65 @@ import nl.info.client.pabc.model.createPabcGroupRepresentation
 import nl.info.test.org.keycloak.representations.idm.createGroupRepresentation
 
 class GroupTest : BehaviorSpec({
-    Context("Mapping a Keycloak GroupRepresentation to a Group") {
-        Given("a group representation with no 'active' attribute") {
+    context("Mapping a Keycloak GroupRepresentation to a Group") {
+        given("a group representation with no 'active' attribute") {
             val groupRepresentation = createGroupRepresentation(
                 attributes = emptyMap()
             )
 
-            When("it is mapped to a Group") {
+            `when`("it is mapped to a Group") {
                 val group = groupRepresentation.toGroup()
 
-                Then("the group is active") {
+                then("the group is active") {
                     group.active shouldBe true
                 }
             }
         }
 
-        Given("a group representation with 'active' attribute set to 'true'") {
+        given("a group representation with 'active' attribute set to 'true'") {
             val groupRepresentation = createGroupRepresentation(
                 attributes = mapOf("active" to listOf("true"))
             )
 
-            When("it is mapped to a Group") {
+            `when`("it is mapped to a Group") {
                 val group = groupRepresentation.toGroup()
 
-                Then("the group is active") {
+                then("the group is active") {
                     group.active shouldBe true
                 }
             }
         }
 
-        Given("a group representation with 'active' attribute set to 'false'") {
+        given("a group representation with 'active' attribute set to 'false'") {
             val groupRepresentation = createGroupRepresentation(
                 attributes = mapOf("active" to listOf("false"))
             )
 
-            When("it is mapped to a Group") {
+            `when`("it is mapped to a Group") {
                 val group = groupRepresentation.toGroup()
 
-                Then("the group is inactive") {
+                then("the group is inactive") {
                     group.active shouldBe false
                 }
             }
         }
     }
 
-    Context("Mapping a PABC GroupRepresentation to a Group") {
-        Given("a PABC group representation with no attributes") {
+    context("Mapping a PABC GroupRepresentation to a Group") {
+        given("a PABC group representation with no attributes") {
             val groupRepresentation = createPabcGroupRepresentation()
 
-            When("it is mapped to a Group") {
+            `when`("it is mapped to a Group") {
                 val group = groupRepresentation.toGroup()
 
-                Then("the group is active and has no email") {
+                then("the group is active and has no email") {
                     group.active shouldBe true
                     group.email shouldBe null
                 }
             }
         }
 
-        Given("a PABC group representation with email and active=false attributes") {
+        given("a PABC group representation with email and active=false attributes") {
             val groupRepresentation = createPabcGroupRepresentation(
                 attributes = mapOf(
                     "email" to listOf("group@example.com"),
@@ -76,10 +76,10 @@ class GroupTest : BehaviorSpec({
                 )
             )
 
-            When("it is mapped to a Group") {
+            `when`("it is mapped to a Group") {
                 val group = groupRepresentation.toGroup()
 
-                Then("the group is inactive and has the correct email") {
+                then("the group is inactive and has the correct email") {
                     group.active shouldBe false
                     group.email shouldBe "group@example.com"
                 }

@@ -65,16 +65,16 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Context("Listing mail templates") {
-        Given("The default mail templates have been provisioned on ZAC startup") {
-            When("mail template list is fetched as a beheerder") {
+    context("Listing mail templates") {
+        given("The default mail templates have been provisioned on ZAC startup") {
+            `when`("mail template list is fetched as a beheerder") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/beheer/mailtemplates",
                     testUser = BEHEERDER_1
                 )
                 lateinit var responseBody: String
 
-                Then("the response should be a 200 HTTP response") {
+                then("the response should be a 200 HTTP response") {
                     response.code shouldBe HTTP_OK
                     responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -155,18 +155,18 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing mail template koppelingen") {
-        Given(
+    context("Listing mail template koppelingen") {
+        given(
             "The test CMMN and BPMN zaaktype configurations have been created as part of the integration test setup"
         ) {
-            When("the mail template koppelingen list is fetched as a beheerder") {
+            `when`("the mail template koppelingen list is fetched as a beheerder") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/beheer/mailtemplatekoppeling",
                     testUser = BEHEERDER_1
                 )
                 lateinit var responseBody: String
 
-                Then("the response should be a 200 HTTP response") {
+                then("the response should be a 200 HTTP response") {
                     response.code shouldBe HTTP_OK
                     responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -386,10 +386,10 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Creating, updating and deleting a mail template") {
-        Given("A beheerder wants to create a new mail template") {
-            When("the full create-read-update-delete lifecycle is executed") {
-                Then("all operations succeed in order") {
+    context("Creating, updating and deleting a mail template") {
+        given("A beheerder wants to create a new mail template") {
+            `when`("the full create-read-update-delete lifecycle is executed") {
+                then("all operations succeed in order") {
                     val createResponse = itestHttpClient.performJSONPostRequest(
                         url = "$ZAC_API_URI/beheer/mailtemplates",
                         requestBodyAsString = """

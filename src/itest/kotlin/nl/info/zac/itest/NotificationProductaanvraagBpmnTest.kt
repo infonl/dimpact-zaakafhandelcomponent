@@ -39,13 +39,13 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     lateinit var zaakProductaanvraagUuid: UUID
 
-    Given(
+    given(
         """
         A productaanvraag object exists in Objecten with a productaanvraag type, 
         and BPMN zaaktype configuration exists in ZAC for the same productaanvraag type
             """
     ) {
-        When(
+        `when`(
             """
             the notificaties endpoint is called with a 'create productaanvraag' payload with authentication header
             and initiator of type 'BSN'
@@ -75,7 +75,7 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
             )
             logger.info { "Requested product aanvraag: $OBJECT_PRODUCTAANVRAAG_BPMN_1_UUID" }
 
-            Then(
+            then(
                 """the response should be 'no content', a zaak should be created in OpenZaak
                     using the BPMN-configured zaaktype and a BPMN process should be started in ZAC"""
             ) {
@@ -107,7 +107,7 @@ class NotificationProductaanvraagBpmnTest : BehaviorSpec({
                     testUser = RAADPLEGER_1
                 )
 
-                Then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
+                then("the response should be a 200 HTTP response with a list consisting of the betrokkenen") {
                     response.code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }

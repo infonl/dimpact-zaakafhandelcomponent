@@ -44,12 +44,12 @@ class UserPrincipalFilterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("PABC integration is enabled") {
+    context("PABC integration is enabled") {
         val userPrincipalFilter = UserPrincipalFilter(
             pabcClientService = pabcClientService
         )
 
-        Given(
+        given(
             """
             A logged-in user is present in the HTTP session and a servlet request containing a user 
             principal with the same id as the logged-in user in the HTTP session
@@ -67,17 +67,17 @@ class UserPrincipalFilterTest : BehaviorSpec({
             every { httpSession.getAttribute("logged-in-user") } returns loggedInUser
             every { filterChain.doFilter(any(), any()) } just runs
 
-            When("doFilter is called") {
+            `when`("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then("filterChain is invoked; no invalidate; no PABC call triggered by this branch") {
+                then("filterChain is invoked; no invalidate; no PABC call triggered by this branch") {
                     verify(exactly = 1) { filterChain.doFilter(httpServletRequest, servletResponse) }
                     verify(exactly = 0) { httpSession.invalidate() }
                 }
             }
         }
 
-        Given(
+        given(
             """A logged-in user is present in the HTTP session with a token containing functional roles
                 as realm roles and a servlet request containing a user principal with a different id 
                 as the logged-in user"""
@@ -123,10 +123,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
             }
             every { newHttpSession.setAttribute("logged-in-user", capture(capturedLoggedInUser)) } just runs
 
-            When("doFilter is called") {
+            `when`("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then("the existing HTTP session is invalidated and the user is added to a new HTTP session") {
+                then("the existing HTTP session is invalidated and the user is added to a new HTTP session") {
                     verify(exactly = 1) {
                         filterChain.doFilter(httpServletRequest, servletResponse)
                         httpSession.invalidate()
@@ -140,7 +140,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 }
             }
         }
-        Given(
+        given(
             """
             No logged-in user is present in the HTTP session and an OIDC security context is present with a token that 
             contains user information and PABC authorisation mappings exist for the user's functional role. 
@@ -200,10 +200,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
             }
             every { httpServletRequest.userPrincipal } returns oidcPrincipal
 
-            When("doFilter is called") {
+            `when`("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then("the user is created from OIDC and stored on the session") {
+                then("the user is created from OIDC and stored on the session") {
                     verify(exactly = 1) {
                         httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot))
                         filterChain.doFilter(httpServletRequest, servletResponse)
@@ -222,7 +222,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
                 User details in the OIDC token in the security context and
                 PABC authorisation mappings for an application role without an entity type exists for the functional role of this user
@@ -258,10 +258,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 )
             }
 
-            When("doFilter is called") {
+            `when`("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then("the logged-in user is added to the HTTP session") {
+                then("the logged-in user is added to the HTTP session") {
                     verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
                 }
 
@@ -275,7 +275,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             User details in the OIDC token in the security context and
             PABC authorisation mappings contain both entity-type-specific roles and overall roles (without entity type)
@@ -319,10 +319,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 )
             }
 
-            When("doFilter is called") {
+            `when`("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then("the entity-type-specific roles are stored in applicationRolesPerZaaktype on the logged-in user") {
+                then("the entity-type-specific roles are stored in applicationRolesPerZaaktype on the logged-in user") {
                     verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
                     loggedInUserSlot.captured.applicationRolesPerZaaktype[zaaktypeId]
                         ?.shouldContainAll(entityTypeRoleNames)
@@ -337,7 +337,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             User details in the OIDC token and PABC authorisation mappings contain
             a GEMEENTE entity type with BRP zoeken application role
@@ -376,10 +376,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 )
             }
 
-            When("doFilter is called") {
+            `when`("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then("the logged-in user should have the BRP gemeente in brpGemeenten") {
+                then("the logged-in user should have the BRP gemeente in brpGemeenten") {
                     verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
                     with(loggedInUserSlot.captured) {
                         brpGemeenten.size shouldBe 1
@@ -389,7 +389,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             User details in the OIDC token and PABC authorisation mappings contain
             a GEMEENTE entity type but without the BRP zoeken application role
@@ -428,10 +428,10 @@ class UserPrincipalFilterTest : BehaviorSpec({
                 )
             }
 
-            When("doFilter is called") {
+            `when`("doFilter is called") {
                 userPrincipalFilter.doFilter(httpServletRequest, servletResponse, filterChain)
 
-                Then("the logged-in user should have an empty brpGemeenten map") {
+                then("the logged-in user should have an empty brpGemeenten map") {
                     verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
                     with(loggedInUserSlot.captured) {
                         brpGemeenten shouldBe emptyMap()

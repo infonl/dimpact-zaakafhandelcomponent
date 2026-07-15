@@ -27,8 +27,8 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("updateZaakbeeindigGegevens") {
-        Given("A zaaktype configuration with a nietOntvankelijkResultaattype") {
+    context("updateZaakbeeindigGegevens") {
+        given("A zaaktype configuration with a nietOntvankelijkResultaattype") {
             val previousResultaattypeUuid = UUID.randomUUID()
             val previousResultaattypeUri = URI("http://example.com/resultaattype/$previousResultaattypeUuid")
             val newResultaattypeUuid = UUID.randomUUID()
@@ -54,10 +54,10 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
             every { ztcClientService.readResultaattype(newResultaattypeUri) } returns newResultaattype
             every { ztcClientService.readResultaattype(previousResultaattypeUuid) } returns previousResultaattype
 
-            When("updateZaakbeeindigGegevens is called") {
+            `when`("updateZaakbeeindigGegevens is called") {
                 zaaktypeHelperService.updateZaakbeeindigGegevens(zaaktypeConfiguration, newZaaktype)
 
-                Then("the ZTC client service should be called to read the resultaattypes") {
+                then("the ZTC client service should be called to read the resultaattypes") {
                     verify(exactly = 1) {
                         ztcClientService.readResultaattype(newResultaattypeUri)
                         ztcClientService.readResultaattype(previousResultaattypeUuid)
@@ -66,7 +66,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaaktype configuration without a nietOntvankelijkResultaattype") {
+        given("A zaaktype configuration without a nietOntvankelijkResultaattype") {
             val newResultaattypeUri = URI("http://example.com/resultaattype/${UUID.randomUUID()}")
             val newResultaattype = createResultaatType(url = newResultaattypeUri)
 
@@ -80,10 +80,10 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
 
             every { ztcClientService.readResultaattype(newResultaattypeUri) } returns newResultaattype
 
-            When("updateZaakbeeindigGegevens is called") {
+            `when`("updateZaakbeeindigGegevens is called") {
                 zaaktypeHelperService.updateZaakbeeindigGegevens(zaaktypeConfiguration, newZaaktype)
 
-                Then("only the new resultaattype should be read") {
+                then("only the new resultaattype should be read") {
                     verify(exactly = 1) {
                         ztcClientService.readResultaattype(newResultaattypeUri)
                     }
@@ -91,7 +91,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaaktype configuration with zaakbeeindig parameters") {
+        given("A zaaktype configuration with zaakbeeindig parameters") {
             val previousResultaattypeUuid = UUID.randomUUID()
             val previousResultaattypeUri = URI("http://example.com/resultaattype/$previousResultaattypeUuid")
             val newResultaattypeUuid = UUID.randomUUID()
@@ -131,10 +131,10 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
             every { ztcClientService.readResultaattype(newResultaattypeUri) } returns newResultaattype
             every { ztcClientService.readResultaattype(previousResultaattypeUuid) } returns previousResultaattype
 
-            When("updateZaakbeeindigGegevens is called") {
+            `when`("updateZaakbeeindigGegevens is called") {
                 zaaktypeHelperService.updateZaakbeeindigGegevens(zaaktypeConfiguration, newZaaktype)
 
-                Then("the completion parameters should be processed") {
+                then("the completion parameters should be processed") {
                     verify(exactly = 1) {
                         ztcClientService.readResultaattype(newResultaattypeUri)
                         ztcClientService.readResultaattype(previousResultaattypeUuid)

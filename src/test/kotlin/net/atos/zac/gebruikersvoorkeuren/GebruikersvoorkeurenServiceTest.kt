@@ -99,8 +99,8 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
         clearAllMocks()
     }
 
-    Context("Creating a zoekopdracht") {
-        Given("A zoekopdracht that already exists") {
+    context("Creating a zoekopdracht") {
+        given("A zoekopdracht that already exists") {
             val zoekopdracht = createZoekopdracht()
             val mergedZoekopdracht = createZoekopdracht(
                 id = zoekopdracht.id,
@@ -109,17 +109,17 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
 
             every { entityManager.merge(zoekopdracht) } returns mergedZoekopdracht
 
-            When("the create zoekopdracht function is called") {
+            `when`("the create zoekopdracht function is called") {
                 val result = gebruikersvoorkeurenService.createZoekopdracht(zoekopdracht)
 
-                Then("it should merge the zoekopdracht and return the uprated zoekopdracht") {
+                then("it should merge the zoekopdracht and return the uprated zoekopdracht") {
                     result shouldBe mergedZoekopdracht
                     verify { entityManager.merge(zoekopdracht) }
                 }
             }
         }
 
-        Given("A new zoekopdracht with no ID that does not yet exist") {
+        given("A new zoekopdracht with no ID that does not yet exist") {
             val zoekopdracht = createZoekopdracht(id = null)
 
             setupZoekopdrachtCriteriaChain()
@@ -130,10 +130,10 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             )
             every { entityManager.persist(zoekopdracht) } just Runs
 
-            When("the create zoekopdracht function is called") {
+            `when`("the create zoekopdracht function is called") {
                 val result = gebruikersvoorkeurenService.createZoekopdracht(zoekopdracht)
 
-                Then("it should persist the zoekopdracht, mark it as active, and return it") {
+                then("it should persist the zoekopdracht, mark it as active, and return it") {
                     result shouldBe zoekopdracht
                     zoekopdracht.isActief shouldBe true
                     verify { entityManager.persist(zoekopdracht) }
@@ -141,15 +141,15 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A new zoekopdracht with no ID and a duplicate already exists") {
+        given("A new zoekopdracht with no ID and a duplicate already exists") {
             val zoekopdracht = createZoekopdracht(id = null)
 
             setupZoekopdrachtCriteriaChain()
             every { criteriaBuilder.lower(any()) } returns lowerExpression
             every { zoekopdrachtTypedQuery.resultList } returns listOf(createZoekopdracht())
 
-            When("the create zoekopdracht function is called") {
-                Then("it should throw a RuntimeException") {
+            `when`("the create zoekopdracht function is called") {
+                then("it should throw a RuntimeException") {
                     shouldThrow<RuntimeException> {
                         gebruikersvoorkeurenService.createZoekopdracht(zoekopdracht)
                     }
@@ -158,69 +158,69 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Finding a zoekopdracht by ID") {
-        Given("A zoekopdracht exists with the given ID") {
+    context("Finding a zoekopdracht by ID") {
+        given("A zoekopdracht exists with the given ID") {
             val zoekopdracht = createZoekopdracht()
 
             every { entityManager.find(Zoekopdracht::class.java, zoekopdracht.id) } returns zoekopdracht
 
-            When("findZoekopdracht is called with that ID") {
+            `when`("findZoekopdracht is called with that ID") {
                 val result = gebruikersvoorkeurenService.findZoekopdracht(zoekopdracht.id!!)
 
-                Then("it should return an Optional containing the zoekopdracht") {
+                then("it should return an Optional containing the zoekopdracht") {
                     result.shouldBePresent { it shouldBe zoekopdracht }
                 }
             }
         }
 
-        Given("No zoekopdracht exists with the given ID") {
+        given("No zoekopdracht exists with the given ID") {
             val id = 999L
 
             every { entityManager.find(Zoekopdracht::class.java, id) } returns null
 
-            When("findZoekopdracht is called with that ID") {
+            `when`("findZoekopdracht is called with that ID") {
                 val result = gebruikersvoorkeurenService.findZoekopdracht(id)
 
-                Then("it should return an empty Optional") {
+                then("it should return an empty Optional") {
                     result.shouldBeEmpty()
                 }
             }
         }
     }
 
-    Context("Deleting a zoekopdracht") {
-        Given("A zoekopdracht exists with the given ID") {
+    context("Deleting a zoekopdracht") {
+        given("A zoekopdracht exists with the given ID") {
             val zoekopdracht = createZoekopdracht()
 
             every { entityManager.find(Zoekopdracht::class.java, zoekopdracht.id) } returns zoekopdracht
             every { entityManager.remove(zoekopdracht) } just Runs
 
-            When("deleteZoekopdracht is called with that ID") {
+            `when`("deleteZoekopdracht is called with that ID") {
                 gebruikersvoorkeurenService.deleteZoekopdracht(zoekopdracht.id)
 
-                Then("it should remove the zoekopdracht") {
+                then("it should remove the zoekopdracht") {
                     verify(exactly = 1) { entityManager.remove(zoekopdracht) }
                 }
             }
         }
 
-        Given("No zoekopdracht exists with the given ID") {
+        given("No zoekopdracht exists with the given ID") {
             val id = 999L
 
             every { entityManager.find(Zoekopdracht::class.java, id) } returns null
 
-            When("deleteZoekopdracht is called with that ID") {
+            `when`("deleteZoekopdracht is called with that ID") {
                 gebruikersvoorkeurenService.deleteZoekopdracht(id)
 
-                Then("it should not attempt to remove anything") {
+                then("it should not attempt to remove anything") {
                     verify(exactly = 0) { entityManager.remove(any()) }
                 }
             }
         }
     }
 
-    Context("Listing zoekopdrachten") {
-        Given("Zoekopdrachten exist for the given parameters") {
+    context("Listing zoekopdrachten") {
+        given("Zoekopdrachten exist for the given parameters") {
             val zoekopdracht1 = createZoekopdracht(id = 1L)
             val zoekopdracht2 = createZoekopdracht(id = 2L)
             val params = ZoekopdrachtListParameters(Werklijst.MIJN_ZAKEN, "testMedewerker")
@@ -228,18 +228,18 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             setupZoekopdrachtCriteriaChain()
             every { zoekopdrachtTypedQuery.resultList } returns listOf(zoekopdracht1, zoekopdracht2)
 
-            When("listZoekopdrachten is called") {
+            `when`("listZoekopdrachten is called") {
                 val result = gebruikersvoorkeurenService.listZoekopdrachten(params)
 
-                Then("it should return all matching zoekopdrachten") {
+                then("it should return all matching zoekopdrachten") {
                     result shouldBe listOf(zoekopdracht1, zoekopdracht2)
                 }
             }
         }
     }
 
-    Context("Setting the active zoekopdracht") {
-        Given("A list of zoekopdrachten where one is currently active") {
+    context("Setting the active zoekopdracht") {
+        given("A list of zoekopdrachten where one is currently active") {
             val targetZoekopdracht = createZoekopdracht(id = 2L, actief = false)
             val activeZoekopdracht = createZoekopdracht(id = 1L, actief = true)
 
@@ -248,10 +248,10 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             every { entityManager.merge(activeZoekopdracht) } returns activeZoekopdracht
             every { entityManager.merge(targetZoekopdracht) } returns targetZoekopdracht
 
-            When("setActief is called for the target zoekopdracht") {
+            `when`("setActief is called for the target zoekopdracht") {
                 gebruikersvoorkeurenService.setActief(targetZoekopdracht)
 
-                Then("target becomes active, previously active is deactivated, and both are merged") {
+                then("target becomes active, previously active is deactivated, and both are merged") {
                     targetZoekopdracht.isActief shouldBe true
                     activeZoekopdracht.isActief shouldBe false
                     verify { entityManager.merge(targetZoekopdracht) }
@@ -261,8 +261,8 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Removing the active zoekopdracht") {
-        Given("A list with one active and one inactive zoekopdracht") {
+    context("Removing the active zoekopdracht") {
+        given("A list with one active and one inactive zoekopdracht") {
             val activeZoekopdracht = createZoekopdracht(id = 1L, actief = true)
             val inactiveZoekopdracht = createZoekopdracht(id = 2L, actief = false)
             val params = ZoekopdrachtListParameters(Werklijst.MIJN_ZAKEN, "testMedewerker")
@@ -271,10 +271,10 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             every { zoekopdrachtTypedQuery.resultList } returns listOf(activeZoekopdracht, inactiveZoekopdracht)
             every { entityManager.merge(activeZoekopdracht) } returns activeZoekopdracht
 
-            When("removeActief is called") {
+            `when`("removeActief is called") {
                 gebruikersvoorkeurenService.removeActief(params)
 
-                Then("the active zoekopdracht is deactivated and merged; the inactive one is not touched") {
+                then("the active zoekopdracht is deactivated and merged; the inactive one is not touched") {
                     activeZoekopdracht.isActief shouldBe false
                     verify(exactly = 1) { entityManager.merge(activeZoekopdracht) }
                     verify(exactly = 0) { entityManager.merge(inactiveZoekopdracht) }
@@ -283,31 +283,31 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading tabel instellingen") {
-        Given("Tabel instellingen exist for the given werklijst and medewerker") {
+    context("Reading tabel instellingen") {
+        given("Tabel instellingen exist for the given werklijst and medewerker") {
             val tabelInstelling = createTabelInstellingen(aantalPerPagina = 50)
 
             setupTabelCriteriaChain()
             every { tabelTypedQuery.resultList } returns listOf(tabelInstelling)
 
-            When("readTabelInstellingen is called") {
+            `when`("readTabelInstellingen is called") {
                 val result = gebruikersvoorkeurenService.readTabelInstellingen(Werklijst.MIJN_ZAKEN, "testMedewerker")
 
-                Then("it should return the existing tabel instellingen") {
+                then("it should return the existing tabel instellingen") {
                     result shouldBe tabelInstelling
                     result.aantalPerPagina shouldBe 50
                 }
             }
         }
 
-        Given("No tabel instellingen exist for the given werklijst and medewerker") {
+        given("No tabel instellingen exist for the given werklijst and medewerker") {
             setupTabelCriteriaChain()
             every { tabelTypedQuery.resultList } returns emptyList()
 
-            When("readTabelInstellingen is called") {
+            `when`("readTabelInstellingen is called") {
                 val result = gebruikersvoorkeurenService.readTabelInstellingen(Werklijst.MIJN_ZAKEN, "testMedewerker")
 
-                Then("it should return default tabel instellingen") {
+                then("it should return default tabel instellingen") {
                     result.lijstID shouldBe Werklijst.MIJN_ZAKEN
                     result.medewerkerID shouldBe "testMedewerker"
                     result.aantalPerPagina shouldBe TabelInstellingen.AANTAL_PER_PAGINA_DEFAULT
@@ -316,8 +316,8 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Updating tabel instellingen") {
-        Given("Existing tabel instellingen for a medewerker") {
+    context("Updating tabel instellingen") {
+        given("Existing tabel instellingen for a medewerker") {
             val existingInstelling = createTabelInstellingen(aantalPerPagina = 25)
             val updatedInstelling = createTabelInstellingen(aantalPerPagina = 50)
 
@@ -325,10 +325,10 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             every { tabelTypedQuery.resultList } returns listOf(existingInstelling)
             every { entityManager.merge(existingInstelling) } returns existingInstelling
 
-            When("updateTabelInstellingen is called with new page size") {
+            `when`("updateTabelInstellingen is called with new page size") {
                 gebruikersvoorkeurenService.updateTabelInstellingen(updatedInstelling)
 
-                Then("the existing instelling is updated and merged") {
+                then("the existing instelling is updated and merged") {
                     existingInstelling.aantalPerPagina shouldBe 50
                     verify { entityManager.merge(existingInstelling) }
                 }
@@ -336,54 +336,54 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing dashboard cards") {
-        Given("Dashboard cards exist for a medewerker") {
+    context("Listing dashboard cards") {
+        given("Dashboard cards exist for a medewerker") {
             val card1 = createDashboardCardInstelling(id = 1L, cardId = DashboardCardId.MIJN_TAKEN)
             val card2 = createDashboardCardInstelling(id = 2L, cardId = DashboardCardId.MIJN_ZAKEN)
 
             setupDashboardCriteriaChain()
             every { dashboardTypedQuery.resultList } returns listOf(card1, card2)
 
-            When("listDashboardCards is called") {
+            `when`("listDashboardCards is called") {
                 val result = gebruikersvoorkeurenService.listDashboardCards("testMedewerker")
 
-                Then("it should return all dashboard cards for that medewerker") {
+                then("it should return all dashboard cards for that medewerker") {
                     result shouldBe listOf(card1, card2)
                 }
             }
         }
 
-        Given("No dashboard cards exist for a medewerker") {
+        given("No dashboard cards exist for a medewerker") {
             setupDashboardCriteriaChain()
             every { dashboardTypedQuery.resultList } returns emptyList()
 
-            When("listDashboardCards is called") {
+            `when`("listDashboardCards is called") {
                 val result = gebruikersvoorkeurenService.listDashboardCards("testMedewerker")
 
-                Then("it should return an empty list") {
+                then("it should return an empty list") {
                     result.shouldBeEmpty()
                 }
             }
         }
     }
 
-    Context("Adding a dashboard card") {
-        Given("A card without signalering type and no existing ID") {
+    context("Adding a dashboard card") {
+        given("A card without signalering type and no existing ID") {
             val card = createDashboardCardInstelling(id = null)
 
             every { entityManager.persist(card) } just Runs
 
-            When("addDashboardCard is called") {
+            `when`("addDashboardCard is called") {
                 gebruikersvoorkeurenService.addDashboardCard("testMedewerker", card)
 
-                Then("it should persist the card with the medewerker ID set") {
+                then("it should persist the card with the medewerker ID set") {
                     card.medewerkerId shouldBe "testMedewerker"
                     verify(exactly = 1) { entityManager.persist(card) }
                 }
             }
         }
 
-        Given("A card with a signalering type and no existing ID") {
+        given("A card with a signalering type and no existing ID") {
             val card = createDashboardCardInstelling(id = null).apply {
                 signaleringType = SignaleringType.Type.ZAAK_OP_NAAM
             }
@@ -395,10 +395,10 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             every { signaleringService.createUpdateOrDeleteInstellingen(instellingen) } returns null
             every { entityManager.persist(card) } just Runs
 
-            When("addDashboardCard is called") {
+            `when`("addDashboardCard is called") {
                 gebruikersvoorkeurenService.addDashboardCard("testMedewerker", card)
 
-                Then("it should update the signalering to show on dashboard and persist the card") {
+                then("it should update the signalering to show on dashboard and persist the card") {
                     verify { instellingen.isDashboard = true }
                     verify { signaleringService.createUpdateOrDeleteInstellingen(instellingen) }
                     verify(exactly = 1) { entityManager.persist(card) }
@@ -406,21 +406,21 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A card that already has an ID") {
+        given("A card that already has an ID") {
             val card = createDashboardCardInstelling(id = 42L)
 
-            When("addDashboardCard is called") {
+            `when`("addDashboardCard is called") {
                 gebruikersvoorkeurenService.addDashboardCard("testMedewerker", card)
 
-                Then("it should not persist the card again") {
+                then("it should not persist the card again") {
                     verify(exactly = 0) { entityManager.persist(any()) }
                 }
             }
         }
     }
 
-    Context("Deleting a dashboard card") {
-        Given("A card without signalering type") {
+    context("Deleting a dashboard card") {
+        given("A card without signalering type") {
             val card = createDashboardCardInstelling(id = 10L)
 
             every {
@@ -428,16 +428,16 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             } returns card
             every { entityManager.remove(card) } just Runs
 
-            When("deleteDashboardCard is called") {
+            `when`("deleteDashboardCard is called") {
                 gebruikersvoorkeurenService.deleteDashboardCard("testMedewerker", card)
 
-                Then("it should remove the card") {
+                then("it should remove the card") {
                     verify(exactly = 1) { entityManager.remove(card) }
                 }
             }
         }
 
-        Given("A card with a signalering type") {
+        given("A card with a signalering type") {
             val card = createDashboardCardInstelling(id = 10L).apply {
                 signaleringType = SignaleringType.Type.TAAK_OP_NAAM
             }
@@ -452,10 +452,10 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             } returns card
             every { entityManager.remove(card) } just Runs
 
-            When("deleteDashboardCard is called") {
+            `when`("deleteDashboardCard is called") {
                 gebruikersvoorkeurenService.deleteDashboardCard("testMedewerker", card)
 
-                Then("it should disable dashboard on signalering and remove the card") {
+                then("it should disable dashboard on signalering and remove the card") {
                     verify { instellingen.isDashboard = false }
                     verify { signaleringService.createUpdateOrDeleteInstellingen(instellingen) }
                     verify(exactly = 1) { entityManager.remove(card) }
@@ -463,21 +463,21 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A card with no ID") {
+        given("A card with no ID") {
             val card = createDashboardCardInstelling(id = null)
 
-            When("deleteDashboardCard is called") {
+            `when`("deleteDashboardCard is called") {
                 gebruikersvoorkeurenService.deleteDashboardCard("testMedewerker", card)
 
-                Then("it should not attempt to remove anything") {
+                then("it should not attempt to remove anything") {
                     verify(exactly = 0) { entityManager.remove(any()) }
                 }
             }
         }
     }
 
-    Context("Updating dashboard cards") {
-        Given("Existing cards where one is updated, one is removed, and one is added") {
+    context("Updating dashboard cards") {
+        given("Existing cards where one is updated, one is removed, and one is added") {
             val existingCard1 = createDashboardCardInstelling(id = 1L, cardId = DashboardCardId.MIJN_TAKEN, kolom = 0)
             val existingCard2 = createDashboardCardInstelling(id = 2L, cardId = DashboardCardId.MIJN_ZAKEN, kolom = 0)
             val updatedCard1 = createDashboardCardInstelling(id = 1L, cardId = DashboardCardId.MIJN_TAKEN, kolom = 2)
@@ -489,13 +489,13 @@ class GebruikersvoorkeurenServiceTest : BehaviorSpec({
             every { entityManager.remove(existingCard2) } just Runs
             every { entityManager.persist(newCard) } just Runs
 
-            When("updateDashboardCards is called with the new card list") {
+            `when`("updateDashboardCards is called with the new card list") {
                 gebruikersvoorkeurenService.updateDashboardCards(
                     "testMedewerker",
                     listOf(updatedCard1, newCard)
                 )
 
-                Then("existing card is updated, missing card is removed, and new card is persisted") {
+                then("existing card is updated, missing card is removed, and new card is persisted") {
                     existingCard1.kolom shouldBe 2
                     verify(exactly = 1) { entityManager.persist(existingCard1) }
                     verify(exactly = 1) { entityManager.remove(existingCard2) }

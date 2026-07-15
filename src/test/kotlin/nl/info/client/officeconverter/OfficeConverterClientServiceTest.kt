@@ -23,8 +23,8 @@ class OfficeConverterClientServiceTest : BehaviorSpec({
     val officeConverterClient = mockk<OfficeConverterClient>()
     val officeConverterClientService = OfficeConverterClientService(officeConverterClient)
 
-    Context("Converting a document to PDF") {
-        Given("A byte array input stream and an office converter client response that could be buffered") {
+    context("Converting a document to PDF") {
+        given("A byte array input stream and an office converter client response that could be buffered") {
             val document = ByteArrayInputStream("fakeDocumentContent".toByteArray())
             val filename = "fakeFilename.docx"
             val expectedPdf = ByteArrayInputStream("fakePdfContent".toByteArray())
@@ -33,40 +33,40 @@ class OfficeConverterClientServiceTest : BehaviorSpec({
             every { response.entity } returns expectedPdf
             every { officeConverterClient.convert(capture(multipartSlot)) } returns response
 
-            When("convertToPDF is called") {
+            `when`("convertToPDF is called") {
                 val result = officeConverterClientService.convertToPDF(document, filename)
 
-                Then("it returns the PDF as a ByteArrayInputStream") {
+                then("it returns the PDF as a ByteArrayInputStream") {
                     val resultBytes = result.readAllBytes()
                     resultBytes shouldBe "fakePdfContent".toByteArray()
                     verify(exactly = 1) { officeConverterClient.convert(any()) }
                 }
 
-                Then("the multipart form data contains a part named 'files' matching the Gotenberg API contract") {
+                then("the multipart form data contains a part named 'files' matching the Gotenberg API contract") {
                     val formDataMap = multipartSlot.captured.formDataMap
                     formDataMap shouldContainKey "files"
                     formDataMap shouldNotContainKey "file"
                 }
 
-                Then("the multipart form data requests PDF/A-2b output format") {
+                then("the multipart form data requests PDF/A-2b output format") {
                     val formDataMap = multipartSlot.captured.formDataMap
                     formDataMap shouldContainKey "pdfa"
                 }
             }
         }
 
-        Given("A byte array input stream and an office converter client response that could not be buffered") {
+        given("A byte array input stream and an office converter client response that could not be buffered") {
             val document = ByteArrayInputStream("fakeDocumentContent".toByteArray())
             val filename = "fakeFilename.docx"
             every { response.bufferEntity() } returns false
             every { officeConverterClient.convert(any()) } returns response
 
-            When("convertToPDF is called") {
+            `when`("convertToPDF is called") {
                 val exception = shouldThrow<MessageEntityDataCouldNotBeBufferedException> {
                     officeConverterClientService.convertToPDF(document, filename)
                 }
 
-                Then("it throws a RuntimeException with an explanatory message") {
+                then("it throws a RuntimeException with an explanatory message") {
                     exception.message shouldBe "Content of PDF converter could not be buffered."
                     verify(exactly = 1) { officeConverterClient.convert(any()) }
                 }

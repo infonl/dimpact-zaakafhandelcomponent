@@ -41,7 +41,7 @@ class SmartDocumentsValidatorKtTest : BehaviorSpec({
         )
     )
 
-    Given("a valid rest template request") {
+    given("a valid rest template request") {
         val expectedInformatieobjectTypeUUID = UUID.randomUUID()
         val restTemplateRequest = setOf(
             createRestMappedSmartDocumentsTemplateGroup(
@@ -98,13 +98,13 @@ class SmartDocumentsValidatorKtTest : BehaviorSpec({
             )
         )
 
-        When("validating with the same rest request as a superset") {
+        `when`("validating with the same rest request as a superset") {
             restTemplateRequest isSubsetOf smartDocumentsTemplates
-            Then("it does not error") {}
+            then("it does not error") {}
         }
     }
 
-    Given("an invalid REST request") {
+    given("an invalid REST request") {
         val invalidRestTemplateRequest = setOf(
             createRestMappedSmartDocumentsTemplateGroup(
                 id = "000-000",
@@ -114,12 +114,12 @@ class SmartDocumentsValidatorKtTest : BehaviorSpec({
             )
         )
 
-        When("validating invalid rest request") {
+        `when`("validating invalid rest request") {
             val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 invalidRestTemplateRequest isSubsetOf smartDocumentsTemplates
             }
 
-            Then("error should hint what's wrong") {
+            then("error should hint what's wrong") {
                 exception.message shouldContain "non-existing"
             }
         }

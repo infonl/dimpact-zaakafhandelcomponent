@@ -21,15 +21,15 @@ class ObjectsClientServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Reading an object") {
-        Given("An existing object") {
+    context("Reading an object") {
+        given("An existing object") {
             val modelObject = createModelObject()
             every { objectsClient.objectRead(modelObject.uuid) } returns modelObject
 
-            When("the object is read using the UUID") {
+            `when`("the object is read using the UUID") {
                 val returnedObject = service.readObject(modelObject.uuid)
 
-                Then("the object is returned") {
+                then("the object is returned") {
                     returnedObject shouldBe modelObject
                 }
             }

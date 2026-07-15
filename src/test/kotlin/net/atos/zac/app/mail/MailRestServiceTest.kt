@@ -50,8 +50,8 @@ class MailRestServiceTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
-    Context("sendMail") {
-        Given("A zaak UUID, mail gegevens, and policy permits versturenEmail") {
+    context("sendMail") {
+        given("A zaak UUID, mail gegevens, and policy permits versturenEmail") {
             val fakeZaakUuid = UUID.randomUUID()
             val fakeZaak = createZaak(uuid = fakeZaakUuid)
             val fakeRestMailGegevens = mockk<RESTMailGegevens>()
@@ -64,10 +64,10 @@ class MailRestServiceTest : BehaviorSpec({
             every { restMailGegevensConverter.convert(fakeRestMailGegevens) } returns fakeMailGegevens
             every { mailService.sendMail(fakeMailGegevens, any()) } returns null
 
-            When("sendMail is called") {
+            `when`("sendMail is called") {
                 mailRestService.sendMail(fakeZaakUuid, fakeRestMailGegevens)
 
-                Then("ZrcClientService reads the zaak, policy is checked, and MailService sends the mail") {
+                then("ZrcClientService reads the zaak, policy is checked, and MailService sends the mail") {
                     verify { zrcClientService.readZaak(fakeZaakUuid) }
                     verify { policyService.readZaakRechten(fakeZaak, fakeLoggedInUser) }
                     verify { mailService.sendMail(fakeMailGegevens, any()) }
@@ -76,8 +76,8 @@ class MailRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("sendAcknowledgmentReceiptMail when permitted and not yet sent") {
-        Given("Policy permits and ontvangstbevestiging not yet sent") {
+    context("sendAcknowledgmentReceiptMail when permitted and not yet sent") {
+        given("Policy permits and ontvangstbevestiging not yet sent") {
             val fakeZaakUuid = UUID.randomUUID()
             val fakeZaak = createZaak(uuid = fakeZaakUuid)
             val fakeRestMailGegevens = mockk<RESTMailGegevens>()
@@ -94,10 +94,10 @@ class MailRestServiceTest : BehaviorSpec({
             every { mailService.sendMail(fakeMailGegevens, any()) } returns null
             every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(fakeZaak) } just runs
 
-            When("sendAcknowledgmentReceiptMail is called") {
+            `when`("sendAcknowledgmentReceiptMail is called") {
                 mailRestService.sendAcknowledgmentReceiptMail(fakeZaakUuid, fakeRestMailGegevens)
 
-                Then("MailService sends the mail and zaak is marked as ontvangstbevestiging verstuurd") {
+                then("MailService sends the mail and zaak is marked as ontvangstbevestiging verstuurd") {
                     verify { mailService.sendMail(fakeMailGegevens, any()) }
                     verify { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(fakeZaak) }
                 }
@@ -105,8 +105,8 @@ class MailRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("sendAcknowledgmentReceiptMail when policy denies") {
-        Given("Policy denies versturenOntvangstbevestiging") {
+    context("sendAcknowledgmentReceiptMail when policy denies") {
+        given("Policy denies versturenOntvangstbevestiging") {
             val fakeZaakUuid = UUID.randomUUID()
             val fakeZaak = createZaak(uuid = fakeZaakUuid)
             val fakeRestMailGegevens = mockk<RESTMailGegevens>()
@@ -119,12 +119,12 @@ class MailRestServiceTest : BehaviorSpec({
                 policyService.readZaakRechten(fakeZaak, fakeLoggedInUser)
             } returns createZaakRechten(versturenOntvangstbevestiging = false)
 
-            When("sendAcknowledgmentReceiptMail is called") {
+            `when`("sendAcknowledgmentReceiptMail is called") {
                 shouldThrow<PolicyException> {
                     mailRestService.sendAcknowledgmentReceiptMail(fakeZaakUuid, fakeRestMailGegevens)
                 }
 
-                Then("MailService is not called") {
+                then("MailService is not called") {
                     verify(exactly = 0) { mailService.sendMail(any(), any()) }
                 }
             }

@@ -58,8 +58,8 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Deleting detached documents") {
-        Given("an id that doesn't belong to a document in the database") {
+    context("Deleting detached documents") {
+        given("an id that doesn't belong to a document in the database") {
             val id: Long = 1
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
             every {
@@ -69,15 +69,15 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 detachedDocumentService.find(id)
             } returns null
 
-            When("the delete endpoint is called with that id") {
+            `when`("the delete endpoint is called with that id") {
                 detachedDocumentRestService.deleteDetachedDocument(id)
 
-                Then("there are no exceptions") {
+                then("there are no exceptions") {
                 }
             }
         }
 
-        Given("a document that exists in the database but results in a 404 from OpenZaak") {
+        given("a document that exists in the database but results in a 404 from OpenZaak") {
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
             val document = DetachedDocument()
             document.documentUUID = UUID.randomUUID()
@@ -95,10 +95,10 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 detachedDocumentService.deleteIfExists(document.id!!)
             } just runs
 
-            When("the delete endpoint is called with the id of that document") {
+            `when`("the delete endpoint is called with the id of that document") {
                 detachedDocumentRestService.deleteDetachedDocument(document.id!!)
 
-                Then("the document is deleted") {
+                then("the document is deleted") {
                     verify(exactly = 1) {
                         detachedDocumentService.deleteIfExists(document.id!!)
                     }
@@ -106,7 +106,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a document that exists in the database but results in a non-404 error from OpenZaak") {
+        given("a document that exists in the database but results in a non-404 error from OpenZaak") {
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
             val document = createDetachedDocument()
             every {
@@ -119,17 +119,17 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 drcClientService.readEnkelvoudigInformatieobject(document.documentUUID)
             } throws ZgwErrorException(ZgwError(null, null, null, 400, null, null))
 
-            When("the delete endpoint is called with the id of that document") {
+            `when`("the delete endpoint is called with the id of that document") {
                 val exception =
                     shouldThrow<ZgwErrorException> { detachedDocumentRestService.deleteDetachedDocument(document.id!!) }
 
-                Then("the exception from OpenZaak is rethrown") {
+                then("the exception from OpenZaak is rethrown") {
                     exception.zgwError.status shouldBe 400
                 }
             }
         }
 
-        Given("a document that exists in the database but results in a informatieobject with a zaak id from OpenZaak") {
+        given("a document that exists in the database but results in a informatieobject with a zaak id from OpenZaak") {
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
             val document = createDetachedDocument()
             val informatieObject = EnkelvoudigInformatieObject()
@@ -148,7 +148,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 zrcClientService.listZaakinformatieobjecten(informatieObject)
             } returns mutableListOf(zaakInformatieObject)
 
-            When("the delete endpoint is called with the id of that document") {
+            `when`("the delete endpoint is called with the id of that document") {
                 val exception =
                     shouldThrow<IllegalStateException> {
                         detachedDocumentRestService.deleteDetachedDocument(
@@ -156,13 +156,13 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                         )
                     }
 
-                Then("the an IllegalStateException should be thrown") {
+                then("the an IllegalStateException should be thrown") {
                     exception shouldNotBe null
                 }
             }
         }
 
-        Given(
+        given(
             "a document that exists in the database and results in a informatieobject without a zaak id from OpenZaak"
         ) {
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
@@ -191,10 +191,10 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 detachedDocumentService.deleteIfExists(document.id!!)
             } just runs
 
-            When("the delete endpoint is called with the id of that document") {
+            `when`("the delete endpoint is called with the id of that document") {
                 detachedDocumentRestService.deleteDetachedDocument(document.id!!)
 
-                Then("the document is deleted") {
+                then("the document is deleted") {
                     verify(exactly = 1) {
                         detachedDocumentService.deleteIfExists(document.id!!)
                     }
@@ -203,27 +203,27 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing detached documents") {
-        Given("access to the inbox is denied") {
+    context("Listing detached documents") {
+        given("access to the inbox is denied") {
             val werklijstRechten = createWerklijstRechten(inbox = false)
             every {
                 policyService.readWerklijstRechten()
             } returns werklijstRechten
 
-            When("the list endpoint is called") {
+            `when`("the list endpoint is called") {
                 val exception = shouldThrow<PolicyException> {
                     detachedDocumentRestService.listDetachedDocuments(
                         RestDetachedDocumentListParameters()
                     )
                 }
 
-                Then("a PolicyException is thrown") {
+                then("a PolicyException is thrown") {
                     exception shouldNotBe null
                 }
             }
         }
 
-        Given("a valid request with no ontkoppeldDoor filter in request or database") {
+        given("a valid request with no ontkoppeldDoor filter in request or database") {
             val werklijstRechten = createWerklijstRechten(inbox = true)
             val restListParameters = RestDetachedDocumentListParameters()
             val detachedDocument = createDetachedDocument()
@@ -239,17 +239,17 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 restDetachedDocumentConverter.convert(listOf(detachedDocument), any())
             } returns listOf(restDocument)
 
-            When("the list endpoint is called") {
+            `when`("the list endpoint is called") {
                 val result = detachedDocumentRestService.listDetachedDocuments(restListParameters)
 
-                Then("the result is returned with an empty filterOntkoppeldDoor") {
+                then("the result is returned with an empty filterOntkoppeldDoor") {
                     result shouldNotBe null
                     (result as RestDetachedDocumentResult).filterOntkoppeldDoor shouldBe emptyList()
                 }
             }
         }
 
-        Given("a valid request with ontkoppeldDoor set in the request but empty in the database") {
+        given("a valid request with ontkoppeldDoor set in the request but empty in the database") {
             val werklijstRechten = createWerklijstRechten(inbox = true)
             val requestUser = createRestUser(id = "fakeUserId1", name = "fakeUserName1")
             val restListParameters = RestDetachedDocumentListParameters().apply {
@@ -268,16 +268,16 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                 restDetachedDocumentConverter.convert(listOf(document), any())
             } returns listOf(restDocument)
 
-            When("the list endpoint is called") {
+            `when`("the list endpoint is called") {
                 val result = detachedDocumentRestService.listDetachedDocuments(restListParameters)
 
-                Then("filterOntkoppeldDoor contains the user from the request") {
+                then("filterOntkoppeldDoor contains the user from the request") {
                     (result as RestDetachedDocumentResult).filterOntkoppeldDoor shouldBe listOf(requestUser)
                 }
             }
         }
 
-        Given("a valid request with ontkoppeldDoor filter returned from the database") {
+        given("a valid request with ontkoppeldDoor filter returned from the database") {
             val werklijstRechten = createWerklijstRechten(inbox = true)
             val restListParameters = RestDetachedDocumentListParameters()
             val document = createDetachedDocument()
@@ -299,10 +299,10 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             } returns listOf(restDocument)
             every { with(userConverter) { dbUserIds.convertUserIds() } } returns convertedUsers
 
-            When("the list endpoint is called") {
+            `when`("the list endpoint is called") {
                 val result = detachedDocumentRestService.listDetachedDocuments(restListParameters)
 
-                Then("filterOntkoppeldDoor is populated from the database filter via userConverter") {
+                then("filterOntkoppeldDoor is populated from the database filter via userConverter") {
                     (result as RestDetachedDocumentResult).filterOntkoppeldDoor shouldBe convertedUsers
                 }
             }

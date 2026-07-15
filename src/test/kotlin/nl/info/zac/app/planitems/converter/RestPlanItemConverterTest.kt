@@ -33,8 +33,8 @@ class RestPlanItemConverterTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
-    Context("convertPlanItems") {
-        Given("a zaak with two plan items") {
+    context("convertPlanItems") {
+        given("a zaak with two plan items") {
             val zaaktypeUUID = UUID.randomUUID()
             val zaak = createZaak(zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUUID"))
             val planItemInstance1 = mockk<PlanItemInstance>()
@@ -48,13 +48,13 @@ class RestPlanItemConverterTest : BehaviorSpec({
                 every { planItem.planItemDefinitionType } returns PlanItemDefinitionType.PROCESS_TASK
             }
 
-            When("convertPlanItems is called") {
+            `when`("convertPlanItems is called") {
                 val restPlanItems = restPlanItemConverter.convertPlanItems(
                     listOf(planItemInstance1, planItemInstance2),
                     zaak
                 )
 
-                Then("it converts all plan items") {
+                then("it converts all plan items") {
                     restPlanItems.size shouldBe 2
                     restPlanItems.all { it.type == PlanItemType.PROCESS_TASK } shouldBe true
                 }
@@ -62,11 +62,11 @@ class RestPlanItemConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convertPlanItem") {
+    context("convertPlanItem") {
         val zaakUUID = UUID.randomUUID()
         val zaaktypeCmmnConfiguration = mockk<ZaaktypeCmmnConfiguration>()
 
-        Given("a USER_EVENT_LISTENER plan item") {
+        given("a USER_EVENT_LISTENER plan item") {
             val planItemInstance = mockk<PlanItemInstance>()
             val planItemDefinitionId = UserEventListenerActie.INTAKE_AFRONDEN.name
             val userEventListenerParams = ZaaktypeCmmnUsereventlistenerParameters().apply {
@@ -82,14 +82,14 @@ class RestPlanItemConverterTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration.readUserEventListenerParameters(planItemDefinitionId)
             } returns userEventListenerParams
 
-            When("convertPlanItem is called") {
+            `when`("convertPlanItem is called") {
                 val restPlanItem = restPlanItemConverter.convertPlanItem(
                     planItemInstance,
                     zaakUUID,
                     zaaktypeCmmnConfiguration
                 )
 
-                Then("it maps the type and userEventListenerActie") {
+                then("it maps the type and userEventListenerActie") {
                     restPlanItem.id shouldBe "fakePlanItemId"
                     restPlanItem.naam shouldBe "fakePlanItemName"
                     restPlanItem.type shouldBe PlanItemType.USER_EVENT_LISTENER
@@ -100,7 +100,7 @@ class RestPlanItemConverterTest : BehaviorSpec({
             }
         }
 
-        Given("a HUMAN_TASK plan item with formulier definition") {
+        given("a HUMAN_TASK plan item with formulier definition") {
             val planItemInstance = mockk<PlanItemInstance>()
             val planItemDefinitionId = "fakePlanItemDefinitionId"
             val humanTaskParameters = createHumanTaskParameters(
@@ -118,14 +118,14 @@ class RestPlanItemConverterTest : BehaviorSpec({
             every { planItemInstance.planItemDefinitionId } returns planItemDefinitionId
             every { zaaktypeCmmnConfiguration.findHumanTaskParameter(planItemDefinitionId) } returns humanTaskParameters
 
-            When("convertPlanItem is called") {
+            `when`("convertPlanItem is called") {
                 val restPlanItem = restPlanItemConverter.convertPlanItem(
                     planItemInstance,
                     zaakUUID,
                     zaaktypeCmmnConfiguration
                 )
 
-                Then("it maps human task fields") {
+                then("it maps human task fields") {
                     restPlanItem.type shouldBe PlanItemType.HUMAN_TASK
                     restPlanItem.actief shouldBe true
                     restPlanItem.formulierDefinitie shouldBe FormulierDefinitie.AANVULLENDE_INFORMATIE
@@ -135,21 +135,21 @@ class RestPlanItemConverterTest : BehaviorSpec({
             }
         }
 
-        Given("a PROCESS_TASK plan item") {
+        given("a PROCESS_TASK plan item") {
             val planItemInstance = mockk<PlanItemInstance>()
 
             every { planItemInstance.id } returns "fakeProcessTaskId"
             every { planItemInstance.name } returns "fakeProcessTaskName"
             every { planItemInstance.planItemDefinitionType } returns PlanItemDefinitionType.PROCESS_TASK
 
-            When("convertPlanItem is called") {
+            `when`("convertPlanItem is called") {
                 val restPlanItem = restPlanItemConverter.convertPlanItem(
                     planItemInstance,
                     zaakUUID,
                     zaaktypeCmmnConfiguration
                 )
 
-                Then("it maps basic fields without extra PROCESS_TASK fields") {
+                then("it maps basic fields without extra PROCESS_TASK fields") {
                     restPlanItem.id shouldBe "fakeProcessTaskId"
                     restPlanItem.naam shouldBe "fakeProcessTaskName"
                     restPlanItem.type shouldBe PlanItemType.PROCESS_TASK
@@ -160,19 +160,19 @@ class RestPlanItemConverterTest : BehaviorSpec({
             }
         }
 
-        Given("a plan item with an unsupported definition type") {
+        given("a plan item with an unsupported definition type") {
             val planItemInstance = mockk<PlanItemInstance>()
 
             every { planItemInstance.id } returns "fakeId"
             every { planItemInstance.name } returns "fakeName"
             every { planItemInstance.planItemDefinitionType } returns "UNSUPPORTED_TYPE"
 
-            When("convertPlanItem is called") {
+            `when`("convertPlanItem is called") {
                 val exception = shouldThrow<IllegalArgumentException> {
                     restPlanItemConverter.convertPlanItem(planItemInstance, zaakUUID, zaaktypeCmmnConfiguration)
                 }
 
-                Then("it throws with an informative message") {
+                then("it throws with an informative message") {
                     exception.message shouldBe
                         "Conversie van plan item definition type 'UNSUPPORTED_TYPE' wordt niet ondersteund"
                 }

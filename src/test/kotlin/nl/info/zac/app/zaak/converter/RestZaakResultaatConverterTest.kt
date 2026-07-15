@@ -27,7 +27,7 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given(
+    given(
         """
         A valid resultaatURI which corresponds to a resultaat and a resultaattype with 
         a 'brondatumArchiefprocedure' with an 'afleidingswijze' of type 'VERVALDATUM_BESLUIT'
@@ -46,10 +46,10 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
         every { zrcClientService.readResultaat(resultaatURI) } returns resultaat
         every { ztcClientService.readResultaattype(resultaatTypeURI) } returns resultaattype
 
-        When("it is converted to a REST zaak resultaat") {
+        `when`("it is converted to a REST zaak resultaat") {
             val restZaakResultaat = converter.convert(resultaatURI)
 
-            Then("it should return a RestZaakResultaat with 'besluitVerplicht' set to true") {
+            then("it should return a RestZaakResultaat with 'besluitVerplicht' set to true") {
                 with(restZaakResultaat) {
                     toelichting shouldBe resultaattype.toelichting
                     with(this.resultaattype!!) {
@@ -66,7 +66,7 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
             }
         }
     }
-    Given(
+    given(
         """
         A valid resultaatURI which corresponds to a resultaat and a resultaattype with 
         a 'brondatumArchiefprocedure' with an 'afleidingswijze' not of type 'VERVALDATUM_BESLUIT' or 'INGANGSDATUM_BESLUIT'
@@ -85,10 +85,10 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
         every { zrcClientService.readResultaat(resultaatURI) } returns resultaat
         every { ztcClientService.readResultaattype(resultaatTypeURI) } returns resultaattype
 
-        When("it is converted to a REST zaak resultaat") {
+        `when`("it is converted to a REST zaak resultaat") {
             val restZaakResultaat = converter.convert(resultaatURI)
 
-            Then("it should return a RestZaakResultaat with 'besluitVerplicht' set to false") {
+            then("it should return a RestZaakResultaat with 'besluitVerplicht' set to false") {
                 with(restZaakResultaat.resultaattype!!) {
                     besluitVerplicht shouldBe false
                     vervaldatumBesluitVerplicht shouldBe false
@@ -96,7 +96,7 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
             }
         }
     }
-    Given(
+    given(
         """
         A valid resultaatURI which corresponds to a resultaat and a resultaattype with 
         a 'brondatumArchiefprocedure' that does not have an 'afleidingswijze'
@@ -115,10 +115,10 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
         every { zrcClientService.readResultaat(resultaatURI) } returns resultaat
         every { ztcClientService.readResultaattype(resultaatTypeURI) } returns resultaattype
 
-        When("it is converted to a REST zaak resultaat") {
+        `when`("it is converted to a REST zaak resultaat") {
             val restZaakResultaat = converter.convert(resultaatURI)
 
-            Then("it should return a RestZaakResultaat with 'besluitVerplicht' set to false") {
+            then("it should return a RestZaakResultaat with 'besluitVerplicht' set to false") {
                 with(restZaakResultaat.resultaattype!!) {
                     besluitVerplicht shouldBe false
                     vervaldatumBesluitVerplicht shouldBe false

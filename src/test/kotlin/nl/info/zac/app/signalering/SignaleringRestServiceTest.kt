@@ -48,7 +48,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("zaken signaleringen for ZAAK_OP_NAAM") {
+    given("zaken signaleringen for ZAAK_OP_NAAM") {
         val signaleringType = SignaleringType.Type.ZAAK_OP_NAAM
         val pageNumber = 0
         val pageSize = 5
@@ -68,16 +68,16 @@ class SignaleringRestServiceTest : BehaviorSpec({
         } returns restZaakOverzichtList
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("listing zaken signaleringen with proper page parameters") {
+        `when`("listing zaken signaleringen with proper page parameters") {
             val restResultaat = signaleringRestService.listZakenSignaleringen(signaleringType, restPageParameters)
 
-            Then("correct response is returned") {
+            then("correct response is returned") {
                 restResultaat.totaal shouldBe numberOfElements
                 restResultaat.resultaten shouldBe restZaakOverzichtList
             }
         }
 
-        When("listing zaken signaleringen with incorrect page parameters") {
+        `when`("listing zaken signaleringen with incorrect page parameters") {
             val exception = shouldThrow<SignaleringException> {
                 signaleringRestService.listZakenSignaleringen(
                     signaleringType,
@@ -90,13 +90,13 @@ class SignaleringRestServiceTest : BehaviorSpec({
                 )
             }
 
-            Then("exception is thrown") {
+            then("exception is thrown") {
                 exception.message shouldBe "Requested page 123 must be <= 1"
             }
         }
     }
 
-    Given("zaken signaleringen for ZAAK_OP_NAAM with sort parameters") {
+    given("zaken signaleringen for ZAAK_OP_NAAM with sort parameters") {
         val signaleringType = SignaleringType.Type.ZAAK_OP_NAAM
         val numberOfElements = 7
         val restZaakOverzichtList = List(numberOfElements) { createRESTZaakOverzicht() }
@@ -114,17 +114,17 @@ class SignaleringRestServiceTest : BehaviorSpec({
         } returns restZaakOverzichtList
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("listing zaken signaleringen with the sort parameters") {
+        `when`("listing zaken signaleringen with the sort parameters") {
             val restResultaat = signaleringRestService.listZakenSignaleringen(signaleringType, sortedPageParameters)
 
-            Then("the sort parameters are passed through unchanged and the response is returned") {
+            then("the sort parameters are passed through unchanged and the response is returned") {
                 restResultaat.totaal shouldBe numberOfElements
                 restResultaat.resultaten shouldBe restZaakOverzichtList
             }
         }
     }
 
-    Given("An existing group and existing group signalering instellingen and a user with 'beheren' permissions") {
+    given("An existing group and existing group signalering instellingen and a user with 'beheren' permissions") {
         val groupId = "fakeGroupId"
         val group = createGroup()
         val signaleringInstellingen = listOf(createSignaleringInstellingen())
@@ -135,16 +135,16 @@ class SignaleringRestServiceTest : BehaviorSpec({
         every { signaleringService.listInstellingenInclusiefMogelijke(any()) } returns signaleringInstellingen
         every { restSignaleringInstellingenConverter.convert(signaleringInstellingen) } returns restSignaleringInstellingen
 
-        When("listGroupSignaleringInstellingen is called") {
+        `when`("listGroupSignaleringInstellingen is called") {
             val result = signaleringRestService.listGroupSignaleringInstellingen(groupId)
 
-            Then("it should return the list of signalering instellingen for the group") {
+            then("it should return the list of signalering instellingen for the group") {
                 result shouldBe restSignaleringInstellingen
             }
         }
     }
 
-    Given("An existing group and a user with 'beheren' permissions") {
+    given("An existing group and a user with 'beheren' permissions") {
         val groupId = "valid-group-id"
         val group = createGroup()
         val signaleringInstellingen = createSignaleringInstellingen()
@@ -157,62 +157,62 @@ class SignaleringRestServiceTest : BehaviorSpec({
         } returns signaleringInstellingen
         every { signaleringService.createUpdateOrDeleteInstellingen(signaleringInstellingen) } returns signaleringInstellingen
 
-        When("updateGroupSignaleringInstellingen is called") {
+        `when`("updateGroupSignaleringInstellingen is called") {
             val result = signaleringRestService.updateGroupSignaleringInstellingen(groupId, restSignaleringInstellingen)
 
-            Then("it should update the signalering instellingen for the group and return the updated instellingen") {
+            then("it should update the signalering instellingen for the group and return the updated instellingen") {
                 result shouldBe signaleringInstellingen
             }
         }
     }
 
-    Given("A non-existing group") {
+    given("A non-existing group") {
         val groupId = "invalid-group-id"
         val restSignaleringInstellingen = createRestSignaleringInstellingen()
         every { policyService.readOverigeRechten().beheren } returns true
         every { identityService.readGroup(groupId) } throws IllegalArgumentException("Group not found")
 
-        When("listGroupSignaleringInstellingen is called") {
+        `when`("listGroupSignaleringInstellingen is called") {
             val exception = shouldThrow<IllegalArgumentException> {
                 signaleringRestService.listGroupSignaleringInstellingen(groupId)
             }
 
-            Then("it should throw an IllegalArgumentException") {
+            then("it should throw an IllegalArgumentException") {
                 exception.message shouldBe "Group not found"
             }
         }
 
-        When("updateGroupSignaleringInstellingen is called") {
+        `when`("updateGroupSignaleringInstellingen is called") {
             val exception = shouldThrow<IllegalArgumentException> {
                 signaleringRestService.updateGroupSignaleringInstellingen(groupId, restSignaleringInstellingen)
             }
 
-            Then("it should throw an IllegalArgumentException") {
+            then("it should throw an IllegalArgumentException") {
                 exception.message shouldBe "Group not found"
             }
         }
     }
 
-    Given("The user does not have the required 'beheren' permissions") {
+    given("The user does not have the required 'beheren' permissions") {
         val groupId = "fakeGroupId"
         val restSignaleringInstellingen = createRestSignaleringInstellingen()
         every { policyService.readOverigeRechten().beheren } returns false
 
-        When("listGroupSignaleringInstellingen is called") {
+        `when`("listGroupSignaleringInstellingen is called") {
             val exception = shouldThrow<PolicyException> {
                 signaleringRestService.listGroupSignaleringInstellingen(groupId)
             }
 
-            Then("it should throw a PolicyException") {
+            then("it should throw a PolicyException") {
                 exception shouldNotBe null
             }
         }
 
-        When("updateGroupSignaleringInstellingen is called") {
+        `when`("updateGroupSignaleringInstellingen is called") {
             val exception = shouldThrow<PolicyException> {
                 signaleringRestService.updateGroupSignaleringInstellingen(groupId, restSignaleringInstellingen)
             }
-            Then("it should throw a PolicyException") {
+            then("it should throw a PolicyException") {
                 exception shouldNotBe null
             }
         }

@@ -22,13 +22,13 @@ class RestTaskHistoryConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A converter history with USER_TASK_CREATED item") {
+    given("A converter history with USER_TASK_CREATED item") {
         val history = listOf(createHistoricTaskLogEntryEntityImpl())
 
-        When("convert is called") {
+        `when`("convert is called") {
             val historieRegels = restTaskHistoryConverter.convert(history)
 
-            Then("it returns correct history lines") {
+            then("it returns correct history lines") {
                 historieRegels.first().let { line ->
                     line.attribuutLabel shouldBe RestTaskHistoryConverter.STATUS_ATTRIBUUT_LABEL
                     line.oudeWaarde shouldBe null
@@ -39,17 +39,17 @@ class RestTaskHistoryConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A converter history with USER_TASK_COMPLETED item") {
+    given("A converter history with USER_TASK_COMPLETED item") {
         val history = listOf(
             createHistoricTaskLogEntryEntityImpl(
                 type = HistoricTaskLogEntryType.USER_TASK_COMPLETED
             )
         )
 
-        When("convert is called") {
+        `when`("convert is called") {
             val historieRegel = restTaskHistoryConverter.convert(history)
 
-            Then("it returns correct history lines") {
+            then("it returns correct history lines") {
                 historieRegel.first().let { line ->
                     line.attribuutLabel shouldBe RestTaskHistoryConverter.STATUS_ATTRIBUUT_LABEL
                     line.oudeWaarde shouldBe RestTaskHistoryConverter.CREATED_ATTRIBUUT_LABEL
@@ -60,17 +60,17 @@ class RestTaskHistoryConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A converter history with non-supported item") {
+    given("A converter history with non-supported item") {
         val history = listOf(
             createHistoricTaskLogEntryEntityImpl(
                 type = HistoricTaskLogEntryType.USER_TASK_IDENTITY_LINK_ADDED
             )
         )
 
-        When("convert is called") {
+        `when`("convert is called") {
             val historieRegel = restTaskHistoryConverter.convert(history)
 
-            Then("it filters out the unsupported events") {
+            then("it filters out the unsupported events") {
                 historieRegel.shouldBeEmpty()
             }
         }

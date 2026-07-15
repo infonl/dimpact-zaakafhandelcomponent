@@ -25,29 +25,29 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("convertToREST(ZaakobjectWoonplaats)") {
-        Given("a null ZaakobjectWoonplaats") {
+    context("convertToREST(ZaakobjectWoonplaats)") {
+        given("a null ZaakobjectWoonplaats") {
             val zaakobjectWoonplaats: ZaakobjectWoonplaats? = null
 
-            When("convertToREST is called") {
+            `when`("convertToREST is called") {
                 val result = RestWoonplaatsConverter.convertToREST(zaakobjectWoonplaats)
 
-                Then("it should return null") {
+                then("it should return null") {
                     result.shouldBeNull()
                 }
             }
         }
 
-        Given("a valid ZaakobjectWoonplaats with identificatie and naam") {
+        given("a valid ZaakobjectWoonplaats with identificatie and naam") {
             val fakeObjectUri = URI("https://example.com/bag/woonplaats/fakeObjectUri")
             val fakeZaakUri = URI("https://example.com/zaken/fakeZaakUri")
             val objectWoonplaats = ObjectWoonplaats("fakeIdentificatie", "fakeWoonplaatsNaam")
             val zaakobjectWoonplaats = ZaakobjectWoonplaats(fakeZaakUri, fakeObjectUri, objectWoonplaats)
 
-            When("convertToREST is called") {
+            `when`("convertToREST is called") {
                 val result = RestWoonplaatsConverter.convertToREST(zaakobjectWoonplaats)
 
-                Then("it should map the url from the object URI") {
+                then("it should map the url from the object URI") {
                     result!!.url shouldBe fakeObjectUri
                 }
 
@@ -62,8 +62,8 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convertToZaakobject(RESTWoonplaats, Zaak)") {
-        Given("a RESTWoonplaats and a Zaak") {
+    context("convertToZaakobject(RESTWoonplaats, Zaak)") {
+        given("a RESTWoonplaats and a Zaak") {
             val fakeWoonplaatsUrl = URI("https://example.com/bag/woonplaats/fakeWoonplaatsUrl")
             val restWoonplaats = RESTWoonplaats().apply {
                 url = fakeWoonplaatsUrl
@@ -72,10 +72,10 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
             }
             val zaak = createZaak()
 
-            When("convertToZaakobject is called") {
+            `when`("convertToZaakobject is called") {
                 val result = RestWoonplaatsConverter.convertToZaakobject(restWoonplaats, zaak)
 
-                Then("it should set the zaak URL from the provided zaak") {
+                then("it should set the zaak URL from the provided zaak") {
                     result.zaak shouldBe zaak.url
                 }
 
@@ -91,20 +91,20 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convertToREST(WoonplaatsIOHalBasis)") {
-        Given("a null WoonplaatsIOHalBasis") {
+    context("convertToREST(WoonplaatsIOHalBasis)") {
+        given("a null WoonplaatsIOHalBasis") {
             val woonplaatsIOHalBasis: WoonplaatsIOHalBasis? = null
 
-            When("convertToREST is called") {
+            `when`("convertToREST is called") {
                 val result = RestWoonplaatsConverter.convertToREST(woonplaatsIOHalBasis)
 
-                Then("it should return null") {
+                then("it should return null") {
                     result.shouldBeNull()
                 }
             }
         }
 
-        Given("a valid WoonplaatsIOHalBasis with all Woonplaats fields and a self link") {
+        given("a valid WoonplaatsIOHalBasis with all Woonplaats fields and a self link") {
             val fakeSelfHref = "https://example.com/bag/woonplaats/fakeSelfHref"
             val woonplaats = Woonplaats().apply {
                 setIdentificatie("fakeIdentificatie")
@@ -119,10 +119,10 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
                 setLinks(woonplaatsLinks)
             }
 
-            When("convertToREST is called") {
+            `when`("convertToREST is called") {
                 val result = RestWoonplaatsConverter.convertToREST(woonplaatsIOHalBasis)
 
-                Then("it should set the url from the self link href") {
+                then("it should set the url from the self link href") {
                     result!!.url shouldBe URI.create(fakeSelfHref)
                 }
 
@@ -144,7 +144,7 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
             }
         }
 
-        Given("a WoonplaatsIOHalBasis with geconstateerd set to N") {
+        given("a WoonplaatsIOHalBasis with geconstateerd set to N") {
             val fakeSelfHref = "https://example.com/bag/woonplaats/fakeSelfHrefN"
             val woonplaats = Woonplaats().apply {
                 setIdentificatie("fakeIdentificatie")
@@ -159,10 +159,10 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
                 setLinks(woonplaatsLinks)
             }
 
-            When("convertToREST is called") {
+            `when`("convertToREST is called") {
                 val result = RestWoonplaatsConverter.convertToREST(woonplaatsIOHalBasis)
 
-                Then("it should map geconstateerd as false when Indicatie is N") {
+                then("it should map geconstateerd as false when Indicatie is N") {
                     result!!.geconstateerd shouldBe false
                 }
 

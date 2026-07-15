@@ -34,8 +34,8 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Creating new mail templates via POST endpoint") {
-        Given("A REST mail template without ID and 'beheren' rechten") {
+    context("Creating new mail templates via POST endpoint") {
+        given("A REST mail template without ID and 'beheren' rechten") {
             val restMailTemplate = createRestMailTemplate(
                 mail = Mail.ZAAK_ALGEMEEN,
                 subject = "New<p>Template</p>",
@@ -48,10 +48,10 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
             every { policyService.readOverigeRechten().beheren } returns true
             every { mailTemplateService.createMailtemplate(capture(mailTemplateSlot)) } returns createdMailTemplate
 
-            When("the mail template is created via POST") {
+            `when`("the mail template is created via POST") {
                 val response = mailtemplateBeheerRestService.createMailtemplate(restMailTemplate)
 
-                Then("the mail template service should be called with convertForCreate") {
+                then("the mail template service should be called with convertForCreate") {
                     verify { mailTemplateService.createMailtemplate(any()) }
                     with(mailTemplateSlot.captured) {
                         id shouldBe 0L // Should be 0 for new entities
@@ -73,8 +73,8 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Updating existing mail templates via PUT endpoint") {
-        Given("A REST mail template with ID and 'beheren' rechten") {
+    context("Updating existing mail templates via PUT endpoint") {
+        given("A REST mail template with ID and 'beheren' rechten") {
             val templateId = 456L
             val restMailTemplate = createRestMailTemplate(
                 mail = Mail.ZAAK_ALGEMEEN,
@@ -91,10 +91,10 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                 mailTemplateService.updateMailtemplate(capture(idSlot), capture(mailTemplateSlot))
             } returns updatedMailTemplate
 
-            When("the mail template is updated via PUT") {
+            `when`("the mail template is updated via PUT") {
                 val updatedRestTemplate = mailtemplateBeheerRestService.updateMailtemplate(templateId, restMailTemplate)
 
-                Then("the mail template service should be called with the correct ID and convertForUpdate") {
+                then("the mail template service should be called with the correct ID and convertForUpdate") {
                     verify { mailTemplateService.updateMailtemplate(templateId, any()) }
                     idSlot.captured shouldBe templateId
                     with(mailTemplateSlot.captured) {
@@ -114,27 +114,27 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Retrieving variables for a mail template") {
-        Given("A mail template for ZAAK_ALGEMEEN") {
+    context("Retrieving variables for a mail template") {
+        given("A mail template for ZAAK_ALGEMEEN") {
             val mail = Mail.ZAAK_ALGEMEEN
 
-            When("retrieveMailVariables is called") {
+            `when`("retrieveMailVariables is called") {
                 val mailTemplateVariables = mailtemplateBeheerRestService.getMailTemplateVariables(mail)
 
-                Then("it should return the associated variables") {
+                then("it should return the associated variables") {
                     mailTemplateVariables shouldBe ZAAK_VOORTGANG_VARIABELEN
                 }
             }
         }
     }
 
-    Context("Error handling for POST requests") {
-        Given("'beheren' rechten") {
-            When("creating a mail template with provided ID") {
+    context("Error handling for POST requests") {
+        given("'beheren' rechten") {
+            `when`("creating a mail template with provided ID") {
                 val restMailTemplate = createRestMailTemplate(
                     mail = Mail.ZAAK_ALGEMEEN
                 ).apply { id = 999L } // ID provided in POST request
-                Then("it should ignore the provided ID and create successfully") {
+                then("it should ignore the provided ID and create successfully") {
                     every { policyService.readOverigeRechten().beheren } returns true
                     val createdMailTemplate = createMailTemplate(id = 123L, mail = Mail.ZAAK_ALGEMEEN)
                     every { mailTemplateService.createMailtemplate(any()) } returns createdMailTemplate
@@ -148,10 +148,10 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Error handling for PUT requests") {
-        Given("'beheren' rechten") {
-            When("updating a non-existent mail template") {
-                Then("it should propagate MailTemplateNotFoundException (404)") {
+    context("Error handling for PUT requests") {
+        given("'beheren' rechten") {
+            `when`("updating a non-existent mail template") {
+                then("it should propagate MailTemplateNotFoundException (404)") {
                     every { policyService.readOverigeRechten().beheren } returns true
                     val restMailTemplate = createRestMailTemplate()
                     every { mailTemplateService.updateMailtemplate(999L, any()) } throws MailTemplateNotFoundException(999L)
@@ -164,10 +164,10 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Error handling for GET requests") {
-        Given("'beheren' rechten") {
-            When("reading a non-existent mail template") {
-                Then("it should propagate MailTemplateNotFoundException (404)") {
+    context("Error handling for GET requests") {
+        given("'beheren' rechten") {
+            `when`("reading a non-existent mail template") {
+                then("it should propagate MailTemplateNotFoundException (404)") {
                     every { policyService.readOverigeRechten().beheren } returns true
                     every { mailTemplateService.readMailtemplate(999L) } throws MailTemplateNotFoundException(999L)
                     shouldThrow<MailTemplateNotFoundException> {

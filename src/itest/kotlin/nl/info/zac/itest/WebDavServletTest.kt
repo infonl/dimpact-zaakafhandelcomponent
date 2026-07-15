@@ -47,7 +47,7 @@ class WebDavServletTest : BehaviorSpec({
     lateinit var enkelvoudigInformatieObjectUUID: String
     lateinit var wordDocumentWebDAVToken: UUID
 
-    Given("A zaak that was created and a logged-in behandelaar") {
+    given("A zaak that was created and a logged-in behandelaar") {
         lateinit var zaakUUID: UUID
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
@@ -64,7 +64,7 @@ class WebDavServletTest : BehaviorSpec({
                 zaakUUID = getString("uuid").run(UUID::fromString)
             }
         }
-        When(
+        `when`(
             """
                 the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a DOCX file
                 """
@@ -113,7 +113,7 @@ class WebDavServletTest : BehaviorSpec({
                 requestBody = requestBody,
                 testUser = BEHANDELAAR_1
             )
-            Then(
+            then(
                 "the response should be OK and contain information for the created Word document and uploaded file"
             ) {
                 val responseBody = response.bodyAsString
@@ -123,13 +123,13 @@ class WebDavServletTest : BehaviorSpec({
             }
         }
 
-        When("the edit endpoint is called on the enkelvoudig informatie object") {
+        `when`("the edit endpoint is called on the enkelvoudig informatie object") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID/edit" +
                     "?zaak=$zaakUUID",
                 testUser = BEHANDELAAR_1
             )
-            Then(
+            then(
                 """
                 the response should be ok and should contain an MS Word WebDAV redirect URL with a
                 token for the uploaded Word document
@@ -144,31 +144,31 @@ class WebDavServletTest : BehaviorSpec({
             }
         }
 
-        When("the DOCX Word document is requested using the WebDAV token for the uploaded file") {
+        `when`("the DOCX Word document is requested using the WebDAV token for the uploaded file") {
             // the WebDAV servlet does not require any authorization
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx"
             )
 
-            Then("the response should be ok (and contain the DOCX Word document)") {
+            then("the response should be ok (and contain the DOCX Word document)") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
             }
         }
 
-        When("a HEAD request is performed using the WebDAV token for the uploaded file") {
+        `when`("a HEAD request is performed using the WebDAV token for the uploaded file") {
             // the WebDAV servlet does not require any authorization
             val responseCode = itestHttpClient.performHeadRequest(
                 url = "$ZAC_BASE_URI/webdav/folder/$wordDocumentWebDAVToken.docx"
             )
 
-            Then("the response should be ok") {
+            then("the response should be ok") {
                 responseCode shouldBe HTTP_OK
             }
         }
 
-        When("the DOCX Word document is updated using a WebDAV PUT request with updated file content") {
+        `when`("the DOCX Word document is updated using a WebDAV PUT request with updated file content") {
             // the WebDAV servlet does not require any authorization; the logged-in user is retrieved from the token
             val file = Thread.currentThread().contextClassLoader.getResource(TEST_WORD_FILE_NAME).let {
                 File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
@@ -182,7 +182,7 @@ class WebDavServletTest : BehaviorSpec({
                 requestBody = file.asRequestBody(MediaType.DOCX.toMediaType())
             )
 
-            Then("the response should be created (and the document should be updated in the DRC)") {
+            then("the response should be created (and the document should be updated in the DRC)") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_CREATED
@@ -190,27 +190,27 @@ class WebDavServletTest : BehaviorSpec({
         }
     }
 
-    Given("A WebDAV request is performed with a non-existent token") {
+    given("A WebDAV request is performed with a non-existent token") {
         val nonExistentToken = UUID.randomUUID()
 
-        When("a GET request is performed using the non-existent WebDAV token") {
+        `when`("a GET request is performed using the non-existent WebDAV token") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/webdav/folder/$nonExistentToken.docx"
             )
 
-            Then("the response should be an internal server error") {
+            then("the response should be an internal server error") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_INTERNAL_ERROR
             }
         }
 
-        When("a HEAD request is performed using the non-existent WebDAV token") {
+        `when`("a HEAD request is performed using the non-existent WebDAV token") {
             val responseCode = itestHttpClient.performHeadRequest(
                 url = "$ZAC_BASE_URI/webdav/folder/$nonExistentToken.docx"
             )
 
-            Then("the response should be an internal server error") {
+            then("the response should be an internal server error") {
                 responseCode shouldBe HTTP_INTERNAL_ERROR
             }
         }

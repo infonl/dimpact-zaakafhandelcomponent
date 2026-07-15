@@ -29,7 +29,7 @@ class UpdateZaakLifecycleListenerTest : BehaviorSpec({
 
     val updateZaakLifecycleListener = UpdateZaakLifecycleListener()
 
-    Given(
+    given(
         """
         A plan item instance with a zaak UUID and 
         a status set in the updateZaakLifecycleListener
@@ -48,14 +48,14 @@ class UpdateZaakLifecycleListenerTest : BehaviorSpec({
 
         updateZaakLifecycleListener.setStatus(expression)
 
-        When("the state is changed") {
+        `when`("the state is changed") {
             updateZaakLifecycleListener.stateChanged(
                 delegatePlanItemInstance,
                 "oldState",
                 "newState"
             )
 
-            Then("the state for the zaak is updated in the ZGW API") {
+            then("the state for the zaak is updated in the ZGW API") {
                 verify(exactly = 1) {
                     zaakVariabelenService.readZaakUUID(any())
                     zrcClientService.readZaak(zaak.uuid)

@@ -15,8 +15,8 @@ import java.net.HttpURLConnection.HTTP_NO_CONTENT
 class IndexingRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
-    Given("ZAC is up and running and a raadpleger is logged in") {
-        When("the commit pending changes to search index endpoint is called") {
+    given("ZAC is up and running and a raadpleger is logged in") {
+        `when`("the commit pending changes to search index endpoint is called") {
             // this endpoint requires no explicit authorisation, however to pass the basic authorisation filter in ZAC
             // a user with at least one ZAC role must be logged in
             val response = itestHttpClient.performPostRequest(
@@ -24,7 +24,7 @@ class IndexingRestServiceTest : BehaviorSpec({
                 requestBody = "".toRequestBody(),
                 testUser = RAADPLEGER_1
             )
-            Then(
+            then(
                 "the response is successful"
             ) {
                 response.code shouldBe HTTP_NO_CONTENT

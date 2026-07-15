@@ -40,7 +40,7 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
     val zacClient = ZacClient(itestHttpClient)
     lateinit var zaakUuid: UUID
 
-    Given(
+    given(
         """A zaak exists and a websocket subscription is created to listen to all changes made to this zaak"""
     ) {
         zacClient.createZaak(
@@ -73,7 +73,7 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
             webSocketListener = websocketListener,
             testUser = RAADPLEGER_1
         )
-        When("""a notification is sent to ZAC that the zaak in question has been updated""") {
+        `when`("""a notification is sent to ZAC that the zaak in question has been updated""") {
             // wait a bit because it takes some time before the new websocket has been successfully created in ZAC
             eventually(30.seconds) {
                 val response = itestHttpClient.performJSONPostRequest(
@@ -105,7 +105,7 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
                 websocketListener.messagesReceived.size shouldBeGreaterThan 0
             }
         }
-        Then(
+        then(
             """the response should be 'no content' and an event that the zaak has been updated should be sent to the websocket"""
         ) {
             websocketListener.messagesReceived.forAtLeastOne {
@@ -118,7 +118,7 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
         }
     }
 
-    Given("""A websocket subscription is created to listen to all changes made to zaak-rollen""") {
+    given("""A websocket subscription is created to listen to all changes made to zaak-rollen""") {
         val websocketListener = WebSocketTestListener(
             textToBeSentOnOpen = """
                 {
@@ -139,7 +139,7 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
             webSocketListener = websocketListener,
             testUser = RAADPLEGER_1
         )
-        When("""a notification is sent to ZAC that a zaak-rol has been created""") {
+        `when`("""a notification is sent to ZAC that a zaak-rol has been created""") {
             // wait a bit because it takes some time before the new websocket has been successfully created in ZAC
             eventually(30.seconds) {
                 val response = itestHttpClient.performJSONPostRequest(
@@ -172,7 +172,7 @@ class NotificationZaakUpdateWebSocketListenerTest : BehaviorSpec({
                 websocketListener.messagesReceived.size shouldBeGreaterThan 0
             }
         }
-        Then(
+        then(
             """the response should be 'no content' and an event that the zaak-rol
                 has been updated should be sent to the websocket"""
         ) {

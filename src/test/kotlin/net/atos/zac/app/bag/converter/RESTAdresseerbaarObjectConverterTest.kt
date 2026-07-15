@@ -20,13 +20,13 @@ class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Ligplaats addressbaar object") {
+    given("Ligplaats addressbaar object") {
         val adresseerbaarObjectIOHal = createLigplaatsAdresseerbaarObject(StatusPlaats.PLAATS_AANGEWEZEN)
 
-        When("converted to rest representation") {
+        `when`("converted to rest representation") {
             val result = RestAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
 
-            Then("it should return the correct data") {
+            then("it should return the correct data") {
                 with(result) {
                     typeAdresseerbaarObject shouldBe TypeAdresseerbaarObject.LIGPLAATS
                     status shouldBe "Plaats aangewezen"
@@ -47,13 +47,13 @@ class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("Standplaats adresseerbaar object") {
+    given("Standplaats adresseerbaar object") {
         val adresseerbaarObjectIOHal = createStandplaatsAdresseerbaarObject(StatusPlaats.PLAATS_AANGEWEZEN)
 
-        When("converted to rest representation") {
+        `when`("converted to rest representation") {
             val result = RestAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
 
-            Then("it should return the correct data") {
+            then("it should return the correct data") {
                 with(result) {
                     typeAdresseerbaarObject shouldBe TypeAdresseerbaarObject.STANDPLAATS
                     status shouldBe "Plaats aangewezen"
@@ -74,13 +74,13 @@ class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("Verblijfs addressbaar object") {
+    given("Verblijfs addressbaar object") {
         val adresseerbaarObjectIOHal = createVerblijfsAdresseerbaarObject(StatusVerblijfsobject.VERBLIJFSOBJECT_GEVORMD)
 
-        When("converted to rest representation") {
+        `when`("converted to rest representation") {
             val result = RestAdresseerbaarObjectConverter.convertToREST(adresseerbaarObjectIOHal)
 
-            Then("it should return the correct data") {
+            then("it should return the correct data") {
                 with(result) {
                     typeAdresseerbaarObject shouldBe TypeAdresseerbaarObject.VERBLIJFSOBJECT
                     status shouldBe "Verblijfsobject gevormd"

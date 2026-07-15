@@ -28,7 +28,7 @@ class ZaakRestServiceExtensionTest : BehaviorSpec({
     val zacClient = ZacClient(itestHttpClient)
     val logger = KotlinLogging.logger {}
 
-    Given(
+    given(
         """A zaak exists which has not been extended yet and a behandelaar is logged in"""
     ) {
         lateinit var zaakUuid: String
@@ -45,7 +45,7 @@ class ZaakRestServiceExtensionTest : BehaviorSpec({
                 zaakUuid = getString("uuid")
             }
         }
-        When("the zaak is extended") {
+        `when`("the zaak is extended") {
             val daysExtended = 3
             val reason = "fakeReason"
             val response = itestHttpClient.performPatchRequest(
@@ -59,7 +59,7 @@ class ZaakRestServiceExtensionTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
-            Then(
+            then(
                 """the response should be OK and the returned zaak should be extended"""
             ) {
                 val responseBody = response.bodyAsString

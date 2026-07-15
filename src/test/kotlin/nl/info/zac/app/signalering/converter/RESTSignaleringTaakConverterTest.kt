@@ -18,7 +18,7 @@ class RESTSignaleringTaakConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A task of scope type CMMN with a zaakIdentificatie and zaaktypeOmschrijving") {
+    given("A task of scope type CMMN with a zaakIdentificatie and zaaktypeOmschrijving") {
         val zaakIdentificatie = "fakeZzaakIdentificatie"
         val zaaktypeOmschrijving = "my-zaaktype-omschrijving"
         val cal = Calendar.getInstance()
@@ -34,10 +34,10 @@ class RESTSignaleringTaakConverterTest : BehaviorSpec({
             scopeType = CMMN
         )
 
-        When("the task is converted to a rest signalering task summary") {
+        `when`("the task is converted to a rest signalering task summary") {
             val summary = task.toRestSignaleringTaakSummary()
 
-            Then("it returns correct history lines") {
+            then("it returns correct history lines") {
                 with(summary) {
                     id shouldBe task.id
                     naam shouldBe task.name

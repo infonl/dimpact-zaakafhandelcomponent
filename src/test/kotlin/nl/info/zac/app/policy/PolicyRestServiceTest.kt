@@ -22,14 +22,14 @@ class PolicyRestServiceTest : BehaviorSpec({
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val policyRestService = PolicyRestService(policyService, loggedInUserInstance)
 
-    Given("Existing werklijst rechten") {
+    given("Existing werklijst rechten") {
         val werklijstRechten = createWerklijstRechten()
         every { policyService.readWerklijstRechten() } returns werklijstRechten
 
-        When("readWerklijstRechten is called") {
+        `when`("readWerklijstRechten is called") {
             val restWerklijstRechten = policyRestService.readWerklijstRechten()
 
-            Then("it should return the converted RestWerklijstRechten") {
+            then("it should return the converted RestWerklijstRechten") {
                 with(restWerklijstRechten) {
                     inbox shouldBe werklijstRechten.inbox
                     ontkoppeldeDocumentenVerwijderen shouldBe werklijstRechten.ontkoppeldeDocumentenVerwijderen
@@ -42,14 +42,14 @@ class PolicyRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Existing overige rechten") {
+    given("Existing overige rechten") {
         val overigeRechten = createOverigeRechten()
         every { policyService.readOverigeRechten() } returns overigeRechten
 
-        When("readOverigeRechten is called") {
+        `when`("readOverigeRechten is called") {
             val restOverigeRechten = policyRestService.readOverigeRechten()
 
-            Then("it should return the converted RestOverigeRechten") {
+            then("it should return the converted RestOverigeRechten") {
                 with(restOverigeRechten) {
                     startenZaak shouldBe overigeRechten.startenZaak
                     beheren shouldBe overigeRechten.beheren
@@ -59,14 +59,14 @@ class PolicyRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Existing notitie rechten") {
+    given("Existing notitie rechten") {
         val notitieRechten = createNotitieRechten()
         every { policyService.readNotitieRechten() } returns notitieRechten
 
-        When("readOverigeRechten is called") {
+        `when`("readOverigeRechten is called") {
             val restNotitieRechten = policyRestService.readNotitieRechten()
 
-            Then("it should return the converted RestOverigeRechten") {
+            then("it should return the converted RestOverigeRechten") {
                 with(restNotitieRechten) {
                     lezen shouldBe notitieRechten.lezen
                     wijzigen shouldBe notitieRechten.wijzigen
@@ -75,48 +75,48 @@ class PolicyRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A logged-in user with BRP zoeken overall role") {
+    given("A logged-in user with BRP zoeken overall role") {
         val loggedInUser = createLoggedInUser(
             overallRoles = setOf(ROLE_NAME_BRP_ZOEKEN)
         )
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("readBrpRechten is called") {
+        `when`("readBrpRechten is called") {
             val restBrpRechten = policyRestService.readBrpRechten()
 
-            Then("it should return RestBrpRechten with zoeken set to true") {
+            then("it should return RestBrpRechten with zoeken set to true") {
                 restBrpRechten.zoeken shouldBe true
             }
         }
     }
 
-    Given("A logged-in user with BRP gemeenten but without BRP zoeken overall role") {
+    given("A logged-in user with BRP gemeenten but without BRP zoeken overall role") {
         val loggedInUser = createLoggedInUser(
             overallRoles = emptySet(),
             brpGemeenten = mapOf("0344" to "fakeGemeenteNaam")
         )
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("readBrpRechten is called") {
+        `when`("readBrpRechten is called") {
             val restBrpRechten = policyRestService.readBrpRechten()
 
-            Then("it should return RestBrpRechten with zoeken set to true because gemeenten are present") {
+            then("it should return RestBrpRechten with zoeken set to true because gemeenten are present") {
                 restBrpRechten.zoeken shouldBe true
             }
         }
     }
 
-    Given("A logged-in user without BRP zoeken overall role and without BRP gemeenten") {
+    given("A logged-in user without BRP zoeken overall role and without BRP gemeenten") {
         val loggedInUser = createLoggedInUser(
             overallRoles = emptySet(),
             brpGemeenten = emptyMap()
         )
         every { loggedInUserInstance.get() } returns loggedInUser
 
-        When("readBrpRechten is called") {
+        `when`("readBrpRechten is called") {
             val restBrpRechten = policyRestService.readBrpRechten()
 
-            Then("it should return RestBrpRechten with zoeken set to false") {
+            then("it should return RestBrpRechten with zoeken set to false") {
                 restBrpRechten.zoeken shouldBe false
             }
         }

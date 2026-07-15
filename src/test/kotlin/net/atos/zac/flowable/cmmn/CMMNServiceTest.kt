@@ -41,7 +41,7 @@ class CMMNServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A zaak and zaaktypeCmmnConfiguration for the related zaaktype") {
+    given("A zaak and zaaktypeCmmnConfiguration for the related zaaktype") {
         val zaakTypeUUID = UUID.randomUUID()
         val zaakUUID = UUID.randomUUID()
         val zaakType = createZaakType(
@@ -71,17 +71,17 @@ class CMMNServiceTest : BehaviorSpec({
         every { caseInstanceBuilder.variables(zaakData) } returns caseInstanceBuilder
         every { caseInstanceBuilder.start() } returns caseInstance
 
-        When("the zaak is started using the CMMN service") {
+        `when`("the zaak is started using the CMMN service") {
             cmmnService.startCase(zaak, zaakType, zaaktypeCmmnConfiguration, zaakData)
 
-            Then("it is successfully started") {
+            then("it is successfully started") {
                 verify(exactly = 1) {
                     caseInstanceBuilder.start()
                 }
             }
         }
     }
-    Given("A CMMN case which has been started for a certain zaak") {
+    given("A CMMN case which has been started for a certain zaak") {
         val zaakUUID = UUID.randomUUID()
         val caseInstanceID = "fakeCaseInstanceID"
         val caseInstance = mockk<CaseInstance>()
@@ -93,17 +93,17 @@ class CMMNServiceTest : BehaviorSpec({
         every { caseInstance.id } returns caseInstanceID
         every { cmmnRuntimeService.terminateCaseInstance(caseInstanceID) } just Runs
 
-        When("the case is requested to be terminated") {
+        `when`("the case is requested to be terminated") {
             cmmnService.terminateCase(zaakUUID)
 
-            Then("it is successfully terminated") {
+            then("it is successfully terminated") {
                 verify(exactly = 1) {
                     cmmnRuntimeService.terminateCaseInstance(caseInstanceID)
                 }
             }
         }
     }
-    Given("A CMMN case for a certain zaak UUID") {
+    given("A CMMN case for a certain zaak UUID") {
         val zaakUUID = UUID.randomUUID()
         val caseInstanceID = "fakeCaseInstanceID"
         val caseInstance = mockk<CaseInstance>()
@@ -116,10 +116,10 @@ class CMMNServiceTest : BehaviorSpec({
         every { cmmnRuntimeService.deleteCaseInstance(caseInstanceID) } just Runs
         every { cmmnHistoryService.deleteHistoricCaseInstance(caseInstanceID) } just Runs
 
-        When("the case is requested to be deleted") {
+        `when`("the case is requested to be deleted") {
             cmmnService.deleteCase(zaakUUID)
 
-            Then("the case is successfully deleted") {
+            then("the case is successfully deleted") {
                 verify(exactly = 1) {
                     cmmnRuntimeService.deleteCaseInstance(caseInstanceID)
                     cmmnHistoryService.deleteHistoricCaseInstance(caseInstanceID)

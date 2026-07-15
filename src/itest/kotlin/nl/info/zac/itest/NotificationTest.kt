@@ -27,8 +27,8 @@ import kotlin.time.toJavaDuration
 class NotificationTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
 
-    Given("A fake notifications payload without authentication header") {
-        When("the notificaties endpoint is called") {
+    given("A fake notifications payload without authentication header") {
+        `when`("the notificaties endpoint is called") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
                 headers = Headers.headersOf("Content-Type", "application/json"),
@@ -38,16 +38,16 @@ class NotificationTest : BehaviorSpec({
                     )
                 ).toString()
             )
-            Then("the response should be forbidden") {
+            then("the response should be forbidden") {
                 response.code shouldBe HTTP_FORBIDDEN
             }
         }
     }
 
-    Given(
+    given(
         "An invalid notifications payload"
     ) {
-        When(
+        `when`(
             """the notificaties endpoint is called with a 'create zaaktype' payload with a 
                     fake resourceUrl that does not start with the 'ZGW_API_CLIENT_MP_REST_URL' environment variable"""
         ) {
@@ -73,7 +73,7 @@ class NotificationTest : BehaviorSpec({
                 ).toString()
             )
 
-            Then(
+            then(
                 """the response should be 'no content' and a corresponding error message should be logged in ZAC"""
             ) {
                 response.code shouldBe HTTP_NO_CONTENT

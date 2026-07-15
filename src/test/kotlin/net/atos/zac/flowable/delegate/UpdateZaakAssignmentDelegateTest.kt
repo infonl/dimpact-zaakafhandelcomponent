@@ -46,7 +46,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("zaak and assignment details as expressions") {
+    given("zaak and assignment details as expressions") {
         mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
@@ -77,10 +77,10 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
             reden = reasonExpression
         }
 
-        When("execute is called") {
+        `when`("execute is called") {
             updateZaakAssignmentDelegate.execute(delegateExecution)
 
-            Then("zaak is updated with correct assignment") {
+            then("zaak is updated with correct assignment") {
                 verify(exactly = 1) {
                     zaakService.assignZaak(zaak, groupId, userId, reason)
                 }
@@ -88,7 +88,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("zaak, group and reason as fixed values, missing user assignment") {
+    given("zaak, group and reason as fixed values, missing user assignment") {
         mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
@@ -116,10 +116,10 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
             reden = reasonExpression
         }
 
-        When("execute is called") {
+        `when`("execute is called") {
             updateZaakAssignmentDelegate.execute(delegateExecution)
 
-            Then("zaak is updated with correct assignment") {
+            then("zaak is updated with correct assignment") {
                 verify(exactly = 1) {
                     zaakService.assignZaak(zaak, groupId, null, reason)
                 }
@@ -127,7 +127,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("Policy denies assigning zaak") {
+    given("Policy denies assigning zaak") {
         mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
@@ -147,12 +147,12 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
             groepId = mockk()
         }
 
-        When("execute is called") {
+        `when`("execute is called") {
             val policyException = shouldThrow<PolicyException> {
                 updateZaakAssignmentDelegate.execute(delegateExecution)
             }
 
-            Then("a PolicyException is thrown") {
+            then("a PolicyException is thrown") {
                 policyException shouldNotBe null
             }
 
