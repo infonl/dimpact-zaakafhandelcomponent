@@ -170,7 +170,9 @@ describe(ZaakLinkComponent.name, () => {
         component["caseRelationOptionsList"][0],
       );
       component["form"].controls.caseNumberToSearchFor.setValue("ZAAK-2026");
-      component["form"].controls.caseDescriptionToSearchFor.setValue("ZAAKOMSCHR");
+      component["form"].controls.caseDescriptionToSearchFor.setValue(
+        "ZAAKOMSCHR",
+      );
       component["searchCases"]();
 
       expect(zoekenService.findLinkableZaken).toHaveBeenCalledWith({
