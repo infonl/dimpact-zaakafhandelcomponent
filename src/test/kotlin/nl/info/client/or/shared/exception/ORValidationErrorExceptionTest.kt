@@ -11,7 +11,7 @@ import nl.info.client.or.shared.model.ORValidationError
 import java.net.URI
 
 class ORValidationErrorExceptionTest : BehaviorSpec({
-    Given("An ORValidationError with multiple field errors") {
+    given("An ORValidationError with multiple field errors") {
         val fieldError1 = ORFieldValidationError().apply {
             name = "naam"
             code = "required"
@@ -31,17 +31,17 @@ class ORValidationErrorExceptionTest : BehaviorSpec({
             fieldValidationErrors = listOf(fieldError1, fieldError2)
         }
 
-        When("the exception message is retrieved") {
+        `when`("the exception message is retrieved") {
             val exception = ORValidationErrorException(validationError)
 
-            Then("The message contains all field errors joined by comma") {
+            then("The message contains all field errors joined by comma") {
                 exception.message shouldBe "Bad Request [400 invalid] Validation failed: " +
                     "naam [required] This field is required, omschrijving [max_length] Value too long " +
                     "(https://example.com/api/resource)"
             }
         }
     }
-    Given("An ORValidationError with no field errors") {
+    given("An ORValidationError with no field errors") {
         val validationError = ORValidationError().apply {
             title = "Bad Request"
             status = 400
@@ -51,10 +51,10 @@ class ORValidationErrorExceptionTest : BehaviorSpec({
             fieldValidationErrors = null
         }
 
-        When("the exception message is retrieved") {
+        `when`("the exception message is retrieved") {
             val exception = ORValidationErrorException(validationError)
 
-            Then("The message renders null for the field errors and instance") {
+            then("The message renders null for the field errors and instance") {
                 exception.message shouldBe "Bad Request [400 invalid] Validation failed: null (null)"
             }
         }

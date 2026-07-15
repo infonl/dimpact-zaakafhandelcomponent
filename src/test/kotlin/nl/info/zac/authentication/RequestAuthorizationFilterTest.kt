@@ -36,18 +36,18 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
     }
 
-    Context("Public endpoints and method restrictions") {
-        Given("An unauthenticated POST request on '/rest/notificaties'") {
+    context("Public endpoints and method restrictions") {
+        given("An unauthenticated POST request on '/rest/notificaties'") {
             val filter = RequestAuthorizationFilter()
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/rest/notificaties"
             every { httpServletRequest.method } returns "POST"
             every { filterChain.doFilter(any(), any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("the request is allowed") {
+                then("the request is allowed") {
                     verify(exactly = 1) {
                         filterChain.doFilter(httpServletRequest, httpServletResponse)
                     }
@@ -58,17 +58,17 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An unauthenticated GET request on '/rest/notificaties'") {
+        given("An unauthenticated GET request on '/rest/notificaties'") {
             val filter = RequestAuthorizationFilter()
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/rest/notificaties"
             every { httpServletRequest.method } returns "GET"
             every { httpServletResponse.sendError(any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("a 403 is returned") {
+                then("a 403 is returned") {
                     verify(exactly = 1) {
                         httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
                     }
@@ -79,30 +79,30 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An unauthenticated GET request on '/rest/internal/*'") {
+        given("An unauthenticated GET request on '/rest/internal/*'") {
             val filter = RequestAuthorizationFilter()
             every { httpServletRequest.requestURI } returns "/rest/internal/something"
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { filterChain.doFilter(any(), any()) } just runs
 
-            When("the method is GET") {
+            `when`("the method is GET") {
                 every { httpServletRequest.method } returns "GET"
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("the request is allowed") {
+                then("the request is allowed") {
                     verify(exactly = 1) {
                         filterChain.doFilter(httpServletRequest, httpServletResponse)
                     }
                 }
             }
 
-            When("the method is POST") {
+            `when`("the method is POST") {
                 every { httpServletRequest.method } returns "POST"
                 every { httpServletResponse.sendError(any()) } just runs
 
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("403 is returned") {
+                then("403 is returned") {
                     verify {
                         httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
                     }
@@ -110,31 +110,31 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An unauthenticated GET request on '/websocket'") {
+        given("An unauthenticated GET request on '/websocket'") {
             val filter = RequestAuthorizationFilter()
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/websocket"
 
-            When("the method is GET") {
+            `when`("the method is GET") {
                 every { httpServletRequest.method } returns "GET"
                 every { filterChain.doFilter(any(), any()) } just runs
 
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("the request is allowed") {
+                then("the request is allowed") {
                     verify(exactly = 1) {
                         filterChain.doFilter(httpServletRequest, httpServletResponse)
                     }
                 }
             }
 
-            When("the method is POST") {
+            `when`("the method is POST") {
                 every { httpServletRequest.method } returns "POST"
                 every { httpServletResponse.sendError(any()) } just runs
 
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("a 403 is returned") {
+                then("a 403 is returned") {
                     verify {
                         httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
                     }
@@ -142,31 +142,31 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An unauthenticated GET request on '/sign-out'") {
+        given("An unauthenticated GET request on '/sign-out'") {
             val filter = RequestAuthorizationFilter()
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/sign-out"
 
-            When("the method is GET") {
+            `when`("the method is GET") {
                 every { httpServletRequest.method } returns "GET"
                 every { filterChain.doFilter(any(), any()) } just runs
 
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("the request is allowed") {
+                then("the request is allowed") {
                     verify(exactly = 1) {
                         filterChain.doFilter(httpServletRequest, httpServletResponse)
                     }
                 }
             }
 
-            When("the method is POST") {
+            `when`("the method is POST") {
                 every { httpServletRequest.method } returns "POST"
                 every { httpServletResponse.sendError(any()) } just runs
 
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("a 403 is returned") {
+                then("a 403 is returned") {
                     verify {
                         httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
                     }
@@ -174,17 +174,17 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An unauthenticated PUT request on '/webdav/*'") {
+        given("An unauthenticated PUT request on '/webdav/*'") {
             val filter = RequestAuthorizationFilter()
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/webdav/path"
             every { httpServletRequest.method } returns "PUT"
             every { filterChain.doFilter(any(), any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("the request is allowed") {
+                then("the request is allowed") {
                     verify(exactly = 1) {
                         filterChain.doFilter(httpServletRequest, httpServletResponse)
                     }
@@ -192,17 +192,17 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An unauthenticated POST request on SmartDocuments '/callback' endpoint") {
+        given("An unauthenticated POST request on SmartDocuments '/callback' endpoint") {
             val filter = RequestAuthorizationFilter()
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/rest/document-creation/smartdocuments/callback/xyz"
             every { httpServletRequest.method } returns "POST"
             every { filterChain.doFilter(any(), any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("the request is allowed") {
+                then("the request is allowed") {
                     verify {
                         filterChain.doFilter(httpServletRequest, httpServletResponse)
                     }
@@ -210,17 +210,17 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An unauthenticated GET request on SmartDocuments '/callback' endpoint") {
+        given("An unauthenticated GET request on SmartDocuments '/callback' endpoint") {
             val filter = RequestAuthorizationFilter()
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/rest/document-creation/smartdocuments/callback/xyz"
             every { httpServletRequest.method } returns "GET"
             every { httpServletResponse.sendError(any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("a 403 is returned") {
+                then("a 403 is returned") {
                     verify {
                         httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
                     }
@@ -228,17 +228,17 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An unauthenticated GET request on '/static/smart-documents-result.html'") {
+        given("An unauthenticated GET request on '/static/smart-documents-result.html'") {
             val filter = RequestAuthorizationFilter()
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/static/smart-documents-result.html"
             every { httpServletRequest.method } returns "GET"
             every { filterChain.doFilter(any(), any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("the request is allowed") {
+                then("the request is allowed") {
                     verify {
                         filterChain.doFilter(httpServletRequest, httpServletResponse)
                     }
@@ -247,17 +247,17 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
 
         listOf("/favicon.ico", "/favicon.svg", "/apple-touch-icon.png", "/site.webmanifest").forEach { path ->
-            Given("An unauthenticated GET request on '$path'") {
+            given("An unauthenticated GET request on '$path'") {
                 val filter = RequestAuthorizationFilter()
                 every { httpServletRequest.contextPath } returns "fakeContextPath"
                 every { httpServletRequest.requestURI } returns path
                 every { httpServletRequest.method } returns "GET"
                 every { filterChain.doFilter(any(), any()) } just runs
 
-                When("the filter processes the request") {
+                `when`("the filter processes the request") {
                     filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                    Then("the request is allowed") {
+                    then("the request is allowed") {
                         verify(exactly = 1) {
                             filterChain.doFilter(httpServletRequest, httpServletResponse)
                         }
@@ -268,17 +268,17 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
                 }
             }
 
-            Given("An unauthenticated POST request on '$path'") {
+            given("An unauthenticated POST request on '$path'") {
                 val filter = RequestAuthorizationFilter()
                 every { httpServletRequest.contextPath } returns "fakeContextPath"
                 every { httpServletRequest.requestURI } returns path
                 every { httpServletRequest.method } returns "POST"
                 every { httpServletResponse.sendError(any()) } just runs
 
-                When("the filter processes the request") {
+                `when`("the filter processes the request") {
                     filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                    Then("a 403 is returned") {
+                    then("a 403 is returned") {
                         verify(exactly = 1) {
                             httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
                         }
@@ -290,17 +290,17 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An unauthenticated POST request on '/assets/*'") {
+        given("An unauthenticated POST request on '/assets/*'") {
             val filter = RequestAuthorizationFilter()
             every { httpServletRequest.contextPath } returns "fakeContextPath"
             every { httpServletRequest.requestURI } returns "/assets/app.css"
             every { httpServletRequest.method } returns "POST"
             every { httpServletResponse.sendError(any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("a 403 is returned") {
+                then("a 403 is returned") {
                     verify {
                         httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
                     }
@@ -309,8 +309,8 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
     }
 
-    Context("Application-role based access") {
-        Given("An authenticated user with any PABC role accesses '/app/home'") {
+    context("Application-role based access") {
+        given("An authenticated user with any PABC role accesses '/app/home'") {
             val filter = RequestAuthorizationFilter()
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf("fakeZaaktype1" to setOf("raadpleger"))
@@ -321,10 +321,10 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             every { httpServletRequest.method } returns "GET"
             every { filterChain.doFilter(any(), any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("the request is allowed") {
+                then("the request is allowed") {
                     verify(exactly = 1) {
                         filterChain.doFilter(httpServletRequest, httpServletResponse)
                     }
@@ -332,7 +332,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An authenticated user without any PABC role accesses '/app/home'") {
+        given("An authenticated user without any PABC role accesses '/app/home'") {
             val filter = RequestAuthorizationFilter()
             val user = createLoggedInUser(applicationRolesPerZaaktype = emptyMap())
             setSessionUser(user)
@@ -341,10 +341,10 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             every { httpServletRequest.method } returns "GET"
             every { httpServletResponse.sendError(any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("a 403 is returned") {
+                then("a 403 is returned") {
                     verify {
                         httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
                     }
@@ -352,7 +352,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An authenticated beheerder accesses '/rest/admin/*'") {
+        given("An authenticated beheerder accesses '/rest/admin/*'") {
             val filter = RequestAuthorizationFilter()
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf(
@@ -365,10 +365,10 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             every { httpServletRequest.method } returns "GET"
             every { filterChain.doFilter(any(), any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("the request is allowed") {
+                then("the request is allowed") {
                     verify(exactly = 1) {
                         filterChain.doFilter(httpServletRequest, httpServletResponse)
                     }
@@ -376,7 +376,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("A non-beheerder user accesses '/admin/settings'") {
+        given("A non-beheerder user accesses '/admin/settings'") {
             val filter = RequestAuthorizationFilter()
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = mapOf("fakeZaakTypeDescription" to setOf("fakeApplicationRole"))
@@ -387,10 +387,10 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             every { httpServletRequest.method } returns "GET"
             every { httpServletResponse.sendError(any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("a 403 is returned") {
+                then("a 403 is returned") {
                     verify {
                         httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
                     }
@@ -398,7 +398,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An authenticated user with only overallRoles (no applicationRolesPerZaaktype) accesses '/app/home'") {
+        given("An authenticated user with only overallRoles (no applicationRolesPerZaaktype) accesses '/app/home'") {
             val filter = RequestAuthorizationFilter()
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = emptyMap(),
@@ -410,10 +410,10 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             every { httpServletRequest.method } returns "GET"
             every { filterChain.doFilter(any(), any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("the request is allowed") {
+                then("the request is allowed") {
                     verify(exactly = 1) {
                         filterChain.doFilter(httpServletRequest, httpServletResponse)
                     }
@@ -421,7 +421,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             "An authenticated user with beheerder in overallRoles (no applicationRolesPerZaaktype) accesses '/rest/admin/*'"
         ) {
             val filter = RequestAuthorizationFilter()
@@ -435,10 +435,10 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             every { httpServletRequest.method } returns "GET"
             every { filterChain.doFilter(any(), any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("the request is allowed") {
+                then("the request is allowed") {
                     verify(exactly = 1) {
                         filterChain.doFilter(httpServletRequest, httpServletResponse)
                     }
@@ -446,7 +446,7 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             }
         }
 
-        Given("An authenticated user with only a non-beheerder role in overallRoles accesses '/rest/admin/*'") {
+        given("An authenticated user with only a non-beheerder role in overallRoles accesses '/rest/admin/*'") {
             val filter = RequestAuthorizationFilter()
             val user = createLoggedInUser(
                 applicationRolesPerZaaktype = emptyMap(),
@@ -458,10 +458,10 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             every { httpServletRequest.method } returns "GET"
             every { httpServletResponse.sendError(any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("a 403 is returned") {
+                then("a 403 is returned") {
                     verify {
                         httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
                     }
@@ -470,9 +470,9 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
         }
     }
 
-    Context("Unauthenticated requests to protected endpoints") {
+    context("Unauthenticated requests to protected endpoints") {
 
-        Given("An unauthenticated GET request on '/app/home'") {
+        given("An unauthenticated GET request on '/app/home'") {
             val filter = RequestAuthorizationFilter()
             setSessionUser(null)
             every { httpServletRequest.requestURI } returns "/app/home"
@@ -480,10 +480,10 @@ class RequestAuthorizationFilterTest : BehaviorSpec({
             every { httpServletRequest.method } returns "GET"
             every { httpServletResponse.sendError(any()) } just runs
 
-            When("the filter processes the request") {
+            `when`("the filter processes the request") {
                 filter.doFilter(httpServletRequest, httpServletResponse, filterChain)
 
-                Then("a 403 is returned") {
+                then("a 403 is returned") {
                     verify {
                         httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)
                     }

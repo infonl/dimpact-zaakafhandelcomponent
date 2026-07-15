@@ -25,14 +25,14 @@ class NoteServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A new valid note") {
+    given("A new valid note") {
         val note = createNote()
         every { entityManager.persist(note) } returns Unit
 
-        When("the note is created") {
+        `when`("the note is created") {
             val result = noteService.createNote(note)
 
-            Then("it should persist the note and return it") {
+            then("it should persist the note and return it") {
                 result shouldBe note
                 verify(exactly = 1) {
                     entityManager.persist(note)
@@ -41,30 +41,30 @@ class NoteServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A new note with a blank text field") {
+    given("A new note with a blank text field") {
         val note = createNote(
             text = ""
         )
 
-        When("the note is created") {
+        `when`("the note is created") {
             val exception = shouldThrow<ConstraintViolationException> {
                 noteService.createNote(note)
             }
-            Then("it should throw an ConstraintViolationException") {
+            then("it should throw an ConstraintViolationException") {
                 exception.message shouldBe "text: must not be blank"
             }
         }
     }
 
-    Given("An existing valid note") {
+    given("An existing valid note") {
         val note = createNote()
         val updatedNote = createNote()
         every { entityManager.merge(note) } returns updatedNote
 
-        When("the note is updated") {
+        `when`("the note is updated") {
             val result = noteService.updateNote(note)
 
-            Then("it should merge the updated note and return it") {
+            then("it should merge the updated note and return it") {
                 result shouldBe updatedNote
                 verify(exactly = 1) {
                     entityManager.merge(note)
@@ -73,31 +73,31 @@ class NoteServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An existing note with a blank text field") {
+    given("An existing note with a blank text field") {
         val note = createNote(
             text = ""
         )
 
-        When("the note is updated") {
+        `when`("the note is updated") {
             val exception = shouldThrow<ConstraintViolationException> {
                 noteService.updateNote(note)
             }
-            Then("it should throw an ConstraintViolationException") {
+            then("it should throw an ConstraintViolationException") {
                 exception.message shouldBe "text: must not be blank"
             }
         }
     }
 
-    Given("A note ID for an existing note") {
+    given("A note ID for an existing note") {
         val noteId = 123L
         val note = createNote(id = noteId)
         every { entityManager.find(Note::class.java, noteId) } returns note
         every { entityManager.remove(note) } just Runs
 
-        When("the note is deleted") {
+        `when`("the note is deleted") {
             noteService.deleteNote(noteId)
 
-            Then("it should remove the note") {
+            then("it should remove the note") {
                 verify(exactly = 1) {
                     entityManager.remove(note)
                 }

@@ -74,8 +74,8 @@ class CsvRestServiceTest : BehaviorSpec({
         "bagObjectIDs"
     )
 
-    Context("Export to CSV") {
-        Given("Two open zaken that are indexed in Solr and a logged-in beheerder") {
+    context("Export to CSV") {
+        given("Two open zaken that are indexed in Solr and a logged-in beheerder") {
             val (zaak1Identification, zaak1Uuid) = zaakHelper.createZaak(
                 zaakDescription = "fakeZaak1Description",
                 zaaktypeUuid = ZAAKTYPE_CMMN_TEST_1_UUID,
@@ -89,7 +89,7 @@ class CsvRestServiceTest : BehaviorSpec({
                 testUser = BEHEERDER_1
             )
 
-            When(
+            `when`(
                 """a CSV export is requested for open zaken filtering on the zaak identifications
                     of the two created zaken, sorted by zaak identification"""
             ) {
@@ -116,7 +116,7 @@ class CsvRestServiceTest : BehaviorSpec({
                     testUser = BEHEERDER_1
                 )
 
-                Then(
+                then(
                     """"
                  the response is a CSV string containing a header row followed by two rows
                  one for each open zaak

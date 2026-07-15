@@ -34,7 +34,7 @@ class CsvRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("The CSV REST service") {
+    given("The CSV REST service") {
         val restZoekParameters = createRestZoekParameters()
         val zoekParameters = createZoekParameters()
         val zoekResultaat = createZoekResultaatForZaakZoekObjecten()
@@ -45,10 +45,10 @@ class CsvRestServiceTest : BehaviorSpec({
         every { searchService.zoek(zoekParameters) } returns zoekResultaat
         every { csvService.exportToCsv(zoekResultaat) } returns csvStreamingOutput
 
-        When("the download CSV function is called") {
+        `when`("the download CSV function is called") {
             val response = csvRESTService.downloadCSV(restZoekParameters)
 
-            Then("a CSV with the search results is returned") {
+            then("a CSV with the search results is returned") {
                 response.status shouldBe 200
                 response.entity shouldBe csvStreamingOutput
             }

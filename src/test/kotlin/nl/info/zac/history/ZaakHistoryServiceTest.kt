@@ -36,7 +36,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Audit trail has resource zaak with action created") {
+    given("Audit trail has resource zaak with action created") {
         val zaakUUID = UUID.randomUUID()
         val zaakIdentificatie = "ZAAK-2024-0000000003"
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
@@ -54,10 +54,10 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         )
         every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
 
-        When("converted to REST historie regel") {
+        `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            Then("it should return correct data") {
+            then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attributeLabel shouldBe "zaak"
@@ -73,7 +73,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Audit trail has resource rol with action updated") {
+    given("Audit trail has resource rol with action updated") {
         val zaakUUID = UUID.randomUUID()
         val rolTypeUri = "https://example.com/roltype/$zaakUUID"
         val rolType = createRolType()
@@ -107,10 +107,10 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
         every { ztcClientService.readRoltype(zaakUUID) } returns rolType
 
-        When("converted to REST historie regel") {
+        `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            Then("it should return correct data") {
+            then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attributeLabel shouldBe rolType.omschrijving
@@ -126,7 +126,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Audit trail has resource zaakinformatieobject with action destroy") {
+    given("Audit trail has resource zaakinformatieobject with action destroy") {
         val zaakUUID = UUID.randomUUID()
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -143,10 +143,10 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         )
         every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
 
-        When("converted to REST historie regel") {
+        `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            Then("it should return correct data") {
+            then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attributeLabel shouldBe "zaakinformatieobject"
@@ -162,7 +162,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Audit trail has resource klantcontact with action create") {
+    given("Audit trail has resource klantcontact with action create") {
         val zaakUUID = UUID.randomUUID()
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -179,10 +179,10 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         )
         every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
 
-        When("converted to REST historie regel") {
+        `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            Then("it should return correct data") {
+            then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attributeLabel shouldBe "klantcontact"
@@ -198,7 +198,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Audit trail has resource resultaat with action update") {
+    given("Audit trail has resource resultaat with action update") {
         val zaakUUID = UUID.randomUUID()
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -218,10 +218,10 @@ class ZaakHistoryServiceTest : BehaviorSpec({
             omschrijving = "description"
         }
 
-        When("converted to REST historie regel") {
+        `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            Then("it should return correct data") {
+            then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attributeLabel shouldBe "resultaat"
@@ -237,7 +237,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Audit trail has resource status with action update") {
+    given("Audit trail has resource status with action update") {
         val zaakUUID = UUID.randomUUID()
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -257,10 +257,10 @@ class ZaakHistoryServiceTest : BehaviorSpec({
             omschrijving = "description"
         }
 
-        When("converted to REST historie regel") {
+        `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            Then("it should return correct data") {
+            then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attributeLabel shouldBe "status"
@@ -276,7 +276,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Audit trail has resource zaakobject with action destroy") {
+    given("Audit trail has resource zaakobject with action destroy") {
         val zaakUUID = UUID.randomUUID()
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -304,10 +304,10 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         )
         every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
 
-        When("converted to REST historie regel") {
+        `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            Then("it should return correct data") {
+            then("it should return correct data") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attributeLabel shouldBe "objecttype.ADRES"
@@ -323,7 +323,7 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A retrieve action") {
+    given("A retrieve action") {
         val zaakUUID = UUID.randomUUID()
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -338,16 +338,16 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         )
         every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
 
-        When("converted to REST historie regel") {
+        `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            Then("it should contain no lines") {
+            then("it should contain no lines") {
                 historyLines.size shouldBe 0
             }
         }
     }
 
-    Given("An unknown resource") {
+    given("An unknown resource") {
         val zaakUUID = UUID.randomUUID()
         val zrcAuditTrailRegel = createZRCAuditTrailRegel(
             bron = Bron.AUTORISATIES_API,
@@ -364,10 +364,10 @@ class ZaakHistoryServiceTest : BehaviorSpec({
         )
         every { zrcClientService.listAuditTrail(zaakUUID) } returns listOf(zrcAuditTrailRegel)
 
-        When("converted to REST historie regel") {
+        `when`("converted to REST historie regel") {
             val historyLines = zaakHistoryService.getZaakHistory(zaakUUID)
 
-            Then("it should return correct data, with null values for oldValue and newValue") {
+            then("it should return correct data, with null values for oldValue and newValue") {
                 historyLines.size shouldBe 1
                 with(historyLines.first()) {
                     attributeLabel shouldBe "some_unknown_value"

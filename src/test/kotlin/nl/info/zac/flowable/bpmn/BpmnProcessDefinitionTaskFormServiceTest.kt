@@ -158,7 +158,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A process definition ID and a form name that exists") {
+    given("A process definition ID and a form name that exists") {
         val processDefinitionId = "fakeProcessDefinitionId"
         val formName = "testForm"
         val processDefinitionKey = "processKey"
@@ -181,17 +181,17 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
         every { typedQuery.resultList } returns listOf(form)
 
-        When("readForm is called") {
+        `when`("readForm is called") {
             val result = service.readForm(processDefinitionId, formName)
 
-            Then("it should return the form content as JsonObject") {
+            then("it should return the form content as JsonObject") {
                 result.getString("name") shouldBe formName
                 result.getString("title") shouldBe "Test Form"
             }
         }
     }
 
-    Given("A process definition ID and a form name that does not exist") {
+    given("A process definition ID and a form name that does not exist") {
         val processDefinitionId = "fakeProcessDefinitionId"
         val formName = "testForm"
         val processDefinitionKey = "processKey"
@@ -207,8 +207,8 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
         every { typedQuery.resultList } returns emptyList()
 
-        When("readForm is called") {
-            Then("it should throw BpmnTaskFormNotFoundException") {
+        `when`("readForm is called") {
+            then("it should throw BpmnTaskFormNotFoundException") {
                 val exception = shouldThrow<BpmnTaskFormNotFoundException> {
                     service.readForm(processDefinitionId, formName)
                 }
@@ -219,7 +219,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Multiple forms exist") {
+    given("Multiple forms exist") {
         val form1 = createBpmnProcessDefinitionTaskForm(
             id = 1L,
             bpmnProcessDefinitionKey = "process1",
@@ -248,10 +248,10 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { criteriaBuilder.asc(namePath) } returns order
         every { typedQuery.resultList } returns listOf(form1, form2, form3)
 
-        When("listForms is called") {
+        `when`("listForms is called") {
             val result = service.listForms()
 
-            Then("it should return all forms ordered by key, version, and name") {
+            then("it should return all forms ordered by key, version, and name") {
                 result.size shouldBe 3
                 result[0] shouldBe form1
                 result[1] shouldBe form2
@@ -260,7 +260,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A new form is being added") {
+    given("A new form is being added") {
         val processDefinitionKey = "processKey"
         val filename = "testForm.json"
         val formName = "Test Form"
@@ -279,10 +279,10 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { typedQuery.resultList } returns emptyList()
         every { entityManager.merge(capture(formSlot)) } returns mockk()
 
-        When("addForm is called") {
+        `when`("addForm is called") {
             service.addForm(processDefinitionKey, filename, formContent)
 
-            Then("it should merge the form entity with correct properties") {
+            then("it should merge the form entity with correct properties") {
                 verify(exactly = 1) { entityManager.merge(any<BpmnProcessDefinitionTaskForm>()) }
                 formSlot.captured.bpmnProcessDefinitionKey shouldBe processDefinitionKey
                 formSlot.captured.bpmnProcessDefinitionVersion shouldBe processDefinitionVersion
@@ -294,7 +294,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An existing form is being updated") {
+    given("An existing form is being updated") {
         val processDefinitionKey = "processKey"
         val filename = "testForm.json"
         val formName = "Test Form"
@@ -319,10 +319,10 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { typedQuery.resultList } returns listOf(existingForm)
         every { entityManager.merge(capture(formSlot)) } returns mockk()
 
-        When("addForm is called") {
+        `when`("addForm is called") {
             service.addForm(processDefinitionKey, filename, formContent)
 
-            Then("it should merge the form entity with the existing ID") {
+            then("it should merge the form entity with the existing ID") {
                 verify(exactly = 1) { entityManager.merge(any<BpmnProcessDefinitionTaskForm>()) }
                 formSlot.captured.id shouldBe 123L
                 formSlot.captured.bpmnProcessDefinitionKey shouldBe processDefinitionKey
@@ -331,7 +331,7 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Form content has no name field") {
+    given("Form content has no name field") {
         val processDefinitionKey = "processKey"
         val filename = "testForm.json"
         val formTitle = "Test Form Title"
@@ -349,16 +349,16 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { typedQuery.resultList } returns emptyList()
         every { entityManager.merge(capture(formSlot)) } returns mockk()
 
-        When("addForm is called") {
+        `when`("addForm is called") {
             service.addForm(processDefinitionKey, filename, contentWithoutName)
 
-            Then("it should use the filename without .json extension as name") {
+            then("it should use the filename without .json extension as name") {
                 formSlot.captured.name shouldBe "testForm"
             }
         }
     }
 
-    Given("Form content has no title field") {
+    given("Form content has no title field") {
         val processDefinitionKey = "processKey"
         val filename = "testForm.json"
         val formName = "Test Form"
@@ -376,16 +376,16 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         every { typedQuery.resultList } returns emptyList()
         every { entityManager.merge(capture(formSlot)) } returns mockk()
 
-        When("addForm is called") {
+        `when`("addForm is called") {
             service.addForm(processDefinitionKey, filename, contentWithoutTitle)
 
-            Then("it should use empty string as title") {
+            then("it should use empty string as title") {
                 formSlot.captured.title shouldBe ""
             }
         }
     }
 
-    Given("A form exists and needs to be deleted") {
+    given("A form exists and needs to be deleted") {
         val processDefinitionKey = "processKey"
         val formName = "testForm"
         val processDefinitionVersion = 1
@@ -397,17 +397,17 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
         setupBulkDeleteFormQuery(processDefinitionKey, processDefinitionVersion, formName, deletedCount = 1)
 
-        When("deleteForm is called") {
+        `when`("deleteForm is called") {
             service.deleteForm(processDefinitionKey, formName)
 
-            Then("it should execute a bulk delete operation") {
+            then("it should execute a bulk delete operation") {
                 verify(exactly = 1) { entityManager.criteriaBuilder }
                 verify(exactly = 0) { entityManager.remove(any<BpmnProcessDefinitionTaskForm>()) }
             }
         }
     }
 
-    Given("A form does not exist and deletion is attempted") {
+    given("A form does not exist and deletion is attempted") {
         val processDefinitionKey = "processKey"
         val formName = "testForm"
         val processDefinitionVersion = 1
@@ -419,40 +419,40 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
         setupBulkDeleteFormQuery(processDefinitionKey, processDefinitionVersion, formName, deletedCount = 0)
 
-        When("deleteForm is called") {
+        `when`("deleteForm is called") {
             service.deleteForm(processDefinitionKey, formName)
 
-            Then("it should execute a bulk delete operation without errors") {
+            then("it should execute a bulk delete operation without errors") {
                 verify(exactly = 1) { entityManager.criteriaBuilder }
                 verify(exactly = 0) { entityManager.remove(any<BpmnProcessDefinitionTaskForm>()) }
             }
         }
     }
 
-    Given("Multiple forms exist for a process definition") {
+    given("Multiple forms exist for a process definition") {
         val processDefinitionKey = "processKey"
 
         setupBulkDeleteForProcessDefinitionQuery(processDefinitionKey, deletedCount = 3)
 
-        When("deleteFormsForProcessDefinition is called") {
+        `when`("deleteFormsForProcessDefinition is called") {
             service.deleteAllFormsForProcessDefinition(processDefinitionKey)
 
-            Then("it should execute a bulk delete operation") {
+            then("it should execute a bulk delete operation") {
                 verify(exactly = 1) { entityManager.criteriaBuilder }
                 verify(exactly = 0) { entityManager.remove(any<BpmnProcessDefinitionTaskForm>()) }
             }
         }
     }
 
-    Given("No forms exist for a process definition") {
+    given("No forms exist for a process definition") {
         val processDefinitionKey = "processKey"
 
         setupBulkDeleteForProcessDefinitionQuery(processDefinitionKey, deletedCount = 0)
 
-        When("deleteFormsForProcessDefinition is called") {
+        `when`("deleteFormsForProcessDefinition is called") {
             service.deleteAllFormsForProcessDefinition(processDefinitionKey)
 
-            Then("it should execute a bulk delete operation without errors") {
+            then("it should execute a bulk delete operation without errors") {
                 verify(exactly = 1) { entityManager.criteriaBuilder }
                 verify(exactly = 0) { entityManager.remove(any<BpmnProcessDefinitionTaskForm>()) }
             }

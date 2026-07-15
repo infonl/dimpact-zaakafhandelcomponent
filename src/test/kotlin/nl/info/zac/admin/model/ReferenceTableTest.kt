@@ -10,50 +10,50 @@ import io.kotest.matchers.shouldBe
 
 class ReferenceTableTest : BehaviorSpec({
 
-    Given("Two equal objects") {
+    given("Two equal objects") {
         val referenceTable1 = createReferenceTable()
         val referenceTable2 = createReferenceTable()
 
-        When("The values of the two objects are compared") {
+        `when`("The values of the two objects are compared") {
             val transitiveResult = referenceTable1 == referenceTable2 && referenceTable2 == referenceTable1
 
-            Then("The objects should be considered equal") {
+            then("The objects should be considered equal") {
                 transitiveResult shouldBe true
             }
         }
 
-        When("The hashcode of the two objects are compared") {
+        `when`("The hashcode of the two objects are compared") {
             val hashcodeResult = referenceTable1.hashCode() == referenceTable2.hashCode()
-            Then("The objects should have the same hashcode") {
+            then("The objects should have the same hashcode") {
                 hashcodeResult shouldBe true
             }
         }
     }
 
-    Given("Two different objects") {
+    given("Two different objects") {
         val referenceTable1 = createReferenceTable()
         val referenceTable2 = createReferenceTable(isSystemReferenceTable = true)
 
-        When("The values of the two objects are compared") {
+        `when`("The values of the two objects are compared") {
             val equalityResult = referenceTable1 == referenceTable2
 
-            Then("The objects should be considered unequal") {
+            then("The objects should be considered unequal") {
                 equalityResult shouldBe false
             }
         }
 
-        When("Transitive check is performed") {
+        `when`("Transitive check is performed") {
             val transitiveResult = referenceTable2 == referenceTable1
 
-            Then("The objects should be considered unequal") {
+            then("The objects should be considered unequal") {
                 transitiveResult shouldBe false
             }
         }
 
-        When("The hashcode of the two objects are compared") {
+        `when`("The hashcode of the two objects are compared") {
             val hashcodeResult = referenceTable1.hashCode() == referenceTable2.hashCode()
 
-            Then("The objects should have different hashcodes") {
+            then("The objects should have different hashcodes") {
                 hashcodeResult shouldBe false
             }
         }

@@ -19,8 +19,8 @@ class ZgwJwtTokenUtilsTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Generating a JWT token") {
-        Given("Client id and secret and a logged-in user") {
+    context("Generating a JWT token") {
+        given("Client id and secret and a logged-in user") {
             val clientId = "clientId"
             val clientSecret = "clientSecret"
             val loggedInUser = mockk<LoggedInUser>()
@@ -29,10 +29,10 @@ class ZgwJwtTokenUtilsTest : BehaviorSpec({
             mockkStatic(LoggedInUser::getFullName)
             every { loggedInUser.getFullName() } returns "fullName"
 
-            When("token is generated") {
+            `when`("token is generated") {
                 val token = generateZgwJwtToken(clientId, clientSecret, loggedInUser)
 
-                Then("it should be a valid JWT token") {
+                then("it should be a valid JWT token") {
                     val tokenParts = token.split(" ")
                     tokenParts[0] shouldBe "Bearer"
                     val decodedToken = JWT.decode(tokenParts[1])

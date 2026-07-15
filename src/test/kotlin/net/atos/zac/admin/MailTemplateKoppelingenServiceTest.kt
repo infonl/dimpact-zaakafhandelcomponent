@@ -36,7 +36,7 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A mail template koppeling exists") {
+    given("A mail template koppeling exists") {
         val id = 42L
         val koppeling = createMailtemplateKoppelingen(
             id = id,
@@ -45,43 +45,43 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         )
         every { entityManager.find(ZaaktypeCmmnMailtemplateParameters::class.java, id) } returns koppeling
 
-        When("find is called with the id") {
+        `when`("find is called with the id") {
             val result = service.find(id)
 
-            Then("the same koppeling instance is returned") {
+            then("the same koppeling instance is returned") {
                 (result === koppeling) shouldBe true
             }
         }
 
-        When("delete is called with the id") {
+        `when`("delete is called with the id") {
             every { entityManager.remove(any<ZaaktypeCmmnMailtemplateParameters>()) } just runs
 
             service.delete(id)
 
-            Then("entityManager.remove is called with the entity") {
+            then("entityManager.remove is called with the entity") {
                 verify { entityManager.remove(any<ZaaktypeCmmnMailtemplateParameters>()) }
             }
         }
     }
 
-    Given("No mail template koppeling exists for the given id") {
+    given("No mail template koppeling exists for the given id") {
         val id = 99L
         every { entityManager.find(ZaaktypeCmmnMailtemplateParameters::class.java, id) } returns null
 
-        When("find is called with the id") {
+        `when`("find is called with the id") {
             val result = service.find(id)
 
-            Then("null is returned") {
+            then("null is returned") {
                 result shouldBe null
             }
         }
 
-        When("readMailtemplateKoppeling is called with the id") {
+        `when`("readMailtemplateKoppeling is called with the id") {
             val exception = shouldThrow<NoSuchElementException> {
                 service.readMailtemplateKoppeling(id)
             }
 
-            Then("a NoSuchElementException is thrown containing the class name and id") {
+            then("a NoSuchElementException is thrown containing the class name and id") {
                 exception.message!!.let {
                     it.contains(ZaaktypeCmmnMailtemplateParameters::class.java.simpleName) shouldBe true
                     it.contains(id.toString()) shouldBe true
@@ -90,7 +90,7 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         }
     }
 
-    Given("storeMailtemplateKoppeling with a new entity (no id)") {
+    given("storeMailtemplateKoppeling with a new entity (no id)") {
         val koppeling = createMailtemplateKoppelingen(
             id = null,
             zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
@@ -98,17 +98,17 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         )
         every { entityManager.persist(any<ZaaktypeCmmnMailtemplateParameters>()) } just runs
 
-        When("storeMailtemplateKoppeling is called") {
+        `when`("storeMailtemplateKoppeling is called") {
             val result = service.storeMailtemplateKoppeling(koppeling)
 
-            Then("entityManager.persist is called and the same entity instance is returned") {
+            then("entityManager.persist is called and the same entity instance is returned") {
                 verify { entityManager.persist(any<ZaaktypeCmmnMailtemplateParameters>()) }
                 (result === koppeling) shouldBe true
             }
         }
     }
 
-    Given("storeMailtemplateKoppeling with an existing entity (id present)") {
+    given("storeMailtemplateKoppeling with an existing entity (id present)") {
         val id = 7L
         val koppeling = createMailtemplateKoppelingen(
             id = id,
@@ -123,17 +123,17 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         every { entityManager.find(ZaaktypeCmmnMailtemplateParameters::class.java, id) } returns koppeling
         every { entityManager.merge(any<ZaaktypeCmmnMailtemplateParameters>()) } returns merged
 
-        When("storeMailtemplateKoppeling is called") {
+        `when`("storeMailtemplateKoppeling is called") {
             val result = service.storeMailtemplateKoppeling(koppeling)
 
-            Then("entityManager.merge is called and the merged entity instance is returned") {
+            then("entityManager.merge is called and the merged entity instance is returned") {
                 verify { entityManager.merge(any<ZaaktypeCmmnMailtemplateParameters>()) }
                 (result === merged) shouldBe true
             }
         }
     }
 
-    Given("An existing mail template koppeling") {
+    given("An existing mail template koppeling") {
         val id = 5L
         val koppeling = createMailtemplateKoppelingen(
             id = id,
@@ -142,16 +142,16 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         )
         every { entityManager.find(ZaaktypeCmmnMailtemplateParameters::class.java, id) } returns koppeling
 
-        When("readMailtemplateKoppeling is called with the id") {
+        `when`("readMailtemplateKoppeling is called with the id") {
             val result = service.readMailtemplateKoppeling(id)
 
-            Then("the same koppeling instance is returned") {
+            then("the same koppeling instance is returned") {
                 (result === koppeling) shouldBe true
             }
         }
     }
 
-    Given("Two mail template koppelingen in the database") {
+    given("Two mail template koppelingen in the database") {
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every {
             criteriaBuilder.createQuery(ZaaktypeCmmnMailtemplateParameters::class.java)
@@ -171,10 +171,10 @@ class MailTemplateKoppelingenServiceTest : BehaviorSpec({
         )
         every { typedQuery.resultList } returns koppelingen
 
-        When("listMailtemplateKoppelingen is called") {
+        `when`("listMailtemplateKoppelingen is called") {
             val result = service.listMailtemplateKoppelingen()
 
-            Then("both koppelingen are returned") {
+            then("both koppelingen are returned") {
                 result.size shouldBe 2
             }
         }

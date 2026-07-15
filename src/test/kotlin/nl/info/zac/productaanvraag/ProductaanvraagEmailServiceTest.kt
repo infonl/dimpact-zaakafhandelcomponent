@@ -48,7 +48,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("zaak created from productaanvraag and automatic email is enabled") {
+    given("zaak created from productaanvraag and automatic email is enabled") {
         val zaak = createZaak()
         val betrokkene = createBetrokkene()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
@@ -79,7 +79,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
-        When("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
+        `when`("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak,
                 betrokkene,
@@ -87,7 +87,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("email is sent to the correct address") {
+            then("email is sent to the correct address") {
                 verify(exactly = 1) {
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }
@@ -110,7 +110,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak created from productaanvraag and automatic email is enabled with GEMEENTE as sender") {
+    given("zaak created from productaanvraag and automatic email is enabled with GEMEENTE as sender") {
         val councilEmailAddress = "fake-council@example.com"
         val councilName = "Fake Council"
         val zaak = createZaak()
@@ -143,7 +143,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
-        When("sendEmailForZaakFromProductaanvraag is called") {
+        `when`("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak,
                 betrokkene,
@@ -151,7 +151,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("email is sent") {
+            then("email is sent") {
                 verify(exactly = 1) {
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }
@@ -174,7 +174,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak with bedrijf as an initiator is created from productaanvraag and automatic email is enabled") {
+    given("zaak with bedrijf as an initiator is created from productaanvraag and automatic email is enabled") {
         val zaak = createZaak()
         val betrokkene = createBetrokkene(inBsn = null)
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
@@ -205,7 +205,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
-        When("sendEmailForZaakFromProductaanvraag is called") {
+        `when`("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak,
                 betrokkene,
@@ -213,7 +213,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("email is sent to the correct address") {
+            then("email is sent to the correct address") {
                 verify(exactly = 1) {
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }
@@ -236,14 +236,14 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak created from productaanvraag and automatic email is disabled") {
+    given("zaak created from productaanvraag and automatic email is disabled") {
         val zaak = createZaak()
         val betrokkene = createBetrokkene()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
             zaaktypeCmmnEmailParameters = createAutomaticEmailConfirmation(enabled = false)
         )
 
-        When("sendEmailForZaakFromProductaanvraag is called") {
+        `when`("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak,
                 betrokkene,
@@ -251,11 +251,11 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("no action is taken") {}
+            then("no action is taken") {}
         }
     }
 
-    Given("zaak created from productaanvraag and no mail template found") {
+    given("zaak created from productaanvraag and no mail template found") {
         val zaak = createZaak()
         val betrokkene = createBetrokkene(inBsn = null)
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
@@ -272,7 +272,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
             mailTemplateService.findMailtemplateByName(zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!)
         } returns null
 
-        When("sendEmailForZaakFromProductaanvraag is called") {
+        `when`("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak,
                 betrokkene,
@@ -280,7 +280,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("no mail is sent") {
+            then("no mail is sent") {
                 verify(exactly = 1) {
                     mailTemplateService.findMailtemplateByName(
                         zaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName!!
@@ -290,12 +290,12 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak created from productaanvraag and no identification for the initiator") {
+    given("zaak created from productaanvraag and no identification for the initiator") {
         val zaak = createZaak()
         val betrokkene = createBetrokkene(inBsn = null, kvkNummer = null)
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
-        When("sendEmailForZaakFromProductaanvraag is called") {
+        `when`("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak,
                 betrokkene,
@@ -303,11 +303,11 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("no mail is sent") {}
+            then("no mail is sent") {}
         }
     }
 
-    Given("zaak created from productaanvraag and initiator without email") {
+    given("zaak created from productaanvraag and initiator without email") {
         val zaak = createZaak()
         val betrokkene = createBetrokkene()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
@@ -317,7 +317,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
             klantClientService.findDigitalAddressesForNaturalPerson(betrokkene.inpBsn)
         } returns listOf(digitalAddress)
 
-        When("sendEmailForZaakFromProductaanvraag is called") {
+        `when`("sendEmailForZaakFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak,
                 betrokkene,
@@ -325,11 +325,11 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("no mail is sent") {}
+            then("no mail is sent") {}
         }
     }
 
-    Given(
+    given(
         "zaak created from productaanvraag with an application-specific email address and automatic email is enabled"
     ) {
         val zaak = createZaak()
@@ -346,7 +346,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
-        When("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
+        `when`("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak,
                 betrokkene,
@@ -354,7 +354,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("email is sent to the application-specific email address without consulting betrokkene") {
+            then("email is sent to the application-specific email address without consulting betrokkene") {
                 verify(exactly = 1) {
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }
@@ -372,7 +372,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak created from productaanvraag with an application-specific email address and no betrokkene") {
+    given("zaak created from productaanvraag with an application-specific email address and no betrokkene") {
         val zaak = createZaak()
         val specificEmail = "specific@server.com"
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
@@ -386,7 +386,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
-        When("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
+        `when`("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak,
                 null,
@@ -394,7 +394,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("email is sent to the application-specific email address") {
+            then("email is sent to the application-specific email address") {
                 verify(exactly = 1) {
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }
@@ -409,11 +409,11 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak created from productaanvraag with no betrokkene and no application-specific email address") {
+    given("zaak created from productaanvraag with no betrokkene and no application-specific email address") {
         val zaak = createZaak()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
-        When("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
+        `when`("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak,
                 null,
@@ -421,11 +421,11 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("no mail is sent") {}
+            then("no mail is sent") {}
         }
     }
 
-    Given("zaak created from productaanvraag and no email address is marked as standaard adres") {
+    given("zaak created from productaanvraag and no email address is marked as standaard adres") {
         val zaak = createZaak()
         val betrokkene = createBetrokkene()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
@@ -456,7 +456,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
         every { mailService.sendMail(capture(mailGegevens), capture(bronnen)) } returns "body"
         every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak) } just runs
 
-        When("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
+        `when`("sendConfirmationOfReceiptEmailFromProductaanvraag is called") {
             productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                 zaak,
                 betrokkene,
@@ -464,7 +464,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfiguration
             )
 
-            Then("email is sent to the first address as fallback") {
+            then("email is sent to the first address as fallback") {
                 verify(exactly = 1) {
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
                 }

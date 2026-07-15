@@ -11,13 +11,13 @@ import nl.info.zac.admin.model.createHumanTaskReferentieTabel
 
 class HumanTaskReferentieTabelTest : BehaviorSpec({
 
-    Given("Two equal objects") {
+    given("Two equal objects") {
         val humanTaskReferentieTabel1 = createHumanTaskReferentieTabel()
         val humanTaskReferentieTabel2 = createHumanTaskReferentieTabel()
 
-        When("The values of the two objects are compared") {
+        `when`("The values of the two objects are compared") {
             val equalityResult = humanTaskReferentieTabel1 == humanTaskReferentieTabel2
-            Then("The objects should be considered equal") {
+            then("The objects should be considered equal") {
                 equalityResult shouldBe true
             }
         }

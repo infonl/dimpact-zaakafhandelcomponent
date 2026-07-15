@@ -65,8 +65,8 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Creating a zaak informatie object for a zaak") {
-        Given("Zaak, lock request and an open task") {
+    context("Creating a zaak informatie object for a zaak") {
+        given("Zaak, lock request and an open task") {
             every {
                 zgwApiService.createZaakInformatieobjectForZaak(
                     zaak,
@@ -79,7 +79,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             every { flowableTaskService.findOpenTask(taskId) } returns task
             every { taakVariabelenService.setTaakdocumenten(task, any<List<UUID>>()) } just runs
 
-            When("creating information object for a task is called") {
+            `when`("creating information object for a task is called") {
                 every { policyService.readTaakRechten(task) } returns createTaakRechten()
 
                 val zaakInfo = enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
@@ -88,7 +88,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                     taskId = taskId
                 )
 
-                Then("correct zaak info object is returned") {
+                then("correct zaak info object is returned") {
                     zaakInfo shouldBe zaakInformatieObject
                 }
 
@@ -100,7 +100,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             }
         }
 
-        Given("Zaak, lock request and non-eligible task") {
+        given("Zaak, lock request and non-eligible task") {
             every {
                 zgwApiService.createZaakInformatieobjectForZaak(
                     zaak,
@@ -112,7 +112,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             } returns zaakInformatieObject
             every { flowableTaskService.findOpenTask(taskId) } returns null
 
-            When("creating information object for a non-open task") {
+            `when`("creating information object for a non-open task") {
                 val exception = shouldThrow<TaskNotFoundException> {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                         zaak = zaak,
@@ -121,13 +121,13 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                     )
                 }
 
-                Then("thrown exception mentions the task id") {
+                then("thrown exception mentions the task id") {
                     exception.message shouldBe "No open task found with task id: '$taskId'"
                 }
             }
         }
 
-        Given("Zaak, lock request and internal (pre-authenticated) call") {
+        given("Zaak, lock request and internal (pre-authenticated) call") {
             every {
                 zgwApiService.createZaakInformatieobjectForZaak(
                     zaak,
@@ -140,7 +140,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             every { flowableTaskService.findOpenTask(taskId) } returns task
             every { taakVariabelenService.setTaakdocumenten(task, any<List<UUID>>()) } just runs
 
-            When("creating information object for a non-open task") {
+            `when`("creating information object for a non-open task") {
                 enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                     zaak = zaak,
                     enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
@@ -148,7 +148,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                     skipPolicyCheck = true
                 )
 
-                Then("policy check is skipped") {
+                then("policy check is skipped") {
                     verify(exactly = 0) {
                         policyService.readTaakRechten(task)
                     }
@@ -157,8 +157,8 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Updating enkelvoudig informatieobjecten with lock data") {
-        Given("An enkelvoudig informatie object and no existing lock") {
+    context("Updating enkelvoudig informatieobjecten with lock data") {
+        given("An enkelvoudig informatie object and no existing lock") {
             val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
             val enkelvoudigInformatieObjectWithLockRequest = createEnkelvoudigInformatieObjectWithLockRequest()
             val explanation = "fakeExplanation"
@@ -179,7 +179,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                 enkelvoudigInformatieObjectLockService.deleteLock(enkelvoudigInformatieObjectUUID)
             } returns Unit
 
-            When("updating the object with lock data") {
+            `when`("updating the object with lock data") {
                 val updatedEnkelvoudigInformatieObject =
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
                         enkelvoudigInformatieObjectUUID,
@@ -187,7 +187,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                         explanation
                     )
 
-                Then("the object is updated successfully") {
+                then("the object is updated successfully") {
                     updatedEnkelvoudigInformatieObject shouldBe enkelvoudigInformatieObject
                     verify(exactly = 1) {
                         drcClientService.updateEnkelvoudigInformatieobject(
@@ -206,7 +206,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             }
         }
 
-        Given("An enkelvoudig informatie object and an existing lock") {
+        given("An enkelvoudig informatie object and an existing lock") {
             val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
             val enkelvoudigInformatieObjectWithLockRequest = createEnkelvoudigInformatieObjectWithLockRequest()
             val explanation = "fakeExplanation"
@@ -221,7 +221,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                 )
             } returns enkelvoudigInformatieObject
 
-            When("updating the object with lock data") {
+            `when`("updating the object with lock data") {
                 val updatedEnkelvoudigInformatieObject =
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
                         enkelvoudigInformatieObjectUUID,
@@ -229,7 +229,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                         explanation
                     )
 
-                Then("the object is updated successfully") {
+                then("the object is updated successfully") {
                     updatedEnkelvoudigInformatieObject shouldBe enkelvoudigInformatieObject
                     verify(exactly = 1) {
                         drcClientService.updateEnkelvoudigInformatieobject(
@@ -249,12 +249,12 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Sending an enkelvoudig informatie object") {
+    context("Sending an enkelvoudig informatie object") {
         val uuid = UUID.randomUUID()
         val verzenddatum = LocalDate.now()
         val userId = "fakeUserId"
 
-        Given("A UUID, verzenddatum and a toelichting") {
+        given("A UUID, verzenddatum and a toelichting") {
             val toelichting = "fakeToelichting"
             val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
@@ -267,14 +267,14 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             } returns enkelvoudigInformatieObject
             every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
 
-            When("verzendEnkelvoudigInformatieObject is called") {
+            `when`("verzendEnkelvoudigInformatieObject is called") {
                 enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(
                     uuid,
                     verzenddatum,
                     toelichting
                 )
 
-                Then("the verzenddatum is set in the request") {
+                then("the verzenddatum is set in the request") {
                     requestSlot.captured.verzenddatum shouldBe verzenddatum
                 }
                 And("the toelichting is prefixed with 'Per post'") {
@@ -285,7 +285,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A UUID, verzenddatum and no toelichting") {
+        given("A UUID, verzenddatum and no toelichting") {
             val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
             every { loggedInUserInstance.get().id } returns userId
@@ -294,10 +294,10 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             every { drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), any()) } returns enkelvoudigInformatieObject
             every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
 
-            When("verzendEnkelvoudigInformatieObject is called with null toelichting") {
+            `when`("verzendEnkelvoudigInformatieObject is called with null toelichting") {
                 enkelvoudigInformatieObjectUpdateService.verzendEnkelvoudigInformatieObject(uuid, verzenddatum, null)
 
-                Then("the toelichting is just the prefix without a colon") {
+                then("the toelichting is just the prefix without a colon") {
                     verify(exactly = 1) {
                         drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), "Per post")
                     }
@@ -306,11 +306,11 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Signing an enkelvoudig informatie object") {
+    context("Signing an enkelvoudig informatie object") {
         val uuid = UUID.randomUUID()
         val userId = "fakeUserId"
 
-        Given("A UUID of an unsigned document") {
+        given("A UUID of an unsigned document") {
             val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
             val requestSlot = slot<EnkelvoudigInformatieObjectWithLockRequest>()
@@ -322,11 +322,11 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
             } returns enkelvoudigInformatieObject
             every { enkelvoudigInformatieObjectLockService.deleteLock(uuid) } returns Unit
 
-            When("ondertekenEnkelvoudigInformatieObject is called") {
+            `when`("ondertekenEnkelvoudigInformatieObject is called") {
                 val today = LocalDate.now()
                 enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(uuid)
 
-                Then("the ondertekening is set to DIGITAAL with today's date") {
+                then("the ondertekening is set to DIGITAAL with today's date") {
                     requestSlot.captured.ondertekening!!.soort shouldBe SoortEnum.DIGITAAL
                     requestSlot.captured.ondertekening!!.datum shouldBe today
                 }

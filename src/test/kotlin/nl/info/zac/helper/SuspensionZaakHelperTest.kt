@@ -59,8 +59,8 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Suspend/postpone zaak") {
-        Given("a zaak that is open and not yet postponed and does not have an planned end date") {
+    context("Suspend/postpone zaak") {
+        given("a zaak that is open and not yet postponed and does not have an planned end date") {
             val numberOfDaysPostponed = 123L
             val postPonementReason = "fakeReason"
             val zaak = createZaak(
@@ -98,7 +98,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
             } returns postponedZaak
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the zaak is postponed for x days from user with access") {
+            `when`("the zaak is postponed for x days from user with access") {
                 every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(opschorten = true)
 
                 val returnedZaak = suspensionZaakHelper.suspendZaak(
@@ -107,7 +107,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     postPonementReason
                 )
 
-                Then("the zaak should be postponed and the final date should be extended with x days") {
+                then("the zaak should be postponed and the final date should be extended with x days") {
                     returnedZaak shouldBe postponedZaak
                     verify(exactly = 1) {
                         zaakVariabelenService.setDatumtijdOpgeschort(zaak.uuid, any())
@@ -129,7 +129,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                 }
             }
 
-            When("the zaak is postponed for x days from user with no access") {
+            `when`("the zaak is postponed for x days from user with no access") {
                 every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
 
                 val exception = shouldThrow<PolicyException> {
@@ -140,13 +140,13 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     )
                 }
 
-                Then("it throws exception with no message") { exception.message shouldBe null }
+                then("it throws exception with no message") { exception.message shouldBe null }
             }
         }
     }
 
-    Context("Resume zaak") {
-        Given("a zaak that is postponed and does not have a planned end date") {
+    context("Resume zaak") {
+        given("a zaak that is postponed and does not have a planned end date") {
             val reasonResumed = "fakeResumeReason"
             val zaak = createZaak(
                 opschorting = createOpschorting(
@@ -172,12 +172,12 @@ class SuspensionZaakHelperTest : BehaviorSpec({
             every { zaakVariabelenService.removeVerwachteDagenOpgeschort(zaak.uuid) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the zaak is resumed from user with access") {
+            `when`("the zaak is resumed from user with access") {
                 every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(hervatten = true)
 
                 suspensionZaakHelper.resumeZaak(zaak, reasonResumed)
 
-                Then("the zaak should be resumed") {
+                then("the zaak should be resumed") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(
                             zaak.uuid,
@@ -195,16 +195,16 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                 }
             }
 
-            When("the zaak is resumed from user with no access") {
+            `when`("the zaak is resumed from user with no access") {
                 every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
 
                 val exception = shouldThrow<PolicyException> { suspensionZaakHelper.resumeZaak(zaak, reasonResumed) }
 
-                Then("it throws exception with no message") { exception.message shouldBe null }
+                then("it throws exception with no message") { exception.message shouldBe null }
             }
         }
 
-        Given("a suspended zaak with a expected processing period and planned end date") {
+        given("a suspended zaak with a expected processing period and planned end date") {
             val reasonResumed = "fakeResumeReason"
             val zaak = createZaak(
                 opschorting = createOpschorting(
@@ -233,10 +233,10 @@ class SuspensionZaakHelperTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(hervatten = true)
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the zaak is resumed with default resume date (today)") {
+            `when`("the zaak is resumed with default resume date (today)") {
                 suspensionZaakHelper.resumeZaak(zaak, reasonResumed)
 
-                Then("the zaak should be resumed") {
+                then("the zaak should be resumed") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(
                             zaak.uuid,
@@ -256,13 +256,13 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                 }
             }
 
-            When("the zaak is resumed with a resume date") {
+            `when`("the zaak is resumed with a resume date") {
                 clearMocks(zrcClientService, zaakVariabelenService, answers = false, verificationMarks = true)
 
                 // Response received on Friday, processing it on Monday. Resume date set to Friday (3 days ago)
                 suspensionZaakHelper.resumeZaak(zaak, reasonResumed, ZonedDateTime.now().minusDays(3))
 
-                Then("the zaak should be resumed") {
+                then("the zaak should be resumed") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(
                             zaak.uuid,
@@ -282,7 +282,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                 }
             }
 
-            When("the zaak is resumed with date before the suspension date") {
+            `when`("the zaak is resumed with date before the suspension date") {
                 clearMocks(zrcClientService, zaakVariabelenService, answers = false, verificationMarks = true)
 
                 val yesterday = ZonedDateTime.now().minusDays(1)
@@ -294,7 +294,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     suspensionZaakHelper.resumeZaak(zaak, reasonResumed, dayBeforeYesterday)
                 }
 
-                Then("exception pointing out the reason is thrown") {
+                then("exception pointing out the reason is thrown") {
                     exception.message shouldContain yesterday.toString()
                     exception.message shouldContain dayBeforeYesterday.toString()
                 }
@@ -308,8 +308,8 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         }
     }
 
-    Context("Extend zaak fatal date") {
-        Given("a zaak with a final date") {
+    context("Extend zaak fatal date") {
+        given("a zaak with a final date") {
             val extensionDescription = "extension description"
             val zaak = createZaak(
                 einddatumGepland = LocalDate.now().plusDays(1),
@@ -328,7 +328,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
             } returns extendedZaak
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("extension of the final date is requested from user with access") {
+            `when`("extension of the final date is requested from user with access") {
                 every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                     wijzigen = true,
                     verlengenDoorlooptijd = true
@@ -336,26 +336,26 @@ class SuspensionZaakHelperTest : BehaviorSpec({
 
                 val result = suspensionZaakHelper.extendZaakFatalDate(zaak, 2, extensionDescription)
 
-                Then("the correct dates are set") {
+                then("the correct dates are set") {
                     result.uiterlijkeEinddatumAfdoening shouldBe extendedZaak.uiterlijkeEinddatumAfdoening
                     result.einddatumGepland shouldBe extendedZaak.einddatumGepland
                 }
             }
 
-            When("extension of the final date is requested from user with no access") {
+            `when`("extension of the final date is requested from user with no access") {
                 every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny()
 
                 val exception = shouldThrow<PolicyException> {
                     suspensionZaakHelper.extendZaakFatalDate(zaak, 1, extensionDescription)
                 }
 
-                Then("it throws exception with no message") { exception.message shouldBe null }
+                then("it throws exception with no message") { exception.message shouldBe null }
             }
         }
     }
 
-    Context("Extend zaak") {
-        Given("Zaak") {
+    context("Extend zaak") {
+        given("Zaak") {
             val zaak = createZaak()
             val description = "fakeDescription"
 
@@ -365,7 +365,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                 zrcClientService.patchZaak(zaak.uuid, capture(zaakSlot), capture(descriptionSlot))
             } returns zaak
 
-            When("it is extended") {
+            `when`("it is extended") {
                 val updatedZaak = suspensionZaakHelper.extendZaak(
                     zaak,
                     today,
@@ -374,7 +374,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     numberOfDays.toInt()
                 )
 
-                Then("it returns an updated zaak") {
+                then("it returns an updated zaak") {
                     updatedZaak shouldBe zaak
                 }
 
@@ -396,8 +396,8 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         }
     }
 
-    Context("Extend tasks") {
-        Given("Zaak with tasks") {
+    context("Extend tasks") {
+        given("Zaak with tasks") {
             val zaak = createZaak()
             val tasks = listOf(
                 createTestTask(dueDate = today.toDate()),
@@ -407,10 +407,10 @@ class SuspensionZaakHelperTest : BehaviorSpec({
             every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns tasks
             every { flowableTaskService.updateTask(any<Task>()) } returns tasks[0]
 
-            When("extending tasks") {
+            `when`("extending tasks") {
                 val listOfUpdatedTasks = suspensionZaakHelper.extendTasks(zaak, numberOfDays.toInt())
 
-                Then("tasks should be extended") {
+                then("tasks should be extended") {
                     listOfUpdatedTasks.size shouldBe 2
                     listOfUpdatedTasks[0].dueDate shouldBe today.plusDays(numberOfDays).toDate()
                     listOfUpdatedTasks[1].dueDate shouldBe tomorrow.plusDays(numberOfDays).toDate()
@@ -419,8 +419,8 @@ class SuspensionZaakHelperTest : BehaviorSpec({
         }
     }
 
-    Context("Adjust final date for open tasks") {
-        Given("Zaak with tasks") {
+    context("Adjust final date for open tasks") {
+        given("Zaak with tasks") {
             val zaak = createZaak()
             val tasks = listOf(
                 createTestTask(dueDate = today.toDate()),
@@ -430,10 +430,10 @@ class SuspensionZaakHelperTest : BehaviorSpec({
             every { flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns tasks
             every { flowableTaskService.updateTask(any<Task>()) } returns tasks[0]
 
-            When("adjusting final date of open tasks") {
+            `when`("adjusting final date of open tasks") {
                 val listOfUpdatedTasks = suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, today)
 
-                Then("tasks should be adjusted") {
+                then("tasks should be adjusted") {
                     listOfUpdatedTasks.size shouldBe 1
                     listOfUpdatedTasks[0].dueDate shouldBe today.toDate()
                 }

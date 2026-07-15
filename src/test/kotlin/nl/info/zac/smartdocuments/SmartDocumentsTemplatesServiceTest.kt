@@ -41,29 +41,29 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("SmartDocuments is enabled and contains a list of templates") {
+    given("SmartDocuments is enabled and contains a list of templates") {
         val smartDocumentsTemplatesResponse = createsmartDocumentsTemplatesResponse()
         every { smartDocumentsService.listTemplates() } returns smartDocumentsTemplatesResponse
         every { smartDocumentsService.isEnabled() } returns true
 
-        When("a list of template is requested") {
+        `when`("a list of template is requested") {
             val restSmartDocumentsTemplateGroupSet = smartDocumentsTemplatesService.listTemplates()
 
-            Then("the template is returned") {
+            then("the template is returned") {
                 restSmartDocumentsTemplateGroupSet.size shouldBe
                     smartDocumentsTemplatesResponse.documentsStructure.templatesStructure.templateGroups.size
             }
         }
 
-        When("list template names for a first-level group is called") {
+        `when`("list template names for a first-level group is called") {
             val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(listOf("Dimpact"))
 
-            Then("it should return a list of template names") {
+            then("it should return a list of template names") {
                 templateNames shouldBe listOf("Aanvullende informatie nieuw", "Aanvullende informatie oud")
             }
         }
 
-        When("list template names for a nested level group is called") {
+        `when`("list template names for a nested level group is called") {
             val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(
                 listOf(
                     "Dimpact",
@@ -71,35 +71,35 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
                 )
             )
 
-            Then("it should return a list of template names") {
+            then("it should return a list of template names") {
                 templateNames shouldBe listOf("Data Test", "OpenZaakTest")
             }
         }
 
-        When("list template names for a non-existent first-level group is called") {
+        `when`("list template names for a non-existent first-level group is called") {
             val exception = shouldThrow<IllegalArgumentException> {
                 smartDocumentsTemplatesService.listGroupTemplateNames(listOf("no such group"))
             }
 
-            Then("it should return a list of template names") {
+            then("it should return a list of template names") {
                 exception.message shouldContain "no such group"
             }
         }
 
-        When("list template names for a non-existent nested group is called") {
+        `when`("list template names for a non-existent nested group is called") {
             val exception = shouldThrow<IllegalArgumentException> {
                 smartDocumentsTemplatesService.listGroupTemplateNames(
                     listOf("Dimpact", "no such group")
                 )
             }
 
-            Then("it should return a list of template names") {
+            then("it should return a list of template names") {
                 exception.message shouldContain "Dimpact, no such group"
             }
         }
     }
 
-    Given("A missing mapping") {
+    given("A missing mapping") {
         val zaaktypeUUID = UUID.randomUUID()
         val zaakafhanderParametersId = 1L
         val templateGroupId = "template group id"
@@ -147,7 +147,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
         every { typedQuery.resultList } returns emptyList()
 
-        When("information object UUID is requested") {
+        `when`("information object UUID is requested") {
             val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 smartDocumentsTemplatesService.getInformationObjectTypeUUID(
                     zaaktypeUUID,
@@ -156,14 +156,14 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
                 )
             }
 
-            Then("exception is thrown") {
+            then("exception is thrown") {
                 exception.message shouldContain templateGroupId
                 exception.message shouldContain templateId
             }
         }
     }
 
-    Given("An existing mapping") {
+    given("An existing mapping") {
         val zaaktypeUUID = UUID.randomUUID()
         val zaakafhanderParametersId = 1L
         val templateGroupId = "template group id"
@@ -212,20 +212,20 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
         every { typedQuery.resultList } returns listOf(informationObjectTypeUUID)
 
-        When("information object UUID is requested") {
+        `when`("information object UUID is requested") {
             val result = smartDocumentsTemplatesService.getInformationObjectTypeUUID(
                 zaaktypeUUID,
                 templateGroupId,
                 templateId
             )
 
-            Then("the information object type UUID is returned") {
+            then("the information object type UUID is returned") {
                 result shouldBe informationObjectTypeUUID
             }
         }
     }
 
-    Given("A missing template group") {
+    given("A missing template group") {
         val templateGroupId = "123abc"
 
         val criteriaBuilder = mockk<CriteriaBuilder>()
@@ -251,18 +251,18 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
         every { typedQuery.resultList } returns emptyList()
 
-        When("template group name query is started") {
+        `when`("template group name query is started") {
             val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 smartDocumentsTemplatesService.getTemplateGroupName(templateGroupId)
             }
 
-            Then("exception is thrown") {
+            then("exception is thrown") {
                 exception.message shouldContain "123abc"
             }
         }
     }
 
-    Given("A missing template") {
+    given("A missing template") {
         val templateId = "123abc"
 
         val criteriaBuilder = mockk<CriteriaBuilder>()
@@ -288,72 +288,72 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
         every { typedQuery.resultList } returns emptyList()
 
-        When("template name query is started") {
+        `when`("template name query is started") {
             val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 smartDocumentsTemplatesService.getTemplateName(templateId)
             }
 
-            Then("exception is thrown") {
+            then("exception is thrown") {
                 exception.message shouldContain "123abc"
             }
         }
     }
 
-    Given("No zaaktype configuration exists for the given UUID") {
+    given("No zaaktype configuration exists for the given UUID") {
         val unknownUUID = UUID.randomUUID()
 
         every { zaaktypeConfigurationService.readZaaktypeConfiguration(unknownUUID) } returns null
 
-        When("store templates mapping is called") {
+        `when`("store templates mapping is called") {
             val exception = shouldThrow<IllegalArgumentException> {
                 smartDocumentsTemplatesService.storeTemplatesMapping(emptySet(), unknownUUID)
             }
 
-            Then("exception is thrown with the missing UUID") {
+            then("exception is thrown with the missing UUID") {
                 exception.message shouldBe "No zaaktype configuration found for zaaktype UUID $unknownUUID"
             }
         }
     }
 
-    Given("SmartDocuments is enabled but no zaaktype configuration exists") {
+    given("SmartDocuments is enabled but no zaaktype configuration exists") {
         val zaaktypeUUID = UUID.randomUUID()
         every { smartDocumentsService.isEnabled() } returns true
         every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID) } returns null
 
-        When("templates mapping is requested") {
+        `when`("templates mapping is requested") {
             val mappings = smartDocumentsTemplatesService.getTemplatesMapping(zaaktypeUUID)
 
-            Then("it returns an empty set") {
+            then("it returns an empty set") {
                 mappings shouldBe emptySet()
             }
         }
     }
 
-    Given("SmartDocuments is disabled") {
+    given("SmartDocuments is disabled") {
         every { smartDocumentsService.isEnabled() } returns false
 
-        When("templates are listed") {
+        `when`("templates are listed") {
             val templates = smartDocumentsTemplatesService.listTemplates()
 
-            Then("it returns an empty set") {
+            then("it returns an empty set") {
                 templates shouldBe emptySet()
             }
         }
 
-        When("template names are listed") {
+        `when`("template names are listed") {
             val templateNames = smartDocumentsTemplatesService.listGroupTemplateNames(
                 listOf("Dimpact")
             )
 
-            Then("it should return a list of template names") {
+            then("it should return a list of template names") {
                 templateNames shouldBe emptyList()
             }
         }
 
-        When("mapping is listed") {
+        `when`("mapping is listed") {
             val mappings = smartDocumentsTemplatesService.getTemplatesMapping(UUID.randomUUID())
 
-            Then("it returns an empty set") {
+            then("it returns an empty set") {
                 mappings shouldBe emptySet()
             }
         }

@@ -24,7 +24,7 @@ import java.util.EnumSet
 
 class RestPersoonTest : BehaviorSpec({
 
-    Given("BRP Persoon with all flags but MINISTERIELE_REGELING and EMIGRATION") {
+    given("BRP Persoon with all flags but MINISTERIELE_REGELING and EMIGRATION") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -44,10 +44,10 @@ class RestPersoonTest : BehaviorSpec({
             address = Adressering().apply { indicatieVastgesteldVerblijftNietOpAdres = true }
         )
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoon.toRestPersoon()
 
-            Then("conversion is correct") {
+            then("conversion is correct") {
                 restPersoon.bsn shouldBe persoon.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.complementOf(
                     EnumSet.of(
@@ -59,7 +59,7 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
-    Given("BRP Persoon with MINISTERIELE_REGELING") {
+    given("BRP Persoon with MINISTERIELE_REGELING") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -74,10 +74,10 @@ class RestPersoonTest : BehaviorSpec({
             },
         )
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoon.toRestPersoon()
 
-            Then("conversion is correct") {
+            then("conversion is correct") {
                 restPersoon.bsn shouldBe persoon.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
@@ -87,7 +87,7 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
-    Given("BRP Persoon with EMIGRATION") {
+    given("BRP Persoon with EMIGRATION") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -102,10 +102,10 @@ class RestPersoonTest : BehaviorSpec({
             },
         )
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoon.toRestPersoon()
 
-            Then("conversion is correct") {
+            then("conversion is correct") {
                 restPersoon.bsn shouldBe persoon.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
@@ -115,7 +115,7 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
-    Given("BRP Persoon with domestic address") {
+    given("BRP Persoon with domestic address") {
         val persoon = createPersoon(
             verblijfplaats = Adres().apply {
                 verblijfadres = VerblijfadresBinnenland().apply {
@@ -127,16 +127,16 @@ class RestPersoonTest : BehaviorSpec({
             }
         )
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoon.toRestPersoon()
 
-            Then("conversion contains the address details, separated with NBSP") {
+            then("conversion contains the address details, separated with NBSP") {
                 restPersoon.verblijfplaats shouldBe "street\u00A0name\u00A011\u00A0number\u00A0description\u00A0a"
             }
         }
     }
 
-    Given("BRP Persoon with foreign address") {
+    given("BRP Persoon with foreign address") {
         val persoon = createPersoon(
             verblijfplaats = VerblijfplaatsBuitenland().apply {
                 verblijfadres = VerblijfadresBuitenland().apply {
@@ -149,16 +149,16 @@ class RestPersoonTest : BehaviorSpec({
             }
         )
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoon.toRestPersoon()
 
-            Then("conversion contains the address details, separated with NBSP") {
+            then("conversion contains the address details, separated with NBSP") {
                 restPersoon.verblijfplaats shouldBe "first\u00A0line,\u00A0Far\u00A0away"
             }
         }
     }
 
-    Given("BRP PersoonBeperkt with all flags but OVERLEDEN and EMIGRATION") {
+    given("BRP PersoonBeperkt with all flags but OVERLEDEN and EMIGRATION") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -177,10 +177,10 @@ class RestPersoonTest : BehaviorSpec({
             address = AdresseringBeperkt().apply { indicatieVastgesteldVerblijftNietOpAdres = true }
         )
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoonBeperkt.toRestPersoon()
 
-            Then("conversion is correct") {
+            then("conversion is correct") {
                 restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
                 // check for all but OVERLIJDEN and EMIGRATION
                 restPersoon.indicaties shouldBe EnumSet.complementOf(
@@ -194,7 +194,7 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
-    Given("BRP PersoonBeperkt with MINISTERIELE_REGELING") {
+    given("BRP PersoonBeperkt with MINISTERIELE_REGELING") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -209,10 +209,10 @@ class RestPersoonTest : BehaviorSpec({
             },
         )
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoonBeperkt.toRestPersoon()
 
-            Then("conversion is correct") {
+            then("conversion is correct") {
                 restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
@@ -222,7 +222,7 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
-    Given("BRP PersoonBeperkt with EMIGRATION") {
+    given("BRP PersoonBeperkt with EMIGRATION") {
         val date = AbstractDatum().apply {
             type = "type"
             langFormaat = "langFormaat"
@@ -237,10 +237,10 @@ class RestPersoonTest : BehaviorSpec({
             },
         )
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoonBeperkt.toRestPersoon()
 
-            Then("conversion is correct") {
+            then("conversion is correct") {
                 restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.OPSCHORTING_BIJHOUDING,
@@ -250,16 +250,16 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
-    Given("BRP Persoon that's in research and has confidential personal data") {
+    given("BRP Persoon that's in research and has confidential personal data") {
         val persoon = createPersoon(
             confidentialPersonalData = true,
             personInResearch = PersoonInOnderzoek(),
         )
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoon.toRestPersoon()
 
-            Then("conversion is correct") {
+            then("conversion is correct") {
                 restPersoon.bsn shouldBe persoon.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.IN_ONDERZOEK,
@@ -269,16 +269,16 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
-    Given("BRP PersoonBeperkt that's in research and has confidential personal data") {
+    given("BRP PersoonBeperkt that's in research and has confidential personal data") {
         val persoonBeperkt = createPersoonBeperkt(
             confidentialPersonalData = true,
             personInResearch = PersoonInOnderzoekBeperkt(),
         )
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoonBeperkt.toRestPersoon()
 
-            Then("conversion is correct") {
+            then("conversion is correct") {
                 restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.of(
                     RestPersoonIndicaties.IN_ONDERZOEK,
@@ -288,33 +288,33 @@ class RestPersoonTest : BehaviorSpec({
         }
     }
 
-    Given("BRP Persoon that has no indication relative data") {
+    given("BRP Persoon that has no indication relative data") {
         val persoon = createPersoon()
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoon.toRestPersoon()
 
-            Then("conversion yields no indications") {
+            then("conversion yields no indications") {
                 restPersoon.bsn shouldBe persoon.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.noneOf(RestPersoonIndicaties::class.java)
             }
         }
     }
 
-    Given("BRP PersoonBeperkt that has no indication relative data") {
+    given("BRP PersoonBeperkt that has no indication relative data") {
         val persoonBeperkt = createPersoonBeperkt()
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoonBeperkt.toRestPersoon()
 
-            Then("conversion yields no indications") {
+            then("conversion yields no indications") {
                 restPersoon.bsn shouldBe persoonBeperkt.burgerservicenummer
                 restPersoon.indicaties shouldBe EnumSet.noneOf(RestPersoonIndicaties::class.java)
             }
         }
     }
 
-    Given("BRP PersoonBeperkt with foreign address") {
+    given("BRP PersoonBeperkt with foreign address") {
         val persoon = createPersoonBeperkt(
             address = AdresseringBeperkt().apply {
                 adresregel1 = "first line"
@@ -325,10 +325,10 @@ class RestPersoonTest : BehaviorSpec({
             }
         )
 
-        When("converted to RestPersoon") {
+        `when`("converted to RestPersoon") {
             val restPersoon = persoon.toRestPersoon()
 
-            Then("conversion contains the country description") {
+            then("conversion contains the country description") {
                 restPersoon.verblijfplaats shouldBe "first\u00A0line,\u00A0Far\u00A0away"
             }
         }

@@ -28,7 +28,7 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
     val zacClient = ZacClient(itestHttpClient)
     val taskHelper = TaskHelper(zacClient)
 
-    Given("A zaak with one 'Aanvullende informatie' task and a logged-in behandelaar") {
+    given("A zaak with one 'Aanvullende informatie' task and a logged-in behandelaar") {
         lateinit var zaakUuid: String
         lateinit var zaakIdentification: String
         zacClient.createZaak(
@@ -61,7 +61,7 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
         tasksResponse.code shouldBe HTTP_OK
         val taskArray = JSONArray(responseBody)
 
-        When("the (last) 'Aanvullende informatie' task is closed") {
+        `when`("the (last) 'Aanvullende informatie' task is closed") {
             val taskObject = taskArray.getJSONObject(0)
             taskObject.put("toelichting", "completed")
             taskObject.put("status", "AFGEROND")
@@ -71,7 +71,7 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the taken toelichting and status are updated") {
+            then("the taken toelichting and status are updated") {
                 val responseBody = completeTaskResponse.bodyAsString
                 logger.info { "Response: $responseBody" }
                 completeTaskResponse.code shouldBe HTTP_OK

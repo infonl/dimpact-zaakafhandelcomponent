@@ -18,63 +18,63 @@ import nl.info.zac.exception.InputValidationFailedException
 class AbstractDatumJsonbDeserializerTest : BehaviorSpec({
     val deserializer = AbstractDatumJsonbDeserializer()
 
-    Context("deserialize") {
-        Given("JSON with type Datum") {
+    context("deserialize") {
+        given("JSON with type Datum") {
             val json = """{"type":"Datum","datum":"2024-01-01"}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a VolledigeDatum is returned") {
+                then("a VolledigeDatum is returned") {
                     result.shouldBeInstanceOf<VolledigeDatum>()
                 }
             }
         }
 
-        Given("JSON with type DatumOnbekend") {
+        given("JSON with type DatumOnbekend") {
             val json = """{"type":"DatumOnbekend"}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a DatumOnbekend is returned") {
+                then("a DatumOnbekend is returned") {
                     result.shouldBeInstanceOf<DatumOnbekend>()
                 }
             }
         }
 
-        Given("JSON with type JaarDatum") {
+        given("JSON with type JaarDatum") {
             val json = """{"type":"JaarDatum","jaar":2024}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a JaarDatum is returned") {
+                then("a JaarDatum is returned") {
                     result.shouldBeInstanceOf<JaarDatum>()
                 }
             }
         }
 
-        Given("JSON with type JaarMaandDatum") {
+        given("JSON with type JaarMaandDatum") {
             val json = """{"type":"JaarMaandDatum","jaar":2024,"maand":6}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val result = deserializer.deserialize(createJsonParser(json), mockk(), mockk())
 
-                Then("a JaarMaandDatum is returned") {
+                then("a JaarMaandDatum is returned") {
                     result.shouldBeInstanceOf<JaarMaandDatum>()
                 }
             }
         }
 
-        Given("JSON with an unknown datum type") {
+        given("JSON with an unknown datum type") {
             val json = """{"type":"OnbekendDatumType"}"""
 
-            When("deserialize is called") {
+            `when`("deserialize is called") {
                 val exception = shouldThrow<InputValidationFailedException> {
                     deserializer.deserialize(createJsonParser(json), mockk(), mockk())
                 }
-                Then("InputValidationFailedException is thrown") {
+                then("InputValidationFailedException is thrown") {
                     exception.message!!.contains("OnbekendDatumType") shouldBe true
                 }
             }

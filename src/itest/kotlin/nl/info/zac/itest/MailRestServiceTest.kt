@@ -42,7 +42,7 @@ class MailRestServiceTest : BehaviorSpec({
     val now = System.currentTimeMillis()
     val today = LocalDate.now()
 
-    Given("A zaak with a document exists and the SMTP server is configured and a behandelaar is logged in") {
+    given("A zaak with a document exists and the SMTP server is configured and a behandelaar is logged in") {
         val (_, zaakUuid) = zaakHelper.createZaak(
             zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
             testUser = BEHEERDER_1
@@ -56,7 +56,7 @@ class MailRestServiceTest : BehaviorSpec({
             testUser = BEHEERDER_1
         )
 
-        When("A mail is sent with the 'create document from mail' option enabled") {
+        `when`("A mail is sent with the 'create document from mail' option enabled") {
             val receiverMail = "receiverMailTest@example.com"
             val body = "<p><b>bold</b>paragraph<i>italic</i></p>"
 
@@ -79,7 +79,7 @@ class MailRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the response should be 'no-content'") {
+            then("the response should be 'no-content'") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_NO_CONTENT
@@ -172,7 +172,7 @@ class MailRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """
         A zaak exists whose CMMN process automatically sets 'zaaktypeOmschrijving' in zaakdata,
         and an SMTP server is configured and a behandelaar is logged in
@@ -183,7 +183,7 @@ class MailRestServiceTest : BehaviorSpec({
             testUser = BEHEERDER_1
         )
 
-        When("A mail is sent with a '{ZAAKDATA:zaaktypeOmschrijving}' variable in the body") {
+        `when`("A mail is sent with a '{ZAAKDATA:zaaktypeOmschrijving}' variable in the body") {
             val receiverMail = "zaakdataReceiverTest@example.com"
 
             itestHttpClient.performJSONPostRequest(
@@ -201,7 +201,7 @@ class MailRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             ).also { response -> response.code shouldBe HTTP_NO_CONTENT }
 
-            Then("the received mail body should contain the resolved zaaktypeOmschrijving value") {
+            then("the received mail body should contain the resolved zaaktypeOmschrijving value") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
                     testUser = BEHANDELAAR_1

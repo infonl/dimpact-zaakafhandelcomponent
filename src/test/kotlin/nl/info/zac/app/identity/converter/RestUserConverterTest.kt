@@ -20,15 +20,15 @@ class RestUserConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("convertUserId") {
-        Given("a user ID that exists in the identity service") {
+    context("convertUserId") {
+        given("a user ID that exists in the identity service") {
             val user = createUser(id = "fakeUserId", fullName = "fakeFullName")
             every { identityService.readUser("fakeUserId") } returns user
 
-            When("convertUserId is called") {
+            `when`("convertUserId is called") {
                 val result = restUserConverter.convertUserId("fakeUserId")
 
-                Then("it returns a RestUser with the correct id and full name") {
+                then("it returns a RestUser with the correct id and full name") {
                     result.id shouldBe "fakeUserId"
                     result.naam shouldBe "fakeFullName"
                 }
@@ -36,19 +36,19 @@ class RestUserConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convertUserIds") {
-        Given("a list of user IDs") {
+    context("convertUserIds") {
+        given("a list of user IDs") {
             val user1 = createUser(id = "fakeUserId1", fullName = "fakeFullName1")
             val user2 = createUser(id = "fakeUserId2", fullName = "fakeFullName2")
             every { identityService.readUser("fakeUserId1") } returns user1
             every { identityService.readUser("fakeUserId2") } returns user2
 
-            When("convertUserIds is called with the list") {
+            `when`("convertUserIds is called with the list") {
                 val result = with(restUserConverter) {
                     listOf("fakeUserId1", "fakeUserId2").convertUserIds()
                 }
 
-                Then("it returns a list of RestUsers with correct ids and names") {
+                then("it returns a list of RestUsers with correct ids and names") {
                     result.size shouldBe 2
                     result[0].id shouldBe "fakeUserId1"
                     result[0].naam shouldBe "fakeFullName1"

@@ -37,24 +37,24 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
-    Context("Policy enforcement") {
-        Given("Policy denies beheren") {
+    context("Policy enforcement") {
+        given("Policy denies beheren") {
             every { policyService.readOverigeRechten(null) } returns createOverigeRechten(beheren = false)
 
-            When("readMailtemplateKoppeling is called") {
+            `when`("readMailtemplateKoppeling is called") {
                 shouldThrow<PolicyException> {
                     service.readMailtemplateKoppeling(1L)
                 }
 
-                Then("service is not called") {
+                then("service is not called") {
                     verify(exactly = 0) { mailTemplateKoppelingenService.readMailtemplateKoppeling(any()) }
                 }
             }
         }
     }
 
-    Context("readMailtemplateKoppeling") {
-        Given("Policy permits and koppeling exists") {
+    context("readMailtemplateKoppeling") {
+        given("Policy permits and koppeling exists") {
             val fakeKoppeling = createMailtemplateKoppelingen(
                 id = 42L,
                 zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
@@ -63,33 +63,33 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
             every { policyService.readOverigeRechten(null) } returns createOverigeRechten(beheren = true)
             every { mailTemplateKoppelingenService.readMailtemplateKoppeling(42L) } returns fakeKoppeling
 
-            When("readMailtemplateKoppeling is called with ID 42") {
+            `when`("readMailtemplateKoppeling is called with ID 42") {
                 val result = service.readMailtemplateKoppeling(42L)
 
-                Then("the converted RESTMailtemplateKoppeling is returned") {
+                then("the converted RESTMailtemplateKoppeling is returned") {
                     result.id shouldBe RESTMailtemplateKoppelingConverter.convert(fakeKoppeling).id
                 }
             }
         }
     }
 
-    Context("deleteMailtemplateKoppeling") {
-        Given("Policy permits") {
+    context("deleteMailtemplateKoppeling") {
+        given("Policy permits") {
             every { policyService.readOverigeRechten(null) } returns createOverigeRechten(beheren = true)
             every { mailTemplateKoppelingenService.delete(55L) } just runs
 
-            When("deleteMailtemplateKoppeling is called with ID 55") {
+            `when`("deleteMailtemplateKoppeling is called with ID 55") {
                 service.deleteMailtemplateKoppeling(55L)
 
-                Then("MailTemplateKoppelingenService.delete is called with the ID") {
+                then("MailTemplateKoppelingenService.delete is called with the ID") {
                     verify { mailTemplateKoppelingenService.delete(55L) }
                 }
             }
         }
     }
 
-    Context("storeMailtemplateKoppeling") {
-        Given("Policy permits and a REST koppeling is provided") {
+    context("storeMailtemplateKoppeling") {
+        given("Policy permits and a REST koppeling is provided") {
             val fakeKoppeling = createMailtemplateKoppelingen(
                 zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(),
                 mailTemplate = createMailTemplate()
@@ -100,10 +100,10 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
             every { policyService.readOverigeRechten(null) } returns createOverigeRechten(beheren = true)
             every { mailTemplateKoppelingenService.storeMailtemplateKoppeling(any()) } returns fakeKoppeling
 
-            When("storeMailtemplateKoppeling is called") {
+            `when`("storeMailtemplateKoppeling is called") {
                 val result = service.storeMailtemplateKoppeling(restKoppeling)
 
-                Then("MailTemplateKoppelingenService.storeMailtemplateKoppeling is called and result is returned") {
+                then("MailTemplateKoppelingenService.storeMailtemplateKoppeling is called and result is returned") {
                     verify { mailTemplateKoppelingenService.storeMailtemplateKoppeling(any()) }
                     result.id shouldBe RESTMailtemplateKoppelingConverter.convert(fakeKoppeling).id
                 }

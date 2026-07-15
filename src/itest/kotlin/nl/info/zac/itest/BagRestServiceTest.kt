@@ -30,8 +30,8 @@ class BagRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    Given("A logged-in raadpleger, and address data is present in the BAG API mock") {
-        When("the list addresses endpoint is called for a search query for which we have mock data") {
+    given("A logged-in raadpleger, and address data is present in the BAG API mock") {
+        `when`("the list addresses endpoint is called for a search query for which we have mock data") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/bag/adres",
                 requestBodyAsString = """
@@ -39,7 +39,7 @@ class BagRestServiceTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = RAADPLEGER_1
             )
-            Then(
+            then(
                 "the response should be a 200 HTTP response with the expected addresses that match the search criteria"
             ) {
                 val responseBody = response.bodyAsString
@@ -162,13 +162,13 @@ class BagRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A logged-in raadpleger and a BAG object that is present in the BAG API mock") {
-        When("the BAG object is requested") {
+    given("A logged-in raadpleger and a BAG object that is present in the BAG API mock") {
+        `when`("the BAG object is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/bag/ADRES/$BAG_TEST_ADRES_1_IDENTIFICATION",
                 testUser = RAADPLEGER_1
             )
-            Then("the BAG object is successfully returned") {
+            then("the BAG object is successfully returned") {
                 val responseBody = response.bodyAsString
                 response.code shouldBe HTTP_OK
                 logger.info { "Response: $responseBody" }
@@ -1160,7 +1160,7 @@ class BagRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("An existing zaak and a logged-in behandelaar authorised for the zaaktype of the zaak") {
+    given("An existing zaak and a logged-in behandelaar authorised for the zaaktype of the zaak") {
         val zaakUUID = zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
@@ -1172,7 +1172,7 @@ class BagRestServiceTest : BehaviorSpec({
             JSONObject(responseContent.bodyAsString).getString("uuid").run(UUID::fromString)
         }
 
-        When("a BAG object is added") {
+        `when`("a BAG object is added") {
             // note that the zaakobject fields 'woonplaatsNaam' and 'openbareRuimteNaam'
             // are mandatory for a zaakobject of type 'ADRES' by OpenZaak
             // (not, by the way, by the ZGW ZRC API, nor by the ZAC backend API)
@@ -1192,7 +1192,7 @@ class BagRestServiceTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
-            Then("it is successfully added to the zaak") {
+            then("it is successfully added to the zaak") {
                 response.code shouldBe HTTP_NO_CONTENT
 
                 // retrieve the BAG objects for the zaak

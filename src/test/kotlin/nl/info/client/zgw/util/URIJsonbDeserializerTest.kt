@@ -27,52 +27,52 @@ class URIJsonbDeserializerTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a JsonParser whose current value is a non-empty URI string") {
+    given("a JsonParser whose current value is a non-empty URI string") {
         every { parser.string } returns "https://example.com/path"
 
-        When("deserialize is called") {
+        `when`("deserialize is called") {
             val result = deserializer.deserialize(parser, deserializationContext, runtimeType)
 
-            Then("the parsed URI is returned") {
+            then("the parsed URI is returned") {
                 result.shouldNotBeNull()
                 result.toString() shouldBe "https://example.com/path"
             }
         }
     }
 
-    Given("a JsonParser whose current value is an empty string") {
+    given("a JsonParser whose current value is an empty string") {
         every { parser.string } returns ""
 
-        When("deserialize is called") {
+        `when`("deserialize is called") {
             val result = deserializer.deserialize(parser, deserializationContext, runtimeType)
 
-            Then("null is returned") {
+            then("null is returned") {
                 result.shouldBeNull()
             }
         }
     }
 
-    Given("a JsonParser that raises IllegalStateException because it is in the VALUE_NULL state") {
+    given("a JsonParser that raises IllegalStateException because it is in the VALUE_NULL state") {
         every { parser.string } throws IllegalStateException("VALUE_NULL")
 
-        When("deserialize is called") {
+        `when`("deserialize is called") {
             val result = deserializer.deserialize(parser, deserializationContext, runtimeType)
 
-            Then("null is returned instead of the exception propagating") {
+            then("null is returned instead of the exception propagating") {
                 result.shouldBeNull()
             }
         }
     }
 
-    Given("a JsonParser whose current value is an invalid URI string") {
+    given("a JsonParser whose current value is an invalid URI string") {
         every { parser.string } returns "not a valid uri \\"
 
-        When("deserialize is called") {
+        `when`("deserialize is called") {
             val exception = shouldThrow<RuntimeException> {
                 deserializer.deserialize(parser, deserializationContext, runtimeType)
             }
 
-            Then("a RuntimeException wrapping URISyntaxException is thrown") {
+            then("a RuntimeException wrapping URISyntaxException is thrown") {
                 exception.cause.shouldNotBeNull()
                 exception.cause!!::class shouldBe URISyntaxException::class
             }

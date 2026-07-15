@@ -23,8 +23,8 @@ class RestZaakbeeindigParameterConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("convertZaakbeeindigParameters") {
-        Given("a set of ZaaktypeCompletionParameters") {
+    context("convertZaakbeeindigParameters") {
+        given("a set of ZaaktypeCompletionParameters") {
             val resultaattypeUUID = UUID.randomUUID()
             val zaakbeeindigReden = ZaakbeeindigReden().apply {
                 id = 5L
@@ -38,33 +38,33 @@ class RestZaakbeeindigParameterConverterTest : BehaviorSpec({
             val resultaattype = createResultaatType(omschrijving = "fakeResultaattypeOmschrijving")
             every { ztcClientService.readResultaattype(resultaattypeUUID) } returns resultaattype
 
-            When("convertZaakbeeindigParameters is called") {
+            `when`("convertZaakbeeindigParameters is called") {
                 val result = restZaakbeeindigParameterConverter.convertZaakbeeindigParameters(setOf(completionParams))
 
-                Then("it returns one RestZaakbeeindigParameter") {
+                then("it returns one RestZaakbeeindigParameter") {
                     result.size shouldBe 1
                 }
 
-                Then("the zaakbeeindigReden is converted correctly") {
+                then("the zaakbeeindigReden is converted correctly") {
                     result[0].zaakbeeindigReden.id shouldBe "5"
                     result[0].zaakbeeindigReden.naam shouldBe "fakeZaakbeeindigReden"
                 }
 
-                Then("the resultaattype is fetched and converted") {
+                then("the resultaattype is fetched and converted") {
                     result[0].resultaattype.naam shouldBe "fakeResultaattypeOmschrijving"
                 }
 
-                Then("the id is carried over") {
+                then("the id is carried over") {
                     result[0].id shouldBe 10L
                 }
             }
         }
 
-        Given("an empty set of ZaaktypeCompletionParameters") {
-            When("convertZaakbeeindigParameters is called") {
+        given("an empty set of ZaaktypeCompletionParameters") {
+            `when`("convertZaakbeeindigParameters is called") {
                 val result = restZaakbeeindigParameterConverter.convertZaakbeeindigParameters(emptySet())
 
-                Then("it returns an empty list") {
+                then("it returns an empty list") {
                     result shouldBe emptyList()
                 }
             }

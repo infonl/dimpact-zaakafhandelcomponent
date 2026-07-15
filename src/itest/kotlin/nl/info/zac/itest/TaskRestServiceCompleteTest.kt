@@ -29,7 +29,7 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
     val zacClient = ZacClient()
     val taskHelper = TaskHelper(zacClient)
 
-    Given(
+    given(
         """A zaak has been created,
             two 'Aanvullende informatie' tasks have been started,
             and a behandelaar is logged in"""
@@ -66,13 +66,13 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
         )
         lateinit var taskArray: JSONArray
 
-        When("the get tasks for a zaak endpoint is called") {
+        `when`("the get tasks for a zaak endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/taken/zaak/$zaakUuid",
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the list with tasks for this zaak is returned") {
+            then("the list with tasks for this zaak is returned") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -80,7 +80,7 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
             }
         }
 
-        When("first 'Aanvullende informatie' task is completed") {
+        `when`("first 'Aanvullende informatie' task is completed") {
             val taskObject = taskArray.getJSONObject(0)
             taskObject.put("toelichting", "completed")
             taskObject.put("status", "AFGEROND")
@@ -90,7 +90,7 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the taken toelichting and status are updated") {
+            then("the taken toelichting and status are updated") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK

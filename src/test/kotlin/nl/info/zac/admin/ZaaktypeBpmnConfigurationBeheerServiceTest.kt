@@ -44,7 +44,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Multiple zaaktypeBpmnConfigurations with two unique BPMN process definition keys") {
+    given("Multiple zaaktypeBpmnConfigurations with two unique BPMN process definition keys") {
         val uniqueBpmnProcessDefinitionKeys = listOf("fakeBpmnProcessDefinitionKey", "fakeBpmnProcessDefinitionKey2")
         val stringCriteriaQuery = mockk<CriteriaQuery<String>>()
         every { entityManager.criteriaBuilder } returns criteriaBuilder
@@ -61,16 +61,16 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
             entityManager.createQuery(stringCriteriaQuery).resultList
         } returns uniqueBpmnProcessDefinitionKeys
 
-        When("Returning the unique BPMN process definition keys") {
+        `when`("Returning the unique BPMN process definition keys") {
             val keys = zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
 
-            Then("Gives a list of two unique BPMN process definition keys") {
+            then("Gives a list of two unique BPMN process definition keys") {
                 keys shouldContainAllInAnyOrder uniqueBpmnProcessDefinitionKeys
             }
         }
     }
 
-    Given("One zaaktypeBpmnConfiguration for a given zaaktype omschrijving") {
+    given("One zaaktypeBpmnConfiguration for a given zaaktype omschrijving") {
         val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
         every { entityManager.criteriaBuilder } returns criteriaBuilder
         every {
@@ -93,10 +93,10 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
         every { criteriaBuilder.desc(path) } returns order
         every { zaaktypeBpmnConfigurationCriteriaQuery.orderBy(order) } returns zaaktypeBpmnConfigurationCriteriaQuery
 
-        When("Finding the configuration by zaaktype omschrijving") {
+        `when`("Finding the configuration by zaaktype omschrijving") {
             val foundConfiguration =
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeBpmnConfiguration.zaaktypeOmschrijving)
-            Then("The correct configuration is returned") {
+            then("The correct configuration is returned") {
                 assert(foundConfiguration == zaaktypeBpmnConfiguration)
             }
         }

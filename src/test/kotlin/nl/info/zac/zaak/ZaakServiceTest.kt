@@ -96,8 +96,8 @@ class ZaakServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Assigning a zaak") {
-        Given("a zaak exists, no user and no group are assigned and zaak assignment data is provided") {
+    context("Assigning a zaak") {
+        given("a zaak exists, no user and no group are assigned and zaak assignment data is provided") {
             val zaak = createZaak()
             val user = createLoggedInUser()
             val groupRolSlot = mutableListOf<Rol<*>>()
@@ -121,10 +121,10 @@ class ZaakServiceTest : BehaviorSpec({
             every { zaakVariabelenService.setUser(zaak.uuid, user.id) } just runs
             every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
 
-            When("the zaak is assigned to a user and a group") {
+            `when`("the zaak is assigned to a user and a group") {
                 zaakService.assignZaak(zaak, group.name, user.id, "fakeReason")
 
-                Then("the old behandelaar role is deleted and a new one is created for the user") {
+                then("the old behandelaar role is deleted and a new one is created for the user") {
                     verify(exactly = 1) {
                         zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
                     }
@@ -167,23 +167,23 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a zaak with no user and group assigned and zaak assignment data is provided") {
+        given("a zaak with no user and group assigned and zaak assignment data is provided") {
             val zaak = createZaak()
             val groupId = "unknown"
             val userId = "fakeUser"
 
             every { identityService.validateIfUserIsInGroup(userId, groupId) } throws UserNotInGroupException()
 
-            When("the zaak is assigned to an unknown group") {
+            `when`("the zaak is assigned to an unknown group") {
                 shouldThrow<UserNotInGroupException> {
                     zaakService.assignZaak(zaak, groupId, userId, "fakeReason")
                 }
 
-                Then("an exception is thrown") {}
+                then("an exception is thrown") {}
             }
         }
 
-        Given("a zaak exists, with a user and group already assigned and zaak assignment data is provided") {
+        given("a zaak exists, with a user and group already assigned and zaak assignment data is provided") {
             val zaak = createZaak()
             val user = createLoggedInUser()
             val existingRolMedewerker = createRolMedewerker()
@@ -207,12 +207,12 @@ class ZaakServiceTest : BehaviorSpec({
             every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
             every { zaakVariabelenService.setUser(zaak.uuid, user.id) } just runs
 
-            When("the zaak is assigned to a different user and a different group") {
+            `when`("the zaak is assigned to a different user and a different group") {
                 every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
 
                 zaakService.assignZaak(zaak, group.name, user.id, reason)
 
-                Then("the existing behandelaar role is deleted and a new one is created for the new user") {
+                then("the existing behandelaar role is deleted and a new one is created for the new user") {
                     verifyOrder {
                         zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
                         zrcClientService.createRol(any(), reason)
@@ -240,7 +240,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a zaak exists with a behandelaar already assigned matching the requested user") {
+        given("a zaak exists with a behandelaar already assigned matching the requested user") {
             val zaak = createZaak()
             val user = createLoggedInUser()
             val existingRolMedewerker = createRolMedewerker(
@@ -262,10 +262,10 @@ class ZaakServiceTest : BehaviorSpec({
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
             every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
 
-            When("the zaak is assigned to the same user that is already the behandelaar") {
+            `when`("the zaak is assigned to the same user that is already the behandelaar") {
                 zaakService.assignZaak(zaak, group.name, user.id, reason)
 
-                Then("the behandelaar role is not modified") {
+                then("the behandelaar role is not modified") {
                     verify(exactly = 0) {
                         zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, any())
                         zrcClientService.createRol(any(), any())
@@ -274,7 +274,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             "a zaak exists, with a user and group already assigned and zaak assignment for a group only is provided"
         ) {
             val zaak = createZaak()
@@ -295,10 +295,10 @@ class ZaakServiceTest : BehaviorSpec({
             every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
             every { zaakVariabelenService.removeUser(zaak.uuid) } just runs
 
-            When("the zaak is assigned to a group only") {
+            `when`("the zaak is assigned to a group only") {
                 zaakService.assignZaak(zaak, group.name, null, reason)
 
-                Then("the zaak is assigned both to the group and the user") {
+                then("the zaak is assigned both to the group and the user") {
                     verify(exactly = 1) {
                         zrcClientService.updateRol(zaak, any(), reason)
                     }
@@ -327,7 +327,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             "a zaak exists, with a user and group already assigned, but the process instance is not found when setting zaak variables"
         ) {
             val zaak = createZaak()
@@ -362,12 +362,12 @@ class ZaakServiceTest : BehaviorSpec({
                 )
             } throws CaseOrProcessNotFoundException("No case or process instance found for zaak with UUID: ${zaak.uuid}")
 
-            When("the zaak is assigned to a user and a group, but setGroup returns an error") {
+            `when`("the zaak is assigned to a user and a group, but setGroup returns an error") {
                 every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
 
                 zaakService.assignZaak(zaak, group.name, user.id, reason)
 
-                Then("the behandelaar role is replaced and the group role is updated") {
+                then("the behandelaar role is replaced and the group role is updated") {
                     verify(exactly = 1) {
                         zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
                         zrcClientService.createRol(any(), reason)
@@ -389,7 +389,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a zaak has multiple duplicate MEDEWERKER behandelaar roles in OpenZaak") {
+        given("a zaak has multiple duplicate MEDEWERKER behandelaar roles in OpenZaak") {
             val zaak = createZaak()
             val user = createLoggedInUser()
             val group = createGroup()
@@ -415,13 +415,13 @@ class ZaakServiceTest : BehaviorSpec({
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
             every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
 
-            When("assignZaak is called") {
+            `when`("assignZaak is called") {
                 mockkStatic("nl.info.zac.log.LogUtilsKt")
                 every { log(any(), any(), any<String>()) } returns Unit
 
                 zaakService.assignZaak(zaak, group.name, user.id, reason)
 
-                Then("a WARNING is logged about the duplicate roles") {
+                then("a WARNING is logged about the duplicate roles") {
                     verify(exactly = 1) {
                         log(any(), Level.WARNING, match { it.contains("duplicate") })
                     }
@@ -438,8 +438,8 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Concurrent zaak assignment") {
-        Given("two concurrent requests assign different users to the same zaak") {
+    context("Concurrent zaak assignment") {
+        given("two concurrent requests assign different users to the same zaak") {
             val zaak = createZaak()
             val user1 = createUser(id = "fakeUserId1")
             val user2 = createUser(id = "fakeUserId2")
@@ -460,7 +460,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
 
-            When("both requests are processed concurrently") {
+            `when`("both requests are processed concurrently") {
                 val thread1 = Thread { zaakService.assignZaak(zaak, group.name, user1.id, reason) }
                 val thread2 = Thread { zaakService.assignZaak(zaak, group.name, user2.id, reason) }
                 thread1.start()
@@ -468,7 +468,7 @@ class ZaakServiceTest : BehaviorSpec({
                 thread1.join(5000)
                 thread2.join(5000)
 
-                Then("both calls complete without deadlock and createRol is called exactly once per request") {
+                then("both calls complete without deadlock and createRol is called exactly once per request") {
                     verify(exactly = 2) {
                         zrcClientService.createRol(any(), reason)
                     }
@@ -477,8 +477,8 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Assigning zaken") {
-        Given(
+    context("Assigning zaken") {
+        given(
             """
                 A list of open zaken and a group that is authorised for the application role 'behandelaar' and the zaaktype of the zaken,
                 and a user
@@ -526,7 +526,7 @@ class ZaakServiceTest : BehaviorSpec({
                 )
             } returns listOf(pabcGroupRepresentation)
 
-            When("the assign zaken function is called with a group, a user and a screen event resource id") {
+            `when`("the assign zaken function is called with a group, a user and a screen event resource id") {
                 zaakService.assignZaken(
                     zaakUUIDs = zaken.map { it.uuid },
                     explanation = explanation,
@@ -535,7 +535,7 @@ class ZaakServiceTest : BehaviorSpec({
                     screenEventResourceId = screenEventResourceId
                 )
 
-                Then(
+                then(
                     """for all zaken the group and user roles 
                 and the search index should be updated and
                 a screen event of type 'zaken verdelen' should be sent"""
@@ -554,7 +554,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             One open and one closed zaak and a group that is authorised for the application role 'behandelaar' and the zaaktype of the zaak,
              and a user
@@ -597,7 +597,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { eventingService.send(any<ScreenEvent>()) } just Runs
             every { identityService.isUserInGroup(user.id, group.name) } returns true
 
-            When(
+            `when`(
                 """the assign zaken function is called with a group, a user
                 and a screen event resource id"""
             ) {
@@ -609,7 +609,7 @@ class ZaakServiceTest : BehaviorSpec({
                     screenEventResourceId = screenEventResourceId
                 )
 
-                Then(
+                then(
                     """
                     only for the open zaak the group and user roles 
                     and the search index should be updated and
@@ -629,7 +629,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
                 A list of zaken and a failing ZRC client service that throws an exception when retrieving the second zaak
             """
@@ -642,7 +642,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaken[0].uuid) } returns zaken[0]
             every { zrcClientService.readZaak(zaken[1].uuid) } throws RuntimeException("fakeRuntimeException")
 
-            When(
+            `when`(
                 """the assign zaken function is called with a group
                 and a screen event resource id"""
             ) {
@@ -654,7 +654,7 @@ class ZaakServiceTest : BehaviorSpec({
                         screenEventResourceId = screenEventResourceId
                     )
                 }
-                Then(
+                then(
                     """the exception should be thrown and for neither of the zaken 
                     the group and user role nor the search index should be updated
                     and no screen event of type 'zaken verdelen' should be sent"""
@@ -667,7 +667,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
                 A list of zaken and a group that is authorised for the application role 'behandelaar' and the zaaktype of the zaken,
                 and a user
@@ -716,7 +716,7 @@ class ZaakServiceTest : BehaviorSpec({
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
             }
 
-            When(
+            `when`(
                 """the assign zaken function is called with a group, WITHOUT a user
                 and with a screen event resource id"""
             ) {
@@ -727,7 +727,7 @@ class ZaakServiceTest : BehaviorSpec({
                     screenEventResourceId = screenEventResourceId
                 )
 
-                Then(
+                then(
                     """for both zaken the group roles should be updated
                     and the user roles should be deleted"""
                 ) {
@@ -741,7 +741,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken and a group, but user is not in group") {
+        given("A list of zaken and a group, but user is not in group") {
             val zaken = listOf(
                 createZaak(),
                 createZaak()
@@ -755,7 +755,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.isUserInGroup(user.id, group.name) } returns false
             every { eventingService.send(capture(screenEventSlot)) } just Runs
 
-            When("the assign zaken function is called with a group, a user and a screen event resource id") {
+            `when`("the assign zaken function is called with a group, a user and a screen event resource id") {
                 zaakService.assignZaken(
                     zaakUUIDs = zaken.map { it.uuid },
                     explanation = explanation,
@@ -764,7 +764,7 @@ class ZaakServiceTest : BehaviorSpec({
                     screenEventResourceId = screenEventResourceId
                 )
 
-                Then("the skipped screenevent is sent for ZAKEN_VERDELEN with the resource id") {
+                then("the skipped screenevent is sent for ZAKEN_VERDELEN with the resource id") {
                     verify(exactly = 1) {
                         eventingService.send(ScreenEventType.ZAKEN_VERDELEN.skipped(screenEventResourceId))
                     }
@@ -772,7 +772,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A list of zaken and a user not belonging to a group") {
+        given("A list of zaken and a user not belonging to a group") {
             val zaken = listOf(
                 createZaak(),
                 createZaak()
@@ -786,7 +786,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
             every { identityService.isUserInGroup(user.id, group.name) } returns false
 
-            When("the assign zaken function is called") {
+            `when`("the assign zaken function is called") {
                 zaakService.assignZaken(
                     zaakUUIDs = zaken.map { it.uuid },
                     explanation = explanation,
@@ -795,7 +795,7 @@ class ZaakServiceTest : BehaviorSpec({
                     screenEventResourceId = screenEventResourceId
                 )
 
-                Then("all the zaken should be skipped") {
+                then("all the zaken should be skipped") {
                     verify(exactly = 1) {
                         eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaken[0]))
                         eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(zaken[1]))
@@ -813,8 +813,8 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Releasing zaken") {
-        Given("A list of zaken and a screen event resource id") {
+    context("Releasing zaken") {
+        given("A list of zaken and a screen event resource id") {
             val zaken = listOf(
                 createZaak(),
                 createZaak()
@@ -825,7 +825,7 @@ class ZaakServiceTest : BehaviorSpec({
                 every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
             }
             every { eventingService.send(capture(screenEventSlot)) } just Runs
-            When(
+            `when`(
                 """the release zaken function is called with
                  a screen event resource id"""
             ) {
@@ -834,7 +834,7 @@ class ZaakServiceTest : BehaviorSpec({
                     explanation = explanation,
                     screenEventResourceId = screenEventResourceId
                 )
-                Then(
+                then(
                     """both zaken should no longer have a user assigned
                      but the group should still be assigned
                     and the search index should be updated and
@@ -854,7 +854,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("One open and one closed zaak and a screen event resource id") {
+        given("One open and one closed zaak and a screen event resource id") {
             val openZaak = createZaak()
             val closedZaak = createZaak(
                 archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
@@ -865,7 +865,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
             every { zrcClientService.deleteRol(openZaak, any(), explanation) } just Runs
             every { eventingService.send(any<ScreenEvent>()) } just Runs
-            When(
+            `when`(
                 """the release zaken function is called with
                  a screen event resource id"""
             ) {
@@ -874,7 +874,7 @@ class ZaakServiceTest : BehaviorSpec({
                     explanation = explanation,
                     screenEventResourceId = screenEventResourceId
                 )
-                Then(
+                then(
                     """only the open zaak should no longer have a user assigned
                      but the group should still be assigned
                     and the search index should be updated and
@@ -890,8 +890,8 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Add betrokkenen to zaak") {
-        Given("A zaak without any betrokkenen") {
+    context("Add betrokkenen to zaak") {
+        given("A zaak without any betrokkenen") {
             val zaak = createZaak()
             val roleTypeUUID = UUID.randomUUID()
             val roleTypeBelanghebbende = createRolType(
@@ -903,7 +903,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.listRollen(zaak) } returns emptyList()
             every { zrcClientService.createRol(capture(roleSlot), explanation) } returns createRolNatuurlijkPersoon()
 
-            When("a betrokkene of type natuurlijk persoon is added") {
+            `when`("a betrokkene of type natuurlijk persoon is added") {
                 zaakService.addBetrokkeneToZaak(
                     roleTypeUUID = roleTypeUUID,
                     identificationType = IdentificatieType.BSN,
@@ -912,7 +912,7 @@ class ZaakServiceTest : BehaviorSpec({
                     explanation = explanation
                 )
 
-                Then("the betrokkene is successfully added to the zaak") {
+                then("the betrokkene is successfully added to the zaak") {
                     verify(exactly = 1) {
                         zrcClientService.createRol(any(), explanation)
                     }
@@ -927,7 +927,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak with a betrokkenen of type natuurlijk persoon and role type 'adviseur'") {
+        given("A zaak with a betrokkenen of type natuurlijk persoon and role type 'adviseur'") {
             val zaak = createZaak()
             val roleTypeUUID = UUID.randomUUID()
             val roleTypeAdviseur = createRolType(
@@ -948,7 +948,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.listRollen(zaak) } returns listOf(roleAdviseur)
             every { zrcClientService.createRol(capture(roleSlot), explanation) } returns createRolNatuurlijkPersoon()
 
-            When("the same betrokkene is added again but with the role type 'belanghebbende'") {
+            `when`("the same betrokkene is added again but with the role type 'belanghebbende'") {
                 zaakService.addBetrokkeneToZaak(
                     roleTypeUUID = roleTypeUUID,
                     identificationType = IdentificatieType.BSN,
@@ -957,7 +957,7 @@ class ZaakServiceTest : BehaviorSpec({
                     explanation = explanation
                 )
 
-                Then("the betrokkene is added to the zaak again with role type 'belanghebbende'") {
+                then("the betrokkene is added to the zaak again with role type 'belanghebbende'") {
                     verify(exactly = 1) {
                         zrcClientService.createRol(any(), any())
                     }
@@ -972,7 +972,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak with a betrokkenen of type natuurlijk persoon and role type adviseur") {
+        given("A zaak with a betrokkenen of type natuurlijk persoon and role type adviseur") {
             val zaak = createZaak()
             val roleTypeUUID = UUID.randomUUID()
             val roleTypeAdviseur = createRolType(
@@ -988,7 +988,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { ztcClientService.readRoltype(roleTypeUUID) } returns roleTypeAdviseur
             every { zrcClientService.listRollen(zaak) } returns listOf(roleAdviseur)
 
-            When("the same betrokkene is added again with the same role type") {
+            `when`("the same betrokkene is added again with the same role type") {
                 val exception = shouldThrow<BetrokkeneIsAlreadyAddedToZaakException> {
                     zaakService.addBetrokkeneToZaak(
                         roleTypeUUID = roleTypeUUID,
@@ -999,7 +999,7 @@ class ZaakServiceTest : BehaviorSpec({
                     )
                 }
 
-                Then("an exception is thrown and the betrokkene is not added to the zaak again") {
+                then("an exception is thrown and the betrokkene is not added to the zaak again") {
                     exception.message shouldBe "Betrokkene with type 'BSN' and identification 'fakeBSN' " +
                         "was already added to the zaak with UUID '${zaak.uuid}'. Ignoring."
                     verify(exactly = 0) {
@@ -1010,8 +1010,8 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("List betrokkenen for zaak") {
-        Given(
+    context("List betrokkenen for zaak") {
+        given(
             """A zaak with one initiator, one behandelaar and two other betrokkenen roles
             not of type initiator or behandelaar"""
         ) {
@@ -1036,10 +1036,10 @@ class ZaakServiceTest : BehaviorSpec({
             )
             every { zrcClientService.listRollen(zaak) } returns rolNatuurlijkPersonen
 
-            When("the list of betrokkenen is retrieved") {
+            `when`("the list of betrokkenen is retrieved") {
                 val betrokkenenRoles = zaakService.listBetrokkenenforZaak(zaak)
 
-                Then("the list should consist of the two betrokkenen not of type initiator or behandelaar") {
+                then("the list should consist of the two betrokkenen not of type initiator or behandelaar") {
                     betrokkenenRoles.size shouldBe 2
                     betrokkenenRoles[0] shouldBe rolNatuurlijkPersonen[0]
                     betrokkenenRoles[1] shouldBe rolNatuurlijkPersonen[1]
@@ -1048,8 +1048,8 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Set ontvangstbevestiging verstuurd") {
-        Given("a zaak that is not heropend") {
+    context("Set ontvangstbevestiging verstuurd") {
+        given("a zaak that is not heropend") {
             val zaakUuid = UUID.randomUUID()
             val statusUuid = UUID.randomUUID()
             val zaak = createZaak(
@@ -1073,10 +1073,10 @@ class ZaakServiceTest : BehaviorSpec({
                 zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, true)
             } just runs
 
-            When("setOntvangstbevestigingVerstuurdIfNotHeropend is called") {
+            `when`("setOntvangstbevestigingVerstuurdIfNotHeropend is called") {
                 zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
 
-                Then("ontvangstbevestiging is true") {
+                then("ontvangstbevestiging is true") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, true)
                     }
@@ -1084,7 +1084,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a zaak is heropend") {
+        given("a zaak is heropend") {
             val zaakUuid = UUID.randomUUID()
             val statusUuid = UUID.randomUUID()
             val zaak = createZaak(
@@ -1105,10 +1105,10 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.readStatus(zaak.status) } returns status
             every { ztcClientService.readStatustype(status.statustype) } returns statusType
 
-            When("setOntvangstbevestigingVerstuurdIfNotHeropend is called") {
+            `when`("setOntvangstbevestigingVerstuurdIfNotHeropend is called") {
                 zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
 
-                Then("ontvangstbevestiging is false") {
+                then("ontvangstbevestiging is false") {
                     verify(exactly = 0) {
                         zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, false)
                     }
@@ -1117,8 +1117,8 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Add initiator to zaak") {
-        Given("An existing zaak and a vestiging identification with a KVK number and a vestigingsnummer") {
+    context("Add initiator to zaak") {
+        given("An existing zaak and a vestiging identification with a KVK number and a vestigingsnummer") {
             val kvkNummer = "12345567"
             val vestingsnummer = "fakeVestigingsnummer"
             val identification = "$kvkNummer|$vestingsnummer"
@@ -1132,7 +1132,7 @@ class ZaakServiceTest : BehaviorSpec({
             } returns roleType
             every { zrcClientService.createRol(capture(roleSlot), explanation) } returns createdRole
 
-            When("an initiator of type vestiging is added to the zaak") {
+            `when`("an initiator of type vestiging is added to the zaak") {
                 zaakService.addInitiatorToZaak(
                     identificationType = IdentificatieType.VN,
                     identification = identification,
@@ -1140,7 +1140,7 @@ class ZaakServiceTest : BehaviorSpec({
                     explanation = explanation
                 )
 
-                Then(
+                then(
                     "an initiator role of type niet-natuurlijk persoon with a KVK number and a vestigingsnummer is added to the zaak"
                 ) {
                     with(roleSlot.captured) {
@@ -1158,7 +1158,7 @@ class ZaakServiceTest : BehaviorSpec({
             }
         }
 
-        Given("An existing zaak and an identication of KVK number") {
+        given("An existing zaak and an identication of KVK number") {
             val kvkNummer = "12345567"
             val explanation = "fakeExplanation"
             val zaak = createZaak()
@@ -1170,7 +1170,7 @@ class ZaakServiceTest : BehaviorSpec({
             } returns roleType
             every { zrcClientService.createRol(capture(roleSlot), explanation) } returns createdRole
 
-            When("an initiator of type rechtspersoon (RSIN) is added to the zaak") {
+            `when`("an initiator of type rechtspersoon (RSIN) is added to the zaak") {
                 zaakService.addInitiatorToZaak(
                     identificationType = IdentificatieType.RSIN,
                     identification = kvkNummer,
@@ -1178,7 +1178,7 @@ class ZaakServiceTest : BehaviorSpec({
                     explanation = explanation
                 )
 
-                Then("an initiator role of type niet-natuurlijk persoon with a KVK number is added to the zaak") {
+                then("an initiator role of type niet-natuurlijk persoon with a KVK number is added to the zaak") {
                     with(roleSlot.captured) {
                         this.zaak shouldBe zaak.url
                         roltype shouldBe roleType.url
@@ -1192,18 +1192,18 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Retrieve zaak and zaaktype by zaak ID") {
-        Given("A valid zaak ID") {
+    context("Retrieve zaak and zaaktype by zaak ID") {
+        given("A valid zaak ID") {
             val zaakID = "fakeZaakID"
             val zaak = createZaak(identificatie = zaakID)
             val zaakType = createZaakType()
             every { zrcClientService.readZaakByID(zaakID) } returns zaak
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
-            When("readZaakAndZaakTypeByZaakID is called") {
+            `when`("readZaakAndZaakTypeByZaakID is called") {
                 val result = zaakService.readZaakAndZaakTypeByZaakID(zaakID)
 
-                Then("it should return the correct zaak and zaaktype") {
+                then("it should return the correct zaak and zaaktype") {
                     result.first shouldBe zaak
                     result.second shouldBe zaakType
                 }
@@ -1211,18 +1211,18 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Retrieve zaak and zaaktype by zaak UUID") {
-        Given("A valid zaak UUID") {
+    context("Retrieve zaak and zaaktype by zaak UUID") {
+        given("A valid zaak UUID") {
             val zaakUUID = UUID.randomUUID()
             val zaak = createZaak(uuid = zaakUUID)
             val zaakType = createZaakType()
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
-            When("readZaakAndZaakTypeByZaakUUID is called") {
+            `when`("readZaakAndZaakTypeByZaakUUID is called") {
                 val result = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
 
-                Then("it should return the correct zaak and zaaktype") {
+                then("it should return the correct zaak and zaaktype") {
                     result.first shouldBe zaak
                     result.second shouldBe zaakType
                 }
@@ -1230,40 +1230,40 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Retrieve zaaktype by zaak") {
-        Given("A zaak with a valid zaaktype") {
+    context("Retrieve zaaktype by zaak") {
+        given("A zaak with a valid zaaktype") {
             val zaak = createZaak()
             val zaakType = createZaakType()
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
-            When("retrieveZaakTypeByZaak is called") {
+            `when`("retrieveZaakTypeByZaak is called") {
                 val result = zaakService.readZaakTypeByZaak(zaak)
 
-                Then("it should return the correct zaaktype") {
+                then("it should return the correct zaaktype") {
                     result shouldBe zaakType
                 }
             }
         }
     }
 
-    Context("Retrieve zaaktype by UUID") {
-        Given("A zaaktype UUID") {
+    context("Retrieve zaaktype by UUID") {
+        given("A zaaktype UUID") {
             val zaakTypeUUID = UUID.randomUUID()
             val zaakType = createZaakType()
             every { ztcClientService.readZaaktype(zaakTypeUUID) } returns zaakType
 
-            When("readZaakTypeByUUID is called") {
+            `when`("readZaakTypeByUUID is called") {
                 val result = zaakService.readZaakTypeByUUID(zaakTypeUUID)
 
-                Then("it should return the correct zaaktype") {
+                then("it should return the correct zaaktype") {
                     result shouldBe zaakType
                 }
             }
         }
     }
 
-    Context("Listing status types for a zaaktype") {
-        Given("a zaak with status types") {
+    context("Listing status types for a zaaktype") {
+        given("a zaak with status types") {
             val zaak = createZaak()
             val zaaktypeUuid = zaak.zaaktype.extractUuid()
             val zaakType = createZaakType()
@@ -1275,10 +1275,10 @@ class ZaakServiceTest : BehaviorSpec({
             every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
             every { ztcClientService.readStatustypen(zaakType.url) } returns statusTypes
 
-            When("list of zaak status types is requested") {
+            `when`("list of zaak status types is requested") {
                 val statusTypeData = zaakService.listStatusTypes(zaaktypeUuid)
 
-                Then("correct status type data is returned") {
+                then("correct status type data is returned") {
                     statusTypeData shouldHaveSize 2
                     with(statusTypeData.first()) {
                         naam shouldBe "first"
@@ -1291,8 +1291,8 @@ class ZaakServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing result types for a zaaktype") {
-        Given("a zaak with result types") {
+    context("Listing result types for a zaaktype") {
+        given("a zaak with result types") {
             val zaak = createZaak()
             val zaaktypeUuid = zaak.zaaktype.extractUuid()
             val zaakType = createZaakType()
@@ -1304,10 +1304,10 @@ class ZaakServiceTest : BehaviorSpec({
             every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
             every { ztcClientService.readResultaattypen(zaakType.url) } returns resultTypes
 
-            When("list of zaak result types is requested") {
+            `when`("list of zaak result types is requested") {
                 val resultTypeData = zaakService.listResultTypes(zaaktypeUuid)
 
-                Then("correct result type data is returned") {
+                then("correct result type data is returned") {
                     resultTypeData shouldHaveSize 2
                     with(resultTypeData.first()) {
                         naam shouldBe "first"

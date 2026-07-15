@@ -22,18 +22,18 @@ class DeleteGeoJSONGeometryJsonbSerializerTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A 'deleted Geo JSON geometry' object") {
+    given("A 'deleted Geo JSON geometry' object") {
         val deleteGeoJSONGeometry = DeleteGeoJSONGeometry()
         every { jsonGenerator.writeNull() } returns jsonGenerator
 
-        When("the object is serialized using the 'geometry to be deleted' JSONB serializer") {
+        `when`("the object is serialized using the 'geometry to be deleted' JSONB serializer") {
             deleteGeoJSONGeometryJsonbSerializer.serialize(
                 deleteGeoJSONGeometry,
                 jsonGenerator,
                 serializationContext
             )
 
-            Then("the object should be serialised to a null value") {
+            then("the object should be serialised to a null value") {
                 verify(exactly = 1) { jsonGenerator.writeNull() }
             }
         }

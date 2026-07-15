@@ -45,7 +45,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     lateinit var zaakUuid: String
     lateinit var zaakIdentification: String
 
-    Given(
+    given(
         """
         A zaak exists, a task has been started, a SmartDocuments template mapping has been created,
         and a behandelaar is logged in
@@ -73,7 +73,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             testUser = BEHEERDER_1
         )
 
-        When("the create document attended ('wizard') endpoint is called on the zaak") {
+        `when`("the create document attended ('wizard') endpoint is called on the zaak") {
             val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
             logger.info { "Calling $endpointUrl endpoint" }
             val response = itestHttpClient.performJSONPostRequest(
@@ -90,7 +90,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 ).toString(),
                 testUser = BEHANDELAAR_1
             )
-            Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
+            then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -104,7 +104,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the create document attended ('wizard') endpoint is called on the task") {
+        `when`("the create document attended ('wizard') endpoint is called on the task") {
             val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
             logger.info { "Calling $endpointUrl endpoint" }
             val response = itestHttpClient.performJSONPostRequest(
@@ -123,7 +123,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 ).toString(),
                 testUser = BEHANDELAAR_1
             )
-            Then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
+            then("the response should be OK and the response should contain a redirect URL to SmartDocuments") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -137,7 +137,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the create document attended ('wizard') endpoint is called without mandatory parameter") {
+        `when`("the create document attended ('wizard') endpoint is called without mandatory parameter") {
             val endpointUrl = "$ZAC_API_URI/document-creation/create-document-attended"
             logger.info { "Calling $endpointUrl endpoint" }
             val response = itestHttpClient.performJSONPostRequest(
@@ -151,7 +151,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 ).toString(),
                 testUser = BEHANDELAAR_1
             )
-            Then("the response should be 400 Client Error") {
+            then("the response should be 400 Client Error") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_BAD_REQUEST
@@ -160,8 +160,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak and a file created from template in SmartDocuments") {
-        When("SmartDocuments zaak callback is provided with metadata about the new file") {
+    given("zaak and a file created from template in SmartDocuments") {
+        `when`("SmartDocuments zaak callback is provided with metadata about the new file") {
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
@@ -185,7 +185,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("The response should contain redirect url to our smart-documents-result page") {
+            then("The response should contain redirect url to our smart-documents-result page") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.headers["Location"]
@@ -200,8 +200,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak, task, title, description, author and a file created from template in SmartDocuments") {
-        When("SmartDocuments taak callback is provided with metadata about the new file") {
+    given("zaak, task, title, description, author and a file created from template in SmartDocuments") {
+        `when`("SmartDocuments taak callback is provided with metadata about the new file") {
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/" +
                     "zaak/$zaakUuid/task/$taskId" +
@@ -227,7 +227,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("The response should contain redirect url, doc name, zaak and taak ids") {
+            then("The response should contain redirect url, doc name, zaak and taak ids") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.headers["Location"]
@@ -243,8 +243,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak and a file creation cancelled in SmartDocuments") {
-        When("SmartDocuments zaak callback is called") {
+    given("zaak and a file creation cancelled in SmartDocuments") {
+        `when`("SmartDocuments zaak callback is called") {
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
@@ -266,7 +266,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("The response should contain redirect url, zaak id") {
+            then("The response should contain redirect url, zaak id") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.headers["Location"]
@@ -281,8 +281,8 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("zaak, task and a file creation cancelled in SmartDocuments") {
-        When("SmartDocuments taak callback is called") {
+    given("zaak, task and a file creation cancelled in SmartDocuments") {
+        `when`("SmartDocuments taak callback is called") {
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/" +
                     "zaak/$zaakUuid/task/$taskId" +
@@ -305,7 +305,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("The response should contain redirect url, zaak and taak ids") {
+            then("The response should contain redirect url, zaak and taak ids") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.headers["Location"]

@@ -30,7 +30,7 @@ class KvkClientServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("KVK search parameters for which the KVK client returns results") {
+    given("KVK search parameters for which the KVK client returns results") {
         val resultaatItem = createResultaatItem()
         val resultaat = Resultaat().apply {
             totaal = 1
@@ -41,10 +41,10 @@ class KvkClientServiceTest : BehaviorSpec({
         }
         every { kvkSearchClient.getResults(kvkSearchParameters) } returns resultaat
 
-        When("search is called with these KVK search parameters") {
+        `when`("search is called with these KVK search parameters") {
             val result = kvkClientService.search(kvkSearchParameters)
 
-            Then("it should return the expected results from the KVK client") {
+            then("it should return the expected results from the KVK client") {
                 with(result) {
                     totaal shouldBe 1
                     resultaten.size shouldBe 1
@@ -54,44 +54,44 @@ class KvkClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("KVK search parameters for which the KVK client throws an exception indicating there are no results") {
+    given("KVK search parameters for which the KVK client throws an exception indicating there are no results") {
         val kvkSearchParameters = KvkSearchParameters().apply {
             vestigingsnummer = "12345678"
         }
         every { kvkSearchClient.getResults(kvkSearchParameters) } throws KvkClientNoResultException("not found!")
 
-        When("search is called and the client throws KvkClientNoResultException") {
+        `when`("search is called and the client throws KvkClientNoResultException") {
             val result = kvkClientService.search(kvkSearchParameters)
 
-            Then("it should return an empty Resultaat object") {
+            then("it should return an empty Resultaat object") {
                 result.totaal shouldBe 0
             }
         }
     }
 
-    Given("A vestiging with a vestigingsnummer") {
+    given("A vestiging with a vestigingsnummer") {
         val vestigingsnummer = "12345678"
         val expectedVestiging = Vestiging()
         every { kvkVestigingsprofielClient.getVestigingByVestigingsnummer(vestigingsnummer, false) } returns expectedVestiging
 
-        When("the vestigingsprofiel is retrieved for this vestigingsnummer") {
+        `when`("the vestigingsprofiel is retrieved for this vestigingsnummer") {
             val result = kvkClientService.findVestigingsprofiel(vestigingsnummer)
 
-            Then("it should return the expected vestiging") {
+            then("it should return the expected vestiging") {
                 result shouldBe expectedVestiging
             }
         }
     }
 
-    Given("A basisprofiel with a kvkNummer") {
+    given("A basisprofiel with a kvkNummer") {
         val kvkNummer = "12345678"
         val expectedBasisprofiel = createBasisprofiel(kvkNummer = kvkNummer)
         every { kvkBasisprofielClient.getBasisprofielByKvkNummer(kvkNummer, false) } returns expectedBasisprofiel
 
-        When("the basisprofiel is retrieved for this kvkNummer") {
+        `when`("the basisprofiel is retrieved for this kvkNummer") {
             val result = kvkClientService.findBasisprofiel(kvkNummer)
 
-            Then("it should return the expected basisprofiel") {
+            then("it should return the expected basisprofiel") {
                 result shouldBe expectedBasisprofiel
             }
         }

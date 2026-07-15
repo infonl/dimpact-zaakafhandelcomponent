@@ -305,25 +305,25 @@ Follow these rules:
   For these functions, the transactional annotation at class level is used.
 
 ### In Kotlin unit tests the 'shouldThrow' should be in the 'When' block
-In Kotlin unit tests the 'shouldThrow' should be in the 'When' and not in the 'Then' block.
-Also the exception message should be checked in the 'Then' block.
+In Kotlin unit tests the 'shouldThrow' should be in the '`when`' and not in the 'then' block.
+Also the exception message should be checked in the 'then' block.
 
 ```kotlin// Before
 {
-When("calling the service") {
-    Then("should throw IllegalArgumentException") {
+`when`("calling the service") {
+    then("should throw IllegalArgumentException") {
         shouldThrow<IllegalArgumentException> {
             service.add(1, 2)
         }
     }
 }
 // After
-When("calling the service") {
+`when`("calling the service") {
     val illegalArgumentException = shouldThrow<IllegalArgumentException> {
         service.add(1, 2)
     }
     
-    Then("should throw IllegalArgumentException") {
+    then("should throw IllegalArgumentException") {
         illegalArgumentException.message shouldBe "Expected exception message"
     }
 }    
@@ -332,14 +332,14 @@ When("calling the service") {
 ## Test conventions
 
 ### Kotest (Backend Tests)
-Use BDD style with `Context`/`Given`/`When`/`Then` blocks, and always add `afterEach { checkUnnecessaryStub() }` to catch unused MockK stubs:
+Use BDD style with `context`/`given`/`` `when` ``/`then` blocks, and always add `afterEach { checkUnnecessaryStub() }` to catch unused MockK stubs:
 ```kotlin
 class MyServiceTest : BehaviorSpec({
     afterEach { checkUnnecessaryStub() }
-    Context("A function in the service under test") {
-        Given("some state") {
-            When("action occurs") {
-                Then("expected result") { ... }
+    context("A function in the service under test") {
+        given("some state") {
+            `when`("action occurs") {
+                then("expected result") { ... }
             }
         }
     }

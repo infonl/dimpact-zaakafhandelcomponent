@@ -18,16 +18,16 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given(
+    given(
         """BPMN process definitions have been created in ZAC in the integration test setup phase
             and a beheerder is logged in"""
     ) {
-        When("the process definitions are retrieved") {
+        `when`("the process definitions are retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/bpmn-process-definitions",
                 testUser = BEHEERDER_1
             )
-            Then("the response contains the BPMN process definitions that were just created") {
+            then("the response contains the BPMN process definitions that were just created") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -64,16 +64,16 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """BPMN process definitions have been created in ZAC in the integration test setup phase
             and a beheerder is logged in"""
     ) {
-        When("the process definitions are retrieved with details") {
+        `when`("the process definitions are retrieved with details") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/bpmn-process-definitions?details=true",
                 testUser = BEHEERDER_1
             )
-            Then("the response contains the BPMN process definitions that were just created") {
+            then("the response contains the BPMN process definitions that were just created") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -207,15 +207,15 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         "The in-use process definition 'itProcessDefinition' exists and a beheerder is logged in"
     ) {
-        When("the process definition 'itProcessDefinition' is attempted to be deleted") {
+        `when`("the process definition 'itProcessDefinition' is attempted to be deleted") {
             val response = itestHttpClient.performDeleteRequest(
                 url = "$ZAC_API_URI/bpmn-process-definitions/itProcessDefinition",
                 testUser = BEHEERDER_1
             )
-            Then("the response contains Bad Request") {
+            then("the response contains Bad Request") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_BAD_REQUEST

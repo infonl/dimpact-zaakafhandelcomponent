@@ -39,7 +39,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
 
-    Given(
+    given(
         """
             A user who has 'taak verlopen email notificaties' turned on 
             and a zaak with a task that is assigned and that has a fatal/due date within one day from the zaak start date,
@@ -111,7 +111,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
         logger.info { "Start task response: $doHumanTaskPlanItemResponseBody" }
         doHumanTaskPlanItemResponse.code shouldBe HTTP_NO_CONTENT
 
-        When("The internal endpoint to send signaleringen is called with a valid API key") {
+        `when`("The internal endpoint to send signaleringen is called with a valid API key") {
             val sendSignaleringenResponse = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/internal/signaleringen/send-signaleringen",
                 headers = mapOf(
@@ -120,7 +120,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 ).toHeaders()
             )
 
-            Then("the response should be 'ok' and a task signalering email should be sent") {
+            then("the response should be 'ok' and a task signalering email should be sent") {
                 sendSignaleringenResponse.code shouldBe HTTP_OK
                 val sendSignaleringenResponseBody = sendSignaleringenResponse.bodyAsString
                 logger.info { "Response: $sendSignaleringenResponseBody" }

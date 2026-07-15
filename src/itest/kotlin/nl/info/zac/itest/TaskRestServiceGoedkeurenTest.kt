@@ -41,7 +41,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    Given(
+    given(
         """
         A zaak has been created that has finished the intake phase with the status 'admissible'
         and a behandelaar is logged in
@@ -95,7 +95,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             code shouldBe HTTP_NO_CONTENT
         }
 
-        When(
+        `when`(
             """
             the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a TXT file
             """
@@ -108,7 +108,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the response should be OK and contain information for the created document") {
+            then("the response should be OK and contain information for the created document") {
                 val responseBody = response.bodyAsString
                 logger.info { "response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -116,7 +116,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             }
         }
 
-        When("the list human task plan items endpoint is called") {
+        `when`("the list human task plan items endpoint is called") {
             // it may take a while for the human task plan items list to be updated according to the
             // state of the zaak, so we wait a bit
             lateinit var responseBodyJsonArray: JSONArray
@@ -136,14 +136,14 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                     .any { i -> responseBodyJsonArray.getJSONObject(i).getString("naam") == "Goedkeuren" }
                     .shouldBe(true)
             }
-            Then("the list of human task plan items for this zaak contains the task 'Goedkeuren'") {
+            then("the list of human task plan items for this zaak contains the task 'Goedkeuren'") {
                 humanTaskItemGoedkeurenId = (0 until responseBodyJsonArray.length())
                     .first { i -> responseBodyJsonArray.getJSONObject(i).getString("naam") == "Goedkeuren" }
                     .let { i -> responseBodyJsonArray.getJSONObject(i).getString("id") }
             }
         }
 
-        When("the start human task plan item endpoint is called for the task 'Goedkeuren'") {
+        `when`("the start human task plan item endpoint is called for the task 'Goedkeuren'") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/planitems/doHumanTaskPlanItem",
                 requestBodyAsString = """
@@ -159,19 +159,19 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
-            Then("a task is started for this zaak") {
+            then("a task is started for this zaak") {
                 logger.info { "Response: ${response.bodyAsString}" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
         }
 
-        When("the get tasks for the zaak endpoint is called") {
+        `when`("the get tasks for the zaak endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/taken/zaak/$zaakUUID",
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the list with tasks for this zaak is returned") {
+            then("the list with tasks for this zaak is returned") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -180,7 +180,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             }
         }
 
-        When("the 'Goedkeuren' task is completed by requesting the signing of the document") {
+        `when`("the 'Goedkeuren' task is completed by requesting the signing of the document") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/taken/complete",
                 requestBodyAsString = """
@@ -214,7 +214,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the taak status should be set to 'AFGEROND'") {
+            then("the taak status should be set to 'AFGEROND'") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK

@@ -45,7 +45,7 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A zaak") {
+    given("A zaak") {
         val zaak = createZaak()
         val zaakType = createZaakType()
         val loggedInUser = createLoggedInUser()
@@ -53,10 +53,10 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
 
-        When("converted to dashboard version of RestZaakOverzicht") {
+        `when`("converted to dashboard version of RestZaakOverzicht") {
             val result = restZaakOverzichtConverter.convertForDisplay(zaak, loggedInUser)
 
-            Then("it contains only the minimal set of properties") {
+            then("it contains only the minimal set of properties") {
                 with(result) {
                     identificatie shouldBe zaak.identificatie
                     startdatum shouldBe zaak.startdatum

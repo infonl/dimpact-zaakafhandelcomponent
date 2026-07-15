@@ -68,7 +68,7 @@ class NotificationReceiverTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given(
+    given(
         """
             a request containing a authorization header and
             a productaanvraag notificatie with a object type UUID for the productaanvraag object type
@@ -84,10 +84,10 @@ class NotificationReceiverTest : BehaviorSpec({
         every { httpSessionInstance.get() } returns httpSession
         every { productaanvraagService.handleProductaanvraag(productaanvraagObjectUUID) } just runs
 
-        When("notificatieReceive is called") {
+        `when`("notificatieReceive is called") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
-            Then(
+            then(
                 "the 'functional user' is added to the HTTP sessionm the productaanvraag service is invoked " +
                     "and a 'no content' response is returned"
             ) {
@@ -99,7 +99,7 @@ class NotificationReceiverTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         "a request containing a authorization header and a zaaktype create notificatie"
     ) {
         val zaaktypeUUID = UUID.randomUUID()
@@ -112,10 +112,10 @@ class NotificationReceiverTest : BehaviorSpec({
         every { httpSessionInstance.get() } returns httpSession
         every { zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri) } just runs
 
-        When("notificatieReceive is called with the zaaktype create notificatie") {
+        `when`("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
-            Then(
+            then(
                 "the zaaktype aanvraag service is invoked and a 'no content' response is returned"
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
@@ -126,7 +126,7 @@ class NotificationReceiverTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         "a request containing a authorization header and a zaaktype update notificatie"
     ) {
         val zaaktypeUUID = UUID.randomUUID()
@@ -140,10 +140,10 @@ class NotificationReceiverTest : BehaviorSpec({
         every { httpSessionInstance.get() } returns httpSession
         every { zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri) } just runs
 
-        When("notificatieReceive is called with the zaaktype create notificatie") {
+        `when`("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
-            Then(
+            then(
                 "the zaaktype aanvraag service is invoked and a 'no content' response is returned"
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
@@ -153,7 +153,7 @@ class NotificationReceiverTest : BehaviorSpec({
             }
         }
     }
-    Given(
+    given(
         "A request without a authorization header and a zaaktype update notificatie"
     ) {
         val zaaktypeUUID = UUID.randomUUID()
@@ -165,10 +165,10 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns null
 
-        When("notificatieReceive is called with the zaaktype create notificatie") {
+        `when`("notificatieReceive is called with the zaaktype create notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
-            Then(
+            then(
                 "a 'forbidden' response is returned"
             ) {
                 response.status shouldBe Response.Status.FORBIDDEN.statusCode
@@ -178,7 +178,7 @@ class NotificationReceiverTest : BehaviorSpec({
             }
         }
     }
-    Given(
+    given(
         """
             A CMMN case with a related task and a request containing an authorization header
              and a 'zaak destroy' notificatie
@@ -207,10 +207,10 @@ class NotificationReceiverTest : BehaviorSpec({
         every { taskService.listTasksForZaak(zaakUUID) } returns tasks
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
-        When("notificatieReceive is called with the zaak destroy notificatie") {
+        `when`("notificatieReceive is called with the zaak destroy notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
-            Then(
+            then(
                 """
                    the CMMN case is successfully deleted, the zaak is removed from the search index,
                    any signaleringen related to the zaak are deleted and a screen event is sent
@@ -249,7 +249,7 @@ class NotificationReceiverTest : BehaviorSpec({
             }
         }
     }
-    Given("A 'create informatieobject' notification") {
+    given("A 'create informatieobject' notification") {
         val informatieobjectUUID = UUID.randomUUID()
         val informatieobjectURI = URI("http://example.com/fakezaak/$informatieobjectUUID")
         val notificatie = createNotificatie(
@@ -263,10 +263,10 @@ class NotificationReceiverTest : BehaviorSpec({
         every { indexingService.addOrUpdateInformatieobject(informatieobjectUUID) } just Runs
         every { inboxDocumentService.create(informatieobjectUUID) } returns mockk<InboxDocument>()
 
-        When("the notification is handled") {
+        `when`("the notification is handled") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
-            Then(
+            then(
                 "an inbox document is created, the informatieobject is added to the search index, and no screen event is sent"
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
@@ -281,7 +281,7 @@ class NotificationReceiverTest : BehaviorSpec({
             }
         }
     }
-    Given("A 'destroy informatieobject' notification") {
+    given("A 'destroy informatieobject' notification") {
         val informatieobjectUUID = UUID.randomUUID()
         val informatieobjectURI = URI("http://example.com/fakezaak/$informatieobjectUUID")
         val notificatie = createNotificatie(
@@ -295,10 +295,10 @@ class NotificationReceiverTest : BehaviorSpec({
         every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
-        When("the notification is handled") {
+        `when`("the notification is handled") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
-            Then("the informatieobject is added to the search index and a screen event is sent") {
+            then("the informatieobject is added to the search index and a screen event is sent") {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
                     indexingService.removeInformatieobject(informatieobjectUUID)
@@ -308,7 +308,7 @@ class NotificationReceiverTest : BehaviorSpec({
         }
     }
 
-    Given("A test callback url notification") {
+    given("A test callback url notification") {
         val notification = createNotificatie(
             channel = Channel.TEST,
             resource = Resource.TEST
@@ -317,10 +317,10 @@ class NotificationReceiverTest : BehaviorSpec({
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
 
-        When("the notification is handled") {
+        `when`("the notification is handled") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notification)
 
-            Then("a response is returned") {
+            then("a response is returned") {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
             }
 

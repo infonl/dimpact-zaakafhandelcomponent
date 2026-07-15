@@ -45,13 +45,13 @@ class HealthCheckRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given(
+    given(
         """
             Default communicatiekanalen referentietabel data is provisioned on startup,
             and a logged-in beheerder
             """
     ) {
-        When("the check on the existence of the e-formulier communicatiekanaal is performed") {
+        `when`("the check on the existence of the e-formulier communicatiekanaal is performed") {
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/health-check/bestaat-communicatiekanaal-eformulier",
                 testUser = BEHEERDER_1
@@ -59,15 +59,15 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
-            Then("the response should be a 200 OK with a response body 'true'") {
+            then("the response should be a 200 OK with a response body 'true'") {
                 response.code shouldBe HTTP_OK
                 responseBody shouldBe "true"
             }
         }
     }
 
-    Given("Zaak types are configured correctly and a logged-in beheerder") {
-        When("the check for zaak types validity is performed") {
+    given("Zaak types are configured correctly and a logged-in beheerder") {
+        `when`("the check for zaak types validity is performed") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/health-check/zaaktypes",
                 testUser = BEHEERDER_1
@@ -75,7 +75,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             val responseBody = response.bodyAsString
             logger.info { "Response: $responseBody" }
 
-            Then("the response should be a 200 OK") {
+            then("the response should be a 200 OK") {
                 response.code shouldBe HTTP_OK
             }
             And("the response body should contain all the performed checks") {

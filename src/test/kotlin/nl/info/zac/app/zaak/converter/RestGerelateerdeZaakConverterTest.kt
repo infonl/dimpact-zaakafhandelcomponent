@@ -39,8 +39,8 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Converting a GerelateerdeZaak to RestGerelateerdeZaak") {
-        Given("A GerelateerdeZaak with a URL") {
+    context("Converting a GerelateerdeZaak to RestGerelateerdeZaak") {
+        given("A GerelateerdeZaak with a URL") {
             val fakeZaakUuid = UUID.randomUUID()
             val gerelateerdeZaak = GerelateerdeZaak().apply {
                 url = URI("https://example.com/zaak/$fakeZaakUuid")
@@ -54,22 +54,22 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
             every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten()
 
-            When("convert is called with the GerelateerdeZaak and loggedInUser") {
+            `when`("convert is called with the GerelateerdeZaak and loggedInUser") {
                 val result = converter.convert(fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser)
 
-                Then("the result has relatieType GERELATEERD") {
+                then("the result has relatieType GERELATEERD") {
                     result.relatieType shouldBe RelatieType.GERELATEERD
                 }
 
-                Then("the result has the correct identificatie") {
+                then("the result has the correct identificatie") {
                     result.identificatie shouldBe zaak.identificatie
                 }
             }
         }
     }
 
-    Context("Determining ontkoppelen permission for a gerelateerde zaak") {
-        Given("relatieType GERELATEERD with koppelen on source and lezen on linked zaak") {
+    context("Determining ontkoppelen permission for a gerelateerde zaak") {
+        given("relatieType GERELATEERD with koppelen on source and lezen on linked zaak") {
             val fromZaak = createZaak()
             val gerelateerdeZaak = createZaak()
             val zaakType = createZaakType()
@@ -80,18 +80,18 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
             } returns createZaakRechten(lezen = true)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = converter.convert(
                     fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.GERELATEERD
                 )
 
-                Then("ontkoppelen is true") {
+                then("ontkoppelen is true") {
                     result.ontkoppelen shouldBe true
                 }
             }
         }
 
-        Given("relatieType GERELATEERD without koppelen on source zaak") {
+        given("relatieType GERELATEERD without koppelen on source zaak") {
             val fromZaak = createZaak()
             val gerelateerdeZaak = createZaak()
             val zaakType = createZaakType()
@@ -102,18 +102,18 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
             } returns createZaakRechten(lezen = true)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = converter.convert(
                     fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.GERELATEERD
                 )
 
-                Then("ontkoppelen is false") {
+                then("ontkoppelen is false") {
                     result.ontkoppelen shouldBe false
                 }
             }
         }
 
-        Given("relatieType GERELATEERD without lezen on linked zaak") {
+        given("relatieType GERELATEERD without lezen on linked zaak") {
             val fromZaak = createZaak()
             val gerelateerdeZaak = createZaak()
             val zaakType = createZaakType()
@@ -124,18 +124,18 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
             } returns createZaakRechten(lezen = false)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = converter.convert(
                     fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.GERELATEERD
                 )
 
-                Then("ontkoppelen is false") {
+                then("ontkoppelen is false") {
                     result.ontkoppelen shouldBe false
                 }
             }
         }
 
-        Given("relatieType HOOFDZAAK with koppelen on both zaken and both open") {
+        given("relatieType HOOFDZAAK with koppelen on both zaken and both open") {
             val fromZaak = createZaak()
             val gerelateerdeZaak = createZaak()
             val zaakType = createZaakType()
@@ -146,18 +146,18 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
             } returns createZaakRechten(koppelen = true)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = converter.convert(
                     fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.HOOFDZAAK
                 )
 
-                Then("ontkoppelen is true") {
+                then("ontkoppelen is true") {
                     result.ontkoppelen shouldBe true
                 }
             }
         }
 
-        Given("relatieType HOOFDZAAK without koppelen on source zaak") {
+        given("relatieType HOOFDZAAK without koppelen on source zaak") {
             val fromZaak = createZaak()
             val gerelateerdeZaak = createZaak()
             val zaakType = createZaakType()
@@ -168,18 +168,18 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
             } returns createZaakRechten(koppelen = true)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = converter.convert(
                     fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.HOOFDZAAK
                 )
 
-                Then("ontkoppelen is false") {
+                then("ontkoppelen is false") {
                     result.ontkoppelen shouldBe false
                 }
             }
         }
 
-        Given("relatieType HOOFDZAAK without koppelen on linked zaak") {
+        given("relatieType HOOFDZAAK without koppelen on linked zaak") {
             val fromZaak = createZaak()
             val gerelateerdeZaak = createZaak()
             val zaakType = createZaakType()
@@ -190,18 +190,18 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
             } returns createZaakRechten(koppelen = false)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = converter.convert(
                     fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.HOOFDZAAK
                 )
 
-                Then("ontkoppelen is false") {
+                then("ontkoppelen is false") {
                     result.ontkoppelen shouldBe false
                 }
             }
         }
 
-        Given("relatieType HOOFDZAAK with source zaak open and linked zaak closed") {
+        given("relatieType HOOFDZAAK with source zaak open and linked zaak closed") {
             val fromZaak = createZaak()
             val gerelateerdeZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN)
             val zaakType = createZaakType()
@@ -212,18 +212,18 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
             } returns createZaakRechten(koppelen = true)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = converter.convert(
                     fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.HOOFDZAAK
                 )
 
-                Then("ontkoppelen is false") {
+                then("ontkoppelen is false") {
                     result.ontkoppelen shouldBe false
                 }
             }
         }
 
-        Given("relatieType HOOFDZAAK with both zaken closed") {
+        given("relatieType HOOFDZAAK with both zaken closed") {
             val fromZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN)
             val gerelateerdeZaak = createZaak(archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN)
             val zaakType = createZaakType()
@@ -234,18 +234,18 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
             } returns createZaakRechten(koppelen = true)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = converter.convert(
                     fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.HOOFDZAAK
                 )
 
-                Then("ontkoppelen is true") {
+                then("ontkoppelen is true") {
                     result.ontkoppelen shouldBe true
                 }
             }
         }
 
-        Given("relatieType DEELZAAK with koppelen on both zaken and both open") {
+        given("relatieType DEELZAAK with koppelen on both zaken and both open") {
             val fromZaak = createZaak()
             val gerelateerdeZaak = createZaak()
             val zaakType = createZaakType()
@@ -256,18 +256,18 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
             } returns createZaakRechten(koppelen = true)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = converter.convert(
                     fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.DEELZAAK
                 )
 
-                Then("ontkoppelen is true") {
+                then("ontkoppelen is true") {
                     result.ontkoppelen shouldBe true
                 }
             }
         }
 
-        Given("an unsupported relatieType") {
+        given("an unsupported relatieType") {
             val fromZaak = createZaak()
             val gerelateerdeZaak = createZaak()
             val zaakType = createZaakType()
@@ -278,12 +278,12 @@ class RestGerelateerdeZaakConverterTest : BehaviorSpec({
                 policyService.readZaakRechten(gerelateerdeZaak, zaakType, loggedInUser)
             } returns createZaakRechten(koppelen = true)
 
-            When("convert is called with relatieType VERVOLG") {
+            `when`("convert is called with relatieType VERVOLG") {
                 val result = converter.convert(
                     fromZaak, fromZaakRechten, gerelateerdeZaak, loggedInUser, RelatieType.VERVOLG
                 )
 
-                Then("ontkoppelen is false") {
+                then("ontkoppelen is false") {
                     result.ontkoppelen shouldBe false
                 }
             }

@@ -27,21 +27,21 @@ class AuditWijzigingJsonbDeserializerTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a JsonParser whose current value is an empty string") {
+    given("a JsonParser whose current value is an empty string") {
         // Old inbox documents and detached documents produce audit trail records
         // where the `wijzigingen` field is stored as "" instead of a JSON object
         every { parser.value } returns Json.createValue("")
 
-        When("the deserializer is called") {
+        `when`("the deserializer is called") {
             val result = deserializer.deserialize(parser, deserializationContext, runtimeType)
 
-            Then("result should be null") {
+            then("result should be null") {
                 result.shouldBeNull()
             }
         }
     }
 
-    Given("a JsonParser whose current value is a JSON object with a null oud and a nieuw enkelvoudiginformatieobject") {
+    given("a JsonParser whose current value is a JSON object with a null oud and a nieuw enkelvoudiginformatieobject") {
         val nieuw = Json.createObjectBuilder()
             .add("url", "https://example.com/documenten/api/v1/enkelvoudiginformatieobjecten/abc")
             .build()
@@ -51,14 +51,14 @@ class AuditWijzigingJsonbDeserializerTest : BehaviorSpec({
             .build()
         every { parser.value } returns wijzigingen
 
-        When("the deserializer is called") {
+        `when`("the deserializer is called") {
             val result = deserializer.deserialize(parser, deserializationContext, runtimeType)
 
-            Then("result should not be null") {
+            then("result should not be null") {
                 result.shouldNotBeNull()
             }
 
-            Then("result should be an EnkelvoudigInformatieobjectWijziging") {
+            then("result should be an EnkelvoudigInformatieobjectWijziging") {
                 result.shouldBeInstanceOf<EnkelvoudigInformatieobjectWijziging>()
             }
         }

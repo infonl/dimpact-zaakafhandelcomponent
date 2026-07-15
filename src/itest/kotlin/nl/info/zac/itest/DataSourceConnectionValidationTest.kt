@@ -24,7 +24,7 @@ class DataSourceConnectionValidationTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("ZAC is running and has an established connection to its database in the connection pool") {
+    given("ZAC is running and has an established connection to its database in the connection pool") {
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/referentietabellen",
             testUser = BEHEERDER_1,
@@ -47,7 +47,7 @@ class DataSourceConnectionValidationTest : BehaviorSpec({
             execResult.exitCode shouldBe 0
         }
 
-        When(
+        `when`(
             """the reference tables are requested again"""
         ) {
 
@@ -56,7 +56,7 @@ class DataSourceConnectionValidationTest : BehaviorSpec({
                 testUser = BEHEERDER_1,
             )
 
-            Then(
+            then(
                 """the request still succeeds because the connection pool detects the
                     stale connection and transparently replaces it with a new one"""
             ) {

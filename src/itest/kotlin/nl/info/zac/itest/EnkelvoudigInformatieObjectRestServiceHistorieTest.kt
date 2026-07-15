@@ -32,8 +32,8 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
     val documentHelper = DocumentHelper(zacClient)
     val now = System.currentTimeMillis()
 
-    Context("Listing informatieobject history") {
-        Given(
+    context("Listing informatieobject history") {
+        given(
             """
                 A zaak exists with a zaaktype in domain test 1, a document has been uploaded to this zaak,
                 and a raadpleger for domain test 1 is logged in
@@ -57,14 +57,14 @@ class EnkelvoudigInformatieObjectRestServiceHistorieTest : BehaviorSpec({
                     testUser = BEHANDELAAR_1
                 )
 
-            When("informatieobjecten history is requested") {
+            `when`("informatieobjecten history is requested") {
                 val today = LocalDate.now()
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudiginformatieobjectUuid/historie",
                     testUser = RAADPLEGER_1
                 )
 
-                Then("the response should be ok and the expected history records are returned") {
+                then("the response should be ok and the expected history records are returned") {
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK

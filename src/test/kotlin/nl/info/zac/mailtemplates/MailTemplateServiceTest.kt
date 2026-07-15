@@ -39,18 +39,18 @@ class MailTemplateServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Mail templates can be deleted") {
-        Given("an existing mail template") {
+    context("Mail templates can be deleted") {
+        given("an existing mail template") {
             val mailTemplateId = 1234L
             val mailTemplate = createMailTemplate()
 
             every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns mailTemplate
             every { entityManager.remove(mailTemplate) } just Runs
 
-            When("delete is called with the ID") {
+            `when`("delete is called with the ID") {
                 mailTemplateService.delete(mailTemplateId)
 
-                Then("it should remove the mail template") {
+                then("it should remove the mail template") {
                     verify(exactly = 1) {
                         entityManager.remove(mailTemplate)
                     }
@@ -59,11 +59,11 @@ class MailTemplateServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Default mail templates can be found for a mail type") {
+    context("Default mail templates can be found for a mail type") {
         val mail = Mail.ZAAK_ONTVANKELIJK
         val mailTemplate = createMailTemplate()
 
-        Given("a default MailTemplate exists for the given mail type") {
+        given("a default MailTemplate exists for the given mail type") {
             every { entityManager.criteriaBuilder } returns criteriaBuilder
             every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
             every { criteriaQuery.from(MailTemplate::class.java) } returns root
@@ -75,16 +75,16 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns listOf(mailTemplate)
 
-            When("findDefaultMailtemplate is called with the mail type") {
+            `when`("findDefaultMailtemplate is called with the mail type") {
                 val result = mailTemplateService.findDefaultMailtemplate(mail)
 
-                Then("it should return the default mail template") {
+                then("it should return the default mail template") {
                     result shouldBe mailTemplate
                 }
             }
         }
 
-        Given("no default mail template exists for the given mail type") {
+        given("no default mail template exists for the given mail type") {
             every { entityManager.criteriaBuilder } returns criteriaBuilder
             every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
             every { criteriaQuery.from(MailTemplate::class.java) } returns root
@@ -96,20 +96,20 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns emptyList()
 
-            When("findDefaultMailtemplate is called with the mail type") {
+            `when`("findDefaultMailtemplate is called with the mail type") {
                 val result = mailTemplateService.findDefaultMailtemplate(mail)
 
-                Then("it should return null") {
+                then("it should return null") {
                     result shouldBe null
                 }
             }
         }
     }
 
-    Context("Mail templates can be found by name") {
+    context("Mail templates can be found by name") {
         val mailTemplateName = "fakeTemplateName"
 
-        Given("a mail template exists for the given name") {
+        given("a mail template exists for the given name") {
             val mailTemplate = createMailTemplate()
             every { entityManager.criteriaBuilder } returns criteriaBuilder
             every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
@@ -119,16 +119,16 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns listOf(mailTemplate)
 
-            When("findMailtemplateByName is called") {
+            `when`("findMailtemplateByName is called") {
                 val result = mailTemplateService.findMailtemplateByName(mailTemplateName)
 
-                Then("it should return the matching mail template") {
+                then("it should return the matching mail template") {
                     result shouldBe mailTemplate
                 }
             }
         }
 
-        Given("no mail template exists for the given name") {
+        given("no mail template exists for the given name") {
             every { entityManager.criteriaBuilder } returns criteriaBuilder
             every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
             every { criteriaQuery.from(MailTemplate::class.java) } returns root
@@ -137,18 +137,18 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns emptyList()
 
-            When("findMailtemplateByName is called") {
+            `when`("findMailtemplateByName is called") {
                 val result = mailTemplateService.findMailtemplateByName(mailTemplateName)
 
-                Then("it should return null") {
+                then("it should return null") {
                     result shouldBe null
                 }
             }
         }
     }
 
-    Context("All mail templates can be listed") {
-        Given("multiple mail templates exist") {
+    context("All mail templates can be listed") {
+        given("multiple mail templates exist") {
             val mailTemplates = listOf(createMailTemplate(), createMailTemplate())
             every { entityManager.criteriaBuilder } returns criteriaBuilder
             every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
@@ -158,21 +158,21 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns mailTemplates
 
-            When("listMailtemplates is called") {
+            `when`("listMailtemplates is called") {
                 val result = mailTemplateService.listMailtemplates()
 
-                Then("it should return all mail templates") {
+                then("it should return all mail templates") {
                     result shouldBe mailTemplates
                 }
             }
         }
     }
 
-    Context("Mail templates can be read by mail type") {
+    context("Mail templates can be read by mail type") {
         val mail = Mail.ZAAK_ONTVANKELIJK
         val mailTemplate = createMailTemplate()
 
-        Given("a mail template exists for the given mail type") {
+        given("a mail template exists for the given mail type") {
             every { entityManager.criteriaBuilder } returns criteriaBuilder
             every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
             every { criteriaQuery.from(MailTemplate::class.java) } returns root
@@ -184,16 +184,16 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns listOf(mailTemplate)
 
-            When("readMailtemplate is called with the mail type") {
+            `when`("readMailtemplate is called with the mail type") {
                 val result = mailTemplateService.readMailtemplate(mail)
 
-                Then("it should return the mail template") {
+                then("it should return the mail template") {
                     result shouldBe mailTemplate
                 }
             }
         }
 
-        Given("no mail template exists for the given mail type") {
+        given("no mail template exists for the given mail type") {
             every { entityManager.criteriaBuilder } returns criteriaBuilder
             every { criteriaBuilder.createQuery(MailTemplate::class.java) } returns criteriaQuery
             every { criteriaQuery.from(MailTemplate::class.java) } returns root
@@ -205,57 +205,57 @@ class MailTemplateServiceTest : BehaviorSpec({
             every { entityManager.createQuery(criteriaQuery) } returns typedQuery
             every { typedQuery.resultList } returns emptyList()
 
-            When("readMailtemplate is called with the mail type") {
+            `when`("readMailtemplate is called with the mail type") {
                 val exception = shouldThrow<MailTemplateNotFoundException> {
                     mailTemplateService.readMailtemplate(mail)
                 }
-                Then("it should throw MailTemplateNotFoundException") {
+                then("it should throw MailTemplateNotFoundException") {
                     exception shouldBe MailTemplateNotFoundException(mail)
                 }
             }
         }
     }
 
-    Context("Mail templates can be read by ID") {
+    context("Mail templates can be read by ID") {
         val mailTemplateId = 1234L
         val mailTemplate = createMailTemplate()
 
-        Given("a mail template exists for the given ID") {
+        given("a mail template exists for the given ID") {
             every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns mailTemplate
 
-            When("readMailtemplate is called with the ID") {
+            `when`("readMailtemplate is called with the ID") {
                 val result = mailTemplateService.readMailtemplate(mailTemplateId)
 
-                Then("it should return the mail template") {
+                then("it should return the mail template") {
                     result shouldBe mailTemplate
                 }
             }
         }
 
-        Given("no mail template exists for the given ID") {
+        given("no mail template exists for the given ID") {
             every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns null
 
-            When("readMailtemplate is called with the ID") {
+            `when`("readMailtemplate is called with the ID") {
                 val exception = shouldThrow<MailTemplateNotFoundException> {
                     mailTemplateService.readMailtemplate(mailTemplateId)
                 }
-                Then("it should throw MailTemplateNotFoundException") {
+                then("it should throw MailTemplateNotFoundException") {
                     exception shouldBe MailTemplateNotFoundException(mailTemplateId)
                 }
             }
         }
     }
 
-    Context("Mail templates can be created") {
+    context("Mail templates can be created") {
         val mailTemplate = createMailTemplate()
 
-        Given("a new mail template with an ID") {
+        given("a new mail template with an ID") {
             every { entityManager.persist(mailTemplate) } just Runs
 
-            When("createMailtemplate is called") {
+            `when`("createMailtemplate is called") {
                 val result = mailTemplateService.createMailtemplate(mailTemplate)
 
-                Then("it should reset the ID to 0 and persist the mail template") {
+                then("it should reset the ID to 0 and persist the mail template") {
                     mailTemplate.id shouldBe 0L
                     verify(exactly = 1) { entityManager.persist(mailTemplate) }
                     result shouldBe mailTemplate
@@ -263,14 +263,14 @@ class MailTemplateServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a new mail template without an ID") {
+        given("a new mail template without an ID") {
             val newMailTemplate = createMailTemplate(id = 0L)
             every { entityManager.persist(newMailTemplate) } just Runs
 
-            When("createMailtemplate is called") {
+            `when`("createMailtemplate is called") {
                 val result = mailTemplateService.createMailtemplate(newMailTemplate)
 
-                Then("it should persist the mail template") {
+                then("it should persist the mail template") {
                     verify(exactly = 1) { entityManager.persist(newMailTemplate) }
                     result shouldBe newMailTemplate
                 }
@@ -278,7 +278,7 @@ class MailTemplateServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Mail templates can be updated") {
+    context("Mail templates can be updated") {
         val mailTemplateId = 1234L
         val existingTemplate = createMailTemplate(id = mailTemplateId)
         val updatedTemplate = createMailTemplate(
@@ -288,14 +288,14 @@ class MailTemplateServiceTest : BehaviorSpec({
             body = "updatedBody"
         )
 
-        Given("an existing mail template") {
+        given("an existing mail template") {
             every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns existingTemplate
             every { entityManager.merge(existingTemplate) } returns existingTemplate
 
-            When("updateMailtemplate is called") {
+            `when`("updateMailtemplate is called") {
                 val result = mailTemplateService.updateMailtemplate(mailTemplateId, updatedTemplate)
 
-                Then("it should update the existing template fields and preserve the original ID") {
+                then("it should update the existing template fields and preserve the original ID") {
                     existingTemplate.id shouldBe mailTemplateId // Original ID preserved
                     existingTemplate.mailTemplateNaam shouldBe "updatedName"
                     existingTemplate.onderwerp shouldBe "updatedOnderwerp"
@@ -306,30 +306,30 @@ class MailTemplateServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a non-existent mail template") {
+        given("a non-existent mail template") {
             every { entityManager.find(MailTemplate::class.java, mailTemplateId) } returns null
 
-            When("updateMailtemplate is called") {
+            `when`("updateMailtemplate is called") {
                 val exception = shouldThrow<MailTemplateNotFoundException> {
                     mailTemplateService.updateMailtemplate(mailTemplateId, updatedTemplate)
                 }
-                Then("it should throw MailTemplateNotFoundException") {
+                then("it should throw MailTemplateNotFoundException") {
                     exception shouldBe MailTemplateNotFoundException(mailTemplateId)
                 }
             }
         }
     }
 
-    Context("Mail templates can be stored (backward compatibility)") {
-        Given("a new mail template") {
+    context("Mail templates can be stored (backward compatibility)") {
+        given("a new mail template") {
             val newMailTemplate = createMailTemplate()
             every { entityManager.find(MailTemplate::class.java, newMailTemplate.id) } returns null
             every { entityManager.persist(newMailTemplate) } just Runs
 
-            When("storeMailtemplate is called") {
+            `when`("storeMailtemplate is called") {
                 val result = mailTemplateService.storeMailtemplate(newMailTemplate)
 
-                Then("it should delegate to createMailtemplate and persist the mail template") {
+                then("it should delegate to createMailtemplate and persist the mail template") {
                     newMailTemplate.id shouldBe 0L // ID should be reset
                     verify(exactly = 1) { entityManager.persist(newMailTemplate) }
                     result shouldBe newMailTemplate
@@ -337,16 +337,16 @@ class MailTemplateServiceTest : BehaviorSpec({
             }
         }
 
-        Given("an existing mail template") {
+        given("an existing mail template") {
             val existingMailTemplate = createMailTemplate(id = 5678L)
             val existingTemplate = createMailTemplate(id = 5678L)
             every { entityManager.find(MailTemplate::class.java, existingMailTemplate.id) } returns existingTemplate
             every { entityManager.merge(existingTemplate) } returns existingTemplate
 
-            When("storeMailtemplate is called with an existing ID") {
+            `when`("storeMailtemplate is called with an existing ID") {
                 val result = mailTemplateService.storeMailtemplate(existingMailTemplate)
 
-                Then("it should delegate to updateMailtemplate and merge the mail template") {
+                then("it should delegate to updateMailtemplate and merge the mail template") {
                     // Verify that the existing template fields were updated
                     existingTemplate.mailTemplateNaam shouldBe existingMailTemplate.mailTemplateNaam
                     existingTemplate.onderwerp shouldBe existingMailTemplate.onderwerp

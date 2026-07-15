@@ -55,7 +55,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Generated document information") {
+    given("Generated document information") {
         val smartDocumentId = "1"
         val taakId = "4"
         val title = "title"
@@ -89,7 +89,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
             )
         } returns zaakInformatieobject
 
-        When("storing a downloaded file is requested") {
+        `when`("storing a downloaded file is requested") {
             val returnedZaakInformatieobject = documentCreationService.storeDocument(
                 zaak = zaak,
                 taskId = taakId,
@@ -101,7 +101,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 userName = userName
             )
 
-            Then("ZaakInformatieobject is stored") {
+            then("ZaakInformatieobject is stored") {
                 returnedZaakInformatieobject shouldBe zaakInformatieobject
 
                 verify(exactly = 1) {
@@ -116,11 +116,11 @@ class DocumentCreationServiceTest : BehaviorSpec({
         }
     }
 
-    Given("SmartDocuments wizard finished execution") {
+    given("SmartDocuments wizard finished execution") {
         val contextUrl = "https://example.com"
         every { configurationService.readContextUrl() } returns contextUrl
 
-        When("SmartDocuments finish page URL is requested") {
+        `when`("SmartDocuments finish page URL is requested") {
             val finishPageUrl = documentCreationService.documentCreationFinishPageUrl(
                 "1",
                 "1",
@@ -128,7 +128,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 "result"
             )
 
-            Then("correct URL is built") {
+            then("correct URL is built") {
                 finishPageUrl.toString() shouldBe "$contextUrl/static/smart-documents-result.html" +
                     "?zaak=1" +
                     "&taak=1" +
@@ -138,7 +138,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Document creation data with a zaak and an information object type") {
+    given("Document creation data with a zaak and an information object type") {
         val zaakTypeUUID = UUID.randomUUID()
         val zaakTypeURI = URI("https://example.com/$zaakTypeUUID")
         val zaak = createZaak(zaaktypeUri = zaakTypeURI)
@@ -178,10 +178,10 @@ class DocumentCreationServiceTest : BehaviorSpec({
         } returns templateName
         every { configurationService.readContextUrl() } returns contextUrl
 
-        When("the 'create document attended' method is called") {
+        `when`("the 'create document attended' method is called") {
             val documentCreationResponse = documentCreationService.createDocumentAttended(documentCreationData)
 
-            Then(
+            then(
                 """
                 the smart documents service is called to create an attended document and a document creation response is returned
                 """
@@ -214,7 +214,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak exists") {
+    given("A zaak exists") {
         val contextUrl = "https://example.com:2222"
         val zaakUuid = UUID.randomUUID()
         val templateGroupId = "groupId"
@@ -226,7 +226,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
 
         every { configurationService.readContextUrl() } returns contextUrl
 
-        When("Document creation URL is requested for zaak") {
+        `when`("Document creation URL is requested for zaak") {
             val uri = documentCreationService.documentCreationCallbackUrl(
                 zaakUuid = zaakUuid,
                 null,
@@ -238,7 +238,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 userName
             )
 
-            Then("Correct URL is provided") {
+            then("Correct URL is provided") {
                 uri.toString() shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?title=$title" +
                     "&userName=Full+User+Name" +
@@ -249,7 +249,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
             }
         }
 
-        When("Document creation URL is requested for taak") {
+        `when`("Document creation URL is requested for taak") {
             val taakUuid = UUID.randomUUID().toString()
             val uri = documentCreationService.documentCreationCallbackUrl(
                 zaakUuid,
@@ -262,7 +262,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 userName
             )
 
-            Then("Correct URL is provided") {
+            then("Correct URL is provided") {
                 uri.toString() shouldBe
                     "$contextUrl/rest/document-creation/smartdocuments/callback/zaak/$zaakUuid/task/$taakUuid" +
                     "?title=$title" +

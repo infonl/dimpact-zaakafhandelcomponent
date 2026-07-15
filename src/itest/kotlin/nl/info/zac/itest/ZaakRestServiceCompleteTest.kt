@@ -38,7 +38,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    Given(
+    given(
         """
         A zaak has been created that has finished the intake phase with the status 'admissible'
         and a logged-in recordmanager for domain test 1
@@ -100,7 +100,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
         }
 
-        When("the zaak is completed") {
+        `when`("the zaak is completed") {
             val afhandelenId: Int
             itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems",
@@ -130,7 +130,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 code shouldBe HTTP_NO_CONTENT
             }
 
-            Then("the zaak should be closed and have a result") {
+            then("the zaak should be closed and have a result") {
                 zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -143,7 +143,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
         }
 
-        When("the closed zaak is re-opened") {
+        `when`("the closed zaak is re-opened") {
             // wait for OpenZaak to accept this request
             sleepForOpenZaakUniqueConstraint(1)
             itestHttpClient.performPatchRequest(
@@ -156,7 +156,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 code shouldBe HTTP_NO_CONTENT
             }
 
-            Then("the zaak should be open and should no longer have a result") {
+            then("the zaak should be open and should no longer have a result") {
                 zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -169,7 +169,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
         }
 
-        When("the re-opened zaak is completed again") {
+        `when`("the re-opened zaak is completed again") {
             // wait for OpenZaak to accept this request
             sleepForOpenZaakUniqueConstraint(1)
             // Completing a re-opened zaak is done using the 'afsluiten' endpoint
@@ -188,7 +188,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 code shouldBe HTTP_NO_CONTENT
             }
 
-            Then("the zaak should be closed and have a result") {
+            then("the zaak should be closed and have a result") {
                 zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -202,7 +202,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """
         A zaak has been created that has not finished the intake phase
         and a logged-in recordmanager for domain test 1
@@ -248,7 +248,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
             }
         }
 
-        When("the zaak is completed as 'not-admissible'") {
+        `when`("the zaak is completed as 'not-admissible'") {
             val receiverMail = "receiverZaakComplete@example.com"
             val senderMail = "sender@example.com"
             val mailBody = "<p><b>bold</b>paragraph<i>italic</i></p>"
@@ -279,7 +279,7 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 code shouldBe HTTP_NO_CONTENT
             }
 
-            Then("email should be sent with correct details") {
+            then("email should be sent with correct details") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$receiverMail/messages/"
                 )

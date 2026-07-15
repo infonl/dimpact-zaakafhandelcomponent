@@ -48,7 +48,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Service task with expressions for aantalDagen and opschortingReden") {
+    given("Service task with expressions for aantalDagen and opschortingReden") {
         mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
@@ -71,7 +71,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
 
         every { suspensionZaakHelper.suspendZaak(zaak, numberOfDays, reason) } returns zaak
 
-        When("string expressions are used") {
+        `when`("string expressions are used") {
             val aantalDagenExpression = mockk<JuelExpression>()
             every { aantalDagenExpression.getValue(delegateExecution) } returns "$numberOfDays"
 
@@ -82,7 +82,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
 
             suspendZaakDelegate.execute(delegateExecution)
 
-            Then("expressions are resolved") {
+            then("expressions are resolved") {
                 verify(exactly = 1) {
                     aantalDagenExpression.getValue(delegateExecution)
                     opschortingRedenExpression.getValue(delegateExecution)
@@ -96,7 +96,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
             }
         }
 
-        When("BigDecimal expression is used for aantalDagen") {
+        `when`("BigDecimal expression is used for aantalDagen") {
             clearMocks(opschortingRedenExpression, suspensionZaakHelper, answers = false)
 
             val aantalDagenExpression = mockk<JuelExpression>()
@@ -109,7 +109,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
 
             suspendZaakDelegate.execute(delegateExecution)
 
-            Then("expressions are resolved") {
+            then("expressions are resolved") {
                 verify(exactly = 1) {
                     aantalDagenExpression.getValue(delegateExecution)
                     opschortingRedenExpression.getValue(delegateExecution)
@@ -124,7 +124,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("Policy denies suspending zaak") {
+    given("Policy denies suspending zaak") {
         val zaak = createZaak()
         zaak.opschorting = createOpschorting()
 
@@ -148,12 +148,12 @@ class SuspendZaakDelegateTest : BehaviorSpec({
             opschortingReden = mockk()
         }
 
-        When("suspend zaak is called") {
+        `when`("suspend zaak is called") {
             val policyException = shouldThrow<PolicyException> {
                 suspendZaakDelegate.execute(delegateExecution)
             }
 
-            Then("a PolicyException is thrown") {
+            then("a PolicyException is thrown") {
                 policyException shouldNotBe null
             }
 
@@ -165,7 +165,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("Zaak is already suspended with an existing suspension reason") {
+    given("Zaak is already suspended with an existing suspension reason") {
         val zaak = createZaak()
         zaak.opschorting = createOpschorting(reden = "fakeExistingSuspensionReason")
 
@@ -189,12 +189,12 @@ class SuspendZaakDelegateTest : BehaviorSpec({
             opschortingReden = mockk()
         }
 
-        When("suspend zaak is called") {
+        `when`("suspend zaak is called") {
             val policyException = shouldThrow<PolicyException> {
                 suspendZaakDelegate.execute(delegateExecution)
             }
 
-            Then("a PolicyException is thrown") {
+            then("a PolicyException is thrown") {
                 policyException shouldNotBe null
             }
 

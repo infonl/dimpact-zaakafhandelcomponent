@@ -33,7 +33,7 @@ class ConfiguratieServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A valid configuration with BPMN") {
+    given("A valid configuration with BPMN") {
         val catalogusUri = "https://example.com/catalogus"
         every { catalogus.url } returns URI(catalogusUri)
         every { ztcClientService.readCatalogus(any<CatalogusListParameters>()) } returns catalogus
@@ -55,41 +55,41 @@ class ConfiguratieServiceTest : BehaviorSpec({
             brpConfiguration = brpConfiguration
         )
 
-        When("zaak tonen URL is requested") {
+        `when`("zaak tonen URL is requested") {
             configurationService.onStartup(Any())
             val zaakTonenUrl = configurationService.zaakTonenUrl(zaakIdentificatie = "id")
 
-            Then("correct url is built") {
+            then("correct url is built") {
                 zaakTonenUrl.toString() shouldBe "$contextUrl/zaken/id"
             }
         }
 
-        When("taak tonen URL is requested") {
+        `when`("taak tonen URL is requested") {
             val taakTonenUrl = configurationService.taakTonenUrl(taakId = "id")
 
-            Then("correct url is built") {
+            then("correct url is built") {
                 taakTonenUrl.toString() shouldBe "$contextUrl/taken/id"
             }
         }
 
-        When("informatieobject tonen url is requested") {
+        `when`("informatieobject tonen url is requested") {
             val uuid = UUID.randomUUID()
             val informatieobjectTonenUrl = configurationService.informatieobjectTonenUrl(uuid)
 
-            Then("Correct url is built") {
+            then("Correct url is built") {
                 informatieobjectTonenUrl.toString() shouldBe "$contextUrl/informatie-objecten/$uuid"
             }
         }
     }
 
-    Given("An invalid bron organisatie BSN") {
+    given("An invalid bron organisatie BSN") {
         val bronOrganisatie = "123456789"
         val verantwoordelijkeOrganisatie = "316245124"
         val catalogusDomein = "ALG"
         val brpConfiguration = createBrpConfiguration()
 
-        When("configuration service is initialized") {
-            Then("BSN is validated") {
+        `when`("configuration service is initialized") {
+            then("BSN is validated") {
                 shouldThrow<IllegalArgumentException> {
                     ConfigurationService(
                         entityManager = entityManager,

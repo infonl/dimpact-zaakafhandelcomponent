@@ -12,13 +12,13 @@ import nl.info.zac.app.zaak.model.createRestBesluitChangeData
 
 class RestBesluitChangeDataTest : BehaviorSpec({
 
-    Given("Change data with the optional date fields populated") {
+    given("Change data with the optional date fields populated") {
         val restBesluitWijzigenGegevens = createRestBesluitChangeData()
 
-        When("converted to a besluit patch") {
+        `when`("converted to a besluit patch") {
             val besluitPatch = restBesluitWijzigenGegevens.toBesluitPatch()
 
-            Then("the patch contains the supplied values and a tijdelijk vervalreden") {
+            then("the patch contains the supplied values and a tijdelijk vervalreden") {
                 with(besluitPatch) {
                     toelichting shouldBe restBesluitWijzigenGegevens.toelichting
                     ingangsdatum shouldBe restBesluitWijzigenGegevens.ingangsdatum
@@ -31,17 +31,17 @@ class RestBesluitChangeDataTest : BehaviorSpec({
         }
     }
 
-    Given("Change data that clears the optional date fields") {
+    given("Change data that clears the optional date fields") {
         val restBesluitWijzigenGegevens = createRestBesluitChangeData().copy(
             vervaldatum = null,
             publicationDate = null,
             lastResponseDate = null
         )
 
-        When("converted to a besluit patch") {
+        `when`("converted to a besluit patch") {
             val besluitPatch = restBesluitWijzigenGegevens.toBesluitPatch()
 
-            Then("the optional date fields are cleared and the vervalreden is reset to the blank value") {
+            then("the optional date fields are cleared and the vervalreden is reset to the blank value") {
                 with(besluitPatch) {
                     vervaldatum shouldBe null
                     vervalreden shouldBe VervalredenEnum.EMPTY

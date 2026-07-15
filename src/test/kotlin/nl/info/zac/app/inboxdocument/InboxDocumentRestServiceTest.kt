@@ -49,9 +49,9 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
         )
     }
 
-    Context("Listing inbox documents") {
-        Given("A user with inbox permissions") {
-            When("listing inbox documents with valid parameters") {
+    context("Listing inbox documents") {
+        given("A user with inbox permissions") {
+            `when`("listing inbox documents with valid parameters") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val restListParameters = RestInboxDocumentListParameters()
                 val inboxDocumentUUID = UUID.randomUUID()
@@ -66,7 +66,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 every { inboxDocumentService.count(any()) } returns 1
                 every { drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID) } returns enkelvoudigInformatieObject
 
-                Then("it should return the list of inbox documents with the correct informatieobject type UUID") {
+                then("it should return the list of inbox documents with the correct informatieobject type UUID") {
                     val result = inboxDocumentRESTService.listInboxDocuments(restListParameters)
 
                     verify(exactly = 1) {
@@ -80,7 +80,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("listing inbox documents where informatieobject is not found") {
+            `when`("listing inbox documents where informatieobject is not found") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val restListParameters = RestInboxDocumentListParameters()
                 val inboxDocumentUUID = UUID.randomUUID()
@@ -93,7 +93,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                     drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID)
                 } throws NotFoundException("Informatieobject not found")
 
-                Then("it should handle the error gracefully and continue processing") {
+                then("it should handle the error gracefully and continue processing") {
                     val result = inboxDocumentRESTService.listInboxDocuments(restListParameters)
 
                     verify(exactly = 1) {
@@ -105,7 +105,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("listing multiple inbox documents where only some have missing informatieobjects") {
+            `when`("listing multiple inbox documents where only some have missing informatieobjects") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val restListParameters = RestInboxDocumentListParameters()
 
@@ -150,7 +150,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                     drcClientService.readEnkelvoudigInformatieobject(inboxDocumentUUID3)
                 } returns enkelvoudigInformatieObject3
 
-                Then("it should remove the missing document from the list and return the others") {
+                then("it should remove the missing document from the list and return the others") {
                     val result = inboxDocumentRESTService.listInboxDocuments(restListParameters)
 
                     verify(exactly = 1) {
@@ -170,14 +170,14 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A user without inbox permissions") {
-            When("attempting to list inbox documents") {
+        given("A user without inbox permissions") {
+            `when`("attempting to list inbox documents") {
                 val werklijstRechten = createWerklijstRechtenAllDeny()
                 val restListParameters = RestInboxDocumentListParameters()
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
 
-                Then("it should throw a PolicyException") {
+                then("it should throw a PolicyException") {
                     shouldThrow<PolicyException> {
                         inboxDocumentRESTService.listInboxDocuments(restListParameters)
                     }
@@ -186,9 +186,9 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Deleting inbox documents") {
-        Given("An inbox document exists and user has permissions") {
-            When("deleting an inbox document that is not linked to a zaak") {
+    context("Deleting inbox documents") {
+        given("An inbox document exists and user has permissions") {
+            `when`("deleting an inbox document that is not linked to a zaak") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val documentId = 1L
                 val documentUUID = UUID.randomUUID()
@@ -206,7 +206,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 every { drcClientService.deleteEnkelvoudigInformatieobject(documentUUID) } returns Unit
                 every { inboxDocumentService.deleteIfExists(documentId) } returns Unit
 
-                Then("it should delete both the inbox document and the informatieobject") {
+                then("it should delete both the inbox document and the informatieobject") {
                     inboxDocumentRESTService.deleteInboxDocument(documentId)
 
                     verify(exactly = 1) {
@@ -220,7 +220,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("deleting an inbox document that is linked to a zaak") {
+            `when`("deleting an inbox document that is linked to a zaak") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val documentId = 1L
                 val documentUUID = UUID.randomUUID()
@@ -244,7 +244,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 } returns listOf(zaakInformatieobject)
                 every { inboxDocumentService.deleteIfExists(documentId) } returns Unit
 
-                Then("it should delete the inbox document but not the informatieobject") {
+                then("it should delete the inbox document but not the informatieobject") {
                     inboxDocumentRESTService.deleteInboxDocument(documentId)
 
                     verify(exactly = 1) {
@@ -261,14 +261,14 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("attempting to delete an inbox document that does not exist") {
+            `when`("attempting to delete an inbox document that does not exist") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val documentId = 999L
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
                 every { inboxDocumentService.find(documentId) } returns null
 
-                Then("it should return without throwing an exception") {
+                then("it should return without throwing an exception") {
                     inboxDocumentRESTService.deleteInboxDocument(documentId)
 
                     verify(exactly = 1) {
@@ -286,14 +286,14 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A user without inbox permissions attempts to delete") {
-            When("attempting to delete an inbox document") {
+        given("A user without inbox permissions attempts to delete") {
+            `when`("attempting to delete an inbox document") {
                 val werklijstRechten = createWerklijstRechtenAllDeny()
                 val documentId = 1L
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
 
-                Then("it should throw a PolicyException") {
+                then("it should throw a PolicyException") {
                     shouldThrow<PolicyException> {
                         inboxDocumentRESTService.deleteInboxDocument(documentId)
                     }

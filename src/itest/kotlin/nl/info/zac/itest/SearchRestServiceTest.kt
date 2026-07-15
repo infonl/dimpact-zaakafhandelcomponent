@@ -59,8 +59,8 @@ class SearchRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val now = System.currentTimeMillis()
 
-    Context("Listing search results") {
-        Given(
+    context("Listing search results") {
+        given(
             """
             A logged-in raadpleger and a zaak has been created and is indexed, 
             an 'aanvullende informatie' task has been added to the zaak and is indexed,
@@ -118,7 +118,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 testUser = BEHEERDER_1
             )
 
-            When(
+            `when`(
                 """the search endpoint is called to search open zaken on the unique description
                     of the just created zaak"""
             ) {
@@ -143,7 +143,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     testUser = RAADPLEGER_1
                 )
 
-                Then(
+                then(
                     """
                         the response is successful and the search results contain the newly created zaak and includes
                         data about the started 'aanvullende informatie' task
@@ -269,7 +269,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When(
+            `when`(
                 """the search endpoint is called to search for 'aanvullende informatie' tasks"""
             ) {
                 val response = itestHttpClient.performPutRequest(
@@ -290,7 +290,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     """.trimIndent(),
                     testUser = RAADPLEGER_1,
                 )
-                Then(
+                then(
                     """
                     the response is successful and the search results include the filters corresponding to
                      the indexed tasks, and the returned permissions are those for the raadpleger role
@@ -330,7 +330,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When(
+            `when`(
                 """the search endpoint is called to search for the uploaded document"""
             ) {
                 val response = itestHttpClient.performPutRequest(
@@ -351,7 +351,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     """.trimIndent(),
                     testUser = RAADPLEGER_1,
                 )
-                Then(
+                then(
                     """
                     the response is successful and the search results should include the expected document
                     and the returned permissions are those for the raadpleger role
@@ -426,8 +426,8 @@ class SearchRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing zaken for information object type") {
-        Given(
+    context("Listing zaken for information object type") {
+        given(
             """Two zaken have been created, each with a different zaaktype, and have been indexed, 
                 one of which can be linked to an information object of a specific type,
                 and a logged-in raadpleger authorised for the domain of these zaaktypes"""
@@ -448,7 +448,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 indexZaak = true,
                 testUser = BEHANDELAAR_1
             )
-            When(
+            `when`(
                 """
                 the search endpoint is called to search for the first created zaak
                 with a specific information object UUID
@@ -466,7 +466,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     """.trimIndent(),
                     testUser = RAADPLEGER_1
                 )
-                Then(
+                then(
                     """
                    the response is successful and the search results consists of the indexed zaak
                    with a 'linkable' flag set to true
@@ -497,7 +497,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When(
+            `when`(
                 """
                 the search endpoint is called to search for the second created zaak
                 with a specific information object UUID
@@ -515,7 +515,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     """.trimIndent(),
                     testUser = RAADPLEGER_1
                 )
-                Then(
+                then(
                     """
                       the response is successful and the search results consists of the indexed zaak
                       with a 'linkable' flag set to false
@@ -546,7 +546,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When(
+            `when`(
                 """
                 the search endpoint is called to search for the first created zaak 
                 but with a non-existing information object UUID
@@ -564,7 +564,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     """.trimIndent(),
                     testUser = RAADPLEGER_1
                 )
-                Then(
+                then(
                     """
                     the response is successful and the search results consists of the indexed zaak
                     with a 'linkable' flag set to false
@@ -595,7 +595,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When(
+            `when`(
                 """
                 the search endpoint is called with an explicit null value for the required non-blank zaakIdentificator parameter 
                 """.trimMargin()
@@ -613,7 +613,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     testUser = RAADPLEGER_1
                 )
 
-                Then(
+                then(
                     """
                     the response is a HTTP bad request with the expected validation error message
                     """
@@ -637,7 +637,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When(
+            `when`(
                 """
                 the search endpoint is called without the required non-blank zaakIdentificator parameter 
                 """.trimMargin()
@@ -654,7 +654,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     testUser = RAADPLEGER_1
                 )
 
-                Then(
+                then(
                     """
                     the response is a HTTP bad request with the expected validation error message
                     """
@@ -678,7 +678,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When(
+            `when`(
                 """
                 the search endpoint is called with a blank value for the non-blank zaakIdentificator parameter 
                 """.trimMargin()
@@ -697,7 +697,7 @@ class SearchRestServiceTest : BehaviorSpec({
                     testUser = RAADPLEGER_1
                 )
 
-                Then(
+                then(
                     """
                     the response is a HTTP bad request with the expected validation error message
                     """

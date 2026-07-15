@@ -31,14 +31,14 @@ class ZacCmmnAdminUtilRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A user with 'beheren' permissions") {
+    given("A user with 'beheren' permissions") {
         every { policyService.readOverigeRechten().beheren } returns true
         every { cmmnRuntimeService.createCaseInstanceQuery().variableNotExists(any()).count() } returns 123L
 
-        When("countMissingVariables is called") {
+        `when`("countMissingVariables is called") {
             val response = zakCmmnAdminUtilRestService.countMissingVariables()
 
-            Then("should return no content") {
+            then("should return no content") {
                 response.status shouldBe 204
             }
         }

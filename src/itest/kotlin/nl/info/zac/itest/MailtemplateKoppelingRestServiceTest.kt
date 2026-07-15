@@ -22,9 +22,9 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Context("Mailtemplate koppeling endpoints") {
-        Given("Mailtemplate koppelingen have been created as part of the zaaktype CMMN configuration setup") {
-            When("the mailtemplate koppeling list is fetched as a beheerder") {
+    context("Mailtemplate koppeling endpoints") {
+        given("Mailtemplate koppelingen have been created as part of the zaaktype CMMN configuration setup") {
+            `when`("the mailtemplate koppeling list is fetched as a beheerder") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/beheer/mailtemplatekoppeling",
                     testUser = BEHEERDER_1
@@ -35,7 +35,7 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
                 // one koppeling per CMMN zaaktype configured in the itest environment
                 val expectedKoppelingenCount = 3
 
-                Then("the response should be 200 HTTP response with 3 koppelingen") {
+                then("the response should be 200 HTTP response with 3 koppelingen") {
                     response.code shouldBe HTTP_OK
                     responseBody = response.bodyAsString
                     logger.info { "List response: $responseBody" }
@@ -73,8 +73,8 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("a mailtemplate koppeling is deleted by id") {
-                Then("the delete endpoint returns 204 No Content") {
+            `when`("a mailtemplate koppeling is deleted by id") {
+                then("the delete endpoint returns 204 No Content") {
                     val listResponse = itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/beheer/mailtemplatekoppeling",
                         testUser = BEHEERDER_1

@@ -24,8 +24,8 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Single document conversion") {
-        Given("A valid inbox document with all fields populated") {
+    context("Single document conversion") {
+        given("A valid inbox document with all fields populated") {
             val documentId = 123L
             val documentUUID = UUID.randomUUID()
             val documentID = "DOC-2025-001"
@@ -43,10 +43,10 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
                 bestandsnaam = bestandsnaam
             )
 
-            When("convert is called with the document and informatieobjecttype UUID") {
+            `when`("convert is called with the document and informatieobjecttype UUID") {
                 val result = inboxDocument.toRestInboxDocument(informatieobjectTypeUUID)
 
-                Then("all fields should be correctly mapped") {
+                then("all fields should be correctly mapped") {
                     result.id shouldBe documentId
                     result.enkelvoudiginformatieobjectUUID shouldBe documentUUID
                     result.enkelvoudiginformatieobjectID shouldBe documentID
@@ -58,14 +58,14 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
             }
         }
 
-        Given("An inbox document with minimal data") {
+        given("An inbox document with minimal data") {
             val inboxDocument = createInboxDocument()
             val informatieobjectTypeUUID = UUID.randomUUID()
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = inboxDocument.toRestInboxDocument(informatieobjectTypeUUID)
 
-                Then("all fields from the source document should be present in the result") {
+                then("all fields from the source document should be present in the result") {
                     result.id shouldBe inboxDocument.id
                     result.enkelvoudiginformatieobjectUUID shouldBe inboxDocument.enkelvoudiginformatieobjectUUID
                     result.enkelvoudiginformatieobjectID shouldBe inboxDocument.enkelvoudiginformatieobjectID
@@ -77,16 +77,16 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
             }
         }
 
-        Given("Different informatieobjecttype UUIDs") {
+        given("Different informatieobjecttype UUIDs") {
             val inboxDocument = createInboxDocument()
             val uuid1 = UUID.randomUUID()
             val uuid2 = UUID.randomUUID()
 
-            When("convert is called with different UUIDs") {
+            `when`("convert is called with different UUIDs") {
                 val result1 = inboxDocument.toRestInboxDocument(uuid1)
                 val result2 = inboxDocument.toRestInboxDocument(uuid2)
 
-                Then("each result should have the corresponding informatieobjecttype UUID") {
+                then("each result should have the corresponding informatieobjecttype UUID") {
                     result1.informatieobjectTypeUUID shouldBe uuid1
                     result2.informatieobjectTypeUUID shouldBe uuid2
                 }
@@ -99,7 +99,7 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
             }
         }
 
-        Given("An inbox document with special characters in fields") {
+        given("An inbox document with special characters in fields") {
             val specialTitel = "Document: Test & Validation <2025>"
             val specialBestandsnaam = "file-name_with.special#chars.pdf"
             val inboxDocument = createInboxDocument(
@@ -108,10 +108,10 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
             )
             val informatieobjectTypeUUID = UUID.randomUUID()
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = inboxDocument.toRestInboxDocument(informatieobjectTypeUUID)
 
-                Then("special characters should be preserved") {
+                then("special characters should be preserved") {
                     result.titel shouldBe specialTitel
                     result.bestandsnaam shouldBe specialBestandsnaam
                 }
@@ -119,8 +119,8 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
         }
     }
 
-    Context("List conversion with valid UUIDs") {
-        Given("Multiple inbox documents with corresponding informatieobjecttype UUIDs") {
+    context("List conversion with valid UUIDs") {
+        given("Multiple inbox documents with corresponding informatieobjecttype UUIDs") {
             val doc1 = createInboxDocument(
                 UUID.randomUUID(),
                 id = 1L
@@ -141,10 +141,10 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
             val documents = listOf(doc1, doc2, doc3)
             val uuids = listOf(uuid1, uuid2, uuid3)
 
-            When("convert is called with the lists") {
+            `when`("convert is called with the lists") {
                 val results = documents.toRestInboxDocuments(uuids)
 
-                Then("all documents should be converted") {
+                then("all documents should be converted") {
                     results shouldHaveSize 3
                 }
 
@@ -161,27 +161,27 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
             }
         }
 
-        Given("An empty list of documents") {
+        given("An empty list of documents") {
             val documents = emptyList<InboxDocument>()
             val uuids = emptyList<UUID>()
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val results = documents.toRestInboxDocuments(uuids)
 
-                Then("the result should be an empty list") {
+                then("the result should be an empty list") {
                     results.shouldBeEmpty()
                 }
             }
         }
 
-        Given("A single document in a list") {
+        given("A single document in a list") {
             val document = createInboxDocument()
             val uuid = UUID.randomUUID()
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val results = listOf(document).toRestInboxDocuments(listOf(uuid))
 
-                Then("the result should contain one converted document") {
+                then("the result should contain one converted document") {
                     results shouldHaveSize 1
                     results[0].id shouldBe document.id
                     results[0].informatieobjectTypeUUID shouldBe uuid
@@ -190,8 +190,8 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
         }
     }
 
-    Context("List conversion with null UUIDs") {
-        Given("Documents where some informatieobjecttype UUIDs are null") {
+    context("List conversion with null UUIDs") {
+        given("Documents where some informatieobjecttype UUIDs are null") {
             val doc1 = createInboxDocument(
                 id = 1L,
                 titel = "Doc1"
@@ -215,10 +215,10 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
             val documents = listOf(doc1, doc2, doc3, doc4)
             val uuids = listOf(uuid1, null, uuid3, null)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val results = documents.toRestInboxDocuments(uuids)
 
-                Then("only documents with non-null UUIDs should be included") {
+                then("only documents with non-null UUIDs should be included") {
                     results shouldHaveSize 2
                 }
 
@@ -231,7 +231,7 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
             }
         }
 
-        Given("All informatieobjecttype UUIDs are null") {
+        given("All informatieobjecttype UUIDs are null") {
             val doc1 = createInboxDocument(
                 id = 1L
             )
@@ -242,16 +242,16 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
             val documents = listOf(doc1, doc2)
             val uuids = listOf<UUID?>(null, null)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val results = documents.toRestInboxDocuments(uuids)
 
-                Then("the result should be an empty list") {
+                then("the result should be an empty list") {
                     results.shouldBeEmpty()
                 }
             }
         }
 
-        Given("First and last UUIDs are null") {
+        given("First and last UUIDs are null") {
             val doc1 = createInboxDocument(
                 id = 1L
             )
@@ -267,10 +267,10 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
             val documents = listOf(doc1, doc2, doc3)
             val uuids = listOf(null, uuid2, null)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val results = documents.toRestInboxDocuments(uuids)
 
-                Then("only the middle document should be converted") {
+                then("only the middle document should be converted") {
                     results shouldHaveSize 1
                     results[0].id shouldBe 2L
                     results[0].informatieobjectTypeUUID shouldBe uuid2
@@ -279,8 +279,8 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
         }
     }
 
-    Context("List conversion edge cases") {
-        Given("Many documents with alternating null and valid UUIDs") {
+    context("List conversion edge cases") {
+        given("Many documents with alternating null and valid UUIDs") {
             val documents = (1..10).map { i ->
                 createInboxDocument(
                     id = i.toLong(),
@@ -291,17 +291,17 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
                 if (i % 2 == 0) UUID.randomUUID() else null
             }
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val results = documents.toRestInboxDocuments(uuids)
 
-                Then("only even-indexed documents should be converted") {
+                then("only even-indexed documents should be converted") {
                     results shouldHaveSize 5
                     results.map { it.id } shouldContainExactly listOf(2L, 4L, 6L, 8L, 10L)
                 }
             }
         }
 
-        Given("Documents with different date values") {
+        given("Documents with different date values") {
             val date1 = LocalDate.of(2025, 1, 1)
             val date2 = LocalDate.of(2025, 6, 15)
             val date3 = LocalDate.of(2025, 12, 31)
@@ -321,10 +321,10 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
             val documents = listOf(doc1, doc2, doc3)
             val uuids = listOf(uuid, uuid, uuid)
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val results = documents.toRestInboxDocuments(uuids)
 
-                Then("all dates should be correctly preserved") {
+                then("all dates should be correctly preserved") {
                     results[0].creatiedatum shouldBe date1
                     results[1].creatiedatum shouldBe date2
                     results[2].creatiedatum shouldBe date3
@@ -333,18 +333,18 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
         }
     }
 
-    Context("Consistency between single and list conversion") {
-        Given("The same document") {
+    context("Consistency between single and list conversion") {
+        given("The same document") {
             val document = createInboxDocument()
             val informatieobjectTypeUUID = UUID.randomUUID()
 
-            When("converting as single and in a list") {
+            `when`("converting as single and in a list") {
                 val singleResult = document.toRestInboxDocument(informatieobjectTypeUUID)
                 val listResult = listOf(document).toRestInboxDocuments(
                     listOf(informatieobjectTypeUUID)
                 )
 
-                Then("both results should be identical") {
+                then("both results should be identical") {
                     listResult shouldHaveSize 1
 
                     listResult[0].id shouldBe singleResult.id
@@ -358,13 +358,13 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
             }
         }
 
-        Given("Multiple conversions of the same document with different UUIDs") {
+        given("Multiple conversions of the same document with different UUIDs") {
             val document = createInboxDocument()
             val uuid1 = UUID.randomUUID()
             val uuid2 = UUID.randomUUID()
             val uuid3 = UUID.randomUUID()
 
-            When("converting multiple times") {
+            `when`("converting multiple times") {
                 val singleResults = listOf(
                     document.toRestInboxDocument(uuid1),
                     document.toRestInboxDocument(uuid2),
@@ -374,7 +374,7 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
                     listOf(uuid1, uuid2, uuid3)
                 )
 
-                Then("single and list results should match") {
+                then("single and list results should match") {
                     listResults shouldHaveSize 3
 
                     singleResults.forEachIndexed { index, singleResult ->
@@ -387,25 +387,25 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
         }
     }
 
-    Context("Field preservation verification") {
-        Given("Documents with various ID values") {
+    context("Field preservation verification") {
+        given("Documents with various ID values") {
             val testIds = listOf(0L, 1L, 999L, Long.MAX_VALUE)
 
             testIds.forEach { idValue ->
                 val document = createInboxDocument(id = idValue)
                 val uuid = UUID.randomUUID()
 
-                When("convert is called with ID $idValue") {
+                `when`("convert is called with ID $idValue") {
                     val result = document.toRestInboxDocument(uuid)
 
-                    Then("the ID should be preserved exactly") {
+                    then("the ID should be preserved exactly") {
                         result.id shouldBe idValue
                     }
                 }
             }
         }
 
-        Given("Documents with various string field values") {
+        given("Documents with various string field values") {
             val testCases = listOf(
                 Triple("Short", "a.pdf", "ID-1"),
                 Triple("", "empty.txt", ""),
@@ -420,10 +420,10 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
                 )
                 val uuid = UUID.randomUUID()
 
-                When("convert is called with titel='$titel'") {
+                `when`("convert is called with titel='$titel'") {
                     val result = document.toRestInboxDocument(uuid)
 
-                    Then("all string fields should be preserved exactly") {
+                    then("all string fields should be preserved exactly") {
                         result.titel shouldBe titel
                         result.bestandsnaam shouldBe bestandsnaam
                         result.enkelvoudiginformatieobjectID shouldBe documentID
