@@ -144,8 +144,6 @@ This allows callers to use the conversion methods in a more natural way:
 val note = noteDto.fromDto()
 ```
 
-**n) Parameters** — make arguments non-nullable wherever appropriate.
-
 ## Step 7 — Update all call sites
 
 Search for all files that still import the old package:
