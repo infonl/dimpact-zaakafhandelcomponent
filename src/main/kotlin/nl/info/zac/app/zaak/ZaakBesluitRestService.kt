@@ -17,7 +17,7 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.event.EventingService
-import nl.info.zac.util.time.LocalDateUtil
+import nl.info.zac.util.time.dateNowIsBetween
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -126,7 +126,7 @@ class ZaakBesluitRestService @Inject constructor(
     ): List<RestBesluitType> {
         assertPolicy(policyService.readWerklijstRechten().zakenTaken)
         return ztcClientService.readBesluittypen(ztcClientService.readZaaktype(zaaktypeUUID).url)
-            .filter { LocalDateUtil.dateNowIsBetween(it) }
+            .filter { dateNowIsBetween(it) }
             .toRestBesluitTypes()
     }
 

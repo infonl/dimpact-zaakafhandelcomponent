@@ -5,7 +5,7 @@
 package nl.info.zac.history.converter
 
 import jakarta.inject.Inject
-import nl.info.zac.util.time.LocalDateUtil
+import nl.info.zac.util.time.format
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
@@ -78,13 +78,13 @@ class ZaakHistoryPartialUpdateConverter @Inject constructor(
                 .takeIf { it.isNotEmpty() }
                 ?.joinToString(", ")
             RESOURCE_COMMUNICATION_CHANNEL if item is String -> item
-            RESOURCE_EINDDATUM -> LocalDateUtil.format(item as? String)
-            RESOURCE_EINDDATUM_GEPLAND -> LocalDateUtil.format(item as? String)
+            RESOURCE_EINDDATUM -> format(item as? String)
+            RESOURCE_EINDDATUM_GEPLAND -> format(item as? String)
             RESOURCE_HOOFDZAAK if item is String ->
                 item.let(URI::create)
                     .let(zrcClientService::readZaak).identificatie
-            RESOURCE_STARTDATUM -> LocalDateUtil.format(item as? String)
-            RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING -> LocalDateUtil.format(item as? String)
+            RESOURCE_STARTDATUM -> format(item as? String)
+            RESOURCE_UITERLIJKE_EINDDATUM_AFDOENING -> format(item as? String)
             RESOURCE_ZAAKGEOMETRIE if item is Map<*, *> ->
                 item.asMapWithKeyOfString().getTypedValue(GeoJSONGeometry::class.java)?.toHistoryLineString()
             RESOURCE_EXTENSION -> null

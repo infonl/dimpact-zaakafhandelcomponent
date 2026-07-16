@@ -6,7 +6,7 @@ package nl.info.zac.healthcheck
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import nl.info.zac.util.time.LocalDateUtil
+import nl.info.zac.util.time.dateNowIsBetween
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
@@ -167,7 +167,7 @@ class HealthCheckService @Inject constructor(
     private fun controleerZaaktypeBesluittypeInrichting(zaaktypeInrichtingscheck: ZaaktypeInrichtingscheck) {
         val besluittypes = ztcClientService.readBesluittypen(
             zaaktypeInrichtingscheck.zaaktype.url
-        ).filter { LocalDateUtil.dateNowIsBetween(it) }
+        ).filter { dateNowIsBetween(it) }
         if (besluittypes.isNotEmpty()) {
             zaaktypeInrichtingscheck.isBesluittypeAanwezig = true
         }
