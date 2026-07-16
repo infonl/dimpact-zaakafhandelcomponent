@@ -52,17 +52,17 @@ class RestTaskConverter @Inject constructor(
             zaaktypeUUID = readZaaktypeUUID(taskInfo),
             toelichting = if (restTaakRechten.lezen) taskInfo.description else null,
             creatiedatumTijd = if (restTaakRechten.lezen) {
-                DateTimeConverterUtil.convertToZonedDateTime(taskInfo.createTime)
+                taskInfo.createTime?.let(DateTimeConverterUtil::convertToZonedDateTime)
             } else {
                 null
             },
             toekenningsdatumTijd = if (restTaakRechten.lezen) {
-                DateTimeConverterUtil.convertToZonedDateTime(taskInfo.claimTime)
+                taskInfo.claimTime?.let(DateTimeConverterUtil::convertToZonedDateTime)
             } else {
                 null
             },
             fataledatum = if (restTaakRechten.lezen) {
-                DateTimeConverterUtil.convertToLocalDate(taskInfo.dueDate)
+                taskInfo.dueDate?.let(DateTimeConverterUtil::convertToLocalDate)
             } else {
                 null
             },

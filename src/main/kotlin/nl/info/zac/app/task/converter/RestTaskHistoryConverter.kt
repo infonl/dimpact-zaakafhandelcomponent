@@ -56,7 +56,7 @@ class RestTaskHistoryConverter @Inject constructor(
                 )
             }
         }
-        restTaakHistorieRegel?.datumTijd = DateTimeConverterUtil.convertToZonedDateTime(historicTaskLogEntry.timeStamp)
+        restTaakHistorieRegel?.datumTijd = historicTaskLogEntry.timeStamp?.let(DateTimeConverterUtil::convertToZonedDateTime)
         return restTaakHistorieRegel
     }
 
@@ -122,8 +122,8 @@ class RestTaskHistoryConverter @Inject constructor(
         JsonbUtil.JSONB.fromJson(data, DuedateChangedData::class.java).let {
             return RestTaskHistoryLine(
                 FATALEDATUM_ATTRIBUUT_LABEL,
-                DateTimeConverterUtil.convertToLocalDate(it.previousDueDate),
-                DateTimeConverterUtil.convertToLocalDate(it.newDueDate),
+                it.previousDueDate?.let(DateTimeConverterUtil::convertToLocalDate),
+                it.newDueDate?.let(DateTimeConverterUtil::convertToLocalDate),
                 null
             )
         }

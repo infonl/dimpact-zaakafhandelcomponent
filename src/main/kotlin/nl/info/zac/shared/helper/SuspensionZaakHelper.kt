@@ -120,7 +120,7 @@ class SuspensionZaakHelper @Inject constructor(
             .filter { it.dueDate != null }
             .onEach {
                 it.dueDate = DateTimeConverterUtil.convertToDate(
-                    DateTimeConverterUtil.convertToLocalDate(it.dueDate)!!.plusDays(numberOfDays.toLong())
+                    DateTimeConverterUtil.convertToLocalDate(it.dueDate!!).plusDays(numberOfDays.toLong())
                 )
                 flowableTaskService.updateTask(it)
             }
@@ -129,7 +129,7 @@ class SuspensionZaakHelper @Inject constructor(
         flowableTaskService.listOpenTasksForZaak(zaakUUID)
             .filter { if (it.name != null) it.name != AANVULLENDE_INFORMATIE_TASK_NAME else true }
             .filter { it.dueDate != null }
-            .filter { DateTimeConverterUtil.convertToLocalDate(it.dueDate)!!.isAfter(zaakFatalDate) }
+            .filter { DateTimeConverterUtil.convertToLocalDate(it.dueDate!!).isAfter(zaakFatalDate) }
             .onEach {
                 it.dueDate = DateTimeConverterUtil.convertToDate(zaakFatalDate)
                 flowableTaskService.updateTask(it)

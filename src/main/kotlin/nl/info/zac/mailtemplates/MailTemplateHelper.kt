@@ -152,7 +152,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst = replaceVariable(
                 resolvedTekst,
                 MailTemplateVariables.TAAK_FATALEDATUM,
-                DateTimeConverterUtil.convertToLocalDate(it)?.format(DATE_FORMATTER)
+                DateTimeConverterUtil.convertToLocalDate(it).format(DATE_FORMATTER)
             )
         }
         if (resolvedTekst.contains(MailTemplateVariables.TAAK_BEHANDELAAR_GROEP.getVariable())) {

@@ -14,24 +14,6 @@ import java.util.Date
 
 class DateTimeConverterUtilTest : BehaviorSpec({
 
-    given("a null date") {
-        `when`("converting to a LocalDate") {
-            val result = DateTimeConverterUtil.convertToLocalDate(null)
-
-            then("it should return null") {
-                result shouldBe null
-            }
-        }
-
-        `when`("converting to a ZonedDateTime") {
-            val result = DateTimeConverterUtil.convertToZonedDateTime(null)
-
-            then("it should return null") {
-                result shouldBe null
-            }
-        }
-    }
-
     given("a date") {
         val date = Date.from(LocalDate.of(2024, 3, 11).atStartOfDay(ZoneId.systemDefault()).toInstant())
 
@@ -70,16 +52,6 @@ class DateTimeConverterUtilTest : BehaviorSpec({
 
             then("it should return the corresponding Date at start of day") {
                 result shouldBe Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
-            }
-        }
-    }
-
-    given("a null OffsetDateTime") {
-        `when`("converting to a Date") {
-            val result = DateTimeConverterUtil.convertToDate(null as OffsetDateTime?)
-
-            then("it should return null") {
-                result shouldBe null
             }
         }
     }
@@ -126,16 +98,6 @@ class DateTimeConverterUtilTest : BehaviorSpec({
 
             then("it should return the corresponding LocalDateTime") {
                 result shouldBe zonedDateTime.withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
-            }
-        }
-    }
-
-    given("a null ZonedDateTime when converting to a LocalDateTime") {
-        `when`("converting to a LocalDateTime") {
-            val result = DateTimeConverterUtil.convertToLocalDateTime(null)
-
-            then("it should return null") {
-                result shouldBe null
             }
         }
     }

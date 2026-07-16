@@ -76,7 +76,7 @@ class BpmnTaskFormRuntimeService @Inject constructor(
         if (bpmnTaskFormData.zaakOpschorten && !zaak.isOpgeschort()) {
             suspensionZaakHelper.suspendZaak(
                 zaak,
-                ChronoUnit.DAYS.between(LocalDate.now(), DateTimeConverterUtil.convertToLocalDate(task.dueDate)),
+                ChronoUnit.DAYS.between(LocalDate.now(), DateTimeConverterUtil.convertToLocalDate(task.dueDate!!)),
                 restTask.formioFormulier?.getString(FORMIO_TITLE, null)
             )
         }
