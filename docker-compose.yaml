@@ -168,7 +168,7 @@ services:
   # them to Django. nginx buffers the full request before forwarding it with Content-Length,
   # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
   openzaak-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.2@sha256:c12c691fa94543c14c6bd304ef063ecd4dbbb01ddec13e31f0f4f09154301744
+    image: nginxinc/nginx-unprivileged:1.31.3@sha256:13e6db27178b9bbd0964daa10cfd1027b7d6b17ee718591c9a0e4cb35cbe9d84
     ports:
       - "8001:8000"
     volumes:
@@ -464,7 +464,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: greenmail/standalone:2.1.10@sha256:e14c74ed55891afda7b9d8a8bc476af605175871b8a6dd0c5bd578f3f6db9d2b
+    image: greenmail/standalone:2.1.11@sha256:53cf220d34e4f2ca9e216f9ae5d9051624780ee510740370b8026915094b87fa
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
@@ -688,7 +688,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.31.2@sha256:c12c691fa94543c14c6bd304ef063ecd4dbbb01ddec13e31f0f4f09154301744
+    image: nginxinc/nginx-unprivileged:1.31.3@sha256:13e6db27178b9bbd0964daa10cfd1027b7d6b17ee718591c9a0e4cb35cbe9d84
     ports:
       - "8005:8080"
     volumes:
@@ -1128,7 +1128,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.2@sha256:c12c691fa94543c14c6bd304ef063ecd4dbbb01ddec13e31f0f4f09154301744
+    image: nginxinc/nginx-unprivileged:1.31.3@sha256:13e6db27178b9bbd0964daa10cfd1027b7d6b17ee718591c9a0e4cb35cbe9d84
     ports:
       - "8007:8080"
     volumes:
