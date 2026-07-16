@@ -102,4 +102,14 @@ class LocalDateUtilTest : BehaviorSpec({
             }
         }
     }
+
+    given("a null date string") {
+        `when`("formatting the date") {
+            val formatted = LocalDateUtil.format(null)
+
+            then("it should return null") {
+                formatted shouldBe null
+            }
+        }
+    }
 })

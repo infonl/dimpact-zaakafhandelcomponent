@@ -16,5 +16,6 @@ fun TaskInfo.toRestSignaleringTaakSummary() =
         this.name,
         readZaakIdentificatie(this),
         readZaaktypeOmschrijving(this),
-        creatiedatumTijd = DateTimeConverterUtil.convertToZonedDateTime(this.createTime)!!
+        creatiedatumTijd = DateTimeConverterUtil.convertToZonedDateTime(this.createTime)
+            ?: error("Task '${this.id}' has no createTime")
     )
