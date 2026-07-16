@@ -91,6 +91,20 @@ class LocalDateUtilTest : BehaviorSpec({
         }
     }
 
+    given("a besluittype without a beginGeldigheid") {
+        val besluitType = createBesluitType().apply {
+            eindeGeldigheid = LocalDate.now().plusDays(1)
+        }
+
+        `when`("checking whether now falls within its validity period") {
+            val result = dateNowIsBetween(besluitType)
+
+            then("it should return true") {
+                result shouldBe true
+            }
+        }
+    }
+
     given("a date string in ISO format") {
         val date = "2024-03-11"
 
