@@ -109,8 +109,6 @@ export class ZaakLinkComponent implements OnDestroy {
   });
 
   constructor() {
-    this.form.controls.caseNumberToSearchFor.disable();
-
     this.form.controls.caseRelationType.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe(() => {
