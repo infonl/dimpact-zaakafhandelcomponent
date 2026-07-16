@@ -26,16 +26,21 @@
       [options]="caseRelationOptionsList"
       [optionDisplayValue]="'label'"
     ></zac-select>
-    <zac-input [form]="form" label="zaak.identificatie" key="caseToSearchFor">
-      <mat-hint
-        *ngIf="form.controls.caseRelationType.value?.value === 'HOOFDZAAK'"
-        >{{ "zaak.koppelen.hint.hoofdzaak-aan-deelzaak" | translate }}</mat-hint
-      >
-      <mat-hint
-        *ngIf="form.controls.caseRelationType.value?.value === 'DEELZAAK'"
-        >{{ "zaak.koppelen.hint.deelzaak-aan-hoofdzaak" | translate }}</mat-hint
-      >
-    </zac-input>
+    <fieldset class="p-0">
+      <legend style="font-weight: bold" class="m-1">
+        {{ "actie.zoeken.zaak" | translate }}
+      </legend>
+      <zac-input
+        [form]="form"
+        label="zaak.identificatie"
+        key="caseNumberToSearchFor"
+      />
+      <zac-input
+        [form]="form"
+        label="zoekVeld.ZAAK_OMSCHRIJVING"
+        key="caseDescriptionToSearchFor"
+      />
+    </fieldset>
   </fieldset>
   <fieldset class="flex-row gap-5 button-row">
     <button

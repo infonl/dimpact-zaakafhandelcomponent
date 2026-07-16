@@ -79,11 +79,6 @@ const setup = (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
 
 describe(ZaakLinkComponent.name, () => {
   describe("form initialisation", () => {
-    it("disables caseToSearchFor until caseRelationType is selected", () => {
-      const { component } = setup();
-      expect(component["form"].controls.caseToSearchFor.disabled).toBe(true);
-    });
-
     it("form is initially invalid", () => {
       const { component } = setup();
       expect(component["form"].valid).toBe(false);
@@ -91,23 +86,6 @@ describe(ZaakLinkComponent.name, () => {
   });
 
   describe("caseRelationType valueChanges", () => {
-    it("enables caseToSearchFor when caseRelationType is selected", () => {
-      const { component } = setup();
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      expect(component["form"].controls.caseToSearchFor.enabled).toBe(true);
-    });
-
-    it("resets caseToSearchFor when caseRelationType changes", () => {
-      const { component } = setup();
-      component["form"].controls.caseToSearchFor.setValue("ZAAK-2026-999");
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      expect(component["form"].controls.caseToSearchFor.value).toBeNull();
-    });
-
     it("clears search results when caseRelationType changes", () => {
       const { component } = setup();
       component["cases"].data = [makeFakeSearchResult()];
@@ -117,31 +95,6 @@ describe(ZaakLinkComponent.name, () => {
       );
       expect(component["cases"].data).toHaveLength(0);
       expect(component["totalCases"]).toBe(0);
-    });
-  });
-
-  describe("caseToSearchFor valueChanges", () => {
-    it("clears search results when value becomes null and data exists", () => {
-      const { component } = setup();
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      component["cases"].data = [makeFakeSearchResult()];
-      component["totalCases"] = 1;
-      component["form"].controls.caseToSearchFor.setValue(null);
-      expect(component["cases"].data).toHaveLength(0);
-      expect(component["totalCases"]).toBe(0);
-    });
-
-    it("does not clear results when value changes to non-null", () => {
-      const { component } = setup();
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      component["cases"].data = [makeFakeSearchResult()];
-      component["totalCases"] = 1;
-      component["form"].controls.caseToSearchFor.setValue("ZAAK-2026-999");
-      expect(component["cases"].data).toHaveLength(1);
     });
   });
 
@@ -161,14 +114,18 @@ describe(ZaakLinkComponent.name, () => {
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"][0],
       );
-      component["form"].controls.caseToSearchFor.setValue("ZAAK-2026");
+      component["form"].controls.caseNumberToSearchFor.setValue("ZAAK-2026");
+      component["form"].controls.caseDescriptionToSearchFor.setValue(
+        "ZAAKOMSCHR",
+      );
       component["searchCases"]();
 
-      expect(zoekenService.findLinkableZaken).toHaveBeenCalledWith(
-        zaak.uuid,
-        "ZAAK-2026",
-        component["caseRelationOptionsList"][0].value,
-      );
+      expect(zoekenService.findLinkableZaken).toHaveBeenCalledWith({
+        zaakUuid: zaak.uuid,
+        zoekZaakIdentifier: "ZAAK-2026",
+        zoekZaakOmschrijving: "ZAAKOMSCHR",
+        relationType: component["caseRelationOptionsList"][0].value,
+      });
       expect(component["cases"].data).toEqual([resultRow]);
       expect(component["totalCases"]).toBe(1);
       expect(component["loading"]).toBe(false);
@@ -187,7 +144,7 @@ describe(ZaakLinkComponent.name, () => {
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"][0],
       );
-      component["form"].controls.caseToSearchFor.setValue("ZAAK-2026");
+      component["form"].controls.caseNumberToSearchFor.setValue("ZAAK-2026");
       component["searchCases"]();
 
       expect(component["loading"]).toBe(false);
@@ -422,7 +379,7 @@ describe(ZaakLinkComponent.name, () => {
       );
     });
 
-    it("shows HOOFDZAAK hint when caseRelationType is HOOFDZAAK", () => {
+    it("shows HOOFDZAAK label when caseRelationType is HOOFDZAAK", () => {
       const { component, fixture } = setup();
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"].find(
@@ -431,11 +388,11 @@ describe(ZaakLinkComponent.name, () => {
       );
       fixture.detectChanges();
       expect(fixture.nativeElement.textContent).toContain(
-        "zaak.koppelen.hint.hoofdzaak-aan-deelzaak",
+        "zaak.koppelen.link.type.HOOFDZAAK",
       );
     });
 
-    it("shows DEELZAAK hint when caseRelationType is DEELZAAK", () => {
+    it("shows DEELZAAK label when caseRelationType is DEELZAAK", () => {
       const { component, fixture } = setup();
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"].find(
@@ -444,7 +401,7 @@ describe(ZaakLinkComponent.name, () => {
       );
       fixture.detectChanges();
       expect(fixture.nativeElement.textContent).toContain(
-        "zaak.koppelen.hint.deelzaak-aan-hoofdzaak",
+        "zaak.koppelen.link.type.DEELZAAK",
       );
     });
   });

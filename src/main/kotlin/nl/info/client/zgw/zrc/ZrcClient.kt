@@ -42,6 +42,9 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import java.util.UUID
 
+/**
+ * Zaakregistratiecomponent API (also known as Zaken API) client.
+ */
 @RegisterRestClient(configKey = "ZGW-API-Client")
 @RegisterClientHeaders(ZgwClientHeadersFactory::class)
 @RegisterProvider(ZgwErrorExceptionMapper::class)

@@ -10,13 +10,15 @@ import java.util.UUID
 
 fun createRestFindLinkableZakenRequest(
     zaakUuid: UUID = UUID.randomUUID(),
-    zoekZaakIdentifier: String = "ZAAK-2000-00002",
+    zoekZaakIdentifier: String? = "ZAAK-2000-00002",
+    zoekZaakOmschrijving: String? = null,
     relationType: RelatieType = RelatieType.GERELATEERD,
     page: Int = 0,
     rows: Int = 10
 ) = RestFindLinkableZakenRequest().apply {
     this.zaakUuid = zaakUuid
     this.zoekZaakIdentifier = zoekZaakIdentifier
+    this.zoekZaakOmschrijving = zoekZaakOmschrijving
     this.relationType = relationType
     this.page = page
     this.rows = rows

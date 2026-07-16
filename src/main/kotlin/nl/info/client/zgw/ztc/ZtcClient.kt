@@ -6,7 +6,6 @@ package nl.info.client.zgw.ztc
 
 import jakarta.ws.rs.BeanParam
 import jakarta.ws.rs.GET
-import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
@@ -41,6 +40,10 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import java.util.UUID
 
 /**
+ * Zaaktype Catalogus (ZTC) API (also known as Catalogi API) client.
+ *
+ * ZAC never updates any ZTC data (in contrast to ZRC data), and therefore this interface should only consist of `GET` functions.
+ *
  * Note that this client should normally only be used by [ZtcClientService] and not directly
  * because of caching purposes.
  */
@@ -63,10 +66,6 @@ interface ZtcClient {
     @GET
     @Path("eigenschappen")
     fun eigenschapList(@BeanParam parameters: EigenschapListParameters): Results<Eigenschap>
-
-    @POST
-    @Path("eigenschappen")
-    fun createEigenschap(eigenschap: Eigenschap): Eigenschap
 
     @GET
     @Path("informatieobjecttypen")

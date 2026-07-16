@@ -36,6 +36,12 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
 
+const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
+  ({
+    label: `zaak.koppelen.link.type.${value}`,
+    value,
+  }) as const;
+
 @Component({
   selector: "zac-zaak-link",
   templateUrl: "./zaak-link.component.html",
@@ -84,66 +90,50 @@ export class ZaakLinkComponent implements OnDestroy {
   ] as const;
   protected loading = false;
 
-  protected caseRelationOptionsList: {
-    label: `zaak.koppelen.link.type.${GeneratedType<"RelatieType">}`;
-    value: GeneratedType<"RelatieType">;
-  }[] = [
-    {
-      label: "zaak.koppelen.link.type.DEELZAAK",
-      value: "DEELZAAK",
-    },
-    {
-      label: "zaak.koppelen.link.type.HOOFDZAAK",
-      value: "HOOFDZAAK",
-    },
-    {
-      label: "zaak.koppelen.link.type.GERELATEERD",
-      value: "GERELATEERD",
-    },
-  ];
+  protected caseRelationOptionsList = [
+    caseRelationOption("DEELZAAK"),
+    caseRelationOption("HOOFDZAAK"),
+    caseRelationOption("GERELATEERD"),
+  ] as const;
 
   protected readonly form = this.formBuilder.group({
     caseRelationType: new FormControl<
       (typeof this.caseRelationOptionsList)[number] | null
     >(null, [Validators.required]),
-    caseToSearchFor: new FormControl<string>("", [
-      Validators.required,
+    caseNumberToSearchFor: new FormControl<string>("", [
+      Validators.minLength(2),
+    ]),
+    caseDescriptionToSearchFor: new FormControl<string>("", [
       Validators.minLength(2),
     ]),
   });
 
   constructor() {
-    this.form.controls.caseToSearchFor.disable();
-
     this.form.controls.caseRelationType.valueChanges
       .pipe(takeUntil(this.ngDestroy))
       .subscribe(() => {
-        this.form.controls.caseToSearchFor.reset();
-        this.form.controls.caseToSearchFor.enable();
         this.clearSearchResult();
-      });
-
-    this.form.controls.caseToSearchFor.valueChanges
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe(() => {
-        if (
-          this.cases.data?.length > 0 &&
-          this.form.controls.caseToSearchFor.value === null
-        )
-          this.clearSearchResult();
       });
   }
 
   protected searchCases() {
     this.loading = true;
     this.utilService.setLoading(true);
+    const {
+      caseNumberToSearchFor,
+      caseDescriptionToSearchFor,
+      caseRelationType,
+    } = this.form.getRawValue();
+
+    if (!caseRelationType?.value) return;
 
     this.zoekenService
-      .findLinkableZaken(
-        this.zaak.uuid,
-        this.form.controls.caseToSearchFor.value!,
-        this.form.controls.caseRelationType.value!.value!,
-      )
+      .findLinkableZaken({
+        zaakUuid: this.zaak.uuid,
+        zoekZaakIdentifier: caseNumberToSearchFor,
+        zoekZaakOmschrijving: caseDescriptionToSearchFor,
+        relationType: caseRelationType.value,
+      })
       .subscribe({
         next: (result) => {
           this.cases.data = result.resultaten ?? [];
