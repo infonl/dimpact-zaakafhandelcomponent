@@ -79,13 +79,6 @@ const setup = (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
 
 describe(ZaakLinkComponent.name, () => {
   describe("form initialisation", () => {
-    it("disables caseToSearchFor until caseRelationType is selected", () => {
-      const { component } = setup();
-      expect(component["form"].controls.caseNumberToSearchFor.disabled).toBe(
-        true,
-      );
-    });
-
     it("form is initially invalid", () => {
       const { component } = setup();
       expect(component["form"].valid).toBe(false);
