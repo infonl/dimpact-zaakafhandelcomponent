@@ -266,7 +266,7 @@ class PlanItemsRestService @Inject constructor(
                 zaak = zaak,
                 resultaatTypeUUID = resultaattypeUUID,
                 description = userEventListenerData.resultaatToelichting,
-                brondatum = userEventListenerData.brondatumEigenschap?.let(String::toBrondatumEigenschap)
+                brondatumEigenschap = userEventListenerData.brondatumEigenschap?.let(String::toBrondatumEigenschap)
             )
         } ?: throw InputValidationFailedException(
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,

@@ -128,9 +128,9 @@ class ZgwApiService @Inject constructor(
      * @param zaak [Zaak] to be closed.
      * @param resultaatTypeUUID [UUID] the UUID of the resultaat for closing the [Zaak].
      * @param description [String] of the [Resultaat] and [Status].
-     * @param brondatum [LocalDate]
+     * @param brondatumEigenschap [LocalDate]
      */
-    fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, description: String?, brondatum: LocalDate? = null) {
+    fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, description: String?, brondatumEigenschap: LocalDate? = null) {
         val resultaatType = getResultaatType(resultaatTypeUUID)
         val resultaat = ResultaatSub().apply {
             resultaattype = resultaatType.url
@@ -150,17 +150,16 @@ class ZgwApiService @Inject constructor(
             this.resultaat = resultaat
             this.status = status
         }
-        processBrondatumProcedure(zaakAfsluiten, resultaatType, brondatum)
+        processBrondatumProcedure(zaakAfsluiten, resultaatType, brondatumEigenschap)
         zrcClientService.closeCase(zaak.uuid, zaakAfsluiten)
     }
 
-    private fun processBrondatumProcedure(zaakAfsluiten: ZaakAfsluiten, resultaatType: ResultaatType, brondatum: LocalDate?) {
-        LOG.fine { "Processing brondatum procedure with brondatum: '$brondatum'" }
+    private fun processBrondatumProcedure(zaakAfsluiten: ZaakAfsluiten, resultaatType: ResultaatType, brondatumEigenschap: LocalDate?) {
         val brondatumArchiefprocedure = resultaatType.brondatumArchiefprocedure ?: return
 
         when (brondatumArchiefprocedure.afleidingswijze) {
             AfleidingswijzeEnum.EIGENSCHAP -> {
-                if (brondatumArchiefprocedure.datumkenmerk.isNullOrBlank() || brondatum == null) {
+                if (brondatumArchiefprocedure.datumkenmerk.isNullOrBlank() || brondatumEigenschap == null) {
                     throw InputValidationFailedException(
                         errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
                         message = "'brondatumEigenschap' moet gevuld zijn bij het afsluiten van een zaak met een " +
@@ -169,7 +168,7 @@ class ZgwApiService @Inject constructor(
                 }
                 this.upsertEigenschapToZaak(
                     brondatumArchiefprocedure.datumkenmerk,
-                    brondatum.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                    brondatumEigenschap.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
                     zaakAfsluiten.zaak
                 )
             }
