@@ -136,9 +136,9 @@ export class ZaakLinkComponent implements OnDestroy {
     this.zoekenService
       .findLinkableZaken({
         zaakUuid: this.zaak.uuid,
-        zoekZaakIdentifier: caseNumberToSearchFor || undefined,
-        zoekZaakOmschrijving: caseDescriptionToSearchFor || undefined,
-        zoekZaakType: zaakTypeToSearchFor?.uuid || undefined,
+        zoekZaakIdentifier: caseNumberToSearchFor,
+        zoekZaakOmschrijving: caseDescriptionToSearchFor,
+        zoekZaakType: zaakTypeToSearchFor?.uuid,
         relationType: caseRelationType.value,
       })
       .subscribe({

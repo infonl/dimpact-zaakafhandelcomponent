@@ -37,14 +37,20 @@ export class ZoekenService {
 
   findLinkableZaken({
     zaakUuid,
-    ...query
+    relationType,
+    zoekZaakIdentifier,
+    zoekZaakOmschrijving,
+    zoekZaakType
   }: FindLinkableZakenParams["query"] & FindLinkableZakenParams["path"]) {
     return this.zacHttpClient.GET(
       "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken",
       {
         path: { zaakUuid },
         query: {
-          ...query,
+          relationType,
+          zoekZaakIdentifier: zoekZaakIdentifier || undefined,
+          zoekZaakOmschrijving: zoekZaakOmschrijving || undefined,
+          zoekZaakType: zoekZaakType || undefined,
           page: 0,
           rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
         },
