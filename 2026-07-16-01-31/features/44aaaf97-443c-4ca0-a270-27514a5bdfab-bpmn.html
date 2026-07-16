@@ -1,0 +1,3186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dimpact e2e test</title>
+<link
+  rel="icon"
+  type="image/x-icon"
+  href="../assets/images/logo.png"
+>
+<link rel="stylesheet" href="../styles.min.css">
+
+  <script src="../assets/js/apex-charts.js"></script>
+  <link rel="stylesheet" href="../assets/css/font-awesome.css">
+
+<style>
+  [v-cloak] {
+    display: none;
+  }
+</style>
+
+    <script>
+      (function () {
+        const theme =
+          localStorage.getItem('theme') ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen bg-background text-foreground">
+    <div class="w-full">
+      <!-- Header -->
+      <header class="border-b bg-background px-4 md:px-6 py-4 sticky top-0 z-40 backdrop-blur supports-backdrop-filter:bg-background/60">
+  <div class="mx-auto max-w-7xl flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3 truncate">
+      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 overflow-hidden">
+        
+          <i class="fa-solid fa-vial-circle-check text-xl"></i>
+        
+      </div>
+      <div class="text-balance">
+        <h1 class="text-lg md:text-2xl font-bold text-foreground text-balance tracking-tight">
+          E2E Test Report
+        </h1>
+        <p class="mt-0.5 text-[10px] md:text-xs text-muted-foreground uppercase font-bold tracking-widest opacity-70">
+          Dimpact e2e test
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="theme-toggle" class="p-2 rounded-md hover:bg-accent transition-colors shrink-0">
+        <svg id="sun-icon" class="hidden h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 5a7 7 0 100 14 7 7 0 000-14z"/>
+        </svg>
+        <svg id="moon-icon" class="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+      <!-- Main Content -->
+      <main class="space-y-6 px-6 py-8">
+        <div class="mx-auto max-w-7xl">
+          
+<div class="space-y-6">
+  <!-- Back Button & Breadcrumbs -->
+  <div class="flex items-center gap-2 text-sm text-muted-foreground">
+    <a href="../index.html" class="hover:text-foreground transition-colors">Dashboard</a>
+    <span>/</span>
+    <span class="text-foreground font-medium">Feature Detail</span>
+  </div>
+
+  <!-- Feature Header -->
+  <div class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden">
+    <div class="p-4 md:p-6 flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+      <div class="space-y-4 flex-1">
+        <div class="space-y-2">
+          <h2 class="text-xl md:text-2xl font-bold text-foreground leading-tight">BPMN</h2>
+          
+            <div class="flex flex-wrap gap-1.5">
+              
+                <span class="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                  @bpmn
+                </span>
+              
+            </div>
+          
+          
+        </div>
+
+        <div class="pt-2 border-t lg:border-t-0">
+          <div class="flex flex-wrap items-center gap-3 md:gap-4 text-sm text-muted-foreground">
+  
+    
+    <span class="flex items-center gap-1.5" title="runnervm5mmn9">
+      <i
+        class="fa-solid fa-desktop text-primary text-base"
+      ></i>
+    </span>
+  
+  
+    
+    <span class="flex items-center gap-1.5" title="Linux 6.17.0-1018-azure">
+      <i
+        class="fa-brands fa-linux text-primary text-base"
+      ></i>
+    </span>
+  
+  
+    
+    <span class="flex items-center gap-1.5" title="not known not known">
+      <i
+        class="fa-solid fa-globe text-primary text-base"
+      ></i>
+    </span>
+  
+  
+    <span class="flex items-center gap-1.5" title="runner">
+      <i class="fa-solid fa-user text-primary text-base"></i>
+      <span class="text-xs text-foreground font-medium">runner</span>
+    </span>
+  
+  
+    <span class="flex items-center gap-1.5" title="Node v22.23.1">
+      <i class="fa-brands fa-node-js text-primary text-base"></i>
+      <span class="text-xs text-foreground font-medium">v22.23.1</span>
+    </span>
+  
+  
+    <span class="flex items-center gap-1.5" title="Reporter 4.1.0">
+      <i class="fa-solid fa-code-branch text-primary text-base"></i>
+      <span class="text-xs text-foreground font-medium">4.1.0</span>
+    </span>
+  
+  
+    <span class="flex items-center gap-1.5" title="x64">
+      <i class="fa-solid fa-microchip text-primary text-base"></i>
+      <span class="text-xs text-foreground font-medium">x64</span>
+    </span>
+  
+
+  
+  
+  
+    <span class="flex items-center gap-1.5 rounded-full bg-muted/50 px-2.5 py-1" title="Running locally">
+      <i class="fa-solid fa-computer text-primary text-sm"></i>
+    </span>
+  
+  
+
+  <div class="w-full my-2"></div>
+  
+    <span class="flex items-center gap-1.5 min-w-0 max-w-full" title="features/9-bpmn.feature">
+      <i class="fa-solid fa-file-code text-primary text-base shrink-0"></i>
+      <span class="text-xs font-mono text-muted-foreground truncate">features/9-bpmn.feature</span>
+    </span>
+  
+  
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+</div>
+
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-6 gap-3 md:gap-4 shrink-0 lg:ml-6 w-full sm:w-auto">
+        <div class="flex flex-col items-center justify-center bg-status-passed/10 rounded-xl py-3 px-3 border border-status-passed/20 w-full">
+          <div class="text-xl md:text-2xl font-bold text-status-passed leading-none">
+            9
+          </div>
+          <div class="text-[9px] md:text-[10px] uppercase font-bold text-status-passed/70 dark:text-status-passed/30 mt-1 tracking-wider">
+            Passed
+          </div>
+        </div>
+        <div class="flex flex-col items-center justify-center bg-status-failed/10 rounded-xl py-3 px-3 border border-status-failed/20 w-full">
+          <div class="text-xl md:text-2xl font-bold text-status-failed leading-none">
+            0
+          </div>
+          <div class="text-[9px] md:text-[10px] uppercase font-bold text-status-failed/70 dark:text-status-failed/30 mt-1 tracking-wider">
+            Failed
+          </div>
+        </div>
+        <div class="flex flex-col items-center justify-center bg-status-ambiguous/10 rounded-xl py-3 px-3 border border-status-ambiguous/20 w-full">
+          <div class="text-xl md:text-2xl font-bold text-status-ambiguous leading-none">
+            0
+          </div>
+          <div class="text-[9px] md:text-[10px] uppercase font-bold text-status-ambiguous/70 dark:text-status-ambiguous/30 mt-1 tracking-wider">
+            Ambiguous
+          </div>
+        </div>
+        <div class="flex flex-col items-center justify-center bg-status-undefined/10 rounded-xl py-3 px-3 border border-status-undefined/20 w-full">
+          <div class="text-xl md:text-2xl font-bold text-status-undefined leading-none">
+            0
+          </div>
+          <div class="text-[9px] md:text-[10px] uppercase font-bold text-status-undefined/70 dark:text-status-undefined/30 mt-1 tracking-wider">
+            Not Defined
+          </div>
+        </div>
+        <div class="flex flex-col items-center justify-center bg-status-pending/10 rounded-xl py-3 px-3 border border-status-pending/20 w-full">
+          <div class="text-xl md:text-2xl font-bold text-status-pending leading-none">
+            0
+          </div>
+          <div class="text-[9px] md:text-[10px] uppercase font-bold text-status-pending/70 dark:text-status-pending/30 mt-1 tracking-wider">
+            Pending
+          </div>
+        </div>
+        <div class="flex flex-col items-center justify-center bg-status-skipped/10 rounded-xl py-3 px-3 border border-status-skipped/20 w-full">
+          <div class="text-xl md:text-2xl font-bold text-status-skipped leading-none">
+            0
+          </div>
+          <div class="text-[9px] md:text-[10px] uppercase font-bold text-status-skipped/70 dark:text-status-skipped/30 mt-1 tracking-wider">
+            Skipped
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Rows -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+      <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Scenario Distribution</h3>
+      <div id="feature-scenarios-chart" class="h-64"></div>
+    </div>
+    <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+      <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">
+        Top 10 Slowest Scenarios
+      </h3>
+      <div id="slowest-scenarios-chart" class="h-64"></div>
+    </div>
+    <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+      <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Top 10 Slowest Steps</h3>
+      <div id="slowest-steps-chart" class="h-64"></div>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+      <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Step Status Breakdown</h3>
+      <div id="feature-step-status-chart" class="h-64"></div>
+    </div>
+    <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+      <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Steps per Scenarios</h3>
+      <div id="feature-steps-per-scenario-chart" class="h-64"></div>
+    </div>
+    <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+      <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Top 10 Tags</h3>
+      <div id="tag-distribution-chart" class="h-64"></div>
+    </div>
+  </div>
+
+  <!-- Scenarios -->
+  <div class="space-y-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <h3 class="text-xl font-bold text-foreground">Scenarios</h3>
+      <div class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+        <div class="relative w-full md:w-64">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+          </span>
+          <input
+            type="text"
+            id="scenario-search"
+            placeholder="Search scenarios..."
+            class="w-full h-9 pl-9 pr-4 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-shadow shadow-sm"
+          >
+        </div>
+        <!-- Tag Filter Dropdown -->
+        <div class="relative w-full md:w-56" id="scenario-tag-filter-container">
+          <button
+            type="button"
+            id="scenario-tag-filter-button"
+            class="flex items-center justify-between w-full h-9 px-3 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-shadow shadow-sm cursor-pointer"
+          >
+            <span class="truncate text-muted-foreground text-xs" id="scenario-tag-filter-label">Filter by tags...</span>
+            <i class="fa-solid fa-chevron-down text-[10px] text-muted-foreground ml-2"></i>
+          </button>
+          <div
+            id="scenario-tag-filter-dropdown"
+            class="hidden absolute left-0 md:left-auto md:right-0 mt-1 w-full md:w-56 rounded-md border border-border bg-card text-card-foreground shadow-md z-50 max-h-60 overflow-y-auto p-1.5 space-y-1"
+          >
+            <!-- Dynamic tag options injected via JS -->
+          </div>
+        </div>
+        <div class="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border w-full md:w-auto overflow-x-auto">
+          <button
+            class="status-filter cursor-pointer active bg-background shadow-sm border border-primary ring-2 ring-primary/20 px-4 py-1.5 rounded-md text-[10px] md:text-xs font-bold transition-all hover:bg-background hover:shadow-sm"
+            data-status="all"
+          >
+            ALL
+          </button>
+          <button
+            class="status-filter cursor-pointer border border-transparent px-4 py-1.5 rounded-md text-[10px] md:text-xs font-bold transition-all hover:bg-background hover:shadow-sm text-status-passed dark:text-status-passed"
+            data-status="passed"
+          >
+            PASSED
+          </button>
+          <button
+            class="status-filter cursor-pointer border border-transparent px-4 py-1.5 rounded-md text-[10px] md:text-xs font-bold transition-all hover:bg-background hover:shadow-sm text-status-failed dark:text-status-failed"
+            data-status="failed"
+          >
+            FAILED
+          </button>
+          <button
+            class="status-filter cursor-pointer border border-transparent px-4 py-1.5 rounded-md text-[10px] md:text-xs font-bold transition-all hover:bg-background hover:shadow-sm text-status-ambiguous dark:text-status-ambiguous"
+            data-status="ambiguous"
+          >
+            AMBIGUOUS
+          </button>
+          <button
+            class="status-filter cursor-pointer border border-transparent px-4 py-1.5 rounded-md text-[10px] md:text-xs font-bold transition-all hover:bg-background hover:shadow-sm text-status-undefined dark:text-status-undefined"
+            data-status="undefined"
+          >
+            NOT DEFINED
+          </button>
+          <button
+            class="status-filter cursor-pointer border border-transparent px-4 py-1.5 rounded-md text-[10px] md:text-xs font-bold transition-all hover:bg-background hover:shadow-sm text-status-pending dark:text-status-pending"
+            data-status="pending"
+          >
+            PENDING
+          </button>
+          <button
+            class="status-filter cursor-pointer border border-transparent px-4 py-1.5 rounded-md text-[10px] md:text-xs font-bold transition-all hover:bg-background hover:shadow-sm text-status-skipped dark:text-status-skipped"
+            data-status="skipped"
+          >
+            SKIPPED
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="no-scenarios-message" class="hidden py-12 text-center bg-muted/20 rounded-xl border border-dashed">
+      <div class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
+        <i class="fa-solid fa-magnifying-glass text-muted-foreground"></i>
+      </div>
+      <h4 class="text-sm font-semibold text-foreground">No scenario found</h4>
+      <p class="text-xs text-muted-foreground mt-1">Try adjusting your filters or search terms.</p>
+    </div>
+    <div id="scenarios-container" class="space-y-4">
+      
+        
+
+
+
+
+  
+    
+  
+
+<div
+  class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden scenario-card"
+  data-status="passed"
+  data-tags="@bpmn"
+>
+  <button
+    class="w-full text-left px-4 md:px-6 py-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+    onclick="this.nextElementSibling.classList.toggle('hidden')"
+  >
+    <div class="flex items-center gap-3 overflow-hidden">
+      
+        <i class="fa-solid fa-circle-check text-xl md:text-2xl shrink-0 text-status-passed"></i>
+      
+
+      <div class="truncate">
+        <h4 class="font-bold text-sm md:text-base truncate">Bob wants to create a new BPMN zaak</h4>
+        
+          <div class="flex flex-wrap gap-1 mt-0.5">
+            
+              <span class="text-[9px] md:text-[10px] font-medium text-muted-foreground">@bpmn</span>
+            
+          </div>
+        
+        
+      </div>
+    </div>
+    <div class="flex items-center gap-2 md:gap-4 shrink-0 ml-2">
+      <span class="font-mono text-[10px] md:text-xs text-muted-foreground">00:00:39.884</span>
+      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </div>
+  </button>
+  <div class="hidden border-t divide-y divide-border">
+    
+
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Before</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" is logged in to zac</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:09.761</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>"Bob" wants to create a new "BPMN" zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:17.329</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees the created zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:05.508</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" navigates to "zac" with path "/zaken/werkvoorraad"</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.597</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees the created zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:06.688</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">After</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+</div>
+
+      
+        
+
+
+
+
+  
+    
+  
+
+<div
+  class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden scenario-card"
+  data-status="passed"
+  data-tags="@bpmn"
+>
+  <button
+    class="w-full text-left px-4 md:px-6 py-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+    onclick="this.nextElementSibling.classList.toggle('hidden')"
+  >
+    <div class="flex items-center gap-3 overflow-hidden">
+      
+        <i class="fa-solid fa-circle-check text-xl md:text-2xl shrink-0 text-status-passed"></i>
+      
+
+      <div class="truncate">
+        <h4 class="font-bold text-sm md:text-base truncate">Bob changes the assigned user and group</h4>
+        
+          <div class="flex flex-wrap gap-1 mt-0.5">
+            
+              <span class="text-[9px] md:text-[10px] font-medium text-muted-foreground">@bpmn</span>
+            
+          </div>
+        
+        
+      </div>
+    </div>
+    <div class="flex items-center gap-2 md:gap-4 shrink-0 ml-2">
+      <span class="font-mono text-[10px] md:text-xs text-muted-foreground">00:00:26.244</span>
+      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </div>
+  </button>
+  <div class="hidden border-t divide-y divide-border">
+    
+
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Before</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" is logged in to zac</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:10.601</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>Employee "Bob" is on the newly created zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.624</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees group "test-group-a" and user "e2etestuser1" in the zaak data</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:03.370</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>Employee "Bob" assigns the zaak to group "Test groep B" and user "E2etest User2"</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:06.446</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees group "test-group-b" and user "e2etestuser2" in the zaak data</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:05.201</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">After</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+</div>
+
+      
+        
+
+
+
+
+  
+    
+  
+
+<div
+  class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden scenario-card"
+  data-status="passed"
+  data-tags="@bpmn"
+>
+  <button
+    class="w-full text-left px-4 md:px-6 py-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+    onclick="this.nextElementSibling.classList.toggle('hidden')"
+  >
+    <div class="flex items-center gap-3 overflow-hidden">
+      
+        <i class="fa-solid fa-circle-check text-xl md:text-2xl shrink-0 text-status-passed"></i>
+      
+
+      <div class="truncate">
+        <h4 class="font-bold text-sm md:text-base truncate">Bob opens the initial task form</h4>
+        
+          <div class="flex flex-wrap gap-1 mt-0.5">
+            
+              <span class="text-[9px] md:text-[10px] font-medium text-muted-foreground">@bpmn</span>
+            
+          </div>
+        
+        
+      </div>
+    </div>
+    <div class="flex items-center gap-2 md:gap-4 shrink-0 ml-2">
+      <span class="font-mono text-[10px] md:text-xs text-muted-foreground">00:00:18.996</span>
+      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </div>
+  </button>
+  <div class="hidden border-t divide-y divide-border">
+    
+
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Before</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" is logged in to zac</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:10.989</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>Employee "Bob" is on the newly created zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.515</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>"Bob" opens the active task</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:02.947</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees the form associated with the task</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:04.544</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">After</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+</div>
+
+      
+        
+
+
+
+
+  
+    
+  
+
+<div
+  class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden scenario-card"
+  data-status="passed"
+  data-tags="@bpmn"
+>
+  <button
+    class="w-full text-left px-4 md:px-6 py-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+    onclick="this.nextElementSibling.classList.toggle('hidden')"
+  >
+    <div class="flex items-center gap-3 overflow-hidden">
+      
+        <i class="fa-solid fa-circle-check text-xl md:text-2xl shrink-0 text-status-passed"></i>
+      
+
+      <div class="truncate">
+        <h4 class="font-bold text-sm md:text-base truncate">Bob creates two SmartDocuments Word files</h4>
+        
+          <div class="flex flex-wrap gap-1 mt-0.5">
+            
+              <span class="text-[9px] md:text-[10px] font-medium text-muted-foreground">@bpmn</span>
+            
+          </div>
+        
+        
+      </div>
+    </div>
+    <div class="flex items-center gap-2 md:gap-4 shrink-0 ml-2">
+      <span class="font-mono text-[10px] md:text-xs text-muted-foreground">00:00:41.385</span>
+      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </div>
+  </button>
+  <div class="hidden border-t divide-y divide-border">
+    
+
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Before</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" is logged in to zac</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:09.971</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>Employee "Bob" is on the newly created zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.620</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>"Bob" opens the active task</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:02.925</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" creates a SmartDocuments Word file named "file A"</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:14.123</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>"Bob" reloads the page</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.602</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees document "file A" in the documents list</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:02.777</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" creates a SmartDocuments Word file named "file B"</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:06.999</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>"Bob" reloads the page</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.593</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees document "file B" in the documents list</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:02.771</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">After</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+</div>
+
+      
+        
+
+
+
+
+  
+    
+  
+
+<div
+  class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden scenario-card"
+  data-status="passed"
+  data-tags="@bpmn"
+>
+  <button
+    class="w-full text-left px-4 md:px-6 py-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+    onclick="this.nextElementSibling.classList.toggle('hidden')"
+  >
+    <div class="flex items-center gap-3 overflow-hidden">
+      
+        <i class="fa-solid fa-circle-check text-xl md:text-2xl shrink-0 text-status-passed"></i>
+      
+
+      <div class="truncate">
+        <h4 class="font-bold text-sm md:text-base truncate">Bob fills-in and submits the task form</h4>
+        
+          <div class="flex flex-wrap gap-1 mt-0.5">
+            
+              <span class="text-[9px] md:text-[10px] font-medium text-muted-foreground">@bpmn</span>
+            
+          </div>
+        
+        
+      </div>
+    </div>
+    <div class="flex items-center gap-2 md:gap-4 shrink-0 ml-2">
+      <span class="font-mono text-[10px] md:text-xs text-muted-foreground">00:00:34.215</span>
+      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </div>
+  </button>
+  <div class="hidden border-t divide-y divide-border">
+    
+
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Before</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" is logged in to zac</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:09.991</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>Employee "Bob" is on the newly created zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.600</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>"Bob" opens the active task</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:03.912</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees the desired form fields values</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:04.910</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" fills all mandatory form fields</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:01.155</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>"Bob" submits the filled-in form</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.070</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>Employee "Bob" is on the newly created zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.517</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees that the initial task is completed</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:02.781</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees that the select documents to sign task is started with group "Test groep A" and user "E2etest User1"</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:10.275</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">After</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+</div>
+
+      
+        
+
+
+
+
+  
+    
+  
+
+<div
+  class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden scenario-card"
+  data-status="passed"
+  data-tags="@bpmn"
+>
+  <button
+    class="w-full text-left px-4 md:px-6 py-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+    onclick="this.nextElementSibling.classList.toggle('hidden')"
+  >
+    <div class="flex items-center gap-3 overflow-hidden">
+      
+        <i class="fa-solid fa-circle-check text-xl md:text-2xl shrink-0 text-status-passed"></i>
+      
+
+      <div class="truncate">
+        <h4 class="font-bold text-sm md:text-base truncate">Bob opens and fills in the sign documents form</h4>
+        
+          <div class="flex flex-wrap gap-1 mt-0.5">
+            
+              <span class="text-[9px] md:text-[10px] font-medium text-muted-foreground">@bpmn</span>
+            
+          </div>
+        
+        
+      </div>
+    </div>
+    <div class="flex items-center gap-2 md:gap-4 shrink-0 ml-2">
+      <span class="font-mono text-[10px] md:text-xs text-muted-foreground">00:00:13.674</span>
+      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </div>
+  </button>
+  <div class="hidden border-t divide-y divide-border">
+    
+
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Before</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" is logged in to zac</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:04.933</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>Employee "Bob" is on the newly created zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.559</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>"Bob" opens the active task</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:02.983</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees the select documents to sign form</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:03.531</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>"Bob" selects document "file A" for signing</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:01.358</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>"Bob" selects document "file B" for signing</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.063</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>"Bob" submits the filled-in form</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.244</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">After</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+</div>
+
+      
+        
+
+
+
+
+  
+    
+  
+
+<div
+  class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden scenario-card"
+  data-status="passed"
+  data-tags="@bpmn"
+>
+  <button
+    class="w-full text-left px-4 md:px-6 py-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+    onclick="this.nextElementSibling.classList.toggle('hidden')"
+  >
+    <div class="flex items-center gap-3 overflow-hidden">
+      
+        <i class="fa-solid fa-circle-check text-xl md:text-2xl shrink-0 text-status-passed"></i>
+      
+
+      <div class="truncate">
+        <h4 class="font-bold text-sm md:text-base truncate">Bob verifies the documents to sign and confirms signing</h4>
+        
+          <div class="flex flex-wrap gap-1 mt-0.5">
+            
+              <span class="text-[9px] md:text-[10px] font-medium text-muted-foreground">@bpmn</span>
+            
+          </div>
+        
+        
+      </div>
+    </div>
+    <div class="flex items-center gap-2 md:gap-4 shrink-0 ml-2">
+      <span class="font-mono text-[10px] md:text-xs text-muted-foreground">00:00:23.947</span>
+      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </div>
+  </button>
+  <div class="hidden border-t divide-y divide-border">
+    
+
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Before</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" is logged in to zac</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:11.035</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>Employee "Bob" is on the newly created zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.600</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>"Bob" opens the active task</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:03.414</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees 2 documents in the to be signed list</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:04.020</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees document "file A" in the to be signed list</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.009</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees document "file B" in the to be signed list</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.010</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>"Bob" confirms the signing of the documents</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.034</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>Employee "Bob" is on the newly created zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.354</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>"Bob" sees document "file A" has been signed</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:04.463</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>"Bob" sees document "file B" has been signed</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.004</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">After</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+</div>
+
+      
+        
+
+
+
+
+  
+    
+  
+
+<div
+  class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden scenario-card"
+  data-status="passed"
+  data-tags="@bpmn"
+>
+  <button
+    class="w-full text-left px-4 md:px-6 py-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+    onclick="this.nextElementSibling.classList.toggle('hidden')"
+  >
+    <div class="flex items-center gap-3 overflow-hidden">
+      
+        <i class="fa-solid fa-circle-check text-xl md:text-2xl shrink-0 text-status-passed"></i>
+      
+
+      <div class="truncate">
+        <h4 class="font-bold text-sm md:text-base truncate">Bob inspects the summary task form</h4>
+        
+          <div class="flex flex-wrap gap-1 mt-0.5">
+            
+              <span class="text-[9px] md:text-[10px] font-medium text-muted-foreground">@bpmn</span>
+            
+          </div>
+        
+        
+      </div>
+    </div>
+    <div class="flex items-center gap-2 md:gap-4 shrink-0 ml-2">
+      <span class="font-mono text-[10px] md:text-xs text-muted-foreground">00:00:18.675</span>
+      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </div>
+  </button>
+  <div class="hidden border-t divide-y divide-border">
+    
+
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Before</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" is logged in to zac</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:10.151</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>Employee "Bob" is on the newly created zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.514</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>"Bob" opens the active task</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:03.453</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees that the summary form contains all filled-in data</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:04.555</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">After</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+</div>
+
+      
+        
+
+
+
+
+  
+    
+  
+
+<div
+  class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden scenario-card"
+  data-status="passed"
+  data-tags="@bpmn"
+>
+  <button
+    class="w-full text-left px-4 md:px-6 py-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+    onclick="this.nextElementSibling.classList.toggle('hidden')"
+  >
+    <div class="flex items-center gap-3 overflow-hidden">
+      
+        <i class="fa-solid fa-circle-check text-xl md:text-2xl shrink-0 text-status-passed"></i>
+      
+
+      <div class="truncate">
+        <h4 class="font-bold text-sm md:text-base truncate">Bob confirms the data in the summary form</h4>
+        
+          <div class="flex flex-wrap gap-1 mt-0.5">
+            
+              <span class="text-[9px] md:text-[10px] font-medium text-muted-foreground">@bpmn</span>
+            
+          </div>
+        
+        
+      </div>
+    </div>
+    <div class="flex items-center gap-2 md:gap-4 shrink-0 ml-2">
+      <span class="font-mono text-[10px] md:text-xs text-muted-foreground">00:00:18.978</span>
+      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </div>
+  </button>
+  <div class="hidden border-t divide-y divide-border">
+    
+
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Before</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Given </span>
+                <span>"Bob" is logged in to zac</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:05.567</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>Employee "Bob" is on the newly created zaak</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.553</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>"Bob" opens the active task</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:03.431</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">And </span>
+                <span>"Bob" confirms the data in the form</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:04.045</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">When </span>
+                <span>Employee "Bob" is on the newly created zaak with status "Afgerond"</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:05.377</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">Then </span>
+                <span>"Bob" sees the zaak result is set to "Verleend"</span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono">00:00:00.004</p>
+
+              
+                
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="px-6 py-4 bg-muted/20">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-3 w-full">
+            
+              <i class="fa-solid fa-circle-check mt-0.5 shrink-0 text-status-passed"></i>
+            
+            <div class="w-full">
+              <p class="text-sm">
+                <span class="font-bold text-foreground">After</span>
+                <span></span>
+              </p>
+              <p class="text-[10px] text-muted-foreground mt-1 font-mono"></p>
+
+              
+
+              
+
+              
+
+              
+              
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+</div>
+
+      
+    </div>
+  </div>
+</div>
+
+<script>
+  // Report-wide UI config (opt-in features toggled from the reporter options)
+  window.ReportConfig = Object.assign({}, window.ReportConfig, {
+      displayChartPercentages: false
+  });
+
+  // Embedded data for charts
+  const featureData = {"description":"","elements":[{"description":"","id":"bpmn;bob-wants-to-create-a-new-bpmn-zaak","keyword":"Scenario","line":8,"name":"Bob wants to create a new BPMN zaak","steps":[{"keyword":"Before","hidden":true,"result":{"status":"passed","duration":97513944}},{"arguments":[],"keyword":"Given ","line":9,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"result":{"status":"passed","duration":9761642971},"time":"00:00:09.761"},{"arguments":[],"keyword":"When ","line":10,"name":"\"Bob\" wants to create a new \"BPMN\" zaak","match":{"location":"step-definitions/zaak.ts:181"},"result":{"status":"passed","duration":17329406545},"time":"00:00:17.329"},{"arguments":[],"keyword":"Then ","line":11,"name":"\"Bob\" sees the created zaak","match":{"location":"step-definitions/zaak.ts:314"},"result":{"status":"passed","duration":5508261805},"time":"00:00:05.508"},{"arguments":[],"keyword":"Given ","line":12,"name":"\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"","match":{"location":"step-definitions/common.ts:36"},"result":{"status":"passed","duration":597032387},"time":"00:00:00.597"},{"arguments":[],"keyword":"Then ","line":13,"name":"\"Bob\" sees the created zaak","match":{"location":"step-definitions/zaak.ts:314"},"result":{"status":"passed","duration":6688228027},"time":"00:00:06.688"},{"keyword":"After","hidden":true,"result":{"status":"passed","duration":182567794}}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":39.884571734999994,"time":"00:00:39.884","passed":5,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-changes-the-assigned-user-and-group","keyword":"Scenario","line":15,"name":"Bob changes the assigned user and group","steps":[{"keyword":"Before","hidden":true,"result":{"status":"passed","duration":95556334}},{"arguments":[],"keyword":"Given ","line":16,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"result":{"status":"passed","duration":10601702903},"time":"00:00:10.601"},{"arguments":[],"keyword":"When ","line":17,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:82"},"result":{"status":"passed","duration":624692093},"time":"00:00:00.624"},{"arguments":[],"keyword":"Then ","line":18,"name":"\"Bob\" sees group \"test-group-a\" and user \"e2etestuser1\" in the zaak data","match":{"location":"step-definitions/bpmn.ts:351"},"result":{"status":"passed","duration":3370308966},"time":"00:00:03.370"},{"arguments":[],"keyword":"Given ","line":19,"name":"Employee \"Bob\" assigns the zaak to group \"Test groep B\" and user \"E2etest User2\"","match":{"location":"step-definitions/zaak.ts:146"},"result":{"status":"passed","duration":6446370452},"time":"00:00:06.446"},{"arguments":[],"keyword":"Then ","line":20,"name":"\"Bob\" sees group \"test-group-b\" and user \"e2etestuser2\" in the zaak data","match":{"location":"step-definitions/bpmn.ts:351"},"result":{"status":"passed","duration":5201342221},"time":"00:00:05.201"},{"keyword":"After","hidden":true,"result":{"status":"passed","duration":167479946}}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":26.244416635,"time":"00:00:26.244","passed":5,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-opens-the-initial-task-form","keyword":"Scenario","line":22,"name":"Bob opens the initial task form","steps":[{"keyword":"Before","hidden":true,"result":{"status":"passed","duration":99899402}},{"arguments":[],"keyword":"Given ","line":23,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"result":{"status":"passed","duration":10989338382},"time":"00:00:10.989"},{"arguments":[],"keyword":"When ","line":24,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:82"},"result":{"status":"passed","duration":515099315},"time":"00:00:00.515"},{"arguments":[],"keyword":"And ","line":25,"name":"\"Bob\" opens the active task","match":{"location":"step-definitions/bpmn.ts:50"},"result":{"status":"passed","duration":2947347675},"time":"00:00:02.947"},{"arguments":[],"keyword":"Then ","line":26,"name":"\"Bob\" sees the form associated with the task","match":{"location":"step-definitions/bpmn.ts:63"},"result":{"status":"passed","duration":4544809552},"time":"00:00:04.544"},{"keyword":"After","hidden":true,"result":{"status":"passed","duration":148353624}}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":18.996594924,"time":"00:00:18.996","passed":4,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-creates-two-smartdocuments-word-files","keyword":"Scenario","line":28,"name":"Bob creates two SmartDocuments Word files","steps":[{"keyword":"Before","hidden":true,"result":{"status":"passed","duration":97048545}},{"arguments":[],"keyword":"Given ","line":29,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"result":{"status":"passed","duration":9971371055},"time":"00:00:09.971"},{"arguments":[],"keyword":"When ","line":30,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:82"},"result":{"status":"passed","duration":620211283},"time":"00:00:00.620"},{"arguments":[],"keyword":"And ","line":31,"name":"\"Bob\" opens the active task","match":{"location":"step-definitions/bpmn.ts:50"},"result":{"status":"passed","duration":2925649274},"time":"00:00:02.925"},{"arguments":[],"keyword":"Given ","line":32,"name":"\"Bob\" creates a SmartDocuments Word file named \"file A\"","match":{"location":"step-definitions/bpmn.ts:85"},"result":{"status":"passed","duration":14123149126},"time":"00:00:14.123"},{"arguments":[],"keyword":"When ","line":33,"name":"\"Bob\" reloads the page","match":{"location":"step-definitions/bpmn.ts:129"},"result":{"status":"passed","duration":602955431},"time":"00:00:00.602"},{"arguments":[],"keyword":"Then ","line":34,"name":"\"Bob\" sees document \"file A\" in the documents list","match":{"location":"step-definitions/bpmn.ts:137"},"result":{"status":"passed","duration":2777508302},"time":"00:00:02.777"},{"arguments":[],"keyword":"Given ","line":35,"name":"\"Bob\" creates a SmartDocuments Word file named \"file B\"","match":{"location":"step-definitions/bpmn.ts:85"},"result":{"status":"passed","duration":6999605368},"time":"00:00:06.999"},{"arguments":[],"keyword":"When ","line":36,"name":"\"Bob\" reloads the page","match":{"location":"step-definitions/bpmn.ts:129"},"result":{"status":"passed","duration":593521517},"time":"00:00:00.593"},{"arguments":[],"keyword":"Then ","line":37,"name":"\"Bob\" sees document \"file B\" in the documents list","match":{"location":"step-definitions/bpmn.ts:137"},"result":{"status":"passed","duration":2771802180},"time":"00:00:02.771"},{"keyword":"After","hidden":true,"result":{"status":"passed","duration":202719105}}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":41.385773536,"time":"00:00:41.385","passed":9,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-fills-in-and-submits-the-task-form","keyword":"Scenario","line":39,"name":"Bob fills-in and submits the task form","steps":[{"keyword":"Before","hidden":true,"result":{"status":"passed","duration":96556810}},{"arguments":[],"keyword":"Given ","line":40,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"result":{"status":"passed","duration":9991223569},"time":"00:00:09.991"},{"arguments":[],"keyword":"When ","line":41,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:82"},"result":{"status":"passed","duration":600539938},"time":"00:00:00.600"},{"arguments":[],"keyword":"And ","line":42,"name":"\"Bob\" opens the active task","match":{"location":"step-definitions/bpmn.ts:50"},"result":{"status":"passed","duration":3912024233},"time":"00:00:03.912"},{"arguments":[],"keyword":"Then ","line":43,"name":"\"Bob\" sees the desired form fields values","match":{"location":"step-definitions/bpmn.ts:169"},"result":{"status":"passed","duration":4910704880},"time":"00:00:04.910"},{"arguments":[],"keyword":"Given ","line":44,"name":"\"Bob\" fills all mandatory form fields","match":{"location":"step-definitions/bpmn.ts:189"},"result":{"status":"passed","duration":1155093710},"time":"00:00:01.155"},{"arguments":[],"keyword":"And ","line":45,"name":"\"Bob\" submits the filled-in form","match":{"location":"step-definitions/bpmn.ts:222"},"result":{"status":"passed","duration":70897453},"time":"00:00:00.070"},{"arguments":[],"keyword":"When ","line":46,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:82"},"result":{"status":"passed","duration":517383871},"time":"00:00:00.517"},{"arguments":[],"keyword":"Then ","line":47,"name":"\"Bob\" sees that the initial task is completed","match":{"location":"step-definitions/bpmn.ts:234"},"result":{"status":"passed","duration":2781995233},"time":"00:00:02.781"},{"arguments":[],"keyword":"Then ","line":48,"name":"\"Bob\" sees that the select documents to sign task is started with group \"Test groep A\" and user \"E2etest User1\"","match":{"location":"step-definitions/bpmn.ts:250"},"result":{"status":"passed","duration":10275564673},"time":"00:00:10.275"},{"keyword":"After","hidden":true,"result":{"status":"passed","duration":131608002}}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":34.215427559999995,"time":"00:00:34.215","passed":9,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-opens-and-fills-in-the-sign-documents-form","keyword":"Scenario","line":50,"name":"Bob opens and fills in the sign documents form","steps":[{"keyword":"Before","hidden":true,"result":{"status":"passed","duration":99061107}},{"arguments":[],"keyword":"Given ","line":51,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"result":{"status":"passed","duration":4933062568},"time":"00:00:04.933"},{"arguments":[],"keyword":"And ","line":52,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:82"},"result":{"status":"passed","duration":559606348},"time":"00:00:00.559"},{"arguments":[],"keyword":"When ","line":53,"name":"\"Bob\" opens the active task","match":{"location":"step-definitions/bpmn.ts:50"},"result":{"status":"passed","duration":2983690302},"time":"00:00:02.983"},{"arguments":[],"keyword":"Then ","line":54,"name":"\"Bob\" sees the select documents to sign form","match":{"location":"step-definitions/bpmn.ts:371"},"result":{"status":"passed","duration":3531978256},"time":"00:00:03.531"},{"arguments":[],"keyword":"When ","line":55,"name":"\"Bob\" selects document \"file A\" for signing","match":{"location":"step-definitions/bpmn.ts:384"},"result":{"status":"passed","duration":1358577825},"time":"00:00:01.358"},{"arguments":[],"keyword":"And ","line":56,"name":"\"Bob\" selects document \"file B\" for signing","match":{"location":"step-definitions/bpmn.ts:384"},"result":{"status":"passed","duration":63072948},"time":"00:00:00.063"},{"arguments":[],"keyword":"And ","line":57,"name":"\"Bob\" submits the filled-in form","match":{"location":"step-definitions/bpmn.ts:222"},"result":{"status":"passed","duration":244188554},"time":"00:00:00.244"},{"keyword":"After","hidden":true,"result":{"status":"passed","duration":97010113}}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":13.674176801,"time":"00:00:13.674","passed":7,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-verifies-the-documents-to-sign-and-confirms-signing","keyword":"Scenario","line":59,"name":"Bob verifies the documents to sign and confirms signing","steps":[{"keyword":"Before","hidden":true,"result":{"status":"passed","duration":96569120}},{"arguments":[],"keyword":"Given ","line":60,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"result":{"status":"passed","duration":11035529144},"time":"00:00:11.035"},{"arguments":[],"keyword":"And ","line":61,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:82"},"result":{"status":"passed","duration":600520236},"time":"00:00:00.600"},{"arguments":[],"keyword":"When ","line":62,"name":"\"Bob\" opens the active task","match":{"location":"step-definitions/bpmn.ts:50"},"result":{"status":"passed","duration":3414520612},"time":"00:00:03.414"},{"arguments":[],"keyword":"Then ","line":63,"name":"\"Bob\" sees 2 documents in the to be signed list","match":{"location":"step-definitions/bpmn.ts:402"},"result":{"status":"passed","duration":4020253693},"time":"00:00:04.020"},{"arguments":[],"keyword":"Then ","line":64,"name":"\"Bob\" sees document \"file A\" in the to be signed list","match":{"location":"step-definitions/bpmn.ts:420"},"result":{"status":"passed","duration":9835355},"time":"00:00:00.009"},{"arguments":[],"keyword":"Then ","line":65,"name":"\"Bob\" sees document \"file B\" in the to be signed list","match":{"location":"step-definitions/bpmn.ts:420"},"result":{"status":"passed","duration":10133571},"time":"00:00:00.010"},{"arguments":[],"keyword":"When ","line":66,"name":"\"Bob\" confirms the signing of the documents","match":{"location":"step-definitions/bpmn.ts:438"},"result":{"status":"passed","duration":34043869},"time":"00:00:00.034"},{"arguments":[],"keyword":"When ","line":67,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:82"},"result":{"status":"passed","duration":354828873},"time":"00:00:00.354"},{"arguments":[],"keyword":"And ","line":68,"name":"\"Bob\" sees document \"file A\" has been signed","match":{"location":"step-definitions/bpmn.ts:446"},"result":{"status":"passed","duration":4463202791},"time":"00:00:04.463"},{"arguments":[],"keyword":"And ","line":69,"name":"\"Bob\" sees document \"file B\" has been signed","match":{"location":"step-definitions/bpmn.ts:446"},"result":{"status":"passed","duration":4539738},"time":"00:00:00.004"},{"keyword":"After","hidden":true,"result":{"status":"passed","duration":146270708}}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":23.947407882,"time":"00:00:23.947","passed":10,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-inspects-the-summary-task-form","keyword":"Scenario","line":71,"name":"Bob inspects the summary task form","steps":[{"keyword":"Before","hidden":true,"result":{"status":"passed","duration":101619935}},{"arguments":[],"keyword":"Given ","line":72,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"result":{"status":"passed","duration":10151660637},"time":"00:00:10.151"},{"arguments":[],"keyword":"And ","line":73,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:82"},"result":{"status":"passed","duration":514187177},"time":"00:00:00.514"},{"arguments":[],"keyword":"When ","line":74,"name":"\"Bob\" opens the active task","match":{"location":"step-definitions/bpmn.ts:50"},"result":{"status":"passed","duration":3453887883},"time":"00:00:03.453"},{"arguments":[],"keyword":"Then ","line":75,"name":"\"Bob\" sees that the summary form contains all filled-in data","match":{"location":"step-definitions/bpmn.ts:277"},"result":{"status":"passed","duration":4555568361},"time":"00:00:04.555"},{"keyword":"After","hidden":true,"result":{"status":"passed","duration":128039939}}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":18.675304058000002,"time":"00:00:18.675","passed":4,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-confirms-the-data-in-the-summary-form","keyword":"Scenario","line":77,"name":"Bob confirms the data in the summary form","steps":[{"keyword":"Before","hidden":true,"result":{"status":"passed","duration":94462759}},{"arguments":[],"keyword":"Given ","line":78,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"result":{"status":"passed","duration":5567069325},"time":"00:00:05.567"},{"arguments":[],"keyword":"And ","line":79,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:82"},"result":{"status":"passed","duration":553220114},"time":"00:00:00.553"},{"arguments":[],"keyword":"When ","line":80,"name":"\"Bob\" opens the active task","match":{"location":"step-definitions/bpmn.ts:50"},"result":{"status":"passed","duration":3431549374},"time":"00:00:03.431"},{"arguments":[],"keyword":"And ","line":81,"name":"\"Bob\" confirms the data in the form","match":{"location":"step-definitions/bpmn.ts:308"},"result":{"status":"passed","duration":4045331564},"time":"00:00:04.045"},{"arguments":[],"keyword":"When ","line":82,"name":"Employee \"Bob\" is on the newly created zaak with status \"Afgerond\"","match":{"location":"step-definitions/zaak.ts:65"},"result":{"status":"passed","duration":5377505573},"time":"00:00:05.377"},{"arguments":[],"keyword":"Then ","line":83,"name":"\"Bob\" sees the zaak result is set to \"Verleend\"","match":{"location":"step-definitions/bpmn.ts:336"},"result":{"status":"passed","duration":4196268},"time":"00:00:00.004"},{"keyword":"After","hidden":true,"result":{"status":"passed","duration":93511413}}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":18.978872218,"time":"00:00:18.978","passed":6,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0}],"id":"44aaaf97-443c-4ca0-a270-27514a5bdfab-bpmn","line":6,"keyword":"Feature","name":"BPMN","tags":[{"name":"@bpmn","line":5}],"uri":"features/9-bpmn.feature","metadata":{"browser":{"name":"not known","version":"not known"},"executionPlatform":"local","username":"runner","device":"runnervm5mmn9","platform":{"name":"Linux","version":"6.17.0-1018-azure"},"nodeVersion":"v22.23.1","reportVersion":"4.1.0","hostname":"runnervm5mmn9","architecture":"x64"},"scenarios":{"passed":9,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"passedPercentage":"100.00","failedPercentage":"0.00","notDefinedPercentage":"0.00","skippedPercentage":"0.00","pendingPercentage":"0.00","ambiguousPercentage":"0.00","total":9},"duration":236002545349,"time":"00:03:56.002","isFailed":false,"isAmbiguous":false,"isSkipped":false,"isNotdefined":false,"isPending":false,"passed":9,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"totalTime":236002545349,"app":"","browser":"not known not known","device":"runnervm5mmn9","executionPlatform":"local","os":"Linux 6.17.0-1018-azure","username":"runner"};
+</script>
+
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="border-t bg-background px-6 py-4 mt-8">
+  <div class="mx-auto max-w-7xl text-center">
+    
+      <p class="text-xs text-muted-foreground">
+        Generated by
+        <a
+          href="https://github.com/WasiqB/multiple-cucumber-html-reporter"
+          target="_blank"
+          class="text-primary hover:underline"
+          >Multiple Cucumber HTML Reporter</a
+        >
+      </p>
+      <p class="text-xs text-muted-foreground mt-2">
+        Built with ❤️ by
+        <a href="https://wasiqbhamla.com/" target="_blank" class="text-primary hover:underline font-semibold"
+          >Wasiq Bhamla</a
+        >
+        <span class="mx-1.5 text-muted-foreground/50">•</span>
+        <a
+          href="https://github.com/WasiqB"
+          target="_blank"
+          class="text-muted-foreground hover:text-primary transition-colors"
+          ><i class="fa-brands fa-github mr-0.5"></i
+        ></a>
+        <span class="mx-1.5 text-muted-foreground/50">•</span>
+        <a
+          href="https://x.com/WasiqBhamla"
+          target="_blank"
+          class="text-muted-foreground hover:text-primary transition-colors"
+          ><i class="fa-brands fa-x-twitter mr-0.5"></i
+        ></a>
+        <span class="mx-1.5 text-muted-foreground/50">•</span>
+        <a
+          href="https://www.linkedin.com/in/wasiqbhamla/"
+          target="_blank"
+          class="text-muted-foreground hover:text-primary transition-colors"
+          ><i class="fa-brands fa-linkedin mr-0.5"></i
+        ></a>
+      </p>
+    
+  </div>
+</footer>
+
+    </div>
+
+    <!-- Media Modal -->
+    <div
+  id="media-modal"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4"
+  onclick="closeModal()"
+>
+  <div
+    class="relative w-full max-w-4xl max-h-[90vh] bg-background rounded-lg shadow-lg flex flex-col overflow-hidden"
+    onclick="event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b p-4 text-card-foreground">
+      <h2 id="modal-title" class="text-lg font-semibold truncate mr-4">Attachment</h2>
+      <button onclick="closeModal()" class="rounded-lg p-1 hover:bg-muted transition-colors">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div id="modal-content" class="overflow-auto flex-1 p-4 bg-muted/10">
+      <!-- Content will be injected here -->
+    </div>
+  </div>
+</div>
+
+
+    <script src="../scripts/utils.js"></script>
+<script src="../scripts/theme.js"></script>
+<script src="../scripts/modal.js"></script>
+<script src="../scripts/charts.js"></script>
+<script src="../scripts/table.js"></script>
+<script src="../scripts/scenarios.js"></script>
+<script src="../scripts/main.js"></script>
+
+  </body>
+</html>
