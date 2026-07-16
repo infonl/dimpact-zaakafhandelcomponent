@@ -144,6 +144,35 @@ This allows callers to use the conversion methods in a more natural way:
 val note = noteDto.fromDto()
 ```
 
+**n) Nullability — default to non-null, widen only when a real caller needs it**
+
+Java has no compile-time nullability, so every Java parameter/field/return type is a candidate for either `T` or `T?` in Kotlin — picking `T?` everywhere is the easy way out, but it throws away most of the benefit of migrating to Kotlin. Decide per member, not per file:
+
+1. **Find every real call site first**, not just the ones in the file being converted. A single grep for `Foo.methodName(` misses:
+   - Statically/unqualified-imported calls: `import ...Foo.methodName` then `methodName(x)` with no `Foo.` prefix.
+   - Method references: `list.map(Foo::methodName)` or `x?.let(Foo::methodName)`.
+
+   Grep for the bare method name (`grep -rn "methodName("`) across `src/main` and `src/test`, and also check for `Foo::methodName` if the function looks like it's ever passed around.
+
+2. **For each parameter**, check whether every real call site already holds a non-null value at that point (e.g. it came from a `?.let { }`, an `!!`, an `@NotNull`-annotated Java field, or a Kotlin-declared non-null type) — or whether at least one call site holds a genuinely optional value (a nullable Kotlin field, a Java field that is documented/annotated as optional, or business data that legitimately doesn't always exist, e.g. `Zaak.einddatum` for a case that isn't closed yet, `TaskInfo.claimTime` for an unclaimed task).
+   - All call sites already non-null → make the parameter non-null, and if any call site currently passes a nullable value, fix that call site with `?.let(...)`, `!!`, or a clear `?: error("...")`/exception instead of leaving the utility function nullable "just in case".
+   - At least one call site is genuinely optional business data → keep the parameter nullable. Don't force nullability up into a caller that has a legitimate reason to sometimes not have a value.
+3. **Watch for the Java-platform-type trap**: an unannotated Java field/method accessed from Kotlin is a flexible platform type (`Foo!`), so the compiler will silently accept passing it to either a nullable or non-null Kotlin parameter — it will NOT flag a mismatch even if the field is null at runtime. This means you cannot rely on "the compiler didn't complain" as proof that tightening a signature is safe. Check the actual data model (`@NotNull` annotations, the upstream API spec, existing `?.`/`!!` usage at other call sites) to decide real-world nullability, not just what compiles.
+4. Same logic applies to **return types**: a function that only returns null for a genuinely absent value (e.g. a blank/absent optional input) should return `T?`; a function that unconditionally transforms its (non-null) input should return `T`.
+5. This is worth extra care specifically because it's easy to get subtly wrong in the *unsafe* direction: tightening a parameter/return type to non-null when a real call site actually can be null does not fail to compile if the source is a Java platform type — it just turns a null into a `NullPointerException` at runtime. When in doubt, re-run `./gradlew test` and `./gradlew itest` after tightening and double check the specific converted class's callers by hand, don't rely on the compiler alone.
+
+Example — a Java-era conversion utility with a real call site that already unwraps before calling, and one that doesn't:
+```kotlin
+// Before: nullable both ways "just in case", even though the logic is unconditional
+fun convertToLocalDate(date: Date?): LocalDate? = date?.let { LocalDate.ofInstant(it.toInstant(), zoneId) }
+
+// After: non-null in, non-null out — callers with an already-nullable source bridge with `?.let`
+fun convertToLocalDate(date: Date): LocalDate = LocalDate.ofInstant(date.toInstant(), zoneId)
+
+// call site with a genuinely optional Date field:
+val fataledatum = taskInfo.dueDate?.let(DateTimeConverterUtil::convertToLocalDate)
+```
+
 ## Step 7 — Update all call sites
 
 Search for all files that still import the old package:
@@ -158,6 +187,7 @@ Run:
 ```bash
 ./gradlew compileKotlin compileJava
 ```
+A clean compile is not proof that nullability was chosen correctly — see step 6n: Java platform types let nullable and non-null signatures compile equally well, so a successful build here doesn't rule out a call site being tightened past what its data actually guarantees.
 Fix any type errors (common: nullable/non-null mismatches, missing `@Suppress` annotations).
 
 ## Step 9 — Format and lint
