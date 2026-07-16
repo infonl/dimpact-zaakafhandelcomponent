@@ -24,8 +24,8 @@ class IdentificationServiceTest : BehaviorSpec({
     val sensitiveDataService = mockk<SensitiveDataService>()
     val identificationService = IdentificationService(sensitiveDataService)
 
-    Given("createBetrokkeneIdentificatieForInitiatorRole") {
-        When("the initiator is a Natuurlijk Persoon") {
+    given("createBetrokkeneIdentificatieForInitiatorRole") {
+        `when`("the initiator is a Natuurlijk Persoon") {
             val bsn = "123456789"
             val uuid = UUID.randomUUID()
             val natuurlijkPersoonIdentificatie = createNatuurlijkPersoonIdentificatie(bsn = bsn)
@@ -37,7 +37,7 @@ class IdentificationServiceTest : BehaviorSpec({
 
             val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
 
-            Then("it should return a BetrokkeneIdentificatie with type BSN and the replaced temporaryPersonId") {
+            then("it should return a BetrokkeneIdentificatie with type BSN and the replaced temporaryPersonId") {
                 with(result) {
                     type shouldBe IdentificatieType.BSN
                     bsn shouldBe bsn
@@ -49,14 +49,14 @@ class IdentificationServiceTest : BehaviorSpec({
             }
         }
 
-        When("the initiator is a Vestiging (legacy type)") {
+        `when`("the initiator is a Vestiging (legacy type)") {
             val vestigingsNummer = "987654321"
             val vestigingIdentificatie = createVestigingIdentificatie(vestigingsNummer = vestigingsNummer)
             val initiatorRole = createRolVestiging(vestigingIdentificatie = vestigingIdentificatie)
 
             val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
 
-            Then("it should return a BetrokkeneIdentificatie with type VN and the vestigingsnummer") {
+            then("it should return a BetrokkeneIdentificatie with type VN and the vestigingsnummer") {
                 with(result) {
                     type shouldBe IdentificatieType.VN
                     vestigingsnummer shouldBe vestigingsNummer
@@ -65,7 +65,7 @@ class IdentificationServiceTest : BehaviorSpec({
             }
         }
 
-        When("the initiator is a Niet Natuurlijk Persoon with an RSIN (innNnpId)") {
+        `when`("the initiator is a Niet Natuurlijk Persoon with an RSIN (innNnpId)") {
             val rsin = "12345678"
             val nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
                 innNnpId = rsin
@@ -76,7 +76,7 @@ class IdentificationServiceTest : BehaviorSpec({
 
             val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
 
-            Then("it should return a BetrokkeneIdentificatie with type RSIN") {
+            then("it should return a BetrokkeneIdentificatie with type RSIN") {
                 with(result) {
                     type shouldBe IdentificatieType.RSIN
                     rsin shouldBe rsin
@@ -84,7 +84,7 @@ class IdentificationServiceTest : BehaviorSpec({
             }
         }
 
-        When("the initiator is a Niet Natuurlijk Persoon with only a KVK number (RSIN type)") {
+        `when`("the initiator is a Niet Natuurlijk Persoon with only a KVK number (RSIN type)") {
             val kvkNummer = "12345678"
             val nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
                 innNnpId = null,
@@ -97,7 +97,7 @@ class IdentificationServiceTest : BehaviorSpec({
 
             val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
 
-            Then("it should return a BetrokkeneIdentificatie with type RSIN") {
+            then("it should return a BetrokkeneIdentificatie with type RSIN") {
                 with(result) {
                     type shouldBe IdentificatieType.RSIN
                     kvkNummer shouldBe kvkNummer
@@ -106,7 +106,7 @@ class IdentificationServiceTest : BehaviorSpec({
             }
         }
 
-        When("the initiator is a Niet Natuurlijk Persoon with a vestigingsnummer") {
+        `when`("the initiator is a Niet Natuurlijk Persoon with a vestigingsnummer") {
             val vestigingsnummer = "123456789012"
             val nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
                 annIdentificatie = "fakeAnnId",
@@ -118,7 +118,7 @@ class IdentificationServiceTest : BehaviorSpec({
 
             val result = identificationService.createBetrokkeneIdentificatieForInitiatorRole(initiatorRole)!!
 
-            Then("it should return a BetrokkeneIdentificatie with type VN") {
+            then("it should return a BetrokkeneIdentificatie with type VN") {
                 with(result) {
                     type shouldBe IdentificatieType.VN
                     vestigingsnummer shouldBe vestigingsnummer
@@ -127,30 +127,30 @@ class IdentificationServiceTest : BehaviorSpec({
         }
     }
 
-    Given("replaceBsnWithKey") {
+    given("replaceBsnWithKey") {
         val bsn = "123456789"
         val uuid = UUID.randomUUID()
         every { sensitiveDataService.put(bsn) } returns uuid
 
-        Then("it should return the UUID from sensitiveDataService") {
+        then("it should return the UUID from sensitiveDataService") {
             identificationService.replaceBsnWithKey(bsn) shouldBe uuid
         }
     }
 
-    Given("replaceKeyWithBsn") {
+    given("replaceKeyWithBsn") {
         val uuid = UUID.randomUUID()
         val bsn = "123456789"
 
-        When("the key exists") {
+        `when`("the key exists") {
             every { sensitiveDataService.get(uuid) } returns bsn
-            Then("it should return the BSN") {
+            then("it should return the BSN") {
                 identificationService.replaceKeyWithBsn(uuid) shouldBe bsn
             }
         }
 
-        When("the key does not exist") {
+        `when`("the key does not exist") {
             every { sensitiveDataService.get(uuid) } returns null
-            Then("it should throw a BrpPersonNotFoundException") {
+            then("it should throw a BrpPersonNotFoundException") {
                 shouldThrow<BrpTemporaryPersonIdNotCachedException> {
                     identificationService.replaceKeyWithBsn(uuid)
                 }

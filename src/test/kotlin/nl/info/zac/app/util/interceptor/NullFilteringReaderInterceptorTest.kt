@@ -25,7 +25,7 @@ class NullFilteringReaderInterceptorTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a JSON request with null values") {
+    given("a JSON request with null values") {
         val context = mockk<ReaderInterceptorContext>(relaxed = true)
         val inputStreamSlot = slot<InputStream>()
         var capturedInputStream: String? = null
@@ -36,14 +36,14 @@ class NullFilteringReaderInterceptorTest : BehaviorSpec({
         }
         every { context.proceed() } returns Unit
 
-        When("the JSON contains explicit null values in an object") {
+        `when`("the JSON contains explicit null values in an object") {
             val jsonWithNulls = """{"fakeKey1":"fakeValue1","fakeKey2":null,"fakeKey3":"fakeValue3"}"""
             every { context.inputStream } returns
                 ByteArrayInputStream(jsonWithNulls.toByteArray(StandardCharsets.UTF_8))
 
             interceptor.aroundReadFrom(context)
 
-            Then("the null values should be removed") {
+            then("the null values should be removed") {
                 capturedInputStream shouldNotContain "null"
                 capturedInputStream shouldContain "\"fakeKey1\":\"fakeValue1\""
                 capturedInputStream shouldContain "\"fakeKey3\":\"fakeValue3\""
@@ -51,67 +51,67 @@ class NullFilteringReaderInterceptorTest : BehaviorSpec({
             }
         }
 
-        When("the JSON contains nested objects with null values") {
+        `when`("the JSON contains nested objects with null values") {
             val jsonWithNestedNulls = """{"fakeKey1":{"fakeKey2":"fakeValue2","fakeKey3":null},"fakeKey4":true}"""
             every { context.inputStream } returns
                 ByteArrayInputStream(jsonWithNestedNulls.toByteArray(StandardCharsets.UTF_8))
 
             interceptor.aroundReadFrom(context)
 
-            Then("the nested null values should be removed") {
+            then("the nested null values should be removed") {
                 capturedInputStream shouldNotContain "null"
                 capturedInputStream shouldContain "\"fakeKey2\":\"fakeValue2\""
                 capturedInputStream shouldNotContain "\"fakeKey3\""
             }
         }
 
-        When("the JSON contains arrays with null values") {
+        `when`("the JSON contains arrays with null values") {
             val jsonWithArrayNulls = """{"fakeArray":[1,null,3],"fakeKey1":"fakeValue1"}"""
             every { context.inputStream } returns
                 ByteArrayInputStream(jsonWithArrayNulls.toByteArray(StandardCharsets.UTF_8))
 
             interceptor.aroundReadFrom(context)
 
-            Then("the null values in arrays should be removed") {
+            then("the null values in arrays should be removed") {
                 capturedInputStream shouldNotContain "null"
                 capturedInputStream shouldContain "\"fakeArray\":[1,3]"
             }
         }
     }
 
-    Given("a non-JSON request") {
+    given("a non-JSON request") {
         val context = mockk<ReaderInterceptorContext>(relaxed = true)
         var proceedCalled = false
 
         every { context.mediaType } returns MediaType.TEXT_PLAIN_TYPE
         every { context.proceed() } answers { proceedCalled = true }
 
-        When("the interceptor processes the request") {
+        `when`("the interceptor processes the request") {
             interceptor.aroundReadFrom(context)
 
-            Then("it should proceed without modification") {
+            then("it should proceed without modification") {
                 proceedCalled shouldBe true
             }
         }
     }
 
-    Given("a request with null media type") {
+    given("a request with null media type") {
         val context = mockk<ReaderInterceptorContext>(relaxed = true)
         var proceedCalled = false
 
         every { context.mediaType } returns null
         every { context.proceed() } answers { proceedCalled = true }
 
-        When("the interceptor processes the request") {
+        `when`("the interceptor processes the request") {
             interceptor.aroundReadFrom(context)
 
-            Then("it should proceed without modification") {
+            then("it should proceed without modification") {
                 proceedCalled shouldBe true
             }
         }
     }
 
-    Given("a JSON request with empty body") {
+    given("a JSON request with empty body") {
         val context = mockk<ReaderInterceptorContext>(relaxed = true)
         var proceedCalled = false
 
@@ -119,16 +119,16 @@ class NullFilteringReaderInterceptorTest : BehaviorSpec({
         every { context.inputStream } returns ByteArrayInputStream("".toByteArray(StandardCharsets.UTF_8))
         every { context.proceed() } answers { proceedCalled = true }
 
-        When("the interceptor processes the request") {
+        `when`("the interceptor processes the request") {
             interceptor.aroundReadFrom(context)
 
-            Then("it should proceed without modification") {
+            then("it should proceed without modification") {
                 proceedCalled shouldBe true
             }
         }
     }
 
-    Given("a JSON request with invalid JSON") {
+    given("a JSON request with invalid JSON") {
         val context = mockk<ReaderInterceptorContext>(relaxed = true)
         val inputStreamSlot = slot<InputStream>()
         var capturedInputStream: String? = null
@@ -141,10 +141,10 @@ class NullFilteringReaderInterceptorTest : BehaviorSpec({
         }
         every { context.proceed() } returns Unit
 
-        When("the interceptor processes the request") {
+        `when`("the interceptor processes the request") {
             interceptor.aroundReadFrom(context)
 
-            Then("it should restore the original input and proceed") {
+            then("it should restore the original input and proceed") {
                 capturedInputStream shouldBe "invalid json{"
             }
         }

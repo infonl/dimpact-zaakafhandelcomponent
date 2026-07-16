@@ -25,8 +25,8 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.engine.repository.createHistoricProcessInstance
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.flowable.bpmn.exception.BpmnProcessDefinitionNotFoundException
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import org.flowable.bpmn.model.BpmnModel
 import org.flowable.bpmn.model.ExtensionElement
 import org.flowable.bpmn.model.Process
@@ -64,7 +64,7 @@ class BpmnServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A UUID for which a BPMN process instance exists") {
+    given("A UUID for which a BPMN process instance exists") {
         val uuid = UUID.randomUUID()
         val processInstance = mockk<ProcessInstance>()
         every {
@@ -73,16 +73,16 @@ class BpmnServiceTest : BehaviorSpec({
                 .singleResult()
         } returns processInstance
 
-        When("a check is done to see if the zaak is process driven") {
+        `when`("a check is done to see if the zaak is process driven") {
             val isProcessDriven = bpmnService.isZaakProcessDriven(uuid)
 
-            Then("'true is returned") {
+            then("'true is returned") {
                 isProcessDriven shouldBe true
             }
         }
     }
 
-    Given("A UUID for which no BPMN process instance exists") {
+    given("A UUID for which no BPMN process instance exists") {
         val uuid = UUID.randomUUID()
         every {
             runtimeService.createProcessInstanceQuery()
@@ -90,16 +90,16 @@ class BpmnServiceTest : BehaviorSpec({
                 .singleResult()
         } returns null
 
-        When("a check is done to see if the zaak is process driven") {
+        `when`("a check is done to see if the zaak is process driven") {
             val isProcessDriven = bpmnService.isZaakProcessDriven(uuid)
 
-            Then("'false is returned") {
+            then("'false is returned") {
                 isProcessDriven shouldBe false
             }
         }
     }
 
-    Given("A zaak and zaakdata and a zaaktype with a 'referentieproces'") {
+    given("A zaak and zaakdata and a zaaktype with a 'referentieproces'") {
         val referentieProcesName = "fakeReferentieProces"
         val zaakTypeUUID = UUID.randomUUID()
         val zaakUUID = UUID.randomUUID()
@@ -129,77 +129,77 @@ class BpmnServiceTest : BehaviorSpec({
         every { processInstanceBuilder.variables(zaakData) } returns processInstanceBuilder
         every { processInstanceBuilder.start() } returns processInstance
 
-        When("the zaak is started using a BPMN process definition") {
+        `when`("the zaak is started using a BPMN process definition") {
             bpmnService.startProcess(zaak, zaakType, referentieProcesName, zaakData)
 
-            Then("a Flowable BPMN process instance should be started") {
+            then("a Flowable BPMN process instance should be started") {
                 verify(exactly = 1) {
                     processInstanceBuilder.start()
                 }
             }
         }
     }
-    Given("A valid zaaktype UUID with a process definition") {
+    given("A valid zaaktype UUID with a process definition") {
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
         every {
             zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID)
         } returns zaaktypeBpmnProcessDefinition
 
-        When("finding the process definition for the zaaktype") {
+        `when`("finding the process definition for the zaaktype") {
             val result = bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
 
-            Then("the correct process definition is returned") {
+            then("the correct process definition is returned") {
                 result shouldBe zaaktypeBpmnProcessDefinition
             }
         }
     }
 
-    Given("A valid zaaktype UUID without a process definition") {
+    given("A valid zaaktype UUID without a process definition") {
         val zaaktypeUUID = UUID.randomUUID()
         every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUUID) } returns null
 
-        When("finding the process definition for the zaaktype") {
+        `when`("finding the process definition for the zaaktype") {
             val exception = shouldThrow<BpmnProcessDefinitionNotFoundException> {
                 bpmnService.findProcessDefinitionForZaaktype(zaaktypeUUID)
             }
 
-            Then("null is returned") {
+            then("null is returned") {
                 exception.message shouldContain "$zaaktypeUUID"
             }
         }
     }
 
-    Given("A valid process definition key with an existing process definition") {
+    given("A valid process definition key with an existing process definition") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         val processDefinition = createProcessDefinition()
         every { bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey) } returns processDefinition
 
-        When("reading the process definition by process definition key") {
+        `when`("reading the process definition by process definition key") {
             val result = bpmnService.readProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
 
-            Then("the correct process definition is returned") {
+            then("the correct process definition is returned") {
                 result shouldBe processDefinition
             }
         }
     }
 
-    Given("An invalid process definition key with no existing process definition") {
+    given("An invalid process definition key with no existing process definition") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         every { bpmnService.findProcessDefinitionByProcessDefinitionKey(processDefinitionKey) } returns null
 
-        When("reading the process definition by process definition key") {
+        `when`("reading the process definition by process definition key") {
             val exception = shouldThrow<BpmnProcessDefinitionNotFoundException> {
                 bpmnService.readProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
             }
 
-            Then("a 'process definition not found exception' is thrown") {
+            then("a 'process definition not found exception' is thrown") {
                 exception.message shouldBe "No BPMN process definition found for process definition key: '$processDefinitionKey'"
             }
         }
     }
 
-    Given("A valid zaaktype UUID with an existing process definition") {
+    given("A valid zaaktype UUID with an existing process definition") {
         val zaaktypeUUID = UUID.randomUUID()
         val processInstance = mockk<ProcessInstance>()
         val processInstanceId = "fakeProcessInstanceId"
@@ -215,10 +215,10 @@ class BpmnServiceTest : BehaviorSpec({
             runtimeService.deleteProcessInstance(processInstanceId, null)
         } returns Unit
 
-        When("Terminating the process instance by zaak UUID") {
+        `when`("Terminating the process instance by zaak UUID") {
             bpmnService.terminateCase(zaaktypeUUID)
 
-            Then("the process instance is terminated") {
+            then("the process instance is terminated") {
                 verify(exactly = 1) {
                     runtimeService.deleteProcessInstance(processInstanceId, null)
                 }
@@ -226,7 +226,7 @@ class BpmnServiceTest : BehaviorSpec({
         }
     }
 
-    Given("valid zaaktype UUID without an existing process definition") {
+    given("valid zaaktype UUID without an existing process definition") {
         val zaaktypeUUID = UUID.randomUUID()
         every {
             runtimeService.createProcessInstanceQuery()
@@ -234,10 +234,10 @@ class BpmnServiceTest : BehaviorSpec({
                 .singleResult()
         } returns null
 
-        When("Terminating the process instance by zaak UUID") {
+        `when`("Terminating the process instance by zaak UUID") {
             bpmnService.terminateCase(zaaktypeUUID)
 
-            Then("the process instance is not found") {
+            then("the process instance is not found") {
                 verify(exactly = 0) {
                     runtimeService.deleteProcessInstance(any(), null)
                 }
@@ -245,7 +245,7 @@ class BpmnServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Process definitions") {
+    given("Process definitions") {
         val historyProcessInstance1 = createHistoricProcessInstance(processDefinitionKey = "fakeKey1")
         val historyProcessInstance2 = createHistoricProcessInstance(processDefinitionKey = "fakeKey2")
         val historyProcessInstance3 = createHistoricProcessInstance(processDefinitionKey = "fakeKey1")
@@ -253,16 +253,16 @@ class BpmnServiceTest : BehaviorSpec({
             historyService.createHistoricProcessInstanceQuery().list()
         } returns listOf(historyProcessInstance1, historyProcessInstance2, historyProcessInstance3)
 
-        When("Returning a list of unique BPMN process definition keys used in process instances") {
+        `when`("Returning a list of unique BPMN process definition keys used in process instances") {
             val result = bpmnService.findUniqueBpmnProcessDefinitionKeysFromProcessInstances()
 
-            Then("the unique BPMN process definition keys are returned") {
+            then("the unique BPMN process definition keys are returned") {
                 result shouldBe setOf("fakeKey1", "fakeKey2")
             }
         }
     }
 
-    Given("process definition key with current or historic process instances") {
+    given("process definition key with current or historic process instances") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         every {
             historyService.createHistoricProcessInstanceQuery()
@@ -270,16 +270,16 @@ class BpmnServiceTest : BehaviorSpec({
                 .count()
         } returns 2
 
-        When("checking it has process instances by process definition key") {
+        `when`("checking it has process instances by process definition key") {
             val result = bpmnService.hasProcessInstances(processDefinitionKey)
 
-            Then("true is returned") {
+            then("true is returned") {
                 result shouldBe true
             }
         }
     }
 
-    Given("process definition key without current or historic process instances") {
+    given("process definition key without current or historic process instances") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         every {
             historyService.createHistoricProcessInstanceQuery()
@@ -287,48 +287,48 @@ class BpmnServiceTest : BehaviorSpec({
                 .count()
         } returns 0
 
-        When("checking it has process instances by process definition key") {
+        `when`("checking it has process instances by process definition key") {
             val result = bpmnService.hasProcessInstances(processDefinitionKey)
 
-            Then("false is returned") {
+            then("false is returned") {
                 result shouldBe false
             }
         }
     }
 
-    Given("process definition key with linked configurations") {
+    given("process definition key with linked configurations") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         val linkedProcessDefinitionKeys = listOf(processDefinitionKey, "otherProcessDefinitionKey")
         every {
             zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
         } returns linkedProcessDefinitionKeys
 
-        When("checking it has linked configurations by process definition key") {
+        `when`("checking it has linked configurations by process definition key") {
             val result = bpmnService.hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
 
-            Then("true is returned") {
+            then("true is returned") {
                 result shouldBe true
             }
         }
     }
 
-    Given("process definition key without linked configurations") {
+    given("process definition key without linked configurations") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         val linkedProcessDefinitionKeys = listOf("otherProcessDefinitionKey")
         every {
             zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
         } returns linkedProcessDefinitionKeys
 
-        When("checking it has linked configurations by process definition key") {
+        `when`("checking it has linked configurations by process definition key") {
             val result = bpmnService.hasLinkedZaaktypeBpmnConfiguration(processDefinitionKey)
 
-            Then("false is returned") {
+            then("false is returned") {
                 result shouldBe false
             }
         }
     }
 
-    Given("process definition key with current or historic process instances and linked configurations not checked") {
+    given("process definition key with current or historic process instances and linked configurations not checked") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         every {
             historyService.createHistoricProcessInstanceQuery()
@@ -336,10 +336,10 @@ class BpmnServiceTest : BehaviorSpec({
                 .count()
         } returns 3
 
-        When("checking the process definition is in use by process definition key") {
+        `when`("checking the process definition is in use by process definition key") {
             val result = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
 
-            Then("true is returned") {
+            then("true is returned") {
                 result shouldBe true
                 verify(exactly = 0) {
                     zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
@@ -348,7 +348,7 @@ class BpmnServiceTest : BehaviorSpec({
         }
     }
 
-    Given("process definition key with no current or historic process instances and linked configurations") {
+    given("process definition key with no current or historic process instances and linked configurations") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         every {
             historyService.createHistoricProcessInstanceQuery()
@@ -360,16 +360,16 @@ class BpmnServiceTest : BehaviorSpec({
             zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
         } returns linkedProcessDefinitionKeys
 
-        When("checking the process definition is in use by process definition key") {
+        `when`("checking the process definition is in use by process definition key") {
             val result = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
 
-            Then("true is returned") {
+            then("true is returned") {
                 result shouldBe true
             }
         }
     }
 
-    Given("process definition key with no current or historic process instances and no linked configurations") {
+    given("process definition key with no current or historic process instances and no linked configurations") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         every {
             historyService.createHistoricProcessInstanceQuery()
@@ -381,16 +381,16 @@ class BpmnServiceTest : BehaviorSpec({
             zaaktypeBpmnConfigurationBeheerService.findUniqueBpmnProcessDefinitionKeysFromZaaktypeConfigurations()
         } returns linkedProcessDefinitionKeys
 
-        When("checking the process definition is in use by process definition key") {
+        `when`("checking the process definition is in use by process definition key") {
             val result = bpmnService.isProcessDefinitionInUse(processDefinitionKey)
 
-            Then("false is returned") {
+            then("false is returned") {
                 result shouldBe false
             }
         }
     }
 
-    Given("A zaak UUID for which a BPMN process instance and process definition exist") {
+    given("A zaak UUID for which a BPMN process instance and process definition exist") {
         val zaakUUID = UUID.randomUUID()
         val processDefinitionId = "fakeProcessDefinitionId"
         val processInstance = mockk<ProcessInstance>()
@@ -403,16 +403,16 @@ class BpmnServiceTest : BehaviorSpec({
         every { processInstance.processDefinitionId } returns processDefinitionId
         every { repositoryService.getProcessDefinition(processDefinitionId) } returns processDefinition
 
-        When("finding the process definition by zaak UUID") {
+        `when`("finding the process definition by zaak UUID") {
             val result = bpmnService.findProcessDefinitionByZaak(zaakUUID)
 
-            Then("the process definition is returned") {
+            then("the process definition is returned") {
                 result shouldBe processDefinition
             }
         }
     }
 
-    Given("A zaak UUID for which no BPMN process instance exists") {
+    given("A zaak UUID for which no BPMN process instance exists") {
         val zaakUUID = UUID.randomUUID()
         every {
             runtimeService.createProcessInstanceQuery()
@@ -420,17 +420,17 @@ class BpmnServiceTest : BehaviorSpec({
                 .singleResult()
         } returns null
 
-        When("finding the process definition by zaak UUID") {
+        `when`("finding the process definition by zaak UUID") {
             val result = bpmnService.findProcessDefinitionByZaak(zaakUUID)
 
-            Then("null is returned") {
+            then("null is returned") {
                 result shouldBe null
             }
         }
     }
 
-    Context("Getting process definition metadata") {
-        Given(
+    context("Getting process definition metadata") {
+        given(
             "A process definition with full metadata including documentation, modification date, form keys and upload date"
         ) {
             val deploymentId = "fakeDeploymentId"
@@ -463,10 +463,10 @@ class BpmnServiceTest : BehaviorSpec({
             every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
             every { deploymentQuery.singleResult() } returns deployment
 
-            When("getting the process definition metadata") {
+            `when`("getting the process definition metadata") {
                 val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
 
-                Then("all metadata fields are populated correctly") {
+                then("all metadata fields are populated correctly") {
                     result.documentation shouldBe "Test documentation"
                     result.modificationDate shouldBe modificationDate
                     result.uploadDate shouldNotBe null
@@ -475,7 +475,7 @@ class BpmnServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A process definition with an empty process list") {
+        given("A process definition with an empty process list") {
             val deploymentId = "fakeDeploymentId"
             val processDefinition = createProcessDefinition(deploymentId = deploymentId)
             val deploymentTime = Date()
@@ -491,10 +491,10 @@ class BpmnServiceTest : BehaviorSpec({
             every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
             every { deploymentQuery.singleResult() } returns deployment
 
-            When("getting the process definition metadata") {
+            `when`("getting the process definition metadata") {
                 val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
 
-                Then("documentation and modification date are null and form keys is empty") {
+                then("documentation and modification date are null and form keys is empty") {
                     result.documentation shouldBe null
                     result.modificationDate shouldBe null
                     result.uploadDate shouldNotBe null
@@ -503,7 +503,7 @@ class BpmnServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A process definition whose deployment cannot be found") {
+        given("A process definition whose deployment cannot be found") {
             val deploymentId = "fakeDeploymentId"
             val processDefinition = createProcessDefinition(deploymentId = deploymentId)
 
@@ -521,16 +521,16 @@ class BpmnServiceTest : BehaviorSpec({
             every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
             every { deploymentQuery.singleResult() } returns null
 
-            When("getting the process definition metadata") {
+            `when`("getting the process definition metadata") {
                 val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
 
-                Then("upload date is null") {
+                then("upload date is null") {
                     result.uploadDate shouldBe null
                 }
             }
         }
 
-        Given("A process definition with multiple processes") {
+        given("A process definition with multiple processes") {
             val deploymentId = "fakeDeploymentId"
             val processDefinition = createProcessDefinition(deploymentId = deploymentId)
             val modificationDateStr = "2026-03-01T09:00:00+01:00"
@@ -562,10 +562,10 @@ class BpmnServiceTest : BehaviorSpec({
             every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
             every { deploymentQuery.singleResult() } returns null
 
-            When("getting the process definition metadata") {
+            `when`("getting the process definition metadata") {
                 val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
 
-                Then(
+                then(
                     "documentation and modification date come only from the first process and form keys are collected from all processes"
                 ) {
                     result.documentation shouldBe "First process documentation"
@@ -575,7 +575,7 @@ class BpmnServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A process definition with a process that has no modificationDate extension element") {
+        given("A process definition with a process that has no modificationDate extension element") {
             val deploymentId = "fakeDeploymentId"
             val processDefinition = createProcessDefinition(deploymentId = deploymentId)
 
@@ -593,16 +593,16 @@ class BpmnServiceTest : BehaviorSpec({
             every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
             every { deploymentQuery.singleResult() } returns null
 
-            When("getting the process definition metadata") {
+            `when`("getting the process definition metadata") {
                 val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
 
-                Then("modification date is null") {
+                then("modification date is null") {
                     result.modificationDate shouldBe null
                 }
             }
         }
 
-        Given("A process definition with user tasks where some have no form key") {
+        given("A process definition with user tasks where some have no form key") {
             val deploymentId = "fakeDeploymentId"
             val processDefinition = createProcessDefinition(deploymentId = deploymentId)
 
@@ -626,10 +626,10 @@ class BpmnServiceTest : BehaviorSpec({
             every { deploymentQuery.deploymentId(deploymentId) } returns deploymentQuery
             every { deploymentQuery.singleResult() } returns null
 
-            When("getting the process definition metadata") {
+            `when`("getting the process definition metadata") {
                 val result = bpmnService.getProcessDefinitionMetadata(processDefinition)
 
-                Then("only user tasks with form keys are included in the form keys list") {
+                then("only user tasks with form keys are included in the form keys list") {
                     result.formKeys shouldHaveSize 1
                     result.formKeys[0] shouldBe "someForm"
                 }

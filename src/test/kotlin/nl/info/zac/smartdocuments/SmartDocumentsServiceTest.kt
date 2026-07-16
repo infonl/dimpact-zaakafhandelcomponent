@@ -37,7 +37,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("SmartDocuments is enabled") {
+    given("SmartDocuments is enabled") {
         val loggedInUser = createLoggedInUser()
         val data = createData()
         val variables = Variables(
@@ -59,13 +59,13 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             fixedUserName = fixedUserName
         )
 
-        When("the 'create document attended' method is called") {
+        `when`("the 'create document attended' method is called") {
             val documentCreationResponse = smartDocumentsService.createDocumentAttended(
                 data = data,
                 smartDocument = smartDocument
             )
 
-            Then(
+            then(
                 """
                 the attended SmartDocuments document creation wizard is started and a document creation response is returned
                 """
@@ -80,7 +80,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         }
     }
 
-    Given("SmartDocuments is enabled and a document is generated and ready for download") {
+    given("SmartDocuments is enabled and a document is generated and ready for download") {
         val downloadedFile = mockk<DownloadedFile>()
 
         val fileName = "abcd.docx"
@@ -99,10 +99,10 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             fixedUserName = fixedUserName
         )
 
-        When("the 'download file' method is called") {
+        `when`("the 'download file' method is called") {
             val file = smartDocumentsService.downloadDocument("sdId")
 
-            Then("a file object representing the content is returned") {
+            then("a file object representing the content is returned") {
                 with(file) {
                     fileName shouldBe fileName
                     outputFormat shouldBe "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -112,7 +112,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         }
     }
 
-    Given("SmartDocuments is enabled and contains templates") {
+    given("SmartDocuments is enabled and contains templates") {
         val loggedInUser = createLoggedInUser()
         every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -130,10 +130,10 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             fixedUserName = fixedUserName
         )
 
-        When("list templates is called") {
+        `when`("list templates is called") {
             val templatesList = smartDocumentsService.listTemplates()
 
-            Then("it should return a list of templates") {
+            then("it should return a list of templates") {
                 with(templatesList.documentsStructure.templatesStructure.templateGroups) {
                     size shouldBe 1
                     with(first()) {
@@ -148,7 +148,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         }
     }
 
-    Given("SmartDocuments is disabled") {
+    given("SmartDocuments is disabled") {
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
             enabled = Optional.of(false),
@@ -156,29 +156,29 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             fixedUserName = fixedUserName
         )
 
-        When("checking if enabled") {
-            Then("it returns `false`") {
+        `when`("checking if enabled") {
+            then("it returns `false`") {
                 smartDocumentsService.isEnabled() shouldBe false
             }
         }
     }
 
-    Given("SmartDocuments state is not specified") {
+    given("SmartDocuments state is not specified") {
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
             loggedInUserInstance = loggedInUserInstance,
             fixedUserName = fixedUserName
         )
 
-        When("checking if enabled") {
-            Then("it returns `false`") {
+        `when`("checking if enabled") {
+            then("it returns `false`") {
                 smartDocumentsService.isEnabled() shouldBe false
             }
         }
     }
 
-    Given("SmartDocuments is enabled, but not enough configuration is provided") {
-        When("SmartDocumentsService is constructed") {
+    given("SmartDocuments is enabled, but not enough configuration is provided") {
+        `when`("SmartDocumentsService is constructed") {
             val exception = shouldThrow<IllegalArgumentException> {
                 SmartDocumentsService(
                     smartDocumentsClient = smartDocumentsClient,
@@ -188,13 +188,13 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                 )
             }
 
-            Then("it throws an exception") {
+            then("it throws an exception") {
                 exception.message shouldBe "SMARTDOCUMENTS_CLIENT_MP_REST_URL environment variable required"
             }
         }
     }
 
-    Given("SmartDocuments is enabled and wizard authentication is disabled") {
+    given("SmartDocuments is enabled and wizard authentication is disabled") {
         val loggedInUser = createLoggedInUser()
         val data = createData()
         val variables = Variables(
@@ -221,13 +221,13 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             wizardAuthEnabled = Optional.of(false)
         )
 
-        When("the 'createDocumentAttended' method is called without authorisation") {
+        `when`("the 'createDocumentAttended' method is called without authorisation") {
             val response = smartDocumentsService.createDocumentAttended(
                 data = data,
                 smartDocument = smartDocument
             )
 
-            Then("it calls the attendedDepositNoAuth and returns the response") {
+            then("it calls the attendedDepositNoAuth and returns the response") {
                 with(response) {
                     redirectUrl shouldBe URI(
                         "$smartDocumentsURL/smartdocuments/wizard?ticket=${attendedResponse.ticket}"

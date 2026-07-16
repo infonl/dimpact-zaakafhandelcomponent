@@ -28,8 +28,8 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
-    Context("Pair bijlagen with zaak") {
-        Given("a list of bijlage URIs and a zaak URI") {
+    context("Pair bijlagen with zaak") {
+        given("a list of bijlage URIs and a zaak URI") {
             val bijlageURIs = listOf(URI("fakeURI1"), URI("fakeURI2"))
             val enkelvoudigInformatieobjecten = listOf(
                 createEnkelvoudigInformatieObject(),
@@ -53,10 +53,10 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
                 )
             } returns zaakInformatieobjecten[0] andThenAnswer { zaakInformatieobjecten[1] }
 
-            When("the bijlagen are paired with the zaak") {
+            `when`("the bijlagen are paired with the zaak") {
                 productaanvraagDocumentService.pairBijlagenWithZaak(bijlageURIs, zaakUrl)
 
-                Then("for every bijlage a zaakInformatieobject should be created") {
+                then("for every bijlage a zaakInformatieobject should be created") {
                     verify(exactly = 2) {
                         zrcClientService.createZaakInformatieobject(any(), any())
                     }
@@ -71,8 +71,8 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Pair bijlagen with zaak ignoring exceptions") {
-        Given("a list of bijlage URIs where one URI causes an exception during readEnkelvoudigInformatieobject") {
+    context("Pair bijlagen with zaak ignoring exceptions") {
+        given("a list of bijlage URIs where one URI causes an exception during readEnkelvoudigInformatieobject") {
             val failingBijlageURI = URI("fakeFailingURI")
             val successBijlageURI = URI("fakeSuccessURI")
             val bijlageURIs = listOf(failingBijlageURI, successBijlageURI)
@@ -90,10 +90,10 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
                 zrcClientService.createZaakInformatieobject(any(), any())
             } returns zaakInformatieobject
 
-            When("the bijlagen are paired with the zaak") {
+            `when`("the bijlagen are paired with the zaak") {
                 productaanvraagDocumentService.pairBijlagenWithZaakIgnoringExceptions(bijlageURIs, zaakUrl)
 
-                Then("the method should not throw an exception and only the successful bijlage should be linked") {
+                then("the method should not throw an exception and only the successful bijlage should be linked") {
                     val createdZaakInformatieobjectSlot = slot<ZaakInformatieobject>()
                     verify(exactly = 1) {
                         zrcClientService.createZaakInformatieobject(capture(createdZaakInformatieobjectSlot), any())

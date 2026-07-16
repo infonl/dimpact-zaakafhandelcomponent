@@ -20,15 +20,15 @@ class RestGroupConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("convertGroupId") {
-        Given("a group ID that exists in the identity service") {
+    context("convertGroupId") {
+        given("a group ID that exists in the identity service") {
             val group = createGroup(id = "fakeGroupId", name = "fakeGroupName")
             every { identityService.readGroup("fakeGroupId") } returns group
 
-            When("convertGroupId is called") {
+            `when`("convertGroupId is called") {
                 val result = restGroupConverter.convertGroupId("fakeGroupId")
 
-                Then("it returns a RestGroup with the correct id and naam") {
+                then("it returns a RestGroup with the correct id and naam") {
                     result.id shouldBe group.name
                     result.naam shouldBe group.description
                     result.active shouldBe group.active

@@ -31,8 +31,8 @@ class UserTaskCompletionListenerTest : BehaviorSpec({
 
     val listener = UserTaskCompletionListener()
 
-    Context("onEvent with TASK_COMPLETED event") {
-        Given("A TASK_COMPLETED FlowableEntityEvent with a TaskEntity") {
+    context("onEvent with TASK_COMPLETED event") {
+        given("A TASK_COMPLETED FlowableEntityEvent with a TaskEntity") {
             val fakeTaskId = "fakeTaskId1"
             val fakeTaskEntity = mockk<TaskEntity> {
                 every { id } returns fakeTaskId
@@ -50,54 +50,54 @@ class UserTaskCompletionListenerTest : BehaviorSpec({
             every { fakeFlowableHelper.indexeerService } returns fakeIndexingService
             every { fakeIndexingService.removeTaak(fakeTaskId) } returns Unit
 
-            When("onEvent is called") {
+            `when`("onEvent is called") {
                 listener.onEvent(fakeEvent)
 
-                Then("IndexingService.removeTaak is called with the task ID") {
+                then("IndexingService.removeTaak is called with the task ID") {
                     verify { fakeIndexingService.removeTaak(fakeTaskId) }
                 }
             }
         }
     }
 
-    Context("onEvent with non-TASK_COMPLETED event") {
-        Given("A FlowableEvent of type TASK_CREATED") {
+    context("onEvent with non-TASK_COMPLETED event") {
+        given("A FlowableEvent of type TASK_CREATED") {
             val fakeEvent = mockk<FlowableEvent> {
                 every { type } returns FlowableEngineEventType.TASK_CREATED
             }
 
-            When("onEvent is called") {
+            `when`("onEvent is called") {
                 listener.onEvent(fakeEvent)
 
-                Then("IndexingService.removeTaak is not called") {
+                then("IndexingService.removeTaak is not called") {
                     verify(exactly = 0) { fakeIndexingService.removeTaak(any()) }
                 }
             }
         }
     }
 
-    Context("Lifecycle method return values") {
-        Given("The UserTaskCompletionListener instance") {
-            When("isFailOnException is called") {
+    context("Lifecycle method return values") {
+        given("The UserTaskCompletionListener instance") {
+            `when`("isFailOnException is called") {
                 val result = listener.isFailOnException()
 
-                Then("true is returned") {
+                then("true is returned") {
                     result shouldBe true
                 }
             }
 
-            When("isFireOnTransactionLifecycleEvent is called") {
+            `when`("isFireOnTransactionLifecycleEvent is called") {
                 val result = listener.isFireOnTransactionLifecycleEvent()
 
-                Then("true is returned") {
+                then("true is returned") {
                     result shouldBe true
                 }
             }
 
-            When("getOnTransaction is called") {
+            `when`("getOnTransaction is called") {
                 val result = listener.onTransaction
 
-                Then("ON_TRANSACTION_COMMITTED is returned") {
+                then("ON_TRANSACTION_COMMITTED is returned") {
                     result shouldBe TransactionDependentExecutionListener.ON_TRANSACTION_COMMITTED
                 }
             }

@@ -48,7 +48,7 @@ class TaskRestServiceTest : BehaviorSpec({
     lateinit var zaakIdentification: String
     lateinit var task1ID: String
 
-    Given(
+    given(
         """
             A zaak has been created,
             two tasks of type 'aanvullende informatie' have been started for this zaak,
@@ -84,12 +84,12 @@ class TaskRestServiceTest : BehaviorSpec({
             testUser = BEHANDELAAR_1
         )
 
-        When("the get tasks for a zaak endpoint is called") {
+        `when`("the get tasks for a zaak endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/taken/zaak/$zaakUuid",
                 testUser = RAADPLEGER_1
             )
-            Then(
+            then(
                 """
                     the list of taken for this zaak is returned and contains the expected task data
                     with permissions only to read the task
@@ -141,13 +141,13 @@ class TaskRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """
             A zaak has been created and a task of type 'aanvullende informatie' has been started for this zaak
             and a behandelaar authorised for this zaaktype is logged in 
             """
     ) {
-        When("the update task endpoint is called") {
+        `when`("the update task endpoint is called") {
             val taskObject = taskArray.getJSONObject(0)
             taskObject.put("toelichting", "update")
 
@@ -157,7 +157,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the taak has been updated successfully") {
+            then("the taak has been updated successfully") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -167,7 +167,7 @@ class TaskRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """
             A task has been started and a websocket subscription has been created to listen for a 'taken verdelen'
             screen event which will be sent by the asynchronous 'assign taken from list' job
@@ -193,7 +193,7 @@ class TaskRestServiceTest : BehaviorSpec({
             webSocketListener = websocketListener,
             testUser = COORDINATOR_1
         )
-        When("the assign tasks endpoint is called for this task") {
+        `when`("the assign tasks endpoint is called for this task") {
             val assignTasksResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/taken/lijst/verdelen",
                 requestBodyAsString = """{
@@ -206,7 +206,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = COORDINATOR_1
             )
-            Then("the task is assigned correctly") {
+            then("the task is assigned correctly") {
                 val assignTasksResponseBody = assignTasksResponse.bodyAsString
                 logger.info { "Response: $assignTasksResponseBody" }
                 assignTasksResponse.code shouldBe HTTP_NO_CONTENT
@@ -223,7 +223,7 @@ class TaskRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """
             |A task has been started and a websocket subscription has been created to listen for a 'taken vrijgeven'
             |screen event which will be sent by the asynchronous 'release taken from list' job
@@ -249,7 +249,7 @@ class TaskRestServiceTest : BehaviorSpec({
             webSocketListener = websocketListener,
             testUser = COORDINATOR_1
         )
-        When("the release tasks endpoint is called for this task") {
+        `when`("the release tasks endpoint is called for this task") {
             val releaseTasksResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/taken/lijst/vrijgeven",
                 requestBodyAsString = """
@@ -261,7 +261,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = COORDINATOR_1
             )
-            Then("the task is released correctly") {
+            then("the task is released correctly") {
                 val assignTasksResponseBody = releaseTasksResponse.bodyAsString
                 logger.info { "Response: $assignTasksResponseBody" }
                 releaseTasksResponse.code shouldBe HTTP_NO_CONTENT

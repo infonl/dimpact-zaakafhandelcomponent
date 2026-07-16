@@ -261,7 +261,7 @@ export class FormioSetupService {
   private initializeReferenceTableField(component: ExtendedComponentSchema) {
     const referenceTableCode = component.properties["ReferenceTable_Code"];
     component.valueProperty = "id";
-    component.template = "{{ item.naam }}";
+    component.template = "{{ item.name }}";
     component.data = {
       custom: async () => {
         const data = await this.queryClient.ensureQueryData(

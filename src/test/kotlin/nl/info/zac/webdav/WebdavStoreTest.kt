@@ -71,7 +71,7 @@ class WebdavStoreTest : BehaviorSpec({
         unmockkStatic(CDI::class)
     }
 
-    Given("a valid WebDAV token for read operations") {
+    given("a valid WebDAV token for read operations") {
         setupCdi(webdavHelper, drcClientService, enkelvoudigInformatieObjectUpdateService)
         val webdavStore = WebdavStore(File("/fake"))
         val documentUUID = UUID.randomUUID()
@@ -80,19 +80,19 @@ class WebdavStoreTest : BehaviorSpec({
 
         every { webdavHelper.readWebdavTokenData(token) } returns webdavTokenData
 
-        When("getResourceContent is called with a valid token URI") {
+        `when`("getResourceContent is called with a valid token URI") {
             val inputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
             every { drcClientService.downloadEnkelvoudigInformatieobject(documentUUID) } returns inputStream
 
             val result = webdavStore.getResourceContent(noTransaction, "/webdav/folder/$token.docx")
 
-            Then("it returns the InputStream downloaded from DRC") {
+            then("it returns the InputStream downloaded from DRC") {
                 result shouldBe inputStream
                 verify(exactly = 1) { drcClientService.downloadEnkelvoudigInformatieobject(documentUUID) }
             }
         }
 
-        When("getStoredObject is called with a valid token URI") {
+        `when`("getStoredObject is called with a valid token URI") {
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
                 uuid = documentUUID,
                 bestandsomvang = 5000
@@ -101,7 +101,7 @@ class WebdavStoreTest : BehaviorSpec({
 
             val result = webdavStore.getStoredObject(noTransaction, "/webdav/folder/$token.docx")
 
-            Then("it returns a file StoredObject with the correct metadata") {
+            then("it returns a file StoredObject with the correct metadata") {
                 result shouldNotBe null
                 result!!.isFolder shouldBe false
                 result.resourceLength shouldBe 5000L
@@ -109,7 +109,7 @@ class WebdavStoreTest : BehaviorSpec({
         }
     }
 
-    Given("a valid WebDAV token for write operations") {
+    given("a valid WebDAV token for write operations") {
         val httpSession = mockk<HttpSession>()
         setupCdi(webdavHelper, drcClientService, enkelvoudigInformatieObjectUpdateService, httpSession)
         val webdavStore = WebdavStore(File("/fake"))
@@ -121,7 +121,7 @@ class WebdavStoreTest : BehaviorSpec({
 
         every { webdavHelper.readWebdavTokenData(token) } returns webdavTokenData
 
-        When("setResourceContent is called with a valid token URI and document content") {
+        `when`("setResourceContent is called with a valid token URI and document content") {
             val contentStream = ByteArrayInputStream(byteArrayOf(1, 2, 3, 4, 5))
             val updatedDocument = createEnkelvoudigInformatieObject(
                 uuid = documentUUID,
@@ -144,7 +144,7 @@ class WebdavStoreTest : BehaviorSpec({
                 null
             )
 
-            Then("it updates the document in DRC and returns the updated file size") {
+            then("it updates the document in DRC and returns the updated file size") {
                 result shouldBe 5L
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
@@ -157,41 +157,41 @@ class WebdavStoreTest : BehaviorSpec({
         }
     }
 
-    Given("a folder URI") {
+    given("a folder URI") {
         setupCdi(mockk(), mockk(), mockk())
         val webdavStore = WebdavStore(File("/fake"))
 
-        When("getStoredObject is called") {
+        `when`("getStoredObject is called") {
             val result = webdavStore.getStoredObject(noTransaction, "/webdav/folder")
 
-            Then("it returns a folder StoredObject") {
+            then("it returns a folder StoredObject") {
                 result shouldNotBe null
                 result!!.isFolder shouldBe true
             }
         }
     }
 
-    Given("an empty URI") {
+    given("an empty URI") {
         setupCdi(mockk(), mockk(), mockk())
         val webdavStore = WebdavStore(File("/fake"))
 
-        When("getResourceContent is called") {
+        `when`("getResourceContent is called") {
             val result = webdavStore.getResourceContent(noTransaction, "")
 
-            Then("it returns null") {
+            then("it returns null") {
                 result shouldBe null
             }
         }
 
-        When("getStoredObject is called") {
+        `when`("getStoredObject is called") {
             val result = webdavStore.getStoredObject(noTransaction, "")
 
-            Then("it returns null") {
+            then("it returns null") {
                 result shouldBe null
             }
         }
 
-        When("setResourceContent is called") {
+        `when`("setResourceContent is called") {
             val result = webdavStore.setResourceContent(
                 noTransaction,
                 "",
@@ -200,28 +200,28 @@ class WebdavStoreTest : BehaviorSpec({
                 null
             )
 
-            Then("it returns 0") {
+            then("it returns 0") {
                 result shouldBe 0L
             }
         }
     }
 
-    Given("no URI-specific behavior expected") {
+    given("no URI-specific behavior expected") {
         setupCdi(mockk(), mockk(), mockk())
         val webdavStore = WebdavStore(File("/fake"))
 
-        When("getChildrenNames is called") {
+        `when`("getChildrenNames is called") {
             val result = webdavStore.getChildrenNames(noTransaction, "/webdav/folder")
 
-            Then("it returns null") {
+            then("it returns null") {
                 result shouldBe null
             }
         }
 
-        When("getResourceLength is called") {
+        `when`("getResourceLength is called") {
             val result = webdavStore.getResourceLength(noTransaction, "/webdav/folder/sometoken.docx")
 
-            Then("it returns 0") {
+            then("it returns 0") {
                 result shouldBe 0L
             }
         }

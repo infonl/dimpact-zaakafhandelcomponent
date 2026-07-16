@@ -35,7 +35,7 @@ class SolrDeployerServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given(
+    given(
         """
             ZAC Solr schema version 0 is currently installed and version 1 is available for which all zaken need to be reindexed
             """
@@ -61,10 +61,10 @@ class SolrDeployerServiceTest : BehaviorSpec({
         solrDeployerService.setManagedExecutorService(managedExecutorService)
         solrDeployerService.setSchemaUpdates(solrSchemaUpdateInstance)
 
-        When("the ZAC Solr deployer service is started") {
+        `when`("the ZAC Solr deployer service is started") {
             solrDeployerService.onStartup(Any())
 
-            Then("the Solr schema should be updated to the available version and the zaken should be reindexed") {
+            then("the Solr schema should be updated to the available version and the zaken should be reindexed") {
                 verify(exactly = 1) {
                     anyConstructed<MultiUpdate>().process(any())
                     managedExecutorService.submit(any())

@@ -29,15 +29,15 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a WebSocket open event with no HTTP session in the endpoint config") {
+    given("a WebSocket open event with no HTTP session in the endpoint config") {
         val wsSession = mockk<Session>(relaxed = true)
         val endpointConfig = mockk<EndpointConfig>()
         every { endpointConfig.userProperties } returns mutableMapOf()
 
-        When("open is called") {
+        `when`("open is called") {
             endpoint.open(wsSession, endpointConfig)
 
-            Then("access is denied and the WebSocket session is closed with VIOLATED_POLICY") {
+            then("access is denied and the WebSocket session is closed with VIOLATED_POLICY") {
                 verify(exactly = 1) {
                     wsSession.close(match { it.closeCode.code == CloseReason.CloseCodes.VIOLATED_POLICY.code })
                 }
@@ -45,17 +45,17 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         }
     }
 
-    Given("a WebSocket open event with an HTTP session that has no logged-in user") {
+    given("a WebSocket open event with an HTTP session that has no logged-in user") {
         val wsSession = mockk<Session>(relaxed = true)
         val endpointConfig = mockk<EndpointConfig>()
         val httpSession = mockk<HttpSession>()
         every { endpointConfig.userProperties } returns mutableMapOf<String, Any>(HTTP_SESSION to httpSession)
         every { httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE) } returns null
 
-        When("open is called") {
+        `when`("open is called") {
             endpoint.open(wsSession, endpointConfig)
 
-            Then("access is denied and the WebSocket session is closed with VIOLATED_POLICY") {
+            then("access is denied and the WebSocket session is closed with VIOLATED_POLICY") {
                 verify(exactly = 1) {
                     wsSession.close(match { it.closeCode.code == CloseReason.CloseCodes.VIOLATED_POLICY.code })
                 }
@@ -63,17 +63,17 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         }
     }
 
-    Given("a WebSocket open event with an invalidated HTTP session") {
+    given("a WebSocket open event with an invalidated HTTP session") {
         val wsSession = mockk<Session>(relaxed = true)
         val endpointConfig = mockk<EndpointConfig>()
         val httpSession = mockk<HttpSession>()
         every { endpointConfig.userProperties } returns mutableMapOf<String, Any>(HTTP_SESSION to httpSession)
         every { httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE) } throws IllegalStateException("session invalidated")
 
-        When("open is called") {
+        `when`("open is called") {
             endpoint.open(wsSession, endpointConfig)
 
-            Then("access is denied and the WebSocket session is closed with VIOLATED_POLICY") {
+            then("access is denied and the WebSocket session is closed with VIOLATED_POLICY") {
                 verify(exactly = 1) {
                     wsSession.close(match { it.closeCode.code == CloseReason.CloseCodes.VIOLATED_POLICY.code })
                 }
@@ -81,7 +81,7 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         }
     }
 
-    Given("a WebSocket open event with an authenticated HTTP session") {
+    given("a WebSocket open event with an authenticated HTTP session") {
         val wsSession = mockk<Session>(relaxed = true)
         val endpointConfig = mockk<EndpointConfig>()
         val httpSession = mockk<HttpSession>()
@@ -99,72 +99,72 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         every { endpointConfig.userProperties } returns mutableMapOf<String, Any>(HTTP_SESSION to httpSession)
         every { httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE) } returns loggedInUser
 
-        When("open is called") {
+        `when`("open is called") {
             endpoint.open(wsSession, endpointConfig)
 
-            Then("the WebSocket session is opened and the user ID is stored in session properties") {
+            then("the WebSocket session is opened and the user ID is stored in session properties") {
                 wsUserProperties[LOGGED_IN_USER_SESSION_ATTRIBUTE] shouldBe "user-123"
             }
         }
     }
 
-    Given("an open WebSocket session receiving a non-null subscription message") {
+    given("an open WebSocket session receiving a non-null subscription message") {
         val wsSession = mockk<Session>(relaxed = true)
         val message = SubscriptionType.DELETE_ALL.message()
         every { registry.deleteAll(wsSession) } just runs
 
-        When("the message is processed") {
+        `when`("the message is processed") {
             endpoint.processMessage(message, wsSession)
 
-            Then("the message is registered with the session registry") {
+            then("the message is registered with the session registry") {
                 verify(exactly = 1) { registry.deleteAll(wsSession) }
             }
         }
     }
 
-    Given("an open WebSocket session receiving a null subscription message") {
+    given("an open WebSocket session receiving a null subscription message") {
         val wsSession = mockk<Session>(relaxed = true)
 
-        When("the message is processed") {
+        `when`("the message is processed") {
             endpoint.processMessage(null, wsSession)
 
-            Then("no registry operation is performed") {
+            then("no registry operation is performed") {
                 verify(exactly = 0) { registry.deleteAll(wsSession) }
             }
         }
     }
 
-    Given("a WebSocket session close event") {
+    given("a WebSocket session close event") {
         val wsSession = mockk<Session>(relaxed = true)
         val closeReason = CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "normal close")
         every { registry.deleteAll(wsSession) } just runs
 
-        When("close is called") {
+        `when`("close is called") {
             endpoint.close(wsSession, closeReason)
 
-            Then("DELETE_ALL is processed for the session to prevent resource leaks") {
+            then("DELETE_ALL is processed for the session to prevent resource leaks") {
                 verify(exactly = 1) { registry.deleteAll(wsSession) }
             }
         }
     }
 
-    Given("a WebSocket error event with an exception that has a message") {
+    given("a WebSocket error event with an exception that has a message") {
         val wsSession = mockk<Session>(relaxed = true)
 
-        When("the error handler is called") {
+        `when`("the error handler is called") {
             endpoint.log(wsSession, RuntimeException("connection reset"))
 
-            Then("the error is logged without throwing") { }
+            then("the error is logged without throwing") { }
         }
     }
 
-    Given("a WebSocket error event with an exception that has no message") {
+    given("a WebSocket error event with an exception that has no message") {
         val wsSession = mockk<Session>(relaxed = true)
 
-        When("the error handler is called") {
+        `when`("the error handler is called") {
             endpoint.log(wsSession, object : Exception() {})
 
-            Then("the class simple name is used as log message and no exception is thrown") { }
+            then("the class simple name is used as log message and no exception is thrown") { }
         }
     }
 })

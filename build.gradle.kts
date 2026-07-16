@@ -505,8 +505,6 @@ tasks {
         dependsOn("generateJavaClients")
 
         compilerOptions {
-            // see: https://youtrack.jetbrains.com/issue/KT-73255
-            freeCompilerArgs.add("-Xannotation-default-target=param-property")
             // Enable the experimental return value checker so that we can use the `@CheckReturnValue` annotation
             // in our codebase to report on unused return values.
             // see: https://kotlinlang.org/docs/whatsnew23.html#unused-return-value-checker
@@ -867,7 +865,11 @@ tasks {
         description = "Generates a WildFly bootable JAR"
         group = "build"
         dependsOn("war")
-        execGoal("wildfly:package")
+        // Gradle already tracks the relevant inputs (WAR, pom.xml, wildfly/*.cli) and only re-runs
+        // this task when one of them changes. Without this flag, the wildfly-maven-plugin would still
+        // silently skip provisioning a new server whenever 'target/server' already exists from a
+        // previous run, leaving Gradle's invalidation decision without effect.
+        execGoal("wildfly:package", "-Dwildfly.provisioning.overwrite-provisioned-server=true")
 
         val wildflyResources = srcResources.dir("wildfly")
         inputs.files(wildflyResources.asFileTree)

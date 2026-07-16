@@ -13,7 +13,7 @@ import jakarta.persistence.criteria.Root
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime
+import nl.info.client.zgw.util.convertToDateTime
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListParameters
 import nl.info.zac.search.model.DatumRange
@@ -125,7 +125,7 @@ class InboxDocumentRepository @Inject constructor(
                 predicates.add(
                     builder.greaterThanOrEqualTo(
                         root.get(InboxDocument.CREATIE_DATUM_PROPERTY_NAME),
-                        convertToDateTime(van)
+                        van.convertToDateTime()
                     )
                 )
             }
@@ -133,7 +133,7 @@ class InboxDocumentRepository @Inject constructor(
                 predicates.add(
                     builder.lessThanOrEqualTo(
                         root.get(InboxDocument.CREATIE_DATUM_PROPERTY_NAME),
-                        convertToDateTime(tot).plusDays(1).minusSeconds(1)
+                        tot.convertToDateTime().plusDays(1).minusSeconds(1)
                     )
                 )
             }

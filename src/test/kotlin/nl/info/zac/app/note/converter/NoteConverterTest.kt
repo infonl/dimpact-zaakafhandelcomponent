@@ -25,8 +25,8 @@ class NoteConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("toRestNote") {
-        Given("a Note and the logged-in user is the note's author") {
+    context("toRestNote") {
+        given("a Note and the logged-in user is the note's author") {
             val note = createNote(employeeUsername = "fakeAuthor")
             val author = createUser(
                 id = "fakeAuthor",
@@ -38,18 +38,18 @@ class NoteConverterTest : BehaviorSpec({
             every { identityService.readUser("fakeAuthor") } returns author
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("toRestNote is called") {
+            `when`("toRestNote is called") {
                 val result = noteConverter.toRestNote(note)
 
-                Then("updatingAllowed is true because logged-in user is the author") {
+                then("updatingAllowed is true because logged-in user is the author") {
                     result.updatingAllowed shouldBe true
                 }
 
-                Then("employeeFullname is first + last name") {
+                then("employeeFullname is first + last name") {
                     result.employeeFullname shouldBe "fakeFirstName fakeLastName"
                 }
 
-                Then("other fields are mapped correctly") {
+                then("other fields are mapped correctly") {
                     result.id shouldBe note.id
                     result.zaakUUID shouldBe note.zaakUUID
                     result.text shouldBe note.text
@@ -58,7 +58,7 @@ class NoteConverterTest : BehaviorSpec({
             }
         }
 
-        Given("a Note and the logged-in user is a different user") {
+        given("a Note and the logged-in user is a different user") {
             val note = createNote(employeeUsername = "fakeAuthor")
             val author = createUser(
                 id = "fakeAuthor",
@@ -70,10 +70,10 @@ class NoteConverterTest : BehaviorSpec({
             every { identityService.readUser("fakeAuthor") } returns author
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("toRestNote is called") {
+            `when`("toRestNote is called") {
                 val result = noteConverter.toRestNote(note)
 
-                Then("updatingAllowed is false") {
+                then("updatingAllowed is false") {
                     result.updatingAllowed shouldBe false
                 }
             }

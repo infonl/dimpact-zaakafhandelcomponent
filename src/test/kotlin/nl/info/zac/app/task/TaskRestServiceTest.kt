@@ -118,8 +118,8 @@ class TaskRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Assigning a task") {
-        Given("a task is not yet assigned") {
+    context("Assigning a task") {
+        given("a task is not yet assigned") {
             val restTaakToekennenGegevens = createRestTaskAssignData()
             val task = createTestTask()
             every { loggedInUserInstance.get() } returns loggedInUser
@@ -132,12 +132,12 @@ class TaskRestServiceTest : BehaviorSpec({
                 )
             } just runs
 
-            When("the task is assigned with a user who has permission") {
+            `when`("the task is assigned with a user who has permission") {
                 every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(toekennen = true)
 
                 taskRestService.assignTask(restTaakToekennenGegevens)
 
-                Then(
+                then(
                     "the task is correctly assigned"
                 ) {
                     verify(exactly = 1) {
@@ -150,20 +150,20 @@ class TaskRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("assign is called from user with no permission") {
+            `when`("assign is called from user with no permission") {
                 every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
 
                 val exception = shouldThrow<PolicyException> {
                     taskRestService.assignTask(restTaakToekennenGegevens)
                 }
 
-                Then("it throws exception with no message") { exception.message shouldBe null }
+                then("it throws exception with no message") { exception.message shouldBe null }
             }
         }
     }
 
-    Context("Updating task data") {
-        Given("a task and task data to assign the task to the current user and sign the document") {
+    context("Updating task data") {
+        given("a task and task data to assign the task to the current user and sign the document") {
             val task = createTestTask()
             val restUser = createRESTUser(
                 id = loggedInUser.id,
@@ -191,11 +191,11 @@ class TaskRestServiceTest : BehaviorSpec({
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
 
-            When("'updateTaakdata' is called with changed description and due date from user with access") {
+            `when`("'updateTaakdata' is called with changed description and due date from user with access") {
 
                 val restTaakReturned = taskRestService.updateTaskData(restTaak)
 
-                Then("the changes are stored") {
+                then("the changes are stored") {
                     restTaakReturned shouldBe restTaak
                     verify(exactly = 1) {
                         flowableTaskService.updateTask(task)
@@ -205,8 +205,8 @@ class TaskRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Completing a task") {
-        Given("a task is assigned to the current user") {
+    context("Completing a task") {
+        given("a task is assigned to the current user") {
             val task = createTestTask()
             val zaak = createZaak()
             val httpSession = mockk<HttpSession>()
@@ -250,12 +250,12 @@ class TaskRestServiceTest : BehaviorSpec({
             every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
             every { eventingService.send(any<ScreenEvent>()) } just runs
 
-            When("task is completed by a user with permissions to change tasks") {
+            `when`("task is completed by a user with permissions to change tasks") {
                 every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
 
                 val restTaakReturned = taskRestService.completeTask(restTaak)
 
-                Then("the task is completed in Flowable") {
+                then("the task is completed in Flowable") {
                     verify(exactly = 1) {
                         flowableTaskService.completeTask(task)
                     }
@@ -265,18 +265,18 @@ class TaskRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("task is completed by a user with no task permissions") {
+            `when`("task is completed by a user with no task permissions") {
                 every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny()
 
                 val exception = shouldThrow<PolicyException> {
                     taskRestService.completeTask(restTaak)
                 }
 
-                Then("it throws exception with no message") { exception.message shouldBe null }
+                then("it throws exception with no message") { exception.message shouldBe null }
             }
         }
 
-        Given("a task and task data to assign the task to the current user and sign the document") {
+        given("a task and task data to assign the task to the current user and sign the document") {
             val task = createTestTask()
             val restUser = createRESTUser(
                 id = loggedInUser.id,
@@ -322,7 +322,7 @@ class TaskRestServiceTest : BehaviorSpec({
             } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the task is completed for a document that is not yet signed") {
+            `when`("the task is completed for a document that is not yet signed") {
                 val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
                     url = URI("https://example.com/$enkelvoudigInformatieObjectUUID")
                 )
@@ -335,7 +335,7 @@ class TaskRestServiceTest : BehaviorSpec({
 
                 val restTaakReturned = taskRestService.completeTask(restTaak)
 
-                Then("the completed task is returned") {
+                then("the completed task is returned") {
                     restTaakReturned shouldBe restTaakConverted
                 }
                 And("the document is signed") {
@@ -352,7 +352,7 @@ class TaskRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the task is completed for a document that is already signed") {
+            `when`("the task is completed for a document that is already signed") {
                 val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
                     url = URI("https://example.com/$enkelvoudigInformatieObjectUUID"),
                     ondertekening = createOndertekening(
@@ -368,7 +368,7 @@ class TaskRestServiceTest : BehaviorSpec({
                     taskRestService.completeTask(restTaak)
                 }
 
-                Then("an exception is thrown") {
+                then("an exception is thrown") {
                     exception.errorCode shouldBe ErrorCode.ERROR_CODE_DOCUMENT_HAS_ALREADY_BEEN_SIGNED
                     exception.message shouldBe null
                 }
@@ -376,8 +376,8 @@ class TaskRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Assigning tasks from a list") {
-        Given("REST taak verdeelgegevens to assign two tasks asynchronously") {
+    context("Assigning tasks from a list") {
+        given("REST taak verdeelgegevens to assign two tasks asynchronously") {
             val screenEventResourceId = "fakeScreenEventResourceId"
             val restTaakVerdelenGegevens = createRestTaskDistributeData(
                 taken = listOf(
@@ -391,7 +391,7 @@ class TaskRestServiceTest : BehaviorSpec({
             } just Runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the 'verdelen vanuit lijst' function is called from user with access") {
+            `when`("the 'verdelen vanuit lijst' function is called from user with access") {
                 every {
                     policyService.readWerklijstRechten()
                 } returns createWerklijstRechtenAllDeny(zakenTakenVerdelen = true)
@@ -400,27 +400,27 @@ class TaskRestServiceTest : BehaviorSpec({
                     taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
                 }
 
-                Then("the tasks are assigned to the group and user") {
+                then("the tasks are assigned to the group and user") {
                     verify(exactly = 1) {
                         taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
                     }
                 }
             }
 
-            When("the 'verdelen vanuit lijst' function is called from user with no access") {
+            `when`("the 'verdelen vanuit lijst' function is called from user with no access") {
                 every { policyService.readWerklijstRechten() } returns createWerklijstRechtenAllDeny()
 
                 val exception = shouldThrow<PolicyException> {
                     taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
                 }
 
-                Then("it throws exception with no message") { exception.message shouldBe null }
+                then("it throws exception with no message") { exception.message shouldBe null }
             }
         }
     }
 
-    Context("Releasing tasks from a list") {
-        Given("REST taak vrijgeven gegevens to release two tasks asynchronously") {
+    context("Releasing tasks from a list") {
+        given("REST taak vrijgeven gegevens to release two tasks asynchronously") {
             val screenEventResourceId = "fakeScreenEventResourceId"
             val restTaakVrijgevenGegevens = createRestTaskReleaseData(
                 taken = listOf(
@@ -436,12 +436,12 @@ class TaskRestServiceTest : BehaviorSpec({
             } just Runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the 'verdelen vanuit lijst' function is called") {
+            `when`("the 'verdelen vanuit lijst' function is called") {
                 runTest(testDispatcher) {
                     taskRestService.releaseTaskFromList(restTaakVrijgevenGegevens)
                 }
 
-                Then("the tasks are assigned to the group and user") {
+                then("the tasks are assigned to the group and user") {
                     verify(exactly = 1) {
                         taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
                     }
@@ -450,8 +450,8 @@ class TaskRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing tasks for a zaak") {
-        Given("Two Flowable tasks for a zaak") {
+    context("Listing tasks for a zaak") {
+        given("Two Flowable tasks for a zaak") {
             val zaak = createZaak()
             val tasks = listOf(
                 createTestTask(id = "fakeId1"),
@@ -468,10 +468,10 @@ class TaskRestServiceTest : BehaviorSpec({
             every { restTaskConverter.convert(tasks) } returns restTasks
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("the tasks are listed for this zaak") {
+            `when`("the tasks are listed for this zaak") {
                 val returnedRestTasks = taskRestService.listTasksForZaak(zaak.uuid)
 
-                Then("the tasks are returned") {
+                then("the tasks are returned") {
                     returnedRestTasks shouldBe restTasks
                     verify(exactly = 1) {
                         taskService.listTasksForZaak(zaak.uuid)
@@ -481,8 +481,8 @@ class TaskRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading a task") {
-        Given("A valid task ID with an open task and a REST task with a form.io form") {
+    context("Reading a task") {
+        given("A valid task ID with an open task and a REST task with a form.io form") {
             val taskId = "validTaskId"
             val zaakUuid = UUID.randomUUID()
             val taskInfo = createTestTask(
@@ -506,10 +506,10 @@ class TaskRestServiceTest : BehaviorSpec({
                 "fakeKey" to "fakeValue"
             )
 
-            When("readTask is called") {
+            `when`("readTask is called") {
                 val result = taskRestService.readTask(taskId)
 
-                Then("signaleringen are deleted and the task is returned with rendered forms and added zaakdata") {
+                then("signaleringen are deleted and the task is returned with rendered forms and added zaakdata") {
                     result shouldBe restTask
                     verify(exactly = 2) {
                         signaleringService.deleteSignaleringen(any())
@@ -521,16 +521,16 @@ class TaskRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("An invalid task ID") {
+        given("An invalid task ID") {
             val taskId = "invalidTaskId"
             every { flowableTaskService.readTask(taskId) } throws TaskNotFoundException("Task not found")
 
-            When("readTask is called") {
+            `when`("readTask is called") {
                 val exception = shouldThrow<TaskNotFoundException> {
                     taskRestService.readTask(taskId)
                 }
 
-                Then("a TaskNotFoundException is thrown") {
+                then("a TaskNotFoundException is thrown") {
                     exception.message shouldBe "Task not found"
                 }
             }

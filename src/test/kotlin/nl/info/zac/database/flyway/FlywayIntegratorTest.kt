@@ -16,9 +16,9 @@ class FlywayIntegratorTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A data source that is not initialized") {
-        When("onStartup is called") {
-            Then("it should throw DatabaseConfigurationException") {
+    given("A data source that is not initialized") {
+        `when`("onStartup is called") {
+            then("it should throw DatabaseConfigurationException") {
                 shouldThrow<DatabaseConfigurationException> {
                     flywayIntegrator.onStartup(Any())
                 }

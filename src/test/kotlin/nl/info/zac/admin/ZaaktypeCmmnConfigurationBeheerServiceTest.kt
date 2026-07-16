@@ -71,7 +71,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("One zaaktypeCmmnConfiguration for a given zaaktype UUID") {
+    given("One zaaktypeCmmnConfiguration for a given zaaktype UUID") {
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         val now = ZonedDateTime.now()
         every { ztcClientService.resetCacheTimeToNow() } returns now
@@ -92,19 +92,19 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             entityManager.createQuery(zaaktypeCmmnConfigurationCriteriaQuery).setMaxResults(1).resultList
         } returns listOf(zaaktypeCmmnConfiguration)
 
-        When("the zaaktypeCmmnConfiguration are retrieved based on the zaaktypeUUID") {
+        `when`("the zaaktypeCmmnConfiguration are retrieved based on the zaaktypeUUID") {
             val returnedZaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationBeheerService.fetchZaaktypeCmmnConfiguration(
                 zaaktypeCmmnConfiguration.zaaktypeUuid
             )
 
-            Then("the zaaktypeCmmnConfiguration should be returned") {
+            then("the zaaktypeCmmnConfiguration should be returned") {
                 with(returnedZaaktypeCmmnConfiguration) {
                     zaaktypeUuid shouldBe zaaktypeCmmnConfiguration.zaaktypeUuid
                 }
             }
         }
     }
-    Given("Two zaaktypeCmmnConfigurations") {
+    given("Two zaaktypeCmmnConfigurations") {
         val zaaktypeCmmnConfigurations = listOf(
             createZaaktypeCmmnConfiguration(),
             createZaaktypeCmmnConfiguration()
@@ -126,10 +126,10 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         every { criteriaBuilder.desc(path) } returns order
         every { zaaktypeCmmnConfigurationCriteriaQuery.orderBy(order) } returns zaaktypeCmmnConfigurationCriteriaQuery
 
-        When("the zaaktypeCmmnConfiguration are retrieved based on the zaaktypeUUID") {
+        `when`("the zaaktypeCmmnConfiguration are retrieved based on the zaaktypeUUID") {
             val returnedZaaktypeCmmnConfiguration = zaaktypeCmmnConfigurationBeheerService.listZaaktypeCmmnConfiguration()
 
-            Then("both zaaktypeCmmnConfiguration should be returned") {
+            then("both zaaktypeCmmnConfiguration should be returned") {
                 returnedZaaktypeCmmnConfiguration.size shouldBe 2
                 returnedZaaktypeCmmnConfiguration.forEachIndexed { index, returnedZaakafhandelparameter ->
                     with(returnedZaakafhandelparameter) {
@@ -140,7 +140,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("Two active zaaktypeCmmnConfiguration for a given productaanvraagType") {
+    given("Two active zaaktypeCmmnConfiguration for a given productaanvraagType") {
         val productaanvraagType = "fakeProductaanvraagType"
         val zaaktypeCmmnConfigurationList = listOf(
             createZaaktypeCmmnConfiguration(),
@@ -179,20 +179,20 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         }
         every { zaaktypeCmmnConfigurationTypedQuery.resultList } returns zaaktypeCmmnConfigurationList
 
-        When("the active zaaktypeCmmnConfiguration are retrieved for the given productaanvraagType") {
+        `when`("the active zaaktypeCmmnConfiguration are retrieved for the given productaanvraagType") {
             val returnedZaaktypeCmmnConfiguration =
                 zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
                     productaanvraagType
                 )
 
-            Then("two zaaktypeCmmnConfiguration should be returned") {
+            then("two zaaktypeCmmnConfiguration should be returned") {
                 returnedZaaktypeCmmnConfiguration.size shouldBe 2
                 returnedZaaktypeCmmnConfiguration.map { productaanvraagType } shouldContainOnly listOf(productaanvraagType)
             }
         }
     }
 
-    Given("A new zaaktype was created and no previous version exists") {
+    given("A new zaaktype was created and no previous version exists") {
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUUID")
         val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "P30D", concept = false)
@@ -210,18 +210,18 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             every { resultList } returns emptyList()
         }
 
-        When("Publishing a new zaaktype") {
+        `when`("Publishing a new zaaktype") {
             val exception = shouldThrow<ZaaktypeConfigurationNotFoundException> {
                 zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
             }
 
-            Then("exception is thrown") {
+            then("exception is thrown") {
                 exception.message shouldContain zaakType.omschrijving
             }
         }
     }
 
-    Given("A zaaktype that has been updated") {
+    given("A zaaktype that has been updated") {
         val zaaktypeUUID = UUID.randomUUID()
         val zaaktypeUri = URI("https://example.com/zaaktypes/$zaaktypeUUID")
         val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "P30D", concept = false)
@@ -254,7 +254,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
         val slotPersistZaaktypeCmmnConfiguration = slot<ZaaktypeCmmnConfiguration>()
 
-        When("Processing the updated zaaktype") {
+        `when`("Processing the updated zaaktype") {
             every { entityManager.createQuery(criteriaQuery) } returns mockk {
                 every { setMaxResults(1) } returns this
                 every { resultList } returns listOf(originalZaaktypeCmmnConfiguration)
@@ -266,7 +266,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
             zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
 
-            Then("The related zaaktypeCmmnConfiguration is stored through the entity manager") {
+            then("The related zaaktypeCmmnConfiguration is stored through the entity manager") {
                 slotPersistZaaktypeCmmnConfiguration.isCaptured shouldBe true
                 verify {
                     entityManager.merge(any<ZaaktypeCmmnConfiguration>())
@@ -282,7 +282,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
             }
         }
 
-        When("Publishing a new zaaktype") {
+        `when`("Publishing a new zaaktype") {
             every {
                 entityManager.persist(capture(slotPersistZaaktypeCmmnConfiguration))
             } answers { ZaaktypeCmmnConfiguration() }
@@ -296,7 +296,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
 
             zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaakType)
 
-            Then("The zaaktype simple values have been copied from the original") {
+            then("The zaaktype simple values have been copied from the original") {
                 with(slotPersistZaaktypeCmmnConfiguration.captured) {
                     zaaktypeUuid shouldBe zaakType.url.extractUuid()
                     zaaktypeOmschrijving shouldBe zaakType.omschrijving

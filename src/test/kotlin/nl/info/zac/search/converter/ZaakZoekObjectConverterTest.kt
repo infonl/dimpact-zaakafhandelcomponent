@@ -58,7 +58,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given(
+    given(
         """
         A zaak with betrokkenen, without open tasks, zaak objecten, an archief nominatie, 
         and communication channels
@@ -108,10 +108,10 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readResultaattype(resultaat.resultaattype) } returns resultaatType
         every { flowableTaskService.countOpenTasksForZaak(zaak.uuid) } returns 0
 
-        When("the zaak is converted to a zaak zoek object") {
+        `when`("the zaak is converted to a zaak zoek object") {
             val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak.uuid.toString())
 
-            Then("the zaak zoek object should contain expected data that is converted from the zaak") {
+            then("the zaak zoek object should contain expected data that is converted from the zaak") {
                 with(zaakZoekObject) {
                     getObjectId() shouldBe zaak.uuid.toString()
                     getType() shouldBe ZoekObjectType.ZAAK
@@ -144,7 +144,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         }
     }
 
-    Given("a reopened zaak with status and besluiten") {
+    given("a reopened zaak with status and besluiten") {
         val zaakType = createZaakType(
             besluittypen = listOf(URI("fakeBesluit1"), URI("fakeBesluit2"))
         )
@@ -189,10 +189,10 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             count = zaakObjectenList.size
         )
 
-        When("the zaak is converted to a zaak zoek object") {
+        `when`("the zaak is converted to a zaak zoek object") {
             val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak.uuid.toString())
 
-            Then("the zaak zoek object should contain expected data that is converted from the zaak") {
+            then("the zaak zoek object should contain expected data that is converted from the zaak") {
                 with(zaakZoekObject) {
                     getObjectId() shouldBe zaak.uuid.toString()
                     getType() shouldBe ZoekObjectType.ZAAK

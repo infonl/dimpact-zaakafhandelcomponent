@@ -32,8 +32,8 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
-    Context("convert with ZoekResultaat and RestZoekParameters") {
-        Given("a ZoekResultaat containing a TaakZoekObject") {
+    context("convert with ZoekResultaat and RestZoekParameters") {
+        given("a ZoekResultaat containing a TaakZoekObject") {
             val taakZoekObject = createTaakZoekObject()
             val zoekResultaat = ZoekResultaat(listOf(taakZoekObject), 1L)
             val zoekParameters = createRestZoekParameters(type = ZoekObjectType.TAAK, filters = emptyMap())
@@ -41,10 +41,10 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
 
             every { policyService.readTaakRechten(taakZoekObject) } returns taakRechten
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = restZoekResultaatConverter.convert(zoekResultaat, zoekParameters)
 
-                Then("it returns a RestZoekResultaat with the correct count") {
+                then("it returns a RestZoekResultaat with the correct count") {
                     result.resultCount shouldBe 1L
                     result.results shouldHaveSize 1
                     (result.results.first() is RestTaakZoekObject) shouldBe true
@@ -52,7 +52,7 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
             }
         }
 
-        Given("a ZoekResultaat containing a ZaakZoekObject") {
+        given("a ZoekResultaat containing a ZaakZoekObject") {
             val zaakZoekObject = createZaakZoekObject()
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1L)
             val zoekParameters = createRestZoekParameters(type = ZoekObjectType.ZAAK, filters = emptyMap())
@@ -60,10 +60,10 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
 
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns zaakRechten
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = restZoekResultaatConverter.convert(zoekResultaat, zoekParameters)
 
-                Then("it returns a RestZoekResultaat with the correct count") {
+                then("it returns a RestZoekResultaat with the correct count") {
                     result.resultCount shouldBe 1L
                     result.results shouldHaveSize 1
                     (result.results.first() is RestZaakZoekObject) shouldBe true
@@ -71,7 +71,7 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
             }
         }
 
-        Given("a ZoekResultaat containing a DocumentZoekObject") {
+        given("a ZoekResultaat containing a DocumentZoekObject") {
             val documentZoekObject = DocumentZoekObject(
                 id = "fakeDocumentId",
                 type = ZoekObjectType.DOCUMENT.name
@@ -82,17 +82,17 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
 
             every { policyService.readDocumentRechten(documentZoekObject) } returns documentRechten
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = restZoekResultaatConverter.convert(zoekResultaat, zoekParameters)
 
-                Then("it returns a RestZoekResultaat with the correct count") {
+                then("it returns a RestZoekResultaat with the correct count") {
                     result.resultCount shouldBe 1L
                     result.results shouldHaveSize 1
                 }
             }
         }
 
-        Given("a ZoekResultaat with existing filters") {
+        given("a ZoekResultaat with existing filters") {
             val zaakZoekObject = createZaakZoekObject()
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1L).also {
                 it.addFilter(FilterVeld.ZAAKTYPE, mutableListOf(FilterResultaat("fakeZaaktype", 5)))
@@ -102,10 +102,10 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
 
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns zaakRechten
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = restZoekResultaatConverter.convert(zoekResultaat, zoekParameters)
 
-                Then("filters from zoekResultaat are carried over") {
+                then("filters from zoekResultaat are carried over") {
                     val zaaktypeFilters = result.filters[FilterVeld.ZAAKTYPE]!!
                     zaaktypeFilters shouldHaveSize 1
                     zaaktypeFilters.first().naam shouldBe "fakeZaaktype"
@@ -114,7 +114,7 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
             }
         }
 
-        Given("zoekParameters with filter values not in zoekResultaat") {
+        given("zoekParameters with filter values not in zoekResultaat") {
             val zaakZoekObject = createZaakZoekObject()
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1L)
             val zoekParameters = createRestZoekParameters(
@@ -125,10 +125,10 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
 
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns zaakRechten
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = restZoekResultaatConverter.convert(zoekResultaat, zoekParameters)
 
-                Then("missing filter values are added with count 0") {
+                then("missing filter values are added with count 0") {
                     val behandelaarFilters = result.filters[FilterVeld.BEHANDELAAR]!!
                     behandelaarFilters shouldHaveSize 1
                     behandelaarFilters.first().naam shouldBe "fakeMissingBehandelaar"
@@ -138,8 +138,8 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convert for koppelen") {
-        Given("a ZoekResultaat containing ZaakZoekObjects for koppelen") {
+    context("convert for koppelen") {
+        given("a ZoekResultaat containing ZaakZoekObjects for koppelen") {
             val zaakZoekObject = createZaakZoekObject()
             val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1L)
             val documentLinkableList = listOf(true)
@@ -147,10 +147,10 @@ class RestZoekResultaatConverterTest : BehaviorSpec({
 
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns zaakRechten
 
-            When("convert is called with documentLinkableList") {
+            `when`("convert is called with documentLinkableList") {
                 val result = restZoekResultaatConverter.convert(zoekResultaat, documentLinkableList)
 
-                Then("it returns RestZaakKoppelenZoekObjects") {
+                then("it returns RestZaakKoppelenZoekObjects") {
                     result.resultCount shouldBe 1L
                     result.results shouldHaveSize 1
                 }

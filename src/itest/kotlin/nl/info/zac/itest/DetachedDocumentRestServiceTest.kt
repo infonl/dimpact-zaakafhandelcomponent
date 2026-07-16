@@ -34,7 +34,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
     val zaakHelper = ZaakHelper(zacClient)
     val documentHelper = DocumentHelper(zacClient)
 
-    Given("A zaak exists with a document attached to it") {
+    given("A zaak exists with a document attached to it") {
         val (zaakIdentificatie, zaakUuid) = zaakHelper.createZaak(
             zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
             testUser = BEHANDELAAR_1
@@ -50,7 +50,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
         )
         val detachReason = "fakeDetachReason"
 
-        When("the detach document endpoint is called to unlink the document from the zaak") {
+        `when`("the detach document endpoint is called to unlink the document from the zaak") {
             val detachResponse = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaken/zaakinformatieobjecten/ontkoppel",
                 requestBodyAsString = JSONObject(
@@ -64,7 +64,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             )
             logger.info { "Detach response: ${detachResponse.bodyAsString}" }
 
-            Then("the response should be successful (no content)") {
+            then("the response should be successful (no content)") {
                 detachResponse.code shouldBe HTTP_NO_CONTENT
             }
 
@@ -90,7 +90,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                     .firstOrNull { it.getString("documentUUID") == documentUuid.toString() }
                 val detachedDocumentId = detachedDoc?.getLong("id")
 
-                Then("the response should contain the detached document with the correct fields") {
+                then("the response should contain the detached document with the correct fields") {
                     listResponse.code shouldBe HTTP_OK
                     responseJson.getInt("totaal") shouldBeGreaterThanOrEqual 1
                     detachedDoc shouldNotBe null
@@ -109,7 +109,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                     )
                     logger.info { "Delete response: ${deleteResponse.bodyAsString}" }
 
-                    Then("the response should be successful (no content)") {
+                    then("the response should be successful (no content)") {
                         deleteResponse.code shouldBe HTTP_NO_CONTENT
                     }
 
@@ -130,7 +130,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                         logger.info { "List after delete response: $listAfterDeleteBody" }
                         val resultatenAfterDelete = JSONObject(listAfterDeleteBody).getJSONArray("resultaten")
 
-                        Then("the previously detached document should no longer be present") {
+                        then("the previously detached document should no longer be present") {
                             listAfterDeleteResponse.code shouldBe HTTP_OK
                             val stillPresent = (0 until resultatenAfterDelete.length())
                                 .map { resultatenAfterDelete.getJSONObject(it) }
@@ -146,7 +146,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                             url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid/",
                             testUser = RECORDMANAGER_1
                         )
-                        Then(
+                        then(
                             "the response should be not found confirming the enkelvoudiginformatieobject was also deleted from Open Zaak"
                         ) {
                             logger.info { "Get enkelvoudiginformatieobject after delete response: ${getResponse.bodyAsString}" }

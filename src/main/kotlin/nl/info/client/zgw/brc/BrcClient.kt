@@ -20,7 +20,7 @@ import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper
 import net.atos.client.zgw.shared.model.Results
 import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
-import net.atos.client.zgw.shared.util.JsonbConfiguration
+import nl.info.client.zgw.util.JsonbConfiguration
 import nl.info.client.zgw.brc.exception.BrcResponseExceptionMapper
 import nl.info.client.zgw.brc.model.BesluitenListParameters
 import nl.info.client.zgw.brc.model.generated.Besluit

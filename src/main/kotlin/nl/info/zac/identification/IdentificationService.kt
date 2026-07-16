@@ -58,12 +58,12 @@ class IdentificationService @Inject constructor(
 
     private fun getInitiatorIdentificationType(
         initiatorRole: Rol<*>,
-        betrokkeneIdentificatie: Any
+        betrokkeneIdentificatie: Any?
     ): IdentificatieType? =
         when (val betrokkeneType = initiatorRole.betrokkeneType) {
             NATUURLIJK_PERSOON -> IdentificatieType.BSN
             VESTIGING -> IdentificatieType.VN
-            // the 'niet_natuurlijk_persoon' rol type is used both for rechtspersonen ('RSIN') as well as vestigingen
+            // the 'niet_natuurlijk_persoon' rol type is used both for rechtspersonen ('RSIN') and vestigingen
             NIET_NATUURLIJK_PERSOON -> (betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)?.let {
                 when {
                     // we support 'legacy' RSIN-type initiators with only an RSIN (no KVK nor vestigings number)

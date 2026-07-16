@@ -44,14 +44,14 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A case instance with a CMMN process that has zaak UUID case variable") {
+    given("A case instance with a CMMN process that has zaak UUID case variable") {
         val planItemInstance = createTestPlanItemInstance()
         val caseInstanceId = planItemInstance.caseInstanceId
         val caseInstance = mockk<CaseInstance>()
         val caseVariables = mapOf("zaakUUID" to zaakUuid)
         every { caseInstance.caseVariables } returns caseVariables
 
-        When("the zaak UUID variable is read") {
+        `when`("the zaak UUID variable is read") {
             every {
                 cmmnRuntimeService.createCaseInstanceQuery()
                     .caseInstanceId(caseInstanceId)
@@ -61,7 +61,7 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
 
             val returnedZaakUUID = zaakVariabelenService.readZaakUUID(planItemInstance)
 
-            Then("the zaak UUID is correctly returned") {
+            then("the zaak UUID is correctly returned") {
                 returnedZaakUUID shouldBe zaakUuid
                 verify(exactly = 1) {
                     cmmnRuntimeService.createCaseInstanceQuery()
@@ -69,7 +69,7 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
             }
         }
 
-        When("the zaak data is changed") {
+        `when`("the zaak data is changed") {
             val variables = mapOf("test1" to 1, "test2" to 2)
             every {
                 cmmnRuntimeService.createCaseInstanceQuery()
@@ -81,14 +81,14 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
 
             zaakVariabelenService.setZaakdata(zaakUuid, variables)
 
-            Then("the correct call to CMMN service is executed") {
+            then("the correct call to CMMN service is executed") {
                 verify(exactly = 1) {
                     cmmnRuntimeService.setVariables(caseInstanceId, variables)
                 }
             }
         }
 
-        When("expected suspend days is set") {
+        `when`("expected suspend days is set") {
             every {
                 cmmnRuntimeService.createCaseInstanceQuery()
                     .variableValueEquals("zaakUUID", zaakUuid)
@@ -98,14 +98,14 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
 
             zaakVariabelenService.setVerwachteDagenOpgeschort(zaakUuid, 1)
 
-            Then("the correct call to BPMN service is executed") {
+            then("the correct call to BPMN service is executed") {
                 verify(exactly = 1) {
                     cmmnRuntimeService.setVariable(caseInstanceId, "verwachteDagenOpgeschort", 1)
                 }
             }
         }
 
-        When("removing suspend days") {
+        `when`("removing suspend days") {
             every {
                 cmmnRuntimeService
                     .createCaseInstanceQuery()
@@ -116,7 +116,7 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
 
             zaakVariabelenService.removeVerwachteDagenOpgeschort(zaakUuid)
 
-            Then("the correct call to BPMN service is executed") {
+            then("the correct call to BPMN service is executed") {
                 verify(exactly = 1) {
                     cmmnRuntimeService.removeVariable(caseInstanceId, "verwachteDagenOpgeschort")
                 }
@@ -124,14 +124,14 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A case instance with a running BPMN process") {
+    given("A case instance with a running BPMN process") {
         val processInstance = mockk<ProcessInstance>()
         val processVariables = mapOf(
             "a" to 1,
             "b" to 2
         )
 
-        When("reading zaak process data") {
+        `when`("reading zaak process data") {
             every {
                 bpmnRuntimeService
                     .createProcessInstanceQuery()
@@ -142,12 +142,12 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
 
             val variablesMap = zaakVariabelenService.readProcessZaakdata(zaakUuid)
 
-            Then("correct data is returned") {
+            then("correct data is returned") {
                 variablesMap shouldContainExactly processVariables
             }
         }
 
-        When("zaak data is set") {
+        `when`("zaak data is set") {
             val processInstanceId = "id"
             every {
                 cmmnRuntimeService
@@ -166,14 +166,14 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
 
             zaakVariabelenService.setZaakdata(zaakUuid, processVariables)
 
-            Then("the correct call to BPMN service is executed") {
+            then("the correct call to BPMN service is executed") {
                 verify(exactly = 1) {
                     bpmnRuntimeService.setVariables(processInstanceId, processVariables)
                 }
             }
         }
 
-        When("expected suspend days is set") {
+        `when`("expected suspend days is set") {
             val processInstanceId = "id"
             every {
                 cmmnRuntimeService
@@ -192,14 +192,14 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
 
             zaakVariabelenService.setVerwachteDagenOpgeschort(zaakUuid, 1)
 
-            Then("the correct call to BPMN service is executed") {
+            then("the correct call to BPMN service is executed") {
                 verify(exactly = 1) {
                     bpmnRuntimeService.setVariable(processInstanceId, "verwachteDagenOpgeschort", 1)
                 }
             }
         }
 
-        When("removing suspend days") {
+        `when`("removing suspend days") {
             val processInstanceId = "id"
             every {
                 cmmnRuntimeService
@@ -218,14 +218,14 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
 
             zaakVariabelenService.removeVerwachteDagenOpgeschort(zaakUuid)
 
-            Then("the correct call to BPMN service is executed") {
+            then("the correct call to BPMN service is executed") {
                 verify(exactly = 1) {
                     bpmnRuntimeService.removeVariable(processInstanceId, "verwachteDagenOpgeschort")
                 }
             }
         }
 
-        When("reading verwachteDagenOpgeschort") {
+        `when`("reading verwachteDagenOpgeschort") {
             val days = 5
             every {
                 cmmnRuntimeService
@@ -251,12 +251,12 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
 
             val numberOfDays = zaakVariabelenService.findVerwachteDagenOpgeschort(zaakUuid)
 
-            Then("the correct number is returned") {
+            then("the correct number is returned") {
                 numberOfDays shouldBe days
             }
         }
 
-        When("reading DatumtijdOpgeschort") {
+        `when`("reading DatumtijdOpgeschort") {
             val date = ZonedDateTime.now()
             every {
                 cmmnRuntimeService
@@ -282,13 +282,13 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
 
             val datumTijdOpgeschort = zaakVariabelenService.findDatumtijdOpgeschort(zaakUuid)
 
-            Then("the correct date is returned") {
+            then("the correct date is returned") {
                 datumTijdOpgeschort shouldBe date
             }
         }
     }
 
-    Given("A case instance with a historic BPMN process") {
+    given("A case instance with a historic BPMN process") {
         val processVariables = mapOf(
             "a" to 1,
             "b" to 2
@@ -308,16 +308,16 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
                 .processVariables
         } returns processVariables
 
-        When("reading zaak process data") {
+        `when`("reading zaak process data") {
             val variablesMap = zaakVariabelenService.readProcessZaakdata(zaakUuid)
 
-            Then("correct data is returned") {
+            then("correct data is returned") {
                 variablesMap shouldContainExactly processVariables
             }
         }
     }
 
-    Given("A case instance without an active or historic BPMN process") {
+    given("A case instance without an active or historic BPMN process") {
         every {
             bpmnRuntimeService
                 .createProcessInstanceQuery()
@@ -332,16 +332,16 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
                 .singleResult()
         } returns null
 
-        When("reading zaak process data") {
+        `when`("reading zaak process data") {
             val variablesMap = zaakVariabelenService.readProcessZaakdata(zaakUuid)
 
-            Then("empty map is returned") {
+            then("empty map is returned") {
                 variablesMap shouldContainExactly emptyMap()
             }
         }
     }
 
-    Given("A case instance without a known process type") {
+    given("A case instance without a known process type") {
         every {
             bpmnRuntimeService
                 .createProcessInstanceQuery()
@@ -349,7 +349,7 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
                 .singleResult()
         } returns null
 
-        When("zaak data is set") {
+        `when`("zaak data is set") {
             every {
                 cmmnRuntimeService
                     .createCaseInstanceQuery()
@@ -361,12 +361,12 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
                 zaakVariabelenService.setZaakdata(zaakUuid, mapOf("a" to 1))
             }
 
-            Then("error message should contain zaak UUID") {
+            then("error message should contain zaak UUID") {
                 exception.message shouldContain zaakUuid.toString()
             }
         }
 
-        When("expected suspend days is set") {
+        `when`("expected suspend days is set") {
             every {
                 cmmnRuntimeService
                     .createCaseInstanceQuery()
@@ -378,12 +378,12 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
                 zaakVariabelenService.setVerwachteDagenOpgeschort(zaakUuid, 1)
             }
 
-            Then("error message should contain zaak UUID") {
+            then("error message should contain zaak UUID") {
                 exception.message shouldContain zaakUuid.toString()
             }
         }
 
-        When("removing suspend days") {
+        `when`("removing suspend days") {
             every {
                 cmmnRuntimeService
                     .createCaseInstanceQuery()
@@ -393,7 +393,7 @@ class ZaakVariabelenServiceTest : BehaviorSpec({
 
             zaakVariabelenService.removeVerwachteDagenOpgeschort(zaakUuid)
 
-            Then("no exception should be thrown") {}
+            then("no exception should be thrown") {}
         }
     }
 })

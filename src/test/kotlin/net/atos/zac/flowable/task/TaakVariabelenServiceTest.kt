@@ -23,99 +23,99 @@ import java.util.UUID
 class TaakVariabelenServiceTest : BehaviorSpec({
     val taskInfo = mockk<TaskInfo>()
 
-    Given("Task with correct zaak UUID object") {
+    given("Task with correct zaak UUID object") {
         val expectedUUID = UUID.fromString("e58ed763-928c-4155-bee9-fdbaaadc15f3")
 
         every { taskInfo.scopeType } returns ScopeTypes.CMMN
         every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAK_UUID to expectedUUID)
 
-        When("reading the zaak UUID") {
+        `when`("reading the zaak UUID") {
             val uuid = readZaakUUID(taskInfo)
 
-            Then("it returns the right information") {
+            then("it returns the right information") {
                 uuid shouldBeEqual expectedUUID
             }
         }
     }
 
-    Given("Task with zaak UUID as string") {
+    given("Task with zaak UUID as string") {
         val expectedUUID = "e58ed763-928c-4155-bee9-fdbaaadc15f3"
 
         every { taskInfo.scopeType } returns ScopeTypes.CMMN
         every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAK_UUID to expectedUUID)
 
-        When("reading the zaak UUID") {
+        `when`("reading the zaak UUID") {
             val exception = shouldThrow<ClassCastException> {
                 readZaakUUID(taskInfo)
             }
 
-            Then("it throws an exception") {
+            then("it throws an exception") {
                 exception.message should contain("java.lang.String cannot be cast to class java.util.UUID")
             }
         }
     }
 
-    Given("Task with zaak UUID as unknown object") {
+    given("Task with zaak UUID as unknown object") {
         val expectedUUID = File("e58ed763-928c-4155-bee9-fdbaaadc15f3")
 
         every { taskInfo.scopeType } returns ScopeTypes.CMMN
         every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAK_UUID to expectedUUID)
 
-        When("reading the zaak UUID") {
+        `when`("reading the zaak UUID") {
             val exception = shouldThrow<ClassCastException> {
                 readZaakUUID(taskInfo)
             }
 
-            Then("it throws an exception") {
+            then("it throws an exception") {
                 exception.message should contain("java.io.File cannot be cast to class java.util.UUID")
             }
         }
     }
 
-    Given("Task with correct zaak type UUID object") {
+    given("Task with correct zaak type UUID object") {
         val expectedUUID = UUID.fromString("e58ed763-928c-4155-bee9-fdbaaadc15f3")
 
         every { taskInfo.scopeType } returns ScopeTypes.CMMN
         every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUID to expectedUUID)
 
-        When("reading the zaak type UUID") {
+        `when`("reading the zaak type UUID") {
             val uuid = readZaaktypeUUID(taskInfo)
 
-            Then("it returns the right information") {
+            then("it returns the right information") {
                 uuid shouldBeEqual expectedUUID
             }
         }
     }
 
-    Given("Task with zaak type UUID as string") {
+    given("Task with zaak type UUID as string") {
         val expectedUUID = "e58ed763-928c-4155-bee9-fdbaaadc15f3"
 
         every { taskInfo.scopeType } returns ScopeTypes.CMMN
         every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUID to expectedUUID)
 
-        When("reading the zaak type UUID") {
+        `when`("reading the zaak type UUID") {
             val exception = shouldThrow<ClassCastException> {
                 readZaaktypeUUID(taskInfo)
             }
 
-            Then("it throws an exception") {
+            then("it throws an exception") {
                 exception.message should contain("java.lang.String cannot be cast to class java.util.UUID")
             }
         }
     }
 
-    Given("Task with zaak type UUID as unknown object") {
+    given("Task with zaak type UUID as unknown object") {
         val expectedUUID = File("e58ed763-928c-4155-bee9-fdbaaadc15f3")
 
         every { taskInfo.scopeType } returns ScopeTypes.CMMN
         every { taskInfo.caseVariables } returns mapOf(ZaakVariabelenService.VAR_ZAAKTYPE_UUID to expectedUUID)
 
-        When("reading the zaak type UUID") {
+        `when`("reading the zaak type UUID") {
             val exception = shouldThrow<ClassCastException> {
                 readZaaktypeUUID(taskInfo)
             }
 
-            Then("it throws an exception") {
+            then("it throws an exception") {
                 exception.message should contain("java.io.File cannot be cast to class java.util.UUID")
             }
         }

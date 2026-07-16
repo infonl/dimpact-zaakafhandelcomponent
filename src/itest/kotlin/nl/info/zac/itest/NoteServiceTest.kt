@@ -23,7 +23,7 @@ class NoteServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
 
-    Given("An existing zaak and a logged-in behandelaar") {
+    given("An existing zaak and a logged-in behandelaar") {
         lateinit var zaakUuid: UUID
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
@@ -38,7 +38,7 @@ class NoteServiceTest : BehaviorSpec({
             }
         }
 
-        When(
+        `when`(
             """
             a note is created with the provided username equal to the username of the currently logged in user
             """
@@ -54,7 +54,7 @@ class NoteServiceTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
-            Then(
+            then(
                 "the created note and related metadata should be returned, with the 'editing allowed' flag set to true"
             ) {
                 response.code shouldBe HTTP_OK
@@ -75,12 +75,12 @@ class NoteServiceTest : BehaviorSpec({
             }
         }
 
-        When("the 'get notes' endpoint is called") {
+        `when`("the 'get notes' endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/notities/zaken/$zaakUuid",
                 testUser = BEHANDELAAR_1
             )
-            Then(
+            then(
                 "the just created note should be returned"
             ) {
                 response.code shouldBe HTTP_OK

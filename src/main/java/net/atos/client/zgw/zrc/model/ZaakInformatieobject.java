@@ -5,7 +5,7 @@
 
 package net.atos.client.zgw.zrc.model;
 
-import static net.atos.client.zgw.shared.util.DateTimeUtil.DATE_TIME_FORMAT_WITH_MILLISECONDS;
+import static nl.info.client.zgw.util.ZgwDateTimeFormatKt.DATE_TIME_FORMAT_WITH_MILLISECONDS;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
 import java.net.URI;

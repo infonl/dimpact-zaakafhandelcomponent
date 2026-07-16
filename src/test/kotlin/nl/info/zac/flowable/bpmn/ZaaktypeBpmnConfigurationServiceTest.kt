@@ -11,8 +11,8 @@ import io.mockk.every
 import io.mockk.mockk
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationService
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.exception.InputValidationFailedException
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.util.UUID
 
 class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
@@ -23,51 +23,56 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Checking if productaanvraagtype is in use for a change of a specific BPMN zaaktype") {
-        val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration()
+    context("Checking if productaanvraagtype is in use for a change of a specific BPMN zaaktype") {
+        val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(
+            productaanvraagtype = "fakeProductaanvraagtype"
+        )
 
-        Given("No productaanvraagtype is in use by a BPMN zaaktype") {
+        given("No productaanvraagtype is in use by a BPMN zaaktype") {
             every {
                 zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(
                     zaaktypeBpmnProcessDefinition.productaanvraagtype!!
                 )
             } returns null
 
-            When("checking if productaanvraagtype is in use") {
+            `when`("checking if productaanvraagtype is in use") {
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
                     zaaktypeBpmnProcessDefinition.productaanvraagtype!!,
                     zaaktypeBpmnProcessDefinition.zaaktypeUuid
                 )
 
-                Then("no exception is thrown") {}
+                then("no exception is thrown") {}
             }
         }
 
-        Given("A productaanvraagtype that is in use by the same BPMN zaaktype") {
+        given("A productaanvraagtype that is in use by the same BPMN zaaktype") {
             every {
                 zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(
                     zaaktypeBpmnProcessDefinition.productaanvraagtype!!
                 )
             } returns zaaktypeBpmnProcessDefinition
 
-            When("checking if productaanvraagtype is in use") {
+            `when`("checking if productaanvraagtype is in use") {
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
                     zaaktypeBpmnProcessDefinition.productaanvraagtype!!,
                     zaaktypeBpmnProcessDefinition.zaaktypeUuid
                 )
 
-                Then("no exception is thrown") {}
+                then("no exception is thrown") {}
             }
         }
 
-        Given("A productaanvraagtype that is in use by another BPMN zaaktype") {
+        given("A productaanvraagtype that is in use by another BPMN zaaktype") {
             every {
                 zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(
                     zaaktypeBpmnProcessDefinition.productaanvraagtype!!
                 )
-            } returns createZaaktypeBpmnConfiguration(zaaktypeUuid = UUID.randomUUID())
+            } returns createZaaktypeBpmnConfiguration(
+                zaaktypeUUID = UUID.randomUUID(),
+                productaanvraagtype = "fakeProductaanvraagtype"
+            )
 
-            When("checking if productaanvraagtype is in use") {
+            `when`("checking if productaanvraagtype is in use") {
                 shouldThrow<InputValidationFailedException> {
                     zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
                         zaaktypeBpmnProcessDefinition.productaanvraagtype!!,
@@ -75,15 +80,15 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
                     )
                 }
 
-                Then("an exception is thrown") {}
+                then("an exception is thrown") {}
             }
         }
     }
 
-    Context("Checking if productaanvraagtype is in use in all BPMN zaaktypes") {
+    context("Checking if productaanvraagtype is in use in all BPMN zaaktypes") {
         val productaanvraagtype = "fakeProductaanvraagtypeUnderTest"
 
-        Given("A productaanvraagtype is in use by a BPMN zaaktype") {
+        given("A productaanvraagtype is in use by a BPMN zaaktype") {
             val zaaktypeBpmnProcessDefinition = createZaaktypeBpmnConfiguration(
                 productaanvraagtype = productaanvraagtype
             )
@@ -91,22 +96,22 @@ class ZaaktypeBpmnConfigurationServiceTest : BehaviorSpec({
                 zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productaanvraagtype)
             } returns zaaktypeBpmnProcessDefinition
 
-            When("checking if productaanvraagtype is in use") {
+            `when`("checking if productaanvraagtype is in use") {
                 shouldThrow<InputValidationFailedException> {
                     zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype)
                 }
-                Then("an exception is thrown") {}
+                then("an exception is thrown") {}
             }
         }
 
-        Given("A productaanvraagtype is not use by a BPMN zaaktype") {
+        given("A productaanvraagtype is not use by a BPMN zaaktype") {
             every {
                 zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productaanvraagtype)
             } returns null
 
-            When("checking if productaanvraagtype is in use") {
+            `when`("checking if productaanvraagtype is in use") {
                 zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype)
-                Then("no exception is thrown") {}
+                then("no exception is thrown") {}
             }
         }
     }

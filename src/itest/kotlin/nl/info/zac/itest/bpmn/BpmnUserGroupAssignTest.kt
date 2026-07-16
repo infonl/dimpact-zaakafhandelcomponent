@@ -67,11 +67,11 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
         return tasksArray.firstOrNull { (it as JSONObject).getString("naam") == taskName }.toString()
     }
 
-    Given("A behandelaar is logged in") {
+    given("A behandelaar is logged in") {
         var bpmnZaakUuid: UUID? = null
         var zaakIdentificatie: String? = null
 
-        When("zaak is created") {
+        `when`("zaak is created") {
             val response = zacClient.createZaak(
                 zaakTypeUUID = ZAAKTYPE_BPMN_TEST_2_UUID,
                 groupId = GROUP_BEHANDELAARS_TEST_1.name,
@@ -82,7 +82,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("response is ok") {
+            then("response is ok") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpURLConnection.HTTP_OK
@@ -95,7 +95,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
             }
         }
 
-        When("the first user task is created") {
+        `when`("the first user task is created") {
             val taskData = getTaskData(
                 zaakIdentificatie = zaakIdentificatie!!,
                 bpmnZaakUuid = bpmnZaakUuid!!,
@@ -103,7 +103,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("task user and group are the zaak defaults") {
+            then("task user and group are the zaak defaults") {
                 taskData shouldEqualJsonIgnoringOrderAndExtraneousFields """
                 {
                   "groep" : {
@@ -119,10 +119,10 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
             }
         }
 
-        When("the 'zaak defaults' form is submitted") {
+        `when`("the 'zaak defaults' form is submitted") {
             zacClient.submitFormData(bpmnZaakUuid!!, "{}", BEHANDELAAR_1)
 
-            Then("the next task is assigned a hard-coded user and group") {
+            then("the next task is assigned a hard-coded user and group") {
                 // currently BPMN sets the behandelaar display name and group description fields in the task data
                 // and not the respective id fields
                 getTaskData(
@@ -145,7 +145,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
             }
         }
 
-        When("the 'hard-coded' and 'select user&group' forms are submitted") {
+        `when`("the 'hard-coded' and 'select user&group' forms are submitted") {
             zacClient.submitFormData(bpmnZaakUuid!!, "{}", BEHANDELAAR_1)
             zacClient.submitFormData(
                 bpmnZaakUuid = bpmnZaakUuid,
@@ -159,7 +159,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the next task has the selected user and group assigned") {
+            then("the next task has the selected user and group assigned") {
                 getTaskData(
                     zaakIdentificatie = zaakIdentificatie!!,
                     bpmnZaakUuid = bpmnZaakUuid,
@@ -180,10 +180,10 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
             }
         }
 
-        When("the copy user & group functions are used ") {
+        `when`("the copy user & group functions are used ") {
             zacClient.submitFormData(bpmnZaakUuid!!, "{}", BEHANDELAAR_1)
 
-            Then("the next task has the copied user and group assigned") {
+            then("the next task has the copied user and group assigned") {
                 getTaskData(
                     zaakIdentificatie = zaakIdentificatie!!,
                     bpmnZaakUuid = bpmnZaakUuid,

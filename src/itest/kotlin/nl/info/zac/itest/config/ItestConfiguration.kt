@@ -281,6 +281,8 @@ object ItestConfiguration {
 
     const val ZAC_CONTAINER_SERVICE_NAME = "zac"
 
+    const val ZAC_DATABASE_CONTAINER_SERVICE_NAME = "zac-database"
+
     /**
      * The default ZAC Docker image used when running the integration tests locally.
      * When running the tests in our GitHub pipeline, a different Docker image specific for the pipeline is used.

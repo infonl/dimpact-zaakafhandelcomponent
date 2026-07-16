@@ -18,8 +18,8 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.model.ZaaktypeConfiguration
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.net.URI
 import java.util.UUID
 
@@ -42,17 +42,17 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("updating zaakafhandel parameters") {
-        Given("a concept zaaktype event") {
+    context("updating zaakafhandel parameters") {
+        given("a concept zaaktype event") {
             val zaaktype = createZaakType(concept = true)
 
             every { ztcClientService.clearZaaktypeCache() } returns cacheClearMessage
             every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaaktype
 
-            When("updating zaakafhandel parameters") {
+            `when`("updating zaakafhandel parameters") {
                 zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri)
 
-                Then("no update is actually made") {
+                then("no update is actually made") {
                     verify(exactly = 0) {
                         zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktype)
                         zaaktypeBpmnConfigurationBeheerService.copyConfiguration(zaaktype)
@@ -61,7 +61,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a new version of zaaktype without existing zaakafhandelparameters") {
+        given("a new version of zaaktype without existing zaakafhandelparameters") {
             val zaaktype = createZaakType()
 
             every { ztcClientService.clearZaaktypeCache() } returns cacheClearMessage
@@ -77,10 +77,10 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
                 every { resultList } returns emptyList()
             }
 
-            When("updating zaakafhandel parameters") {
+            `when`("updating zaakafhandel parameters") {
                 zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri)
 
-                Then("no update is actually made") {
+                then("no update is actually made") {
                     verify(exactly = 0) {
                         zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktype)
                         zaaktypeBpmnConfigurationBeheerService.copyConfiguration(zaaktype)
@@ -89,7 +89,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a new version of zaaktype with existing CMMN zaakafhandelparameters") {
+        given("a new version of zaaktype with existing CMMN zaakafhandelparameters") {
             val zaaktype = createZaakType()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
@@ -108,10 +108,10 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
 
             every { zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktype) } just runs
 
-            When("updating zaakafhandel parameters") {
+            `when`("updating zaakafhandel parameters") {
                 zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri)
 
-                Then("the correct updates are made") {
+                then("the correct updates are made") {
                     verify(exactly = 0) {
                         zaaktypeBpmnConfigurationBeheerService.copyConfiguration(zaaktype)
                     }
@@ -122,7 +122,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
             }
         }
 
-        Given("a new version of zaaktype with existing BPMN zaakafhandelparameters") {
+        given("a new version of zaaktype with existing BPMN zaakafhandelparameters") {
             val zaaktype = createZaakType()
             val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
 
@@ -141,10 +141,10 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
 
             every { zaaktypeBpmnConfigurationBeheerService.copyConfiguration(zaaktype) } just runs
 
-            When("updating zaakafhandel parameters") {
+            `when`("updating zaakafhandel parameters") {
                 zaaktypeConfigurationService.updateZaaktypeConfiguration(zaaktypeUri)
 
-                Then("the correct updates are made") {
+                then("the correct updates are made") {
                     verify(exactly = 0) {
                         zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(zaaktype)
                     }
@@ -156,8 +156,8 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
         }
     }
 
-    Context("reading zaaktype configuration") {
-        Given("a configured zaaktype") {
+    context("reading zaaktype configuration") {
+        given("a configured zaaktype") {
             val zaaktype = createZaakType()
             val zaaktypeUUID = zaaktype.url.extractUuid()
             val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
@@ -172,16 +172,16 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
                 every { resultList } returns listOf(zaaktypeBpmnConfiguration)
             }
 
-            When("reading zaaktype configuration") {
+            `when`("reading zaaktype configuration") {
                 val zaaktypeConfiguration = zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
 
-                Then("it is returned correctly") {
+                then("it is returned correctly") {
                     zaaktypeConfiguration shouldBe zaaktypeBpmnConfiguration
                 }
             }
         }
 
-        Given("a zaaktype that has no configuration") {
+        given("a zaaktype that has no configuration") {
             val zaaktypeUUID = UUID.randomUUID()
 
             // Relaxed entity manager mocking; criteria queries and persisting
@@ -194,10 +194,10 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
                 every { resultList } returns emptyList()
             }
 
-            When("reading zaaktype configuration") {
+            `when`("reading zaaktype configuration") {
                 val result = zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
 
-                Then("it returns null") {
+                then("it returns null") {
                     result shouldBe null
                 }
             }

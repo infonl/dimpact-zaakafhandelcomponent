@@ -45,7 +45,7 @@ class RestBesluitConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Besluit toevoegen data with a vervaldatum") {
+    given("Besluit toevoegen data with a vervaldatum") {
         val zaak = createZaak()
         val besluitCreateData = createRestBesluitCreateData(
             ingangsdatum = LocalDate.now().plusDays(1),
@@ -58,11 +58,11 @@ class RestBesluitConverterTest : BehaviorSpec({
         every { ztcClientService.readBesluittype(besluitCreateData.besluittypeUuid) } returns besluittype
         every { configurationService.readVerantwoordelijkeOrganisatie() } returns "316245124"
 
-        When("this data is converted to a besluit") {
+        `when`("this data is converted to a besluit") {
             val dateNow = LocalDate.now()
             val besluit = restBesluitConverter.convertToBesluit(zaak, besluitCreateData)
 
-            Then("the besluit is correctly converted and should have a vervalreden of type 'tijdelijk'") {
+            then("the besluit is correctly converted and should have a vervalreden of type 'tijdelijk'") {
                 with(besluit) {
                     this.zaak shouldBe zaak.url
                     this.besluittype shouldBe besluittype.url
@@ -78,7 +78,7 @@ class RestBesluitConverterTest : BehaviorSpec({
         }
     }
 
-    Given("Besluit") {
+    given("Besluit") {
         val besluit = createBesluit()
         val besluitType = createBesluitType(
             publicationEnabled = true,
@@ -98,10 +98,10 @@ class RestBesluitConverterTest : BehaviorSpec({
             restInformatieobjectConverter.convertInformatieobjectenToREST(listOf(enkelvoudigInformatieObject))
         } returns listOf(restEnkelvoudigInformatieobject)
 
-        When("it is converted to a rest representation") {
+        `when`("it is converted to a rest representation") {
             val restBesluit = restBesluitConverter.convertToRestBesluit(besluit)
 
-            Then("the conversion is correct") {
+            then("the conversion is correct") {
                 with(restBesluit) {
                     uuid shouldBe besluit.url.extractUuid()
                     with(besluittype!!) {

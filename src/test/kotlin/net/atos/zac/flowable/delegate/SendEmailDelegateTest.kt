@@ -53,7 +53,7 @@ class SendEmailDelegateTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("JUEL expression in a BPMN service task") {
+    given("JUEL expression in a BPMN service task") {
         mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
@@ -91,10 +91,10 @@ class SendEmailDelegateTest : BehaviorSpec({
             template = templateExpression
         }
 
-        When("the delegate is called") {
+        `when`("the delegate is called") {
             sendEmailDelegate.execute(delegateExecution)
 
-            Then("the expressions were resolved") {
+            then("the expressions were resolved") {
                 verify(exactly = 1) {
                     fromExpression.getValue(delegateExecution)
                     toExpression.getValue(delegateExecution)
@@ -117,7 +117,7 @@ class SendEmailDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("Fixed value in a BPMN service task") {
+    given("Fixed value in a BPMN service task") {
         mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
@@ -155,10 +155,10 @@ class SendEmailDelegateTest : BehaviorSpec({
             template = templateExpression
         }
 
-        When("the delegate is called") {
+        `when`("the delegate is called") {
             sendEmailDelegate.execute(delegateExecution)
 
-            Then("the expressions were resolved") {
+            then("the expressions were resolved") {
                 verify(exactly = 1) {
                     fromExpression.getValue(delegateExecution)
                     toExpression.getValue(delegateExecution)
@@ -181,7 +181,7 @@ class SendEmailDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("Policy denies sending email for zaak") {
+    given("Policy denies sending email for zaak") {
         mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
@@ -203,12 +203,12 @@ class SendEmailDelegateTest : BehaviorSpec({
             template = mockk()
         }
 
-        When("the delegate is called") {
+        `when`("the delegate is called") {
             val policyException = shouldThrow<PolicyException> {
                 sendEmailDelegate.execute(delegateExecution)
             }
 
-            Then("a PolicyException is thrown") {
+            then("a PolicyException is thrown") {
                 policyException shouldNotBe null
             }
 

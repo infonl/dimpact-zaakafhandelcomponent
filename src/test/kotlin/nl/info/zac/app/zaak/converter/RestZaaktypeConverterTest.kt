@@ -14,10 +14,10 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
 import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.time.LocalDate
 
 class RestZaaktypeConverterTest : BehaviorSpec({
@@ -31,7 +31,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         zaaktypeBpmnConfigurationBeheerService
     )
 
-    Given("CMMN zaaktype") {
+    given("CMMN zaaktype") {
         val zaaktype = createZaakType()
         val zaaktypeUuid = zaaktype.url.extractUuid()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
@@ -44,10 +44,10 @@ class RestZaaktypeConverterTest : BehaviorSpec({
             zaakafhandelParametersConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
         } returns restZaakafhandelParameters
 
-        When("converted to REST") {
+        `when`("converted to REST") {
             val restZaaktype = restZaaktypeConverter.convert(zaaktype)
 
-            Then("the created object is correct") {
+            then("the created object is correct") {
                 with(restZaaktype) {
                     uuid shouldBe zaaktypeUuid
                     identificatie shouldBe "fakeIdentificatie"
@@ -71,7 +71,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         }
     }
 
-    Given("BPMN zaaktype") {
+    given("BPMN zaaktype") {
         val zaaktype = createZaakType()
         val zaaktypeUuid = zaaktype.url.extractUuid()
         val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
@@ -83,10 +83,10 @@ class RestZaaktypeConverterTest : BehaviorSpec({
             zaakafhandelParametersConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration)
         } returns restZaakafhandelParameters
 
-        When("converted to REST") {
+        `when`("converted to REST") {
             val restZaaktype = restZaaktypeConverter.convert(zaaktype)
 
-            Then("the created object is correct") {
+            then("the created object is correct") {
                 with(restZaaktype) {
                     uuid shouldBe zaaktypeUuid
                     identificatie shouldBe "fakeIdentificatie"

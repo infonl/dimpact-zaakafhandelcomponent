@@ -13,7 +13,7 @@ import java.time.LocalDate
 
 class NillableDatesBesluitPatchTest : BehaviorSpec({
 
-    Given("A patch whose optional date fields are cleared") {
+    given("A patch whose optional date fields are cleared") {
         val besluitPatch = NillableDatesBesluitPatch(
             toelichting = "fakeToelichting",
             ingangsdatum = LocalDate.of(2026, 1, 1),
@@ -23,23 +23,23 @@ class NillableDatesBesluitPatchTest : BehaviorSpec({
             uiterlijkeReactiedatum = null
         )
 
-        When("it is serialized to JSON for a ZGW request") {
+        `when`("it is serialized to JSON for a ZGW request") {
             val json = JsonbUtil.JSONB.toJson(besluitPatch)
 
-            Then("the cleared optional date fields are serialized as explicit null, so Open Zaak clears them") {
+            then("the cleared optional date fields are serialized as explicit null, so Open Zaak clears them") {
                 json shouldContain "\"vervaldatum\":null"
                 json shouldContain "\"publicatiedatum\":null"
                 json shouldContain "\"uiterlijkeReactiedatum\":null"
             }
 
-            Then("the non-nullable vervalreden is serialized as the blank value rather than null") {
+            then("the non-nullable vervalreden is serialized as the blank value rather than null") {
                 json shouldNotContain "\"vervalreden\":null"
                 json shouldContain "\"vervalreden\":\"\""
             }
         }
     }
 
-    Given("A patch whose optional date fields are populated") {
+    given("A patch whose optional date fields are populated") {
         val besluitPatch = NillableDatesBesluitPatch(
             toelichting = "fakeToelichting",
             ingangsdatum = LocalDate.of(2026, 1, 1),
@@ -49,10 +49,10 @@ class NillableDatesBesluitPatchTest : BehaviorSpec({
             uiterlijkeReactiedatum = LocalDate.of(2026, 11, 1)
         )
 
-        When("it is serialized to JSON for a ZGW request") {
+        `when`("it is serialized to JSON for a ZGW request") {
             val json = JsonbUtil.JSONB.toJson(besluitPatch)
 
-            Then("the populated date fields are serialized with their value rather than null") {
+            then("the populated date fields are serialized with their value rather than null") {
                 json shouldContain "vervaldatum"
                 json shouldNotContain "\"vervaldatum\":null"
                 json shouldContain "publicatiedatum"

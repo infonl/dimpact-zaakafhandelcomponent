@@ -63,7 +63,7 @@ class SearchRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A search request for ZAAK type") {
+    given("A search request for ZAAK type") {
         val restZoekParameters = createRestZoekParameters(type = ZoekObjectType.ZAAK)
         val zoekParameters = createZoekParameters()
         val zoekResultaat = createZoekResultaatForZaakZoekObjecten()
@@ -74,10 +74,10 @@ class SearchRestServiceTest : BehaviorSpec({
         every { searchService.zoek(zoekParameters) } returns zoekResultaat
         every { restZoekResultaatConverter.convert(zoekResultaat, restZoekParameters) } returns restZoekResultaat
 
-        When("listSearchResults is called") {
+        `when`("listSearchResults is called") {
             val result = searchRestService.listSearchResults(restZoekParameters)
 
-            Then("the search result should be returned") {
+            then("the search result should be returned") {
                 result shouldBe restZoekResultaat
             }
 
@@ -92,7 +92,7 @@ class SearchRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A search request for TAAK type") {
+    given("A search request for TAAK type") {
         val restZoekParameters = createRestZoekParameters(type = ZoekObjectType.TAAK)
         val zoekParameters = createZoekParameters()
         val zoekResultaat = createZoekResultaatForZaakZoekObjecten()
@@ -103,16 +103,16 @@ class SearchRestServiceTest : BehaviorSpec({
         every { searchService.zoek(zoekParameters) } returns zoekResultaat
         every { restZoekResultaatConverter.convert(zoekResultaat, restZoekParameters) } returns restZoekResultaat
 
-        When("listSearchResults is called") {
+        `when`("listSearchResults is called") {
             val result = searchRestService.listSearchResults(restZoekParameters)
 
-            Then("the search result should be returned") {
+            then("the search result should be returned") {
                 result shouldBe restZoekResultaat
             }
         }
     }
 
-    Given("A search request for DOCUMENT type") {
+    given("A search request for DOCUMENT type") {
         val restZoekParameters = createRestZoekParameters(type = ZoekObjectType.DOCUMENT)
         val zoekParameters = createZoekParameters()
         val zoekResultaat = createZoekResultaatForZaakZoekObjecten()
@@ -123,10 +123,10 @@ class SearchRestServiceTest : BehaviorSpec({
         every { searchService.zoek(zoekParameters) } returns zoekResultaat
         every { restZoekResultaatConverter.convert(zoekResultaat, restZoekParameters) } returns restZoekResultaat
 
-        When("listSearchResults is called") {
+        `when`("listSearchResults is called") {
             val result = searchRestService.listSearchResults(restZoekParameters)
 
-            Then("the search result should be returned") {
+            then("the search result should be returned") {
                 result shouldBe restZoekResultaat
             }
 
@@ -138,38 +138,38 @@ class SearchRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A search request for ZAAK type without permission") {
+    given("A search request for ZAAK type without permission") {
         val restZoekParameters = createRestZoekParameters(type = ZoekObjectType.ZAAK)
 
         every { policyService.readWerklijstRechten() } returns createWerklijstRechten(zakenTaken = false)
 
-        When("listSearchResults is called") {
+        `when`("listSearchResults is called") {
             val policyException = shouldThrow<PolicyException> {
                 searchRestService.listSearchResults(restZoekParameters)
             }
 
-            Then("a PolicyException should be thrown") {
+            then("a PolicyException should be thrown") {
                 policyException shouldNotBe null
             }
         }
     }
 
-    Given("A search request for DOCUMENT type without permission") {
+    given("A search request for DOCUMENT type without permission") {
         val restZoekParameters = createRestZoekParameters(type = ZoekObjectType.DOCUMENT)
 
         every { policyService.readOverigeRechten() } returns createOverigeRechten(zoeken = false)
 
-        When("listSearchResults is called") {
+        `when`("listSearchResults is called") {
             val policyException = shouldThrow<PolicyException> {
                 searchRestService.listSearchResults(restZoekParameters)
             }
-            Then("a PolicyException should be thrown") {
+            then("a PolicyException should be thrown") {
                 policyException shouldNotBe null
             }
         }
     }
 
-    Given("A request to list zaken for information object type") {
+    given("A request to list zaken for information object type") {
         val zaakIdentification = "fakeZaakIdentification"
         val informationObjectTypeUuid = UUID.randomUUID()
         val zaaktypeUuid = UUID.randomUUID()
@@ -197,10 +197,10 @@ class SearchRestServiceTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
         every { restZoekResultaatConverter.convert(zoekResultaat, listOf(true)) } returns restZoekResultaat
 
-        When("listZakenForInformationObjectType is called") {
+        `when`("listZakenForInformationObjectType is called") {
             val result = searchRestService.listZakenForInformationObjectType(restZoekKoppelenParameters)
 
-            Then("the search result should be returned") {
+            then("the search result should be returned") {
                 result shouldBe restZoekResultaat
             }
 
@@ -220,7 +220,7 @@ class SearchRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A request to list zaken for information object type where document is not linkable") {
+    given("A request to list zaken for information object type where document is not linkable") {
         val zaakIdentification = "ZAAK-2024-00002"
         val informationObjectTypeUuid = UUID.randomUUID()
         val differentInformationObjectTypeUuid = UUID.randomUUID()
@@ -250,10 +250,10 @@ class SearchRestServiceTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
         every { restZoekResultaatConverter.convert(zoekResultaat, listOf(false)) } returns restZoekResultaat
 
-        When("listZakenForInformationObjectType is called") {
+        `when`("listZakenForInformationObjectType is called") {
             val result = searchRestService.listZakenForInformationObjectType(restZoekKoppelenParameters)
 
-            Then("the search result should be returned with document not linkable") {
+            then("the search result should be returned with document not linkable") {
                 result shouldBe restZoekResultaat
             }
 
@@ -265,22 +265,22 @@ class SearchRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A request to list zaken for information object type without permission") {
+    given("A request to list zaken for information object type without permission") {
         val restZoekKoppelenParameters = createRestZoekKoppelenParameters()
 
         every { policyService.readWerklijstRechten() } returns createWerklijstRechten(zakenTaken = false)
 
-        When("listZakenForInformationObjectType is called") {
+        `when`("listZakenForInformationObjectType is called") {
             val policyException = shouldThrow<PolicyException> {
                 searchRestService.listZakenForInformationObjectType(restZoekKoppelenParameters)
             }
-            Then("a PolicyException should be thrown") {
+            then("a PolicyException should be thrown") {
                 policyException shouldNotBe null
             }
         }
     }
 
-    Given("A request to list zaken with empty search results") {
+    given("A request to list zaken with empty search results") {
         val zaakIdentification = "fakeZaakIdentification"
         val informationObjectTypeUuid = UUID.randomUUID()
         val restZoekKoppelenParameters = createRestZoekKoppelenParameters(
@@ -296,10 +296,10 @@ class SearchRestServiceTest : BehaviorSpec({
         every { searchService.zoek(any<ZoekParameters>()) } returns zoekResultaat
         every { restZoekResultaatConverter.convert(zoekResultaat, emptyList()) } returns restZoekResultaat
 
-        When("listZakenForInformationObjectType is called") {
+        `when`("listZakenForInformationObjectType is called") {
             val result = searchRestService.listZakenForInformationObjectType(restZoekKoppelenParameters)
 
-            Then("the search result should be returned with empty list") {
+            then("the search result should be returned with empty list") {
                 result shouldBe restZoekResultaat
             }
 

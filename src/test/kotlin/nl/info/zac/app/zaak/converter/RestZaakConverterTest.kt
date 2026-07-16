@@ -102,7 +102,7 @@ class RestZaakConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A CMMN zaak with a natuurlijk persoon as initiator, a group, a behandelaar and a besluit") {
+    given("A CMMN zaak with a natuurlijk persoon as initiator, a group, a behandelaar and a besluit") {
         val zaak = createZaak()
         val zaakType = createZaakType()
         val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid()
@@ -146,10 +146,10 @@ class RestZaakConverterTest : BehaviorSpec({
         } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
-        When("converting a zaak to a rest zaak") {
+        `when`("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
 
-            Then("the zaak should be converted correctly") {
+            then("the zaak should be converted correctly") {
                 with(restZaak) {
                     uuid shouldBe zaak.uuid
                     identificatie shouldBe zaak.identificatie
@@ -170,7 +170,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak that was closed and later reopened") {
+    given("A zaak that was closed and later reopened") {
         val status = createZaakStatus()
         status.statustoelichting = "fake status"
         val statusType = createStatusType()
@@ -211,12 +211,12 @@ class RestZaakConverterTest : BehaviorSpec({
         every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
-        When("converting a zaak to a rest zaak") {
+        `when`("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
 
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
 
-            Then("the zaak should be converted correctly") {
+            then("the zaak should be converted correctly") {
                 with(restZaak) {
                     uuid shouldBe zaak.uuid
                     identificatie shouldBe zaak.identificatie
@@ -233,7 +233,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak that was previously suspended") {
+    given("A zaak that was previously suspended") {
         val status = createZaakStatus()
         status.statustoelichting = "fake status"
         val statusType = createStatusType()
@@ -276,12 +276,12 @@ class RestZaakConverterTest : BehaviorSpec({
         every { identificationService.createBetrokkeneIdentificatieForInitiatorRole(rol) } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
-        When("converting a zaak to a rest zaak") {
+        `when`("converting a zaak to a rest zaak") {
             every { zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) } returns true
 
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
 
-            Then("the zaak should be converted correctly") {
+            then("the zaak should be converted correctly") {
                 with(restZaak) {
                     uuid shouldBe zaak.uuid
                     identificatie shouldBe zaak.identificatie
@@ -298,7 +298,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A BPMN process-driven zaak with a process definition") {
+    given("A BPMN process-driven zaak with a process definition") {
         val zaak = createZaak()
         val zaakType = createZaakType()
         val processDefinition = createProcessDefinition(
@@ -325,10 +325,10 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns processDefinition
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
-        When("converting the zaak to a rest zaak") {
+        `when`("converting the zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
 
-            Then("bpmnProcessDefinition is populated with the process definition key, name, and version") {
+            then("bpmnProcessDefinition is populated with the process definition key, name, and version") {
                 with(restZaak.bpmnProcessDefinition!!) {
                     processDefinitionKey shouldBe "fakeProcessKey"
                     processDefinitionName shouldBe "fakeProcessName"
@@ -338,7 +338,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A BPMN process-driven zaak where the confirmation of receipt has not been sent") {
+    given("A BPMN process-driven zaak where the confirmation of receipt has not been sent") {
         val zaak = createZaak()
         val zaakType = createZaakType()
         val processDefinition = createProcessDefinition(
@@ -364,16 +364,16 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns processDefinition
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
-        When("converting the zaak to a rest zaak") {
+        `when`("converting the zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
 
-            Then("ONTVANGSTBEVESTIGING_NIET_VERSTUURD is not in indicaties because the zaak is process-driven") {
+            then("ONTVANGSTBEVESTIGING_NIET_VERSTUURD is not in indicaties because the zaak is process-driven") {
                 restZaak.indicaties shouldNotContain ONTVANGSTBEVESTIGING_NIET_VERSTUURD
             }
         }
     }
 
-    Given("A non-BPMN zaak without a process definition") {
+    given("A non-BPMN zaak without a process definition") {
         val zaak = createZaak()
         val zaakType = createZaakType()
         val restZaakType = createRestZaaktype()
@@ -395,16 +395,16 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
-        When("converting the zaak to a rest zaak") {
+        `when`("converting the zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
 
-            Then("bpmnProcessDefinition is null") {
+            then("bpmnProcessDefinition is null") {
                 restZaak.bpmnProcessDefinition.shouldBeNull()
             }
         }
     }
 
-    Given("A zaak with ontvangstbevestiging status") {
+    given("A zaak with ontvangstbevestiging status") {
         val zaak = createZaak()
         val zaakType = createZaakType()
         val rolNatuurlijkPersoon = createRolNatuurlijkPersoon()
@@ -430,7 +430,7 @@ class RestZaakConverterTest : BehaviorSpec({
         } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
-        When("converting a zaak to a rest zaak") {
+        `when`("converting a zaak to a rest zaak") {
             val testCases = listOf(
                 TestCase(
                     description = "not sent (false)",
@@ -459,7 +459,7 @@ class RestZaakConverterTest : BehaviorSpec({
 
                 val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
 
-                Then(
+                then(
                     """
                     when ontvangstbevestiging is ${testCase.description},
                     heeftOntvangstbevestigingVerstuurd should be ${testCase.expectedHeeftOntvangstbevestigingVerstuurd}
@@ -469,7 +469,7 @@ class RestZaakConverterTest : BehaviorSpec({
                         testCase.expectedHeeftOntvangstbevestigingVerstuurd
                 }
 
-                Then(
+                then(
                     """
                     when ontvangstbevestiging is ${testCase.description},
                     ONTVANGSTBEVESTIGING_NIET_VERSTUURD indication should
@@ -486,7 +486,7 @@ class RestZaakConverterTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak with an intake-related status type") {
+    given("A zaak with an intake-related status type") {
         val zaak = createZaak()
         val zaakType = createZaakType()
         val status = createZaakStatus().apply { statustoelichting = "fake status" }
@@ -509,28 +509,28 @@ class RestZaakConverterTest : BehaviorSpec({
         every { bpmnService.findProcessDefinitionByZaak(zaak.uuid) } returns null
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns null
 
-        When("converting a zaak with the 'Intake' status") {
+        `when`("converting a zaak with the 'Intake' status") {
             val statusType = createStatusType().apply { omschrijving = STATUSTYPE_OMSCHRIJVING_INTAKE }
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
 
-            Then("isInIntakeFase should be true") {
+            then("isInIntakeFase should be true") {
                 restZaak.isInIntakeFase shouldBe true
             }
         }
 
-        When("converting a zaak with the 'Wacht op aanvullende informatie' status") {
+        `when`("converting a zaak with the 'Wacht op aanvullende informatie' status") {
             val statusType = createStatusType().apply {
                 omschrijving = STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
             }
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser, status, statusType)
 
-            Then("isInIntakeFase should be true") {
+            then("isInIntakeFase should be true") {
                 restZaak.isInIntakeFase shouldBe true
             }
         }
     }
 
-    Given("A zaak with gerelateerdeZaken") {
+    given("A zaak with gerelateerdeZaken") {
         val gerelateerdeZaakUuid = UUID.randomUUID()
         val gerelateerdeZaakItem = GerelateerdeZaak().apply {
             url = URI("https://example.com/zaak/$gerelateerdeZaakUuid")
@@ -565,17 +565,17 @@ class RestZaakConverterTest : BehaviorSpec({
             restGerelateerdeZaakConverter.convert(zaak, zaakRechten, gerelateerdeZaakItem, loggedInUser)
         } returns restGerelateerdeZaak
 
-        When("converting the zaak to a rest zaak") {
+        `when`("converting the zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
 
-            Then("gerelateerdeZaken includes the converted gerelateerde zaak") {
+            then("gerelateerdeZaken includes the converted gerelateerde zaak") {
                 restZaak.gerelateerdeZaken!! shouldHaveSize 1
                 restZaak.gerelateerdeZaken!![0] shouldBe restGerelateerdeZaak
             }
         }
     }
 
-    Given("A zaak with zaak-specific contact details") {
+    given("A zaak with zaak-specific contact details") {
         val zaak = createZaak()
         val zaakType = createZaakType()
         val rolNatuurlijkPersoon = createRolNatuurlijkPersoon()
@@ -603,10 +603,10 @@ class RestZaakConverterTest : BehaviorSpec({
         } returns betrokkeneIdentificatie
         every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns contactDetails
 
-        When("converting a zaak to a rest zaak") {
+        `when`("converting a zaak to a rest zaak") {
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
 
-            Then("the zaakSpecificContactDetails should be set on the rest zaak") {
+            then("the zaakSpecificContactDetails should be set on the rest zaak") {
                 restZaak.zaakSpecificContactDetails shouldBe contactDetails
             }
         }

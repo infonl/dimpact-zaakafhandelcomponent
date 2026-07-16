@@ -97,7 +97,7 @@ class SignaleringServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("signaleringen older than two days") {
+    given("signaleringen older than two days") {
         val now = ZonedDateTime.now()
         val deleteOlderThanDays = 2L
         val zoneDateTimeSlot = slot<ZonedDateTime>()
@@ -110,10 +110,10 @@ class SignaleringServiceTest : BehaviorSpec({
         every { entityManager.createQuery(criteriaDeleteSignalering) } returns query
         every { query.executeUpdate() } returns 2
 
-        When("signaleringen older than two days are deleted") {
+        `when`("signaleringen older than two days are deleted") {
             val deletedCount = signaleringService.deleteOldSignaleringen(deleteOlderThanDays)
 
-            Then("old signaleringen have been deleted") {
+            then("old signaleringen have been deleted") {
                 deletedCount shouldBe 2
                 with(zoneDateTimeSlot.captured) {
                     this shouldBeAfter now.minusDays(deleteOlderThanDays)
@@ -124,7 +124,7 @@ class SignaleringServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A task signalering of type 'task expired'") {
+    given("A task signalering of type 'task expired'") {
         val zaak = createZaak()
         val task = createTestTask(
             scopeType = "cmmn",
@@ -153,10 +153,10 @@ class SignaleringServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { mailService.sendMail(capture(mailGegevensSlot), any()) } returns mailBody
 
-        When("the signalering email is sent") {
+        `when`("the signalering email is sent") {
             signaleringService.sendSignalering(signalering)
 
-            Then("the signalering is sent to the correct service") {
+            then("the signalering is sent to the correct service") {
                 verify(exactly = 1) {
                     mailService.sendMail(any(), any())
                 }
@@ -172,7 +172,7 @@ class SignaleringServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaken signalering of type ZAAK_OP_NAAM sorted by SIGNALERING_TIJDSTIP DESC (the default)") {
+    given("A zaken signalering of type ZAAK_OP_NAAM sorted by SIGNALERING_TIJDSTIP DESC (the default)") {
         val signalering = createSignalering()
         val zaak = createZaak()
         val restZaakOverzicht = createRESTZaakOverzicht()
@@ -217,14 +217,14 @@ class SignaleringServiceTest : BehaviorSpec({
         every { zrcClientService.readZaak(UUID.fromString(signalering.subject)) } returns zaak
         every { restZaakOverzichtConverter.convertForDisplay(zaak, loggedInUser) } returns restZaakOverzicht
 
-        When("listing first page of zaken signaleringen") {
+        `when`("listing first page of zaken signaleringen") {
             val result = signaleringService.listZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 restPageParameters,
                 loggedInUser
             )
 
-            Then("paging is used to return the signalering") {
+            then("paging is used to return the signalering") {
                 result.size shouldBe 1
                 verify(exactly = 1) {
                     typedQuery.firstResult = pageNumber
@@ -235,7 +235,7 @@ class SignaleringServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Three zaak signaleringen and a request to sort by identificatie ascending") {
+    given("Three zaak signaleringen and a request to sort by identificatie ascending") {
         val signaleringA = createSignalering()
         val signaleringB = createSignalering()
         val signaleringC = createSignalering()
@@ -281,17 +281,17 @@ class SignaleringServiceTest : BehaviorSpec({
         every { restZaakOverzichtConverter.convertForDisplay(zaakB, loggedInUser) } returns overzichtAlpha
         every { restZaakOverzichtConverter.convertForDisplay(zaakC, loggedInUser) } returns overzichtBravo
 
-        When("listing the first page") {
+        `when`("listing the first page") {
             val result = signaleringService.listZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 pageParameters,
                 loggedInUser
             )
 
-            Then("results are sorted by identificatie ascending and sliced to the page size") {
+            then("results are sorted by identificatie ascending and sliced to the page size") {
                 result shouldBe listOf(overzichtAlpha, overzichtBravo)
             }
-            Then("the JPA query is run without firstResult / maxResults — paging is applied in memory") {
+            then("the JPA query is run without firstResult / maxResults — paging is applied in memory") {
                 verify(exactly = 0) {
                     typedQuery.firstResult = any()
                     typedQuery.maxResults = any()
@@ -300,7 +300,7 @@ class SignaleringServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A request to sort zaken signaleringen by a SorteerVeld this endpoint does not support") {
+    given("A request to sort zaken signaleringen by a SorteerVeld this endpoint does not support") {
         val pageParameters = RestSignaleringPageParameters(
             page = 0,
             rows = 5,
@@ -309,7 +309,7 @@ class SignaleringServiceTest : BehaviorSpec({
         )
         val loggedInUser = createLoggedInUser()
 
-        When("listZakenSignaleringenPage is called") {
+        `when`("listZakenSignaleringenPage is called") {
             val exception = shouldThrow<InputValidationFailedException> {
                 signaleringService.listZakenSignaleringenPage(
                     SignaleringType.Type.ZAAK_OP_NAAM,
@@ -318,7 +318,7 @@ class SignaleringServiceTest : BehaviorSpec({
                 )
             }
 
-            Then("validation fails before the JPA query runs and the message lists supported fields") {
+            then("validation fails before the JPA query runs and the message lists supported fields") {
                 exception.message!! shouldContain "TAAK_NAAM"
                 exception.message!! shouldContain "ZAAK_IDENTIFICATIE"
                 exception.message!! shouldContain "ZAAK_STARTDATUM"
@@ -326,7 +326,7 @@ class SignaleringServiceTest : BehaviorSpec({
         }
     }
 
-    Given("Three zaak signaleringen and a request to sort by startdatum descending on page 1 with two rows per page") {
+    given("Three zaak signaleringen and a request to sort by startdatum descending on page 1 with two rows per page") {
         val signaleringA = createSignalering()
         val signaleringB = createSignalering()
         val signaleringC = createSignalering()
@@ -372,20 +372,20 @@ class SignaleringServiceTest : BehaviorSpec({
         every { restZaakOverzichtConverter.convertForDisplay(zaakB, loggedInUser) } returns overzichtNew
         every { restZaakOverzichtConverter.convertForDisplay(zaakC, loggedInUser) } returns overzichtOld
 
-        When("listing the second page") {
+        `when`("listing the second page") {
             val result = signaleringService.listZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 pageParameters,
                 loggedInUser
             )
 
-            Then("results are sorted by startdatum descending and the second page is returned") {
+            then("results are sorted by startdatum descending and the second page is returned") {
                 result shouldBe listOf(overzichtOld)
             }
         }
     }
 
-    Given("Three zaak signaleringen with distinct zaaktype and omschrijving values") {
+    given("Three zaak signaleringen with distinct zaaktype and omschrijving values") {
         val signaleringA = createSignalering()
         val signaleringB = createSignalering()
         val signaleringC = createSignalering()
@@ -434,7 +434,7 @@ class SignaleringServiceTest : BehaviorSpec({
         every { restZaakOverzichtConverter.convertForDisplay(zaakB, loggedInUser) } returns overzichtAanvraag
         every { restZaakOverzichtConverter.convertForDisplay(zaakC, loggedInUser) } returns overzichtMelding
 
-        When("sorting by ZAAK_ZAAKTYPE ascending") {
+        `when`("sorting by ZAAK_ZAAKTYPE ascending") {
             val result = signaleringService.listZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 RestSignaleringPageParameters(
@@ -446,12 +446,12 @@ class SignaleringServiceTest : BehaviorSpec({
                 loggedInUser
             )
 
-            Then("rows are returned in zaaktype-ascending order") {
+            then("rows are returned in zaaktype-ascending order") {
                 result shouldBe listOf(overzichtAanvraag, overzichtMelding, overzichtZonnepanelen)
             }
         }
 
-        When("sorting by ZAAK_OMSCHRIJVING ascending") {
+        `when`("sorting by ZAAK_OMSCHRIJVING ascending") {
             val result = signaleringService.listZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 RestSignaleringPageParameters(
@@ -463,13 +463,13 @@ class SignaleringServiceTest : BehaviorSpec({
                 loggedInUser
             )
 
-            Then("rows are returned in omschrijving-ascending order") {
+            then("rows are returned in omschrijving-ascending order") {
                 result shouldBe listOf(overzichtMelding, overzichtZonnepanelen, overzichtAanvraag)
             }
         }
     }
 
-    Given("No zaak signaleringen exist for the user and a sort is requested") {
+    given("No zaak signaleringen exist for the user and a sort is requested") {
         val loggedInUser = createLoggedInUser()
         val pageParameters = RestSignaleringPageParameters(
             page = 0,
@@ -499,21 +499,21 @@ class SignaleringServiceTest : BehaviorSpec({
         every { pathTarget.get<Any>("subjecttype") } returns pathTarget
         every { typedQuery.resultList } returns emptyList()
 
-        When("listing the page") {
+        `when`("listing the page") {
             val result = signaleringService.listZakenSignaleringenPage(
                 SignaleringType.Type.ZAAK_OP_NAAM,
                 pageParameters,
                 loggedInUser
             )
 
-            Then("an empty list is returned without invoking the ZRC client") {
+            then("an empty list is returned without invoking the ZRC client") {
                 result shouldBe emptyList()
                 verify(exactly = 0) { zrcClientService.readZaak(any<UUID>()) }
             }
         }
     }
 
-    Given(
+    given(
         """
         Two zaak signaleringen each with the same target and corresponding signalering zoek parameters with a subject type and subject
         """
@@ -541,10 +541,10 @@ class SignaleringServiceTest : BehaviorSpec({
         every { entityManager.remove(any<Signalering>()) } returns Unit
         every { eventingService.send(any<ScreenEvent>()) } returns Unit
 
-        When("signaleringen are requested to be deleted") {
+        `when`("signaleringen are requested to be deleted") {
             signaleringService.deleteSignaleringen(signaleringenZoekParameters)
 
-            Then("the two signaleringen are deleted") {
+            then("the two signaleringen are deleted") {
                 verify(exactly = 2) {
                     entityManager.remove(any<Signalering>())
                 }

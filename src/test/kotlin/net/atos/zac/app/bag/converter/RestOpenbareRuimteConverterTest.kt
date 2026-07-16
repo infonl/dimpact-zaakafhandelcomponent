@@ -19,65 +19,65 @@ import java.net.URI
 
 class RestOpenbareRuimteConverterTest : BehaviorSpec({
 
-    Context("convertToREST") {
-        Given("A null openbareRuimteIO") {
-            When("convertToREST is called") {
+    context("convertToREST") {
+        given("A null openbareRuimteIO") {
+            `when`("convertToREST is called") {
                 val result = RestOpenbareRuimteConverter.convertToREST(
                     null as OpenbareRuimteIOHalBasis?,
                     createAdresIOHal()
                 )
 
-                Then("null is returned") {
+                then("null is returned") {
                     result.shouldBeNull()
                 }
             }
         }
 
-        Given("A null OpenbareRuimteIOHalBasis") {
-            When("convertToREST is called") {
+        given("A null OpenbareRuimteIOHalBasis") {
+            `when`("convertToREST is called") {
                 val result = RestOpenbareRuimteConverter.convertToREST(null as OpenbareRuimteIOHalBasis?)
 
-                Then("null is returned") {
+                then("null is returned") {
                     result.shouldBeNull()
                 }
             }
         }
 
-        Given("A null OpenbareRuimteIOHal") {
-            When("convertToREST is called") {
+        given("A null OpenbareRuimteIOHal") {
+            `when`("convertToREST is called") {
                 val result = RestOpenbareRuimteConverter.convertToREST(null as OpenbareRuimteIOHal?)
 
-                Then("null is returned") {
+                then("null is returned") {
                     result.shouldBeNull()
                 }
             }
         }
 
-        Given("A ZaakobjectOpenbareRuimte with null objectIdentificatie") {
+        given("A ZaakobjectOpenbareRuimte with null objectIdentificatie") {
             val zaakobject = mockk<ZaakobjectOpenbareRuimte> {
                 every { objectIdentificatie } returns null
             }
 
-            When("convertToREST is called") {
+            `when`("convertToREST is called") {
                 val result = RestOpenbareRuimteConverter.convertToREST(zaakobject)
 
-                Then("null is returned") {
+                then("null is returned") {
                     result.shouldBeNull()
                 }
             }
         }
 
-        Given("A RESTOpenbareRuimte and a Zaak") {
+        given("A RESTOpenbareRuimte and a Zaak") {
             val fakeOpenbareRuimteUrl = URI("https://example.com/openbareruimte/fakeId")
             val zaak = createZaak()
             val restOpenbareRuimte = RestOpenbareRuimteConverter.convertToREST(
                 createZaakobjectOpenbareRuimte(bagobjectURI = fakeOpenbareRuimteUrl)
             )!!
 
-            When("convertToZaakobject is called") {
+            `when`("convertToZaakobject is called") {
                 val result = RestOpenbareRuimteConverter.convertToZaakobject(restOpenbareRuimte, zaak)
 
-                Then("the result is a ZaakobjectOpenbareRuimte with the openbareRuimte URL set") {
+                then("the result is a ZaakobjectOpenbareRuimte with the openbareRuimte URL set") {
                     result.getObject() shouldBe fakeOpenbareRuimteUrl
                 }
             }

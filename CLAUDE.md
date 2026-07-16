@@ -125,7 +125,8 @@ Replace `<YEAR>` with the current year. So for example, if the current year is 2
  */
  ```
 
-For `.html`/`.xml` use `<!-- ~ SPDX... -->` and for `.sh`, `.yaml`/`.yml` (including OpenSpec `.openspec.yaml`) use `# SPDX...`.
+For `.html`/`.xml` use `<!-- ~ SPDX... -->` and for `.sh`, `.yaml`/`.yml` use `# SPDX...`.
+This `.yaml`/`.yml` rule applies to all YAML files in the repo, including dotfiles such as OpenSpec's `.openspec.yaml`.
 When modifying an existing file that already has an SPDX header, add `, <YEAR> INFO.nl` but only if `INFO.nl` is not already present in the SPDX header.
 For example, if the SPDX header already contains `2025 INFO.nl`, leave it as is and do not add the current year.
 For example `2025, 2026 INFO.nl` is wrong.
@@ -304,25 +305,25 @@ Follow these rules:
   For these functions, the transactional annotation at class level is used.
 
 ### In Kotlin unit tests the 'shouldThrow' should be in the 'When' block
-In Kotlin unit tests the 'shouldThrow' should be in the 'When' and not in the 'Then' block.
-Also the exception message should be checked in the 'Then' block.
+In Kotlin unit tests the 'shouldThrow' should be in the '`when`' and not in the 'then' block.
+Also the exception message should be checked in the 'then' block.
 
 ```kotlin// Before
 {
-When("calling the service") {
-    Then("should throw IllegalArgumentException") {
+`when`("calling the service") {
+    then("should throw IllegalArgumentException") {
         shouldThrow<IllegalArgumentException> {
             service.add(1, 2)
         }
     }
 }
 // After
-When("calling the service") {
+`when`("calling the service") {
     val illegalArgumentException = shouldThrow<IllegalArgumentException> {
         service.add(1, 2)
     }
     
-    Then("should throw IllegalArgumentException") {
+    then("should throw IllegalArgumentException") {
         illegalArgumentException.message shouldBe "Expected exception message"
     }
 }    
@@ -331,14 +332,14 @@ When("calling the service") {
 ## Test conventions
 
 ### Kotest (Backend Tests)
-Use BDD style with `Context`/`Given`/`When`/`Then` blocks, and always add `afterEach { checkUnnecessaryStub() }` to catch unused MockK stubs:
+Use BDD style with `context`/`given`/`` `when` ``/`then` blocks, and always add `afterEach { checkUnnecessaryStub() }` to catch unused MockK stubs:
 ```kotlin
 class MyServiceTest : BehaviorSpec({
     afterEach { checkUnnecessaryStub() }
-    Context("A function in the service under test") {
-        Given("some state") {
-            When("action occurs") {
-                Then("expected result") { ... }
+    context("A function in the service under test") {
+        given("some state") {
+            `when`("action occurs") {
+                then("expected result") { ... }
             }
         }
     }

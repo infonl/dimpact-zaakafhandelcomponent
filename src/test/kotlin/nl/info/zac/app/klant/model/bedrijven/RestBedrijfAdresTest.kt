@@ -22,7 +22,7 @@ class RestBedrijfAdresTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a regular Dutch address with all fields including huisnummerToevoeging") {
+    given("a regular Dutch address with all fields including huisnummerToevoeging") {
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
@@ -34,16 +34,16 @@ class RestBedrijfAdresTest : BehaviorSpec({
             plaats = "fakePlaats1"
         }
 
-        When("converted to RestBedrijfAdres") {
+        `when`("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("address is formatted as straat huisnummer+huisletter huisnummerToevoeging, postcode plaats") {
+            then("address is formatted as straat huisnummer+huisletter huisnummerToevoeging, postcode plaats") {
                 result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12A${NBSP}bis, 1234AB${NBSP}fakePlaats1"
             }
         }
     }
 
-    Given("a regular Dutch address without huisnummerToevoeging") {
+    given("a regular Dutch address without huisnummerToevoeging") {
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
@@ -54,16 +54,16 @@ class RestBedrijfAdresTest : BehaviorSpec({
             plaats = "fakePlaats1"
         }
 
-        When("converted to RestBedrijfAdres") {
+        `when`("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("address is formatted as straat huisnummer+huisletter, postcode plaats") {
+            then("address is formatted as straat huisnummer+huisletter, postcode plaats") {
                 result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12A, 1234AB${NBSP}fakePlaats1"
             }
         }
     }
 
-    Given("a regular Dutch address without huisletter and huisnummerToevoeging") {
+    given("a regular Dutch address without huisletter and huisnummerToevoeging") {
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
@@ -73,16 +73,16 @@ class RestBedrijfAdresTest : BehaviorSpec({
             plaats = "fakePlaats1"
         }
 
-        When("converted to RestBedrijfAdres") {
+        `when`("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("address is formatted as straat huisnummer, postcode plaats") {
+            then("address is formatted as straat huisnummer, postcode plaats") {
                 result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12, 1234AB${NBSP}fakePlaats1"
             }
         }
     }
 
-    Given("a postbus address") {
+    given("a postbus address") {
         val adres = Adres().apply {
             type = "correspondentieadres"
             indAfgeschermd = "nee"
@@ -91,16 +91,16 @@ class RestBedrijfAdresTest : BehaviorSpec({
             plaats = "fakePlaats2"
         }
 
-        When("converted to RestBedrijfAdres") {
+        `when`("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("address is formatted as Postbus postbusnummer, postcode plaats") {
+            then("address is formatted as Postbus postbusnummer, postcode plaats") {
                 result.volledigAdres shouldBe "Postbus 1234, 3440AD${NBSP}fakePlaats2"
             }
         }
     }
 
-    Given("a postbus address without postcode") {
+    given("a postbus address without postcode") {
         val adres = Adres().apply {
             type = "correspondentieadres"
             indAfgeschermd = "nee"
@@ -108,16 +108,16 @@ class RestBedrijfAdresTest : BehaviorSpec({
             plaats = "fakePlaats2"
         }
 
-        When("converted to RestBedrijfAdres") {
+        `when`("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("address is formatted as Postbus postbusnummer, plaats") {
+            then("address is formatted as Postbus postbusnummer, plaats") {
                 result.volledigAdres shouldBe "Postbus 1234, fakePlaats2"
             }
         }
     }
 
-    Given("a foreign address with all fields") {
+    given("a foreign address with all fields") {
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
@@ -127,16 +127,16 @@ class RestBedrijfAdresTest : BehaviorSpec({
             land = "fakeLand3"
         }
 
-        When("converted to RestBedrijfAdres") {
+        `when`("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("address is formatted as straatHuisnummer toevoegingAdres, postcodeWoonplaats, land") {
+            then("address is formatted as straatHuisnummer toevoegingAdres, postcodeWoonplaats, land") {
                 result.volledigAdres shouldBe "fakeStraatnaam3${NBSP}1${NBSP}fakeToevoeging3, 12345${NBSP}fakePlaats3, fakeLand3"
             }
         }
     }
 
-    Given("a foreign address without toevoegingAdres") {
+    given("a foreign address without toevoegingAdres") {
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
@@ -145,16 +145,16 @@ class RestBedrijfAdresTest : BehaviorSpec({
             land = "fakeLand3"
         }
 
-        When("converted to RestBedrijfAdres") {
+        `when`("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("address is formatted as straatHuisnummer, postcodeWoonplaats, land") {
+            then("address is formatted as straatHuisnummer, postcodeWoonplaats, land") {
                 result.volledigAdres shouldBe "fakeStraatnaam3${NBSP}1, 12345${NBSP}fakePlaats3, fakeLand3"
             }
         }
     }
 
-    Given("a Dutch address that also has a land field set") {
+    given("a Dutch address that also has a land field set") {
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
@@ -165,16 +165,16 @@ class RestBedrijfAdresTest : BehaviorSpec({
             land = "Nederland"
         }
 
-        When("converted to RestBedrijfAdres") {
+        `when`("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("address is treated as regular Dutch address, not as foreign") {
+            then("address is treated as regular Dutch address, not as foreign") {
                 result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12, 1234AB${NBSP}fakePlaats1"
             }
         }
     }
 
-    Given("a vestigingsprofiel address with both volledigAdres and individual fields set") {
+    given("a vestigingsprofiel address with both volledigAdres and individual fields set") {
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
@@ -185,32 +185,32 @@ class RestBedrijfAdresTest : BehaviorSpec({
             plaats = "fakePlaats1"
         }
 
-        When("converted to RestBedrijfAdres") {
+        `when`("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("individual fields are used for formatting, volledigAdres is ignored") {
+            then("individual fields are used for formatting, volledigAdres is ignored") {
                 result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12, 1234AB${NBSP}fakePlaats1"
             }
         }
     }
 
-    Given("a vestigingsprofiel address with only volledigAdres set and no individual fields") {
+    given("a vestigingsprofiel address with only volledigAdres set and no individual fields") {
         val adres = Adres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
             volledigAdres = "Precomputed adres 1"
         }
 
-        When("converted to RestBedrijfAdres") {
+        `when`("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("volledigAdres is used as fallback since no individual address fields are present") {
+            then("volledigAdres is used as fallback since no individual address fields are present") {
                 result.volledigAdres shouldBe "Precomputed adres 1"
             }
         }
     }
 
-    Given("a BinnenlandsAdres with street fields") {
+    given("a BinnenlandsAdres with street fields") {
         val adres = BinnenlandsAdres().apply {
             straatnaam = "fakeStraatnaam1"
             huisnummer = 12
@@ -219,42 +219,42 @@ class RestBedrijfAdresTest : BehaviorSpec({
             plaats = "fakePlaats1"
         }
 
-        When("toFormattedAddress is called") {
+        `when`("toFormattedAddress is called") {
             val result = adres.toFormattedAddress()
 
-            Then("formatted as straatnaam huisnummer+huisletter, postcode plaats") {
+            then("formatted as straatnaam huisnummer+huisletter, postcode plaats") {
                 result shouldBe "fakeStraatnaam1${NBSP}12A, 1234AB${NBSP}fakePlaats1"
             }
         }
     }
 
-    Given("a BinnenlandsAdres with postbusnummer") {
+    given("a BinnenlandsAdres with postbusnummer") {
         val adres = BinnenlandsAdres().apply {
             postbusnummer = 1234
             postcode = "3440AD"
             plaats = "fakePlaats2"
         }
 
-        When("toFormattedAddress is called") {
+        `when`("toFormattedAddress is called") {
             val result = adres.toFormattedAddress()
 
-            Then("formatted as Postbus postbusnummer, postcode plaats") {
+            then("formatted as Postbus postbusnummer, postcode plaats") {
                 result shouldBe "Postbus 1234, 3440AD${NBSP}fakePlaats2"
             }
         }
     }
 
-    Given("a BuitenlandsAdres with all fields") {
+    given("a BuitenlandsAdres with all fields") {
         val adres = BuitenlandsAdres().apply {
             straatHuisnummer = "fakeStraatnaam3 1"
             postcodeWoonplaats = "12345 fakePlaats3"
             land = "fakeLand3"
         }
 
-        When("toFormattedAddress is called") {
+        `when`("toFormattedAddress is called") {
             val result = adres.toFormattedAddress()
 
-            Then(
+            then(
                 "formatted as straatHuisnummer, postcodeWoonplaats, land with non-breaking spaces replacing regular spaces"
             ) {
                 result shouldBe "fakeStraatnaam3${NBSP}1, 12345${NBSP}fakePlaats3, fakeLand3"
@@ -262,7 +262,7 @@ class RestBedrijfAdresTest : BehaviorSpec({
         }
     }
 
-    Given("a BasisprofielAdres with postbusnummer") {
+    given("a BasisprofielAdres with postbusnummer") {
         val adres = BasisprofielAdres().apply {
             type = "correspondentieadres"
             indAfgeschermd = "nee"
@@ -271,16 +271,16 @@ class RestBedrijfAdresTest : BehaviorSpec({
             plaats = "fakePlaats2"
         }
 
-        When("toFormattedAddress is called") {
+        `when`("toFormattedAddress is called") {
             val result = adres.toFormattedAddress()
 
-            Then("formatted as Postbus postbusnummer, postcode plaats") {
+            then("formatted as Postbus postbusnummer, postcode plaats") {
                 result shouldBe "Postbus 1234, 3440AD${NBSP}fakePlaats2"
             }
         }
     }
 
-    Given("a BasisprofielAdres with straatHuisnummer (foreign address) including toevoegingAdres") {
+    given("a BasisprofielAdres with straatHuisnummer (foreign address) including toevoegingAdres") {
         val adres = BasisprofielAdres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
@@ -290,16 +290,16 @@ class RestBedrijfAdresTest : BehaviorSpec({
             land = "fakeLand3"
         }
 
-        When("toFormattedAddress is called") {
+        `when`("toFormattedAddress is called") {
             val result = adres.toFormattedAddress()
 
-            Then("formatted as straatHuisnummer toevoegingAdres, postcodeWoonplaats, land") {
+            then("formatted as straatHuisnummer toevoegingAdres, postcodeWoonplaats, land") {
                 result shouldBe "fakeStraatnaam3${NBSP}1${NBSP}fakeToevoeging3, 12345${NBSP}fakePlaats3, fakeLand3"
             }
         }
     }
 
-    Given("a BasisprofielAdres with straatnaam fields including huisnummerToevoeging") {
+    given("a BasisprofielAdres with straatnaam fields including huisnummerToevoeging") {
         val adres = BasisprofielAdres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
@@ -311,16 +311,16 @@ class RestBedrijfAdresTest : BehaviorSpec({
             plaats = "fakePlaats1"
         }
 
-        When("toFormattedAddress is called") {
+        `when`("toFormattedAddress is called") {
             val result = adres.toFormattedAddress()
 
-            Then("formatted as straatnaam huisnummer+huisletter huisnummerToevoeging, postcode plaats") {
+            then("formatted as straatnaam huisnummer+huisletter huisnummerToevoeging, postcode plaats") {
                 result shouldBe "fakeStraatnaam1${NBSP}12A${NBSP}bis, 1234AB${NBSP}fakePlaats1"
             }
         }
     }
 
-    Given("a BasisprofielAdres with both volledigAdres and individual fields set") {
+    given("a BasisprofielAdres with both volledigAdres and individual fields set") {
         val adres = BasisprofielAdres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
@@ -331,61 +331,61 @@ class RestBedrijfAdresTest : BehaviorSpec({
             plaats = "fakePlaats1"
         }
 
-        When("converted to RestBedrijfAdres") {
+        `when`("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("individual fields are used for formatting, volledigAdres is ignored") {
+            then("individual fields are used for formatting, volledigAdres is ignored") {
                 result.volledigAdres shouldBe "fakeStraatnaam1${NBSP}12, 1234AB${NBSP}fakePlaats1"
             }
         }
     }
 
-    Given("a BasisprofielAdres with only volledigAdres set and no individual fields") {
+    given("a BasisprofielAdres with only volledigAdres set and no individual fields") {
         val adres = BasisprofielAdres().apply {
             type = "bezoekadres"
             indAfgeschermd = "nee"
             volledigAdres = "Precomputed adres 2"
         }
 
-        When("converted to RestBedrijfAdres") {
+        `when`("converted to RestBedrijfAdres") {
             val result = adres.toRestBedrijfAdres()
 
-            Then("volledigAdres is used as fallback since no individual address fields are present") {
+            then("volledigAdres is used as fallback since no individual address fields are present") {
                 result.volledigAdres shouldBe "Precomputed adres 2"
             }
         }
     }
 
-    Given("the string 'ja'") {
-        When("isIndicatie is called") {
-            Then("returns true") {
+    given("the string 'ja'") {
+        `when`("isIndicatie is called") {
+            then("returns true") {
                 "ja".isIndicatie() shouldBe true
             }
         }
     }
 
-    Given("the string 'Ja' (uppercase)") {
-        When("isIndicatie is called") {
-            Then("returns true regardless of case") {
+    given("the string 'Ja' (uppercase)") {
+        `when`("isIndicatie is called") {
+            then("returns true regardless of case") {
                 "Ja".isIndicatie() shouldBe true
             }
         }
     }
 
-    Given("the string 'nee'") {
-        When("isIndicatie is called") {
-            Then("returns false") {
+    given("the string 'nee'") {
+        `when`("isIndicatie is called") {
+            then("returns false") {
                 "nee".isIndicatie() shouldBe false
             }
         }
     }
 
-    Given("an unexpected value 'unknown'") {
-        When("isIndicatie is called") {
+    given("an unexpected value 'unknown'") {
+        `when`("isIndicatie is called") {
             val exception = shouldThrow<IllegalStateException> {
                 "unknown".isIndicatie()
             }
-            Then("an IllegalStateException is thrown") {
+            then("an IllegalStateException is thrown") {
                 exception shouldNotBe null
             }
         }

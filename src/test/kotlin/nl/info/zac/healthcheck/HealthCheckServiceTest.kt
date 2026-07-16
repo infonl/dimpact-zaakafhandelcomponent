@@ -23,9 +23,9 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable
 import nl.info.zac.admin.model.createReferenceTable
 import nl.info.zac.admin.model.createReferenceTableValue
+import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.configuration.ConfigurationService
-import nl.info.zac.flowable.bpmn.model.createZaaktypeBpmnConfiguration
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Optional
@@ -34,7 +34,7 @@ import java.util.UUID
 class HealthCheckServiceTest : BehaviorSpec({
 
     @Suppress("UNCHECKED_CAST")
-    Given("A zaaktype with CMMN configuration, two initiator role types and invalid BRP parameters") {
+    given("A zaaktype with CMMN configuration, two initiator role types and invalid BRP parameters") {
         val branchName = Optional.of("dev") as Optional<String?>
         val commitHash = Optional.of("hash") as Optional<String?>
         val versionNumber = Optional.of("0.0.0") as Optional<String?>
@@ -108,14 +108,14 @@ class HealthCheckServiceTest : BehaviorSpec({
             )
         )
 
-        When("controleerZaaktype is called") {
+        `when`("controleerZaaktype is called") {
             val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktypeUri)
 
-            Then("The zaaktypeInrichtingscheck is invalid") {
+            then("The zaaktypeInrichtingscheck is invalid") {
                 zaaktypeInrichtingscheck.isValide shouldBe false
             }
 
-            Then("The reason for the invalidity is reported") {
+            then("The reason for the invalidity is reported") {
                 with(zaaktypeInrichtingscheck) {
                     isStatustypeIntakeAanwezig shouldBe true
                     isStatustypeInBehandelingAanwezig shouldBe true
@@ -138,7 +138,7 @@ class HealthCheckServiceTest : BehaviorSpec({
     }
 
     @Suppress("UNCHECKED_CAST")
-    Given("A valid zaaktype with BPMN configuration") {
+    given("A valid zaaktype with BPMN configuration") {
         val branchName = Optional.of("dev") as Optional<String?>
         val commitHash = Optional.of("hash") as Optional<String?>
         val versionNumber = Optional.of("0.0.0") as Optional<String?>
@@ -212,14 +212,14 @@ class HealthCheckServiceTest : BehaviorSpec({
             )
         )
 
-        When("controleerZaaktype is called") {
+        `when`("controleerZaaktype is called") {
             val zaaktypeInrichtingscheck = healthCheckService.controleerZaaktype(zaaktypeUri)
 
-            Then("The zaaktypeInrichtingscheck is valid") {
+            then("The zaaktypeInrichtingscheck is valid") {
                 zaaktypeInrichtingscheck.isValide shouldBe true
             }
 
-            Then("All flags indicate a valid zaaktype") {
+            then("All flags indicate a valid zaaktype") {
                 with(zaaktypeInrichtingscheck) {
                     isStatustypeIntakeAanwezig shouldBe true
                     isStatustypeInBehandelingAanwezig shouldBe true

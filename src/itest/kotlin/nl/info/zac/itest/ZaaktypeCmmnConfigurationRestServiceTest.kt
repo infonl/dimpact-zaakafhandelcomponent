@@ -35,21 +35,21 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given(
+    given(
         """
         Zaaktype CMMN configuration have been created for the CMMN test zaaktypes,
         a test domein exists in the domein reference table, 
         and a beheerder is logged in
         """.trimIndent()
     ) {
-        When(
+        `when`(
             "the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION' zaaktype"
         ) {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_CMMN_TEST_3_UUID",
                 testUser = BEHEERDER_1
             )
-            Then("the response should be ok and it should return the zaakafhandelparameters") {
+            then("the response should be ok and it should return the zaakafhandelparameters") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -61,14 +61,14 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 }
             }
         }
-        When(
+        `when`(
             "the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION' zaaktype"
         ) {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_CMMN_TEST_2_UUID",
                 testUser = BEHEERDER_1
             )
-            Then(
+            then(
                 "the response should be ok and it should return the zaakafhandelparameters with the configured domein"
             ) {
                 val responseBody = response.bodyAsString
@@ -280,12 +280,12 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-        When("the list case definitions endpoint is called") {
+        `when`("the list case definitions endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/case-definitions",
                 testUser = BEHEERDER_1
             )
-            Then("the response should be ok and it should return all available case definitions") {
+            then("the response should be ok and it should return all available case definitions") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -334,12 +334,12 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-        When("the list zaakbeeindigredenen endpoint is called") {
+        `when`("the list zaakbeeindigredenen endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/zaakbeeindigredenen",
                 testUser = BEHEERDER_1
             )
-            Then("the response should be ok and it should return all available zaakbeeindigredenen") {
+            then("the response should be ok and it should return all available zaakbeeindigredenen") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -361,12 +361,12 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
         }
-        When("the list formulier definities endpoint is called") {
+        `when`("the list formulier definities endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/formulierdefinities",
                 testUser = BEHEERDER_1
             )
-            Then("the response should be ok and it should return all available formulierdefinities") {
+            then("the response should be ok and it should return all available formulierdefinities") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK

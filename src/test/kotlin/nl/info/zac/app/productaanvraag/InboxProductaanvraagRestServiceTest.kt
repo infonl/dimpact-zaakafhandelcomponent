@@ -39,9 +39,9 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
         clearMocks(drcClientService, policyService, inboxProductaanvraagService)
     }
 
-    Context("Listing inbox productaanvragen") {
-        Given("A user with inbox permission") {
-            When("the service returns items and a typeFilter") {
+    context("Listing inbox productaanvragen") {
+        given("A user with inbox permission") {
+            `when`("the service returns items and a typeFilter") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val item = createInboxProductaanvraag()
                 val resultaat = InboxProductaanvraagResultaat(listOf(item), 1L, listOf("typeA", "typeB"))
@@ -50,7 +50,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
                 every { inboxProductaanvraagService.list(any()) } returns resultaat
 
-                Then("the result contains the items and the filterType from the service") {
+                then("the result contains the items and the filterType from the service") {
                     val result = service.listInboxProductaanvragen(params)
 
                     verify(exactly = 1) {
@@ -63,7 +63,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the service returns an empty typeFilter and params contain a type") {
+            `when`("the service returns an empty typeFilter and params contain a type") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val resultaat = InboxProductaanvraagResultaat(emptyList(), 0L, emptyList())
                 val params = RestInboxProductaanvraagListParameters().apply { type = "aanvraag" }
@@ -71,7 +71,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
                 every { inboxProductaanvraagService.list(any()) } returns resultaat
 
-                Then("the filterType is set to the type from the request parameters") {
+                then("the filterType is set to the type from the request parameters") {
                     val result = service.listInboxProductaanvragen(params)
 
                     result.totaal shouldBe 0
@@ -79,7 +79,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                 }
             }
 
-            When("the service returns an empty typeFilter and params have no type") {
+            `when`("the service returns an empty typeFilter and params have no type") {
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val resultaat = InboxProductaanvraagResultaat(emptyList(), 0L, emptyList())
                 val params = RestInboxProductaanvraagListParameters()
@@ -87,7 +87,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
                 every { inboxProductaanvraagService.list(any()) } returns resultaat
 
-                Then("the filterType remains empty") {
+                then("the filterType remains empty") {
                     val result = service.listInboxProductaanvragen(params)
 
                     result.totaal shouldBe 0
@@ -96,12 +96,12 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A user without inbox permission") {
-            When("attempting to list inbox productaanvragen") {
+        given("A user without inbox permission") {
+            `when`("attempting to list inbox productaanvragen") {
                 val werklijstRechten = createWerklijstRechtenAllDeny()
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
 
-                Then("a PolicyException is thrown") {
+                then("a PolicyException is thrown") {
                     shouldThrow<PolicyException> {
                         service.listInboxProductaanvragen(RestInboxProductaanvraagListParameters())
                     }
@@ -110,9 +110,9 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("PDF preview of inbox productaanvraag") {
-        Given("A user with inbox permission") {
-            When("requesting a PDF preview for a known document") {
+    context("PDF preview of inbox productaanvraag") {
+        given("A user with inbox permission") {
+            `when`("requesting a PDF preview for a known document") {
                 val uuid = UUID.randomUUID()
                 val werklijstRechten = createWerklijstRechten(inbox = true)
                 val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = uuid)
@@ -124,7 +124,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                     ByteArray(0)
                 )
 
-                Then("the document is downloaded and a response is returned") {
+                then("the document is downloaded and a response is returned") {
                     val response = service.pdfPreview(uuid)
 
                     verify(exactly = 1) {
@@ -137,12 +137,12 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A user without inbox permission") {
-            When("requesting a PDF preview") {
+        given("A user without inbox permission") {
+            `when`("requesting a PDF preview") {
                 val werklijstRechten = createWerklijstRechtenAllDeny()
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
 
-                Then("a PolicyException is thrown") {
+                then("a PolicyException is thrown") {
                     shouldThrow<PolicyException> {
                         service.pdfPreview(UUID.randomUUID())
                     }
@@ -151,16 +151,16 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Deleting an inbox productaanvraag") {
-        Given("A user with inboxProductaanvragenVerwijderen permission") {
-            When("deleting an inbox productaanvraag") {
+    context("Deleting an inbox productaanvraag") {
+        given("A user with inboxProductaanvragenVerwijderen permission") {
+            `when`("deleting an inbox productaanvraag") {
                 val id = 42L
                 val werklijstRechten = createWerklijstRechten(inboxProductaanvragenVerwijderen = true)
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
                 every { inboxProductaanvraagService.delete(id) } returns Unit
 
-                Then("the productaanvraag is deleted via the service") {
+                then("the productaanvraag is deleted via the service") {
                     service.deleteInboxProductaanvraag(id)
 
                     verify(exactly = 1) {
@@ -171,12 +171,12 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A user without inboxProductaanvragenVerwijderen permission") {
-            When("attempting to delete an inbox productaanvraag") {
+        given("A user without inboxProductaanvragenVerwijderen permission") {
+            `when`("attempting to delete an inbox productaanvraag") {
                 val werklijstRechten = createWerklijstRechtenAllDeny()
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
 
-                Then("a PolicyException is thrown") {
+                then("a PolicyException is thrown") {
                     shouldThrow<PolicyException> {
                         service.deleteInboxProductaanvraag(42L)
                     }

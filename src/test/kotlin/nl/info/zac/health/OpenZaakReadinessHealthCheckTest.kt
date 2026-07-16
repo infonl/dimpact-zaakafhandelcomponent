@@ -23,31 +23,31 @@ class OpenZaakReadinessHealthCheckTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
-    Context("OpenZaak is reachable") {
-        Given("ZtcClientService.listCatalogus returns successfully") {
+    context("OpenZaak is reachable") {
+        given("ZtcClientService.listCatalogus returns successfully") {
             every { configurationService.readCatalogusDomein() } returns "fakeDomein"
             every { ztcClientService.listCatalogus(any<CatalogusListParameters>()) } returns mockk<Results<Catalogus>>()
 
-            When("call() is invoked") {
+            `when`("call() is invoked") {
                 val result = healthCheck.call()
 
-                Then("a HealthCheckResponse with status UP is returned") {
+                then("a HealthCheckResponse with status UP is returned") {
                     result.status shouldBe HealthCheckResponse.Status.UP
                 }
             }
         }
     }
 
-    Context("OpenZaak is unreachable") {
-        Given("ZtcClientService.listCatalogus throws a RuntimeException") {
+    context("OpenZaak is unreachable") {
+        given("ZtcClientService.listCatalogus throws a RuntimeException") {
             val fakeException = RuntimeException("fakeConnectionError")
             every { configurationService.readCatalogusDomein() } returns "fakeDomein"
             every { ztcClientService.listCatalogus(any<CatalogusListParameters>()) } throws fakeException
 
-            When("call() is invoked") {
+            `when`("call() is invoked") {
                 val result = healthCheck.call()
 
-                Then("a HealthCheckResponse with status DOWN is returned") {
+                then("a HealthCheckResponse with status DOWN is returned") {
                     result.status shouldBe HealthCheckResponse.Status.DOWN
                 }
 

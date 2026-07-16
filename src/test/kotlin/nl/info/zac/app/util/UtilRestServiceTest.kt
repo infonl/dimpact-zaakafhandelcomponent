@@ -38,7 +38,7 @@ class UtilRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("caches are empty") {
+    given("caches are empty") {
         every { policyService.readOverigeRechten().beheren } returns true
         every { ztcClientService.cacheStatistics() } returns mapOf(
             "ztc-cache1" to CacheStats.empty()
@@ -53,10 +53,10 @@ class UtilRestServiceTest : BehaviorSpec({
             "zafhPS-cache1" to 0
         )
 
-        When("cache statistics are requested") {
+        `when`("cache statistics are requested") {
             val response = utilRESTService.caches()
 
-            Then("stats are returned correctly") {
+            then("stats are returned correctly") {
                 response shouldContain "ztc-cache1"
                 response shouldContain "zafhPS-cache1"
                 response shouldContain "hitCount=0"
@@ -65,20 +65,20 @@ class UtilRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A user with 'beheren' permissions") {
+    given("A user with 'beheren' permissions") {
         every { policyService.readOverigeRechten().beheren } returns true
 
-        When("index is requested") {
+        `when`("index is requested") {
             val indexResponse = utilRESTService.index()
 
-            Then("it returns caches and memory links") {
+            then("it returns caches and memory links") {
                 indexResponse shouldContain "cache"
                 indexResponse shouldContain "clear"
                 indexResponse shouldContain "memory"
             }
         }
 
-        When("all caches are cleared") {
+        `when`("all caches are cleared") {
             every { ztcClientService.clearZaaktypeCache() } returns "zaaktype-cache cleared"
             every { ztcClientService.clearResultaattypeCache() } returns "resultaattype-cache cleared"
             every { ztcClientService.clearStatustypeCache() } returns "statustype-cache cleared"
@@ -94,7 +94,7 @@ class UtilRestServiceTest : BehaviorSpec({
 
             val clearResponse = utilRESTService.clearCaches()
 
-            Then("it should clear all caches") {
+            then("it should clear all caches") {
                 verify(exactly = 1) {
                     ztcClientService.clearZaaktypeCache()
                     ztcClientService.clearResultaattypeCache()
@@ -116,19 +116,19 @@ class UtilRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("sensitive data clear is requested") {
+        `when`("sensitive data clear is requested") {
             every { sensitiveDataService.clearStorage() } returns "cache cleared"
             val clearResponse = utilRESTService.clearAllSensitiveDataCaches()
 
-            Then("it should clear all sensitive data caches") {
+            then("it should clear all sensitive data caches") {
                 clearResponse shouldInclude "cache cleared"
             }
         }
 
-        When("memory info is requested") {
+        `when`("memory info is requested") {
             val memoryResponse = utilRESTService.memory()
 
-            Then("free, used, total and max memory are shown") {
+            then("free, used, total and max memory are shown") {
                 memoryResponse shouldMatch """ 
                     <html></head><body><h1>Memory</h1><ul><li>free: \d+.\d+ .* \(.*\)</li><li>used : \d+.\d+ .* \(.*\)</li><li>total: \d+.\d+ .* \(.*\)</li><li>max  : \d+.\d+ .* \(.*\)</li></ul></body></html>
                 """.trimIndent()
@@ -136,25 +136,25 @@ class UtilRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A user without 'beheren' permissions") {
+    given("A user without 'beheren' permissions") {
         every { policyService.readOverigeRechten().beheren } returns false
 
-        When("index is requested") {
+        `when`("index is requested") {
             val exception = shouldThrow<PolicyException> {
                 utilRESTService.index()
             }
 
-            Then("it should throw an exception") {
+            then("it should throw an exception") {
                 exception shouldNotBe null
             }
         }
 
-        When("memory info is requested") {
+        `when`("memory info is requested") {
             val exception = shouldThrow<PolicyException> {
                 utilRESTService.memory()
             }
 
-            Then("it should throw an exception") {
+            then("it should throw an exception") {
                 exception shouldNotBe null
             }
         }

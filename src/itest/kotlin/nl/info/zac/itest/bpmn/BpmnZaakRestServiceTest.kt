@@ -50,7 +50,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
         BEHANDELAAR_1
     )
 
-    Given("A behandelaar is logged in and a BPMN type zaak has been created") {
+    given("A behandelaar is logged in and a BPMN type zaak has been created") {
         var bpmnZaakUuid: UUID
         var zaakIdentificatie: String
         zacClient.createZaak(
@@ -71,7 +71,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("initiator is added") {
+        `when`("initiator is added") {
             val response = itestHttpClient.performPatchRequest(
                 url = "${ZAC_API_URI}/zaken/initiator",
                 requestBodyAsString = """
@@ -86,7 +86,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
-            Then("the response should be a 200 HTTP response and the initiator should be added") {
+            then("the response should be a 200 HTTP response and the initiator should be added") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpURLConnection.HTTP_OK
@@ -97,7 +97,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the user data form is submitted") {
+        `when`("the user data form is submitted") {
             val takenPatchResponse = zacClient.submitFormData(
                 bpmnZaakUuid = bpmnZaakUuid,
                 taakData = """
@@ -118,7 +118,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("process task is completed") {
+            then("process task is completed") {
                 JSONObject(takenPatchResponse).run {
                     getString("status") shouldBe "AFGEROND"
                 }
@@ -159,7 +159,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the summary form is completed") {
+        `when`("the summary form is completed") {
             val takenPatchResponse = zacClient.submitFormData(
                 bpmnZaakUuid = bpmnZaakUuid,
                 taakData = """
@@ -181,7 +181,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("process task should be completed") {
+            then("process task should be completed") {
                 JSONObject(takenPatchResponse).run {
                     getString("status") shouldBe "AFGEROND"
                 }
@@ -228,7 +228,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A behandelaar is logged in and a BPMN type zaak has been created for a case that will be aborted") {
+    given("A behandelaar is logged in and a BPMN type zaak has been created for a case that will be aborted") {
         var bpmnZaakUuid: UUID
         zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_1_UUID,
@@ -247,7 +247,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the case is aborted") {
+        `when`("the case is aborted") {
             val response = itestHttpClient.performPatchRequest(
                 url = "${ZAC_API_URI}/zaken/zaak/$bpmnZaakUuid/afbreken",
                 requestBodyAsString = """
@@ -257,7 +257,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
-            Then("the response should be a 204 HTTP response") {
+            then("the response should be a 204 HTTP response") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpURLConnection.HTTP_NO_CONTENT

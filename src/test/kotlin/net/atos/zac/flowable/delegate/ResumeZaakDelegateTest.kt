@@ -47,7 +47,7 @@ class ResumeZaakDelegateTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Suspended zaak") {
+    given("Suspended zaak") {
         mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
@@ -70,13 +70,13 @@ class ResumeZaakDelegateTest : BehaviorSpec({
 
         every { suspensionZaakHelper.resumeZaak(zaak, reason, any()) } returns zaak
 
-        When("zaak is resumed from service task with no 'hervattenDatum'") {
+        `when`("zaak is resumed from service task with no 'hervattenDatum'") {
             val suspendZaakDelegate = ResumeZaakDelegate().apply {
                 hervattenReden = hervattenRedenExpression
             }
             suspendZaakDelegate.execute(delegateExecution)
 
-            Then("expressions resolution is attempted") {
+            then("expressions resolution is attempted") {
                 verify(exactly = 1) {
                     hervattenRedenExpression.getValue(delegateExecution)
                 }
@@ -89,7 +89,7 @@ class ResumeZaakDelegateTest : BehaviorSpec({
             }
         }
 
-        When("zaak is resumed from service task with 'hervattenDatum'") {
+        `when`("zaak is resumed from service task with 'hervattenDatum'") {
             clearMocks(hervattenRedenExpression, answers = false)
 
             val hervattenDatumExpression = mockk<JuelExpression>()
@@ -101,7 +101,7 @@ class ResumeZaakDelegateTest : BehaviorSpec({
             }
             suspendZaakDelegate.execute(delegateExecution)
 
-            Then("expressions resolution is attempted") {
+            then("expressions resolution is attempted") {
                 verify(exactly = 1) {
                     hervattenRedenExpression.getValue(delegateExecution)
                     hervattenDatumExpression.getValue(delegateExecution)
@@ -116,7 +116,7 @@ class ResumeZaakDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("User is not authorized to resume zaak") {
+    given("User is not authorized to resume zaak") {
         val zaak = createZaak()
         zaak.opschorting = createOpschorting(indicatie = true)
 
@@ -139,12 +139,12 @@ class ResumeZaakDelegateTest : BehaviorSpec({
             hervattenReden = mockk()
         }
 
-        When("resume zaak is called") {
+        `when`("resume zaak is called") {
             val policyException = shouldThrow<PolicyException> {
                 resumeZaakDelegate.execute(delegateExecution)
             }
 
-            Then("a PolicyException is thrown") {
+            then("a PolicyException is thrown") {
                 policyException shouldNotBe null
             }
 
@@ -156,7 +156,7 @@ class ResumeZaakDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("Zaak is not suspended") {
+    given("Zaak is not suspended") {
         val zaak = createZaak()
         zaak.opschorting = createOpschorting(indicatie = false)
 
@@ -176,12 +176,12 @@ class ResumeZaakDelegateTest : BehaviorSpec({
             hervattenReden = mockk()
         }
 
-        When("resume zaak is called") {
+        `when`("resume zaak is called") {
             val policyException = shouldThrow<PolicyException> {
                 resumeZaakDelegate.execute(delegateExecution)
             }
 
-            Then("a PolicyException is thrown") {
+            then("a PolicyException is thrown") {
                 policyException shouldNotBe null
             }
 

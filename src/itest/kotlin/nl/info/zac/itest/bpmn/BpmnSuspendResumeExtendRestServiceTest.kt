@@ -43,7 +43,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
         interval = 500.milliseconds
     }
 
-    Given("A BPMN suspend-resume zaak exists") {
+    given("A BPMN suspend-resume zaak exists") {
         val (zaakUuid, zaakIdentificatie) = zacClient.createZaak(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_4_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
@@ -59,14 +59,14 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the suspend form is submitted with 5 suspend days") {
+        `when`("the suspend form is submitted with 5 suspend days") {
             val takenPatchResponse = zacClient.submitFormData(
                 bpmnZaakUuid = zaakUuid,
                 taakData = """{ "suspendDays": 5 }""",
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the suspend task is completed") {
+            then("the suspend task is completed") {
                 JSONObject(takenPatchResponse).getString("status") shouldBe "AFGEROND"
             }
 
@@ -112,7 +112,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                     testUser = BEHANDELAAR_1
                 )
 
-                Then("the resume task is completed") {
+                then("the resume task is completed") {
                     JSONObject(resumeTaskPatchResponse).getString("status") shouldBe "AFGEROND"
                 }
 
@@ -146,7 +146,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                         testUser = BEHANDELAAR_1
                     )
 
-                    Then("the extend task is completed") {
+                    then("the extend task is completed") {
                         JSONObject(extendTaskPatchResponse).getString("status") shouldBe "AFGEROND"
                     }
 

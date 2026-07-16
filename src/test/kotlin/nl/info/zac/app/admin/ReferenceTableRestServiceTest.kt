@@ -37,8 +37,8 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("List communication channels") {
-        Given("Two communication channels including E-formulier") {
+    context("List communication channels") {
+        given("Two communication channels including E-formulier") {
             val referenceTable = createReferenceTable(
                 id = 1L,
                 code = "fakeCode",
@@ -63,20 +63,20 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             referenceTable.values = referenceTableValues.toMutableList()
             every { referenceTableService.readReferenceTable("COMMUNICATIEKANAAL") } returns referenceTable
 
-            When("the communication channels are retrieved including E-formulier") {
+            `when`("the communication channels are retrieved including E-formulier") {
                 val communicationChannels = referenceTableRestService.listCommunicationChannels(true)
 
-                Then("the communication channels are returned successfully including E-formulier") {
+                then("the communication channels are returned successfully including E-formulier") {
                     communicationChannels.size shouldBe referenceTableValues.size
                     communicationChannels[0] shouldBe referenceValue1
                     communicationChannels[1] shouldBe referenceValue2
                 }
             }
 
-            When("the communication channels are retrieved excluding E-formulier") {
+            `when`("the communication channels are retrieved excluding E-formulier") {
                 val communicationChannels = referenceTableRestService.listCommunicationChannels(false)
 
-                Then("the communication channels are returned successfully excluding E-formulier") {
+                then("the communication channels are returned successfully excluding E-formulier") {
                     communicationChannels.size shouldBe referenceTableValues.size - 1
                     communicationChannels[0] shouldBe referenceValue1
                 }
@@ -84,8 +84,8 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("List server error page texts") {
-        Given("Two server error page texts") {
+    context("List server error page texts") {
+        given("Two server error page texts") {
             val referenceTable = createReferenceTable(
                 id = 1L,
                 code = "fakeCode",
@@ -111,10 +111,10 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
 
             every { referenceTableService.readReferenceTable("SERVER_ERROR_ERROR_PAGINA_TEKST") } returns referenceTable
 
-            When("the server error page texts are retrieved") {
+            `when`("the server error page texts are retrieved") {
                 val serverErrorPageTexts = referenceTableRestService.listServerErrorPageTexts()
 
-                Then("the server error page texts are returned") {
+                then("the server error page texts are returned") {
                     serverErrorPageTexts.size shouldBe referenceTableValues.size
                     serverErrorPageTexts[0] shouldBe referenceValue1
                     serverErrorPageTexts[1] shouldBe referenceValue2
@@ -123,8 +123,8 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Update reference tables") {
-        Given("An existing reference table with one value") {
+    context("Update reference tables") {
+        given("An existing reference table with one value") {
             val referenceTable = createReferenceTable()
             val updatedReferenceTable = createReferenceTable()
             val updatedReferenceTableSlot = slot<ReferenceTable>()
@@ -134,7 +134,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 referenceTableAdminService.updateReferenceTable(capture(updatedReferenceTableSlot))
             } returns updatedReferenceTable
 
-            When("the reference table is updated with two new values and a new name") {
+            `when`("the reference table is updated with two new values and a new name") {
                 val restReferenceTableUpdate = createRestReferenceTableUpdate(
                     naam = "fakeUpdatedName",
                     waarden = listOf(
@@ -152,7 +152,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                     restReferenceTableUpdate
                 )
 
-                Then(
+                then(
                     """
                     the reference table is updated successfully and only contains the two new values
                     and the new name thereby completely replacing the existing value(s) and the existing name
@@ -178,7 +178,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
         }
 
-        Given("An existing reference table with two values of which one is a system value") {
+        given("An existing reference table with two values of which one is a system value") {
             val referenceTable = createReferenceTable(
                 values = mutableListOf(
                     createReferenceTableValue(
@@ -194,7 +194,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             every { policyService.readOverigeRechten().beheren } returns true
             every { referenceTableService.readReferenceTable(referenceTable.id!!) } returns referenceTable
 
-            When("the reference table is updated with two new values not including the existing system value") {
+            `when`("the reference table is updated with two new values not including the existing system value") {
                 val restReferenceTableUpdate = createRestReferenceTableUpdate(
                     naam = "fakeUpdatedName",
                     waarden = listOf(
@@ -216,7 +216,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                     )
                 }
 
-                Then("an exception should be thrown indicating that system values cannot be updated") {
+                then("an exception should be thrown indicating that system values cannot be updated") {
                     exception.errorCode shouldBe ERROR_CODE_REFERENCE_TABLE_SYSTEM_VALUES_CANNOT_BE_CHANGED
                     exception.message shouldBe null
                 }
@@ -224,7 +224,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
         }
     }
 
-    Context("BRP reference tables") {
+    context("BRP reference tables") {
         val referenceTable = createReferenceTable(
             values = mutableListOf(
                 createReferenceTableValue(
@@ -238,42 +238,42 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             )
         )
 
-        Given("A BRP purpose search table") {
+        given("A BRP purpose search table") {
             referenceTable.code = "BRP_DOELBINDING_ZOEK_WAARDE"
             every { referenceTableService.readReferenceTable(referenceTable.code) } returns referenceTable
 
-            When("the purpose search table is retrieved") {
+            `when`("the purpose search table is retrieved") {
                 val values = referenceTableRestService.listBrpDoelbindingZoekWaarden()
 
-                Then("it should return the correct list of values") {
+                then("it should return the correct list of values") {
                     values.size shouldBe 2
                     values shouldBe listOf("fakeValue1", "fakeValue2")
                 }
             }
         }
 
-        Given("A BRP purpose consulting table") {
+        given("A BRP purpose consulting table") {
             referenceTable.code = "BRP_DOELBINDING_RAADPLEEG_WAARDE"
             every { referenceTableService.readReferenceTable(referenceTable.code) } returns referenceTable
 
-            When("the purpose search table is retrieved") {
+            `when`("the purpose search table is retrieved") {
                 val values = referenceTableRestService.listBrpDoelbindingRaadpleegWaarden()
 
-                Then("it should return the correct list of values") {
+                then("it should return the correct list of values") {
                     values.size shouldBe 2
                     values shouldBe listOf("fakeValue1", "fakeValue2")
                 }
             }
         }
 
-        Given("A BRP processing register table") {
+        given("A BRP processing register table") {
             referenceTable.code = "BRP_VERWERKINGSREGISTER_WAARDE"
             every { referenceTableService.readReferenceTable(referenceTable.code) } returns referenceTable
 
-            When("the purpose search table is retrieved") {
+            `when`("the purpose search table is retrieved") {
                 val values = referenceTableRestService.listBrpVerwerkingregisterWaarde()
 
-                Then("it should return the correct list of values") {
+                then("it should return the correct list of values") {
                     values.size shouldBe 2
                     values shouldBe listOf("fakeValue1", "fakeValue2")
                 }

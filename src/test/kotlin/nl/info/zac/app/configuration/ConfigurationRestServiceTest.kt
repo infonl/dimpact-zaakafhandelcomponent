@@ -19,17 +19,17 @@ class ConfigurationRestServiceTest : BehaviorSpec({
     val configurationService = mockk<ConfigurationService>()
     val configurationRestService = ConfigurationRestService(configurationService)
 
-    Given("Multiple languages are available") {
+    given("Multiple languages are available") {
         val taal1 = createTaal(1L, "nl", "Nederlands", "Dutch", "nl_NL")
         val taal2 = createTaal(2L, "en", "Engels", "English", "en_US")
         val talen = listOf(taal1, taal2)
 
         every { configurationService.listTalen() } returns talen
 
-        When("listTalen is called") {
+        `when`("listTalen is called") {
             val result = configurationRestService.listTalen()
 
-            Then("it should return a list of RestTaal objects") {
+            then("it should return a list of RestTaal objects") {
                 result.size shouldBe 2
                 result[0].id shouldBe "1"
                 result[0].code shouldBe "nl"
@@ -45,26 +45,26 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("No languages are available") {
+    given("No languages are available") {
         every { configurationService.listTalen() } returns emptyList()
 
-        When("listTalen is called") {
+        `when`("listTalen is called") {
             val result = configurationRestService.listTalen()
 
-            Then("it should return an empty list") {
+            then("it should return an empty list") {
                 result shouldBe emptyList()
             }
         }
     }
 
-    Given("A default language is available") {
+    given("A default language is available") {
         val defaultTaal = createTaal(1L, "nl", "Nederlands", "Dutch", "nl_NL")
         every { configurationService.findDefaultTaal() } returns defaultTaal
 
-        When("readDefaultTaal is called") {
+        `when`("readDefaultTaal is called") {
             val result = configurationRestService.readDefaultTaal()
 
-            Then("it should return the default RestTaal") {
+            then("it should return the default RestTaal") {
                 result?.id shouldBe "1"
                 result?.code shouldBe "nl"
                 result?.naam shouldBe "Nederlands"
@@ -74,35 +74,35 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("No default language is available") {
+    given("No default language is available") {
         every { configurationService.findDefaultTaal() } returns null
 
-        When("readDefaultTaal is called") {
+        `when`("readDefaultTaal is called") {
             val result = configurationRestService.readDefaultTaal()
 
-            Then("it should return null") {
+            then("it should return null") {
                 result shouldBe null
             }
         }
     }
 
-    Given("A maximum file size is configured") {
+    given("A maximum file size is configured") {
         every { configurationService.readMaxFileSizeMB() } returns 999L
 
-        When("readMaxFileSizeMB is called") {
+        `when`("readMaxFileSizeMB is called") {
             val result = configurationRestService.readMaxFileSizeMB()
 
-            Then("it should return the configured file size") {
+            then("it should return the configured file size") {
                 result shouldBe 999L
             }
         }
     }
 
-    Given("The allowed file types endpoint is queried") {
-        When("listAllowedFileTypes is called") {
+    given("The allowed file types endpoint is queried") {
+        `when`("listAllowedFileTypes is called") {
             val result = configurationRestService.listAllowedFileTypes()
 
-            Then("it returns the full canonical allowlist as extension/media-type pairs") {
+            then("it returns the full canonical allowlist as extension/media-type pairs") {
                 result.map { it.extension } shouldContainExactlyInAnyOrder listOf(
                     ".avi", ".bmp", ".doc", ".docx", ".eml", ".flv", ".gif",
                     ".jpeg", ".jpg", ".mkv", ".mov", ".mp4", ".mpeg", ".msg",
@@ -115,55 +115,55 @@ class ConfigurationRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A gemeente code is configured") {
+    given("A gemeente code is configured") {
         val gemeenteCode = "fakeGemeenteCode"
         every { configurationService.readGemeenteCode() } returns gemeenteCode
 
-        When("readGemeenteCode is called") {
+        `when`("readGemeenteCode is called") {
             val result = configurationRestService.readGemeenteCode()
 
-            Then("it should return the gemeente code as JSON") {
+            then("it should return the gemeente code as JSON") {
                 result shouldBe JsonbUtil.JSONB.toJson(gemeenteCode)
             }
         }
     }
 
-    Given("A gemeente name is configured") {
+    given("A gemeente name is configured") {
         val gemeenteNaam = "fakeGemeenteNaam"
         every { configurationService.readGemeenteNaam() } returns gemeenteNaam
 
-        When("readGemeenteNaam is called") {
+        `when`("readGemeenteNaam is called") {
             val result = configurationRestService.readGemeenteNaam()
 
-            Then("it should return the gemeente name as JSON") {
+            then("it should return the gemeente name as JSON") {
                 result shouldBe JsonbUtil.JSONB.toJson(gemeenteNaam)
             }
         }
     }
 
-    Given("doelbindingPerZaaktype is true") {
+    given("doelbindingPerZaaktype is true") {
         val brpConfiguration = mockk<BrpConfigurationProvider>()
         every { brpConfiguration.isDoelbindingPerZaaktypeEnabled() } returns true
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
-        When("readBrpDoelbindingSetupEnabled is called") {
+        `when`("readBrpDoelbindingSetupEnabled is called") {
             val result = configurationRestService.readBrpDoelbindingSetupEnabled()
 
-            Then("it should return true") {
+            then("it should return true") {
                 result shouldBe true
             }
         }
     }
 
-    Given("doelbindingPerZaaktype is false") {
+    given("doelbindingPerZaaktype is false") {
         val brpConfiguration = mockk<BrpConfiguration>()
         every { brpConfiguration.isDoelbindingPerZaaktypeEnabled() } returns false
         every { configurationService.readBrpConfiguration() } returns brpConfiguration
 
-        When("readBrpDoelbindingSetupEnabled is called") {
+        `when`("readBrpDoelbindingSetupEnabled is called") {
             val result = configurationRestService.readBrpDoelbindingSetupEnabled()
 
-            Then("it should return false") {
+            then("it should return false") {
                 result shouldBe false
             }
         }

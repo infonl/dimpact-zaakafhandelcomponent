@@ -11,8 +11,8 @@ import net.atos.zac.gebruikersvoorkeuren.model.createZoekopdracht
 import java.time.ZonedDateTime
 
 class RESTZoekopdrachtConverterTest : BehaviorSpec({
-    Context("convert(Zoekopdracht)") {
-        Given("a Zoekopdracht domain model") {
+    context("convert(Zoekopdracht)") {
+        given("a Zoekopdracht domain model") {
             val zoekopdracht = createZoekopdracht(
                 id = 10L,
                 name = "fakeNaam",
@@ -22,10 +22,10 @@ class RESTZoekopdrachtConverterTest : BehaviorSpec({
                 creationDate = ZonedDateTime.parse("2024-01-15T10:00:00+01:00")
             ).apply { json = """{"fakeField":"fakeValue"}""" }
 
-            When("convert(Zoekopdracht) is called") {
+            `when`("convert(Zoekopdracht) is called") {
                 val result = RESTZoekopdrachtConverter.convert(zoekopdracht)
 
-                Then("it maps all fields correctly") {
+                then("it maps all fields correctly") {
                     result.id shouldBe 10L
                     result.naam shouldBe "fakeNaam"
                     result.lijstID shouldBe Werklijst.MIJN_ZAKEN
@@ -37,17 +37,17 @@ class RESTZoekopdrachtConverterTest : BehaviorSpec({
         }
     }
 
-    Context("convert(List<Zoekopdracht>)") {
-        Given("a list of Zoekopdrachten") {
+    context("convert(List<Zoekopdracht>)") {
+        given("a list of Zoekopdrachten") {
             val list = listOf(
                 createZoekopdracht(id = 1L, name = "fakeNaam1"),
                 createZoekopdracht(id = 2L, name = "fakeNaam2")
             )
 
-            When("convert(List<Zoekopdracht>) is called") {
+            `when`("convert(List<Zoekopdracht>) is called") {
                 val result = RESTZoekopdrachtConverter.convert(list)
 
-                Then("all items are converted") {
+                then("all items are converted") {
                     result.size shouldBe 2
                     result[0].id shouldBe 1L
                     result[0].naam shouldBe "fakeNaam1"

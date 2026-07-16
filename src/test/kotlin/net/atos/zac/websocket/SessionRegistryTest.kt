@@ -25,9 +25,9 @@ class SessionRegistryTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a new session registry is created") {
-        When("create is invoked with a new screen event of type CREATED") {
-            Then("a session for this event is added to the session registry") {
+    given("a new session registry is created") {
+        `when`("create is invoked with a new screen event of type CREATED") {
+            then("a session for this event is added to the session registry") {
                 val sessionRegistry = SessionRegistry()
 
                 sessionRegistry.create(screenEventCreatedZaak, session1)
@@ -38,8 +38,8 @@ class SessionRegistryTest : BehaviorSpec({
                 sessionRegistry.listSessions(createScreenEvent(screenEventType = ScreenEventType.TAAK)).size shouldBe 0
             }
         }
-        When("create is invoked with a new screen event of type ANY") {
-            Then("a session for this event is _not_ added to the session registry") {
+        `when`("create is invoked with a new screen event of type ANY") {
+            then("a session for this event is _not_ added to the session registry") {
                 val sessionRegistry = SessionRegistry()
                 sessionRegistry.create(screenEventAnyAny, session1)
 
@@ -59,9 +59,9 @@ class SessionRegistryTest : BehaviorSpec({
             }
         }
     }
-    Given("a number of events are added to the session registry for a session") {
-        When("delete is invoke for this session and a specific event") {
-            Then("all registered events for this session are removed from the registry") {
+    given("a number of events are added to the session registry for a session") {
+        `when`("delete is invoke for this session and a specific event") {
+            then("all registered events for this session are removed from the registry") {
                 val sessionRegistry = SessionRegistry()
                 sessionRegistry.create(screenEventCreatedZaak, session1)
                 sessionRegistry.create(screenEventAnyAny, session1)
@@ -73,8 +73,8 @@ class SessionRegistryTest : BehaviorSpec({
                 sessionRegistry.listSessions(screenEventAnyAny).size shouldBe 0
             }
         }
-        When("deleteAll is invoke for this session") {
-            Then("all registered events for this session are removed from the registry") {
+        `when`("deleteAll is invoke for this session") {
+            then("all registered events for this session are removed from the registry") {
                 val sessionRegistry = SessionRegistry()
                 sessionRegistry.create(screenEventCreatedZaak, session1)
                 sessionRegistry.create(screenEventAnyAny, session1)
@@ -86,9 +86,9 @@ class SessionRegistryTest : BehaviorSpec({
             }
         }
     }
-    Given("a number of events are added to the session registry for multiple sessions") {
-        When("delete is invoke for one session and a specific event") {
-            Then("all registered events for this session are removed from the registry") {
+    given("a number of events are added to the session registry for multiple sessions") {
+        `when`("delete is invoke for one session and a specific event") {
+            then("all registered events for this session are removed from the registry") {
                 val sessionRegistry = SessionRegistry()
                 sessionRegistry.create(screenEventCreatedZaak, session1)
                 sessionRegistry.create(screenEventCreatedZaak, session2)
@@ -101,8 +101,8 @@ class SessionRegistryTest : BehaviorSpec({
                 sessionRegistry.listSessions(screenEventAnyAny).size shouldBe 0
             }
         }
-        When("deleteAll is invoke for one session") {
-            Then("all registered events for this session are removed from the registry") {
+        `when`("deleteAll is invoke for one session") {
+            then("all registered events for this session are removed from the registry") {
                 val sessionRegistry = SessionRegistry()
                 sessionRegistry.create(screenEventCreatedZaak, session1)
                 sessionRegistry.create(screenEventCreatedZaak, session2)

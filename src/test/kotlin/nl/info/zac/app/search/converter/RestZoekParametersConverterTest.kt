@@ -24,8 +24,8 @@ class RestZoekParametersConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("convert") {
-        Given("a basic RestZoekParameters for ZAAK with page and rows") {
+    context("convert") {
+        given("a basic RestZoekParameters for ZAAK with page and rows") {
             val params = createRestZoekParameters(
                 type = ZoekObjectType.ZAAK,
                 rows = 10,
@@ -40,24 +40,24 @@ class RestZoekParametersConverterTest : BehaviorSpec({
                 alleenMijnTaken = false
             )
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = restZoekParametersConverter.convert(params)
 
-                Then("start is page * rows") {
+                then("start is page * rows") {
                     result.start shouldBe 20
                 }
 
-                Then("rows is set correctly") {
+                then("rows is set correctly") {
                     result.rows shouldBe 10
                 }
 
-                Then("zoekObjectType is ZAAK") {
+                then("zoekObjectType is ZAAK") {
                     result.type shouldBe ZoekObjectType.ZAAK
                 }
             }
         }
 
-        Given("a RestZoekParameters with alleenOpenstaandeZaken=true") {
+        given("a RestZoekParameters with alleenOpenstaandeZaken=true") {
             val params = createRestZoekParameters(
                 sorteerRichting = "asc",
                 alleenOpenstaandeZaken = true,
@@ -69,16 +69,16 @@ class RestZoekParametersConverterTest : BehaviorSpec({
                 datums = emptyMap()
             )
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = restZoekParametersConverter.convert(params)
 
-                Then("a filter query for AFGEHANDELD is added with value 'false'") {
+                then("a filter query for AFGEHANDELD is added with value 'false'") {
                     result.getFilterQueries()["zaak_afgehandeld"] shouldBe "false"
                 }
             }
         }
 
-        Given("a RestZoekParameters with alleenAfgeslotenZaken=true") {
+        given("a RestZoekParameters with alleenAfgeslotenZaken=true") {
             val params = createRestZoekParameters(
                 sorteerRichting = "asc",
                 alleenAfgeslotenZaken = true,
@@ -90,16 +90,16 @@ class RestZoekParametersConverterTest : BehaviorSpec({
                 datums = emptyMap()
             )
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = restZoekParametersConverter.convert(params)
 
-                Then("a filter query for eindstatus is added") {
+                then("a filter query for eindstatus is added") {
                     result.getFilterQueries()["zaak_statusEindstatus"] shouldBe "true"
                 }
             }
         }
 
-        Given("a RestZoekParameters with alleenMijnZaken=true") {
+        given("a RestZoekParameters with alleenMijnZaken=true") {
             val loggedInUser = createLoggedInUser(id = "fakeUserId")
             every { loggedInUserInstance.get() } returns loggedInUser
             val params = createRestZoekParameters(
@@ -113,16 +113,16 @@ class RestZoekParametersConverterTest : BehaviorSpec({
                 datums = emptyMap()
             )
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = restZoekParametersConverter.convert(params)
 
-                Then("a filter query for behandelaarId is added with logged-in user id") {
+                then("a filter query for behandelaarId is added with logged-in user id") {
                     result.getFilterQueries()["zaak_behandelaarGebruikersnaam"] shouldBe "fakeUserId"
                 }
             }
         }
 
-        Given("a RestZoekParameters with filters") {
+        given("a RestZoekParameters with filters") {
             val params = createRestZoekParameters(
                 sorteerRichting = "asc",
                 zoeken = emptyMap(),
@@ -133,10 +133,10 @@ class RestZoekParametersConverterTest : BehaviorSpec({
                 alleenMijnTaken = false
             )
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val result = restZoekParametersConverter.convert(params)
 
-                Then("filter velden from the params are present") {
+                then("filter velden from the params are present") {
                     result.getFilters().containsKey(FilterVeld.BEHANDELAAR) shouldBe true
                 }
             }

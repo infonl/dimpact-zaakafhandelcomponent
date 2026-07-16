@@ -37,7 +37,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    Given(
+    given(
         """
         A zaak has been created that has finished the intake phase with the status 'admissible',
         and a logged in behandelaar
@@ -109,7 +109,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("a besluit is added to the zaak") {
+        `when`("a besluit is added to the zaak") {
             val today = LocalDate.now()
             val tomorrow = today.plusDays(1)
             val publicationDate = today.plusMonths(2)
@@ -135,7 +135,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                 code shouldBe HTTP_OK
             }
 
-            Then("the besluit has been created successfully") {
+            then("the besluit has been created successfully") {
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID",
                     testUser = BEHANDELAAR_1
@@ -165,7 +165,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the besluit is updated with a new result type, start date, end date, last response date and reason") {
+        `when`("the besluit is updated with a new result type, start date, end date, last response date and reason") {
             val startDate = LocalDate.now().plusDays(1)
             val fatalDate = LocalDate.now().plusDays(2)
             val newPublicationDate = LocalDate.now().plusMonths(3)
@@ -196,7 +196,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                 }
             }
 
-            Then("the besluit should be successfully updated") {
+            then("the besluit should be successfully updated") {
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID",
                     testUser = BEHANDELAAR_1
@@ -225,7 +225,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("a besluit is withdrawn from the zaak") {
+        `when`("a besluit is withdrawn from the zaak") {
             itestHttpClient.performPutRequest(
                 "$ZAC_API_URI/zaken/besluit/intrekken",
                 requestBodyAsString = """
@@ -247,7 +247,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                 }
             }
 
-            Then("the besluit has been withdrawn successfully") {
+            then("the besluit has been withdrawn successfully") {
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID",
                     testUser = BEHANDELAAR_1
@@ -266,13 +266,13 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the besluit history is requested after create, update, and withdrawal") {
+        `when`("the besluit history is requested after create, update, and withdrawal") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/besluit/$besluitUuid/historie",
                 testUser = BEHANDELAAR_1
             )
 
-            Then(
+            then(
                 "the besluit history is returned with history items for the create, update, and withdrawal operations"
             ) {
                 val responseBody = response.bodyAsString
@@ -300,7 +300,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the besluit is updated with the optional vervaldatum cleared") {
+        `when`("the besluit is updated with the optional vervaldatum cleared") {
             val ingangsdatum = LocalDate.now()
             val publicationDate = LocalDate.now().plusMonths(5)
             val responseDate = LocalDate.now().plusMonths(6)
@@ -322,7 +322,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_OK
             }
 
-            Then("the cleared vervaldatum is persisted in Open Zaak when the besluit is retrieved") {
+            then("the cleared vervaldatum is persisted in Open Zaak when the besluit is retrieved") {
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/besluit/zaakUuid/$zaakUUID",
                     testUser = BEHANDELAAR_1

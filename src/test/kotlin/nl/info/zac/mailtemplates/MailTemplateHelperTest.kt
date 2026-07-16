@@ -59,39 +59,39 @@ class MailTemplateHelperTest : BehaviorSpec({
         ztcClientService
     )
 
-    Context("The 'GEMEENTE' variable can be resolved from a string") {
-        Given("A text containing the {GEMEENTE} placeholder") {
+    context("The 'GEMEENTE' variable can be resolved from a string") {
+        given("A text containing the {GEMEENTE} placeholder") {
             val gemeenteNaam = "fakeGemeenteNaam"
             every { configurationService.readGemeenteNaam() } returns gemeenteNaam
 
-            When("resolveGemeenteVariable is called") {
+            `when`("resolveGemeenteVariable is called") {
                 val resolvedText = mailTemplateHelper.resolveGemeenteVariable("Welcome to {GEMEENTE}!")
 
-                Then("the {GEMEENTE} placeholder should be replaced with the gemeente name") {
+                then("the {GEMEENTE} placeholder should be replaced with the gemeente name") {
                     resolvedText shouldBe "Welcome to $gemeenteNaam!"
                 }
             }
         }
 
-        Given("A text without the {GEMEENTE} placeholder") {
+        given("A text without the {GEMEENTE} placeholder") {
             every { configurationService.readGemeenteNaam() } returns "fakeGemeenteNaam"
 
-            When("resolveGemeenteVariable is called") {
+            `when`("resolveGemeenteVariable is called") {
                 val resolvedText = mailTemplateHelper.resolveGemeenteVariable("fakeText")
 
-                Then("the text should remain unchanged") {
+                then("the text should remain unchanged") {
                     resolvedText shouldBe "fakeText"
                 }
             }
         }
 
-        Given("An gemeente name with HTML special characters") {
+        given("An gemeente name with HTML special characters") {
             every { configurationService.readGemeenteNaam() } returns "\"fake\" &amp; \"gemeente naam\""
 
-            When("resolveGemeenteVariable is called") {
+            `when`("resolveGemeenteVariable is called") {
                 val resolvedText = mailTemplateHelper.resolveGemeenteVariable("Welcome to {GEMEENTE}!")
 
-                Then(
+                then(
                     "the {GEMEENTE} placeholder should be replaced and the HTML special characters should be escaped"
                 ) {
                     resolvedText shouldBe "Welcome to &quot;fake&quot; &amp;amp; &quot;gemeente naam&quot;!"
@@ -100,8 +100,8 @@ class MailTemplateHelperTest : BehaviorSpec({
         }
     }
 
-    Context("Mail template variables can be resolved for a zaak") {
-        Given("A zaak without an initiator") {
+    context("Mail template variables can be resolved for a zaak") {
+        given("A zaak without an initiator") {
             val zaakType = createZaakType()
             val zaak = createZaak(
                 zaaktypeUri = zaakType.url,
@@ -133,7 +133,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerker
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
 
-            When("the variables are resolved with a text containing placeholders") {
+            `when`("the variables are resolved with a text containing placeholders") {
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_NUMMER}, {ZAAK_URL}, {ZAAK_TYPE}, {ZAAK_STATUS}, {ZAAK_STARTDATUM}, " +
                         "{ZAAK_BEHANDELAAR_GROEP}, {ZAAK_BEHANDELAAR_MEDEWERKER}, {ZAAK_INITIATOR}",
@@ -141,7 +141,7 @@ class MailTemplateHelperTest : BehaviorSpec({
                     "userName"
                 )
 
-                Then(
+                then(
                     """
                         the variables in the provided text should be replaced by the correct values from the zaak, 
                         and the initiator variable should be replaced with ''
@@ -153,7 +153,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             }
         }
 
-        Given(
+        given(
             """
             A zaak with an initiator of role natuurlijk persoon with a BSN and a persoon with a name and a verblijfplaats
             """
@@ -203,7 +203,7 @@ class MailTemplateHelperTest : BehaviorSpec({
                 brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)
             } returns persoon
 
-            When(
+            `when`(
                 """
                 the variables are resolved with a text containing a zaak initiator variable and a 
                 zaak initiator address variable
@@ -215,13 +215,13 @@ class MailTemplateHelperTest : BehaviorSpec({
                     userName
                 )
 
-                Then("the zaak initiator variable should be replaced with the person's full name") {
+                then("the zaak initiator variable should be replaced with the person's full name") {
                     resolvedText shouldBe "fakeText, $persoonFullName, $streetName $houseNumber, $zipcode $city"
                 }
             }
         }
 
-        Given(
+        given(
             """
             A zaak with an initiator of role natuurlijk persoon with a BSN and a persoon without a name and a verblijfplaats
             """
@@ -256,14 +256,14 @@ class MailTemplateHelperTest : BehaviorSpec({
                 brpClientService.retrievePersoon(bsn, zaaktypeUuid, userName)
             } returns persoon
 
-            When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
+            `when`("the variables are resolved with a text containing a placeholder for the zaak initiator") {
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_INITIATOR}, {ZAAK_INITIATOR_ADRES}",
                     zaak,
                     userName
                 )
 
-                Then(
+                then(
                     "the text 'Onbekend' should be used for the persoon's name and no verblijfplaats should be replaced"
                 ) {
                     resolvedText shouldBe "fakeText, Onbekend, "
@@ -271,7 +271,7 @@ class MailTemplateHelperTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak with an initiator of role niet-natuurlijk persoon with a vestigingnummer") {
+        given("A zaak with an initiator of role niet-natuurlijk persoon with a vestigingnummer") {
             val zaakType = createZaakType()
             val zaak = createZaak(
                 zaaktypeUri = zaakType.url,
@@ -295,99 +295,99 @@ class MailTemplateHelperTest : BehaviorSpec({
             every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolNietNatuurlijkPersoon
             every { kvkClientService.findVestiging(vestigingsnummer) } returns resultaatItem
 
-            When("the variables are resolved with a text containing a placeholder for the zaak initiator") {
+            `when`("the variables are resolved with a text containing a placeholder for the zaak initiator") {
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(
                     "fakeText, {ZAAK_INITIATOR}",
                     zaak,
                     "userName"
                 )
 
-                Then("the variables in the provided text should be replaced by the correct values from the zaak") {
+                then("the variables in the provided text should be replaced by the correct values from the zaak") {
                     resolvedText shouldBe "fakeText, ${resultaatItem.naam}"
                 }
             }
         }
 
-        Given("A zaak with zaakdata and a mail template body containing '{ZAAKDATA:key}' placeholders") {
+        given("A zaak with zaakdata and a mail template body containing '{ZAAKDATA:key}' placeholders") {
             val zaak = createZaak()
             every { zaakVariabelenService.readZaakdata(zaak.uuid) } returns mapOf(
                 "firstName" to "John",
                 "lastName" to "Doe"
             )
 
-            When("resolveZaakdataVariables is called") {
+            `when`("resolveZaakdataVariables is called") {
                 val resolvedText = mailTemplateHelper.resolveZaakdataVariables(
                     "Dear {ZAAKDATA:firstName} {ZAAKDATA:lastName},",
                     zaak
                 )
 
-                Then("all placeholders should be replaced with the corresponding zaakdata values") {
+                then("all placeholders should be replaced with the corresponding zaakdata values") {
                     resolvedText shouldBe "Dear John Doe,"
                 }
             }
         }
 
-        Given("A zaak and a text without a '{ZAAKDATA:' placeholder") {
+        given("A zaak and a text without a '{ZAAKDATA:' placeholder") {
             val zaak = createZaak()
 
-            When("resolveZaakdataVariables is called") {
+            `when`("resolveZaakdataVariables is called") {
                 val resolvedText = mailTemplateHelper.resolveZaakdataVariables("fakeText", zaak)
 
-                Then("the text should be returned unchanged and zaakdata should not be fetched") {
+                then("the text should be returned unchanged and zaakdata should not be fetched") {
                     resolvedText shouldBe "fakeText"
                 }
             }
         }
 
-        Given("A zaak and a text with a '{ZAAKDATA:key}' placeholder for a key missing from the zaakdata") {
+        given("A zaak and a text with a '{ZAAKDATA:key}' placeholder for a key missing from the zaakdata") {
             val zaak = createZaak()
             every { zaakVariabelenService.readZaakdata(zaak.uuid) } returns emptyMap()
 
-            When("resolveZaakdataVariables is called") {
+            `when`("resolveZaakdataVariables is called") {
                 val resolvedText = mailTemplateHelper.resolveZaakdataVariables(
                     "Hello {ZAAKDATA:missingKey}!",
                     zaak
                 )
 
-                Then("the placeholder should be replaced with 'Onbekend'") {
+                then("the placeholder should be replaced with 'Onbekend'") {
                     resolvedText shouldBe "Hello Onbekend!"
                 }
             }
         }
 
-        Given("A zaak and a text with a '{ZAAKDATA:key}' placeholder whose value contains HTML special characters") {
+        given("A zaak and a text with a '{ZAAKDATA:key}' placeholder whose value contains HTML special characters") {
             val zaak = createZaak()
             every { zaakVariabelenService.readZaakdata(zaak.uuid) } returns mapOf("company" to "<Fake & Co>")
 
-            When("resolveZaakdataVariables is called") {
+            `when`("resolveZaakdataVariables is called") {
                 val resolvedText = mailTemplateHelper.resolveZaakdataVariables(
                     "Company: {ZAAKDATA:company}",
                     zaak
                 )
 
-                Then("the value should be HTML-escaped to prevent injection") {
+                then("the value should be HTML-escaped to prevent injection") {
                     resolvedText shouldBe "Company: &lt;Fake &amp; Co&gt;"
                 }
             }
         }
 
-        Given("A zaak and a text with a '{ZAAKDATA:key}' placeholder where the key itself contains HTML tags") {
+        given("A zaak and a text with a '{ZAAKDATA:key}' placeholder where the key itself contains HTML tags") {
             val zaak = createZaak()
             every { zaakVariabelenService.readZaakdata(zaak.uuid) } returns mapOf("firstName" to "John")
 
-            When("resolveZaakdataVariables is called") {
+            `when`("resolveZaakdataVariables is called") {
                 val resolvedText = mailTemplateHelper.resolveZaakdataVariables(
                     "Hello {ZAAKDATA:<b>firstName</b>}!",
                     zaak
                 )
 
-                Then("the HTML tags in the key should be stripped before lookup and the value substituted") {
+                then("the HTML tags in the key should be stripped before lookup and the value substituted") {
                     resolvedText shouldBe "Hello John!"
                 }
             }
         }
 
-        Given("A document with a title and URL") {
+        given("A document with a title and URL") {
             val enkelvoudigInformatieobjectUUID = UUID.randomUUID()
             val documentTitle = "fakeTitle"
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
@@ -399,13 +399,13 @@ class MailTemplateHelperTest : BehaviorSpec({
                 configurationService.informatieobjectTonenUrl(enkelvoudigInformatieobjectUUID)
             } returns URI(documentUriString)
 
-            When("resolveVariabelen is called with a text containing placeholders") {
+            `when`("resolveVariabelen is called with a text containing placeholders") {
                 val resolvedText = mailTemplateHelper.resolveEnkelvoudigInformatieObjectVariables(
                     "Title: {DOCUMENT_TITEL}, URL: {DOCUMENT_URL}, Link: {DOCUMENT_LINK}",
                     enkelvoudigInformatieObject
                 )
 
-                Then("the placeholders should be replaced with the document's title, URL, and link") {
+                then("the placeholders should be replaced with the document's title, URL, and link") {
                     resolvedText shouldBe "Title: $documentTitle, " +
                         "URL: $documentUriString, " +
                         "Link: Klik om naar het document " +

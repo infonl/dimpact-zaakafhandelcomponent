@@ -5,7 +5,7 @@
 
 package net.atos.zac.util;
 
-import static net.atos.client.zgw.shared.util.JsonbUtil.JSONB;
+import static net.atos.zac.util.JsonbUtil.JSONB;
 
 import java.lang.reflect.Type;
 

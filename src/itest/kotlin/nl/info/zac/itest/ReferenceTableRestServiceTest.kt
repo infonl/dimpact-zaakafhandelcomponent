@@ -40,18 +40,18 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
     var communicationChannelReferenceTableId = 0
     var serverErrorTextErrorReferenceTableId = 0
 
-    Given(
+    given(
         """Default reference table data is provisioned on startup
             and general test data reference table data is added in test setup,
             and a beheerder is logged in"""
     ) {
-        When("the reference tables are listed") {
+        `when`("the reference tables are listed") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen",
                 testUser = BEHEERDER_1,
             )
 
-            Then(
+            then(
                 """the provisioned default reference tables are returned"""
             ) {
                 val responseBody = response.bodyAsString
@@ -114,13 +114,13 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the get afzenders endpoint is called") {
+        `when`("the get afzenders endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen/afzender",
                 testUser = BEHEERDER_1,
             )
 
-            Then(
+            then(
                 """an empty list should be returned since we do not provision any default afzenders"""
             ) {
                 val responseBody = response.bodyAsString
@@ -130,13 +130,13 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the communication channels reference table is retrieved") {
+        `when`("the communication channels reference table is retrieved") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen/$communicationChannelReferenceTableId",
                 testUser = BEHEERDER_1,
             )
 
-            Then(
+            then(
                 """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
             ) {
                 val responseBody = response.bodyAsString
@@ -168,13 +168,13 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the get communication channels endpoint is called with 'true' as parameter") {
+        `when`("the get communication channels endpoint is called with 'true' as parameter") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen/communicatiekanaal/true",
                 testUser = RAADPLEGER_1
             )
 
-            Then(
+            then(
                 """the provisioned default communicatiekanalen are returned including 'E-formulier'"""
             ) {
                 val responseBody = response.bodyAsString
@@ -198,13 +198,13 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the get server error texts endpoint is called") {
+        `when`("the get server error texts endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen/server-error-text",
                 testUser = RAADPLEGER_1
             )
 
-            Then(
+            then(
                 """an empty list should be returned since we do not provision any default server error texts"""
             ) {
                 val responseBody = response.bodyAsString
@@ -214,7 +214,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("a reference value is added to the server error texts reference table and the name is updated") {
+        `when`("a reference value is added to the server error texts reference table and the name is updated") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/referentietabellen/$serverErrorTextErrorReferenceTableId",
                 requestBodyAsString = """
@@ -226,7 +226,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 testUser = BEHEERDER_1,
             )
 
-            Then("the response should be 'ok'") {
+            then("the response should be 'ok'") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -247,13 +247,13 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the get server error texts endpoint is called again") {
+        `when`("the get server error texts endpoint is called again") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/referentietabellen/server-error-text",
                 testUser = BEHEERDER_1,
             )
 
-            Then(
+            then(
                 """the provisioned default server error texts are returned including the added 'test'"""
             ) {
                 val responseBody = response.bodyAsString
@@ -266,7 +266,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("a new reference table is added with a code and naam exceeding the maximum length") {
+        `when`("a new reference table is added with a code and naam exceeding the maximum length") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/referentietabellen",
                 requestBodyAsString = """
@@ -279,14 +279,14 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 testUser = BEHEERDER_1,
             )
 
-            Then("the response should be 'bad request'") {
+            then("the response should be 'bad request'") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_BAD_REQUEST
             }
         }
 
-        When("a new reference table is added with a value name exceeding the maximum length") {
+        `when`("a new reference table is added with a value name exceeding the maximum length") {
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/referentietabellen",
                 requestBodyAsString = """
@@ -299,14 +299,14 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 testUser = BEHEERDER_1,
             )
 
-            Then("the response should be 'bad request'") {
+            then("the response should be 'bad request'") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_BAD_REQUEST
             }
         }
 
-        When("a new reference table is added") {
+        `when`("a new reference table is added") {
             val referenceTableCode = "fakeReferenceTableCode1"
             val referenceTableName = "fakeReferenceTableName1"
             val response = itestHttpClient.performJSONPostRequest(
@@ -321,7 +321,7 @@ class ReferenceTableRestServiceTest : BehaviorSpec({
                 testUser = BEHEERDER_1,
             )
 
-            Then("the response should be 'ok' and should return the created reference table with code in uppercase") {
+            then("the response should be 'ok' and should return the created reference table with code in uppercase") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK

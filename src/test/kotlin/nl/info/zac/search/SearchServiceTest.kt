@@ -61,7 +61,7 @@ class SearchServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("A logged-in user authorised for all zaaktypes and two objects of type ZAAK in the search index") {
+    given("A logged-in user authorised for all zaaktypes and two objects of type ZAAK in the search index") {
         val zaakDescriptionSearchField = "fakeZaakDescription"
         val behandelaarFilterValue1 = "fakeBehandelaarFilterValue1"
         val behandelaarFilterValue2 = "fakeBehandelaarFilterValue2"
@@ -98,7 +98,7 @@ class SearchServiceTest : BehaviorSpec({
         every { solrDocumentList.numFound } returns 2
         every { queryResponse.facetFields } returns emptyList()
 
-        When("searching for all documents of type ZAAK for a specific behandelaar and zaaktypen") {
+        `when`("searching for all documents of type ZAAK for a specific behandelaar and zaaktypen") {
             val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
             val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
             val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
@@ -118,7 +118,7 @@ class SearchServiceTest : BehaviorSpec({
                 }
             )
 
-            Then("it should return a zoekresultaat containing the two zaak zoek objecten") {
+            then("it should return a zoekresultaat containing the two zaak zoek objecten") {
                 with(zoekResultaat) {
                     count shouldBe 2
                     with(items) {
@@ -166,7 +166,7 @@ class SearchServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A logged-in user authorised for a zaaktype and one object of type TAAK in the search index") {
+    given("A logged-in user authorised for a zaaktype and one object of type TAAK in the search index") {
         val zaakType1 = "fakeZaaktype1"
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()
@@ -193,7 +193,7 @@ class SearchServiceTest : BehaviorSpec({
         every { solrDocumentList.numFound } returns 1
         every { queryResponse.facetFields } returns emptyList()
 
-        When("searching for all documents of type TAAK with a specific filter") {
+        `when`("searching for all documents of type TAAK with a specific filter") {
             val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
             val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
             val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
@@ -209,7 +209,7 @@ class SearchServiceTest : BehaviorSpec({
                 }
             )
 
-            Then("it should return a zoekresultaat containing a taak zoek object") {
+            then("it should return a zoekresultaat containing a taak zoek object") {
                 with(zoekResultaat) {
                     count shouldBe 1
                     with(items) {
@@ -250,7 +250,7 @@ class SearchServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A logged-in user authorised for a zaaktype and one object of type DOCUMENT in the search index") {
+    given("A logged-in user authorised for a zaaktype and one object of type DOCUMENT in the search index") {
         val zaakType1 = "fakeZaaktype1"
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()
@@ -276,7 +276,7 @@ class SearchServiceTest : BehaviorSpec({
         every { solrDocumentList.numFound } returns 1
         every { queryResponse.facetFields } returns emptyList()
 
-        When("searching for all documents of type DOCUMENT with a sort field and sort direction") {
+        `when`("searching for all documents of type DOCUMENT with a sort field and sort direction") {
             val zoekResultaat = zoekService.zoek(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.DOCUMENT,
@@ -285,7 +285,7 @@ class SearchServiceTest : BehaviorSpec({
                 )
             )
 
-            Then("it should return a zoekresultaat containing a document zoek object with the correct sorting") {
+            then("it should return a zoekresultaat containing a document zoek object with the correct sorting") {
                 with(zoekResultaat) {
                     count shouldBe 1
                     with(items) {
@@ -318,7 +318,7 @@ class SearchServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A PABC-enabled user with per-zaaktype roles and one object of type TAAK in the search index") {
+    given("A PABC-enabled user with per-zaaktype roles and one object of type TAAK in the search index") {
         val zaakType1 = "fakeZaaktype1"
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()
@@ -345,7 +345,7 @@ class SearchServiceTest : BehaviorSpec({
         every { solrDocumentList.numFound } returns 1
         every { queryResponse.facetFields } returns emptyList()
 
-        When("searching for all documents of type TAAK with a specific filter") {
+        `when`("searching for all documents of type TAAK with a specific filter") {
             val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
             val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
             val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
@@ -361,7 +361,7 @@ class SearchServiceTest : BehaviorSpec({
                 }
             )
 
-            Then("it should return a zoekresultaat containing a taak zoek object and filter using zaaktypen") {
+            then("it should return a zoekresultaat containing a taak zoek object and filter using zaaktypen") {
                 with(zoekResultaat) {
                     count shouldBe 1
                     with(items) {
@@ -404,7 +404,7 @@ class SearchServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A users sorts") {
+    given("A users sorts") {
         val queryResponse = mockk<QueryResponse>()
         val solrDocumentList = mockk<SolrDocumentList>()
         val solrDocument1 = mockk<SolrDocument>()
@@ -431,7 +431,7 @@ class SearchServiceTest : BehaviorSpec({
         every { solrDocumentList.numFound } returns 2
         every { queryResponse.facetFields } returns emptyList()
 
-        When("searching ${SorteerRichting.ASCENDING.value}") {
+        `when`("searching ${SorteerRichting.ASCENDING.value}") {
             zoekService.zoek(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.ZAAK,
@@ -440,14 +440,14 @@ class SearchServiceTest : BehaviorSpec({
                 )
             )
 
-            Then("it should add the correct sort to the query") {
+            then("it should add the correct sort to the query") {
                 with(solrParamsSlot.captured) {
                     get("sort") shouldInclude "zaak_statustypeOmschrijving asc"
                 }
             }
         }
 
-        When("searching ${SorteerRichting.DESCENDING.value}") {
+        `when`("searching ${SorteerRichting.DESCENDING.value}") {
             zoekService.zoek(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.ZAAK,
@@ -456,14 +456,14 @@ class SearchServiceTest : BehaviorSpec({
                 )
             )
 
-            Then("it should add the correct sort to the query") {
+            then("it should add the correct sort to the query") {
                 with(solrParamsSlot.captured) {
                     get("sort") shouldInclude "zaak_statustypeOmschrijving desc"
                 }
             }
         }
 
-        When("searching ${SorteerRichting.NONE.value}") {
+        `when`("searching ${SorteerRichting.NONE.value}") {
             zoekService.zoek(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.ZAAK,
@@ -472,7 +472,7 @@ class SearchServiceTest : BehaviorSpec({
                 )
             )
 
-            Then("it should not add a sort to the query") {
+            then("it should not add a sort to the query") {
                 with(solrParamsSlot.captured) {
                     get("sort") shouldNotInclude "zaak_statustypeOmschrijving"
                 }

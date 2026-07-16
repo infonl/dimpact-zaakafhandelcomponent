@@ -30,7 +30,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val now = System.currentTimeMillis()
 
-    Given("Two zaken have been created and indexed and the behandelaar for domain test 1 is logged in") {
+    given("Two zaken have been created and indexed and the behandelaar for domain test 1 is logged in") {
         val zaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults1-$now"
         val toBeLinkedZaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults2-$now"
         val (_, zaakUuid) = zaakHelper.createZaak(
@@ -50,7 +50,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             testUser = BEHANDELAAR_1
         )
 
-        When(
+        `when`(
             """
             searching for a DEELZAAK linkable zaken on the first created zaak for the
             'to be linked' zaak identifier
@@ -65,7 +65,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("it returns the 'to be linked' zaak as linkable zaak") {
+            then("it returns the 'to be linked' zaak as linkable zaak") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -88,7 +88,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("link the first created zaak as hoofdzaak to the 'to be linked' created zaak") {
+        `when`("link the first created zaak as hoofdzaak to the 'to be linked' created zaak") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/koppel",
                 requestBodyAsString = """
@@ -101,13 +101,13 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1,
             )
 
-            Then("successfully links the zaken") {
+            then("successfully links the zaken") {
                 response.code shouldBe HTTP_NO_CONTENT
             }
         }
     }
 
-    Given("Another two zaken have been created and indexed and the behandelaar for domain test 1 is logged in") {
+    given("Another two zaken have been created and indexed and the behandelaar for domain test 1 is logged in") {
         val zaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults1-$now"
         val toBeLinkedZaakDescription = "${ZaakKoppelenRestServiceTest::class.simpleName}-listingsearchresults2-$now"
         val (_, zaakUuid) = zaakHelper.createZaak(
@@ -127,7 +127,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             testUser = BEHANDELAAR_1
         )
 
-        When(
+        `when`(
             """
             searching for a GERELATEERD linkable zaken on the first created zaak for the
             'to be linked' zaak identifier
@@ -142,7 +142,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("it returns the 'to be linked' zaak as linkable zaak") {
+            then("it returns the 'to be linked' zaak as linkable zaak") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -165,7 +165,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("link the first created zaak as hoofdzaak to the 'to be linked' created zaak") {
+        `when`("link the first created zaak as hoofdzaak to the 'to be linked' created zaak") {
             val response = itestHttpClient.performPatchRequest(
                 url = "$ZAC_API_URI/zaken/zaak/koppel",
                 requestBodyAsString = """
@@ -178,7 +178,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1,
             )
 
-            Then("successfully links the zaken") {
+            then("successfully links the zaken") {
                 response.code shouldBe HTTP_NO_CONTENT
             }
         }

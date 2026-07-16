@@ -59,7 +59,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
     val taskHelper = TaskHelper(zacClient)
     val today = LocalDate.now()
 
-    Given(
+    given(
         """
             A zaak exists and a behandelaar authorised for the zaaktype of the zaak is logged in
         """
@@ -71,7 +71,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         lateinit var enkelvoudigInformatieObjectUuid: String
         lateinit var secondEnkelvoudigInformatieObjectUuid: String
 
-        When(
+        `when`(
             """
             the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a PDF file
             """
@@ -87,7 +87,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then(
+            then(
                 """
                    the response should be OK and contain information for the created document and uploaded file
                    and the permissions for the document should be those for a behandelaar
@@ -130,7 +130,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("update of enkelvoudig informatie object with file upload endpoint is called with a TXT file") {
+        `when`("update of enkelvoudig informatie object with file upload endpoint is called with a TXT file") {
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject/update"
             logger.info { "Calling $endpointUrl endpoint" }
@@ -170,7 +170,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then(
+            then(
                 "the response should be OK and should contain information about the updates"
             ) {
                 val responseBody = response.bodyAsString
@@ -211,7 +211,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("ondertekenInformatieObject endpoint is called") {
+        `when`("ondertekenInformatieObject endpoint is called") {
             val endpointUrl =
                 "$ZAC_API_URI/informatieobjecten/informatieobject" +
                     "/$enkelvoudigInformatieObjectUuid/onderteken?zaak=$zaakUuid"
@@ -222,7 +222,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 requestBody = "".toRequestBody(),
                 testUser = BEHANDELAAR_1
             )
-            Then(
+            then(
                 "the response should be OK"
             ) {
                 logger.info { "$endpointUrl status code: ${response.code}" }
@@ -230,12 +230,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the get enkelvoudiginformatieobject endpoint is called") {
+        `when`("the get enkelvoudiginformatieobject endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/",
                 testUser = BEHANDELAAR_1
             )
-            Then(
+            then(
                 """
                 the response should be OK and should contain an `ONDERTEKEND` indicatie
                 and data about the ondertekening and the status should be 'definitief'
@@ -281,12 +281,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the current version endpoint is called") {
+        `when`("the current version endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/huidigeversie",
                 testUser = BEHANDELAAR_1
             )
-            Then("the response should be OK and the informatieobject should be returned") {
+            then("the response should be OK and the informatieobject should be returned") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -312,7 +312,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When(
+        `when`(
             """
                 the create enkelvoudig informatie object with file upload endpoint is called for the zaak with a TXT file
                 """
@@ -362,7 +362,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then(
+            then(
                 """
                 the response should be OK and contain information for the created document and uploaded file
                 and the document permissions should be as expected for a document with status 'definitief'
@@ -407,14 +407,14 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the convert endpoint is called") {
+        `when`("the convert endpoint is called") {
             val response = itestHttpClient.performPostRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$secondEnkelvoudigInformatieObjectUuid/" +
                     "convert?zaak=$zaakUuid",
                 requestBody = "".toRequestBody(),
                 testUser = BEHANDELAAR_1
             )
-            Then(
+            then(
                 """
                     the response should be No Content and the informatieobject should be converted from TXT to PDF
                     because a recordmanager is allowed to convert documents even if they have the status 'definitief'
@@ -424,12 +424,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the get enkelvoudiginformatieobject endpoint is called") {
+        `when`("the get enkelvoudiginformatieobject endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$secondEnkelvoudigInformatieObjectUuid/",
                 testUser = BEHANDELAAR_1
             )
-            Then(
+            then(
                 """
                 the response should be OK and should contain information about the document converted to PDF
                 and the permissions should be those for a document with status 'definitief' and a behandelaar user
@@ -471,31 +471,31 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the delete enkelvoudig informatie object endpoint is called for the first created document") {
+        `when`("the delete enkelvoudig informatie object endpoint is called for the first created document") {
             val response = itestHttpClient.performDeleteRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid",
                 requestBodyAsString = """{"zaakUuid": "$zaakUuid"}""",
                 testUser = RECORDMANAGER_1
             )
-            Then("the response should be no content") {
+            then("the response should be no content") {
                 logger.info { "Delete response: ${response.bodyAsString}" }
                 response.code shouldBe HTTP_NO_CONTENT
             }
         }
 
-        When("the get enkelvoudiginformatieobject endpoint is called for the deleted document") {
+        `when`("the get enkelvoudiginformatieobject endpoint is called for the deleted document") {
             val getResponse = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUuid/",
                 testUser = RECORDMANAGER_1
             )
-            Then("the response should be not found") {
+            then("the response should be not found") {
                 logger.info { "Get after delete response: ${getResponse.bodyAsString}" }
                 getResponse.code shouldBe HTTP_NOT_FOUND
             }
         }
     }
 
-    Given("""A zaak exist and a task has been started and a behandelaar is logged in""") {
+    given("""A zaak exist and a task has been started and a behandelaar is logged in""") {
         val (zaakIdentification, zaakUuid) = zaakHelper.createZaak(
             zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
             testUser = BEHANDELAAR_1
@@ -508,7 +508,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             testUser = BEHANDELAAR_1
         )
 
-        When("the create enkelvoudig informatie object with file upload endpoint is called for the task") {
+        `when`("the create enkelvoudig informatie object with file upload endpoint is called for the task") {
             val endpointUrl = "$ZAC_API_URI/informatieobjecten/informatieobject/" +
                 "$zaakUuid/$taskId?taakObject=true"
             logger.info { "Calling $endpointUrl endpoint" }
@@ -554,7 +554,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then(
+            then(
                 "the response should be OK and contain information for the created document and uploaded file"
             ) {
                 val responseBody = response.bodyAsString

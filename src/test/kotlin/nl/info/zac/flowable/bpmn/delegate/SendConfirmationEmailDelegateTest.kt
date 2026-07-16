@@ -62,7 +62,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a BPMN service task for sending a confirmation email after a product aanvraag") {
+    given("a BPMN service task for sending a confirmation email after a product aanvraag") {
         mockkObject(FlowableHelper)
         val flowableHelper = mockk<FlowableHelper>()
         every { FlowableHelper.getInstance() } returns flowableHelper
@@ -79,7 +79,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
         every { templateExpression.getValue(delegateExecution) } returns templateName
         every { mailTemplateService.findMailtemplateByName(templateName) } returns mailTemplate
 
-        When("zaak-specific contact details contain an email address") {
+        `when`("zaak-specific contact details contain an email address") {
             capturedMailGegevens.clear()
             clearMocks(klantClientService, zgwApiService, mailService, answers = false)
             val zaakSpecificEmail = "klant-zaak@example.com"
@@ -94,7 +94,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                 template = templateExpression
             }.execute(delegateExecution)
 
-            Then("the mail is sent to the zaak-specific contact email without consulting the initiator role") {
+            then("the mail is sent to the zaak-specific contact email without consulting the initiator role") {
                 capturedMailGegevens shouldHaveSize 1
                 with(capturedMailGegevens.first()) {
                     to.email shouldBeEqual zaakSpecificEmail
@@ -108,7 +108,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             }
         }
 
-        When("zaak-specific contact details have no email address and the initiator role has one") {
+        `when`("zaak-specific contact details have no email address and the initiator role has one") {
             capturedMailGegevens.clear()
             clearMocks(klantClientService, zgwApiService, mailService, answers = false)
             val initiatorEmail = "initiator@example.com"
@@ -128,7 +128,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                 template = templateExpression
             }.execute(delegateExecution)
 
-            Then("the mail is sent to the initiator email") {
+            then("the mail is sent to the initiator email") {
                 capturedMailGegevens shouldHaveSize 1
                 with(capturedMailGegevens.first()) {
                     to.email shouldBeEqual initiatorEmail
@@ -139,7 +139,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             }
         }
 
-        When("no zaak-specific contact details exist and the initiator role has an email address") {
+        `when`("no zaak-specific contact details exist and the initiator role has an email address") {
             capturedMailGegevens.clear()
             clearMocks(klantClientService, zgwApiService, mailService, answers = false)
             val initiatorEmail = "initiator@example.com"
@@ -156,7 +156,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                 template = templateExpression
             }.execute(delegateExecution)
 
-            Then("the mail is sent to the initiator email") {
+            then("the mail is sent to the initiator email") {
                 capturedMailGegevens shouldHaveSize 1
                 with(capturedMailGegevens.first()) {
                     to.email shouldBeEqual initiatorEmail
@@ -166,7 +166,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             }
         }
 
-        When("no zaak-specific contact details exist and the zaak has no initiator role") {
+        `when`("no zaak-specific contact details exist and the zaak has no initiator role") {
             capturedMailGegevens.clear()
             clearMocks(klantClientService, zgwApiService, mailService, answers = false)
             every { flowableHelper.zgwApiService } returns zgwApiService
@@ -178,13 +178,13 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                 template = templateExpression
             }.execute(delegateExecution)
 
-            Then("no mail is sent") {
+            then("no mail is sent") {
                 capturedMailGegevens shouldHaveSize 0
                 verify(exactly = 0) { mailService.sendMail(any<MailGegevens>(), any<Bronnen>()) }
             }
         }
 
-        When("no zaak-specific contact details exist and the initiator role has no email address") {
+        `when`("no zaak-specific contact details exist and the initiator role has no email address") {
             capturedMailGegevens.clear()
             clearMocks(klantClientService, zgwApiService, answers = false)
             every { flowableHelper.zgwApiService } returns zgwApiService
@@ -197,13 +197,13 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                 template = templateExpression
             }.execute(delegateExecution)
 
-            Then("no mail is sent") {
+            then("no mail is sent") {
                 capturedMailGegevens shouldHaveSize 0
                 verify(exactly = 0) { mailService.sendMail(any<MailGegevens>(), any<Bronnen>()) }
             }
         }
 
-        When(
+        `when`(
             "no zaak-specific contact details exist and the initiator has a niet-natuurlijk persoon role with a vestiging"
         ) {
             capturedMailGegevens.clear()
@@ -230,7 +230,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                 template = templateExpression
             }.execute(delegateExecution)
 
-            Then("the mail is sent to the vestiging email") {
+            then("the mail is sent to the vestiging email") {
                 capturedMailGegevens shouldHaveSize 1
                 with(capturedMailGegevens.first()) {
                     to.email shouldBeEqual initiatorEmail
@@ -240,7 +240,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             }
         }
 
-        When(
+        `when`(
             "no zaak-specific contact details exist and the initiator has a niet-natuurlijk persoon role without a vestiging"
         ) {
             capturedMailGegevens.clear()
@@ -266,7 +266,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                 template = templateExpression
             }.execute(delegateExecution)
 
-            Then("the mail is sent to the niet-natuurlijk persoon email") {
+            then("the mail is sent to the niet-natuurlijk persoon email") {
                 capturedMailGegevens shouldHaveSize 1
                 with(capturedMailGegevens.first()) {
                     to.email shouldBeEqual initiatorEmail
@@ -276,7 +276,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
             }
         }
 
-        When("no zaak-specific contact details exist and the initiator has an unsupported betrokkene type") {
+        `when`("no zaak-specific contact details exist and the initiator has an unsupported betrokkene type") {
             capturedMailGegevens.clear()
             clearMocks(klantClientService, zgwApiService, mailService, answers = false)
             every { flowableHelper.zgwApiService } returns zgwApiService
@@ -288,13 +288,13 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                 template = templateExpression
             }.execute(delegateExecution)
 
-            Then("no mail is sent") {
+            then("no mail is sent") {
                 capturedMailGegevens shouldHaveSize 0
                 verify(exactly = 0) { mailService.sendMail(any<MailGegevens>(), any<Bronnen>()) }
             }
         }
 
-        When("the configured mail template does not exist") {
+        `when`("the configured mail template does not exist") {
             clearMocks(klantClientService, mailTemplateService)
             val zaakSpecificEmail = "klant-zaak@example.com"
             every { klantClientService.findZaakSpecificContactDetails(zaak.uuid) } returns ContactDetails(
@@ -310,12 +310,12 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                 }.execute(delegateExecution)
             }
 
-            Then("an IllegalArgumentException is thrown and no mail is sent") {
+            then("an IllegalArgumentException is thrown and no mail is sent") {
                 verify(exactly = 0) { mailService.sendMail(any<MailGegevens>(), any<Bronnen>()) }
             }
         }
 
-        When("a replyTo address is configured") {
+        `when`("a replyTo address is configured") {
             capturedMailGegevens.clear()
             clearMocks(klantClientService, mailService, answers = false)
             val zaakSpecificEmail = "klant-zaak@example.com"
@@ -333,7 +333,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                 template = templateExpression
             }.execute(delegateExecution)
 
-            Then("the mail is sent with the replyTo address included") {
+            then("the mail is sent with the replyTo address included") {
                 capturedMailGegevens shouldHaveSize 1
                 with(capturedMailGegevens.first()) {
                     to.email shouldBeEqual zaakSpecificEmail

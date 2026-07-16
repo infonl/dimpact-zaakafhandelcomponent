@@ -24,11 +24,11 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
 
-    Given("Users attempt BPMN process actions without the required permissions") {
+    given("Users attempt BPMN process actions without the required permissions") {
         var bpmnZaakUuid: UUID? = null
         var zaakIdentificatie: String? = null
 
-        When("zaak is created for sendEmailAfterClosingZaak") {
+        `when`("zaak is created for sendEmailAfterClosingZaak") {
             val response = zacClient.createZaak(
                 zaakTypeUUID = ZAAKTYPE_BPMN_TEST_5_UUID,
                 groupId = GROUP_BEHANDELAARS_TEST_1.name,
@@ -39,7 +39,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("response is ok") {
+            then("response is ok") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpURLConnection.HTTP_OK
@@ -52,7 +52,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
             }
         }
 
-        When("the 'chooseTestProcess' form is submitted for sendEmailAfterClosingZaak") {
+        `when`("the 'chooseTestProcess' form is submitted for sendEmailAfterClosingZaak") {
             val takenResponse = zacClient.submitFormDataRaw(
                 bpmnZaakUuid = bpmnZaakUuid!!,
                 taakData = """
@@ -63,13 +63,13 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("process task returns forbidden") {
+            then("process task returns forbidden") {
                 takenResponse.code shouldBe HttpURLConnection.HTTP_FORBIDDEN
                 logger.info { "Cannot complete task for zaak $zaakIdentificatie because it is forbidden" }
             }
         }
 
-        When("zaak is created for resumeZaakWhichIsNotSuspended") {
+        `when`("zaak is created for resumeZaakWhichIsNotSuspended") {
             val response = zacClient.createZaak(
                 zaakTypeUUID = ZAAKTYPE_BPMN_TEST_5_UUID,
                 groupId = GROUP_BEHANDELAARS_TEST_1.name,
@@ -80,7 +80,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("response is ok") {
+            then("response is ok") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpURLConnection.HTTP_OK
@@ -93,7 +93,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
             }
         }
 
-        When("the 'chooseTestProcess' form is submitted for resumeZaakWhichIsNotSuspended") {
+        `when`("the 'chooseTestProcess' form is submitted for resumeZaakWhichIsNotSuspended") {
             val takenResponse = zacClient.submitFormDataRaw(
                 bpmnZaakUuid = bpmnZaakUuid!!,
                 taakData = """
@@ -104,13 +104,13 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("process task returns forbidden") {
+            then("process task returns forbidden") {
                 takenResponse.code shouldBe HttpURLConnection.HTTP_FORBIDDEN
                 logger.info { "Cannot complete task for zaak $zaakIdentificatie because it is forbidden" }
             }
         }
 
-        When("zaak is created for assignZaak") {
+        `when`("zaak is created for assignZaak") {
             val response = zacClient.createZaak(
                 zaakTypeUUID = ZAAKTYPE_BPMN_TEST_5_UUID,
                 groupId = GROUP_BEHANDELAARS_TEST_1.name,
@@ -121,7 +121,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            Then("response is ok") {
+            then("response is ok") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HttpURLConnection.HTTP_OK
@@ -134,7 +134,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
             }
         }
 
-        When("the 'chooseTestProcess' form is submitted for assignZaak as a raadpleger") {
+        `when`("the 'chooseTestProcess' form is submitted for assignZaak as a raadpleger") {
             val takenResponse = zacClient.submitFormDataRaw(
                 bpmnZaakUuid = bpmnZaakUuid!!,
                 taakData = """
@@ -145,7 +145,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
                 testUser = RAADPLEGER_1
             )
 
-            Then("process task returns forbidden") {
+            then("process task returns forbidden") {
                 takenResponse.code shouldBe HttpURLConnection.HTTP_FORBIDDEN
                 logger.info { "Cannot complete task for zaak $zaakIdentificatie because it is forbidden" }
             }

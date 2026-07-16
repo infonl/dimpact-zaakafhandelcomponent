@@ -6,7 +6,7 @@ package nl.info.client.zgw.shared
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.util.DateTimeUtil.convertToDateTime
+import nl.info.client.zgw.util.convertToDateTime
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.RolMedewerker
@@ -175,7 +175,7 @@ class ZgwApiService @Inject constructor(
         // the zaak in question can no longer be aborted or closed (OpenZaak will return a 400 error on aborting or closing in that case).
         val gebruiksrechten = Gebruiksrechten().apply {
             informatieobject = newInformatieObjectData.url
-            startdatum = convertToDateTime(newInformatieObjectData.creatiedatum).toOffsetDateTime()
+            startdatum = newInformatieObjectData.creatiedatum.convertToDateTime().toOffsetDateTime()
             omschrijvingVoorwaarden = omschrijvingVoorwaardenGebruiksrechten
         }
         drcClientService.createGebruiksrechten(gebruiksrechten)

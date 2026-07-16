@@ -31,16 +31,16 @@ class StaticCacheFilterTest : BehaviorSpec({
             if (vParam != null) every { getParameter("v") } returns vParam
         }
 
-    Given("hashed JS bundle path") {
+    given("hashed JS bundle path") {
         val req = request("/main-A1B2C3D4.js")
         val res = mockk<HttpServletResponse>(relaxed = true)
         val chain = mockk<FilterChain>(relaxed = true)
         val responseSlot = slot<HttpServletResponse>()
 
-        When("doFilter is called") {
+        `when`("doFilter is called") {
             filter.doFilter(req, res, chain)
 
-            Then("chain receives ResponseWrapper; getOutputStream triggers immutable Cache-Control") {
+            then("chain receives ResponseWrapper; getOutputStream triggers immutable Cache-Control") {
                 verify { chain.doFilter(any(), capture(responseSlot)) }
                 responseSlot.captured.getOutputStream()
                 verify { res.setHeader("Cache-Control", "public, max-age=$expectedMaxAge, immutable") }
@@ -48,16 +48,16 @@ class StaticCacheFilterTest : BehaviorSpec({
         }
     }
 
-    Given("hashed CSS bundle path") {
+    given("hashed CSS bundle path") {
         val req = request("/styles-B2C3D4E5.css")
         val res = mockk<HttpServletResponse>(relaxed = true)
         val chain = mockk<FilterChain>(relaxed = true)
         val responseSlot = slot<HttpServletResponse>()
 
-        When("doFilter is called") {
+        `when`("doFilter is called") {
             filter.doFilter(req, res, chain)
 
-            Then("chain receives ResponseWrapper with immutable cache-control") {
+            then("chain receives ResponseWrapper with immutable cache-control") {
                 verify { chain.doFilter(any(), capture(responseSlot)) }
                 responseSlot.captured.getOutputStream()
                 verify { res.setHeader("Cache-Control", "public, max-age=$expectedMaxAge, immutable") }
@@ -65,16 +65,16 @@ class StaticCacheFilterTest : BehaviorSpec({
         }
     }
 
-    Given("hashed JS source map path") {
+    given("hashed JS source map path") {
         val req = request("/chunk-C3D4E5F6.js.map")
         val res = mockk<HttpServletResponse>(relaxed = true)
         val chain = mockk<FilterChain>(relaxed = true)
         val responseSlot = slot<HttpServletResponse>()
 
-        When("doFilter is called") {
+        `when`("doFilter is called") {
             filter.doFilter(req, res, chain)
 
-            Then("chain receives ResponseWrapper with immutable cache-control") {
+            then("chain receives ResponseWrapper with immutable cache-control") {
                 verify { chain.doFilter(any(), capture(responseSlot)) }
                 responseSlot.captured.getOutputStream()
                 verify { res.setHeader("Cache-Control", "public, max-age=$expectedMaxAge, immutable") }
@@ -82,16 +82,16 @@ class StaticCacheFilterTest : BehaviorSpec({
         }
     }
 
-    Given("versioned asset path with valid 8-char hex v param") {
+    given("versioned asset path with valid 8-char hex v param") {
         val req = request("/assets/logo.svg", vParam = "395afa0f")
         val res = mockk<HttpServletResponse>(relaxed = true)
         val chain = mockk<FilterChain>(relaxed = true)
         val responseSlot = slot<HttpServletResponse>()
 
-        When("doFilter is called") {
+        `when`("doFilter is called") {
             filter.doFilter(req, res, chain)
 
-            Then("chain receives ResponseWrapper with immutable cache-control") {
+            then("chain receives ResponseWrapper with immutable cache-control") {
                 verify { chain.doFilter(any(), capture(responseSlot)) }
                 responseSlot.captured.getOutputStream()
                 verify { res.setHeader("Cache-Control", "public, max-age=$expectedMaxAge, immutable") }
@@ -99,44 +99,44 @@ class StaticCacheFilterTest : BehaviorSpec({
         }
     }
 
-    Given("versioned asset path with invalid v param (too short)") {
+    given("versioned asset path with invalid v param (too short)") {
         val req = request("/assets/logo.svg", vParam = "abc123")
         val res = mockk<HttpServletResponse>(relaxed = true)
         val chain = mockk<FilterChain>(relaxed = true)
 
-        When("doFilter is called") {
+        `when`("doFilter is called") {
             filter.doFilter(req, res, chain)
 
-            Then("chain receives original response without wrapping") {
+            then("chain receives original response without wrapping") {
                 verify { chain.doFilter(req, res) }
             }
         }
     }
 
-    Given("versioned asset path with non-hex v param") {
+    given("versioned asset path with non-hex v param") {
         val req = request("/assets/logo.svg", vParam = "ZZZZZZZZ")
         val res = mockk<HttpServletResponse>(relaxed = true)
         val chain = mockk<FilterChain>(relaxed = true)
 
-        When("doFilter is called") {
+        `when`("doFilter is called") {
             filter.doFilter(req, res, chain)
 
-            Then("chain receives original response without wrapping") {
+            then("chain receives original response without wrapping") {
                 verify { chain.doFilter(req, res) }
             }
         }
     }
 
-    Given("root path /") {
+    given("root path /") {
         val req = request("/")
         val res = mockk<HttpServletResponse>(relaxed = true)
         val chain = mockk<FilterChain>(relaxed = true)
         val responseSlot = slot<HttpServletResponse>()
 
-        When("doFilter is called") {
+        `when`("doFilter is called") {
             filter.doFilter(req, res, chain)
 
-            Then("chain receives ResponseWrapper with no-cache") {
+            then("chain receives ResponseWrapper with no-cache") {
                 verify { chain.doFilter(any(), capture(responseSlot)) }
                 responseSlot.captured.getOutputStream()
                 verify { res.setHeader("Cache-Control", "no-cache") }
@@ -144,16 +144,16 @@ class StaticCacheFilterTest : BehaviorSpec({
         }
     }
 
-    Given("index.html path") {
+    given("index.html path") {
         val req = request("/index.html")
         val res = mockk<HttpServletResponse>(relaxed = true)
         val chain = mockk<FilterChain>(relaxed = true)
         val responseSlot = slot<HttpServletResponse>()
 
-        When("doFilter is called") {
+        `when`("doFilter is called") {
             filter.doFilter(req, res, chain)
 
-            Then("chain receives ResponseWrapper with no-cache") {
+            then("chain receives ResponseWrapper with no-cache") {
                 verify { chain.doFilter(any(), capture(responseSlot)) }
                 responseSlot.captured.getOutputStream()
                 verify { res.setHeader("Cache-Control", "no-cache") }
@@ -161,16 +161,16 @@ class StaticCacheFilterTest : BehaviorSpec({
         }
     }
 
-    Given("index.html under non-empty context path") {
+    given("index.html under non-empty context path") {
         val req = request("/index.html", contextPath = "/zac")
         val res = mockk<HttpServletResponse>(relaxed = true)
         val chain = mockk<FilterChain>(relaxed = true)
         val responseSlot = slot<HttpServletResponse>()
 
-        When("doFilter is called") {
+        `when`("doFilter is called") {
             filter.doFilter(req, res, chain)
 
-            Then("context prefix is stripped correctly; no-cache applied") {
+            then("context prefix is stripped correctly; no-cache applied") {
                 verify { chain.doFilter(any(), capture(responseSlot)) }
                 responseSlot.captured.getOutputStream()
                 verify { res.setHeader("Cache-Control", "no-cache") }
@@ -178,27 +178,27 @@ class StaticCacheFilterTest : BehaviorSpec({
         }
     }
 
-    Given("unmatched path /api/zaken") {
+    given("unmatched path /api/zaken") {
         val req = request("/api/zaken")
         val res = mockk<HttpServletResponse>(relaxed = true)
         val chain = mockk<FilterChain>(relaxed = true)
 
-        When("doFilter is called") {
+        `when`("doFilter is called") {
             filter.doFilter(req, res, chain)
 
-            Then("chain receives original request and response without wrapping") {
+            then("chain receives original request and response without wrapping") {
                 verify { chain.doFilter(req, res) }
             }
         }
     }
 
-    Given("ResponseWrapper suppresses Undertow cache headers set before getOutputStream") {
+    given("ResponseWrapper suppresses Undertow cache headers set before getOutputStream") {
         val req = request("/main-A1B2C3D4.js")
         val res = mockk<HttpServletResponse>(relaxed = true)
         val chain = mockk<FilterChain>(relaxed = true)
         val responseSlot = slot<HttpServletResponse>()
 
-        When("downstream code sets Cache-Control/Pragma/Expires on wrapper then calls getOutputStream") {
+        `when`("downstream code sets Cache-Control/Pragma/Expires on wrapper then calls getOutputStream") {
             filter.doFilter(req, res, chain)
             verify { chain.doFilter(any(), capture(responseSlot)) }
             val wrapped = responseSlot.captured
@@ -207,28 +207,28 @@ class StaticCacheFilterTest : BehaviorSpec({
             wrapped.setHeader("Expires", "0")
             wrapped.getOutputStream()
 
-            Then("Undertow values blocked; only our immutable value applied") {
+            then("Undertow values blocked; only our immutable value applied") {
                 verify(exactly = 0) { res.setHeader("Cache-Control", "no-cache, no-store") }
                 verify { res.setHeader("Cache-Control", "public, max-age=$expectedMaxAge, immutable") }
             }
         }
     }
 
-    Given("immutable resource path") {
+    given("immutable resource path") {
         val req = request("/main-A1B2C3D4.js")
         val res = mockk<HttpServletResponse>(relaxed = true)
         val chain = mockk<FilterChain>(relaxed = true)
         val requestSlot = slot<HttpServletRequest>()
 
-        When("doFilter is called") {
+        `when`("doFilter is called") {
             filter.doFilter(req, res, chain)
             verify { chain.doFilter(capture(requestSlot), any()) }
 
-            Then("RequestWrapper strips If-None-Match") {
+            then("RequestWrapper strips If-None-Match") {
                 requestSlot.captured.getHeader("If-None-Match").shouldBe(null)
             }
 
-            Then("RequestWrapper strips If-Modified-Since") {
+            then("RequestWrapper strips If-Modified-Since") {
                 requestSlot.captured.getDateHeader("If-Modified-Since").shouldBe(-1L)
             }
         }

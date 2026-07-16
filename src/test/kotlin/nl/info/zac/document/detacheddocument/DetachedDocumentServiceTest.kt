@@ -39,8 +39,8 @@ class DetachedDocumentServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Creating a detached document") {
-        Given("a valid EnkelvoudigInformatieObject for a given Zaak") {
+    context("Creating a detached document") {
+        given("a valid EnkelvoudigInformatieObject for a given Zaak") {
             val documentUuid = UUID.randomUUID()
             val identificatie = "DOC-456"
             val creatiedatum = LocalDate.now()
@@ -62,10 +62,10 @@ class DetachedDocumentServiceTest : BehaviorSpec({
             }
             every { detachedDocumentRepository.save(capture(detachedDocumentSlot)) } just Runs
 
-            When("create is invoked") {
+            `when`("create is invoked") {
                 detachedDocumentService.create(informatieobject, zaak, reden)
 
-                Then("a detached document is built from the domain objects and saved via the repository") {
+                then("a detached document is built from the domain objects and saved via the repository") {
                     verify(exactly = 1) { detachedDocumentRepository.save(detachedDocumentSlot.captured) }
                     with(detachedDocumentSlot.captured) {
                         this.documentUUID shouldBe documentUuid
@@ -83,33 +83,33 @@ class DetachedDocumentServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading a detached document by UUID") {
-        Given("an existing detached document with a known UUID") {
+    context("Reading a detached document by UUID") {
+        given("an existing detached document with a known UUID") {
             val targetUuid = UUID.randomUUID()
             val detachedDocument = createDetachedDocument(uuid = targetUuid)
 
             every { detachedDocumentRepository.find(targetUuid) } returns detachedDocument
 
-            When("read is called with that UUID") {
+            `when`("read is called with that UUID") {
                 val result = detachedDocumentService.read(targetUuid)
 
-                Then("the document with that UUID is returned") {
+                then("the document with that UUID is returned") {
                     result.documentUUID shouldBe targetUuid
                 }
             }
         }
 
-        Given("no detached document for a certain UUID") {
+        given("no detached document for a certain UUID") {
             val targetUuid = UUID.randomUUID()
 
             every { detachedDocumentRepository.find(targetUuid) } returns null
 
-            When("read is called with that UUID") {
+            `when`("read is called with that UUID") {
                 val detachedDocumentNotFoundException = shouldThrow<DetachedDocumentNotFoundException> {
                     detachedDocumentService.read(targetUuid)
                 }
 
-                Then("a DetachedDocumentNotFoundException is thrown") {
+                then("a DetachedDocumentNotFoundException is thrown") {
                     detachedDocumentNotFoundException.message shouldBe
                         "No detached document found for enkelvoudiginformatieobject UUID: '$targetUuid'"
                 }
@@ -117,18 +117,18 @@ class DetachedDocumentServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Getting a result set of detached documents") {
-        Given("empty list parameters") {
+    context("Getting a result set of detached documents") {
+        given("empty list parameters") {
             val listParameters = DetachedDocumentListParameters()
 
             every { detachedDocumentRepository.list(listParameters) } returns emptyList()
             every { detachedDocumentRepository.count(listParameters) } returns 0
             every { detachedDocumentRepository.getOntkoppeldDoor(listParameters) } returns emptyList()
 
-            When("getDetachedDocumentResult is called") {
+            `when`("getDetachedDocumentResult is called") {
                 val result = detachedDocumentService.getDetachedDocumentResult(listParameters)
 
-                Then("an empty result set is assembled from repository calls") {
+                then("an empty result set is assembled from repository calls") {
                     result.items shouldBe emptyList()
                     result.count shouldBe 0L
                     result.detachedByFilter shouldBe emptyList()
@@ -137,113 +137,113 @@ class DetachedDocumentServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Finding a detached document by Long ID") {
-        Given("an existing detached document with a known Long ID") {
+    context("Finding a detached document by Long ID") {
+        given("an existing detached document with a known Long ID") {
             val document = createDetachedDocument()
 
             every { detachedDocumentRepository.find(document.id!!) } returns document
 
-            When("find is called with that ID") {
+            `when`("find is called with that ID") {
                 val result = detachedDocumentService.find(document.id!!)
 
-                Then("the document is returned") {
+                then("the document is returned") {
                     result shouldBe document
                 }
             }
         }
 
-        Given("no document exists for a given Long ID") {
+        given("no document exists for a given Long ID") {
             val id = 999L
             every { detachedDocumentRepository.find(id) } returns null
 
-            When("find is called with that ID") {
+            `when`("find is called with that ID") {
                 val result = detachedDocumentService.find(id)
 
-                Then("null is returned") {
+                then("null is returned") {
                     result shouldBe null
                 }
             }
         }
     }
 
-    Context("Deleting a detached document by ID") {
-        Given("a Long ID") {
+    context("Deleting a detached document by ID") {
+        given("a Long ID") {
             val document = createDetachedDocument()
 
             every { detachedDocumentRepository.find(document.id!!) } returns document
             every { detachedDocumentRepository.delete(document) } returns Unit
 
-            When("delete is called with that ID") {
+            `when`("delete is called with that ID") {
                 detachedDocumentService.deleteIfExists(document.id!!)
 
-                Then("deletion is delegated to the repository") {
+                then("deletion is delegated to the repository") {
                     verify { detachedDocumentRepository.delete(document) }
                 }
             }
         }
     }
 
-    Context("Deleting a detached document by UUID") {
-        Given("A detached document with a UUID") {
+    context("Deleting a detached document by UUID") {
+        given("A detached document with a UUID") {
             val targetUuid = UUID.randomUUID()
             val detachedDocument = createDetachedDocument(uuid = targetUuid)
 
             every { detachedDocumentRepository.find(targetUuid) } returns detachedDocument
             every { detachedDocumentRepository.delete(detachedDocument) } just Runs
 
-            When("delete is called with that UUID") {
+            `when`("delete is called with that UUID") {
                 detachedDocumentService.deleteIfExists(targetUuid)
 
-                Then("deletion is delegated to the repository") {
+                then("deletion is delegated to the repository") {
                     verify { detachedDocumentRepository.delete(detachedDocument) }
                 }
             }
         }
 
-        Given("A detached document with a UUID") {
+        given("A detached document with a UUID") {
             val targetUuid = UUID.randomUUID()
             val detachedDocument = createDetachedDocument(uuid = targetUuid)
 
             every { detachedDocumentRepository.find(targetUuid) } returns detachedDocument
             every { detachedDocumentRepository.delete(detachedDocument) } just Runs
 
-            When(
+            `when`(
                 "delete is called with that UUID and with the option to also delete the related EnkelvoudigInformatieObject"
             ) {
                 detachedDocumentService.deleteIfExists(targetUuid)
 
-                Then("deletion is delegated to the repository") {
+                then("deletion is delegated to the repository") {
                     verify { detachedDocumentRepository.delete(detachedDocument) }
                 }
             }
         }
     }
 
-    Context("Finding a detached document by UUID") {
-        Given("a UUID for an existing document") {
+    context("Finding a detached document by UUID") {
+        given("a UUID for an existing document") {
             val targetUuid = UUID.randomUUID()
             val document = createDetachedDocument(uuid = targetUuid)
 
             every { detachedDocumentRepository.find(targetUuid) } returns document
 
-            When("find is called with that UUID") {
+            `when`("find is called with that UUID") {
                 val result = detachedDocumentService.find(targetUuid)
 
-                Then("the document is returned") {
+                then("the document is returned") {
                     result shouldBe document
                 }
             }
         }
 
-        Given("a UUID for a non-existent document") {
+        given("a UUID for a non-existent document") {
             val targetUuid = UUID.randomUUID()
 
             every { detachedDocumentRepository.find(targetUuid) } returns null
 
-            When("find is called with that UUID") {
+            `when`("find is called with that UUID") {
                 val result = detachedDocumentService.find(targetUuid)
 
-                Then("null is returned") {
+                then("null is returned") {
                     result shouldBe null
                 }
             }

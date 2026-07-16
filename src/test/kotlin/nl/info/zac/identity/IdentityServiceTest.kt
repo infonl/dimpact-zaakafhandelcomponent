@@ -32,8 +32,8 @@ class IdentityServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Listing users") {
-        Given("Users in the Keycloak realm") {
+    context("Listing users") {
+        given("Users in the Keycloak realm") {
             val userRepresentations = listOf(
                 createUserRepresentation(
                     username = "fakeUsername3",
@@ -56,10 +56,10 @@ class IdentityServiceTest : BehaviorSpec({
             )
             every { realmResource.users().list() } returns userRepresentations
 
-            When("the users are listed") {
+            `when`("the users are listed") {
                 val users = identityService.listUsers()
 
-                Then("the users are retrieved from Keycloak, sorted by full name") {
+                then("the users are retrieved from Keycloak, sorted by full name") {
                     users.size shouldBe 3
                     with(users[0]) {
                         id shouldBe "fakeUsername1"
@@ -87,8 +87,8 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing groups") {
-        Given("a mix of active and inactive groups in the Keycloak realm") {
+    context("Listing groups") {
+        given("a mix of active and inactive groups in the Keycloak realm") {
             val activeGroupRepresentation = createGroupRepresentation(name = "fakeActiveGroup")
             val inactiveGroupRepresentation = createGroupRepresentation(
                 name = "fakeInactiveGroup",
@@ -98,10 +98,10 @@ class IdentityServiceTest : BehaviorSpec({
                 realmResource.groups().groups("", 0, Integer.MAX_VALUE, false)
             } returns listOf(activeGroupRepresentation, inactiveGroupRepresentation)
 
-            When("the groups are listed") {
+            `when`("the groups are listed") {
                 val groups = identityService.listGroups()
 
-                Then("all groups are returned with the active flag correctly set") {
+                then("all groups are returned with the active flag correctly set") {
                     groups.size shouldBe 2
                     groups.first { it.name == "fakeActiveGroup" }.active shouldBe true
                     groups.first { it.name == "fakeInactiveGroup" }.active shouldBe false
@@ -110,8 +110,8 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing users in a group") {
-        Given("Users in a group in the Keycloak realm") {
+    context("Listing users in a group") {
+        given("Users in a group in the Keycloak realm") {
             val groupId = "fakeGroupId"
             val userName1 = "fakeUsername1"
             val userName2 = "fakeUsername2"
@@ -132,10 +132,10 @@ class IdentityServiceTest : BehaviorSpec({
             every { realmResource.groups().groups(groupId, true, 0, 1, true) } returns listOf(keycloakGroup)
             every { realmResource.groups().group(groupId).members() } returns userRepresentations
 
-            When("the users in this group are listed, sorted by full name") {
+            `when`("the users in this group are listed, sorted by full name") {
                 val users = identityService.listUsersInGroup(groupId)
 
-                Then("the users in the group are retrieved from Keycloak, sorted by full name") {
+                then("the users in the group are retrieved from Keycloak, sorted by full name") {
                     users.size shouldBe 2
                     with(users[0]) {
                         id shouldBe "fakeUsername1"
@@ -154,8 +154,8 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Reading a user") {
-        Given("A user in the Keycloak realm") {
+    context("Reading a user") {
+        given("A user in the Keycloak realm") {
             val userRepresentation = createUserRepresentation(
                 username = "fakeUsername",
                 firstName = "fakeFirstName",
@@ -166,10 +166,10 @@ class IdentityServiceTest : BehaviorSpec({
                 realmResource.users().searchByUsername(userRepresentation.username, true)
             } returns listOf(userRepresentation)
 
-            When("the user is retrieved") {
+            `when`("the user is retrieved") {
                 val user = identityService.readUser(userRepresentation.username)
 
-                Then("the user is retrieved from Keycloak") {
+                then("the user is retrieved from Keycloak") {
                     with(user) {
                         id shouldBe "fakeUsername"
                         firstName shouldBe "fakeFirstName"
@@ -182,8 +182,8 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing group names for a user") {
-        Given("Users in the same group in the Keycloak realm") {
+    context("Listing group names for a user") {
+        given("Users in the same group in the Keycloak realm") {
             val groupId = "fakeGroupId"
             val userName1 = "fakeUsername1"
             val userName2 = "fakeUsername2"
@@ -213,55 +213,55 @@ class IdentityServiceTest : BehaviorSpec({
                 realmResource.users().get(userRepresentation1.id).groups()
             } returns listOf(createGroupRepresentation(name = groupId))
 
-            When("the group names for a user are listed") {
+            `when`("the group names for a user are listed") {
                 val groupNames = identityService.listGroupNamesForUser(userName1)
 
-                Then("the groups for the user are retrieved") {
+                then("the groups for the user are retrieved") {
                     groupNames.size shouldBe 1
                     groupNames[0] shouldBe groupId
                 }
             }
 
-            When("a check if an existing user is in a group is performed") {
+            `when`("a check if an existing user is in a group is performed") {
                 identityService.validateIfUserIsInGroup(userName1, groupId)
 
-                Then("the check succeeds") {}
+                then("the check succeeds") {}
             }
         }
 
-        Given("An unknown user in the Keycloak realm") {
+        given("An unknown user in the Keycloak realm") {
             val unknownUserName = "unknownUser"
             every {
                 realmResource.users().searchByUsername(unknownUserName, true)
             } returns emptyList()
 
-            When("listing group names of an unknown user ") {
+            `when`("listing group names of an unknown user ") {
                 shouldThrow<UserNotFoundException> {
                     identityService.listGroupNamesForUser(unknownUserName)
                 }
 
-                Then("an exception is thrown") {}
+                then("an exception is thrown") {}
             }
         }
 
-        Given("An unknown group in the Keycloak realm") {
+        given("An unknown group in the Keycloak realm") {
             val unknownGroupName = "unknownGroup"
             every {
                 realmResource.groups().groups(unknownGroupName, true, 0, 1, true)
             } returns emptyList()
 
-            When("listing users of an unknown user ") {
+            `when`("listing users of an unknown user ") {
                 shouldThrow<GroupNotFoundException> {
                     identityService.listUsersInGroup(unknownGroupName)
                 }
 
-                Then("an exception is thrown") {}
+                then("an exception is thrown") {}
             }
         }
     }
 
-    Context("Validating if a user is in a group") {
-        Given("Users in the same group present in the Keycloak realm") {
+    context("Validating if a user is in a group") {
+        given("Users in the same group present in the Keycloak realm") {
             val groupId = "fakeGroupId"
             val userName1 = "fakeUsername1"
             val userName2 = "fakeUsername2"
@@ -292,34 +292,34 @@ class IdentityServiceTest : BehaviorSpec({
                 realmResource.users().get(userRepresentation1.id).groups()
             } returns listOf(createGroupRepresentation(name = groupId))
 
-            When("a check if a user is in an unknown group is performed") {
+            `when`("a check if a user is in an unknown group is performed") {
                 shouldThrow<UserNotInGroupException> {
                     identityService.validateIfUserIsInGroup(userName1, unknownGroupName)
                 }
 
-                Then("an exception is thrown") {}
+                then("an exception is thrown") {}
             }
         }
 
-        Given("A group without users in the Keycloak realm") {
+        given("A group without users in the Keycloak realm") {
             val groupId = "fakeGroupId"
             val unknownUserName = "unknownUser"
             every {
                 realmResource.users().searchByUsername(unknownUserName, true)
             } returns emptyList()
 
-            When("a check if an unknown user is in a group is performed") {
+            `when`("a check if an unknown user is in a group is performed") {
                 shouldThrow<UserNotFoundException> {
                     identityService.validateIfUserIsInGroup(unknownUserName, groupId)
                 }
 
-                Then("an exception is thrown") {}
+                then("an exception is thrown") {}
             }
         }
     }
 
-    Context("Listing groups for a zaaktype") {
-        Given(
+    context("Listing groups for a zaaktype") {
+        given(
             """
             Authorised groups for the 'behandelaar' application role and a zaaktype in PABC            
             """
@@ -345,10 +345,10 @@ class IdentityServiceTest : BehaviorSpec({
                 )
             } returns listOf(pabcGroupRepresentation1, pabcGroupRepresentation2, inactivePabcGroupRepresentation)
 
-            When("groups for the zaaktype are listed") {
+            `when`("groups for the zaaktype are listed") {
                 val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktype(zaaktypeDescription)
 
-                Then("only active groups are returned and the inactive group is filtered out") {
+                then("only active groups are returned and the inactive group is filtered out") {
                     groups.size shouldBe 2
                     groups.first { it.name == "fakeGroupId1" }.active shouldBe true
                     groups.first { it.name == "fakeGroupId2" }.active shouldBe true
@@ -358,8 +358,8 @@ class IdentityServiceTest : BehaviorSpec({
         }
     }
 
-    Context("Listing groups for multiple zaaktypes") {
-        Given("Authorised groups for the 'behandelaar' role with two zaaktypes sharing one common group") {
+    context("Listing groups for multiple zaaktypes") {
+        given("Authorised groups for the 'behandelaar' role with two zaaktypes sharing one common group") {
             val zaaktypeDescription1 = "fakeZaaktypeDescription1"
             val zaaktypeDescription2 = "fakeZaaktypeDescription2"
             val commonGroupRepresentation = createPabcGroupRepresentation(
@@ -387,19 +387,19 @@ class IdentityServiceTest : BehaviorSpec({
                 )
             } returns listOf(commonGroupRepresentation, onlyZaaktype2GroupRepresentation)
 
-            When("groups for both zaaktypes are listed") {
+            `when`("groups for both zaaktypes are listed") {
                 val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypes(
                     zaaktypeDescriptions = listOf(zaaktypeDescription1, zaaktypeDescription2)
                 )
 
-                Then("only the group authorised for both zaaktypes is returned") {
+                then("only the group authorised for both zaaktypes is returned") {
                     groups.size shouldBe 1
                     groups.first().name shouldBe "fakeCommonGroupId"
                 }
             }
         }
 
-        Given("Authorised groups for the 'behandelaar' role with a single zaaktype description") {
+        given("Authorised groups for the 'behandelaar' role with a single zaaktype description") {
             val zaaktypeDescription = "fakeZaaktypeDescription"
             val pabcGroupRepresentation = createPabcGroupRepresentation(
                 name = "fakeGroupId",
@@ -412,31 +412,31 @@ class IdentityServiceTest : BehaviorSpec({
                 )
             } returns listOf(pabcGroupRepresentation)
 
-            When("groups for the single zaaktype are listed") {
+            `when`("groups for the single zaaktype are listed") {
                 val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypes(
                     zaaktypeDescriptions = listOf(zaaktypeDescription)
                 )
 
-                Then("the groups for that zaaktype are returned") {
+                then("the groups for that zaaktype are returned") {
                     groups.size shouldBe 1
                     groups.first().name shouldBe "fakeGroupId"
                 }
             }
         }
 
-        Given("An empty zaaktype descriptions list") {
-            When("groups for an empty list are listed") {
+        given("An empty zaaktype descriptions list") {
+            `when`("groups for an empty list are listed") {
                 val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypes(
                     zaaktypeDescriptions = emptyList()
                 )
 
-                Then("an empty list is returned without calling PABC") {
+                then("an empty list is returned without calling PABC") {
                     groups shouldBe emptyList()
                 }
             }
         }
 
-        Given("Authorised groups for the 'behandelaar' role with two zaaktypes sharing no common group") {
+        given("Authorised groups for the 'behandelaar' role with two zaaktypes sharing no common group") {
             val zaaktypeDescription1 = "fakeZaaktypeDescription1"
             val zaaktypeDescription2 = "fakeZaaktypeDescription2"
             every {
@@ -452,12 +452,12 @@ class IdentityServiceTest : BehaviorSpec({
                 )
             } returns listOf(createPabcGroupRepresentation(name = "fakeGroupId2", description = "fakeGroupDescription2"))
 
-            When("groups for both zaaktypes are listed") {
+            `when`("groups for both zaaktypes are listed") {
                 val groups = identityService.listActiveGroupsForBehandelaarRoleAndZaaktypes(
                     zaaktypeDescriptions = listOf(zaaktypeDescription1, zaaktypeDescription2)
                 )
 
-                Then("an empty list is returned") {
+                then("an empty list is returned") {
                     groups shouldBe emptyList()
                 }
             }

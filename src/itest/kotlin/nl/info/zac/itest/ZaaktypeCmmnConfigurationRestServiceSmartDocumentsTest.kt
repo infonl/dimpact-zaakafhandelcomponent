@@ -41,19 +41,19 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given(
+    given(
         """
         ZAC Docker container is running and zaaktypeCmmnConfiguration have been created,
         and a beheerder is logged in
         """
     ) {
-        When("the list SmartDocuments templates endpoint is called") {
+        `when`("the list SmartDocuments templates endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/smartdocuments-templates",
                 testUser = BEHEERDER_1
             )
 
-            Then("the response should be ok") {
+            then("the response should be ok") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -110,7 +110,7 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             }
         }
 
-        When("the list SmartDocuments template names endpoint is called") {
+        `when`("the list SmartDocuments template names endpoint is called") {
             val response = itestHttpClient.performPutRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/smartdocuments-group-template-names",
                 requestBodyAsString = """
@@ -121,7 +121,7 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
                 testUser = BEHEERDER_1
             )
 
-            Then("the response should be ok") {
+            then("the response should be ok") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -131,7 +131,7 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             }
         }
 
-        When("the create mapping endpoint is called with correct payload") {
+        `when`("the create mapping endpoint is called with correct payload") {
             val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
                 "$ZAAKTYPE_CMMN_TEST_3_UUID/smartdocuments-templates-mapping"
             val storeResponse = itestHttpClient.performJSONPostRequest(
@@ -149,7 +149,7 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
                     testUser = BEHEERDER_1
                 )
 
-                Then("the data is fetched correctly") {
+                then("the data is fetched correctly") {
                     val fetchResponseBody = fetchResponse.bodyAsString
                     logger.info { "Response: $fetchResponseBody" }
 
@@ -159,7 +159,7 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             }
         }
 
-        When("the create mapping endpoint is called with invalid payload") {
+        `when`("the create mapping endpoint is called with invalid payload") {
             val smartDocumentsZaakafhandelParametersUrl = "$ZAC_API_URI/zaakafhandelparameters/" +
                 "$ZAAKTYPE_CMMN_TEST_3_UUID/smartdocuments-templates-mapping"
             val restTemplateGroups = """
@@ -197,7 +197,7 @@ class ZaaktypeCmmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
                 testUser = BEHEERDER_1
             )
 
-            Then("the request errors") {
+            then("the request errors") {
                 val storeResponseBody = storeResponse.bodyAsString
                 logger.info { "Response: $storeResponseBody" }
 

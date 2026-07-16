@@ -12,7 +12,7 @@ import java.util.UUID
 
 class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
 
-    Given("a REST request") {
+    given("a REST request") {
         val expectedInformatieobjectTypeUUID = UUID.randomUUID()
         val restTemplateRequest = setOf(
             createRestMappedSmartDocumentsTemplateGroup(
@@ -60,10 +60,10 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
             )
         )
 
-        When("convert to string representation is requested") {
+        `when`("convert to string representation is requested") {
             val stringSet = restTemplateRequest.toStringRepresentation()
 
-            Then("it produces a correct set of strings") {
+            then("it produces a correct set of strings") {
                 stringSet.size shouldBe 9
 
                 with(restTemplateRequest.first()) {

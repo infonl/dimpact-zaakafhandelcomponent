@@ -30,17 +30,17 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Context("Updating headers for ZGW client") {
-        Given("A logged in user is available") {
+    context("Updating headers for ZGW client") {
+        given("A logged in user is available") {
             val loggedInUser = createLoggedInUser()
             val incomingHeaders = MultivaluedHashMap<String, String>()
             every { loggedInUserInstance.get() } returns loggedInUser
 
-            When("update is called without an audit explanation set") {
+            `when`("update is called without an audit explanation set") {
                 val outgoingHeaders = MultivaluedHashMap<String, String>()
                 zgwClientHeadersFactory.update(incomingHeaders, outgoingHeaders)
 
-                Then("it should add an Authorization header starting with Bearer and no X-Audit-Toelichting header") {
+                then("it should add an Authorization header starting with Bearer and no X-Audit-Toelichting header") {
                     val authorizationHeader = outgoingHeaders.getFirst(HttpHeaders.AUTHORIZATION)
                     with(authorizationHeader) {
                         this shouldNotBe null
@@ -54,14 +54,14 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
                 }
             }
 
-            When("an audit explanation is set and update is called twice") {
+            `when`("an audit explanation is set and update is called twice") {
                 val auditExplanation = "fakeAuditExplanation"
                 val outgoingHeadersFirst = MultivaluedHashMap<String, String>()
 
                 zgwClientHeadersFactory.setAuditExplanation(auditExplanation)
                 zgwClientHeadersFactory.update(incomingHeaders, outgoingHeadersFirst)
 
-                Then("the first update should include the X-Audit-Toelichting header") {
+                then("the first update should include the X-Audit-Toelichting header") {
                     outgoingHeadersFirst.getFirst("X-Audit-Toelichting") shouldBe auditExplanation
                 }
 
@@ -74,7 +74,7 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
                     val outgoingHeadersSecond = MultivaluedHashMap<String, String>()
                     zgwClientHeadersFactory.update(incomingHeaders, outgoingHeadersSecond)
 
-                    Then("the second update should not include the X-Audit-Toelichting header because it was cleared") {
+                    then("the second update should not include the X-Audit-Toelichting header because it was cleared") {
                         outgoingHeadersSecond.containsKey("X-Audit-Toelichting") shouldBe false
                     }
                 }

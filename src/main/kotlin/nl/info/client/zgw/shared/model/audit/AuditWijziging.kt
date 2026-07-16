@@ -7,7 +7,7 @@ package nl.info.client.zgw.shared.model.audit
 
 import jakarta.json.bind.annotation.JsonbTypeDeserializer
 import net.atos.client.zgw.shared.model.ObjectType
-import nl.info.client.zgw.shared.util.AuditWijzigingJsonbDeserializer
+import nl.info.client.zgw.util.AuditWijzigingJsonbDeserializer
 
 @JsonbTypeDeserializer(AuditWijzigingJsonbDeserializer::class)
 abstract class AuditWijziging<T> {

@@ -51,7 +51,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("Process using ExtendZaakDelegate with a JUEL expressions") {
+    given("Process using ExtendZaakDelegate with a JUEL expressions") {
         val zaak = createZaak(einddatumGepland = LocalDate.now())
         val zaaktype = createZaakType(uri = zaak.zaaktype)
         val extendDays = 2
@@ -105,10 +105,10 @@ class ExtendZaakDelegateTest : BehaviorSpec({
             takenVerlengen = takenVerlengenExpression
         }
 
-        When("Extending the zaak") {
+        `when`("Extending the zaak") {
             extendZaakDelegate.execute(delegateExecution)
 
-            Then("correct expressions resolution is attempted") {
+            then("correct expressions resolution is attempted") {
                 verify(exactly = 1) {
                     aantalDagenExpression.getValue(delegateExecution)
                     verlengingRedenExpression.getValue(delegateExecution)
@@ -143,7 +143,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("Process using ExtendZaakDelegate with a extend days bigger than allowed extension term") {
+    given("Process using ExtendZaakDelegate with a extend days bigger than allowed extension term") {
         val zaak = createZaak(einddatumGepland = LocalDate.now())
         val zaaktype = createZaakType(uri = zaak.zaaktype, verlengingMogelijk = true, verlengingstermijn = "P10D")
         val extendDays = 11
@@ -176,12 +176,12 @@ class ExtendZaakDelegateTest : BehaviorSpec({
             takenVerlengen = takenVerlengenExpression
         }
 
-        When("Extending the zaak") {
+        `when`("Extending the zaak") {
             val exception = shouldThrow<InvalidExtensionPeriodException> {
                 extendZaakDelegate.execute(delegateExecution)
             }
 
-            Then("exception is thrown") {
+            then("exception is thrown") {
                 exception.errorCode shouldBe ErrorCode.ERROR_CODE_EXTENSION_PERIOD_INVALID
             }
 
@@ -217,7 +217,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
         }
     }
 
-    Given("Process using ExtendZaakDelegate when user is not authorized to extend zaak") {
+    given("Process using ExtendZaakDelegate when user is not authorized to extend zaak") {
         val zaak = createZaak(einddatumGepland = LocalDate.now())
         val zaaktype = createZaakType(uri = zaak.zaaktype)
 
@@ -241,12 +241,12 @@ class ExtendZaakDelegateTest : BehaviorSpec({
             verlengingReden = mockk()
         }
 
-        When("Extending the zaak") {
+        `when`("Extending the zaak") {
             val policyException = shouldThrow<PolicyException> {
                 extendZaakDelegate.execute(delegateExecution)
             }
 
-            Then("a PolicyException is thrown") {
+            then("a PolicyException is thrown") {
                 policyException shouldNotBe null
             }
 

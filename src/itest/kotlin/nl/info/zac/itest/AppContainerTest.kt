@@ -24,8 +24,8 @@ class AppContainerTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
-    Given("ZAC Docker container and all related Docker containers are running") {
-        When("the liveness endpoint is called") {
+    given("ZAC Docker container and all related Docker containers are running") {
+        `when`("the liveness endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_MANAGEMENT_URI/health/live"
             )
@@ -37,7 +37,7 @@ class AppContainerTest : BehaviorSpec({
                 | Body: ${response.bodyAsString}
                 """.trimMargin()
             }
-            Then("it should return 200 OK with UP status") {
+            then("it should return 200 OK with UP status") {
                 response.code shouldBe HTTP_OK
 
                 val healthResponse = JSONObject(response.bodyAsString)
@@ -52,7 +52,7 @@ class AppContainerTest : BehaviorSpec({
             }
         }
 
-        When("the readiness endpoint is called") {
+        `when`("the readiness endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_MANAGEMENT_URI/health/ready"
             )
@@ -64,7 +64,7 @@ class AppContainerTest : BehaviorSpec({
                 | Body: ${response.bodyAsString}
                 """.trimMargin()
             }
-            Then("the response should be ok with UP status") { response.code shouldBe HTTP_OK }
+            then("the response should be ok with UP status") { response.code shouldBe HTTP_OK }
             val healthResponse = JSONObject(response.bodyAsString)
             And("the response should report status UP") { healthResponse.getString("status") shouldBe "UP" }
 
@@ -132,7 +132,7 @@ class AppContainerTest : BehaviorSpec({
             }
         }
 
-        When("the generic health endpoint is called") {
+        `when`("the generic health endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_MANAGEMENT_URI/health"
             )
@@ -144,7 +144,7 @@ class AppContainerTest : BehaviorSpec({
                 | Body: ${response.bodyAsString}
                 """.trimMargin()
             }
-            Then("the response should be ok with UP status") { response.code shouldBe HTTP_OK }
+            then("the response should be ok with UP status") { response.code shouldBe HTTP_OK }
 
             val healthResponse = JSONObject(response.bodyAsString)
             And("the response should report status UP") { healthResponse.getString("status") shouldBe "UP" }
@@ -173,67 +173,67 @@ class AppContainerTest : BehaviorSpec({
             }
         }
 
-        When("the metrics endpoint is called") {
+        `when`("the metrics endpoint is called") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_MANAGEMENT_URI/metrics"
             )
-            Then("the response should be ok and the the uptime var should be present") {
+            then("the response should be ok and the the uptime var should be present") {
                 response.code shouldBe HTTP_OK
                 with(response.bodyAsString) {
                     contains("base_jvm_uptime_seconds").shouldBe(true)
                 }
             }
         }
-        When("/admin is requested for a user who has the 'beheerder' role") {
+        `when`("/admin is requested for a user who has the 'beheerder' role") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/admin",
                 testUser = BEHEERDER_1
             )
-            Then("the response should be ok") {
+            then("the response should be ok") {
                 response.code shouldBe HTTP_OK
             }
         }
-        When("/admin is requested for a user who does not have the 'beheerder' role") {
+        `when`("/admin is requested for a user who does not have the 'beheerder' role") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/admin",
                 testUser = BEHANDELAAR_1
             )
-            Then("the response should be forbidden") {
+            then("the response should be forbidden") {
                 response.code shouldBe HTTP_FORBIDDEN
             }
         }
     }
 
-    Given("A logged-in user who does not have any of the ZAC application roles") {
-        When("The ZAC base URI is requested") {
+    given("A logged-in user who does not have any of the ZAC application roles") {
+        `when`("The ZAC base URI is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = ZAC_BASE_URI,
                 testUser = USER_WITHOUT_ANY_ROLE
             )
-            Then("the response should be forbidden") {
+            then("the response should be forbidden") {
                 response.code shouldBe HTTP_FORBIDDEN
             }
         }
 
-        When("The ZAC logout URI is requested") {
+        `when`("The ZAC logout URI is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/sign-out",
                 testUser = USER_WITHOUT_ANY_ROLE
             )
-            Then("the response should redirect to the ZAC root") {
+            then("the response should redirect to the ZAC root") {
                 response.code shouldBe HTTP_MOVED_TEMP
                 response.headers["Location"] shouldBe "$ZAC_BASE_URI/"
             }
         }
     }
 
-    Given("An authenticated user with ZAC application roles") {
-        When("the ZAC logout URI is requested") {
+    given("An authenticated user with ZAC application roles") {
+        `when`("the ZAC logout URI is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_BASE_URI/sign-out",
                 testUser = BEHANDELAAR_1
             )
-            Then("the response should redirect to the ZAC root and not to the Keycloak logout page") {
+            then("the response should redirect to the ZAC root and not to the Keycloak logout page") {
                 response.code shouldBe HTTP_MOVED_TEMP
                 response.headers["Location"] shouldBe "$ZAC_BASE_URI/"
             }

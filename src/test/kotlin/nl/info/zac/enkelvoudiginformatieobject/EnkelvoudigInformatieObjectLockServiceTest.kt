@@ -50,8 +50,8 @@ class EnkelvoudigInformatieObjectLockServiceTest : BehaviorSpec({
         every { typedQuery.resultList } returns results
     }
 
-    Context("createLock") {
-        Given("A valid information object UUID and user ID") {
+    context("createLock") {
+        given("A valid information object UUID and user ID") {
             val fakeUuid = UUID.randomUUID()
             val fakeUserId = "fakeUserId"
             val fakeLockValue = "fakeLockValue"
@@ -60,10 +60,10 @@ class EnkelvoudigInformatieObjectLockServiceTest : BehaviorSpec({
             every { entityManager.persist(any()) } just runs
             every { entityManager.flush() } just runs
 
-            When("createLock is called") {
+            `when`("createLock is called") {
                 val result = service.createLock(fakeUuid, fakeUserId)
 
-                Then("the DRC client is called and the lock entity is persisted and returned") {
+                then("the DRC client is called and the lock entity is persisted and returned") {
                     verify { drcClientService.lockEnkelvoudigInformatieobject(fakeUuid) }
                     verify { entityManager.persist(any()) }
                     verify { entityManager.flush() }
@@ -75,68 +75,68 @@ class EnkelvoudigInformatieObjectLockServiceTest : BehaviorSpec({
         }
     }
 
-    Context("findLock") {
-        Given("A lock exists for the given UUID") {
+    context("findLock") {
+        given("A lock exists for the given UUID") {
             val fakeUuid = UUID.randomUUID()
             val fakeLock = createEnkelvoudigInformatieObjectLock(enkelvoudigInformatieObjectUUID = fakeUuid)
             setupCriteriaChain(listOf(fakeLock))
 
-            When("findLock is called") {
+            `when`("findLock is called") {
                 val result = service.findLock(fakeUuid)
 
-                Then("the lock entity is returned") {
+                then("the lock entity is returned") {
                     result shouldBe fakeLock
                 }
             }
         }
 
-        Given("No lock exists for the given UUID") {
+        given("No lock exists for the given UUID") {
             val fakeUuid = UUID.randomUUID()
             setupCriteriaChain(emptyList())
 
-            When("findLock is called") {
+            `when`("findLock is called") {
                 val result = service.findLock(fakeUuid)
 
-                Then("null is returned") {
+                then("null is returned") {
                     result shouldBe null
                 }
             }
         }
     }
 
-    Context("readLock") {
-        Given("A lock exists for the given UUID") {
+    context("readLock") {
+        given("A lock exists for the given UUID") {
             val fakeUuid = UUID.randomUUID()
             val fakeLock = createEnkelvoudigInformatieObjectLock(enkelvoudigInformatieObjectUUID = fakeUuid)
             setupCriteriaChain(listOf(fakeLock))
 
-            When("readLock is called") {
+            `when`("readLock is called") {
                 val result = service.readLock(fakeUuid)
 
-                Then("the lock entity is returned") {
+                then("the lock entity is returned") {
                     result shouldBe fakeLock
                 }
             }
         }
 
-        Given("No lock exists for the given UUID") {
+        given("No lock exists for the given UUID") {
             val fakeUuid = UUID.randomUUID()
             setupCriteriaChain(emptyList())
 
-            When("readLock is called") {
+            `when`("readLock is called") {
                 val exception = shouldThrow<EnkelvoudigInformatieObjectLockNotFoundException> {
                     service.readLock(fakeUuid)
                 }
 
-                Then("EnkelvoudigInformatieObjectLockNotFoundException is thrown") {
+                then("EnkelvoudigInformatieObjectLockNotFoundException is thrown") {
                     exception.message!!.contains(fakeUuid.toString()) shouldBe true
                 }
             }
         }
     }
 
-    Context("deleteLock") {
-        Given("A lock exists for the given UUID") {
+    context("deleteLock") {
+        given("A lock exists for the given UUID") {
             val fakeUuid = UUID.randomUUID()
             val fakeLock = createEnkelvoudigInformatieObjectLock(
                 enkelvoudigInformatieObjectUUID = fakeUuid,
@@ -147,10 +147,10 @@ class EnkelvoudigInformatieObjectLockServiceTest : BehaviorSpec({
             every { entityManager.remove(fakeLock) } just runs
             every { entityManager.flush() } just runs
 
-            When("deleteLock is called") {
+            `when`("deleteLock is called") {
                 service.deleteLock(fakeUuid)
 
-                Then("the DRC client is called to unlock and the entity is removed") {
+                then("the DRC client is called to unlock and the entity is removed") {
                     verify { drcClientService.unlockEnkelvoudigInformatieobject(fakeUuid, "fakeLockValue") }
                     verify { entityManager.remove(fakeLock) }
                     verify { entityManager.flush() }
@@ -158,14 +158,14 @@ class EnkelvoudigInformatieObjectLockServiceTest : BehaviorSpec({
             }
         }
 
-        Given("No lock exists for the given UUID") {
+        given("No lock exists for the given UUID") {
             val fakeUuid = UUID.randomUUID()
             setupCriteriaChain(emptyList())
 
-            When("deleteLock is called") {
+            `when`("deleteLock is called") {
                 service.deleteLock(fakeUuid)
 
-                Then("neither the DRC client nor the entity manager remove method is called") {
+                then("neither the DRC client nor the entity manager remove method is called") {
                     verify(exactly = 0) { drcClientService.unlockEnkelvoudigInformatieobject(any(), any()) }
                     verify(exactly = 0) { entityManager.remove(any()) }
                 }

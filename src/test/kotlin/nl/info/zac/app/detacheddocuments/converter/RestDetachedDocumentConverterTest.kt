@@ -30,7 +30,7 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a valid detached document and informatieobjectTypeUUID") {
+    given("a valid detached document and informatieobjectTypeUUID") {
         val uuid = UUID.randomUUID()
         val informatieobjectTypeUUID = UUID.randomUUID()
         val userId = "user-123"
@@ -47,10 +47,10 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
         every { userConverter.convertUserId(userId) } returns convertedUser
         every { lockService.findLock(uuid) } returns lock
 
-        When("convert is invoked") {
+        `when`("convert is invoked") {
             val result = converter.convert(detachedDocument, informatieobjectTypeUUID)
 
-            Then("the result should have the expected values") {
+            then("the result should have the expected values") {
                 result.id shouldBe 1L
                 result.documentUUID shouldBe uuid
                 result.documentID shouldBe "DOC-456"
@@ -67,7 +67,7 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
         }
     }
 
-    Given("a detached document that is not locked") {
+    given("a detached document that is not locked") {
         val uuid = UUID.randomUUID()
         val userId = "user-456"
         val detachedDocument = DetachedDocument().apply {
@@ -88,10 +88,10 @@ class RestDetachedDocumentConverterTest : BehaviorSpec({
         every { userConverter.convertUserId(userId) } returns convertedUser
         every { lockService.findLock(uuid) } returns null
 
-        When("convert is invoked") {
+        `when`("convert is invoked") {
             val result = converter.convert(detachedDocument, UUID.randomUUID())
 
-            Then("isVergrendeld should be false in the result") {
+            then("isVergrendeld should be false in the result") {
                 result.isVergrendeld shouldBe false
             }
         }

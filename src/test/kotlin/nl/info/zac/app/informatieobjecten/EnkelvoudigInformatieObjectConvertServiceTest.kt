@@ -36,7 +36,7 @@ class EnkelvoudigInformatieObjectConvertServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a document with status DEFINITIEF") {
+    given("a document with status DEFINITIEF") {
         val uuid = UUID.randomUUID()
         val document = createEnkelvoudigInformatieObject(uuid = uuid).apply {
             status = StatusEnum.DEFINITIEF
@@ -57,10 +57,10 @@ class EnkelvoudigInformatieObjectConvertServiceTest : BehaviorSpec({
             )
         } returns createEnkelvoudigInformatieObject()
 
-        When("convertEnkelvoudigInformatieObjectToPDF is called") {
+        `when`("convertEnkelvoudigInformatieObjectToPDF is called") {
             service.convertEnkelvoudigInformatieObjectToPDF(document, uuid)
 
-            Then("the document is downloaded and converted to PDF") {
+            then("the document is downloaded and converted to PDF") {
                 verify(exactly = 1) { drcClientService.downloadEnkelvoudigInformatieobject(uuid) }
                 verify(exactly = 1) {
                     officeConverterClientService.convertToPDF(any<ByteArrayInputStream>(), "rapport.docx")
@@ -85,18 +85,18 @@ class EnkelvoudigInformatieObjectConvertServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a document with status other than DEFINITIEF") {
+    given("a document with status other than DEFINITIEF") {
         val uuid = UUID.randomUUID()
         val document = createEnkelvoudigInformatieObject(uuid = uuid).apply {
             status = StatusEnum.IN_BEWERKING
         }
 
-        When("convertEnkelvoudigInformatieObjectToPDF is called") {
+        `when`("convertEnkelvoudigInformatieObjectToPDF is called") {
             val thrownException = runCatching {
                 service.convertEnkelvoudigInformatieObjectToPDF(document, uuid)
             }.exceptionOrNull()
 
-            Then("an EnkelvoudigInformatieObjectConversionException is thrown") {
+            then("an EnkelvoudigInformatieObjectConversionException is thrown") {
                 thrownException.shouldBeInstanceOf<EnkelvoudigInformatieObjectConversionException>()
             }
         }

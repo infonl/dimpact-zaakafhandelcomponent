@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.task.model
 
-import net.atos.client.zgw.shared.util.HistorieUtil
+import nl.info.zac.history.model.toValue
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -26,8 +26,8 @@ data class RestTaskHistoryLine(
         toelichting: String?
     ) : this(
         attribuutLabel,
-        HistorieUtil.toWaarde(oudeWaarde),
-        HistorieUtil.toWaarde(nieuweWaarde),
+        oudeWaarde?.toValue(),
+        nieuweWaarde?.toValue(),
         toelichting
     )
 }

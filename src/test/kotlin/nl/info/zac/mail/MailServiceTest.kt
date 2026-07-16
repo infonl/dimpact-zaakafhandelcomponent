@@ -60,7 +60,7 @@ class MailServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a zaak and e-mail data with 'create document from mail' set to true") {
+    given("a zaak and e-mail data with 'create document from mail' set to true") {
         val zaak = createZaak()
         val zaakType = createZaakType(
             informatieObjectTypen = listOf(
@@ -116,10 +116,10 @@ class MailServiceTest : BehaviorSpec({
         every { Transport.send(capture(transportSendRequest)) } just runs
         every { configurationService.readBronOrganisatie() } returns "123443210"
 
-        When("the send mail function is invoked") {
+        `when`("the send mail function is invoked") {
             val body = mailService.sendMail(mailGegevens, bronnen)
 
-            Then("an e-mail is sent") {
+            then("an e-mail is sent") {
                 body shouldBe "fakeResolvedBody3"
                 verify(exactly = 1) {
                     Transport.send(any())
@@ -148,7 +148,7 @@ class MailServiceTest : BehaviorSpec({
         }
     }
 
-    Given("the mail transport cannot send the mail") {
+    given("the mail transport cannot send the mail") {
         val zaak = createZaak()
         val mailGegevens = createMailGegevens(
             createDocumentFromMail = true
@@ -185,16 +185,16 @@ class MailServiceTest : BehaviorSpec({
         mockkStatic(Transport::class)
         every { Transport.send(any<Message>()) } throws MessagingException()
 
-        When("the send mail function is invoked") {
+        `when`("the send mail function is invoked") {
             val body = mailService.sendMail(mailGegevens, bronnen)
 
-            Then("no body is returned") {
+            then("no body is returned") {
                 body shouldBe null
             }
         }
     }
 
-    Given("a zaak with no zaakdata and an e-mail template body containing a zaakdata variable") {
+    given("a zaak with no zaakdata and an e-mail template body containing a zaakdata variable") {
         val zaak = createZaak()
         val bodyWithZaakdataVariable = "${MailTemplateVariables.ZAAKDATA_VARIABLE_PREFIX}name}"
         val mailGegevens = createMailGegevens(
@@ -227,10 +227,10 @@ class MailServiceTest : BehaviorSpec({
         mockkStatic(Transport::class)
         every { Transport.send(any<Message>()) } just runs
 
-        When("the send mail function is invoked") {
+        `when`("the send mail function is invoked") {
             val body = mailService.sendMail(mailGegevens, bronnen)
 
-            Then("the zaakdata variable in the body is replaced with 'Onbekend'") {
+            then("the zaakdata variable in the body is replaced with 'Onbekend'") {
                 body shouldBe "Onbekend"
                 verify(exactly = 1) {
                     mailTemplateHelper.resolveZaakdataVariables(bodyWithZaakdataVariable, emptyMap())
@@ -239,7 +239,7 @@ class MailServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A task and mail gegevens with an attachment UUID array string consisting of an empty string") {
+    given("A task and mail gegevens with an attachment UUID array string consisting of an empty string") {
         val task = mockk<Task>()
         val mailGegevens = createMailGegevens(
             createDocumentFromMail = true,
@@ -264,10 +264,10 @@ class MailServiceTest : BehaviorSpec({
         val transportSendRequest = slot<Message>()
         every { Transport.send(capture(transportSendRequest)) } just runs
 
-        When("the send mail function is invoked") {
+        `when`("the send mail function is invoked") {
             mailService.sendMail(mailGegevens, bronnen)
 
-            Then(
+            then(
                 """
                     an e-mail is sent with the task data and no PDF document is created
                 """

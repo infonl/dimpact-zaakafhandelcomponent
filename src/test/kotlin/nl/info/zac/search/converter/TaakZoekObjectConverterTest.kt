@@ -52,34 +52,34 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
 
     afterEach { checkUnnecessaryStub() }
 
-    Context("supports") {
-        Given("any ZoekObjectType") {
-            When("supports is called with ZoekObjectType.TAAK") {
-                Then("it returns true") {
+    context("supports") {
+        given("any ZoekObjectType") {
+            `when`("supports is called with ZoekObjectType.TAAK") {
+                then("it returns true") {
                     taakZoekObjectConverter.supports(ZoekObjectType.TAAK) shouldBe true
                 }
             }
 
-            When("supports is called with ZoekObjectType.ZAAK") {
-                Then("it returns false") {
+            `when`("supports is called with ZoekObjectType.ZAAK") {
+                then("it returns false") {
                     taakZoekObjectConverter.supports(ZoekObjectType.ZAAK) shouldBe false
                 }
             }
 
-            When("supports is called with ZoekObjectType.DOCUMENT") {
-                Then("it returns false") {
+            `when`("supports is called with ZoekObjectType.DOCUMENT") {
+                then("it returns false") {
                     taakZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) shouldBe false
                 }
             }
         }
     }
 
-    Context("convert") {
+    context("convert") {
         val fakeTaskId = "fakeTaskId"
         val zaakUUID = UUID.randomUUID()
         val zaaktypeUUID = UUID.randomUUID()
 
-        Given("a task with an assignee and a group") {
+        given("a task with an assignee and a group") {
             val taskInfo = mockk<TaskInfo>()
             val zaak = createZaak()
             val zaakType = createZaakType(
@@ -120,10 +120,10 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
                 name = "Fake Group"
             )
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val taakZoekObject = taakZoekObjectConverter.convert(fakeTaskId)
 
-                Then("all fields are correctly populated") {
+                then("all fields are correctly populated") {
                     taakZoekObject.getObjectId() shouldBe fakeTaskId
                     taakZoekObject.getType() shouldBe ZoekObjectType.TAAK
                     taakZoekObject.naam shouldBe "fakeTaskName"
@@ -138,7 +138,7 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             }
         }
 
-        Given("a task without an assignee or group") {
+        given("a task without an assignee or group") {
             val taskInfo = mockk<TaskInfo>()
             val zaak = createZaak()
             val zaakType = createZaakType(uri = zaak.zaaktype)
@@ -161,10 +161,10 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every { taskInfo.assignee } returns null
             every { taskInfo.identityLinks } returns emptyList()
 
-            When("convert is called") {
+            `when`("convert is called") {
                 val taakZoekObject = taakZoekObjectConverter.convert(fakeTaskId)
 
-                Then("assignee and group fields are null and isToegekend is false") {
+                then("assignee and group fields are null and isToegekend is false") {
                     taakZoekObject.behandelaarNaam.shouldBeNull()
                     taakZoekObject.behandelaarGebruikersnaam.shouldBeNull()
                     taakZoekObject.groepID.shouldBeNull()

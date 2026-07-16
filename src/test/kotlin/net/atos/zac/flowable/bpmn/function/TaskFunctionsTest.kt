@@ -25,14 +25,14 @@ class TaskFunctionsTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("a process instance with historic tasks") {
+    given("a process instance with historic tasks") {
         val processInstanceId = "proc-123"
         val taskDefinitionKey = "behandelen_taak"
         val assignee = "user-1"
         val groupId = "groupId"
         val candidateType = "candidate"
 
-        When("requesting the behandelaar (assignee)") {
+        `when`("requesting the behandelaar (assignee)") {
             mockkObject(FlowableHelper)
             val flowableHelper = mockk<FlowableHelper>()
             every { FlowableHelper.getInstance() } returns flowableHelper
@@ -58,12 +58,12 @@ class TaskFunctionsTest : BehaviorSpec({
             } returns mapOf("123" to executionEntityMock)
 
             val user = behandelaar(taskDefinitionKey)
-            Then("it should return the correct assignee") {
+            then("it should return the correct assignee") {
                 user shouldBe "user-1"
             }
         }
 
-        When("requesting the groep (candidate group)") {
+        `when`("requesting the groep (candidate group)") {
             mockkObject(FlowableHelper)
             val flowableHelper = mockk<FlowableHelper>()
             every { FlowableHelper.getInstance() } returns flowableHelper
@@ -93,12 +93,12 @@ class TaskFunctionsTest : BehaviorSpec({
 
             val group = groep(taskDefinitionKey)
 
-            Then("it should return the first candidate group ID") {
+            then("it should return the first candidate group ID") {
                 group shouldBe groupId
             }
         }
 
-        When("no task exists for the definition key") {
+        `when`("no task exists for the definition key") {
             mockkObject(FlowableHelper)
             val flowableHelper = mockk<FlowableHelper>()
             every { FlowableHelper.getInstance() } returns flowableHelper
@@ -124,7 +124,7 @@ class TaskFunctionsTest : BehaviorSpec({
             val user = behandelaar(taskDefinitionKey)
             val group = groep(taskDefinitionKey)
 
-            Then("behandelaar and groep should return null") {
+            then("behandelaar and groep should return null") {
                 user shouldBe null
                 group shouldBe null
             }

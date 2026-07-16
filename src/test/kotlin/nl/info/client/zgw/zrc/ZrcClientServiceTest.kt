@@ -38,7 +38,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("An existing zaak") {
+    given("An existing zaak") {
         val zaakUUID = UUID.randomUUID()
         val expectedZaak = createZaak(uuid = zaakUUID)
 
@@ -53,7 +53,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak and a new rol to be added") {
+    given("A zaak and a new rol to be added") {
         val zaak = createZaak()
         val existingRoles = listOf(createRolMedewerker(), createRolOrganisatorischeEenheid())
         val newRole = createRolMedewerker(
@@ -64,10 +64,10 @@ class ZrcClientServiceTest : BehaviorSpec({
         every { zgwClientHeadersFactory.setAuditExplanation(auditExplanation) } just Runs
         every { zrcClient.rolCreate(any()) } returns newRole
 
-        When("updateRol is called") {
+        `when`("updateRol is called") {
             zrcClientService.updateRol(zaak, newRole, auditExplanation)
 
-            Then("it should create the new role and set the audit description") {
+            then("it should create the new role and set the audit description") {
                 verify(exactly = 1) {
                     zgwClientHeadersFactory.setAuditExplanation(auditExplanation)
                     zrcClient.rolCreate(newRole)
@@ -76,7 +76,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A zaak with existing roles") {
+    given("A zaak with existing roles") {
         val zaak = createZaak()
         val medewerkerRole1 = createRolMedewerkerForReads()
         val medewerkerRole2 = createRolMedewerkerForReads()
@@ -87,10 +87,10 @@ class ZrcClientServiceTest : BehaviorSpec({
         every { zrcClient.rolDelete(any()) } just Runs
         every { zgwClientHeadersFactory.setAuditExplanation(description) } just Runs
 
-        When("deleteRol is called for betrokkeneType 'Medewerker'") {
+        `when`("deleteRol is called for betrokkeneType 'Medewerker'") {
             zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, description)
 
-            Then("it should remove only the first role of the matching betrokkene type") {
+            then("it should remove only the first role of the matching betrokkene type") {
                 verify(exactly = 1) {
                     zrcClient.rolDelete(medewerkerRole1.uuid)
                 }

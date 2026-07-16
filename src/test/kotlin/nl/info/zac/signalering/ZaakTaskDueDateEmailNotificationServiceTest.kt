@@ -52,7 +52,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         checkUnnecessaryStub()
     }
 
-    Given("An open zaak which is approaching its target date and for which a signalering was not yet sent") {
+    given("An open zaak which is approaching its target date and for which a signalering was not yet sent") {
         val defaultCatalogusURI = URI("https://example.com/dummeCatalogusURI")
         val zaakTypeUUID1 = UUID.randomUUID()
         val zaakTypeUUID2 = UUID.randomUUID()
@@ -111,10 +111,10 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         every { searchService.zoek(any()) } returns zoekResultaat
         every { signaleringService.deleteSignaleringVerzonden(any()) } returns true
 
-        When("the send due date email notifications method is called") {
+        `when`("the send due date email notifications method is called") {
             zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications()
 
-            Then("one zaak due date email notifications should be sent") {
+            then("one zaak due date email notifications should be sent") {
                 verify(exactly = 1) {
                     signaleringService.sendSignalering(zaakVerlopendSignalering)
                     signaleringService.createSignaleringVerzonden(zaakVerlopendSignalering)
@@ -123,7 +123,7 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
             }
         }
     }
-    Given("An open task which is due now and for which a signalering was not yet sent") {
+    given("An open task which is due now and for which a signalering was not yet sent") {
         val defaultCatalogusURI = URI("https://example.com/dummeCatalogusURI")
         val zaakTypeUUID1 = UUID.randomUUID()
         val zaakTypeUUID2 = UUID.randomUUID()
@@ -175,10 +175,10 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         every { signaleringService.createSignaleringVerzonden(taakOpNaamVerlopenSignalering1) } returns mockk()
         every { flowableTaskService.listOpenTasksDueLater() } returns emptyList()
 
-        When("the send due date email notifications method is called") {
+        `when`("the send due date email notifications method is called") {
             zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications()
 
-            Then("one task due date email notifications should be sent") {
+            then("one task due date email notifications should be sent") {
                 verify(exactly = 1) {
                     signaleringService.sendSignalering(taakOpNaamVerlopenSignalering1)
                     signaleringService.createSignaleringVerzonden(taakOpNaamVerlopenSignalering1)

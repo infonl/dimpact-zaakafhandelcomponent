@@ -29,7 +29,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
 
-    Given("A zaak exists and another zaak is linked to it as a gerelateerde zaak") {
+    given("A zaak exists and another zaak is linked to it as a gerelateerde zaak") {
         lateinit var zaakUuid: UUID
         lateinit var gerelateerdeZaakIdentificatie: String
         lateinit var gerelateerdeZaakUuid: UUID
@@ -71,13 +71,13 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
             testUser = BEHANDELAAR_1
         )
 
-        When("zaak history is requested") {
+        `when`("zaak history is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie",
                 testUser = BEHANDELAAR_1
             )
 
-            Then("the gerelateerdeZaken history entry shows the zaak identificatie and no old value") {
+            then("the gerelateerdeZaken history entry shows the zaak identificatie and no old value") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -90,7 +90,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
         }
     }
 
-    Given("A behandelaar is logged in and a zaak exists that has not been assigned yet") {
+    given("A behandelaar is logged in and a zaak exists that has not been assigned yet") {
         lateinit var zaakUuid: UUID
         lateinit var zaakIdentificatie: String
         zacClient.createZaak(
@@ -123,13 +123,13 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
             logger.info { "Response: $bodyAsString" }
         }
 
-        When("zaak history is requested") {
+        `when`("zaak history is requested") {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaken/zaak/$zaakUuid/historie",
                 testUser = BEHANDELAAR_1
             )
 
-            Then(
+            then(
                 """
                 the response should be successful and contain the expected history items of the zaak 
                 in reverse chronological order (most recent change first): 

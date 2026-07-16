@@ -37,13 +37,13 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
     val openZaakClient = OpenZaakClient(itestHttpClient)
     val maxResults = 10
 
-    Given(
+    given(
         """
             A productaanvraag object with type '$PRODUCTAANVRAAG_TYPE_INBOX_ONLY' exists in Objecten,
             and that type is not mapped to any zaaktype configuration in ZAC
         """.trimIndent()
     ) {
-        When("a create notification is sent to ZAC for that productaanvraag") {
+        `when`("a create notification is sent to ZAC for that productaanvraag") {
             val notificationResponse = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
                 headers = Headers.headersOf(
@@ -67,7 +67,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                 ).toString()
             )
 
-            Then(
+            then(
                 "the response is no content and the inbox productaanvraag appears in the list"
             ) {
                 notificationResponse.code shouldBe HTTP_NO_CONTENT
@@ -98,7 +98,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given(
+    given(
         """
             A productaanvraag inbox item exists after processing a create notification for
             object '$OBJECT_PRODUCTAANVRAAG_INBOX_ONLY_2_UUID'
@@ -152,13 +152,13 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
             inboxProductaanvraagId = item.getLong("id")
         }
 
-        When("the inbox productaanvraag is deleted") {
+        `when`("the inbox productaanvraag is deleted") {
             val deleteResponse = itestHttpClient.performDeleteRequest(
                 url = "$ZAC_API_URI/inbox-productaanvragen/$inboxProductaanvraagId",
                 testUser = RECORDMANAGER_1
             )
 
-            Then("the delete succeeds and the item no longer appears in the list") {
+            then("the delete succeeds and the item no longer appears in the list") {
                 deleteResponse.code shouldBe HTTP_NO_CONTENT
                 val listResponse = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/inbox-productaanvragen",
@@ -179,7 +179,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("A PDF document exists in Open Zaak") {
+    given("A PDF document exists in Open Zaak") {
         val createResponse = openZaakClient.createEnkelvoudigInformatieobject(
             fileName = TEST_PDF_FILE_NAME,
             title = "inbox-productaanvraag-pdfpreview-itest-${UUID.randomUUID()}"
@@ -189,13 +189,13 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
         val documentUuid = JSONObject(createResponse.bodyAsString).getString("url")
             .substringAfterLast("/").run(UUID::fromString)
 
-        When("the pdfPreview endpoint is called for that document") {
+        `when`("the pdfPreview endpoint is called for that document") {
             val previewResponse = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/inbox-productaanvragen/$documentUuid/pdfPreview",
                 testUser = COORDINATOR_1
             )
 
-            Then("the response is 200 OK") {
+            then("the response is 200 OK") {
                 logger.info { "pdfPreview response code: ${previewResponse.code}" }
                 previewResponse.code shouldBe HTTP_OK
             }

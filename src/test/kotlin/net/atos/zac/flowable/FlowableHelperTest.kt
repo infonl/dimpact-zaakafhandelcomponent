@@ -46,8 +46,8 @@ class FlowableHelperTest : BehaviorSpec({
     @Suppress("UNCHECKED_CAST")
     val fakeLoggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
-    Context("FlowableHelper constructor injection") {
-        Given("All 16 service dependencies are provided") {
+    context("FlowableHelper constructor injection") {
+        given("All 16 service dependencies are provided") {
             val flowableHelper = FlowableHelper(
                 eventingService = fakeEventingService,
                 identityService = fakeIdentityService,
@@ -68,8 +68,8 @@ class FlowableHelperTest : BehaviorSpec({
                 loggedInUserInstance = fakeLoggedInUserInstance
             )
 
-            When("all properties are accessed") {
-                Then("each property returns the corresponding injected dependency") {
+            `when`("all properties are accessed") {
+                then("each property returns the corresponding injected dependency") {
                     flowableHelper.eventingService shouldBe fakeEventingService
                     flowableHelper.identityService shouldBe fakeIdentityService
                     flowableHelper.indexeerService shouldBe fakeIndexingService

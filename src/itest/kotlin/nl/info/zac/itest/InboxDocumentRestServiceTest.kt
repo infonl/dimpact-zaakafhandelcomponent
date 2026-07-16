@@ -32,7 +32,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
     val openZaakClient = OpenZaakClient(itestHttpClient)
     val documentHelper = DocumentHelper(zacClient)
 
-    Given("a document is created directly in Open Zaak without being linked to a zaak") {
+    given("a document is created directly in Open Zaak without being linked to a zaak") {
         val uniqueTitle = "inbox-doc-itest-${UUID.randomUUID()}"
         val createResponse = openZaakClient.createEnkelvoudigInformatieobject(
             fileName = TEST_PDF_FILE_NAME,
@@ -43,10 +43,10 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
         val documentUuid = JSONObject(createResponse.bodyAsString).getString("url")
             .substringAfterLast("/").run(UUID::fromString)
 
-        When("a create notification is sent to ZAC for that document") {
+        `when`("a create notification is sent to ZAC for that document") {
             documentHelper.sendEnkelvoudigInformatieobjectCreateNotification(documentUuid)
 
-            Then("the document should appear in the inbox documents list") {
+            then("the document should appear in the inbox documents list") {
                 eventually(10.seconds) {
                     val listResponse = itestHttpClient.performPutRequest(
                         url = "$ZAC_API_URI/inboxdocumenten",
@@ -72,7 +72,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
         }
     }
 
-    Given("a document is created in the document register and appears in the inbox documents list") {
+    given("a document is created in the document register and appears in the inbox documents list") {
         val uniqueTitle = "inbox-doc-delete-itest-${UUID.randomUUID()}"
         val createResponse = openZaakClient.createEnkelvoudigInformatieobject(
             fileName = TEST_PDF_FILE_NAME,
@@ -103,13 +103,13 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
             }
         }
 
-        When("the inbox document is deleted") {
+        `when`("the inbox document is deleted") {
             val deleteResponse = itestHttpClient.performDeleteRequest(
                 url = "$ZAC_API_URI/inboxdocumenten/$inboxDocumentId",
                 testUser = COORDINATOR_1
             )
 
-            Then("the inbox document should no longer appear in the inbox documents list") {
+            then("the inbox document should no longer appear in the inbox documents list") {
                 deleteResponse.code shouldBe HTTP_NO_CONTENT
                 val listResponse = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/inboxdocumenten",
@@ -131,7 +131,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                     url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid/",
                     testUser = COORDINATOR_1
                 )
-                Then(
+                then(
                     "the response should be not found confirming the enkelvoudiginformatieobject was also deleted from Open Zaak"
                 ) {
                     logger.info { "Get enkelvoudiginformatieobject after delete response: ${getResponse.bodyAsString}" }
