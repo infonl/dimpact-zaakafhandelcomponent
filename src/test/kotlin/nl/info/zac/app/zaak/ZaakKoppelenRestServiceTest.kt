@@ -39,13 +39,16 @@ import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.SearchService
+import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekResultaat
+import nl.info.zac.search.model.ZoekVeld
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType.ZAAK
 import nl.info.zac.zaak.ZaakService
 import java.net.URI
 import java.util.UUID
 
+@Suppress("LargeClass")
 class ZaakKoppelenRestServiceTest : BehaviorSpec({
     isolationMode = IsolationMode.InstancePerTest
     val eventingService = mockk<EventingService>()
@@ -631,6 +634,274 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 then("unlinking succeeds without PolicyException") {
                     verify(exactly = 1) {
                         zrcClientService.patchZaak(any(), any(), any())
+                    }
+                }
+            }
+        }
+    }
+
+    context("Building search parameters for findLinkableZaken") {
+        given("a request with zoekZaakIdentifier set") {
+            val sourceZaak = createZaak(
+                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            )
+            val zaakZoekObject = createZaakZoekObject(
+                type = ZAAK,
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+            )
+            val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
+            val zaakType = createZaakType().apply {
+                deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
+            }
+            val zoekParametersSlot = slot<ZoekParameters>()
+
+            every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+            every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
+            every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+            every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("findLinkableZaken is called") {
+                zaakKoppelenRestService.findLinkableZaken(
+                    createRestFindLinkableZakenRequest(
+                        zaakUuid = sourceZaak.uuid,
+                        zoekZaakIdentifier = "  fakeZaakIdentifier  ",
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should contain the trimmed zaak identificatie zoek veld") {
+                    zoekParametersSlot.captured.getZoeken()[ZoekVeld.ZAAK_IDENTIFICATIE] shouldBe "fakeZaakIdentifier"
+                }
+            }
+        }
+
+        given("a request with zoekZaakIdentifier set to null") {
+            val sourceZaak = createZaak(
+                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            )
+            val zaakZoekObject = createZaakZoekObject(
+                type = ZAAK,
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+            )
+            val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
+            val zaakType = createZaakType().apply {
+                deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
+            }
+            val zoekParametersSlot = slot<ZoekParameters>()
+
+            every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+            every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
+            every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+            every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("findLinkableZaken is called") {
+                zaakKoppelenRestService.findLinkableZaken(
+                    createRestFindLinkableZakenRequest(
+                        zaakUuid = sourceZaak.uuid,
+                        zoekZaakIdentifier = null,
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should not contain the zaak identificatie zoek veld") {
+                    zoekParametersSlot.captured.getZoeken().containsKey(ZoekVeld.ZAAK_IDENTIFICATIE) shouldBe false
+                }
+            }
+        }
+
+        given("a request with zoekZaakIdentifier set to blank") {
+            val sourceZaak = createZaak(
+                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            )
+            val zaakZoekObject = createZaakZoekObject(
+                type = ZAAK,
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+            )
+            val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
+            val zaakType = createZaakType().apply {
+                deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
+            }
+            val zoekParametersSlot = slot<ZoekParameters>()
+
+            every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+            every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
+            every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+            every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("findLinkableZaken is called") {
+                zaakKoppelenRestService.findLinkableZaken(
+                    createRestFindLinkableZakenRequest(
+                        zaakUuid = sourceZaak.uuid,
+                        zoekZaakIdentifier = "   ",
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should not contain the zaak identificatie zoek veld") {
+                    zoekParametersSlot.captured.getZoeken().containsKey(ZoekVeld.ZAAK_IDENTIFICATIE) shouldBe false
+                }
+            }
+        }
+
+        given("a request with zoekZaakOmschrijving set") {
+            val sourceZaak = createZaak(
+                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            )
+            val zaakZoekObject = createZaakZoekObject(
+                type = ZAAK,
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+            )
+            val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
+            val zaakType = createZaakType().apply {
+                deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
+            }
+            val zoekParametersSlot = slot<ZoekParameters>()
+
+            every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+            every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
+            every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+            every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("findLinkableZaken is called") {
+                zaakKoppelenRestService.findLinkableZaken(
+                    createRestFindLinkableZakenRequest(
+                        zaakUuid = sourceZaak.uuid,
+                        zoekZaakIdentifier = null,
+                        zoekZaakOmschrijving = "  fakeOmschrijving  ",
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should contain the trimmed zaak omschrijving zoek veld") {
+                    zoekParametersSlot.captured.getZoeken()[ZoekVeld.ZAAK_OMSCHRIJVING] shouldBe "fakeOmschrijving"
+                }
+            }
+        }
+
+        given("a request with zoekZaakOmschrijving set to null") {
+            val sourceZaak = createZaak(
+                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            )
+            val zaakZoekObject = createZaakZoekObject(
+                type = ZAAK,
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+            )
+            val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
+            val zaakType = createZaakType().apply {
+                deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
+            }
+            val zoekParametersSlot = slot<ZoekParameters>()
+
+            every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+            every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
+            every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+            every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("findLinkableZaken is called") {
+                zaakKoppelenRestService.findLinkableZaken(
+                    createRestFindLinkableZakenRequest(
+                        zaakUuid = sourceZaak.uuid,
+                        zoekZaakIdentifier = null,
+                        zoekZaakOmschrijving = null,
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should not contain the zaak omschrijving zoek veld") {
+                    zoekParametersSlot.captured.getZoeken().containsKey(ZoekVeld.ZAAK_OMSCHRIJVING) shouldBe false
+                }
+            }
+        }
+
+        given("a request with zoekZaakOmschrijving set to blank") {
+            val sourceZaak = createZaak(
+                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            )
+            val zaakZoekObject = createZaakZoekObject(
+                type = ZAAK,
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+            )
+            val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
+            val zaakType = createZaakType().apply {
+                deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
+            }
+            val zoekParametersSlot = slot<ZoekParameters>()
+
+            every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+            every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
+            every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+            every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("findLinkableZaken is called") {
+                zaakKoppelenRestService.findLinkableZaken(
+                    createRestFindLinkableZakenRequest(
+                        zaakUuid = sourceZaak.uuid,
+                        zoekZaakIdentifier = null,
+                        zoekZaakOmschrijving = "   ",
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should not contain the zaak omschrijving zoek veld") {
+                    zoekParametersSlot.captured.getZoeken().containsKey(ZoekVeld.ZAAK_OMSCHRIJVING) shouldBe false
+                }
+            }
+        }
+
+        given("a request with both zoekZaakIdentifier and zoekZaakOmschrijving set") {
+            val sourceZaak = createZaak(
+                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            )
+            val zaakZoekObject = createZaakZoekObject(
+                type = ZAAK,
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+            )
+            val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
+            val zaakType = createZaakType().apply {
+                deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
+            }
+            val zoekParametersSlot = slot<ZoekParameters>()
+
+            every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+            every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
+            every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+            every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("findLinkableZaken is called") {
+                zaakKoppelenRestService.findLinkableZaken(
+                    createRestFindLinkableZakenRequest(
+                        zaakUuid = sourceZaak.uuid,
+                        zoekZaakIdentifier = "  fakeZaakIdentifier  ",
+                        zoekZaakOmschrijving = "  fakeOmschrijving  ",
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should contain both trimmed zoek velden") {
+                    with(zoekParametersSlot.captured.getZoeken()) {
+                        this[ZoekVeld.ZAAK_IDENTIFICATIE] shouldBe "fakeZaakIdentifier"
+                        this[ZoekVeld.ZAAK_OMSCHRIJVING] shouldBe "fakeOmschrijving"
                     }
                 }
             }
