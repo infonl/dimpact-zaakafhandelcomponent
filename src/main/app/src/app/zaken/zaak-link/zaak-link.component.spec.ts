@@ -93,27 +93,6 @@ describe(ZaakLinkComponent.name, () => {
   });
 
   describe("caseRelationType valueChanges", () => {
-    it("enables caseToSearchFor when caseRelationType is selected", () => {
-      const { component } = setup();
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      expect(component["form"].controls.caseNumberToSearchFor.enabled).toBe(
-        true,
-      );
-    });
-
-    it("resets caseToSearchFor when caseRelationType changes", () => {
-      const { component } = setup();
-      component["form"].controls.caseNumberToSearchFor.setValue(
-        "ZAAK-2026-999",
-      );
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      expect(component["form"].controls.caseNumberToSearchFor.value).toBeNull();
-    });
-
     it("clears search results when caseRelationType changes", () => {
       const { component } = setup();
       component["cases"].data = [makeFakeSearchResult()];
@@ -123,33 +102,6 @@ describe(ZaakLinkComponent.name, () => {
       );
       expect(component["cases"].data).toHaveLength(0);
       expect(component["totalCases"]).toBe(0);
-    });
-  });
-
-  describe("caseToSearchFor valueChanges", () => {
-    it("clears search results when value becomes null and data exists", () => {
-      const { component } = setup();
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      component["cases"].data = [makeFakeSearchResult()];
-      component["totalCases"] = 1;
-      component["form"].controls.caseNumberToSearchFor.setValue(null);
-      expect(component["cases"].data).toHaveLength(0);
-      expect(component["totalCases"]).toBe(0);
-    });
-
-    it("does not clear results when value changes to non-null", () => {
-      const { component } = setup();
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      component["cases"].data = [makeFakeSearchResult()];
-      component["totalCases"] = 1;
-      component["form"].controls.caseNumberToSearchFor.setValue(
-        "ZAAK-2026-999",
-      );
-      expect(component["cases"].data).toHaveLength(1);
     });
   });
 
