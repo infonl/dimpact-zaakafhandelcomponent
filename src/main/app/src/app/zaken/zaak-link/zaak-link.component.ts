@@ -29,13 +29,13 @@ import { MatToolbar } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
+import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
 import { EmptyPipe } from "src/app/shared/pipes/empty.pipe";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
-import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete";
 
 const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   ({
@@ -108,7 +108,9 @@ export class ZaakLinkComponent implements OnDestroy {
     caseDescriptionToSearchFor: new FormControl<string>("", [
       Validators.minLength(2),
     ]),
-    zaakTypeToSearchFor: new FormControl<GeneratedType<"RestZaaktype"> | null>(null),
+    zaakTypeToSearchFor: new FormControl<GeneratedType<"RestZaaktype"> | null>(
+      null,
+    ),
   });
 
   protected caseTypes = this.zakenService.listZaaktypesToLink();
