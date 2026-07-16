@@ -1,65 +1,35 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.util.time
 
-package net.atos.zac.util.time;
+import java.time.LocalDateTime
+import java.time.Period
+import java.time.temporal.ChronoUnit
 
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.temporal.ChronoUnit;
-
-public final class PeriodUtil {
-
-    private PeriodUtil() {
+object PeriodUtil {
+    fun format(period: Period?): String? = when (period) {
+        null -> null
+        Period.ZERO -> "0 dagen"
+        else -> listOfNotNull(
+            formatUnit(amount = period.years, singular = "jaar", plural = "jaren"),
+            formatUnit(amount = period.months, singular = "maand", plural = "maanden"),
+            formatUnit(amount = period.days, singular = "dag", plural = "dagen")
+        ).joinToString(", ")
     }
 
-    public static String format(Period period) {
+    fun numberOfDaysFromToday(period: Period?): Int {
         if (period == null) {
-            return null;
+            return 0
         }
-        if (period == Period.ZERO) {
-            return "0 dagen";
-        } else {
-            StringBuilder buf = new StringBuilder();
-            if (period.getYears() != 0) {
-                if (period.getYears() == -1 || period.getYears() == 1) {
-                    buf.append(period.getYears()).append(" jaar");
-                } else {
-                    buf.append(period.getYears()).append(" jaren");
-                }
-                if (period.getMonths() != 0 || period.getDays() != 0) {
-                    buf.append(", ");
-                }
-            }
-
-            if (period.getMonths() != 0) {
-                if (period.getMonths() == -1 || period.getMonths() == 1) {
-                    buf.append(period.getMonths()).append(" maand");
-                } else {
-                    buf.append(period.getMonths()).append(" maanden");
-                }
-                if (period.getDays() != 0) {
-                    buf.append(", ");
-                }
-            }
-
-            if (period.getDays() != 0) {
-                if (period.getDays() == -1 || period.getDays() == 1) {
-                    buf.append(period.getDays()).append(" dag");
-                } else {
-                    buf.append(period.getDays()).append(" dagen");
-                }
-            }
-            return buf.toString();
-        }
+        val start = LocalDateTime.now()
+        return start.until(start.plus(period), ChronoUnit.DAYS).toInt()
     }
 
-    public static int numberOfDaysFromToday(Period period) {
-        if (period == null) {
-            return 0;
-        }
-        LocalDateTime start = LocalDateTime.now();
-        return (int) start.until(start.plus(period), ChronoUnit.DAYS);
+    private fun formatUnit(amount: Int, singular: String, plural: String): String? = when (amount) {
+        0 -> null
+        -1, 1 -> "$amount $singular"
+        else -> "$amount $plural"
     }
 }

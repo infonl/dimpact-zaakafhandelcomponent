@@ -19,7 +19,7 @@ import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.util.time.DateTimeConverterUtil
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService

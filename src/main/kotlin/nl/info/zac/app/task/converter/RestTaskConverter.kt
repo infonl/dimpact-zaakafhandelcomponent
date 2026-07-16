@@ -13,7 +13,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
 import net.atos.zac.flowable.util.TaskUtil
-import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.util.time.DateTimeConverterUtil
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.identity.converter.RestGroupConverter

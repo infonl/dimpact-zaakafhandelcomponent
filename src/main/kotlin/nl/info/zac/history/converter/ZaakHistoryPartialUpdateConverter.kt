@@ -5,7 +5,7 @@
 package nl.info.zac.history.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.util.time.LocalDateUtil
+import nl.info.zac.util.time.LocalDateUtil
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry

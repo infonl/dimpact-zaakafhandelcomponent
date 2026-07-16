@@ -4,7 +4,7 @@
  */
 package nl.info.zac.task.model
 
-import net.atos.zac.util.time.LocalDateAdapter
+import nl.info.zac.util.time.LocalDateAdapter
 import java.time.LocalDate
 
 class BpmnTaskFormData(taakData: Map<String, Any>) {

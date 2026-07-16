@@ -1,44 +1,39 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.util.time;
+package nl.info.zac.util.time
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.ext.MessageBodyReader;
-import jakarta.ws.rs.ext.Provider;
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.WebApplicationException
+import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.MultivaluedMap
+import jakarta.ws.rs.ext.MessageBodyReader
+import jakarta.ws.rs.ext.Provider
+import java.io.IOException
+import java.io.InputStream
+import java.lang.reflect.Type
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Provider
 @Produces(MediaType.TEXT_PLAIN)
-public class LocalDateReader implements MessageBodyReader<LocalDate> {
+class LocalDateReader : MessageBodyReader<LocalDate> {
+    private val defaultFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmXXX")
 
-    DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmXXX");
+    override fun isReadable(aClass: Class<*>?, type: Type?, annotations: Array<Annotation>?, mediaType: MediaType?): Boolean =
+        type == LocalDate::class.java
 
-    @Override
-    public boolean isReadable(Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
-        return type == LocalDate.class;
-    }
-
-    @Override
-    public LocalDate readFrom(
-            Class<LocalDate> aClass,
-            Type type,
-            Annotation[] annotations,
-            MediaType mediaType,
-            MultivaluedMap<String, String> multivaluedMap,
-            InputStream inputStream
-    ) throws IOException, WebApplicationException {
-        byte[] localDateBytes = inputStream.readAllBytes();
-        return LocalDate.parse(new String(localDateBytes), DEFAULT_FORMATTER);
+    @Throws(IOException::class, WebApplicationException::class)
+    override fun readFrom(
+        aClass: Class<LocalDate>?,
+        type: Type?,
+        annotations: Array<Annotation>?,
+        mediaType: MediaType?,
+        multivaluedMap: MultivaluedMap<String, String>?,
+        inputStream: InputStream?
+    ): LocalDate {
+        val localDateBytes = inputStream!!.readAllBytes()
+        return LocalDate.parse(String(localDateBytes), defaultFormatter)
     }
 }

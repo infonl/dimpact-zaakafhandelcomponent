@@ -6,7 +6,7 @@ package nl.info.zac.healthcheck
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import net.atos.zac.util.time.LocalDateUtil
+import nl.info.zac.util.time.LocalDateUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig

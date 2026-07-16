@@ -1,37 +1,32 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.util.time;
+package nl.info.zac.util.time
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.ext.ParamConverter;
+import jakarta.ws.rs.BadRequestException
+import jakarta.ws.rs.ext.ParamConverter
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+import java.util.logging.Level
+import java.util.logging.Logger
 
 /**
  * RestEasy converter ZonedDateTime <-> String
  */
-public class ZonedDateTimeParamConverter implements ParamConverter<ZonedDateTime> {
+class ZonedDateTimeParamConverter : ParamConverter<ZonedDateTime> {
+    companion object {
+        private val LOG = Logger.getLogger(ZonedDateTimeParamConverter::class.java.name)
+    }
 
-    private static final Logger LOG = Logger.getLogger(ZonedDateTimeParamConverter.class.getName());
-
-    @Override
-    public ZonedDateTime fromString(String param) {
+    override fun fromString(param: String): ZonedDateTime =
         try {
-            return ZonedDateTime.parse(param, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        } catch (DateTimeParseException e) {
-            LOG.log(Level.WARNING, "Could not parse date string: " + param, e);
-            throw new BadRequestException(e);
+            ZonedDateTime.parse(param, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        } catch (dateTimeParseException: DateTimeParseException) {
+            LOG.log(Level.WARNING, dateTimeParseException) { "Could not parse date string: $param" }
+            throw BadRequestException(dateTimeParseException)
         }
-    }
 
-    @Override
-    public String toString(ZonedDateTime date) {
-        return date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-    }
+    override fun toString(date: ZonedDateTime): String = date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 }

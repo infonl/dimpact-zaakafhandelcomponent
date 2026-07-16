@@ -3,12 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.util
+package nl.info.zac.util.time
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import net.atos.zac.util.time.LocalDateReader
 import java.io.ByteArrayInputStream
 import java.time.LocalDate
 import java.time.format.DateTimeParseException

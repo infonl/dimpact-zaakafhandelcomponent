@@ -7,7 +7,7 @@ package nl.info.zac.search.converter
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
+import nl.info.zac.util.time.DateTimeConverterUtil.convertToDate
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService

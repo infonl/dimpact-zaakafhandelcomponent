@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.search.model
 
-import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
+import nl.info.zac.util.time.DateTimeConverterUtil.convertToLocalDate
 import nl.info.zac.app.policy.model.RestTaakRechten
 import nl.info.zac.app.policy.model.toRestTaakRechten
 import nl.info.zac.app.task.model.TaakStatus

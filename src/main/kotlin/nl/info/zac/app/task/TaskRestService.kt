@@ -37,7 +37,7 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.util.TaskUtil
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.util.time.DateTimeConverterUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.SoortEnum

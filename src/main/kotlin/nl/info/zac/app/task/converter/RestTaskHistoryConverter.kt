@@ -9,7 +9,7 @@ import jakarta.json.bind.annotation.JsonbDateFormat
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.model.ValueChangeData
 import net.atos.zac.util.JsonbUtil
-import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.util.time.DateTimeConverterUtil
 import nl.info.zac.app.task.model.RestTaskHistoryLine
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName

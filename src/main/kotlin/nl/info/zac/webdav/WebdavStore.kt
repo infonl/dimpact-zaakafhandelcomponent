@@ -6,7 +6,7 @@ package nl.info.zac.webdav
 
 import jakarta.enterprise.inject.spi.CDI
 import jakarta.servlet.http.HttpSession
-import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
+import nl.info.zac.util.time.DateTimeConverterUtil.convertToDate
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.webdav.ITransaction

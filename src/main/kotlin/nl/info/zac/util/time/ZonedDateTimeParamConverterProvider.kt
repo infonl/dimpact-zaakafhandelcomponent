@@ -1,31 +1,27 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.util.time;
+package nl.info.zac.util.time
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.time.ZonedDateTime;
-
-import jakarta.ws.rs.ext.ParamConverter;
-import jakarta.ws.rs.ext.ParamConverterProvider;
-import jakarta.ws.rs.ext.Provider;
+import jakarta.ws.rs.ext.ParamConverter
+import jakarta.ws.rs.ext.ParamConverterProvider
+import jakarta.ws.rs.ext.Provider
+import java.lang.reflect.Type
+import java.time.ZonedDateTime
 
 /**
  * Provider for ZonedDateTime jakarta web-service parameter converter.
- * 
+ *
  * @see ZonedDateTimeParamConverter
  */
 @Provider
-public class ZonedDateTimeParamConverterProvider implements ParamConverterProvider {
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> ParamConverter<T> getConverter(Class<T> rawType, Type genericType, Annotation[] annotations) {
-        if (rawType.isAssignableFrom(ZonedDateTime.class)) {
-            return (ParamConverter<T>) new ZonedDateTimeParamConverter();
+class ZonedDateTimeParamConverterProvider : ParamConverterProvider {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> getConverter(rawType: Class<T>, genericType: Type?, annotations: Array<Annotation>?): ParamConverter<T>? =
+        if (rawType.isAssignableFrom(ZonedDateTime::class.java)) {
+            ZonedDateTimeParamConverter() as ParamConverter<T>
+        } else {
+            null
         }
-        return null;
-    }
 }

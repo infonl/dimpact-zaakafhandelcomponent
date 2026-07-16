@@ -1,24 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.util.time
 
-package net.atos.zac.util.time;
+import jakarta.json.bind.adapter.JsonbAdapter
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+class ZonedDateTimeAdapter : JsonbAdapter<ZonedDateTime, String> {
+    override fun adaptToJson(dateTime: ZonedDateTime?): String? = dateTime?.format(DateTimeFormatter.ISO_INSTANT)
 
-import jakarta.json.bind.adapter.JsonbAdapter;
-
-public class ZonedDateTimeAdapter implements JsonbAdapter<ZonedDateTime, String> {
-
-    @Override
-    public String adaptToJson(final ZonedDateTime dateTime) {
-        return dateTime != null ? dateTime.format(DateTimeFormatter.ISO_INSTANT) : null;
-    }
-
-    @Override
-    public ZonedDateTime adaptFromJson(final String dateTime) {
-        return ZonedDateTime.parse(dateTime);
-    }
+    override fun adaptFromJson(dateTime: String): ZonedDateTime = ZonedDateTime.parse(dateTime)
 }
