@@ -70,16 +70,6 @@ class DateTimeConverterUtilTest : BehaviorSpec({
         }
     }
 
-    given("a null ZonedDateTime") {
-        `when`("converting to a Date") {
-            val result = convertToDate(null as ZonedDateTime?)
-
-            then("it should return null") {
-                result shouldBe null
-            }
-        }
-    }
-
     given("a ZonedDateTime") {
         val zonedDateTime = ZonedDateTime.parse("2024-03-11T10:44:00+01:00")
 

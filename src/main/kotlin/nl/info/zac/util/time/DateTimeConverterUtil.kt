@@ -24,8 +24,8 @@ fun convertToDate(localDate: LocalDate?): Date? =
 fun convertToDate(offsetDateTime: OffsetDateTime): Date =
     Date.from(offsetDateTime.toZonedDateTime().withZoneSameInstant(DEFAULT_ZONE_ID).toInstant())
 
-fun convertToDate(zonedDateTime: ZonedDateTime?): Date? =
-    zonedDateTime?.let { Date.from(it.withZoneSameInstant(DEFAULT_ZONE_ID).toInstant()) }
+fun convertToDate(zonedDateTime: ZonedDateTime): Date =
+    Date.from(zonedDateTime.withZoneSameInstant(DEFAULT_ZONE_ID).toInstant())
 
 fun convertToDate(isoString: String?): Date? =
     if (StringUtils.isNotBlank(isoString)) convertToDate(ZonedDateTime.parse(isoString)) else null
