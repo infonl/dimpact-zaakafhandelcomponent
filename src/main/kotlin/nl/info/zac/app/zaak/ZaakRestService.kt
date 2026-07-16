@@ -56,6 +56,7 @@ import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
+import nl.info.zac.util.toLocalDate
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
@@ -183,7 +184,12 @@ class ZaakRestService @Inject constructor(
     ) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).behandelen)
-        zgwApiService.closeZaak(zaak, afsluitenGegevens.resultaattypeUuid, afsluitenGegevens.reden)
+        zgwApiService.closeZaak(
+            zaak = zaak,
+            resultaatTypeUUID = afsluitenGegevens.resultaattypeUuid,
+            description = afsluitenGegevens.reden,
+            brondatumEigenschap = afsluitenGegevens.brondatumEigenschap?.let(String::toLocalDate)
+        )
     }
 
     @Suppress("LongMethod")
@@ -906,7 +912,11 @@ class ZaakRestService @Inject constructor(
         resultaattypeUUID: UUID,
         zaakbeeindigRedenNaam: String
     ) {
-        zgwApiService.closeZaak(zaak, resultaattypeUUID, zaakbeeindigRedenNaam)
+        zgwApiService.closeZaak(
+            zaak = zaak,
+            resultaatTypeUUID = resultaattypeUUID,
+            description = zaakbeeindigRedenNaam
+        )
     }
 
     /**

@@ -34,6 +34,7 @@ import nl.info.zac.app.planitems.model.RESTPlanItem
 import nl.info.zac.app.planitems.model.RESTProcessTaskData
 import nl.info.zac.app.planitems.model.RESTUserEventListenerData
 import nl.info.zac.app.planitems.model.UserEventListenerActie
+import nl.info.zac.util.toLocalDate
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
@@ -251,13 +252,22 @@ class PlanItemsRestService @Inject constructor(
             zaak.zaaktype.extractUuid()
         )
         zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let { resultaattypeUUID ->
-            zgwApiService.closeZaak(zaak, resultaattypeUUID, userEventListenerData.resultaatToelichting)
+            zgwApiService.closeZaak(
+                zaak = zaak,
+                resultaatTypeUUID = resultaattypeUUID,
+                description = userEventListenerData.resultaatToelichting
+            )
         }
     }
 
     private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
         userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
-            zgwApiService.closeZaak(zaak, resultaattypeUUID, userEventListenerData.resultaatToelichting)
+            zgwApiService.closeZaak(
+                zaak = zaak,
+                resultaatTypeUUID = resultaattypeUUID,
+                description = userEventListenerData.resultaatToelichting,
+                brondatumEigenschap = userEventListenerData.brondatumEigenschap?.let(String::toLocalDate)
+            )
         } ?: throw InputValidationFailedException(
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
             message = "Resultaattype UUID moet gevuld zijn bij het afhandelen van een zaak."

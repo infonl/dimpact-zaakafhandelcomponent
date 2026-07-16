@@ -56,6 +56,7 @@ import nl.info.zac.shared.helper.SuspensionZaakHelper
 import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.net.URI
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Suppress("LargeClass")
@@ -568,7 +569,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
             val resultaattypeUuid = UUID.randomUUID()
             val datumkenmerk = "testDatumkenmerk"
-            val brondatumEigenschap = "20231201"
+            val brondatumEigenschap = "2023-12-01T00:00:00.000+01:00"
             val brondatumArchiefprocedure = BrondatumArchiefprocedure().apply {
                 afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP
             }
@@ -585,7 +586,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
-            every { zgwApiService.closeZaak(zaak, resultaattypeUuid, null) } just runs
+            every {
+                zgwApiService.closeZaak(zaak, resultaattypeUuid, null, ZonedDateTime.parse(brondatumEigenschap).toLocalDate())
+            } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("the user event listener plan item is processed") {
@@ -593,7 +596,38 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("the zaak is closed") {
                     verify(exactly = 1) {
-                        zgwApiService.closeZaak(zaak, resultaattypeUuid, null)
+                        zgwApiService.closeZaak(zaak, resultaattypeUuid, null, ZonedDateTime.parse(brondatumEigenschap).toLocalDate())
+                    }
+                }
+            }
+        }
+
+        given("Zaak exists with an unparsable brondatumEigenschap") {
+            val zaak = createZaak(resultaat = null)
+            val resultaattypeUuid = UUID.randomUUID()
+            val loggedInUser = createLoggedInUser()
+
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.ZAAK_AFHANDELEN,
+                restMailGegevens = null,
+                resultaattypeUuid = resultaattypeUuid,
+                brondatumEigenschap = "not-a-date"
+            )
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("the user event listener plan item is processed") {
+                val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                    planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+                }
+
+                then("an InputValidationFailedException is thrown and the zaak is not closed") {
+                    inputValidationFailedException.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
+                    verify(exactly = 0) {
+                        zgwApiService.closeZaak(any(), any(), any(), any())
                     }
                 }
             }
