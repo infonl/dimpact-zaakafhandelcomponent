@@ -18,7 +18,7 @@ class DateTimeConverterUtilTest : BehaviorSpec({
         val date = Date.from(LocalDate.of(2024, 3, 11).atStartOfDay(ZoneId.systemDefault()).toInstant())
 
         `when`("converting to a LocalDate") {
-            val result = DateTimeConverterUtil.convertToLocalDate(date)
+            val result = convertToLocalDate(date)
 
             then("it should return the corresponding LocalDate") {
                 result shouldBe LocalDate.of(2024, 3, 11)
@@ -26,7 +26,7 @@ class DateTimeConverterUtilTest : BehaviorSpec({
         }
 
         `when`("converting to a ZonedDateTime") {
-            val result = DateTimeConverterUtil.convertToZonedDateTime(date)
+            val result = convertToZonedDateTime(date)
 
             then("it should return the corresponding ZonedDateTime") {
                 result shouldBe ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
@@ -36,7 +36,7 @@ class DateTimeConverterUtilTest : BehaviorSpec({
 
     given("a null LocalDate") {
         `when`("converting to a Date") {
-            val result = DateTimeConverterUtil.convertToDate(null as LocalDate?)
+            val result = convertToDate(null as LocalDate?)
 
             then("it should return null") {
                 result shouldBe null
@@ -48,7 +48,7 @@ class DateTimeConverterUtilTest : BehaviorSpec({
         val localDate = LocalDate.of(2024, 3, 11)
 
         `when`("converting to a Date") {
-            val result = DateTimeConverterUtil.convertToDate(localDate)
+            val result = convertToDate(localDate)
 
             then("it should return the corresponding Date at start of day") {
                 result shouldBe Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
@@ -60,7 +60,7 @@ class DateTimeConverterUtilTest : BehaviorSpec({
         val offsetDateTime = OffsetDateTime.parse("2024-03-11T10:44:00+01:00")
 
         `when`("converting to a Date") {
-            val result = DateTimeConverterUtil.convertToDate(offsetDateTime)
+            val result = convertToDate(offsetDateTime)
 
             then("it should return the corresponding Date") {
                 result shouldBe Date.from(
@@ -72,7 +72,7 @@ class DateTimeConverterUtilTest : BehaviorSpec({
 
     given("a null ZonedDateTime") {
         `when`("converting to a Date") {
-            val result = DateTimeConverterUtil.convertToDate(null as ZonedDateTime?)
+            val result = convertToDate(null as ZonedDateTime?)
 
             then("it should return null") {
                 result shouldBe null
@@ -84,7 +84,7 @@ class DateTimeConverterUtilTest : BehaviorSpec({
         val zonedDateTime = ZonedDateTime.parse("2024-03-11T10:44:00+01:00")
 
         `when`("converting to a Date") {
-            val result = DateTimeConverterUtil.convertToDate(zonedDateTime)
+            val result = convertToDate(zonedDateTime)
 
             then("it should return the corresponding Date") {
                 result shouldBe Date.from(
@@ -94,7 +94,7 @@ class DateTimeConverterUtilTest : BehaviorSpec({
         }
 
         `when`("converting to a LocalDateTime") {
-            val result = DateTimeConverterUtil.convertToLocalDateTime(zonedDateTime)
+            val result = convertToLocalDateTime(zonedDateTime)
 
             then("it should return the corresponding LocalDateTime") {
                 result shouldBe zonedDateTime.withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
@@ -104,7 +104,7 @@ class DateTimeConverterUtilTest : BehaviorSpec({
 
     given("a blank ISO string") {
         `when`("converting to a Date") {
-            val result = DateTimeConverterUtil.convertToDate("")
+            val result = convertToDate("")
 
             then("it should return null") {
                 result shouldBe null
@@ -116,7 +116,7 @@ class DateTimeConverterUtilTest : BehaviorSpec({
         val isoString = "2024-03-11T10:44:00+01:00"
 
         `when`("converting to a Date") {
-            val result = DateTimeConverterUtil.convertToDate(isoString)
+            val result = convertToDate(isoString)
 
             then("it should return the corresponding Date") {
                 result shouldBe Date.from(

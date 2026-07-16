@@ -20,7 +20,7 @@ import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
-import nl.info.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
@@ -193,7 +193,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     planItemInstanceId,
                     restHumanTaskData.groep.id,
                     null,
-                    DateTimeConverterUtil.convertToDate(restHumanTaskData.fataledatum),
+                    convertToDate(restHumanTaskData.fataledatum),
                     restHumanTaskData.toelichting,
                     any(),
                     zaak.uuid
@@ -285,7 +285,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     planItemInstanceId,
                     restHumanTaskData.groep.id,
                     null,
-                    DateTimeConverterUtil.convertToDate(zaak.uiterlijkeEinddatumAfdoening),
+                    convertToDate(zaak.uiterlijkeEinddatumAfdoening),
                     restHumanTaskData.toelichting,
                     any(),
                     zaak.uuid
@@ -349,7 +349,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     additionalInfoPlanItemInstanceId,
                     restHumanTaskData.groep.id,
                     null,
-                    DateTimeConverterUtil.convertToDate(restHumanTaskData.fataledatum),
+                    convertToDate(restHumanTaskData.fataledatum),
                     restHumanTaskData.toelichting,
                     any(),
                     zaak.uuid
