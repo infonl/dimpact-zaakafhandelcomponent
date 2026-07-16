@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.PositiveOrZero
+import jakarta.validation.constraints.Size
 import jakarta.ws.rs.DefaultValue
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.QueryParam
@@ -20,6 +21,7 @@ class RestFindLinkableZakenRequest {
     lateinit var zaakUuid: UUID
 
     @QueryParam("zoekZaakIdentifier")
+    @field:Size(min = 2)
     var zoekZaakIdentifier: String? = null
 
     @QueryParam("relationType")
@@ -27,6 +29,7 @@ class RestFindLinkableZakenRequest {
     lateinit var relationType: RelatieType
 
     @QueryParam(value = "zoekZaakOmschrijving")
+    @field:Size(min = 2)
     var zoekZaakOmschrijving: String? = null
 
     @QueryParam("page") @DefaultValue("0")
