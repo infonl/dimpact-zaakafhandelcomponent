@@ -27,6 +27,7 @@ import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.model.RestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.createRestFindLinkableZakenRequest
@@ -34,6 +35,7 @@ import nl.info.zac.app.zaak.model.createRestZaakLinkData
 import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createZaakRechten
@@ -59,6 +61,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    val restZaaktypeConverter = mockk<RestZaaktypeConverter>()
+    val configurationService = mockk<ConfigurationService>()
     val zaakKoppelenRestService = ZaakKoppelenRestService(
         eventingService = eventingService,
         indexingService = indexingService,
@@ -67,7 +71,9 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         zaakService = zaakService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
-        loggedInUserInstance = loggedInUserInstance
+        loggedInUserInstance = loggedInUserInstance,
+        restZaaktypeConverter = restZaaktypeConverter,
+        configurationService = configurationService
     )
 
     afterEach {
