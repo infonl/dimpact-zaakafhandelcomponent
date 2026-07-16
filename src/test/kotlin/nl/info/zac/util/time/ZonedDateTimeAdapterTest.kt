@@ -11,16 +11,6 @@ import java.time.ZonedDateTime
 class ZonedDateTimeAdapterTest : BehaviorSpec({
     val zonedDateTimeAdapter = ZonedDateTimeAdapter()
 
-    given("a null ZonedDateTime") {
-        `when`("adapting to JSON") {
-            val result = zonedDateTimeAdapter.adaptToJson(null)
-
-            then("it should return null") {
-                result shouldBe null
-            }
-        }
-    }
-
     given("a ZonedDateTime") {
         val zonedDateTime = ZonedDateTime.parse("2024-03-11T10:44:00Z")
 

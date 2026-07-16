@@ -21,19 +21,19 @@ import java.time.format.DateTimeFormatter
 class LocalDateReader : MessageBodyReader<LocalDate> {
     private val defaultFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmXXX")
 
-    override fun isReadable(aClass: Class<*>?, type: Type?, annotations: Array<Annotation>?, mediaType: MediaType?): Boolean =
+    override fun isReadable(aClass: Class<*>, type: Type, annotations: Array<Annotation>, mediaType: MediaType): Boolean =
         type == LocalDate::class.java
 
     @Throws(IOException::class, WebApplicationException::class)
     override fun readFrom(
-        aClass: Class<LocalDate>?,
-        type: Type?,
-        annotations: Array<Annotation>?,
-        mediaType: MediaType?,
-        multivaluedMap: MultivaluedMap<String, String>?,
-        inputStream: InputStream?
+        aClass: Class<LocalDate>,
+        type: Type,
+        annotations: Array<Annotation>,
+        mediaType: MediaType,
+        multivaluedMap: MultivaluedMap<String, String>,
+        inputStream: InputStream
     ): LocalDate {
-        val localDateBytes = inputStream!!.readAllBytes()
+        val localDateBytes = inputStream.readAllBytes()
         return LocalDate.parse(String(localDateBytes), defaultFormatter)
     }
 }

@@ -14,7 +14,11 @@ class ZonedDateTimeParamConverterProviderTest : BehaviorSpec({
 
     given("a raw type assignable from ZonedDateTime") {
         `when`("getting a converter") {
-            val converter = zonedDateTimeParamConverterProvider.getConverter(ZonedDateTime::class.java, null, null)
+            val converter = zonedDateTimeParamConverterProvider.getConverter(
+                ZonedDateTime::class.java,
+                ZonedDateTime::class.java,
+                emptyArray()
+            )
 
             then("it should return a ZonedDateTimeParamConverter") {
                 converter.shouldBeInstanceOf<ZonedDateTimeParamConverter>()
@@ -24,7 +28,11 @@ class ZonedDateTimeParamConverterProviderTest : BehaviorSpec({
 
     given("a raw type not assignable from ZonedDateTime") {
         `when`("getting a converter") {
-            val converter = zonedDateTimeParamConverterProvider.getConverter(String::class.java, null, null)
+            val converter = zonedDateTimeParamConverterProvider.getConverter(
+                String::class.java,
+                String::class.java,
+                emptyArray()
+            )
 
             then("it should return null") {
                 converter shouldBe null

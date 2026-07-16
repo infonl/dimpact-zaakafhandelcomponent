@@ -19,19 +19,19 @@ import java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME
 @Provider
 @Produces(MediaType.TEXT_PLAIN)
 class ZonedDateTimeReader : MessageBodyReader<ZonedDateTime> {
-    override fun isReadable(aClass: Class<*>?, type: Type?, annotations: Array<Annotation>?, mediaType: MediaType?): Boolean =
+    override fun isReadable(aClass: Class<*>, type: Type, annotations: Array<Annotation>, mediaType: MediaType): Boolean =
         type == ZonedDateTime::class.java
 
     @Throws(IOException::class, WebApplicationException::class)
     override fun readFrom(
-        aClass: Class<ZonedDateTime>?,
-        type: Type?,
-        annotations: Array<Annotation>?,
-        mediaType: MediaType?,
-        multivaluedMap: MultivaluedMap<String, String>?,
-        inputStream: InputStream?
+        aClass: Class<ZonedDateTime>,
+        type: Type,
+        annotations: Array<Annotation>,
+        mediaType: MediaType,
+        multivaluedMap: MultivaluedMap<String, String>,
+        inputStream: InputStream
     ): ZonedDateTime {
-        val zonedDateTimeBytes = inputStream!!.readAllBytes()
+        val zonedDateTimeBytes = inputStream.readAllBytes()
         return ZonedDateTime.parse(String(zonedDateTimeBytes), ISO_ZONED_DATE_TIME)
     }
 }

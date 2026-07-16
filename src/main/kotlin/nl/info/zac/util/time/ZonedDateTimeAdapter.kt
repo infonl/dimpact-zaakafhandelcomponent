@@ -9,7 +9,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 class ZonedDateTimeAdapter : JsonbAdapter<ZonedDateTime, String> {
-    override fun adaptToJson(dateTime: ZonedDateTime?): String? = dateTime?.format(DateTimeFormatter.ISO_INSTANT)
+    override fun adaptToJson(dateTime: ZonedDateTime): String = dateTime.format(DateTimeFormatter.ISO_INSTANT)
 
     override fun adaptFromJson(dateTime: String): ZonedDateTime = ZonedDateTime.parse(dateTime)
 }

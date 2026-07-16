@@ -18,7 +18,7 @@ import java.time.ZonedDateTime
 @Provider
 class ZonedDateTimeParamConverterProvider : ParamConverterProvider {
     @Suppress("UNCHECKED_CAST")
-    override fun <T> getConverter(rawType: Class<T>, genericType: Type?, annotations: Array<Annotation>?): ParamConverter<T>? =
+    override fun <T> getConverter(rawType: Class<T>, genericType: Type, annotations: Array<Annotation>): ParamConverter<T>? =
         if (rawType.isAssignableFrom(ZonedDateTime::class.java)) {
             ZonedDateTimeParamConverter() as ParamConverter<T>
         } else {

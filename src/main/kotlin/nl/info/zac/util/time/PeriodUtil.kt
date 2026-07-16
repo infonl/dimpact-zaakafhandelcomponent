@@ -9,8 +9,7 @@ import java.time.Period
 import java.time.temporal.ChronoUnit
 
 object PeriodUtil {
-    fun format(period: Period?): String? = when (period) {
-        null -> null
+    fun format(period: Period): String = when (period) {
         Period.ZERO -> "0 dagen"
         else -> listOfNotNull(
             formatUnit(amount = period.years, singular = "jaar", plural = "jaren"),
@@ -19,10 +18,7 @@ object PeriodUtil {
         ).joinToString(", ")
     }
 
-    fun numberOfDaysFromToday(period: Period?): Int {
-        if (period == null) {
-            return 0
-        }
+    fun numberOfDaysFromToday(period: Period): Int {
         val start = LocalDateTime.now()
         return start.until(start.plus(period), ChronoUnit.DAYS).toInt()
     }

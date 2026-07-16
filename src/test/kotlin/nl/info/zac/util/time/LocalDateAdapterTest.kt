@@ -11,16 +11,6 @@ import java.time.LocalDate
 class LocalDateAdapterTest : BehaviorSpec({
     val localDateAdapter = LocalDateAdapter()
 
-    given("a null LocalDate") {
-        `when`("adapting to JSON") {
-            val result = localDateAdapter.adaptToJson(null)
-
-            then("it should return null") {
-                result shouldBe null
-            }
-        }
-    }
-
     given("a LocalDate") {
         val localDate = LocalDate.of(2024, 3, 11)
 

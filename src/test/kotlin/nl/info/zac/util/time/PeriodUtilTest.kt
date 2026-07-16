@@ -10,24 +10,6 @@ import java.time.Period
 
 class PeriodUtilTest : BehaviorSpec({
 
-    given("a null period") {
-        `when`("formatting it") {
-            val result = PeriodUtil.format(null)
-
-            then("it should return null") {
-                result shouldBe null
-            }
-        }
-
-        `when`("calculating the number of days from today") {
-            val result = PeriodUtil.numberOfDaysFromToday(null)
-
-            then("it should return zero") {
-                result shouldBe 0
-            }
-        }
-    }
-
     given("a zero period") {
         `when`("formatting it") {
             val result = PeriodUtil.format(Period.ZERO)
