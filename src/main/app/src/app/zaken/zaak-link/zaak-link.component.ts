@@ -35,6 +35,7 @@ import { EmptyPipe } from "src/app/shared/pipes/empty.pipe";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
+import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete";
 
 const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   ({
@@ -62,6 +63,7 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
     MatExpansionModule,
     ZacSelect,
     ZacInput,
+    ZacAutoComplete,
     EmptyPipe,
   ],
 })
@@ -106,7 +108,10 @@ export class ZaakLinkComponent implements OnDestroy {
     caseDescriptionToSearchFor: new FormControl<string>("", [
       Validators.minLength(2),
     ]),
+    zaakTypeToSearchFor: new FormControl<GeneratedType<"RestZaaktype"> | null>(null),
   });
+
+  protected caseTypes = this.zakenService.listZaaktypesToLink();
 
   constructor() {
     this.form.controls.caseRelationType.valueChanges
@@ -123,6 +128,7 @@ export class ZaakLinkComponent implements OnDestroy {
       caseNumberToSearchFor,
       caseDescriptionToSearchFor,
       caseRelationType,
+      zaakTypeToSearchFor,
     } = this.form.getRawValue();
 
     if (!caseRelationType?.value) return;
@@ -130,8 +136,9 @@ export class ZaakLinkComponent implements OnDestroy {
     this.zoekenService
       .findLinkableZaken({
         zaakUuid: this.zaak.uuid,
-        zoekZaakIdentifier: caseNumberToSearchFor,
-        zoekZaakOmschrijving: caseDescriptionToSearchFor,
+        zoekZaakIdentifier: caseNumberToSearchFor || undefined,
+        zoekZaakOmschrijving: caseDescriptionToSearchFor || undefined,
+        zoekZaakType: zaakTypeToSearchFor?.uuid || undefined,
         relationType: caseRelationType.value,
       })
       .subscribe({

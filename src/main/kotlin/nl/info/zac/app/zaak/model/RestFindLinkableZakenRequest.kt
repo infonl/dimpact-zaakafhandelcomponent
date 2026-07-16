@@ -32,6 +32,9 @@ class RestFindLinkableZakenRequest {
     @field:Size(min = 2)
     var zoekZaakOmschrijving: String? = null
 
+    @QueryParam(value = "zoekZaakType")
+    var zoekZaakType: UUID? = null
+
     @QueryParam("page") @DefaultValue("0")
     @field:PositiveOrZero
     var page: Int = 0

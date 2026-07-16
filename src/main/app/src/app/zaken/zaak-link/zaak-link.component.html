@@ -35,6 +35,14 @@
         label="zaak.identificatie"
         key="caseNumberToSearchFor"
       />
+      <zac-auto-complete
+        key="zaakTypeToSearchFor"
+        label="zaaktype"
+        class="col-12 col-md-6"
+        [form]="form"
+        [options]="caseTypes"
+        [optionDisplayValue]="'omschrijving'"
+      />
       <zac-input
         [form]="form"
         label="zoekVeld.ZAAK_OMSCHRIJVING"

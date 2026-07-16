@@ -5,9 +5,13 @@
 
 import { inject, Injectable, signal } from "@angular/core";
 import { Subject } from "rxjs";
-import { PutBody } from "../shared/http/http-client";
+import { PathParameters, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { GeneratedType } from "../shared/utils/generated-types";
+
+type FindLinkableZakenParams = PathParameters<
+  "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken",
+  "get"
+>;
 
 export const LINKABLE_ZAKEN_PAGINATION_SIZE = 10;
 
@@ -33,23 +37,14 @@ export class ZoekenService {
 
   findLinkableZaken({
     zaakUuid,
-    zoekZaakIdentifier,
-    zoekZaakOmschrijving,
-    relationType,
-  }: {
-    zaakUuid: string;
-    zoekZaakIdentifier: string | null | undefined;
-    zoekZaakOmschrijving: string | null | undefined;
-    relationType: GeneratedType<"RelatieType">;
-  }) {
+    ...query
+  }: FindLinkableZakenParams["query"] & FindLinkableZakenParams["path"]) {
     return this.zacHttpClient.GET(
       "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken",
       {
         path: { zaakUuid },
         query: {
-          zoekZaakIdentifier,
-          relationType,
-          zoekZaakOmschrijving,
+          ...query,
           page: 0,
           rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
         },
