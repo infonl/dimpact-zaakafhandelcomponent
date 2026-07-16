@@ -34,7 +34,7 @@ import nl.info.zac.app.planitems.model.RESTPlanItem
 import nl.info.zac.app.planitems.model.RESTProcessTaskData
 import nl.info.zac.app.planitems.model.RESTUserEventListenerData
 import nl.info.zac.app.planitems.model.UserEventListenerActie
-import nl.info.zac.app.shared.toBrondatumEigenschap
+import nl.info.zac.util.toLocalDate
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
@@ -266,7 +266,7 @@ class PlanItemsRestService @Inject constructor(
                 zaak = zaak,
                 resultaatTypeUUID = resultaattypeUUID,
                 description = userEventListenerData.resultaatToelichting,
-                brondatumEigenschap = userEventListenerData.brondatumEigenschap?.let(String::toBrondatumEigenschap)
+                brondatumEigenschap = userEventListenerData.brondatumEigenschap?.let(String::toLocalDate)
             )
         } ?: throw InputValidationFailedException(
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,

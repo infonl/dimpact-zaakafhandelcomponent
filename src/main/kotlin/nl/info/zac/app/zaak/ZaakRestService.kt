@@ -56,7 +56,7 @@ import nl.info.zac.app.admin.model.RestZaakAfzender
 import nl.info.zac.app.admin.model.toRestZaakAfzenders
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
-import nl.info.zac.app.shared.toBrondatumEigenschap
+import nl.info.zac.util.toLocalDate
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
@@ -188,7 +188,7 @@ class ZaakRestService @Inject constructor(
             zaak = zaak,
             resultaatTypeUUID = afsluitenGegevens.resultaattypeUuid,
             description = afsluitenGegevens.reden,
-            brondatumEigenschap = afsluitenGegevens.brondatumEigenschap?.let(String::toBrondatumEigenschap)
+            brondatumEigenschap = afsluitenGegevens.brondatumEigenschap?.let(String::toLocalDate)
         )
     }
 
