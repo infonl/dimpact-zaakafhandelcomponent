@@ -118,12 +118,14 @@ describe(ZaakLinkComponent.name, () => {
       component["form"].controls.caseDescriptionToSearchFor.setValue(
         "ZAAKOMSCHR",
       );
+      component["form"].controls.caseTypeToSearchFor.setValue({ uuid: "UUID" });
       component["searchCases"]();
 
       expect(zoekenService.findLinkableZaken).toHaveBeenCalledWith({
         zaakUuid: zaak.uuid,
         zoekZaakIdentifier: "ZAAK-2026",
         zoekZaakOmschrijving: "ZAAKOMSCHR",
+        zoekZaakType: "UUID",
         relationType: component["caseRelationOptionsList"][0].value,
       });
       expect(component["cases"].data).toEqual([resultRow]);

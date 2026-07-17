@@ -108,7 +108,7 @@ export class ZaakLinkComponent implements OnDestroy {
     caseDescriptionToSearchFor: new FormControl<string>("", [
       Validators.minLength(2),
     ]),
-    zaakTypeToSearchFor: new FormControl<GeneratedType<"RestZaaktype"> | null>(
+    caseTypeToSearchFor: new FormControl<GeneratedType<"RestZaaktype"> | null>(
       null,
     ),
   });
@@ -130,7 +130,7 @@ export class ZaakLinkComponent implements OnDestroy {
       caseNumberToSearchFor,
       caseDescriptionToSearchFor,
       caseRelationType,
-      zaakTypeToSearchFor,
+      caseTypeToSearchFor,
     } = this.form.getRawValue();
 
     if (!caseRelationType?.value) return;
@@ -140,7 +140,7 @@ export class ZaakLinkComponent implements OnDestroy {
         zaakUuid: this.zaak.uuid,
         zoekZaakIdentifier: caseNumberToSearchFor,
         zoekZaakOmschrijving: caseDescriptionToSearchFor,
-        zoekZaakType: zaakTypeToSearchFor?.uuid,
+        zoekZaakType: caseTypeToSearchFor?.uuid,
         relationType: caseRelationType.value,
       })
       .subscribe({
