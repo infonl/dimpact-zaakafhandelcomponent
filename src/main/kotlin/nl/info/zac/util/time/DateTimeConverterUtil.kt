@@ -18,8 +18,8 @@ fun convertToLocalDate(date: Date): LocalDate = LocalDate.ofInstant(date.toInsta
 
 fun convertToZonedDateTime(dateTime: Date): ZonedDateTime = ZonedDateTime.ofInstant(dateTime.toInstant(), DEFAULT_ZONE_ID)
 
-fun convertToDate(localDate: LocalDate?): Date? =
-    localDate?.let { Date.from(it.atStartOfDay().atZone(DEFAULT_ZONE_ID).toInstant()) }
+fun convertToDate(localDate: LocalDate): Date =
+    localDate.let { Date.from(it.atStartOfDay().atZone(DEFAULT_ZONE_ID).toInstant()) }
 
 fun convertToDate(offsetDateTime: OffsetDateTime): Date =
     Date.from(offsetDateTime.toZonedDateTime().withZoneSameInstant(DEFAULT_ZONE_ID).toInstant())

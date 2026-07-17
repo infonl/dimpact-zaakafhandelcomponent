@@ -57,12 +57,12 @@ class ZaakZoekObjectConverter @Inject constructor(
         ).apply {
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting
-            registratiedatum = convertToDate(zaak.registratiedatum)
-            startdatum = convertToDate(zaak.startdatum)
-            einddatumGepland = convertToDate(zaak.einddatumGepland)
-            einddatum = convertToDate(zaak.einddatum)
-            uiterlijkeEinddatumAfdoening = convertToDate(zaak.uiterlijkeEinddatumAfdoening)
-            publicatiedatum = convertToDate(zaak.publicatiedatum)
+            registratiedatum = zaak.registratiedatum?.let(::convertToDate)
+            startdatum = zaak.startdatum?.let(::convertToDate)
+            einddatumGepland = zaak.einddatumGepland?.let(::convertToDate)
+            einddatum = zaak.einddatum?.let(::convertToDate)
+            uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening?.let(::convertToDate)
+            publicatiedatum = zaak.publicatiedatum?.let(::convertToDate)
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name
             isAfgehandeld = !zaak.isOpen()
@@ -70,7 +70,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             // locatie is not yet supported
             locatie = null
             communicatiekanaal = zaak.communicatiekanaalNaam
-            archiefActiedatum = convertToDate(zaak.archiefactiedatum)
+            archiefActiedatum = zaak.archiefactiedatum?.let(::convertToDate)
             if (zaak.isVerlengd()) {
                 setIndicatie(ZaakIndicatie.VERLENGD, true)
                 duurVerlenging = zaak.verlenging.duur

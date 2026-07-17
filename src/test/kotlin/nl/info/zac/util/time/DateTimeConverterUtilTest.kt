@@ -34,16 +34,6 @@ class DateTimeConverterUtilTest : BehaviorSpec({
         }
     }
 
-    given("a null LocalDate") {
-        `when`("converting to a Date") {
-            val result = convertToDate(null as LocalDate?)
-
-            then("it should return null") {
-                result shouldBe null
-            }
-        }
-    }
-
     given("a LocalDate") {
         val localDate = LocalDate.of(2024, 3, 11)
 

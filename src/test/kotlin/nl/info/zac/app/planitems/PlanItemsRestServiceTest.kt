@@ -193,7 +193,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     planItemInstanceId,
                     restHumanTaskData.groep.id,
                     null,
-                    convertToDate(restHumanTaskData.fataledatum),
+                    restHumanTaskData.fataledatum?.let(::convertToDate),
                     restHumanTaskData.toelichting,
                     any(),
                     zaak.uuid
@@ -349,7 +349,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     additionalInfoPlanItemInstanceId,
                     restHumanTaskData.groep.id,
                     null,
-                    convertToDate(restHumanTaskData.fataledatum),
+                    restHumanTaskData.fataledatum?.let(::convertToDate),
                     restHumanTaskData.toelichting,
                     any(),
                     zaak.uuid

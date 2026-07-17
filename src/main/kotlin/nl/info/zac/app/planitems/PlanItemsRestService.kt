@@ -198,7 +198,7 @@ class PlanItemsRestService @Inject constructor(
             planItemInstanceId = humanTaskData.planItemInstanceId,
             groupId = humanTaskData.groep.id,
             assignee = humanTaskData.medewerker?.id.takeIf { !it.isNullOrBlank() },
-            dueDate = convertToDate(fatalDate),
+            dueDate = fatalDate?.let(::convertToDate),
             description = humanTaskData.toelichting,
             taakdata = taakdata,
             zaakUUID = zaakUUID
