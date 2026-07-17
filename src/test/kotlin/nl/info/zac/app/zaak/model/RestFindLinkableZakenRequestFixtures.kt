@@ -12,6 +12,7 @@ fun createRestFindLinkableZakenRequest(
     zaakUuid: UUID = UUID.randomUUID(),
     zoekZaakIdentifier: String? = "ZAAK-2000-00002",
     zoekZaakOmschrijving: String? = null,
+    zoekZaakType: UUID? = null,
     relationType: RelatieType = RelatieType.GERELATEERD,
     page: Int = 0,
     rows: Int = 10
@@ -19,6 +20,7 @@ fun createRestFindLinkableZakenRequest(
     this.zaakUuid = zaakUuid
     this.zoekZaakIdentifier = zoekZaakIdentifier
     this.zoekZaakOmschrijving = zoekZaakOmschrijving
+    this.zoekZaakType = zoekZaakType
     this.relationType = relationType
     this.page = page
     this.rows = rows

@@ -33,14 +33,17 @@ import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.createRestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
 import nl.info.zac.app.zaak.model.createRestZaakUnlinkData
+import nl.info.zac.app.zaak.model.createRestZaaktype
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
+import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.SearchService
+import nl.info.zac.search.model.FilterVeld
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekResultaat
 import nl.info.zac.search.model.ZoekVeld
@@ -48,6 +51,7 @@ import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType.ZAAK
 import nl.info.zac.zaak.ZaakService
 import java.net.URI
+import java.time.LocalDate
 import java.util.UUID
 
 @Suppress("LargeClass")
@@ -908,6 +912,121 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     with(zoekParametersSlot.captured.getZoeken()) {
                         this[ZoekVeld.ZAAK_IDENTIFICATIE] shouldBe "fakeZaakIdentifier"
                         this[ZoekVeld.ZAAK_OMSCHRIJVING] shouldBe "fakeOmschrijving"
+                    }
+                }
+            }
+        }
+
+        given("a request with zoekZaakType") {
+            val fakeZaakTypeUuid = UUID.randomUUID()
+            val sourceZaak = createZaak(
+                archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
+            )
+            val zaakZoekObject = createZaakZoekObject(
+                type = ZAAK,
+                archiefNominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString()
+            )
+            val zoekResultaat = ZoekResultaat(listOf(zaakZoekObject), 1)
+            val loggedInUser = createLoggedInUser()
+            val zaakType = createZaakType().apply {
+                deelzaaktypen = listOf(URI(zaakZoekObject.zaaktypeUuid))
+            }
+            val zoekParametersSlot = slot<ZoekParameters>()
+
+            every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
+            every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
+            every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
+            every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
+            every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("findLinkableZaken is called with a zaaktype UUID") {
+                zaakKoppelenRestService.findLinkableZaken(
+                    createRestFindLinkableZakenRequest(
+                        zaakUuid = sourceZaak.uuid,
+                        zoekZaakIdentifier = null,
+                        zoekZaakType = fakeZaakTypeUuid,
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should contain the zaaktype UUID filter") {
+                    zoekParametersSlot.captured.getFilters()[FilterVeld.ZAAK_ZAAKTYPE_UUID]!!
+                        .values.first() shouldBe fakeZaakTypeUuid.toString()
+                }
+            }
+
+            `when`("findLinkableZaken is called with zoekZaakType set to null") {
+                zaakKoppelenRestService.findLinkableZaken(
+                    createRestFindLinkableZakenRequest(
+                        zaakUuid = sourceZaak.uuid,
+                        zoekZaakIdentifier = null,
+                        zoekZaakType = null,
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should not contain the zaaktype UUID filter") {
+                    zoekParametersSlot.captured.getFilters().keys
+                        .filter { it == FilterVeld.ZAAK_ZAAKTYPE_UUID } shouldHaveSize 0
+                }
+            }
+        }
+
+        context("listZaaktypesToLink") {
+            val fakeCatalogusUri = URI("https://example.com/catalogus/fakeUuid")
+
+            given("a mix of valid, concept, expired and non-permitted zaaktypen") {
+                val validZaakType = createZaakType(
+                    omschrijving = "fakeValidZaakType",
+                    concept = false,
+                    beginGeldigheid = LocalDate.now(),
+                    eindeGeldigheid = null
+                )
+                val conceptZaakType = createZaakType(
+                    omschrijving = "fakeConceptZaakType",
+                    concept = true,
+                    beginGeldigheid = LocalDate.now(),
+                    eindeGeldigheid = null
+                )
+                val expiredZaakType = createZaakType(
+                    omschrijving = "fakeExpiredZaakType",
+                    concept = false,
+                    beginGeldigheid = LocalDate.now().minusYears(2),
+                    eindeGeldigheid = LocalDate.now().minusDays(1)
+                )
+                val noPermissionZaakType = createZaakType(
+                    omschrijving = "fakeNoPermissionZaakType",
+                    concept = false,
+                    beginGeldigheid = LocalDate.now(),
+                    eindeGeldigheid = null
+                )
+                val fakeRestZaaktype = createRestZaaktype()
+
+                every { configurationService.readDefaultCatalogusURI() } returns fakeCatalogusUri
+                every {
+                    ztcClientService.listZaaktypen(fakeCatalogusUri)
+                } returns listOf(validZaakType, conceptZaakType, expiredZaakType, noPermissionZaakType)
+                every {
+                    policyService.readOverigeRechten(validZaakType.omschrijving)
+                } returns createOverigeRechten(zoeken = true)
+                every {
+                    policyService.readOverigeRechten(conceptZaakType.omschrijving)
+                } returns createOverigeRechten(zoeken = true)
+                every {
+                    policyService.readOverigeRechten(expiredZaakType.omschrijving)
+                } returns createOverigeRechten(zoeken = true)
+                every {
+                    policyService.readOverigeRechten(noPermissionZaakType.omschrijving)
+                } returns createOverigeRechten(zoeken = false)
+                every { restZaaktypeConverter.convert(validZaakType) } returns fakeRestZaaktype
+
+                `when`("listZaaktypesToLink is called") {
+                    val result = zaakKoppelenRestService.listZaaktypesToLink()
+
+                    then("only the valid zaaktype with permission should be returned") {
+                        result shouldHaveSize 1
+                        result.first() shouldBe fakeRestZaaktype
                     }
                 }
             }
