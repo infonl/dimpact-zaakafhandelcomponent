@@ -6,7 +6,7 @@ package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
+import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -64,9 +64,9 @@ class DocumentZoekObjectConverter @Inject constructor(
             isZaakAfgehandeld = zaak.isOpen()
             creatiedatum = convertToDate(informatieobject.creatiedatum)
             registratiedatum = convertToDate(informatieobject.beginRegistratie.toZonedDateTime())
-            ontvangstdatum = convertToDate(informatieobject.ontvangstdatum)
-            verzenddatum = convertToDate(informatieobject.verzenddatum)
-            ondertekeningDatum = convertToDate(informatieobject.ontvangstdatum)
+            ontvangstdatum = informatieobject.ontvangstdatum?.let(::convertToDate)
+            verzenddatum = informatieobject.verzenddatum?.let(::convertToDate)
+            ondertekeningDatum = informatieobject.ontvangstdatum?.let(::convertToDate)
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = informatieobject.vertrouwelijkheidaanduiding.name
             auteur = informatieobject.auteur

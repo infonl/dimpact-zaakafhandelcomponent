@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.search.model
 
-import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
+import nl.info.zac.util.time.convertToLocalDate
 import nl.info.zac.app.policy.model.RestDocumentRechten
 import nl.info.zac.app.policy.model.toRestDocumentRechten
 import nl.info.zac.policy.output.DocumentRechten
@@ -60,11 +60,11 @@ fun DocumentZoekObject.toRestDocumentZoekObject(documentRechten: DocumentRechten
     zaakIdentificatie = this@toRestDocumentZoekObject.zaakIdentificatie,
     zaakUuid = this@toRestDocumentZoekObject.zaakUuid,
     zaakRelatie = this@toRestDocumentZoekObject.zaakRelatie,
-    creatiedatum = convertToLocalDate(this@toRestDocumentZoekObject.creatiedatum),
-    registratiedatum = convertToLocalDate(this@toRestDocumentZoekObject.registratiedatum),
-    ontvangstdatum = convertToLocalDate(this@toRestDocumentZoekObject.ontvangstdatum),
-    verzenddatum = convertToLocalDate(this@toRestDocumentZoekObject.verzenddatum),
-    ondertekeningDatum = convertToLocalDate(this@toRestDocumentZoekObject.ondertekeningDatum),
+    creatiedatum = this@toRestDocumentZoekObject.creatiedatum?.let(::convertToLocalDate),
+    registratiedatum = this@toRestDocumentZoekObject.registratiedatum?.let(::convertToLocalDate),
+    ontvangstdatum = this@toRestDocumentZoekObject.ontvangstdatum?.let(::convertToLocalDate),
+    verzenddatum = this@toRestDocumentZoekObject.verzenddatum?.let(::convertToLocalDate),
+    ondertekeningDatum = this@toRestDocumentZoekObject.ondertekeningDatum?.let(::convertToLocalDate),
     vertrouwelijkheidaanduiding = this@toRestDocumentZoekObject.vertrouwelijkheidaanduiding,
     auteur = this@toRestDocumentZoekObject.auteur,
     status = this@toRestDocumentZoekObject.getStatus()?.toString(),

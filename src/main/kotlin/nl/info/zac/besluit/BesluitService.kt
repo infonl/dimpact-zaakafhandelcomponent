@@ -5,7 +5,7 @@
 package nl.info.zac.besluit
 
 import jakarta.inject.Inject
-import net.atos.zac.util.time.PeriodUtil
+import nl.info.zac.util.time.PeriodUtil
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.BesluitInformatieObject

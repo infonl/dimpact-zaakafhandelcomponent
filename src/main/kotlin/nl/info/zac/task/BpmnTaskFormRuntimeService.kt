@@ -13,7 +13,8 @@ import jakarta.json.JsonValue
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.util.time.convertToDate
+import nl.info.zac.util.time.convertToLocalDate
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
@@ -69,14 +70,14 @@ class BpmnTaskFormRuntimeService @Inject constructor(
                 task.description = it
             }
             bpmnTaskFormData.taakFataleDatum?.let {
-                task.dueDate = DateTimeConverterUtil.convertToDate(it)
+                task.dueDate = convertToDate(it)
             }
             task = flowableTaskService.updateTask(task)
         }
         if (bpmnTaskFormData.zaakOpschorten && !zaak.isOpgeschort()) {
             suspensionZaakHelper.suspendZaak(
                 zaak,
-                ChronoUnit.DAYS.between(LocalDate.now(), DateTimeConverterUtil.convertToLocalDate(task.dueDate)),
+                ChronoUnit.DAYS.between(LocalDate.now(), convertToLocalDate(task.dueDate!!)),
                 restTask.formioFormulier?.getString(FORMIO_TITLE, null)
             )
         }

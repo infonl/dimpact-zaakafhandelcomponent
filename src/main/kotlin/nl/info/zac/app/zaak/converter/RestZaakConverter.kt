@@ -6,7 +6,7 @@ package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
 import net.atos.zac.flowable.ZaakVariabelenService
-import net.atos.zac.util.time.PeriodUtil
+import nl.info.zac.util.time.PeriodUtil
 import nl.info.client.klant.KlantClientService
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.shared.ZgwApiService
