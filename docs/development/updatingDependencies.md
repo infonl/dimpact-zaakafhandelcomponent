@@ -83,8 +83,12 @@ ZAC runs in the WildFly Java application server. To upgrade the WildFly version,
 installed WildFly. To upgrade override the Galleon files in [the Galleon install folder](../../scripts/wildfly/galleon) with the new version. 
 5. Re-install your local WildFly version using the WildFly install script.
 6. If you have configured your IntelliJ IDE to run ZAC in WildFly update the IntelliJ WildFly run configuration using the instructions in [INSTALL.md](INSTALL.md).
-7. In the [Gradle Versions Catalog file](../../gradle/libs.versions.toml) manually upgrade all the 'dependencies provided by Wildfly' that are used in the [Gradle build file](../../build.gradle.kts).
-These need to be in sync with the ones provided by the used version of WildFly.
+7. Most of the 'dependencies provided by Wildfly' in the [Gradle build file](../../build.gradle.kts) get their version
+automatically from WildFly's own published BOMs (`org.wildfly.bom:wildfly-ee` and `org.wildfly.bom:wildfly-expansion`,
+imported as platforms on the `providedCompile` configuration), so they do not need any manual action.
+The only exceptions are `jakarta-jakartaee` and `smallrye-health` in the [Gradle Versions Catalog file](../../gradle/libs.versions.toml),
+which are not covered by those BOMs (see the comments next to them in that file for why) and must still be checked
+manually against [WildFly's GitHub repository](https://github.com/wildfly/wildfly) and updated if needed.
 8. Test ZAC thoroughly to make sure everything still works both by running ZAC locally (in IntelliJ and in Docker Compose)
 and performing manual testing as well as by running our automated tests. 
 9. Once everything works tell all your co-developers to upgrade their local WildFly installations and IntelliJ WildFly configurations as well.

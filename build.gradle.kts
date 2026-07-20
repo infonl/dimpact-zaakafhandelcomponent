@@ -11,10 +11,12 @@ import io.smallrye.openapi.api.OpenApiConfig.OperationIdStrategy
 import org.gradle.api.plugins.JavaBasePlugin.BUILD_TASK_NAME
 import org.gradle.api.plugins.JavaBasePlugin.DOCUMENTATION_GROUP
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI
 import java.time.Instant
 import java.util.Locale
+import javax.xml.parsers.DocumentBuilderFactory
 
 plugins {
     java
@@ -91,6 +93,12 @@ extra.set("versionNumber", versionNumber)
 val warLib: Configuration = configurations.create("warLib") {
     extendsFrom(configurations["compileOnly"])
 }
+
+// pom.xml's <wildfly.version> is the single source of truth for the version of WildFly we build
+// against; read it here so it does not need to be duplicated in the Gradle build. It is used below
+// to import WildFly's own published BOMs, so that most of the 'dependencies provided by Wildfly'
+// get their version directly from WildFly instead of it being hand-copied into libs.versions.toml.
+val wildflyVersion: String = readWildflyVersion(layout.projectDirectory.file("pom.xml").asFile)
 
 val zacDockerImage = if (project.hasProperty("zacDockerImage")) {
     project.property("zacDockerImage").toString()
@@ -171,10 +179,12 @@ dependencies {
     warLib(libs.jakarta.mail)
 
     // dependencies provided by Wildfly
-    // update these versions when upgrading WildFly
-    // you can find most of these dependencies in the WildFly pom.xml file
-    // of the WidFly version you are using on https://github.com/wildfly/wildfly
-    // for others you need to check the 'modules' directory of your local WildFly installation
+    // import WildFly's own published BOMs as platforms, so that the versions of the dependencies
+    // below come directly from WildFly instead of being hand-copied into libs.versions.toml;
+    // see the comment above the WildFly-provided entries in libs.versions.toml for the small
+    // number of exceptions that are not covered by these BOMs and are still pinned manually
+    providedCompile(platform("org.wildfly.bom:wildfly-ee:$wildflyVersion"))
+    providedCompile(platform("org.wildfly.bom:wildfly-expansion:$wildflyVersion"))
     providedCompile(libs.jakarta.jakartaee)
     providedCompile(libs.eclipse.microprofile.rest.client.api)
     providedCompile(libs.eclipse.microprofile.config.api)
@@ -1005,3 +1015,13 @@ abstract class Maven : Exec() {
         *args
     )
 }
+
+// Reads the WildFly version pinned in pom.xml's <wildfly.version> property, so that version does
+// not need to be duplicated anywhere in the Gradle build.
+fun readWildflyVersion(pomFile: File): String {
+    val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pomFile)
+    val wildflyVersionNodes = document.getElementsByTagName("wildfly.version")
+    check(wildflyVersionNodes.length > 0) { "Could not find a <wildfly.version> property in ${pomFile.path}" }
+    return wildflyVersionNodes.item(0).textContent.trim()
+}
+
