@@ -33,7 +33,7 @@ Useful when:
 * Zaak does not show in dashboard lists
 
 ## [wildfly](wildfly)
-Install Wildfly locally, to enable IntelliJ run configuration with ZAC
+Install WildFly locally, to enable IntelliJ run configuration with ZAC
 
 ## [zap](zap)
 Run [Zed Attack Proxy (ZAP)](https://www.zaproxy.org/) scan in Docker container against URL

@@ -3,5 +3,5 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-# WildFly script to deploy the zaakafhandelcomponent WAR archive into Wildfly
+# WildFly script to deploy the zaakafhandelcomponent WAR archive into WildFly
 deploy build/libs/zaakafhandelcomponent.war --force

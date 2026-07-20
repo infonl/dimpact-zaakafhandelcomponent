@@ -9,5 +9,5 @@ Note that this local WildFly installation is _not_ used in the ZAC build process
 To install WildFly:
 
 1. Run the `install-wildfly.sh` script.
-2. This should install a local and configured version of Wildfly in the root of this project.
+2. This should install a local and configured version of WildFly in the root of this project.
 
