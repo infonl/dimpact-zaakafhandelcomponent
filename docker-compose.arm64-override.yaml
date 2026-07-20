@@ -7,6 +7,10 @@ services:
     image: ghcr.io/infonl/objects-api:3.6.2@sha256:0179c7fc1fd7fbb2f3af2a42b347b070fc83cc33bf8753aaf4048f325a66877e
     platform: linux/arm64
 
+  objecten-api-celery:
+    image: ghcr.io/infonl/objects-api:3.6.2@sha256:0179c7fc1fd7fbb2f3af2a42b347b070fc83cc33bf8753aaf4048f325a66877e
+    platform: linux/arm64
+
   objecten-api-database:
     image: ghcr.io/infonl/postgis:17-3.5@sha256:179b2f72f953e097d712392d87b89e1d6b6cb11a645201a823c2162637e7086c
     platform: linux/arm64
