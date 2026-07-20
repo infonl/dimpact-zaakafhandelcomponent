@@ -13,7 +13,8 @@ import net.atos.zac.flowable.task.TaakVariabelenService.readZaakUUID
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeUUID
 import net.atos.zac.flowable.util.TaskUtil
-import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.util.time.convertToLocalDate
+import nl.info.zac.util.time.convertToZonedDateTime
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.identity.converter.RestGroupConverter
@@ -52,17 +53,17 @@ class RestTaskConverter @Inject constructor(
             zaaktypeUUID = readZaaktypeUUID(taskInfo),
             toelichting = if (restTaakRechten.lezen) taskInfo.description else null,
             creatiedatumTijd = if (restTaakRechten.lezen) {
-                DateTimeConverterUtil.convertToZonedDateTime(taskInfo.createTime)
+                taskInfo.createTime?.let(::convertToZonedDateTime)
             } else {
                 null
             },
             toekenningsdatumTijd = if (restTaakRechten.lezen) {
-                DateTimeConverterUtil.convertToZonedDateTime(taskInfo.claimTime)
+                taskInfo.claimTime?.let(::convertToZonedDateTime)
             } else {
                 null
             },
             fataledatum = if (restTaakRechten.lezen) {
-                DateTimeConverterUtil.convertToLocalDate(taskInfo.dueDate)
+                taskInfo.dueDate?.let(::convertToLocalDate)
             } else {
                 null
             },

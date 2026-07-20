@@ -9,7 +9,7 @@ import net.atos.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
-import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.util.time.convertToLocalDate
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.generated.Persoon
 import nl.info.client.brp.util.toAddressString
@@ -152,7 +152,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst = replaceVariable(
                 resolvedTekst,
                 MailTemplateVariables.TAAK_FATALEDATUM,
-                DateTimeConverterUtil.convertToLocalDate(it).format(DATE_FORMATTER)
+                convertToLocalDate(it).format(DATE_FORMATTER)
             )
         }
         if (resolvedTekst.contains(MailTemplateVariables.TAAK_BEHANDELAAR_GROEP.getVariable())) {

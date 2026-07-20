@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.zaak.model.besluit
 
-import net.atos.zac.util.time.PeriodUtil
+import nl.info.zac.util.time.PeriodUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.generated.BesluitType
 import nl.info.zac.util.AllOpen

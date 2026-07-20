@@ -9,7 +9,8 @@ import jakarta.json.bind.annotation.JsonbDateFormat
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.model.ValueChangeData
 import net.atos.zac.util.JsonbUtil
-import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.util.time.convertToLocalDate
+import nl.info.zac.util.time.convertToZonedDateTime
 import nl.info.zac.app.task.model.RestTaskHistoryLine
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
@@ -56,7 +57,7 @@ class RestTaskHistoryConverter @Inject constructor(
                 )
             }
         }
-        restTaakHistorieRegel?.datumTijd = DateTimeConverterUtil.convertToZonedDateTime(historicTaskLogEntry.timeStamp)
+        restTaakHistorieRegel?.datumTijd = historicTaskLogEntry.timeStamp?.let(::convertToZonedDateTime)
         return restTaakHistorieRegel
     }
 
@@ -122,8 +123,8 @@ class RestTaskHistoryConverter @Inject constructor(
         JsonbUtil.JSONB.fromJson(data, DuedateChangedData::class.java).let {
             return RestTaskHistoryLine(
                 FATALEDATUM_ATTRIBUUT_LABEL,
-                DateTimeConverterUtil.convertToLocalDate(it.previousDueDate),
-                DateTimeConverterUtil.convertToLocalDate(it.newDueDate),
+                it.previousDueDate?.let(::convertToLocalDate),
+                it.newDueDate?.let(::convertToLocalDate),
                 null
             )
         }

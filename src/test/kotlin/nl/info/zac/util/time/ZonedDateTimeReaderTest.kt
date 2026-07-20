@@ -3,12 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package net.atos.zac.app.util
+package nl.info.zac.util.time
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import net.atos.zac.util.time.ZonedDateTimeReader
+import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.MultivaluedHashMap
 import java.io.ByteArrayInputStream
 import java.time.ZonedDateTime
 import java.time.format.DateTimeParseException
@@ -16,51 +17,46 @@ import java.time.format.DateTimeParseException
 class ZonedDateTimeReaderTest : DescribeSpec({
 
     val zonedDateTimeReader = ZonedDateTimeReader()
+    val noAnnotations = emptyArray<Annotation>()
+    val multivaluedMap = MultivaluedHashMap<String, String>()
 
     describe("isReadable") {
         it("can read ZonedDateTime class") {
-            zonedDateTimeReader.isReadable(null, ZonedDateTime::class.java, null, null) shouldBe true
+            zonedDateTimeReader.isReadable(
+                ZonedDateTime::class.java,
+                ZonedDateTime::class.java,
+                noAnnotations,
+                MediaType.TEXT_PLAIN_TYPE
+            ) shouldBe true
         }
 
         it("cannot read unknown classes") {
-            zonedDateTimeReader.isReadable(null, String::class.java, null, null) shouldBe false
-        }
-
-        it("cannot read null as type") {
-            zonedDateTimeReader.isReadable(null, null, null, null) shouldBe false
+            zonedDateTimeReader.isReadable(
+                String::class.java,
+                String::class.java,
+                noAnnotations,
+                MediaType.TEXT_PLAIN_TYPE
+            ) shouldBe false
         }
     }
 
     describe("readFrom") {
         it("parses a well formatted string") {
             zonedDateTimeReader.readFrom(
-                null, null, null, null, null,
+                ZonedDateTime::class.java, ZonedDateTime::class.java, noAnnotations, MediaType.TEXT_PLAIN_TYPE, multivaluedMap,
                 "2024-03-11T10:44+01:00".byteInputStream()
             ) shouldBe ZonedDateTime.parse("2024-03-11T10:44+01:00")
         }
 
         describe("with mis-formatted data") {
-            it("errors on missing data") {
-                shouldThrow<NullPointerException> {
-                    zonedDateTimeReader.readFrom(
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
-                    )
-                }
-            }
-
             it("errors on empty string") {
                 shouldThrow<DateTimeParseException> {
                     zonedDateTimeReader.readFrom(
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
+                        ZonedDateTime::class.java,
+                        ZonedDateTime::class.java,
+                        noAnnotations,
+                        MediaType.TEXT_PLAIN_TYPE,
+                        multivaluedMap,
                         "".byteInputStream()
                     )
                 }
@@ -69,11 +65,11 @@ class ZonedDateTimeReaderTest : DescribeSpec({
             it("errors with empty stream") {
                 shouldThrow<DateTimeParseException> {
                     zonedDateTimeReader.readFrom(
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
+                        ZonedDateTime::class.java,
+                        ZonedDateTime::class.java,
+                        noAnnotations,
+                        MediaType.TEXT_PLAIN_TYPE,
+                        multivaluedMap,
                         ByteArrayInputStream(byteArrayOf())
                     )
                 }
@@ -82,11 +78,11 @@ class ZonedDateTimeReaderTest : DescribeSpec({
             it("errors on mis-formatted string") {
                 shouldThrow<DateTimeParseException> {
                     zonedDateTimeReader.readFrom(
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
+                        ZonedDateTime::class.java,
+                        ZonedDateTime::class.java,
+                        noAnnotations,
+                        MediaType.TEXT_PLAIN_TYPE,
+                        multivaluedMap,
                         "10.III.2024 @ 10:44+01:00".byteInputStream()
                     )
                 }

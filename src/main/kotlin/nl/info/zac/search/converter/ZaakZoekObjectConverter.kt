@@ -7,7 +7,7 @@ package nl.info.zac.search.converter
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
-import net.atos.zac.util.time.DateTimeConverterUtil.convertToDate
+import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -57,12 +57,12 @@ class ZaakZoekObjectConverter @Inject constructor(
         ).apply {
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting
-            registratiedatum = convertToDate(zaak.registratiedatum)
-            startdatum = convertToDate(zaak.startdatum)
-            einddatumGepland = convertToDate(zaak.einddatumGepland)
-            einddatum = convertToDate(zaak.einddatum)
-            uiterlijkeEinddatumAfdoening = convertToDate(zaak.uiterlijkeEinddatumAfdoening)
-            publicatiedatum = convertToDate(zaak.publicatiedatum)
+            registratiedatum = zaak.registratiedatum?.let(::convertToDate)
+            startdatum = zaak.startdatum?.let(::convertToDate)
+            einddatumGepland = zaak.einddatumGepland?.let(::convertToDate)
+            einddatum = zaak.einddatum?.let(::convertToDate)
+            uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening?.let(::convertToDate)
+            publicatiedatum = zaak.publicatiedatum?.let(::convertToDate)
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name
             isAfgehandeld = !zaak.isOpen()
@@ -70,7 +70,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             // locatie is not yet supported
             locatie = null
             communicatiekanaal = zaak.communicatiekanaalNaam
-            archiefActiedatum = convertToDate(zaak.archiefactiedatum)
+            archiefActiedatum = zaak.archiefactiedatum?.let(::convertToDate)
             if (zaak.isVerlengd()) {
                 setIndicatie(ZaakIndicatie.VERLENGD, true)
                 duurVerlenging = zaak.verlenging.duur

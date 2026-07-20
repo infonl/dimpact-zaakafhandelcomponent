@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.search.model
 
-import net.atos.zac.util.time.DateTimeConverterUtil.convertToLocalDate
+import nl.info.zac.util.time.convertToLocalDate
 import nl.info.zac.app.policy.model.RestTaakRechten
 import nl.info.zac.app.policy.model.toRestTaakRechten
 import nl.info.zac.app.task.model.TaakStatus
@@ -45,9 +45,9 @@ fun TaakZoekObject.toRestTaakZoekObject(taakRechten: TaakRechten) = RestTaakZoek
     naam = this@toRestTaakZoekObject.naam,
     status = this@toRestTaakZoekObject.getStatus(),
     toelichting = this@toRestTaakZoekObject.toelichting,
-    creatiedatum = convertToLocalDate(this@toRestTaakZoekObject.creatiedatum),
-    toekenningsdatum = convertToLocalDate(this@toRestTaakZoekObject.toekenningsdatum),
-    fataledatum = convertToLocalDate(this@toRestTaakZoekObject.fataledatum),
+    creatiedatum = this@toRestTaakZoekObject.creatiedatum?.let(::convertToLocalDate),
+    toekenningsdatum = this@toRestTaakZoekObject.toekenningsdatum?.let(::convertToLocalDate),
+    fataledatum = this@toRestTaakZoekObject.fataledatum?.let(::convertToLocalDate),
     groepID = this@toRestTaakZoekObject.groepID,
     groepNaam = this@toRestTaakZoekObject.groepNaam,
     behandelaarNaam = this@toRestTaakZoekObject.behandelaarNaam,

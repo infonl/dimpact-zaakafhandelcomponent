@@ -19,7 +19,7 @@ import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.TaakVariabelenService
-import net.atos.zac.util.time.DateTimeConverterUtil
+import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -198,7 +198,7 @@ class PlanItemsRestService @Inject constructor(
             planItemInstanceId = humanTaskData.planItemInstanceId,
             groupId = humanTaskData.groep.id,
             assignee = humanTaskData.medewerker?.id.takeIf { !it.isNullOrBlank() },
-            dueDate = DateTimeConverterUtil.convertToDate(fatalDate),
+            dueDate = fatalDate?.let(::convertToDate),
             description = humanTaskData.toelichting,
             taakdata = taakdata,
             zaakUUID = zaakUUID
