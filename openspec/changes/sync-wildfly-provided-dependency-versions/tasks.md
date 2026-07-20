@@ -7,7 +7,7 @@
 
 ## 2. Import the WildFly BOMs as Gradle platforms
 
-- [x] 2.1 Add a `readWildflyVersion` helper in `build.gradle.kts` that parses `pom.xml`'s `<wildfly.version>` property
+- [x] 2.1 Add a `readWildFlyVersion` helper in `build.gradle.kts` that parses `pom.xml`'s `<wildfly.version>` property
 - [x] 2.2 Add `providedCompile(platform("org.wildfly.bom:wildfly-ee:$wildflyVersion"))` and `providedCompile(platform("org.wildfly.bom:wildfly-expansion:$wildflyVersion"))` to the existing `dependencies {}` block
 - [x] 2.3 Drop `version.ref` from the 7 BOM-covered `gradle/libs.versions.toml` `[libraries]` entries (`eclipse-microprofile-rest-client-api`, `eclipse-microprofile-config-api`, `eclipse-microprofile-health-api`, `eclipse-microprofile-fault-tolerance-api`, `hibernate-validator`, `jboss-resteasy-multipart-provider`, `wildfly-security-elytron-http-oidc`)
 - [x] 2.4 Remove the now-unused version entries for those 7 dependencies from the `[versions]` block, keeping `jakarta-jakartaee` and `smallrye-health` with an explanatory comment each

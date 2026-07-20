@@ -44,7 +44,7 @@ jackson-annotations = "2.22"
 jacobras-human-readable = "1.13.0"
 kotlinx-metadata-jvm = "0.9.0"
 
-# Versions of the small number of 'dependencies provided by Wildfly' (see the [libraries] block
+# Versions of the small number of 'dependencies provided by WildFly' (see the [libraries] block
 # below) that are not covered by the WildFly BOMs imported in build.gradle.kts, and therefore
 # still need to be checked manually against https://github.com/wildfly/wildfly when upgrading
 # WildFly. Please follow the instructions in 'updatingDependencies.md'.
@@ -57,7 +57,7 @@ smallrye-health = "4.3.0"
 # tracks the Jakarta EE platform spec version implemented by WildFly, not an individually
 # versioned WildFly component, so it is not part of a WildFly BOM
 jakarta-jakartaee = "11.0.0"
-# ~Versions of dependencies provided by Wildfly.
+# ~Versions of dependencies provided by WildFly.
 
 eclipse-yasson = "3.0.4"
 
@@ -125,7 +125,7 @@ glassfish-expressly = { group = "org.glassfish.expressly", name = "expressly", v
 # please keep the Keycloak admin client version in sync with the Keycloak version in our Docker Compose file
 keycloak-admin-client = { group = "org.keycloak", name = "keycloak-admin-client", version.ref = "keycloak" }
 
-# dependencies provided by Wildfly
+# dependencies provided by WildFly
 # most of these have no 'version.ref' here: their version comes from the WildFly BOMs
 # ('org.wildfly.bom:wildfly-ee' and 'org.wildfly.bom:wildfly-expansion') imported as platforms in
 # build.gradle.kts, so it is never hand-copied from WildFly and can never drift out of sync.
@@ -141,7 +141,7 @@ hibernate-validator = { group = "org.hibernate.validator", name = "hibernate-val
 jakarta-jakartaee = { group = "jakarta.platform", name = "jakarta.jakartaee-api", version.ref = "jakarta-jakartaee" }
 jboss-resteasy-multipart-provider = { group = "org.jboss.resteasy", name = "resteasy-multipart-provider" }
 wildfly-security-elytron-http-oidc = { group = "org.wildfly.security", name = "wildfly-elytron-http-oidc" }
-# ~dependencies provided by Wildfly
+# ~dependencies provided by WildFly
 
 # yasson is required for using a JSONB context in our unit tests
 # where we do not have the WildFly runtime environment available

@@ -96,9 +96,9 @@ val warLib: Configuration = configurations.create("warLib") {
 
 // pom.xml's <wildfly.version> is the single source of truth for the version of WildFly we build
 // against; read it here so it does not need to be duplicated in the Gradle build. It is used below
-// to import WildFly's own published BOMs, so that most of the 'dependencies provided by Wildfly'
+// to import WildFly's own published BOMs, so that most of the 'dependencies provided by WildFly'
 // get their version directly from WildFly instead of it being hand-copied into libs.versions.toml.
-val wildflyVersion: String = readWildflyVersion(layout.projectDirectory.file("pom.xml").asFile)
+val wildflyVersion: String = readWildFlyVersion(layout.projectDirectory.file("pom.xml").asFile)
 
 val zacDockerImage = if (project.hasProperty("zacDockerImage")) {
     project.property("zacDockerImage").toString()
@@ -178,7 +178,7 @@ dependencies {
     // include it in the WAR or else ZAC will fail to be deployed
     warLib(libs.jakarta.mail)
 
-    // dependencies provided by Wildfly
+    // dependencies provided by WildFly
     // import WildFly's own published BOMs as platforms, so that the versions of the dependencies
     // below come directly from WildFly instead of being hand-copied into libs.versions.toml;
     // see the comment above the WildFly-provided entries in libs.versions.toml for the small
@@ -193,7 +193,7 @@ dependencies {
     providedCompile(libs.jboss.resteasy.multipart.provider)
     providedCompile(libs.wildfly.security.elytron.http.oidc)
     providedCompile(libs.hibernate.validator)
-    // ~dependencies provided by Wildfly
+    // ~dependencies provided by WildFly
 
     testImplementation(libs.kotlinx.coroutines.test)
     // yasson is required for using a JSONB context in our unit tests
@@ -504,7 +504,7 @@ tasks {
     }
 
     build {
-        dependsOn("generateWildflyBootableJar")
+        dependsOn("generateWildFlyBootableJar")
     }
 
     compileJava {
@@ -827,7 +827,7 @@ tasks {
     register<Exec>("buildDockerImage") {
         description = "Builds the Docker image for the Zaakafhandelcomponent"
         group = "build"
-        dependsOn("generateWildflyBootableJar")
+        dependsOn("generateWildFlyBootableJar")
 
         inputs.file("Dockerfile")
         inputs.file("target/zaakafhandelcomponent.jar")
@@ -871,7 +871,7 @@ tasks {
         outputs.dir(layout.buildDirectory.dir("reports/jacoco/jacocoIntegrationTestReport"))
     }
 
-    register<Maven>("generateWildflyBootableJar") {
+    register<Maven>("generateWildFlyBootableJar") {
         description = "Generates a WildFly bootable JAR"
         group = "build"
         dependsOn("war")
@@ -1018,7 +1018,7 @@ abstract class Maven : Exec() {
 
 // Reads the WildFly version pinned in pom.xml's <wildfly.version> property, so that version does
 // not need to be duplicated anywhere in the Gradle build.
-fun readWildflyVersion(pomFile: File): String {
+fun readWildFlyVersion(pomFile: File): String {
     val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pomFile)
     val wildflyVersionNodes = document.getElementsByTagName("wildfly.version")
     check(wildflyVersionNodes.length > 0) { "Could not find a <wildfly.version> property in ${pomFile.path}" }
