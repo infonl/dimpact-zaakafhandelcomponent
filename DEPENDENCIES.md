@@ -25,7 +25,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-zaak**: 1.29.1
 - **objects-api**: 3.6.2
 - **open-klant**: 2.15.0
-- **open-forms**: 3.5.4
+- **open-forms**: 3.5.5
 - **open-notificaties**: 1.15.0
 - **open-archiefbeheer**: 2.0.0
 - **pabc-migrations**: 1.1.0
