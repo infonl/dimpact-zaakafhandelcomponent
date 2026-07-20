@@ -111,6 +111,10 @@ export class ZakenService {
     return this.zacHttpClient.GET("/rest/zaken/zaaktypes-for-creation");
   }
 
+  listZaaktypesToLink() {
+    return this.zacHttpClient.GET("/rest/zaken/gekoppelde-zaken/zaaktypen");
+  }
+
   updateZaakdata() {
     return this.zacQueryClient.PUT("/rest/zaken/zaakdata");
   }

@@ -24,14 +24,18 @@ import nl.info.client.zgw.zrc.model.NillableHoofdzaakZaakPatch
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.search.model.RestZaakKoppelenZoekObject
 import nl.info.zac.app.search.model.RestZoekResultaat
+import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.model.RestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestZaakLinkData
 import nl.info.zac.app.zaak.model.RestZaakUnlinkData
+import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
@@ -73,7 +77,9 @@ class ZaakKoppelenRestService @Inject constructor(
     private val zaakService: ZaakService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
-    private val loggedInUserInstance: Instance<LoggedInUser>
+    private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val restZaaktypeConverter: RestZaaktypeConverter,
+    private val configurationService: ConfigurationService,
 ) {
     @GET
     @Path("gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken")
@@ -190,6 +196,19 @@ class ZaakKoppelenRestService @Inject constructor(
         }
     }
 
+    @GET
+    @Path("gekoppelde-zaken/zaaktypen")
+    fun listZaaktypesToLink(): List<RestZaaktype> =
+        ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
+            .asSequence()
+            .filter {
+                policyService.readOverigeRechten(it.omschrijving).zoeken
+            }
+            .filter { !it.concept }
+            .filter { it.isNuGeldig() }
+            .map(restZaaktypeConverter::convert)
+            .toList()
+
     private fun ZaakType.getDeelzaaktypenSet() = this.deelzaaktypen
         .map{ it.extractUuid() }
         .toSet()
@@ -221,6 +240,9 @@ class ZaakKoppelenRestService @Inject constructor(
         }
         request.zoekZaakOmschrijving?.takeIf { it.isNotBlank() }?.let {
             addZoekVeld(ZoekVeld.ZAAK_OMSCHRIJVING, it.trim())
+        }
+        request.zoekZaakType?.let {
+            addFilter(FilterVeld.ZAAK_ZAAKTYPE_UUID, it.toString())
         }
     }
 

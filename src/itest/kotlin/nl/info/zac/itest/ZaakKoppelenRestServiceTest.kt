@@ -11,13 +11,17 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.BEHANDELAAR_2
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
+import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -180,6 +184,33 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
             then("successfully links the zaken") {
                 response.code shouldBe HTTP_NO_CONTENT
+            }
+        }
+    }
+
+    given("A behandelaar user that is authorised for zaaktypes in domain test 2 only is logged-in") {
+        lateinit var responseBody: String
+
+        `when`("listing zaaktypen available for linking") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/zaken/gekoppelde-zaken/zaaktypen",
+                testUser = BEHANDELAAR_2
+            )
+            then("the response should be a 200 HTTP response") {
+                responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+            }
+            and("the response body should contain only the zaaktypes for which the user is authorized") {
+                responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
+                    [
+                      {
+                        "doel": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION"
+                      }
+                    ]
+                    """.trimIndent()
             }
         }
     }
