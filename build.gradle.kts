@@ -177,6 +177,13 @@ dependencies {
     // WildFly does already include the Jakarta Mail API lib so not sure why, but we need to
     // include it in the WAR or else ZAC will fail to be deployed
     warLib(libs.jakarta.mail)
+    // commons-io is also a transitive dependency of the WildFly BOMs imported below (via
+    // jboss-resteasy-multipart-provider), and now resolves to the exact same version there as our
+    // own dependency below; Gradle's war plugin excludes anything that also resolves inside
+    // 'providedCompile' from the WAR, so without this it would be silently dropped even though
+    // WildFly does not actually provide it to our deployment, causing a NoClassDefFoundError
+    // for org.apache.commons.io.FilenameUtils at runtime
+    warLib(libs.commons.io)
 
     // dependencies provided by WildFly
     // import WildFly's own published BOMs as platforms, so that the versions of the dependencies
