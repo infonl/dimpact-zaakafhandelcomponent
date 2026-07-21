@@ -49,11 +49,13 @@
   </fieldset>
 
   <fieldset>
-    <zac-form-actions
-      [form]="form"
-      [mutation]="updateBesluitMutation"
-      disableAfterSuccess
-      submitLabel="actie.wijzigen"
-    />
+    <mat-action-row>
+      <zac-form-actions
+        [form]="form"
+        [mutation]="updateBesluitMutation"
+        disableAfterSuccess
+        submitLabel="actie.wijzigen"
+      />
+    </mat-action-row>
   </fieldset>
 </form>

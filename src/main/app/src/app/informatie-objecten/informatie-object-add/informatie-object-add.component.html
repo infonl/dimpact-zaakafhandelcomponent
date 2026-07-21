@@ -73,11 +73,13 @@
     </section>
   </fieldset>
   <fieldset>
-    <zac-form-actions
-      [form]="form"
-      [mutation]="createDocumentMutation"
-      disableAfterSuccess
-      submitLabel="actie.toevoegen"
-    />
+    <mat-action-row>
+      <zac-form-actions
+        [form]="form"
+        [mutation]="createDocumentMutation"
+        disableAfterSuccess
+        submitLabel="actie.toevoegen"
+      />
+    </mat-action-row>
   </fieldset>
 </form>

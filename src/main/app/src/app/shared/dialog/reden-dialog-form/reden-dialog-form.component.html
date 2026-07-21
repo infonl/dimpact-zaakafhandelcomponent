@@ -19,11 +19,12 @@
     }
   </zac-generic-dialog>
 
-  <zac-form-actions
-    [form]="form"
-    [loading]="loading"
-    wrapper="dialog"
-    [submitLabel]="submitLabel"
-    [cancelLabel]="cancelLabel"
-  />
+  <mat-dialog-actions>
+    <zac-form-actions
+      [form]="form"
+      [loading]="loading"
+      [submitLabel]="submitLabel"
+      [cancelLabel]="cancelLabel"
+    />
+  </mat-dialog-actions>
 </form>

@@ -38,11 +38,12 @@
     </fieldset>
   </mat-dialog-content>
 
-  <zac-form-actions
-    [form]="form"
-    [mutation]="mutation"
-    disableAfterSuccess
-    wrapper="dialog"
-    submitLabel="actie.besluit.intrekken"
-  />
+  <mat-dialog-actions>
+    <zac-form-actions
+      [form]="form"
+      [mutation]="mutation"
+      disableAfterSuccess
+      submitLabel="actie.besluit.intrekken"
+    />
+  </mat-dialog-actions>
 </form>

@@ -8,6 +8,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionPanelActionRow } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -30,6 +31,7 @@ import { TakenService } from "../taken.service";
     MatIconModule,
     MatButtonModule,
     MatDividerModule,
+    MatExpansionPanelActionRow,
     TranslateModule,
     ZacSelect,
     ZacTextarea,

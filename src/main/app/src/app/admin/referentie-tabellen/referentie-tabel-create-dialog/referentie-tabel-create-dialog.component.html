@@ -19,10 +19,11 @@
     <zac-input class="code-input" [form]="form" key="code" label="tabel" />
     <zac-input [form]="form" key="name" />
   </mat-dialog-content>
-  <zac-form-actions
-    [form]="form"
-    [mutation]="mutation"
-    wrapper="dialog"
-    submitLabel="actie.toevoegen"
-  />
+  <mat-dialog-actions>
+    <zac-form-actions
+      [form]="form"
+      [mutation]="mutation"
+      submitLabel="actie.toevoegen"
+    />
+  </mat-dialog-actions>
 </form>

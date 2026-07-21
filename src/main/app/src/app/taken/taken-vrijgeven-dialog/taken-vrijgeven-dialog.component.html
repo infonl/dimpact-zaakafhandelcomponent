@@ -28,11 +28,12 @@
       {{ "msg.vrijgeven.taken" | translate: { aantal: data.taken.length } }}
     </p>
   </mat-dialog-content>
-  <zac-form-actions
-    [form]="form"
-    [mutation]="mutation"
-    disableAfterSuccess
-    wrapper="dialog"
-    submitLabel="actie.vrijgeven"
-  />
+  <mat-dialog-actions>
+    <zac-form-actions
+      [form]="form"
+      [mutation]="mutation"
+      disableAfterSuccess
+      submitLabel="actie.vrijgeven"
+    />
+  </mat-dialog-actions>
 </form>

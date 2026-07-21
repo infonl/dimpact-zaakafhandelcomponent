@@ -5,7 +5,11 @@
 
 import { Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogRef,
+} from "@angular/material/dialog";
 import { Observable } from "rxjs";
 import { GenericDialogComponent } from "../../shared/dialog/generic-dialog/generic-dialog.component";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
@@ -25,6 +29,7 @@ export type ZaakAfbrekenDialogData = {
   imports: [
     ReactiveFormsModule,
     GenericDialogComponent,
+    MatDialogActions,
     ZacFormActions,
     ZacSelect,
   ],

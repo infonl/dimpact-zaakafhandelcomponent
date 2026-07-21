@@ -47,11 +47,12 @@
       </section>
     </fieldset>
   </mat-dialog-content>
-  <zac-form-actions
-    [form]="form"
-    [mutation]="mutation"
-    disableAfterSuccess
-    submitLabel="actie.verdelen"
-    wrapper="dialog"
-  />
+  <mat-dialog-actions>
+    <zac-form-actions
+      [form]="form"
+      [mutation]="mutation"
+      disableAfterSuccess
+      submitLabel="actie.verdelen"
+    />
+  </mat-dialog-actions>
 </form>

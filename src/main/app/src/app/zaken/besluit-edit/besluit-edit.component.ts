@@ -21,6 +21,7 @@ import {
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
+import { MatExpansionPanelActionRow } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
@@ -51,6 +52,7 @@ import { ZakenService } from "../zaken.service";
   imports: [
     MatButtonModule,
     MatDividerModule,
+    MatExpansionPanelActionRow,
     MatIconModule,
     MatToolbarModule,
     ReactiveFormsModule,

@@ -3,42 +3,25 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<ng-container>
-  @switch (wrapper()) {
-    @case ("dialog") {
-      <mat-dialog-actions>
-        <ng-container *ngTemplateOutlet="actions"></ng-container>
-      </mat-dialog-actions>
-    }
-    @default {
-      <mat-action-row>
-        <ng-container *ngTemplateOutlet="actions"></ng-container>
-      </mat-action-row>
-    }
+<button
+  mat-raised-button
+  type="submit"
+  color="primary"
+  class="flex-row gap-8"
+  [disabled]="isSubmitDisabled()"
+>
+  @if (isPending()) {
+    <mat-icon>
+      <mat-spinner diameter="18"></mat-spinner>
+    </mat-icon>
   }
-</ng-container>
-
-<ng-template #actions>
-  <button
-    mat-raised-button
-    type="submit"
-    color="primary"
-    class="flex-row gap-8"
-    [disabled]="isSubmitDisabled()"
-  >
-    @if (isPending()) {
-      <mat-icon>
-        <mat-spinner diameter="18"></mat-spinner>
-      </mat-icon>
-    }
-    {{ submitLabel() | translate }}
-  </button>
-  <button
-    mat-raised-button
-    [disabled]="isPending()"
-    type="button"
-    (click)="onCancel($event)"
-  >
-    {{ cancelLabel() | translate }}
-  </button>
-</ng-template>
+  {{ submitLabel() | translate }}
+</button>
+<button
+  mat-raised-button
+  [disabled]="isPending()"
+  type="button"
+  (click)="onCancel($event)"
+>
+  {{ cancelLabel() | translate }}
+</button>

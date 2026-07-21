@@ -34,11 +34,13 @@
     <zac-textarea [form]="form" key="reden" />
   </fieldset>
   <fieldset>
-    <zac-form-actions
-      [form]="form"
-      [mutation]="mutation"
-      disableAfterSuccess
-      submitLabel="actie.wijzigen"
-    />
+    <mat-action-row>
+      <zac-form-actions
+        [form]="form"
+        [mutation]="mutation"
+        disableAfterSuccess
+        submitLabel="actie.wijzigen"
+      />
+    </mat-action-row>
   </fieldset>
 </form>

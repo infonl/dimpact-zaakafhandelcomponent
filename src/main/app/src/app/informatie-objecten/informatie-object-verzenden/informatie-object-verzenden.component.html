@@ -29,10 +29,12 @@
     <zac-textarea [form]="form" key="toelichting" />
   </fieldset>
   <fieldset>
-    <zac-form-actions
-      [form]="form"
-      [mutation]="verzendenMutation"
-      submitLabel="actie.verzenden"
-    />
+    <mat-action-row>
+      <zac-form-actions
+        [form]="form"
+        [mutation]="verzendenMutation"
+        submitLabel="actie.verzenden"
+      />
+    </mat-action-row>
   </fieldset>
 </form>
