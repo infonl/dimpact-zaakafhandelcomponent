@@ -72,23 +72,26 @@ describe(HttpClient.name, () => {
 
     it("adds the query params", (done) => {
       httpclient
-        .GET("/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken", {
-          query: {
+        .PUT(
+          "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken",
+          {
             zoekZaakIdentifier: "test",
             relationType: "HOOFDZAAK",
             page: 1,
             rows: 10,
           },
-          path: { zaakUuid: "123" },
-        })
+          {
+            path: { zaakUuid: "123" },
+          },
+        )
         .subscribe(() => {
           done();
         });
 
       const req = httpTestingController.expectOne(
-        "/rest/zaken/gekoppelde-zaken/123/zoek-koppelbare-zaken?zoekZaakIdentifier=test&relationType=HOOFDZAAK&page=1&rows=10",
+        "/rest/zaken/gekoppelde-zaken/123/zoek-koppelbare-zaken",
       );
-      expect(req.request.method).toEqual("GET");
+      expect(req.request.method).toEqual("PUT");
       req.flush(null);
       httpTestingController.verify();
     });
