@@ -60,12 +60,16 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             'to be linked' zaak identifier
             """.trimIndent()
         ) {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUuid/zoek-koppelbare-zaken" +
-                    "?zoekZaakIdentifier=$teKoppelenZaakIdentification" +
-                    "&relationType=DEELZAAK" +
-                    "&rows=$ROWS_DEFAULT" +
-                    "&page=$PAGE_DEFAULT",
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUuid/zoek-koppelbare-zaken",
+                requestBodyAsString = """
+                    {
+                      "zoekZaakIdentifier": "$teKoppelenZaakIdentification",
+                      "relationType": "DEELZAAK",
+                      "rows": $ROWS_DEFAULT,
+                      "page": $PAGE_DEFAULT
+                    }
+                """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
 
@@ -137,12 +141,16 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             'to be linked' zaak identifier
             """.trimIndent()
         ) {
-            val response = itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUuid/zoek-koppelbare-zaken" +
-                    "?zoekZaakIdentifier=$teKoppelenZaakIdentification" +
-                    "&relationType=GERELATEERD" +
-                    "&rows=$ROWS_DEFAULT" +
-                    "&page=$PAGE_DEFAULT",
+            val response = itestHttpClient.performPutRequest(
+                url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUuid/zoek-koppelbare-zaken",
+                requestBodyAsString = """
+                    {
+                      "zoekZaakIdentifier": "$teKoppelenZaakIdentification",
+                      "relationType": "GERELATEERD",
+                      "rows": $ROWS_DEFAULT,
+                      "page": $PAGE_DEFAULT
+                    }
+                """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
 

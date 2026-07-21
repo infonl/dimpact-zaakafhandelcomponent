@@ -4,6 +4,13 @@
   -->
 
 <mat-form-field subscriptSizing="dynamic">
+  @if (showLabel) {
+    <mat-label>
+      <ng-content select="mat-label">
+        {{ label | translate | capitalizeFirstLetter }}
+      </ng-content>
+    </mat-label>
+  }
   <mat-date-range-input [rangePicker]="datumPicker" (change)="change()">
     <input matStartDate placeholder="van" [formControl]="dateVan" />
     <input matEndDate placeholder="tot" [formControl]="dateTM" />

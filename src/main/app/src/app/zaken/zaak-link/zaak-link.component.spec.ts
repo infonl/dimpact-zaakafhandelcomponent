@@ -5,11 +5,13 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of, throwError } from "rxjs";
+import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { fromPartial } from "src/test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -49,7 +51,11 @@ const setup = (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
       NoopAnimationsModule,
       TranslateModule.forRoot(),
     ],
-    providers: [provideHttpClient(), provideRouter([])],
+    providers: [
+      provideHttpClient(),
+      provideRouter([]),
+      provideMomentDateAdapter(),
+    ],
   });
 
   const zoekenService = TestBed.inject(ZoekenService);
@@ -119,6 +125,10 @@ describe(ZaakLinkComponent.name, () => {
         "ZAAKOMSCHR",
       );
       component["form"].controls.caseTypeToSearchFor.setValue({ uuid: "UUID" });
+      component["startdatum"] = new DatumRange(
+        new Date(2026, 1, 1),
+        new Date(2026, 2, 1),
+      );
       component["searchCases"]();
 
       expect(zoekenService.findLinkableZaken).toHaveBeenCalledWith({
@@ -127,6 +137,10 @@ describe(ZaakLinkComponent.name, () => {
         zoekZaakOmschrijving: "ZAAKOMSCHR",
         zoekZaakType: "UUID",
         relationType: component["caseRelationOptionsList"][0].value,
+        startdatum: {
+          van: new Date(2026, 1, 1).toISOString(),
+          tot: new Date(2026, 2, 1).toISOString(),
+        },
       });
       expect(component["cases"].data).toEqual([resultRow]);
       expect(component["totalCases"]).toBe(1);

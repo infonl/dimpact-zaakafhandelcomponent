@@ -33,7 +33,9 @@ import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
 import { EmptyPipe } from "src/app/shared/pipes/empty.pipe";
+import { DateRangeFilterComponent } from "src/app/shared/table-zoek-filters/date-range-filter/date-range-filter.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
 
@@ -64,6 +66,7 @@ const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
     ZacSelect,
     ZacInput,
     ZacAutoComplete,
+    DateRangeFilterComponent,
     EmptyPipe,
   ],
 })
@@ -115,6 +118,8 @@ export class ZaakLinkComponent implements OnDestroy {
 
   protected caseTypes = this.zakenService.listZaaktypesToLink();
 
+  startdatum = new DatumRange();
+
   constructor() {
     this.form.controls.caseRelationType.valueChanges
       .pipe(takeUntil(this.ngDestroy))
@@ -140,8 +145,12 @@ export class ZaakLinkComponent implements OnDestroy {
         zaakUuid: this.zaak.uuid,
         zoekZaakIdentifier: caseNumberToSearchFor,
         zoekZaakOmschrijving: caseDescriptionToSearchFor,
-        zoekZaakType: caseTypeToSearchFor?.uuid,
+        zoekZaakType: caseTypeToSearchFor?.uuid || null,
         relationType: caseRelationType.value,
+        startdatum: {
+          van: this.startdatum?.van?.toISOString(),
+          tot: this.startdatum?.tot?.toISOString(),
+        },
       })
       .subscribe({
         next: (result) => {
@@ -194,6 +203,7 @@ export class ZaakLinkComponent implements OnDestroy {
 
   protected reset() {
     this.form.reset();
+    this.startdatum = new DatumRange();
     this.clearSearchResult();
   }
 

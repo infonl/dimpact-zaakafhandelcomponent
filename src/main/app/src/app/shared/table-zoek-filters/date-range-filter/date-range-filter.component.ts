@@ -15,7 +15,9 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
+import { TranslateModule } from "@ngx-translate/core";
 import { DatumRange } from "../../../zoeken/model/datum-range";
+import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
 
 @Component({
   selector: "zac-date-range-filter",
@@ -28,11 +30,14 @@ import { DatumRange } from "../../../zoeken/model/datum-range";
     MatFormFieldModule,
     MatDatepickerModule,
     MatIconModule,
+    TranslateModule,
+    CapitalizeFirstLetterPipe,
   ],
 })
 export class DateRangeFilterComponent implements OnChanges {
   @Input({ required: true }) range!: DatumRange;
   @Input() label!: string;
+  @Input() showLabel?: boolean;
   @Output() changed = new EventEmitter<DatumRange>();
 
   protected dateVan = new FormControl<Date | null>(null);
