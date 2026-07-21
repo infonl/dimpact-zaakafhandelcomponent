@@ -64,7 +64,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 url = "$ZAC_API_URI/zaken/gekoppelde-zaken/$zaakUuid/zoek-koppelbare-zaken",
                 requestBodyAsString = """
                     {
-                      "zoekZaakIdentifier": "$teKoppelenZaakUuid",
+                      "zoekZaakIdentifier": "$teKoppelenZaakIdentification",
                       "relationType": "DEELZAAK",
                       "rows": $ROWS_DEFAULT,
                       "page": $PAGE_DEFAULT
