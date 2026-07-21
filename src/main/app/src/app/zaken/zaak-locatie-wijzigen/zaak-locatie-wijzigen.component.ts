@@ -95,7 +95,7 @@ export class CaseLocationEditComponent
   @Input({ required: true }) sideNav!: MatDrawer;
   @Output() locatie = new EventEmitter<GeometryGegevens | null>();
 
-  @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;
+  @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
 
   private readonly zakenService = inject(ZakenService);
   private readonly locationService = inject(LocationService);
@@ -105,7 +105,7 @@ export class CaseLocationEditComponent
   markerLocatie$ = new BehaviorSubject<GeneratedType<"RestGeometry"> | null>(
     null,
   );
-  nearestAddress: AddressResult;
+  nearestAddress!: AddressResult;
   searchControl = new FormControl();
   reasonControl = new FormControl();
   searchResults: SuggestResult[] = [];
@@ -124,9 +124,9 @@ export class CaseLocationEditComponent
   private unsubscribe$: Subject<void> = new Subject<void>();
   protected readonly: boolean = false;
 
-  private map: ol.Map;
-  private view: ol.View;
-  private locationSource: source.Vector;
+  private map!: ol.Map;
+  private view!: ol.View;
+  private locationSource!: source.Vector;
   private readonly WGS84: string = "WGS84";
   private readonly EPSG3857: string = "EPSG:3857";
   private readonly EXTENT_MATRIX: number = 20;
@@ -161,8 +161,8 @@ export class CaseLocationEditComponent
   });
 
   ngOnInit(): void {
-    const projection = proj.get(this.EPSG3857);
-    const projectionExtent = projection?.getExtent();
+    const projection = proj.get(this.EPSG3857)!;
+    const projectionExtent = projection.getExtent()!;
     const size = extent.getWidth(projectionExtent) / 256;
     const resolutions = new Array(this.EXTENT_MATRIX);
     const matrixIds = new Array(this.EXTENT_MATRIX);
@@ -200,7 +200,7 @@ export class CaseLocationEditComponent
     this.layers.push(locationLayer);
 
     this.view = new ol.View({
-      projection: proj.get(this.EPSG3857),
+      projection: projection,
       center: this.DEFAULT_CENTER,
       constrainResolution: true,
       zoom: this.DEFAULT_ZOOM,
@@ -358,7 +358,7 @@ export class CaseLocationEditComponent
     );
     this.map.getView().setCenter(mapCenter);
     const locationExtent = this.locationSource.getExtent();
-    this.map.getView().fit(locationExtent, {
+    this.map.getView().fit(locationExtent!, {
       size: this.map.getSize(),
       maxZoom: this.MAX_ZOOM,
     });
