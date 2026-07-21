@@ -148,8 +148,8 @@ export class ZaakLinkComponent implements OnDestroy {
         zoekZaakType: caseTypeToSearchFor?.uuid || null,
         relationType: caseRelationType.value,
         startdatum: {
-          van: this.startdatum?.van?.toISOString(),
-          tot: this.startdatum?.tot?.toISOString(),
+          van: this.startdatum?.van ? this.startdatum.van.toISOString().slice(0, 10) : null,
+          tot: this.startdatum?.tot ? this.startdatum.tot.toISOString().slice(0, 10) : null,
         },
       })
       .subscribe({
