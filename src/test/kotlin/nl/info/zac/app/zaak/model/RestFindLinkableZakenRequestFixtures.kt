@@ -5,22 +5,22 @@
 
 package nl.info.zac.app.zaak.model
 
-import nl.info.zac.app.klant.model.klant.IdentificatieType
+import nl.info.zac.app.search.model.RestDatumRange
 import java.util.UUID
 
 fun createRestFindLinkableZakenRequest(
-    zaakUuid: UUID = UUID.randomUUID(),
     zoekZaakIdentifier: String? = "ZAAK-2000-00002",
     zoekZaakOmschrijving: String? = null,
     zoekZaakType: UUID? = null,
+    startdatum: RestDatumRange? = null,
     relationType: RelatieType = RelatieType.GERELATEERD,
     page: Int = 0,
     rows: Int = 10
 ) = RestFindLinkableZakenRequest().apply {
-    this.zaakUuid = zaakUuid
     this.zoekZaakIdentifier = zoekZaakIdentifier
     this.zoekZaakOmschrijving = zoekZaakOmschrijving
     this.zoekZaakType = zoekZaakType
+    this.startdatum = startdatum
     this.relationType = relationType
     this.page = page
     this.rows = rows

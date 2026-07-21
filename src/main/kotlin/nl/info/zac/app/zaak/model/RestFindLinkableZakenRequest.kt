@@ -5,41 +5,35 @@
 
 package nl.info.zac.app.zaak.model
 
-import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.PositiveOrZero
 import jakarta.validation.constraints.Size
-import jakarta.ws.rs.DefaultValue
-import jakarta.ws.rs.PathParam
-import jakarta.ws.rs.QueryParam
+import nl.info.zac.app.search.model.RestDatumRange
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 
+@NoArgConstructor
+@AllOpen
 class RestFindLinkableZakenRequest {
-    @PathParam("zaakUuid")
-    @field:NotNull
-    lateinit var zaakUuid: UUID
 
-    @QueryParam("zoekZaakIdentifier")
     @field:Size(min = 2)
     var zoekZaakIdentifier: String? = null
 
-    @QueryParam("relationType")
     @field:NotNull
     lateinit var relationType: RelatieType
 
-    @QueryParam(value = "zoekZaakOmschrijving")
     @field:Size(min = 2)
     var zoekZaakOmschrijving: String? = null
 
-    @QueryParam(value = "zoekZaakType")
+    var startdatum: RestDatumRange? = null
+
     var zoekZaakType: UUID? = null
 
-    @QueryParam("page") @DefaultValue("0")
     @field:PositiveOrZero
     var page: Int = 0
 
-    @QueryParam("rows") @DefaultValue("10")
     @field:Positive
     var rows: Int = 10
 }

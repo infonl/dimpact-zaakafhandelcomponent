@@ -27,6 +27,7 @@ import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.model.RestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.RelatieType
@@ -43,6 +44,7 @@ import nl.info.zac.policy.output.createOverigeRechten
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.SearchService
+import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterVeld
 import nl.info.zac.search.model.ZoekParameters
 import nl.info.zac.search.model.ZoekResultaat
@@ -108,8 +110,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
+                sourceZaak.uuid,
                 createRestFindLinkableZakenRequest(
-                    zaakUuid = sourceZaak.uuid,
                     zoekZaakIdentifier = zaakZoekObject.identificatie,
                     relationType = RelatieType.GERELATEERD
                 )
@@ -149,8 +151,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             } returns listOf(sourceZaak.zaaktype)
 
             val result = zaakKoppelenRestService.findLinkableZaken(
+                sourceZaak.uuid,
                 createRestFindLinkableZakenRequest(
-                    zaakUuid = sourceZaak.uuid,
                     zoekZaakIdentifier = zaakZoekObject.identificatie,
                     relationType = RelatieType.HOOFDZAAK
                 )
@@ -190,8 +192,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
 
             val result = zaakKoppelenRestService.findLinkableZaken(
+                sourceZaak.uuid,
                 createRestFindLinkableZakenRequest(
-                    zaakUuid = sourceZaak.uuid,
                     zoekZaakIdentifier = zaakZoekObject.identificatie,
                     relationType = RelatieType.DEELZAAK
                 )
@@ -676,8 +678,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
             `when`("all search fields are set") {
                 zaakKoppelenRestService.findLinkableZaken(
+                    zaakUuid = sourceZaak.uuid,
                     createRestFindLinkableZakenRequest(
-                        zaakUuid = sourceZaak.uuid,
                         zoekZaakIdentifier = "  fakeZaakIdentifier  ",
                         zoekZaakOmschrijving = "  fakeOmschrijving  ",
                         zoekZaakType = fakeZaakTypeUuid,
@@ -695,8 +697,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
             `when`("all search fields are null") {
                 zaakKoppelenRestService.findLinkableZaken(
+                    zaakUuid = sourceZaak.uuid,
                     createRestFindLinkableZakenRequest(
-                        zaakUuid = sourceZaak.uuid,
                         zoekZaakIdentifier = null,
                         zoekZaakOmschrijving = null,
                         zoekZaakType = null,
@@ -713,8 +715,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
             `when`("string search fields are blank") {
                 zaakKoppelenRestService.findLinkableZaken(
+                    zaakUuid = sourceZaak.uuid,
                     createRestFindLinkableZakenRequest(
-                        zaakUuid = sourceZaak.uuid,
                         zoekZaakIdentifier = "   ",
                         zoekZaakOmschrijving = "   ",
                         zoekZaakType = null,
@@ -726,6 +728,91 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     zoekParametersSlot.captured.getZoeken().containsKey(ZoekVeld.ZAAK_IDENTIFICATIE) shouldBe false
                     zoekParametersSlot.captured.getZoeken().containsKey(ZoekVeld.ZAAK_OMSCHRIJVING) shouldBe false
                     zoekParametersSlot.captured.getFilters().containsKey(FilterVeld.ZAAK_ZAAKTYPE_UUID) shouldBe false
+                }
+            }
+
+            `when`("startdatum has both van and tot set") {
+                val fakeVan = LocalDate.of(2025, 1, 1)
+                val fakeTot = LocalDate.of(2025, 6, 30)
+                zaakKoppelenRestService.findLinkableZaken(
+                    zaakUuid = sourceZaak.uuid,
+                    createRestFindLinkableZakenRequest(
+                        zoekZaakIdentifier = null,
+                        startdatum = RestDatumRange(van = fakeVan, tot = fakeTot),
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should contain the ZAAK_STARTDATUM datum range") {
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldNotBe null
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM]!!.van shouldBe fakeVan
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM]!!.tot shouldBe fakeTot
+                }
+            }
+
+            `when`("startdatum has only van set") {
+                val fakeVan = LocalDate.of(2025, 3, 15)
+                zaakKoppelenRestService.findLinkableZaken(
+                    zaakUuid = sourceZaak.uuid,
+                    createRestFindLinkableZakenRequest(
+                        zoekZaakIdentifier = null,
+                        startdatum = RestDatumRange(van = fakeVan, tot = null),
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should contain the ZAAK_STARTDATUM datum range with only van") {
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldNotBe null
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM]!!.van shouldBe fakeVan
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM]!!.tot shouldBe null
+                }
+            }
+
+            `when`("startdatum has only tot set") {
+                val fakeTot = LocalDate.of(2025, 12, 31)
+                zaakKoppelenRestService.findLinkableZaken(
+                    zaakUuid = sourceZaak.uuid,
+                    createRestFindLinkableZakenRequest(
+                        zoekZaakIdentifier = null,
+                        startdatum = RestDatumRange(van = null, tot = fakeTot),
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should contain the ZAAK_STARTDATUM datum range with only tot") {
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM] shouldNotBe null
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM]!!.van shouldBe null
+                    zoekParametersSlot.captured.datums[DatumVeld.ZAAK_STARTDATUM]!!.tot shouldBe fakeTot
+                }
+            }
+
+            `when`("startdatum is null") {
+                zaakKoppelenRestService.findLinkableZaken(
+                    zaakUuid = sourceZaak.uuid,
+                    createRestFindLinkableZakenRequest(
+                        zoekZaakIdentifier = null,
+                        startdatum = null,
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should not contain the ZAAK_STARTDATUM datum range") {
+                    zoekParametersSlot.captured.datums.containsKey(DatumVeld.ZAAK_STARTDATUM) shouldBe false
+                }
+            }
+
+            `when`("startdatum has both van and tot null") {
+                zaakKoppelenRestService.findLinkableZaken(
+                    zaakUuid = sourceZaak.uuid,
+                    createRestFindLinkableZakenRequest(
+                        zoekZaakIdentifier = null,
+                        startdatum = RestDatumRange(van = null, tot = null),
+                        relationType = RelatieType.GERELATEERD
+                    )
+                )
+
+                then("the search parameters should not contain the ZAAK_STARTDATUM datum range") {
+                    zoekParametersSlot.captured.datums.containsKey(DatumVeld.ZAAK_STARTDATUM) shouldBe false
                 }
             }
         }

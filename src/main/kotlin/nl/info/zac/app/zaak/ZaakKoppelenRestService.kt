@@ -8,11 +8,12 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.validation.Valid
-import jakarta.ws.rs.BeanParam
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.PATCH
+import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import net.atos.zac.event.EventingService
@@ -40,6 +41,8 @@ import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.SearchService
+import nl.info.zac.search.model.DatumRange
+import nl.info.zac.search.model.DatumVeld
 import nl.info.zac.search.model.FilterParameters
 import nl.info.zac.search.model.FilterVeld
 import nl.info.zac.search.model.ZaakIndicatie.DEELZAAK
@@ -81,13 +84,14 @@ class ZaakKoppelenRestService @Inject constructor(
     private val restZaaktypeConverter: RestZaaktypeConverter,
     private val configurationService: ConfigurationService,
 ) {
-    @GET
+    @PUT
     @Path("gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken")
     @Suppress("UnusedParameter")
     fun findLinkableZaken(
-        @BeanParam @Valid request: RestFindLinkableZakenRequest
+        @PathParam("zaakUuid") zaakUuid: UUID,
+        @Valid request: RestFindLinkableZakenRequest
     ): RestZoekResultaat<RestZaakKoppelenZoekObject> {
-        val zaak = zrcClientService.readZaak(request.zaakUuid)
+        val zaak = zrcClientService.readZaak(zaakUuid)
         val searchResults = searchService.zoek(
             zoekParameters = buildZoekParameters(zaak, request)
         )
@@ -243,6 +247,9 @@ class ZaakKoppelenRestService @Inject constructor(
         }
         request.zoekZaakType?.let {
             addFilter(FilterVeld.ZAAK_ZAAKTYPE_UUID, it.toString())
+        }
+        request.startdatum?.takeIf { it.hasValue() }?.let{
+            addDatum(DatumVeld.ZAAK_STARTDATUM, DatumRange(it.van, it.tot))
         }
     }
 

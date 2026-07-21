@@ -8,10 +8,14 @@ import { Subject } from "rxjs";
 import { PathParameters, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 
+const ZOEK_KOPPELBARE_ZAKEN_PATH =
+  "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken" as const;
+
 type FindLinkableZakenParams = PathParameters<
-  "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken",
-  "get"
->;
+  typeof ZOEK_KOPPELBARE_ZAKEN_PATH,
+  "put"
+>["path"] &
+  PutBody<typeof ZOEK_KOPPELBARE_ZAKEN_PATH>;
 
 export const LINKABLE_ZAKEN_PAGINATION_SIZE = 10;
 
@@ -41,19 +45,24 @@ export class ZoekenService {
     zoekZaakIdentifier,
     zoekZaakOmschrijving,
     zoekZaakType,
-  }: FindLinkableZakenParams["query"] & FindLinkableZakenParams["path"]) {
-    return this.zacHttpClient.GET(
-      "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken",
+    startdatum,
+  }: Omit<FindLinkableZakenParams, "page" | "rows">) {
+    return this.zacHttpClient.PUT(
+      ZOEK_KOPPELBARE_ZAKEN_PATH,
+      {
+        relationType,
+        zoekZaakIdentifier: zoekZaakIdentifier || null,
+        zoekZaakOmschrijving: zoekZaakOmschrijving || null,
+        zoekZaakType: zoekZaakType || null,
+        startdatum: {
+          van: startdatum?.van || null,
+          tot: startdatum?.tot || null,
+        },
+        page: 0,
+        rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
+      },
       {
         path: { zaakUuid },
-        query: {
-          relationType,
-          zoekZaakIdentifier: zoekZaakIdentifier || undefined,
-          zoekZaakOmschrijving: zoekZaakOmschrijving || undefined,
-          zoekZaakType: zoekZaakType || undefined,
-          page: 0,
-          rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
-        },
       },
     );
   }
