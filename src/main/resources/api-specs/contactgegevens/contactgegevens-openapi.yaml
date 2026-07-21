@@ -1,12 +1,23 @@
 openapi: 3.0.3
 info:
   title: contactgegevens
-  version: 1.0.0 (1)
+  version: 1.1.1
   description: |2
 
-    Description WIP.
+    **Warning: Difference between `PUT` and `PATCH`**
+
+    Both `PUT` and `PATCH` methods can be used to update the fields in a resource,
+    but there is a key difference in how they handle required fields:
+
+    * The `PUT` method requires you to specify **all mandatory fields** when updating a resource.
+    If any mandatory field is missing, the update will fail. Optional fields are left unchanged if they are not specified.
+
+    * The `PATCH` method, on the other hand, allows you to update only the fields you specify.
+    Some mandatory fields can be left out, and the resource will only be updated with the provided data,
+    leaving other fields unchanged.
   contact:
     email: standaarden.ondersteuning@vng.nl
+    name: VNG
     url: https://zaakgerichtwerken.vng.cloud
   license:
     name: EUPL 1.2
@@ -27,7 +38,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       tags:
@@ -36,6 +48,12 @@ paths:
       - tokenAuth: []
       responses:
         '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
             application/json:
               schema:
@@ -57,6 +75,12 @@ paths:
       - tokenAuth: []
       responses:
         '201':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
             application/json:
               schema:
@@ -81,6 +105,12 @@ paths:
       - tokenAuth: []
       responses:
         '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
             application/json:
               schema:
@@ -110,6 +140,12 @@ paths:
       - tokenAuth: []
       responses:
         '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
             application/json:
               schema:
@@ -138,6 +174,12 @@ paths:
       - tokenAuth: []
       responses:
         '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
             application/json:
               schema:
@@ -161,6 +203,12 @@ paths:
       - tokenAuth: []
       responses:
         '204':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
           description: No response body
   /persoon:
     get:
@@ -177,7 +225,8 @@ paths:
       - name: pageSize
         required: false
         in: query
-        description: Het aantal resultaten terug te geven per pagina.
+        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
         schema:
           type: integer
       tags:
@@ -186,6 +235,12 @@ paths:
       - tokenAuth: []
       responses:
         '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
             application/json:
               schema:
@@ -207,6 +262,12 @@ paths:
       - tokenAuth: []
       responses:
         '201':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
             application/json:
               schema:
@@ -231,6 +292,12 @@ paths:
       - tokenAuth: []
       responses:
         '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
             application/json:
               schema:
@@ -260,6 +327,12 @@ paths:
       - tokenAuth: []
       responses:
         '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
             application/json:
               schema:
@@ -288,6 +361,12 @@ paths:
       - tokenAuth: []
       responses:
         '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
           content:
             application/json:
               schema:
@@ -311,6 +390,12 @@ paths:
       - tokenAuth: []
       responses:
         '204':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
           description: No response body
 components:
   schemas:
@@ -340,6 +425,8 @@ components:
           format: uri
           readOnly: true
           description: De unieke URL van deze actor binnen deze API.
+          minLength: 1
+          maxLength: 1000
         handelsnaam:
           type: string
           description: De naam waaronder een bedrijf of vestiging handelt.
@@ -363,35 +450,46 @@ components:
           - $ref: '#/components/schemas/OrganisatieAdres'
           nullable: true
           description: De adres gegevens van een organisatie.
-        land:
-          type: string
-          description: Een code, opgenomen in Tabel 34, Landentabel, die het land
-            (buiten Nederland) aangeeft alwaar de ingeschrevene verblijft.
-          maxLength: 4
-          minLength: 4
       required:
       - handelsnaam
       - url
       - uuid
     OrganisatieAdres:
       type: object
-      description: |-
-        Generate a serializer out of a GegevensGroepType.
-
-        Usage::
-
-        >>> class VerlengingSerializer(GegevensGroepSerializer):
-        ...     class Meta:
-        ...         model = Zaak
-        ...         gegevensgroep = 'verlenging'
-        >>>
-
-        Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
       properties:
         nummeraanduidingId:
           type: string
           description: Identificatie van het adres bij de Basisregistratie Adressen
             en Gebouwen.
+          pattern: ^[0-9]{16}$
+          maxLength: 16
+        straatnaam:
+          type: string
+          description: Straatnaam van het adres (indien het een Nederlands adres betreft
+            zonder BAG-id).
+          maxLength: 255
+        huisnummer:
+          type: integer
+          maximum: 99999
+          minimum: 1
+          nullable: true
+          description: Huisnummer van het adres (indien het een Nederlands adres betreft
+            zonder BAG-id).
+        huisnummertoevoeging:
+          type: string
+          description: Huisnummertoevoeging van het adres (indien het een Nederlands
+            adres betreft zonder BAG-id).
+          maxLength: 20
+        postcode:
+          type: string
+          description: Postcode van het adres (indien het een Nederlands adres betreft
+            zonder BAG-id).
+          pattern: ^[1-9][0-9]{3} [A-Z]{2}$
+          maxLength: 7
+        stad:
+          type: string
+          description: Stad van het adres (indien het een Nederlands adres betreft
+            zonder BAG-id).
           maxLength: 255
         adresregel1:
           type: string
@@ -410,10 +508,10 @@ components:
           maxLength: 80
         land:
           type: string
-          description: Een code, opgenomen in Tabel 34, Landentabel, die het land
-            (buiten Nederland) aangeeft alwaar de ingeschrevene verblijft.
-          maxLength: 4
-          minLength: 4
+          description: ISO 3166-code die het land (buiten Nederland) aangeeft alwaar
+            de ingeschrevene verblijft.
+          maxLength: 2
+          minLength: 2
     PaginatedOrganisatieList:
       type: object
       required:
@@ -477,6 +575,8 @@ components:
           format: uri
           readOnly: true
           description: De unieke URL van deze actor binnen deze API.
+          minLength: 1
+          maxLength: 1000
         handelsnaam:
           type: string
           description: De naam waaronder een bedrijf of vestiging handelt.
@@ -500,12 +600,6 @@ components:
           - $ref: '#/components/schemas/OrganisatieAdres'
           nullable: true
           description: De adres gegevens van een organisatie.
-        land:
-          type: string
-          description: Een code, opgenomen in Tabel 34, Landentabel, die het land
-            (buiten Nederland) aangeeft alwaar de ingeschrevene verblijft.
-          maxLength: 4
-          minLength: 4
     PatchedPersoon:
       type: object
       description: |-
@@ -523,6 +617,8 @@ components:
           format: uri
           readOnly: true
           description: De unieke URL van deze organisatie binnen deze API.
+          minLength: 1
+          maxLength: 1000
         geboortedatum:
           type: string
           format: date
@@ -564,12 +660,6 @@ components:
           - $ref: '#/components/schemas/PersoonAdres'
           nullable: true
           description: De adres gegevens van een organisatie.
-        land:
-          type: string
-          description: Een code, opgenomen in Tabel 34, Landentabel, die het land
-            (buiten Nederland) aangeeft alwaar de ingeschrevene verblijft.
-          maxLength: 4
-          minLength: 4
     Persoon:
       type: object
       description: |-
@@ -587,6 +677,8 @@ components:
           format: uri
           readOnly: true
           description: De unieke URL van deze organisatie binnen deze API.
+          minLength: 1
+          maxLength: 1000
         geboortedatum:
           type: string
           format: date
@@ -628,12 +720,6 @@ components:
           - $ref: '#/components/schemas/PersoonAdres'
           nullable: true
           description: De adres gegevens van een organisatie.
-        land:
-          type: string
-          description: Een code, opgenomen in Tabel 34, Landentabel, die het land
-            (buiten Nederland) aangeeft alwaar de ingeschrevene verblijft.
-          maxLength: 4
-          minLength: 4
       required:
       - geboortedatum
       - geslachtsnaam
@@ -641,23 +727,40 @@ components:
       - uuid
     PersoonAdres:
       type: object
-      description: |-
-        Generate a serializer out of a GegevensGroepType.
-
-        Usage::
-
-        >>> class VerlengingSerializer(GegevensGroepSerializer):
-        ...     class Meta:
-        ...         model = Zaak
-        ...         gegevensgroep = 'verlenging'
-        >>>
-
-        Where ``Zaak.verlenging`` is a :class:``GegevensGroepType``.
       properties:
         nummeraanduidingId:
           type: string
           description: Identificatie van het adres bij de Basisregistratie Adressen
             en Gebouwen.
+          pattern: ^[0-9]{16}$
+          maxLength: 16
+        straatnaam:
+          type: string
+          description: Straatnaam van het adres (indien het een Nederlands adres betreft
+            zonder BAG-id).
+          maxLength: 255
+        huisnummer:
+          type: integer
+          maximum: 99999
+          minimum: 1
+          nullable: true
+          description: Huisnummer van het adres (indien het een Nederlands adres betreft
+            zonder BAG-id).
+        huisnummertoevoeging:
+          type: string
+          description: Huisnummertoevoeging van het adres (indien het een Nederlands
+            adres betreft zonder BAG-id).
+          maxLength: 20
+        postcode:
+          type: string
+          description: Postcode van het adres (indien het een Nederlands adres betreft
+            zonder BAG-id).
+          pattern: ^[1-9][0-9]{3} [A-Z]{2}$
+          maxLength: 7
+        stad:
+          type: string
+          description: Stad van het adres (indien het een Nederlands adres betreft
+            zonder BAG-id).
           maxLength: 255
         adresregel1:
           type: string
@@ -676,10 +779,10 @@ components:
           maxLength: 80
         land:
           type: string
-          description: Een code, opgenomen in Tabel 34, Landentabel, die het land
-            (buiten Nederland) aangeeft alwaar de ingeschrevene verblijft.
-          maxLength: 4
-          minLength: 4
+          description: ISO 3166-code die het land (buiten Nederland) aangeeft alwaar
+            de ingeschrevene verblijft.
+          maxLength: 2
+          minLength: 2
   securitySchemes:
     tokenAuth:
       type: apiKey
