@@ -168,7 +168,7 @@ class SearchService @Inject constructor(
             }
         }
 
-    // signaleringen job does not have a logged-in user so this can return null
+    // Builds the allowed-zaaktypen filter query for the current user; returns null only when no LoggedInUser is available
     private fun getAllowedZaaktypenFilterQuery(): String? =
         loggedInUserInstance.get()?.let { loggedInUser ->
             val allowedZaaktypen = loggedInUser.applicationRolesPerZaaktype.keys
