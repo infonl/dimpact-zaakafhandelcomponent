@@ -16,10 +16,11 @@
   <mat-dialog-content>
     <zac-input [form]="form" key="name" label="value" />
   </mat-dialog-content>
-  <zac-form-actions
-    [form]="form"
-    [mutation]="mutation"
-    wrapper="dialog"
-    submitLabel="actie.opslaan"
-  />
+  <mat-dialog-actions>
+    <zac-form-actions
+      [form]="form"
+      [mutation]="mutation"
+      submitLabel="actie.opslaan"
+    />
+  </mat-dialog-actions>
 </form>

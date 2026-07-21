@@ -51,10 +51,12 @@
     <zac-documents [form]="form" key="bijlagen" [options]="documents" />
   </fieldset>
   <fieldset>
-    <zac-form-actions
-      [form]="form"
-      [mutation]="sendAcknowledgeReceiptMutation"
-      disableAfterSuccess
-    />
+    <mat-action-row>
+      <zac-form-actions
+        [form]="form"
+        [mutation]="sendAcknowledgeReceiptMutation"
+        disableAfterSuccess
+      />
+    </mat-action-row>
   </fieldset>
 </form>

@@ -19,10 +19,11 @@
     />
   </zac-generic-dialog>
 
-  <zac-form-actions
-    [form]="form"
-    [loading]="loading"
-    wrapper="dialog"
-    submitLabel="actie.zaak.afbreken"
-  />
+  <mat-dialog-actions>
+    <zac-form-actions
+      [form]="form"
+      [loading]="loading"
+      submitLabel="actie.zaak.afbreken"
+    />
+  </mat-dialog-actions>
 </form>

@@ -5,7 +5,11 @@
 
 import { Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogRef,
+} from "@angular/material/dialog";
 import { Observable } from "rxjs";
 import { ZacFormActions } from "../../form/form-actions/form-actions.component";
 import { ZacInput } from "../../form/input/input";
@@ -31,6 +35,7 @@ export type RedenDialogData = {
   imports: [
     ReactiveFormsModule,
     GenericDialogComponent,
+    MatDialogActions,
     ZacFormActions,
     ZacInput,
     ZacTextarea,

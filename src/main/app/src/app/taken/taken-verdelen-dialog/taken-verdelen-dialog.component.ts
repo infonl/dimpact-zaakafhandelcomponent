@@ -11,6 +11,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MAT_DIALOG_DATA,
+  MatDialogActions,
   MatDialogContent,
   MatDialogRef,
   MatDialogTitle,
@@ -39,6 +40,7 @@ import { TakenService } from "../taken.service";
     MatIconModule,
     MatDialogTitle,
     MatDialogContent,
+    MatDialogActions,
     MatDividerModule,
     MatButtonModule,
     MatError,

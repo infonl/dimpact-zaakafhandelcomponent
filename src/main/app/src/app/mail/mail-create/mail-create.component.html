@@ -49,10 +49,12 @@
     <zac-documents [form]="form" key="bijlagen" [options]="documents" />
   </fieldset>
   <fieldset>
-    <zac-form-actions
-      [form]="form"
-      [mutation]="sendMailMutation"
-      disableAfterSuccess
-    />
+    <mat-action-row>
+      <zac-form-actions
+        [form]="form"
+        [mutation]="sendMailMutation"
+        disableAfterSuccess
+      />
+    </mat-action-row>
   </fieldset>
 </form>
