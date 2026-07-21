@@ -209,9 +209,7 @@ describe(ZaakLinkComponent.name, () => {
       const koppelZaakSpy = jest
         .spyOn(zakenService, "koppelZaak")
         .mockReturnValue(
-          pendingLink.asObservable() as ReturnType<
-            ZakenService["koppelZaak"]
-          >,
+          pendingLink.asObservable() as ReturnType<ZakenService["koppelZaak"]>,
         );
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"][0],
@@ -231,9 +229,7 @@ describe(ZaakLinkComponent.name, () => {
       jest
         .spyOn(zakenService, "koppelZaak")
         .mockReturnValue(
-          pendingLink.asObservable() as ReturnType<
-            ZakenService["koppelZaak"]
-          >,
+          pendingLink.asObservable() as ReturnType<ZakenService["koppelZaak"]>,
         );
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"][0],
@@ -255,9 +251,7 @@ describe(ZaakLinkComponent.name, () => {
       fixture.detectChanges();
 
       const linkButtons: HTMLButtonElement[] = Array.from(
-        fixture.nativeElement.querySelectorAll(
-          "td button[mat-icon-button]",
-        ),
+        fixture.nativeElement.querySelectorAll("td button[mat-icon-button]"),
       );
       expect(linkButtons[0].disabled).toBe(true);
       expect(linkButtons[1].disabled).toBe(false);

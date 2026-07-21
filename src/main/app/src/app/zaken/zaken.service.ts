@@ -238,8 +238,8 @@ export class ZakenService {
     });
   }
 
-  createBesluit(body: PostBody<"/rest/zaken/besluit">) {
-    return this.zacHttpClient.POST("/rest/zaken/besluit", body);
+  createBesluit() {
+    return this.zacQueryClient.POST("/rest/zaken/besluit");
   }
 
   updateBesluit() {

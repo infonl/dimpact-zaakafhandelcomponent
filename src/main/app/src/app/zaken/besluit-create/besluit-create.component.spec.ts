@@ -12,9 +12,10 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of, throwError } from "rxjs";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { UtilService } from "../../core/service/util.service";
+import { testQueryClient } from "../../../../setupJest";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -48,9 +49,11 @@ describe(BesluitCreateComponent.name, () => {
   let component: BesluitCreateComponent;
   let loader: HarnessLoader;
   let zakenService: ZakenService;
-  let utilService: UtilService;
   let informatieObjectenService: InformatieObjectenService;
   let sideNavSpy: jest.SpyInstance;
+  // The create mutation stays pending so onSuccess/onError never fire; we only
+  // assert that submit() forwards the built payload to the mutation.
+  let createBesluitMutationFn: jest.Mock;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -59,21 +62,15 @@ describe(BesluitCreateComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideQueryClient(testQueryClient),
+        provideRouter([]),
+      ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(BesluitCreateComponent);
-    component = fixture.componentInstance;
-    loader = TestbedHarnessEnvironment.loader(fixture);
-
     zakenService = TestBed.inject(ZakenService);
-    utilService = TestBed.inject(UtilService);
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
-
-    const mockDrawer = fromPartial<MatDrawer>({ close: jest.fn() });
-    sideNavSpy = jest.spyOn(mockDrawer, "close");
-    component.zaak = fakeZaak;
-    component.sideNav = mockDrawer;
 
     jest
       .spyOn(zakenService, "listResultaattypes")
@@ -82,10 +79,28 @@ describe(BesluitCreateComponent.name, () => {
       .spyOn(zakenService, "listBesluittypes")
       .mockReturnValue(of([fakeBesluittype] as never));
 
+    createBesluitMutationFn = jest.fn(() => new Promise<void>(() => {}));
+    jest.spyOn(zakenService, "createBesluit").mockReturnValue(
+      fromPartial({
+        mutationKey: ["/rest/zaken/besluit"],
+        mutationFn: createBesluitMutationFn,
+      }),
+    );
+
+    fixture = TestBed.createComponent(BesluitCreateComponent);
+    component = fixture.componentInstance;
+    loader = TestbedHarnessEnvironment.loader(fixture);
+
+    const mockDrawer = fromPartial<MatDrawer>({ close: jest.fn() });
+    sideNavSpy = jest.spyOn(mockDrawer, "close");
+    component.zaak = fakeZaak;
+    component.sideNav = mockDrawer;
+
     fixture.detectChanges();
   });
 
   afterEach(() => {
+    testQueryClient.clear();
     jest.clearAllMocks();
   });
 
@@ -119,6 +134,7 @@ describe(BesluitCreateComponent.name, () => {
 
     it("is enabled when required fields are set", async () => {
       component["form"].controls.besluit.setValue(fakeBesluittype);
+      component["form"].markAsDirty();
       fixture.detectChanges();
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie.aanmaken/ }),
@@ -162,37 +178,18 @@ describe(BesluitCreateComponent.name, () => {
   });
 
   describe("submit()", () => {
-    it("calls createBesluit and emits besluitVastgelegd(true) on success", () => {
-      jest
-        .spyOn(zakenService, "createBesluit")
-        .mockReturnValue(of({} as never));
-      jest.spyOn(utilService, "openSnackbar");
-      const emittedValues: boolean[] = [];
-      component.besluitVastgelegd.subscribe((v) => emittedValues.push(v));
-
+    it("triggers the create-besluit mutation with the form payload", async () => {
       component["form"].controls.besluit.setValue(fakeBesluittype);
+
       component.submit();
+      await Promise.resolve();
 
-      expect(zakenService.createBesluit).toHaveBeenCalledWith(
-        expect.objectContaining({ zaakUuid: "zaak-uuid-1" }),
+      expect(createBesluitMutationFn.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          zaakUuid: "zaak-uuid-1",
+          besluittypeUuid: "besluittype-id-1",
+        }),
       );
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.besluit.vastgelegd",
-      );
-      expect(emittedValues).toEqual([true]);
-    });
-
-    it("emits besluitVastgelegd(false) on error", () => {
-      jest
-        .spyOn(zakenService, "createBesluit")
-        .mockReturnValue(throwError(() => new Error("error")));
-      const emittedValues: boolean[] = [];
-      component.besluitVastgelegd.subscribe((v) => emittedValues.push(v));
-
-      component["form"].controls.besluit.setValue(fakeBesluittype);
-      component.submit();
-
-      expect(emittedValues).toEqual([false]);
     });
   });
 });

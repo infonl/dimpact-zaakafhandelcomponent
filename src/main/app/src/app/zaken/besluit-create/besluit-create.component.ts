@@ -19,10 +19,13 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { UtilService } from "../../core/service/util.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ZacDate } from "../../shared/form/date/date";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -46,6 +49,7 @@ import { ZakenService } from "../zaken.service";
     ZacSelect,
     ZacDate,
     ZacTextarea,
+    ZacFormActions,
     MaterialFormBuilderModule,
   ],
 })
@@ -83,10 +87,20 @@ export class BesluitCreateComponent implements OnInit {
   private uiterlijkereactiedatumMinDateValidator: ValidatorFn | null = null;
   private vervaldatumMinDateValidator: ValidatorFn | null = null;
 
+  protected readonly createBesluitMutation = injectMutation(() => ({
+    ...this.zakenService.createBesluit(),
+    onSuccess: () => {
+      this.utilService.openSnackbar("msg.besluit.vastgelegd");
+      this.besluitVastgelegd.emit(true);
+    },
+    onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
+  }));
+
   constructor(
     private readonly zakenService: ZakenService,
     private readonly utilService: UtilService,
     private readonly informatieObjectenService: InformatieObjectenService,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
     private readonly formBuilder: FormBuilder,
   ) {
     this.form.controls.ingangsdatum.valueChanges
@@ -189,31 +203,21 @@ export class BesluitCreateComponent implements OnInit {
   submit() {
     const { value } = this.form;
 
-    this.zakenService
-      .createBesluit({
-        ...value,
-        zaakUuid: this.zaak.uuid,
-        besluittypeUuid: value.besluit!.id,
-        ingangsdatum: value.ingangsdatum?.toISOString(),
-        vervaldatum: value.vervaldatum?.toISOString(),
-        informatieobjecten: value.documenten
-          ?.map(({ uuid }) => uuid!)
-          .filter(Boolean),
-        ...(value.publicationEnabled
-          ? {
-              publicationDate: value.publicatiedatum?.toISOString(),
-              lastResponseDate: value.uiterlijkereactiedatum?.toISOString(),
-            }
-          : {}),
-      })
-      .subscribe({
-        next: () => {
-          this.utilService.openSnackbar("msg.besluit.vastgelegd");
-          this.besluitVastgelegd.emit(true);
-        },
-        error: () => {
-          this.besluitVastgelegd.emit(false);
-        },
-      });
+    this.createBesluitMutation.mutate({
+      ...value,
+      zaakUuid: this.zaak.uuid,
+      besluittypeUuid: value.besluit!.id,
+      ingangsdatum: value.ingangsdatum?.toISOString(),
+      vervaldatum: value.vervaldatum?.toISOString(),
+      informatieobjecten: value.documenten
+        ?.map(({ uuid }) => uuid!)
+        .filter(Boolean),
+      ...(value.publicationEnabled
+        ? {
+            publicationDate: value.publicatiedatum?.toISOString(),
+            lastResponseDate: value.uiterlijkereactiedatum?.toISOString(),
+          }
+        : {}),
+    });
   }
 }
