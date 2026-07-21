@@ -122,7 +122,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
      * Sends einddatum gepland zaak email notifications
      */
     private fun zaakEinddatumGeplandVerzenden(zaaktype: ZaakType, venster: Int): Int =
-        searchService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
+        searchService.search(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster))
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.STREEFDATUM) }
@@ -136,7 +136,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
         zaaktype: ZaakType,
         venster: Int
     ): Int =
-        searchService.zoek(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster))
+        searchService.search(getZaakSignaleringTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster))
             .items
             .map { it as ZaakZoekObject }
             .filter { hasZaakSignaleringTarget(it, SignaleringDetail.FATALE_DATUM) }
@@ -195,7 +195,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private fun zaakEinddatumGeplandOnterechtVerzondenVerwijderen(
         zaaktype: ZaakType,
         venster: Int
-    ) = searchService.zoek(
+    ) = searchService.search(
         getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_STREEFDATUM, zaaktype, venster)
     ).items.map { it as ZaakZoekObject }
         .map {
@@ -213,7 +213,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
     private fun zaakUiterlijkeEinddatumAfdoeningOnterechtVerzondenVerwijderen(
         zaaktype: ZaakType,
         venster: Int
-    ) = searchService.zoek(
+    ) = searchService.search(
         getZaakSignaleringLaterTeVerzendenZoekParameters(DatumVeld.ZAAK_FATALE_DATUM, zaaktype, venster)
     ).items.map { it as ZaakZoekObject }
         .map {

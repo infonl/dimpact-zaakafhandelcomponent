@@ -54,9 +54,9 @@ class SearchService @Inject constructor(
     }
 
     @Suppress("LongMethod")
-    fun zoek(zoekParameters: ZoekParameters): ZoekResultaat<out ZoekObject> {
+    fun search(zoekParameters: ZoekParameters): ZoekResultaat<out ZoekObject> {
         val query = SolrQuery("*:*")
-        applyAllowedZaaktypenPolicy(query)
+        getAllowedZaaktypenFilterQuery()?.let(query::addFilterQuery)
         zoekParameters.type?.let { query.addFilterQuery("type:${zoekParameters.type}") }
         getFilterQueriesForZoekenParameters(zoekParameters).forEach(query::addFilterQuery)
         getFilterQueriesForDatumsParameters(zoekParameters).forEach(query::addFilterQuery)
@@ -168,18 +168,14 @@ class SearchService @Inject constructor(
             }
         }
 
-    @Suppress("NestedBlockDepth")
-    private fun applyAllowedZaaktypenPolicy(query: SolrQuery) {
-        // signaleringen job does not have a logged-in user so check if logged-in user is present
+    // Builds the allowed-zaaktypen filter query for the current user; returns null only when no LoggedInUser is available
+    private fun getAllowedZaaktypenFilterQuery(): String? =
         loggedInUserInstance.get()?.let { loggedInUser ->
-            // build the filterQuery from per‑zaaktype mappings (keys)
             val allowedZaaktypen = loggedInUser.applicationRolesPerZaaktype.keys
-            val filterQuery = if (allowedZaaktypen.isEmpty()) {
+            if (allowedZaaktypen.isEmpty()) {
                 "$ZAAKTYPE_OMSCHRIJVING_VELD:$NON_EXISTING_ZAAKTYPE"
             } else {
                 allowedZaaktypen.joinToString(" OR ") { "$ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)}" }
             }
-            query.addFilterQuery(filterQuery)
         }
-    }
 }
