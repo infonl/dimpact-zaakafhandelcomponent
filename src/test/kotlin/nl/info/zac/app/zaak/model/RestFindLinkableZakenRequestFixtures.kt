@@ -13,6 +13,7 @@ fun createRestFindLinkableZakenRequest(
     zoekZaakOmschrijving: String? = null,
     zoekZaakType: UUID? = null,
     startdatum: RestDatumRange? = null,
+    einddatum: RestDatumRange? = null,
     relationType: RelatieType = RelatieType.GERELATEERD,
     page: Int = 0,
     rows: Int = 10
@@ -21,6 +22,7 @@ fun createRestFindLinkableZakenRequest(
     this.zoekZaakOmschrijving = zoekZaakOmschrijving
     this.zoekZaakType = zoekZaakType
     this.startdatum = startdatum
+    this.einddatum = einddatum
     this.relationType = relationType
     this.page = page
     this.rows = rows

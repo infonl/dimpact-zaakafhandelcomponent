@@ -46,6 +46,7 @@ export class ZoekenService {
     zoekZaakOmschrijving,
     zoekZaakType,
     startdatum,
+    einddatum,
   }: Omit<FindLinkableZakenParams, "page" | "rows">) {
     return this.zacHttpClient.PUT(
       ZOEK_KOPPELBARE_ZAKEN_PATH,
@@ -54,10 +55,8 @@ export class ZoekenService {
         zoekZaakIdentifier: zoekZaakIdentifier || null,
         zoekZaakOmschrijving: zoekZaakOmschrijving || null,
         zoekZaakType: zoekZaakType || null,
-        startdatum: {
-          van: startdatum?.van || null,
-          tot: startdatum?.tot || null,
-        },
+        startdatum,
+        einddatum,
         page: 0,
         rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
       },

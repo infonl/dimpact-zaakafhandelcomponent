@@ -129,6 +129,10 @@ describe(ZaakLinkComponent.name, () => {
         new Date(2026, 1, 1),
         new Date(2026, 2, 1),
       );
+      component["einddatum"] = new DatumRange(
+        new Date(2026, 3, 1),
+        new Date(2026, 4, 1),
+      );
       component["searchCases"]();
 
       expect(zoekenService.findLinkableZaken).toHaveBeenCalledWith({
@@ -140,6 +144,10 @@ describe(ZaakLinkComponent.name, () => {
         startdatum: {
           van: new Date(2026, 1, 1).toISOString(),
           tot: new Date(2026, 2, 1).toISOString(),
+        },
+        einddatum: {
+          van: new Date(2026, 3, 1).toISOString(),
+          tot: new Date(2026, 4, 1).toISOString(),
         },
       });
       expect(component["cases"].data).toEqual([resultRow]);

@@ -48,11 +48,20 @@
         label="zoekVeld.ZAAK_OMSCHRIJVING"
         key="caseDescriptionToSearchFor"
       />
-      <zac-date-range-filter
-        [showLabel]="true"
-        label="startdatum"
-        [range]="startdatum"
-      />
+      <div class="row">
+        <zac-date-range-filter
+          class="col-6"
+          [showLabel]="true"
+          label="startdatum"
+          [range]="startdatum"
+        />
+        <zac-date-range-filter
+          class="col-6"
+          [showLabel]="true"
+          label="einddatum"
+          [range]="einddatum"
+        />
+      </div>
     </fieldset>
   </fieldset>
   <fieldset class="flex-row gap-5 button-row">
