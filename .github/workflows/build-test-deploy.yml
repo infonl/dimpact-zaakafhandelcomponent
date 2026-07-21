@@ -73,7 +73,7 @@ jobs:
       previous-tag: ${{ steps.prev-tag.outputs.tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -178,7 +178,7 @@ jobs:
     outputs:
       changes-requiring-build: ${{ steps.paths-filter.outputs.changes-requiring-build }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Skip job when only certain files or file types are changed which do not require a pull request build
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
@@ -205,7 +205,7 @@ jobs:
     needs: [paths-filter]
     if: ${{ needs.paths-filter.outputs.changes-requiring-build != 'true' }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup JDK
         uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
@@ -232,7 +232,7 @@ jobs:
       build_number: ${{ steps.gen_build_number.outputs.BUILD_NUMBER }}
       zac_docker_image: ${{ steps.gen_tag.outputs.ZAC_DOCKER_IMAGE }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set branch name
         id: gen_branch_name
@@ -312,7 +312,7 @@ jobs:
       READ_PACKAGES_USERNAME: $${{ vars.READ_PACKAGES_USERNAME }}
       READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup JDK
         uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
@@ -407,7 +407,7 @@ jobs:
       BAG_API_KEY: ${{ secrets.BAG_API_KEY }}
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Authenticate with Docker Hub to avoid rate limiting issues
         # Skip for pull requests from forks because a forked repository is not allowed to access our secrets
@@ -561,7 +561,7 @@ jobs:
       PREVIOUS_TAG: ${{ needs.determine-version.outputs.previous-tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Delete existing dev pre-releases
         if: ${{ env.RELEASE_TYPE == 'dev' || env.RELEASE_TYPE == 'release' }}
