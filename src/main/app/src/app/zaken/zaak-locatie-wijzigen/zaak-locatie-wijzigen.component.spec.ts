@@ -224,8 +224,6 @@ describe(CaseLocationEditComponent.name, () => {
     await sleep();
     fixture.detectChanges();
 
-    // While the first request is still in flight the button is disabled, so this
-    // second click must not trigger another request.
     submitButton.click();
     await sleep();
 
@@ -235,7 +233,6 @@ describe(CaseLocationEditComponent.name, () => {
   });
 
   it("sends only one request when deleting a location is submitted twice", async () => {
-    // Deleting a location is the same save path with an empty geometry.
     const { component, fixture, httpTestingController } = setup({
       zaakgeometrie: point,
     });

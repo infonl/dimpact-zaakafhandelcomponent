@@ -150,7 +150,6 @@ describe(BesluitCreateComponent.name, () => {
     it("is hidden when selected besluittype has publication disabled", () => {
       component["form"].controls.besluit.setValue(fakeBesluittype);
       fixture.detectChanges();
-      // Only ingangsdatum and vervaldatum are rendered.
       expect(countDateFields()).toBe(2);
     });
 
@@ -162,7 +161,6 @@ describe(BesluitCreateComponent.name, () => {
         fakeBesluittypeWithPublication,
       );
       fixture.detectChanges();
-      // ingangsdatum, vervaldatum + publicatiedatum, uiterlijkereactiedatum.
       expect(countDateFields()).toBe(4);
     });
   });
