@@ -29,6 +29,8 @@ class RestFindLinkableZakenRequest {
 
     var startdatum: RestDatumRange? = null
 
+    var einddatum: RestDatumRange? = null
+
     var zoekZaakType: UUID? = null
 
     @field:PositiveOrZero

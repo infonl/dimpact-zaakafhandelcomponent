@@ -119,6 +119,7 @@ export class ZaakLinkComponent implements OnDestroy {
   protected caseTypes = this.zakenService.listZaaktypesToLink();
 
   startdatum = new DatumRange();
+  einddatum = new DatumRange();
 
   constructor() {
     this.form.controls.caseRelationType.valueChanges
@@ -150,6 +151,10 @@ export class ZaakLinkComponent implements OnDestroy {
         startdatum: {
           van: this.startdatum?.van?.toISOString(),
           tot: this.startdatum?.tot?.toISOString(),
+        },
+        einddatum: {
+          van: this.einddatum?.van?.toISOString(),
+          tot: this.einddatum?.tot?.toISOString(),
         },
       })
       .subscribe({
@@ -204,6 +209,7 @@ export class ZaakLinkComponent implements OnDestroy {
   protected reset() {
     this.form.reset();
     this.startdatum = new DatumRange();
+    this.einddatum = new DatumRange();
     this.clearSearchResult();
   }
 

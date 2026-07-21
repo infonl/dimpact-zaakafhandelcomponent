@@ -251,6 +251,9 @@ class ZaakKoppelenRestService @Inject constructor(
         request.startdatum?.takeIf { it.hasValue() }?.let{
             addDatum(DatumVeld.ZAAK_STARTDATUM, DatumRange(it.van, it.tot))
         }
+        request.einddatum?.takeIf { it.hasValue() }?.let {
+            addDatum(DatumVeld.ZAAK_EINDDATUM, DatumRange(it.van, it.tot))
+        }
     }
 
     private fun filterSearchResults(
