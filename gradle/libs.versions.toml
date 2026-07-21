@@ -61,7 +61,7 @@ jakarta-jakartaee = "11.0.0"
 
 eclipse-yasson = "3.0.4"
 
-kotest = "6.2.2"
+kotest = "6.2.3"
 mockk = "1.14.11"
 
 testcontainers = "2.0.5"
