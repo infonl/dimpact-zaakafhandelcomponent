@@ -92,7 +92,7 @@ class ZaakKoppelenRestService @Inject constructor(
         @Valid request: RestFindLinkableZakenRequest
     ): RestZoekResultaat<RestZaakKoppelenZoekObject> {
         val zaak = zrcClientService.readZaak(zaakUuid)
-        val searchResults = searchService.zoek(
+        val searchResults = searchService.search(
             zoekParameters = buildZoekParameters(zaak, request)
         )
         return filterSearchResults(

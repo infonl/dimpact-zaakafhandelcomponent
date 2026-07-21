@@ -42,7 +42,7 @@ class CsvRestServiceTest : BehaviorSpec({
 
         every { policyService.readWerklijstRechten().zakenTakenExporteren } returns true
         every { restZoekParametersConverter.convert(restZoekParameters) } returns zoekParameters
-        every { searchService.zoek(zoekParameters) } returns zoekResultaat
+        every { searchService.search(zoekParameters) } returns zoekResultaat
         every { csvService.exportToCsv(zoekResultaat) } returns csvStreamingOutput
 
         `when`("the download CSV function is called") {

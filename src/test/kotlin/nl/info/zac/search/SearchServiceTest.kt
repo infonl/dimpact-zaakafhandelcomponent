@@ -43,7 +43,7 @@ import java.time.format.DateTimeFormatter
 import java.util.EnumMap
 
 class SearchServiceTest : BehaviorSpec({
-    // add static mocking for config provider because the IndexeerService class
+    // add static mocking for config provider because the SearchService class
     // references the config provider statically
     val solrUrl = "http://localhost/fakeSolrUrl"
     mockkStatic(ConfigProvider::class)
@@ -102,7 +102,7 @@ class SearchServiceTest : BehaviorSpec({
             val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
             val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
             val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
-            val zoekResultaat = zoekService.zoek(
+            val zoekResultaat = zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.ZAAK,
                     datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
@@ -197,7 +197,7 @@ class SearchServiceTest : BehaviorSpec({
             val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
             val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
             val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
-            val zoekResultaat = zoekService.zoek(
+            val zoekResultaat = zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.TAAK,
                     datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
@@ -277,7 +277,7 @@ class SearchServiceTest : BehaviorSpec({
         every { queryResponse.facetFields } returns emptyList()
 
         `when`("searching for all documents of type DOCUMENT with a sort field and sort direction") {
-            val zoekResultaat = zoekService.zoek(
+            val zoekResultaat = zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.DOCUMENT,
                     sorteerVeld = SorteerVeld.INFORMATIEOBJECT_TITEL,
@@ -349,7 +349,7 @@ class SearchServiceTest : BehaviorSpec({
             val zaakSearchStartDate = LocalDate.of(2000, 1, 1)
             val zaakSearchEndDate = LocalDate.of(2000, 2, 1)
             val zaakSearchDateRange = DatumRange(zaakSearchStartDate, zaakSearchEndDate)
-            val zoekResultaat = zoekService.zoek(
+            val zoekResultaat = zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.TAAK,
                     datums = EnumMap<DatumVeld, DatumRange>(DatumVeld::class.java).apply {
@@ -432,7 +432,7 @@ class SearchServiceTest : BehaviorSpec({
         every { queryResponse.facetFields } returns emptyList()
 
         `when`("searching ${SorteerRichting.ASCENDING.value}") {
-            zoekService.zoek(
+            zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.ZAAK,
                     sorteerRichting = SorteerRichting.ASCENDING,
@@ -448,7 +448,7 @@ class SearchServiceTest : BehaviorSpec({
         }
 
         `when`("searching ${SorteerRichting.DESCENDING.value}") {
-            zoekService.zoek(
+            zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.ZAAK,
                     sorteerRichting = SorteerRichting.DESCENDING,
@@ -464,7 +464,7 @@ class SearchServiceTest : BehaviorSpec({
         }
 
         `when`("searching ${SorteerRichting.NONE.value}") {
-            zoekService.zoek(
+            zoekService.search(
                 createZoekParameters(
                     zoekObjectType = ZoekObjectType.ZAAK,
                     sorteerRichting = SorteerRichting.NONE,

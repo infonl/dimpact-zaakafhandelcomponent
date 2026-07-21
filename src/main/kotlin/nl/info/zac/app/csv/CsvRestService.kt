@@ -47,7 +47,7 @@ class CsvRestService @Inject constructor(
             }
             it
         }
-        val streamingOutput = searchService.zoek(zoekParameters).let {
+        val streamingOutput = searchService.search(zoekParameters).let {
             csvService.exportToCsv(it)
         }
         return Response.ok(streamingOutput).header("Content-Type", MediaTypes.Text.CSV.mediaType).build()

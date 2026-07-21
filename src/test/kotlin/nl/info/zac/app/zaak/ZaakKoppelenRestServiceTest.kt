@@ -29,7 +29,6 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
-import nl.info.zac.app.zaak.model.RestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.createRestFindLinkableZakenRequest
 import nl.info.zac.app.zaak.model.createRestZaakLinkData
@@ -101,7 +100,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
         }
 
         every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
-        every { searchService.zoek(any()) } returns zoekResultaat
+        every { searchService.search(any()) } returns zoekResultaat
         every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
         every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
         every { loggedInUserInstance.get() } returns loggedInUser
@@ -136,7 +135,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             And("required services should've been invoked") {
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
-                    searchService.zoek(any())
+                    searchService.search(any())
                     zaakService.readZaakTypeByZaak(sourceZaak)
                     policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
@@ -177,7 +176,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             And("required services should've be invoked") {
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
-                    searchService.zoek(any())
+                    searchService.search(any())
                     zaakService.readZaakTypeByZaak(sourceZaak)
                     policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
@@ -218,7 +217,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             And("required services should've be invoked") {
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
-                    searchService.zoek(any())
+                    searchService.search(any())
                     zaakService.readZaakTypeByZaak(sourceZaak)
                     policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser)
                     policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
@@ -670,7 +669,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
             val zoekParametersSlot = slot<ZoekParameters>()
 
             every { zrcClientService.readZaak(sourceZaak.uuid) } returns sourceZaak
-            every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
+            every { searchService.search(capture(zoekParametersSlot)) } returns zoekResultaat
             every { zaakService.readZaakTypeByZaak(sourceZaak) } returns zaakType
             every { policyService.readZaakRechten(sourceZaak, zaakType, loggedInUser) } returns createZaakRechten()
             every { policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject) } returns createZaakRechten()
