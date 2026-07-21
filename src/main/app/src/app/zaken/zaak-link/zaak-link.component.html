@@ -123,8 +123,7 @@
           [disabled]="rowDisabled(row) || isLinking(row)"
           (click)="selectCase(row)"
         >
-          <mat-icon
-            [ngClass]="{ disabled: rowDisabled(row) || isLinking(row) }"
+          <mat-icon [ngClass]="{ disabled: rowDisabled(row) || isLinking(row) }"
             >account_tree</mat-icon
           >
         </button>
