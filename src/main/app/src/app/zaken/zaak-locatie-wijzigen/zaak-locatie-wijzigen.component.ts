@@ -9,13 +9,14 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  inject,
   Input,
   OnDestroy,
   OnInit,
   Output,
   ViewChild,
 } from "@angular/core";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
@@ -30,6 +31,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import * as control from "ol/control.js";
 import { Coordinate } from "ol/coordinate.js";
 import * as extent from "ol/extent.js";
@@ -45,6 +47,8 @@ import WMTSTileGrid from "ol/tilegrid/WMTS.js";
 import { BehaviorSubject, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { environment } from "src/environments/environment";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { LocationUtil } from "../../shared/location/location-util";
 import {
   AddressResult,
@@ -81,6 +85,7 @@ import { ZakenService } from "../zaken.service";
     ReactiveFormsModule,
     StaticTextComponent,
     TranslateModule,
+    ZacFormActions,
   ],
 })
 export class CaseLocationEditComponent
@@ -92,6 +97,10 @@ export class CaseLocationEditComponent
 
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef: ElementRef;
 
+  private readonly zakenService = inject(ZakenService);
+  private readonly locationService = inject(LocationService);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+
   // markerLocatie?: GeneratedType<"RestGeometry">;
   markerLocatie$ = new BehaviorSubject<GeneratedType<"RestGeometry"> | null>(
     null,
@@ -100,6 +109,17 @@ export class CaseLocationEditComponent
   searchControl = new FormControl();
   reasonControl = new FormControl();
   searchResults: SuggestResult[] = [];
+
+  protected readonly form = new FormGroup({ reason: this.reasonControl });
+
+  protected readonly mutation = injectMutation(() => ({
+    ...this.zakenService.updateZaakLocatie(this.zaak.uuid),
+    onSuccess: () => {
+      this.locatie.emit();
+      void this.sideNav.close();
+    },
+    onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
+  }));
 
   private unsubscribe$: Subject<void> = new Subject<void>();
   protected readonly: boolean = false;
@@ -139,11 +159,6 @@ export class CaseLocationEditComponent
       offsetY: -15,
     }),
   });
-
-  constructor(
-    private zakenService: ZakenService,
-    private locationService: LocationService,
-  ) {}
 
   ngOnInit(): void {
     const projection = proj.get(this.EPSG3857);
@@ -354,21 +369,10 @@ export class CaseLocationEditComponent
   }
 
   save(): void {
-    this.zakenService
-      .updateZaakLocatie(
-        this.zaak.uuid,
-        this.reasonControl.value,
-        this.markerLocatie$.getValue() ?? undefined,
-      )
-      .subscribe({
-        next: () => {
-          this.sideNav.close();
-          this.locatie.emit();
-        },
-        error: (err) => {
-          console.error("Failed to update location:", err);
-        },
-      });
+    this.mutation.mutate({
+      reden: this.reasonControl.value,
+      geometrie: this.markerLocatie$.getValue(),
+    });
   }
 
   ngOnDestroy(): void {

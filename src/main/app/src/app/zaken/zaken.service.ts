@@ -159,16 +159,10 @@ export class ZakenService {
     );
   }
 
-  updateZaakLocatie(
-    uuid: string,
-    reden: PatchBody<"/rest/zaken/{uuid}/zaaklocatie">["reden"] = "",
-    geometrie?: PatchBody<"/rest/zaken/{uuid}/zaaklocatie">["geometrie"],
-  ) {
-    return this.zacHttpClient.PATCH(
-      "/rest/zaken/{uuid}/zaaklocatie",
-      { geometrie: geometrie ?? null, reden },
-      { path: { uuid } },
-    );
+  updateZaakLocatie(uuid: string) {
+    return this.zacQueryClient.PATCH("/rest/zaken/{uuid}/zaaklocatie", {
+      path: { uuid },
+    });
   }
 
   ontkoppelInformatieObject(

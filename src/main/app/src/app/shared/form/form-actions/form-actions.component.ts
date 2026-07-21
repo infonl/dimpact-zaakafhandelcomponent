@@ -21,6 +21,7 @@ import { TranslateModule } from "@ngx-translate/core";
 @Component({
   selector: "zac-form-actions",
   templateUrl: "./form-actions.component.html",
+  styles: [":host { display: contents; }"], // Style parent action-row / dialog-actions flex layout
   standalone: true,
   imports: [
     MatButtonModule,

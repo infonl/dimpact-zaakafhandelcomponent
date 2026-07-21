@@ -120,10 +120,11 @@
           mat-icon-button
           color="primary"
           title="{{ 'actie.zaak.koppelen' | translate }}"
-          [disabled]="rowDisabled(row)"
+          [disabled]="rowDisabled(row) || isLinking(row)"
           (click)="selectCase(row)"
         >
-          <mat-icon [ngClass]="{ disabled: rowDisabled(row) }"
+          <mat-icon
+            [ngClass]="{ disabled: rowDisabled(row) || isLinking(row) }"
             >account_tree</mat-icon
           >
         </button>

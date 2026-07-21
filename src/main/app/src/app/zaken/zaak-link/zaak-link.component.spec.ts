@@ -10,7 +10,7 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of, throwError } from "rxjs";
+import { of, Subject, throwError } from "rxjs";
 import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { fromPartial } from "src/test-helpers";
 import { UtilService } from "../../core/service/util.service";
@@ -201,6 +201,66 @@ describe(ZaakLinkComponent.name, () => {
           case: row.identificatie,
         },
       );
+    });
+
+    it("ignores a second selectCase while a link request is still in flight", () => {
+      const { component, zakenService } = setup();
+      const pendingLink = new Subject<null>();
+      const koppelZaakSpy = jest
+        .spyOn(zakenService, "koppelZaak")
+        .mockReturnValue(
+          pendingLink.asObservable() as ReturnType<
+            ZakenService["koppelZaak"]
+          >,
+        );
+      component["form"].controls.caseRelationType.setValue(
+        component["caseRelationOptionsList"][0],
+      );
+      const row = makeFakeSearchResult({ isKoppelbaar: true });
+
+      component["selectCase"](row);
+      component["selectCase"](row);
+
+      expect(koppelZaakSpy).toHaveBeenCalledTimes(1);
+      expect(component["linkingRowId"]).toBe(row.id);
+    });
+
+    it("disables only the clicked row's link button while linking", () => {
+      const { component, fixture, zakenService } = setup();
+      const pendingLink = new Subject<null>();
+      jest
+        .spyOn(zakenService, "koppelZaak")
+        .mockReturnValue(
+          pendingLink.asObservable() as ReturnType<
+            ZakenService["koppelZaak"]
+          >,
+        );
+      component["form"].controls.caseRelationType.setValue(
+        component["caseRelationOptionsList"][0],
+      );
+      const clickedRow = makeFakeSearchResult({
+        id: "clicked-uuid",
+        identificatie: "ZAAK-2026-002",
+        isKoppelbaar: true,
+      });
+      const otherRow = makeFakeSearchResult({
+        id: "other-uuid",
+        identificatie: "ZAAK-2026-003",
+        isKoppelbaar: true,
+      });
+      component["cases"].data = [clickedRow, otherRow];
+      fixture.detectChanges();
+
+      component["selectCase"](clickedRow);
+      fixture.detectChanges();
+
+      const linkButtons: HTMLButtonElement[] = Array.from(
+        fixture.nativeElement.querySelectorAll(
+          "td button[mat-icon-button]",
+        ),
+      );
+      expect(linkButtons[0].disabled).toBe(true);
+      expect(linkButtons[1].disabled).toBe(false);
     });
 
     it("skips koppelZaak when row has no id", () => {
