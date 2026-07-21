@@ -237,7 +237,7 @@ export class BesluitEditComponent implements OnInit {
             lastResponseDate: lastResponseDate?.toISOString(),
           }
         : {}),
-      reden,
+      reden: reden!,
     });
   }
 
