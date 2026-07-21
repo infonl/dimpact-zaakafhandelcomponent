@@ -146,7 +146,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 requestBodyAsString = """
                     {
                       "zoekZaakIdentifier": "$teKoppelenZaakIdentification",
-                      "relationType": "GERELATEERD,
+                      "relationType": "GERELATEERD",
                       "rows": $ROWS_DEFAULT,
                       "page": $PAGE_DEFAULT
                     }
