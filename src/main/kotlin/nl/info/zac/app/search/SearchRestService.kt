@@ -60,7 +60,7 @@ class SearchRestService @Inject constructor(
             else -> assertPolicy(policyService.readOverigeRechten().zoeken)
         }
         val zoekParameters = restZoekZaakParametersConverter.convert(restZoekParameters)
-        val zoekResultaat = searchService.zoek(zoekParameters)
+        val zoekResultaat = searchService.search(zoekParameters)
         return restZoekResultaatConverter.convert(zoekResultaat, restZoekParameters)
     }
 
@@ -68,7 +68,7 @@ class SearchRestService @Inject constructor(
     @Path("zaken")
     fun listZakenForInformationObjectType(@Valid restZoekKoppelenParameters: RestZoekKoppelenParameters) =
         assertPolicy(policyService.readWerklijstRechten().zakenTaken).run {
-            searchService.zoek(restZoekKoppelenParameters.toZoekParameters()).let {
+            searchService.search(restZoekKoppelenParameters.toZoekParameters()).let {
                 restZoekResultaatConverter.convert(it, buildDocumentsLinkableList(it, restZoekKoppelenParameters))
             }
         }

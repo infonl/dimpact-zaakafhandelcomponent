@@ -71,7 +71,7 @@ class SearchRestServiceTest : BehaviorSpec({
 
         every { policyService.readWerklijstRechten() } returns createWerklijstRechten(zakenTaken = true)
         every { restZoekParametersConverter.convert(restZoekParameters) } returns zoekParameters
-        every { searchService.zoek(zoekParameters) } returns zoekResultaat
+        every { searchService.search(zoekParameters) } returns zoekResultaat
         every { restZoekResultaatConverter.convert(zoekResultaat, restZoekParameters) } returns restZoekResultaat
 
         `when`("listSearchResults is called") {
@@ -85,7 +85,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     policyService.readWerklijstRechten()
                     restZoekParametersConverter.convert(restZoekParameters)
-                    searchService.zoek(zoekParameters)
+                    searchService.search(zoekParameters)
                     restZoekResultaatConverter.convert(zoekResultaat, restZoekParameters)
                 }
             }
@@ -100,7 +100,7 @@ class SearchRestServiceTest : BehaviorSpec({
 
         every { policyService.readWerklijstRechten() } returns createWerklijstRechten(zakenTaken = true)
         every { restZoekParametersConverter.convert(restZoekParameters) } returns zoekParameters
-        every { searchService.zoek(zoekParameters) } returns zoekResultaat
+        every { searchService.search(zoekParameters) } returns zoekResultaat
         every { restZoekResultaatConverter.convert(zoekResultaat, restZoekParameters) } returns restZoekResultaat
 
         `when`("listSearchResults is called") {
@@ -120,7 +120,7 @@ class SearchRestServiceTest : BehaviorSpec({
 
         every { policyService.readOverigeRechten() } returns createOverigeRechten(zoeken = true)
         every { restZoekParametersConverter.convert(restZoekParameters) } returns zoekParameters
-        every { searchService.zoek(zoekParameters) } returns zoekResultaat
+        every { searchService.search(zoekParameters) } returns zoekResultaat
         every { restZoekResultaatConverter.convert(zoekResultaat, restZoekParameters) } returns restZoekResultaat
 
         `when`("listSearchResults is called") {
@@ -192,7 +192,7 @@ class SearchRestServiceTest : BehaviorSpec({
         val zoekParametersSlot = slot<ZoekParameters>()
 
         every { policyService.readWerklijstRechten() } returns createWerklijstRechten(zakenTaken = true)
-        every { searchService.zoek(capture(zoekParametersSlot)) } returns zoekResultaat
+        every { searchService.search(capture(zoekParametersSlot)) } returns zoekResultaat
         every { zrcClientService.readZaakByID(zaakIdentification) } returns zaak
         every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
         every { restZoekResultaatConverter.convert(zoekResultaat, listOf(true)) } returns restZoekResultaat
@@ -207,7 +207,7 @@ class SearchRestServiceTest : BehaviorSpec({
             And("the correct services should be invoked") {
                 verify(exactly = 1) {
                     policyService.readWerklijstRechten()
-                    searchService.zoek(any<ZoekParameters>())
+                    searchService.search(any<ZoekParameters>())
                     zrcClientService.readZaakByID(zaakIdentification)
                     ztcClientService.readZaaktype(zaaktypeUuid)
                     restZoekResultaatConverter.convert(zoekResultaat, listOf(true))
@@ -245,7 +245,7 @@ class SearchRestServiceTest : BehaviorSpec({
         val restZoekResultaat = createRestZoekResultaatForZaakKoppelenZoekObjects()
 
         every { policyService.readWerklijstRechten() } returns createWerklijstRechten(zakenTaken = true)
-        every { searchService.zoek(any<ZoekParameters>()) } returns zoekResultaat
+        every { searchService.search(any<ZoekParameters>()) } returns zoekResultaat
         every { zrcClientService.readZaakByID(zaakIdentification) } returns zaak
         every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
         every { restZoekResultaatConverter.convert(zoekResultaat, listOf(false)) } returns restZoekResultaat
@@ -293,7 +293,7 @@ class SearchRestServiceTest : BehaviorSpec({
         val restZoekResultaat = createRestZoekResultaatForZaakKoppelenZoekObjects()
 
         every { policyService.readWerklijstRechten() } returns createWerklijstRechten(zakenTaken = true)
-        every { searchService.zoek(any<ZoekParameters>()) } returns zoekResultaat
+        every { searchService.search(any<ZoekParameters>()) } returns zoekResultaat
         every { restZoekResultaatConverter.convert(zoekResultaat, emptyList()) } returns restZoekResultaat
 
         `when`("listZakenForInformationObjectType is called") {
