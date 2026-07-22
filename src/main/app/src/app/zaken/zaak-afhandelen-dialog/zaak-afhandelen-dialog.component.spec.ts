@@ -541,7 +541,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await createTestBed(mockZaakWithContactNoInitiator, mockPlanItem);
 
       const contactButton = fixture.nativeElement.querySelector(
-        'button[title="actie.initiator.email.toevoegen"]',
+        'button[title="actie.contact.email.toevoegen"]',
       ) as HTMLButtonElement | null;
       expect(contactButton).toBeTruthy();
 

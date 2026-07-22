@@ -157,10 +157,10 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     });
   });
 
-  describe("initiatorEmail", () => {
+  describe("contactEmailAddress", () => {
     it("is set from contact details when temporaryPersonId is present", async () => {
       await setup(makeZaak("BESCHIKBAAR_AAN", "person-123"));
-      expect(component.initiatorEmail).toBe(mockContactGegevens.emailadres);
+      expect(component.contactEmailAddress).toBe(mockContactGegevens.emailadres);
     });
 
     it("is set from zaakSpecificContactDetails when available, without calling klantenService", async () => {
@@ -177,13 +177,13 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       });
       await setup(zaak);
 
-      expect(component.initiatorEmail).toBe("zaak@example.com");
+      expect(component.contactEmailAddress).toBe("zaak@example.com");
       expect(klantenService.getContactDetailsForPerson).not.toHaveBeenCalled();
     });
 
-    it("is undefined when initiator has no temporaryPersonId", async () => {
+    it("is null when initiator has no temporaryPersonId", async () => {
       await setup(makeZaak("BESCHIKBAAR_AAN", null));
-      expect(component.initiatorEmail).toBeUndefined();
+      expect(component.contactEmailAddress).toBeNull();
       expect(klantenService.getContactDetailsForPerson).not.toHaveBeenCalled();
     });
   });
@@ -227,13 +227,13 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     });
   });
 
-  describe("setInitiatorEmail", () => {
+  describe("setOntvanger", () => {
     beforeEach(async () => setup());
 
-    it("sets ontvanger to initiatorEmail", () => {
-      component["setInitiatorEmail"]();
+    it("sets ontvanger to contactEmailAddress", () => {
+      component["setOntvanger"]();
       expect(component.formGroup.get("ontvanger")?.value).toBe(
-        component.initiatorEmail,
+        component.contactEmailAddress,
       );
     });
   });

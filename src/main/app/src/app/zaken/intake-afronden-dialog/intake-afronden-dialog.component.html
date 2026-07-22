@@ -104,14 +104,14 @@
         class="full-width"
       >
         <button
-          *ngIf="initiatorEmail"
+          *ngIf="contactEmailAddress"
           mat-icon-button
           type="button"
           matSuffix
-          title="{{ initiatorToevoegenIcon.title | translate }}"
-          (click)="setInitiatorEmail()"
+          title="{{ 'actie.contact.email.toevoegen' | translate }}"
+          (click)="setOntvanger()"
         >
-          <mat-icon>{{ initiatorToevoegenIcon.icon }}</mat-icon>
+          <mat-icon>person</mat-icon>
         </button>
 
         <mat-label>{{ "ontvanger" | translate }}</mat-label>
