@@ -248,20 +248,19 @@ services:
       - POSTGRES_DB=objects
     profiles: [ "objecten", "itest", "openformulieren" ]
 
-# TODO
-#  objecten-api-import:
-#    image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
-#    platform: linux/amd64
-#    environment: *objects-env
-#    # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
-#    command: sh init/init.sh
-#    volumes:
-#      - ./scripts/docker-compose/imports/open-object/fixtures:/app/src/objects/fixtures
-#      - ./scripts/docker-compose/imports/open-object/init:/app/init
-#    depends_on:
-#      objecten-api.local:
-#        condition: service_healthy
-#    profiles: [ "objecten", "itest", "openformulieren" ]
+  objecten-api-import:
+    image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
+    platform: linux/amd64
+    environment: *objects-env
+    # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
+    command: sh init/init.sh
+    volumes:
+      - ./scripts/docker-compose/imports/open-object/fixtures:/app/src/objects/fixtures
+      - ./scripts/docker-compose/imports/open-object/init:/app/init
+    depends_on:
+      objecten-api.local:
+        condition: service_healthy
+    profiles: [ "objecten", "itest", "openformulieren" ]
 
 # TODO
 #  objecttypes-api-import:
