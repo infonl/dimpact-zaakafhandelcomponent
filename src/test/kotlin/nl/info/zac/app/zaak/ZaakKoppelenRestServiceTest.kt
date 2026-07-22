@@ -653,7 +653,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
     context("Building search parameters for findLinkableZaken") {
         given("a linkable zaken search setup") {
-            val fakeZaakTypeUuid = UUID.randomUUID()
+            val fakeZaakTypeUuid = UUID.randomUUID().toString()
             val sourceZaak = createZaak(
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
             )
@@ -681,7 +681,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     createRestFindLinkableZakenRequest(
                         zoekZaakIdentifier = "  fakeZaakIdentifier  ",
                         zoekZaakOmschrijving = "  fakeOmschrijving  ",
-                        zoekZaakType = fakeZaakTypeUuid,
+                        zoekZaakTypeOmschrijving = "fakeZaakTypeOmschrijving",
                         relationType = RelatieType.GERELATEERD
                     )
                 )
@@ -689,8 +689,8 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 then("the search parameters should contain trimmed values and zaaktype filter") {
                     zoekParametersSlot.captured.getZoeken()[ZoekVeld.ZAAK_IDENTIFICATIE] shouldBe "fakeZaakIdentifier"
                     zoekParametersSlot.captured.getZoeken()[ZoekVeld.ZAAK_OMSCHRIJVING] shouldBe "fakeOmschrijving"
-                    zoekParametersSlot.captured.getFilters()[FilterVeld.ZAAK_ZAAKTYPE_UUID]!!
-                        .values.first() shouldBe fakeZaakTypeUuid.toString()
+                    zoekParametersSlot.captured.getFilters()[FilterVeld.ZAAK_ZAAKTYPE]!!
+                        .values.first() shouldBe "fakeZaakTypeOmschrijving"
                 }
             }
 
@@ -700,7 +700,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     createRestFindLinkableZakenRequest(
                         zoekZaakIdentifier = null,
                         zoekZaakOmschrijving = null,
-                        zoekZaakType = null,
+                        zoekZaakTypeOmschrijving = null,
                         relationType = RelatieType.GERELATEERD
                     )
                 )
@@ -718,7 +718,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                     createRestFindLinkableZakenRequest(
                         zoekZaakIdentifier = "   ",
                         zoekZaakOmschrijving = "   ",
-                        zoekZaakType = null,
+                        zoekZaakTypeOmschrijving = null,
                         relationType = RelatieType.GERELATEERD
                     )
                 )

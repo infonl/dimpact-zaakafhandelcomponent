@@ -124,7 +124,9 @@ describe(ZaakLinkComponent.name, () => {
       component["form"].controls.caseDescriptionToSearchFor.setValue(
         "ZAAKOMSCHR",
       );
-      component["form"].controls.caseTypeToSearchFor.setValue({ uuid: "UUID" });
+      component["form"].controls.caseTypeToSearchFor.setValue({
+        omschrijving: "ZAAKTYPEOMSCHR",
+      });
       component["startdatum"] = new DatumRange(
         new Date(2026, 1, 1),
         new Date(2026, 2, 1),
@@ -139,7 +141,7 @@ describe(ZaakLinkComponent.name, () => {
         zaakUuid: zaak.uuid,
         zoekZaakIdentifier: "ZAAK-2026",
         zoekZaakOmschrijving: "ZAAKOMSCHR",
-        zoekZaakType: "UUID",
+        zoekZaakTypeOmschrijving: "ZAAKTYPEOMSCHR",
         relationType: component["caseRelationOptionsList"][0].value,
         startdatum: {
           van: new Date(2026, 1, 1).toISOString(),
