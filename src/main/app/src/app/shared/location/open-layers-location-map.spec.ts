@@ -81,7 +81,9 @@ describe(OpenLayersLocationMap.name, () => {
   });
 
   it("adds a modify interaction on construction", () => {
-    expect(jest.mocked(locationMap.map.addInteraction)).toHaveBeenCalledTimes(1);
+    expect(jest.mocked(locationMap.map.addInteraction)).toHaveBeenCalledTimes(
+      1,
+    );
   });
 
   it("targets the map at the given element", () => {
@@ -89,7 +91,9 @@ describe(OpenLayersLocationMap.name, () => {
 
     locationMap.setTarget(element);
 
-    expect(jest.mocked(locationMap.map.setTarget)).toHaveBeenCalledWith(element);
+    expect(jest.mocked(locationMap.map.setTarget)).toHaveBeenCalledWith(
+      element,
+    );
   });
 
   it("styles a feature with the marker style and adds it to the source", () => {
@@ -105,7 +109,9 @@ describe(OpenLayersLocationMap.name, () => {
   it("clears existing markers and refreshes the source", () => {
     locationMap.clearMarkers();
 
-    expect(jest.mocked(locationMap.source.getFeatures)).toHaveBeenCalledTimes(1);
+    expect(jest.mocked(locationMap.source.getFeatures)).toHaveBeenCalledTimes(
+      1,
+    );
     expect(jest.mocked(locationMap.source.refresh)).toHaveBeenCalledTimes(1);
   });
 

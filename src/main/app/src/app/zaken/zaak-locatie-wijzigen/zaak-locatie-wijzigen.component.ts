@@ -38,13 +38,13 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
-import { OpenLayersLocationMap } from "../../shared/location/open-layers-location-map";
 import { LocationUtil } from "../../shared/location/location-util";
 import {
   AddressResult,
   LocationService,
   SuggestResult,
 } from "../../shared/location/location.service";
+import { OpenLayersLocationMap } from "../../shared/location/open-layers-location-map";
 import { LocationPipe } from "../../shared/pipes/location.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -229,7 +229,10 @@ export class CaseLocationEditComponent
         if (fromSearch) {
           this.locationMap.zoomToMarker(coordinate);
         } else {
-          if ((this.locationMap.currentZoom() ?? 0) < OpenLayersLocationMap.MAX_ZOOM) {
+          if (
+            (this.locationMap.currentZoom() ?? 0) <
+            OpenLayersLocationMap.MAX_ZOOM
+          ) {
             this.locationMap.zoomToMarker(coordinate);
           }
           this.locationService

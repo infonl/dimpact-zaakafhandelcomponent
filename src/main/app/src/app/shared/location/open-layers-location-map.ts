@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Coordinate } from "ol/coordinate.js";
 import * as control from "ol/control.js";
+import { Coordinate } from "ol/coordinate.js";
 import * as extent from "ol/extent.js";
 import * as geom from "ol/geom.js";
 import * as ol from "ol/index.js";

@@ -12,12 +12,12 @@ import {
   ViewChild,
 } from "@angular/core";
 import * as style from "ol/style.js";
-import { OpenLayersLocationMap } from "../../shared/location/open-layers-location-map";
 import { LocationUtil } from "../../shared/location/location-util";
 import {
   AddressResult,
   LocationService,
 } from "../../shared/location/location.service";
+import { OpenLayersLocationMap } from "../../shared/location/open-layers-location-map";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { GeometryType } from "../model/geometryType";
