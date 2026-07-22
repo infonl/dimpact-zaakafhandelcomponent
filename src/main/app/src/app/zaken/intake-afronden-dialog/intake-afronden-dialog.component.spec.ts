@@ -160,7 +160,9 @@ describe(IntakeAfrondenDialogComponent.name, () => {
   describe("contactEmailAddress", () => {
     it("is set from contact details when temporaryPersonId is present", async () => {
       await setup(makeZaak("BESCHIKBAAR_AAN", "person-123"));
-      expect(component.contactEmailAddress).toBe(mockContactGegevens.emailadres);
+      expect(component.contactEmailAddress).toBe(
+        mockContactGegevens.emailadres,
+      );
     });
 
     it("is set from zaakSpecificContactDetails when available, without calling klantenService", async () => {
