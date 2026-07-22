@@ -7,7 +7,7 @@ import * as ol from "ol/index.js";
 import * as source from "ol/source.js";
 import * as style from "ol/style.js";
 import { fromPartial } from "src/test-helpers";
-import { LocationMap } from "./location-map";
+import { OpenLayersLocationMap } from "./open-layers-location-map";
 
 jest.mock("ol/control.js", () => ({ defaults: jest.fn(() => []) }));
 jest.mock("ol/coordinate.js", () => ({}));
@@ -62,13 +62,13 @@ jest.mock("ol/style.js", () => ({
 }));
 jest.mock("ol/tilegrid/WMTS.js", () => jest.fn());
 
-describe(LocationMap.name, () => {
+describe(OpenLayersLocationMap.name, () => {
   const markerStyle = fromPartial<style.Style>({});
-  let locationMap: LocationMap;
+  let locationMap: OpenLayersLocationMap;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    locationMap = new LocationMap(markerStyle);
+    locationMap = new OpenLayersLocationMap(markerStyle);
   });
 
   it("creates a map, view and marker source", () => {

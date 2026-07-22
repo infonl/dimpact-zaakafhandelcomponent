@@ -12,7 +12,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import * as style from "ol/style.js";
-import { LocationMap } from "../../shared/location/location-map";
+import { OpenLayersLocationMap } from "../../shared/location/open-layers-location-map";
 import { LocationUtil } from "../../shared/location/location-util";
 import {
   AddressResult,
@@ -47,7 +47,7 @@ export class LocatieTonenComponent implements AfterViewInit, OnChanges {
     }),
   });
 
-  private readonly locationMap = new LocationMap(this.pointStyle);
+  private readonly locationMap = new OpenLayersLocationMap(this.pointStyle);
 
   constructor(private readonly locationService: LocationService) {}
 

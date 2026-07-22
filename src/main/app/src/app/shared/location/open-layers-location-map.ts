@@ -22,7 +22,7 @@ import { environment } from "src/environments/environment";
  * markers and zooming; component-specific behaviour (event handlers, forms) stays
  * in the component via the exposed {@link map}.
  */
-export class LocationMap {
+export class OpenLayersLocationMap {
   static readonly MAX_ZOOM = 14;
 
   private static readonly EPSG3857 = "EPSG:3857";
@@ -41,12 +41,12 @@ export class LocationMap {
   readonly source: source.Vector;
 
   constructor(private readonly markerStyle: style.Style) {
-    const projection = proj.get(LocationMap.EPSG3857)!;
+    const projection = proj.get(OpenLayersLocationMap.EPSG3857)!;
     const projectionExtent = projection.getExtent()!;
     const size = extent.getWidth(projectionExtent) / 256;
-    const resolutions = new Array(LocationMap.EXTENT_MATRIX);
-    const matrixIds = new Array(LocationMap.EXTENT_MATRIX);
-    for (let z = 0; z < LocationMap.EXTENT_MATRIX; ++z) {
+    const resolutions = new Array(OpenLayersLocationMap.EXTENT_MATRIX);
+    const matrixIds = new Array(OpenLayersLocationMap.EXTENT_MATRIX);
+    for (let z = 0; z < OpenLayersLocationMap.EXTENT_MATRIX; ++z) {
       resolutions[z] = size / Math.pow(2, z);
       matrixIds[z] = ("0" + z).slice(-2);
     }
@@ -57,7 +57,7 @@ export class LocationMap {
         layer: "standaard",
         format: "image/png",
         url: environment.BACKGROUND_MAP_API_URL,
-        matrixSet: LocationMap.EPSG3857,
+        matrixSet: OpenLayersLocationMap.EPSG3857,
         style: "",
         tileGrid: new WMTSTileGrid({
           origin: extent.getTopLeft(projectionExtent),
@@ -71,14 +71,14 @@ export class LocationMap {
     this.source = new source.Vector();
     const locationLayer = new layer.Vector({
       source: this.source,
-      style: LocationMap.vectorStyle,
+      style: OpenLayersLocationMap.vectorStyle,
     });
 
     this.view = new ol.View({
       projection: projection,
-      center: LocationMap.DEFAULT_CENTER,
+      center: OpenLayersLocationMap.DEFAULT_CENTER,
       constrainResolution: true,
-      zoom: LocationMap.DEFAULT_ZOOM,
+      zoom: OpenLayersLocationMap.DEFAULT_ZOOM,
     });
 
     this.map = new ol.Map({
@@ -115,13 +115,13 @@ export class LocationMap {
     this.map.getView().setCenter(mapCenter);
     this.map.getView().fit(this.source.getExtent()!, {
       size: this.map.getSize(),
-      maxZoom: LocationMap.MAX_ZOOM,
+      maxZoom: OpenLayersLocationMap.MAX_ZOOM,
     });
   }
 
   resetView(): void {
-    this.view.setZoom(LocationMap.DEFAULT_ZOOM);
-    this.view.setCenter(LocationMap.DEFAULT_CENTER);
+    this.view.setZoom(OpenLayersLocationMap.DEFAULT_ZOOM);
+    this.view.setCenter(OpenLayersLocationMap.DEFAULT_CENTER);
   }
 
   currentZoom(): number | undefined {

@@ -38,7 +38,7 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
-import { LocationMap } from "../../shared/location/location-map";
+import { OpenLayersLocationMap } from "../../shared/location/open-layers-location-map";
 import { LocationUtil } from "../../shared/location/location-util";
 import {
   AddressResult,
@@ -125,7 +125,7 @@ export class CaseLocationEditComponent
     }),
   });
 
-  private readonly locationMap = new LocationMap(this.pointStyle);
+  private readonly locationMap = new OpenLayersLocationMap(this.pointStyle);
 
   ngOnInit(): void {
     this.readonly = !this.zaak.rechten.wijzigenLocatie;
@@ -229,7 +229,7 @@ export class CaseLocationEditComponent
         if (fromSearch) {
           this.locationMap.zoomToMarker(coordinate);
         } else {
-          if ((this.locationMap.currentZoom() ?? 0) < LocationMap.MAX_ZOOM) {
+          if ((this.locationMap.currentZoom() ?? 0) < OpenLayersLocationMap.MAX_ZOOM) {
             this.locationMap.zoomToMarker(coordinate);
           }
           this.locationService
