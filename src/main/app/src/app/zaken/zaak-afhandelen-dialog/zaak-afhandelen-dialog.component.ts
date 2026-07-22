@@ -143,6 +143,7 @@ export class ZaakAfhandelenDialogComponent {
 
     this.contactEmailResolver
       .resolve(this.data.zaak)
+      .pipe(takeUntilDestroyed())
       .subscribe((email) => (this.contactEmailAddress = email));
 
     const zaakafhandelparameters =

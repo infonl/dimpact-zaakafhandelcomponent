@@ -4,7 +4,7 @@
  */
 
 import { TestBed } from "@angular/core/testing";
-import { firstValueFrom, of } from "rxjs";
+import { firstValueFrom, of, throwError } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ContactEmailResolver } from "./contact-email-resolver";
@@ -99,5 +99,29 @@ describe(ContactEmailResolver.name, () => {
     );
 
     expect(email).toBeNull();
+  });
+
+  it("resolves to null and logs an error when the contact details lookup fails", async () => {
+    const consoleError = jest.spyOn(console, "error").mockImplementation();
+    const lookupError = new Error("lookup failed");
+    getContactDetailsForPerson.mockReturnValue(throwError(() => lookupError));
+
+    const email = await firstValueFrom(
+      contactEmailResolver.resolve(
+        fromPartial<GeneratedType<"RestZaak">>({
+          initiatorIdentificatie: fromPartial({
+            temporaryPersonId: "person-1",
+          }),
+        }),
+      ),
+    );
+
+    expect(email).toBeNull();
+    expect(consoleError).toHaveBeenCalledWith(
+      "Failed to resolve contact email address",
+      lookupError,
+    );
+
+    consoleError.mockRestore();
   });
 });

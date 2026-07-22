@@ -4,7 +4,7 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { map, Observable, of } from "rxjs";
+import { catchError, map, Observable, of } from "rxjs";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { KlantenService } from "./klanten.service";
 
@@ -25,6 +25,12 @@ export class ContactEmailResolver {
 
     return this.klantenService
       .getContactDetailsForPerson(temporaryPersonId)
-      .pipe(map((contactDetails) => contactDetails?.emailadres ?? null));
+      .pipe(
+        map((contactDetails) => contactDetails?.emailadres ?? null),
+        catchError((error) => {
+          console.error("Failed to resolve contact email address", error);
+          return of(null);
+        }),
+      );
   }
 }
