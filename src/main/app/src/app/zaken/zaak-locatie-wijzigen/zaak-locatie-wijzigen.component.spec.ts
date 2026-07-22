@@ -161,6 +161,7 @@ const point = fromPartial<GeneratedType<"RestGeometry">>({
 
 describe(CaseLocationEditComponent.name, () => {
   afterEach(() => {
+    TestBed.inject(HttpTestingController).verify();
     testQueryClient.clear();
     jest.clearAllMocks();
   });
