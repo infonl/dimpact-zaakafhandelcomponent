@@ -34,7 +34,7 @@
   - **Digital address 12**: email `anita.van.buren@example.com`, `betrokkene_id = 8`, `partij_id = 4`, `is_standaard_adres = true` (simulates a saved preferred address that should not be treated as aanvraag-specific).
   - **Onderwerpobject 3**: links klantcontact 5 to `testFormulierKenmerkSavedPreferredAddress`.
   - Updated `ALTER SEQUENCE` block for new IDs.
-- [x] 3.2 Add a new productaanvraag Objecten JSON fixture (`OBJECT_PRODUCTAANVRAAG_5_UUID`) in `scripts/docker-compose/imports/objects-api/fixtures/demodata.json` with:
+- [x] 3.2 Add a new productaanvraag Objecten JSON fixture (`OBJECT_PRODUCTAANVRAAG_5_UUID`) in `../../../../scripts/docker-compose/imports/open-object/fixtures/demodata.json` with:
   - `bron.kenmerk` = `"testFormulierKenmerkSavedPreferredAddress"`
   - `initiator.value` = BSN `"999992958"` (Anita van Buren / partij 4)
   - `start_at` = `"1977-01-01"` → zaak identification `"ZAAK-1977-0000000001"`

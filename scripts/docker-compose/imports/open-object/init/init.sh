@@ -7,15 +7,15 @@
 
 set -e
 
- # Wait until the Objects API and its database are actually ready before loading data.
+ # Wait until the Open Object and its database are actually ready before loading data.
  max_attempts=30
  attempt=1
  until python /app/src/manage.py check >/dev/null 2>&1; do
    if [ "$attempt" -ge "$max_attempts" ]; then
-     echo "Objecttypes API did not become ready after $max_attempts attempts." >&2
+     echo "Open Object did not become ready after $max_attempts attempts." >&2
      exit 1
    fi
-   echo "Waiting for Objects API to become ready... (attempt $attempt/$max_attempts)"
+   echo "Waiting for Open Object to become ready... (attempt $attempt/$max_attempts)"
    attempt=$((attempt + 1))
    sleep 2
  done

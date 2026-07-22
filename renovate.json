@@ -145,10 +145,10 @@
     {
       "customType": "regex",
       "matchStrings": [
-        "- \\*\\*objects-api\\*\\*: (?<currentValue>[^\\n]+)"
+        "- \\*\\*open-object\\*\\*: (?<currentValue>[^\\n]+)"
       ],
       "datasourceTemplate": "docker",
-      "depNameTemplate": "maykinmedia/objects-api",
+      "depNameTemplate": "maykinmedia/open-object",
       "managerFilePatterns": [
         "/^DEPENDENCIES\\.md$/"
       ]
@@ -555,29 +555,15 @@
       ]
     },
     {
-      "groupName": "Objects-api docker image",
+      "groupName": "Open-object docker image",
       "matchPackageNames": [
-        "maykinmedia/objects-api",
-        "ghcr.io/infonl/objects-api"
+        "maykinmedia/open-object",
+        "ghcr.io/infonl/open-object"
       ],
       "matchDatasources": [
         "docker"
       ],
       "allowedVersions": "< 4.1.0",
-      "description": [
-        "Pinned by the next Dimpact PodiumD release"
-      ]
-    },
-    {
-      "groupName": "Objecttypes-api docker image",
-      "matchPackageNames": [
-        "maykinmedia/objecttypes-api",
-        "ghcr.io/infonl/objecttypes-api"
-      ],
-      "matchDatasources": [
-        "docker"
-      ],
-      "allowedVersions": "< 3.5.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]

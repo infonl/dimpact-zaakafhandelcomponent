@@ -64,7 +64,7 @@
 - [x] 4.6 Copy `tmp/productaanvraag-dimpact-test-formulier-compleet/formVariables.json` to `scripts/docker-compose/imports/openformulieren/forms/formVariables.json` — no changes needed (form URL reference is ignored by the import command).
 
 - [x] 4.7 Create `scripts/docker-compose/imports/openformulieren/forms/forms.json` based on `tmp/productaanvraag-dimpact-test-formulier-compleet/forms.json` with these changes:
-  - Replace `"objecttype": "f437384b-3f0a-4559-9f6d-e42085e64227"` → `"objecttype": "021f685e-9482-4620-b157-34cd4003da6b"` (local Productaanvraag-Dimpact UUID from `scripts/docker-compose/imports/objects-api/fixtures/demodata.json`)
+  - Replace `"objecttype": "f437384b-3f0a-4559-9f6d-e42085e64227"` → `"objecttype": "021f685e-9482-4620-b157-34cd4003da6b"` (local Productaanvraag-Dimpact UUID from `../../../../scripts/docker-compose/imports/open-object/fixtures/demodata.json`)
   - Replace `"objects_api_group": "objects-apis"` → `"objects_api_group": "local-objects-api"`
   - Set `"objecttype_version": 1` (the local objecttype has version 1; the test environment had version 9)
   - Set `"informatieobjecttype_attachment": ""`
