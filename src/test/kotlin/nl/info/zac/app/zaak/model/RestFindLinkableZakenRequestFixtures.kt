@@ -6,12 +6,11 @@
 package nl.info.zac.app.zaak.model
 
 import nl.info.zac.app.search.model.RestDatumRange
-import java.util.UUID
 
 fun createRestFindLinkableZakenRequest(
     zoekZaakIdentifier: String? = "ZAAK-2000-00002",
     zoekZaakOmschrijving: String? = null,
-    zoekZaakType: UUID? = null,
+    zoekZaakTypeOmschrijving: String? = null,
     startdatum: RestDatumRange? = null,
     einddatum: RestDatumRange? = null,
     relationType: RelatieType = RelatieType.GERELATEERD,
@@ -20,7 +19,7 @@ fun createRestFindLinkableZakenRequest(
 ) = RestFindLinkableZakenRequest().apply {
     this.zoekZaakIdentifier = zoekZaakIdentifier
     this.zoekZaakOmschrijving = zoekZaakOmschrijving
-    this.zoekZaakType = zoekZaakType
+    this.zoekZaakTypeOmschrijving = zoekZaakTypeOmschrijving
     this.startdatum = startdatum
     this.einddatum = einddatum
     this.relationType = relationType
