@@ -49,20 +49,22 @@ export class LocatieTonenComponent implements AfterViewInit, OnChanges {
 
   private readonly locationMap = new OpenLayersLocationMap(this.pointStyle);
 
+  private viewInitialized = false;
+
   constructor(private readonly locationService: LocationService) {}
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.locationMap.setTarget(this.openLayersMapRef.nativeElement);
+      this.viewInitialized = true;
+      if (this.currentLocation) {
+        this.setLocation(this.currentLocation);
+      }
     }, 0);
-
-    if (this.currentLocation) {
-      this.setLocation(this.currentLocation);
-    }
   }
 
   ngOnChanges(): void {
-    if (this.currentLocation) {
+    if (this.viewInitialized && this.currentLocation) {
       this.setLocation(this.currentLocation);
     }
   }
