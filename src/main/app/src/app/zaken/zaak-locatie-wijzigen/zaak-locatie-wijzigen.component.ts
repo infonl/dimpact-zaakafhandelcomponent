@@ -32,23 +32,13 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
-import * as control from "ol/control.js";
-import { Coordinate } from "ol/coordinate.js";
-import * as extent from "ol/extent.js";
-import * as geom from "ol/geom.js";
-import * as ol from "ol/index.js";
-import * as interaction from "ol/interaction.js";
-import * as layer from "ol/layer.js";
-import BaseLayer from "ol/layer/Base";
 import * as proj from "ol/proj.js";
-import * as source from "ol/source.js";
 import * as style from "ol/style.js";
-import WMTSTileGrid from "ol/tilegrid/WMTS.js";
 import { BehaviorSubject, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { environment } from "src/environments/environment";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
+import { LocationMap } from "../../shared/location/location-map";
 import { LocationUtil } from "../../shared/location/location-util";
 import {
   AddressResult,
@@ -124,32 +114,7 @@ export class CaseLocationEditComponent
   private unsubscribe$: Subject<void> = new Subject<void>();
   protected readonly: boolean = false;
 
-  private map!: ol.Map;
-  private view!: ol.View;
-  private locationSource!: source.Vector;
-  private readonly WGS84: string = "WGS84";
-  private readonly EPSG3857: string = "EPSG:3857";
-  private readonly EXTENT_MATRIX: number = 20;
-
-  private readonly DEFAULT_ZOOM: number = 8;
-  private readonly MAX_ZOOM: number = 14;
-
-  // Default Center, middle of the Netherlands
-  private readonly DEFAULT_CENTER: number[] = [631711.827985, 6856275.890632];
-
-  private layers: BaseLayer[] = [];
-
-  private defaultStyle: style.Style = new style.Style({
-    fill: new style.Fill({
-      color: "rgba(255, 255, 255, 0.5)",
-    }),
-    stroke: new style.Stroke({
-      color: "#ff0000",
-      width: 2,
-    }),
-  });
-
-  private pointStyle: style.Style = new style.Style({
+  private readonly pointStyle = new style.Style({
     text: new style.Text({
       text: "location_on",
       font: '640 32px "Material Symbols Outlined"',
@@ -160,67 +125,9 @@ export class CaseLocationEditComponent
     }),
   });
 
+  private readonly locationMap = new LocationMap(this.pointStyle);
+
   ngOnInit(): void {
-    const projection = proj.get(this.EPSG3857)!;
-    const projectionExtent = projection.getExtent()!;
-    const size = extent.getWidth(projectionExtent) / 256;
-    const resolutions = new Array(this.EXTENT_MATRIX);
-    const matrixIds = new Array(this.EXTENT_MATRIX);
-    for (let z = 0; z < this.EXTENT_MATRIX; ++z) {
-      resolutions[z] = size / Math.pow(2, z);
-      matrixIds[z] = ("0" + z).slice(-2);
-    }
-
-    const brtsource = new source.WMTS({
-      projection: projection,
-      layer: "standaard",
-      format: "image/png",
-      url: environment.BACKGROUND_MAP_API_URL,
-      matrixSet: this.EPSG3857,
-      style: "",
-      tileGrid: new WMTSTileGrid({
-        origin: extent.getTopLeft(projectionExtent),
-        resolutions: resolutions,
-        matrixIds: matrixIds,
-      }),
-      attributions: ["© OpenLayers en PDOK"],
-    });
-
-    const brtLayer = new layer.Tile({
-      source: brtsource,
-    });
-
-    this.locationSource = new source.Vector();
-    const locationLayer = new layer.Vector({
-      source: this.locationSource,
-      style: this.defaultStyle,
-    });
-
-    this.layers = [brtLayer];
-    this.layers.push(locationLayer);
-
-    this.view = new ol.View({
-      projection: projection,
-      center: this.DEFAULT_CENTER,
-      constrainResolution: true,
-      zoom: this.DEFAULT_ZOOM,
-    });
-
-    const interactions = interaction.defaults({
-      onFocusOnly: true,
-    });
-    const controls = control.defaults({ zoom: false });
-
-    this.map = new ol.Map({
-      interactions: interactions,
-      controls: controls,
-      view: this.view,
-      layers: this.layers,
-    });
-
-    const modify = new interaction.Modify({ source: this.locationSource });
-    this.map.addInteraction(modify);
-
     this.readonly = !this.zaak.rechten.wijzigenLocatie;
     this.reasonControl.disable();
 
@@ -243,11 +150,11 @@ export class CaseLocationEditComponent
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.map.setTarget(this.openLayersMapRef.nativeElement);
+      this.locationMap.setTarget(this.openLayersMapRef.nativeElement);
     }, 0);
 
     if (!this.readonly) {
-      this.map.on("click", (event) => {
+      this.locationMap.map.on("click", (event) => {
         const coordinate = proj.transform(
           event.coordinate,
           "EPSG:3857",
@@ -257,11 +164,11 @@ export class CaseLocationEditComponent
       });
     }
 
-    this.map.on("click", () => {
+    this.locationMap.map.on("click", () => {
       this.openLayersMapRef.nativeElement.focus();
     });
 
-    this.map.on("pointerdrag", () => {
+    this.locationMap.map.on("pointerdrag", () => {
       this.openLayersMapRef.nativeElement.focus();
     });
 
@@ -296,8 +203,7 @@ export class CaseLocationEditComponent
 
   resetLocation() {
     this.setLocation();
-    this.view.setZoom(this.DEFAULT_ZOOM);
-    this.view.setCenter(this.DEFAULT_CENTER);
+    this.locationMap.resetView();
     this.nearestAddress = {} as AddressResult;
   }
 
@@ -311,7 +217,7 @@ export class CaseLocationEditComponent
     fromSearch = true,
   ) {
     this.markerLocatie$.next(geometry ?? null);
-    this.clearPreviousMarker();
+    this.locationMap.clearMarkers();
     this.searchControl.reset();
 
     switch (geometry?.type) {
@@ -319,12 +225,12 @@ export class CaseLocationEditComponent
         if (!geometry?.point) return;
 
         const coordinate = LocationUtil.pointToCoordinate(geometry.point);
-        this.addMarker(coordinate);
+        this.locationMap.addMarker(coordinate);
         if (fromSearch) {
-          this.zoomToMarker(coordinate);
+          this.locationMap.zoomToMarker(coordinate);
         } else {
-          if ((this.map.getView()?.getZoom() ?? 0) < this.MAX_ZOOM) {
-            this.zoomToMarker(coordinate);
+          if ((this.locationMap.currentZoom() ?? 0) < LocationMap.MAX_ZOOM) {
+            this.locationMap.zoomToMarker(coordinate);
           }
           this.locationService
             .coordinateToAddress(coordinate)
@@ -334,34 +240,6 @@ export class CaseLocationEditComponent
         }
       }
     }
-  }
-
-  private addMarker(coordinate: Coordinate) {
-    const marker = new ol.Feature({
-      geometry: new geom.Point(proj.fromLonLat(coordinate)),
-    });
-    marker.setStyle(this.pointStyle);
-    this.locationSource.addFeature(marker);
-  }
-
-  private clearPreviousMarker() {
-    const features = this.locationSource.getFeatures();
-    features.forEach((feature) => this.locationSource.removeFeature(feature));
-    this.locationSource.refresh();
-  }
-
-  private zoomToMarker(coordinate: Array<number>): void {
-    const mapCenter: Array<number> = proj.transform(
-      coordinate,
-      "EPSG:4326",
-      "EPSG:3857",
-    );
-    this.map.getView().setCenter(mapCenter);
-    const locationExtent = this.locationSource.getExtent();
-    this.map.getView().fit(locationExtent!, {
-      size: this.map.getSize(),
-      maxZoom: this.MAX_ZOOM,
-    });
   }
 
   cancel(): void {
