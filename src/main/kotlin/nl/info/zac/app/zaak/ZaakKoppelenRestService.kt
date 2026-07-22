@@ -245,8 +245,8 @@ class ZaakKoppelenRestService @Inject constructor(
         request.zoekZaakOmschrijving?.takeIf { it.isNotBlank() }?.let {
             addZoekVeld(ZoekVeld.ZAAK_OMSCHRIJVING, it.trim())
         }
-        request.zoekZaakType?.let {
-            addFilter(FilterVeld.ZAAK_ZAAKTYPE_UUID, it.toString())
+        request.zoekZaakTypeOmschrijving?.takeIf { it.isNotBlank() }?.let {
+            addFilter(FilterVeld.ZAAK_ZAAKTYPE, it)
         }
         request.startdatum?.takeIf { it.hasValue() }?.let{
             addDatum(DatumVeld.ZAAK_STARTDATUM, DatumRange(it.van, it.tot))

@@ -146,7 +146,7 @@ export class ZaakLinkComponent implements OnDestroy {
         zaakUuid: this.zaak.uuid,
         zoekZaakIdentifier: caseNumberToSearchFor,
         zoekZaakOmschrijving: caseDescriptionToSearchFor,
-        zoekZaakType: caseTypeToSearchFor?.uuid || null,
+        zoekZaakTypeOmschrijving: caseTypeToSearchFor?.omschrijving,
         relationType: caseRelationType.value,
         startdatum: {
           van: this.startdatum?.van?.toISOString(),

@@ -12,7 +12,6 @@ import jakarta.validation.constraints.Size
 import nl.info.zac.app.search.model.RestDatumRange
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
@@ -31,7 +30,7 @@ class RestFindLinkableZakenRequest {
 
     var einddatum: RestDatumRange? = null
 
-    var zoekZaakType: UUID? = null
+    var zoekZaakTypeOmschrijving: String? = null
 
     @field:PositiveOrZero
     var page: Int = 0

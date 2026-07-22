@@ -44,7 +44,7 @@ export class ZoekenService {
     relationType,
     zoekZaakIdentifier,
     zoekZaakOmschrijving,
-    zoekZaakType,
+    zoekZaakTypeOmschrijving,
     startdatum,
     einddatum,
   }: Omit<FindLinkableZakenParams, "page" | "rows">) {
@@ -54,7 +54,7 @@ export class ZoekenService {
         relationType,
         zoekZaakIdentifier: zoekZaakIdentifier || null,
         zoekZaakOmschrijving: zoekZaakOmschrijving || null,
-        zoekZaakType: zoekZaakType || null,
+        zoekZaakTypeOmschrijving: zoekZaakTypeOmschrijving || null,
         startdatum,
         einddatum,
         page: 0,
