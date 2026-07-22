@@ -199,6 +199,7 @@ jobs:
               - '!docs/**'
               - '!src/e2e/**'
               - '!openspec/**'
+              - '!renovate.json'
 
   spotless-check:
     runs-on: ubuntu-24.04
