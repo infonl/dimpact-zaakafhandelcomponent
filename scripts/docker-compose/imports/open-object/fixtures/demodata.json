@@ -3,54 +3,48 @@
     "model": "core.objecttype",
     "pk": 1,
     "fields": {
-      "service": 1,
       "uuid": "feeaa795-d212-4fa2-bb38-2c34996e5702",
-      "_name": "Boom"
+      "name": "Boom"
     }
   },
   {
     "model": "core.objecttype",
     "pk": 2,
     "fields": {
-      "service": 1,
       "uuid": "3a82fb7f-fc9b-4104-9804-993f639d6d0d",
-      "_name": "Straatverlichting"
+      "name": "Straatverlichting"
     }
   },
   {
     "model": "core.objecttype",
     "pk": 3,
     "fields": {
-      "service": 1,
       "uuid": "ca754b52-3f37-4c49-837c-130e8149e337",
-      "_name": "Melding"
+      "name": "Melding"
     }
   },
   {
     "model": "core.objecttype",
     "pk": 4,
     "fields": {
-      "service": 1,
       "uuid": "021f685e-9482-4620-b157-34cd4003da6b",
-      "_name": "Productaanvraag-Dimpact"
+      "name": "Productaanvraag-Dimpact"
     }
   },
   {
     "model": "core.objecttype",
     "pk": 5,
     "fields": {
-      "service": 1,
       "uuid": "3e852115-277a-4570-873a-9a64be3aeb34",
-      "_name": "Taak"
+      "name": "Taak"
     }
   },
   {
     "model": "core.objecttype",
     "pk": 6,
     "fields": {
-      "service": 1,
       "uuid": "4b5f4fba-0746-11ed-b939-0242ac120002",
-      "_name": "FormIO"
+      "name": "FormIO"
     }
   },
   {
