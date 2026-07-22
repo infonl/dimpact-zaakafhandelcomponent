@@ -124,9 +124,11 @@ describe(ZaakLinkComponent.name, () => {
       component["form"].controls.caseDescriptionToSearchFor.setValue(
         "ZAAKOMSCHR",
       );
-      component["form"].controls.caseTypeToSearchFor.setValue({
-        omschrijving: "ZAAKTYPEOMSCHR",
-      });
+      component["form"].controls.caseTypeToSearchFor.setValue(
+        fromPartial<GeneratedType<"RestZaaktype">>({
+          omschrijving: "ZAAKTYPEOMSCHR",
+        }),
+      );
       component["startdatum"] = new DatumRange(
         new Date(2026, 1, 1),
         new Date(2026, 2, 1),

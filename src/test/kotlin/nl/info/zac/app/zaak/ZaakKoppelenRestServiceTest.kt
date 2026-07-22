@@ -653,7 +653,6 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
 
     context("Building search parameters for findLinkableZaken") {
         given("a linkable zaken search setup") {
-            val fakeZaakTypeUuid = UUID.randomUUID().toString()
             val sourceZaak = createZaak(
                 archiefnominatie = ArchiefnominatieEnum.BLIJVEND_BEWAREN,
             )
@@ -708,7 +707,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 then("the search parameters should not contain any optional search fields") {
                     zoekParametersSlot.captured.getZoeken().containsKey(ZoekVeld.ZAAK_IDENTIFICATIE) shouldBe false
                     zoekParametersSlot.captured.getZoeken().containsKey(ZoekVeld.ZAAK_OMSCHRIJVING) shouldBe false
-                    zoekParametersSlot.captured.getFilters().containsKey(FilterVeld.ZAAK_ZAAKTYPE_UUID) shouldBe false
+                    zoekParametersSlot.captured.getFilters().containsKey(FilterVeld.ZAAK_ZAAKTYPE) shouldBe false
                 }
             }
 
@@ -726,7 +725,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 then("the search parameters should not contain any optional search fields") {
                     zoekParametersSlot.captured.getZoeken().containsKey(ZoekVeld.ZAAK_IDENTIFICATIE) shouldBe false
                     zoekParametersSlot.captured.getZoeken().containsKey(ZoekVeld.ZAAK_OMSCHRIJVING) shouldBe false
-                    zoekParametersSlot.captured.getFilters().containsKey(FilterVeld.ZAAK_ZAAKTYPE_UUID) shouldBe false
+                    zoekParametersSlot.captured.getFilters().containsKey(FilterVeld.ZAAK_ZAAKTYPE) shouldBe false
                 }
             }
 
