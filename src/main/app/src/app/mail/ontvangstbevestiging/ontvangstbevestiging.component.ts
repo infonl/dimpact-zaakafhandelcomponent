@@ -16,7 +16,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { KlantenService } from "../../klanten/klanten.service";
+import { ContactEmailResolver } from "../../klanten/contact-email-resolver";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -47,7 +47,7 @@ export class OntvangstbevestigingComponent implements OnInit {
   private readonly mailService = inject(MailService);
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly utilService = inject(UtilService);
-  private readonly klantenService = inject(KlantenService);
+  private readonly contactEmailResolver = inject(ContactEmailResolver);
   private readonly formBuilder = inject(FormBuilder);
 
   protected readonly sideNav = input.required<MatDrawer>();
@@ -117,23 +117,9 @@ export class OntvangstbevestigingComponent implements OnInit {
         this.variables = mailtemplate?.variabelen ?? [];
       });
 
-    const emailAddress = this.zaak().zaakSpecificContactDetails?.emailAddress;
-
-    if (emailAddress) {
-      this.contactEmailAddress = emailAddress;
-      return;
-    }
-
-    const temporaryPersonId =
-      this.zaak().initiatorIdentificatie?.temporaryPersonId;
-
-    if (!temporaryPersonId) return;
-
-    this.klantenService
-      .getContactDetailsForPerson(temporaryPersonId)
-      .subscribe((gegevens) => {
-        this.contactEmailAddress = gegevens?.emailadres ?? null;
-      });
+    this.contactEmailResolver
+      .resolve(this.zaak())
+      .subscribe((email) => (this.contactEmailAddress = email));
   }
 
   protected setOntvanger() {

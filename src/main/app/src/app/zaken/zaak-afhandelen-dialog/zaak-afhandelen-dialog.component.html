@@ -82,12 +82,12 @@
       key="ontvanger"
     >
       <button
-        *ngIf="initiatorEmailQuery.data()?.emailadres"
+        *ngIf="contactEmailAddress"
         mat-icon-button
         type="button"
         matSuffix
         title="{{ 'actie.initiator.email.toevoegen' | translate }}"
-        (click)="setInitiatorEmail()"
+        (click)="setOntvanger()"
       >
         <mat-icon>person</mat-icon>
       </button>

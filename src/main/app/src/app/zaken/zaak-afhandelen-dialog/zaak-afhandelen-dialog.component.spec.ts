@@ -164,12 +164,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       ["mailtemplate", zaakMock.uuid],
       mockMailtemplate,
     );
-    testQueryClient.setQueryData(
-      ["initiatorEmail", zaakMock.initiatorIdentificatie?.temporaryPersonId],
-      fromPartial<GeneratedType<"RestContactDetails">>({
-        emailadres: "initiator@example.com",
-      }),
-    );
 
     fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -503,9 +497,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     );
   });
 
-  describe("setInitiatorEmail", () => {
-    it("sets ontvanger to initiatorEmailQuery emailadres when no zaakSpecificContactDetails", () => {
-      fixture.componentInstance["setInitiatorEmail"]();
+  describe("setOntvanger", () => {
+    it("sets ontvanger to the resolved initiator email when there is no zaakSpecificContactDetails", () => {
+      fixture.componentInstance["setOntvanger"]();
       expect(fixture.componentInstance.form.controls.ontvanger.value).toBe(
         "initiator@example.com",
       );
@@ -521,7 +515,39 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       });
       await createTestBed(mockZaakWithContact, mockPlanItem);
 
-      fixture.componentInstance["setInitiatorEmail"]();
+      fixture.componentInstance["setOntvanger"]();
+      expect(fixture.componentInstance.form.controls.ontvanger.value).toBe(
+        "contact@example.com",
+      );
+    });
+
+    it("shows the contact button and fills the contact email when there is a zaakSpecificContactDetails but no initiator", async () => {
+      const mockZaakWithContactNoInitiator = fromPartial<
+        GeneratedType<"RestZaak">
+      >({
+        ...mockZaak,
+        uuid: "test-zaak-uuid-contact-no-initiator",
+        initiatorIdentificatie: undefined,
+        zaakSpecificContactDetails: fromPartial({
+          emailAddress: "contact@example.com",
+        }),
+        zaaktype: {
+          ...mockZaak.zaaktype,
+          zaakafhandelparameters: {
+            afrondenMail: "BESCHIKBAAR_AAN",
+          },
+        },
+      });
+      await createTestBed(mockZaakWithContactNoInitiator, mockPlanItem);
+
+      const contactButton = fixture.nativeElement.querySelector(
+        'button[title="actie.initiator.email.toevoegen"]',
+      ) as HTMLButtonElement | null;
+      expect(contactButton).toBeTruthy();
+
+      contactButton!.click();
+      fixture.detectChanges();
+
       expect(fixture.componentInstance.form.controls.ontvanger.value).toBe(
         "contact@example.com",
       );
