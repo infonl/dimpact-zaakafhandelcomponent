@@ -41,7 +41,7 @@ jakarta-mail = "2.1.5"
 caffeine = "3.2.4"
 jackson = "2.22.1"
 jackson-annotations = "2.22"
-jacobras-human-readable = "1.13.0"
+jacobras-human-readable = "1.13.1"
 kotlinx-metadata-jvm = "0.9.0"
 
 # Versions of the small number of 'dependencies provided by WildFly' (see the [libraries] block
