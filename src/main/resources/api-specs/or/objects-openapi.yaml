@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Objects API
-  version: 2.6.0 (v2)
+  version: 2.7.0 (v2)
   description: |
     An API to manage Objects.
 
@@ -69,7 +69,7 @@ info:
     these operations are published to the configured Notifications API in the
     `objecten` channel.
   contact:
-    url: https://github.com/maykinmedia/objects-api
+    url: https://github.com/maykinmedia/open-object
     email: support@maykinmedia.nl
     name: Maykin Media
   license:
@@ -81,151 +81,151 @@ paths:
       description: Retrieve a list of OBJECTs and their actual RECORD. The actual
         record is defined as if the query parameter `date=<today>` was given.
       parameters:
-      - in: header
-        name: Accept-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The desired ''Coordinate Reference System'' (CRS) of the response
+        - in: header
+          name: Accept-Crs
+          schema:
+            type: string
+            enum:
+              - EPSG:4326
+          description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
-      - in: query
-        name: data_attr
-        schema:
-          type: string
-        description: |
-          Only include objects that have attributes with certain values.
-
-          A valid parameter value has the form `key__operator__value`.
-          `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
-          Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
-
-          Valid operator values are:
-          * `exact` - equal to
-          * `gt` - greater than
-          * `gte` - greater than or equal to
-          * `lt` - lower than
-          * `lte` - lower than or equal to
-          * `icontains` - case-insensitive partial match
-          * `in` - in a list of values separated by `|`
-
-          `value` may not contain double underscore or comma characters.
-          `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
-
-
-
-          Example: in order to display only objects with `height` equal to 100, query `data_attr=height__exact__100`
-          should be used. If `height` is nested inside `dimensions` attribute, query should look like
-          `data_attr=dimensions__height__exact__100`
-
-          This filter is very similar to the old `data_attrs` filter, but it has two differences:
-
-          * `value` may contain commas
-          * only one filtering expression is allowed
-
-          If you want to use several filtering expressions, just use this `data_attr` several times in the query string.
-          Example: `data_attr=height__exact__100&data_attr=naam__icontains__boom`
-        explode: true
-      - in: query
-        name: data_attrs
-        schema:
-          type: string
-        description: |
-          **DEPRECATED: Use 'data_attr' instead**.
-          Only include objects that have attributes with certain values.
-          Data filtering expressions are comma-separated and are structured as follows:
-
-          A valid parameter value has the form `key__operator__value`.
-          `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
-          Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
-
-          Valid operator values are:
-          * `exact` - equal to
-          * `gt` - greater than
-          * `gte` - greater than or equal to
-          * `lt` - lower than
-          * `lte` - lower than or equal to
-          * `icontains` - case-insensitive partial match
-          * `in` - in a list of values separated by `|`
-
-          `value` may not contain double underscore or comma characters.
-          `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
-
-
-
-          Example: in order to display only objects with `height` equal to 100, query `data_attrs=height__exact__100`
-          should be used. If `height` is nested inside `dimensions` attribute, query should look like
-          `data_attrs=dimensions__height__exact__100`
-
-          `value` may not contain comma, since commas are used as separator between filtering expressions.
-          If you want to use commas in `value` you can use `data_attr` query parameter.
-        deprecated: true
-      - in: query
-        name: data_icontains
-        schema:
-          type: string
-        description: Search in all `data` values of string properties.
-      - in: query
-        name: date
-        schema:
-          type: string
-          format: date
-        description: Display record data for the specified material date, i.e. the
-          specified date would be between `startAt` and `endAt` attributes. The default
-          value is today
-      - in: query
-        name: fields
-        schema:
-          type: string
-        description: 'Comma-separated fields, which should be displayed in the response.
+        - in: query
+          name: data_attr
+          schema:
+            type: string
+          description: |
+            Only include objects that have attributes with certain values.
+            
+            A valid parameter value has the form `key__operator__value`.
+            `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
+            Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
+            
+            Valid operator values are:
+            * `exact` - equal to
+            * `gt` - greater than
+            * `gte` - greater than or equal to
+            * `lt` - lower than
+            * `lte` - lower than or equal to
+            * `icontains` - case-insensitive partial match
+            * `in` - in a list of values separated by `|`
+            
+            `value` may not contain double underscore or comma characters.
+            `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
+            
+            
+            
+            Example: in order to display only objects with `height` equal to 100, query `data_attr=height__exact__100`
+            should be used. If `height` is nested inside `dimensions` attribute, query should look like
+            `data_attr=dimensions__height__exact__100`
+            
+            This filter is very similar to the old `data_attrs` filter, but it has two differences:
+            
+            * `value` may contain commas
+            * only one filtering expression is allowed
+            
+            If you want to use several filtering expressions, just use this `data_attr` several times in the query string.
+            Example: `data_attr=height__exact__100&data_attr=naam__icontains__boom`
+          explode: true
+        - in: query
+          name: data_attrs
+          schema:
+            type: string
+          description: |
+            **DEPRECATED: Use 'data_attr' instead**.
+            Only include objects that have attributes with certain values.
+            Data filtering expressions are comma-separated and are structured as follows:
+            
+            A valid parameter value has the form `key__operator__value`.
+            `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
+            Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
+            
+            Valid operator values are:
+            * `exact` - equal to
+            * `gt` - greater than
+            * `gte` - greater than or equal to
+            * `lt` - lower than
+            * `lte` - lower than or equal to
+            * `icontains` - case-insensitive partial match
+            * `in` - in a list of values separated by `|`
+            
+            `value` may not contain double underscore or comma characters.
+            `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
+            
+            
+            
+            Example: in order to display only objects with `height` equal to 100, query `data_attrs=height__exact__100`
+            should be used. If `height` is nested inside `dimensions` attribute, query should look like
+            `data_attrs=dimensions__height__exact__100`
+            
+            `value` may not contain comma, since commas are used as separator between filtering expressions.
+            If you want to use commas in `value` you can use `data_attr` query parameter.
+          deprecated: true
+        - in: query
+          name: data_icontains
+          schema:
+            type: string
+          description: Search in all `data` values of string properties.
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+          description: Display record data for the specified material date, i.e. the
+            specified date would be between `startAt` and `endAt` attributes. The default
+            value is today
+        - in: query
+          name: fields
+          schema:
+            type: string
+          description: 'Comma-separated fields, which should be displayed in the response.
           For example: ''url, uuid, record__geometry''.'
-      - name: ordering
-        required: false
-        in: query
-        description: 'Comma-separated fields, which are used to order results. For
+        - name: ordering
+          required: false
+          in: query
+          description: 'Comma-separated fields, which are used to order results. For
           descending order use ''-'' as prefix. Nested fields are also supported.
           For example: ''-record__data__length,record__index''.'
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: pageSize
-        required: false
-        in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: pageSize
+          required: false
+          in: query
+          description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
           maximum: 500).'
-        schema:
-          type: integer
-      - in: query
-        name: registrationDate
-        schema:
-          type: string
-          format: date
-        description: Display record data for the specified registration date, i.e.
-          the specified date would be between `registrationAt` attributes of different
-          records
-      - in: query
-        name: type
-        schema:
-          type: string
-          format: uri
-          maxLength: 1000
-          minLength: 1
-        description: Url reference to OBJECTTYPE in Objecttypes API
-      - in: query
-        name: typeVersion
-        schema:
-          type: integer
-        description: Display record data for the specified type version
+          schema:
+            type: integer
+        - in: query
+          name: registrationDate
+          schema:
+            type: string
+            format: date
+          description: Display record data for the specified registration date, i.e.
+            the specified date would be between `registrationAt` attributes of different
+            records
+        - in: query
+          name: type
+          schema:
+            type: string
+            format: uri
+            maxLength: 1000
+            minLength: 1
+          description: Url reference to OBJECTTYPE
+        - in: query
+          name: typeVersion
+          schema:
+            type: integer
+          description: Display record data for the specified type version
       tags:
-      - objects
+        - objects
       security:
-      - tokenAuth: []
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -233,7 +233,7 @@ paths:
               schema:
                 type: string
                 enum:
-                - EPSG:4326
+                  - EPSG:4326
               description: 'The ''Coordinate Reference System'' (CRS) of the request
                 data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
                 is the same as WGS84).'
@@ -257,35 +257,35 @@ paths:
       operationId: object_create
       description: Create an OBJECT and its initial RECORD.
       parameters:
-      - in: header
-        name: Accept-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The desired ''Coordinate Reference System'' (CRS) of the response
+        - in: header
+          name: Accept-Crs
+          schema:
+            type: string
+            enum:
+              - EPSG:4326
+          description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
-      - in: header
-        name: Content-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The ''Coordinate Reference System'' (CRS) of the request data.
+        - in: header
+          name: Content-Crs
+          schema:
+            type: string
+            enum:
+              - EPSG:4326
+          description: 'The ''Coordinate Reference System'' (CRS) of the request data.
           According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is the same
           as WGS84).'
-        required: true
-      - in: header
-        name: Content-Type
-        schema:
-          type: string
-          enum:
-          - application/json
-        description: Content type of the request body.
-        required: true
+          required: true
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type of the request body.
+          required: true
       tags:
-      - objects
+        - objects
       requestBody:
         content:
           application/json:
@@ -293,7 +293,7 @@ paths:
               $ref: '#/components/schemas/Object'
         required: true
       security:
-      - tokenAuth: []
+        - tokenAuth: []
       responses:
         '201':
           headers:
@@ -301,7 +301,7 @@ paths:
               schema:
                 type: string
                 enum:
-                - EPSG:4326
+                  - EPSG:4326
               description: 'The ''Coordinate Reference System'' (CRS) of the request
                 data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
                 is the same as WGS84).'
@@ -321,32 +321,32 @@ paths:
       description: Retrieve a single OBJECT and its actual RECORD. The actual record
         is defined as if the query parameter `date=<today>` was given.
       parameters:
-      - in: header
-        name: Accept-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The desired ''Coordinate Reference System'' (CRS) of the response
+        - in: header
+          name: Accept-Crs
+          schema:
+            type: string
+            enum:
+              - EPSG:4326
+          description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
-      - in: query
-        name: fields
-        schema:
-          type: string
-        description: 'Comma-separated fields, which should be displayed in the response.
+        - in: query
+          name: fields
+          schema:
+            type: string
+          description: 'Comma-separated fields, which should be displayed in the response.
           For example: ''url, uuid, record__geometry''.'
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unique identifier (UUID4)
-        required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unique identifier (UUID4)
+          required: true
       tags:
-      - objects
+        - objects
       security:
-      - tokenAuth: []
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -354,7 +354,7 @@ paths:
               schema:
                 type: string
                 enum:
-                - EPSG:4326
+                  - EPSG:4326
               description: 'The ''Coordinate Reference System'' (CRS) of the request
                 data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
                 is the same as WGS84).'
@@ -378,42 +378,42 @@ paths:
       operationId: object_update
       description: Update the OBJECT by creating a new RECORD with the updates values.
       parameters:
-      - in: header
-        name: Accept-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The desired ''Coordinate Reference System'' (CRS) of the response
+        - in: header
+          name: Accept-Crs
+          schema:
+            type: string
+            enum:
+              - EPSG:4326
+          description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
-      - in: header
-        name: Content-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The ''Coordinate Reference System'' (CRS) of the request data.
+        - in: header
+          name: Content-Crs
+          schema:
+            type: string
+            enum:
+              - EPSG:4326
+          description: 'The ''Coordinate Reference System'' (CRS) of the request data.
           According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is the same
           as WGS84).'
-        required: true
-      - in: header
-        name: Content-Type
-        schema:
-          type: string
-          enum:
-          - application/json
-        description: Content type of the request body.
-        required: true
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unique identifier (UUID4)
-        required: true
+          required: true
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type of the request body.
+          required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unique identifier (UUID4)
+          required: true
       tags:
-      - objects
+        - objects
       requestBody:
         content:
           application/json:
@@ -421,7 +421,7 @@ paths:
               $ref: '#/components/schemas/Object'
         required: true
       security:
-      - tokenAuth: []
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -429,7 +429,7 @@ paths:
               schema:
                 type: string
                 enum:
-                - EPSG:4326
+                  - EPSG:4326
               description: 'The ''Coordinate Reference System'' (CRS) of the request
                 data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
                 is the same as WGS84).'
@@ -449,49 +449,49 @@ paths:
         The provided `record.data` value will be merged recursively with the existing
         record data.
       parameters:
-      - in: header
-        name: Accept-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The desired ''Coordinate Reference System'' (CRS) of the response
+        - in: header
+          name: Accept-Crs
+          schema:
+            type: string
+            enum:
+              - EPSG:4326
+          description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
-      - in: header
-        name: Content-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The ''Coordinate Reference System'' (CRS) of the request data.
+        - in: header
+          name: Content-Crs
+          schema:
+            type: string
+            enum:
+              - EPSG:4326
+          description: 'The ''Coordinate Reference System'' (CRS) of the request data.
           According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is the same
           as WGS84).'
-        required: true
-      - in: header
-        name: Content-Type
-        schema:
-          type: string
-          enum:
-          - application/json
-        description: Content type of the request body.
-        required: true
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unique identifier (UUID4)
-        required: true
+          required: true
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type of the request body.
+          required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unique identifier (UUID4)
+          required: true
       tags:
-      - objects
+        - objects
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchedObject'
       security:
-      - tokenAuth: []
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -499,7 +499,7 @@ paths:
               schema:
                 type: string
                 enum:
-                - EPSG:4326
+                  - EPSG:4326
               description: 'The ''Coordinate Reference System'' (CRS) of the request
                 data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
                 is the same as WGS84).'
@@ -517,26 +517,26 @@ paths:
       operationId: object_delete
       description: Delete an OBJECT and all RECORDs belonging to it.
       parameters:
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unique identifier (UUID4)
-        required: true
-      - in: query
-        name: zaak
-        schema:
-          type: string
-          format: uri
-        description: '**Experimental** When destructing for archiving a ztc.ZAAK pass
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unique identifier (UUID4)
+          required: true
+        - in: query
+          name: zaak
+          schema:
+            type: string
+            format: uri
+          description: '**Experimental** When destructing for archiving a ztc.ZAAK pass
           in the ZAAK URL that is being destroyed. If this OBJECT''s current RECORD
           has other ZAAK references, then object destruction is cancelled and only
           this ZAAK URL is removed from the RECORD''s references.'
       tags:
-      - objects
+        - objects
       security:
-      - tokenAuth: []
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -544,7 +544,7 @@ paths:
               schema:
                 type: string
                 enum:
-                - EPSG:4326
+                  - EPSG:4326
               description: 'The ''Coordinate Reference System'' (CRS) of the request
                 data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
                 is the same as WGS84).'
@@ -572,30 +572,30 @@ paths:
       operationId: object_history_detail
       description: Retrieve the specified OBJECT given an UUID and INDEX.
       parameters:
-      - in: header
-        name: Accept-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The desired ''Coordinate Reference System'' (CRS) of the response
+        - in: header
+          name: Accept-Crs
+          schema:
+            type: string
+            enum:
+              - EPSG:4326
+          description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
-      - in: path
-        name: index
-        schema:
-          type: number
-        required: true
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-        required: true
+        - in: path
+          name: index
+          schema:
+            type: number
+          required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+          required: true
       tags:
-      - objects
+        - objects
       security:
-      - tokenAuth: []
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -603,7 +603,7 @@ paths:
               schema:
                 type: string
                 enum:
-                - EPSG:4326
+                  - EPSG:4326
               description: 'The ''Coordinate Reference System'' (CRS) of the request
                 data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
                 is the same as WGS84).'
@@ -622,39 +622,39 @@ paths:
       operationId: object_history
       description: Retrieve all RECORDs of an OBJECT.
       parameters:
-      - in: header
-        name: Accept-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The desired ''Coordinate Reference System'' (CRS) of the response
+        - in: header
+          name: Accept-Crs
+          schema:
+            type: string
+            enum:
+              - EPSG:4326
+          description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: pageSize
-        required: false
-        in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: pageSize
+          required: false
+          in: query
+          description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
           maximum: 500).'
-        schema:
-          type: integer
-      - in: path
-        name: uuid
-        schema:
-          type: string
-          format: uuid
-          description: Unique identifier (UUID4)
-        required: true
+          schema:
+            type: integer
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unique identifier (UUID4)
+          required: true
       tags:
-      - objects
+        - objects
       security:
-      - tokenAuth: []
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -662,7 +662,7 @@ paths:
               schema:
                 type: string
                 enum:
-                - EPSG:4326
+                  - EPSG:4326
               description: 'The ''Coordinate Reference System'' (CRS) of the request
                 data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
                 is the same as WGS84).'
@@ -681,153 +681,153 @@ paths:
       operationId: object_search
       description: Perform a (geo) search on OBJECTs.
       parameters:
-      - in: header
-        name: Accept-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The desired ''Coordinate Reference System'' (CRS) of the response
+        - in: header
+          name: Accept-Crs
+          schema:
+            type: string
+            enum:
+              - EPSG:4326
+          description: 'The desired ''Coordinate Reference System'' (CRS) of the response
           data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is
           the same as WGS84).'
-      - in: header
-        name: Content-Crs
-        schema:
-          type: string
-          enum:
-          - EPSG:4326
-        description: 'The ''Coordinate Reference System'' (CRS) of the request data.
+        - in: header
+          name: Content-Crs
+          schema:
+            type: string
+            enum:
+              - EPSG:4326
+          description: 'The ''Coordinate Reference System'' (CRS) of the request data.
           According to the GeoJSON spec, WGS84 is the default (EPSG: 4326 is the same
           as WGS84).'
-        required: true
-      - in: header
-        name: Content-Type
-        schema:
-          type: string
-          enum:
-          - application/json
-        description: Content type of the request body.
-        required: true
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: pageSize
-        required: false
-        in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          required: true
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type of the request body.
+          required: true
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: pageSize
+          required: false
+          in: query
+          description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
           maximum: 500).'
-        schema:
-          type: integer
+          schema:
+            type: integer
       tags:
-      - objects
+        - objects
       requestBody:
         content:
           application/json:
             schema:
               type: object
               allOf:
-              - $ref: '#/components/schemas/ObjectSearch'
-              - type: object
-                properties:
-                  type:
-                    type: string
-                    format: uri
-                    maxLength: 1000
-                    minLength: 1
-                    description: Url reference to OBJECTTYPE in Objecttypes API
-                  data_attrs:
-                    type: string
-                    description: |
-                      **DEPRECATED: Use 'data_attr' instead**.
-                      Only include objects that have attributes with certain values.
-                      Data filtering expressions are comma-separated and are structured as follows:
-
-                      A valid parameter value has the form `key__operator__value`.
-                      `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
-                      Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
-
-                      Valid operator values are:
-                      * `exact` - equal to
-                      * `gt` - greater than
-                      * `gte` - greater than or equal to
-                      * `lt` - lower than
-                      * `lte` - lower than or equal to
-                      * `icontains` - case-insensitive partial match
-                      * `in` - in a list of values separated by `|`
-
-                      `value` may not contain double underscore or comma characters.
-                      `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
-
-
-
-                      Example: in order to display only objects with `height` equal to 100, query `data_attrs=height__exact__100`
-                      should be used. If `height` is nested inside `dimensions` attribute, query should look like
-                      `data_attrs=dimensions__height__exact__100`
-
-                      `value` may not contain comma, since commas are used as separator between filtering expressions.
-                      If you want to use commas in `value` you can use `data_attr` query parameter.
-                  data_attr:
-                    type: string
-                    description: |
-                      Only include objects that have attributes with certain values.
-
-                      A valid parameter value has the form `key__operator__value`.
-                      `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
-                      Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
-
-                      Valid operator values are:
-                      * `exact` - equal to
-                      * `gt` - greater than
-                      * `gte` - greater than or equal to
-                      * `lt` - lower than
-                      * `lte` - lower than or equal to
-                      * `icontains` - case-insensitive partial match
-                      * `in` - in a list of values separated by `|`
-
-                      `value` may not contain double underscore or comma characters.
-                      `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
-
-
-
-                      Example: in order to display only objects with `height` equal to 100, query `data_attr=height__exact__100`
-                      should be used. If `height` is nested inside `dimensions` attribute, query should look like
-                      `data_attr=dimensions__height__exact__100`
-
-                      This filter is very similar to the old `data_attrs` filter, but it has two differences:
-
-                      * `value` may contain commas
-                      * only one filtering expression is allowed
-
-                      If you want to use several filtering expressions, just use this `data_attr` several times in the query string.
-                      Example: `data_attr=height__exact__100&data_attr=naam__icontains__boom`
-                  date:
-                    type: string
-                    format: date
-                    description: Display record data for the specified material date,
-                      i.e. the specified date would be between `startAt` and `endAt`
-                      attributes. The default value is today
-                  registrationDate:
-                    type: string
-                    format: date
-                    description: Display record data for the specified registration
-                      date, i.e. the specified date would be between `registrationAt`
-                      attributes of different records
-                  typeVersion:
-                    type: integer
-                    description: Display record data for the specified type version
-                  data_icontains:
-                    type: string
-                    description: Search in all `data` values of string properties.
-                  ordering:
-                    type: string
-                    description: 'Comma-separated fields, which are used to order
+                - $ref: '#/components/schemas/ObjectSearch'
+                - type: object
+                  properties:
+                    type:
+                      type: string
+                      format: uri
+                      maxLength: 1000
+                      minLength: 1
+                      description: Url reference to OBJECTTYPE
+                    data_attrs:
+                      type: string
+                      description: |
+                        **DEPRECATED: Use 'data_attr' instead**.
+                        Only include objects that have attributes with certain values.
+                        Data filtering expressions are comma-separated and are structured as follows:
+                        
+                        A valid parameter value has the form `key__operator__value`.
+                        `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
+                        Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
+                        
+                        Valid operator values are:
+                        * `exact` - equal to
+                        * `gt` - greater than
+                        * `gte` - greater than or equal to
+                        * `lt` - lower than
+                        * `lte` - lower than or equal to
+                        * `icontains` - case-insensitive partial match
+                        * `in` - in a list of values separated by `|`
+                        
+                        `value` may not contain double underscore or comma characters.
+                        `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
+                        
+                        
+                        
+                        Example: in order to display only objects with `height` equal to 100, query `data_attrs=height__exact__100`
+                        should be used. If `height` is nested inside `dimensions` attribute, query should look like
+                        `data_attrs=dimensions__height__exact__100`
+                        
+                        `value` may not contain comma, since commas are used as separator between filtering expressions.
+                        If you want to use commas in `value` you can use `data_attr` query parameter.
+                    data_attr:
+                      type: string
+                      description: |
+                        Only include objects that have attributes with certain values.
+                        
+                        A valid parameter value has the form `key__operator__value`.
+                        `key` is the attribute name, `operator` is the comparison operator to be used and `value` is the attribute value.
+                        Note: Values can be string, numeric, or dates (ISO format; YYYY-MM-DD).
+                        
+                        Valid operator values are:
+                        * `exact` - equal to
+                        * `gt` - greater than
+                        * `gte` - greater than or equal to
+                        * `lt` - lower than
+                        * `lte` - lower than or equal to
+                        * `icontains` - case-insensitive partial match
+                        * `in` - in a list of values separated by `|`
+                        
+                        `value` may not contain double underscore or comma characters.
+                        `key` may not contain comma characters and includes double underscore only if it indicates nested attributes.
+                        
+                        
+                        
+                        Example: in order to display only objects with `height` equal to 100, query `data_attr=height__exact__100`
+                        should be used. If `height` is nested inside `dimensions` attribute, query should look like
+                        `data_attr=dimensions__height__exact__100`
+                        
+                        This filter is very similar to the old `data_attrs` filter, but it has two differences:
+                        
+                        * `value` may contain commas
+                        * only one filtering expression is allowed
+                        
+                        If you want to use several filtering expressions, just use this `data_attr` several times in the query string.
+                        Example: `data_attr=height__exact__100&data_attr=naam__icontains__boom`
+                    date:
+                      type: string
+                      format: date
+                      description: Display record data for the specified material date,
+                        i.e. the specified date would be between `startAt` and `endAt`
+                        attributes. The default value is today
+                    registrationDate:
+                      type: string
+                      format: date
+                      description: Display record data for the specified registration
+                        date, i.e. the specified date would be between `registrationAt`
+                        attributes of different records
+                    typeVersion:
+                      type: integer
+                      description: Display record data for the specified type version
+                    data_icontains:
+                      type: string
+                      description: Search in all `data` values of string properties.
+                    ordering:
+                      type: string
+                      description: 'Comma-separated fields, which are used to order
                       results. For descending order use ''-'' as prefix. Nested fields
                       are also supported. For example: ''-record__data__length,record__index''.'
       security:
-      - tokenAuth: []
+        - tokenAuth: []
       responses:
         '200':
           headers:
@@ -835,7 +835,7 @@ paths:
               schema:
                 type: string
                 enum:
-                - EPSG:4326
+                  - EPSG:4326
               description: 'The ''Coordinate Reference System'' (CRS) of the request
                 data. According to the GeoJSON spec, WGS84 is the default (EPSG: 4326
                 is the same as WGS84).'
@@ -849,29 +849,497 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedObjectList'
           description: OK
+  /objecttypes:
+    get:
+      operationId: objecttype_list
+      parameters:
+        - in: query
+          name: dataClassification
+          schema:
+            type: string
+            enum:
+              - confidential
+              - intern
+              - open
+              - strictly_confidential
+          description: |-
+            Confidential level of the object type
+            
+            * `open` - Open
+            * `intern` - Intern
+            * `confidential` - Confidential
+            * `strictly_confidential` - Strictly confidential
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: pageSize
+          required: false
+          in: query
+          description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
+          schema:
+            type: integer
+      tags:
+        - objecttypes
+      security:
+        - tokenAuth: []
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedObjectTypeList'
+          description: OK
+    post:
+      operationId: objecttype_create
+      parameters:
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type of the request body.
+          required: true
+      tags:
+        - objecttypes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjectType'
+        required: true
+      security:
+        - tokenAuth: []
+      responses:
+        '201':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectType'
+          description: Created
+  /objecttypes/{objecttype_uuid}/versions:
+    get:
+      operationId: objecttypeversion_list
+      description: Retrieve all versions of an OBJECTTYPE
+      parameters:
+        - in: path
+          name: objecttype_uuid
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier (UUID4)
+          required: true
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: pageSize
+          required: false
+          in: query
+          description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+          maximum: 500).'
+          schema:
+            type: integer
+      tags:
+        - objecttypes
+      security:
+        - cookieAuth: []
+        - tokenAuth: []
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedObjectTypeVersionList'
+          description: OK
+    post:
+      operationId: objecttypeversion_create
+      description: Create an OBJECTTYPE with the given version.
+      parameters:
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type of the request body.
+          required: true
+        - in: path
+          name: objecttype_uuid
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier (UUID4)
+          required: true
+      tags:
+        - objecttypes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjectTypeVersion'
+      security:
+        - tokenAuth: []
+      responses:
+        '201':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectTypeVersion'
+          description: Created
+  /objecttypes/{objecttype_uuid}/versions/{version}:
+    get:
+      operationId: objecttypeversion_read
+      description: Retrieve an OBJECTTYPE with the given version.
+      parameters:
+        - in: path
+          name: objecttype_uuid
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier (UUID4)
+          required: true
+        - in: path
+          name: version
+          schema:
+            type: integer
+            maximum: 32767
+            minimum: 0
+            description: Integer version of the OBJECTTYPE
+          required: true
+      tags:
+        - objecttypes
+      security:
+        - cookieAuth: []
+        - tokenAuth: []
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectTypeVersion'
+          description: OK
+    put:
+      operationId: objecttypeversion_update
+      description: Update an OBJECTTYPE with the given version.
+      parameters:
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type of the request body.
+          required: true
+        - in: path
+          name: objecttype_uuid
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier (UUID4)
+          required: true
+        - in: path
+          name: version
+          schema:
+            type: integer
+            maximum: 32767
+            minimum: 0
+            description: Integer version of the OBJECTTYPE
+          required: true
+      tags:
+        - objecttypes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjectTypeVersion'
+      security:
+        - tokenAuth: []
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectTypeVersion'
+          description: OK
+    patch:
+      operationId: objecttypeversion_partial_update
+      description: Partially update an OBJECTTYPE with the given version.
+      parameters:
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type of the request body.
+          required: true
+        - in: path
+          name: objecttype_uuid
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier (UUID4)
+          required: true
+        - in: path
+          name: version
+          schema:
+            type: integer
+            maximum: 32767
+            minimum: 0
+            description: Integer version of the OBJECTTYPE
+          required: true
+      tags:
+        - objecttypes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedObjectTypeVersion'
+      security:
+        - tokenAuth: []
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectTypeVersion'
+          description: OK
+    delete:
+      operationId: objecttypeversion_delete
+      description: Destroy the given OBJECTTYPE.
+      parameters:
+        - in: path
+          name: objecttype_uuid
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier (UUID4)
+          required: true
+        - in: path
+          name: version
+          schema:
+            type: integer
+            maximum: 32767
+            minimum: 0
+            description: Integer version of the OBJECTTYPE
+          required: true
+      tags:
+        - objecttypes
+      security:
+        - tokenAuth: []
+      responses:
+        '204':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          description: No response body
+  /objecttypes/{uuid}:
+    get:
+      operationId: objecttype_read
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unique identifier (UUID4)
+          required: true
+      tags:
+        - objecttypes
+      security:
+        - tokenAuth: []
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectType'
+          description: OK
+    put:
+      operationId: objecttype_update
+      parameters:
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type of the request body.
+          required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unique identifier (UUID4)
+          required: true
+      tags:
+        - objecttypes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjectType'
+        required: true
+      security:
+        - tokenAuth: []
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectType'
+          description: OK
+    patch:
+      operationId: objecttype_partial_update
+      parameters:
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+            enum:
+              - application/json
+          description: Content type of the request body.
+          required: true
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unique identifier (UUID4)
+          required: true
+      tags:
+        - objecttypes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedObjectType'
+      security:
+        - tokenAuth: []
+      responses:
+        '200':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectType'
+          description: OK
+    delete:
+      operationId: objecttype_delete
+      parameters:
+        - in: path
+          name: uuid
+          schema:
+            type: string
+            format: uuid
+            description: Unique identifier (UUID4)
+          required: true
+      tags:
+        - objecttypes
+      security:
+        - tokenAuth: []
+      responses:
+        '204':
+          headers:
+            API-version:
+              schema:
+                type: string
+              description: 'Geeft een specifieke API-versie aan in de context van
+                een specifieke aanroep. Voorbeeld: 1.2.1.'
+          description: No response body
   /permissions:
     get:
       operationId: permission_list
       description: Retrieve a list of permissions available for the user
       parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: pageSize
-        required: false
-        in: query
-        description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: pageSize
+          required: false
+          in: query
+          description: 'Het aantal resultaten terug te geven per pagina. (default: 100,
           maximum: 500).'
-        schema:
-          type: integer
+          schema:
+            type: integer
       tags:
-      - permissions
+        - permissions
       security:
-      - tokenAuth: []
-      - {}
+        - tokenAuth: []
+        - {}
       responses:
         '200':
           headers:
@@ -897,18 +1365,30 @@ components:
             format: uri
           description: Kept OBJECT URLs
       required:
-      - behouden
+        - behouden
+    DataClassificationEnum:
+      enum:
+        - open
+        - intern
+        - confidential
+        - strictly_confidential
+      type: string
+      description: |-
+        * `open` - Open
+        * `intern` - Intern
+        * `confidential` - Confidential
+        * `strictly_confidential` - Strictly confidential
     GeoJSONGeometry:
       title: GeoJSONGeometry
       type: object
       oneOf:
-      - $ref: '#/components/schemas/Point'
-      - $ref: '#/components/schemas/MultiPoint'
-      - $ref: '#/components/schemas/LineString'
-      - $ref: '#/components/schemas/MultiLineString'
-      - $ref: '#/components/schemas/Polygon'
-      - $ref: '#/components/schemas/MultiPolygon'
-      - $ref: '#/components/schemas/GeometryCollection'
+        - $ref: '#/components/schemas/Point'
+        - $ref: '#/components/schemas/MultiPoint'
+        - $ref: '#/components/schemas/LineString'
+        - $ref: '#/components/schemas/MultiLineString'
+        - $ref: '#/components/schemas/Polygon'
+        - $ref: '#/components/schemas/MultiPolygon'
+        - $ref: '#/components/schemas/GeometryCollection'
       discriminator:
         propertyName: type
     GeoWithin:
@@ -921,13 +1401,13 @@ components:
       title: Geometry
       description: GeoJSON geometry
       required:
-      - type
+        - type
       externalDocs:
         url: https://tools.ietf.org/html/rfc7946#section-3.1
       properties:
         type:
           allOf:
-          - $ref: '#/components/schemas/GeometryTypeEnum'
+            - $ref: '#/components/schemas/GeometryTypeEnum'
           description: The geometry type
     GeometryCollection:
       type: object
@@ -935,27 +1415,27 @@ components:
       externalDocs:
         url: https://tools.ietf.org/html/rfc7946#section-3.1.8
       allOf:
-      - $ref: '#/components/schemas/Geometry'
-      - type: object
-        required:
-        - geometries
-        properties:
-          geometries:
-            type: array
-            items:
-              $ref: '#/components/schemas/Geometry'
+        - $ref: '#/components/schemas/Geometry'
+        - type: object
+          required:
+            - geometries
+          properties:
+            geometries:
+              type: array
+              items:
+                $ref: '#/components/schemas/Geometry'
     GeometryTypeEnum:
       type: string
       enum:
-      - Point
-      - MultiPoint
-      - LineString
-      - MultiLineString
-      - Polygon
-      - MultiPolygon
-      - Feature
-      - FeatureCollection
-      - GeometryCollection
+        - Point
+        - MultiPoint
+        - LineString
+        - MultiLineString
+        - Polygon
+        - MultiPolygon
+        - Feature
+        - FeatureCollection
+        - GeometryCollection
     HistoryRecord:
       type: object
       properties:
@@ -974,7 +1454,7 @@ components:
           description: Object data, based on OBJECTTYPE
         geometry:
           allOf:
-          - $ref: '#/components/schemas/GeoJSONGeometry'
+            - $ref: '#/components/schemas/GeoJSONGeometry'
           nullable: true
           description: Point, linestring or polygon object which represents the coordinates
             of the object. Geometry can be added only if the related OBJECTTYPE allows
@@ -1008,28 +1488,28 @@ components:
           description: Index of the record, which corrects the current record
           readOnly: true
       required:
-      - startAt
-      - typeVersion
+        - startAt
+        - typeVersion
     LineString:
       type: object
       description: GeoJSON line-string geometry
       externalDocs:
         url: https://tools.ietf.org/html/rfc7946#section-3.1.4
       allOf:
-      - $ref: '#/components/schemas/Geometry'
-      - type: object
-        required:
-        - coordinates
-        properties:
-          coordinates:
-            type: array
-            items:
-              $ref: '#/components/schemas/Point2D'
-            minItems: 2
+        - $ref: '#/components/schemas/Geometry'
+        - type: object
+          required:
+            - coordinates
+          properties:
+            coordinates:
+              type: array
+              items:
+                $ref: '#/components/schemas/Point2D'
+              minItems: 2
     ModeEnum:
       enum:
-      - read_only
-      - read_and_write
+        - read_only
+        - read_and_write
       type: string
       description: |-
         * `read_only` - Read-only
@@ -1040,51 +1520,51 @@ components:
       externalDocs:
         url: https://tools.ietf.org/html/rfc7946#section-3.1.5
       allOf:
-      - $ref: '#/components/schemas/Geometry'
-      - type: object
-        required:
-        - coordinates
-        properties:
-          coordinates:
-            type: array
-            items:
+        - $ref: '#/components/schemas/Geometry'
+        - type: object
+          required:
+            - coordinates
+          properties:
+            coordinates:
               type: array
               items:
-                $ref: '#/components/schemas/Point2D'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Point2D'
     MultiPoint:
       type: object
       description: GeoJSON multi-point geometry
       externalDocs:
         url: https://tools.ietf.org/html/rfc7946#section-3.1.3
       allOf:
-      - $ref: '#/components/schemas/Geometry'
-      - type: object
-        required:
-        - coordinates
-        properties:
-          coordinates:
-            type: array
-            items:
-              $ref: '#/components/schemas/Point2D'
+        - $ref: '#/components/schemas/Geometry'
+        - type: object
+          required:
+            - coordinates
+          properties:
+            coordinates:
+              type: array
+              items:
+                $ref: '#/components/schemas/Point2D'
     MultiPolygon:
       type: object
       description: GeoJSON multi-polygon geometry
       externalDocs:
         url: https://tools.ietf.org/html/rfc7946#section-3.1.7
       allOf:
-      - $ref: '#/components/schemas/Geometry'
-      - type: object
-        required:
-        - coordinates
-        properties:
-          coordinates:
-            type: array
-            items:
+        - $ref: '#/components/schemas/Geometry'
+        - type: object
+          required:
+            - coordinates
+          properties:
+            coordinates:
               type: array
               items:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Point2D'
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Point2D'
     Object:
       type: object
       description: |-
@@ -1108,14 +1588,14 @@ components:
           format: uri
           minLength: 1
           maxLength: 1000
-          description: Url reference to OBJECTTYPE in Objecttypes API
+          description: Url reference to OBJECTTYPE
         record:
           allOf:
-          - $ref: '#/components/schemas/ObjectRecord'
+            - $ref: '#/components/schemas/ObjectRecord'
           description: State of the OBJECT at a certain time
       required:
-      - record
-      - type
+        - record
+        - type
     ObjectRecord:
       type: object
       properties:
@@ -1134,7 +1614,7 @@ components:
           description: Object data, based on OBJECTTYPE
         geometry:
           allOf:
-          - $ref: '#/components/schemas/GeoJSONGeometry'
+            - $ref: '#/components/schemas/GeoJSONGeometry'
           nullable: true
           description: Point, linestring or polygon object which represents the coordinates
             of the object. Geometry can be added only if the related OBJECTTYPE allows
@@ -1173,18 +1653,195 @@ components:
           description: Index of the record, which corrects the current record
           readOnly: true
       required:
-      - startAt
-      - typeVersion
+        - startAt
+        - typeVersion
     ObjectSearch:
       type: object
       properties:
         geometry:
           $ref: '#/components/schemas/GeoWithin'
+    ObjectType:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL reference to this object. This is the unique identification
+            and location of this object.
+        uuid:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        name:
+          type: string
+          description: Name of the object type
+          maxLength: 100
+        namePlural:
+          type: string
+          description: Plural name of the object type
+          maxLength: 100
+        description:
+          type: string
+          description: The description of the object type
+          maxLength: 1000
+        dataClassification:
+          allOf:
+            - $ref: '#/components/schemas/DataClassificationEnum'
+          description: |-
+            Confidential level of the object type
+
+            * `open` - Open
+            * `intern` - Intern
+            * `confidential` - Confidential
+            * `strictly_confidential` - Strictly confidential
+        maintainerOrganization:
+          type: string
+          description: Organization which is responsible for the object type
+          maxLength: 200
+        maintainerDepartment:
+          type: string
+          description: Business department which is responsible for the object type
+          maxLength: 200
+        contactPerson:
+          type: string
+          description: Name of the person in the organization who can provide information
+            about the object type
+          maxLength: 200
+        contactEmail:
+          type: string
+          description: Email of the person in the organization who can provide information
+            about the object type
+          maxLength: 200
+        source:
+          type: string
+          description: Name of the system from which the object type originates
+          maxLength: 200
+        updateFrequency:
+          allOf:
+            - $ref: '#/components/schemas/UpdateFrequencyEnum'
+          description: |-
+            Indicates how often the object type is updated
+
+            * `real_time` - Real-time
+            * `hourly` - Hourly
+            * `daily` - Daily
+            * `weekly` - Weekly
+            * `monthly` - Monthly
+            * `yearly` - Yearly
+            * `unknown` - Unknown
+        providerOrganization:
+          type: string
+          description: Organization which is responsible for publication of the object
+            type
+          maxLength: 200
+        documentationUrl:
+          type: string
+          format: uri
+          description: Link to the documentation for the object type
+          maxLength: 200
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+          description: Key-value pairs of keywords related for the object type
+        createdAt:
+          type: string
+          format: date
+          readOnly: true
+          description: Date when the object type was created
+        modifiedAt:
+          type: string
+          format: date
+          readOnly: true
+          description: Last date when the object type was modified
+        allowGeometry:
+          type: boolean
+          description: 'Shows whether the related objects can have geographic coordinates.
+            If the value is ''false'' the related objects are not allowed to have
+            coordinates and the creation/update of objects with `geometry` property
+            will raise an error '
+        versions:
+          type: array
+          items:
+            type: string
+            format: uri
+            minLength: 1
+            maxLength: 1000
+          readOnly: true
+          description: list of URLs for the OBJECTTYPE versions
+      required:
+        - name
+        - namePlural
+    ObjectTypeVersion:
+      type: object
+      description: |-
+        A type of `ModelSerializer` that uses hyperlinked relationships with compound keys instead
+        of primary key relationships.  Specifically:
+
+        * A 'url' field is included instead of the 'id' field.
+        * Relationships to other instances are hyperlinks, instead of primary keys.
+
+        NOTE: this only works with DRF 3.1.0 and above.
+      properties:
+        url:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 1000
+          description: URL reference to this object. This is the unique identification
+            and location of this object.
+          readOnly: true
+        version:
+          type: integer
+          readOnly: true
+          description: Integer version of the OBJECTTYPE
+        objectType:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 1000
+          description: URL reference to this object. This is the unique identification
+            and location of this object.
+          readOnly: true
+        status:
+          allOf:
+            - $ref: '#/components/schemas/StatusEnum'
+          description: |-
+            Status of the object type version
+
+            * `published` - Published
+            * `draft` - Draft
+            * `deprecated` - Deprecated
+        jsonSchema:
+          type: object
+          additionalProperties: true
+          title: JSON schema
+          description: JSON schema for Object validation
+        createdAt:
+          type: string
+          format: date
+          readOnly: true
+          description: Date when the version was created
+        modifiedAt:
+          type: string
+          format: date
+          readOnly: true
+          description: Last date when the version was modified
+        publishedAt:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+          title: Published_at
+          description: Date when the version was published
     PaginatedHistoryRecordList:
       type: object
       required:
-      - count
-      - results
+        - count
+        - results
       properties:
         count:
           type: integer
@@ -1206,8 +1863,8 @@ components:
     PaginatedObjectList:
       type: object
       required:
-      - count
-      - results
+        - count
+        - results
       properties:
         count:
           type: integer
@@ -1226,11 +1883,57 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Object'
+    PaginatedObjectTypeList:
+      type: object
+      required:
+        - count
+        - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectType'
+    PaginatedObjectTypeVersionList:
+      type: object
+      required:
+        - count
+        - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectTypeVersion'
     PaginatedPermissionList:
       type: object
       required:
-      - count
-      - results
+        - count
+        - results
       properties:
         count:
           type: integer
@@ -1272,11 +1975,185 @@ components:
           format: uri
           minLength: 1
           maxLength: 1000
-          description: Url reference to OBJECTTYPE in Objecttypes API
+          description: Url reference to OBJECTTYPE
         record:
           allOf:
-          - $ref: '#/components/schemas/ObjectRecord'
+            - $ref: '#/components/schemas/ObjectRecord'
           description: State of the OBJECT at a certain time
+    PatchedObjectType:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          minLength: 1
+          maxLength: 1000
+          description: URL reference to this object. This is the unique identification
+            and location of this object.
+        uuid:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        name:
+          type: string
+          description: Name of the object type
+          maxLength: 100
+        namePlural:
+          type: string
+          description: Plural name of the object type
+          maxLength: 100
+        description:
+          type: string
+          description: The description of the object type
+          maxLength: 1000
+        dataClassification:
+          allOf:
+            - $ref: '#/components/schemas/DataClassificationEnum'
+          description: |-
+            Confidential level of the object type
+
+            * `open` - Open
+            * `intern` - Intern
+            * `confidential` - Confidential
+            * `strictly_confidential` - Strictly confidential
+        maintainerOrganization:
+          type: string
+          description: Organization which is responsible for the object type
+          maxLength: 200
+        maintainerDepartment:
+          type: string
+          description: Business department which is responsible for the object type
+          maxLength: 200
+        contactPerson:
+          type: string
+          description: Name of the person in the organization who can provide information
+            about the object type
+          maxLength: 200
+        contactEmail:
+          type: string
+          description: Email of the person in the organization who can provide information
+            about the object type
+          maxLength: 200
+        source:
+          type: string
+          description: Name of the system from which the object type originates
+          maxLength: 200
+        updateFrequency:
+          allOf:
+            - $ref: '#/components/schemas/UpdateFrequencyEnum'
+          description: |-
+            Indicates how often the object type is updated
+
+            * `real_time` - Real-time
+            * `hourly` - Hourly
+            * `daily` - Daily
+            * `weekly` - Weekly
+            * `monthly` - Monthly
+            * `yearly` - Yearly
+            * `unknown` - Unknown
+        providerOrganization:
+          type: string
+          description: Organization which is responsible for publication of the object
+            type
+          maxLength: 200
+        documentationUrl:
+          type: string
+          format: uri
+          description: Link to the documentation for the object type
+          maxLength: 200
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+          description: Key-value pairs of keywords related for the object type
+        createdAt:
+          type: string
+          format: date
+          readOnly: true
+          description: Date when the object type was created
+        modifiedAt:
+          type: string
+          format: date
+          readOnly: true
+          description: Last date when the object type was modified
+        allowGeometry:
+          type: boolean
+          description: 'Shows whether the related objects can have geographic coordinates.
+            If the value is ''false'' the related objects are not allowed to have
+            coordinates and the creation/update of objects with `geometry` property
+            will raise an error '
+        versions:
+          type: array
+          items:
+            type: string
+            format: uri
+            minLength: 1
+            maxLength: 1000
+          readOnly: true
+          description: list of URLs for the OBJECTTYPE versions
+    PatchedObjectTypeVersion:
+      type: object
+      description: |-
+        A type of `ModelSerializer` that uses hyperlinked relationships with compound keys instead
+        of primary key relationships.  Specifically:
+
+        * A 'url' field is included instead of the 'id' field.
+        * Relationships to other instances are hyperlinks, instead of primary keys.
+
+        NOTE: this only works with DRF 3.1.0 and above.
+      properties:
+        url:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 1000
+          description: URL reference to this object. This is the unique identification
+            and location of this object.
+          readOnly: true
+        version:
+          type: integer
+          readOnly: true
+          description: Integer version of the OBJECTTYPE
+        objectType:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 1000
+          description: URL reference to this object. This is the unique identification
+            and location of this object.
+          readOnly: true
+        status:
+          allOf:
+            - $ref: '#/components/schemas/StatusEnum'
+          description: |-
+            Status of the object type version
+
+            * `published` - Published
+            * `draft` - Draft
+            * `deprecated` - Deprecated
+        jsonSchema:
+          type: object
+          additionalProperties: true
+          title: JSON schema
+          description: JSON schema for Object validation
+        createdAt:
+          type: string
+          format: date
+          readOnly: true
+          description: Date when the version was created
+        modifiedAt:
+          type: string
+          format: date
+          readOnly: true
+          description: Last date when the version was modified
+        publishedAt:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+          title: Published_at
+          description: Date when the version was published
     Permission:
       type: object
       properties:
@@ -1285,10 +2162,10 @@ components:
           format: uri
           minLength: 1
           maxLength: 1000
-          description: Url reference to OBJECTTYPE in Objecttypes API
+          description: Url reference to OBJECTTYPE
         mode:
           allOf:
-          - $ref: '#/components/schemas/ModeEnum'
+            - $ref: '#/components/schemas/ModeEnum'
           description: |-
             Permission mode
 
@@ -1305,21 +2182,21 @@ components:
           description: Fields allowed for this token in relation to objecttype versions.
             Supports only first level of the `record.data` properties
       required:
-      - mode
-      - type
+        - mode
+        - type
     Point:
       type: object
       description: GeoJSON point geometry
       externalDocs:
         url: https://tools.ietf.org/html/rfc7946#section-3.1.2
       allOf:
-      - $ref: '#/components/schemas/Geometry'
-      - type: object
-        required:
-        - coordinates
-        properties:
-          coordinates:
-            $ref: '#/components/schemas/Point2D'
+        - $ref: '#/components/schemas/Geometry'
+        - type: object
+          required:
+            - coordinates
+          properties:
+            coordinates:
+              $ref: '#/components/schemas/Point2D'
     Point2D:
       type: array
       title: Point2D
@@ -1334,17 +2211,17 @@ components:
       externalDocs:
         url: https://tools.ietf.org/html/rfc7946#section-3.1.6
       allOf:
-      - $ref: '#/components/schemas/Geometry'
-      - type: object
-        required:
-        - coordinates
-        properties:
-          coordinates:
-            type: array
-            items:
+        - $ref: '#/components/schemas/Geometry'
+        - type: object
+          required:
+            - coordinates
+          properties:
+            coordinates:
               type: array
               items:
-                $ref: '#/components/schemas/Point2D'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Point2D'
     Reference:
       type: object
       properties:
@@ -1355,23 +2232,56 @@ components:
           format: uri
           maxLength: 200
       required:
-      - type
-      - url
+        - type
+        - url
     ReferenceTypeEnum:
       enum:
-      - zaak
+        - zaak
       type: string
       description: '* `zaak` - Zaak'
+    StatusEnum:
+      enum:
+        - published
+        - draft
+        - deprecated
+      type: string
+      description: |-
+        * `published` - Published
+        * `draft` - Draft
+        * `deprecated` - Deprecated
+    UpdateFrequencyEnum:
+      enum:
+        - real_time
+        - hourly
+        - daily
+        - weekly
+        - monthly
+        - yearly
+        - unknown
+      type: string
+      description: |-
+        * `real_time` - Real-time
+        * `hourly` - Hourly
+        * `daily` - Daily
+        * `weekly` - Weekly
+        * `monthly` - Monthly
+        * `yearly` - Yearly
+        * `unknown` - Unknown
   securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: objects_sessionid
     tokenAuth:
       type: apiKey
       in: header
       name: Authorization
       description: Token-based authentication with required prefix "Token"
 servers:
-- url: /api/v2
+  - url: /api/v2
 tags:
-- name: objects
-- name: permissions
+  - name: objects
+  - name: objecttypes
+  - name: permissions
 externalDocs:
-  url: https://objects-and-objecttypes-api.readthedocs.io/
+  url: https://open-object.readthedocs.io/
