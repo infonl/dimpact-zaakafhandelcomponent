@@ -561,9 +561,7 @@
             ],
             "type": "string",
             "title": "Type",
-            "examples": [
-              "Haag"
-            ],
+            "examples": ["Haag"],
             "description": "Typering van het beheerobject."
           },
           "kiemjaar": {
@@ -1110,9 +1108,7 @@
             ],
             "type": "string",
             "title": "TypePlus",
-            "examples": [
-              "Grind Rail"
-            ],
+            "examples": ["Grind Rail"],
             "description": "Nadere typering van het type beheerobject."
           },
           "verplant": {
@@ -1132,22 +1128,14 @@
             ],
             "type": "string",
             "title": "Boombeeld",
-            "examples": [
-              "Niet van toepassing"
-            ],
+            "examples": ["Niet van toepassing"],
             "description": "Onderhoudssituatie van de boom."
           },
           "boomgroep": {
-            "enum": [
-              "Laanboom",
-              "Boomweide",
-              "Solitaire boom"
-            ],
+            "enum": ["Laanboom", "Boomweide", "Solitaire boom"],
             "type": "string",
             "title": "Boomgroep",
-            "examples": [
-              "Laanboom"
-            ],
+            "examples": ["Laanboom"],
             "description": "Aanduiding of de boom onderdeel is van een boomgroep."
           },
           "groeifase": {
@@ -1161,9 +1149,7 @@
             ],
             "type": "string",
             "title": "Groeifase",
-            "examples": [
-              "Jeugdfase"
-            ],
+            "examples": ["Jeugdfase"],
             "description": "Aanduiding van de groeifase van een boom.\nToelichting: Er is geen volledige eenduidigheid over de indeling, maar over het algemeen worden bij een boom zon 4 groeifasen onderscheiden. Het onderscheid is gebaseerd op de verschillen in beheermaatregelen."
           },
           "snoeifase": {
@@ -1175,9 +1161,7 @@
             ],
             "type": "string",
             "title": "Snoeifase",
-            "examples": [
-              "Begeleidingssnoeifase"
-            ],
+            "examples": ["Begeleidingssnoeifase"],
             "description": "Aanduiding van de snoeifase van de boom."
           },
           "boomspiegel": {
@@ -1212,9 +1196,7 @@
             ],
             "type": "string",
             "title": "VrijeTakval",
-            "examples": [
-              "Onbekend"
-            ],
+            "examples": ["Onbekend"],
             "description": "Aanduiding of vrije takval is toegestaan."
           },
           "stamdiameter": {
@@ -1236,9 +1218,7 @@
             ],
             "type": "string",
             "title": "TakvrijeStam",
-            "examples": [
-              "0 m."
-            ],
+            "examples": ["0 m."],
             "description": "De benodigde takvrije stam in het eindbeeld, gemeten vanaf maaiveld tot aan de onderste gesteltak.\nEenheid: m\nToelichting: Takvrije stam: gedeelte van de stam, gemeten vanaf maaiveld tot aan eerste gesteltak. Eindbeeld: vorm van een boom in volgroeide staat, omschreven door middel van takvrije zone en/of takvrije stam. Als synoniem wordt vaak gebruikt de opkroonhoogte: de verticaal gemeten vrije hoogte tussen maaiveld en kroon van de boom."
           },
           "verplantbaar": {
@@ -1256,9 +1236,7 @@
             ],
             "type": "string",
             "title": "Beleidsstatus",
-            "examples": [
-              "Structuurbepalend/hoofd(groen/bomen)structuur"
-            ],
+            "examples": ["Structuurbepalend/hoofd(groen/bomen)structuur"],
             "description": "Beleidsstatus is een functiecategorie bomen conform de richtlijnen NVTB, t.b.v. de bepaling van de monetaire waarde."
           },
           "boombeschermer": {
@@ -1294,9 +1272,7 @@
             ],
             "type": "string",
             "title": "BeoogdeOmlooptijd",
-            "examples": [
-              "75-100 jaar"
-            ],
+            "examples": ["75-100 jaar"],
             "description": "De potentieel haalbare omlooptijd, in relatie tot de standplaats (schatting)."
           },
           "boomhoogteactueel": {
@@ -1306,25 +1282,17 @@
             "description": "Hoogte van de boom in meters.\nEenheid: m"
           },
           "controlefrequentie": {
-            "enum": [
-              "dummyData"
-            ],
+            "enum": ["dummyData"],
             "type": "string",
             "title": "Controlefrequentie",
-            "examples": [
-              "dummyData"
-            ],
+            "examples": ["dummyData"],
             "description": "Aanduiding van de frequentie van de controle van het beheerobject.\nToelichting: \"De frequentie van de boomveiligheidscontrole. Dit is de periodieke visuele controle van een boom in het kader van de zorgplicht (voortkomend uit artikel 6:162 van het BW) ten behoeve van het vaststellen van een (potentieel toekomstig) risico dat de boom vormt voor zijn omgeving. \nDe term boomveiligheidscontrole heeft betrekking op het gehele proces om in het veld de benodigde gegevens te verkrijgen voor het logboek, zoals beschreven in de CROW Richtlijn Boomveiligheidsregistratie.\n\""
           },
           "stamdiameterklasse": {
-            "enum": [
-              "dummyData"
-            ],
+            "enum": ["dummyData"],
             "type": "string",
             "title": "Stamdiameterklasse",
-            "examples": [
-              "dummyData"
-            ],
+            "examples": ["dummyData"],
             "description": "Aanduiding van de diameter van de stam in diameterklassen."
           },
           "vrijedoorrijhoogte": {
@@ -1337,20 +1305,14 @@
             ],
             "type": "string",
             "title": "VrijeDoorrijhoogte",
-            "examples": [
-              "4,5 m. en groter"
-            ],
+            "examples": ["4,5 m. en groter"],
             "description": "De benodigde vrije ruimte tussen de weg of het fietspad, en de onderkant van de boomkroon of van een bouwwerk boven de weg, zoals een viaduct of tunnel.\nEenheid: m\nToelichting: Takvrije zone boven het wegdek en onder de kroon waar bestuurders van voertuigen vrije doorgang genieten tot een hoogte zoals is bepaald door de wegbeheerder."
           },
           "boomboomvoorziening": {
-            "enum": [
-              "dummyData"
-            ],
+            "enum": ["dummyData"],
             "type": "string",
             "title": "BoomBoomvoorziening",
-            "examples": [
-              "dummyData"
-            ],
+            "examples": ["dummyData"],
             "description": "Mogelijkheid om 1 of meerdere boomvoorzieningen bij een boom te registreren."
           },
           "monetaireboomwaarde": {
@@ -1375,9 +1337,7 @@
             ],
             "type": "string",
             "title": "Boomveiligheidsklasse",
-            "examples": [
-              "Niet te beoordelen"
-            ],
+            "examples": ["Niet te beoordelen"],
             "description": "Aanduiding van de veiligheid van de boom, ingedeeld in vaste klassen.\nToelichting: Voor bosplantsoen met boomvormers is de mate van veiligheid van het beheerobject voor de omgeving relevant. Hiervoor is nog geen landelijk vastgestelde classificatie. Boomveiligheid: Aanduiding voor de veiligheid van personen, dieren, objecten en goederen in de nabijheid van een boom."
           },
           "groeiplaatsinrichting": {
@@ -1400,35 +1360,21 @@
             ],
             "type": "string",
             "title": "TypeBeschermingsstatus",
-            "examples": [
-              "Monumentale boom"
-            ],
+            "examples": ["Monumentale boom"],
             "description": "Aanduiding voor de speciale status van de boom."
           },
           "typevermeerderingsvorm": {
-            "enum": [
-              "Veredeld",
-              "Eigen wortel",
-              "Onbekend",
-              "Gent",
-              "Gezaaid"
-            ],
+            "enum": ["Veredeld", "Eigen wortel", "Onbekend", "Gent", "Gezaaid"],
             "type": "string",
             "title": "TypeVermeerderingsvorm",
-            "examples": [
-              "Veredeld"
-            ],
+            "examples": ["Veredeld"],
             "description": "Wijze waarop de plant of boom is vermeerderd."
           },
           "boomhoogteklasseactueel": {
-            "enum": [
-              "dummyData"
-            ],
+            "enum": ["dummyData"],
             "type": "string",
             "title": "BoomhoogteklasseActueel",
-            "examples": [
-              "dummyData"
-            ],
+            "examples": ["dummyData"],
             "description": "Aanduiding van de boomhoogte in meters ingedeeld in vaste klassen.\nToelichting: Boomhoogte in meters, ingedeeld in vaste klassen,  gemeten vanaf het maaiveld tot de top van de boom, bij vormbomen gemeten tot de hoogste knot of de gewenste hoogte (Bron: RAW)"
           },
           "takvrijeruimtetotgebouw": {
@@ -1438,29 +1384,17 @@
             "description": "De benodigde takvrije ruimte tussen het gebouw en de zijkant van de boom.\nEenheid: m"
           },
           "boomhoogteklasseeindbeeld": {
-            "enum": [
-              "dummyData"
-            ],
+            "enum": ["dummyData"],
             "type": "string",
             "title": "BoomhoogteklasseEindbeeld",
-            "examples": [
-              "dummyData"
-            ],
+            "examples": ["dummyData"],
             "description": "Aanduiding van de boomhoogte van het eindbeeld, in meters ingedeeld in vaste klassen.\nToelichting: Boomhoogte in meters, ingedeeld in vaste klassen,  gemeten vanaf het maaiveld tot de top van de boom, bij vormbomen gemeten tot de hoogste knot of de gewenste hoogte (Bron: RAW)"
           },
           "typeomgevingsrisicoklasse": {
-            "enum": [
-              "Hoog",
-              "Gemiddeld",
-              "Laag",
-              "Onbekend",
-              "Geen"
-            ],
+            "enum": ["Hoog", "Gemiddeld", "Laag", "Onbekend", "Geen"],
             "type": "string",
             "title": "TypeOmgevingsrisicoklasse",
-            "examples": [
-              "Hoog"
-            ],
+            "examples": ["Hoog"],
             "description": "Aanduiding van het omgevingsrisico van het beheerobject.\nToelichting: Classificering voor de intensiteit van het gebruik van de omgeving van een boom en daarmee de mate waarin de omgeving van de boom risicoverhogend is voor eventuele schade bij stambreuk, takbreuk of instabiliteit. Aanvullende informatie: vast te stellen door de boomeigenaar."
           },
           "vrijedoorrijhoogteprimair": {
@@ -1473,20 +1407,14 @@
             ],
             "type": "string",
             "title": "VrijeDoorrijhoogtePrimair",
-            "examples": [
-              "4,5 m. en groter"
-            ],
+            "examples": ["4,5 m. en groter"],
             "description": "De benodigde vrije ruimte tussen de weg of het fietspad, en de onderkant van de boomkroon of van een bouwwerk boven de weg, zoals een viaduct. Als aan beide zijden van de boom een weg en een fietspad ligt, wordt de vrije doorrijhoogte boven de weg aangeduid met primair, en de takvrije ruimte boven het fietspad met secundair.\nEenheid: m"
           },
           "kroondiameterklasseactueel": {
-            "enum": [
-              "dummyData"
-            ],
+            "enum": ["dummyData"],
             "type": "string",
             "title": "KroondiameterklasseActueel",
-            "examples": [
-              "dummyData"
-            ],
+            "examples": ["dummyData"],
             "description": "Diameter van de kroon van de boom in meters ingedeeld in vaste klassen."
           },
           "vrijedoorrijhoogtesecundair": {
@@ -1499,31 +1427,21 @@
             ],
             "type": "string",
             "title": "VrijeDoorrijhoogteSecundair",
-            "examples": [
-              "4,5 m. en groter"
-            ],
+            "examples": ["4,5 m. en groter"],
             "description": "De benodigde vrije ruimte tussen de weg of het fietspad, en de onderkant van de boomkroon of van een bouwwerk boven de weg, zoals een viaduct. Als aan beide zijden van de boom een weg en een fietspad ligt, wordt de vrije doorrijhoogte boven de weg aangeduid met primair, en de takvrije ruimte boven het fietspad met secundair.\nEenheid: m"
           },
           "kroondiameterklasseeindbeeld": {
-            "enum": [
-              "dummyData"
-            ],
+            "enum": ["dummyData"],
             "type": "string",
             "title": "KroondiameterklasseEindbeeld",
-            "examples": [
-              "dummyData"
-            ],
+            "examples": ["dummyData"],
             "description": "Diameter van de kroon van het eindbeeld van de boom in meters ingedeeld in vaste klassen."
           },
           "boomtypebeschermingsstatusplus": {
-            "enum": [
-              "dummyData"
-            ],
+            "enum": ["dummyData"],
             "type": "string",
             "title": "BoomTypeBeschermingsstatusPlus",
-            "examples": [
-              "dummyData"
-            ],
+            "examples": ["dummyData"],
             "description": "Nadere aanduiding voor de speciale status van de boom."
           }
         },
@@ -1546,9 +1464,7 @@
         "type": "object",
         "title": "Straatverlichting",
         "$schema": "http://json-schema.org/draft-07/schema#",
-        "required": [
-          "id_nummer"
-        ],
+        "required": ["id_nummer"],
         "properties": {
           "id_nummer": {
             "type": "integer",
@@ -1573,9 +1489,7 @@
         "type": "object",
         "title": "Melding",
         "$schema": "http://json-schema.org/draft-07/schema#",
-        "required": [
-          "description"
-        ],
+        "required": ["description"],
         "properties": {
           "description": {
             "type": "string",
@@ -1610,32 +1524,22 @@
                 "title": "Naam",
                 "description": "Naam van de bron",
                 "type": "string",
-                "examples": [
-                  "Open Formulieren"
-                ]
+                "examples": ["Open Formulieren"]
               },
               "kenmerk": {
                 "title": "Kenmerk",
                 "description": "Kenmerk van de productaanvraag zoals bekend bij de bron. Bijvoorbeeld ID van de submission in Open Forms",
                 "type": "string",
-                "examples": [
-                  "a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"
-                ]
+                "examples": ["a43e84ac-e08b-4d5f-8d5c-5874c6dddf56"]
               }
             },
-            "required": [
-              "naam",
-              "kenmerk"
-            ]
+            "required": ["naam", "kenmerk"]
           },
           "type": {
             "title": "Type",
             "description": "Type productaanvraag",
             "type": "string",
-            "examples": [
-              "verhuizing",
-              "terugbelnotitie"
-            ]
+            "examples": ["verhuizing", "terugbelnotitie"]
           },
           "aanvraaggegevens": {
             "title": "Aanvraaggegevens",
@@ -1673,10 +1577,7 @@
                 "description": "Unieke identificatie van de zaak binnen de organisatie die verantwoordelijk is voor de behandeling van de zaak",
                 "type": "string",
                 "maxLength": 40,
-                "examples": [
-                  "123123",
-                  "ZAAK-2023-0000000121"
-                ]
+                "examples": ["123123", "ZAAK-2023-0000000121"]
               },
               "communicatiekanaal": {
                 "title": "Communicatiekanaal",
@@ -1692,18 +1593,14 @@
                 "description": "Korte omschrijving van de zaak",
                 "type": "string",
                 "maxLength": 80,
-                "examples": [
-                  "Verhuizing Blaak 27"
-                ]
+                "examples": ["Verhuizing Blaak 27"]
               },
               "toelichting": {
                 "title": "Toelichting",
                 "description": "Toelichting op de zaak",
                 "type": "string",
                 "maxLength": 1000,
-                "examples": [
-                  "Nieuw huis gekocht"
-                ]
+                "examples": ["Nieuw huis gekocht"]
               },
               "geometry": {
                 "title": "Geometry",
@@ -1714,9 +1611,7 @@
                     "title": "Type",
                     "description": "Geometry type",
                     "type": "string",
-                    "enum": [
-                      "Point"
-                    ]
+                    "enum": ["Point"]
                   },
                   "coordinates": {
                     "title": "Coordinates",
@@ -1727,15 +1622,10 @@
                     },
                     "minItems": 2,
                     "maxItems": 2,
-                    "examples": [
-                      "[52.36673378967122, 4.893164274470299]"
-                    ]
+                    "examples": ["[52.36673378967122, 4.893164274470299]"]
                   }
                 },
-                "required": [
-                  "type",
-                  "coordinates"
-                ]
+                "required": ["type", "coordinates"]
               }
             }
           },
@@ -1755,16 +1645,12 @@
                 "title": "Kenmerk",
                 "description": "Betalingskenmerk; Uniek kenmerk waarmee de betaling geidentificeerd kan worden",
                 "type": "string",
-                "examples": [
-                  "2022ESUITE0320"
-                ]
+                "examples": ["2022ESUITE0320"]
               },
               "bedrag": {
                 "title": "Bedrag",
                 "type": "number",
-                "examples": [
-                  19.2
-                ]
+                "examples": [19.2]
               },
               "status": {
                 "title": "Status",
@@ -1781,26 +1667,20 @@
                 "title": "Transactie ID",
                 "description": "Identificatie van de transactie uit het betaalsysteem",
                 "type": "string",
-                "examples": [
-                  "123456784"
-                ]
+                "examples": ["123456784"]
               },
               "transactiedatumtijd": {
                 "title": "Transactie datum/tijd",
                 "description": "Tijdstip waarop de transactie met het betaalsysteem heeft plaatsgevonden",
                 "type": "string",
                 "format": "date-time",
-                "examples": [
-                  "2022-03-15T22:15:30.123+01:00"
-                ]
+                "examples": ["2022-03-15T22:15:30.123+01:00"]
               },
               "statusCode": {
                 "title": "Status code",
                 "description": "Originele code van de betalingsstatus uit het betaalsysteem",
                 "type": "string",
-                "examples": [
-                  "5"
-                ]
+                "examples": ["5"]
               },
               "melding": {
                 "title": "Melding",
@@ -1808,11 +1688,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "kenmerk",
-              "bedrag",
-              "status"
-            ]
+            "required": ["kenmerk", "bedrag", "status"]
           },
           "pdf": {
             "title": "PDF",
@@ -1849,11 +1725,7 @@
           },
           "additionalProperties": true
         },
-        "required": [
-          "bron",
-          "type",
-          "aanvraaggegevens"
-        ],
+        "required": ["bron", "type", "aanvraaggegevens"],
         "examples": [
           {
             "bron": {
@@ -1942,9 +1814,7 @@
                 "type": "string",
                 "minLength": 9,
                 "maxLength": 9,
-                "examples": [
-                  "999993896"
-                ]
+                "examples": ["999993896"]
               },
               "innNnpId": {
                 "title": "Inn nnp id",
@@ -2004,10 +1874,7 @@
                 "title": "Indicatie machtiging",
                 "description": "Uitleg bij mogelijke waarden: `gemachtigde` - Betrokkene is door een andere betrokkene gemachtigd om namens hem of haar te handelen. * `machtiginggever` - Betrokkene heeft een andere betrokkene gemachtigd om namens hem of haar te handelen",
                 "type": "string",
-                "enum": [
-                  "gemachtigde",
-                  "machtiginggever"
-                ]
+                "enum": ["gemachtigde", "machtiginggever"]
               },
               "indicatieCorrespondentie": {
                 "title": "Indicatie correspondentie",
@@ -2017,58 +1884,30 @@
             },
             "oneOf": [
               {
-                "required": [
-                  "inpBsn",
-                  "rolOmschrijvingGeneriek"
-                ]
+                "required": ["inpBsn", "rolOmschrijvingGeneriek"]
               },
               {
-                "required": [
-                  "inpBsn",
-                  "roltypeOmschrijving"
-                ]
+                "required": ["inpBsn", "roltypeOmschrijving"]
               },
               {
-                "required": [
-                  "innNnpId",
-                  "rolOmschrijvingGeneriek"
-                ]
+                "required": ["innNnpId", "rolOmschrijvingGeneriek"]
               },
               {
-                "required": [
-                  "innNnpId",
-                  "roltypeOmschrijving"
-                ]
+                "required": ["innNnpId", "roltypeOmschrijving"]
               },
               {
-                "required": [
-                  "kvkNummer",
-                  "rolOmschrijvingGeneriek"
-                ],
-                "optional": [
-                  "vestigingsNummer"
-                ]
+                "required": ["kvkNummer", "rolOmschrijvingGeneriek"],
+                "optional": ["vestigingsNummer"]
               },
               {
-                "required": [
-                  "kvkNummer",
-                  "roltypeOmschrijving"
-                ],
-                "optional": [
-                  "vestigingsNummer"
-                ]
+                "required": ["kvkNummer", "roltypeOmschrijving"],
+                "optional": ["vestigingsNummer"]
               },
               {
-                "required": [
-                  "kvkNummer",
-                  "rolOmschrijvingGeneriek"
-                ]
+                "required": ["kvkNummer", "rolOmschrijvingGeneriek"]
               },
               {
-                "required": [
-                  "kvkNummer",
-                  "roltypeOmschrijving"
-                ]
+                "required": ["kvkNummer", "roltypeOmschrijving"]
               },
               {
                 "required": [
@@ -2089,10 +1928,7 @@
                 ]
               },
               {
-                "required": [
-                  "medewerkerIdentificatie",
-                  "roltypeOmschrijving"
-                ]
+                "required": ["medewerkerIdentificatie", "roltypeOmschrijving"]
               }
             ]
           }
@@ -2192,10 +2028,7 @@
             "type": "object",
             "properties": {
               "type": {
-                "enum": [
-                  "id",
-                  "object"
-                ],
+                "enum": ["id", "object"],
                 "type": "string"
               },
               "value": {
@@ -2216,58 +2049,38 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "open",
-              "ingediend",
-              "verwerkt",
-              "gesloten"
-            ]
+            "enum": ["open", "ingediend", "verwerkt", "gesloten"]
           }
         },
         "allOf": [
           {
             "anyOf": [
               {
-                "required": [
-                  "bsn"
-                ]
+                "required": ["bsn"]
               },
               {
-                "required": [
-                  "kvk"
-                ]
+                "required": ["kvk"]
               },
               {
-                "required": [
-                  "identificatie"
-                ]
+                "required": ["identificatie"]
               }
             ]
           },
           {
             "anyOf": [
               {
-                "required": [
-                  "formulier_id"
-                ]
+                "required": ["formulier_id"]
               },
               {
-                "required": [
-                  "formulier_url"
-                ]
+                "required": ["formulier_url"]
               },
               {
-                "required": [
-                  "formulier"
-                ]
+                "required": ["formulier"]
               }
             ]
           },
           {
-            "required": [
-              "verwerker_taak_id",
-              "status"
-            ]
+            "required": ["verwerker_taak_id", "status"]
           }
         ]
       },
@@ -2316,9 +2129,7 @@
             }
           }
         ],
-        "required": [
-          "formDefinition"
-        ],
+        "required": ["formDefinition"],
         "properties": {
           "formDefinition": {
             "type": "object",
@@ -2343,9 +2154,7 @@
         "type": "object",
         "title": "Tree",
         "$schema": "https://json-schema.org/draft/2020-12/schema#",
-        "required": [
-          "diameter"
-        ],
+        "required": ["diameter"],
         "properties": {
           "diameter": {
             "type": "integer",
@@ -3337,10 +3146,7 @@
           "toelichting": "fakeZaakToelichting",
           "geometry": {
             "type": "Point",
-            "coordinates": [
-              52.08968250760225,
-              5.114358701512936
-            ]
+            "coordinates": [52.08968250760225, 5.114358701512936]
           }
         },
         "betrokkenen": [
@@ -3611,10 +3417,7 @@
           "toelichting": "fakeZaakToelichting",
           "geometry": {
             "type": "Point",
-            "coordinates": [
-              52.08968250760225,
-              5.114358701512936
-            ]
+            "coordinates": [52.08968250760225, 5.114358701512936]
           }
         },
         "betrokkenen": [
