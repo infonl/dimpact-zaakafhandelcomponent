@@ -74,7 +74,7 @@ object ItestConfiguration {
     const val OBJECT_PRODUCTAANVRAAG_INBOX_ONLY_1_UUID = "b2f6c1d4-a5e7-4890-bcde-f01234567890"
     const val OBJECT_PRODUCTAANVRAAG_INBOX_ONLY_2_UUID = "c3d7e2f5-b6f8-5901-cdef-012345678901"
     const val PRODUCTAANVRAAG_TYPE_INBOX_ONLY = "inbox-only-productaanvraag-type"
-    const val OBJECTS_BASE_URI = "http://objecten-api.local:8000"
+    const val OBJECTS_BASE_URI = "http://open-object.local:8000"
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OFFICE_CONVERTER_BASE_URI = "http://office-converter:3000"
     const val OPEN_FORMULIEREN_PRODUCTAANVRAAG_FORMULIER_2_BRON_KENMERK = "dca40822-5eb3-4acc-b915-7b020041ad55"

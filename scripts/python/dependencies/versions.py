@@ -19,8 +19,7 @@ def print_versions_of_components():
     - Open Zaak             from https://github.com/open-zaak/open-zaak/tags
     - Open Klant            from https://github.com/maykinmedia/open-klant/tags
     - Open Formulieren      from https://github.com/open-formulieren/open-forms/tags
-    - Objecten API          from https://github.com/maykinmedia/objects-api/tags
-    - Object Types API      from https://github.com/maykinmedia/objecttypes-api/tags
+    - Open Object           from https://github.com/maykinmedia/open-object/tags
     - Open Inwoner          from https://github.com/maykinmedia/open-inwoner/tags
     - KISS                  from https://github.com/Klantinteractie-Servicesysteem/KISS-frontend/releases
     - Keycloak              from https://github.com/keycloak/keycloak/tags
@@ -69,15 +68,10 @@ def print_versions_of_components():
         'https://github.com/open-formulieren/open-forms/tags').get_latest_version()
     print(f'Open Formulieren latest version: {open_formulieren_latest_version}')
 
-    # Extract the latest version of Objecten API from the GitHub tags
-    open_objecten_latest_version = GitHubTagVersionExtractor(
-        'https://github.com/maykinmedia/objects-api/tags').get_latest_version()
-    print(f'Objecten API latest version: {open_objecten_latest_version}')
-
-    # Extract the latest version of Object Types API from the GitHub tags
-    open_objecttypes_latest_version = GitHubTagVersionExtractor(
-        'https://github.com/maykinmedia/objecttypes-api/tags').get_latest_version()
-    print(f'Object Types API latest version: {open_objecttypes_latest_version}')
+    # Extract the latest version of Open Object from the GitHub tags
+    open_object_latest_version = GitHubTagVersionExtractor(
+        'https://github.com/maykinmedia/open-object/tags').get_latest_version()
+    print(f'Open Object latest version: {open_object_latest_version}')
 
     # Extract the latest version of open-inwoner from the GitHub tags
     open_inwoner_latest_version = GitHubTagVersionExtractor('https://github.com/maykinmedia/open-inwoner/tags',
