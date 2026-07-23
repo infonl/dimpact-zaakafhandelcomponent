@@ -1205,8 +1205,13 @@ describe(ZaakViewComponent.name, () => {
         .spyOn(planItemsService, "listHumanTaskPlanItems")
         .mockReturnValue(
           of(
-            ["Goedkeuren", "Advies extern", "Document verzenden", "Advies intern"].map(
-              (naam) => fromPartial<GeneratedType<"RESTPlanItem">>({ naam }),
+            [
+              "Goedkeuren",
+              "Advies extern",
+              "Document verzenden",
+              "Advies intern",
+            ].map((naam) =>
+              fromPartial<GeneratedType<"RESTPlanItem">>({ naam }),
             ),
           ),
         );

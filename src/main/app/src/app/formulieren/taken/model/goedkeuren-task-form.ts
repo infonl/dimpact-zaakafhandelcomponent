@@ -37,8 +37,10 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
             zaakUUID: zaak.uuid,
           })
           .pipe(
-            map((documenten: GeneratedType<"RestEnkelvoudigInformatieobject">[]) =>
-              documenten.filter((document) => !document.ondertekening),
+            map(
+              (
+                documenten: GeneratedType<"RestEnkelvoudigInformatieobject">[],
+              ) => documenten.filter((document) => !document.ondertekening),
             ),
           ),
       },

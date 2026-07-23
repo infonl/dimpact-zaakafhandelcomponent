@@ -135,7 +135,11 @@ describe(GoedkeurenTaskForm.name, () => {
 
         const field = fields.find((f) => f.key === "relevanteDocumenten");
         const options = "options" in field! ? field.options : null;
-        const documenten = await lastValueFrom(options as Observable<unknown[]>);
+        const documenten = await lastValueFrom(
+          options as Observable<
+            GeneratedType<"RestEnkelvoudigInformatieobject">[]
+          >,
+        );
         expect(documenten).toEqual([mockDocument1, mockDocument2]);
       });
 
@@ -155,7 +159,11 @@ describe(GoedkeurenTaskForm.name, () => {
 
         const field = fields.find((f) => f.key === "relevanteDocumenten");
         const options = "options" in field! ? field.options : null;
-        const documenten = await lastValueFrom(options as Observable<unknown[]>);
+        const documenten = await lastValueFrom(
+          options as Observable<
+            GeneratedType<"RestEnkelvoudigInformatieobject">[]
+          >,
+        );
         expect(documenten).toEqual([mockDocument1, mockDocument2]);
       });
 
