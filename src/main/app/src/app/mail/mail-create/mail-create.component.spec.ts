@@ -34,7 +34,6 @@ describe(MailCreateComponent.name, () => {
   let zakenService: ZakenService;
   let informatieObjectenService: InformatieObjectenService;
   let mailtemplateService: MailtemplateService;
-  let klantenService: KlantenService;
   let utilService: UtilService;
 
   const mockSideNav = fromPartial<MatDrawer>({
@@ -91,6 +90,11 @@ describe(MailCreateComponent.name, () => {
     emailadres: "initiator@example.com",
   });
 
+  const contactDetailsQueryKey = (temporaryPersonId: string) => [
+    "/rest/klanten/contactdetails/person/{temporaryPersonId}",
+    { path: { temporaryPersonId } },
+  ];
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -115,7 +119,6 @@ describe(MailCreateComponent.name, () => {
     zakenService = TestBed.inject(ZakenService);
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
     mailtemplateService = TestBed.inject(MailtemplateService);
-    klantenService = TestBed.inject(KlantenService);
     utilService = TestBed.inject(UtilService);
     httpTestingController = TestBed.inject(HttpTestingController);
 
@@ -131,9 +134,11 @@ describe(MailCreateComponent.name, () => {
     jest
       .spyOn(mailtemplateService, "findMailtemplate")
       .mockReturnValue(of(mockMailtemplate));
-    jest
-      .spyOn(klantenService, "getContactDetailsForPerson")
-      .mockReturnValue(of(mockContactGegevens));
+
+    testQueryClient.setQueryData(
+      contactDetailsQueryKey("person-123"),
+      mockContactGegevens,
+    );
 
     fixture = TestBed.createComponent(MailCreateComponent);
     componentRef = fixture.componentRef;
@@ -175,7 +180,7 @@ describe(MailCreateComponent.name, () => {
     });
 
     it("should prioritize contact details email address when initiator has temporaryPersonId", () => {
-      expect(component["contactEmailAddress"]).toEqual(
+      expect(component["contactEmailAddress"]()).toEqual(
         mockContactGegevens.emailadres,
       );
     });
@@ -191,13 +196,14 @@ describe(MailCreateComponent.name, () => {
           zaakSpecificContactDetails: fromPartial({ emailAddress }),
         }),
       );
-      jest.mocked(klantenService.getContactDetailsForPerson).mockClear();
       localFixture.detectChanges();
 
-      expect(localFixture.componentInstance["contactEmailAddress"]).toBe(
+      expect(localFixture.componentInstance["contactEmailAddress"]()).toBe(
         emailAddress,
       );
-      expect(klantenService.getContactDetailsForPerson).not.toHaveBeenCalled();
+      httpTestingController.expectNone((request) =>
+        request.url.includes("/rest/klanten/contactdetails/person/"),
+      );
     });
 
     it("should not set contactEmailAddress when initiator has no temporaryPersonId", () => {
@@ -212,7 +218,12 @@ describe(MailCreateComponent.name, () => {
       );
       localFixture.detectChanges();
 
-      expect(localFixture.componentInstance["contactEmailAddress"]).toBeNull();
+      expect(
+        localFixture.componentInstance["contactEmailAddress"](),
+      ).toBeNull();
+      httpTestingController.expectNone((request) =>
+        request.url.includes("/rest/klanten/contactdetails/person/"),
+      );
     });
   });
 
@@ -226,11 +237,22 @@ describe(MailCreateComponent.name, () => {
     });
 
     it("should set ontvanger to null when contactEmailAddress is null", () => {
-      component["contactEmailAddress"] = null;
+      const localFixture = TestBed.createComponent(MailCreateComponent);
+      localFixture.componentRef.setInput("sideNav", mockSideNav);
+      localFixture.componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          uuid: "test-zaak-uuid",
+          initiatorIdentificatie: null,
+        }),
+      );
+      localFixture.detectChanges();
 
-      component["setOntvanger"]();
+      localFixture.componentInstance["setOntvanger"]();
 
-      expect(component["form"].controls.ontvanger.value).toBeNull();
+      expect(
+        localFixture.componentInstance["form"].controls.ontvanger.value,
+      ).toBeNull();
     });
   });
 

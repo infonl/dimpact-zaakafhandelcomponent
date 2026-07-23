@@ -625,7 +625,7 @@
   "actie.export": "Export",
   "actie.gerelateerde.gegevens.tonen": "Show related data",
   "actie.gerelateerde.gegevens.verbergen": "Hide related data",
-  "actie.initiator.email.toevoegen": "Add initiator email address",
+  "actie.contact.email.toevoegen": "Add contact email address",
   "actie.initiator.koppelen": "Assign initiator",
   "actie.initiator.wijzigen": "Change initiator",
   "actie.initiator.ontkoppelen": "Unlink initiator",

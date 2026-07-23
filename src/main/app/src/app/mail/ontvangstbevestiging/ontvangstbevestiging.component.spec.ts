@@ -39,12 +39,13 @@ describe(OntvangstbevestigingComponent.name, () => {
   let zakenService: ZakenService;
   let informatieObjectenService: InformatieObjectenService;
   let mailtemplateService: MailtemplateService;
-  let klantenService: KlantenService;
   let utilService: UtilService;
 
   const mockSideNav = fromPartial<MatDrawer>({
     close: jest.fn(),
   });
+
+  const mockTemporaryPersonId = randomUUID();
 
   const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "test-zaak-uuid",
@@ -53,7 +54,7 @@ describe(OntvangstbevestigingComponent.name, () => {
       GeneratedType<"BetrokkeneIdentificatie">
     >({
       type: "BSN",
-      temporaryPersonId: randomUUID(),
+      temporaryPersonId: mockTemporaryPersonId,
     }),
   });
 
@@ -112,6 +113,11 @@ describe(OntvangstbevestigingComponent.name, () => {
     telefoonnummer: "0612345678",
   });
 
+  const contactDetailsQueryKey = (temporaryPersonId: string) => [
+    "/rest/klanten/contactdetails/person/{temporaryPersonId}",
+    { path: { temporaryPersonId } },
+  ];
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -136,7 +142,6 @@ describe(OntvangstbevestigingComponent.name, () => {
     zakenService = TestBed.inject(ZakenService);
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
     mailtemplateService = TestBed.inject(MailtemplateService);
-    klantenService = TestBed.inject(KlantenService);
     utilService = TestBed.inject(UtilService);
     httpTestingController = TestBed.inject(HttpTestingController);
 
@@ -152,9 +157,11 @@ describe(OntvangstbevestigingComponent.name, () => {
     jest
       .spyOn(mailtemplateService, "findMailtemplate")
       .mockReturnValue(of(mockMailtemplate));
-    jest
-      .spyOn(klantenService, "getContactDetailsForPerson")
-      .mockReturnValue(of(mockContactGegevens));
+
+    testQueryClient.setQueryData(
+      contactDetailsQueryKey(mockTemporaryPersonId),
+      mockContactGegevens,
+    );
 
     fixture = TestBed.createComponent(OntvangstbevestigingComponent);
     componentRef = fixture.componentRef;
@@ -197,7 +204,7 @@ describe(OntvangstbevestigingComponent.name, () => {
     });
 
     it("should prioritize contact details email address when initiator has temporaryPersonId", () => {
-      expect(component["contactEmailAddress"]).toEqual(
+      expect(component["contactEmailAddress"]()).toEqual(
         mockContactGegevens.emailadres,
       );
     });
@@ -216,13 +223,14 @@ describe(OntvangstbevestigingComponent.name, () => {
           }),
         }),
       );
-      jest.mocked(klantenService.getContactDetailsForPerson).mockClear();
       fixture.detectChanges();
 
-      expect(fixture.componentInstance["contactEmailAddress"]).toBe(
+      expect(fixture.componentInstance["contactEmailAddress"]()).toBe(
         emailAddress,
       );
-      expect(klantenService.getContactDetailsForPerson).not.toHaveBeenCalled();
+      httpTestingController.expectNone((request) =>
+        request.url.includes("/rest/klanten/contactdetails/person/"),
+      );
     });
 
     it("should not load contact details when initiator has no temporaryPersonId", () => {
@@ -239,7 +247,10 @@ describe(OntvangstbevestigingComponent.name, () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      expect(component["contactEmailAddress"]).toBeNull();
+      expect(component["contactEmailAddress"]()).toBeNull();
+      httpTestingController.expectNone((request) =>
+        request.url.includes("/rest/klanten/contactdetails/person/"),
+      );
     });
   });
 
@@ -253,7 +264,18 @@ describe(OntvangstbevestigingComponent.name, () => {
     });
 
     it("should set ontvanger to null when contactEmailAddress is null", () => {
-      component["contactEmailAddress"] = null;
+      fixture = TestBed.createComponent(OntvangstbevestigingComponent);
+      componentRef = fixture.componentRef;
+      componentRef.setInput("sideNav", mockSideNav);
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          uuid: "test-zaak-uuid",
+          initiatorIdentificatie: null,
+        }),
+      );
+      component = fixture.componentInstance;
+      fixture.detectChanges();
 
       component["setOntvanger"]();
 
@@ -432,7 +454,17 @@ describe(OntvangstbevestigingComponent.name, () => {
     });
 
     it("is hidden when contactEmailAddress is null", async () => {
-      component["contactEmailAddress"] = null;
+      fixture = TestBed.createComponent(OntvangstbevestigingComponent);
+      componentRef = fixture.componentRef;
+      componentRef.setInput("sideNav", mockSideNav);
+      componentRef.setInput(
+        "zaak",
+        fromPartial<GeneratedType<"RestZaak">>({
+          uuid: "test-zaak-uuid",
+          initiatorIdentificatie: null,
+        }),
+      );
+      loader = TestbedHarnessEnvironment.loader(fixture);
       fixture.detectChanges();
 
       const personButtons = await loader.getAllHarnesses(
