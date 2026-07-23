@@ -60,14 +60,13 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
     );
 
     const documentsToSign = (
-      (await lastValueFrom(
+      await lastValueFrom(
         this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
           zaakUUID: taak.zaakUuid,
           informatieobjectUUIDs: relevantDocumentUUIDs,
         }),
-      )) as GeneratedType<"RestEnkelvoudigInformatieobject">[]
+      )
     ).filter((document) => !document.ondertekening);
-
     const initiallyCheckedDocuments = documentsToSign.filter((document) =>
       checkedDocuments.includes(document.uuid!),
     );
