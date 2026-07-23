@@ -10,7 +10,6 @@ import { fromPartial } from "src/test-helpers";
 import { OpenLayersLocationMap } from "./open-layers-location-map";
 
 jest.mock("ol/control.js", () => ({ defaults: jest.fn(() => []) }));
-jest.mock("ol/coordinate.js", () => ({}));
 jest.mock("ol/extent.js", () => ({
   getWidth: jest.fn(() => 0),
   getTopLeft: jest.fn(() => [0, 0]),
