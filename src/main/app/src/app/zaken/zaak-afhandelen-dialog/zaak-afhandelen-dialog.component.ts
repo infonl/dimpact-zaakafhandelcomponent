@@ -28,7 +28,7 @@ import {
 import { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
-import { KlantenService } from "../../klanten/klanten.service";
+import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -70,11 +70,13 @@ export class ZaakAfhandelenDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly zakenService = inject(ZakenService);
   private readonly mailtemplateService = inject(MailtemplateService);
-  private readonly klantenService = inject(KlantenService);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   private sendMailDefault: boolean;
+  protected readonly contactEmailAddress = injectContactEmail(
+    () => this.data.zaak,
+  );
 
   form = this.formBuilder.group({
     resultaattype:
@@ -113,18 +115,6 @@ export class ZaakAfhandelenDialogComponent {
         ),
       ),
   }));
-
-  protected readonly initiatorEmailQuery = injectQuery(() => {
-    const bsn = this.data.zaak.initiatorIdentificatie?.temporaryPersonId;
-    if (!bsn) {
-      return { queryKey: [], queryFn: () => Promise.resolve(null) };
-    }
-    return {
-      queryKey: ["initiatorEmail", bsn],
-      queryFn: () =>
-        firstValueFrom(this.klantenService.getContactDetailsForPerson(bsn)),
-    };
-  });
 
   protected readonly afsluitenMutation = injectMutation(() => ({
     ...this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", {
@@ -267,11 +257,8 @@ export class ZaakAfhandelenDialogComponent {
     });
   }
 
-  protected setInitiatorEmail() {
-    const email =
-      this.data.zaak.zaakSpecificContactDetails?.emailAddress ??
-      this.initiatorEmailQuery.data()?.emailadres;
-    this.form.controls.ontvanger.setValue(email ?? null);
+  protected setOntvanger() {
+    this.form.controls.ontvanger.setValue(this.contactEmailAddress());
   }
 
   protected openBesluitVastleggen() {
