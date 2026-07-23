@@ -27,7 +27,7 @@ import {
 import { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
-import { ContactEmailResolver } from "../../klanten/contact-email-resolver";
+import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -68,12 +68,13 @@ export class ZaakAfhandelenDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly zakenService = inject(ZakenService);
   private readonly mailtemplateService = inject(MailtemplateService);
-  private readonly contactEmailResolver = inject(ContactEmailResolver);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   private sendMailDefault: boolean;
-  protected contactEmailAddress: string | null = null;
+  protected readonly contactEmailAddress = injectContactEmail(
+    () => this.data.zaak,
+  );
 
   form = this.formBuilder.group({
     resultaattype:
@@ -140,11 +141,6 @@ export class ZaakAfhandelenDialogComponent {
         afzenders?.find((afzender) => afzender.defaultMail) ?? null,
       );
     });
-
-    this.contactEmailResolver
-      .resolve(this.data.zaak)
-      .pipe(takeUntilDestroyed())
-      .subscribe((email) => (this.contactEmailAddress = email));
 
     const zaakafhandelparameters =
       this.data.zaak.zaaktype.zaakafhandelparameters;
@@ -260,7 +256,7 @@ export class ZaakAfhandelenDialogComponent {
   }
 
   protected setOntvanger() {
-    this.form.controls.ontvanger.setValue(this.contactEmailAddress);
+    this.form.controls.ontvanger.setValue(this.contactEmailAddress());
   }
 
   protected openBesluitVastleggen() {

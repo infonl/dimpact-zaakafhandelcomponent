@@ -4,13 +4,18 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of, throwError } from "rxjs";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
@@ -24,8 +29,8 @@ describe(IntakeAfrondenDialogComponent.name, () => {
   let fixture: ComponentFixture<IntakeAfrondenDialogComponent>;
   let zakenService: ZakenService;
   let mailtemplateService: MailtemplateService;
-  let klantenService: KlantenService;
   let planItemsService: PlanItemsService;
+  let httpTestingController: HttpTestingController;
   const mockDialogRef = { close: jest.fn() };
 
   const mockPlanItem = fromPartial<GeneratedType<"RESTPlanItem">>({
@@ -90,6 +95,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
         {
           provide: MAT_DIALOG_DATA,
           useValue: { zaak, planItem: mockPlanItem },
@@ -105,8 +111,8 @@ describe(IntakeAfrondenDialogComponent.name, () => {
 
     zakenService = TestBed.inject(ZakenService);
     mailtemplateService = TestBed.inject(MailtemplateService);
-    klantenService = TestBed.inject(KlantenService);
     planItemsService = TestBed.inject(PlanItemsService);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     jest
       .spyOn(zakenService, "listAfzendersVoorZaak")
@@ -121,14 +127,27 @@ describe(IntakeAfrondenDialogComponent.name, () => {
           ? of(mockMailtemplateOntvankelijk)
           : of(mockMailtemplateNietOntvankelijk),
       );
-    jest
-      .spyOn(klantenService, "getContactDetailsForPerson")
-      .mockReturnValue(of(mockContactGegevens));
+
+    const temporaryPersonId = zaak.initiatorIdentificatie?.temporaryPersonId;
+    if (temporaryPersonId) {
+      testQueryClient.setQueryData(
+        [
+          "/rest/klanten/contactdetails/person/{temporaryPersonId}",
+          { path: { temporaryPersonId } },
+        ],
+        mockContactGegevens,
+      );
+    }
 
     fixture = TestBed.createComponent(IntakeAfrondenDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }
+
+  afterEach(() => {
+    testQueryClient.clear();
+    httpTestingController.verify();
+  });
 
   describe("mail availability", () => {
     it("mailBeschikbaar is true when intakeMail is BESCHIKBAAR_AAN", async () => {
@@ -160,12 +179,12 @@ describe(IntakeAfrondenDialogComponent.name, () => {
   describe("contactEmailAddress", () => {
     it("is set from contact details when temporaryPersonId is present", async () => {
       await setup(makeZaak("BESCHIKBAAR_AAN", "person-123"));
-      expect(component.contactEmailAddress).toBe(
+      expect(component["contactEmailAddress"]()).toBe(
         mockContactGegevens.emailadres,
       );
     });
 
-    it("is set from zaakSpecificContactDetails when available, without calling klantenService", async () => {
+    it("is set from zaakSpecificContactDetails when available, without a contact details lookup", async () => {
       const zaak = fromPartial<GeneratedType<"RestZaak">>({
         uuid: "zaak-uuid",
         zaaktype: fromPartial({
@@ -179,14 +198,18 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       });
       await setup(zaak);
 
-      expect(component.contactEmailAddress).toBe("zaak@example.com");
-      expect(klantenService.getContactDetailsForPerson).not.toHaveBeenCalled();
+      expect(component["contactEmailAddress"]()).toBe("zaak@example.com");
+      httpTestingController.expectNone((request) =>
+        request.url.includes("/rest/klanten/contactdetails/person/"),
+      );
     });
 
     it("is null when initiator has no temporaryPersonId", async () => {
       await setup(makeZaak("BESCHIKBAAR_AAN", null));
-      expect(component.contactEmailAddress).toBeNull();
-      expect(klantenService.getContactDetailsForPerson).not.toHaveBeenCalled();
+      expect(component["contactEmailAddress"]()).toBeNull();
+      httpTestingController.expectNone((request) =>
+        request.url.includes("/rest/klanten/contactdetails/person/"),
+      );
     });
   });
 
@@ -235,7 +258,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     it("sets ontvanger to contactEmailAddress", () => {
       component["setOntvanger"]();
       expect(component.formGroup.get("ontvanger")?.value).toBe(
-        component.contactEmailAddress,
+        component["contactEmailAddress"](),
       );
     });
   });

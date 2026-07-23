@@ -32,7 +32,7 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { Observable, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
-import { ContactEmailResolver } from "../../klanten/contact-email-resolver";
+import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -69,7 +69,9 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
   zaakNietOntvankelijkMail?: GeneratedType<"RESTMailtemplate">;
   mailBeschikbaar = false;
   sendMailDefault = false;
-  contactEmailAddress: string | null = null;
+  protected readonly contactEmailAddress = injectContactEmail(
+    () => this.data.zaak,
+  );
   formGroup: FormGroup;
   afzenders: Observable<GeneratedType<"RestZaakAfzender">[]>;
   private ngDestroy = new Subject<void>();
@@ -85,7 +87,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     private translateService: TranslateService,
     private planItemsService: PlanItemsService,
     private mailtemplateService: MailtemplateService,
-    private contactEmailResolver: ContactEmailResolver,
     private zakenService: ZakenService,
     private utilService: UtilService,
   ) {
@@ -106,11 +107,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     const zap = this.data.zaak.zaaktype.zaakafhandelparameters;
     this.mailBeschikbaar = zap?.intakeMail !== "NIET_BESCHIKBAAR";
     this.sendMailDefault = zap?.intakeMail === "BESCHIKBAAR_AAN";
-
-    this.contactEmailResolver
-      .resolve(this.data.zaak)
-      .pipe(takeUntil(this.ngDestroy))
-      .subscribe((email) => (this.contactEmailAddress = email));
 
     this.formGroup = this.formBuilder.group({
       ontvankelijk: [null, [Validators.required]],
@@ -160,7 +156,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
   }
 
   protected setOntvanger() {
-    this.formGroup.get("ontvanger")?.setValue(this.contactEmailAddress);
+    this.formGroup.get("ontvanger")?.setValue(this.contactEmailAddress());
   }
 
   protected close(): void {

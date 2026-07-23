@@ -38,7 +38,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   let httpTestingController: HttpTestingController;
   let zakenService: ZakenService;
   let mailtemplateService: MailtemplateService;
-  let klantenService: KlantenService;
 
   const mockDialogRef = {
     close: jest.fn(),
@@ -136,7 +135,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
     zakenService = TestBed.inject(ZakenService);
     mailtemplateService = TestBed.inject(MailtemplateService);
-    klantenService = TestBed.inject(KlantenService);
 
     jest
       .spyOn(zakenService, "listResultaattypes")
@@ -147,13 +145,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     jest
       .spyOn(mailtemplateService, "findMailtemplate")
       .mockReturnValue(of(mockMailtemplate));
-    jest.spyOn(klantenService, "getContactDetailsForPerson").mockReturnValue(
-      of(
-        fromPartial<GeneratedType<"RestContactDetails">>({
-          emailadres: "initiator@example.com",
-        }),
-      ),
-    );
 
     testQueryClient.setQueryData(
       ["resultaattypes", zaakMock.zaaktype.uuid],
@@ -164,6 +155,20 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       ["mailtemplate", zaakMock.uuid],
       mockMailtemplate,
     );
+
+    const temporaryPersonId =
+      zaakMock.initiatorIdentificatie?.temporaryPersonId;
+    if (temporaryPersonId) {
+      testQueryClient.setQueryData(
+        [
+          "/rest/klanten/contactdetails/person/{temporaryPersonId}",
+          { path: { temporaryPersonId } },
+        ],
+        fromPartial<GeneratedType<"RestContactDetails">>({
+          emailadres: "initiator@example.com",
+        }),
+      );
+    }
 
     fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);

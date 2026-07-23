@@ -16,7 +16,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { ContactEmailResolver } from "../../klanten/contact-email-resolver";
+import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -47,7 +47,6 @@ export class OntvangstbevestigingComponent implements OnInit {
   private readonly mailService = inject(MailService);
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly utilService = inject(UtilService);
-  private readonly contactEmailResolver = inject(ContactEmailResolver);
   private readonly formBuilder = inject(FormBuilder);
 
   protected readonly sideNav = input.required<MatDrawer>();
@@ -57,7 +56,7 @@ export class OntvangstbevestigingComponent implements OnInit {
 
   protected afzenders: GeneratedType<"RestZaakAfzender">[] = [];
   protected variables: GeneratedType<"MailTemplateVariables">[] = [];
-  protected contactEmailAddress: string | null = null;
+  protected readonly contactEmailAddress = injectContactEmail(this.zaak);
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
   protected readonly sendAcknowledgeReceiptMutation = injectMutation(() => ({
@@ -116,14 +115,10 @@ export class OntvangstbevestigingComponent implements OnInit {
         this.form.controls.body.setValue(mailtemplate?.body);
         this.variables = mailtemplate?.variabelen ?? [];
       });
-
-    this.contactEmailResolver
-      .resolve(this.zaak())
-      .subscribe((email) => (this.contactEmailAddress = email));
   }
 
   protected setOntvanger() {
-    this.form.controls.ontvanger.setValue(this.contactEmailAddress ?? null);
+    this.form.controls.ontvanger.setValue(this.contactEmailAddress() ?? null);
   }
 
   protected submit() {
