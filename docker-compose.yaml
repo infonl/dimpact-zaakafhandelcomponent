@@ -203,7 +203,7 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - EMAIL_HOST=localhost
       - OTEL_SDK_DISABLED=true
-      - SITE_DOMAIN=web:8000
+      - SITE_DOMAIN=open-object.local:8000
     healthcheck:
       test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
       interval: 5s
