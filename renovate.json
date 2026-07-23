@@ -14,7 +14,7 @@
     "docker:enableMajor"
   ],
   "reviewers": [
-    "team:dimpact"
+    "team:team-geneve"
   ],
   "prConcurrentLimit": 5,
   "registryAliases": {
@@ -563,7 +563,7 @@
       "matchDatasources": [
         "docker"
       ],
-      "allowedVersions": "< 3.7.0",
+      "allowedVersions": "< 4.1.0",
       "description": [
         "Pinned by the next Dimpact PodiumD release"
       ]

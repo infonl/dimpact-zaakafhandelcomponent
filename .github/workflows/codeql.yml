@@ -52,6 +52,7 @@ jobs:
                 - '!docs/**'
                 - '!src/e2e/**'
                 - '!openspec/**'
+                - '!renovate.json'
 
   analyze:
     name: Analyze

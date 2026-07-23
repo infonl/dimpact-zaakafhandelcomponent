@@ -12,7 +12,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **openpolicyagent/opa**: 1.18.2-static
 - **brp-api/personen-mock**: 2.7.0-202606230850
 - **gotenberg**: 8.34.0
-- **otel/opentelemetry-collector-contrib**: 0.156.0
+- **otel/opentelemetry-collector-contrib**: 0.157.0
 - **grafana/tempo**: 3.0.2
 - **prom/prometheus**: v3.13.1
 - **grafana/grafana**: 13.1.1
@@ -28,8 +28,8 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-forms**: 3.5.5
 - **open-notificaties**: 1.15.0
 - **open-archiefbeheer**: 2.0.0
-- **pabc-migrations**: 1.1.0
-- **pabc-api**: 1.1.0
+- **pabc-migrations**: 1.1.1
+- **pabc-api**: 1.1.1
 
 ## Update Process
 
