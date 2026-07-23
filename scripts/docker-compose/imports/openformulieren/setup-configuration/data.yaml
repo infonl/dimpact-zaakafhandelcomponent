@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
 # Open Formulieren setup configuration for local development.
 # Applied automatically by the openformulieren-init container on first start.
 # Format reference: https://github.com/open-formulieren/open-forms/blob/3.4.2/docker/setup_configuration/data.yaml
@@ -34,10 +37,11 @@ zgw_consumers:
       client_id: open-formulieren
       secret: openFormulierenOpenzaakClientSecret
 
-    # Objecten API (stores productaanvraag objects)
-    - identifier: objecten-api
-      label: Objecten API
-      api_root: http://objecten-api.local:8000/api/v2/
+    # Open Object (merged Objecten API + Objecttypen API, replacing the separate
+    # Objecttypes API service that was removed when we migrated to Open Object)
+    - identifier: open-object
+      label: Open Object
+      api_root: http://open-object.local:8000/api/v2/
       api_type: orc
       auth_type: api_key
       header_key: Authorization
@@ -59,17 +63,10 @@ zgw_consumers:
       api_type: orc
       auth_type: no_auth
 
-    # Objecttypen API — used by Open Formulieren to validate objecttypes
-    - identifier: objecttypes-api
-      label: Objecttypes API
-      api_root: http://objecttypes-api:8000/api/v2/
-      api_type: orc
-      auth_type: api_key
-      header_key: Authorization
-      header_value: Token fakeOpenFormulierenObjecttypesToken
-
 # Objects API group for the productaanvraag-Dimpact test form.
-# Uses the local objecten-api service registered above.
+# Uses the local open-object service registered above for both the objects and
+# objecttypes endpoints, since Open Object (4.0+) merged the Objects API and
+# Objecttypes API into a single service.
 # catalogue_domain / catalogue_rsin and document-type fields are omitted because
 # the v1 (verouderd/sjabloon) registration backend does not upload PDFs/CSVs.
 # ZGW API groups still require manual setup (they need catalogue_domain / catalogue_rsin
@@ -80,8 +77,8 @@ objects_api:
   groups:
     - name: Local Objects API
       identifier: local-objects-api
-      objects_service_identifier: objecten-api
-      objecttypes_service_identifier: objecttypes-api
+      objects_service_identifier: open-object
+      objecttypes_service_identifier: open-object
       documenten_service_identifier: openzaak-documenten
       catalogi_service_identifier: openzaak-catalogi
       organisatie_rsin: "002564440"

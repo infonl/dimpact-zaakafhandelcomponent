@@ -19,8 +19,7 @@
       "slug": "configuration",
       "models": [
         ["admin_index", "appgroup"],
-        ["notifications", "notificationsconfig"],
-        ["sites", "site"],
+        ["notifications_api_common", "notificationsconfig"],
         ["zgw_consumers", "service"]
       ]
     }
@@ -45,7 +44,8 @@
       "slug": "data",
       "models": [
         ["core", "object"],
-        ["core", "objecttype"]
+        ["core", "objecttype"],
+        ["core", "objecttypeversion"]
       ]
     }
   },

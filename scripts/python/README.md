@@ -35,8 +35,7 @@ Open Notificaties latest version: 1.8.0 - https://github.com/open-zaak/open-noti
 Open Zaak latest version: 1.18.0 - https://github.com/open-zaak/open-zaak/releases/tag/1.18.0
 Open Klant latest version: 2.5.0 - https://github.com/maykinmedia/open-klant/releases/tag/2.5.0
 Open Formulieren latest version: 3.1.0-alpha.1 - https://github.com/open-formulieren/open-forms/releases/tag/3.1.0-alpha.1
-Objecten API latest version: 3.0.0 - https://github.com/maykinmedia/objects-api/releases/tag/3.0.0
-Object Types API latest version: 3.0.0 - https://github.com/maykinmedia/objecttypes-api/releases/tag/3.0.0
+Open Object latest version: 4.0.2 - https://github.com/maykinmedia/open-object/releases/tag/4.0.2
 Open Inwoner latest version: 1.27.0 - https://github.com/maykinmedia/open-inwoner/releases/tag/v1.27.0
 KISS latest version: 0.6.0 - https://github.com/Klantinteractie-Servicesysteem/KISS-frontend/releases/tag/v0.6.0
 Zaakafhandelcomponent latest version: 3.2.28 - https://github.com/infonl/dimpact-zaakafhandelcomponent/releases/tag/v3.2.28

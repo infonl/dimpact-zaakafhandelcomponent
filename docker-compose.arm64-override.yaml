@@ -3,20 +3,20 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 services:
-  objecten-api.local:
-    image: ghcr.io/infonl/objects-api:3.6.2@sha256:26bcdd95872c830a57983cd5db25b170f0d1e05aed7135072c062bb4273c2094
+  open-object.local:
+    image: ghcr.io/infonl/open-object:4.0.2@sha256:2c0e566e6553cc613c757e1e2d1784a3fb4c2d1284af340e70361e2b2bde5a2f
     platform: linux/arm64
 
-  objecten-api-celery:
-    image: ghcr.io/infonl/objects-api:3.6.2@sha256:26bcdd95872c830a57983cd5db25b170f0d1e05aed7135072c062bb4273c2094
+  open-object-celery:
+    image: ghcr.io/infonl/open-object:4.0.2@sha256:2c0e566e6553cc613c757e1e2d1784a3fb4c2d1284af340e70361e2b2bde5a2f
     platform: linux/arm64
 
-  objecten-api-database:
+  open-object-database:
     image: ghcr.io/infonl/postgis:17-3.5@sha256:2380c83941035a565f03f7fd86b0878cbc6f89ed2ae00d0f11c627df573dafd7
     platform: linux/arm64
 
-  objecten-api-import:
-    image: ghcr.io/infonl/objects-api:3.6.2@sha256:26bcdd95872c830a57983cd5db25b170f0d1e05aed7135072c062bb4273c2094
+  open-object-import:
+    image: ghcr.io/infonl/open-object:4.0.2@sha256:2c0e566e6553cc613c757e1e2d1784a3fb4c2d1284af340e70361e2b2bde5a2f
     platform: linux/arm64
 
   openarchiefbeheer-database:
