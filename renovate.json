@@ -14,7 +14,7 @@
     "docker:enableMajor"
   ],
   "reviewers": [
-    "team:dimpact"
+    "team:team-geneve"
   ],
   "prConcurrentLimit": 5,
   "registryAliases": {

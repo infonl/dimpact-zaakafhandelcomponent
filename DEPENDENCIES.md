@@ -28,8 +28,8 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-forms**: 3.5.5
 - **open-notificaties**: 1.15.0
 - **open-archiefbeheer**: 2.0.0
-- **pabc-migrations**: 1.1.0
-- **pabc-api**: 1.1.0
+- **pabc-migrations**: 1.1.1
+- **pabc-api**: 1.1.1
 
 ## Update Process
 
