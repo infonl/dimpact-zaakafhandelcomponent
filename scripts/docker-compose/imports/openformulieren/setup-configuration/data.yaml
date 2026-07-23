@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
 # Open Formulieren setup configuration for local development.
 # Applied automatically by the openformulieren-init container on first start.
 # Format reference: https://github.com/open-formulieren/open-forms/blob/3.4.2/docker/setup_configuration/data.yaml
