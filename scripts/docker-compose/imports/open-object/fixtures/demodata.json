@@ -3973,24 +3973,6 @@
   },
   {
     "model": "zgw_consumers.service",
-    "pk": 1,
-    "fields": {
-      "label": "Objecttypen API",
-      "slug": "objecttypes-api",
-      "api_type": "orc",
-      "api_root": "http://objecttypes-api:8000/api/v2/",
-      "client_id": "",
-      "secret": "",
-      "auth_type": "api_key",
-      "header_key": "Authorization",
-      "header_value": "Token fakeObjectsObjecttypesToken",
-      "nlx": "",
-      "user_id": "",
-      "user_representation": ""
-    }
-  },
-  {
-    "model": "zgw_consumers.service",
     "pk": 2,
     "fields": {
       "label": "Open Notificaties",

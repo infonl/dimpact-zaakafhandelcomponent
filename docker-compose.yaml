@@ -262,19 +262,6 @@ services:
         condition: service_healthy
     profiles: [ "objecten", "itest", "openformulieren" ]
 
-# TODO
-#  objecttypes-api-import:
-#    image: maykinmedia/objecttypes-api:3.4.2@sha256:d366e6ede1bb924ea351495f4e88ceba53bb0df02fa5302929daef379131fda1
-#    platform: linux/amd64
-#    environment: *objecttypes-env
-#    command: sh init/init.sh
-#    volumes:
-#      - ./scripts/docker-compose/imports/objecttypes-api/fixtures:/app/src/objecttypes/fixtures
-#      - ./scripts/docker-compose/imports/objecttypes-api/init:/app/init
-#    depends_on:
-#      - objecttypes-api
-#    profiles: [ "openformulieren" ]
-
   solr:
     image: solr:9.10.1-slim@sha256:c45d9d93d74d6a5e996120ab7120cdfc531debbc59bd3d6a6736fe240cee9be0
     ports:
@@ -1011,13 +998,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-      objecttypes-api:
-        condition: service_started
+      objecten-api-import:
+        condition: service_completed_successfully
     profiles: [ "openformulieren" ]
 
   openformulieren-web:
     image: openformulieren/open-forms:3.5.5@sha256:086c9f6d2243af224725ba94f66b8a506686d1f09e6a2fa3e8423d47fa61d7b1
-    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    # For now, we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
     # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.
