@@ -19,6 +19,10 @@
   z-index: 10;
 }
 
+.row-detail {
+  padding: 10px 62px;
+}
+
 // rules for the columns
 :is([class^="mat-column-"], [class*=" mat-column-"]) {
   // default column behavior: shrink to the min width
@@ -34,7 +38,8 @@
   }
 
   // extra rule to shrink the action column
-  &[class*="mat-column-url"] {
+  &[class*="mat-column-url"],
+  &[class*="mat-column-select"] {
     min-width: unset;
   }
 
@@ -62,13 +67,4 @@
     width: 1%;
     min-width: @min-column-width;
   }
-}
-
-.mat-column-select {
-  width: 50px;
-  text-overflow: unset;
-}
-
-.row-detail {
-  padding: 10px 62px;
 }
