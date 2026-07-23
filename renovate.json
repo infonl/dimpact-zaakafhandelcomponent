@@ -14,7 +14,7 @@
     "docker:enableMajor"
   ],
   "reviewers": [
-    "team:dimpact"
+    "team:team-geneve"
   ],
   "prConcurrentLimit": 5,
   "registryAliases": {
@@ -71,7 +71,7 @@
       "matchStrings": [
         "version: (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+) # trivy version updated by renovate"
       ],
-      "datasourceTemplate": "github-tags",
+      "datasourceTemplate": "github-releases",
       "depNameTemplate": "aquasecurity/trivy",
       "versioningTemplate": "semver"
     },

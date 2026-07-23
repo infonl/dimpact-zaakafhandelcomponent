@@ -28,11 +28,12 @@
     />
     <zac-input [form]="form" key="ontvanger">
       <button
-        (click)="setOntvanger()"
-        *ngIf="contactEmailAddress"
+        *ngIf="contactEmailAddress()"
         type="button"
         mat-icon-button
         matSuffix
+        title="{{ 'actie.contact.email.toevoegen' | translate }}"
+        (click)="setOntvanger()"
       >
         <mat-icon>person</mat-icon>
       </button>
