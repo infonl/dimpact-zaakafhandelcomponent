@@ -71,7 +71,7 @@
       "matchStrings": [
         "version: (?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+) # trivy version updated by renovate"
       ],
-      "datasourceTemplate": "github-tags",
+      "datasourceTemplate": "github-releases",
       "depNameTemplate": "aquasecurity/trivy",
       "versioningTemplate": "semver"
     },
