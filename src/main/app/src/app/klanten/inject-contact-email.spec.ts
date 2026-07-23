@@ -29,7 +29,7 @@ class TestHostComponent {
   readonly contactEmail: Signal<string | null> = injectContactEmail(this.zaak);
 }
 
-describe("injectContactEmail", () => {
+describe(injectContactEmail.name, () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let component: TestHostComponent;
   let httpTestingController: HttpTestingController;

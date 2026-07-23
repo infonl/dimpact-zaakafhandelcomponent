@@ -254,11 +254,11 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   });
 
   describe("form validation", () => {
-    it("should disable submit button when form is invalid", () => {
-      const submitBtn = fixture.nativeElement.querySelector(
-        'button[type="submit"]',
+    it("should disable submit button when form is invalid", async () => {
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-      expect(submitBtn.disabled).toBe(true);
+      expect(await submitButton.isDisabled()).toBe(true);
     });
 
     it("should enable submit button when form is valid", async () => {
@@ -269,10 +269,10 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await options[2]?.click();
       fixture.detectChanges();
 
-      const submitBtn = fixture.nativeElement.querySelector(
-        'button[type="submit"]',
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-      expect(submitBtn.disabled).toBe(false);
+      expect(await submitButton.isDisabled()).toBe(false);
     });
 
     it("keeps the submit button disabled after a successful afhandelen", async () => {
@@ -369,10 +369,10 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await options[0]?.click();
       fixture.detectChanges();
 
-      const submitBtn = fixture.nativeElement.querySelector(
-        'button[type="submit"]',
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-      expect(submitBtn.disabled).toBe(true);
+      expect(await submitButton.isDisabled()).toBe(true);
     });
   });
 
@@ -545,12 +545,13 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       });
       await createTestBed(mockZaakWithContactNoInitiator, mockPlanItem);
 
-      const contactButton = fixture.nativeElement.querySelector(
-        'button[title="actie.contact.email.toevoegen"]',
-      ) as HTMLButtonElement | null;
-      expect(contactButton).toBeTruthy();
+      const contactButton = await loader.getHarness(
+        MatButtonHarness.with({
+          selector: '[title="actie.contact.email.toevoegen"]',
+        }),
+      );
 
-      contactButton!.click();
+      await contactButton.click();
       fixture.detectChanges();
 
       expect(fixture.componentInstance.form.controls.ontvanger.value).toBe(
