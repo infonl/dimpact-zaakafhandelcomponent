@@ -5,7 +5,7 @@
 
 import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
-import { lastValueFrom } from "rxjs";
+import { lastValueFrom, map } from "rxjs";
 import { mapStringToDocumentenStrings } from "../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
@@ -32,10 +32,15 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
       {
         type: "documents",
         key: "relevanteDocumenten",
-        options:
-          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        options: this.informatieObjectenService
+          .listEnkelvoudigInformatieobjecten({
             zaakUUID: zaak.uuid,
-          }),
+          })
+          .pipe(
+            map((documenten: GeneratedType<"RestEnkelvoudigInformatieobject">[]) =>
+              documenten.filter((document) => !document.ondertekening),
+            ),
+          ),
       },
     ];
   }
@@ -49,22 +54,28 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
     const checkedDocuments = mapStringToDocumentenStrings(
       taak.taakdata?.["ondertekenen"],
     );
+
     const relevantDocumentUUIDs = mapStringToDocumentenStrings(
       taak.taakdata?.["relevanteDocumenten"],
     );
 
-    const documentsToSign = await lastValueFrom(
-      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-        zaakUUID: taak.zaakUuid,
-        informatieobjectUUIDs: relevantDocumentUUIDs,
-      }),
+    const documentsToSign = (
+      (await lastValueFrom(
+        this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+          zaakUUID: taak.zaakUuid,
+          informatieobjectUUIDs: relevantDocumentUUIDs,
+        }),
+      )) as GeneratedType<"RestEnkelvoudigInformatieobject">[]
+    ).filter((document) => !document.ondertekening);
+
+    const initiallyCheckedDocuments = documentsToSign.filter((document) =>
+      checkedDocuments.includes(document.uuid!),
     );
-    const initiallyCheckedDocuments = documentsToSign.filter((doc) =>
-      checkedDocuments.includes(doc.uuid!),
-    );
+
     const documentsToSignControl = this.formBuilder.control(
       initiallyCheckedDocuments,
     );
+
     return [
       {
         type: "plain-text",

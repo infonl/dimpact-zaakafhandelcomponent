@@ -419,9 +419,15 @@ export class ZaakViewComponent
             this.menu.push(new HeaderMenuItem("actie.taak.starten"));
           }
           this.menu = this.menu.concat(
-            humanTaskPlanItems.map((humanTaskPlanItem) =>
-              this.createPlanItemMenuItem(humanTaskPlanItem, "assignment"),
-            ),
+            humanTaskPlanItems
+              .sort((humanTaskPlanItemA, humanTaskPlanItemB) =>
+                (humanTaskPlanItemA.naam ?? "").localeCompare(
+                  humanTaskPlanItemB.naam ?? "",
+                ),
+              )
+              .map((humanTaskPlanItem) =>
+                this.createPlanItemMenuItem(humanTaskPlanItem, "assignment"),
+              ),
           );
 
           if (processTaskPlanItems.length) {

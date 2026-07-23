@@ -142,7 +142,9 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   protected readonly toonGekoppeldeZaakDocumenten = signal(true);
 
   protected readonly documentColumns = computed(() =>
-    this.toonGekoppeldeZaakDocumenten() ? GEKOPPELDE_COLUMNS : BASE_COLUMNS,
+    this.heeftGerelateerdeZaken() && this.toonGekoppeldeZaakDocumenten()
+      ? GEKOPPELDE_COLUMNS
+      : BASE_COLUMNS,
   );
 
   private readonly documentenQuery = injectQuery(() =>

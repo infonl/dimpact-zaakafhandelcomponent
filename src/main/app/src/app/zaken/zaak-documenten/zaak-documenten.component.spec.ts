@@ -273,8 +273,8 @@ describe(ZaakDocumentenComponent.name, () => {
   });
 
   describe("gekoppelde zaak documenten columns", () => {
-    it("includes zaakIdentificatie and relatieType columns when the toggle is enabled", async () => {
-      await createComponent();
+    it("includes zaakIdentificatie and relatieType columns when there are related cases and the toggle is enabled", async () => {
+      await createComponent(fakeZaakMetRelaties);
       component["toonGekoppeldeZaakDocumenten"].set(true);
       fixture.detectChanges();
       expect(component["documentColumns"]()).toContain("zaakIdentificatie");
@@ -282,8 +282,16 @@ describe(ZaakDocumentenComponent.name, () => {
     });
 
     it("excludes zaakIdentificatie and relatieType columns when the toggle is disabled", async () => {
-      await createComponent();
+      await createComponent(fakeZaakMetRelaties);
       component["toonGekoppeldeZaakDocumenten"].set(false);
+      fixture.detectChanges();
+      expect(component["documentColumns"]()).not.toContain("zaakIdentificatie");
+      expect(component["documentColumns"]()).not.toContain("relatieType");
+    });
+
+    it("excludes zaakIdentificatie and relatieType columns when there are no related cases, even if the toggle signal is enabled", async () => {
+      await createComponent();
+      component["toonGekoppeldeZaakDocumenten"].set(true);
       fixture.detectChanges();
       expect(component["documentColumns"]()).not.toContain("zaakIdentificatie");
       expect(component["documentColumns"]()).not.toContain("relatieType");

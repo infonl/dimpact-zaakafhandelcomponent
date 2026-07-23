@@ -296,6 +296,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
         (this.parameters
           .humanTaskParameters as GeneratedType<"RESTHumanTaskParameters">[]) ??
         [];
+      this.sortHumanTaskParametersByName();
 
       forkJoin([
         zaakafhandelParametersService.listFormulierDefinities(),
@@ -373,7 +374,16 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
           actief: true,
         });
       });
+    this.sortHumanTaskParametersByName();
     this.createHumanTasksForm();
+  }
+
+  private sortHumanTaskParametersByName() {
+    this.humanTaskParameters.sort((humanTaskParameterA, humanTaskParameterB) =>
+      (humanTaskParameterA.planItemDefinition?.naam ?? "").localeCompare(
+        humanTaskParameterB.planItemDefinition?.naam ?? "",
+      ),
+    );
   }
 
   private async readUserEventListenerParameters(

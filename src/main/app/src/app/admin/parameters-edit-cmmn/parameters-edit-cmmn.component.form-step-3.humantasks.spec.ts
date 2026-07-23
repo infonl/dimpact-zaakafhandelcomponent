@@ -38,6 +38,28 @@ describe("Human tasks form step", () => {
       formulierDefinitieId: undefined,
       referentieTabellen: [],
     }),
+    fromPartial<GeneratedType<"RESTHumanTaskParameters">>({
+      planItemDefinition: {
+        id: "task-3",
+        naam: "Verlenging aanvragen",
+        type: "HUMAN_TASK",
+      },
+      actief: true,
+      doorlooptijd: 5,
+      formulierDefinitieId: undefined,
+      referentieTabellen: [],
+    }),
+    fromPartial<GeneratedType<"RESTHumanTaskParameters">>({
+      planItemDefinition: {
+        id: "task-2",
+        naam: "Uitstel aanvragen",
+        type: "HUMAN_TASK",
+      },
+      actief: true,
+      doorlooptijd: 5,
+      formulierDefinitieId: undefined,
+      referentieTabellen: [],
+    }),
   ];
 
   const zaakafhandelParameters = fromPartial<
@@ -183,6 +205,18 @@ describe("Human tasks form step", () => {
     fixture = TestBed.createComponent(ParametersEditCmmnComponent);
     await fixture.whenStable();
     fixture.detectChanges();
+  });
+
+  it("should sort humanTaskParameters alphabetically by their name", () => {
+    const component = fixture.componentInstance;
+    const names = component["humanTaskParameters"].map(
+      (humanTaskParameter) => humanTaskParameter.planItemDefinition?.naam,
+    );
+    expect(names).toEqual([
+      "Taak 1",
+      "Uitstel aanvragen",
+      "Verlenging aanvragen",
+    ]);
   });
 
   it("should create a form group for each humanTaskParameter", () => {
