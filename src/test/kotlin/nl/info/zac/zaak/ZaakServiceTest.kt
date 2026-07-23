@@ -45,10 +45,13 @@ import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
+import nl.info.client.zgw.ztc.model.createEigenschap
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.authentication.createLoggedInUser
@@ -1292,7 +1295,7 @@ class ZaakServiceTest : BehaviorSpec({
     }
 
     context("Listing result types for a zaaktype") {
-        given("a zaak with result types") {
+        given("a zaak with result types that do not derive their date from an eigenschap") {
             val zaak = createZaak()
             val zaaktypeUuid = zaak.zaaktype.extractUuid()
             val zaakType = createZaakType()
@@ -1303,18 +1306,89 @@ class ZaakServiceTest : BehaviorSpec({
 
             every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
             every { ztcClientService.readResultaattypen(zaakType.url) } returns resultTypes
+            every { ztcClientService.readEigenschappen(zaakType.url) } returns emptyList()
 
             `when`("list of zaak result types is requested") {
                 val resultTypeData = zaakService.listResultTypes(zaaktypeUuid)
 
-                then("correct result type data is returned") {
+                then("correct result type data is returned without a datumkenmerk omschrijving") {
                     resultTypeData shouldHaveSize 2
                     with(resultTypeData.first()) {
                         naam shouldBe "first"
+                        datumKenmerkOmschrijving shouldBe null
                     }
                     with(resultTypeData.last()) {
                         naam shouldBe "second"
+                        datumKenmerkOmschrijving shouldBe null
                     }
+                }
+            }
+        }
+
+        given(
+            """a zaak with a result type that derives its date from an eigenschap
+            matching one of the zaaktype's eigenschappen"""
+        ) {
+            val zaak = createZaak()
+            val zaaktypeUuid = zaak.zaaktype.extractUuid()
+            val zaakType = createZaakType()
+            val matchingEigenschap = createEigenschap(
+                naam = "fakeDatumkenmerk",
+                definitie = "fakeEigenschapDefinitie",
+                zaaktype = zaakType.url
+            )
+            val resultType = createResultaatType(
+                omschrijving = "fakeResultaatTypeOmschrijving",
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP,
+                    datumkenmerk = "fakeDatumkenmerk"
+                )
+            )
+
+            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
+            every { ztcClientService.readResultaattypen(zaakType.url) } returns listOf(resultType)
+            every { ztcClientService.readEigenschappen(zaakType.url) } returns listOf(matchingEigenschap)
+
+            `when`("list of zaak result types is requested") {
+                val resultTypeData = zaakService.listResultTypes(zaaktypeUuid)
+
+                then("the datumkenmerk omschrijving is taken from the matching eigenschap's definitie") {
+                    resultTypeData shouldHaveSize 1
+                    resultTypeData.first().datumKenmerkOmschrijving shouldBe "fakeEigenschapDefinitie"
+                }
+            }
+        }
+
+        given(
+            """a zaak with a result type that derives its date from an eigenschap
+            not matching any of the zaaktype's eigenschappen"""
+        ) {
+            val zaak = createZaak()
+            val zaaktypeUuid = zaak.zaaktype.extractUuid()
+            val zaakType = createZaakType()
+            val nonMatchingEigenschap = createEigenschap(
+                naam = "fakeOtherDatumkenmerk",
+                definitie = "fakeEigenschapDefinitie",
+                zaaktype = zaakType.url
+            )
+            val resultType = createResultaatType(
+                omschrijving = "fakeResultaatTypeOmschrijving",
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP,
+                    datumkenmerk = "fakeDatumkenmerk"
+                )
+            )
+
+            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
+            every { ztcClientService.readResultaattypen(zaakType.url) } returns listOf(resultType)
+            every { ztcClientService.readEigenschappen(zaakType.url) } returns listOf(nonMatchingEigenschap)
+
+            `when`("list of zaak result types is requested") {
+                val resultTypeData = zaakService.listResultTypes(zaaktypeUuid)
+
+                then("no datumkenmerk omschrijving is set") {
+                    resultTypeData shouldHaveSize 1
+                    resultTypeData.first().datumKenmerkOmschrijving shouldBe null
                 }
             }
         }

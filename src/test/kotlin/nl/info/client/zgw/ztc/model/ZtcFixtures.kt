@@ -9,6 +9,7 @@ import nl.info.client.zgw.ztc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.ztc.model.generated.BesluitType
 import nl.info.client.zgw.ztc.model.generated.BrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.generated.Catalogus
+import nl.info.client.zgw.ztc.model.generated.Eigenschap
 import nl.info.client.zgw.ztc.model.generated.InformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.ReferentieProces
@@ -63,6 +64,16 @@ fun createBrondatumArchiefprocedure(
 ) = BrondatumArchiefprocedure().apply {
     this.afleidingswijze = afleidingswijze
     this.datumkenmerk = datumkenmerk
+}
+
+fun createEigenschap(
+    naam: String = "fakeNaam",
+    definitie: String? = "fakeDefinitie",
+    zaaktype: URI = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
+) = Eigenschap().apply {
+    this.naam = naam
+    this.definitie = definitie
+    this.zaaktype = zaaktype
 }
 
 fun createCatalogus(
