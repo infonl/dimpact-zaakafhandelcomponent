@@ -40,7 +40,7 @@ vng_api_common_credentials:
     # Credentials for Open Notificaties, required for autorisaties subscription
     - identifier: open-notificaties
       secret: opennotificatiesAutorisatieApiSecret
-    # Credentials for Objects API (objecten-api) to send notifications
+    # Credentials for Open Object (open-object) to send notifications
     - identifier: objectsapi
       secret: opennotificatiesObjectsSecret
 
@@ -99,7 +99,7 @@ notifications_kanalen_config:
         - verantwoordelijke_organisatie
         - besluittype
     - naam: objecten
-      documentatie_link: http://objecten-api.local:8000/ref/kanalen/#/objecten
+      documentatie_link: http://open-object.local:8000/ref/kanalen/#/objecten
       filters:
         - object_type
 

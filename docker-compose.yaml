@@ -182,15 +182,15 @@ services:
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
-  objecten-api.local:
+  open-object.local:
     image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
     platform: linux/amd64
     ports:
       - "8010:8000"
-    environment: &objects-env
+    environment: &open-object-env
       - ALLOWED_HOSTS="*"
       - CORS_ALLOW_ALL_ORIGINS=true
-      - DB_HOST=objecten-api-database
+      - DB_HOST=open-object-database
       - DEBUG=true
       - DISABLE_2FA=true
       - DJANGO_SETTINGS_MODULE=objects.conf.docker
@@ -210,14 +210,14 @@ services:
       timeout: 10s
       retries: 10
     depends_on:
-      objecten-api-database:
+      open-object-database:
         condition: service_healthy
     profiles: [ "objecten", "itest", "openformulieren" ]
 
-  objecten-api-celery:
+  open-object-celery:
     image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
     platform: linux/amd64
-    environment: *objects-env
+    environment: *open-object-env
     command: sh -c "cd /app/src && celery -A objects worker -l info"
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
@@ -226,13 +226,13 @@ services:
       retries: 3
       start_period: 10s
     depends_on:
-      objecten-api.local:
+      open-object.local:
         condition: service_healthy
       redis:
         condition: service_started
     profiles: [ "objecten", "itest", "openformulieren" ]
 
-  objecten-api-database:
+  open-object-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
     platform: linux/amd64
     ports:
@@ -248,17 +248,17 @@ services:
       - POSTGRES_DB=objects
     profiles: [ "objecten", "itest", "openformulieren" ]
 
-  objecten-api-import:
+  open-object-import:
     image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
     platform: linux/amd64
-    environment: *objects-env
+    environment: *open-object-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
     command: sh init/init.sh
     volumes:
       - ./scripts/docker-compose/imports/open-object/fixtures:/app/src/objects/fixtures
       - ./scripts/docker-compose/imports/open-object/init:/app/init
     depends_on:
-      objecten-api.local:
+      open-object.local:
         condition: service_healthy
     profiles: [ "objecten", "itest", "openformulieren" ]
 
@@ -813,7 +813,7 @@ services:
       - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-fakeKvkApiUrl}
       - KVK_API_KEY=${KVK_API_KEY:-fakeKvkApiKey}
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:3000
-      - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
+      - OBJECTS_API_CLIENT_MP_REST_URL=http://open-object.local:8000
       - OBJECTS_API_TOKEN=fakeZacObjectsToken
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
       - OPEN_FORMS_URL=http://localhost:9999 # fake for now
@@ -998,7 +998,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-      objecten-api-import:
+      open-object-import:
         condition: service_completed_successfully
     profiles: [ "openformulieren" ]
 

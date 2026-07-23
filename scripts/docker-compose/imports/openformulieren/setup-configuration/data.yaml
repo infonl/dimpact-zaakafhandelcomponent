@@ -36,9 +36,9 @@ zgw_consumers:
 
     # Open Object (merged Objecten API + Objecttypen API, replacing the separate
     # Objecttypes API service that was removed when we migrated to Open Object)
-    - identifier: objecten-api
-      label: Objecten API
-      api_root: http://objecten-api.local:8000/api/v2/
+    - identifier: open-object
+      label: Open Object
+      api_root: http://open-object.local:8000/api/v2/
       api_type: orc
       auth_type: api_key
       header_key: Authorization
@@ -61,7 +61,7 @@ zgw_consumers:
       auth_type: no_auth
 
 # Objects API group for the productaanvraag-Dimpact test form.
-# Uses the local objecten-api service registered above for both the objects and
+# Uses the local open-object service registered above for both the objects and
 # objecttypes endpoints, since Open Object (4.0+) merged the Objects API and
 # Objecttypes API into a single service.
 # catalogue_domain / catalogue_rsin and document-type fields are omitted because
@@ -74,8 +74,8 @@ objects_api:
   groups:
     - name: Local Objects API
       identifier: local-objects-api
-      objects_service_identifier: objecten-api
-      objecttypes_service_identifier: objecten-api
+      objects_service_identifier: open-object
+      objecttypes_service_identifier: open-object
       documenten_service_identifier: openzaak-documenten
       catalogi_service_identifier: openzaak-catalogi
       organisatie_rsin: "002564440"

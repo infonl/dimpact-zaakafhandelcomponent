@@ -46,12 +46,12 @@ Open Formulieren services SHALL use the existing `redis` service (already in the
 - **WHEN** `docker compose --profile openformulieren up` is run
 - **THEN** no new Redis container is created; the existing `redis` container serves Open Formulieren
 
-### Requirement: Open Formulieren integrates with Objecten API
-Open Formulieren's environment SHALL be configured with the Objecten API URL (`http://objecten-api.local:8000`) and an API token so the Objects registration plugin can write productaanvraag objects. The `objecten-api.local` service (from the `objecten` profile) SHALL be referenced as a dependency in the init container.
+### Requirement: Open Formulieren integrates with Open Object
+Open Formulieren's environment SHALL be configured with the Open Object URL (`http://open-object.local:8000`) and an API token so the Objects registration plugin can write productaanvraag objects. The `open-object.local` service (from the `objecten` profile) SHALL be referenced as a dependency in the init container.
 
-#### Scenario: Objects registration plugin can reach Objecten API
+#### Scenario: Objects registration plugin can reach Open Object
 - **WHEN** both `openformulieren` and `objecten` profiles are running
-- **THEN** Open Formulieren can write objects to Objecten API using the configured token
+- **THEN** Open Formulieren can write objects to Open Object using the configured token
 
 ### Requirement: Open Formulieren integrates with Open Zaak
 Open Formulieren's environment SHALL be configured with the Open Zaak API URL (via `http://openzaak-nginx:8000`) and ZGW API credentials so the ZGW registration plugin can create zaken.

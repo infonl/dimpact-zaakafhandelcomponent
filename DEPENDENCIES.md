@@ -23,7 +23,7 @@ This document lists the Docker images and versions that the corresponding versio
 ## Common Ground components
 
 - **open-zaak**: 1.29.1
-- **objects-api**: 3.6.2
+- **open-object**: 4.0.2
 - **open-klant**: 2.15.0
 - **open-forms**: 3.5.5
 - **open-notificaties**: 1.15.0
