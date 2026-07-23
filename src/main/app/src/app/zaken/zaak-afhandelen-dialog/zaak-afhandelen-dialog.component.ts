@@ -74,6 +74,8 @@ export class ZaakAfhandelenDialogComponent {
 
   private sendMailDefault: boolean;
 
+  protected brondatumEigenschapLabel?: string | null;
+
   form = this.formBuilder.group({
     resultaattype:
       this.formBuilder.control<GeneratedType<"RestResultaattype"> | null>(null),
@@ -205,6 +207,7 @@ export class ZaakAfhandelenDialogComponent {
           this.form.controls.brondatumEigenschap.addValidators([
             Validators.required,
           ]);
+          this.brondatumEigenschapLabel = value?.datumKenmerkOmschrijving;
         } else {
           this.form.controls.brondatumEigenschap.removeValidators([
             Validators.required,
