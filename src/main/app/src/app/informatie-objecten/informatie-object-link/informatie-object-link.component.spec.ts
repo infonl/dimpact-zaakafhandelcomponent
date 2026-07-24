@@ -15,7 +15,7 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { Response } from "../../shared/http/http-client";
@@ -252,6 +252,26 @@ describe(InformatieObjectLinkComponent.name, () => {
     component["selectCase"](selectableCase);
 
     expect(emitSpy).toHaveBeenCalled();
+  });
+
+  it("should not fire a second link while one is already in progress", () => {
+    // A cold subject that never emits keeps the first link in flight.
+    const linkSpy = jest
+      .spyOn(informatieObjectenService, "linkDocumentToCase")
+      .mockReturnValue(
+        new Subject() as ReturnType<
+          typeof informatieObjectenService.linkDocumentToCase
+        >,
+      );
+    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
+    fixture.detectChanges();
+    const selectableCase = mockCaseLinkSearchResult.resultaten![0];
+
+    component["selectCase"](selectableCase);
+    component["selectCase"](selectableCase);
+
+    expect(linkSpy).toHaveBeenCalledTimes(1);
+    expect(component["isLinking"](selectableCase)).toBe(true);
   });
 
   it("should disable row when case is not koppelbaar", () => {
