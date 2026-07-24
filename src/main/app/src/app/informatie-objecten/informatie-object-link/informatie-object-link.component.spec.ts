@@ -32,7 +32,6 @@ import {
   LINKABLE_ZAKEN_PAGINATION_SIZE,
   ZoekenService,
 } from "../../zoeken/zoeken.service";
-import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieObjectLinkComponent } from "./informatie-object-link.component";
 
 describe(InformatieObjectLinkComponent.name, () => {
