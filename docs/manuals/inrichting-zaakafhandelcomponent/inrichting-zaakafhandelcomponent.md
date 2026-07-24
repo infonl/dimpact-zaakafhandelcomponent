@@ -286,7 +286,7 @@ Een systeem- of zelf toegevoegde referentietabel kan als volgt bewerkt worden.
 Stappen:
 1. In het Beheer-instellingen menu kies je ‘Referentietabellen’
 ![image](images/referentietabellen1.png)
-2. Om een tabel toe te voegen klik op ‘Referentietabel toevoegen’
+2. Om een tabel toe te voegen klik je op ‘Referentietabel toevoegen’
 3. Open de tabel door op het potlood icoon te klikken
 4. Om een waarde te bewerken open je de tabel en klik je op het potlood naast de waarde. Pas de waarde in het veld aan en klik op het vink icoon om deze op te slaan. Als je wilt annuleren klik je op het kruis en blijft de oude waarde bewaard.
 ![image](images/referentietabellen2.png)
