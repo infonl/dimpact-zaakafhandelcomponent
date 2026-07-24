@@ -13,11 +13,13 @@ import { MatSort } from "@angular/material/sort";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { testQueryClient } from "../../../../setupJest";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list.component";
 
@@ -55,6 +57,7 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
       ],
       providers: [
         provideHttpClient(),
+        provideQueryClient(testQueryClient),
         provideRouter([]),
         {
           provide: ActivatedRoute,

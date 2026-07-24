@@ -285,12 +285,9 @@ export class InformatieObjectenService {
     );
   }
 
-  linkDocumentToCase(
-    body: PostBody<"/rest/informatieobjecten/informatieobject/verplaats">,
-  ) {
-    return this.zacHttpClient.POST(
+  linkDocumentToCaseMutation() {
+    return this.zacQueryClient.POST(
       "/rest/informatieobjecten/informatieobject/verplaats",
-      body,
     );
   }
 
