@@ -10,9 +10,9 @@
     }}</mat-card-title>
     <mat-slide-toggle
       *ngIf="heeftGerelateerdeZaken()"
-      [checked]="toonGekoppeldeZaakDocumenten()"
+      [checked]="linkedDocumentsEnabled()"
       [disabled]="isLoadingResults()"
-      (change)="toonGekoppeldeZaakDocumenten.set($event.checked)"
+      (change)="linkedDocumentsEnabled.set($event.checked)"
       color="primary"
       class="flex-row"
       id="gekoppeldeZaakDocumentenToon_toggle"

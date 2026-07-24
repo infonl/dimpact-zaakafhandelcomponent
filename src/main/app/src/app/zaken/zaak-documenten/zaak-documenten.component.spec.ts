@@ -114,12 +114,21 @@ describe(ZaakDocumentenComponent.name, () => {
       );
     });
 
-    it("requests gekoppelde zaak documents on load because the toggle defaults to true", async () => {
-      await createComponent();
+    it("requests gekoppelde zaak documents on load when the case has related cases and the toggle defaults to true", async () => {
+      await createComponent(fakeZaakMetRelaties);
       expect(
         informatieObjectenService.listEnkelvoudigInformatieobjecten,
       ).toHaveBeenCalledWith(
         expect.objectContaining({ gekoppeldeZaakDocumenten: true }),
+      );
+    });
+
+    it("does NOT request gekoppelde zaak documents on load when the case has no related cases, even though the toggle defaults to true", async () => {
+      await createComponent();
+      expect(
+        informatieObjectenService.listEnkelvoudigInformatieobjecten,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ gekoppeldeZaakDocumenten: false }),
       );
     });
   });
@@ -265,7 +274,8 @@ describe(ZaakDocumentenComponent.name, () => {
   describe("loading state", () => {
     it("shows the no-data message once loading has finished and the table is empty", async () => {
       // Seed the cache so the query mounts with fresh (empty) data and is not fetching.
-      testQueryClient.setQueryData([LIST_QUERY_KEY, "zaak-uuid-1", true], []);
+      // The default zaak has no related cases, so the query key uses gekoppeldeZaakDocumenten: false.
+      testQueryClient.setQueryData([LIST_QUERY_KEY, "zaak-uuid-1", false], []);
       await createComponent();
       const text = fixture.nativeElement.textContent;
       expect(text).toContain("msg.geen.gegevens.gevonden");
@@ -275,7 +285,7 @@ describe(ZaakDocumentenComponent.name, () => {
   describe("gekoppelde zaak documenten columns", () => {
     it("includes zaakIdentificatie and relatieType columns when there are related cases and the toggle is enabled", async () => {
       await createComponent(fakeZaakMetRelaties);
-      component["toonGekoppeldeZaakDocumenten"].set(true);
+      component["linkedDocumentsEnabled"].set(true);
       fixture.detectChanges();
       expect(component["documentColumns"]()).toContain("zaakIdentificatie");
       expect(component["documentColumns"]()).toContain("relatieType");
@@ -283,7 +293,7 @@ describe(ZaakDocumentenComponent.name, () => {
 
     it("excludes zaakIdentificatie and relatieType columns when the toggle is disabled", async () => {
       await createComponent(fakeZaakMetRelaties);
-      component["toonGekoppeldeZaakDocumenten"].set(false);
+      component["linkedDocumentsEnabled"].set(false);
       fixture.detectChanges();
       expect(component["documentColumns"]()).not.toContain("zaakIdentificatie");
       expect(component["documentColumns"]()).not.toContain("relatieType");
@@ -291,17 +301,17 @@ describe(ZaakDocumentenComponent.name, () => {
 
     it("excludes zaakIdentificatie and relatieType columns when there are no related cases, even if the toggle signal is enabled", async () => {
       await createComponent();
-      component["toonGekoppeldeZaakDocumenten"].set(true);
+      component["linkedDocumentsEnabled"].set(true);
       fixture.detectChanges();
       expect(component["documentColumns"]()).not.toContain("zaakIdentificatie");
       expect(component["documentColumns"]()).not.toContain("relatieType");
     });
 
     it("reloads documents with the new filter when the toggle changes", async () => {
-      await createComponent();
+      await createComponent(fakeZaakMetRelaties);
       jest.clearAllMocks();
 
-      component["toonGekoppeldeZaakDocumenten"].set(false);
+      component["linkedDocumentsEnabled"].set(false);
       fixture.detectChanges();
       await fixture.whenStable();
 
