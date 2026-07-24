@@ -41,7 +41,6 @@ describe(InformatieObjectLinkComponent.name, () => {
   let fixture: ComponentFixture<typeof component>;
   let loader: HarnessLoader;
   let zoekenService: ZoekenService;
-  let informatieObjectenService: InformatieObjectenService;
   let utilService: UtilService;
   let translateService: TranslateService;
   let httpTestingController: HttpTestingController;
@@ -121,7 +120,6 @@ describe(InformatieObjectLinkComponent.name, () => {
     }).compileComponents();
 
     zoekenService = TestBed.inject(ZoekenService);
-    informatieObjectenService = TestBed.inject(InformatieObjectenService);
     utilService = TestBed.inject(UtilService);
     translateService = TestBed.inject(TranslateService);
     httpTestingController = TestBed.inject(HttpTestingController);
