@@ -71,7 +71,6 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
 
   protected intro = "";
   protected loading = false;
-  protected linkingRowId: string | null = null;
 
   protected actionIcon!: string;
 
@@ -154,7 +153,6 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     if (this.linkDocumentMutation.isPending()) return;
 
-    this.linkingRowId = row.identificatie ?? null;
     this.linkDocumentMutation.mutate(
       {
         documentUUID: this.getDocumentUUID(),
@@ -176,7 +174,6 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
           this.informationObjectLinked.emit();
         },
         onError: () => {
-          this.linkingRowId = null;
           this.loading = false;
           this.utilService.setLoading(false);
         },
@@ -185,7 +182,10 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
   }
 
   protected isLinking(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
-    return this.linkingRowId === row.identificatie;
+    return (
+      this.linkDocumentMutation.isPending() &&
+      this.linkDocumentMutation.variables()?.nieuweZaakID === row.identificatie
+    );
   }
 
   private getDocumentUUID(): string {
@@ -208,7 +208,6 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
   }
 
   protected reset() {
-    this.linkingRowId = null;
     this.form.reset();
     this.cases.data = [];
     this.totalCases = 0;

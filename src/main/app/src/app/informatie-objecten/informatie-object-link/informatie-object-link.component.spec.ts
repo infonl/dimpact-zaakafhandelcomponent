@@ -274,9 +274,11 @@ describe(InformatieObjectLinkComponent.name, () => {
     component["selectCase"](selectableCase);
     await new Promise(requestAnimationFrame);
 
-    // Leave the first request pending so the mutation stays in-flight.
     const request = httpTestingController.expectOne(linkUrl);
     expect(component["isLinking"](selectableCase)).toBe(true);
+    expect(
+      component["isLinking"](mockCaseLinkSearchResult.resultaten![1]),
+    ).toBe(false);
 
     component["selectCase"](selectableCase);
     await new Promise(requestAnimationFrame);
