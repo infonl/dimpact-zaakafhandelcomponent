@@ -44,6 +44,10 @@ describe(InformatieObjectLinkComponent.name, () => {
   let translateService: TranslateService;
   let httpTestingController: HttpTestingController;
 
+  afterEach(() => {
+    httpTestingController.verify();
+  });
+
   const mockSideNav = fromPartial<MatDrawer>({
     close: jest.fn().mockReturnValue(Promise.resolve()),
   });
