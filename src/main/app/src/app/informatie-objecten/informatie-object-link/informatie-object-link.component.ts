@@ -173,10 +173,6 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
           this.close();
           this.informationObjectLinked.emit();
         },
-        onError: () => {
-          this.loading = false;
-          this.utilService.setLoading(false);
-        },
       },
     );
   }

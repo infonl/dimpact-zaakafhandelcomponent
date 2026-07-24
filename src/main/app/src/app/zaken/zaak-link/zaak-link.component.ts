@@ -27,6 +27,7 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete";
@@ -80,6 +81,10 @@ export class ZaakLinkComponent implements OnDestroy {
   private readonly zakenService = inject(ZakenService);
   private readonly utilService = inject(UtilService);
 
+  protected readonly koppelZaakMutation = injectMutation(() =>
+    this.zakenService.koppelZaakMutation(),
+  );
+
   private ngDestroy = new Subject<void>();
 
   protected cases = new MatTableDataSource<
@@ -94,7 +99,6 @@ export class ZaakLinkComponent implements OnDestroy {
     "acties",
   ] as const;
   protected loading = false;
-  protected linkingRowId: string | null = null;
 
   protected caseRelationOptionsList = [
     caseRelationOption("DEELZAAK"),
@@ -173,30 +177,25 @@ export class ZaakLinkComponent implements OnDestroy {
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
-    if (this.linkingRowId) return;
+    if (this.koppelZaakMutation.isPending()) return;
     if (!row.id || !this.form.controls.caseRelationType.value?.value) return;
 
-    this.linkingRowId = row.id;
-    const caseLinkDetails: GeneratedType<"RestZaakLinkData"> = {
-      zaakUuid: this.zaak.uuid,
-      teKoppelenZaakUuid: row.id,
-      relatieType: this.form.controls.caseRelationType.value.value,
-    };
-
-    this.zakenService.koppelZaak(caseLinkDetails).subscribe({
-      next: () => {
-        this.utilService.openSnackbar("msg.zaak.gekoppeld", {
-          case: row.identificatie,
-        });
-        this.zaakLinked.emit();
-        this.close();
+    this.koppelZaakMutation.mutate(
+      {
+        zaakUuid: this.zaak.uuid,
+        teKoppelenZaakUuid: row.id,
+        relatieType: this.form.controls.caseRelationType.value.value,
       },
-      error: () => {
-        this.loading = false;
-        this.linkingRowId = null;
-        this.utilService.setLoading(false);
+      {
+        onSuccess: () => {
+          this.utilService.openSnackbar("msg.zaak.gekoppeld", {
+            case: row.identificatie,
+          });
+          this.zaakLinked.emit();
+          this.close();
+        },
       },
-    });
+    );
   }
 
   protected rowDisabled(
@@ -208,7 +207,10 @@ export class ZaakLinkComponent implements OnDestroy {
   protected isLinking(
     row: GeneratedType<"RestZaakKoppelenZoekObject">,
   ): boolean {
-    return this.linkingRowId === row.id;
+    return (
+      this.koppelZaakMutation.isPending() &&
+      this.koppelZaakMutation.variables()?.teKoppelenZaakUuid === row.id
+    );
   }
 
   protected close() {
@@ -217,7 +219,6 @@ export class ZaakLinkComponent implements OnDestroy {
   }
 
   protected reset() {
-    this.linkingRowId = null;
     this.form.reset();
     this.startdatum = new DatumRange();
     this.einddatum = new DatumRange();
