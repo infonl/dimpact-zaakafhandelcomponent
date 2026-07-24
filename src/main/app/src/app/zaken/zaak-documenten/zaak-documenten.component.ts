@@ -130,31 +130,34 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   readonly documentMoveToCase =
     output<GeneratedType<"RestEnkelvoudigInformatieobject">>();
 
-  // Derived from the zaak so reactive consumers (websocket listeners, query key) only re-run
-  // when the case actually changes, not on every new zaak object reference from the parent.
   private readonly zaakUuid = computed(() => this.zaak().uuid);
 
   protected readonly heeftGerelateerdeZaken = computed(
     () => (this.zaak().gerelateerdeZaken?.length ?? 0) > 0,
   );
 
-  selectAll = false;
-  protected readonly toonGekoppeldeZaakDocumenten = signal(true);
+  protected readonly linkedDocumentsEnabled = signal(true);
+
+  protected readonly includeLinkedDocuments = computed(
+    () => this.heeftGerelateerdeZaken() && this.linkedDocumentsEnabled(),
+  );
 
   protected readonly documentColumns = computed(() =>
-    this.toonGekoppeldeZaakDocumenten() ? GEKOPPELDE_COLUMNS : BASE_COLUMNS,
+    this.includeLinkedDocuments() ? GEKOPPELDE_COLUMNS : BASE_COLUMNS,
   );
 
   private readonly documentenQuery = injectQuery(() =>
     this.informatieObjectenService.listEnkelvoudigInformatieobjectenQuery({
       zaakUUID: this.zaakUuid(),
-      gekoppeldeZaakDocumenten: this.toonGekoppeldeZaakDocumenten(),
+      gekoppeldeZaakDocumenten: this.includeLinkedDocuments(),
     }),
   );
 
   protected readonly isLoadingResults = computed(() =>
     this.documentenQuery.isFetching(),
   );
+
+  protected selectAll = false;
 
   @ViewChild("documentenTable", { read: MatSort, static: true })
   docSort!: MatSort;

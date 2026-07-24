@@ -43,6 +43,7 @@ import { MaterialModule } from "../../shared/material/material.module";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { PipesModule } from "../../shared/pipes/pipes.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { MenuItemType } from "../../shared/side-nav/menu-item/menu-item";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
@@ -1195,6 +1196,54 @@ describe(ZaakViewComponent.name, () => {
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("em")).toBeNull();
+    });
+  });
+
+  describe("Menu item ordering", () => {
+    it("should sort human task plan items alphabetically by their name", () => {
+      jest
+        .spyOn(planItemsService, "listHumanTaskPlanItems")
+        .mockReturnValue(
+          of(
+            [
+              "Goedkeuren",
+              "Advies extern",
+              "Document verzenden",
+              "Advies intern",
+            ].map((naam) =>
+              fromPartial<GeneratedType<"RESTPlanItem">>({ naam }),
+            ),
+          ),
+        );
+
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          rechten: {
+            ...zaak.rechten,
+            behandelen: true,
+          },
+        },
+      });
+
+      const menu = fixture.componentInstance.menu;
+      const startHeaderIndex = menu.findIndex(
+        (menuItem) => menuItem.title === "actie.taak.starten",
+      );
+      const itemsAfterStartHeader = menu.slice(startHeaderIndex + 1);
+      const nextHeaderOffset = itemsAfterStartHeader.findIndex(
+        (menuItem) => menuItem.type === MenuItemType.HEADER,
+      );
+      const humanTaskTitles = itemsAfterStartHeader
+        .slice(0, nextHeaderOffset === -1 ? undefined : nextHeaderOffset)
+        .map((menuItem) => menuItem.title);
+
+      expect(humanTaskTitles).toEqual([
+        "Advies extern",
+        "Advies intern",
+        "Document verzenden",
+        "Goedkeuren",
+      ]);
     });
   });
 });
