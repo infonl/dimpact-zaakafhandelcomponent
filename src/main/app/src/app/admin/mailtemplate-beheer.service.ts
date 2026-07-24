@@ -4,7 +4,8 @@
  */
 
 import { Injectable } from "@angular/core";
-import { PostBody, PutBody } from "../shared/http/http-client";
+import { lastValueFrom } from "rxjs";
+import { PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -34,17 +35,19 @@ export class MailtemplateBeheerService {
     });
   }
 
-  createMailtemplate(body: PostBody<"/rest/beheer/mailtemplates">) {
-    return this.zacHttpClient.POST("/rest/beheer/mailtemplates", body);
-  }
-
-  updateMailtemplate(
-    id: number,
-    body: PutBody<"/rest/beheer/mailtemplates/{id}">,
+  // Creates when id is absent, updates otherwise. Returns a promise so the
+  // caller can drive a single TanStack mutation from one Save button.
+  saveMailtemplate(
+    id: number | null | undefined,
+    body: PostBody<"/rest/beheer/mailtemplates">,
   ) {
-    return this.zacHttpClient.PUT("/rest/beheer/mailtemplates/{id}", body, {
-      path: { id },
-    });
+    return lastValueFrom(
+      id
+        ? this.zacHttpClient.PUT("/rest/beheer/mailtemplates/{id}", body, {
+            path: { id },
+          })
+        : this.zacHttpClient.POST("/rest/beheer/mailtemplates", body),
+    );
   }
 
   ophalenVariabelenVoorMail(mail: GeneratedType<"Mail">) {

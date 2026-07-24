@@ -4,24 +4,30 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
+import { MatExpansionModule } from "@angular/material/expansion";
 import { MatSidenavModule } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import {
   ActivatedRoute,
+  provideRouter,
   Router,
   RouterModule,
-  provideRouter,
 } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
@@ -34,11 +40,12 @@ import { MailtemplateComponent } from "./mailtemplate.component";
     ReactiveFormsModule,
     MatSidenavModule,
     MatCardModule,
-    MatButtonModule,
+    MatExpansionModule,
     RouterModule,
     TranslateModule,
     SideNavComponent,
     MaterialFormBuilderModule,
+    ZacFormActions,
   ],
 })
 class TestMailtemplateComponent extends MailtemplateComponent {
@@ -50,11 +57,23 @@ class TestMailtemplateComponent extends MailtemplateComponent {
   }
 }
 
+const fakeValidTemplate = {
+  mailTemplateNaam: "Nieuw template",
+  mail: {
+    label: "mail.TAAK_ONTVANGSTBEVESTIGING",
+    value: "TAAK_ONTVANGSTBEVESTIGING",
+  },
+  onderwerp: "Onderwerp",
+  body: "Body tekst",
+  defaultMailtemplate: false,
+} as const;
+
 describe(MailtemplateComponent.name, () => {
   let fixture: ComponentFixture<TestMailtemplateComponent>;
   let component: TestMailtemplateComponent;
   let mailtemplateBeheerService: MailtemplateBeheerService;
   let router: Router;
+  let httpTestingController: HttpTestingController;
   let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
 
   beforeEach(async () => {
@@ -72,6 +91,7 @@ describe(MailtemplateComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
         provideRouter([]),
         { provide: UtilService, useValue: utilServiceMock },
         {
@@ -87,6 +107,7 @@ describe(MailtemplateComponent.name, () => {
 
     mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
     router = TestBed.inject(Router);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     jest
       .spyOn(mailtemplateBeheerService, "ophalenVariabelenVoorMail")
@@ -149,26 +170,29 @@ describe(MailtemplateComponent.name, () => {
     expect(router.navigate).toHaveBeenCalledWith(["/admin/mailtemplates"]);
   });
 
-  it("should save and navigate on valid form submit", () => {
-    jest
-      .spyOn(mailtemplateBeheerService, "createMailtemplate")
-      .mockReturnValue(of({}));
+  it("should POST a new template and navigate on valid form submit", async () => {
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
-    component.testForm.patchValue({
-      mailTemplateNaam: "Nieuw template",
-      mail: {
-        label: "mail.TAAK_ONTVANGSTBEVESTIGING",
-        value: "TAAK_ONTVANGSTBEVESTIGING",
-      },
-      onderwerp: "Onderwerp",
-      body: "Body tekst",
-      defaultMailtemplate: false,
-    });
+    component.testForm.patchValue(fakeValidTemplate);
 
     component["saveMailtemplate"]();
+    await new Promise(requestAnimationFrame);
 
-    expect(mailtemplateBeheerService.createMailtemplate).toHaveBeenCalled();
+    const request = httpTestingController.expectOne(
+      "/rest/beheer/mailtemplates",
+    );
+    expect(request.request.method).toBe("POST");
+    expect(request.request.body).toEqual({
+      mail: "TAAK_ONTVANGSTBEVESTIGING",
+      mailTemplateNaam: "Nieuw template",
+      onderwerp: "Onderwerp",
+      // The rich-text editor normalises plain text into a paragraph.
+      body: "<p>Body tekst</p>",
+      defaultMailtemplate: false,
+    });
+    request.flush({});
+    await sleep();
+
     expect(utilServiceMock.openSnackbar).toHaveBeenCalledWith(
       "msg.mailtemplate.opgeslagen",
     );
@@ -198,6 +222,30 @@ describe(MailtemplateComponent.name, () => {
     expect(submitButton.disabled).toBe(true);
   });
 
+  it("should disable the submit button while a save is in progress", async () => {
+    component.testForm.patchValue(fakeValidTemplate);
+    component.testForm.markAsDirty();
+    fixture.detectChanges();
+
+    const submitButton = fixture.nativeElement.querySelector(
+      "button[type='submit']",
+    ) as HTMLButtonElement;
+    expect(submitButton.disabled).toBe(false);
+
+    component["saveMailtemplate"]();
+    await new Promise(requestAnimationFrame);
+    fixture.detectChanges();
+
+    // The request is left pending, so the mutation stays in-flight. expectOne
+    // also asserts a single request was fired (the double-submit guard).
+    const request = httpTestingController.expectOne(
+      "/rest/beheer/mailtemplates",
+    );
+    expect(submitButton.disabled).toBe(true);
+
+    request.flush({});
+  });
+
   it("should disable the mail control when loading an existing template", () => {
     TestBed.inject(ActivatedRoute).data = of({
       template: {
@@ -217,14 +265,7 @@ describe(MailtemplateComponent.name, () => {
     expect(component.testForm.controls.mail.disabled).toBe(true);
   });
 
-  it("should call updateMailtemplate when saving an existing template", () => {
-    jest
-      .spyOn(mailtemplateBeheerService, "updateMailtemplate")
-      .mockReturnValue(
-        of({}) as ReturnType<
-          typeof mailtemplateBeheerService.updateMailtemplate
-        >,
-      );
+  it("should PUT to the template id when saving an existing template", async () => {
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
     TestBed.inject(ActivatedRoute).data = of({
@@ -243,10 +284,15 @@ describe(MailtemplateComponent.name, () => {
     fixture.detectChanges();
 
     component["saveMailtemplate"]();
+    await new Promise(requestAnimationFrame);
 
-    expect(mailtemplateBeheerService.updateMailtemplate).toHaveBeenCalledWith(
-      42,
+    const request = httpTestingController.expectOne(
+      "/rest/beheer/mailtemplates/42",
+    );
+    expect(request.request.method).toBe("PUT");
+    expect(request.request.body).toEqual(
       expect.objectContaining({ mailTemplateNaam: "Bestaand template" }),
     );
+    request.flush({});
   });
 });
