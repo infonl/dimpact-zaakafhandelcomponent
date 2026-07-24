@@ -379,10 +379,11 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private sortHumanTaskParametersByName() {
-    this.humanTaskParameters.sort((humanTaskParameterA, humanTaskParameterB) =>
-      (humanTaskParameterA.planItemDefinition?.naam ?? "").localeCompare(
-        humanTaskParameterB.planItemDefinition?.naam ?? "",
-      ),
+    this.humanTaskParameters = [...this.humanTaskParameters].sort(
+      (humanTaskParameterA, humanTaskParameterB) =>
+        (humanTaskParameterA.planItemDefinition?.naam ?? "").localeCompare(
+          humanTaskParameterB.planItemDefinition?.naam ?? "",
+        ),
     );
   }
 

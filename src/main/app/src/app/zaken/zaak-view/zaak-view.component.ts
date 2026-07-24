@@ -419,7 +419,7 @@ export class ZaakViewComponent
             this.menu.push(new HeaderMenuItem("actie.taak.starten"));
           }
           this.menu = this.menu.concat(
-            humanTaskPlanItems
+            [...humanTaskPlanItems]
               .sort((humanTaskPlanItemA, humanTaskPlanItemB) =>
                 (humanTaskPlanItemA.naam ?? "").localeCompare(
                   humanTaskPlanItemB.naam ?? "",
