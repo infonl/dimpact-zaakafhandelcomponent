@@ -79,7 +79,7 @@ Om zaken te registeren en behandelen maakt de applicatie gebruik van registratie
 
 ### Beheerinstellingen
 Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het radar icoon. Het beheermenu bestaat 5 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
-![image](images/8a281ac6-8c57-4ba6-8a58-fd4716d51ef5.png)
+![image](images/beheerinstellingen.png)
 
 In deze handleiding wordt de werking van de beheer-instellingen per onderdeel beschreven.
 
@@ -166,7 +166,6 @@ De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
 Na de keuze van een CMMN zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
 
 - CMMN model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
-- Domein | om een zaaktype aan een specifiek domein toe te wijzen moet hier een domein gekozen worden. Als hier geen keuze wordt gemaakt, dan valt dit zaaktype onder alle domeinen en zal door alle behandelaars die niet aan een specifiek domein zijn toegewezen worden gezien.
 - Groep (v)|  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
 - Behandelaar |  de behandelaar waar een nieuwe zaak na het aanmaken initieel op gezet wordt
 - Streefdatum waarschuwingsvenster | het aantal kalenderdagen voordat de streefdatum van de zaak wordt bereikt dat bepaalt:
@@ -277,7 +276,6 @@ ZAC kent de volgende systeemreferentietabellen:
 - BRP_DOELBINDING_RAADPLEEG_WAARDE | bevat de 1ste waarde die gebruikt wordt bij het configureren de BRP doelbinding voor dit zaaktype
 - BRP_DOELBINDING_ZOEK_WAARDE | bevat de 2de waarde die gebruikt worden bij het configureren de BRP doelbinding voor dit zaaktype
 - COMMUNICATIEKANAAL | bevat de mogelijke waarden voor de keuzelijst ‘Communicatiekanaal’ die gebruikt wordt bij het aanmaken of aanpassen van een zaak
-- DOMEIN | bevat de mogelijke domeinen die gebruikt kunnen worden in de zaakafhandelparameters
 - SERVER_ERROR_ERROR_PAGINA_TEKST | bevat (optionele) tekstparagrafen die getoond worden bij foutmeldingen voor 'server errors' (technische fouten afkomstig van de server of onderliggende systemen). Door een volgende waarde toe te voegen, zal deze onder de al bestaande waarde(s) worden getoond bij de foutmelding. 
 Dit kunnen bijvoorbeeld doorverwijzingen zijn naar een functioneelbeheerafdeling van de gemeente. Bijvoorbeeld: "Neem s.v.p. contact op met ...".  
 
@@ -286,15 +284,16 @@ Dit kunnen bijvoorbeeld doorverwijzingen zijn naar een functioneelbeheerafdeling
 Een systeem- of zelf toegevoegde referentietabel kan als volgt bewerkt worden.
 Stappen:
 1. In het Beheer-instellingen menu kies je ‘Referentietabellen’
-2. Open de tabel door op het oog icoon te klikken
-3. Om een waarde te bewerken klik je op het potlood naast de waarde waardoor het veld geactiveerd wordt. Pas de waarde in het veld aan en klik op het vink icoon om deze op te slaan. Als je wilt annuleren klik je op het kruis en blijft de oude waarde bewaard.
-![image](images/207917111-de87b280-34c7-4299-847e-d661998e42c2.png)
+![image](images/referentietabellen1.png)
+2. Om een tabel toe te voegen klik op ‘Referentietabel toevoegen’
+3. Open de tabel door op het potlood icoon te klikken
+4. Om een waarde te bewerken open je de tabel en klik je op het potlood naast de waarde. Pas de waarde in het veld aan en klik op het vink icoon om deze op te slaan. Als je wilt annuleren klik je op het kruis en blijft de oude waarde bewaard.
+![image](images/referentietabellen2.png)
 
-4. Om een waarde aan de tabel toe te voegen klik je op het + icoon. De nieuwe waarde verschijnt in de lijst met standaard de tekst ‘Nieuwe waarde’. Pas deze waarde aan zoals in de vorige stap omschreven.
-![image](images/208074543-18598c83-fec9-41c7-af94-af50c3d327ed.png)
+4. Om een waarde aan de tabel toe te voegen open je de tabel en klik op Waarde toevoegen’. De nieuwe waarde verschijnt in de lijst met standaard de tekst ‘Nieuwe waarde’. Pas deze waarde aan zoals in de vorige stap omschreven.
+![image](images/referentietabellen3.png)
 
 5. Om een waarde uit een tabel te verwijderen klik je in de regel van de waarde op het prullenbak icoon. De waarde wordt direct verwijderd.
-![image](images/208074609-b7e7628e-b031-4818-86c7-923b6b14b3cc.png)
 
 ## Mailafzenders
 
