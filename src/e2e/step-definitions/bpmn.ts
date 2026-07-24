@@ -351,7 +351,7 @@ Then(
 
 Then(
   "{string} sees group {string} and user {string} in the zaak data",
-  { timeout: TWO_MINUTES_IN_MS },
+  { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
     user: z.infer<typeof worldUsers>,
@@ -370,18 +370,18 @@ Then(
       await this.page.getByRole("button", { name: "Zaakdata" }).click();
       await expect(
         this.page.getByRole("textbox", { name: "zaakGroep" }),
-      ).toHaveValue(groupName, { timeout: FORTY_SECONDS_IN_MS });
+      ).toHaveValue(groupName, { timeout: TEN_SECONDS_IN_MS });
 
       const isLastAttempt = attempt === maxAttempts;
       if (isLastAttempt) {
         await expect(behandelaarField).toHaveValue(userName, {
-          timeout: FORTY_SECONDS_IN_MS,
+          timeout: TEN_SECONDS_IN_MS,
         });
         break;
       }
 
       const hasValue = await expect(behandelaarField)
-        .toHaveValue(userName, { timeout: TWENTY_SECONDS_IN_MS })
+        .toHaveValue(userName, { timeout: TEN_SECONDS_IN_MS })
         .then(() => true)
         .catch(() => false);
       if (hasValue) break;
