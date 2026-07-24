@@ -48,6 +48,10 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   let identityService: IdentityService;
   let httpTestingController: HttpTestingController;
 
+  afterEach(() => {
+    httpTestingController.verify();
+  });
+
   const mockSideNav = fromPartial<MatDrawer>({
     close: jest.fn().mockReturnValue(Promise.resolve()),
   });
