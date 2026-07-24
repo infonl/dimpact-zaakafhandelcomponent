@@ -22,9 +22,9 @@ import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -285,6 +285,8 @@ describe(InformatieObjectEditComponent.name, () => {
       );
 
       await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
       expect(updateSpy).toHaveBeenCalledWith(
         "123",
         "test-zaak-uuid",
@@ -313,6 +315,7 @@ describe(InformatieObjectEditComponent.name, () => {
         MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
       await submitButton.click();
+      await new Promise(requestAnimationFrame);
 
       expect(
         informatieObjectenService.updateEnkelvoudigInformatieobject,
@@ -343,10 +346,11 @@ describe(InformatieObjectEditComponent.name, () => {
         MatButtonHarness.with({ text: "actie.toevoegen" }),
       );
 
-      if (submitButton) {
-        await submitButton.click();
-        expect(emitSpy).toHaveBeenCalled();
-      }
+      await submitButton.click();
+      await new Promise(requestAnimationFrame);
+      await sleep();
+
+      expect(emitSpy).toHaveBeenCalled();
     });
 
     it("should close side nav after successful update", async () => {
@@ -368,7 +372,46 @@ describe(InformatieObjectEditComponent.name, () => {
       );
 
       await submitButton.click();
+      await new Promise(requestAnimationFrame);
+      await sleep();
+
       expect(mockSideNav.close).toHaveBeenCalled();
+    });
+
+    it("should disable the submit button while a save is in progress", async () => {
+      // A cold subject that never emits keeps the mutation pending.
+      jest
+        .spyOn(informatieObjectenService, "updateEnkelvoudigInformatieobject")
+        .mockReturnValue(
+          new Subject() as ReturnType<
+            typeof informatieObjectenService.updateEnkelvoudigInformatieobject
+          >,
+        );
+
+      component["form"].patchValue({
+        bestand: mockFile,
+        titel: "Test Title",
+        taal: mockTalen[0],
+        status: { label: "In bewerking", value: "IN_BEWERKING" },
+        informatieobjectType: mockInformatieObjectTypes[0],
+        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        auteur: "Test Author",
+      });
+      component["form"].markAsDirty();
+      fixture.detectChanges();
+
+      // A never-resolving request would block harness stability, so drive
+      // submit() directly and read the disabled state off the DOM.
+      const submitButton = fixture.nativeElement.querySelector(
+        "button[type='submit']",
+      ) as HTMLButtonElement;
+      expect(submitButton.disabled).toBe(false);
+
+      component["submit"]();
+      await new Promise(requestAnimationFrame);
+      fixture.detectChanges();
+
+      expect(submitButton.disabled).toBe(true);
     });
   });
 

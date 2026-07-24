@@ -22,14 +22,19 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
+import { lastValueFrom } from "rxjs";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacFile } from "../../shared/form/file/file";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -53,6 +58,7 @@ import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduidin
     TranslateModule,
     ZacDate,
     ZacFile,
+    ZacFormActions,
     ZacInput,
     ZacSelect,
     MaterialFormBuilderModule,
@@ -121,6 +127,24 @@ export class InformatieObjectEditComponent implements OnChanges {
   });
 
   private readonly queryClient = inject(QueryClient);
+
+  protected readonly updateDocumentMutation = injectMutation(() => ({
+    mutationFn: (
+      infoObject: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
+    ) =>
+      lastValueFrom(
+        this.informatieObjectenService.updateEnkelvoudigInformatieobject(
+          this.infoObject!.uuid!,
+          this.zaakUuid,
+          infoObject,
+        ),
+      ),
+    onSuccess: (document: GeneratedType<"RestEnkelvoudigInformatieobject">) => {
+      this.document.emit(document);
+      this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
+      this.resetAndClose();
+    },
+  }));
 
   constructor(
     private readonly informatieObjectenService: InformatieObjectenService,
@@ -248,27 +272,17 @@ export class InformatieObjectEditComponent implements OnChanges {
 
   protected submit() {
     const value = this.form.getRawValue();
-    this.informatieObjectenService
-      .updateEnkelvoudigInformatieobject(
-        this.infoObject!.uuid!,
-        this.zaakUuid,
-        {
-          ...value,
-          informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
-          status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
-          vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-          bestandsnaam: value.bestand?.name,
-          verzenddatum: value.verzenddatum?.toISOString(),
-          ontvangstdatum: value.ontvangstdatum?.toISOString(),
-          file: value.bestand as unknown as string,
-          formaat: value.bestand?.type,
-        },
-      )
-      .subscribe((document) => {
-        this.document.emit(document);
-        this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
-        this.resetAndClose();
-      });
+    this.updateDocumentMutation.mutate({
+      ...value,
+      informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
+      status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
+      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+      bestandsnaam: value.bestand?.name,
+      verzenddatum: value.verzenddatum?.toISOString(),
+      ontvangstdatum: value.ontvangstdatum?.toISOString(),
+      file: value.bestand as unknown as string,
+      formaat: value.bestand?.type,
+    });
   }
 
   protected resetAndClose() {
