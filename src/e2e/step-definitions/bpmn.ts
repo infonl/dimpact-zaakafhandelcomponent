@@ -10,6 +10,7 @@ import {
   FORTY_SECONDS_IN_MS,
   TEN_SECONDS_IN_MS,
   TWENTY_SECONDS_IN_MS,
+  TWO_MINUTES_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
@@ -357,14 +358,43 @@ Then(
     groupName: string,
     userName: string,
   ) {
-    await this.page.getByRole("button", { name: "Zaakdata" }).click();
-    await expect(
-      this.page.getByRole("textbox", { name: "zaakGroep" }),
-    ).toHaveValue(groupName, { timeout: FORTY_SECONDS_IN_MS });
-    await expect(
-      this.page.getByRole("textbox", { name: "zaakBehandelaar" }),
-    ).toHaveValue(userName, { timeout: FORTY_SECONDS_IN_MS });
-    await this.page.getByRole("button").filter({ hasText: "close" }).click();
+    const behandelaarField = this.page.getByRole("textbox", {
+      name: "zaakBehandelaar",
+    });
+
+    // The zaakBehandelaar variable is set slightly after zaakGroep, so the
+    // panel can be stale if it was opened before ZAC finished writing it.
+    // Retry by closing and reloading rather than waiting longer in place.
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      await this.page.getByRole("button", { name: "Zaakdata" }).click();
+      await expect(
+        this.page.getByRole("textbox", { name: "zaakGroep" }),
+      ).toHaveValue(groupName, { timeout: TEN_SECONDS_IN_MS });
+
+      const isLastAttempt = attempt === maxAttempts;
+      if (isLastAttempt) {
+        await expect(behandelaarField).toHaveValue(userName, {
+          timeout: TEN_SECONDS_IN_MS,
+        });
+        break;
+      }
+
+      const hasValue = await expect(behandelaarField)
+        .toHaveValue(userName, { timeout: TEN_SECONDS_IN_MS })
+        .then(() => true)
+        .catch(() => false);
+      if (hasValue) break;
+
+      await this.page
+        .locator("mat-toolbar button mat-icon", { hasText: "close" })
+        .click();
+      await this.page.reload();
+    }
+
+    await this.page
+      .locator("mat-toolbar button mat-icon", { hasText: "close" })
+      .click();
   },
 );
 
