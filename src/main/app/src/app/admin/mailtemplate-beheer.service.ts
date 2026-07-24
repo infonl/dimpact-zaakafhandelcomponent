@@ -35,8 +35,6 @@ export class MailtemplateBeheerService {
     });
   }
 
-  // Creates when id is absent, updates otherwise. Returns a promise so the
-  // caller can drive a single TanStack mutation from one Save button.
   saveMailtemplate(
     id: number | null | undefined,
     body: PostBody<"/rest/beheer/mailtemplates">,

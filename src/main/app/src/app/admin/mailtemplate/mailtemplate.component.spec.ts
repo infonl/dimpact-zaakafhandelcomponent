@@ -240,8 +240,6 @@ describe(MailtemplateComponent.name, () => {
     await new Promise(requestAnimationFrame);
     fixture.detectChanges();
 
-    // The request is left pending, so the mutation stays in-flight. expectOne
-    // also asserts a single request was fired (the double-submit guard).
     const request = httpTestingController.expectOne(
       "/rest/beheer/mailtemplates",
     );

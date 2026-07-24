@@ -379,7 +379,6 @@ describe(InformatieObjectEditComponent.name, () => {
     });
 
     it("should disable the submit button while a save is in progress", async () => {
-      // A cold subject that never emits keeps the mutation pending.
       jest
         .spyOn(informatieObjectenService, "updateEnkelvoudigInformatieobject")
         .mockReturnValue(

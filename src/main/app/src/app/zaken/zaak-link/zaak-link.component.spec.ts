@@ -238,7 +238,6 @@ describe(ZaakLinkComponent.name, () => {
 
       component["selectCase"](row);
       await new Promise(requestAnimationFrame);
-      // Leave the first request pending so the mutation stays in-flight.
       const request = httpTestingController.expectOne(KOPPEL_URL);
       expect(component["isLinking"](row)).toBe(true);
 
