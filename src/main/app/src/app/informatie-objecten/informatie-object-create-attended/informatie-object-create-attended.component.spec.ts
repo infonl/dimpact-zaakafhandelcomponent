@@ -6,7 +6,10 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentRef, provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
@@ -23,7 +26,7 @@ import {
 import { of } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacDate } from "../../shared/form/date/date";
@@ -43,6 +46,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   let informatieObjectenService: InformatieObjectenService;
   let smartDocumentsService: SmartDocumentsService;
   let identityService: IdentityService;
+  let httpTestingController: HttpTestingController;
 
   const mockSideNav = fromPartial<MatDrawer>({
     close: jest.fn().mockReturnValue(Promise.resolve()),
@@ -107,6 +111,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
     smartDocumentsService = TestBed.inject(SmartDocumentsService);
     identityService = TestBed.inject(IdentityService);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     jest
       .spyOn(informatieObjectenService, "listInformatieobjecttypes")
@@ -222,24 +227,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       expect(mockSideNav.close).toHaveBeenCalled();
     });
 
-    it("should call createDocumentAttended, emit document and open redirectURL when form is valid", () => {
-      const windowOpenSpy = jest
-        .spyOn(window, "open")
-        .mockImplementation(() => null);
-
-      jest
-        .spyOn(informatieObjectenService, "createDocumentAttended")
-        .mockReturnValue(
-          of({
-            redirectURL: "https://example.com/doc",
-            message: null,
-          }) as ReturnType<
-            typeof informatieObjectenService.createDocumentAttended
-          >,
-        );
-
-      const emitSpy = jest.spyOn(component.document, "emit");
-
+    const fillValidForm = () => {
       component["form"].controls.templateGroup.enable();
       component["form"].controls.templateGroup.setValue(mockTemplateGroups[0]);
       component["form"].controls.template.enable();
@@ -248,43 +236,72 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       );
       component["form"].controls.title.setValue("Test Title");
       component["form"].controls.author.setValue("Test User");
+    };
 
+    it("should POST, emit document and open redirectURL when form is valid", async () => {
+      const windowOpenSpy = jest
+        .spyOn(window, "open")
+        .mockImplementation(() => null);
+      const emitSpy = jest.spyOn(component.document, "emit");
+
+      fillValidForm();
       component["onFormSubmit"](component["form"]);
+      await new Promise(requestAnimationFrame);
 
-      expect(
-        informatieObjectenService.createDocumentAttended,
-      ).toHaveBeenCalled();
+      const request = httpTestingController.expectOne(
+        "/rest/document-creation/create-document-attended",
+      );
+      expect(request.request.method).toBe("POST");
+      request.flush({ redirectURL: "https://example.com/doc", message: null });
+      await sleep();
+
       expect(emitSpy).toHaveBeenCalled();
       expect(windowOpenSpy).toHaveBeenCalledWith("https://example.com/doc");
     });
 
-    it("should open NotificationDialog when createDocumentAttended returns no redirectURL", () => {
-      jest
-        .spyOn(informatieObjectenService, "createDocumentAttended")
-        .mockReturnValue(
-          of({
-            redirectURL: null,
-            message: "Document created without redirect",
-          }) as ReturnType<
-            typeof informatieObjectenService.createDocumentAttended
-          >,
-        );
-
+    it("should open NotificationDialog when the response has no redirectURL", async () => {
       const dialog = fixture.debugElement.injector.get(MatDialog);
       const openSpy = jest.spyOn(dialog, "open");
 
-      component["form"].controls.templateGroup.enable();
-      component["form"].controls.templateGroup.setValue(mockTemplateGroups[0]);
-      component["form"].controls.template.enable();
-      component["form"].controls.template.setValue(
-        mockTemplateGroups[0].templates![0],
-      );
-      component["form"].controls.title.setValue("Test Title");
-      component["form"].controls.author.setValue("Test User");
-
+      fillValidForm();
       component["onFormSubmit"](component["form"]);
+      await new Promise(requestAnimationFrame);
+
+      const request = httpTestingController.expectOne(
+        "/rest/document-creation/create-document-attended",
+      );
+      request.flush({
+        redirectURL: null,
+        message: "Document created without redirect",
+      });
+      await sleep();
 
       expect(openSpy).toHaveBeenCalled();
+    });
+
+    it("should disable the submit button while a save is in progress", async () => {
+      fillValidForm();
+      component["form"].markAsDirty();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const submitButton = fixture.nativeElement.querySelector(
+        "button[type='submit']",
+      ) as HTMLButtonElement;
+      expect(submitButton.disabled).toBe(false);
+
+      component["onFormSubmit"](component["form"]);
+      await new Promise(requestAnimationFrame);
+      fixture.detectChanges();
+
+      // The request is left pending, keeping the mutation in-flight. expectOne
+      // also asserts a single request was fired (the double-submit guard).
+      const request = httpTestingController.expectOne(
+        "/rest/document-creation/create-document-attended",
+      );
+      expect(submitButton.disabled).toBe(true);
+
+      request.flush({ redirectURL: null, message: "done" });
     });
   });
 });

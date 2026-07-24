@@ -78,12 +78,9 @@ export class InformatieObjectenService {
     );
   }
 
-  createDocumentAttended(
-    documentCreationData: GeneratedType<"RestDocumentCreationAttendedData">,
-  ) {
-    return this.zacHttpClient.POST(
+  createDocumentAttendedMutation() {
+    return this.zacQueryClient.POST(
       "/rest/document-creation/create-document-attended",
-      documentCreationData,
     );
   }
 
