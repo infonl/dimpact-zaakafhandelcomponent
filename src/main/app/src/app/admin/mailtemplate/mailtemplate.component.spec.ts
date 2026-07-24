@@ -76,6 +76,10 @@ describe(MailtemplateComponent.name, () => {
   let httpTestingController: HttpTestingController;
   let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
 
+  afterEach(() => {
+    httpTestingController.verify();
+  });
+
   beforeEach(async () => {
     utilServiceMock = {
       setTitle: jest.fn(),
