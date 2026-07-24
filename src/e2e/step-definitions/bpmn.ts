@@ -386,11 +386,15 @@ Then(
         .catch(() => false);
       if (hasValue) break;
 
-      await this.page.getByRole("button").filter({ hasText: "close" }).click();
+      await this.page
+        .locator("mat-toolbar button mat-icon", { hasText: "close" })
+        .click();
       await this.page.reload();
     }
 
-    await this.page.getByRole("button").filter({ hasText: "close" }).click();
+    await this.page
+      .locator("mat-toolbar button mat-icon", { hasText: "close" })
+      .click();
   },
 );
 
