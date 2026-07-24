@@ -216,6 +216,13 @@ describe(InformatieObjectLinkComponent.name, () => {
     );
   });
 
+  it("does not start loading when the document has no informatieobjectTypeUUID", () => {
+    component["searchCases"]();
+
+    expect(component["loading"]).toBe(false);
+    expect(utilService.setLoading).not.toHaveBeenCalledWith(true);
+  });
+
   const linkUrl = "/rest/informatieobjecten/informatieobject/verplaats";
 
   it("should link document with correct UUID", async () => {

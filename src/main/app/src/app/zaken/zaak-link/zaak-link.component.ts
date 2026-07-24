@@ -135,8 +135,6 @@ export class ZaakLinkComponent implements OnDestroy {
   }
 
   protected searchCases() {
-    this.loading = true;
-    this.utilService.setLoading(true);
     const {
       caseNumberToSearchFor,
       caseDescriptionToSearchFor,
@@ -146,6 +144,8 @@ export class ZaakLinkComponent implements OnDestroy {
 
     if (!caseRelationType?.value) return;
 
+    this.loading = true;
+    this.utilService.setLoading(true);
     this.zoekenService
       .findLinkableZaken({
         zaakUuid: this.zaak.uuid,

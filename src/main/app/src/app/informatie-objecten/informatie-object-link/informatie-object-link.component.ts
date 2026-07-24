@@ -123,10 +123,10 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
   }
 
   protected searchCases() {
-    this.loading = true;
-    this.utilService.setLoading(true);
     if (!this.infoObject?.informatieobjectTypeUUID) return;
 
+    this.loading = true;
+    this.utilService.setLoading(true);
     const { caseSearch } = this.form.value;
     this.zoekenService
       .listDocumentKoppelbareZaken({

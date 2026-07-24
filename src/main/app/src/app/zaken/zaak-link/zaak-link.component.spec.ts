@@ -189,6 +189,15 @@ describe(ZaakLinkComponent.name, () => {
 
       expect(component["loading"]).toBe(false);
     });
+
+    it("does not start loading when no caseRelationType is selected", () => {
+      const { component, utilService } = setup();
+
+      component["searchCases"]();
+
+      expect(component["loading"]).toBe(false);
+      expect(utilService.setLoading).not.toHaveBeenCalledWith(true);
+    });
   });
 
   describe("selectCase()", () => {
