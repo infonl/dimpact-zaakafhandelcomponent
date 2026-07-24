@@ -6,7 +6,10 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -15,8 +18,10 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { Response } from "../../shared/http/http-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -27,7 +32,6 @@ import {
   LINKABLE_ZAKEN_PAGINATION_SIZE,
   ZoekenService,
 } from "../../zoeken/zoeken.service";
-import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieObjectLinkComponent } from "./informatie-object-link.component";
 
 describe(InformatieObjectLinkComponent.name, () => {
@@ -36,9 +40,13 @@ describe(InformatieObjectLinkComponent.name, () => {
   let fixture: ComponentFixture<typeof component>;
   let loader: HarnessLoader;
   let zoekenService: ZoekenService;
-  let informatieObjectenService: InformatieObjectenService;
   let utilService: UtilService;
   let translateService: TranslateService;
+  let httpTestingController: HttpTestingController;
+
+  afterEach(() => {
+    httpTestingController.verify();
+  });
 
   const mockSideNav = fromPartial<MatDrawer>({
     close: jest.fn().mockReturnValue(Promise.resolve()),
@@ -109,27 +117,20 @@ describe(InformatieObjectLinkComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
         provideRouter([]),
       ],
     }).compileComponents();
 
     zoekenService = TestBed.inject(ZoekenService);
-    informatieObjectenService = TestBed.inject(InformatieObjectenService);
     utilService = TestBed.inject(UtilService);
     translateService = TestBed.inject(TranslateService);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     jest
       .spyOn(zoekenService, "listDocumentKoppelbareZaken")
       .mockReturnValue(
         of(mockCaseLinkSearchResult as Response<"/rest/zoeken/zaken", "put">),
-      );
-
-    jest
-      .spyOn(informatieObjectenService, "linkDocumentToCase")
-      .mockReturnValue(
-        of(undefined) as ReturnType<
-          typeof informatieObjectenService.linkDocumentToCase
-        >,
       );
 
     jest.spyOn(utilService, "setLoading").mockImplementation();
@@ -215,27 +216,35 @@ describe(InformatieObjectLinkComponent.name, () => {
     );
   });
 
-  it("should link document with correct UUID", () => {
-    const linkSpy = jest.spyOn(informatieObjectenService, "linkDocumentToCase");
+  const linkUrl = "/rest/informatieobjecten/informatieobject/verplaats";
+
+  it("should link document with correct UUID", async () => {
     componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
     fixture.detectChanges();
     const selectableCase = mockCaseLinkSearchResult.resultaten![0];
 
     component["selectCase"](selectableCase);
+    await new Promise(requestAnimationFrame);
 
-    expect(linkSpy).toHaveBeenCalledWith({
+    const request = httpTestingController.expectOne(linkUrl);
+    expect(request.request.method).toBe("POST");
+    expect(request.request.body).toEqual({
       documentUUID: "doc-uuid-123",
       bron: "SOURCE-ZAAK",
       nieuweZaakID: "ZAAK-001",
     });
+    request.flush(null);
   });
 
-  it("should show snackbar after successful link", () => {
+  it("should show snackbar after successful link", async () => {
     componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
     fixture.detectChanges();
     const selectableCase = mockCaseLinkSearchResult.resultaten![0];
 
     component["selectCase"](selectableCase);
+    await new Promise(requestAnimationFrame);
+    httpTestingController.expectOne(linkUrl).flush(null);
+    await sleep();
 
     expect(utilService.openSnackbar).toHaveBeenCalledWith(
       "msg.document.koppelen.uitgevoerd",
@@ -243,15 +252,39 @@ describe(InformatieObjectLinkComponent.name, () => {
     );
   });
 
-  it("should emit event after successful link", () => {
+  it("should emit event after successful link", async () => {
     const emitSpy = jest.spyOn(component.informationObjectLinked, "emit");
     componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
     fixture.detectChanges();
     const selectableCase = mockCaseLinkSearchResult.resultaten![0];
 
     component["selectCase"](selectableCase);
+    await new Promise(requestAnimationFrame);
+    httpTestingController.expectOne(linkUrl).flush(null);
+    await sleep();
 
     expect(emitSpy).toHaveBeenCalled();
+  });
+
+  it("should not fire a second link while one is already in progress", async () => {
+    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
+    fixture.detectChanges();
+    const selectableCase = mockCaseLinkSearchResult.resultaten![0];
+
+    component["selectCase"](selectableCase);
+    await new Promise(requestAnimationFrame);
+
+    const request = httpTestingController.expectOne(linkUrl);
+    expect(component["isLinking"](selectableCase)).toBe(true);
+    expect(
+      component["isLinking"](mockCaseLinkSearchResult.resultaten![1]),
+    ).toBe(false);
+
+    component["selectCase"](selectableCase);
+    await new Promise(requestAnimationFrame);
+    httpTestingController.expectNone(linkUrl);
+
+    request.flush(null);
   });
 
   it("should disable row when case is not koppelbaar", () => {

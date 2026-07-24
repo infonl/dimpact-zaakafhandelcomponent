@@ -12,7 +12,12 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<form [formGroup]="form" (submit)="onFormSubmit(form)" class="mt-2">
+<form
+  [formGroup]="form"
+  (submit)="onFormSubmit(form)"
+  (cancel)="sideNav.close()"
+  class="mt-2"
+>
   <fieldset>
     <section class="row">
       <zac-auto-complete
@@ -65,17 +70,11 @@
   </fieldset>
   <fieldset>
     <mat-action-row>
-      <button
-        mat-raised-button
-        type="submit"
-        color="primary"
-        [disabled]="!form.valid"
-      >
-        {{ "actie.toevoegen" | translate }}
-      </button>
-      <button type="button" mat-raised-button (click)="this.sideNav.close()">
-        {{ "actie.annuleren" | translate }}
-      </button>
+      <zac-form-actions
+        [form]="form"
+        [mutation]="createDocumentMutation"
+        submitLabel="actie.toevoegen"
+      />
     </mat-action-row>
   </fieldset>
 </form>
