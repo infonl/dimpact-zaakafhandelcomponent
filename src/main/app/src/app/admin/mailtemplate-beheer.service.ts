@@ -42,11 +42,11 @@ export class MailtemplateBeheerService {
     body: PostBody<"/rest/beheer/mailtemplates">,
   ) {
     return lastValueFrom(
-      id
-        ? this.zacHttpClient.PUT("/rest/beheer/mailtemplates/{id}", body, {
+      id == null
+        ? this.zacHttpClient.POST("/rest/beheer/mailtemplates", body)
+        : this.zacHttpClient.PUT("/rest/beheer/mailtemplates/{id}", body, {
             path: { id },
-          })
-        : this.zacHttpClient.POST("/rest/beheer/mailtemplates", body),
+          }),
     );
   }
 
