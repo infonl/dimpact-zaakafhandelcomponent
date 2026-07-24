@@ -291,10 +291,10 @@ Stappen:
 4. Om een waarde te bewerken open je de tabel en klik je op het potlood naast de waarde. Pas de waarde in het veld aan en klik op het vink icoon om deze op te slaan. Als je wilt annuleren klik je op het kruis en blijft de oude waarde bewaard.
 ![image](images/referentietabellen2.png)
 
-4. Om een waarde aan de tabel toe te voegen open je de tabel en klik op Waarde toevoegen’. De nieuwe waarde verschijnt in de lijst met standaard de tekst ‘Nieuwe waarde’. Pas deze waarde aan zoals in de vorige stap omschreven.
+5. Om een waarde aan de tabel toe te voegen open je de tabel en klik op ‘Waarde toevoegen’. De nieuwe waarde verschijnt in de lijst met standaard de tekst ‘Nieuwe waarde’. Pas deze waarde aan zoals in de vorige stap omschreven.
 ![image](images/referentietabellen3.png)
 
-5. Om een waarde uit een tabel te verwijderen klik je in de regel van de waarde op het prullenbak icoon. De waarde wordt direct verwijderd.
+6. Om een waarde uit een tabel te verwijderen klik je in de regel van de waarde op het prullenbak icoon. De waarde wordt direct verwijderd.
 
 ## Mailafzenders
 
