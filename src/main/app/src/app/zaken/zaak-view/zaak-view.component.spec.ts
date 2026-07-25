@@ -170,9 +170,6 @@ describe(ZaakViewComponent.name, () => {
     jest
       .spyOn(planItemsService, "listHumanTaskPlanItems")
       .mockReturnValue(of([]));
-    jest
-      .spyOn(planItemsService, "listProcessTaskPlanItems")
-      .mockReturnValue(of([]));
 
     takenService = TestBed.inject(TakenService);
     jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));
@@ -852,9 +849,6 @@ describe(ZaakViewComponent.name, () => {
     beforeEach(() => {
       jest
         .spyOn(planItemsService, "listHumanTaskPlanItems")
-        .mockReturnValue(of([]));
-      jest
-        .spyOn(planItemsService, "listProcessTaskPlanItems")
         .mockReturnValue(of([]));
     });
 

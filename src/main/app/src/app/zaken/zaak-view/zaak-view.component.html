@@ -91,12 +91,6 @@
       [zaak]="zaak"
       [planItem]="actiefPlanItem"
     ></zac-human-task-do>
-    <zac-process-task-do
-      *ngSwitchCase="actiefPlanItem?.naam ?? 'none'"
-      (done)="processGestart()"
-      [zaak]="zaak"
-      [planItem]="actiefPlanItem"
-    ></zac-process-task-do>
     <zac-mail-create
       *ngSwitchCase="'actie.mail.versturen'"
       (mailVerstuurd)="mailVerstuurd($event)"

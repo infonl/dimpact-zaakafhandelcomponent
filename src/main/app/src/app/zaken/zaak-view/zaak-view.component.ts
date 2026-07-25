@@ -389,55 +389,39 @@ export class ZaakViewComponent
     const menuSubscription = forkJoin([
       this.planItemsService.listUserEventListenerPlanItems(this.zaak.uuid),
       this.planItemsService.listHumanTaskPlanItems(this.zaak.uuid),
-      this.planItemsService.listProcessTaskPlanItems(this.zaak.uuid),
-    ]).subscribe(
-      ([
-        userEventListenerPlanItems,
-        humanTaskPlanItems,
-        processTaskPlanItems,
-      ]) => {
-        const actionMenuItems = this.createActionMenuItems();
+    ]).subscribe(([userEventListenerPlanItems, humanTaskPlanItems]) => {
+      const actionMenuItems = this.createActionMenuItems();
 
-        if (this.zaak.rechten.behandelen) {
-          if (userEventListenerPlanItems.length || actionMenuItems.length) {
-            this.menu.push(new HeaderMenuItem("actie.zaak.acties"));
-          }
-          this.menu = this.menu.concat(
-            userEventListenerPlanItems
-              .map((userEventListenerPlanItem) =>
-                this.createUserEventListenerPlanItemMenuItem(
-                  userEventListenerPlanItem,
-                ),
-              )
-              .filter((menuItem) => menuItem != null),
-          );
+      if (this.zaak.rechten.behandelen) {
+        if (userEventListenerPlanItems.length || actionMenuItems.length) {
+          this.menu.push(new HeaderMenuItem("actie.zaak.acties"));
         }
-        this.menu = this.menu.concat(actionMenuItems);
+        this.menu = this.menu.concat(
+          userEventListenerPlanItems
+            .map((userEventListenerPlanItem) =>
+              this.createUserEventListenerPlanItemMenuItem(
+                userEventListenerPlanItem,
+              ),
+            )
+            .filter((menuItem) => menuItem != null),
+        );
+      }
+      this.menu = this.menu.concat(actionMenuItems);
 
-        if (this.zaak.rechten.behandelen) {
-          if (humanTaskPlanItems.length) {
-            this.menu.push(new HeaderMenuItem("actie.taak.starten"));
-          }
-          this.menu = this.menu.concat(
-            humanTaskPlanItems.map((humanTaskPlanItem) =>
-              this.createPlanItemMenuItem(humanTaskPlanItem, "assignment"),
-            ),
-          );
-
-          if (processTaskPlanItems.length) {
-            this.menu.push(new HeaderMenuItem("actie.proces.starten"));
-          }
-          this.menu = this.menu.concat(
-            processTaskPlanItems.map((processTaskPlanItem) =>
-              this.createPlanItemMenuItem(processTaskPlanItem, "receipt_long"),
-            ),
-          );
+      if (this.zaak.rechten.behandelen) {
+        if (humanTaskPlanItems.length) {
+          this.menu.push(new HeaderMenuItem("actie.taak.starten"));
         }
+        this.menu = this.menu.concat(
+          humanTaskPlanItems.map((humanTaskPlanItem) =>
+            this.createPlanItemMenuItem(humanTaskPlanItem, "assignment"),
+          ),
+        );
+      }
 
-        this.createKoppelingenMenuItems();
-        this.updateMargins();
-      },
-    );
+      this.createKoppelingenMenuItems();
+      this.updateMargins();
+    });
 
     this.subscriptions$.push(menuSubscription);
   }
@@ -955,11 +939,6 @@ export class ZaakViewComponent
   }
 
   protected taakGestart() {
-    this.sluitSidenav();
-    this.updateZaak();
-  }
-
-  protected processGestart() {
     this.sluitSidenav();
     this.updateZaak();
   }
