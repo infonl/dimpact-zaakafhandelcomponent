@@ -7,8 +7,7 @@ import {
   AfterViewInit,
   Component,
   computed,
-  DestroyRef,
-  OnInit,
+  effect,
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
@@ -55,7 +54,7 @@ import { mailSelectList } from "../model/mail-utils";
 })
 export class MailtemplateComponent
   extends AdminComponent
-  implements OnInit, AfterViewInit
+  implements AfterViewInit
 {
   @ViewChild("sideNavContainer")
   protected sideNavContainer!: MatSidenavContainer;
@@ -76,6 +75,7 @@ export class MailtemplateComponent
   });
 
   protected variabelen: string[] = [];
+  private mailControlLocked = false;
   private readonly data = toSignal(this.route.data);
   private readonly mailTemplate = computed(
     () =>
@@ -114,7 +114,6 @@ export class MailtemplateComponent
     private router: Router,
     private readonly formBuilder: FormBuilder,
     private readonly queryClient: QueryClient,
-    private readonly destroyRef: DestroyRef,
   ) {
     super(utilService, configuratieService);
 
@@ -128,10 +127,8 @@ export class MailtemplateComponent
             this.variabelen = variabelen;
           });
       });
-  }
 
-  ngOnInit() {
-    this.route.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+    effect(() => {
       const mailTemplate = this.mailTemplate();
 
       this.setupMenu("title.mailtemplate");
@@ -139,17 +136,18 @@ export class MailtemplateComponent
         ...mailTemplate,
         mail: mailTemplate?.mail
           ? {
-              label: "mail." + mailTemplate?.mail,
-              value: mailTemplate?.mail,
+              label: "mail." + mailTemplate.mail,
+              value: mailTemplate.mail,
             }
           : null,
       });
 
-      if (!mailTemplate?.mail) return;
+      if (!mailTemplate?.mail || this.mailControlLocked) return;
+      this.mailControlLocked = true;
 
       this.mailTemplates.push({
-        label: "mail." + mailTemplate?.mail,
-        value: mailTemplate?.mail,
+        label: "mail." + mailTemplate.mail,
+        value: mailTemplate.mail,
       });
       this.form.controls.mail.disable();
     });
