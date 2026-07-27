@@ -63,12 +63,11 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
 
+      - name: Install Podman
+        run: sudo apt-get update && sudo apt-get install -y podman
+
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        run: podman login ghcr.io -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Restore previous database from the published image
         id: restore
@@ -83,11 +82,11 @@ jobs:
           if [ "${{ inputs.seed_database }}" = "true" ]; then
             echo "had_previous=false" >> "$GITHUB_OUTPUT"
             echo "Seed run - building a fresh database from scratch (not seeding from the previous image)."
-          elif docker pull "${NVD_DATABASE_CACHE_IMAGE}:latest"; then
-            container_id=$(docker create "${NVD_DATABASE_CACHE_IMAGE}:latest")
-            cleanup() { docker rm -f "${container_id}" >/dev/null 2>&1 || true; }
+          elif podman pull "${NVD_DATABASE_CACHE_IMAGE}:latest"; then
+            container_id=$(podman create "${NVD_DATABASE_CACHE_IMAGE}:latest")
+            cleanup() { podman rm -f "${container_id}" >/dev/null 2>&1 || true; }
             trap cleanup EXIT
-            docker cp "${container_id}:/dependency-check-data/." ~/.gradle/dependency-check-data/
+            podman cp "${container_id}:/dependency-check-data/." ~/.gradle/dependency-check-data/
             cleanup
             trap - EXIT
             echo "had_previous=true" >> "$GITHUB_OUTPUT"
@@ -169,10 +168,10 @@ jobs:
 
       - name: Build and push NVD database cache image
         run: |
-          docker build \
+          podman build \
             -f scripts/docker/nvd-database-cache/Dockerfile \
             -t "${NVD_DATABASE_CACHE_IMAGE}:latest" \
             nvd-image-context
-          docker push "${NVD_DATABASE_CACHE_IMAGE}:latest"
+          podman push "${NVD_DATABASE_CACHE_IMAGE}:latest"
           echo "✅ Published ${NVD_DATABASE_CACHE_IMAGE}:latest"
 

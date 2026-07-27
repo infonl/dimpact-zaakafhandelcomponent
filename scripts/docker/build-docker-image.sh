@@ -9,14 +9,14 @@ set -e
 
 help()
 {
-   echo "Builds the ZAC Docker image"
+   echo "Builds the ZAC container image using Podman"
    echo
    echo "Syntax: $0 [-v|b|c|t|h]"
    echo "options:"
    echo "-v     Version number"
    echo "-b     Branch name"
    echo "-c     Commit hash"
-   echo "-t     Docker Image tag"
+   echo "-t     Image tag"
    echo "-h     Print this Help"
    echo
 }
@@ -43,4 +43,4 @@ while getopts "v:b:c:t:h" option; do
    esac
 done
 
-docker build --build-arg versionNumber=$versionNumber --build-arg branchName=$branchName --build-arg commitHash=$commitHash -t $tag .
+podman build --build-arg versionNumber=$versionNumber --build-arg branchName=$branchName --build-arg commitHash=$commitHash -t $tag .

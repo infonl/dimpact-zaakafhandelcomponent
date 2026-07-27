@@ -567,7 +567,7 @@ tasks {
     getByName("spotlessJson").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
     getByName("spotlessLess").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
 
-    // ensure the integration test compilation task depends on the jacoco agent copy and runs after docker image build
+    // ensure the integration test compilation task depends on the jacoco agent copy and runs after the container image build
     getByName("compileItestKotlin") {
         dependsOn("copyJacocoAgentForItest")
         mustRunAfter("buildDockerImage")
@@ -832,7 +832,7 @@ tasks {
     }
 
     register<Exec>("buildDockerImage") {
-        description = "Builds the Docker image for the Zaakafhandelcomponent"
+        description = "Builds the container image for the Zaakafhandelcomponent using Podman"
         group = "build"
         dependsOn("generateWildFlyBootableJar")
 

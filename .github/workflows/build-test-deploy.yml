@@ -410,13 +410,13 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Install Podman
+        run: sudo apt-get update && sudo apt-get install -y podman
+
       - name: Authenticate with Docker Hub to avoid rate limiting issues
         # Skip for pull requests from forks because a forked repository is not allowed to access our secrets
         if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
-        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: podman login docker.io -u "${{ vars.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
 
       - name: Setup JDK
         uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
@@ -433,23 +433,21 @@ jobs:
           name: zac-jar
           path: target
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+      - name: Build container image
+        # Note: unlike docker/build-push-action, plain `podman build` has no GitHub Actions cache
+        # (type=gha) backend, so this build is not layer-cached across runs.
+        run: |
+          scripts/docker/build-docker-image.sh \
+            -v "${NEXT_VERSION}" \
+            -b "${BRANCH_NAME}" \
+            -c "${GIT_COMMIT_HASH}" \
+            -t "${ZAC_DOCKER_IMAGE}"
 
-      - name: Build Docker image
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
-        with:
-          tags: ${{ env.ZAC_DOCKER_IMAGE }}
-          build-args: |
-            versionNumber=${{ env.NEXT_VERSION }}
-            branchName=${{ env.BRANCH_NAME }}
-            commitHash=${{ env.GIT_COMMIT_HASH }}
-          context: .
-          load: true
-          push: false
-          # use GitHub Actions cache to speed up the build
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Start Podman API socket for TestContainers
+        run: |
+          sudo systemctl enable --now podman.socket
+          echo "DOCKER_HOST=unix:///run/podman/podman.sock" >> "$GITHUB_ENV"
+          echo "TESTCONTAINERS_RYUK_DISABLED=true" >> "$GITHUB_ENV"
 
       - name: Run integration tests
         run: |
@@ -492,7 +490,7 @@ jobs:
 
       - name: Save Docker Image
         if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
-        run: docker save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
+        run: podman save --output docker-image.tar ${ZAC_DOCKER_IMAGE}
 
       - name: Upload ZAC Docker Image
         if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
@@ -513,12 +511,11 @@ jobs:
       NEXT_VERSION: ${{ needs.determine-version.outputs.version }}
       RELEASE_TYPE: ${{ needs.determine-version.outputs.release-type }}
     steps:
-      - name: Docker Login
-        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
-        with:
-          registry: ${{ env.CONTAINER_REGISTRY_URL }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Podman
+        run: sudo apt-get update && sudo apt-get install -y podman
+
+      - name: Podman Login
+        run: podman login ${{ env.CONTAINER_REGISTRY_URL }} -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Download Docker Image
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -526,30 +523,34 @@ jobs:
           name: docker-image
 
       - name: Load Docker Image
-        run: docker load --input docker-image.tar
+        run: podman load --input docker-image.tar
 
       - name: Tag Docker Image with 'latest' tag
         if: github.ref == 'refs/heads/main'
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
+        run: podman tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:latest
 
       - name: Tag Docker Image with version tag
         if: env.NEXT_VERSION != ''
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
+        run: podman tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}
 
       - name: Tag Docker Image with pinned dev build number tag
         if: ${{ env.RELEASE_TYPE == 'dev' }}
-        run: docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}.${{ github.run_number }}
+        run: podman tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${NEXT_VERSION}.${{ github.run_number }}
 
       - name: Tag Docker Image with major and minor version tags
         if: ${{ env.NEXT_VERSION != '' && env.RELEASE_TYPE == 'release' }}
         run: |
           MAJOR_VERSION=$(echo ${NEXT_VERSION} | cut -d '.' -f 1)
           MINOR_VERSION=$(echo ${NEXT_VERSION} | cut -d '.' -f 2)
-          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}
-          docker tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}.${MINOR_VERSION}
+          podman tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}
+          podman tag ${ZAC_DOCKER_IMAGE} ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:${MAJOR_VERSION}.${MINOR_VERSION}
 
       - name: Push Docker Image with all tags
-        run: docker push --all-tags ${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}
+        # podman has no `--all-tags` equivalent, so push every locally tagged reference for this image individually
+        run: |
+          podman images --format "{{.Repository}}:{{.Tag}}" \
+            | grep "^${CONTAINER_REGISTRY_URL}/${APPLICATION_NAME}:" \
+            | while read -r image; do podman push "$image"; done
 
   create-release:
     needs: [push-docker-image, determine-version]

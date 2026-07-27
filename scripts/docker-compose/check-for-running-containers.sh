@@ -17,8 +17,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
     exit 1
   fi
 
-  if docker compose ls --filter name=^zac$ | grep running; then
-    echo -e "\nDocker compose already running!"
+  if podman compose ls --filter name=^zac$ | grep running; then
+    echo -e "\nPodman compose already running!"
     exit 1
   fi
 )

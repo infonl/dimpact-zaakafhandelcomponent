@@ -20,13 +20,16 @@ jobs:
   trivy:
     runs-on: ubuntu-24.04
     steps:
+      - name: Install Podman
+        run: sudo apt-get update && sudo apt-get install -y podman
+
       - name: Pull Docker Image and resolve digest
         id: image
         # force a fresh pull of the moving 'latest' tag and resolve it to its
         # immutable digest so Trivy scans exactly this build and never a stale/cached image
         run: |
-          docker pull "${ZAC_IMAGE_URL}"
-          IMAGE_REF=$(docker inspect --format='{{index .RepoDigests 0}}' "${ZAC_IMAGE_URL}")
+          podman pull "${ZAC_IMAGE_URL}"
+          IMAGE_REF=$(podman inspect --format='{{index .RepoDigests 0}}' "${ZAC_IMAGE_URL}")
           echo "Resolved ${ZAC_IMAGE_URL} to ${IMAGE_REF}"
           echo "ref=${IMAGE_REF}" >> "${GITHUB_OUTPUT}"
 

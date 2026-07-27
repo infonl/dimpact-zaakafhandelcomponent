@@ -147,12 +147,11 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
 
+      - name: Install Podman
+        run: sudo apt-get update && sudo apt-get install -y podman
+
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        run: podman login ghcr.io -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Pull and extract the pre-built NVD database
         run: |
@@ -162,15 +161,15 @@ jobs:
           # runs with autoUpdate=false (see build.gradle.kts) against the database
           # extracted here.
           mkdir -p ~/.gradle/dependency-check-data
-          if ! docker pull "${NVD_DATABASE_CACHE_IMAGE}:latest"; then
+          if ! podman pull "${NVD_DATABASE_CACHE_IMAGE}:latest"; then
             echo "::error::Could not pull ${NVD_DATABASE_CACHE_IMAGE}:latest. Run the 'Publish NVD Database Cache' workflow (with seed_database=true on first use) to build it."
             exit 1
           fi
-          container_id=$(docker create "${NVD_DATABASE_CACHE_IMAGE}:latest")
-          cleanup() { docker rm -f "${container_id}" >/dev/null 2>&1 || true; }
+          container_id=$(podman create "${NVD_DATABASE_CACHE_IMAGE}:latest")
+          cleanup() { podman rm -f "${container_id}" >/dev/null 2>&1 || true; }
           trap cleanup EXIT
-          docker cp "${container_id}:/dependency-check-data/." ~/.gradle/dependency-check-data/
-          docker cp "${container_id}:/nvd-build-metadata.txt" ./nvd-build-metadata.txt
+          podman cp "${container_id}:/dependency-check-data/." ~/.gradle/dependency-check-data/
+          podman cp "${container_id}:/nvd-build-metadata.txt" ./nvd-build-metadata.txt
           cleanup
           trap - EXIT
           # Locate the H2 database with `find` rather than a fixed-depth glob:

@@ -473,6 +473,10 @@ services:
         -Dgreenmail.hostname=0.0.0.0
         -Dgreenmail.auth.disabled
         -Dgreenmail.verbose
+    # NET_BIND_SERVICE is required for the SMTP process to bind port 25 (a privileged port) under
+    # rootless Podman, where containers don't get that capability by default the way Docker containers do.
+    cap_add:
+      - NET_BIND_SERVICE
     ports:
       - "25:25"
       - "143:143"

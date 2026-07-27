@@ -1,19 +1,29 @@
-# Docker Compose setup
+# Podman Compose setup
 
-The ZAC Docker Compose setup runs various services required by ZAC and optionally can also run ZAC itself as a Docker container.
+The ZAC Podman Compose setup runs various services required by ZAC and optionally can also run ZAC itself as a container.
 It was created to be able to run ZAC locally for development and testing purposes.
 For general ZAC installation instructions please see the [INSTALL.md](INSTALL.md) file.
 
-The setup consists of a [docker-compose.yaml](../../docker-compose.yaml) file as well as various data import scripts.
+The setup consists of a [docker-compose.yaml](../../docker-compose.yaml) file (the filename is kept for compose tooling
+auto-discovery compatibility) as well as various data import scripts.
 
 This setup was initially based on https://github.com/generiekzaakafhandelcomponent/gzac-docker-compose and credits go out to Valtimo for this.
 It was extended and made specific for the needs of ZAC.
 
 ## Prerequisites
 
-- [Docker Desktop](https://docs.docker.com/desktop/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+- [Podman](https://podman.io/docs/installation), our supported container runtime. Docker with `docker compose` may still work as an unsupported fallback. Validated with Podman 6.0.2.
+- The `podman compose` command (bundled with recent Podman versions).
 - [1Password CLI extensions](https://developer.1password.com/docs/cli/) (optional)
+
+### macOS / Windows (`podman machine`)
+
+The default `podman machine` allocation (2GiB RAM) is too small for this stack (Solr, Keycloak, four PostgreSQL
+instances, Open Zaak, Open Klant, PABC, etc.). Give the machine at least 8GiB RAM before starting the stack:
+
+```shell
+podman machine set --memory 8192
+```
 
 ### WSL2
 Make sure you clone the repository to the WSL filesystem itself
@@ -22,6 +32,10 @@ Make sure you clone the repository to the WSL filesystem itself
 - Run [setup-linux.sh script](../../scripts/docker-compose/setup-linux.sh)
 
 ### Linux with nftables
+
+The following is only relevant if you are using the unsupported Docker fallback; Podman's default
+(netavark) network backend does not require this manual nftables/iptables configuration.
+
 - Run [setup-linux.sh script](../../scripts/docker-compose/setup-linux.sh)
 - Uninstall docker.io (on Debian and derivatives): `sudo apt remove $(dpkg --get-selections docker.io docker-compose docker-doc podman-docker containerd runc | cut -f1)`
 - Install docker-ce, minimum version >= 29.0.0 (check: https://docs.docker.com/engine/install/debian/#install-using-the-repository)
@@ -71,7 +85,7 @@ systemctl restart nftables
 systemctl restart docker
 ```
 
-## Starting Docker Compose
+## Starting Podman Compose
 
 ### Running all required services but not ZAC itself
 
@@ -82,17 +96,17 @@ From the root folder of this repository execute the following command:
 ./start-docker-compose.sh
 ```
 
-This will run Docker Compose (using `docker compose up -d`) and uses the 1Password CLI extensions
+This will run Podman Compose (using `podman compose up -d`) and uses the 1Password CLI extensions
 to retrieve certain environment variables from 1Password.
 
-Please see the [Docker Compose](../../docker-compose.yaml) file for the services that will be started.
+Please see the [Compose file](../../docker-compose.yaml) for the services that will be started.
 Note that it may take a while for all services to start up completely.
-You can check the logs of the various Docker containers if you want to see the status.
+You can check the logs of the various containers if you want to see the status.
 
 ### Other options
 
 Please consult the help of the `start-docker-compose.sh` script for more options including the option to also
-start up ZAC or even build the ZAC Docker Image first beforehand:
+start up ZAC or even build the ZAC container image first beforehand:
 
 ```
 ./start-docker-compose.sh -h
@@ -120,31 +134,31 @@ export DOCKER_USE_ARM64_CONTAINERS=true
 
 #### Using the latest version of ZAC
 
-Currently, our ZAC Docker Compose file contains a reference to a specific version of the ZAC Docker image.
-In order to use the latest ZAC Docker Image you can specify a ZAC Docker Image by setting the `ZAC_DOCKER_IMAGE`
+Currently, our ZAC Compose file contains a reference to a specific version of the ZAC container image.
+In order to use the latest ZAC image you can specify a ZAC container image by setting the `ZAC_DOCKER_IMAGE`
 environment variable.
-You can find the latest released version of the ZAC Docker Image on:
+You can find the latest released version of the ZAC container image on:
 https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhandelcomponent
 
-#### Docker container logs
+#### ZAC container logs
 
-Note that it takes some time for ZAC to start up completely. You can see progress by checking the ZAC Docker container logs:
+Note that it takes some time for ZAC to start up completely. You can see progress by checking the ZAC container logs:
 
 ```
-docker logs -f zac
+podman logs -f zac
 ```
 
-## The various Docker containers
+## The various containers
 
-This section contains some specific information about some of the Docker containers used in our Docker Compose setup.
+This section contains some specific information about some of the containers used in our Compose setup.
 
 ### PostgreSQL ZAC database
 
-ZAC requires a PostgreSQL database with two database schemas. This is automatically created by the Docker Compose file.
+ZAC requires a PostgreSQL database with two database schemas. This is automatically created by the Compose file.
 If you need to manually insert or change data in the ZAC database:
 
 1. Using a PostgreSQL database client connect to the ZAC database using `jdbc:postgresql://localhost:54320/zac`
-2. Log in using the database admin credentials that can be found in the Docker Compose file.
+2. Log in using the database admin credentials that can be found in the Compose file.
 3. You should see the following database schemas:
     - `zaakafhandelcomponent`
     - `flowable`
@@ -195,7 +209,7 @@ For a ZAC admin the following user roles are required:
 
 ### Open Klant
 
-Basic configuration required by ZAC is automatically imported into the Open Klant database from the Docker Compose file.
+Basic configuration required by ZAC is automatically imported into the Open Klant database from the Compose file.
 Also, a superuser account for the Open Klant UI on http://localhost:8002 is created automatically with username 'admin' and password 'admin'.
 
 ### Open Formulieren
@@ -219,16 +233,16 @@ After the stack is up, you will still need to configure the following in the Ope
 
 ## Stopping
 
-1. Stop ZAC (only if you are running ZAC separately and not as part of the Docker Compose setup)
-2. Stop all Docker containers by executing the command: `./stop-docker-compose.sh` from the root folder of this project.
+1. Stop ZAC (only if you are running ZAC separately and not as part of the Podman Compose setup)
+2. Stop all containers by executing the command: `./stop-docker-compose.sh` from the root folder of this project.
 
 ## Cleaning up
 
-We use Docker volumes to persist data between restarts of certain Docker containers in order to speed up
+We use Podman volumes to persist data between restarts of certain containers in order to speed up
 subsequent startups.
 
 Sometimes it is needed to clean up these volumes to start with a clean slate.
-To do so run the Docker Compose start script with the `-d` option:
+To do so run the Podman Compose start script with the `-d` option:
 
 ```
 ./start-docker-compose.sh -d

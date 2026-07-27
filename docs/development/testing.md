@@ -12,8 +12,8 @@ You can run them separately using the following command:
 ## Integration tests
 
 Our integration are written as [Kotest](https://kotest.io/) tests, and use the [TestContainers framework](https://testcontainers.com/) together
-with our [Docker Compose set-up](installDockerCompose.md) to run all required services (Keycloak, Open Zaak, etc)
-as well as ZAC itself as a Docker container.
+with our [Podman Compose set-up](installDockerCompose.md) to run all required services (Keycloak, Open Zaak, etc)
+as well as ZAC itself as a container.
 This set-up makes it relatively slow to run the integration tests and for this reason they are not run as part of
 the standard Gradle `test` phase and normal Gradle build.
 
@@ -26,42 +26,44 @@ If you wish to run the integration tests you can use the following command:
 It is also possible to run the integration tests from inside your IDE (we use IntelliJ IDEA).
 To do this you will first need to do the following:
 
-1. Start Docker.
-2. Build the ZAC Docker image using the following command:
+1. Start Podman (e.g. `podman machine start` on macOS/Windows, or ensure the rootless Podman socket is active on Linux via `systemctl --user enable --now podman.socket`, see [setup-linux.sh](../../scripts/docker-compose/setup-linux.sh)).
+2. Make sure `DOCKER_HOST` points at the Podman socket (e.g. `unix:///run/user/$(id -u)/podman/podman.sock` on rootless Linux, or the value printed by `podman machine inspect` on macOS/Windows), so TestContainers can find it.
+3. Build the ZAC container image using the following command:
     ```shell
     ./gradlew buildDockerImage
     ```
-3. If BAG integration is part of the test suite: create a 'Run Configuration' in IntelliJ where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
-4. Run the integration tests from your IDE using this run configuration.
+4. If BAG integration is part of the test suite: create a 'Run Configuration' in IntelliJ where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
+5. Run the integration tests from your IDE using this run configuration.
 
-Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as Docker containers using our [Docker Compose file](installDockerCompose.md),
-then start up ZAC as Docker container and finally run the integration tests.
+Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as containers using our [Compose file](installDockerCompose.md),
+then start up ZAC as a container and finally run the integration tests.
 
-### Configuring Docker Compose containers start/stop behaviour
+### Configuring Compose containers start/stop behaviour
 
 Using `Run Configuration` in IntelliJ you can set the following environment variables to configure the integration tests behaviour:
-* `TESTCONTAINERS_RYUK_DISABLED` - do not stop Docker containers after the tests finish executing
-* `DO_NOT_START_DOCKER_COMPOSE` - do not start Docker Compose when running the integration tests
+* `TESTCONTAINERS_RYUK_DISABLED` - do not stop containers after the tests finish executing. Rootless Podman cannot run the
+  privileged Ryuk resource-reaper container, so set this to `true` when running against Podman.
+* `DO_NOT_START_DOCKER_COMPOSE` - do not start the Compose stack when running the integration tests
 
 ![Run Configuration](./attachments/images/run-configuration.gif)
 
-In such way you can run the integration tests in a more controlled environment and start up Docker Compose only once.
+In such way you can run the integration tests in a more controlled environment and start up the Compose stack only once.
 
 ### Debugging integration tests
 
-Debugging integration tests can be challenging because of the Docker environment used but also in large part because of the ordering dependency between many of these tests.
+Debugging integration tests can be challenging because of the container environment used but also in large part because of the ordering dependency between many of these tests.
 The following steps can help you debug failing integration tests:
 
-1. Build the ZAC Docker Image. See instructions above.
-2. Make sure there are no running Docker containers on your computer.
+1. Build the ZAC container image. See instructions above.
+2. Make sure there are no running containers left over on your computer (`podman ps`).
 3. In IntelliJ run the integration tests in debug mode. On the `src\itest` folder right-click and select `Debug Tests in Zaakafhandelcomponent `
    1. Click on the `Instantiating tests` line in the IntelliJ Console so you can see the output of the tests.
    2. Check for failures. Focus on the first test that fails since one failing test typically cascades into other failing tests down the line since we have lots of ordering dependencies between our integration tests.
-   3. If all tests fail this usually indicates that the ZAC Docker container itself does not even start up. In that case forget about the integration tests and first try to get ZAC starting up locally using Docker Compose. 
+   3. If all tests fail this usually indicates that the ZAC container itself does not even start up. In that case forget about the integration tests and first try to get ZAC starting up locally using Podman Compose.
    Come back here once this is fixed.
    4. If there are tests failing add a debug breakpoint in IntelliJ just before and just after this test is run.
-      1.  When the first breakpoint is reached, tail the ZAC Docker container logs (and possibly other container logs depending on the test) so you can clearly see the output of the ZAC container. 
-      Do a `docker ps` to find the container in question since they have dynamic names in our integration tests.
+      1.  When the first breakpoint is reached, tail the ZAC container logs (and possibly other container logs depending on the test) so you can clearly see the output of the ZAC container. 
+      Do a `podman ps` to find the container in question since they have dynamic names in our integration tests.
       2.  Continue running until the second breakpoint is reached. In most cases you can find out from the logs what the issue is.
       3.  When the integration tests are on a breakpoint you can also do manual testing in the ZAC user interface from a browser to troubleshoot.
 
@@ -146,7 +148,7 @@ Then you will have all the autocomplete features available to you
 
 ### Running e2e tests locally
 
-Running e2e tests locally unfortunately requires some extra steps to make it work with our current setup. This is because Docker containers cannot communicate with the host machine using localhost. To make this work we need to add an entry to the `/etc/hosts` file on your machine. 
+Running e2e tests locally unfortunately requires some extra steps to make it work with our current setup. This is because containers cannot communicate with the host machine using localhost. To make this work we need to add an entry to the `/etc/hosts` file on your machine. 
 This is only needed when running the tests locally. When running the tests in the pipeline this is not needed.
 
 #### Steps to run the tests locally
@@ -159,7 +161,7 @@ under services -> zac -> environment
 +      - CONTEXT_URL=http://host.docker.internal:8080
 ```
 
-2. Start the Docker Compose environment including ZAC using the following command:
+2. Start the Podman Compose environment including ZAC using the following command:
 ```sh
 ./start-docker-compose.sh -db
 ```
@@ -181,11 +183,11 @@ This contains the details on how to run ACT tests.
 
 ## Open Policy Agent (OPA) Rego Tests
 
-The tests are part of the integration tests profile and run automatically via Docker Compose. 
+The tests are part of the integration tests profile and run automatically via Podman Compose. 
 
 To have a single run of the OPA Tests you can use the following command:
 ```shell
-docker run -it -v ./src/test/resources/policies:/home/tests -v ./src/main/resources/policies:/home/policies docker.io/openpolicyagent/opa:1.3.0 test /home/policies /home/tests
+podman run -it -v ./src/test/resources/policies:/home/tests -v ./src/main/resources/policies:/home/policies docker.io/openpolicyagent/opa:1.3.0 test /home/policies /home/tests
 ```
 
 There are several useful flags that can be used to develop and debug [tests with OPA](https://www.openpolicyagent.org/docs/latest/policy-testing/).

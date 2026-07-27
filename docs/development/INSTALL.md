@@ -9,6 +9,7 @@ General ZAC usage instructions may be found in the [README.md](../../README.md) 
 
 - Java JDK (we use the `Temurin` distribution). Please check the [Gradle build file](../../build.gradle.kts) for the minimum version of Java that is required.
 - Node.js
+- [Podman](https://podman.io/), our supported container runtime for building the image, running the local Docker Compose stack, and running integration tests. Docker may still work as an unsupported fallback.
 
 ### Gradle build
 
@@ -29,9 +30,9 @@ If you want to skip running the unit tests, use the following command:
 ./gradlew build -x test
 ```
 
-### Build the Docker image
+### Build the container image
 
-To build the ZAC Docker image using the generated JAR archive from the previous step, use the following command:
+To build the ZAC container image (using Podman) from the generated JAR archive from the previous step, use the following command:
 
 ```shell
 ./gradlew buildDockerImage
@@ -41,13 +42,13 @@ To build the ZAC Docker image using the generated JAR archive from the previous 
 
 There are various ways to run ZAC locally.
 - For local backend development purposes we recommend to run ZAC from the IntelliJ IDEA.
-- For local frontend development and testing purposes we recommend to run ZAC in a Docker container.
+- For local frontend development and testing purposes we recommend to run ZAC in a container using Podman.
 - For local e2e testing you can follow the [end-to-end-testing](testing.md#end-to-end-e2e-tests) from the [testing](testing.md) documentation.
 
 ### Prerequisites
 
 - Access to all services (such as Keycloak, Open Zaak, etc) that are required by ZAC.
-You either run these locally (using [Docker Compose](installDockerCompose.md)) or on a central development environment.
+You either run these locally (using [Podman Compose](installDockerCompose.md)) or on a central development environment.
 - Environment variables required by ZAC. See the section below.
 
 #### Environment variables
@@ -68,29 +69,29 @@ In the section below we describe how to use the 1Password CLI extensions when ru
 
 Check the instructions in [IDE Configuration](./ideConfig.md#run-zac-in-intellij)
 
-### Run ZAC in a Docker container
+### Run ZAC in a container
 
-As an alternative to running ZAC in IntelliJ you can also run ZAC in a Docker container.
+As an alternative to running ZAC in IntelliJ you can also run ZAC in a container using Podman.
 There are several ways to do this.
 
-#### Run ZAC in a Docker container using Docker Compose
+#### Run ZAC in a container using Podman Compose
 
 If you also wish to run all services that are required by
-ZAC locally, the easiest way is to use our Docker Compose setup with can also run ZAC.
-Please see the [Docker Compose instructions](installDockerCompose.md) for more information.
+ZAC locally, the easiest way is to use our Podman Compose setup which can also run ZAC.
+Please see the [Podman Compose instructions](installDockerCompose.md) for more information.
 
-#### Run ZAC in a Docker container by itself
+#### Run ZAC in a container by itself
 
-As an alternative to run ZAC as a Docker container by itself you use the following command:
+As an alternative to run ZAC as a container by itself you use the following command:
 
 ```shell
-docker run -p 8080:8080 --env-file .env --name zaakafhandelcomponent zaakafhandelcomponent:latest
+podman run -p 8080:8080 --env-file .env --name zaakafhandelcomponent zaakafhandelcomponent:latest
 ```
 
-Or run one of the official ZAC Docker images from the [ZAC GitHub Packages Container Registry](https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhandelcomponent):
+Or run one of the official ZAC container images from the [ZAC GitHub Packages Container Registry](https://github.com/infonl/dimpact-zaakafhandelcomponent/pkgs/container/zaakafhandelcomponent):
 
 ```shell
-docker run -p 8080:8080 --env-file .env --name zaakafhandelcomponent ghcr.io/infonl/zaakafhandelcomponent:main-75
+podman run -p 8080:8080 --env-file .env --name zaakafhandelcomponent ghcr.io/infonl/zaakafhandelcomponent:main-75
 ```
 
 Be aware that you will need to set the ZAC environment variables according to your needs.

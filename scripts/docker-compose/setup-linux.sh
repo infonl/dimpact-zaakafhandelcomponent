@@ -10,6 +10,11 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 REPO_DIR="$SCRIPT_DIR"/../..
 
+# Rootless Podman does not expose a Docker-API-compatible socket by default;
+# enable it so TestContainers (via DOCKER_HOST) and tools expecting a Docker socket keep working.
+echo "Enabling the rootless Podman API socket ..."
+systemctl --user enable --now podman.socket
+
 echo "Replacing user and group IDs in override file ..."
 GID=$(id -g)
 sed "s/\${UID}/$UID/g" "$SCRIPT_DIR/docker-compose.linux.override.yml" > "$REPO_DIR/docker-compose.override.yml"

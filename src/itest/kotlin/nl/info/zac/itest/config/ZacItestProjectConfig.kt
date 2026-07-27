@@ -119,6 +119,12 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private val zacClient = ZacClient()
         private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
         private val skipDockerComposeStart = System.getenv(DO_NOT_START_DOCKER_COMPOSE_ENV_VAR)?.toBoolean() ?: false
+
+        // Rootless Podman cannot run the privileged Ryuk resource-reaper container, so TESTCONTAINERS_RYUK_DISABLED
+        // must be set to true (as a real OS environment variable, before the JVM starts) when running against
+        // Podman - see the scripts under scripts/docker-compose and the CI workflow for where this is set.
+        // TestContainers reads this env var itself to decide whether to launch Ryuk at all, independently of
+        // this Kotlin flag, which only controls whether ZAC's own teardown logic below also runs.
         private val skipContainerCleanup = System.getenv(TESTCONTAINERS_RYUK_DISABLED_ENV_VAR)?.toBoolean() ?: false
 
         // All variables below have to be overridable in the docker-compose.yaml file
@@ -258,11 +264,15 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         }
     }
 
+    // TestContainers' ComposeContainer shells out to a "docker compose"-compatible executable on PATH.
+    // Under Podman, install the podman-docker compatibility package (or an equivalent `docker` shim/alias
+    // that forwards to `podman`) so this resolves to Podman; DOCKER_HOST then points TestContainers'
+    // Docker-API client at the Podman socket. See design.md for details.
     @Suppress("UNCHECKED_CAST", "LongMethod")
     private fun createDockerComposeContainer(): ComposeContainer {
-        logger.info { "Using Docker Compose environment variables: $dockerComposeOverrideEnvironment" }
+        logger.info { "Using Docker/Podman Compose environment variables: $dockerComposeOverrideEnvironment" }
 
-        // Create a temporary empty env file so Docker Compose does not load any local .env file,
+        // Create a temporary empty env file so Compose does not load any local .env file,
         // which could override variables required by the integration tests.
         val envFile = Files.createTempFile("zac-itest", ".env").toFile()
         emptyEnvFile = envFile

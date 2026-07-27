@@ -9,19 +9,19 @@ set -e
 
 help()
 {
-   echo "Starts the ZAC Docker Compose environment using the 1Password CLI tools to retrieve secrets."
+   echo "Starts the ZAC Podman Compose environment using the 1Password CLI tools to retrieve secrets."
    echo
    echo "Syntax: $0 [-d|e|h|z|b|l|m|t|o|n|a|f]"
    echo
    echo "General:"
-   echo "   -d     Delete local Docker volume data before starting Docker Compose."
-   echo "   -e     Run Docker Compose without using the 1Password CLI tools to retrieve secrets (instead, environment variables must be set manually)."
+   echo "   -d     Delete local Podman volume data before starting Podman Compose."
+   echo "   -e     Run Podman Compose without using the 1Password CLI tools to retrieve secrets (instead, environment variables must be set manually)."
    echo "   -h     Print this Help."
    echo
    echo "ZAC options:"
-   echo "   -z     Start last-known-good ZAC Docker container."
-   echo "   -b     Build and start local ZAC Docker image."
-   echo "   -l     Start locally built ZAC Docker image."
+   echo "   -z     Start last-known-good ZAC container image."
+   echo "   -b     Build and start local ZAC container image."
+   echo "   -l     Start locally built ZAC container image."
    echo
    echo "Additional components:"
    echo "   -m     Start the containers used for handling metrics and traces."
@@ -52,7 +52,7 @@ profiles=()
 while getopts ':dhzblmtonafe' OPTION; do
   case $OPTION in
     d)
-      echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
+      echo "Deleting local Podman volume data folder: '$volumeDataFolder'.."
       rm -rf $volumeDataFolder
       echo "Done"
       ;;
@@ -119,20 +119,20 @@ if [ "$localZac" = "true" ] && [ "$buildZac" = "true" ]; then
 fi
 
 if [ "$buildZac" = "true" ]; then
-    echo "Building ZAC Docker Image ..."
+    echo "Building ZAC container image ..."
     ./gradlew buildDockerImage
     export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev
 fi
 if [ "$localZac" = "true" ]; then
-    echo "Using local ZAC Docker Image ..."
+    echo "Using local ZAC container image ..."
     export ZAC_DOCKER_IMAGE=ghcr.io/infonl/zaakafhandelcomponent:dev
 fi
 if [ "$pullZac" = "true" ]; then
-    echo "Pulling latest ZAC Docker Image ..."
-    docker compose pull zac
+    echo "Pulling latest ZAC container image ..."
+    podman compose pull zac
 fi
 
-# Ensure that Docker Compose volume-data directories are created with current user
+# Ensure that Podman Compose volume-data directories are created with current user
 mkdir -p $volumeDataFolder/openklant-database-data
 mkdir -p $volumeDataFolder/openzaak-database-data
 mkdir -p $volumeDataFolder/opennotificaties-database-data
@@ -149,9 +149,9 @@ if [ ${#profiles[@]} -ne 0 ]; then
   profilesList="${concatenated_profiles%,}"
 fi
 
-# Uses the 1Password CLI tools to set up the environment variables for running Docker Compose and ZAC in IntelliJ.
+# Uses the 1Password CLI tools to set up the environment variables for running Podman Compose and ZAC in IntelliJ.
 # Please see docs/INSTALL.md for details on how to use this script.
-echo "Starting Docker Compose environment with profiles [$profilesList] ..."
+echo "Starting Podman Compose environment with profiles [$profilesList] ..."
 compose_files=""
 if [ -n "${DOCKER_USE_ARM64_CONTAINERS:-}" ]; then
   echo "Using arm64 containers ..."
@@ -174,4 +174,4 @@ if [ "$disableOnePassword" = "false" ]; then
   fi
 fi
 
-export APP_ENV=devlocal && export COMPOSE_PROFILES=$profilesList && export OTEL_SDK_DISABLED=$disableZacOpenTelemetry && $op_script docker compose $compose_files --project-name zac up -d
+export APP_ENV=devlocal && export COMPOSE_PROFILES=$profilesList && export OTEL_SDK_DISABLED=$disableZacOpenTelemetry && $op_script podman compose $compose_files --project-name zac up -d
