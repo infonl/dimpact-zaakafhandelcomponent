@@ -57,10 +57,6 @@ class DocumentCreationDataService @Inject constructor(
     private val identityService: IdentityService,
     private val productaanvraagService: ProductaanvraagService
 ) {
-    companion object {
-        const val DATE_FORMAT: String = "dd-MM-yyyy"
-    }
-
     fun createData(loggedInUser: LoggedInUser, zaak: Zaak, taskId: String? = null) =
         Data(
             aanvragerData = createAanvragerData(zaak, loggedInUser),

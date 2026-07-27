@@ -8,8 +8,9 @@ import jakarta.json.bind.annotation.JsonbDateFormat
 import jakarta.json.bind.annotation.JsonbProperty
 import net.atos.zac.util.StringUtil
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
-import nl.info.zac.documentcreation.DocumentCreationDataService.Companion.DATE_FORMAT
 import java.time.LocalDate
+
+const val DATE_FORMAT = "dd-MM-yyyy"
 
 data class AanvragerData(
     val naam: String? = null,
