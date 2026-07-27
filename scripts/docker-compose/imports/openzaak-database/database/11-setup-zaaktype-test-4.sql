@@ -148,6 +148,58 @@ VALUES
 -- For the second JSON object
 INSERT INTO catalogi_resultaattype
 (
+    id,
+    uuid,
+    omschrijving,
+    resultaattypeomschrijving,
+    omschrijving_generiek,
+    selectielijstklasse,
+    archiefnominatie,
+    archiefactietermijn,
+    brondatum_archiefprocedure_afleidingswijze,
+    brondatum_archiefprocedure_datumkenmerk,
+    brondatum_archiefprocedure_einddatum_bekend,
+    brondatum_archiefprocedure_objecttype,
+    brondatum_archiefprocedure_registratie,
+    brondatum_archiefprocedure_procestermijn,
+    toelichting,
+    zaaktype_id,
+    _etag,
+    indicatie_specifiek,
+    procesobjectaard,
+    procestermijn,
+    datum_begin_geldigheid,
+    datum_einde_geldigheid
+)
+VALUES
+    (
+        (SELECT COALESCE(MAX(id),0) FROM catalogi_resultaattype) + 1, -- Adjust ID as needed
+        '82070946-aa8f-4e92-b4ba-1a053402e65a', -- UUID
+        'Opgelegd - Termijn',
+        'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/ce8cf476-0b59-496f-8eee-957a7c6e2506',
+        'Verleend',
+        'https://selectielijst.openzaak.nl/api/v1/resultaten/7a2728e6-3d77-4b67-9b6d-13e19d39455e',
+        'vernietigen',
+        'P5Y',
+        'termijn',
+        '',
+        false,
+        '',
+        '',
+        '1Y',
+        '',
+        (SELECT id FROM catalogi_zaaktype WHERE uuid = '4f46d270-c4d8-4cfe-a3a1-cb86ae102656'),
+        '_etag',
+        NULL,
+        '',
+        NULL,
+        NULL,
+        NULL
+    );
+
+-- For the third JSON object
+INSERT INTO catalogi_resultaattype
+(
   id,
   uuid,
   omschrijving,
@@ -197,7 +249,7 @@ VALUES
   NULL
 );
 
--- For the third JSON object
+-- For the fourth JSON object
 INSERT INTO catalogi_resultaattype
 (
     id,
@@ -249,7 +301,7 @@ VALUES
         NULL
     );
 
--- For the fourth JSON object
+-- For the fifth JSON object
 INSERT INTO catalogi_resultaattype
 (
     id,
@@ -301,7 +353,7 @@ VALUES
         NULL
     );
 
--- For the fifth JSON object
+-- For the sixth JSON object
 INSERT INTO catalogi_resultaattype
 (
     id,
