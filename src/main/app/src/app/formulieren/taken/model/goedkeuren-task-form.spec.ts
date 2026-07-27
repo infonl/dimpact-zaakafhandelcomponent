@@ -7,7 +7,7 @@ import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { of } from "rxjs";
+import { lastValueFrom, Observable, of } from "rxjs";
 import { fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -126,19 +126,45 @@ describe(GoedkeurenTaskForm.name, () => {
         ).toHaveBeenCalledWith({ zaakUUID: "zaak-uuid" });
       });
 
-      it("should pass the Observable directly as options without resolving it", async () => {
-        const documentsObservable = of([mockDocument1]);
+      it("should expose the fetched documents as an Observable in options", async () => {
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          documentsObservable,
+          of([mockDocument1, mockDocument2]),
         );
 
         const fields = await formulier.requestForm(mockZaak);
 
         const field = fields.find((f) => f.key === "relevanteDocumenten");
-        // options is the Observable itself, not a resolved array
-        expect("options" in field! ? field.options : null).toBe(
-          documentsObservable,
+        const options = "options" in field! ? field.options : null;
+        const documenten = await lastValueFrom(
+          options as Observable<
+            GeneratedType<"RestEnkelvoudigInformatieobject">[]
+          >,
         );
+        expect(documenten).toEqual([mockDocument1, mockDocument2]);
+      });
+
+      it("should filter out documents that are already signed", async () => {
+        const signedDocument = fromPartial<
+          GeneratedType<"RestEnkelvoudigInformatieobject">
+        >({
+          uuid: "doc-uuid-signed",
+          titel: "Signed document",
+          ondertekening: { soort: "digitaal", datum: "2026-01-01" },
+        });
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([mockDocument1, signedDocument, mockDocument2]),
+        );
+
+        const fields = await formulier.requestForm(mockZaak);
+
+        const field = fields.find((f) => f.key === "relevanteDocumenten");
+        const options = "options" in field! ? field.options : null;
+        const documenten = await lastValueFrom(
+          options as Observable<
+            GeneratedType<"RestEnkelvoudigInformatieobject">[]
+          >,
+        );
+        expect(documenten).toEqual([mockDocument1, mockDocument2]);
       });
 
       it("should not have a control (display-only field)", async () => {
@@ -316,6 +342,49 @@ describe(GoedkeurenTaskForm.name, () => {
 
         const control = fields.find((f) => f.key === "ondertekenen")?.control;
         expect(control?.value).not.toContainEqual(mockDocument2);
+      });
+
+      it("should filter out documents that are already signed", async () => {
+        const signedDocument = fromPartial<
+          GeneratedType<"RestEnkelvoudigInformatieobject">
+        >({
+          uuid: "doc-uuid-signed",
+          titel: "Signed document",
+          ondertekening: { soort: "digitaal", datum: "2026-01-01" },
+        });
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([mockDocument1, signedDocument, mockDocument2]),
+        );
+
+        const fields = await formulier.handleForm(mockTaak);
+
+        const field = fields.find((f) => f.key === "ondertekenen");
+        expect("options" in field! ? field.options : []).toEqual([
+          mockDocument1,
+          mockDocument2,
+        ]);
+      });
+
+      it("should not pre-check a previously-checked document that has since been signed", async () => {
+        const signedDocument = fromPartial<
+          GeneratedType<"RestEnkelvoudigInformatieobject">
+        >({
+          uuid: "doc-uuid-signed",
+          titel: "Signed document",
+          ondertekening: { soort: "digitaal", datum: "2026-01-01" },
+        });
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([mockDocument1, signedDocument]),
+        );
+        const taakWithSigned = fromPartial<GeneratedType<"RestTask">>({
+          ...mockTaak,
+          taakdata: { ondertekenen: "doc-uuid-signed" },
+        });
+
+        const fields = await formulier.handleForm(taakWithSigned);
+
+        const control = fields.find((f) => f.key === "ondertekenen")?.control;
+        expect(control?.value).toEqual([]);
       });
 
       it("should initialize ondertekenen as empty when no documents were previously signed", async () => {
