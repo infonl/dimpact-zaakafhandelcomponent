@@ -78,7 +78,8 @@ export class MailtemplateComponent
   protected variabelen: string[] = [];
   private readonly data = toSignal(this.route.data);
   private readonly mailTemplate = computed(
-    () => this.data()?.template as GeneratedType<"RESTMailtemplate"> | undefined,
+    () =>
+      this.data()?.template as GeneratedType<"RESTMailtemplate"> | undefined,
   );
 
   protected readonly mailTemplates: {
