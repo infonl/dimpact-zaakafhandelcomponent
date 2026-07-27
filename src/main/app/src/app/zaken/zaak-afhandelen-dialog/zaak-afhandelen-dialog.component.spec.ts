@@ -22,6 +22,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { randomUUID } from "crypto";
+import moment from "moment";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
@@ -336,8 +337,10 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
 
       const inputs = await loader.getAllHarnesses(MatInputHarness);
 
+      const brondatumEigenschap = moment().add(1, "day");
+
       await inputs[0].setValue("test toelichting");
-      await inputs[1].setValue("2022-01-01");
+      await inputs[1].setValue(brondatumEigenschap.format("YYYY-MM-DD"));
 
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
@@ -356,7 +359,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           zaakUuid: "test-zaak-uuid",
           resultaattypeUuid: "resultaat-1",
           resultaatToelichting: "test toelichting",
-          brondatumEigenschap: "2021-12-31T23:00:00.000Z",
+          brondatumEigenschap: brondatumEigenschap.startOf("day").toISOString(),
         }),
       );
       req.flush({});
@@ -374,6 +377,46 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         'button[type="submit"]',
       );
       expect(submitBtn.disabled).toBe(true);
+    });
+
+    it("should not allow the form to be submitted when brondatumEigenschap is before today", async () => {
+      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
+      await resultaattypeSelect.open();
+
+      const options = await resultaattypeSelect.getOptions();
+      await options[0]?.click(); // Select a type that requires brondatumEigenschap
+
+      const inputs = await loader.getAllHarnesses(MatInputHarness);
+
+      await inputs[0].setValue("test toelichting");
+      await inputs[1].setValue(
+        moment().subtract(1, "day").format("YYYY-MM-DD"),
+      );
+      fixture.detectChanges();
+
+      const submitBtn = fixture.nativeElement.querySelector(
+        'button[type="submit"]',
+      );
+      expect(submitBtn.disabled).toBe(true);
+    });
+
+    it("should allow the form to be submitted when brondatumEigenschap is today", async () => {
+      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
+      await resultaattypeSelect.open();
+
+      const options = await resultaattypeSelect.getOptions();
+      await options[0]?.click(); // Select a type that requires brondatumEigenschap
+
+      const inputs = await loader.getAllHarnesses(MatInputHarness);
+
+      await inputs[0].setValue("test toelichting");
+      await inputs[1].setValue(moment().format("YYYY-MM-DD"));
+      fixture.detectChanges();
+
+      const submitBtn = fixture.nativeElement.querySelector(
+        'button[type="submit"]',
+      );
+      expect(submitBtn.disabled).toBe(false);
     });
   });
 

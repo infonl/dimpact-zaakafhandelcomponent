@@ -6,7 +6,14 @@
 import { NgFor, NgIf } from "@angular/common";
 import { Component, effect, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import {
@@ -19,16 +26,17 @@ import { MatExpansionModule } from "@angular/material/expansion";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import {
   injectMutation,
   injectQuery,
 } from "@tanstack/angular-query-experimental";
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { FormHelper } from "../../shared/form/helpers";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
@@ -71,6 +79,7 @@ export class ZaakAfhandelenDialogComponent {
   private readonly klantenService = inject(KlantenService);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly translateService = inject(TranslateService);
 
   private sendMailDefault: boolean;
 
@@ -84,7 +93,9 @@ export class ZaakAfhandelenDialogComponent {
     verzender:
       this.formBuilder.control<GeneratedType<"RestZaakAfzender"> | null>(null),
     ontvanger: this.formBuilder.control<string>("", [CustomValidators.email]),
-    brondatumEigenschap: this.formBuilder.control<Moment | null>(null),
+    brondatumEigenschap: this.formBuilder.control<Moment | null>(null, [
+      this.brondatumNietVoorVandaag(),
+    ]),
   });
 
   protected readonly resultaattypesQuery = injectQuery(() => ({
@@ -215,6 +226,23 @@ export class ZaakAfhandelenDialogComponent {
         }
         this.form.controls.brondatumEigenschap.updateValueAndValidity();
       });
+  }
+
+  private brondatumNietVoorVandaag(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (!moment.isMoment(value) || value.isSameOrAfter(moment(), "day")) {
+        return null;
+      }
+      return FormHelper.CustomErrorMessage(
+        "msg.error.date.invalid.datum.brondatum-voor-vandaag",
+        {
+          label:
+            this.brondatumEigenschapLabel ||
+            this.translateService.instant("zaak.brondatum"),
+        },
+      );
+    };
   }
 
   protected close() {
