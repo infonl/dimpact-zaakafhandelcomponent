@@ -10,7 +10,7 @@ import net.atos.zac.util.StringUtil
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import java.time.LocalDate
 
-const val DATE_FORMAT = "dd-MM-yyyy"
+private const val DATE_FORMAT = "dd-MM-yyyy"
 
 data class AanvragerData(
     val naam: String? = null,
