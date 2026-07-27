@@ -297,4 +297,51 @@ describe(MailtemplateComponent.name, () => {
     );
     request.flush({});
   });
+
+  it("invalidates the saved template's own query after a successful update", async () => {
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+    const invalidateSpy = jest
+      .spyOn(testQueryClient, "invalidateQueries")
+      .mockResolvedValue();
+
+    TestBed.inject(ActivatedRoute).data = of({
+      template: {
+        id: 42,
+        mailTemplateNaam: "Bestaand template",
+        mail: "TAAK_ONTVANGSTBEVESTIGING",
+        onderwerp: "Bestaand onderwerp",
+        body: "Bestaand body",
+        defaultMailtemplate: false,
+      },
+    });
+
+    fixture = TestBed.createComponent(TestMailtemplateComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component["saveMailtemplate"]();
+    await new Promise(requestAnimationFrame);
+    httpTestingController.expectOne("/rest/beheer/mailtemplates/42").flush({});
+    await sleep();
+
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: mailtemplateBeheerService.readMailtemplateQuery(42).queryKey,
+    });
+  });
+
+  it("does not invalidate when creating a new template", async () => {
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+    const invalidateSpy = jest
+      .spyOn(testQueryClient, "invalidateQueries")
+      .mockResolvedValue();
+
+    component["form"].patchValue(fakeValidTemplate);
+
+    component["saveMailtemplate"]();
+    await new Promise(requestAnimationFrame);
+    httpTestingController.expectOne("/rest/beheer/mailtemplates").flush({});
+    await sleep();
+
+    expect(invalidateSpy).not.toHaveBeenCalled();
+  });
 });

@@ -43,7 +43,7 @@ describe(MailtemplateResolver.name, () => {
       .spyOn(foutAfhandelingService, "httpErrorAfhandelen")
       .mockReturnValue(EMPTY);
     jest
-      .spyOn(queryClient, "ensureQueryData")
+      .spyOn(queryClient, "fetchQuery")
       .mockResolvedValue(
         fromPartial<GeneratedType<"RESTMailtemplate">>({ id: 42 }),
       );
@@ -70,7 +70,7 @@ describe(MailtemplateResolver.name, () => {
       }),
     );
 
-    expect(queryClient.ensureQueryData).toHaveBeenCalledWith(
+    expect(queryClient.fetchQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: expect.arrayContaining(["/rest/beheer/mailtemplates/{id}"]),
       }),
@@ -87,8 +87,7 @@ describe(MailtemplateResolver.name, () => {
       }),
     );
 
-    const { retry } = jest.mocked(queryClient.ensureQueryData).mock
-      .calls[0][0] as {
+    const { retry } = jest.mocked(queryClient.fetchQuery).mock.calls[0][0] as {
       retry: (count: number, error: HttpErrorResponse) => boolean;
     };
     const error = new HttpErrorResponse({ status: 500 });

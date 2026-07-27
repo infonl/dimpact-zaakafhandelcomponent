@@ -27,7 +27,7 @@ import { MatSortModule, Sort } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { forkJoin } from "rxjs";
+import { finalize, forkJoin } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import {
@@ -119,14 +119,21 @@ export class MailtemplatesComponent
 
   protected laadMailtemplates(): void {
     this.isLoadingResults = true;
+    this.utilService.setLoading(true);
     forkJoin([
       this.mailtemplateBeheerService.listMailtemplates(),
       this.mailtemplateKoppelingService.listMailtemplateKoppelingen(),
-    ]).subscribe(([mailtemplates, koppelingen]) => {
-      this.dataSource.data = mailtemplates;
-      this.mailKoppelingen = koppelingen;
-      this.isLoadingResults = false;
-    });
+    ])
+      .pipe(
+        finalize(() => {
+          this.isLoadingResults = false;
+          this.utilService.setLoading(false);
+        }),
+      )
+      .subscribe(([mailtemplates, koppelingen]) => {
+        this.dataSource.data = mailtemplates;
+        this.mailKoppelingen = koppelingen;
+      });
   }
 
   protected isDisabled(

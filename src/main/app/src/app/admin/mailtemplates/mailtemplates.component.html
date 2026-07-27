@@ -186,10 +186,20 @@
             "
             class="detail-row"
           ></tr>
+          <tr class="mat-row" *matNoDataRow>
+            <td
+              class="mat-cell"
+              style="text-align: center"
+              [attr.colspan]="columnsToDisplay.length"
+            >
+              @if (isLoadingResults) {
+                <p>{{ "msg.loading" | translate }}</p>
+              } @else {
+                <p>{{ "msg.geen.gegevens.gevonden" | translate }}</p>
+              }
+            </td>
+          </tr>
         </table>
-        <p *ngIf="!dataSource.data.length">
-          {{ "msg.geen.gegevens.gevonden" | translate }}
-        </p>
       </mat-card-content>
     </mat-card>
   </mat-sidenav-content>

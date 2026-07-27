@@ -28,7 +28,7 @@ export class MailtemplateResolver {
       );
     }
 
-    return this.queryClient.ensureQueryData({
+    return this.queryClient.fetchQuery({
       ...this.mailtemplateBeheerService.readMailtemplateQuery(Number(id)),
       retry: (_count, error) => {
         this.foutAfhandelingService.httpErrorAfhandelen(error);

@@ -15,7 +15,10 @@ import {
 } from "@angular/material/sidenav";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { map } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -88,6 +91,13 @@ export class MailtemplateComponent
         body,
       ),
     onSuccess: () => {
+      const id = this.mailTemplate()?.id;
+      if (id != null) {
+        this.queryClient.invalidateQueries({
+          queryKey:
+            this.mailTemplateBeheerService.readMailtemplateQuery(id).queryKey,
+        });
+      }
       this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
       void this.router.navigate(["/admin/mailtemplates"]);
     },
@@ -100,6 +110,7 @@ export class MailtemplateComponent
     private route: ActivatedRoute,
     private router: Router,
     private readonly formBuilder: FormBuilder,
+    private readonly queryClient: QueryClient,
   ) {
     super(utilService, configuratieService);
 

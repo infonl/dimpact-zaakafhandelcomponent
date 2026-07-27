@@ -16,7 +16,9 @@ import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { EMPTY, of } from "rxjs";
+import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -31,7 +33,10 @@ describe(MailtemplatesComponent.name, () => {
   let mailtemplateBeheerService: MailtemplateBeheerService;
   let mailtemplateKoppelingService: MailtemplateKoppelingService;
   let dialog: MatDialog;
-  let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
+  let utilServiceMock: Pick<
+    UtilService,
+    "setTitle" | "openSnackbar" | "setLoading"
+  >;
 
   const mailtemplate: GeneratedType<"RESTMailtemplate"> = {
     id: 1,
@@ -57,6 +62,7 @@ describe(MailtemplatesComponent.name, () => {
     utilServiceMock = {
       setTitle: jest.fn(),
       openSnackbar: jest.fn(),
+      setLoading: jest.fn(),
     };
 
     await TestBed.configureTestingModule({
@@ -69,6 +75,7 @@ describe(MailtemplatesComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
         { provide: UtilService, useValue: utilServiceMock },
         {
           provide: ConfiguratieService,
@@ -297,5 +304,16 @@ describe(MailtemplatesComponent.name, () => {
     const table = await loader.getHarness(MatTableHarness);
     const rows = await table.getRows();
     expect(rows).toHaveLength(0);
+    expect(fixture.nativeElement.textContent).toContain(
+      "msg.geen.gegevens.gevonden",
+    );
+  });
+
+  it("should show the loading text in the empty table while results are loading", () => {
+    component["dataSource"].data = [];
+    component["isLoadingResults"] = true;
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain("msg.loading");
   });
 });
