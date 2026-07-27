@@ -70,7 +70,8 @@ export class MailtemplateComponent
   private readonly mailTemplate = toSignal(
     this.route.data.pipe(
       map(
-        (data) => data.template as GeneratedType<"RESTMailtemplate"> | undefined,
+        (data) =>
+          data.template as GeneratedType<"RESTMailtemplate"> | undefined,
       ),
     ),
   );

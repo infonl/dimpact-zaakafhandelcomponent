@@ -120,9 +120,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
     foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
     httpTestingController = TestBed.inject(HttpTestingController);
 
-    jest
-      .spyOn(foutAfhandelingService, "foutAfhandelen")
-      .mockReturnValue(EMPTY);
+    jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
 
     jest
       .spyOn(informatieObjectenService, "listInformatieobjecttypes")
