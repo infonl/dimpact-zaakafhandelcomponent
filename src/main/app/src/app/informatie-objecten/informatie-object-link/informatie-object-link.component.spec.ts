@@ -23,6 +23,7 @@ import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { Response } from "../../shared/http/http-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
@@ -42,6 +43,7 @@ describe(InformatieObjectLinkComponent.name, () => {
   let zoekenService: ZoekenService;
   let utilService: UtilService;
   let translateService: TranslateService;
+  let foutAfhandelingService: FoutAfhandelingService;
   let httpTestingController: HttpTestingController;
 
   afterEach(() => {
@@ -125,7 +127,10 @@ describe(InformatieObjectLinkComponent.name, () => {
     zoekenService = TestBed.inject(ZoekenService);
     utilService = TestBed.inject(UtilService);
     translateService = TestBed.inject(TranslateService);
+    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
     httpTestingController = TestBed.inject(HttpTestingController);
+
+    jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(of());
 
     jest
       .spyOn(zoekenService, "listDocumentKoppelbareZaken")
@@ -271,6 +276,22 @@ describe(InformatieObjectLinkComponent.name, () => {
     await sleep();
 
     expect(emitSpy).toHaveBeenCalled();
+  });
+
+  it("should route link failures through the error handler", async () => {
+    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
+    fixture.detectChanges();
+    const selectableCase = mockCaseLinkSearchResult.resultaten![0];
+
+    component["selectCase"](selectableCase);
+    await new Promise(requestAnimationFrame);
+    httpTestingController
+      .expectOne(linkUrl)
+      .flush(null, { status: 500, statusText: "Server Error" });
+    await sleep();
+
+    expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
+    expect(utilService.openSnackbar).not.toHaveBeenCalled();
   });
 
   it("should not fire a second link while one is already in progress", async () => {
