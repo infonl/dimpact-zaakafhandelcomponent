@@ -7,7 +7,7 @@ package nl.info.zac.itest
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.json.shouldContainJsonKey
-import io.kotest.assertions.json.shouldContainJsonKeyValue import io.kotest.assertions.json.shouldNotContainJsonKey
+import io.kotest.assertions.json.shouldContainJsonKeyValue
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
@@ -27,9 +27,9 @@ import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 
 /**
- * This test creates a zaak, adds a task to complete the intake phase, closes the zaak, then re-opens and again closes the zaak.
+ * This test creates a zaak, adds a task to complete the intake phase, closes the zaak with afleidingswijze 'afgehandeld'.
  */
-class ZaakRestServiceBrondatumArchiveTest : BehaviorSpec({
+class ZaakRestServiceBrondatumAfleidingswijzeAfgehandeldArchiveTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient()
     val logger = KotlinLogging.logger {}
@@ -40,7 +40,7 @@ class ZaakRestServiceBrondatumArchiveTest : BehaviorSpec({
         and a logged-in recordmanager for domain test 1
         """
     ) {
-        lateinit var zaakUUID: UUID
+        lateinit var zaakUuid: UUID
         lateinit var resultaatTypeUuid: UUID
         val intakeId: Int
         zacClient.createZaak(
@@ -54,12 +54,12 @@ class ZaakRestServiceBrondatumArchiveTest : BehaviorSpec({
             logger.info { "Response: $responseBody" }
             JSONObject(responseBody).run {
                 getJSONObject("zaakdata").run {
-                    zaakUUID = getString("zaakUUID").run(UUID::fromString)
+                    zaakUuid = getString("zaakUUID").run(UUID::fromString)
                 }
             }
         }
         itestHttpClient.performGetRequest(
-            url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems",
+            url = "$ZAC_API_URI/planitems/zaak/$zaakUuid/userEventListenerPlanItems",
             testUser = RECORDMANAGER_1
         ).run {
             val responseBody = bodyAsString
@@ -74,7 +74,7 @@ class ZaakRestServiceBrondatumArchiveTest : BehaviorSpec({
             "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
             requestBodyAsString = """
                 {
-                    "zaakUuid":"$zaakUUID",
+                    "zaakUuid":"$zaakUuid",
                     "planItemInstanceId":"$intakeId",
                     "actie":"$ACTIE_INTAKE_AFRONDEN",
                     "zaakOntvankelijk":true
@@ -99,10 +99,10 @@ class ZaakRestServiceBrondatumArchiveTest : BehaviorSpec({
             }
         }
 
-        `when`("the zaak is completed with resultaattype 'Niet opgelegd'") {
+        `when`("the zaak is completed with afhandelwijze 'Niet opgelegd' (afleidingswijze 'afgehandeld'") {
             val afhandelenId: Int
             itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/planitems/zaak/$zaakUUID/userEventListenerPlanItems",
+                url = "$ZAC_API_URI/planitems/zaak/$zaakUuid/userEventListenerPlanItems",
                 testUser = RECORDMANAGER_1
             ).run {
                 val responseBody = bodyAsString
@@ -117,7 +117,7 @@ class ZaakRestServiceBrondatumArchiveTest : BehaviorSpec({
                 "$ZAC_API_URI/planitems/doUserEventListenerPlanItem",
                 requestBodyAsString = """
                     {
-                        "zaakUuid":"$zaakUUID",
+                        "zaakUuid":"$zaakUuid",
                         "planItemInstanceId":"$afhandelenId",
                         "actie":"$ACTIE_ZAAK_AFHANDELEN",
                         "resultaattypeUuid": "$resultaatTypeUuid",
@@ -130,7 +130,7 @@ class ZaakRestServiceBrondatumArchiveTest : BehaviorSpec({
             }
 
             then("the zaak should be closed and have a result and startdatumBewaartermijn = einddatum") {
-                zacClient.retrieveZaak(zaakUUID, RECORDMANAGER_1).let { response ->
+                zacClient.retrieveZaak(zaakUuid, RECORDMANAGER_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
