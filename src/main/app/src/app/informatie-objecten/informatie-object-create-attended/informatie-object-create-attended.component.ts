@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpErrorResponse } from "@angular/common/http";
 import {
   Component,
   effect,
@@ -39,6 +40,7 @@ import {
 } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacDate } from "../../shared/form/date/date";
@@ -128,9 +130,11 @@ export class InformatieObjectCreateAttendedComponent
     this.identityService.readLoggedInUser(),
   );
 
-  protected readonly createDocumentMutation = injectMutation(() =>
-    this.informatieObjectenService.createDocumentAttendedMutation(),
-  );
+  protected readonly createDocumentMutation = injectMutation(() => ({
+    ...this.informatieObjectenService.createDocumentAttendedMutation(),
+    onError: (error: HttpErrorResponse) =>
+      this.foutAfhandelingService.foutAfhandelen(error),
+  }));
 
   constructor(
     private readonly smartDocumentsService: SmartDocumentsService,
@@ -140,6 +144,7 @@ export class InformatieObjectCreateAttendedComponent
     private readonly translateService: TranslateService,
     private readonly dialog: MatDialog,
     private readonly formBuilder: FormBuilder,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {
     effect(() => {
       this.form.controls.author.setValue(

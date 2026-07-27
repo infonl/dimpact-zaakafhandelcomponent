@@ -23,10 +23,11 @@ import {
   provideQueryClient,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { EMPTY, of } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacDate } from "../../shared/form/date/date";
@@ -46,6 +47,7 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   let informatieObjectenService: InformatieObjectenService;
   let smartDocumentsService: SmartDocumentsService;
   let identityService: IdentityService;
+  let foutAfhandelingService: FoutAfhandelingService;
   let httpTestingController: HttpTestingController;
 
   afterEach(() => {
@@ -115,7 +117,12 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
     smartDocumentsService = TestBed.inject(SmartDocumentsService);
     identityService = TestBed.inject(IdentityService);
+    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
     httpTestingController = TestBed.inject(HttpTestingController);
+
+    jest
+      .spyOn(foutAfhandelingService, "foutAfhandelen")
+      .mockReturnValue(EMPTY);
 
     jest
       .spyOn(informatieObjectenService, "listInformatieobjecttypes")
@@ -281,6 +288,23 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
       await sleep();
 
       expect(openSpy).toHaveBeenCalled();
+    });
+
+    it("should call foutAfhandelen and not emit document when the create request fails", async () => {
+      const emitSpy = jest.spyOn(component.document, "emit");
+
+      fillValidForm();
+      component["onFormSubmit"](component["form"]);
+      await new Promise(requestAnimationFrame);
+
+      const request = httpTestingController.expectOne(
+        "/rest/document-creation/create-document-attended",
+      );
+      request.flush("boom", { status: 500, statusText: "Server Error" });
+      await sleep();
+
+      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
+      expect(emitSpy).not.toHaveBeenCalled();
     });
 
     it("should disable the submit button while a save is in progress", async () => {

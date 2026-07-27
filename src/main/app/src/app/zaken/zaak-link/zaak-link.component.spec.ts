@@ -15,11 +15,12 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of, throwError } from "rxjs";
+import { EMPTY, of, throwError } from "rxjs";
 import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
@@ -69,10 +70,12 @@ const setup = (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
   const zoekenService = TestBed.inject(ZoekenService);
   const zakenService = TestBed.inject(ZakenService);
   const utilService = TestBed.inject(UtilService);
+  const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
   const httpTestingController = TestBed.inject(HttpTestingController);
 
   jest.spyOn(utilService, "setLoading").mockReturnValue(undefined);
   jest.spyOn(utilService, "openSnackbar").mockReturnValue(undefined);
+  jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
 
   const fixture: ComponentFixture<ZaakLinkComponent> =
     TestBed.createComponent(ZaakLinkComponent);
@@ -87,6 +90,7 @@ const setup = (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
     zoekenService,
     zakenService,
     utilService,
+    foutAfhandelingService,
     httpTestingController,
     sideNav,
     zaak,
@@ -227,6 +231,26 @@ describe(ZaakLinkComponent.name, () => {
         "msg.zaak.gekoppeld",
         { case: row.identificatie },
       );
+    });
+
+    it("calls foutAfhandelen and does not emit zaakLinked when the link request fails", async () => {
+      const { component, httpTestingController, foutAfhandelingService } =
+        setup();
+      const zaakLinkedSpy = jest.spyOn(component.zaakLinked, "emit");
+      component["form"].controls.caseRelationType.setValue(
+        component["caseRelationOptionsList"][0],
+      );
+      const row = makeFakeSearchResult({ isKoppelbaar: true });
+
+      component["selectCase"](row);
+      await new Promise(requestAnimationFrame);
+
+      const request = httpTestingController.expectOne(KOPPEL_URL);
+      request.flush("boom", { status: 500, statusText: "Server Error" });
+      await sleep();
+
+      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
+      expect(zaakLinkedSpy).not.toHaveBeenCalled();
     });
 
     it("ignores a second selectCase while a link request is still in flight", async () => {
