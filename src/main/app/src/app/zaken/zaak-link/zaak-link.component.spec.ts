@@ -84,6 +84,10 @@ const setup = (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
   component.sideNav = sideNav;
   fixture.detectChanges();
 
+  httpTestingController
+    .expectOne("/rest/zaken/gekoppelde-zaken/zaaktypen")
+    .flush([]);
+
   return {
     fixture,
     component,

@@ -6,6 +6,7 @@
 import {
   AfterViewInit,
   Component,
+  computed,
   DestroyRef,
   OnInit,
   ViewChild,
@@ -25,7 +26,6 @@ import {
   injectMutation,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
-import { map } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
@@ -76,13 +76,9 @@ export class MailtemplateComponent
   });
 
   protected variabelen: string[] = [];
-  private readonly mailTemplate = toSignal(
-    this.route.data.pipe(
-      map(
-        (data) =>
-          data.template as GeneratedType<"RESTMailtemplate"> | undefined,
-      ),
-    ),
+  private readonly data = toSignal(this.route.data);
+  private readonly mailTemplate = computed(
+    () => this.data()?.template as GeneratedType<"RESTMailtemplate"> | undefined,
   );
 
   protected readonly mailTemplates: {
@@ -143,7 +139,7 @@ export class MailtemplateComponent
         mail: mailTemplate?.mail
           ? {
               label: "mail." + mailTemplate?.mail,
-              value: mailTemplate?.mail as GeneratedType<"Mail">,
+              value: mailTemplate?.mail,
             }
           : null,
       });
