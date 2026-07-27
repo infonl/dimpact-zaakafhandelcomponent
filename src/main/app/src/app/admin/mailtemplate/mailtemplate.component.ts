@@ -3,7 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
@@ -111,6 +117,7 @@ export class MailtemplateComponent
     private router: Router,
     private readonly formBuilder: FormBuilder,
     private readonly queryClient: QueryClient,
+    private readonly destroyRef: DestroyRef,
   ) {
     super(utilService, configuratieService);
 
@@ -127,28 +134,30 @@ export class MailtemplateComponent
   }
 
   ngOnInit() {
-    this.route.data.subscribe(() => {
-      const mailTemplate = this.mailTemplate();
+    this.route.data
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        const mailTemplate = this.mailTemplate();
 
-      this.setupMenu("title.mailtemplate");
-      this.form.patchValue({
-        ...mailTemplate,
-        mail: mailTemplate?.mail
-          ? {
-              label: "mail." + mailTemplate?.mail,
-              value: mailTemplate?.mail as GeneratedType<"Mail">,
-            }
-          : null,
+        this.setupMenu("title.mailtemplate");
+        this.form.patchValue({
+          ...mailTemplate,
+          mail: mailTemplate?.mail
+            ? {
+                label: "mail." + mailTemplate?.mail,
+                value: mailTemplate?.mail as GeneratedType<"Mail">,
+              }
+            : null,
+        });
+
+        if (!mailTemplate?.mail) return;
+
+        this.mailTemplates.push({
+          label: "mail." + mailTemplate?.mail,
+          value: mailTemplate?.mail,
+        });
+        this.form.controls.mail.disable();
       });
-
-      if (!mailTemplate?.mail) return;
-
-      this.mailTemplates.push({
-        label: "mail." + mailTemplate?.mail,
-        value: mailTemplate?.mail,
-      });
-      this.form.controls.mail.disable();
-    });
   }
 
   protected saveMailtemplate() {
