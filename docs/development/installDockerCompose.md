@@ -18,12 +18,23 @@ It was extended and made specific for the needs of ZAC.
 
 ### macOS / Windows (`podman machine`)
 
-The default `podman machine` allocation (2GiB RAM) is too small for this stack (Solr, Keycloak, four PostgreSQL
-instances, Open Zaak, Open Klant, PABC, etc.). Give the machine at least 8GiB RAM before starting the stack:
+The default `podman machine` allocation (2GiB RAM) is far too small for this stack (Solr, Keycloak, four PostgreSQL
+instances, Open Zaak, Open Klant, PABC, etc.). 8GiB is enough to bring the default profile up at idle, but running
+the full integration test suite under load needs more — **16GiB RAM / 8 CPU is the validated minimum**:
 
 ```shell
-podman machine set --memory 8192
+podman machine set --memory 16384 --cpus 8
 ```
+
+Rootless Podman also defaults to disallowing privileged host ports (<1024), which the `itest` profile's `greenmail`
+service needs (SMTP port 25). Lower the unprivileged port floor inside the machine and persist it across restarts:
+
+```shell
+podman machine ssh sudo sysctl -w net.ipv4.ip_unprivileged_port_start=25
+podman machine ssh "echo 'net.ipv4.ip_unprivileged_port_start=25' | sudo tee /etc/sysctl.d/99-podman-unprivileged-ports.conf"
+```
+
+On Linux (no `podman machine`), apply the same sysctl directly on the host instead.
 
 ### WSL2
 Make sure you clone the repository to the WSL filesystem itself
