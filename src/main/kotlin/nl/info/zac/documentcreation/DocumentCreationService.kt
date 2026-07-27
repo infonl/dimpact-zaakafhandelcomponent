@@ -11,16 +11,20 @@ import jakarta.ws.rs.HttpMethod
 import jakarta.ws.rs.core.UriBuilder
 import net.atos.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.util.MediaTypes
+import nl.info.client.smartdocuments.model.document.File
 import nl.info.client.smartdocuments.model.document.OutputFormat
 import nl.info.client.smartdocuments.model.document.Selection
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.document.Variables
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.StatusEnum
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
-import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
 import nl.info.zac.identity.model.getFullName
@@ -28,6 +32,7 @@ import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.decodedBase64StringLength
 import java.net.URI
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -42,8 +47,9 @@ import java.util.logging.Logger
 class DocumentCreationService @Inject constructor(
     private val smartDocumentsService: SmartDocumentsService,
     private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
-    private val documentCreationDataConverter: DocumentCreationDataConverter,
+    private val documentCreationDataService: DocumentCreationDataService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
+    private val ztcClientService: ZtcClientService,
     private val configurationService: ConfigurationService,
     private val loggedInUserInstance: Instance<LoggedInUser>,
 ) {
@@ -69,10 +75,10 @@ class DocumentCreationService @Inject constructor(
         userName: String
     ): ZaakInformatieobject =
         smartDocumentsService.downloadDocument(fileId).let { file ->
-            documentCreationDataConverter.createEnkelvoudigInformatieObjectCreateLockRequest(
+            createEnkelvoudigInformatieObjectCreateLockRequest(
                 file = file,
                 format = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType,
-                informatieobjecttypeUuid = informatieobjecttypeUuid,
+                informatieobjecttypeUrl = ztcClientService.readInformatieobjecttype(informatieobjecttypeUuid).url,
                 title = title,
                 description = description,
                 creationDate = creationDate,
@@ -95,7 +101,7 @@ class DocumentCreationService @Inject constructor(
     fun createDocumentAttended(
         documentCreationDataAttended: DocumentCreationDataAttended
     ): DocumentCreationAttendedResponse =
-        documentCreationDataConverter.createData(
+        documentCreationDataService.createData(
             loggedInUser = loggedInUserInstance.get(),
             zaak = documentCreationDataAttended.zaak,
             taskId = documentCreationDataAttended.taskId
@@ -217,4 +223,28 @@ class DocumentCreationService @Inject constructor(
                 ).toString()
             )
         )
+
+    private fun createEnkelvoudigInformatieObjectCreateLockRequest(
+        file: File,
+        format: String,
+        title: String,
+        description: String?,
+        informatieobjecttypeUrl: URI,
+        creationDate: ZonedDateTime,
+        userName: String
+    ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
+        bronorganisatie = configurationService.readBronOrganisatie()
+        creatiedatum = creationDate.toLocalDate()
+        titel = title
+        auteur = userName
+        taal = ConfigurationService.TAAL_NEDERLANDS
+        beschrijving = description
+        status = StatusEnum.IN_BEWERKING
+        vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
+        informatieobjecttype = informatieobjecttypeUrl
+        bestandsnaam = file.fileName
+        formaat = format
+        inhoud = file.document.data
+        bestandsomvang = file.document.data?.decodedBase64StringLength()
+    }
 }

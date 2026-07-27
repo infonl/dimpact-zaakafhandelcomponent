@@ -9,7 +9,7 @@ import jakarta.json.bind.annotation.JsonbProperty
 import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.zac.util.StringUtil
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
-import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter.Companion.DATE_FORMAT
+import nl.info.zac.documentcreation.DocumentCreationDataService.Companion.DATE_FORMAT
 import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
 import java.time.LocalDate
 

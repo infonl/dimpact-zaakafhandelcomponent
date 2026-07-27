@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package nl.info.zac.documentcreation.converter
+package nl.info.zac.documentcreation
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.Rol
@@ -18,16 +18,12 @@ import nl.info.client.kvk.KvkClientService
 import nl.info.client.or.`object`.ObjectsClientService
 import nl.info.client.smartdocuments.model.document.AanvragerData
 import nl.info.client.smartdocuments.model.document.Data
-import nl.info.client.smartdocuments.model.document.File
 import nl.info.client.smartdocuments.model.document.GebruikerData
 import nl.info.client.smartdocuments.model.document.StartformulierData
 import nl.info.client.smartdocuments.model.document.TaskData
 import nl.info.client.smartdocuments.model.document.ZaakData
 import nl.info.client.smartdocuments.model.document.toAanvragerDataBedrijf
 import nl.info.client.smartdocuments.model.document.toStartformulierData
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
-import nl.info.client.zgw.drc.model.generated.StatusEnum
-import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -41,20 +37,17 @@ import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.authentication.LoggedInUser
-import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.util.NoArgConstructor
-import nl.info.zac.util.decodedBase64StringLength
 import java.net.URI
-import java.time.ZonedDateTime
 import java.util.Objects
 import java.util.UUID
 
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
-class DocumentCreationDataConverter @Inject constructor(
+class DocumentCreationDataService @Inject constructor(
     private val zgwApiService: ZgwApiService,
     private val zrcClientService: ZrcClientService,
     private val ztcClientService: ZtcClientService,
@@ -63,8 +56,7 @@ class DocumentCreationDataConverter @Inject constructor(
     private val objectsClientService: ObjectsClientService,
     private val flowableTaskService: FlowableTaskService,
     private val identityService: IdentityService,
-    private val productaanvraagService: ProductaanvraagService,
-    private val configurationService: ConfigurationService
+    private val productaanvraagService: ProductaanvraagService
 ) {
     companion object {
         const val DATE_FORMAT: String = "dd-MM-yyyy"
@@ -199,28 +191,4 @@ class DocumentCreationDataConverter @Inject constructor(
                 behandelaar = taskInfo.assignee?.let { identityService.readUser(it).getFullName() }
             )
         }
-
-    fun createEnkelvoudigInformatieObjectCreateLockRequest(
-        file: File,
-        format: String,
-        title: String,
-        description: String?,
-        informatieobjecttypeUuid: UUID,
-        creationDate: ZonedDateTime,
-        userName: String
-    ) = EnkelvoudigInformatieObjectCreateLockRequest().apply {
-        bronorganisatie = configurationService.readBronOrganisatie()
-        creatiedatum = creationDate.toLocalDate()
-        titel = title
-        auteur = userName
-        taal = ConfigurationService.TAAL_NEDERLANDS
-        beschrijving = description
-        status = StatusEnum.IN_BEWERKING
-        vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
-        informatieobjecttype = ztcClientService.readInformatieobjecttype(informatieobjecttypeUuid).url
-        bestandsnaam = file.fileName
-        formaat = format
-        inhoud = file.document.data
-        bestandsomvang = file.document.data?.decodedBase64StringLength()
-    }
 }

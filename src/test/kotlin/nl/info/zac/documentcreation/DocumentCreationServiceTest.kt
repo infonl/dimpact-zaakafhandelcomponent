@@ -15,19 +15,23 @@ import jakarta.enterprise.inject.Instance
 import nl.info.client.smartdocuments.model.createFile
 import nl.info.client.smartdocuments.model.document.Data
 import nl.info.client.smartdocuments.model.document.SmartDocument
-import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.StatusEnum
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
-import nl.info.zac.documentcreation.converter.DocumentCreationDataConverter
 import nl.info.zac.documentcreation.model.createData
 import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.model.createDocumentCreationDataAttended
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
+import nl.info.zac.util.decodedBase64StringLength
 import java.net.URI
 import java.net.URLEncoder
 import java.time.ZoneOffset
@@ -38,15 +42,17 @@ import java.util.UUID
 class DocumentCreationServiceTest : BehaviorSpec({
     val smartDocumentsService = mockk<SmartDocumentsService>()
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
-    val documentCreationDataConverter = mockk<DocumentCreationDataConverter>()
+    val documentCreationDataService = mockk<DocumentCreationDataService>()
     val enkelvoudigInformatieObjectUpdateService = mockk<EnkelvoudigInformatieObjectUpdateService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val configurationService: ConfigurationService = mockk<ConfigurationService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
     val documentCreationService = DocumentCreationService(
         smartDocumentsService = smartDocumentsService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
-        documentCreationDataConverter = documentCreationDataConverter,
+        documentCreationDataService = documentCreationDataService,
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
+        ztcClientService = ztcClientService,
         configurationService = configurationService,
         loggedInUserInstance = loggedInUserInstance
     )
@@ -63,27 +69,20 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val informatieobjecttypeUuid = UUID.randomUUID()
         val creationDate = ZonedDateTime.now()
         val userName = "Full Name"
+        val bronOrganisatie = "fakeBronOrganisatie"
         val zaak = createZaak()
         val downloadedFile = createFile()
-        val enkelvoudigInformatieObjectLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
+        val informatieObjectType = createInformatieObjectType()
         val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+        val enkelvoudigInformatieObjectLockRequestSlot = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
 
         every { smartDocumentsService.downloadDocument(smartDocumentId) } returns downloadedFile
-        every {
-            documentCreationDataConverter.createEnkelvoudigInformatieObjectCreateLockRequest(
-                downloadedFile,
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                title,
-                description,
-                informatieobjecttypeUuid,
-                creationDate,
-                userName
-            )
-        } returns enkelvoudigInformatieObjectLockRequest
+        every { ztcClientService.readInformatieobjecttype(informatieobjecttypeUuid) } returns informatieObjectType
+        every { configurationService.readBronOrganisatie() } returns bronOrganisatie
         every {
             enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                 zaak = zaak,
-                enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectLockRequest,
+                enkelvoudigInformatieObjectCreateLockRequest = capture(enkelvoudigInformatieObjectLockRequestSlot),
                 taskId = taakId,
                 skipPolicyCheck = true
             )
@@ -101,13 +100,29 @@ class DocumentCreationServiceTest : BehaviorSpec({
                 userName = userName
             )
 
-            then("ZaakInformatieobject is stored") {
+            then("ZaakInformatieobject is stored using a lock request built from the downloaded file") {
                 returnedZaakInformatieobject shouldBe zaakInformatieobject
+
+                with(enkelvoudigInformatieObjectLockRequestSlot.captured) {
+                    bronorganisatie shouldBe bronOrganisatie
+                    creatiedatum shouldBe creationDate.toLocalDate()
+                    titel shouldBe title
+                    auteur shouldBe userName
+                    taal shouldBe ConfigurationService.TAAL_NEDERLANDS
+                    beschrijving shouldBe description
+                    status shouldBe StatusEnum.IN_BEWERKING
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
+                    informatieobjecttype shouldBe informatieObjectType.url
+                    bestandsnaam shouldBe downloadedFile.fileName
+                    formaat shouldBe "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    inhoud shouldBe downloadedFile.document.data
+                    bestandsomvang shouldBe downloadedFile.document.data?.decodedBase64StringLength()
+                }
 
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                         zaak = zaak,
-                        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectLockRequest,
+                        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectLockRequestSlot.captured,
                         taskId = taakId,
                         skipPolicyCheck = true
                     )
@@ -161,7 +176,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
 
         every { loggedInUserInstance.get() } returns loggedInUser
         every {
-            documentCreationDataConverter.createData(
+            documentCreationDataService.createData(
                 loggedInUser,
                 documentCreationData.zaak,
                 documentCreationData.taskId

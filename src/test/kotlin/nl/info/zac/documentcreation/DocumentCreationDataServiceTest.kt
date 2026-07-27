@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-package nl.info.zac.documentcreation.converter
+package nl.info.zac.documentcreation
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -34,12 +34,11 @@ import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.zac.authentication.createLoggedInUser
-import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.productaanvraag.ProductaanvraagService
 
-class DocumentCreationDataConverterTest : BehaviorSpec({
+class DocumentCreationDataServiceTest : BehaviorSpec({
     val zgwApiService = mockk<ZgwApiService>()
     val zrcClientService = mockk<ZrcClientService>()
     val ztcClientService = mockk<ZtcClientService>()
@@ -49,8 +48,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
     val flowableTaskService = mockk<FlowableTaskService>()
     val identityService = mockk<IdentityService>()
     val productaanvraagService = mockk<ProductaanvraagService>()
-    val configurationService = mockk<ConfigurationService>()
-    val documentCreationDataConverter = DocumentCreationDataConverter(
+    val documentCreationDataService = DocumentCreationDataService(
         zgwApiService = zgwApiService,
         zrcClientService = zrcClientService,
         ztcClientService = ztcClientService,
@@ -59,8 +57,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         objectsClientService = objectsClientService,
         flowableTaskService = flowableTaskService,
         identityService = identityService,
-        productaanvraagService = productaanvraagService,
-        configurationService = configurationService
+        productaanvraagService = productaanvraagService
     )
 
     afterEach {
@@ -92,7 +89,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
         `when`("SmartDocuments data is created") {
-            val data = documentCreationDataConverter.createData(
+            val data = documentCreationDataService.createData(
                 loggedInUser = loggedInUser,
                 zaak = zaak
             )
@@ -143,7 +140,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
         `when`("SmartDocuments data is created") {
-            val data = documentCreationDataConverter.createData(
+            val data = documentCreationDataService.createData(
                 loggedInUser = loggedInUser,
                 zaak = zaak
             )
@@ -203,7 +200,7 @@ class DocumentCreationDataConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
 
         `when`("SmartDocuments data is created") {
-            val data = documentCreationDataConverter.createData(
+            val data = documentCreationDataService.createData(
                 loggedInUser = loggedInUser,
                 zaak = zaak
             )
