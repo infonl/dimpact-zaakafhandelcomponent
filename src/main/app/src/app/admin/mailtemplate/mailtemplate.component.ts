@@ -134,30 +134,28 @@ export class MailtemplateComponent
   }
 
   ngOnInit() {
-    this.route.data
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        const mailTemplate = this.mailTemplate();
+    this.route.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      const mailTemplate = this.mailTemplate();
 
-        this.setupMenu("title.mailtemplate");
-        this.form.patchValue({
-          ...mailTemplate,
-          mail: mailTemplate?.mail
-            ? {
-                label: "mail." + mailTemplate?.mail,
-                value: mailTemplate?.mail as GeneratedType<"Mail">,
-              }
-            : null,
-        });
-
-        if (!mailTemplate?.mail) return;
-
-        this.mailTemplates.push({
-          label: "mail." + mailTemplate?.mail,
-          value: mailTemplate?.mail,
-        });
-        this.form.controls.mail.disable();
+      this.setupMenu("title.mailtemplate");
+      this.form.patchValue({
+        ...mailTemplate,
+        mail: mailTemplate?.mail
+          ? {
+              label: "mail." + mailTemplate?.mail,
+              value: mailTemplate?.mail as GeneratedType<"Mail">,
+            }
+          : null,
       });
+
+      if (!mailTemplate?.mail) return;
+
+      this.mailTemplates.push({
+        label: "mail." + mailTemplate?.mail,
+        value: mailTemplate?.mail,
+      });
+      this.form.controls.mail.disable();
+    });
   }
 
   protected saveMailtemplate() {
