@@ -69,7 +69,7 @@ class DocumentCreationService @Inject constructor(
         userName: String
     ): ZaakInformatieobject =
         smartDocumentsService.downloadDocument(fileId).let { file ->
-            documentCreationDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
+            documentCreationDataConverter.createEnkelvoudigInformatieObjectCreateLockRequest(
                 file = file,
                 format = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType,
                 informatieobjecttypeUuid = informatieobjecttypeUuid,

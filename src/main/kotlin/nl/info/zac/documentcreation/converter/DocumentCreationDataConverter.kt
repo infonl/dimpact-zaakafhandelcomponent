@@ -6,7 +6,6 @@ package nl.info.zac.documentcreation.converter
 
 import jakarta.inject.Inject
 import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -25,6 +24,7 @@ import nl.info.client.smartdocuments.model.document.StartformulierData
 import nl.info.client.smartdocuments.model.document.TaskData
 import nl.info.client.smartdocuments.model.document.ZaakData
 import nl.info.client.smartdocuments.model.document.toAanvragerDataBedrijf
+import nl.info.client.smartdocuments.model.document.toStartformulierData
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
@@ -159,7 +159,7 @@ class DocumentCreationDataConverter @Inject constructor(
 
     /**
      * Note that niet-natuurlijke personen can be used both for KVK niet-natuurlijke personen (with an RSIN)
-     * as well as for KVK vestigingen.
+     * and for KVK vestigingen.
      */
     private fun createAanvragerDataNietNatuurlijkPersoon(initiator: Rol<*>): AanvragerData? {
         val nietNatuurlijkPersoonIdentificatie = (initiator.betrokkeneIdentificatie as? NietNatuurlijkPersoonIdentificatie)
@@ -183,16 +183,14 @@ class DocumentCreationDataConverter @Inject constructor(
         }.let(zrcClientService::listZaakobjecten)
             .results()
             .filter { ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE == it.objectTypeOverige }
-            .map { convertToStartformulierData(it) }
+            .map { zaakobject ->
+                val productAanvraagObject = objectsClientService.readObject(zaakobject.getObject().extractUuid())
+                zaakobject.toStartformulierData(
+                    productaanvraag = productaanvraagService.getProductaanvraag(productAanvraagObject),
+                    aanvraaggegevens = productaanvraagService.getAanvraaggegevens(productAanvraagObject)
+                )
+            }
             .singleOrNull()
-
-    private fun convertToStartformulierData(zaakobject: Zaakobject) =
-        objectsClientService.readObject(zaakobject.getObject().extractUuid()).let { productAaanvraagObject ->
-            StartformulierData(
-                productAanvraagtype = productaanvraagService.getProductaanvraag(productAaanvraagObject).type,
-                data = productaanvraagService.getAanvraaggegevens(productAaanvraagObject)
-            )
-        }
 
     private fun createTaskData(taskId: String): TaskData =
         flowableTaskService.readTask(taskId).let { taskInfo ->
@@ -202,7 +200,7 @@ class DocumentCreationDataConverter @Inject constructor(
             )
         }
 
-    fun toEnkelvoudigInformatieObjectCreateLockRequest(
+    fun createEnkelvoudigInformatieObjectCreateLockRequest(
         file: File,
         format: String,
         title: String,

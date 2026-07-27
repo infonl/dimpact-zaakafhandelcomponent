@@ -70,7 +70,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
 
         every { smartDocumentsService.downloadDocument(smartDocumentId) } returns downloadedFile
         every {
-            documentCreationDataConverter.toEnkelvoudigInformatieObjectCreateLockRequest(
+            documentCreationDataConverter.createEnkelvoudigInformatieObjectCreateLockRequest(
                 downloadedFile,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 title,
