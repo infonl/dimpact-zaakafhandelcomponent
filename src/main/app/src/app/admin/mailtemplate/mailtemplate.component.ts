@@ -3,14 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  AfterViewInit,
-  Component,
-  OnInit,
-  signal,
-  ViewChild,
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatExpansionModule } from "@angular/material/expansion";
@@ -22,6 +16,7 @@ import {
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
+import { map } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
@@ -72,11 +67,18 @@ export class MailtemplateComponent
   });
 
   protected variabelen: string[] = [];
-  private readonly mailTemplate = signal<
-    GeneratedType<"RESTMailtemplate"> | undefined
-  >(undefined);
+  private readonly mailTemplate = toSignal(
+    this.route.data.pipe(
+      map(
+        (data) => data.template as GeneratedType<"RESTMailtemplate"> | undefined,
+      ),
+    ),
+  );
 
-  protected readonly mailTemplates = mailSelectList();
+  protected readonly mailTemplates: {
+    label: string;
+    value: GeneratedType<"Mail">;
+  }[] = mailSelectList();
 
   protected readonly saveMailtemplateMutation = injectMutation(() => ({
     mutationFn: (body: PostBody<"/rest/beheer/mailtemplates">) =>
@@ -113,9 +115,8 @@ export class MailtemplateComponent
   }
 
   ngOnInit() {
-    this.route.data.subscribe((data) => {
-      const mailTemplate = data.template ?? {};
-      this.mailTemplate.set(mailTemplate);
+    this.route.data.subscribe(() => {
+      const mailTemplate = this.mailTemplate();
 
       this.setupMenu("title.mailtemplate");
       this.form.patchValue({
