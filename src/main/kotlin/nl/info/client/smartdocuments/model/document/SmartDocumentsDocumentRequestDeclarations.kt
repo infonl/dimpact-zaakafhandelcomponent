@@ -6,11 +6,9 @@ package nl.info.client.smartdocuments.model.document
 
 import jakarta.json.bind.annotation.JsonbDateFormat
 import jakarta.json.bind.annotation.JsonbProperty
-import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.zac.util.StringUtil
 import nl.info.client.kvk.zoeken.model.generated.ResultaatItem
 import nl.info.zac.documentcreation.DocumentCreationDataService.Companion.DATE_FORMAT
-import nl.info.zac.productaanvraag.model.generated.ProductaanvraagDimpact
 import java.time.LocalDate
 
 data class AanvragerData(
@@ -154,10 +152,4 @@ fun ResultaatItem.toHuisnummer(): String? =
     StringUtil.joinNonBlank(
         this.adres.binnenlandsAdres.huisnummer?.toString(),
         this.adres.binnenlandsAdres.huisletter
-    )
-
-fun Zaakobject.toStartformulierData(productaanvraag: ProductaanvraagDimpact, aanvraaggegevens: Map<String, Any>) =
-    StartformulierData(
-        productAanvraagtype = productaanvraag.type,
-        data = aanvraaggegevens
     )

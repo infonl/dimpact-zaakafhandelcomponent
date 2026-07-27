@@ -23,7 +23,6 @@ import nl.info.client.smartdocuments.model.document.StartformulierData
 import nl.info.client.smartdocuments.model.document.TaskData
 import nl.info.client.smartdocuments.model.document.ZaakData
 import nl.info.client.smartdocuments.model.document.toAanvragerDataBedrijf
-import nl.info.client.smartdocuments.model.document.toStartformulierData
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -177,9 +176,9 @@ class DocumentCreationDataService @Inject constructor(
             .filter { ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE == it.objectTypeOverige }
             .map { zaakobject ->
                 val productAanvraagObject = objectsClientService.readObject(zaakobject.getObject().extractUuid())
-                zaakobject.toStartformulierData(
-                    productaanvraag = productaanvraagService.getProductaanvraag(productAanvraagObject),
-                    aanvraaggegevens = productaanvraagService.getAanvraaggegevens(productAanvraagObject)
+                StartformulierData(
+                    productAanvraagtype = productaanvraagService.getProductaanvraag(productAanvraagObject).type,
+                    data = productaanvraagService.getAanvraaggegevens(productAanvraagObject)
                 )
             }
             .singleOrNull()
