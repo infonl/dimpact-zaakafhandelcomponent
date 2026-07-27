@@ -117,8 +117,8 @@
                 class="detail flex-col"
                 [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'"
               >
-                <div *ngFor="let koppeling of getKoppelingen(row)">
-                  {{
+                @for (koppeling of getKoppelingen(row); track koppeling.id) {
+                  @let koppelingLabel =
                     "msg.mailtemplate.verwijderen.gekoppeld"
                       | translate
                         : {
@@ -127,9 +127,9 @@
                                 .omschrijving,
                             versie:
                               koppeling.zaakafhandelParameters.zaaktype.uuid,
-                          }
-                  }}
-                </div>
+                          };
+                  <div [title]="koppelingLabel">{{ koppelingLabel }}</div>
+                }
               </div>
             </td>
           </ng-container>
@@ -147,19 +147,22 @@
                 class="detail-suffix flex-col"
                 [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'"
               >
-                <div *ngFor="let koppeling of getKoppelingen(row)">
-                  <a
-                    *ngIf="koppeling.zaakafhandelParameters?.zaaktype?.uuid"
-                    mat-icon-button
-                    [routerLink]="[
-                      '/admin/parameters/',
-                      koppeling.zaakafhandelParameters?.zaaktype?.uuid,
-                    ]"
-                    title="{{ 'actie.zaakafhandelparameters' | translate }}"
-                  >
-                    <mat-icon>visibility</mat-icon>
-                  </a>
-                </div>
+                @for (koppeling of getKoppelingen(row); track koppeling.id) {
+                  <div>
+                    @if (koppeling.zaakafhandelParameters?.zaaktype?.uuid) {
+                      <a
+                        mat-icon-button
+                        [routerLink]="[
+                          '/admin/parameters/',
+                          koppeling.zaakafhandelParameters?.zaaktype?.uuid,
+                        ]"
+                        title="{{ 'actie.zaakafhandelparameters' | translate }}"
+                      >
+                        <mat-icon>visibility</mat-icon>
+                      </a>
+                    }
+                  </div>
+                }
               </div>
             </td>
           </ng-container>
