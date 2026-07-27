@@ -317,7 +317,7 @@ describe(InformatieObjectLinkComponent.name, () => {
 
   it("should disable row when case is not koppelbaar", () => {
     expect(
-      component["rowDisabled"](
+      component["isUnlinkable"](
         fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
           identificatie: "ZAAK-1",
           isKoppelbaar: false,
@@ -328,7 +328,7 @@ describe(InformatieObjectLinkComponent.name, () => {
 
   it("should disable row when case matches source", () => {
     expect(
-      component["rowDisabled"](
+      component["isUnlinkable"](
         fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
           identificatie: "SOURCE-ZAAK",
           isKoppelbaar: true,

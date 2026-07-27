@@ -3,15 +3,21 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { MailtemplateBeheerService } from "./mailtemplate-beheer.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class MailtemplateResolver {
-  constructor(private service: MailtemplateBeheerService) {}
+  private readonly mailtemplateBeheerService = inject(
+    MailtemplateBeheerService,
+  );
+  private readonly queryClient = inject(QueryClient);
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   resolve(route: ActivatedRouteSnapshot) {
     const id = route.paramMap.get("id");
@@ -22,6 +28,12 @@ export class MailtemplateResolver {
       );
     }
 
-    return this.service.readMailtemplate(Number(id));
+    return this.queryClient.ensureQueryData({
+      ...this.mailtemplateBeheerService.readMailtemplateQuery(Number(id)),
+      retry: (_count, error) => {
+        this.foutAfhandelingService.httpErrorAfhandelen(error);
+        return false;
+      },
+    });
   }
 }

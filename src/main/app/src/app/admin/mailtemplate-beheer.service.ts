@@ -3,20 +3,23 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { lastValueFrom } from "rxjs";
 import { PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
 })
 export class MailtemplateBeheerService {
+  private readonly zacQueryClient = inject(ZacQueryClient);
+
   constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
-  readMailtemplate(id: number) {
-    return this.zacHttpClient.GET("/rest/beheer/mailtemplates/{id}", {
+  readMailtemplateQuery(id: number) {
+    return this.zacQueryClient.GET("/rest/beheer/mailtemplates/{id}", {
       path: { id },
     });
   }
