@@ -23,12 +23,14 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
   LINKABLE_ZAKEN_PAGINATION_SIZE,
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ZacInput } from "../../shared/form/input/input";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { InformatieObjectenService } from "../informatie-objecten.service";
@@ -92,12 +94,18 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
     ]),
   });
 
+  protected readonly linkDocumentMutation = injectMutation(() => ({
+    ...this.informatieObjectService.linkDocumentToCaseMutation(),
+    onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
+  }));
+
   constructor(
     private readonly zoekenService: ZoekenService,
     private readonly informatieObjectService: InformatieObjectenService,
     private readonly utilService: UtilService,
     private readonly translate: TranslateService,
     private readonly formBuilder: FormBuilder,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
   ngOnInit() {
@@ -118,10 +126,10 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
   }
 
   protected searchCases() {
-    this.loading = true;
-    this.utilService.setLoading(true);
     if (!this.infoObject?.informatieobjectTypeUUID) return;
 
+    this.loading = true;
+    this.utilService.setLoading(true);
     const { caseSearch } = this.form.value;
     this.zoekenService
       .listDocumentKoppelbareZaken({
@@ -146,14 +154,16 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
-    this.informatieObjectService
-      .linkDocumentToCase({
+    if (this.linkDocumentMutation.isPending()) return;
+
+    this.linkDocumentMutation.mutate(
+      {
         documentUUID: this.getDocumentUUID(),
         bron: this.source,
         nieuweZaakID: row.identificatie ?? "",
-      })
-      .subscribe({
-        next: () => {
+      },
+      {
+        onSuccess: () => {
           const msgSnackbarKey =
             this.actionLabel === "actie.document.koppelen"
               ? "msg.document.koppelen.uitgevoerd"
@@ -166,11 +176,15 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
           this.close();
           this.informationObjectLinked.emit();
         },
-        error: () => {
-          this.loading = false;
-          this.utilService.setLoading(false);
-        },
-      });
+      },
+    );
+  }
+
+  protected isLinking(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    return (
+      this.linkDocumentMutation.isPending() &&
+      this.linkDocumentMutation.variables()?.nieuweZaakID === row.identificatie
+    );
   }
 
   private getDocumentUUID(): string {
@@ -188,7 +202,7 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
     this.reset();
   }
 
-  protected rowDisabled(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+  protected isUnlinkable(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
     return !row.isKoppelbaar || row.identificatie === this.source;
   }
 
