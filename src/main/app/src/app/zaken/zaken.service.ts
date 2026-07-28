@@ -268,8 +268,8 @@ export class ZakenService {
     });
   }
 
-  koppelZaak(body: PatchBody<"/rest/zaken/zaak/koppel">) {
-    return this.zacHttpClient.PATCH("/rest/zaken/zaak/koppel", body);
+  koppelZaakMutation() {
+    return this.zacQueryClient.PATCH("/rest/zaken/zaak/koppel");
   }
 
   ontkoppelZaak(body: PatchBody<"/rest/zaken/zaak/ontkoppel">) {

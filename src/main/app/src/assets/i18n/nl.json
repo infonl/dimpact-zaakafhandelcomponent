@@ -881,7 +881,7 @@
   "msg.mailtemplate.opgeslagen": "Mailtemplate opgeslagen",
   "msg.mailtemplate.verwijderen.bevestigen": "Mailtemplate verwijderen?",
   "msg.mailtemplate.verwijderen.uitgevoerd": "Mailtemplate is verwijderd",
-  "msg.mailtemplate.verwijderen.gekoppeld": "Mailtemplate is gekoppeld aan {{zaaktype}} met uuid: {{versie}}",
+  "msg.mailtemplate.verwijderen.gekoppeld": "Mailtemplate is gekoppeld aan '{{zaaktype}}' met uuid: {{versie}}",
   "msg.message.error": "Foutmelding",
   "msg.message.info": "Informatie",
   "msg.message.warning": "Waarschuwing",

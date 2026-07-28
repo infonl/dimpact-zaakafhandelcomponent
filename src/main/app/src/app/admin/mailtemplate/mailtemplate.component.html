@@ -18,7 +18,7 @@
     <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
   </mat-sidenav>
   <mat-sidenav-content class="p-4">
-    <form [formGroup]="form" (submit)="saveMailtemplate()">
+    <form [formGroup]="form" (submit)="saveMailtemplate()" (cancel)="cancel()">
       <mat-card>
         <mat-card-content>
           <fieldset>
@@ -41,20 +41,17 @@
               [variables]="variabelen"
             ></zac-html-editor>
           </fieldset>
+          <fieldset>
+            <mat-action-row>
+              <zac-form-actions
+                [form]="form"
+                [mutation]="saveMailtemplateMutation"
+                submitLabel="actie.opslaan"
+                disableAfterSuccess
+              />
+            </mat-action-row>
+          </fieldset>
         </mat-card-content>
-        <mat-card-actions>
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            [disabled]="form.invalid"
-          >
-            {{ "actie.opslaan" | translate }}
-          </button>
-          <button mat-raised-button type="button" (click)="cancel()">
-            {{ "actie.annuleren" | translate }}
-          </button>
-        </mat-card-actions>
       </mat-card>
     </form>
   </mat-sidenav-content>

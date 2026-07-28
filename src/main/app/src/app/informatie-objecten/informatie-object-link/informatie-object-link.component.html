@@ -76,12 +76,13 @@
             mat-icon-button
             color="primary"
             title="{{ actionLabel | translate }}"
-            [disabled]="rowDisabled(row)"
+            [disabled]="isUnlinkable(row) || isLinking(row)"
             (click)="selectCase(row)"
           >
-            <mat-icon [ngClass]="{ disabled: rowDisabled(row) }">{{
-              actionIcon
-            }}</mat-icon>
+            <mat-icon
+              [ngClass]="{ disabled: isUnlinkable(row) || isLinking(row) }"
+              >{{ actionIcon }}</mat-icon
+            >
           </button>
         </td>
       </ng-container>
@@ -90,7 +91,7 @@
       <tr
         mat-row
         *matRowDef="let row; columns: caseColumns"
-        [ngClass]="{ disabled: rowDisabled(row) }"
+        [ngClass]="{ disabled: isUnlinkable(row) }"
       ></tr>
     </table>
     <p *ngIf="loading">{{ "msg.loading" | translate }}</p>
