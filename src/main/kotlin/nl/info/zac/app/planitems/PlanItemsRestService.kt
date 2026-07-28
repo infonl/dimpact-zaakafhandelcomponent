@@ -31,7 +31,6 @@ import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.RESTHumanTaskData
 import nl.info.zac.app.planitems.model.RESTPlanItem
-import nl.info.zac.app.planitems.model.RESTProcessTaskData
 import nl.info.zac.app.planitems.model.RESTUserEventListenerData
 import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.util.toLocalDate
@@ -98,15 +97,6 @@ class PlanItemsRestService @Inject constructor(
         }
 
     @GET
-    @Path("zaak/{uuid}/processTaskPlanItems")
-    fun listProcessTaskPlanItems(@PathParam("uuid") zaakUUID: UUID): List<RESTPlanItem> =
-        cmmnService.listProcessTaskPlanItems(zaakUUID).let { processTaskPlanItems ->
-            zrcClientService.readZaak(zaakUUID).let { zaak ->
-                planItemConverter.convertPlanItems(processTaskPlanItems, zaak)
-            }
-        }
-
-    @GET
     @Path("zaak/{uuid}/userEventListenerPlanItems")
     fun listUserEventListenerPlanItems(@PathParam("uuid") zaakUUID: UUID): List<RESTPlanItem> =
         cmmnService.listUserEventListenerPlanItems(zaakUUID).let { userEventListenerPlanItems ->
@@ -118,11 +108,6 @@ class PlanItemsRestService @Inject constructor(
     @GET
     @Path("humanTaskPlanItem/{id}")
     fun readHumanTaskPlanItem(@PathParam("id") planItemId: String): RESTPlanItem =
-        convertPlanItem(planItemId)
-
-    @GET
-    @Path("processTaskPlanItem/{id}")
-    fun readProcessTaskPlanItem(@PathParam("id") planItemId: String): RESTPlanItem =
         convertPlanItem(planItemId)
 
     @Suppress("NestedBlockDepth")
@@ -205,11 +190,6 @@ class PlanItemsRestService @Inject constructor(
         )
         indexingService.addOrUpdateZaak(zaakUUID, false)
     }
-
-    @POST
-    @Path("doProcessTaskPlanItem")
-    fun doProcessTaskplanItem(processTaskData: RESTProcessTaskData) =
-        cmmnService.startProcessTaskPlanItem(processTaskData.planItemInstanceId, processTaskData.data)
 
     @POST
     @Path("doUserEventListenerPlanItem")

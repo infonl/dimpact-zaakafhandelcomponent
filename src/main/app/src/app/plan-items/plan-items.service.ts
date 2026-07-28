@@ -21,24 +21,9 @@ export class PlanItemsService {
     });
   }
 
-  readProcessTaskPlanItem(planItemId: string) {
-    return this.zacHttpClient.GET("/rest/planitems/processTaskPlanItem/{id}", {
-      path: { id: planItemId },
-    });
-  }
-
   listHumanTaskPlanItems(zaakUuid: string) {
     return this.zacHttpClient.GET(
       "/rest/planitems/zaak/{uuid}/humanTaskPlanItems",
-      {
-        path: { uuid: zaakUuid },
-      },
-    );
-  }
-
-  listProcessTaskPlanItems(zaakUuid: string) {
-    return this.zacHttpClient.GET(
-      "/rest/planitems/zaak/{uuid}/processTaskPlanItems",
       {
         path: { uuid: zaakUuid },
       },
@@ -56,15 +41,6 @@ export class PlanItemsService {
 
   doHumanTaskPlanItem() {
     return this.zacQueryClient.POST("/rest/planitems/doHumanTaskPlanItem");
-  }
-
-  doProcessTaskPlanItem(
-    body: PostBody<"/rest/planitems/doProcessTaskPlanItem">,
-  ) {
-    return this.zacHttpClient.POST(
-      "/rest/planitems/doProcessTaskPlanItem",
-      body,
-    );
   }
 
   doUserEventListenerPlanItem(
