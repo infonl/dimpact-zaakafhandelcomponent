@@ -60,34 +60,10 @@ import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
 import { EmptyPipe } from "../pipes/empty.pipe";
 import { PipesModule } from "../pipes/pipes.module";
-import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
-import { InputComponent } from "./form-components/input/input.component";
-import { ReadonlyComponent } from "./form-components/readonly/readonly.component";
-import { SelectComponent } from "./form-components/select/select.component";
-import { TextareaComponent } from "./form-components/textarea/textarea.component";
-import { FormFieldComponent } from "./form/form-field/form-field.component";
-import { FormFieldDirective } from "./form/form-field/form-field.directive";
-import { FormComponent } from "./form/form/form.component";
 
 @NgModule({
-  declarations: [
-    FormComponent,
-    FormFieldComponent,
-    InputComponent,
-    SelectComponent,
-    TextareaComponent,
-    FormFieldDirective,
-    ReadonlyComponent,
-    DocumentenLijstComponent,
-  ],
   exports: [
     FileDragAndDropDirective,
-    FormComponent,
-    FormFieldComponent,
-    InputComponent,
-    SelectComponent,
-    TextareaComponent,
-    DocumentenLijstComponent,
     ZacAutoComplete,
     ZacDate,
     ZacSelect,

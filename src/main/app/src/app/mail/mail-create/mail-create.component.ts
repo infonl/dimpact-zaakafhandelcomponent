@@ -19,7 +19,6 @@ import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
-import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
@@ -60,7 +59,6 @@ export class MailCreateComponent implements OnInit {
     },
   }));
 
-  bijlagenFormField!: DocumentenLijstFormField; // Assigned in the `ngOnInit` method
 
   protected form = this.formBuilder.group({
     verzender:
