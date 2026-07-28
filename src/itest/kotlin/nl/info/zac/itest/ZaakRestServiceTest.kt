@@ -68,6 +68,9 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_DESCRIPT
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_REFERENTIEPROCES
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_DOEL
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
@@ -130,6 +133,11 @@ class ZaakRestServiceTest : BehaviorSpec({
                 And("the response body should contain the zaaktypes in all domains") {
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     [
+                      {
+                        "doel": "$ZAAKTYPE_CMMN_TEST_4_DOEL",
+                        "identificatie": "$ZAAKTYPE_CMMN_TEST_4_IDENTIFICATIE",
+                        "omschrijving": "$ZAAKTYPE_CMMN_TEST_4_DESCRIPTION"
+                      },
                       {
                         "doel": "$ZAAKTYPE_CMMN_TEST_1_DESCRIPTION",
                         "identificatie": "$ZAAKTYPE_CMMN_TEST_1_IDENTIFICATIE",

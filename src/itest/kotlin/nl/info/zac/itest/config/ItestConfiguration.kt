@@ -90,6 +90,7 @@ object ItestConfiguration {
     const val PRODUCTAANVRAAG_TYPE_1 = "productaanvraag-type-1"
     const val PRODUCTAANVRAAG_TYPE_2 = "productaanvraag-type-2"
     const val PRODUCTAANVRAAG_TYPE_3 = "productaanvraag-type-3"
+    const val PRODUCTAANVRAAG_TYPE_4 = "productaanvraag-type-4"
     const val PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LATITUDE = 52.08968250760225
     const val PRODUCTAANVRAAG_ZAAKGEGEVENS_GEOMETRY_LONGITUDE = 5.114358701512936
     const val REFERENCE_TABLE_ADVIES_CODE = "ADVIES"
@@ -111,7 +112,7 @@ object ItestConfiguration {
     const val ROLTYPE_NAME_MEDEAANVRAGER = "Medeaanvrager"
     const val ROLTYPE_UUID_BELANGHEBBENDE = "4c4cd850-8332-4bb9-adc4-dd046f0614ad"
     const val ROLTYPE_UUID_MEDEAANVRAGER = "b14cf056-0480-4060-a376-1dd522a50431"
-    const val ROLTYPE_COUNT = 46
+    const val ROLTYPE_COUNT = 49
     const val SCREEN_EVENT_TYPE_TAKEN_VERDELEN = "TAKEN_VERDELEN"
     const val SCREEN_EVENT_TYPE_TAKEN_VRIJGEVEN = "TAKEN_VRIJGEVEN"
     const val SCREEN_EVENT_TYPE_ZAKEN_VERDELEN = "ZAKEN_VERDELEN"
@@ -348,6 +349,9 @@ object ItestConfiguration {
     @Suppress("MagicNumber")
     val DATE_2025_01_01: LocalDate = LocalDate.of(2025, Month.JANUARY, 1)
 
+    @Suppress("MagicNumber")
+    val DATE_2026_07_23: LocalDate = LocalDate.of(2026, Month.JULY, 23)
+
     val DATE_TIME_2000_01_01: ZonedDateTime = DATE_2000_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2020_01_01: ZonedDateTime = DATE_2020_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
     val DATE_TIME_2024_01_01: ZonedDateTime = DATE_2024_01_01.atStartOfDay(TimeZone.getDefault().toZoneId())
@@ -371,6 +375,11 @@ object ItestConfiguration {
     const val ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE = "test-zaaktype-3"
     const val ZAAKTYPE_CMMN_TEST_3_DESCRIPTION = "Test zaaktype 3"
     const val ZAAKTYPE_CMMN_TEST_3_REFERENTIEPROCES = "Test zaaktype 3"
+
+    val ZAAKTYPE_CMMN_TEST_4_UUID: UUID = UUID.fromString("4f46d270-c4d8-4cfe-a3a1-cb86ae102656")
+    const val ZAAKTYPE_CMMN_TEST_4_IDENTIFICATIE = "test-zaaktype-4"
+    const val ZAAKTYPE_CMMN_TEST_4_DESCRIPTION = "Test zaaktype 4"
+    const val ZAAKTYPE_CMMN_TEST_4_DOEL = "Testen afhandelwijze brondatum"
 
     val START_DATE: LocalDateTime = LocalDateTime.now()
 

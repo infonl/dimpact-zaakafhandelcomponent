@@ -217,7 +217,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         val documentUuid = UUID.randomUUID()
         val document = createEnkelvoudigInformatieObject(
             uuid = documentUuid,
-            url = URI("http://example.com/$documentUuid")
+            url = URI("https://example.com/$documentUuid")
         )
         val restTask = createRestTask(
             zaakUuid = zaakUuid,
@@ -255,7 +255,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         val documentUuid = UUID.randomUUID()
         val unsignedDocument = createEnkelvoudigInformatieObject(
             uuid = documentUuid,
-            url = URI("http://example.com/$documentUuid"),
+            url = URI("https://example.com/$documentUuid"),
             ondertekening = null
         )
         val restTask = createRestTask(
@@ -288,7 +288,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         val documentUuid = UUID.randomUUID()
         val signedDocument = createEnkelvoudigInformatieObject(
             uuid = documentUuid,
-            url = URI("http://example.com/$documentUuid"),
+            url = URI("https://example.com/$documentUuid"),
             ondertekening = createOndertekening()
         )
         val restTask = createRestTask(
