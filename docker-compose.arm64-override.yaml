@@ -12,7 +12,7 @@ services:
     platform: linux/arm64
 
   open-object-database:
-    image: ghcr.io/infonl/postgis:17-3.5@sha256:2380c83941035a565f03f7fd86b0878cbc6f89ed2ae00d0f11c627df573dafd7
+    image: ghcr.io/infonl/postgis:17-3.5@sha256:62657ab3cdacebf7d99184ac2a6777ce34815447dfd819f5d11e1bf074dd6876
     platform: linux/arm64
 
   open-object-import:
@@ -20,7 +20,7 @@ services:
     platform: linux/arm64
 
   openarchiefbeheer-database:
-    image: ghcr.io/infonl/postgis:17-3.5@sha256:2380c83941035a565f03f7fd86b0878cbc6f89ed2ae00d0f11c627df573dafd7
+    image: ghcr.io/infonl/postgis:17-3.5@sha256:62657ab3cdacebf7d99184ac2a6777ce34815447dfd819f5d11e1bf074dd6876
     platform: linux/arm64
 
   openarchiefbeheer-web:
@@ -44,7 +44,7 @@ services:
     platform: linux/arm64
 
   opennotificaties-database:
-    image: ghcr.io/infonl/postgis:17-3.5@sha256:2380c83941035a565f03f7fd86b0878cbc6f89ed2ae00d0f11c627df573dafd7
+    image: ghcr.io/infonl/postgis:17-3.5@sha256:62657ab3cdacebf7d99184ac2a6777ce34815447dfd819f5d11e1bf074dd6876
     platform: linux/arm64
 
   opennotificaties:
@@ -60,7 +60,7 @@ services:
     platform: linux/arm64
 
   openzaak-database:
-    image: ghcr.io/infonl/postgis:17-3.5@sha256:2380c83941035a565f03f7fd86b0878cbc6f89ed2ae00d0f11c627df573dafd7
+    image: ghcr.io/infonl/postgis:17-3.5@sha256:62657ab3cdacebf7d99184ac2a6777ce34815447dfd819f5d11e1bf074dd6876
     platform: linux/arm64
 
   openzaak.local:
