@@ -47,16 +47,13 @@ import { ZacCheckbox } from "../form/checkbox/checkbox";
 import { ZacComposedForm } from "../form/composed-form/composed-form.component";
 import { ZacDate } from "../form/date/date";
 import { ZacDocuments } from "../form/documents/documents";
-import { ZacFile } from "../form/file/file";
 import { ZacFormActions } from "../form/form-actions/form-actions.component";
 import { ZacHtmlEditor } from "../form/html-editor/html-editor";
-import { VariabelenKiesMenuComponent } from "../form/html-editor/variabelen-kies-menu/variabelen-kies-menu.component";
 import { ZacInput } from "../form/input/input";
 import { ZacRadio } from "../form/radio/radio";
 import { ZacSelect } from "../form/select/select";
 import { ZacTextarea } from "../form/textarea/textarea";
 import { ZacToggle } from "../form/toggle/toggle";
-import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
 import { EmptyPipe } from "../pipes/empty.pipe";
 import { PipesModule } from "../pipes/pipes.module";
@@ -81,7 +78,6 @@ import { PipesModule } from "../pipes/pipes.module";
   ],
   imports: [
     FileDragAndDropDirective,
-    EnhanceMatErrorDirective,
     CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -118,10 +114,8 @@ import { PipesModule } from "../pipes/pipes.module";
     ZacSelect,
     ZacInput,
     ZacAutoComplete,
-    ZacFile,
     ZacDocuments,
     ZacHtmlEditor,
-    VariabelenKiesMenuComponent,
     ZacComposedForm,
   ],
   providers: [
