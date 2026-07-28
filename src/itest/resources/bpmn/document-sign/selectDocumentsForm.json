@@ -4,26 +4,37 @@
   "title": "SelectDocumentsForm",
   "components": [
     {
-      "label": "Documents",
-      "type": "select",
+      "label": "Documenten",
+      "type": "datagrid",
       "key": "ZAAK_Documenten_Ondertekenen_Selectie",
       "input": true,
-      "widget": "choicesjs",
-      "multiple": true,
-      "refreshOn": "data",
-      "dataSrc": "custom",
-      "placeholder": "Select one or more documents",
-      "customOptions": {
-        "choicesOptions": {
-          "removeItemButton": true,
-          "placeholder": true,
-          "searchEnabled": true,
-          "shouldSort": false
-        }
-      },
+      "disableAddingRemovingRows": true,
       "validate": { "required": true },
       "attributes": { "ZAC_TYPE": "ZAC_documenten" },
-      "tableView": true
+      "components": [
+        {
+          "label": "",
+          "key": "selected",
+          "type": "checkbox",
+          "input": true,
+          "tableView": true
+        },
+        {
+          "label": "Titel",
+          "key": "titel",
+          "type": "textfield",
+          "input": true,
+          "disabled": true,
+          "tableView": true
+        },
+        {
+          "key": "openen",
+          "type": "content",
+          "input": false,
+          "tableView": false,
+          "html": "<a href=\"/informatie-objecten/{{ row.uuid }}\" target=\"_blank\" class=\"btn btn-primary btn-sm\">Openen</a>"
+        }
+      ]
     },
     {
       "type": "button",

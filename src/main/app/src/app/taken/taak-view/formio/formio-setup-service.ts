@@ -48,13 +48,15 @@ export class FormioSetupService {
     private smartDocumentsService: SmartDocumentsService,
   ) {}
 
-  createFormioForm(
+  async createFormioForm(
     formioFormulier: FormioForm,
     taak: GeneratedType<"RestTask">,
   ) {
     this.taak = taak;
 
-    this.initializeSpecializedFormioComponents(formioFormulier.components);
+    await this.initializeSpecializedFormioComponents(
+      formioFormulier.components,
+    );
     this.utilService.setTitle("title.taak", {
       taak: formioFormulier.title,
     });
@@ -64,15 +66,15 @@ export class FormioSetupService {
     this.formioChangeData = data;
   }
 
-  private initializeSpecializedFormioComponents(
+  private async initializeSpecializedFormioComponents(
     components: ExtendedComponentSchema[] | undefined,
   ) {
-    components?.forEach((component) => {
-      this.safeInit(
+    for (const component of components ?? []) {
+      await this.safeInit(
         component.attributes?.[ZAC_FIELD_ATTRIBUTE] ??
           component.key ??
           component.type,
-        () => {
+        async () => {
           switch (
             component.attributes?.[ZAC_FIELD_ATTRIBUTE] ??
             component.type
@@ -98,7 +100,7 @@ export class FormioSetupService {
               this.initializeReferenceTableField(component);
               break;
             case KNOWN_ZAC_FIELDS.DOCUMENTEN:
-              this.initializeDocumentsField(component);
+              await this.initializeDocumentsField(component);
               break;
             case KNOWN_ZAC_FIELDS.RESULTAAT:
               this.initializeZaakResultField(component);
@@ -107,17 +109,17 @@ export class FormioSetupService {
               this.initializeZaakStatusField(component);
               break;
           }
-          this.initializeSpecializedFormioComponents(
+          await this.initializeSpecializedFormioComponents(
             this.getChildComponents(component),
           );
         },
       );
-    });
+    }
   }
 
-  private safeInit(context: string, fn: () => void) {
+  private async safeInit(context: string, fn: () => Promise<void>) {
     try {
-      fn();
+      await fn();
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Unknown initialization error";
@@ -274,21 +276,44 @@ export class FormioSetupService {
     };
   }
 
-  private initializeDocumentsField(component: ExtendedComponentSchema): void {
+  private async initializeDocumentsField(
+    component: ExtendedComponentSchema,
+  ): Promise<void> {
+    if (component.type === "datagrid") {
+      component.defaultValue = component.refreshOn
+        ? this.getSelectedRows(component.refreshOn)
+        : (await this.fetchZaakDocuments()).map((document) => ({
+            selected: false,
+            titel: document.titel,
+            uuid: document.uuid,
+          }));
+      return;
+    }
+
     component.valueProperty = "uuid";
     component.template = "{{ item.titel }}";
     component.data = {
-      custom: async () =>
-        this.queryClient.ensureQueryData({
-          queryKey: ["availableDocumentsQuery", this.taak!.zaakUuid],
-          queryFn: () =>
-            lastValueFrom(
-              this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-                zaakUUID: this.taak!.zaakUuid,
-              }),
-            ),
-        }),
+      custom: async () => this.fetchZaakDocuments(),
     };
+  }
+
+  private getSelectedRows(refreshOnKey: string) {
+    const rows = this.taak?.taakdata?.[refreshOnKey];
+    return Array.isArray(rows)
+      ? (rows as { selected: boolean }[]).filter((row) => row.selected)
+      : [];
+  }
+
+  private fetchZaakDocuments() {
+    return this.queryClient.ensureQueryData({
+      queryKey: ["availableDocumentsQuery", this.taak!.zaakUuid],
+      queryFn: () =>
+        lastValueFrom(
+          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+            zaakUUID: this.taak!.zaakUuid,
+          }),
+        ),
+    });
   }
 
   private initializeZaakResultField(component: ExtendedComponentSchema) {

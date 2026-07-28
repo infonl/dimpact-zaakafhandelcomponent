@@ -285,11 +285,17 @@ export class TaakViewComponent
 
     if (taak.formulierDefinitieId) {
       void this.createHardCodedTaakForm(taak, zaak);
-    } else if (!this.formioFormulier) {
-      this.formioFormulier = taak.formioFormulier ?? undefined;
-      if (!this.formioFormulier) return;
-      this.formioSetupService.createFormioForm(this.formioFormulier, taak);
+    } else if (taak.formioFormulier) {
+      void this.initializeFormioForm(taak.formioFormulier, taak);
     }
+  }
+
+  private async initializeFormioForm(
+    formioFormulier: FormioForm,
+    taak: GeneratedType<"RestTask">,
+  ) {
+    await this.formioSetupService.createFormioForm(formioFormulier, taak);
+    this.formioFormulier = formioFormulier;
   }
 
   private async createHardCodedTaakForm(
