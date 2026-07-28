@@ -247,7 +247,7 @@ describe(FormioSetupService.name, () => {
         smartDocumentsTemplateGroupTemplatesComponent,
       ];
 
-      formioSetupService.createFormioForm(
+      await formioSetupService.createFormioForm(
         { components: mockFormComponents } as FormioForm,
         taak,
       );
@@ -262,7 +262,7 @@ describe(FormioSetupService.name, () => {
       );
     });
 
-    it("handle cases for components with no children or properties", () => {
+    it("handle cases for components with no children or properties", async () => {
       const components: ExtendedComponentSchema[] = [
         {
           key: "RT_Fail_Values",
@@ -294,9 +294,10 @@ describe(FormioSetupService.name, () => {
         },
       ];
 
-      expect(() => {
-        formioSetupService.createFormioForm({ components } as FormioForm, taak);
-      }).not.toThrow();
+      await formioSetupService.createFormioForm(
+        { components } as FormioForm,
+        taak,
+      );
     });
 
     it("should invoke behandelaar groups for zaaktype description endpoint", async () => {
@@ -322,7 +323,7 @@ describe(FormioSetupService.name, () => {
         input: true,
       };
 
-      formioSetupService.createFormioForm(
+      await formioSetupService.createFormioForm(
         {
           components: [groepComponent, medewerkerComponent],
         } as FormioForm,
@@ -341,7 +342,7 @@ describe(FormioSetupService.name, () => {
       );
     });
 
-    it("should catch errors from component initializers and call handleFormIOInitError", () => {
+    it("should catch errors from component initializers and call handleFormIOInitError", async () => {
       const component: ExtendedComponentSchema = {
         type: "select",
         key: "component_key",
@@ -367,12 +368,10 @@ describe(FormioSetupService.name, () => {
           throw new Error(errorMessage);
         });
 
-      expect(() => {
-        formioSetupService.createFormioForm(
-          { components: [component] } as FormioForm,
-          taak,
-        );
-      }).not.toThrow();
+      await formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
 
       expect(handleFormIOInitErrorSpy).toHaveBeenCalledWith(
         "ZAC_smart_documents_template_groups",
@@ -391,13 +390,13 @@ describe(FormioSetupService.name, () => {
         { id: "group-1", name: "Alpha Group", templates: [] },
       ];
 
-      it("should set valueProperty and template on the component", () => {
+      it("should set valueProperty and template on the component", async () => {
         jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
 
         const component: ExtendedComponentSchema = {
           ...smartDocumentsTemplateGroupsComponent,
         };
-        formioSetupService.createFormioForm(
+        await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
         );
@@ -414,7 +413,7 @@ describe(FormioSetupService.name, () => {
         const component: ExtendedComponentSchema = {
           ...smartDocumentsTemplateGroupsComponent,
         };
-        formioSetupService.createFormioForm(
+        await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
         );
@@ -436,7 +435,7 @@ describe(FormioSetupService.name, () => {
         const component: ExtendedComponentSchema = {
           ...smartDocumentsTemplateGroupsComponent,
         };
-        formioSetupService.createFormioForm(
+        await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
         );
@@ -474,13 +473,13 @@ describe(FormioSetupService.name, () => {
         { id: "group-2", name: "Group 2", templates: [] },
       ];
 
-      it("should set valueProperty and template on the component", () => {
+      it("should set valueProperty and template on the component", async () => {
         jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
 
         const component: ExtendedComponentSchema = {
           ...smartDocumentsTemplateGroupTemplatesComponent,
         };
-        formioSetupService.createFormioForm(
+        await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
         );
@@ -497,7 +496,7 @@ describe(FormioSetupService.name, () => {
         const component: ExtendedComponentSchema = {
           ...smartDocumentsTemplateGroupTemplatesComponent,
         };
-        formioSetupService.createFormioForm(
+        await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
         );
@@ -541,7 +540,7 @@ describe(FormioSetupService.name, () => {
         const component: ExtendedComponentSchema = {
           ...smartDocumentsTemplateGroupTemplatesComponent,
         };
-        formioSetupService.createFormioForm(
+        await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
         );
@@ -566,7 +565,7 @@ describe(FormioSetupService.name, () => {
         const component: ExtendedComponentSchema = {
           ...smartDocumentsTemplateGroupTemplatesComponent,
         };
-        formioSetupService.createFormioForm(
+        await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
         );
@@ -586,7 +585,7 @@ describe(FormioSetupService.name, () => {
         const component: ExtendedComponentSchema = {
           ...smartDocumentsTemplateGroupTemplatesComponent,
         };
-        formioSetupService.createFormioForm(
+        await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
         );
@@ -594,6 +593,118 @@ describe(FormioSetupService.name, () => {
         const result = await component.data.custom();
 
         expect(result).toEqual([]);
+      });
+    },
+  );
+
+  describe(
+    (FormioSetupService.prototype as unknown as Record<string, () => unknown>)[
+      "initializeDocumentsField"
+    ].name,
+    () => {
+      const document1 = { uuid: "doc-1", titel: "Document One" };
+      const document2 = { uuid: "doc-2", titel: "Document Two" };
+
+      it("should set valueProperty, template and a custom data source for a select component", async () => {
+        const ensureQueryDataSpy = jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([document1, document2]);
+
+        const component: ExtendedComponentSchema = { ...documentsFieldset };
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taak,
+        );
+
+        expect(component.valueProperty).toBe("uuid");
+        expect(component.template).toBe("{{ item.titel }}");
+        await expect(component.data.custom()).resolves.toEqual([
+          document1,
+          document2,
+        ]);
+        expect(ensureQueryDataSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            queryKey: ["availableDocumentsQuery", taak.zaakUuid],
+          }),
+        );
+      });
+
+      it("should populate a datagrid with all zaak documents when there is no refreshOn", async () => {
+        jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([document1, document2]);
+
+        const component: ExtendedComponentSchema = {
+          type: "datagrid",
+          key: "ZAAK_Documenten_Ondertekenen_Selectie",
+          input: true,
+          attributes: { [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.DOCUMENTEN },
+        };
+
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taak,
+        );
+
+        expect(component.defaultValue).toEqual([
+          { selected: false, titel: document1.titel, uuid: document1.uuid },
+          { selected: false, titel: document2.titel, uuid: document2.uuid },
+        ]);
+      });
+
+      it("should populate a datagrid with only the previously selected rows when refreshOn is set", async () => {
+        const previouslySelectedRow = {
+          selected: true,
+          titel: "Document One",
+          uuid: "doc-1",
+        };
+        const previouslyUnselectedRow = {
+          selected: false,
+          titel: "Document Two",
+          uuid: "doc-2",
+        };
+
+        const component: ExtendedComponentSchema = {
+          type: "datagrid",
+          key: "ZAAK_Documenten_Te_Ondertekenen",
+          input: true,
+          refreshOn: "ZAAK_Documenten_Ondertekenen_Selectie",
+          attributes: { [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.DOCUMENTEN },
+        };
+
+        const taakWithSelection: GeneratedType<"RestTask"> = {
+          ...taak,
+          taakdata: {
+            ZAAK_Documenten_Ondertekenen_Selectie: [
+              previouslySelectedRow,
+              previouslyUnselectedRow,
+            ],
+          },
+        };
+
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taakWithSelection,
+        );
+
+        expect(component.defaultValue).toEqual([previouslySelectedRow]);
+      });
+
+      it("should default to an empty list when the refreshOn field has no prior data", async () => {
+        const component: ExtendedComponentSchema = {
+          type: "datagrid",
+          key: "ZAAK_Documenten_Te_Ondertekenen",
+          input: true,
+          refreshOn: "ZAAK_Documenten_Ondertekenen_Selectie",
+          attributes: { [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.DOCUMENTEN },
+        };
+
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taak,
+        );
+
+        expect(component.defaultValue).toEqual([]);
       });
     },
   );
@@ -619,7 +730,7 @@ describe(FormioSetupService.name, () => {
         },
       };
 
-      formioSetupService.createFormioForm(
+      await formioSetupService.createFormioForm(
         {
           components: [groepComponent, medewerkerComponent],
         } as FormioForm,

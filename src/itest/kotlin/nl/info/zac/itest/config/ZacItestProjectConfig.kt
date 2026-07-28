@@ -441,7 +441,10 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             resourcePath
         )?.let {
             File(it.path)
-        }!!.readText(Charsets.UTF_8).replace("\"", "\\\"").replace("\n", "\\n")
+        }!!.readText(Charsets.UTF_8)
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
 
     @Suppress("LongMethod")
     private fun createZaaktypeConfigurations() {
