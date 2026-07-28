@@ -20,7 +20,7 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@playwright/test": "1.61.1",
+    "@playwright/test": "1.62.0",
     "@types/node": "22.20.1",
     "multiple-cucumber-html-reporter": "4.1.0",
     "dotenv": "17.4.2",
