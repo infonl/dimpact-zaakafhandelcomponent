@@ -83,7 +83,7 @@ class NotificationTest : BehaviorSpec({
                     "zac",
                     Wait.forLogMessage(
                         ".* Failed to handle notification 'null ZAAKTYPE CREATE' .*" +
-                            "java.lang.RuntimeException: URI 'http://example.com/fakeResourceUrl' does not " +
+                            "java.lang.RuntimeException: URI 'https://example.com/fakeResourceUrl' does not " +
                             "start with value for environment variable 'ZGW_API_CLIENT_MP_REST_URL': '$OPEN_ZAAK_BASE_URI/' .*",
                         1
                     ).withStartupTimeout(30.seconds.toJavaDuration())

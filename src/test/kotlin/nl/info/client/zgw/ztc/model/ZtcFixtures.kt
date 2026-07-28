@@ -24,7 +24,7 @@ import java.util.UUID
 
 @Suppress("LongParameterList")
 fun createBesluitType(
-    url: URI = URI("http://example.com/zaaktype/${UUID.randomUUID()}"),
+    url: URI = URI("https://example.com/zaaktype/${UUID.randomUUID()}"),
     zaaktypen: List<URI> = listOf(URI("fakeZaaktype1"), URI("fakeZaaktype2")),
     isConcept: Boolean = false,
     resultaattypen: List<URI> = listOf(URI("fakeResultaatType1"), URI("fakeResultaatType2")),
@@ -77,7 +77,7 @@ fun createEigenschap(
 }
 
 fun createCatalogus(
-    url: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    url: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
     zaaktypen: List<URI> = emptyList(),
     besluittypen: List<URI> = emptyList(),
     informatieobjecttypen: List<URI> = emptyList()
@@ -173,7 +173,7 @@ fun createZaakType(
 }
 
 fun createInformatieObjectType(
-    uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    uri: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
     omschrijving: String = "fakeOmschrijving",
     vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
     beginGeldigheid: LocalDate = LocalDate.now(),
@@ -193,7 +193,7 @@ fun createInformatieObjectType(
 
 fun createReferentieProcess(
     name: String = "fakeNaam",
-    uri: URI = URI("http://example.com/referentieproces/${UUID.randomUUID()}")
+    uri: URI = URI("https://example.com/referentieproces/${UUID.randomUUID()}")
 ) = ReferentieProces().apply {
     this.naam = name
     this.link = uri
@@ -201,11 +201,11 @@ fun createReferentieProcess(
 
 @Suppress("LongParameterList")
 fun createResultaatType(
-    url: URI = URI("http://example.com/zaaktype/${UUID.randomUUID()}"),
+    url: URI = URI("https://example.com/zaaktype/${UUID.randomUUID()}"),
     zaaktypeIdentificatie: String = "fakeZaaktypeIdentificatie",
     omschrijving: String = "fakeOmschrijving",
     omschrijvingGeneriek: String = "fakeOmschrijvingGeneriek",
-    catalogus: URI = URI("http://example.com/catalogus${UUID.randomUUID()}"),
+    catalogus: URI = URI("https://example.com/catalogus${UUID.randomUUID()}"),
     besluittypeOmschrijving: MutableList<String> = mutableListOf("fakeBesluittypeOmschrijving"),
     informatieobjecttypeOmschrijving: MutableList<String> = mutableListOf("fakeInformatieobjecttypeOmschrijving"),
     beginObject: LocalDate = LocalDate.now(),

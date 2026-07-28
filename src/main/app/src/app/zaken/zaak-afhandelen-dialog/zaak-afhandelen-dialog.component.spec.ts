@@ -490,7 +490,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           besluiten: [
             fromPartial<GeneratedType<"RestBesluit">>({
               uuid: "mock-besluit-uuid",
-              url: "http://example.com/besluit",
+              url: "https://example.com/besluit",
             }),
           ],
         },
@@ -505,7 +505,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           besluiten: [
             fromPartial<GeneratedType<"RestBesluit">>({
               uuid: "mock-besluit-uuid",
-              url: "http://example.com/besluit",
+              url: "https://example.com/besluit",
             }),
           ],
         },
