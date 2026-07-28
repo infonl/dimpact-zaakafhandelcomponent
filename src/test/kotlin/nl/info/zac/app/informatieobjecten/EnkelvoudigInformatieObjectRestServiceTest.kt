@@ -607,13 +607,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val informatieObjectTypeUUID2 = UUID.randomUUID()
         val informatieObjectTypes = listOf(
             createInformatieObjectType(
-                uri = URI("http://example.com/catalogus/$informatieObjectTypeUUID1"),
+                uri = URI("https://example.com/catalogus/$informatieObjectTypeUUID1"),
                 omschrijving = "fakeOmschrijving1",
                 vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR,
                 concept = true
             ),
             createInformatieObjectType(
-                uri = URI("http://example.com/catalogus/$informatieObjectTypeUUID2"),
+                uri = URI("https://example.com/catalogus/$informatieObjectTypeUUID2"),
                 omschrijving = "fakeOmschrijving2",
                 vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.BEPERKT_OPENBAAR,
                 concept = false

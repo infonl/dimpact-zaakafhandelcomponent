@@ -226,7 +226,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 fataledatum = LocalDate.now().plusDays(3)
             )
             val zaak = createZaak(
-                zaaktypeUri = URI("http://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
             )
             val loggedInUser = createLoggedInUser()
@@ -261,7 +261,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 )
             )
             val zaak = createZaak(
-                zaaktypeUri = URI("http://example.com/$zaakTypeUUID")
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID")
             )
             val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()
             val loggedInUser = createLoggedInUser()
@@ -317,11 +317,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 fataledatum = LocalDate.now().plusDays(numberOfDays)
             )
             val zaak = createZaak(
-                zaaktypeUri = URI("http://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now()
             )
             val extendedZaak = createZaak(
-                zaaktypeUri = URI("http://example.com/$zaakTypeUUID"),
+                zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(numberOfDays)
             )
             val zaaktypeCmmnConfigurationMock = mockk<ZaaktypeCmmnConfiguration>()

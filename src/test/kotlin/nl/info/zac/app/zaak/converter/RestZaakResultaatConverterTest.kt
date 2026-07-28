@@ -34,8 +34,8 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
         """
     ) {
         val resultaatTypeUUID = UUID.randomUUID()
-        val resultaatURI = URI("http://example.com/resultaat/${UUID.randomUUID()}")
-        val resultaatTypeURI = URI("http://example.com/resultaattype/$resultaatTypeUUID")
+        val resultaatURI = URI("https://example.com/resultaat/${UUID.randomUUID()}")
+        val resultaatTypeURI = URI("https://example.com/resultaattype/$resultaatTypeUUID")
         val resultaat = createResultaat(url = resultaatURI, resultaatTypeURI = resultaatTypeURI)
         val resultaattype = createResultaatType(
             url = resultaatTypeURI,
@@ -73,8 +73,8 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
         """
     ) {
         val resultaatTypeUUID = UUID.randomUUID()
-        val resultaatURI = URI("http://example.com/resultaat/${UUID.randomUUID()}")
-        val resultaatTypeURI = URI("http://example.com/resultaattype/$resultaatTypeUUID")
+        val resultaatURI = URI("https://example.com/resultaat/${UUID.randomUUID()}")
+        val resultaatTypeURI = URI("https://example.com/resultaattype/$resultaatTypeUUID")
         val resultaat = createResultaat(url = resultaatURI, resultaatTypeURI = resultaatTypeURI)
         val resultaattype = createResultaatType(
             url = resultaatTypeURI,
@@ -103,8 +103,8 @@ class RestZaakResultaatConverterTest : BehaviorSpec({
         """
     ) {
         val resultaatTypeUUID = UUID.randomUUID()
-        val resultaatURI = URI("http://example.com/resultaat/${UUID.randomUUID()}")
-        val resultaatTypeURI = URI("http://example.com/resultaattype/$resultaatTypeUUID")
+        val resultaatURI = URI("https://example.com/resultaat/${UUID.randomUUID()}")
+        val resultaatTypeURI = URI("https://example.com/resultaattype/$resultaatTypeUUID")
         val resultaat = createResultaat(url = resultaatURI, resultaatTypeURI = resultaatTypeURI)
         val resultaattype = createResultaatType(
             url = resultaatTypeURI,

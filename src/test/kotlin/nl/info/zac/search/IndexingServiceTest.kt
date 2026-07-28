@@ -95,7 +95,7 @@ class IndexingServiceTest : BehaviorSpec({
     given("Two zaken") {
         val ctx = setupContext()
         val zaakType = createZaakType()
-        val zaaktypeURI = URI("http://example.com/${zaakType.url}")
+        val zaaktypeURI = URI("https://example.com/${zaakType.url}")
         val zaken = listOf(
             createZaak(zaaktypeUri = zaaktypeURI),
             createZaak(zaaktypeUri = zaaktypeURI)

@@ -4,16 +4,23 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of, Subject, throwError } from "rxjs";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { EMPTY, of, throwError } from "rxjs";
 import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
@@ -53,6 +60,8 @@ const setup = (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
     ],
     providers: [
       provideHttpClient(),
+      provideHttpClientTesting(),
+      provideQueryClient(testQueryClient),
       provideRouter([]),
       provideMomentDateAdapter(),
     ],
@@ -61,9 +70,12 @@ const setup = (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
   const zoekenService = TestBed.inject(ZoekenService);
   const zakenService = TestBed.inject(ZakenService);
   const utilService = TestBed.inject(UtilService);
+  const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+  const httpTestingController = TestBed.inject(HttpTestingController);
 
   jest.spyOn(utilService, "setLoading").mockReturnValue(undefined);
   jest.spyOn(utilService, "openSnackbar").mockReturnValue(undefined);
+  jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
 
   const fixture: ComponentFixture<ZaakLinkComponent> =
     TestBed.createComponent(ZaakLinkComponent);
@@ -72,18 +84,29 @@ const setup = (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
   component.sideNav = sideNav;
   fixture.detectChanges();
 
+  httpTestingController
+    .expectOne("/rest/zaken/gekoppelde-zaken/zaaktypen")
+    .flush([]);
+
   return {
     fixture,
     component,
     zoekenService,
     zakenService,
     utilService,
+    foutAfhandelingService,
+    httpTestingController,
     sideNav,
     zaak,
   };
 };
 
+const KOPPEL_URL = "/rest/zaken/zaak/koppel";
+
 describe(ZaakLinkComponent.name, () => {
+  afterEach(() => {
+    TestBed.inject(HttpTestingController).verify();
+  });
   describe("form initialisation", () => {
     it("form is initially invalid", () => {
       const { component } = setup();
@@ -177,14 +200,20 @@ describe(ZaakLinkComponent.name, () => {
 
       expect(component["loading"]).toBe(false);
     });
+
+    it("does not start loading when no caseRelationType is selected", () => {
+      const { component, utilService } = setup();
+
+      component["searchCases"]();
+
+      expect(component["loading"]).toBe(false);
+      expect(utilService.setLoading).not.toHaveBeenCalledWith(true);
+    });
   });
 
   describe("selectCase()", () => {
-    it("calls koppelZaak and emits zaakLinked on success", () => {
-      const { component, zakenService, utilService } = setup();
-      jest
-        .spyOn(zakenService, "koppelZaak")
-        .mockReturnValue(of(null) as ReturnType<ZakenService["koppelZaak"]>);
+    it("PATCHes koppel and emits zaakLinked on success", async () => {
+      const { component, httpTestingController, utilService } = setup();
       const zaakLinkedSpy = jest.spyOn(component.zaakLinked, "emit");
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"][0],
@@ -192,49 +221,66 @@ describe(ZaakLinkComponent.name, () => {
       const row = makeFakeSearchResult({ isKoppelbaar: true });
 
       component["selectCase"](row);
+      await new Promise(requestAnimationFrame);
 
-      expect(zakenService.koppelZaak).toHaveBeenCalledWith({
+      const request = httpTestingController.expectOne(KOPPEL_URL);
+      expect(request.request.method).toBe("PATCH");
+      expect(request.request.body).toEqual({
         zaakUuid: component.zaak.uuid,
         teKoppelenZaakUuid: row.id,
         relatieType: component["caseRelationOptionsList"][0].value,
       });
+      request.flush(null);
+      await sleep();
+
       expect(zaakLinkedSpy).toHaveBeenCalled();
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.zaak.gekoppeld",
-        {
-          case: row.identificatie,
-        },
+        { case: row.identificatie },
       );
     });
 
-    it("ignores a second selectCase while a link request is still in flight", () => {
-      const { component, zakenService } = setup();
-      const pendingLink = new Subject<null>();
-      const koppelZaakSpy = jest
-        .spyOn(zakenService, "koppelZaak")
-        .mockReturnValue(
-          pendingLink.asObservable() as ReturnType<ZakenService["koppelZaak"]>,
-        );
+    it("calls foutAfhandelen and does not emit zaakLinked when the link request fails", async () => {
+      const { component, httpTestingController, foutAfhandelingService } =
+        setup();
+      const zaakLinkedSpy = jest.spyOn(component.zaakLinked, "emit");
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"][0],
       );
       const row = makeFakeSearchResult({ isKoppelbaar: true });
 
       component["selectCase"](row);
-      component["selectCase"](row);
+      await new Promise(requestAnimationFrame);
 
-      expect(koppelZaakSpy).toHaveBeenCalledTimes(1);
-      expect(component["linkingRowId"]).toBe(row.id);
+      const request = httpTestingController.expectOne(KOPPEL_URL);
+      request.flush("boom", { status: 500, statusText: "Server Error" });
+      await sleep();
+
+      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
+      expect(zaakLinkedSpy).not.toHaveBeenCalled();
     });
 
-    it("disables only the clicked row's link button while linking", () => {
-      const { component, fixture, zakenService } = setup();
-      const pendingLink = new Subject<null>();
-      jest
-        .spyOn(zakenService, "koppelZaak")
-        .mockReturnValue(
-          pendingLink.asObservable() as ReturnType<ZakenService["koppelZaak"]>,
-        );
+    it("ignores a second selectCase while a link request is still in flight", async () => {
+      const { component, httpTestingController } = setup();
+      component["form"].controls.caseRelationType.setValue(
+        component["caseRelationOptionsList"][0],
+      );
+      const row = makeFakeSearchResult({ isKoppelbaar: true });
+
+      component["selectCase"](row);
+      await new Promise(requestAnimationFrame);
+      const request = httpTestingController.expectOne(KOPPEL_URL);
+      expect(component["isLinking"](row)).toBe(true);
+
+      component["selectCase"](row);
+      await new Promise(requestAnimationFrame);
+      httpTestingController.expectNone(KOPPEL_URL);
+
+      request.flush(null);
+    });
+
+    it("disables only the clicked row's link button while linking", async () => {
+      const { component, fixture, httpTestingController } = setup();
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"][0],
       );
@@ -252,60 +298,40 @@ describe(ZaakLinkComponent.name, () => {
       fixture.detectChanges();
 
       component["selectCase"](clickedRow);
+      await new Promise(requestAnimationFrame);
       fixture.detectChanges();
 
+      const request = httpTestingController.expectOne(KOPPEL_URL);
       const linkButtons: HTMLButtonElement[] = Array.from(
         fixture.nativeElement.querySelectorAll("td button[mat-icon-button]"),
       );
       expect(linkButtons[0].disabled).toBe(true);
       expect(linkButtons[1].disabled).toBe(false);
+
+      request.flush(null);
     });
 
-    it("skips koppelZaak when row has no id", () => {
-      const { component, zakenService } = setup();
-      const koppelZaakSpy = jest
-        .spyOn(zakenService, "koppelZaak")
-        .mockReturnValue(of(null) as ReturnType<ZakenService["koppelZaak"]>);
+    it("skips the link request when row has no id", async () => {
+      const { component, httpTestingController } = setup();
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"][0],
       );
       const rowWithoutId = makeFakeSearchResult({ id: undefined });
 
       component["selectCase"](rowWithoutId);
+      await new Promise(requestAnimationFrame);
 
-      expect(koppelZaakSpy).not.toHaveBeenCalled();
+      httpTestingController.expectNone(KOPPEL_URL);
     });
 
-    it("clears loading on error", () => {
-      const { component, zakenService } = setup();
-      jest
-        .spyOn(zakenService, "koppelZaak")
-        .mockReturnValue(
-          throwError(() => new Error("fail")) as ReturnType<
-            ZakenService["koppelZaak"]
-          >,
-        );
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      component["loading"] = true;
+    it("skips the link request when caseRelationType has no value selected", async () => {
+      const { component, httpTestingController } = setup();
       const row = makeFakeSearchResult({ isKoppelbaar: true });
 
       component["selectCase"](row);
+      await new Promise(requestAnimationFrame);
 
-      expect(component["loading"]).toBe(false);
-    });
-
-    it("skips koppelZaak when caseRelationType has no value selected", () => {
-      const { component, zakenService } = setup();
-      const koppelZaakSpy = jest
-        .spyOn(zakenService, "koppelZaak")
-        .mockReturnValue(of(null) as ReturnType<ZakenService["koppelZaak"]>);
-      const row = makeFakeSearchResult({ isKoppelbaar: true });
-
-      component["selectCase"](row);
-
-      expect(koppelZaakSpy).not.toHaveBeenCalled();
+      httpTestingController.expectNone(KOPPEL_URL);
     });
   });
 
@@ -428,11 +454,9 @@ describe(ZaakLinkComponent.name, () => {
         component as unknown as { close: () => unknown },
         "close",
       );
-      const cancelButton: HTMLButtonElement = Array.from(
+      const cancelButton = Array.from<HTMLButtonElement>(
         fixture.nativeElement.querySelectorAll("button"),
-      ).find((button: HTMLButtonElement) =>
-        (button as HTMLButtonElement).textContent?.includes("actie.annuleren"),
-      ) as HTMLButtonElement;
+      ).find((button) => button.textContent?.includes("actie.annuleren"))!;
       cancelButton.click();
       expect(closeSpy).toHaveBeenCalled();
     });

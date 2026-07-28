@@ -413,9 +413,15 @@ export class ZaakViewComponent
           this.menu.push(new HeaderMenuItem("actie.taak.starten"));
         }
         this.menu = this.menu.concat(
-          humanTaskPlanItems.map((humanTaskPlanItem) =>
-            this.createPlanItemMenuItem(humanTaskPlanItem, "assignment"),
-          ),
+          [...humanTaskPlanItems]
+            .sort((humanTaskPlanItemA, humanTaskPlanItemB) =>
+              (humanTaskPlanItemA.naam ?? "").localeCompare(
+                humanTaskPlanItemB.naam ?? "",
+              ),
+            )
+            .map((humanTaskPlanItem) =>
+              this.createPlanItemMenuItem(humanTaskPlanItem, "assignment"),
+            ),
         );
       }
 
@@ -1113,17 +1119,17 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.kvkKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.brpKoppelen &&
-        this.brpRechtenQuery.data()?.zoeken,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen &&
+      this.brpRechtenQuery.data()?.zoeken,
     );
   }
 
