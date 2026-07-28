@@ -59,7 +59,6 @@ export class MailCreateComponent implements OnInit {
     },
   }));
 
-
   protected form = this.formBuilder.group({
     verzender:
       this.formBuilder.control<GeneratedType<"RestZaakAfzender"> | null>(null, [
