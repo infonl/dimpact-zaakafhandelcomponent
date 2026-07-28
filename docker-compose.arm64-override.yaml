@@ -24,19 +24,19 @@ services:
     platform: linux/arm64
 
   openarchiefbeheer-web:
-    image: ghcr.io/infonl/open-archiefbeheer:2.0.0@sha256:bf06a58bfd06bd330960ad82260e817dbaabf0b20f59f68b39772c331aead1f0
+    image: ghcr.io/infonl/open-archiefbeheer:2.0.0@sha256:ebe0bb373d22170e2299bb187a6848508e38cb55fe35217ecb53f54f38cc2002
     platform: linux/arm64
 
   openarchiefbeheer-web-init:
-    image: ghcr.io/infonl/open-archiefbeheer:2.0.0@sha256:bf06a58bfd06bd330960ad82260e817dbaabf0b20f59f68b39772c331aead1f0
+    image: ghcr.io/infonl/open-archiefbeheer:2.0.0@sha256:ebe0bb373d22170e2299bb187a6848508e38cb55fe35217ecb53f54f38cc2002
     platform: linux/arm64
 
   openarchiefbeheer-celery:
-    image: ghcr.io/infonl/open-archiefbeheer:2.0.0@sha256:bf06a58bfd06bd330960ad82260e817dbaabf0b20f59f68b39772c331aead1f0
+    image: ghcr.io/infonl/open-archiefbeheer:2.0.0@sha256:ebe0bb373d22170e2299bb187a6848508e38cb55fe35217ecb53f54f38cc2002
     platform: linux/arm64
 
   openarchiefbeheer-celery-beat:
-    image: ghcr.io/infonl/open-archiefbeheer:2.0.0@sha256:bf06a58bfd06bd330960ad82260e817dbaabf0b20f59f68b39772c331aead1f0
+    image: ghcr.io/infonl/open-archiefbeheer:2.0.0@sha256:ebe0bb373d22170e2299bb187a6848508e38cb55fe35217ecb53f54f38cc2002
     platform: linux/arm64
 
   openklant.local:
