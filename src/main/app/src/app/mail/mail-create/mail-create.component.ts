@@ -17,7 +17,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { KlantenService } from "../../klanten/klanten.service";
+import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { DocumentenLijstFormField } from "../../shared/material-form-builder/form-components/documenten-lijst/documenten-lijst-form-field";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -83,7 +83,7 @@ export class MailCreateComponent implements OnInit {
   });
 
   protected verzenderOptions: GeneratedType<"RestZaakAfzender">[] = [];
-  protected contactEmailAddress: string | null = null;
+  protected readonly contactEmailAddress = injectContactEmail(this.zaak);
   protected variabelen: string[] = [];
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
@@ -92,7 +92,6 @@ export class MailCreateComponent implements OnInit {
     private readonly informatieObjectenService: InformatieObjectenService,
     private readonly mailService: MailService,
     private readonly mailtemplateService: MailtemplateService,
-    private readonly klantenService: KlantenService,
     private readonly utilService: UtilService,
     private readonly formBuilder: FormBuilder,
   ) {}
@@ -127,22 +126,6 @@ export class MailCreateComponent implements OnInit {
       .subscribe((documents) => {
         this.documents = documents;
       });
-
-    const emailAddress = this.zaak().zaakSpecificContactDetails?.emailAddress;
-    if (emailAddress) {
-      this.contactEmailAddress = emailAddress;
-      return;
-    }
-
-    const temporaryPersonId =
-      this.zaak().initiatorIdentificatie?.temporaryPersonId;
-    if (!temporaryPersonId) return;
-
-    this.klantenService
-      .getContactDetailsForPerson(temporaryPersonId)
-      .subscribe((gegevens) => {
-        this.contactEmailAddress = gegevens?.emailadres ?? null;
-      });
   }
 
   onFormSubmit() {
@@ -160,6 +143,6 @@ export class MailCreateComponent implements OnInit {
   }
 
   protected setOntvanger() {
-    this.form.controls.ontvanger.setValue(this.contactEmailAddress ?? null);
+    this.form.controls.ontvanger.setValue(this.contactEmailAddress() ?? null);
   }
 }

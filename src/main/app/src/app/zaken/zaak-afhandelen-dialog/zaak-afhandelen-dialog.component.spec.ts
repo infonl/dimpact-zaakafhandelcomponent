@@ -39,7 +39,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   let httpTestingController: HttpTestingController;
   let zakenService: ZakenService;
   let mailtemplateService: MailtemplateService;
-  let klantenService: KlantenService;
 
   const mockDialogRef = {
     close: jest.fn(),
@@ -137,7 +136,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
     zakenService = TestBed.inject(ZakenService);
     mailtemplateService = TestBed.inject(MailtemplateService);
-    klantenService = TestBed.inject(KlantenService);
 
     jest
       .spyOn(zakenService, "listResultaattypes")
@@ -148,13 +146,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     jest
       .spyOn(mailtemplateService, "findMailtemplate")
       .mockReturnValue(of(mockMailtemplate));
-    jest.spyOn(klantenService, "getContactDetailsForPerson").mockReturnValue(
-      of(
-        fromPartial<GeneratedType<"RestContactDetails">>({
-          emailadres: "initiator@example.com",
-        }),
-      ),
-    );
 
     testQueryClient.setQueryData(
       ["resultaattypes", zaakMock.zaaktype.uuid],
@@ -165,12 +156,20 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       ["mailtemplate", zaakMock.uuid],
       mockMailtemplate,
     );
-    testQueryClient.setQueryData(
-      ["initiatorEmail", zaakMock.initiatorIdentificatie?.temporaryPersonId],
-      fromPartial<GeneratedType<"RestContactDetails">>({
-        emailadres: "initiator@example.com",
-      }),
-    );
+
+    const temporaryPersonId =
+      zaakMock.initiatorIdentificatie?.temporaryPersonId;
+    if (temporaryPersonId) {
+      testQueryClient.setQueryData(
+        [
+          "/rest/klanten/contactdetails/person/{temporaryPersonId}",
+          { path: { temporaryPersonId } },
+        ],
+        fromPartial<GeneratedType<"RestContactDetails">>({
+          emailadres: "initiator@example.com",
+        }),
+      );
+    }
 
     fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -256,11 +255,11 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
   });
 
   describe("form validation", () => {
-    it("should disable submit button when form is invalid", () => {
-      const submitBtn = fixture.nativeElement.querySelector(
-        'button[type="submit"]',
+    it("should disable submit button when form is invalid", async () => {
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-      expect(submitBtn.disabled).toBe(true);
+      expect(await submitButton.isDisabled()).toBe(true);
     });
 
     it("should enable submit button when form is valid", async () => {
@@ -271,10 +270,10 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await options[2]?.click();
       fixture.detectChanges();
 
-      const submitBtn = fixture.nativeElement.querySelector(
-        'button[type="submit"]',
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-      expect(submitBtn.disabled).toBe(false);
+      expect(await submitButton.isDisabled()).toBe(false);
     });
 
     it("keeps the submit button disabled after a successful afhandelen", async () => {
@@ -373,10 +372,10 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       await options[0]?.click();
       fixture.detectChanges();
 
-      const submitBtn = fixture.nativeElement.querySelector(
-        'button[type="submit"]',
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
       );
-      expect(submitBtn.disabled).toBe(true);
+      expect(await submitButton.isDisabled()).toBe(true);
     });
 
     it("should not allow the form to be submitted when brondatumEigenschap is before today", async () => {
@@ -546,9 +545,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     );
   });
 
-  describe("setInitiatorEmail", () => {
-    it("sets ontvanger to initiatorEmailQuery emailadres when no zaakSpecificContactDetails", () => {
-      fixture.componentInstance["setInitiatorEmail"]();
+  describe("setOntvanger", () => {
+    it("sets ontvanger to the resolved initiator email when there is no zaakSpecificContactDetails", () => {
+      fixture.componentInstance["setOntvanger"]();
       expect(fixture.componentInstance.form.controls.ontvanger.value).toBe(
         "initiator@example.com",
       );
@@ -564,7 +563,40 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       });
       await createTestBed(mockZaakWithContact, mockPlanItem);
 
-      fixture.componentInstance["setInitiatorEmail"]();
+      fixture.componentInstance["setOntvanger"]();
+      expect(fixture.componentInstance.form.controls.ontvanger.value).toBe(
+        "contact@example.com",
+      );
+    });
+
+    it("shows the contact button and fills the contact email when there is a zaakSpecificContactDetails but no initiator", async () => {
+      const mockZaakWithContactNoInitiator = fromPartial<
+        GeneratedType<"RestZaak">
+      >({
+        ...mockZaak,
+        uuid: "test-zaak-uuid-contact-no-initiator",
+        initiatorIdentificatie: undefined,
+        zaakSpecificContactDetails: fromPartial({
+          emailAddress: "contact@example.com",
+        }),
+        zaaktype: {
+          ...mockZaak.zaaktype,
+          zaakafhandelparameters: {
+            afrondenMail: "BESCHIKBAAR_AAN",
+          },
+        },
+      });
+      await createTestBed(mockZaakWithContactNoInitiator, mockPlanItem);
+
+      const contactButton = await loader.getHarness(
+        MatButtonHarness.with({
+          selector: '[title="actie.contact.email.toevoegen"]',
+        }),
+      );
+
+      await contactButton.click();
+      fixture.detectChanges();
+
       expect(fixture.componentInstance.form.controls.ontvanger.value).toBe(
         "contact@example.com",
       );

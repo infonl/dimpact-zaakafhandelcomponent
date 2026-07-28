@@ -94,6 +94,7 @@ export class ZaakLinkComponent implements OnDestroy {
     "acties",
   ] as const;
   protected loading = false;
+  protected linkingRowId: string | null = null;
 
   protected caseRelationOptionsList = [
     caseRelationOption("DEELZAAK"),
@@ -172,8 +173,10 @@ export class ZaakLinkComponent implements OnDestroy {
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
+    if (this.linkingRowId) return;
     if (!row.id || !this.form.controls.caseRelationType.value?.value) return;
 
+    this.linkingRowId = row.id;
     const caseLinkDetails: GeneratedType<"RestZaakLinkData"> = {
       zaakUuid: this.zaak.uuid,
       teKoppelenZaakUuid: row.id,
@@ -190,6 +193,7 @@ export class ZaakLinkComponent implements OnDestroy {
       },
       error: () => {
         this.loading = false;
+        this.linkingRowId = null;
         this.utilService.setLoading(false);
       },
     });
@@ -201,12 +205,19 @@ export class ZaakLinkComponent implements OnDestroy {
     return !row.isKoppelbaar || row.identificatie === this.zaak.identificatie;
   }
 
+  protected isLinking(
+    row: GeneratedType<"RestZaakKoppelenZoekObject">,
+  ): boolean {
+    return this.linkingRowId === row.id;
+  }
+
   protected close() {
     void this.sideNav.close();
     this.reset();
   }
 
   protected reset() {
+    this.linkingRowId = null;
     this.form.reset();
     this.startdatum = new DatumRange();
     this.einddatum = new DatumRange();

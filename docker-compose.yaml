@@ -178,19 +178,19 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:8.6.4@sha256:a051e4f48a5d0ceda6554974f3ad0f5369f4479197f36829332c1325cecad2b7
+    image: redis:8.6.5@sha256:aefcda4d4388a70e628ad5ebbf162ae65509b20ea3dd6eeac7dcbbb675d94dba
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
-  objecten-api.local:
-    image: maykinmedia/objects-api:3.6.2@sha256:6a3a40081016e5072c5355622c0ca3e1ded89228edce7336fc4d8600217344f8
+  open-object.local:
+    image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
     platform: linux/amd64
     ports:
       - "8010:8000"
-    environment: &objects-env
+    environment: &open-object-env
       - ALLOWED_HOSTS="*"
       - CORS_ALLOW_ALL_ORIGINS=true
-      - DB_HOST=objecten-api-database
+      - DB_HOST=open-object-database
       - DEBUG=true
       - DISABLE_2FA=true
       - DJANGO_SETTINGS_MODULE=objects.conf.docker
@@ -203,20 +203,21 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - EMAIL_HOST=localhost
       - OTEL_SDK_DISABLED=true
+      - SITE_DOMAIN=open-object.local:8000
     healthcheck:
       test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
       interval: 5s
       timeout: 10s
       retries: 10
     depends_on:
-      objecten-api-database:
+      open-object-database:
         condition: service_healthy
     profiles: [ "objecten", "itest", "openformulieren" ]
 
-  objecten-api-celery:
-    image: maykinmedia/objects-api:3.6.2@sha256:6a3a40081016e5072c5355622c0ca3e1ded89228edce7336fc4d8600217344f8
+  open-object-celery:
+    image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
     platform: linux/amd64
-    environment: *objects-env
+    environment: *open-object-env
     command: sh -c "cd /app/src && celery -A objects worker -l info"
     healthcheck:
       test: [ "CMD", "python", "/app/bin/check_celery_worker_liveness.py" ]
@@ -225,13 +226,13 @@ services:
       retries: 3
       start_period: 10s
     depends_on:
-      objecten-api.local:
+      open-object.local:
         condition: service_healthy
       redis:
         condition: service_started
     profiles: [ "objecten", "itest", "openformulieren" ]
 
-  objecten-api-database:
+  open-object-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
     platform: linux/amd64
     ports:
@@ -247,17 +248,17 @@ services:
       - POSTGRES_DB=objects
     profiles: [ "objecten", "itest", "openformulieren" ]
 
-  objecten-api-import:
-    image: maykinmedia/objects-api:3.6.2@sha256:6a3a40081016e5072c5355622c0ca3e1ded89228edce7336fc4d8600217344f8
+  open-object-import:
+    image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
     platform: linux/amd64
-    environment: *objects-env
+    environment: *open-object-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
     command: sh init/init.sh
     volumes:
-      - ./scripts/docker-compose/imports/objects-api/fixtures:/app/src/objects/fixtures
-      - ./scripts/docker-compose/imports/objects-api/init:/app/init
+      - ./scripts/docker-compose/imports/open-object/fixtures:/app/src/objects/fixtures
+      - ./scripts/docker-compose/imports/open-object/init:/app/init
     depends_on:
-      objecten-api.local:
+      open-object.local:
         condition: service_healthy
     profiles: [ "objecten", "itest", "openformulieren" ]
 
@@ -399,7 +400,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.156.0@sha256:125bdbeb7590cc1952c5b3430ecf14063568980c2c93d5b38676cc0446ed8108
+    image: otel/opentelemetry-collector-contrib:0.157.0@sha256:f2f01157055a9b2aab9df7118e1f1c9abf345e99b23bc7a2bc791db374a7d0f6
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -715,7 +716,7 @@ services:
       - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.1.0@sha256:c40905205d997936538bbe1efdf0c582ec98a8414df9ceb05b0c1b0d1121a39a
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.1.1@sha256:803596bb1f365a1296a4ef450a35fea5022798190b7b7a467a896c42675e280e
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -727,7 +728,7 @@ services:
       - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:1.1.0@sha256:108225d8ba671ace5be159d24ecfdfe06b073494227943a123955418c5b124a0
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:1.1.1@sha256:80c77b7a22f918fd94e8831ea75b249bdc9bd7a3efc57a5269d6a7086d5366e0
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
@@ -812,7 +813,7 @@ services:
       - KVK_API_CLIENT_MP_REST_URL=${KVK_API_CLIENT_MP_REST_URL:-fakeKvkApiUrl}
       - KVK_API_KEY=${KVK_API_KEY:-fakeKvkApiKey}
       - OFFICE_CONVERTER_CLIENT_MP_REST_URL=http://office-converter:3000
-      - OBJECTS_API_CLIENT_MP_REST_URL=http://objecten-api.local:8000
+      - OBJECTS_API_CLIENT_MP_REST_URL=http://open-object.local:8000
       - OBJECTS_API_TOKEN=fakeZacObjectsToken
       - OPA_API_CLIENT_MP_REST_URL=http://opa:8181
       - OPEN_FORMS_URL=http://localhost:9999 # fake for now
@@ -866,55 +867,6 @@ services:
       openzaak.local:
         condition: service_healthy
     profiles: ["zac"]
-
-  objecttypes-api-database:
-    image: postgres:17.10@sha256:a426e44bac0b759c95894d68e1a0ac03ecc20b619f498a91aae373bf06d8508d
-    ports:
-      - "54324:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 30s
-    environment:
-      - POSTGRES_USER=objecttypes
-      - POSTGRES_PASSWORD=objecttypes
-      - POSTGRES_DB=objecttypes
-    profiles: [ "openformulieren" ]
-
-  objecttypes-api:
-    image: maykinmedia/objecttypes-api:3.4.2@sha256:d366e6ede1bb924ea351495f4e88ceba53bb0df02fa5302929daef379131fda1
-    platform: linux/amd64
-    ports:
-      - "8011:8000"
-    environment: &objecttypes-env
-      - CORS_ALLOW_ALL_ORIGINS=true
-      - SECRET_KEY=objecttypesApiSecretKey
-      - DJANGO_SETTINGS_MODULE=objecttypes.conf.docker
-      - DB_HOST=objecttypes-api-database
-      - CACHE_DEFAULT=redis:6379/0
-      - CACHE_AXES=redis:6379/0
-      - DISABLE_2FA=yes
-      - DEBUG=true
-      - OTEL_SDK_DISABLED=true
-      - ALLOWED_HOSTS=*
-    depends_on:
-      objecttypes-api-database:
-        condition: service_healthy
-    profiles: [ "openformulieren" ]
-
-  objecttypes-api-import:
-    image: maykinmedia/objecttypes-api:3.4.2@sha256:d366e6ede1bb924ea351495f4e88ceba53bb0df02fa5302929daef379131fda1
-    platform: linux/amd64
-    environment: *objecttypes-env
-    command: sh init/init.sh
-    volumes:
-      - ./scripts/docker-compose/imports/objecttypes-api/fixtures:/app/src/objecttypes/fixtures
-      - ./scripts/docker-compose/imports/objecttypes-api/init:/app/init
-    depends_on:
-      - objecttypes-api
-    profiles: [ "openformulieren" ]
 
   openformulieren-database:
     image: postgres:17.10@sha256:a426e44bac0b759c95894d68e1a0ac03ecc20b619f498a91aae373bf06d8508d
@@ -1046,13 +998,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-      objecttypes-api:
-        condition: service_started
+      open-object-import:
+        condition: service_completed_successfully
     profiles: [ "openformulieren" ]
 
   openformulieren-web:
     image: openformulieren/open-forms:3.5.5@sha256:086c9f6d2243af224725ba94f66b8a506686d1f09e6a2fa3e8423d47fa61d7b1
-    # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
+    # For now, we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
     # This seems to have to do with missing static content (such as JS translation bundles) in the ARM image.

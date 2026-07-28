@@ -32,10 +32,9 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { Observable, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
-import { KlantenService } from "../../klanten/klanten.service";
+import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
-import { ActionIcon } from "../../shared/edit/action-icon";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZakenService } from "../zaken.service";
@@ -70,11 +69,8 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
   zaakNietOntvankelijkMail?: GeneratedType<"RESTMailtemplate">;
   mailBeschikbaar = false;
   sendMailDefault = false;
-  initiatorEmail?: string;
-  initiatorToevoegenIcon = new ActionIcon(
-    "person",
-    "actie.initiator.email.toevoegen",
-    new Subject<void>(),
+  protected readonly contactEmailAddress = injectContactEmail(
+    () => this.data.zaak,
   );
   formGroup: FormGroup;
   afzenders: Observable<GeneratedType<"RestZaakAfzender">[]>;
@@ -91,7 +87,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     private translateService: TranslateService,
     private planItemsService: PlanItemsService,
     private mailtemplateService: MailtemplateService,
-    private klantenService: KlantenService,
     private zakenService: ZakenService,
     private utilService: UtilService,
   ) {
@@ -112,24 +107,6 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     const zap = this.data.zaak.zaaktype.zaakafhandelparameters;
     this.mailBeschikbaar = zap?.intakeMail !== "NIET_BESCHIKBAAR";
     this.sendMailDefault = zap?.intakeMail === "BESCHIKBAAR_AAN";
-
-    const emailAddress =
-      this.data.zaak.zaakSpecificContactDetails?.emailAddress;
-    if (emailAddress) {
-      this.initiatorEmail = emailAddress;
-    } else {
-      const temporaryPersonId =
-        this.data.zaak.initiatorIdentificatie?.temporaryPersonId;
-      if (temporaryPersonId) {
-        this.klantenService
-          .getContactDetailsForPerson(temporaryPersonId)
-          .subscribe((gegevens) => {
-            if (gegevens.emailadres) {
-              this.initiatorEmail = gegevens.emailadres;
-            }
-          });
-      }
-    }
 
     this.formGroup = this.formBuilder.group({
       ontvankelijk: [null, [Validators.required]],
@@ -178,8 +155,8 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
     return CustomValidators.getErrorMessage(fc, label, this.translateService);
   }
 
-  protected setInitiatorEmail() {
-    this.formGroup.get("ontvanger")?.setValue(this.initiatorEmail);
+  protected setOntvanger() {
+    this.formGroup.get("ontvanger")?.setValue(this.contactEmailAddress());
   }
 
   protected close(): void {

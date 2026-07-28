@@ -21,6 +21,7 @@ import { TranslateModule } from "@ngx-translate/core";
 @Component({
   selector: "zac-form-actions",
   templateUrl: "./form-actions.component.html",
+  styleUrls: ["./form-actions.component.less"],
   standalone: true,
   imports: [
     MatButtonModule,

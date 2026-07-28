@@ -11,7 +11,12 @@
 </mat-toolbar>
 <mat-divider />
 
-<form [formGroup]="form" (ngSubmit)="submit()" class="mt-2">
+<form
+  [formGroup]="form"
+  (submit)="submit()"
+  (cancel)="sideNav.close()"
+  class="mt-2"
+>
   <fieldset>
     <zac-select
       [form]="form"
@@ -72,17 +77,12 @@
   </fieldset>
   <fieldset>
     <mat-action-row>
-      <button
-        mat-raised-button
-        type="submit"
-        color="primary"
-        [disabled]="!form.valid"
-      >
-        {{ "actie.aanmaken" | translate }}
-      </button>
-      <button mat-raised-button (click)="sideNav.close()" type="reset">
-        {{ "actie.annuleren" | translate }}
-      </button>
+      <zac-form-actions
+        [form]="form"
+        [mutation]="createBesluitMutation"
+        submitLabel="actie.aanmaken"
+        disableAfterSuccess
+      />
     </mat-action-row>
   </fieldset>
 </form>
