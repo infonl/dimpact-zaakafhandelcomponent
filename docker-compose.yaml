@@ -479,15 +479,6 @@ services:
       - "18083:8080"
     profiles: [ "itest" ]
 
-  rabbitmq:
-    image: rabbitmq:4.2.7-alpine@sha256:5e6dba3baccbfcaf273ef24139d1b14de9ec5423d9683fc005c72c480aa6eae9
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 10s
-      timeout: 10s
-      retries: 20
-    profiles: [ "opennotificaties", "openformulieren" ]
-
   opennotificaties-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
     platform: linux/amd64
@@ -513,10 +504,10 @@ services:
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
-      CACHE_DEFAULT: redis:6379/6
-      CACHE_AXES: redis:6379/6
-      CELERY_BROKER_URL: redis://redis:6379/5
-      CELERY_RESULT_BACKEND: redis://redis:6379/5
+      CACHE_DEFAULT: redis:6379/0
+      CACHE_AXES: redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
       CELERY_LOGLEVEL: DEBUG
       DB_HOST: opennotificaties-database
       DB_NAME: opennotificaties
@@ -560,8 +551,6 @@ services:
     command: /setup_configuration.sh
     depends_on:
       opennotificaties-database:
-        condition: service_healthy
-      rabbitmq:
         condition: service_healthy
       redis:
         condition: service_started

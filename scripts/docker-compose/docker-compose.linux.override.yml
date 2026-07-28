@@ -167,13 +167,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  rabbitmq:
-    user: "${UID}:${GID}"
-    # Linux workaround for host.docker.internal support
-    # see: https://stackoverflow.com/a/67158212
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
   opennotificaties-database:
     user: "${UID}:${GID}"
     # Linux workaround for host.docker.internal support
@@ -196,6 +189,13 @@ services:
       - "host.docker.internal:host-gateway"
 
   opennotificaties-celery:
+    user: "${UID}:${GID}"
+    # Linux workaround for host.docker.internal support
+    # see: https://stackoverflow.com/a/67158212
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  opennotificaties-celery-worker:
     user: "${UID}:${GID}"
     # Linux workaround for host.docker.internal support
     # see: https://stackoverflow.com/a/67158212
