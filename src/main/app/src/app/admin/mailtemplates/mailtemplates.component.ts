@@ -11,7 +11,15 @@ import {
   trigger,
 } from "@angular/animations";
 import { NgFor, NgIf } from "@angular/common";
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  OnInit,
+  ViewChild,
+  inject,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDialog, MatDialogModule } from "@angular/material/dialog";
@@ -81,6 +89,8 @@ export class MailtemplatesComponent
   protected sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
+  private readonly destroyRef = inject(DestroyRef);
+
   protected isLoadingResults = false;
   protected columns = [
     "mailTemplateNaam",
@@ -125,6 +135,7 @@ export class MailtemplatesComponent
       this.mailtemplateKoppelingService.listMailtemplateKoppelingen(),
     ])
       .pipe(
+        takeUntilDestroyed(this.destroyRef),
         finalize(() => {
           this.isLoadingResults = false;
           this.utilService.setLoading(false);

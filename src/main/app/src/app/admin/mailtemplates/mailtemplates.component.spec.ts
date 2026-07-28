@@ -17,7 +17,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { EMPTY, of } from "rxjs";
+import { EMPTY, Subject, config, of, throwError } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -315,5 +315,50 @@ describe(MailtemplatesComponent.name, () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain("msg.loading");
+  });
+
+  describe("loading state", () => {
+    // `UtilService.loading` is a shared boolean signal, not a ref-count: a late
+    // `setLoading(false)` would switch off the spinner of whichever page came next.
+    const originalOnUnhandledError = config.onUnhandledError;
+
+    afterEach(() => {
+      config.onUnhandledError = originalOnUnhandledError;
+    });
+
+    it("should reset the loading state when loading the mailtemplates fails", () => {
+      config.onUnhandledError = () => {};
+      jest
+        .spyOn(mailtemplateBeheerService, "listMailtemplates")
+        .mockReturnValue(throwError(() => new Error("fakeLoadingError")));
+      jest.mocked(utilServiceMock.setLoading).mockClear();
+
+      component["laadMailtemplates"]();
+
+      expect(component["isLoadingResults"]).toBe(false);
+      expect(utilServiceMock.setLoading).toHaveBeenLastCalledWith(false);
+    });
+
+    it("should not touch the loading state after the component is destroyed", () => {
+      const pendingMailtemplates = new Subject<
+        GeneratedType<"RESTMailtemplate">[]
+      >();
+      jest
+        .spyOn(mailtemplateBeheerService, "listMailtemplates")
+        .mockReturnValue(pendingMailtemplates);
+      component["laadMailtemplates"]();
+      jest.mocked(utilServiceMock.setLoading).mockClear();
+
+      fixture.destroy();
+
+      expect(utilServiceMock.setLoading).toHaveBeenCalledTimes(1);
+      expect(utilServiceMock.setLoading).toHaveBeenCalledWith(false);
+
+      jest.mocked(utilServiceMock.setLoading).mockClear();
+      pendingMailtemplates.next([mailtemplate]);
+      pendingMailtemplates.complete();
+
+      expect(utilServiceMock.setLoading).not.toHaveBeenCalled();
+    });
   });
 });
