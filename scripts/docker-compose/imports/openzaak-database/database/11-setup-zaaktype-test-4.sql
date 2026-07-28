@@ -582,7 +582,8 @@ VALUES
 -- no properties are defined for this zaaktype
 
 -- For the first JSON object eigenschap specificatie
-INSERT INTO catalogi_eigenschapspecificatie (id, groep, formaat, lengte, kardinaliteit, waardenverzameling) VALUES(100, 'datum', 'datum', '8', '1', '{}');
+INSERT INTO catalogi_eigenschapspecificatie (id, groep, formaat, lengte, kardinaliteit, waardenverzameling)
+VALUES((SELECT COALESCE(MAX(id),0) FROM catalogi_eigenschapspecificatie) + 1, 'datum', 'datum', '8', '1', '{}');
 
 
 -- For the first JSON object eigenschap
@@ -607,7 +608,7 @@ VALUES
         'brondatum',-- eigenschapnaam
         'Einddatum van het gebiedsverbod',-- definitie
         '',-- toelichting
-        1,-- specificatie_van_eigenschap_id
+        (SELECT MAX(id) FROM catalogi_eigenschapspecificatie),-- specificatie_van_eigenschap_id
         (SELECT id FROM catalogi_zaaktype WHERE uuid = '4f46d270-c4d8-4cfe-a3a1-cb86ae102656'),-- zaaktype_id
         '_etag',-- _etag
         NULL,-- statustype_id

@@ -1392,5 +1392,41 @@ class ZaakServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        given(
+            """a zaak with a result type that derives its date from an eigenschap
+            matching one of the zaaktype's eigenschappen but with a blank definitie"""
+        ) {
+            val zaak = createZaak()
+            val zaaktypeUuid = zaak.zaaktype.extractUuid()
+            val zaakType = createZaakType()
+            val matchingEigenschapWithBlankDefinitie = createEigenschap(
+                naam = "fakeDatumkenmerk",
+                definitie = " ",
+                zaaktype = zaakType.url
+            )
+            val resultType = createResultaatType(
+                omschrijving = "fakeResultaatTypeOmschrijving",
+                brondatumArchiefprocedure = createBrondatumArchiefprocedure(
+                    afleidingswijze = AfleidingswijzeEnum.EIGENSCHAP,
+                    datumkenmerk = "fakeDatumkenmerk"
+                )
+            )
+
+            every { ztcClientService.readZaaktype(zaaktypeUuid) } returns zaakType
+            every { ztcClientService.readResultaattypen(zaakType.url) } returns listOf(resultType)
+            every {
+                ztcClientService.readEigenschappen(zaakType.url)
+            } returns listOf(matchingEigenschapWithBlankDefinitie)
+
+            `when`("list of zaak result types is requested") {
+                val resultTypeData = zaakService.listResultTypes(zaaktypeUuid)
+
+                then("no datumkenmerk omschrijving is set") {
+                    resultTypeData shouldHaveSize 1
+                    resultTypeData.first().datumKenmerkOmschrijving shouldBe null
+                }
+            }
+        }
     }
 })

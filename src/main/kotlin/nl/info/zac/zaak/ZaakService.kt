@@ -438,6 +438,7 @@ class ZaakService @Inject constructor(
                     eigenschappen
                         .find { it.naam == brondatumArchiefprocedure.datumkenmerk }
                         ?.definitie
+                        ?.takeIf { it.isNotBlank() }
                         ?.let { datumKenmerkOmschrijving = it }
                 }
             }
