@@ -513,10 +513,10 @@ services:
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
-      CACHE_DEFAULT: redis:6379/0
-      CACHE_AXES: redis:6379/0
-      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
-      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      CACHE_DEFAULT: redis:6379/6
+      CACHE_AXES: redis:6379/6
+      CELERY_BROKER_URL: redis://redis:6379/5
+      CELERY_RESULT_BACKEND: redis://redis:6379/5
       CELERY_LOGLEVEL: DEBUG
       DB_HOST: opennotificaties-database
       DB_NAME: opennotificaties
@@ -530,9 +530,8 @@ services:
       LOG_NOTIFICATIONS_IN_DB: true
       OPENNOTIFICATIES_SUPERUSER_USERNAME: admin
       OPENNOTIFICATIES_SUPERUSER_EMAIL: admin@example.com
-      PUBLISH_BROKER_URL: amqp://guest:guest@rabbitmq:5672/%2F
-      RABBITMQ_HOST: rabbitmq
       SECRET_KEY: opennotificatiesApiSecretKey
+      OTEL_SDK_DISABLED: true
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 5s
@@ -583,6 +582,16 @@ services:
     depends_on:
       opennotificaties:
         condition: service_healthy
+    profiles: [ "opennotificaties", "openformulieren" ]
+
+  opennotificaties-celery-beat:
+    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
+    environment: *opennotificaties-env
+    command: /celery_beat.sh
+    volumes: *opennotificaties-volumes
+    depends_on:
+      - opennotificaties-database
+      - redis
     profiles: [ "opennotificaties", "openformulieren" ]
 
   openarchiefbeheer-database:
