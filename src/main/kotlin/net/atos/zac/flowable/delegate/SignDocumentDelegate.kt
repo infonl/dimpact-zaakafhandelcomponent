@@ -29,7 +29,7 @@ class SignDocumentDelegate : AbstractDelegate() {
 
     companion object {
         private val LOG = Logger.getLogger(SignDocumentDelegate::class.java.name)
-        private const val DEFAULT_DOCUMENTEN_KEY = "ZAAK_Documenten_Ondertekenen_Selectie"
+        private const val DEFAULT_DOCUMENTEN_KEY = "ZAAK_Documenten_Te_Ondertekenen"
     }
 
     override fun execute(execution: DelegateExecution) {
@@ -47,7 +47,9 @@ class SignDocumentDelegate : AbstractDelegate() {
             .asSequence()
             .filterIsInstance<List<*>>()
             .flatten()
-            .filterIsInstance<String>()
+            .filterIsInstance<Map<*, *>>()
+            .filter { it["selected"] == true }
+            .mapNotNull { it["uuid"] as? String }
             .map { UUID.fromString(it) }
             .distinct()
             .toList()
