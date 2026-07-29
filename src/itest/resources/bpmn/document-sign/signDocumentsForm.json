@@ -15,7 +15,7 @@
       "input": true,
       "disableAddingRemovingRows": true,
       "refreshOn": "ZAAK_Documenten_Ondertekenen_Selectie",
-      "attributes": { "ZAC_TYPE": "ZAC_documenten" },
+      "attributes": { "ZAC_TYPE": "ZAC_documenten_unsigned_selected" },
       "components": [
         {
           "label": "",
