@@ -6,7 +6,7 @@ Form.io forms in ZAC support several places where beheerders can embed JavaScrip
 - Conditional (advanced logic) expressions
 - Custom validation logic
 
-Form.io also offers **JSONLogic** as a declarative alternative to raw JavaScript for calculated values, conditional logic, and validation. JSONLogic expressions are evaluated without `eval`/`new Function` and cannot access the DOM, `window`, cookies, or perform arbitrary side effects — they can only compute a value from the submission data.
+Form.io also offers **JSONLogic** as a declarative alternative to raw JavaScript for conditional logic and validation. JSONLogic expressions are evaluated without `eval`/`new Function` and cannot access the DOM, `window`, cookies, or perform arbitrary side effects — they can only compute a value from the submission data.
 
 Today, `docs/manuals/bpmn-guide/README.md` (the ZAC BPMN handleiding used by municipality beheerders) documents form components and ZAC extensions but says nothing about the security implications of using JavaScript in a form definition. Beheerders currently copy patterns like the example in the Jira ticket (a `custom` component that manipulates `instance.root`, injects a `<style>` tag, and calls `root.submit()`) without knowing this is arbitrary code execution in the browser of anyone who opens that task.
 
