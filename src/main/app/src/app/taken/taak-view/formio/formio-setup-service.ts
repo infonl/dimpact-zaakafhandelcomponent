@@ -29,6 +29,7 @@ export enum KNOWN_ZAC_FIELDS {
   DOCUMENTEN_NIET_ONDERTEKEND = "ZAC_documenten_niet_ondertekend",
   GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND = "ZAC_gekozen_documenten_niet_ondertekend",
   REGEL_LINK = "ZAC_regel_link",
+  REGEL_LINK_VIEW_ICON = "ZAC_regel_link_view_icon",
   RESULTAAT = "ZAC_resultaat",
   STATUS = "ZAC_status",
   PROCESS_DATA = "ZAC_process_data",
@@ -46,6 +47,14 @@ type RowLink = {
   href: (taak: GeneratedType<"RestTask">) => string;
   textKey: string;
 };
+
+/**
+ * The `visibility` ligature of the Material Symbols font loaded by `FontLoaderService`. The class is
+ * styled by `formio-wrapper.component.less`: the global one does not reach into the Form.io shadow
+ * DOM, the `@font-face` behind it does.
+ */
+const VIEW_ICON_CONTENT =
+  '<span class="material-symbols-outlined">visibility</span>';
 
 const DOCUMENT_ROW_LINK: RowLink = {
   href: (taak) => `/informatie-objecten/{{ row.uuid }}/${taak.zaakUuid}`,
@@ -145,6 +154,11 @@ export class FormioSetupService {
               break;
             case KNOWN_ZAC_FIELDS.REGEL_LINK:
               this.initializeRowLinkColumn(component, parentZacType);
+              break;
+            case KNOWN_ZAC_FIELDS.REGEL_LINK_VIEW_ICON:
+              this.initializeRowLinkColumn(component, parentZacType, {
+                asIcon: true,
+              });
               break;
             case KNOWN_ZAC_FIELDS.RESULTAAT:
               this.initializeZaakResultField(component);
@@ -404,21 +418,30 @@ export class FormioSetupService {
    * Turns a column into a link opening the row's subject in a new tab, using the route registered
    * for the datagrid it sits in. Anything the form author set wins, per property, so a form can
    * deviate without giving up the rest.
+   *
+   * As an icon the link text becomes the accessible name instead of the visible content, so the
+   * anchor still announces where it goes.
    */
   private initializeRowLinkColumn(
     component: ExtendedComponentSchema,
     parentZacType?: string,
+    { asIcon = false }: { asIcon?: boolean } = {},
   ) {
+    const zacType = asIcon
+      ? KNOWN_ZAC_FIELDS.REGEL_LINK_VIEW_ICON
+      : KNOWN_ZAC_FIELDS.REGEL_LINK;
     const rowLink = parentZacType ? ROW_LINKS[parentZacType] : undefined;
     if (!rowLink) {
       throw new Error(
-        `No row link registered for parent "${parentZacType}". A ${KNOWN_ZAC_FIELDS.REGEL_LINK} ` +
+        `No row link registered for parent "${parentZacType}". A ${zacType} ` +
           `column takes its route from the datagrid holding it.`,
       );
     }
 
+    const linkText: string = this.translateService.instant(rowLink.textKey);
+
     component.tag ||= "a";
-    component.content ||= this.translateService.instant(rowLink.textKey);
+    component.content ||= asIcon ? VIEW_ICON_CONTENT : linkText;
 
     if (Array.isArray(component.attrs) && component.attrs.length) return;
 
@@ -426,6 +449,12 @@ export class FormioSetupService {
       { attr: "href", value: rowLink.href(this.taak!) },
       { attr: "target", value: "_blank" },
       { attr: "rel", value: "noopener noreferrer" },
+      ...(asIcon
+        ? [
+            { attr: "aria-label", value: linkText },
+            { attr: "title", value: linkText },
+          ]
+        : []),
     ];
   }
 

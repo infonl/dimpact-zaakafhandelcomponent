@@ -107,6 +107,16 @@ const regelLinkColumn: ExtendedComponentSchema = {
   },
 };
 
+const regelLinkViewIconColumn: ExtendedComponentSchema = {
+  type: "htmlelement",
+  key: "openen",
+  input: false,
+  tableView: false,
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.REGEL_LINK_VIEW_ICON,
+  },
+};
+
 const referenceTableFieldset: ExtendedComponentSchema = {
   type: "select",
   key: "RT_ReferenceTable_Values",
@@ -797,6 +807,66 @@ describe(FormioSetupService.name, () => {
         await initializeLinkInGrid(unsignedDocumentsFieldset, column);
 
         expect(column.attrs).toEqual(authorAttrs);
+      });
+
+      it("should render the view icon instead of link text, with the text as accessible name", async () => {
+        const column: ExtendedComponentSchema = {
+          ...regelLinkViewIconColumn,
+        };
+
+        await initializeLinkInGrid(unsignedDocumentsFieldset, column);
+
+        expect(column.tag).toBe("a");
+        expect(column.content).toBe(
+          '<span class="material-symbols-outlined">visibility</span>',
+        );
+        expect(column.attrs).toEqual([
+          {
+            attr: "href",
+            value: `/informatie-objecten/{{ row.uuid }}/${taak.zaakUuid}`,
+          },
+          { attr: "target", value: "_blank" },
+          { attr: "rel", value: "noopener noreferrer" },
+          {
+            attr: "aria-label",
+            value: "actie.document.openen-nieuw-tabblad",
+          },
+          { attr: "title", value: "actie.document.openen-nieuw-tabblad" },
+        ]);
+      });
+
+      it("should leave the icon content defined by the form author untouched", async () => {
+        const column: ExtendedComponentSchema = {
+          ...regelLinkViewIconColumn,
+          content: "Set by the form author",
+        };
+
+        await initializeLinkInGrid(unsignedDocumentsFieldset, column);
+
+        expect(column.content).toBe("Set by the form author");
+      });
+
+      it("should report an icon link column that sits outside a grid with a registered route", async () => {
+        const handleFormIOInitErrorSpy = jest.spyOn(
+          utilService,
+          "handleFormIOInitError",
+        );
+        const column: ExtendedComponentSchema = {
+          ...regelLinkViewIconColumn,
+        };
+
+        await formioSetupService.createFormioForm(
+          { components: [column] } as FormioForm,
+          taak,
+        );
+
+        expect(column.attrs).toBeUndefined();
+        expect(handleFormIOInitErrorSpy).toHaveBeenCalledWith(
+          KNOWN_ZAC_FIELDS.REGEL_LINK_VIEW_ICON,
+          expect.stringContaining(
+            `A ${KNOWN_ZAC_FIELDS.REGEL_LINK_VIEW_ICON} column takes its route`,
+          ),
+        );
       });
 
       it("should report a link column that sits outside a grid with a registered route", async () => {

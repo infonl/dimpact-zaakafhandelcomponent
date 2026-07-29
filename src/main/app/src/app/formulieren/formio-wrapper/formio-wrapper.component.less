@@ -49,6 +49,43 @@
   }
 }
 
+/**
+ * Class rules do not cross the shadow boundary, so the global `.material-symbols-outlined` from
+ * `styles.less` has to be repeated here. The `@font-face` itself is document-scoped and does reach
+ * in, so no font needs loading twice. In the app these icons are `<mat-icon>` elements carrying the
+ * class, so the 24x24 box `.mat-icon` contributes is repeated as well — without it the glyph sits
+ * differently than everywhere else.
+ */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  overflow: hidden;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  user-select: none;
+  // `styles.less` fills every `mat-icon` in the app, so the outlined family still renders solid
+  font-variation-settings: "FILL" 1;
+}
+
+/**
+ * An icon-only link gets the same near-black as a `mat-icon` in the app, which inherits the body
+ * text colour, instead of Bootstrap's blue. `text-decoration` propagates from the anchor and cannot
+ * be cancelled on the span, so the underline has to be dropped here rather than on the icon itself.
+ */
+a:has(> .material-symbols-outlined) {
+  color: rgba(0, 0, 0, 0.87);
+  text-decoration: none;
+}
+
 // Hide Form.io's post-submit confirmation.
 [ref="buttonMessageContainer"] {
   display: none;
@@ -98,6 +135,15 @@ input.form-check-input {
     float: none;
     margin: 0;
   }
+}
+
+/**
+ * A row link — icon or text — sits in an `htmlelement` column; centre it like the checkbox column.
+ * Form.io puts `formio-component-htmlelement` on the rendered tag itself, not on a wrapper, so the
+ * cell has to do the centring: styling that element only moves its own content around.
+ */
+.datagrid-table td:has(.formio-component-htmlelement) {
+  text-align: center;
 }
 
 /**

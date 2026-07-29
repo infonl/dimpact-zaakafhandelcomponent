@@ -32,7 +32,7 @@
           "type": "htmlelement",
           "input": false,
           "tableView": false,
-          "attributes": { "ZAC_TYPE": "ZAC_regel_link" }
+          "attributes": { "ZAC_TYPE": "ZAC_regel_link_view_icon" }
         }
       ]
     },
