@@ -32,7 +32,7 @@
           "type": "content",
           "input": false,
           "tableView": false,
-          "html": "<a href=\"/informatie-objecten/{{ row.uuid }}\" target=\"_blank\" class=\"btn btn-primary btn-sm\">Openen</a>"
+          "html": "<a href=\"/informatie-objecten/{{ row.uuid }}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"btn btn-primary btn-sm\">Openen</a>"
         }
       ]
     },
