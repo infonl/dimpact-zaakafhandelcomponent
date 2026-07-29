@@ -53,3 +53,10 @@
 [ref="buttonMessageContainer"] {
   display: none;
 }
+
+// Form.io renders datagrid checkboxes flush left in their cell; centre them in the column instead.
+.datagrid-table td .formio-component-checkbox .form-check {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
