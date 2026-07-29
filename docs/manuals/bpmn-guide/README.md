@@ -72,7 +72,7 @@ Available ZAC types are:
 * `ZAC_status`
 * `ZAC_process_data`
 
-## JavaScript in Form.io formulieren
+## JavaScript in Form.io forms
 
 Form.io forms support several places where script-like logic can be configured: conditional display, custom validation, calculated values, and `custom` component logic (e.g. a button's custom action). Before adding any JavaScript to a form, beheerders should understand what it can do and prefer a safer alternative where one exists.
 
