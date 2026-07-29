@@ -582,38 +582,100 @@ Example:
 ```
 
 #### Signing documents
-To automatically sign one or more documents as part of a process:
-* create a user task with a form that lets the user select documents to sign (see form field below)
-* create a service task after the user task
+To let a user select and sign one or more documents as part of a process, showing them the same per-document
+title/open/select experience as CMMN document lists:
+* create a user task with a form that lets the user select documents to sign (see "Selecting documents to sign" below)
+* create a second user task with a form that lets a user (e.g. a process owner) review and confirm which of the
+  previously selected documents should actually be signed (see "Confirming documents to sign" below)
+* create a service task after the confirmation task
 * set class `net.atos.zac.flowable.delegate.SignDocumentDelegate`
 * optionally add a field:
-  * `documentenKey` - the key of the form field that contains the selected documents (defaults to `ZAAK_Documenten_Ondertekenen_Selectie` if not set)
+  * `documentenKey` - the key of the form field that contains the confirmed documents (defaults to
+    `ZAAK_Documenten_Te_Ondertekenen` if not set)
 
-The delegate will sign all documents the user selected in the form. Documents that are already signed will be skipped automatically.
+The delegate signs only the documents that are flagged `selected: true` in the form data stored under
+`documentenKey` - documents left unchecked in the confirmation form are not signed. Documents that are already
+signed are skipped automatically as an additional safety net.
 
-The form field for selecting documents to sign:
+Both forms use a `datagrid` component (attribute `ZAC_TYPE` of `ZAC_documenten`) that renders one row per document,
+with a checkbox to select it, its (disabled) title, and a link to open it.
+
+##### Selecting documents to sign
+The datagrid has no `refreshOn` attribute, so it is populated with every not-yet-signed document of the zaak:
 ```json
 {
   "label": "Documents",
-  "type": "select",
+  "type": "datagrid",
   "key": "ZAAK_Documenten_Ondertekenen_Selectie",
   "input": true,
-  "widget": "choicesjs",
-  "multiple": true,
-  "refreshOn": "data",
-  "dataSrc": "custom",
-  "placeholder": "Select one or more documents",
-  "customOptions": {
-    "choicesOptions": {
-      "removeItemButton": true,
-      "placeholder": true,
-      "searchEnabled": true,
-      "shouldSort": false
-    }
-  },
+  "disableAddingRemovingRows": true,
   "validate": { "required": true },
   "attributes": { "ZAC_TYPE": "ZAC_documenten" },
-  "tableView": true
+  "components": [
+    {
+      "label": "",
+      "key": "selected",
+      "type": "checkbox",
+      "input": true,
+      "tableView": true
+    },
+    {
+      "label": "Titel",
+      "key": "titel",
+      "type": "textfield",
+      "input": true,
+      "disabled": true,
+      "tableView": true
+    },
+    {
+      "key": "openen",
+      "type": "content",
+      "input": false,
+      "tableView": false,
+      "html": "<a href=\"/informatie-objecten/{{ row.uuid }}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"btn btn-primary btn-sm\">Openen</a>"
+    }
+  ]
+}
+```
+
+##### Confirming documents to sign
+This datagrid re-uses the same row structure, but only shows the documents that were checked in the selection
+task. Set `refreshOn` to the `key` of the selection task's datagrid, so ZAC knows which prior selection to read
+from - rows are pre-checked exactly as they were left in the selection task, so the confirming user only needs to
+uncheck any documents that should not be signed after all:
+```json
+{
+  "label": "Documents",
+  "type": "datagrid",
+  "key": "ZAAK_Documenten_Te_Ondertekenen",
+  "input": true,
+  "disableAddingRemovingRows": true,
+  "refreshOn": "ZAAK_Documenten_Ondertekenen_Selectie",
+  "attributes": { "ZAC_TYPE": "ZAC_documenten" },
+  "components": [
+    {
+      "label": "",
+      "key": "selected",
+      "type": "checkbox",
+      "input": true,
+      "tableView": true
+    },
+    {
+      "label": "Titel",
+      "key": "titel",
+      "type": "textfield",
+      "input": true,
+      "disabled": true,
+      "tableView": true
+    },
+    {
+      "key": "openen",
+      "type": "content",
+      "input": false,
+      "tableView": false,
+      "html": "<a href=\"/informatie-objecten/{{ row.uuid }}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"btn btn-primary btn-sm\">Openen</a>"
+    }
+  ]
 }
 ```
 
