@@ -66,11 +66,11 @@ fun createInboxProductaanvraagListParameters(
 fun createProductaanvraagDimpact(
     type: String = "fakeType",
     betrokkenen: List<Betrokkene> = listOf(createBetrokkene()),
-    pdfUrl: URI = URI("http://example.com/fakePdf"),
-    csvUrl: URI = URI("http://example.com/fakeCsv"),
+    pdfUrl: URI = URI("https://example.com/fakePdf"),
+    csvUrl: URI = URI("https://example.com/fakeCsv"),
     attachments: List<URI> = listOf(
-        URI("http://example.com/fakeAttachment1"),
-        URI("http://example.com/fakeAttachment2")
+        URI("https://example.com/fakeAttachment1"),
+        URI("https://example.com/fakeAttachment2")
     )
 ) =
     ProductaanvraagDimpact().apply {

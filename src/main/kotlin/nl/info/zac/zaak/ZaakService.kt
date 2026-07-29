@@ -29,11 +29,14 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.zaak.ZaakRestService.Companion.VESTIGING_IDENTIFICATIE_DELIMITER
+import nl.info.zac.app.zaak.model.RestResultaattype
+import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
@@ -425,10 +428,22 @@ class ZaakService @Inject constructor(
             ztcClientService.readZaaktype(zaaktypeUUID).url
         ).toRestResultaatTypes()
 
-    fun listResultTypes(zaaktypeUUID: UUID) =
-        ztcClientService.readResultaattypen(
-            ztcClientService.readZaaktype(zaaktypeUUID).url
-        ).toRestResultaatTypes()
+    fun listResultTypes(zaaktypeUUID: UUID): List<RestResultaattype> {
+        val zaaktype = ztcClientService.readZaaktype(zaaktypeUUID)
+        val eigenschappen = ztcClientService.readEigenschappen(zaaktype.url)
+        return ztcClientService.readResultaattypen(zaaktype.url).map { resultaattype ->
+            resultaattype.toRestResultaatType().apply {
+                val brondatumArchiefprocedure = resultaattype.brondatumArchiefprocedure
+                if (brondatumArchiefprocedure?.afleidingswijze == AfleidingswijzeEnum.EIGENSCHAP) {
+                    eigenschappen
+                        .find { it.naam == brondatumArchiefprocedure.datumkenmerk }
+                        ?.definitie
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let { datumKenmerkOmschrijving = it }
+                }
+            }
+        }
+    }
 
     private fun isUserInGroup(
         user: User?,
