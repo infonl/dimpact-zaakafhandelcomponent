@@ -309,7 +309,7 @@ Let op, de 'Van' afzender mailadressen kunnen in veel gevallen niet vrij gekozen
 De mailafzenders kunnen in de zaps bij menukeuze 'Mailgegevens' ingesteld worden. Het e-mailadres van de gemeente, inclusief de daarbij weergegeven naam van de gemeente, is in een omgevingsvariabele ingesteld. Het e-mailadres van de medewerker wordt uit de gebruikersbeheer component opgehaald. Deze twee opties zijn altijd beschikbaar en hierbij kan voor beide een 'Antwoord aan' e-mailadres worden ingesteld. Aan deze opties kunnen mailafzenders worden toegevoegd, deze extra mailafzenders worden opgehaald uit een referentietabel.
 
 Stappen:
-1. In het Beheer-instellingen menu kies je ‘Zaakafhandel-parameters’
+1. In het Beheer-instellingen menu kies je ‘Zaakafhandelparameters’
 2. Ga naar menukeuze 'Mailgegevens'
 3. Kies een 'Antwoord aan' e-mailadres voor de opties e-mailadres van de gemeente en e-mailadres van de medewerker
 4. Voeg optioneel een extra mailafzender toe door op het plus-icoon te klikken en op de keuze te klikken. De hier beschikbare keuzes komen uit de referentietabel 'AFZENDER' en kunnen aan deze tabel worden toegevoegd, zie de beschrijving onder het volgende kopje.
@@ -362,7 +362,7 @@ Het is ook mogelijk om de naam van de mailtemplate te wijzigen.
 Stappen:
 1. In het Beheer-instellingen menu kies je ‘Mailtemplates’
 2. Open de template door op het oog icoon te klikken
-3. Wijzig het onderwerp of het bericht. Gebruik eventueel variabelen door op het plus icoon te klikken en ze te selecteren uit de lijst
+3. Wijzig het onderwerp of het bericht. Gebruik eventueel variabelen door op het plus-icoon te klikken en ze te selecteren uit de lijst
 ![image](images/208075315-0b74d514-1baa-409a-883d-2891a81b2d55.png)
 4. Klik op ‘Opslaan’ om de wijziging door te voeren
 
@@ -443,11 +443,11 @@ Bij deze afhandelwijze wordt bij het afhandelen van de zaak aan de behandelaar g
 
 ![image](images/zac_afhandelen_zaak_brondatum_eigenschap.png)
 
-Om dit in Open Zaak in te richten, moet er aan het zaaktype een eigenschap toegevoegd:
+Om dit in Open Zaak in te richten, moet er aan het zaaktype een eigenschap worden toegevoegd:
 
 ![image](images/open_zaak_eigenschap_toevoegen.png)
 
-Hoewel de naam van de eigenschap in principe vrij te kiezen is, is het aan te raden altijd bij `Eigenschapsnaam` de waarde `brondatum` in te vullen. In het veld `Definitie` vul je vervolgens in hoe het datumveld aan de behandelaar wordt getoond.
+Hoewel de naam van de eigenschap in principe vrij te kiezen is, is het aan te raden om altijd bij `Eigenschapsnaam` de waarde `brondatum` in te vullen. In het veld `Definitie` vul je vervolgens in hoe het datumveld aan de behandelaar wordt getoond.
 
 Bij het veld `Specificatie van de eigenschap` kies je de waarde `datum`. Als deze nog niet bestaat, moet deze als eigenschap specificatie worden toegevoegd:
 
@@ -467,7 +467,7 @@ Bij deze afhandelwijze wordt de brondatum gezet aan de hand van de vervaldatum v
 
 #### Afhandelwijze brondatum - Hoofdzaak
 
-Deze afhandelwijze wordt met zaken die aan elkaar zijn gerelateerd als hoofd- en deelzaak. Als je deze afhandelwijze kiest bij het zaaktype van de deelzaak, dan wordt de brondatum gezet op de einddatum van de hoofdzaak zodra die is afgeloten.
+Deze afhandelwijze wordt met zaken die aan elkaar zijn gerelateerd als hoofd- en deelzaak. Als je deze afhandelwijze kiest bij het zaaktype van de deelzaak, dan wordt de brondatum gezet op de einddatum van de hoofdzaak zodra die is afgesloten.
 
 ![image](images/open_zaak_bepaling_brondatum_archiefprocedure_hoofdzaak.png)
 
