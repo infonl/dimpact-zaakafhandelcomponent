@@ -575,6 +575,7 @@ services:
 
   opennotificaties-celery-beat:
     image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
+    platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_beat.sh
     volumes: *opennotificaties-volumes
