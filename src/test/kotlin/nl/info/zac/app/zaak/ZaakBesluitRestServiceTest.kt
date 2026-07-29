@@ -77,7 +77,7 @@ class ZaakBesluitRestServiceTest : BehaviorSpec({
 
     context("Create besluit") {
         val zaak = createZaak()
-        val zaakType = createZaakType(besluittypen = listOf(URI("http://example.com/besluittype/${UUID.randomUUID()}")))
+        val zaakType = createZaakType(besluittypen = listOf(URI("https://example.com/besluittype/${UUID.randomUUID()}")))
         val loggedInUser = createLoggedInUser()
         val besluit = createBesluit(zaakUri = zaak.url)
         val restBesluit = createRestBesluit()

@@ -33,7 +33,7 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
                 var koppelingId = 0L
 
                 // one koppeling per CMMN zaaktype configured in the itest environment
-                val expectedKoppelingenCount = 3
+                val expectedKoppelingenCount = 4
 
                 then("the response should be 200 HTTP response with 3 koppelingen") {
                     response.code shouldBe HTTP_OK

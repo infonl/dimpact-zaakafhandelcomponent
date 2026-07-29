@@ -77,8 +77,8 @@ class NotificationReceiverTest : BehaviorSpec({
         val productaanvraagObjectUUID = UUID.randomUUID()
         val productTypeUUID = UUID.randomUUID()
         val notificatie = createNotificatie(
-            resourceUrl = URI("http://example.com/fakeproductaanvraag/$productaanvraagObjectUUID"),
-            properties = mutableMapOf("objectType" to "http://example.com/fakeproducttype/$productTypeUUID")
+            resourceUrl = URI("https://example.com/fakeproductaanvraag/$productaanvraagObjectUUID"),
+            properties = mutableMapOf("objectType" to "https://example.com/fakeproducttype/$productTypeUUID")
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
@@ -103,7 +103,7 @@ class NotificationReceiverTest : BehaviorSpec({
         "a request containing a authorization header and a zaaktype create notificatie"
     ) {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaaktypeUri = URI("http://example.com/fakezaaktype/$zaaktypeUUID")
+        val zaaktypeUri = URI("https://example.com/fakezaaktype/$zaaktypeUUID")
         val notificatie = createNotificatie(
             resource = Resource.ZAAKTYPE,
             resourceUrl = zaaktypeUri
@@ -130,7 +130,7 @@ class NotificationReceiverTest : BehaviorSpec({
         "a request containing a authorization header and a zaaktype update notificatie"
     ) {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaaktypeUri = URI("http://example.com/fakezaaktype/$zaaktypeUUID")
+        val zaaktypeUri = URI("https://example.com/fakezaaktype/$zaaktypeUUID")
         val notificatie = createNotificatie(
             resource = Resource.ZAAKTYPE,
             resourceUrl = zaaktypeUri,
@@ -157,7 +157,7 @@ class NotificationReceiverTest : BehaviorSpec({
         "A request without a authorization header and a zaaktype update notificatie"
     ) {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaaktypeUri = URI("http://example.com/fakezaaktype/$zaaktypeUUID")
+        val zaaktypeUri = URI("https://example.com/fakezaaktype/$zaaktypeUUID")
         val notificatie = createNotificatie(
             resource = Resource.ZAAKTYPE,
             resourceUrl = zaaktypeUri,
@@ -251,7 +251,7 @@ class NotificationReceiverTest : BehaviorSpec({
     }
     given("A 'create informatieobject' notification") {
         val informatieobjectUUID = UUID.randomUUID()
-        val informatieobjectURI = URI("http://example.com/fakezaak/$informatieobjectUUID")
+        val informatieobjectURI = URI("https://example.com/fakezaak/$informatieobjectUUID")
         val notificatie = createNotificatie(
             channel = Channel.INFORMATIEOBJECTEN,
             resource = Resource.INFORMATIEOBJECT,
@@ -283,7 +283,7 @@ class NotificationReceiverTest : BehaviorSpec({
     }
     given("A 'destroy informatieobject' notification") {
         val informatieobjectUUID = UUID.randomUUID()
-        val informatieobjectURI = URI("http://example.com/fakezaak/$informatieobjectUUID")
+        val informatieobjectURI = URI("https://example.com/fakezaak/$informatieobjectUUID")
         val notificatie = createNotificatie(
             channel = Channel.INFORMATIEOBJECTEN,
             resource = Resource.INFORMATIEOBJECT,

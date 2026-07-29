@@ -117,9 +117,9 @@ fun createGeoJSONGeometryWithDeletionSupport(
 }
 
 fun createResultaat(
-    url: URI = URI("http://example.com/resultaat/${UUID.randomUUID()}"),
+    url: URI = URI("https://example.com/resultaat/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID(),
-    resultaatTypeURI: URI = URI("http://example.com/resultaattype/${UUID.randomUUID()}")
+    resultaatTypeURI: URI = URI("https://example.com/resultaattype/${UUID.randomUUID()}")
 ) = Resultaat(
     url,
     uuid
@@ -317,8 +317,8 @@ fun createZaak(
 }
 
 fun createZaakobjectOpenbareRuimte(
-    zaakURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
-    bagobjectURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    bagobjectURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     objectOpenbareRuimte: ObjectOpenbareRuimte = createObjectOpenbareRuimte()
 ) = ZaakobjectOpenbareRuimte(
     zaakURI,
@@ -349,8 +349,8 @@ fun createZaakInformatieobjectForReads(
 )
 
 fun createZaakobjectProductaanvraag(
-    zaakURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
-    productaanvraagURI: URI = URI("http://example.com/${UUID.randomUUID()}")
+    zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    productaanvraagURI: URI = URI("https://example.com/${UUID.randomUUID()}")
 ) =
     ZaakobjectProductaanvraag(
         zaakURI,
@@ -358,8 +358,8 @@ fun createZaakobjectProductaanvraag(
     )
 
 fun createZaakobjectPand(
-    zaakURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
-    bagobjectURI: URI = URI("http://example.com/${UUID.randomUUID()}"),
+    zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    bagobjectURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     objectPand: ObjectPand = createObjectPand()
 ) =
     ZaakobjectPand(
@@ -370,9 +370,9 @@ fun createZaakobjectPand(
 
 fun createZaakStatus(
     uuid: UUID = UUID.randomUUID(),
-    uri: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    zaakURI: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    statustypeURI: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    uri: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
+    zaakURI: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
+    statustypeURI: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
     datumStatusGezet: OffsetDateTime = ZonedDateTime.now().toOffsetDateTime()
 ) = Status(
     uri,
@@ -387,8 +387,8 @@ fun createZaakStatus(
 
 fun createZaakStatusSub(
     uuid: UUID = UUID.randomUUID(),
-    url: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
-    zaak: URI = URI("http://example.com/catalogus/${UUID.randomUUID()}"),
+    url: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
+    zaak: URI = URI("https://example.com/catalogus/${UUID.randomUUID()}"),
     indicatieLaatstGezetteStatus: Boolean = false,
     zaakinformatieobjecten: List<URI> = emptyList()
 ) = StatusSub(

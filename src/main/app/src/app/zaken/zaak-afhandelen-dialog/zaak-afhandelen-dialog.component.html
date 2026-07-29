@@ -56,7 +56,9 @@
       key="brondatumEigenschap"
       *ngIf="form.controls.resultaattype.value?.datumKenmerkVerplicht"
     >
-      <mat-label>{{ "zaak.brondatum" | translate }}</mat-label>
+      <mat-label>{{
+        brondatumEigenschapLabel || ("zaak.brondatum" | translate)
+      }}</mat-label>
     </zac-date>
     <div
       *ngIf="
