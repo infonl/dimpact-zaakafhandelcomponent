@@ -30,24 +30,15 @@
         {
           "key": "openen",
           "type": "htmlelement",
-          "tag": "a",
           "input": false,
           "tableView": false,
-          "content": "Openen in een nieuw tabblad",
-          "attrs": [
-            {
-              "attr": "href",
-              "value": "/informatie-objecten/{{ row.uuid }}/{{ data.zaakUuid }}"
-            },
-            { "attr": "target", "value": "_blank" },
-            { "attr": "rel", "value": "noopener noreferrer" }
-          ]
+          "attributes": { "ZAC_TYPE": "ZAC_regel_link" }
         }
       ]
     },
     {
       "type": "button",
-      "label": "Submit",
+      "label": "Selecteren",
       "key": "submit",
       "disableOnInvalid": true,
       "input": true,

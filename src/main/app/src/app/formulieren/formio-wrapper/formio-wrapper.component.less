@@ -55,6 +55,25 @@
 }
 
 /**
+ * Bootstrap is injected into the shadow root after these component styles, so anything matching
+ * its own `.form-check-input` rules with equal specificity loses. Hence the `input` element name.
+ */
+input.form-check-input {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+
+  &[type="radio"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:not(:checked):not(:indeterminate) {
+    border-color: rgba(0, 0, 0, 0.54);
+  }
+}
+
+/**
  * Form.io renders datagrid checkboxes flush left at the top of their cell; centre them in the
  * column instead. Rows are as tall as their tallest cell (title field, link button), so the cell
  * itself has to centre its content vertically as well.

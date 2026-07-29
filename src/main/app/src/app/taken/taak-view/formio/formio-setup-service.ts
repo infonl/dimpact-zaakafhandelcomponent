@@ -28,6 +28,7 @@ export enum KNOWN_ZAC_FIELDS {
   DOCUMENTEN = "ZAC_documenten",
   DOCUMENTEN_NIET_ONDERTEKEND = "ZAC_documenten_niet_ondertekend",
   GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND = "ZAC_gekozen_documenten_niet_ondertekend",
+  REGEL_LINK = "ZAC_regel_link",
   RESULTAAT = "ZAC_resultaat",
   STATUS = "ZAC_status",
   PROCESS_DATA = "ZAC_process_data",
@@ -37,6 +38,30 @@ export enum KNOWN_ZAC_FIELDS {
 const EMPTY_INPUT_FIELD_CLASS = "zac-empty-input-field";
 
 const NO_DOCUMENTS_TO_SIGN_MESSAGE = "msg.geen-documenten-te-ondertekenen";
+
+const SELECT_A_DOCUMENT_MESSAGE = "msg.selecteer-minimaal-een-document";
+
+type RowLink = {
+  /** `{{ row.… }}` placeholders are left in: only Form.io can resolve those, per row. */
+  href: (taak: GeneratedType<"RestTask">) => string;
+  textKey: string;
+};
+
+const DOCUMENT_ROW_LINK: RowLink = {
+  href: (taak) => `/informatie-objecten/{{ row.uuid }}/${taak.zaakUuid}`,
+  textKey: "actie.document.openen-nieuw-tabblad",
+};
+
+/**
+ * Where a `ZAC_regel_link` column points, per `ZAC_TYPE` of the datagrid holding it: that type
+ * already says what the rows are, so the column itself does not have to repeat it. Keeping the
+ * routes here rather than in the form definitions means a route change does not require editing
+ * every form in Flowable.
+ */
+const ROW_LINKS: Record<string, RowLink> = {
+  [KNOWN_ZAC_FIELDS.DOCUMENTEN_NIET_ONDERTEKEND]: DOCUMENT_ROW_LINK,
+  [KNOWN_ZAC_FIELDS.GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND]: DOCUMENT_ROW_LINK,
+};
 
 @Injectable({
   providedIn: "root",
@@ -77,17 +102,18 @@ export class FormioSetupService {
 
   private async initializeSpecializedFormioComponents(
     components: ExtendedComponentSchema[] | undefined,
+    parentZacType?: string,
   ) {
     for (const component of components ?? []) {
+      const zacType: string =
+        component.attributes?.[ZAC_FIELD_ATTRIBUTE] ?? component.type;
+
       await this.safeInit(
         component.attributes?.[ZAC_FIELD_ATTRIBUTE] ??
           component.key ??
           component.type,
         async () => {
-          switch (
-            component.attributes?.[ZAC_FIELD_ATTRIBUTE] ??
-            component.type
-          ) {
+          switch (zacType) {
             case KNOWN_ZAC_FIELDS.GROEP:
               this.initializeGroepField(component);
               break;
@@ -117,6 +143,9 @@ export class FormioSetupService {
             case KNOWN_ZAC_FIELDS.GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND:
               await this.initializeSelectedUnsignedDocumentsDatagrid(component);
               break;
+            case KNOWN_ZAC_FIELDS.REGEL_LINK:
+              this.initializeRowLinkColumn(component, parentZacType);
+              break;
             case KNOWN_ZAC_FIELDS.RESULTAAT:
               this.initializeZaakResultField(component);
               break;
@@ -126,6 +155,7 @@ export class FormioSetupService {
           }
           await this.initializeSpecializedFormioComponents(
             this.getChildComponents(component),
+            zacType,
           );
         },
       );
@@ -299,9 +329,34 @@ export class FormioSetupService {
     };
   }
 
+  /**
+   * `validate.required` on a datagrid only checks that it has rows (see `validateRequired` in
+   * `@formio/core`), and the rows are filled in here, so it is always satisfied. Picking a document
+   * means ticking its checkbox, which Form.io has no built-in rule for — hence a custom one.
+   * Without it `disableOnInvalid` never kicks in and the task can be submitted with nothing ticked.
+   *
+   * Form.io evaluates the expression with the component's value as `input` and reads back `valid`;
+   * returning a string makes it the error message.
+   */
+  private requireASelectedRow(component: ExtendedComponentSchema) {
+    if (component.validate?.custom) return;
+
+    const message: string = this.translateService.instant(
+      SELECT_A_DOCUMENT_MESSAGE,
+    );
+    component.validate = {
+      ...component.validate,
+      custom:
+        `valid = (input || []).some(function (row) { return row.selected; })` +
+        ` ? true : ${JSON.stringify(message)}`,
+    };
+  }
+
   private async initializeUnsignedDocumentsDatagrid(
     component: ExtendedComponentSchema,
   ): Promise<void> {
+    this.requireASelectedRow(component);
+
     const documents = await this.fetchZaakDocuments();
     const alreadySelectedUuids = new Set(
       this.getSelectedRows(component.key)
@@ -343,6 +398,35 @@ export class FormioSetupService {
       rows.length === 0,
       NO_DOCUMENTS_TO_SIGN_MESSAGE,
     );
+  }
+
+  /**
+   * Turns a column into a link opening the row's subject in a new tab, using the route registered
+   * for the datagrid it sits in. Anything the form author set wins, per property, so a form can
+   * deviate without giving up the rest.
+   */
+  private initializeRowLinkColumn(
+    component: ExtendedComponentSchema,
+    parentZacType?: string,
+  ) {
+    const rowLink = parentZacType ? ROW_LINKS[parentZacType] : undefined;
+    if (!rowLink) {
+      throw new Error(
+        `No row link registered for parent "${parentZacType}". A ${KNOWN_ZAC_FIELDS.REGEL_LINK} ` +
+          `column takes its route from the datagrid holding it.`,
+      );
+    }
+
+    component.tag ||= "a";
+    component.content ||= this.translateService.instant(rowLink.textKey);
+
+    if (Array.isArray(component.attrs) && component.attrs.length) return;
+
+    component.attrs = [
+      { attr: "href", value: rowLink.href(this.taak!) },
+      { attr: "target", value: "_blank" },
+      { attr: "rel", value: "noopener noreferrer" },
+    ];
   }
 
   /**

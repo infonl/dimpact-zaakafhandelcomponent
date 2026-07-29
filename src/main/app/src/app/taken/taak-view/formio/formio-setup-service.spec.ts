@@ -97,6 +97,16 @@ const selectedUnsignedDocumentsFieldset: ExtendedComponentSchema = {
   },
 };
 
+const regelLinkColumn: ExtendedComponentSchema = {
+  type: "htmlelement",
+  key: "openen",
+  input: false,
+  tableView: false,
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.REGEL_LINK,
+  },
+};
+
 const referenceTableFieldset: ExtendedComponentSchema = {
   type: "select",
   key: "RT_ReferenceTable_Values",
@@ -693,9 +703,219 @@ describe(FormioSetupService.name, () => {
 
   describe(
     (FormioSetupService.prototype as unknown as Record<string, () => unknown>)[
+      "initializeRowLinkColumn"
+    ].name,
+    () => {
+      /** A link column takes its route from the grid it sits in, so it is always tested nested. */
+      const initializeLinkInGrid = async (
+        grid: ExtendedComponentSchema,
+        column: ExtendedComponentSchema,
+      ) => {
+        jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([document1]);
+
+        await formioSetupService.createFormioForm(
+          { components: [{ ...grid, components: [column] }] } as FormioForm,
+          {
+            ...taak,
+            taakdata: {
+              ZAAK_Documenten_Ondertekenen_Selectie: [
+                {
+                  selected: true,
+                  titel: document1.titel,
+                  uuid: document1.uuid,
+                },
+              ],
+            },
+          },
+        );
+      };
+
+      it("should link to the document with the zaak uuid of the task filled in", async () => {
+        const column: ExtendedComponentSchema = { ...regelLinkColumn };
+
+        await initializeLinkInGrid(unsignedDocumentsFieldset, column);
+
+        expect(column.attrs).toEqual([
+          {
+            attr: "href",
+            // the row uuid stays a template: only Form.io can resolve it, per row
+            value: `/informatie-objecten/{{ row.uuid }}/${taak.zaakUuid}`,
+          },
+          { attr: "target", value: "_blank" },
+          { attr: "rel", value: "noopener noreferrer" },
+        ]);
+      });
+
+      it("should take the route from the grid holding the column, whichever grid that is", async () => {
+        const column: ExtendedComponentSchema = { ...regelLinkColumn };
+
+        await initializeLinkInGrid(selectedUnsignedDocumentsFieldset, column);
+
+        expect(column.attrs).toEqual(
+          expect.arrayContaining([
+            {
+              attr: "href",
+              value: `/informatie-objecten/{{ row.uuid }}/${taak.zaakUuid}`,
+            },
+          ]),
+        );
+      });
+
+      it("should render an anchor with translated link text", async () => {
+        const column: ExtendedComponentSchema = { ...regelLinkColumn };
+
+        await initializeLinkInGrid(unsignedDocumentsFieldset, column);
+
+        expect(column.tag).toBe("a");
+        expect(column.content).toBe("actie.document.openen-nieuw-tabblad");
+      });
+
+      it("should leave the tag and content defined by the form author untouched", async () => {
+        const column: ExtendedComponentSchema = {
+          ...regelLinkColumn,
+          tag: "button",
+          content: "Set by the form author",
+        };
+
+        await initializeLinkInGrid(unsignedDocumentsFieldset, column);
+
+        expect(column.tag).toBe("button");
+        expect(column.content).toBe("Set by the form author");
+      });
+
+      it("should leave attrs defined by the form author untouched", async () => {
+        const authorAttrs = [
+          { attr: "href", value: "/somewhere/else/{{ row.uuid }}" },
+        ];
+        const column: ExtendedComponentSchema = {
+          ...regelLinkColumn,
+          attrs: authorAttrs,
+        };
+
+        await initializeLinkInGrid(unsignedDocumentsFieldset, column);
+
+        expect(column.attrs).toEqual(authorAttrs);
+      });
+
+      it("should report a link column that sits outside a grid with a registered route", async () => {
+        const handleFormIOInitErrorSpy = jest.spyOn(
+          utilService,
+          "handleFormIOInitError",
+        );
+        const column: ExtendedComponentSchema = { ...regelLinkColumn };
+
+        await formioSetupService.createFormioForm(
+          { components: [column] } as FormioForm,
+          taak,
+        );
+
+        expect(column.attrs).toBeUndefined();
+        expect(handleFormIOInitErrorSpy).toHaveBeenCalledWith(
+          KNOWN_ZAC_FIELDS.REGEL_LINK,
+          expect.stringContaining(
+            'No row link registered for parent "undefined"',
+          ),
+        );
+      });
+    },
+  );
+
+  describe(
+    (FormioSetupService.prototype as unknown as Record<string, () => unknown>)[
       "initializeUnsignedDocumentsDatagrid"
     ].name,
     () => {
+      /**
+       * Runs the generated expression the way Form.io does: the component value as `input`, reading
+       * back `valid`. Asserting the string alone would not prove the rule actually rejects anything.
+       */
+      const runCustomValidation = (
+        custom: string,
+        input: { selected: boolean }[],
+      ) =>
+        new Function("input", `let valid = true; ${custom}; return valid;`)(
+          input,
+        ) as boolean | string;
+
+      it("should reject a grid without a single row ticked, so the submit button stays disabled", async () => {
+        jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([document1, document2]);
+
+        const component: ExtendedComponentSchema = {
+          ...unsignedDocumentsFieldset,
+        };
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taak,
+        );
+
+        expect(
+          runCustomValidation(component.validate.custom, [
+            { selected: false },
+            { selected: false },
+          ]),
+        ).toBe("msg.selecteer-minimaal-een-document");
+      });
+
+      it("should accept a grid with at least one row ticked", async () => {
+        jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([document1, document2]);
+
+        const component: ExtendedComponentSchema = {
+          ...unsignedDocumentsFieldset,
+        };
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taak,
+        );
+
+        expect(
+          runCustomValidation(component.validate.custom, [
+            { selected: false },
+            { selected: true },
+          ]),
+        ).toBe(true);
+      });
+
+      it("should keep the required rule the form author set alongside the custom one", async () => {
+        jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([document1]);
+
+        const component: ExtendedComponentSchema = {
+          ...unsignedDocumentsFieldset,
+          validate: { required: true },
+        };
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taak,
+        );
+
+        expect(component.validate.required).toBe(true);
+        expect(component.validate.custom).toContain("row.selected");
+      });
+
+      it("should leave a custom validation defined by the form author untouched", async () => {
+        jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([document1]);
+
+        const component: ExtendedComponentSchema = {
+          ...unsignedDocumentsFieldset,
+          validate: { custom: "valid = true" },
+        };
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taak,
+        );
+
+        expect(component.validate.custom).toBe("valid = true");
+      });
+
       it("should populate the datagrid with all zaak documents, unselected", async () => {
         jest
           .spyOn(testQueryClient, "ensureQueryData")
