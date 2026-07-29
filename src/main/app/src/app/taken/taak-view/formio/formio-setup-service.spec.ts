@@ -1384,13 +1384,15 @@ describe(FormioSetupService.name, () => {
         [otherTaak.zaakUuid]: [document2],
       };
       const resolvers: (() => void)[] = [];
-      jest.spyOn(testQueryClient, "ensureQueryData").mockImplementation(((
-        options: { queryKey: [string, string, string[] | undefined] },
-      ) =>
-        new Promise<(typeof document1)[]>((resolve) =>
-          // held back so both initializations are in flight at once, and released in reverse order
-          resolvers.push(() => resolve(documentsPerZaak[options.queryKey[1]])),
-        )) as typeof testQueryClient.ensureQueryData);
+      jest.spyOn(testQueryClient, "ensureQueryData").mockImplementation(
+        ((options: { queryKey: [string, string, string[] | undefined] }) =>
+          new Promise<(typeof document1)[]>((resolve) =>
+            // held back so both initializations are in flight at once, and released in reverse order
+            resolvers.push(() =>
+              resolve(documentsPerZaak[options.queryKey[1]]),
+            ),
+          )) as typeof testQueryClient.ensureQueryData,
+      );
 
       const column: ExtendedComponentSchema = { ...regelLinkColumn };
       const otherColumn: ExtendedComponentSchema = { ...regelLinkColumn };
