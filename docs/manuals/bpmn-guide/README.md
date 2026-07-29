@@ -68,8 +68,10 @@ Available ZAC types are:
 * `ZAC_smart_documents_template_group_templates`
 * `ZAC_referentie_tabel`
 * `ZAC_documenten`
-* `ZAC_documenten_unsigned`
-* `ZAC_documenten_unsigned_selected`
+* `ZAC_documenten_niet_ondertekend`
+* `ZAC_gekozen_documenten_niet_ondertekend`
+* `ZAC_regel_link`
+* `ZAC_regel_link_view_icon`
 * `ZAC_resultaat`
 * `ZAC_status`
 * `ZAC_process_data`
@@ -667,13 +669,13 @@ To automatically sign one or more documents as part of a process:
 * create a service task after the user task
 * set class `net.atos.zac.flowable.delegate.SignDocumentDelegate`
 * optionally add a field:
-  * `documentenKey` - the key of the form field that contains the selected documents (defaults to `ZAAK_Documenten_Ondertekenen_Selectie` if not set)
+  * `documentenKey` - the key of the form field that contains the selected documents (defaults to `ZAAK_Documenten_Te_Ondertekenen` if not set)
 
-The delegate will sign all documents the user selected in the form. Documents that are already signed will be skipped automatically.
+The delegate signs every row of that field whose `selected` checkbox is ticked. Documents that are already signed will be skipped automatically.
 
 The form field for selecting documents to sign is a `datagrid` with the attribute `ZAC_TYPE` of
-`ZAC_documenten_unsigned`. It is filled with all documents of the zaak that are not yet signed, each
-with a `selected` checkbox:
+`ZAC_documenten_niet_ondertekend`. It is filled with all documents of the zaak that are not yet
+signed, each with a `selected` checkbox:
 ```json
 {
   "label": "Documenten",
@@ -681,16 +683,22 @@ with a `selected` checkbox:
   "key": "ZAAK_Documenten_Ondertekenen_Selectie",
   "input": true,
   "disableAddingRemovingRows": true,
-  "attributes": { "ZAC_TYPE": "ZAC_documenten_unsigned" },
+  "validate": { "required": true },
+  "attributes": { "ZAC_TYPE": "ZAC_documenten_niet_ondertekend" },
   "components": [
     { "label": "", "key": "selected", "type": "checkbox", "input": true },
-    { "label": "Titel", "key": "titel", "type": "textfield", "input": true, "disabled": true }
+    { "label": "Titel", "key": "titel", "type": "textfield", "input": true, "disabled": true },
+    { "key": "openen", "type": "htmlelement", "input": false, "attributes": { "ZAC_TYPE": "ZAC_regel_link_view_icon" } }
   ]
 }
 ```
 
+The optional `ZAC_regel_link_view_icon` column renders an icon linking to the document of that row in
+a new tab; `ZAC_regel_link` renders the same link as text. Both take their route from the datagrid
+they sit in, so no URL has to be configured in the form.
+
 To confirm that selection in a following user task, use a `datagrid` with the attribute `ZAC_TYPE` of
-`ZAC_documenten_unsigned_selected` and a `refreshOn` pointing at the key of the selection field
+`ZAC_gekozen_documenten_niet_ondertekend` and a `refreshOn` pointing at the key of the selection field
 above. Only the documents selected there are shown. Because a task can stay open for days, their
 titles and signing state are re-read when the task is opened, and any document that has been signed
 in the meantime is left out:
@@ -702,13 +710,18 @@ in the meantime is left out:
   "input": true,
   "disableAddingRemovingRows": true,
   "refreshOn": "ZAAK_Documenten_Ondertekenen_Selectie",
-  "attributes": { "ZAC_TYPE": "ZAC_documenten_unsigned_selected" },
+  "attributes": { "ZAC_TYPE": "ZAC_gekozen_documenten_niet_ondertekend" },
   "components": [
     { "label": "", "key": "selected", "type": "checkbox", "input": true },
-    { "label": "Titel", "key": "titel", "type": "textfield", "input": true, "disabled": true }
+    { "label": "Titel", "key": "titel", "type": "textfield", "input": true, "disabled": true },
+    { "key": "openen", "type": "htmlelement", "input": false, "attributes": { "ZAC_TYPE": "ZAC_regel_link_view_icon" } }
   ]
 }
 ```
+
+Leave the `selected` checkbox of that confirmation grid editable: unticking a row there is how a user
+drops a document again, and the delegate will then not sign it. Disabling the checkbox makes the grid
+view-only and every listed document will be signed.
 
 ### Reference Table values
 To display and use values from a reference table you can use:
