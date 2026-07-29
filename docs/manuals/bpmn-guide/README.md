@@ -131,23 +131,23 @@ Form.io does not offer a JSON Logic option for calculated values — only JavaSc
 
 ### `custom` component logic: highest risk, last resort
 
-Some behavior cannot be expressed with JSON Logic or a calculated value, for example manipulating the page or submitting the form programmatically. ZAC already has a form in production that does this: a button's custom action that saves the task as a draft and shows a "last saved" timestamp:
+Some behavior cannot be expressed with JSON Logic or a calculated value, for example manipulating the page or submitting the form programmatically. As an illustration, imagine a `custom` component that looks up an address for a postcode via an external API directly from the browser, then auto-submits the form once the result comes back:
 
 ```json
 {
-  "custom": "instance.loading = true; var root = instance.root; root.noAlerts = true; root.shouldValidate = function(){return false;}; var s = document.createElement('style'); s.innerHTML = '.has-error { border:none !important; } .help-block { display:none !important; }'; document.head.appendChild(s); var nu = new Date(); var dt = nu.toLocaleDateString() + ' om ' + nu.toLocaleTimeString(); var v = root.getComponent('laatstOpgeslagen'); if(v){ v.setValue('Laatst opgeslagen op: ' + dt); } root.submission.state = 'draft'; root.submit().then(function(){ setTimeout(function(){ instance.loading = false; window.location.reload(); }, 500); }).catch(function(){ window.location.reload(); });"
+  "custom": "instance.loading = true; var root = instance.root; root.shouldValidate = function(){return false;}; fetch('https://example-postcode-api.nl/lookup?postcode=' + data.postcode + '&apiKey=hardcoded-secret-key').then(function(response){ return response.json(); }).then(function(result){ root.getComponent('adres').setValue(result.adres); root.submission.state = 'draft'; return root.submit(); }).then(function(){ instance.loading = false; });"
 }
 ```
 
-This is called out here as a **not recommended** pattern to copy without understanding it, not as an example to follow:
-* it reaches into `instance.root` and mutates the renderer's internal state (`root.noAlerts`, `root.shouldValidate`)
+This is a **not recommended** pattern:
+* it reaches into `instance.root` and mutates the renderer's internal state (`root.shouldValidate`)
 * it disables form validation for the entire form (`root.shouldValidate = function(){return false;}`)
-* it injects a `<style>` element into the page (`document.createElement('style')` / `document.head.appendChild(s)`)
-* it force-submits the form and reloads the page
+* it calls an external API directly from the browser with an API key embedded in the form definition, which every user who opens the task can read
+* it force-submits the form once the lookup completes, without the user confirming the result
 
 If similar behavior is genuinely needed and JSON Logic or a calculated value cannot express it:
 * keep the JavaScript as small and narrowly scoped as possible
-* avoid disabling validation or injecting DOM elements/styles unless there is no other way to achieve the required behavior
+* avoid disabling validation, embedding credentials, or calling external APIs directly from the browser unless there is no other way to achieve the required behavior
 * have the code reviewed by someone who understands JavaScript before uploading the form
 
 ## Supported functionality

@@ -19,7 +19,7 @@ The ZAC BPMN handleiding SHALL document, per Form.io component type where script
 - **THEN** the handleiding states that Form.io does not offer a JSONLogic option for calculated values, and instead recommends keeping the calculation a pure expression (only reading `data`/`row` and returning a value, with no DOM access, no `submit()` calls, and no network calls)
 
 #### Scenario: Beheerder needs behavior JSONLogic cannot express
-- **WHEN** a beheerder needs behavior that JSONLogic cannot express (e.g. DOM manipulation or custom submit handling in a `custom` component, as used for the "save and show last-saved timestamp" pattern)
+- **WHEN** a beheerder needs behavior that JSONLogic cannot express (e.g. DOM manipulation or custom submit handling in a `custom` component)
 - **THEN** the handleiding states that raw JavaScript in `custom` component logic is the highest-risk option and should only be used as a last resort, by someone who understands the code being added
 
 ### Requirement: BPMN handleiding warns of possible future JavaScript upload restrictions
@@ -45,7 +45,7 @@ The ZAC BPMN handleiding SHALL include concrete, side-by-side "not recommended" 
 
 #### Scenario: Beheerder compares the custom component logic example
 - **WHEN** a beheerder reads the example for `custom` component logic
-- **THEN** the handleiding shows the existing production "save button / last-saved timestamp" pattern (which manipulates `instance.root`, overrides `root.shouldValidate`, injects a `<style>` element, and force-submits/reloads the page) explicitly labeled as high-risk, together with a description of which parts of that pattern are the risky parts (DOM injection, disabling validation, forced submit) and what to keep in mind if similar logic cannot be avoided
+- **THEN** the handleiding shows a fabricated but realistic illustration (not a claim about any form actually in production) — e.g. a `custom` component that calls an external API directly from the browser, disables form validation, and force-submits the form — explicitly labeled as high-risk, together with a description of which parts of that pattern are the risky parts (reaching into renderer internals, disabling validation, embedding credentials/calling external APIs from the browser, forced submit) and what to keep in mind if similar logic cannot be avoided
 
 ### Requirement: Developer-facing bpmn.md points to the handleiding guidance
 `docs/development/bpmn.md` SHALL link to the new Form.io JavaScript guidance section in the ZAC BPMN handleiding.
