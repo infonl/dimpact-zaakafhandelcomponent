@@ -10,6 +10,7 @@ Form.io forms used in ZAC BPMN processes support embedding arbitrary client-side
   - Web links to the official JSONLogic reference/playground and to Form.io's own documentation on where JSONLogic can be used instead of JavaScript.
   - Concrete "recommended" vs "not recommended" JavaScript/JSONLogic examples, so beheerders have a direct template to compare their own form logic against.
   - A short, practical recommendation for beheerders on when JavaScript use is (not) appropriate.
+  - A forward-looking warning that ZAC may in the future prevent uploading forms containing JavaScript logic, while JSON Logic forms will always remain allowed — giving beheerders a concrete incentive to prefer JSON Logic now.
 - Add a pointer from `docs/development/bpmn.md` to the new section in the handleiding, so developers land on the guidance too.
 - Out of scope for this change: guidance aimed at ZAC developers/maintainers on preventing malicious JavaScript or malware from being uploaded into ZAC (e.g. upload-time scanning/warnings) — that is internal, developer-facing advice and will be addressed in a separate follow-up change.
 

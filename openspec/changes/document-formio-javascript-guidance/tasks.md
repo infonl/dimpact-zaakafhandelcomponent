@@ -6,6 +6,7 @@
 - [x] 1.4 Add links to https://jsonlogic.com/ (spec + playground), https://jsonlogic.com/operations.html (operator reference), and https://help.form.io/form-building/logic-and-conditions (Form.io's own JSON Logic / Advanced Conditions / Custom Validation docs).
 - [x] 1.5 Add a "not recommended" vs "recommended" example for conditional display or custom validation (raw JavaScript vs. JSON Logic/Simple Conditions for the same behavior).
 - [x] 1.6 Add the existing production example (save button / last-saved timestamp via `custom` component logic — manipulates `instance.root`, overrides `root.shouldValidate`, injects a `<style>` element, force-submits and reloads) as the "not recommended" `custom`-logic illustration, explicitly calling out which parts are risky (DOM injection, disabling validation, forced submit) and what to keep in mind if similar logic can't be avoided.
+- [x] 1.7 Add a warning that ZAC may in the future prevent uploading Form.io forms containing JavaScript logic, and that forms using JSON Logic will always remain allowed.
 
 ## 2. Developer-facing pointer
 

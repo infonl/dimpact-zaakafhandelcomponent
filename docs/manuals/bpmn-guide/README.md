@@ -82,6 +82,8 @@ Any JavaScript added to a Form.io component runs unrestricted in the browser of 
 
 :warning: Only add JavaScript to a Form.io form if you understand exactly what the code does. If you are unsure, have a developer review it before uploading the form.
 
+:warning: ZAC may in the future prevent uploading Form.io forms that contain JavaScript logic. Forms using JSON Logic will always remain allowed. New forms should therefore prefer JSON Logic over JavaScript wherever possible, to avoid needing rework later.
+
 ### Prefer JSON Logic over JavaScript where available
 
 Form.io offers [JSON Logic](https://jsonlogic.com/) as a safer, declarative alternative to JavaScript for:

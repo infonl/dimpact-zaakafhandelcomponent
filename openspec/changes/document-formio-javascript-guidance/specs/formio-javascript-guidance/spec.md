@@ -22,6 +22,13 @@ The ZAC BPMN handleiding SHALL document, per Form.io component type where script
 - **WHEN** a beheerder needs behavior that JSONLogic cannot express (e.g. DOM manipulation or custom submit handling in a `custom` component, as used for the "save and show last-saved timestamp" pattern)
 - **THEN** the handleiding states that raw JavaScript in `custom` component logic is the highest-risk option and should only be used as a last resort, by someone who understands the code being added
 
+### Requirement: BPMN handleiding warns of possible future JavaScript upload restrictions
+The ZAC BPMN handleiding SHALL warn beheerders that ZAC may in the future prevent uploading Form.io forms containing JavaScript logic, and SHALL state that forms using JSON Logic will always remain allowed.
+
+#### Scenario: Beheerder reads the future-restriction warning
+- **WHEN** a beheerder reads the JavaScript guidance section
+- **THEN** the handleiding states that JavaScript-containing forms may be blocked from upload in a future ZAC version, that JSON Logic forms will always be allowed, and that this is a reason to prefer JSON Logic over JavaScript for new forms
+
 ### Requirement: BPMN handleiding links to authoritative JSONLogic references
 The ZAC BPMN handleiding SHALL link to the official JSONLogic reference/playground and to Form.io's own documentation describing where JSON Logic can be used instead of JavaScript.
 
