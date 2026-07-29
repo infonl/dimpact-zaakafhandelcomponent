@@ -478,7 +478,7 @@ In Open Zaak kan bij een resultaattype onderstaande afhandelwijze worden gekozen
 
 #### Afhandelwijze brondatum - Termijn
 
-Bij deze afhandelwijze wordt bij het afhandelen van de zaak de brondatum gezet op de einddatum van de zaak plus de ingestelde termijn.
+Bij het afhandelen van de zaak wordt de brondatum gezet op de einddatum van de zaak plus de ingestelde termijn.
 
 ![image](images/open_zaak_bepaling_brondatum_archiefprocedure_termijn.png)
 
