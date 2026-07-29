@@ -25,6 +25,8 @@ export enum KNOWN_ZAC_FIELDS {
   SMART_DOCUMENTS_TEMPLATE_GROUP_TEMPLATES = "ZAC_smart_documents_template_group_templates",
   REFERENTIE_TABEL = "ZAC_referentie_tabel",
   DOCUMENTEN = "ZAC_documenten",
+  DOCUMENTEN_NIET_ONDERTEKEND = "ZAC_documenten_niet_ondertekend",
+  GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND = "ZAC_gekozen_documenten_niet_ondertekend",
   RESULTAAT = "ZAC_resultaat",
   STATUS = "ZAC_status",
   PROCESS_DATA = "ZAC_process_data",
@@ -100,7 +102,13 @@ export class FormioSetupService {
               this.initializeReferenceTableField(component);
               break;
             case KNOWN_ZAC_FIELDS.DOCUMENTEN:
-              await this.initializeDocumentsField(component);
+              this.initializeDocumentsField(component);
+              break;
+            case KNOWN_ZAC_FIELDS.DOCUMENTEN_NIET_ONDERTEKEND:
+              await this.initializeUnsignedDocumentsDatagrid(component);
+              break;
+            case KNOWN_ZAC_FIELDS.GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND:
+              await this.initializeSelectedUnsignedDocumentsDatagrid(component);
               break;
             case KNOWN_ZAC_FIELDS.RESULTAAT:
               this.initializeZaakResultField(component);
@@ -276,20 +284,7 @@ export class FormioSetupService {
     };
   }
 
-  private async initializeDocumentsField(
-    component: ExtendedComponentSchema,
-  ): Promise<void> {
-    if (component.type === "datagrid") {
-      component.defaultValue = component.refreshOn
-        ? this.getSelectedRows(component.refreshOn)
-        : (await this.fetchUnsignedZaakDocuments()).map((document) => ({
-            selected: false,
-            titel: document.titel,
-            uuid: document.uuid,
-          }));
-      return;
-    }
-
+  private initializeDocumentsField(component: ExtendedComponentSchema) {
     component.valueProperty = "uuid";
     component.template = "{{ item.titel }}";
     component.data = {
@@ -297,25 +292,74 @@ export class FormioSetupService {
     };
   }
 
+  private async initializeUnsignedDocumentsDatagrid(
+    component: ExtendedComponentSchema,
+  ): Promise<void> {
+    const documents = await this.fetchZaakDocuments();
+    component.defaultValue = documents
+      .filter((document) => !document.ondertekening)
+      .map((document) => this.toDocumentRow(document, false));
+  }
+
+  /**
+   * A task can stay open for days, so the rows stored by the preceding selection task are only
+   * trusted for their uuids: titles and signing state are re-read here, and documents signed in
+   * the meantime are dropped so they cannot be offered for signing twice.
+   */
+  private async initializeSelectedUnsignedDocumentsDatagrid(
+    component: ExtendedComponentSchema,
+  ): Promise<void> {
+    const selectedUuids = component.refreshOn
+      ? this.getSelectedRows(component.refreshOn)
+          .map((row) => row.uuid)
+          .filter((uuid): uuid is string => Boolean(uuid))
+      : [];
+
+    if (!selectedUuids.length) {
+      component.defaultValue = [];
+      return;
+    }
+
+    const documents = await this.fetchZaakDocuments(selectedUuids);
+    component.defaultValue = documents
+      .filter((document) => !document.ondertekening)
+      .map((document) => this.toDocumentRow(document, true));
+  }
+
+  private toDocumentRow(
+    document: GeneratedType<"RestEnkelvoudigInformatieobject">,
+    selected: boolean,
+  ) {
+    return {
+      selected,
+      titel: document.titel,
+      uuid: document.uuid,
+    };
+  }
+
   private getSelectedRows(refreshOnKey: string) {
     const rows = this.taak?.taakdata?.[refreshOnKey];
     return Array.isArray(rows)
-      ? (rows as { selected: boolean }[]).filter((row) => row.selected)
+      ? (rows as { selected: boolean; uuid?: string }[]).filter(
+          (row) => row.selected,
+        )
       : [];
   }
 
-  private async fetchUnsignedZaakDocuments() {
-    const documents = await this.fetchZaakDocuments();
-    return documents.filter((document) => !document.ondertekening);
-  }
-
-  private fetchZaakDocuments() {
+  private fetchZaakDocuments(informatieobjectUUIDs?: string[]) {
+    // the uuids discriminate the result, so they belong in the query key or a filtered fetch
+    // collides on the cache with the unfiltered list of the same zaak
     return this.queryClient.ensureQueryData({
-      queryKey: ["availableDocumentsQuery", this.taak!.zaakUuid],
+      queryKey: [
+        "availableDocumentsQuery",
+        this.taak!.zaakUuid,
+        informatieobjectUUIDs && [...informatieobjectUUIDs].sort(),
+      ],
       queryFn: () =>
         lastValueFrom(
           this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
             zaakUUID: this.taak!.zaakUuid,
+            informatieobjectUUIDs,
           }),
         ),
     });

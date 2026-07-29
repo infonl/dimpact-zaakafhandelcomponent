@@ -78,6 +78,25 @@ const documentsFieldset: ExtendedComponentSchema = {
   },
 };
 
+const unsignedDocumentsFieldset: ExtendedComponentSchema = {
+  type: "datagrid",
+  key: "ZAAK_Documenten_Ondertekenen_Selectie",
+  input: true,
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.DOCUMENTEN_UNSIGNED,
+  },
+};
+
+const selectedUnsignedDocumentsFieldset: ExtendedComponentSchema = {
+  type: "datagrid",
+  key: "ZAAK_Documenten_Te_Ondertekenen",
+  input: true,
+  refreshOn: "ZAAK_Documenten_Ondertekenen_Selectie",
+  attributes: {
+    [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.DOCUMENTEN_UNSIGNED_SELECTED,
+  },
+};
+
 const referenceTableFieldset: ExtendedComponentSchema = {
   type: "select",
   key: "RT_ReferenceTable_Values",
@@ -88,6 +107,14 @@ const referenceTableFieldset: ExtendedComponentSchema = {
   attributes: {
     [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.REFERENTIE_TABEL,
   },
+};
+
+const document1 = { uuid: "doc-1", titel: "Document One" };
+const document2 = { uuid: "doc-2", titel: "Document Two" };
+const signedDocument = {
+  uuid: "doc-3",
+  titel: "Document Three",
+  ondertekening: { soort: "Digitaal", datum: "2026-01-01" },
 };
 
 describe(FormioSetupService.name, () => {
@@ -201,12 +228,17 @@ describe(FormioSetupService.name, () => {
 
   describe(FormioSetupService.prototype.createFormioForm.name, () => {
     it("should initialize components for all defined component types", async () => {
+      // the datagrid initializers fetch eagerly, so without this the spies call through to http
+      jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
+
       const mockedComponentsService = formioSetupService as unknown as {
         initializeGroepField: jest.Mock;
         initializeMedewerkerField: jest.Mock;
         initializeProcessDataField: jest.Mock;
         initializeReferenceTableField: jest.Mock;
         initializeDocumentsField: jest.Mock;
+        initializeUnsignedDocumentsDatagrid: jest.Mock;
+        initializeSelectedUnsignedDocumentsDatagrid: jest.Mock;
         initializeSmartDocumentsTemplateGroupsField: jest.Mock;
         initializeSmartDocumentsTemplateGroupTemplatesField: jest.Mock;
       };
@@ -229,6 +261,14 @@ describe(FormioSetupService.name, () => {
         mockedComponentsService,
         "initializeDocumentsField",
       );
+      const unsignedDocumentsSpy = jest.spyOn(
+        mockedComponentsService,
+        "initializeUnsignedDocumentsDatagrid",
+      );
+      const selectedUnsignedDocumentsSpy = jest.spyOn(
+        mockedComponentsService,
+        "initializeSelectedUnsignedDocumentsDatagrid",
+      );
       const templateGroupsSpy = jest.spyOn(
         mockedComponentsService,
         "initializeSmartDocumentsTemplateGroupsField",
@@ -245,6 +285,8 @@ describe(FormioSetupService.name, () => {
         documentsFieldset,
         smartDocumentsTemplateGroupsComponent,
         smartDocumentsTemplateGroupTemplatesComponent,
+        unsignedDocumentsFieldset,
+        selectedUnsignedDocumentsFieldset,
       ];
 
       await formioSetupService.createFormioForm(
@@ -259,6 +301,10 @@ describe(FormioSetupService.name, () => {
       expect(templateGroupsSpy).toHaveBeenCalledWith(mockFormComponents[4]);
       expect(templateGroupTemplatesSpy).toHaveBeenCalledWith(
         mockFormComponents[5],
+      );
+      expect(unsignedDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[6]);
+      expect(selectedUnsignedDocumentsSpy).toHaveBeenCalledWith(
+        mockFormComponents[7],
       );
     });
 
@@ -602,9 +648,6 @@ describe(FormioSetupService.name, () => {
       "initializeDocumentsField"
     ].name,
     () => {
-      const document1 = { uuid: "doc-1", titel: "Document One" };
-      const document2 = { uuid: "doc-2", titel: "Document Two" };
-
       it("should set valueProperty, template and a custom data source for a select component", async () => {
         const ensureQueryDataSpy = jest
           .spyOn(testQueryClient, "ensureQueryData")
@@ -624,23 +667,43 @@ describe(FormioSetupService.name, () => {
         ]);
         expect(ensureQueryDataSpy).toHaveBeenCalledWith(
           expect.objectContaining({
-            queryKey: ["availableDocumentsQuery", taak.zaakUuid],
+            queryKey: ["availableDocumentsQuery", taak.zaakUuid, undefined],
           }),
         );
       });
 
-      it("should populate a datagrid with all zaak documents when there is no refreshOn", async () => {
+      it("should not filter out already-signed documents", async () => {
+        jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([document1, signedDocument]);
+
+        const component: ExtendedComponentSchema = { ...documentsFieldset };
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taak,
+        );
+
+        await expect(component.data.custom()).resolves.toEqual([
+          document1,
+          signedDocument,
+        ]);
+      });
+    },
+  );
+
+  describe(
+    (FormioSetupService.prototype as unknown as Record<string, () => unknown>)[
+      "initializeUnsignedDocumentsDatagrid"
+    ].name,
+    () => {
+      it("should populate the datagrid with all zaak documents, unselected", async () => {
         jest
           .spyOn(testQueryClient, "ensureQueryData")
           .mockResolvedValue([document1, document2]);
 
         const component: ExtendedComponentSchema = {
-          type: "datagrid",
-          key: "ZAAK_Documenten_Ondertekenen_Selectie",
-          input: true,
-          attributes: { [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.DOCUMENTEN },
+          ...unsignedDocumentsFieldset,
         };
-
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
@@ -652,23 +715,14 @@ describe(FormioSetupService.name, () => {
         ]);
       });
 
-      it("should exclude already-signed documents when populating a datagrid with no refreshOn", async () => {
-        const signedDocument = {
-          uuid: "doc-3",
-          titel: "Document Three",
-          ondertekening: { soort: "Digitaal", datum: "2026-01-01" },
-        };
+      it("should exclude already-signed documents", async () => {
         jest
           .spyOn(testQueryClient, "ensureQueryData")
           .mockResolvedValue([document1, document2, signedDocument]);
 
         const component: ExtendedComponentSchema = {
-          type: "datagrid",
-          key: "ZAAK_Documenten_Ondertekenen_Selectie",
-          input: true,
-          attributes: { [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.DOCUMENTEN },
+          ...unsignedDocumentsFieldset,
         };
-
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
@@ -679,60 +733,148 @@ describe(FormioSetupService.name, () => {
           { selected: false, titel: document2.titel, uuid: document2.uuid },
         ]);
       });
+    },
+  );
 
-      it("should populate a datagrid with only the previously selected rows when refreshOn is set", async () => {
-        const previouslySelectedRow = {
-          selected: true,
-          titel: "Document One",
-          uuid: "doc-1",
-        };
-        const previouslyUnselectedRow = {
-          selected: false,
-          titel: "Document Two",
-          uuid: "doc-2",
-        };
+  describe(
+    (FormioSetupService.prototype as unknown as Record<string, () => unknown>)[
+      "initializeSelectedUnsignedDocumentsDatagrid"
+    ].name,
+    () => {
+      const taakWithSelection = (
+        rows: { selected: boolean; titel: string; uuid: string }[],
+      ): GeneratedType<"RestTask"> => ({
+        ...taak,
+        taakdata: { ZAAK_Documenten_Ondertekenen_Selectie: rows },
+      });
+
+      it("should show only the previously selected documents, pre-selected", async () => {
+        jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([document1]);
 
         const component: ExtendedComponentSchema = {
-          type: "datagrid",
-          key: "ZAAK_Documenten_Te_Ondertekenen",
-          input: true,
-          refreshOn: "ZAAK_Documenten_Ondertekenen_Selectie",
-          attributes: { [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.DOCUMENTEN },
+          ...selectedUnsignedDocumentsFieldset,
         };
-
-        const taakWithSelection: GeneratedType<"RestTask"> = {
-          ...taak,
-          taakdata: {
-            ZAAK_Documenten_Ondertekenen_Selectie: [
-              previouslySelectedRow,
-              previouslyUnselectedRow,
-            ],
-          },
-        };
-
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
-          taakWithSelection,
+          taakWithSelection([
+            { selected: true, titel: document1.titel, uuid: document1.uuid },
+            { selected: false, titel: document2.titel, uuid: document2.uuid },
+          ]),
         );
 
-        expect(component.defaultValue).toEqual([previouslySelectedRow]);
+        expect(component.defaultValue).toEqual([
+          { selected: true, titel: document1.titel, uuid: document1.uuid },
+        ]);
+      });
+
+      it("should re-fetch only the selected documents, keyed on their uuids", async () => {
+        const ensureQueryDataSpy = jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([document1]);
+
+        const component: ExtendedComponentSchema = {
+          ...selectedUnsignedDocumentsFieldset,
+        };
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taakWithSelection([
+            { selected: true, titel: document1.titel, uuid: document1.uuid },
+          ]),
+        );
+
+        expect(ensureQueryDataSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            queryKey: [
+              "availableDocumentsQuery",
+              taak.zaakUuid,
+              [document1.uuid],
+            ],
+          }),
+        );
+      });
+
+      it("should use the freshly fetched title instead of the stored one", async () => {
+        jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([{ uuid: "doc-1", titel: "Renamed Document" }]);
+
+        const component: ExtendedComponentSchema = {
+          ...selectedUnsignedDocumentsFieldset,
+        };
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taakWithSelection([
+            { selected: true, titel: "Stale Title", uuid: "doc-1" },
+          ]),
+        );
+
+        expect(component.defaultValue).toEqual([
+          { selected: true, titel: "Renamed Document", uuid: "doc-1" },
+        ]);
+      });
+
+      it("should exclude documents that were signed after the selection was made", async () => {
+        jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([
+            { ...document1, ondertekening: signedDocument.ondertekening },
+            document2,
+          ]);
+
+        const component: ExtendedComponentSchema = {
+          ...selectedUnsignedDocumentsFieldset,
+        };
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taakWithSelection([
+            { selected: true, titel: document1.titel, uuid: document1.uuid },
+            { selected: true, titel: document2.titel, uuid: document2.uuid },
+          ]),
+        );
+
+        expect(component.defaultValue).toEqual([
+          { selected: true, titel: document2.titel, uuid: document2.uuid },
+        ]);
       });
 
       it("should default to an empty list when the refreshOn field has no prior data", async () => {
-        const component: ExtendedComponentSchema = {
-          type: "datagrid",
-          key: "ZAAK_Documenten_Te_Ondertekenen",
-          input: true,
-          refreshOn: "ZAAK_Documenten_Ondertekenen_Selectie",
-          attributes: { [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.DOCUMENTEN },
-        };
+        const ensureQueryDataSpy = jest.spyOn(
+          testQueryClient,
+          "ensureQueryData",
+        );
 
+        const component: ExtendedComponentSchema = {
+          ...selectedUnsignedDocumentsFieldset,
+        };
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
         );
 
         expect(component.defaultValue).toEqual([]);
+        expect(ensureQueryDataSpy).not.toHaveBeenCalled();
+      });
+
+      it("should default to an empty list when nothing was selected", async () => {
+        const ensureQueryDataSpy = jest.spyOn(
+          testQueryClient,
+          "ensureQueryData",
+        );
+
+        const component: ExtendedComponentSchema = {
+          ...selectedUnsignedDocumentsFieldset,
+        };
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taakWithSelection([
+            { selected: false, titel: document1.titel, uuid: document1.uuid },
+          ]),
+        );
+
+        expect(component.defaultValue).toEqual([]);
+        expect(ensureQueryDataSpy).not.toHaveBeenCalled();
       });
     },
   );
