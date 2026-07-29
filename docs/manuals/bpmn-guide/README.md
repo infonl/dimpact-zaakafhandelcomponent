@@ -145,7 +145,8 @@ This is a **not recommended** pattern:
 * it calls an external API directly from the browser with an API key embedded in the form definition, which every user who opens the task can read
 * it force-submits the form once the lookup completes, without the user confirming the result
 
-If similar behavior is genuinely needed and JSON Logic or a calculated value cannot express it:
+If similar behavior is genuinely needed, and JSON Logic or a calculated value cannot express it:
+* reach out to the ZAC development team to discuss the use case; possibly the behavior can be implemented differently, or possibly it warrants a feature request
 * keep the JavaScript as small and narrowly scoped as possible
 * avoid disabling validation, embedding credentials, or calling external APIs directly from the browser unless there is no other way to achieve the required behavior
 * have the code reviewed by someone who understands JavaScript before uploading the form
