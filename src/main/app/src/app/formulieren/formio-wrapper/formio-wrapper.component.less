@@ -147,6 +147,17 @@ input.form-check-input {
 }
 
 /**
+ * Hold the checkbox and link columns narrow so the title keeps the rest. Without this the table
+ * splits evenly once the fields render as text rather than inputs — a finished task — since nothing
+ * then claims the width the input did.
+ */
+.datagrid-table td:has(.formio-component-checkbox),
+.datagrid-table td:has(.formio-component-htmlelement) {
+  width: 80px;
+  white-space: nowrap;
+}
+
+/**
  * Form.io keeps rendering a field's chrome when it has nothing to show. Drop that chrome and leave
  * the label plus the description that `FormioSetupService` fills with the reason. Field types
  * without chrome of their own need no rule here; they just show the description.
