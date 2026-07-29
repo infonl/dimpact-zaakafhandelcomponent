@@ -2,33 +2,34 @@
 
 
 > **Colofon** <br>
-> Datum : 21-05-2026 <br>
-> Versie :   1.13 <br>
-> Verandering : ZAC v4.10.0 Inrichting Zaakafhandelcomponent <br>
+> Datum : 29-07-2026 <br>
+> Versie :   1.14 <br>
+> Verandering : ZAC v5.4 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
 > Redacteur : Karin Masselink <br>
-> Auteur(s) : Roy Buis, Edgar Vonk, John Bol, Hristo Iliev, Sander Boer, Camiel Braun <br>
+> Auteur(s) : Roy Buis, Edgar Vonk, John Bol, Hristo Iliev, Sander Boer, Camiel Braun, Michiel Schutler <br>
 
 
 Versiegeschiedenis:
 
-| 1.0  | Initiële versie    |
-|------|--------------------|
-| 1.1  | ZAC versie 3.7     |
-| 1.2  | ZAC versie 3.9     |
-| 1.3  | ZAC versie 3.11    |
-| 1.4  | ZAC versie 3.12    |
+| 1.0  | Initiële versie  |
+|------|------------------|
+| 1.1  | ZAC versie 3.7   |
+| 1.2  | ZAC versie 3.9   |
+| 1.3  | ZAC versie 3.11  |
+| 1.4  | ZAC versie 3.12  |
 | 1.5  | ZAC versie 3.17.67 |
 | 1.6  | ZAC versie 3.20.53 |
-| 1.7  | ZAC versie 4.0.54  |
-| 1.8  | ZAC versie 4.0.54  |
-| 1.9  | ZAC versie 4.0.83  |
-| 1.10 | ZAC versie 4.1.0   |
-| 1.11 | ZAC versie 4.1.27  |
-| 1.12 | ZAC versie 4.6.0   |
-| 1.13 | ZAC versie 4.10.0   |
+| 1.7  | ZAC versie 4.0.54 |
+| 1.8  | ZAC versie 4.0.54 |
+| 1.9  | ZAC versie 4.0.83 |
+| 1.10 | ZAC versie 4.1.0 |
+| 1.11 | ZAC versie 4.1.27 |
+| 1.12 | ZAC versie 4.6.0 |
+| 1.13 | ZAC versie 4.10.0 |
+| 1.14 | ZAC versie 5.4   |
 
 # Inhoud
 
@@ -38,8 +39,8 @@ Versiegeschiedenis:
 - [Inrichting Zaakafhandelcomponent](#inrichting-zaakafhandelcomponent)
   - [Zaakafhandelcomponent](#zaakafhandelcomponent)
   - [Beheerinstellingen](#beheerinstellingen)
-- [Zaakafhandel-parameters](#zaakafhandel-parameters)
-  - [Werking van de zaakafhandel-parameters](#werking-van-de-zaakafhandel-parameters)
+- [Zaakafhandelparameters](#zaakafhandelparameters)
+  - [Werking van de zaakafhandelparameters](#werking-van-de-zaakafhandelparameters)
   - [Inrichten van een zaaktype](#inrichten-van-een-zaaktype)
   - [CMMN/BPMN](#cmmnbpmn)
   - [BPMN inrichten](#bpmn-inrichten)
@@ -63,8 +64,10 @@ Versiegeschiedenis:
   - [Werking van de signaleringen](#werking-van-de-signaleringen)
   - [E-mailadres instellen voor een groep](#e-mailadres-instellen-voor-een-groep)
   - [Groepsignalering inschakelen](#groepsignalering-inschakelen)
+- [Procestermijnen](#procestermijnen)
+  - [Procestermijn bekend – variabele periode](#procestermijn-bekend--variabele-periode)
 - [Identiteits- en toegangsbeheer](#identiteits--en-toegangsbeheer)
-  - [IAM architectuur](#iam-architectuur)
+  - [IAM-architectuur](#iam-architectuur)
   - [Migratie van de oude naar de nieuwe IAM-architectuur](#migratie-van-de-oude-naar-de-nieuwe-iam-architectuur)
 - [Groepen](#groepen)
   - [Beheer van groepen](#beheer-van-groepen)
@@ -78,19 +81,19 @@ De Zaakafhandelcomponent (ZAC) is een applicatie bedoeld voor het behandelen van
 Om zaken te registeren en behandelen maakt de applicatie gebruik van registratiecomponenten die zicht in de datalaag bevinden. Een groot deel van de inrichting zal dan ook in deze componenten gebeuren, een belangrijke daarvan is de zaaktypecatalogus. Om de ZAC in gebruik te nemen en te werken met de ingerichte zaaktypecatalogus is configuratie in de ZAC noodzakelijk. Daarnaast is er een aantal instellingen in de ZAC beschikbaar om het werken met het component naar eigen wens in te richten. Alle benodigde inrichting is in deze handleiding beschreven.
 
 ### Beheerinstellingen
-Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het radar icoon. Het beheermenu bestaat 5 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
+Het inrichten van de ZAC gaat via het beheermenu dat rechts in de werkbalk te openen is via het radar icoon. Het beheermenu bestaat 5 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
 ![image](images/8a281ac6-8c57-4ba6-8a58-fd4716d51ef5.png)
 
 In deze handleiding wordt de werking van de beheer-instellingen per onderdeel beschreven.
 
-## Zaakafhandel-parameters  
-De zaakafhandel-parameters (hierna ‘zaps’) zijn bedoeld om een zaaktype dat in de ZAC gebruikt wordt in te richten.
+## Zaakafhandelparameters  
+De zaakafhandelparameters (hierna ‘zaps’) zijn bedoeld om een zaaktype dat in de ZAC gebruikt wordt in te richten.
 
-### Werking van de zaakafhandel-parameters
+### Werking van de zaakafhandelparameters
 Bij het openen van de zaps worden alle zaaktypen uit de zaaktypecatalogus getoond. Ook de oudere versies met een einde geldigheid worden opgehaald. Vanuit het overzicht kan een zaaktype geopend worden om deze in te richten. Wijzigingen in een actief zaaktype zijn na het opslaan direct zichtbaar in de ZAC.
 
 ### Inrichten van een zaaktype
-Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandel-parameters’. Alle zaaktypen worden opgehaald en het overzicht wordt geopend. Het is mogelijk om in dit overzicht te filteren en sorteren.
+Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandelparameters’. Alle zaaktypen worden opgehaald en het overzicht wordt geopend. Het is mogelijk om in dit overzicht te filteren en sorteren.
 ![image](images/207916618-434d6cbc-d8f1-4522-aeec-7556d11b8e27.png)
 
 !Klik op het bolletje links van het zaaktype kolom om snel te filteren op geldig en niet geldig!
@@ -99,7 +102,7 @@ Stappen:
 Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
 
 ### CMMN/BPMN
-Bij een volledig nieuw zaaktype kies je hier of het een BPMN of CMMN zaaktype afhandel configuratie moet krijgen.
+Bij een volledig nieuw zaaktype kies je hier of het een BPMN- of CMMN-zaaktype afhandelconfiguratie moet krijgen.
 ![Zaakafhandelparameters CMMN](images/zaps_cmmn.png)
 Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
 ###### CMMN
@@ -163,9 +166,9 @@ De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
 
 ### CMMN inrichten
 
-Na de keuze van een CMMN zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
+Na de keuze van een CMMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
 
-- CMMN model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
+- CMMN-model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
 - Domein | om een zaaktype aan een specifiek domein toe te wijzen moet hier een domein gekozen worden. Als hier geen keuze wordt gemaakt, dan valt dit zaaktype onder alle domeinen en zal door alle behandelaars die niet aan een specifiek domein zijn toegewezen worden gezien.
 - Groep (v)|  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
 - Behandelaar |  de behandelaar waar een nieuwe zaak na het aanmaken initieel op gezet wordt
@@ -181,7 +184,7 @@ Na de keuze van een CMMN zaaktype krijg je het volgende "Gegevens" veld met de v
 ![image](images/zaps_gegevens.png)
 
 #### Taakgegevens
-1. Klik op de knop Volgende om naar het volgende tabblad ‘Taakgegevens’ te gaan. Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
+1. Klik op de knop Volgende om naar het volgende tabblad ‘Taakgegevens’ te gaan. Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan, maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
 ![image](images/zaps_taakgegevens.png)
  
 2. Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
@@ -203,7 +206,7 @@ Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebrui
 
 2. **Mailafzenders** Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn, is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender. Een uitgebreide beschrijving van de mailafzenders is in het hoofdstuk Mailafzenders te vinden.
 -  Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
-3. **Mailtemplates** Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
+3. **Mailtemplates** Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
 ![image](images/zaps_mailgegevens-2.png)
 4. **Automatische ontvangsbevestiging** Als een zaak wordt aangemaakt via SmartDocuments waar een mailadres van de aanvrager bij is ingevuld kan hiervoor een automatische ontvangstbevestiging worden verstuurd vanuit ZAC. Op deze plek kan dit aan of uit worden gezet en gekozen worden voor:
 - De mailtemplate
@@ -255,11 +258,11 @@ De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
 
 ## BPMN Definities
 
-Voor het inrichten van BPMN zaaktypes zijn verschillende definities nodig. Deze zijn toe te voegen via het beheerinstellingen menu.
+Voor het inrichten van BPMN-zaaktypes zijn verschillende definities nodig. Deze zijn toe te voegen via het beheerinstellingen menu.
 ![image](images/zaps_BPMN_definities.png)
 
-- BPMN proces definities - hier kunnen de met bijvoorbeeld Flowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
-- Formulieren - door de procesdefinitie open te klappen is het mogelijk om de formulier definities te uploaden die bij de procesdefinitie horen.
+- BPMN-procesdefinities - hier kunnen de met bijvoorbeeld Flowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
+- Formulieren - door de procesdefinitie open te klappen is het mogelijk om de formulierdefinities te uploaden die bij de procesdefinitie horen.
 
 Als een procesdefinitie eenmaal gebruikt is kan deze niet meer worden verwijderd.
 
@@ -274,8 +277,8 @@ ZAC kent de volgende systeemreferentietabellen:
 
 - ADVIES | bevat de mogelijk waarde voor de keuzelijst ‘Advies’ die gebruikt wordt bij het afronden van de taak ‘Intern advies’
 - AFZENDER | bevat de mogelijke afzenders van een e-mail; zie sectie 'Mailafzenders' voor meer details
-- BRP_DOELBINDING_RAADPLEEG_WAARDE | bevat de 1ste waarde die gebruikt wordt bij het configureren de BRP doelbinding voor dit zaaktype
-- BRP_DOELBINDING_ZOEK_WAARDE | bevat de 2de waarde die gebruikt worden bij het configureren de BRP doelbinding voor dit zaaktype
+- BRP_DOELBINDING_RAADPLEEG_WAARDE | bevat de 1ste waarde die gebruikt wordt bij het configureren de BRP-doelbinding voor dit zaaktype
+- BRP_DOELBINDING_ZOEK_WAARDE | bevat de 2de waarde die gebruikt worden bij het configureren de BRP-doelbinding voor dit zaaktype
 - COMMUNICATIEKANAAL | bevat de mogelijke waarden voor de keuzelijst ‘Communicatiekanaal’ die gebruikt wordt bij het aanmaken of aanpassen van een zaak
 - DOMEIN | bevat de mogelijke domeinen die gebruikt kunnen worden in de zaakafhandelparameters
 - SERVER_ERROR_ERROR_PAGINA_TEKST | bevat (optionele) tekstparagrafen die getoond worden bij foutmeldingen voor 'server errors' (technische fouten afkomstig van de server of onderliggende systemen). Door een volgende waarde toe te voegen, zal deze onder de al bestaande waarde(s) worden getoond bij de foutmelding. 
@@ -300,16 +303,16 @@ Stappen:
 
 ### Werking van de mailafzenders
 Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties kan als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender.
-Let op, de 'Van' afzender mailadressen kunnen in veel gevallen niet vrij gekozen worden. Steeds vaker is namelijk in het DNS bij een domeinnaam vastgelegd welke mailservers exclusief mail mogen versturen met een Van-adres wat op de bewuste domeinnaam eindigt. Als dergelijke mail dan door een andere mailserver wordt verstuurd dan wordt dat in de meeste gevallen geweigerd, het hangt af van de ontvangende mailserver of daar naar gekeken wordt maar meestal wel. Het gevolg daarvan is dat het 'Van' e-mailadres een domein moet hebben (bijv @example.com) wat toegestaan wordt door de betreffende mailserver.
+Let op, de 'Van' afzender mailadressen kunnen in veel gevallen niet vrij gekozen worden. Steeds vaker is namelijk in het DNS bij een domeinnaam vastgelegd welke mailservers exclusief mail mogen versturen met een Van-adres wat op de bewuste domeinnaam eindigt. Als dergelijke mail dan door een andere mailserver wordt verstuurd dan wordt dat in de meeste gevallen geweigerd, het hangt af van de ontvangende mailserver of daar naar gekeken wordt maar meestal wel. Het gevolg daarvan is dat het 'Van' e-mailadres een domein moet hebben (bijv. @example.com) wat toegestaan wordt door de betreffende mailserver.
 
 ### Mailafzender bewerken
 De mailafzenders kunnen in de zaps bij menukeuze 'Mailgegevens' ingesteld worden. Het e-mailadres van de gemeente, inclusief de daarbij weergegeven naam van de gemeente, is in een omgevingsvariabele ingesteld. Het e-mailadres van de medewerker wordt uit de gebruikersbeheer component opgehaald. Deze twee opties zijn altijd beschikbaar en hierbij kan voor beide een 'Antwoord aan' e-mailadres worden ingesteld. Aan deze opties kunnen mailafzenders worden toegevoegd, deze extra mailafzenders worden opgehaald uit een referentietabel.
 
 Stappen:
-1. In het Beheer-instellingen menu kies je ‘Zaakafhandel-parameters’
+1. In het Beheer-instellingen menu kies je ‘Zaakafhandelparameters’
 2. Ga naar menukeuze 'Mailgegevens'
 3. Kies een 'Antwoord aan' e-mailadres voor de opties e-mailadres van de gemeente en e-mailadres van de medewerker
-4. Voeg optioneel een extra mailafzender toe door op het plus icoon te klikken en op de keuze te klikken. De hier beschikbare keuzes komen uit de referentietabel 'AFZENDER' en kunnen aan deze tabel worden toegevoegd, zie de beschrijving onder het volgende kopje.
+4. Voeg optioneel een extra mailafzender toe door op het plus-icoon te klikken en op de keuze te klikken. De hier beschikbare keuzes komen uit de referentietabel 'AFZENDER' en kunnen aan deze tabel worden toegevoegd, zie de beschrijving onder het volgende kopje.
 5. Selecteer een van de mailafzenders als default door de radiobutton aan te vinken
 6. Klik op ‘Opslaan’ om de wijziging door te voeren
 
@@ -319,7 +322,7 @@ Extra mailafzenders kunnen aan de referentietabel worden toegevoegd om ze daarna
 Stappen:
 1. In het Beheer-instellingen menu kies je ‘Referentie-tabellen’
 2. Open de tabel 'AFZENDER' door op het oog icoon te klikken
-3. Maak een nieuwe waarde aan door op het plus icoon (Toevoegen) te klikken
+3. Maak een nieuwe waarde aan door op het plus-icoon (Toevoegen) te klikken
 4. Vul de nieuwe waarde van in
 5. Klik op ‘Opslaan’ om de waarde toe te voegen, deze is daarna beschikbaar bij het instellen van de mailafzenders
  
@@ -359,7 +362,7 @@ Het is ook mogelijk om de naam van de mailtemplate te wijzigen.
 Stappen:
 1. In het Beheer-instellingen menu kies je ‘Mailtemplates’
 2. Open de template door op het oog icoon te klikken
-3. Wijzig het onderwerp of het bericht. Gebruik eventueel variabelen door op het plus icoon te klikken en ze te selecteren uit de lijst
+3. Wijzig het onderwerp of het bericht. Gebruik eventueel variabelen door op het plus-icoon te klikken en ze te selecteren uit de lijst
 ![image](images/208075315-0b74d514-1baa-409a-883d-2891a81b2d55.png)
 4. Klik op ‘Opslaan’ om de wijziging door te voeren
 
@@ -369,7 +372,7 @@ Zodra een zelf gemaakte template aan een zaaktype is gekoppeld dan is het niet m
 
 Stappen:
 1. In het Beheer-instellingen menu kies je ‘Mailtemplates’
-2. Maak een nieuwe template aan door op het plus icoon (Toevoegen) te klikken
+2. Maak een nieuwe template aan door op het plus-icoon (Toevoegen) te klikken
 3. Vul de naam van de mailtemplate in
 4. Kies uit de lijst bij ‘Mail’ voor welke mail je het template wilt maken
 5. Vul het onderwerp en het bericht in
@@ -384,7 +387,7 @@ Na het wijzigen van data in de zaaktypecatalogus in Open Zaak is het nodig om de
 De volgende gegevens worden gesynchroniseerd: Zaaktypen, Informatieobjecttypen, Besluittypen, Zaaktype-informatieobjecttypen, Resultaattypen, Statustypen en Roltypen. 
 
 ### Zaaktype inrichtingscheck
-Hier kan voor een zaaktype dat nog niet volledig en correct is ingericht worden gecheckt welke onderdelen nog inrichting nodig hebben. Als een zaaktype niet in deze lijst voorkomt dan is de minimaal benodigde inrichting correct. Er wordt hier een validatie uitgevoerd op de ZAC zaakafhandel-parameters en de zaaktypecatalogus implementatie.
+Hier kan voor een zaaktype dat nog niet volledig en correct is ingericht worden gecheckt welke onderdelen nog inrichting nodig hebben. Als een zaaktype niet in deze lijst voorkomt dan is de minimaal benodigde inrichting correct. Er wordt hier een validatie uitgevoerd op de ZAC zaakafhandelparameters en de zaaktypecatalogus implementatie.
 Om een zaaktype in deze lijst te controleren klik je op de regel. Daarna worden alle inrichtingsonderdelen die aandacht nodig hebben geopend en wordt per onderdeel vermeld wat er niet correct is ingericht.
 Voor nu worden de volgende onderdelen gecheckt:
 - Zaakafhandelparameters | er wordt gecheckt of deze volledig zijn ingericht
@@ -424,13 +427,57 @@ Stappen:
 3. Schakel een signalering per e-mail in door deze aan te vinken
 ![image](images/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
 
+## Procestermijnen
+
+Deze sectie beschrijft hoe procestermijnen kunnen worden ingericht in Open Zaak en hoe ZAC daar vervolgens mee omgaat.
+
+Zodra een zaak is afgerond (einddatum is bekend), begint de procestermijn te lopen. Deze kan leeg zijn (nihil), een vaste of variabele waarde hebben of onbekend zijn. Zodra de procestermijn afgelopen is, begint de archieftermijn. De startdatum van de archieftermijn wordt ook wel brondatum genoemd. Nadat de archieftermijn verstreken is, wordt de zaak vernietigd.
+
+### Procestermijn bekend – variabele periode
+
+In Open Zaak kunnen bij een resultaattype onderstaande afhandelwijzes worden gekozen waarbij de procestermijn variabel is.
+
+#### Afhandelwijze brondatum - Eigenschap
+
+Bij deze afhandelwijze wordt bij het afhandelen van de zaak aan de behandelaar gevraagd om een brondatum in te vullen. Zie dit voorbeeldscherm:
+
+![image](images/zac_afhandelen_zaak_brondatum_eigenschap.png)
+
+Om dit in Open Zaak in te richten, moet er aan het zaaktype een eigenschap worden toegevoegd:
+
+![image](images/open_zaak_eigenschap_toevoegen.png)
+
+Hoewel de naam van de eigenschap in principe vrij te kiezen is, is het aan te raden om altijd bij `Eigenschapsnaam` de waarde `brondatum` in te vullen. In het veld `Definitie` vul je vervolgens in hoe het datumveld aan de behandelaar wordt getoond.
+
+Bij het veld `Specificatie van de eigenschap` kies je de waarde `datum`. Als deze nog niet bestaat, moet deze als eigenschap specificatie worden toegevoegd:
+
+![image](images/open_zaak_eigenschap_specificatie_toevoegen.png)
+
+#### Afhandelwijze brondatum - Ingangsdatum besluit
+
+Bij deze afhandelwijze wordt de brondatum gezet aan de hand van de ingangsdatum van het aan de zaak gekoppelde besluit.
+
+![image](images/open_zaak_bepaling_brondatum_archiefprocedure_ingangsdatum_besluit.png)
+
+#### Afhandelwijze brondatum - Vervaldatum besluit
+
+Bij deze afhandelwijze wordt de brondatum gezet aan de hand van de vervaldatum van het aan de zaak gekoppelde besluit.
+
+![image](images/open_zaak_bepaling_brondatum_archiefprocedure_vervaldatum_besluit.png)
+
+#### Afhandelwijze brondatum - Hoofdzaak
+
+Deze afhandelwijze wordt met zaken die aan elkaar zijn gerelateerd als hoofd- en deelzaak. Als je deze afhandelwijze kiest bij het zaaktype van de deelzaak, dan wordt de brondatum gezet op de einddatum van de hoofdzaak zodra die is afgesloten.
+
+![image](images/open_zaak_bepaling_brondatum_archiefprocedure_hoofdzaak.png)
+
 ## Identiteits- en toegangsbeheer
 
 Identiteits- en toegangsbeheer (Identity and Access Management, IAM) maakt gebruik van het PABC (Platform Autorisatie Beheer Component) om (zaaktype) autorisaties te beheren.
 
-### IAM architectuur
+### IAM-architectuur
 
-Deze sectie beschrijft de werking van de IAM-architectuur in ZAC, vanaf versie 5.0. Voor eerdere versies raadpleeg de handleiding voor versie 4.6.
+Deze sectie beschrijft de werking van de IAM-architectuur in ZAC, vanaf versie 5.0. Voor eerdere versies, raadpleeg de handleiding voor versie 4.6.
 
 De voornaamste kenmerken van de nieuwe IAM-architectuur zijn:
 * Het is toekomstgericht en generiek ontworpen om in de toekomst meerdere 'entiteitstypes' te kunnen gaan autoriseren. 
