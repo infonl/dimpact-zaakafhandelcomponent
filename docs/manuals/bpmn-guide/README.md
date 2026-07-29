@@ -72,6 +72,84 @@ Available ZAC types are:
 * `ZAC_status`
 * `ZAC_process_data`
 
+## JavaScript in Form.io forms
+
+Form.io forms support several places where script-like logic can be configured: conditional display, custom validation, calculated values, and `custom` component logic (e.g. a button's custom action). Before adding any JavaScript to a form, beheerders should understand what it can do and prefer a safer alternative where one exists.
+
+### JavaScript executes as trusted code, not data
+
+Any JavaScript added to a Form.io component runs unrestricted in the browser of every user who opens that task — it can read and change the entire submission, manipulate the page, and make network calls. Adding JavaScript to a form is effectively adding code to the application itself.
+
+:warning: Only add JavaScript to a Form.io form if you understand exactly what the code does. If you are unsure, have a developer review it before uploading the form.
+
+:warning: ZAC may in the future prevent uploading Form.io forms that contain JavaScript logic. Forms using JSON Logic will always remain allowed. New forms should therefore prefer JSON Logic over JavaScript wherever possible, to avoid needing rework later.
+
+### Prefer JSON Logic over JavaScript where available
+
+Form.io offers [JSON Logic](https://jsonlogic.com/) as a safer, declarative alternative to JavaScript for:
+* conditional (advanced) logic — showing/hiding a component based on other field values
+* custom validation — rejecting a submission unless a rule holds
+
+A JSON Logic rule can only compute a value from the submitted form data. Unlike JavaScript, it cannot access the page (DOM), make network calls, or have other side effects. See:
+* https://jsonlogic.com/ — the JSON Logic specification, with an interactive playground to try out rules
+* https://jsonlogic.com/operations.html — a reference of all supported JSON Logic operators
+* https://help.form.io/form-building/logic-and-conditions — Form.io's documentation on Advanced Conditions, Logic and Custom Validation, including where JSON Logic can be used instead of JavaScript
+
+For simple show/hide behavior, also consider Form.io's "Simple Conditions", which need no code at all.
+
+#### Example: conditional display
+
+Not recommended (JavaScript, in "Advanced Conditions"):
+```js
+show = data.aanvraagType === 'spoed';
+```
+
+Recommended (JSON Logic, in "Advanced Conditions"):
+```json
+{
+  "==": [{ "var": "aanvraagType" }, "spoed"]
+}
+```
+
+#### Example: custom validation
+
+Not recommended (JavaScript):
+```js
+valid = (data.eindDatum > data.startDatum) ? true : 'Einddatum moet na startdatum liggen';
+```
+
+Recommended (JSON Logic):
+```json
+{
+  ">": [{ "var": "eindDatum" }, { "var": "startDatum" }]
+}
+```
+
+### Calculated values: no JSON Logic alternative
+
+Form.io does not offer a JSON Logic option for calculated values — only JavaScript is supported there. If you need a calculated value, keep it a pure expression: only read `data`/`row` and return a value. Do not use a calculated value to manipulate the DOM, call `submit()`, or perform network calls.
+
+### `custom` component logic: highest risk, last resort
+
+Some behavior cannot be expressed with JSON Logic or a calculated value, for example manipulating the page or submitting the form programmatically. As an illustration, imagine a `custom` component that looks up an address for a postcode via an external API directly from the browser, then auto-submits the form once the result comes back:
+
+```json
+{
+  "custom": "instance.loading = true; var root = instance.root; root.shouldValidate = function(){return false;}; fetch('https://example-postcode-api.nl/lookup?postcode=' + data.postcode + '&apiKey=hardcoded-secret-key').then(function(response){ return response.json(); }).then(function(result){ root.getComponent('adres').setValue(result.adres); root.submission.state = 'draft'; return root.submit(); }).then(function(){ instance.loading = false; });"
+}
+```
+
+This is a **not recommended** pattern:
+* it reaches into `instance.root` and mutates the renderer's internal state (`root.shouldValidate`)
+* it disables form validation for the entire form (`root.shouldValidate = function(){return false;}`)
+* it calls an external API directly from the browser with an API key embedded in the form definition, which every user who opens the task can read
+* it force-submits the form once the lookup completes, without the user confirming the result
+
+If similar behavior is genuinely needed, and JSON Logic or a calculated value cannot express it:
+* reach out to the ZAC development team to discuss the use case; possibly the behavior can be implemented differently, or possibly it warrants a feature request
+* keep the JavaScript as small and narrowly scoped as possible
+* avoid disabling validation, embedding credentials, or calling external APIs directly from the browser unless there is no other way to achieve the required behavior
+* have the code reviewed by someone who understands JavaScript before uploading the form
 
 ## Supported functionality
 The following functionality is supported by the BPMN process definition:
