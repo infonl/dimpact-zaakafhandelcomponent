@@ -269,13 +269,13 @@ export class TaakViewComponent
 
     this.zakenService.readZaak(taak.zaakUuid).subscribe((zaak) => {
       this.zaak = zaak;
-      this.createTaakForm(taak, zaak);
+      void this.createTaakForm(taak, zaak);
       this.initialized = true;
       this.setupMenu();
     });
   }
 
-  private createTaakForm(
+  private async createTaakForm(
     taak: GeneratedType<"RestTask">,
     zaak: GeneratedType<"RestZaak">,
   ) {
@@ -286,16 +286,12 @@ export class TaakViewComponent
     if (taak.formulierDefinitieId) {
       void this.createHardCodedTaakForm(taak, zaak);
     } else if (taak.formioFormulier) {
-      void this.initializeFormioForm(taak.formioFormulier, taak);
+      await this.formioSetupService.createFormioForm(
+        taak.formioFormulier,
+        taak,
+      );
+      this.formioFormulier = taak.formioFormulier;
     }
-  }
-
-  private async initializeFormioForm(
-    formioFormulier: FormioForm,
-    taak: GeneratedType<"RestTask">,
-  ) {
-    await this.formioSetupService.createFormioForm(formioFormulier, taak);
-    this.formioFormulier = formioFormulier;
   }
 
   private async createHardCodedTaakForm(
