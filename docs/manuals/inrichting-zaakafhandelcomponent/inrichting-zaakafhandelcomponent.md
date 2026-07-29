@@ -66,6 +66,7 @@ Versiegeschiedenis:
   - [Groepsignalering inschakelen](#groepsignalering-inschakelen)
 - [Procestermijnen](#procestermijnen)
   - [Procestermijn bekend – variabele periode](#procestermijn-bekend--variabele-periode)
+  - [Procestermijn bekend – vaste periode](#procestermijn-bekend--vaste-periode)
 - [Identiteits- en toegangsbeheer](#identiteits--en-toegangsbeheer)
   - [IAM-architectuur](#iam-architectuur)
   - [Migratie van de oude naar de nieuwe IAM-architectuur](#migratie-van-de-oude-naar-de-nieuwe-iam-architectuur)
@@ -470,6 +471,16 @@ Bij deze afhandelwijze wordt de brondatum gezet aan de hand van de vervaldatum v
 Deze afhandelwijze wordt met zaken die aan elkaar zijn gerelateerd als hoofd- en deelzaak. Als je deze afhandelwijze kiest bij het zaaktype van de deelzaak, dan wordt de brondatum gezet op de einddatum van de hoofdzaak zodra die is afgesloten.
 
 ![image](images/open_zaak_bepaling_brondatum_archiefprocedure_hoofdzaak.png)
+
+### Procestermijn bekend – vaste periode
+
+In Open Zaak kan bij een resultaattype onderstaande afhandelwijze worden gekozen waarbij de procestermijn vast is.
+
+#### Afhandelwijze brondatum - Termijn
+
+Bij deze afhandelwijze wordt bij het afhandelen van de zaak de brondatum gezet op de einddatum van de zaak plus de ingestelde termijn.
+
+![image](images/open_zaak_bepaling_brondatum_archiefprocedure_termijn.png)
 
 ## Identiteits- en toegangsbeheer
 
