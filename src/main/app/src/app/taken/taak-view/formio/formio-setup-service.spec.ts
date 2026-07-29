@@ -652,6 +652,34 @@ describe(FormioSetupService.name, () => {
         ]);
       });
 
+      it("should exclude already-signed documents when populating a datagrid with no refreshOn", async () => {
+        const signedDocument = {
+          uuid: "doc-3",
+          titel: "Document Three",
+          ondertekening: { soort: "Digitaal", datum: "2026-01-01" },
+        };
+        jest
+          .spyOn(testQueryClient, "ensureQueryData")
+          .mockResolvedValue([document1, document2, signedDocument]);
+
+        const component: ExtendedComponentSchema = {
+          type: "datagrid",
+          key: "ZAAK_Documenten_Ondertekenen_Selectie",
+          input: true,
+          attributes: { [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.DOCUMENTEN },
+        };
+
+        await formioSetupService.createFormioForm(
+          { components: [component] } as FormioForm,
+          taak,
+        );
+
+        expect(component.defaultValue).toEqual([
+          { selected: false, titel: document1.titel, uuid: document1.uuid },
+          { selected: false, titel: document2.titel, uuid: document2.uuid },
+        ]);
+      });
+
       it("should populate a datagrid with only the previously selected rows when refreshOn is set", async () => {
         const previouslySelectedRow = {
           selected: true,

@@ -282,7 +282,7 @@ export class FormioSetupService {
     if (component.type === "datagrid") {
       component.defaultValue = component.refreshOn
         ? this.getSelectedRows(component.refreshOn)
-        : (await this.fetchZaakDocuments()).map((document) => ({
+        : (await this.fetchUnsignedZaakDocuments()).map((document) => ({
             selected: false,
             titel: document.titel,
             uuid: document.uuid,
@@ -302,6 +302,11 @@ export class FormioSetupService {
     return Array.isArray(rows)
       ? (rows as { selected: boolean }[]).filter((row) => row.selected)
       : [];
+  }
+
+  private async fetchUnsignedZaakDocuments() {
+    const documents = await this.fetchZaakDocuments();
+    return documents.filter((document) => !document.ondertekening);
   }
 
   private fetchZaakDocuments() {
