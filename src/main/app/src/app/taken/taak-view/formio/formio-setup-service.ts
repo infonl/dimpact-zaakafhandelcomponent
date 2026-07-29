@@ -25,8 +25,8 @@ export enum KNOWN_ZAC_FIELDS {
   SMART_DOCUMENTS_TEMPLATE_GROUP_TEMPLATES = "ZAC_smart_documents_template_group_templates",
   REFERENTIE_TABEL = "ZAC_referentie_tabel",
   DOCUMENTEN = "ZAC_documenten",
-  DOCUMENTEN_UNSIGNED = "ZAC_documenten_unsigned",
-  DOCUMENTEN_UNSIGNED_SELECTED = "ZAC_documenten_unsigned_selected",
+  DOCUMENTEN_NIET_ONDERTEKEND = "ZAC_documenten_niet_ondertekend",
+  GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND = "ZAC_gekozen_documenten_niet_ondertekend",
   RESULTAAT = "ZAC_resultaat",
   STATUS = "ZAC_status",
   PROCESS_DATA = "ZAC_process_data",
@@ -104,10 +104,10 @@ export class FormioSetupService {
             case KNOWN_ZAC_FIELDS.DOCUMENTEN:
               this.initializeDocumentsField(component);
               break;
-            case KNOWN_ZAC_FIELDS.DOCUMENTEN_UNSIGNED:
+            case KNOWN_ZAC_FIELDS.DOCUMENTEN_NIET_ONDERTEKEND:
               await this.initializeUnsignedDocumentsDatagrid(component);
               break;
-            case KNOWN_ZAC_FIELDS.DOCUMENTEN_UNSIGNED_SELECTED:
+            case KNOWN_ZAC_FIELDS.GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND:
               await this.initializeSelectedUnsignedDocumentsDatagrid(component);
               break;
             case KNOWN_ZAC_FIELDS.RESULTAAT:

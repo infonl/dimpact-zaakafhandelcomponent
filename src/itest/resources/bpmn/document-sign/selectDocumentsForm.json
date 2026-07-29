@@ -10,7 +10,7 @@
       "input": true,
       "disableAddingRemovingRows": true,
       "validate": { "required": true },
-      "attributes": { "ZAC_TYPE": "ZAC_documenten_unsigned" },
+      "attributes": { "ZAC_TYPE": "ZAC_documenten_niet_ondertekend" },
       "components": [
         {
           "label": "",
