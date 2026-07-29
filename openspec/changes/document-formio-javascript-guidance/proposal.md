@@ -6,7 +6,7 @@ Form.io forms used in ZAC BPMN processes support embedding arbitrary client-side
 
 - Add a new "JavaScript in Form.io formulieren" section to the ZAC BPMN handleiding (`docs/manuals/bpmn-guide/README.md`) aimed at municipality beheerders, covering:
   - That Form.io custom JavaScript logic executes arbitrary code in the browser of every user who opens the form, and should be treated as trusted code, not data.
-  - Per-component-type guidance: prefer the JSONLogic option (no `eval`) over raw JavaScript for calculated values, conditional logic, and validation; raw JavaScript in `custom` component logic carries the highest risk and should only be used when JSONLogic cannot express the required behavior.
+  - Per-component-type guidance: prefer the JSONLogic option (no `eval`) over raw JavaScript for conditional logic and validation; calculated values have no JSONLogic option and should be kept as pure expressions; raw JavaScript in `custom` component logic carries the highest risk and should only be used when JSONLogic cannot express the required behavior.
   - Web links to the official JSONLogic reference/playground and to Form.io's own documentation on where JSONLogic can be used instead of JavaScript.
   - Concrete "recommended" vs "not recommended" JavaScript/JSONLogic examples, so beheerders have a direct template to compare their own form logic against.
   - A short, practical recommendation for beheerders on when JavaScript use is (not) appropriate.
