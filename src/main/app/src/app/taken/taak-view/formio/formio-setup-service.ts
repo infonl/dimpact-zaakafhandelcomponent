@@ -5,6 +5,7 @@
 
 import { inject, Injectable } from "@angular/core";
 import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
+import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { ReferentieTabelService } from "../../../admin/referentie-tabel.service";
@@ -32,6 +33,11 @@ export enum KNOWN_ZAC_FIELDS {
   PROCESS_DATA = "ZAC_process_data",
 }
 
+/** Marker class picked up by `formio-wrapper.component.less` to hide the chrome of an empty field. */
+const EMPTY_INPUT_FIELD_CLASS = "zac-empty-input-field";
+
+const NO_DOCUMENTS_TO_SIGN_MESSAGE = "msg.geen-documenten-te-ondertekenen";
+
 @Injectable({
   providedIn: "root",
 })
@@ -48,6 +54,7 @@ export class FormioSetupService {
     private referenceTableService: ReferentieTabelService,
     private informatieObjectenService: InformatieObjectenService,
     private smartDocumentsService: SmartDocumentsService,
+    private translateService: TranslateService,
   ) {}
 
   async createFormioForm(
@@ -296,9 +303,73 @@ export class FormioSetupService {
     component: ExtendedComponentSchema,
   ): Promise<void> {
     const documents = await this.fetchZaakDocuments();
-    component.defaultValue = documents
-      .filter((document) => !document.ondertekening)
-      .map((document) => this.toDocumentRow(document, false));
+    const alreadySelectedUuids = new Set(
+      this.getSelectedRows(component.key)
+        .map((row) => row.uuid)
+        .filter((uuid): uuid is string => Boolean(uuid)),
+    );
+
+    this.setDatagridRows(
+      component,
+      documents
+        .filter((document) => !document.ondertekening)
+        .map((document) =>
+          this.toDocumentRow(
+            document,
+            !!document.uuid && alreadySelectedUuids.has(document.uuid),
+          ),
+        ),
+    );
+  }
+
+  /**
+   * Form.io gives the submission data precedence over a component's `defaultValue`, and the task
+   * data holds a value for every form field, so rows have to be written into the submission itself
+   * or the grid renders empty.
+   */
+  private setDatagridRows(
+    component: ExtendedComponentSchema,
+    rows: ReturnType<typeof this.toDocumentRow>[],
+  ) {
+    // without this a datagrid falls back to a single blank row, which would render an empty
+    // checkbox and title and end up in the task data as a row without a document
+    component.initEmpty = true;
+    component.defaultValue = rows;
+    if (this.taak?.taakdata) {
+      this.taak.taakdata[component.key] = rows;
+    }
+    this.applyEmptyState(
+      component,
+      rows.length === 0,
+      NO_DOCUMENTS_TO_SIGN_MESSAGE,
+    );
+  }
+
+  /**
+   * Form.io keeps rendering a field's chrome when it has nothing to show — an empty datagrid still
+   * draws its column headers. Mark the field so the stylesheet can drop that chrome, and state why
+   * it is empty instead. Values set by the form author are kept, and restored once the field fills
+   * up again: this runs on every initialization, including reopening the task.
+   */
+  private applyEmptyState(
+    component: ExtendedComponentSchema,
+    isEmpty: boolean,
+    emptyMessageKey: string,
+  ) {
+    const emptyMessage: string =
+      this.translateService.instant(emptyMessageKey) ?? "";
+    const authorClasses = String(component.customClass ?? "")
+      .split(" ")
+      .filter((cssClass) => cssClass && cssClass !== EMPTY_INPUT_FIELD_CLASS);
+    const authorDescription =
+      component.description === emptyMessage
+        ? ""
+        : (component.description ?? "");
+
+    component.customClass = (
+      isEmpty ? [...authorClasses, EMPTY_INPUT_FIELD_CLASS] : authorClasses
+    ).join(" ");
+    component.description = isEmpty ? emptyMessage : authorDescription;
   }
 
   /**
@@ -317,13 +388,21 @@ export class FormioSetupService {
 
     if (!selectedUuids.length) {
       component.defaultValue = [];
+      this.applyEmptyState(component, true, NO_DOCUMENTS_TO_SIGN_MESSAGE);
       return;
     }
 
     const documents = await this.fetchZaakDocuments(selectedUuids);
-    component.defaultValue = documents
+    const rows = documents
       .filter((document) => !document.ondertekening)
       .map((document) => this.toDocumentRow(document, true));
+
+    component.defaultValue = rows;
+    this.applyEmptyState(
+      component,
+      rows.length === 0,
+      NO_DOCUMENTS_TO_SIGN_MESSAGE,
+    );
   }
 
   private toDocumentRow(

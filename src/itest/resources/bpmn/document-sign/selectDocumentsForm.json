@@ -29,10 +29,19 @@
         },
         {
           "key": "openen",
-          "type": "content",
+          "type": "htmlelement",
+          "tag": "a",
           "input": false,
           "tableView": false,
-          "html": "<a href=\"/informatie-objecten/{{ row.uuid }}\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"btn btn-primary btn-sm\">Openen</a>"
+          "content": "Openen in een nieuw tabblad",
+          "attrs": [
+            {
+              "attr": "href",
+              "value": "/informatie-objecten/{{ row.uuid }}/{{ data.zaakUuid }}"
+            },
+            { "attr": "target", "value": "_blank" },
+            { "attr": "rel", "value": "noopener noreferrer" }
+          ]
         }
       ]
     },

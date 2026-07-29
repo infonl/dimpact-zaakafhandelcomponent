@@ -54,9 +54,45 @@
   display: none;
 }
 
-// Form.io renders datagrid checkboxes flush left in their cell; centre them in the column instead.
-.datagrid-table td .formio-component-checkbox .form-check {
-  display: flex;
-  justify-content: center;
-  margin: 0;
+/**
+ * Form.io renders datagrid checkboxes flush left at the top of their cell; centre them in the
+ * column instead. Rows are as tall as their tallest cell (title field, link button), so the cell
+ * itself has to centre its content vertically as well.
+ */
+.datagrid-table td {
+  vertical-align: middle;
+}
+
+.datagrid-table td .formio-component-checkbox {
+  margin-bottom: 0;
+
+  .form-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .form-check-input {
+    float: none;
+    margin: 0;
+  }
+}
+
+/**
+ * Form.io keeps rendering a field's chrome when it has nothing to show. Drop that chrome and leave
+ * the label plus the description that `FormioSetupService` fills with the reason. Field types
+ * without chrome of their own need no rule here; they just show the description.
+ */
+.formio-component.zac-empty-input-field {
+  // a datagrid would otherwise render as a bare frame of column headers
+  .datagrid-table {
+    display: none;
+  }
+
+  .form-text {
+    margin-top: 0;
+  }
 }
