@@ -79,7 +79,6 @@ export class FormioSetupService {
   private readonly queryClient = inject(QueryClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
 
-  private taak?: GeneratedType<"RestTask">;
   private formioChangeData?: Record<string, string>;
 
   constructor(
@@ -91,14 +90,19 @@ export class FormioSetupService {
     private translateService: TranslateService,
   ) {}
 
+  /**
+   * `taak` is threaded through the initializers rather than kept on this service: it is a singleton,
+   * navigating from one task to another starts a second setup while the first may still be awaiting,
+   * and the data sources installed below are called back by Form.io long after this returns. Holding
+   * the task in a field means those reads land on whichever task was set up last.
+   */
   async createFormioForm(
     formioFormulier: FormioForm,
     taak: GeneratedType<"RestTask">,
   ) {
-    this.taak = taak;
-
     await this.initializeSpecializedFormioComponents(
       formioFormulier.components,
+      taak,
     );
     this.utilService.setTitle("title.taak", {
       taak: formioFormulier.title,
@@ -111,6 +115,7 @@ export class FormioSetupService {
 
   private async initializeSpecializedFormioComponents(
     components: ExtendedComponentSchema[] | undefined,
+    taak: GeneratedType<"RestTask">,
     parentZacType?: string,
   ) {
     for (const component of components ?? []) {
@@ -124,7 +129,7 @@ export class FormioSetupService {
         async () => {
           switch (zacType) {
             case KNOWN_ZAC_FIELDS.GROEP:
-              this.initializeGroepField(component);
+              this.initializeGroepField(component, taak);
               break;
             case KNOWN_ZAC_FIELDS.MEDEWERKER:
               this.initializeMedewerkerField(component);
@@ -133,42 +138,47 @@ export class FormioSetupService {
               this.initializeProcessDataField(component);
               break;
             case KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUPS:
-              this.initializeSmartDocumentsTemplateGroupsField(component);
+              this.initializeSmartDocumentsTemplateGroupsField(component, taak);
               break;
             case KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUP_TEMPLATES:
               this.initializeSmartDocumentsTemplateGroupTemplatesField(
                 component,
+                taak,
               );
               break;
             case KNOWN_ZAC_FIELDS.REFERENTIE_TABEL:
               this.initializeReferenceTableField(component);
               break;
             case KNOWN_ZAC_FIELDS.DOCUMENTEN:
-              this.initializeDocumentsField(component);
+              this.initializeDocumentsField(component, taak);
               break;
             case KNOWN_ZAC_FIELDS.DOCUMENTEN_NIET_ONDERTEKEND:
-              await this.initializeUnsignedDocumentsDatagrid(component);
+              await this.initializeUnsignedDocumentsDatagrid(component, taak);
               break;
             case KNOWN_ZAC_FIELDS.GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND:
-              await this.initializeSelectedUnsignedDocumentsDatagrid(component);
+              await this.initializeSelectedUnsignedDocumentsDatagrid(
+                component,
+                taak,
+              );
               break;
             case KNOWN_ZAC_FIELDS.REGEL_LINK:
-              this.initializeRowLinkColumn(component, parentZacType);
+              this.initializeRowLinkColumn(component, taak, parentZacType);
               break;
             case KNOWN_ZAC_FIELDS.REGEL_LINK_VIEW_ICON:
-              this.initializeRowLinkColumn(component, parentZacType, {
+              this.initializeRowLinkColumn(component, taak, parentZacType, {
                 asIcon: true,
               });
               break;
             case KNOWN_ZAC_FIELDS.RESULTAAT:
-              this.initializeZaakResultField(component);
+              this.initializeZaakResultField(component, taak);
               break;
             case KNOWN_ZAC_FIELDS.STATUS:
-              this.initializeZaakStatusField(component);
+              this.initializeZaakStatusField(component, taak);
               break;
           }
           await this.initializeSpecializedFormioComponents(
             this.getChildComponents(component),
+            taak,
             zacType,
           );
         },
@@ -212,7 +222,10 @@ export class FormioSetupService {
     component.type = "input";
   }
 
-  private initializeGroepField(component: ExtendedComponentSchema) {
+  private initializeGroepField(
+    component: ExtendedComponentSchema,
+    taak: GeneratedType<"RestTask">,
+  ) {
     component.valueProperty = "id";
     component.template = "{{ item.naam }}";
     component.data = {
@@ -221,7 +234,7 @@ export class FormioSetupService {
           this.zacQueryClient.GET(
             "/rest/identity/zaaktype/{zaaktypeDescription}/behandelaar-groups",
             {
-              path: { zaaktypeDescription: this.taak!.zaaktypeOmschrijving! },
+              path: { zaaktypeDescription: taak.zaaktypeOmschrijving! },
             },
           ),
         );
@@ -242,14 +255,13 @@ export class FormioSetupService {
 
   private initializeSmartDocumentsTemplateGroupsField(
     component: ExtendedComponentSchema,
+    taak: GeneratedType<"RestTask">,
   ) {
     component.valueProperty = "id";
     component.template = "{{ item.naam }}";
     component.data = {
       custom: async () => {
-        const data = await this.getSmartDocumentTemplates(
-          this.taak!.zaaktypeUUID!,
-        );
+        const data = await this.getSmartDocumentTemplates(taak.zaaktypeUUID!);
         return data
           .map((templateGroup) => ({
             id: templateGroup.id,
@@ -263,14 +275,13 @@ export class FormioSetupService {
 
   private initializeSmartDocumentsTemplateGroupTemplatesField(
     component: ExtendedComponentSchema,
+    taak: GeneratedType<"RestTask">,
   ) {
     component.valueProperty = "id";
     component.template = "{{ item.naam }}";
     component.data = {
       custom: async () => {
-        const data = await this.getSmartDocumentTemplates(
-          this.taak!.zaaktypeUUID!,
-        );
+        const data = await this.getSmartDocumentTemplates(taak.zaaktypeUUID!);
         const templateGroupId = this.formioChangeData?.[component.refreshOn];
         const templateGroup = data.find(
           (group) => group.id === templateGroupId,
@@ -335,11 +346,14 @@ export class FormioSetupService {
     };
   }
 
-  private initializeDocumentsField(component: ExtendedComponentSchema) {
+  private initializeDocumentsField(
+    component: ExtendedComponentSchema,
+    taak: GeneratedType<"RestTask">,
+  ) {
     component.valueProperty = "uuid";
     component.template = "{{ item.titel }}";
     component.data = {
-      custom: async () => this.fetchZaakDocuments(),
+      custom: async () => this.fetchZaakDocuments(taak),
     };
   }
 
@@ -368,18 +382,20 @@ export class FormioSetupService {
 
   private async initializeUnsignedDocumentsDatagrid(
     component: ExtendedComponentSchema,
+    taak: GeneratedType<"RestTask">,
   ): Promise<void> {
     this.requireASelectedRow(component);
 
-    const documents = await this.fetchZaakDocuments();
+    const documents = await this.fetchZaakDocuments(taak);
     const alreadySelectedUuids = new Set(
-      this.getSelectedRows(component.key)
+      this.getSelectedRows(taak, component.key)
         .map((row) => row.uuid)
         .filter((uuid): uuid is string => Boolean(uuid)),
     );
 
     this.setDatagridRows(
       component,
+      taak,
       documents
         .filter((document) => !document.ondertekening)
         .map((document) =>
@@ -398,14 +414,15 @@ export class FormioSetupService {
    */
   private setDatagridRows(
     component: ExtendedComponentSchema,
+    taak: GeneratedType<"RestTask">,
     rows: ReturnType<typeof this.toDocumentRow>[],
   ) {
     // without this a datagrid falls back to a single blank row, which would render an empty
     // checkbox and title and end up in the task data as a row without a document
     component.initEmpty = true;
     component.defaultValue = rows;
-    if (this.taak?.taakdata) {
-      this.taak.taakdata[component.key] = rows;
+    if (taak.taakdata) {
+      taak.taakdata[component.key] = rows;
     }
     this.applyEmptyState(
       component,
@@ -424,6 +441,7 @@ export class FormioSetupService {
    */
   private initializeRowLinkColumn(
     component: ExtendedComponentSchema,
+    taak: GeneratedType<"RestTask">,
     parentZacType?: string,
     { asIcon = false }: { asIcon?: boolean } = {},
   ) {
@@ -446,7 +464,7 @@ export class FormioSetupService {
     if (Array.isArray(component.attrs) && component.attrs.length) return;
 
     component.attrs = [
-      { attr: "href", value: rowLink.href(this.taak!) },
+      { attr: "href", value: rowLink.href(taak) },
       { attr: "target", value: "_blank" },
       { attr: "rel", value: "noopener noreferrer" },
       ...(asIcon
@@ -492,9 +510,10 @@ export class FormioSetupService {
    */
   private async initializeSelectedUnsignedDocumentsDatagrid(
     component: ExtendedComponentSchema,
+    taak: GeneratedType<"RestTask">,
   ): Promise<void> {
     const selectedUuids = component.refreshOn
-      ? this.getSelectedRows(component.refreshOn)
+      ? this.getSelectedRows(taak, component.refreshOn)
           .map((row) => row.uuid)
           .filter((uuid): uuid is string => Boolean(uuid))
       : [];
@@ -505,7 +524,7 @@ export class FormioSetupService {
       return;
     }
 
-    const documents = await this.fetchZaakDocuments(selectedUuids);
+    const documents = await this.fetchZaakDocuments(taak, selectedUuids);
     const rows = documents
       .filter((document) => !document.ondertekening)
       .map((document) => this.toDocumentRow(document, true));
@@ -529,8 +548,11 @@ export class FormioSetupService {
     };
   }
 
-  private getSelectedRows(refreshOnKey: string) {
-    const rows = this.taak?.taakdata?.[refreshOnKey];
+  private getSelectedRows(
+    taak: GeneratedType<"RestTask">,
+    refreshOnKey: string,
+  ) {
+    const rows = taak.taakdata?.[refreshOnKey];
     return Array.isArray(rows)
       ? (rows as { selected: boolean; uuid?: string }[]).filter(
           (row) => row.selected,
@@ -538,45 +560,54 @@ export class FormioSetupService {
       : [];
   }
 
-  private fetchZaakDocuments(informatieobjectUUIDs?: string[]) {
+  private fetchZaakDocuments(
+    taak: GeneratedType<"RestTask">,
+    informatieobjectUUIDs?: string[],
+  ) {
     // the uuids discriminate the result, so they belong in the query key or a filtered fetch
     // collides on the cache with the unfiltered list of the same zaak
     return this.queryClient.ensureQueryData({
       queryKey: [
         "availableDocumentsQuery",
-        this.taak!.zaakUuid,
+        taak.zaakUuid,
         informatieobjectUUIDs && [...informatieobjectUUIDs].sort(),
       ],
       queryFn: () =>
         lastValueFrom(
           this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-            zaakUUID: this.taak!.zaakUuid,
+            zaakUUID: taak.zaakUuid,
             informatieobjectUUIDs,
           }),
         ),
     });
   }
 
-  private initializeZaakResultField(component: ExtendedComponentSchema) {
+  private initializeZaakResultField(
+    component: ExtendedComponentSchema,
+    taak: GeneratedType<"RestTask">,
+  ) {
     component.valueProperty = "naam";
     component.template = "{{ item.naam }}";
     component.data = {
       custom: () =>
         this.queryClient.ensureQueryData(
           this.zacQueryClient.GET("/rest/zaken/resultaattypes/{zaaktypeUUID}", {
-            path: { zaaktypeUUID: this.taak!.zaaktypeUUID! },
+            path: { zaaktypeUUID: taak.zaaktypeUUID! },
           }),
         ),
     };
   }
 
-  private initializeZaakStatusField(component: ExtendedComponentSchema) {
+  private initializeZaakStatusField(
+    component: ExtendedComponentSchema,
+    taak: GeneratedType<"RestTask">,
+  ) {
     component.valueProperty = "naam";
     component.template = "{{ item.naam }}";
     component.data = {
       custom: () =>
         this.queryClient.ensureQueryData(
-          this.zakenService.listStatustypes(this.taak!.zaaktypeUUID!),
+          this.zakenService.listStatustypes(taak.zaaktypeUUID!),
         ),
     };
   }

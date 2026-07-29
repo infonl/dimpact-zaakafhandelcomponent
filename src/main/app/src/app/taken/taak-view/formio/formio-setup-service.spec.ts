@@ -314,17 +314,28 @@ describe(FormioSetupService.name, () => {
         taak,
       );
 
-      expect(groepSpy).toHaveBeenCalledWith(mockFormComponents[0]);
+      expect(groepSpy).toHaveBeenCalledWith(mockFormComponents[0], taak);
       expect(medewerkerSpy).toHaveBeenCalledWith(mockFormComponents[1]);
       expect(referenceTableSpy).toHaveBeenCalledWith(mockFormComponents[2]);
-      expect(availableDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[3]);
-      expect(templateGroupsSpy).toHaveBeenCalledWith(mockFormComponents[4]);
+      expect(availableDocumentsSpy).toHaveBeenCalledWith(
+        mockFormComponents[3],
+        taak,
+      );
+      expect(templateGroupsSpy).toHaveBeenCalledWith(
+        mockFormComponents[4],
+        taak,
+      );
       expect(templateGroupTemplatesSpy).toHaveBeenCalledWith(
         mockFormComponents[5],
+        taak,
       );
-      expect(unsignedDocumentsSpy).toHaveBeenCalledWith(mockFormComponents[6]);
+      expect(unsignedDocumentsSpy).toHaveBeenCalledWith(
+        mockFormComponents[6],
+        taak,
+      );
       expect(selectedUnsignedDocumentsSpy).toHaveBeenCalledWith(
         mockFormComponents[7],
+        taak,
       );
     });
 
@@ -1358,6 +1369,104 @@ describe(FormioSetupService.name, () => {
       });
     },
   );
+
+  describe("initializing two tasks", () => {
+    const otherTaak: GeneratedType<"RestTask"> = {
+      ...taak,
+      id: "other-id",
+      zaakUuid: "other-zaakUuid",
+      taakdata: {},
+    };
+
+    it("should give each form the documents and links of its own task, whichever finishes first", async () => {
+      const documentsPerZaak: Record<string, (typeof document1)[]> = {
+        [taak.zaakUuid]: [document1],
+        [otherTaak.zaakUuid]: [document2],
+      };
+      const resolvers: (() => void)[] = [];
+      jest.spyOn(testQueryClient, "ensureQueryData").mockImplementation(((
+        options: { queryKey: [string, string, string[] | undefined] },
+      ) =>
+        new Promise<(typeof document1)[]>((resolve) =>
+          // held back so both initializations are in flight at once, and released in reverse order
+          resolvers.push(() => resolve(documentsPerZaak[options.queryKey[1]])),
+        )) as typeof testQueryClient.ensureQueryData);
+
+      const column: ExtendedComponentSchema = { ...regelLinkColumn };
+      const otherColumn: ExtendedComponentSchema = { ...regelLinkColumn };
+      const grid: ExtendedComponentSchema = {
+        ...unsignedDocumentsFieldset,
+        components: [column],
+      };
+      const otherGrid: ExtendedComponentSchema = {
+        ...unsignedDocumentsFieldset,
+        components: [otherColumn],
+      };
+
+      const initializations = Promise.all([
+        formioSetupService.createFormioForm(
+          { components: [grid] } as FormioForm,
+          taak,
+        ),
+        formioSetupService.createFormioForm(
+          { components: [otherGrid] } as FormioForm,
+          otherTaak,
+        ),
+      ]);
+      while (resolvers.length < 2) await Promise.resolve();
+      resolvers.reverse().forEach((resolve) => resolve());
+      await initializations;
+
+      expect(grid.defaultValue).toEqual([
+        { selected: false, titel: document1.titel, uuid: document1.uuid },
+      ]);
+      expect(otherGrid.defaultValue).toEqual([
+        { selected: false, titel: document2.titel, uuid: document2.uuid },
+      ]);
+      expect(column.attrs).toEqual(
+        expect.arrayContaining([
+          {
+            attr: "href",
+            value: `/informatie-objecten/{{ row.uuid }}/${taak.zaakUuid}`,
+          },
+        ]),
+      );
+      expect(otherColumn.attrs).toEqual(
+        expect.arrayContaining([
+          {
+            attr: "href",
+            value: `/informatie-objecten/{{ row.uuid }}/${otherTaak.zaakUuid}`,
+          },
+        ]),
+      );
+    });
+
+    it("should fetch for its own task from a data source called after another task was initialized", async () => {
+      const ensureQueryDataSpy = jest
+        .spyOn(testQueryClient, "ensureQueryData")
+        .mockResolvedValue([document1]);
+      const component: ExtendedComponentSchema = { ...documentsFieldset };
+
+      await formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
+      await formioSetupService.createFormioForm(
+        { components: [{ ...documentsFieldset }] } as FormioForm,
+        otherTaak,
+      );
+
+      // Form.io calls the data source on render and on every refresh, long after initialization
+      ensureQueryDataSpy.mockClear();
+      await component.data.custom();
+
+      expect(ensureQueryDataSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: ["availableDocumentsQuery", taak.zaakUuid, undefined],
+        }),
+      );
+    });
+  });
 
   describe(FormioSetupService.prototype.setFormioChangeData.name, () => {
     it("should update formioChangeData", async () => {
