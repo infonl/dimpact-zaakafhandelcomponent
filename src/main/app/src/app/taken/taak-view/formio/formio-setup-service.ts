@@ -525,8 +525,6 @@ export class FormioSetupService {
       return;
     }
 
-    this.requireASelectedRow(component);
-
     const selectedUuids = component.refreshOn
       ? this.getSelectedRows(taak, component.refreshOn)
           .map((row) => row.uuid)
