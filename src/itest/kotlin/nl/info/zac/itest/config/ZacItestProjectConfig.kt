@@ -88,9 +88,12 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_CONTAINER_SERVICE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_DEFAULT_DOCKER_IMAGE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_HEALTH_READY_URL
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
+import com.github.dockerjava.api.async.ResultCallback
+import com.github.dockerjava.api.model.Frame
 import okhttp3.Headers
 import org.json.JSONObject
 import org.slf4j.Logger
+import org.testcontainers.DockerClientFactory
 import org.testcontainers.containers.ComposeContainer
 import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.output.Slf4jLogConsumer
@@ -102,6 +105,7 @@ import java.net.HttpURLConnection.HTTP_OK
 import java.net.SocketException
 import java.nio.file.Files
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import kotlin.jvm.optionals.getOrNull
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.minutes
@@ -117,6 +121,11 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private const val DO_NOT_START_DOCKER_COMPOSE_ENV_VAR = "DO_NOT_START_DOCKER_COMPOSE"
         private const val KEEP_ITEST_CONTAINERS_RUNNING_ENV_VAR = "KEEP_ITEST_CONTAINERS_RUNNING"
         private const val DOCKER_USE_ARM64_CONTAINERS_ENV_VAR = "DOCKER_USE_ARM64_CONTAINERS"
+        private const val COMPOSE_PROJECT_PREFIX = "zac-itest-"
+        private const val COMPOSE_SERVICE_LABEL = "com.docker.compose.service"
+        private const val COMPOSE_PROJECT_LABEL = "com.docker.compose.project"
+        private const val DEBUG_LOG_TAIL_LINES = 300
+        private const val DEBUG_LOG_FETCH_TIMEOUT_SECONDS = 10L
 
         private val logger = KotlinLogging.logger {}
         private val itestHttpClient = ItestHttpClient()
@@ -230,7 +239,46 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
             }
         } catch (exception: ContainerLaunchException) {
             logger.error(exception) { "Failed to start Docker Compose containers" }
+            // Log the state and recent output of every container in this Compose project before tearing it
+            // down, since the teardown below removes the containers and their logs would otherwise be lost.
+            // This is what lets us diagnose *why* a container failed to become healthy in CI, instead of only
+            // seeing the generic "dependency failed to start: container is unhealthy" Compose error.
+            dumpContainerLogsForDebugging()
             dockerComposeContainer.stop()
+        }
+    }
+
+    /**
+     * Logs the state and last output of every container belonging to this Compose project. Best-effort: any
+     * failure here must not prevent the Compose-wide stop that runs immediately after this in the caller.
+     */
+    private fun dumpContainerLogsForDebugging() {
+        runCatching {
+            val dockerClient = DockerClientFactory.instance().client()
+            dockerClient.listContainersCmd().withShowAll(true).exec()
+                .filter { container -> container.labels?.get(COMPOSE_PROJECT_LABEL)?.startsWith(COMPOSE_PROJECT_PREFIX) == true }
+                .forEach { container ->
+                    val serviceName = container.labels?.get(COMPOSE_SERVICE_LABEL) ?: "unknown"
+                    val containerName = container.names?.firstOrNull() ?: container.id
+                    logger.error { "--- Logs for '$containerName' (service '$serviceName', state '${container.state}') ---" }
+                    runCatching {
+                        dockerClient.logContainerCmd(container.id)
+                            .withStdOut(true)
+                            .withStdErr(true)
+                            .withTail(DEBUG_LOG_TAIL_LINES)
+                            .exec(
+                                object : ResultCallback.Adapter<Frame>() {
+                                    override fun onNext(frame: Frame) {
+                                        logger.error { "[$serviceName] ${String(frame.payload).trimEnd()}" }
+                                    }
+                                }
+                            ).awaitCompletion(DEBUG_LOG_FETCH_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    }.onFailure { throwable ->
+                        logger.warn(throwable) { "Failed to fetch logs for '$containerName'" }
+                    }
+                }
+        }.onFailure { throwable ->
+            logger.warn(throwable) { "Failed to dump container logs for debugging" }
         }
     }
 
@@ -314,7 +362,7 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 logger.info { "Using arm64 containers" }
             }
 
-        return ComposeContainer("zac-itest-", composeFiles)
+        return ComposeContainer(COMPOSE_PROJECT_PREFIX, composeFiles)
             .withEnv(dockerComposeOverrideEnvironment)
             // do not pull images first because this will cause _all_ Docker images to be pulled,
             // and not just the ones we need for our profiles
