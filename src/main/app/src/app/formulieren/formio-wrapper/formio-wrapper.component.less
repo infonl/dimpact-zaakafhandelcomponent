@@ -103,9 +103,15 @@ input.form-check-input {
   }
 }
 
-.datagrid-table :is(th, td) {
-  padding: 0;
-  border: 1px solid var(--bs-border-color);
+// Form.io's `overflow-x: auto` makes its `overflow-y: visible` compute to auto, clipping the last border
+.formio-component-datagrid {
+  padding-bottom: 1px;
+}
+
+// Form.io ships `border: 3px !important`; `table` outweighs its selector, the flag matches its flag
+.formio-component-datagrid table.datagrid-table,
+.formio-component-datagrid table.datagrid-table :is(th, td) {
+  border: 1px solid var(--bs-border-color) !important;
 }
 
 // Form.io renders datagrid checkboxes flush left at the top of their cell; centre them instead.
