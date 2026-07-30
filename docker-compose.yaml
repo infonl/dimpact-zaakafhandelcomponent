@@ -133,11 +133,14 @@ services:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 5s
       timeout: 10s
-      retries: 30
+      retries: 60
       # This should allow for enough time for migrations to run before the max
       # retries have passed. This health check in turn allows other containers
       # to wait for the database migrations.
-      start_period: 10s
+      # Rootless Podman's storage driver (fuse-overlayfs/vfs) extracts image layers slower than
+      # Docker's overlay2, and CI runs pull ~25 service images concurrently, so this container can
+      # take noticeably longer than under Docker to become ready. Give it more headroom here.
+      start_period: 30s
     depends_on:
       openzaak-database:
         condition: service_healthy
