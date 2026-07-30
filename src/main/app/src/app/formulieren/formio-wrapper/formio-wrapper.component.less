@@ -114,6 +114,16 @@ input.form-check-input {
   border: 1px solid var(--bs-border-color) !important;
 }
 
+// Bootstrap's cell padding widens the narrow columns past the widths set below
+.datagrid-table :is(th, td) {
+  padding: 0;
+}
+
+// Form.io asks for `table-layout: fixed` inline when read-only, which ignores those widths
+.formio-component-datagrid table.datagrid-table {
+  table-layout: auto !important;
+}
+
 // Form.io renders datagrid checkboxes flush left at the top of their cell; centre them instead.
 .datagrid-table td {
   vertical-align: middle;
@@ -147,10 +157,6 @@ input.form-check-input {
 .datagrid-table td:has(.formio-component-htmlelement) {
   width: 80px;
   white-space: nowrap;
-}
-
-.datagrid-table td:has(.formio-component-textfield) {
-  width: 100%;
 }
 
 /**
