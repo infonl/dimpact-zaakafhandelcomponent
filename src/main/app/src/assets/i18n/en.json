@@ -92,7 +92,7 @@
   "uiterlijkereactiedatum": "Final response date",
   "einddatum": "End date",
   "startdatumBewaartermijn": "Archive start date",
-  "afleidingswijzeBrondatum": "Determination archive start date",
+  "afleidingswijzeBrondatum": "Derivation method for archive start date",
   "zaak.einddatum": "Case end date",
   "zaak.brondatum": "Case archiving source date",
   "streefdatum": "Due date",
