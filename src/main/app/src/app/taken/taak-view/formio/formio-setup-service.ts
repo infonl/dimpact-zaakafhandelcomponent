@@ -42,6 +42,12 @@ const NO_DOCUMENTS_TO_SIGN_MESSAGE = "msg.geen-documenten-te-ondertekenen";
 
 const SELECT_A_DOCUMENT_MESSAGE = "msg.selecteer-minimaal-een-document";
 
+type DocumentRow = {
+  selected: boolean;
+  titel?: string | null;
+  uuid?: string | null;
+};
+
 type RowLink = {
   /** `{{ row.… }}` placeholders stay in: only Form.io can resolve those, per row. */
   href: (taak: GeneratedType<"RestTask">) => string;
@@ -365,10 +371,38 @@ export class FormioSetupService {
     };
   }
 
+  private isFinished(taak: GeneratedType<"RestTask">) {
+    return taak.status === "AFGEROND";
+  }
+
+  /**
+   * A finished task is a record of what was submitted, so its grids show the stored rows as they are.
+   * Re-reading the zaak documents would drop every document the task got signed and lose the ticks
+   * that say which ones were chosen. The grid is already disabled by the view's `isReadonly()`.
+   */
+  private renderStoredDocumentRows(
+    component: ExtendedComponentSchema,
+    taak: GeneratedType<"RestTask">,
+  ) {
+    const rows = this.getStoredRows(taak, component.key);
+    component.initEmpty = true;
+    component.defaultValue = rows;
+    this.applyEmptyState(
+      component,
+      rows.length === 0,
+      NO_DOCUMENTS_TO_SIGN_MESSAGE,
+    );
+  }
+
   private async initializeUnsignedDocumentsDatagrid(
     component: ExtendedComponentSchema,
     taak: GeneratedType<"RestTask">,
   ): Promise<void> {
+    if (this.isFinished(taak)) {
+      this.renderStoredDocumentRows(component, taak);
+      return;
+    }
+
     this.requireASelectedRow(component);
 
     const documents = await this.fetchZaakDocuments(taak);
@@ -399,7 +433,7 @@ export class FormioSetupService {
   private setDatagridRows(
     component: ExtendedComponentSchema,
     taak: GeneratedType<"RestTask">,
-    rows: ReturnType<typeof this.toDocumentRow>[],
+    rows: DocumentRow[],
   ) {
     // without this a datagrid falls back to one blank row, which lands in the task data as a row
     // without a document
@@ -486,6 +520,11 @@ export class FormioSetupService {
     component: ExtendedComponentSchema,
     taak: GeneratedType<"RestTask">,
   ): Promise<void> {
+    if (this.isFinished(taak)) {
+      this.renderStoredDocumentRows(component, taak);
+      return;
+    }
+
     const selectedUuids = component.refreshOn
       ? this.getSelectedRows(taak, component.refreshOn)
           .map((row) => row.uuid)
@@ -514,7 +553,7 @@ export class FormioSetupService {
   private toDocumentRow(
     document: GeneratedType<"RestEnkelvoudigInformatieobject">,
     selected: boolean,
-  ) {
+  ): DocumentRow {
     return {
       selected,
       titel: document.titel,
@@ -522,24 +561,24 @@ export class FormioSetupService {
     };
   }
 
+  private getStoredRows(taak: GeneratedType<"RestTask">, key: string) {
+    const rows = taak.taakdata?.[key];
+    return Array.isArray(rows) ? (rows as DocumentRow[]) : [];
+  }
+
   private getSelectedRows(
     taak: GeneratedType<"RestTask">,
     refreshOnKey: string,
   ) {
-    const rows = taak.taakdata?.[refreshOnKey];
-    return Array.isArray(rows)
-      ? (rows as { selected: boolean; uuid?: string }[]).filter(
-          (row) => row.selected,
-        )
-      : [];
+    return this.getStoredRows(taak, refreshOnKey).filter((row) => row.selected);
   }
 
   private fetchZaakDocuments(
     taak: GeneratedType<"RestTask">,
     informatieobjectUUIDs?: string[],
   ) {
-    // the uuids belong in the key, or a filtered fetch collides with the full list of the same zaak
-    return this.queryClient.ensureQueryData({
+    // The uuids belong in the key, or a filtered fetch collides with the full list of the same zaak.
+    return this.queryClient.fetchQuery({
       queryKey: [
         "availableDocumentsQuery",
         taak.zaakUuid,
@@ -552,6 +591,7 @@ export class FormioSetupService {
             informatieobjectUUIDs,
           }),
         ),
+      staleTime: 0,
     });
   }
 

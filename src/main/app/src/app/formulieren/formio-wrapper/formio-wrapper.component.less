@@ -103,6 +103,11 @@ input.form-check-input {
   }
 }
 
+.datagrid-table :is(th, td) {
+  padding: 0;
+  border: 1px solid var(--bs-border-color);
+}
+
 // Form.io renders datagrid checkboxes flush left at the top of their cell; centre them instead.
 .datagrid-table td {
   vertical-align: middle;
@@ -131,14 +136,15 @@ input.form-check-input {
   text-align: center;
 }
 
-/**
- * Hold these columns narrow so the title keeps the rest. Without it the table splits evenly once the
- * fields render as text rather than inputs — a finished task.
- */
+// The title takes the surplus width, or `table-layout: auto` spreads it over these columns too.
 .datagrid-table td:has(.formio-component-checkbox),
 .datagrid-table td:has(.formio-component-htmlelement) {
   width: 80px;
   white-space: nowrap;
+}
+
+.datagrid-table td:has(.formio-component-textfield) {
+  width: 100%;
 }
 
 /**
