@@ -35,7 +35,7 @@ export enum KNOWN_ZAC_FIELDS {
   PROCESS_DATA = "ZAC_process_data",
 }
 
-/** Marker class picked up by `formio-wrapper.component.less` to hide the chrome of an empty field. */
+/** Hides the field's chrome; styled in `formio-wrapper.component.less`. */
 const EMPTY_INPUT_FIELD_CLASS = "zac-empty-input-field";
 
 const NO_DOCUMENTS_TO_SIGN_MESSAGE = "msg.geen-documenten-te-ondertekenen";
@@ -43,16 +43,12 @@ const NO_DOCUMENTS_TO_SIGN_MESSAGE = "msg.geen-documenten-te-ondertekenen";
 const SELECT_A_DOCUMENT_MESSAGE = "msg.selecteer-minimaal-een-document";
 
 type RowLink = {
-  /** `{{ row.… }}` placeholders are left in: only Form.io can resolve those, per row. */
+  /** `{{ row.… }}` placeholders stay in: only Form.io can resolve those, per row. */
   href: (taak: GeneratedType<"RestTask">) => string;
   textKey: string;
 };
 
-/**
- * The `visibility` ligature of the Material Symbols font loaded by `FontLoaderService`. The class is
- * styled by `formio-wrapper.component.less`: the global one does not reach into the Form.io shadow
- * DOM, the `@font-face` behind it does.
- */
+/** The class is restyled in `formio-wrapper.component.less`: global rules miss the shadow DOM. */
 const VIEW_ICON_CONTENT =
   '<span class="material-symbols-outlined">visibility</span>';
 
@@ -61,12 +57,7 @@ const DOCUMENT_ROW_LINK: RowLink = {
   textKey: "actie.document.openen-nieuw-tabblad",
 };
 
-/**
- * Where a `ZAC_regel_link` column points, per `ZAC_TYPE` of the datagrid holding it: that type
- * already says what the rows are, so the column itself does not have to repeat it. Keeping the
- * routes here rather than in the form definitions means a route change does not require editing
- * every form in Flowable.
- */
+/** Where a `ZAC_regel_link` column points, per `ZAC_TYPE` of the datagrid holding it. */
 const ROW_LINKS: Record<string, RowLink> = {
   [KNOWN_ZAC_FIELDS.DOCUMENTEN_NIET_ONDERTEKEND]: DOCUMENT_ROW_LINK,
   [KNOWN_ZAC_FIELDS.GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND]: DOCUMENT_ROW_LINK,
@@ -91,10 +82,8 @@ export class FormioSetupService {
   ) {}
 
   /**
-   * `taak` is threaded through the initializers rather than kept on this service: it is a singleton,
-   * navigating from one task to another starts a second setup while the first may still be awaiting,
-   * and the data sources installed below are called back by Form.io long after this returns. Holding
-   * the task in a field means those reads land on whichever task was set up last.
+   * `taak` is passed down rather than stored: this service is a singleton, setups overlap, and the
+   * data sources below are called back long after this returns — a field would go stale under them.
    */
   async createFormioForm(
     formioFormulier: FormioForm,
@@ -358,13 +347,9 @@ export class FormioSetupService {
   }
 
   /**
-   * `validate.required` on a datagrid only checks that it has rows (see `validateRequired` in
-   * `@formio/core`), and the rows are filled in here, so it is always satisfied. Picking a document
-   * means ticking its checkbox, which Form.io has no built-in rule for — hence a custom one.
-   * Without it `disableOnInvalid` never kicks in and the task can be submitted with nothing ticked.
-   *
-   * Form.io evaluates the expression with the component's value as `input` and reads back `valid`;
-   * returning a string makes it the error message.
+   * `validate.required` on a datagrid only checks that it has rows, which the rows filled in here
+   * always satisfy — so ticking a checkbox needs a custom rule. Form.io evaluates it with the
+   * component's value as `input` and reads back `valid`; a string becomes the error message.
    */
   private requireASelectedRow(component: ExtendedComponentSchema) {
     if (component.validate?.custom) return;
@@ -408,17 +393,16 @@ export class FormioSetupService {
   }
 
   /**
-   * Form.io gives the submission data precedence over a component's `defaultValue`, and the task
-   * data holds a value for every form field, so rows have to be written into the submission itself
-   * or the grid renders empty.
+   * Form.io prefers the submission data over `defaultValue`, and the task data holds a value for
+   * every field, so the rows have to go into the submission too or the grid renders empty.
    */
   private setDatagridRows(
     component: ExtendedComponentSchema,
     taak: GeneratedType<"RestTask">,
     rows: ReturnType<typeof this.toDocumentRow>[],
   ) {
-    // without this a datagrid falls back to a single blank row, which would render an empty
-    // checkbox and title and end up in the task data as a row without a document
+    // without this a datagrid falls back to one blank row, which lands in the task data as a row
+    // without a document
     component.initEmpty = true;
     component.defaultValue = rows;
     if (taak.taakdata) {
@@ -431,14 +415,7 @@ export class FormioSetupService {
     );
   }
 
-  /**
-   * Turns a column into a link opening the row's subject in a new tab, using the route registered
-   * for the datagrid it sits in. Anything the form author set wins, per property, so a form can
-   * deviate without giving up the rest.
-   *
-   * As an icon the link text becomes the accessible name instead of the visible content, so the
-   * anchor still announces where it goes.
-   */
+  /** Anything the form author set wins, per property, so a form can deviate on one and keep the rest. */
   private initializeRowLinkColumn(
     component: ExtendedComponentSchema,
     taak: GeneratedType<"RestTask">,
@@ -477,10 +454,8 @@ export class FormioSetupService {
   }
 
   /**
-   * Form.io keeps rendering a field's chrome when it has nothing to show — an empty datagrid still
-   * draws its column headers. Mark the field so the stylesheet can drop that chrome, and state why
-   * it is empty instead. Values set by the form author are kept, and restored once the field fills
-   * up again: this runs on every initialization, including reopening the task.
+   * An empty datagrid still draws its column headers, so mark it for the stylesheet to hide and say
+   * why instead. The form author's class and description are restored once the field fills up again.
    */
   private applyEmptyState(
     component: ExtendedComponentSchema,
@@ -504,9 +479,8 @@ export class FormioSetupService {
   }
 
   /**
-   * A task can stay open for days, so the rows stored by the preceding selection task are only
-   * trusted for their uuids: titles and signing state are re-read here, and documents signed in
-   * the meantime are dropped so they cannot be offered for signing twice.
+   * The rows stored by the selection task are trusted for their uuids only: titles and signing state
+   * are re-read, dropping anything signed in the meantime so it cannot be offered for signing twice.
    */
   private async initializeSelectedUnsignedDocumentsDatagrid(
     component: ExtendedComponentSchema,
@@ -564,8 +538,7 @@ export class FormioSetupService {
     taak: GeneratedType<"RestTask">,
     informatieobjectUUIDs?: string[],
   ) {
-    // the uuids discriminate the result, so they belong in the query key or a filtered fetch
-    // collides on the cache with the unfiltered list of the same zaak
+    // the uuids belong in the key, or a filtered fetch collides with the full list of the same zaak
     return this.queryClient.ensureQueryData({
       queryKey: [
         "availableDocumentsQuery",

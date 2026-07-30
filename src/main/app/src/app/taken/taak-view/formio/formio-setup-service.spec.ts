@@ -908,10 +908,7 @@ describe(FormioSetupService.name, () => {
       "initializeUnsignedDocumentsDatagrid"
     ].name,
     () => {
-      /**
-       * Runs the generated expression the way Form.io does: the component value as `input`, reading
-       * back `valid`. Asserting the string alone would not prove the rule actually rejects anything.
-       */
+      /** Runs the expression the way Form.io does: the value as `input`, reading back `valid`. */
       const runCustomValidation = (
         custom: string,
         input: { selected: boolean }[],
@@ -1387,7 +1384,7 @@ describe(FormioSetupService.name, () => {
       jest.spyOn(testQueryClient, "ensureQueryData").mockImplementation(
         ((options: { queryKey: [string, string, string[] | undefined] }) =>
           new Promise<(typeof document1)[]>((resolve) =>
-            // held back so both initializations are in flight at once, and released in reverse order
+            // held back so both setups are in flight at once, then released in reverse order
             resolvers.push(() =>
               resolve(documentsPerZaak[options.queryKey[1]]),
             ),
@@ -1458,7 +1455,7 @@ describe(FormioSetupService.name, () => {
         otherTaak,
       );
 
-      // Form.io calls the data source on render and on every refresh, long after initialization
+      // Form.io calls the data source on render and refresh, long after setup
       ensureQueryDataSpy.mockClear();
       await component.data.custom();
 

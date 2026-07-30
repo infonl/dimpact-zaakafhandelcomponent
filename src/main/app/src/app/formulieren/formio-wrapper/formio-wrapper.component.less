@@ -50,11 +50,8 @@
 }
 
 /**
- * Class rules do not cross the shadow boundary, so the global `.material-symbols-outlined` from
- * `styles.less` has to be repeated here. The `@font-face` itself is document-scoped and does reach
- * in, so no font needs loading twice. In the app these icons are `<mat-icon>` elements carrying the
- * class, so the 24x24 box `.mat-icon` contributes is repeated as well — without it the glyph sits
- * differently than everywhere else.
+ * Repeated from `styles.less`: class rules do not cross the shadow boundary, the `@font-face` does.
+ * The 24x24 box comes from `.mat-icon`, which these icons do not have here.
  */
 .material-symbols-outlined {
   font-family: "Material Symbols Outlined";
@@ -72,14 +69,13 @@
   white-space: nowrap;
   direction: ltr;
   user-select: none;
-  // `styles.less` fills every `mat-icon` in the app, so the outlined family still renders solid
+  // `styles.less` fills every `mat-icon`, so the outlined family renders solid there too
   font-variation-settings: "FILL" 1;
 }
 
 /**
- * An icon-only link gets the same near-black as a `mat-icon` in the app, which inherits the body
- * text colour, instead of Bootstrap's blue. `text-decoration` propagates from the anchor and cannot
- * be cancelled on the span, so the underline has to be dropped here rather than on the icon itself.
+ * Match a `mat-icon` rather than Bootstrap's link blue. The underline has to go here: it propagates
+ * from the anchor and cannot be cancelled on the span.
  */
 a:has(> .material-symbols-outlined) {
   color: rgba(0, 0, 0, 0.87);
@@ -91,10 +87,7 @@ a:has(> .material-symbols-outlined) {
   display: none;
 }
 
-/**
- * Bootstrap is injected into the shadow root after these component styles, so anything matching
- * its own `.form-check-input` rules with equal specificity loses. Hence the `input` element name.
- */
+// Bootstrap is injected after these styles, so equal specificity loses. Hence the element name.
 input.form-check-input {
   width: 18px;
   height: 18px;
@@ -110,11 +103,7 @@ input.form-check-input {
   }
 }
 
-/**
- * Form.io renders datagrid checkboxes flush left at the top of their cell; centre them in the
- * column instead. Rows are as tall as their tallest cell (title field, link button), so the cell
- * itself has to centre its content vertically as well.
- */
+// Form.io renders datagrid checkboxes flush left at the top of their cell; centre them instead.
 .datagrid-table td {
   vertical-align: middle;
 }
@@ -137,19 +126,14 @@ input.form-check-input {
   }
 }
 
-/**
- * A row link — icon or text — sits in an `htmlelement` column; centre it like the checkbox column.
- * Form.io puts `formio-component-htmlelement` on the rendered tag itself, not on a wrapper, so the
- * cell has to do the centring: styling that element only moves its own content around.
- */
+// The cell has to centre: Form.io puts `formio-component-htmlelement` on the tag, not on a wrapper.
 .datagrid-table td:has(.formio-component-htmlelement) {
   text-align: center;
 }
 
 /**
- * Hold the checkbox and link columns narrow so the title keeps the rest. Without this the table
- * splits evenly once the fields render as text rather than inputs — a finished task — since nothing
- * then claims the width the input did.
+ * Hold these columns narrow so the title keeps the rest. Without it the table splits evenly once the
+ * fields render as text rather than inputs — a finished task.
  */
 .datagrid-table td:has(.formio-component-checkbox),
 .datagrid-table td:has(.formio-component-htmlelement) {
