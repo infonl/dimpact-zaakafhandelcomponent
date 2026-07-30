@@ -28,11 +28,10 @@ header:
     - "wildfly-*"
     - "**/*.md"
     - "**/node_modules"
-    # SPDX license headers cannot be added to JSON files so we ignore them
-    # there are ways to link licensing information to JSON files however; see e.g. https://reuse.software/faq/
+    # SPDX license headers cannot be added to JSON files, so we ignore them
     - "**/**.json"
     - "**/*.webmanifest"
-    # SPDX license headers cannot be added to BPMN (XML) files so we ignore them
+    # SPDX license headers cannot be added to BPMN (XML) files, so we ignore them
     - "**/*.bpmn"
     - "**/**.txt"
     - "**/dist"
@@ -54,4 +53,7 @@ header:
     - "src/main/resources/schemas/V38__*.sql"
     - "src/main/resources/schemas/V39__*.sql"
     - "src/main/resources/schemas/V40__*.sql"
+    # OpenSpec-managed YAML files (config and per-change metadata) are generated/edited by the
+    # OpenSpec CLI, so we exclude them rather than hand-maintaining SPDX headers in them
+    - "openspec/**/*.yaml"
   comment: on-failure

@@ -10,14 +10,13 @@ This document lists the Docker images and versions that the corresponding versio
 - **redis**: 8.6.5
 - **solr**: 9.10.1-slim
 - **openpolicyagent/opa**: 1.18.2-static
-- **brp-api/personen-mock**: 2.7.0-202606230850
+- **brp-api/personen-mock**: 2.7.0-202606291131
 - **gotenberg**: 8.34.0
 - **otel/opentelemetry-collector-contrib**: 0.157.0
 - **grafana/tempo**: 3.0.2
 - **prom/prometheus**: v3.13.1
 - **grafana/grafana**: 13.1.1
 - **greenmail/standalone**: 2.1.11
-- **rabbitmq**: 4.2.7-alpine
 - **nginxinc/nginx-unprivileged**: 1.31.3
 
 ## Common Ground components
@@ -26,7 +25,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-object**: 4.0.2
 - **open-klant**: 2.15.0
 - **open-forms**: 3.5.6
-- **open-notificaties**: 1.15.0
+- **open-notificaties**: 1.16.1
 - **open-archiefbeheer**: 2.0.0
 - **pabc-migrations**: 1.1.1
 - **pabc-api**: 1.1.1

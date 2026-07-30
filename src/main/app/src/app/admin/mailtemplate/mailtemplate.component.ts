@@ -3,11 +3,17 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  effect,
+  ViewChild,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
+import { MatExpansionModule } from "@angular/material/expansion";
 import {
   MatSidenav,
   MatSidenavContainer,
@@ -15,8 +21,14 @@ import {
 } from "@angular/material/sidenav";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import {
+  injectMutation,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
+import { PostBody } from "../../shared/http/http-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -32,16 +44,17 @@ import { mailSelectList } from "../model/mail-utils";
     ReactiveFormsModule,
     MatSidenavModule,
     MatCardModule,
-    MatButtonModule,
+    MatExpansionModule,
     RouterModule,
     TranslateModule,
     SideNavComponent,
     MaterialFormBuilderModule,
+    ZacFormActions,
   ],
 })
 export class MailtemplateComponent
   extends AdminComponent
-  implements OnInit, AfterViewInit
+  implements AfterViewInit
 {
   @ViewChild("sideNavContainer")
   protected sideNavContainer!: MatSidenavContainer;
@@ -62,9 +75,36 @@ export class MailtemplateComponent
   });
 
   protected variabelen: string[] = [];
-  private mailTemplate?: GeneratedType<"RESTMailtemplate">;
+  private mailControlLocked = false;
+  private readonly data = toSignal(this.route.data);
+  private readonly mailTemplate = computed(
+    () =>
+      this.data()?.template as GeneratedType<"RESTMailtemplate"> | undefined,
+  );
 
-  protected readonly mailTemplates = mailSelectList();
+  protected readonly mailTemplates: {
+    label: string;
+    value: GeneratedType<"Mail">;
+  }[] = mailSelectList();
+
+  protected readonly saveMailtemplateMutation = injectMutation(() => ({
+    mutationFn: (body: PostBody<"/rest/beheer/mailtemplates">) =>
+      this.mailTemplateBeheerService.saveMailtemplate(
+        this.mailTemplate()?.id,
+        body,
+      ),
+    onSuccess: () => {
+      const id = this.mailTemplate()?.id;
+      if (id != null) {
+        this.queryClient.invalidateQueries({
+          queryKey:
+            this.mailTemplateBeheerService.readMailtemplateQuery(id).queryKey,
+        });
+      }
+      this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
+      void this.router.navigate(["/admin/mailtemplates"]);
+    },
+  }));
 
   constructor(
     public utilService: UtilService,
@@ -73,6 +113,7 @@ export class MailtemplateComponent
     private route: ActivatedRoute,
     private router: Router,
     private readonly formBuilder: FormBuilder,
+    private readonly queryClient: QueryClient,
   ) {
     super(utilService, configuratieService);
 
@@ -86,29 +127,27 @@ export class MailtemplateComponent
             this.variabelen = variabelen;
           });
       });
-  }
 
-  ngOnInit() {
-    this.route.data.subscribe((data) => {
-      this.mailTemplate = data.template ?? {};
+    effect(() => {
+      const mailTemplate = this.mailTemplate();
 
       this.setupMenu("title.mailtemplate");
       this.form.patchValue({
-        ...this.mailTemplate,
-        mail: this.mailTemplate?.mail
+        ...mailTemplate,
+        mail: mailTemplate?.mail
           ? {
-              label: "mail." + this.mailTemplate?.mail,
-              value: this.mailTemplate?.mail as GeneratedType<"Mail">,
+              label: "mail." + mailTemplate.mail,
+              value: mailTemplate.mail,
             }
           : null,
       });
 
-      if (!this.mailTemplate?.mail) return;
+      if (!mailTemplate?.mail || this.mailControlLocked) return;
+      this.mailControlLocked = true;
 
       this.mailTemplates.push({
-        label: "mail." + this.mailTemplate?.mail,
-        // @ts-expect-error mail type is incorrect, but we know it is correct
-        value: this.mailTemplate?.mail,
+        label: "mail." + mailTemplate.mail,
+        value: mailTemplate.mail,
       });
       this.form.controls.mail.disable();
     });
@@ -116,24 +155,12 @@ export class MailtemplateComponent
 
   protected saveMailtemplate() {
     const data = this.form.getRawValue();
-    const templateData = {
+    this.saveMailtemplateMutation.mutate({
       mail: data.mail!.value!,
       mailTemplateNaam: data.mailTemplateNaam ?? "",
       onderwerp: data.onderwerp ?? "",
       body: data.body ?? "",
       defaultMailtemplate: data.defaultMailtemplate ?? false,
-    };
-
-    const operation = this.mailTemplate?.id
-      ? this.mailTemplateBeheerService.updateMailtemplate(
-          this.mailTemplate.id,
-          templateData,
-        )
-      : this.mailTemplateBeheerService.createMailtemplate(templateData);
-
-    operation.subscribe(() => {
-      this.utilService.openSnackbar("msg.mailtemplate.opgeslagen");
-      void this.router.navigate(["/admin/mailtemplates"]);
     });
   }
 

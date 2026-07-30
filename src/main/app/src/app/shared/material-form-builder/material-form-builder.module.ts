@@ -47,47 +47,20 @@ import { ZacCheckbox } from "../form/checkbox/checkbox";
 import { ZacComposedForm } from "../form/composed-form/composed-form.component";
 import { ZacDate } from "../form/date/date";
 import { ZacDocuments } from "../form/documents/documents";
-import { ZacFile } from "../form/file/file";
 import { ZacFormActions } from "../form/form-actions/form-actions.component";
 import { ZacHtmlEditor } from "../form/html-editor/html-editor";
-import { VariabelenKiesMenuComponent } from "../form/html-editor/variabelen-kies-menu/variabelen-kies-menu.component";
 import { ZacInput } from "../form/input/input";
 import { ZacRadio } from "../form/radio/radio";
 import { ZacSelect } from "../form/select/select";
 import { ZacTextarea } from "../form/textarea/textarea";
 import { ZacToggle } from "../form/toggle/toggle";
-import { EnhanceMatErrorDirective } from "../material/mat-zac-error";
 import { CapitalizeFirstLetterPipe } from "../pipes/capitalizeFirstLetter.pipe";
 import { EmptyPipe } from "../pipes/empty.pipe";
 import { PipesModule } from "../pipes/pipes.module";
-import { DocumentenLijstComponent } from "./form-components/documenten-lijst/documenten-lijst.component";
-import { InputComponent } from "./form-components/input/input.component";
-import { ReadonlyComponent } from "./form-components/readonly/readonly.component";
-import { SelectComponent } from "./form-components/select/select.component";
-import { TextareaComponent } from "./form-components/textarea/textarea.component";
-import { FormFieldComponent } from "./form/form-field/form-field.component";
-import { FormFieldDirective } from "./form/form-field/form-field.directive";
-import { FormComponent } from "./form/form/form.component";
 
 @NgModule({
-  declarations: [
-    FormComponent,
-    FormFieldComponent,
-    InputComponent,
-    SelectComponent,
-    TextareaComponent,
-    FormFieldDirective,
-    ReadonlyComponent,
-    DocumentenLijstComponent,
-  ],
   exports: [
     FileDragAndDropDirective,
-    FormComponent,
-    FormFieldComponent,
-    InputComponent,
-    SelectComponent,
-    TextareaComponent,
-    DocumentenLijstComponent,
     ZacAutoComplete,
     ZacDate,
     ZacSelect,
@@ -105,7 +78,6 @@ import { FormComponent } from "./form/form/form.component";
   ],
   imports: [
     FileDragAndDropDirective,
-    EnhanceMatErrorDirective,
     CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -142,10 +114,8 @@ import { FormComponent } from "./form/form/form.component";
     ZacSelect,
     ZacInput,
     ZacAutoComplete,
-    ZacFile,
     ZacDocuments,
     ZacHtmlEditor,
-    VariabelenKiesMenuComponent,
     ZacComposedForm,
   ],
   providers: [

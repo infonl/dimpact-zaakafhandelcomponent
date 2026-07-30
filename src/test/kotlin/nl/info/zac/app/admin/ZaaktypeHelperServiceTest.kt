@@ -30,9 +30,9 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
     context("updateZaakbeeindigGegevens") {
         given("A zaaktype configuration with a nietOntvankelijkResultaattype") {
             val previousResultaattypeUuid = UUID.randomUUID()
-            val previousResultaattypeUri = URI("http://example.com/resultaattype/$previousResultaattypeUuid")
+            val previousResultaattypeUri = URI("https://example.com/resultaattype/$previousResultaattypeUuid")
             val newResultaattypeUuid = UUID.randomUUID()
-            val newResultaattypeUri = URI("http://example.com/resultaattype/$newResultaattypeUuid")
+            val newResultaattypeUri = URI("https://example.com/resultaattype/$newResultaattypeUuid")
 
             val previousResultaattype = createResultaatType(
                 url = previousResultaattypeUri,
@@ -67,7 +67,7 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
         }
 
         given("A zaaktype configuration without a nietOntvankelijkResultaattype") {
-            val newResultaattypeUri = URI("http://example.com/resultaattype/${UUID.randomUUID()}")
+            val newResultaattypeUri = URI("https://example.com/resultaattype/${UUID.randomUUID()}")
             val newResultaattype = createResultaatType(url = newResultaattypeUri)
 
             val zaaktypeConfiguration = createZaaktypeCmmnConfiguration(
@@ -93,9 +93,9 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
 
         given("A zaaktype configuration with zaakbeeindig parameters") {
             val previousResultaattypeUuid = UUID.randomUUID()
-            val previousResultaattypeUri = URI("http://example.com/resultaattype/$previousResultaattypeUuid")
+            val previousResultaattypeUri = URI("https://example.com/resultaattype/$previousResultaattypeUuid")
             val newResultaattypeUuid = UUID.randomUUID()
-            val newResultaattypeUri = URI("http://example.com/resultaattype/$newResultaattypeUuid")
+            val newResultaattypeUri = URI("https://example.com/resultaattype/$newResultaattypeUuid")
 
             val previousResultaattype = createResultaatType(
                 url = previousResultaattypeUri,

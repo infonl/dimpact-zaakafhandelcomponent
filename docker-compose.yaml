@@ -168,7 +168,7 @@ services:
   # them to Django. nginx buffers the full request before forwarding it with Content-Length,
   # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
   openzaak-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.3@sha256:49c9bef1797e11117a7f490fd00f282e377ac402fec472c72636f90cdbf72e10
+    image: nginxinc/nginx-unprivileged:1.31.3@sha256:79f1cd903210f98ffc1c8b5e08e90e650d2fadaa9f516a0866197471cb5f75b5
     ports:
       - "8001:8000"
     volumes:
@@ -295,7 +295,7 @@ services:
         condition: service_started
 
   brp-personen-mock:
-    image: ghcr.io/brp-api/personen-mock:2.7.0-202606230850@sha256:024308250beab8a6327d8f4ce91e630b4bcbd650015a4e86df6db437dc8bb4d7
+    image: ghcr.io/brp-api/personen-mock:2.7.0-202606291131@sha256:f476fe05715869997d7dbaff969f81e4bb67c5560439c65afd7020c5e987f67f
     environment:
       - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_URLS=http://+:5010
@@ -443,7 +443,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:13.1.1@sha256:1c1bd67c54c5fcf6e759897852b5a584191bd6796e8d328a5ace457799801261
+    image: grafana/grafana:13.1.1@sha256:7cb8c64c4d57a57e734073f3cc94620adb24a0acb929bd80ba9f14017e3a975b
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -483,15 +483,6 @@ services:
       - "18083:8080"
     profiles: [ "itest" ]
 
-  rabbitmq:
-    image: rabbitmq:4.2.7-alpine@sha256:5e6dba3baccbfcaf273ef24139d1b14de9ec5423d9683fc005c72c480aa6eae9
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 10s
-      timeout: 10s
-      retries: 20
-    profiles: [ "opennotificaties", "openformulieren" ]
-
   opennotificaties-database:
     image: postgis/postgis:17-3.4@sha256:d0b5a6ecab18997637f55a83cb4a9467391de5645916cfa1b6f2a8d19eee7be5
     platform: linux/amd64
@@ -513,13 +504,13 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties:
-    image: openzaak/open-notificaties:1.15.0@sha256:5a2f7e04efe6062b71ae9e1b4bef2bf16f2f60c8f1d8b9632fbeab4b90c91c5a
+    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
       CACHE_DEFAULT: redis:6379/0
       CACHE_AXES: redis:6379/0
-      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+      CELERY_BROKER_URL: redis://redis:6379/1
       CELERY_RESULT_BACKEND: redis://redis:6379/1
       CELERY_LOGLEVEL: DEBUG
       DB_HOST: opennotificaties-database
@@ -534,9 +525,8 @@ services:
       LOG_NOTIFICATIONS_IN_DB: true
       OPENNOTIFICATIES_SUPERUSER_USERNAME: admin
       OPENNOTIFICATIES_SUPERUSER_EMAIL: admin@example.com
-      PUBLISH_BROKER_URL: amqp://guest:guest@rabbitmq:5672/%2F
-      RABBITMQ_HOST: rabbitmq
       SECRET_KEY: opennotificatiesApiSecretKey
+      OTEL_SDK_DISABLED: true
     healthcheck:
       test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
       interval: 5s
@@ -556,7 +546,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-init:
-    image: openzaak/open-notificaties:1.15.0@sha256:5a2f7e04efe6062b71ae9e1b4bef2bf16f2f60c8f1d8b9632fbeab4b90c91c5a
+    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
     platform: linux/amd64
     environment:
       <<: *opennotificaties-env
@@ -566,15 +556,13 @@ services:
     depends_on:
       opennotificaties-database:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
       redis:
         condition: service_started
     volumes: *opennotificaties-volumes
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-celery:
-    image: openzaak/open-notificaties:1.15.0@sha256:5a2f7e04efe6062b71ae9e1b4bef2bf16f2f60c8f1d8b9632fbeab4b90c91c5a
+    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh
@@ -587,6 +575,17 @@ services:
     depends_on:
       opennotificaties:
         condition: service_healthy
+    profiles: [ "opennotificaties", "openformulieren" ]
+
+  opennotificaties-celery-beat:
+    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
+    platform: linux/amd64
+    environment: *opennotificaties-env
+    command: /celery_beat.sh
+    volumes: *opennotificaties-volumes
+    depends_on:
+      - opennotificaties-database
+      - redis
     profiles: [ "opennotificaties", "openformulieren" ]
 
   openarchiefbeheer-database:
@@ -693,7 +692,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.31.3@sha256:49c9bef1797e11117a7f490fd00f282e377ac402fec472c72636f90cdbf72e10
+    image: nginxinc/nginx-unprivileged:1.31.3@sha256:79f1cd903210f98ffc1c8b5e08e90e650d2fadaa9f516a0866197471cb5f75b5
     ports:
       - "8005:8080"
     volumes:
@@ -1084,7 +1083,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.3@sha256:49c9bef1797e11117a7f490fd00f282e377ac402fec472c72636f90cdbf72e10
+    image: nginxinc/nginx-unprivileged:1.31.3@sha256:79f1cd903210f98ffc1c8b5e08e90e650d2fadaa9f516a0866197471cb5f75b5
     ports:
       - "8007:8080"
     volumes:

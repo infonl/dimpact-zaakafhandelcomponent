@@ -1055,7 +1055,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         and which are valid on the current date
         """
         ) {
-            val defaultCatalogueURI = URI("http://example.com/fakeCatalogue")
+            val defaultCatalogueURI = URI("https://example.com/fakeCatalogue")
             val now = LocalDate.now()
             val zaaktypes = listOf(
                 createZaakType(
@@ -1097,7 +1097,7 @@ class ZaakRestServiceTest : BehaviorSpec({
         }
 
         given("Two CMMN and one BPMN zaaktypes valid on the current date") {
-            val defaultCatalogueURI = URI("http://example.com/fakeCatalogue")
+            val defaultCatalogueURI = URI("https://example.com/fakeCatalogue")
             val now = LocalDate.now()
             val zaakType1UUID = UUID.randomUUID()
             val zaakType2UUID = UUID.randomUUID()

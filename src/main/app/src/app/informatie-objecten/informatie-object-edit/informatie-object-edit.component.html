@@ -12,7 +12,12 @@
 </mat-toolbar>
 <mat-divider></mat-divider>
 
-<form [formGroup]="form" (submit)="submit()" class="mt-2">
+<form
+  [formGroup]="form"
+  (submit)="submit()"
+  (cancel)="resetAndClose()"
+  class="mt-2"
+>
   <fieldset>
     <section class="row">
       <zac-file
@@ -66,17 +71,12 @@
   </fieldset>
   <fieldset>
     <mat-action-row>
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        [disabled]="!form.valid || !form.dirty"
-      >
-        {{ "actie.toevoegen" | translate }}
-      </button>
-      <button mat-button type="reset" (click)="resetAndClose()">
-        {{ "actie.annuleren" | translate }}
-      </button>
+      <zac-form-actions
+        [form]="form"
+        [mutation]="updateDocumentMutation"
+        submitLabel="actie.toevoegen"
+        disableAfterSuccess
+      />
     </mat-action-row>
   </fieldset>
 </form>

@@ -7,16 +7,27 @@
 
 .detail {
   overflow: hidden;
-  line-height: 36px;
+}
 
-  > div {
-    border-bottom: 1px solid @border-color;
-  }
+// Both detail columns iterate the same koppelingen list. Fixing every row to the
+// same single-line height (text truncated with an ellipsis, full text on hover)
+// keeps the text lines, dividers and eye icons aligned regardless of text length.
+.detail > div {
+  height: 56px;
+  line-height: 56px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid @border-color;
+  box-sizing: border-box;
 }
 
 .detail-suffix > div {
-  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  height: 56px;
   border-bottom: 1px solid @border-color;
+  box-sizing: border-box;
 }
 
 .main-row td {
@@ -29,8 +40,6 @@ tr.detail-row {
 
   .detail div {
     width: 100%;
-    padding-top: 10px;
-    padding-bottom: 10px;
   }
 }
 

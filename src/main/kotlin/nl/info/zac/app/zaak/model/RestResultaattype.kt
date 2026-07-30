@@ -22,6 +22,7 @@ data class RestResultaattype(
     var naamGeneriek: String? = null,
     var vervaldatumBesluitVerplicht: Boolean,
     var datumKenmerkVerplicht: Boolean,
+    var datumKenmerkOmschrijving: String? = null,
     var besluitVerplicht: Boolean,
     var toelichting: String? = null,
     var archiefNominatie: String? = null,

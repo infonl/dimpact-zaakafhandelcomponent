@@ -11,7 +11,6 @@ import jakarta.transaction.Transactional
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.exception.CaseDefinitionNotFoundException
 import net.atos.zac.flowable.cmmn.exception.OpenTaskItemNotFoundException
-import net.atos.zac.flowable.task.ZacCreateUserTaskInterceptor
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -62,13 +61,6 @@ class CMMNService @Inject constructor(
             .caseVariableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
             .planItemInstanceStateEnabled()
             .planItemDefinitionType(PlanItemDefinitionType.HUMAN_TASK)
-            .list()
-
-    fun listProcessTaskPlanItems(zaakUUID: UUID): List<PlanItemInstance> =
-        cmmnRuntimeService.createPlanItemInstanceQuery()
-            .caseVariableValueEquals(ZaakVariabelenService.VAR_ZAAK_UUID, zaakUUID)
-            .planItemInstanceStateEnabled()
-            .planItemDefinitionType(PlanItemDefinitionType.PROCESS_TASK)
             .list()
 
     fun listUserEventListenerPlanItems(zaakUUID: UUID): List<PlanItemInstance> =
@@ -142,15 +134,6 @@ class CMMNService @Inject constructor(
 
     fun startUserEventListenerPlanItem(planItemInstanceId: String) =
         cmmnRuntimeService.triggerPlanItemInstance(planItemInstanceId)
-
-    fun startProcessTaskPlanItem(planItemInstanceId: String, processData: Map<String, Any>) =
-        cmmnRuntimeService.createPlanItemInstanceTransitionBuilder(planItemInstanceId)
-            .childTaskVariables(
-                cmmnRuntimeService.getVariables(readOpenPlanItem(planItemInstanceId).caseInstanceId)
-            )
-            .childTaskVariables(processData)
-            .childTaskVariable(ZacCreateUserTaskInterceptor.VAR_PROCESS_OWNER, loggedInUserInstance.get().id)
-            .start()
 
     fun readOpenPlanItem(planItemInstanceId: String): PlanItemInstance {
         return cmmnRuntimeService.createPlanItemInstanceQuery()
