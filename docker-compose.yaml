@@ -211,7 +211,12 @@ services:
       test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
       interval: 5s
       timeout: 10s
-      retries: 10
+      retries: 60
+      # Rootless Podman's aardvark-dns can race under heavy concurrent container creation, leaving a
+      # container briefly unable to resolve a sibling's compose service name even though that sibling is
+      # already healthy. The previous 50s budget (retries: 10, no start_period) gave this no room to
+      # recover; align it with openzaak.local's headroom below.
+      start_period: 30s
     depends_on:
       open-object-database:
         condition: service_healthy
