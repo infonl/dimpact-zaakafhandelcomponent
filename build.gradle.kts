@@ -1046,6 +1046,7 @@ abstract class Maven : Exec() {
 // compatible way to run external processes here) so it works regardless of how `itest` is invoked.
 // Returns null (leaving TestContainers' own defaults in place) if DOCKER_HOST is already set, e.g. by CI
 // or a Docker-based local setup, or if Podman isn't installed.
+@Suppress("ReturnCount")
 fun detectPodmanDockerHost(providers: ProviderFactory): String? {
     fun runCommand(vararg command: String): String? = runCatching {
         val execOutput = providers.exec {
