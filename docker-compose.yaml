@@ -129,6 +129,11 @@ services:
       - ./scripts/docker-compose/imports/openzaak/zac-scripts:/zac-scripts
       - ./scripts/docker-compose/imports/openzaak/uploads/fake-test-document.pdf:/fake-test-document.pdf
     command: ["/zac-scripts/copy-test-pdf-and-start-openzaak.sh"]
+    # Rootless Podman's aardvark-dns has occasionally been observed to drop a sibling container's DNS
+    # resolution mid-request under CI (a one-off "Temporary failure in name resolution"), which crashes
+    # this container outright while its entrypoint script is still running migrations. The migrations
+    # are idempotent, so simply restarting picks up where the crash left off and succeeds on retry.
+    restart: on-failure
     healthcheck:
       # Was previously a `python -c "import requests; ..."` HTTP check on /admin/, but spawning a Python
       # interpreter and importing requests (which chain-loads urllib3/certifi/idna) on every single
@@ -211,6 +216,9 @@ services:
       - EMAIL_HOST=localhost
       - OTEL_SDK_DISABLED=true
       - SITE_DOMAIN=open-object.local:8000
+    # See the identical comment on openzaak.local: a one-off aardvark-dns resolution drop can crash this
+    # container outright mid-migration. Migrations are idempotent, so a restart just picks up and succeeds.
+    restart: on-failure
     healthcheck:
       test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
       interval: 5s
@@ -350,6 +358,10 @@ services:
       - DISABLE_2FA=true
     ports:
       - "8002:8000"
+    # See the identical comment on openzaak.local: a one-off aardvark-dns resolution drop crashed this
+    # exact container mid-migration in CI (a "Temporary failure in name resolution" from Django's DB
+    # connection). Migrations are idempotent, so a restart just picks up and succeeds.
+    restart: on-failure
     depends_on:
       openklant-database:
         condition: service_healthy
