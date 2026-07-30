@@ -151,7 +151,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y podman
 
       - name: Log in to GitHub Container Registry
-        run: podman login ghcr.io -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | podman login ghcr.io -u "${{ github.actor }}" --password-stdin
 
       - name: Pull and extract the pre-built NVD database
         run: |
