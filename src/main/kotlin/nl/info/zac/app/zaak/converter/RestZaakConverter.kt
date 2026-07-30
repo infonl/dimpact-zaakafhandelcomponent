@@ -100,57 +100,23 @@ class RestZaakConverter @Inject constructor(
         val hasSentConfirmationOfReceipt = zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
         return RestZaak(
-            identificatie = zaak.identificatie,
-            uuid = zaak.uuid,
-            besluiten = besluiten,
-            bronorganisatie = zaak.bronorganisatie,
-            verantwoordelijkeOrganisatie = zaak.verantwoordelijkeOrganisatie,
-            startdatum = zaak.startdatum,
-            einddatum = zaak.einddatum,
-            einddatumGepland = zaak.einddatumGepland,
-            uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
-            publicatiedatum = zaak.publicatiedatum,
-            registratiedatum = zaak.registratiedatum,
-            archiefNominatie = zaak.archiefnominatie?.name,
             archiefActiedatum = zaak.archiefactiedatum,
-            startdatumBewaartermijn = zaak.startdatumBewaartermijn,
-            omschrijving = zaak.omschrijving,
-            toelichting = zaak.toelichting,
-            zaaktype = restZaaktypeConverter.convert(zaakType),
-            status = status?.takeIf { statustype != null }?.let { toRestZaakStatus(statustype!!, it) },
-            resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
-            isOpgeschort = zaak.isOpgeschort(),
-            redenOpschorting = takeIf { zaak.isOpgeschort() }?.let { zaak.opschorting?.reden },
-            eerdereOpschorting = zaak.opschorting?.eerdereOpschorting ?: false,
-            isVerlengd = zaak.isVerlengd(),
+            archiefNominatie = zaak.archiefnominatie?.name,
+            behandelaar = behandelaar,
+            besluiten = besluiten,
+            bpmnProcessDefinition = bpmnProcessDefinition?.toRestZaakBpmnProcessDefinition(),
+            bronorganisatie = zaak.bronorganisatie,
+            communicatiekanaal = zaak.communicatiekanaalNaam,
             // 'duur' has the ISO-8601 period format ('P(n)Y(n)M(n)D') in the ZGW ZRC API,
             // so we use [Period.parse] to convert the duration string to a [Period] object
             duurVerlenging = if (zaak.isVerlengd()) PeriodUtil.format(Period.parse(zaak.verlenging.duur)) else null,
-            redenVerlenging = if (zaak.isVerlengd()) zaak.verlenging.reden else null,
+            eerdereOpschorting = zaak.opschorting?.eerdereOpschorting ?: false,
+            einddatum = zaak.einddatum,
+            einddatumGepland = zaak.einddatumGepland,
             gerelateerdeZaken = toRestGerelateerdeZaken(zaakRechten, zaak, loggedInUser),
-            zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
-            kenmerken = zaak.kenmerken?.map { RESTZaakKenmerk(it.kenmerk, it.bron) },
-            communicatiekanaal = zaak.communicatiekanaalNaam,
-            // use the name because the frontend expects this value to be in uppercase
-            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
             groep = groep,
-            behandelaar = behandelaar,
-            initiatorIdentificatie = initiator?.let {
-                identificationService.createBetrokkeneIdentificatieForInitiatorRole(
-                    it
-                )
-            },
-            isHoofdzaak = zaak.isHoofdzaak(),
-            isDeelzaak = zaak.isDeelzaak(),
-            isOpen = zaak.isOpen(),
-            isHeropend = statustype.isHeropend(),
-            isInIntakeFase = statustype.isIntake() || statustype.isWachtOpAanvullendeInformatie(),
-            isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
-            isProcesGestuurd = bpmnProcessDefinition != null,
-            bpmnProcessDefinition = bpmnProcessDefinition?.toRestZaakBpmnProcessDefinition(),
             heeftOntvangstbevestigingVerstuurd = hasSentConfirmationOfReceipt,
-            rechten = zaakRechten.toRestZaakRechten(),
-            zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
+            identificatie = zaak.identificatie,
             indicaties = noneOf(ZaakIndicatie::class.java).apply {
                 if (zaak.isHoofdzaak()) add(HOOFDZAAK)
                 if (zaak.isDeelzaak()) add(DEELZAAK)
@@ -161,7 +127,41 @@ class RestZaakConverter @Inject constructor(
                     add(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             },
-            zaakSpecificContactDetails = klantClientService.findZaakSpecificContactDetails(zaak.uuid)
+            initiatorIdentificatie = initiator?.let {
+                identificationService.createBetrokkeneIdentificatieForInitiatorRole(
+                    it
+                )
+            },
+            isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
+            isDeelzaak = zaak.isDeelzaak(),
+            isHeropend = statustype.isHeropend(),
+            isHoofdzaak = zaak.isHoofdzaak(),
+            isInIntakeFase = statustype.isIntake() || statustype.isWachtOpAanvullendeInformatie(),
+            isOpen = zaak.isOpen(),
+            isOpgeschort = zaak.isOpgeschort(),
+            isProcesGestuurd = bpmnProcessDefinition != null,
+            isVerlengd = zaak.isVerlengd(),
+            kenmerken = zaak.kenmerken?.map { RESTZaakKenmerk(it.kenmerk, it.bron) },
+            omschrijving = zaak.omschrijving,
+            publicatiedatum = zaak.publicatiedatum,
+            rechten = zaakRechten.toRestZaakRechten(),
+            redenOpschorting = takeIf { zaak.isOpgeschort() }?.let { zaak.opschorting?.reden },
+            redenVerlenging = if (zaak.isVerlengd()) zaak.verlenging.reden else null,
+            registratiedatum = zaak.registratiedatum,
+            resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
+            startdatum = zaak.startdatum,
+            startdatumBewaartermijn = zaak.startdatumBewaartermijn,
+            status = status?.takeIf { statustype != null }?.let { toRestZaakStatus(statustype!!, it) },
+            toelichting = zaak.toelichting,
+            uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+            uuid = zaak.uuid,
+            verantwoordelijkeOrganisatie = zaak.verantwoordelijkeOrganisatie,
+            // use the name because the frontend expects this value to be in uppercase
+            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
+            zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
+            zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
+            zaakSpecificContactDetails = klantClientService.findZaakSpecificContactDetails(zaak.uuid),
+            zaaktype = restZaaktypeConverter.convert(zaakType)
         )
     }
 

@@ -21,26 +21,31 @@ import java.util.UUID
 @AllOpen
 data class RestZaak(
     var archiefActiedatum: LocalDate?,
-    var startdatumBewaartermijn: LocalDate?,
     var archiefNominatie: String?,
     var behandelaar: RestUser?,
     var besluiten: List<RestBesluit>?,
+    var bpmnProcessDefinition: RestZaakBpmnProcessDefinition?,
     var bronorganisatie: String?,
     var communicatiekanaal: String?,
     var duurVerlenging: String?,
-    var einddatumGepland: LocalDate?,
+    var eerdereOpschorting: Boolean,
     var einddatum: LocalDate?,
+    var einddatumGepland: LocalDate?,
     var gerelateerdeZaken: List<RestGerelateerdeZaak>?,
     var groep: RestGroup?,
+
+    @get:JsonbProperty("heeftOntvangstbevestigingVerstuurd")
+    var heeftOntvangstbevestigingVerstuurd: Boolean,
+
     var identificatie: String,
     var indicaties: EnumSet<ZaakIndicatie>,
     var initiatorIdentificatie: BetrokkeneIdentificatie?,
 
-    @get:JsonbProperty("isOpgeschort")
-    var isOpgeschort: Boolean,
+    @get:JsonbProperty("isBesluittypeAanwezig")
+    var isBesluittypeAanwezig: Boolean,
 
-    @get:JsonbProperty("isOpen")
-    var isOpen: Boolean,
+    @get:JsonbProperty("isDeelzaak")
+    var isDeelzaak: Boolean,
 
     @get:JsonbProperty("isHeropend")
     var isHeropend: Boolean,
@@ -48,17 +53,14 @@ data class RestZaak(
     @get:JsonbProperty("isHoofdzaak")
     var isHoofdzaak: Boolean,
 
-    @get:JsonbProperty("isDeelzaak")
-    var isDeelzaak: Boolean,
-
-    @get:JsonbProperty("isBesluittypeAanwezig")
-    var isBesluittypeAanwezig: Boolean,
-
     @get:JsonbProperty("isInIntakeFase")
     var isInIntakeFase: Boolean,
 
-    @get:JsonbProperty("heeftOntvangstbevestigingVerstuurd")
-    var heeftOntvangstbevestigingVerstuurd: Boolean,
+    @get:JsonbProperty("isOpen")
+    var isOpen: Boolean,
+
+    @get:JsonbProperty("isOpgeschort")
+    var isOpgeschort: Boolean,
 
     /**
      * Indicates whether the case is driven using a BPMN process or not.
@@ -66,7 +68,6 @@ data class RestZaak(
      */
     @get:JsonbProperty("isProcesGestuurd")
     var isProcesGestuurd: Boolean,
-    var bpmnProcessDefinition: RestZaakBpmnProcessDefinition?,
 
     @get:JsonbProperty("isVerlengd")
     var isVerlengd: Boolean,
@@ -76,11 +77,11 @@ data class RestZaak(
     var publicatiedatum: LocalDate?,
     var rechten: RestZaakRechten,
     var redenOpschorting: String?,
-    var eerdereOpschorting: Boolean,
     var redenVerlenging: String?,
     var registratiedatum: LocalDate?,
     var resultaat: RestZaakResultaat?,
     var startdatum: LocalDate?,
+    var startdatumBewaartermijn: LocalDate?,
     var status: RestZaakStatus?,
     var toelichting: String?,
     var uiterlijkeEinddatumAfdoening: LocalDate?,
@@ -89,6 +90,6 @@ data class RestZaak(
     var vertrouwelijkheidaanduiding: String?,
     var zaakdata: Map<String, Any>?,
     var zaakgeometrie: RestGeometry?,
-    var zaaktype: RestZaaktype,
-    var zaakSpecificContactDetails: ContactDetails?
+    var zaakSpecificContactDetails: ContactDetails?,
+    var zaaktype: RestZaaktype
 )
