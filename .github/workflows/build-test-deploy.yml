@@ -413,6 +413,13 @@ jobs:
       - name: Install Podman
         run: sudo apt-get update && sudo apt-get install -y podman
 
+      # Rootless Podman forwards published ports via a userspace "rootlessport" helper that binds
+      # the host-side socket as the unprivileged runner user, so cap_add: NET_BIND_SERVICE on a
+      # container (which only grants the capability inside the container's namespace) is not
+      # enough to publish privileged ports like the SMTP port 25 used by GreenMail in itests.
+      - name: Allow rootless Podman to bind privileged ports
+        run: sudo sysctl net.ipv4.ip_unprivileged_port_start=0
+
       - name: Authenticate with Docker Hub to avoid rate limiting issues
         # Skip for pull requests from forks because a forked repository is not allowed to access our secrets
         if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
