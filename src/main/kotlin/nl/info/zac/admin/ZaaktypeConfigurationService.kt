@@ -38,6 +38,9 @@ class ZaaktypeConfigurationService @Inject constructor(
 
     fun updateZaaktypeConfiguration(zaaktypeUri: URI) {
         ztcClientService.clearZaaktypeCache()
+        ztcClientService.clearRoltypeCache()
+        ztcClientService.clearResultaattypeCache()
+        ztcClientService.clearStatustypeCache()
         ztcClientService.readZaaktype(zaaktypeUri).let {
             if (it.concept) {
                 LOG.info { "Zaaktype '${it.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} is still a concept. Ignoring" }
