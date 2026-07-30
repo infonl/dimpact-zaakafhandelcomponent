@@ -130,16 +130,20 @@ services:
       - ./scripts/docker-compose/imports/openzaak/uploads/fake-test-document.pdf:/fake-test-document.pdf
     command: ["/zac-scripts/copy-test-pdf-and-start-openzaak.sh"]
     healthcheck:
-      test: [ "CMD", "python", "-c", "import requests; exit(requests.head('http://localhost:8000/admin/').status_code not in [200, 302])" ]
+      # Was previously a `python -c "import requests; ..."` HTTP check on /admin/, but spawning a Python
+      # interpreter and importing requests (which chain-loads urllib3/certifi/idna) on every single
+      # attempt got starved of CPU under rootless Podman in CI (~25 containers pulling/building at once),
+      # each attempt timing out before it even got to make the HTTP call - so the healthcheck kept
+      # reporting unhealthy even once the app itself had fully started and was serving. The entrypoint
+      # script (see command above) only starts uwsgi after migrations finish, so a plain TCP-connect
+      # check is just as reliable a readiness signal here and has no interpreter startup cost, matching
+      # the equivalent check already used for open-object.local below.
+      test: "bash -c 'printf \"GET / HTTP/1.1\n\n\" > /dev/tcp/127.0.0.1/8000; exit $?;'"
       interval: 5s
       timeout: 10s
       retries: 60
-      # This should allow for enough time for migrations to run before the max
-      # retries have passed. This health check in turn allows other containers
-      # to wait for the database migrations.
-      # Rootless Podman's storage driver (fuse-overlayfs/vfs) extracts image layers slower than
-      # Docker's overlay2, and CI runs pull ~25 service images concurrently, so this container can
-      # take noticeably longer than under Docker to become ready. Give it more headroom here.
+      # This should allow for enough time for migrations to run before the max retries have passed.
+      # This health check in turn allows other containers to wait for the database migrations.
       start_period: 30s
     depends_on:
       openzaak-database:
