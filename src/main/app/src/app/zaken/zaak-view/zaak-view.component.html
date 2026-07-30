@@ -240,6 +240,19 @@
                   >
                   </zac-static-text>
                   <zac-static-text
+                    *ngIf="
+                      zaak.resultaat?.resultaattype?.bronArchiefprocedure
+                        ?.afleidingswijze
+                    "
+                    label="afleidingswijzeBrondatum"
+                    [value]="
+                      zaak.resultaat?.resultaattype?.bronArchiefprocedure
+                        ?.afleidingswijze
+                    "
+                  >
+                  </zac-static-text>
+                  <div class="grid-placeholder"></div>
+                  <zac-static-text
                     *ngIf="zaak.archiefNominatie === 'VERNIETIGEN'"
                     [label]="'archiefNominatie.datum.' + zaak.archiefNominatie"
                     [value]="zaak.archiefActiedatum | datum | empty"

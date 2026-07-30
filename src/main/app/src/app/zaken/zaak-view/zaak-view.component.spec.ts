@@ -1193,6 +1193,76 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
+  describe("afleidingswijzeBrondatum", () => {
+    const findAfleidingswijzeField = () =>
+      fixture.debugElement
+        .queryAll((debugElement) => debugElement.name === "zac-static-text")
+        .find(
+          (debugElement) =>
+            debugElement.componentInstance.label === "afleidingswijzeBrondatum",
+        );
+
+    it("should show the field when afleidingswijze is set", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
+            resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
+              bronArchiefprocedure: fromPartial<
+                GeneratedType<"BrondatumArchiefprocedure">
+              >({
+                afleidingswijze: "TERMIJN",
+              }),
+            }),
+          }),
+        },
+      });
+      fixture.detectChanges();
+
+      const field = findAfleidingswijzeField();
+
+      expect(field).toBeTruthy();
+      expect(field?.componentInstance.value).toBe("TERMIJN");
+    });
+
+    it("should not show the field when resultaat is absent", () => {
+      mockActivatedRoute.data.next({ zaak: { ...zaak, resultaat: null } });
+      fixture.detectChanges();
+
+      expect(findAfleidingswijzeField()).toBeUndefined();
+    });
+
+    it("should not show the field when resultaattype is absent", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
+            resultaattype: null,
+          }),
+        },
+      });
+      fixture.detectChanges();
+
+      expect(findAfleidingswijzeField()).toBeUndefined();
+    });
+
+    it("should not show the field when bronArchiefprocedure is absent", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
+            resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
+              bronArchiefprocedure: null,
+            }),
+          }),
+        },
+      });
+      fixture.detectChanges();
+
+      expect(findAfleidingswijzeField()).toBeUndefined();
+    });
+  });
+
   describe("Menu item ordering", () => {
     it("should sort human task plan items alphabetically by their name", () => {
       jest
