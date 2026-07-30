@@ -150,7 +150,7 @@ if [ ${#profiles[@]} -ne 0 ]; then
 fi
 
 # Uses the 1Password CLI tools to set up the environment variables for running Podman Compose and ZAC in IntelliJ.
-# Please see docs/INSTALL.md for details on how to use this script.
+# Please see docs/development/INSTALL.md for details on how to use this script.
 echo "Starting Podman Compose environment with profiles [$profilesList] ..."
 compose_files=""
 if [ -n "${DOCKER_USE_ARM64_CONTAINERS:-}" ]; then

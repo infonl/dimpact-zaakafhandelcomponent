@@ -5,9 +5,5 @@
 # SPDX-License-Identifier: EUPL-1.2+
 #
 
-# Uses the 1Password CLI tools to set up the environment variables for running Podman Compose and ZAC in IntelliJ.
-# Please see docs/development/INSTALL.md for details on how to use this script.
-# Note that it is not strictly required to use the 1Password CLI tools to stop Podman Compose,
-# however by doing you do avoid Podman Compose warnings about variables not being set.
 echo "Stopping Podman Compose environment.."
 podman compose --profile "*" --project-name zac down --timeout 20

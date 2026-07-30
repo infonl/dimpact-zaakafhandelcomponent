@@ -67,7 +67,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y podman
 
       - name: Log in to GitHub Container Registry
-        run: podman login ghcr.io -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
+        run: podman login ghcr.io -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}" --password-stdin
 
       - name: Restore previous database from the published image
         id: restore
