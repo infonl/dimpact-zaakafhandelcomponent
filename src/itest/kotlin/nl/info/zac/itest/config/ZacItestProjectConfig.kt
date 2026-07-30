@@ -115,7 +115,7 @@ lateinit var dockerComposeContainer: ComposeContainer
 class ZacItestProjectConfig : AbstractProjectConfig() {
     companion object {
         private const val DO_NOT_START_DOCKER_COMPOSE_ENV_VAR = "DO_NOT_START_DOCKER_COMPOSE"
-        private const val TESTCONTAINERS_RYUK_DISABLED_ENV_VAR = "TESTCONTAINERS_RYUK_DISABLED"
+        private const val KEEP_ITEST_CONTAINERS_RUNNING_ENV_VAR = "KEEP_ITEST_CONTAINERS_RUNNING"
         private const val DOCKER_USE_ARM64_CONTAINERS_ENV_VAR = "DOCKER_USE_ARM64_CONTAINERS"
 
         private val logger = KotlinLogging.logger {}
@@ -124,12 +124,12 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         private val zacDockerImage = System.getProperty("zacDockerImage") ?: ZAC_DEFAULT_DOCKER_IMAGE
         private val skipDockerComposeStart = System.getenv(DO_NOT_START_DOCKER_COMPOSE_ENV_VAR)?.toBoolean() ?: false
 
-        // Rootless Podman cannot run the privileged Ryuk resource-reaper container, so TESTCONTAINERS_RYUK_DISABLED
-        // must be set to true (as a real OS environment variable, before the JVM starts) when running against
-        // Podman - see the scripts under scripts/docker-compose and the CI workflow for where this is set.
-        // TestContainers reads this env var itself to decide whether to launch Ryuk at all, independently of
-        // this Kotlin flag, which only controls whether ZAC's own teardown logic below also runs.
-        private val skipContainerCleanup = System.getenv(TESTCONTAINERS_RYUK_DISABLED_ENV_VAR)?.toBoolean() ?: false
+        // Opt-in flag for developers who want to inspect or reuse the Compose stack after a local itest run,
+        // instead of it being torn down automatically. Deliberately independent of TESTCONTAINERS_RYUK_DISABLED:
+        // that variable is now unconditionally true under Podman (rootless Podman can't run the privileged Ryuk
+        // resource-reaper container - see design.md), so it can no longer double as "skip our own teardown too"
+        // the way it used to under Docker, or every single itest run would leave its containers running.
+        private val keepContainersRunning = System.getenv(KEEP_ITEST_CONTAINERS_RUNNING_ENV_VAR)?.toBoolean() ?: false
 
         // All variables below have to be overridable in the docker-compose.yaml file
         private val dockerComposeOverrideEnvironment = mapOf(
@@ -243,26 +243,51 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 }
                 return
             }
-            if (skipContainerCleanup) {
+            if (keepContainersRunning) {
                 logger.warn {
-                    "$TESTCONTAINERS_RYUK_DISABLED_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
+                    "$KEEP_ITEST_CONTAINERS_RUNNING_ENV_VAR environment variable is set to true, not stopping Docker Compose containers"
                 }
                 Runtime.getRuntime().halt(0)
             }
 
-            // stop ZAC Docker Container gracefully to give JaCoCo a change to generate the code coverage report
-            dockerComposeContainer.getContainerByServiceName(
-                ZAC_CONTAINER_SERVICE_NAME
-            ).getOrNull()?.let { zacContainer ->
-                logger.info { "Stopping ZAC Docker container" }
-                zacContainer.dockerClient
-                    .stopContainerCmd(zacContainer.containerId)
-                    .withTimeout(30.seconds.inWholeSeconds.toInt())
-                    .exec()
-                logger.info { "Stopped ZAC Docker container" }
+            val zacContainer = dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).getOrNull()
+
+            // Stop the ZAC Docker container gracefully to give JaCoCo a chance to generate the code coverage
+            // report. This is a best-effort step: if the Docker/Podman API call itself fails (e.g. a transient
+            // socket timeout under load), it must not prevent the Compose-wide stop below from running, or every
+            // container is left running.
+            runCatching {
+                zacContainer?.let {
+                    logger.info { "Stopping ZAC Docker container" }
+                    it.dockerClient
+                        .stopContainerCmd(it.containerId)
+                        .withTimeout(30.seconds.inWholeSeconds.toInt())
+                        .exec()
+                    logger.info { "Stopped ZAC Docker container" }
+                }
+            }.onFailure { throwable ->
+                logger.warn(throwable) {
+                    "Failed to stop the ZAC Docker container gracefully; the JaCoCo coverage report for this " +
+                        "run may be incomplete. Continuing with the Compose-wide stop regardless."
+                }
             }
             // now stop the rest of the Docker Compose containers (TestContainers just kills and removes the containers)
             dockerComposeContainer.withOptions("--profile itest").stop()
+
+            // Confirmed empirically under Podman: when the graceful stop above races with a slow/timed-out
+            // Docker API response, Compose's own teardown can end up skipping that one container entirely
+            // (no "Stopping"/"Removing" logged for it) even though every other service in the stack is torn
+            // down correctly. Force it away as a last resort so no itest container is ever left running.
+            zacContainer?.let {
+                runCatching {
+                    if (it.isRunning) {
+                        logger.warn { "ZAC Docker container is still running after the Compose-wide stop; forcing removal" }
+                        it.dockerClient.removeContainerCmd(it.containerId).withForce(true).exec()
+                    }
+                }.onFailure { throwable ->
+                    logger.warn(throwable) { "Failed to force-remove the ZAC Docker container" }
+                }
+            }
         } finally {
             emptyEnvFile?.delete()
         }

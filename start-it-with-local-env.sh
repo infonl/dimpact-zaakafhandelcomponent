@@ -14,8 +14,7 @@ help() {
    echo "options:"
    echo "-b     Build a local ZAC container image"
    echo "-d     Delete local Podman volume data before starting Podman Compose"
-   echo "-c     No-op under Podman: containers are always left running after test execution,"
-   echo "       since disabling the privileged Ryuk cleanup container is mandatory under rootless Podman"
+   echo "-c     Keep local Podman Compose containers running after test execution"
    echo "-s     Do not start Podman Compose containers before test execution"
    echo "-u     Turn on debug logs"
    echo "-h     Print this Help"
@@ -33,19 +32,12 @@ args=""
 
 [ -f fix-permissions.sh ] && ./fix-permissions.sh
 
-# Point TestContainers at the Podman socket if DOCKER_HOST isn't already set.
-if [ -z "${DOCKER_HOST:-}" ] && command -v podman >/dev/null 2>&1; then
-  podmanSocket=$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}' 2>/dev/null || true)
-  [ -z "$podmanSocket" ] && podmanSocket="/run/user/$(id -u)/podman/podman.sock"
-  export DOCKER_HOST="unix://${podmanSocket}"
-  echo "Detected Podman - setting DOCKER_HOST=${DOCKER_HOST}"
-fi
-
-# Rootless Podman cannot run the privileged Ryuk resource-reaper container, so Ryuk must always be
-# disabled when running against Podman. This also means TestContainers will not clean up the Compose
-# stack automatically after the tests finish - run ./stop-docker-compose.sh manually afterwards, or use
-# the -c option below which does exactly the same thing under Podman.
-export TESTCONTAINERS_RYUK_DISABLED=true
+# DOCKER_HOST (pointed at the Podman socket) and TESTCONTAINERS_RYUK_DISABLED (rootless Podman can't run
+# the privileged Ryuk resource-reaper container) are auto-detected and exported onto the itest JVM's
+# environment by the `itest` Gradle task itself (see detectPodmanDockerHost() in build.gradle.kts), so
+# they don't need to be set here. Compose containers are still stopped automatically after the tests
+# finish (ZacItestProjectConfig.kt does this itself, independently of Ryuk) - use the -c option below to
+# keep them running instead, e.g. to inspect state or reuse the stack across repeated runs.
 
 build=false
 while getopts ':bdcsurh' OPTION; do
@@ -59,7 +51,8 @@ while getopts ':bdcsurh' OPTION; do
       echo "Done"
       ;;
     c)
-      echo "No-op: Podman Compose containers cleanup is already disabled by default under Podman."
+      echo "Keeping Podman Compose containers running after test execution ..."
+      export KEEP_ITEST_CONTAINERS_RUNNING=true
       ;;
     s)
       echo "Disabling Podman Compose containers startup ..."

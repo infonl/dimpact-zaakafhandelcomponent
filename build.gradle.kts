@@ -107,6 +107,10 @@ val zacDockerImage = if (project.hasProperty("zacDockerImage")) {
 }
 extra.set("zacDockerImage", zacDockerImage)
 
+// Auto-detected once per build. Null means DOCKER_HOST is already set (Docker, or CI exporting its own
+// Podman socket) or Podman isn't installed, in which case TestContainers falls back to its own defaults.
+val podmanDockerHost = detectPodmanDockerHost(providers)
+
 fun Directory.toProjectRelativePath() = toString().replace("${layout.projectDirectory}/", "")
 
 // For consistency, the layout of some known paths are determined here, and below as relative paths.
@@ -263,6 +267,19 @@ testing {
                         dependsOn("buildDockerImage")
                         // always execute the integration tests
                         outputs.upToDateWhen { false }
+
+                        // Point TestContainers at the Podman socket, and disable the Ryuk resource-reaper
+                        // container, which rootless Podman can't run. Both must be real OS environment
+                        // variables on the forked test JVM *before* it starts - TestContainers reads
+                        // TESTCONTAINERS_RYUK_DISABLED itself, independently of any application code, so
+                        // this can't be computed at runtime inside ZacItestProjectConfig.kt. Setting it
+                        // here on the test task's environment covers every entry point (CLI `./gradlew
+                        // itest`, and IntelliJ's "Run tests" when it delegates itest to Gradle), unlike a
+                        // wrapper shell script which only covers its own invocation.
+                        podmanDockerHost?.let { environment("DOCKER_HOST", it) }
+                        if (podmanDockerHost != null || System.getenv("DOCKER_HOST")?.contains("podman") == true) {
+                            environment("TESTCONTAINERS_RYUK_DISABLED", "true")
+                        }
                     }
                 }
             }
@@ -1023,6 +1040,31 @@ abstract class Maven : Exec() {
     )
 }
 
+// Detects the Docker-API-compatible socket exposed by a local Podman installation, mirroring what
+// `podman machine inspect` (macOS/Windows) or the well-known rootless socket path (Linux) would give a
+// shell script - but done once at Gradle configuration time (via providers.exec, the configuration-cache
+// compatible way to run external processes here) so it works regardless of how `itest` is invoked.
+// Returns null (leaving TestContainers' own defaults in place) if DOCKER_HOST is already set, e.g. by CI
+// or a Docker-based local setup, or if Podman isn't installed.
+fun detectPodmanDockerHost(providers: ProviderFactory): String? {
+    fun runCommand(vararg command: String): String? = runCatching {
+        val execOutput = providers.exec {
+            commandLine(*command)
+            isIgnoreExitValue = true
+        }
+        execOutput.standardOutput.asText.get().trim().takeIf { execOutput.result.get().exitValue == 0 }
+    }.getOrNull()
+
+    if (System.getenv("DOCKER_HOST") != null) return null
+
+    return runCommand("which", "podman")?.let {
+        val machineSocketPath = runCommand("podman", "machine", "inspect", "--format", "{{.ConnectionInfo.PodmanSocket.Path}}")
+        val socketPath = machineSocketPath?.takeIf { it.isNotBlank() }
+            ?: "/run/user/${runCommand("id", "-u")}/podman/podman.sock"
+        "unix://$socketPath"
+    }
+}
+
 // Reads the WildFly version pinned in pom.xml's <wildfly.version> property, so that version does
 // not need to be duplicated anywhere in the Gradle build.
 fun readWildFlyVersion(pomFile: File): String {
@@ -1031,4 +1073,3 @@ fun readWildFlyVersion(pomFile: File): String {
     check(wildflyVersionNodes.length > 0) { "Could not find a <wildfly.version> property in ${pomFile.path}" }
     return wildflyVersionNodes.item(0).textContent.trim()
 }
-

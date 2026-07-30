@@ -23,17 +23,24 @@ If you wish to run the integration tests you can use the following command:
 ./gradlew itest --info
 ```
 
-It is also possible to run the integration tests from inside your IDE (we use IntelliJ IDEA).
+It is also possible to run the integration tests from inside your IDE (we use IntelliJ IDEA), including simply
+right-clicking the `itest` folder and selecting `Run Tests in ...` — as long as IntelliJ is configured to delegate
+test execution to Gradle (`Settings > Build Tools > Gradle > Run tests using: Gradle`, the default for this project),
+this runs the same `itest` Gradle task described above.
 To do this you will first need to do the following:
 
 1. Start Podman (e.g. `podman machine start` on macOS/Windows, or ensure the rootless Podman socket is active on Linux via `systemctl --user enable --now podman.socket`, see [setup-linux.sh](../../scripts/docker-compose/setup-linux.sh)).
-2. Make sure `DOCKER_HOST` points at the Podman socket (e.g. `unix:///run/user/$(id -u)/podman/podman.sock` on rootless Linux, or the value printed by `podman machine inspect` on macOS/Windows), so TestContainers can find it.
-3. Build the ZAC container image using the following command:
+2. Build the ZAC container image using the following command:
     ```shell
     ./gradlew buildDockerImage
     ```
-4. If BAG integration is part of the test suite: create a 'Run Configuration' in IntelliJ where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
-5. Run the integration tests from your IDE using this run configuration.
+3. If BAG integration is part of the test suite: create a 'Run Configuration' in IntelliJ where the following two environment variables are set: `BAG_API_CLIENT_MP_REST_URL` and `BAG_API_KEY`.
+4. Run the integration tests from your IDE using this run configuration.
+
+You do **not** need to manually set `DOCKER_HOST` or `TESTCONTAINERS_RYUK_DISABLED` — the `itest` Gradle task
+auto-detects a running Podman installation (`detectPodmanDockerHost()` in `build.gradle.kts`) and sets both on the
+forked test JVM's environment itself, so this works uniformly whether you run from the CLI, IntelliJ, or CI. This
+only applies to the `itest` task; if you invoke TestContainers-based tests some other way, set them yourself.
 
 Running the integration tests will first start up all required services (Keycloak, Open Zaak, etc) as containers using our [Compose file](installDockerCompose.md),
 then start up ZAC as a container and finally run the integration tests.
@@ -41,9 +48,11 @@ then start up ZAC as a container and finally run the integration tests.
 ### Configuring Compose containers start/stop behaviour
 
 Using `Run Configuration` in IntelliJ you can set the following environment variables to configure the integration tests behaviour:
-* `TESTCONTAINERS_RYUK_DISABLED` - do not stop containers after the tests finish executing. Rootless Podman cannot run the
-  privileged Ryuk resource-reaper container, so set this to `true` when running against Podman.
 * `DO_NOT_START_DOCKER_COMPOSE` - do not start the Compose stack when running the integration tests
+* `KEEP_ITEST_CONTAINERS_RUNNING` - do not stop the Compose stack after the tests finish executing, e.g. to inspect
+  container state or reuse the stack across repeated runs. This is independent of `TESTCONTAINERS_RYUK_DISABLED`
+  (which is always `true` under Podman, since rootless Podman cannot run the privileged Ryuk resource-reaper
+  container) — Compose containers are still stopped automatically by default, Ryuk or not.
 
 ![Run Configuration](./attachments/images/run-configuration.gif)
 
