@@ -10,7 +10,7 @@ set -e
 help() {
    echo "Starts the integration tests with a local ZAC container image."
    echo
-   echo "Syntax: $0 [-b|d|s|u|h]"
+   echo "Syntax: $0 [-b|d|c|s|u|h]"
    echo "options:"
    echo "-b     Build a local ZAC container image"
    echo "-d     Delete local Podman volume data before starting Podman Compose"
