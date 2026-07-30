@@ -160,7 +160,7 @@ class RestZaakConverter @Inject constructor(
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
             zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
             zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
-            zaakSpecificContactDetails = klantClientService.findZaakSpecificContactDetails(zaak.uuid),
+            zaakSpecificContactDetails = initiator?.let { klantClientService.findZaakSpecificContactDetails(zaak.uuid) },
             zaaktype = restZaaktypeConverter.convert(zaakType)
         )
     }
