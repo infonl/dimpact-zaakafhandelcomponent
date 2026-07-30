@@ -23,7 +23,9 @@ instances, Open Zaak, Open Klant, PABC, etc.). 8GiB is enough to bring the defau
 the full integration test suite under load needs more — **16GiB RAM / 8 CPU is the validated minimum**:
 
 ```shell
+podman machine init
 podman machine set --memory 16384 --cpus 8
+podman machine start
 ```
 
 Rootless Podman also defaults to disallowing privileged host ports (<1024), which the `itest` profile's `greenmail`
