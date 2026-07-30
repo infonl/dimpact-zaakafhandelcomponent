@@ -445,8 +445,8 @@ jobs:
 
       - name: Start Podman API socket for TestContainers
         run: |
-          sudo systemctl enable --now podman.socket
-          echo "DOCKER_HOST=unix:///run/podman/podman.sock" >> "$GITHUB_ENV"
+          systemctl --user enable --now podman.socket
+          echo "DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock" >> "$GITHUB_ENV"
           echo "TESTCONTAINERS_RYUK_DISABLED=true" >> "$GITHUB_ENV"
 
       - name: Run integration tests
