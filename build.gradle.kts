@@ -1057,12 +1057,19 @@ fun detectPodmanDockerHost(providers: ProviderFactory): String? {
 
     if (System.getenv("DOCKER_HOST") != null) return null
 
-    return runCommand("which", "podman")?.let {
-        val machineSocketPath = runCommand("podman", "machine", "inspect", "--format", "{{.ConnectionInfo.PodmanSocket.Path}}")
-        val socketPath = machineSocketPath?.takeIf { it.isNotBlank() }
-            ?: "/run/user/${runCommand("id", "-u")}/podman/podman.sock"
-        "unix://$socketPath"
-    }
+    // `which podman` only finds the binary if it's on the PATH this Gradle process inherited. IDE-launched
+    // Gradle daemons (e.g. IntelliJ started from Dock/Spotlight, not a login shell) commonly get a minimal
+    // PATH that excludes Homebrew's /opt/homebrew/bin, so `which` finds nothing there even though `podman`
+    // works fine from a terminal. Fall back to well-known install locations before giving up.
+    val podmanExecutable = runCommand("which", "podman")
+        ?: listOf("/opt/homebrew/bin/podman", "/usr/local/bin/podman", "/usr/bin/podman")
+            .firstOrNull { File(it).canExecute() }
+        ?: return null
+
+    val machineSocketPath = runCommand(podmanExecutable, "machine", "inspect", "--format", "{{.ConnectionInfo.PodmanSocket.Path}}")
+    val socketPath = machineSocketPath?.takeIf { it.isNotBlank() }
+        ?: "/run/user/${runCommand("id", "-u")}/podman/podman.sock"
+    return "unix://$socketPath"
 }
 
 // Reads the WildFly version pinned in pom.xml's <wildfly.version> property, so that version does
