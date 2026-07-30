@@ -223,9 +223,11 @@
                       <div class="grid-placeholder" aria-hidden="true"></div>
                     }
                   }
+
                   <mat-divider
                     class="mat-divider-wrapper full-width"
                   ></mat-divider>
+
                   <zac-static-text
                     label="groep"
                     [value]="zaak.groep?.naam | empty"
@@ -246,14 +248,19 @@
                     [value]="zaak.communicatiekanaal | empty"
                   >
                   </zac-static-text>
-                  <button
-                    *ngIf="zaak.rechten.wijzigen || zaak.rechten.toekennen"
-                    mat-icon-button
-                    mat-small-icon-button
-                    (click)="editCaseDetails()"
-                  >
-                    <mat-icon>edit</mat-icon>
-                  </button>
+
+                  @if (zaak.rechten.wijzigen || zaak.rechten.toekennen) {
+                    <button
+                      mat-icon-button
+                      mat-small-icon-button
+                      (click)="editCaseDetails()"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  } @else {
+                    <div class="grid-placeholder" aria-hidden="true"></div>
+                  }
+
                   <zac-static-text
                     label="startdatum"
                     [value]="zaak.startdatum | datum | empty"

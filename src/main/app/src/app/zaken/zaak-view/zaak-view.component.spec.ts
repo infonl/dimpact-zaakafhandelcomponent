@@ -1300,25 +1300,28 @@ describe(ZaakViewComponent.name, () => {
       expect(findDetailField("einddatum")?.value).toBe("31‑03‑2026");
     });
 
-    it("should close every row of three fields when all fields are shown", () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          einddatum: "2026-01-15",
-          startdatumBewaartermijn: "2026-02-15",
-          archiefNominatie: "BLIJVEND_BEWAREN",
-          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
-            resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
-              naam: "fakeResultaattypeNaam",
-              bronArchiefprocedure: fromPartial<
-                GeneratedType<"BrondatumArchiefprocedure">
-              >({
-                afleidingswijze: "TERMIJN",
-              }),
-            }),
+    // the edit button occupies the action column, so grant the right that renders
+    // it — otherwise its @else placeholder is counted along with the row closers
+    const zaakWithAllDetailFields = {
+      ...zaak,
+      rechten: { ...zaak.rechten, wijzigen: true },
+      einddatum: "2026-01-15",
+      startdatumBewaartermijn: "2026-02-15",
+      archiefNominatie: "BLIJVEND_BEWAREN",
+      resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
+        resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
+          naam: "fakeResultaattypeNaam",
+          bronArchiefprocedure: fromPartial<
+            GeneratedType<"BrondatumArchiefprocedure">
+          >({
+            afleidingswijze: "TERMIJN",
           }),
-        },
-      });
+        }),
+      }),
+    } satisfies GeneratedType<"RestZaak">;
+
+    it("should close every row of three fields when all fields are shown", () => {
+      mockActivatedRoute.data.next({ zaak: zaakWithAllDetailFields });
       fixture.detectChanges();
 
       expect(detailFieldLabels()).toEqual(
@@ -1340,6 +1343,7 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({
         zaak: {
           ...zaak,
+          rechten: { ...zaak.rechten, wijzigen: true },
           einddatum: null,
           startdatumBewaartermijn: null,
           archiefNominatie: "VERNIETIGEN",
@@ -1363,6 +1367,24 @@ describe(ZaakViewComponent.name, () => {
       expect(labels).not.toContain("afleidingswijzeBrondatum");
       // four visible fields, so only row three needs closing
       expect(gridPlaceholderCount()).toBe(1);
+    });
+
+    it("should fill the action column when the user may not edit the zaak", async () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaakWithAllDetailFields,
+          rechten: { ...zaak.rechten, wijzigen: false, toekennen: false },
+        },
+      });
+      fixture.detectChanges();
+
+      const editIcon = await loader.getHarnessOrNull(
+        MatIconHarness.with({ name: "edit" }),
+      );
+
+      expect(editIcon).toBeNull();
+      // the two row closers plus one standing in for the missing edit button
+      expect(gridPlaceholderCount()).toBe(3);
     });
   });
 
