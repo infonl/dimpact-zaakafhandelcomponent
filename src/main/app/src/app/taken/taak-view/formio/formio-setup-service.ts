@@ -525,6 +525,8 @@ export class FormioSetupService {
       return;
     }
 
+    this.requireASelectedRow(component);
+
     const selectedUuids = component.refreshOn
       ? this.getSelectedRows(taak, component.refreshOn)
           .map((row) => row.uuid)
@@ -540,7 +542,7 @@ export class FormioSetupService {
     const documents = await this.fetchZaakDocuments(taak, selectedUuids);
     const rows = documents
       .filter((document) => !document.ondertekening)
-      .map((document) => this.toDocumentRow(document, true));
+      .map((document) => this.toDocumentRow(document, false));
 
     component.defaultValue = rows;
     this.applyEmptyState(

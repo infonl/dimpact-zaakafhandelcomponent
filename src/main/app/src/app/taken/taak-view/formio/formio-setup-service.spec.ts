@@ -1213,7 +1213,7 @@ describe(FormioSetupService.name, () => {
         taakdata: { ZAAK_Documenten_Ondertekenen_Selectie: rows },
       });
 
-      it("should show only the previously selected documents, pre-selected", async () => {
+      it("should show only the previously selected documents, unticked", async () => {
         jest
           .spyOn(testQueryClient, "fetchQuery")
           .mockResolvedValue([document1]);
@@ -1230,7 +1230,7 @@ describe(FormioSetupService.name, () => {
         );
 
         expect(component.defaultValue).toEqual([
-          { selected: true, titel: document1.titel, uuid: document1.uuid },
+          { selected: false, titel: document1.titel, uuid: document1.uuid },
         ]);
       });
 
@@ -1276,7 +1276,7 @@ describe(FormioSetupService.name, () => {
         );
 
         expect(component.defaultValue).toEqual([
-          { selected: true, titel: "Renamed Document", uuid: "doc-1" },
+          { selected: false, titel: "Renamed Document", uuid: "doc-1" },
         ]);
       });
 
@@ -1300,7 +1300,7 @@ describe(FormioSetupService.name, () => {
         );
 
         expect(component.defaultValue).toEqual([
-          { selected: true, titel: document2.titel, uuid: document2.uuid },
+          { selected: false, titel: document2.titel, uuid: document2.uuid },
         ]);
       });
 
