@@ -45,7 +45,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
     val zaak = createZaak()
     val zaakUuid = zaak.uuid
     val documentUuid = UUID.randomUUID()
-    val documentenKeyPrefix = "ZAAK_Documents_To_Sign_Select"
+    val documentsToSignZaakDataKey = "ZAAK_Documents_To_Sign_Select"
 
     fun documentRow(uuid: UUID, selected: Boolean = true) = mapOf(
         "titel" to "titel-$uuid",
@@ -88,7 +88,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
         every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
 
         val documentenKeyExpression = mockk<Expression>()
-        every { documentenKeyExpression.getValue(delegateExecution) } returns documentenKeyPrefix
+        every { documentenKeyExpression.getValue(delegateExecution) } returns documentsToSignZaakDataKey
 
         `when`("a single unsigned document is found") {
             clearMocks(enkelvoudigInformatieObjectUpdateService, answers = false)
@@ -96,7 +96,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
             val document = createEnkelvoudigInformatieObject(uuid = documentUuid, ondertekening = null)
             every { policyService.readDocumentRechten(document, zaak) } returns createDocumentRechtenAllDeny(ondertekenen = true)
             every { zaakVariabelenService.readZaakdata(zaakUuid) } returns mapOf(
-                documentenKeyPrefix to listOf(documentRow(documentUuid))
+                documentsToSignZaakDataKey to listOf(documentRow(documentUuid))
             )
             every { drcClientService.readEnkelvoudigInformatieobject(documentUuid) } returns document
 
@@ -122,7 +122,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
                 policyService.readDocumentRechten(signedDocument, zaak)
             } returns createDocumentRechtenAllDeny(ondertekenen = true)
             every { zaakVariabelenService.readZaakdata(zaakUuid) } returns mapOf(
-                documentenKeyPrefix to listOf(documentRow(documentUuid))
+                documentsToSignZaakDataKey to listOf(documentRow(documentUuid))
             )
             every { drcClientService.readEnkelvoudigInformatieobject(documentUuid) } returns signedDocument
 
@@ -182,8 +182,8 @@ class SignDocumentDelegateTest : BehaviorSpec({
             val document1 = createEnkelvoudigInformatieObject(uuid = documentUuid, ondertekening = null)
             val document2 = createEnkelvoudigInformatieObject(uuid = documentUuid2, ondertekening = null)
             every { zaakVariabelenService.readZaakdata(zaakUuid) } returns mapOf(
-                documentenKeyPrefix to listOf(documentRow(documentUuid)),
-                "$documentenKeyPrefix (1)" to listOf(documentRow(documentUuid2))
+                documentsToSignZaakDataKey to listOf(documentRow(documentUuid)),
+                "$documentsToSignZaakDataKey (1)" to listOf(documentRow(documentUuid2))
             )
             every { drcClientService.readEnkelvoudigInformatieobject(documentUuid) } returns document1
             every { drcClientService.readEnkelvoudigInformatieobject(documentUuid2) } returns document2
@@ -211,7 +211,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
             val document = createEnkelvoudigInformatieObject(uuid = documentUuid, ondertekening = null)
             every { policyService.readDocumentRechten(document, zaak) } returns createDocumentRechtenAllDeny(ondertekenen = true)
             every { zaakVariabelenService.readZaakdata(zaakUuid) } returns mapOf(
-                documentenKeyPrefix to listOf(
+                documentsToSignZaakDataKey to listOf(
                     documentRow(documentUuid, selected = true),
                     documentRow(unselectedDocumentUuid, selected = false)
                 )
@@ -236,11 +236,11 @@ class SignDocumentDelegateTest : BehaviorSpec({
 
             val document = createEnkelvoudigInformatieObject(uuid = documentUuid, ondertekening = null)
             every { zaakVariabelenService.readZaakdata(zaakUuid) } returns mapOf(
-                documentenKeyPrefix to listOf(documentRow(documentUuid))
+                documentsToSignZaakDataKey to listOf(documentRow(documentUuid))
             )
             every { drcClientService.readEnkelvoudigInformatieobject(documentUuid) } returns document
             every { policyService.readDocumentRechten(document, zaak) } returns createDocumentRechtenAllDeny()
-            every { documentenKeyExpression.getValue(delegateExecution) } returns documentenKeyPrefix
+            every { documentenKeyExpression.getValue(delegateExecution) } returns documentsToSignZaakDataKey
 
             val policyException = shouldThrow<PolicyException> {
                 SignDocumentDelegate().apply { documentenKey = documentenKeyExpression }

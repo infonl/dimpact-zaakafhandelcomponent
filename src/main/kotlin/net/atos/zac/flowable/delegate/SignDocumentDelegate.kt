@@ -24,12 +24,12 @@ import java.util.logging.Logger
  */
 class SignDocumentDelegate : AbstractDelegate() {
 
-    // Set by Flowable. Can be either FixedValue or JuelExpression. Defaults to DEFAULT_DOCUMENTEN_KEY if not set.
+    // Set by Flowable. Can be either FixedValue or JuelExpression. Defaults to DEFAULT_DOCUMENTS_TO_SIGN_ZAAK_DATA_KEY if not set.
     var documentenKey: Expression? = null
 
     companion object {
         private val LOG = Logger.getLogger(SignDocumentDelegate::class.java.name)
-        private const val DEFAULT_DOCUMENTEN_KEY = "ZAAK_Documenten_Te_Ondertekenen"
+        private const val DEFAULT_DOCUMENTS_TO_SIGN_ZAAK_DATA_KEY = "ZAAK_Documenten_Te_Ondertekenen"
     }
 
     override fun execute(execution: DelegateExecution) {
@@ -38,11 +38,13 @@ class SignDocumentDelegate : AbstractDelegate() {
             CDI.current().select(EnkelvoudigInformatieObjectUpdateService::class.java).get()
         val zaakUuid = execution.parent.getVariable(ZaakVariabelenService.VAR_ZAAK_UUID) as UUID
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
-        val zaakDataKey = documentenKey?.resolveValueAsString(execution)?.takeUnless { it.isBlank() }
-            ?: DEFAULT_DOCUMENTEN_KEY
-        LOG.fine("Signing documents with key '$zaakDataKey' from activity '${execution.currentActivityName}'")
+        val documentsToSignZaakDataKey = documentenKey?.resolveValueAsString(execution)?.takeUnless { it.isBlank() }
+            ?: DEFAULT_DOCUMENTS_TO_SIGN_ZAAK_DATA_KEY
+        LOG.fine(
+            "Signing documents with key '$documentsToSignZaakDataKey' from activity '${execution.currentActivityName}'"
+        )
         val documentsToSign = flowableHelper.zaakVariabelenService.readZaakdata(zaakUuid)
-            .filter { (key, _) -> key.startsWith(zaakDataKey) }
+            .filter { (key, _) -> key.startsWith(documentsToSignZaakDataKey) }
             .values
             .asSequence()
             .filterIsInstance<List<*>>()
