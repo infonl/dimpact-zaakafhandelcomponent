@@ -416,7 +416,7 @@ jobs:
       - name: Authenticate with Docker Hub to avoid rate limiting issues
         # Skip for pull requests from forks because a forked repository is not allowed to access our secrets
         if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
-        run: podman login docker.io -u "${{ vars.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | podman login docker.io -u "${{ vars.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Setup JDK
         uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
