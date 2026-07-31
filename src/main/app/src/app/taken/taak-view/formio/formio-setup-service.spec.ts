@@ -1515,19 +1515,121 @@ describe(FormioSetupService.name, () => {
       expect(fetchQuerySpy).not.toHaveBeenCalled();
     });
 
-    it("should show the stored rows of the signing grid", async () => {
-      const fetchQuerySpy = jest.spyOn(testQueryClient, "fetchQuery");
+    it("should tick a document this task submitted that carries a signature now", async () => {
+      jest
+        .spyOn(testQueryClient, "fetchQuery")
+        .mockResolvedValue([signedDocument, document1]);
+      const component: ExtendedComponentSchema = {
+        ...selectedUnsignedDocumentsFieldset,
+      };
+      const finishedTaak = afgerondTaak({
+        ZAAK_Documenten_Te_Ondertekenen: [
+          {
+            selected: true,
+            titel: signedDocument.titel,
+            uuid: signedDocument.uuid,
+          },
+          { selected: true, titel: document1.titel, uuid: document1.uuid },
+        ],
+      });
+
+      await formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        finishedTaak,
+      );
+
+      const rows = [
+        {
+          selected: true,
+          titel: signedDocument.titel,
+          uuid: signedDocument.uuid,
+        },
+        { selected: false, titel: document1.titel, uuid: document1.uuid },
+      ];
+      expect(component.defaultValue).toEqual(rows);
+      expect(finishedTaak.taakdata?.ZAAK_Documenten_Te_Ondertekenen).toEqual(
+        rows,
+      );
+    });
+
+    it("should leave a document this task did not submit unticked, however it was signed since", async () => {
+      jest
+        .spyOn(testQueryClient, "fetchQuery")
+        .mockResolvedValue([signedDocument]);
       const component: ExtendedComponentSchema = {
         ...selectedUnsignedDocumentsFieldset,
       };
 
       await formioSetupService.createFormioForm(
         { components: [component] } as FormioForm,
-        afgerondTaak({ ZAAK_Documenten_Te_Ondertekenen: storedRows }),
+        afgerondTaak({
+          ZAAK_Documenten_Te_Ondertekenen: [
+            {
+              selected: false,
+              titel: signedDocument.titel,
+              uuid: signedDocument.uuid,
+            },
+          ],
+        }),
       );
 
-      expect(component.defaultValue).toEqual(storedRows);
-      expect(fetchQuerySpy).not.toHaveBeenCalled();
+      expect(component.defaultValue).toEqual([
+        {
+          selected: false,
+          titel: signedDocument.titel,
+          uuid: signedDocument.uuid,
+        },
+      ]);
+    });
+
+    it("should show the signing grid with the current titles", async () => {
+      jest
+        .spyOn(testQueryClient, "fetchQuery")
+        .mockResolvedValue([{ ...signedDocument, titel: "Renamed Document" }]);
+      const component: ExtendedComponentSchema = {
+        ...selectedUnsignedDocumentsFieldset,
+      };
+
+      await formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        afgerondTaak({
+          ZAAK_Documenten_Te_Ondertekenen: [
+            {
+              selected: true,
+              titel: "Stale Title",
+              uuid: signedDocument.uuid,
+            },
+          ],
+        }),
+      );
+
+      expect(component.defaultValue).toEqual([
+        {
+          selected: true,
+          titel: "Renamed Document",
+          uuid: signedDocument.uuid,
+        },
+      ]);
+    });
+
+    it("should keep a document that was removed since, under the title it was submitted with", async () => {
+      jest.spyOn(testQueryClient, "fetchQuery").mockResolvedValue([]);
+      const component: ExtendedComponentSchema = {
+        ...selectedUnsignedDocumentsFieldset,
+      };
+
+      await formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        afgerondTaak({
+          ZAAK_Documenten_Te_Ondertekenen: [
+            { selected: true, titel: document1.titel, uuid: document1.uuid },
+          ],
+        }),
+      );
+
+      expect(component.defaultValue).toEqual([
+        { selected: false, titel: document1.titel, uuid: document1.uuid },
+      ]);
     });
 
     it("should leave the stored task data untouched", async () => {

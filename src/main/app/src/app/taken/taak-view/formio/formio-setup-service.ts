@@ -394,6 +394,32 @@ export class FormioSetupService {
     );
   }
 
+  // Ticked only when this task submitted the document and it carries a signature now, so a failed
+  // signing reads as failed.
+  private async renderSigningResult(
+    component: ExtendedComponentSchema,
+    taak: GeneratedType<"RestTask">,
+  ) {
+    const storedRows = this.getStoredRows(taak, component.key);
+    const uuids = storedRows
+      .map((row) => row.uuid)
+      .filter((uuid): uuid is string => Boolean(uuid));
+    const documents = uuids.length
+      ? await this.fetchZaakDocuments(taak, uuids)
+      : [];
+
+    const rows = storedRows.map((row) => {
+      const document = documents.find(({ uuid }) => uuid === row.uuid);
+      return {
+        selected: Boolean(row.selected && document?.ondertekening),
+        titel: document?.titel ?? row.titel,
+        uuid: row.uuid,
+      };
+    });
+
+    this.setDatagridRows(component, taak, rows);
+  }
+
   private async initializeUnsignedDocumentsDatagrid(
     component: ExtendedComponentSchema,
     taak: GeneratedType<"RestTask">,
@@ -521,7 +547,7 @@ export class FormioSetupService {
     taak: GeneratedType<"RestTask">,
   ): Promise<void> {
     if (this.isFinished(taak)) {
-      this.renderStoredDocumentRows(component, taak);
+      await this.renderSigningResult(component, taak);
       return;
     }
 
