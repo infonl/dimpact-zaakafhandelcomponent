@@ -68,8 +68,9 @@ jobs:
         # openspec/changes/migrate-docker-to-podman/design.md) instead of Ubuntu's unpinned apt package.
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          curl -fsSL -o /tmp/podman.rb "https://raw.githubusercontent.com/Homebrew/homebrew-core/7644fe05a72172a9c494812c8efbc5bc6c4fa8a3/Formula/p/podman.rb"
-          brew install /tmp/podman.rb
+          brew tap-new local/podman
+          curl -fsSL -o "$(brew --repo local/podman)/Formula/podman.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/7644fe05a72172a9c494812c8efbc5bc6c4fa8a3/Formula/p/podman.rb"
+          brew install local/podman/podman
           echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
 
       - name: Log in to GitHub Container Registry
