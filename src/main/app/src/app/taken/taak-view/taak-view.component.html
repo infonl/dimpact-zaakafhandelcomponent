@@ -82,6 +82,7 @@
               [form]="formioFormulier"
               [taakdata]="taak.taakdata"
               [readOnly]="isReadonly()"
+              [submitPending]="isPending()"
               (formSubmit)="onFormioFormSubmit($event)"
               (formChange)="onFormioFormChange($event)"
               (createDocument)="onDocumentCreate($event)"
