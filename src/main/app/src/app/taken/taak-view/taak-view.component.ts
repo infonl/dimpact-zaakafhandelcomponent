@@ -411,7 +411,8 @@ export class TaakViewComponent
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     const taskBody:
-      PutBody<"/rest/taken/taakdata"> | PatchBody<"/rest/taken/complete"> = {
+      | PutBody<"/rest/taken/taakdata">
+      | PatchBody<"/rest/taken/complete"> = {
       ...this.taak!,
       taakdata: {
         ...this.taak!.taakdata,
