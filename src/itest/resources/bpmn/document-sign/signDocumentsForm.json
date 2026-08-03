@@ -9,16 +9,41 @@
   "settings": {},
   "components": [
     {
-      "html": "<p>Te ondertekenen documenten:</p><p>{{ZAC_getDocumentTitles(ZAAK_Documenten_Ondertekenen_Selectie)}}</p>",
-      "refreshOnChange": false,
-      "key": "selectedDocuments",
-      "type": "content",
-      "input": false,
-      "tableView": false
+      "label": "Documenten",
+      "type": "datagrid",
+      "key": "ZAAK_Documenten_Te_Ondertekenen",
+      "input": true,
+      "disableAddingRemovingRows": true,
+      "refreshOn": "ZAAK_Documenten_Ondertekenen_Selectie",
+      "attributes": { "ZAC_TYPE": "ZAC_gekozen_documenten_niet_ondertekend" },
+      "components": [
+        {
+          "label": "",
+          "key": "selected",
+          "type": "checkbox",
+          "input": true,
+          "tableView": true
+        },
+        {
+          "label": "Titel",
+          "key": "titel",
+          "type": "textfield",
+          "input": true,
+          "disabled": true,
+          "tableView": true
+        },
+        {
+          "key": "openen",
+          "type": "htmlelement",
+          "input": false,
+          "tableView": false,
+          "attributes": { "ZAC_TYPE": "ZAC_regel_link_view_icon" }
+        }
+      ]
     },
     {
       "type": "button",
-      "label": "Submit",
+      "label": "Ondertekenen",
       "key": "submit",
       "disableOnInvalid": true,
       "input": true,

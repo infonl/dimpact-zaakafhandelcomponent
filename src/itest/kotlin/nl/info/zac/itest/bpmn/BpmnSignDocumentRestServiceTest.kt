@@ -78,10 +78,14 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
             documentUuid = UUID.fromString(JSONObject(responseBody).getString("uuid"))
         }
 
-        `when`("the select documents form is submitted with the document UUID") {
+        `when`("the select documents form is submitted with the document checked") {
             val takenPatchResponse = zacClient.submitFormData(
                 bpmnZaakUuid = zaakUuid,
-                taakData = """{ "ZAAK_Documenten_Ondertekenen_Selectie": ["$documentUuid"] }""",
+                taakData = """
+                    { "ZAAK_Documenten_Ondertekenen_Selectie": [
+                        { "selected": true, "titel": "$TEST_PDF_FILE_NAME", "uuid": "$documentUuid" }
+                    ] }
+                """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
 
@@ -112,10 +116,14 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
             }
         }
 
-        `when`("the summary form is submitted") {
+        `when`("the summary form is submitted with the document checked") {
             val takenPatchResponse = zacClient.submitFormData(
                 bpmnZaakUuid = zaakUuid,
-                taakData = """{ "ZAAK_Documenten_Ondertekenen_Selectie": ["$documentUuid"] }""",
+                taakData = """
+                    { "ZAAK_Documenten_Te_Ondertekenen": [
+                        { "selected": true, "titel": "$TEST_PDF_FILE_NAME", "uuid": "$documentUuid" }
+                    ] }
+                """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
 

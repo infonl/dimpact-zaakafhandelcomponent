@@ -4,14 +4,20 @@
  */
 package nl.info.zac.app.zaak.model
 
+import jakarta.validation.constraints.NotBlank
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
-data class RESTZakenVrijgevenGegevens(
+data class RestZakenVerdeelGegevens(
     var uuids: List<UUID>,
+
+    @field:NotBlank
+    var groepId: String,
+
+    var behandelaarGebruikersnaam: String? = null,
 
     var reden: String? = null,
 

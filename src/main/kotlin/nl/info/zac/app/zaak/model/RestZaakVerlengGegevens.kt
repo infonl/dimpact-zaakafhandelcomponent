@@ -10,7 +10,7 @@ import java.time.LocalDate
 
 @NoArgConstructor
 @AllOpen
-data class RESTZaakVerlengGegevens(
+data class RestZaakVerlengGegevens(
     var redenVerlenging: String? = null,
 
     var duurDagen: Int = 0,
