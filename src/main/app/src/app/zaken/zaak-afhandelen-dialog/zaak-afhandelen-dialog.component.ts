@@ -99,6 +99,7 @@ export class ZaakAfhandelenDialogComponent {
     ontvanger: this.formBuilder.control<string>("", [CustomValidators.email]),
     brondatumEigenschap: this.formBuilder.control<Moment | null>(null, [
       this.brondatumNietVoorVandaag(),
+      Validators.min(moment().startOf("day").valueOf()),
     ]),
   });
 
