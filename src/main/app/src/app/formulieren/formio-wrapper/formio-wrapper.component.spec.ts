@@ -2,7 +2,7 @@
  * SPDX-FileCopyrightText: 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-import { ElementRef } from "@angular/core";
+import { ElementRef, SimpleChange } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { FormioCustomFunctions } from "../formio-custom-functions/formio-custom-functions";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
@@ -62,6 +62,100 @@ describe(FormioWrapperComponent.name, () => {
       component.onChange(event);
 
       expect(listener).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  describe(FormioWrapperComponent.prototype.onSubmit.name, () => {
+    it("should not report the submission as done before it has settled", () => {
+      const listener = jest.spyOn(component.submissionDone, "emit");
+
+      component.onSubmit({ data: {}, state: "submitted" });
+
+      expect(listener).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("a submit that settles", () => {
+    const submitPendingChange = (previous: boolean, current: boolean) => ({
+      submitPending: new SimpleChange(previous, current, false),
+    });
+
+    it("should report the submission as done, releasing the submit button", () => {
+      const listener = jest.spyOn(component.submissionDone, "emit");
+
+      component.ngOnChanges(submitPendingChange(true, false));
+
+      expect(listener).toHaveBeenCalledWith(true);
+    });
+
+    it("should keep the button held while the submit is still running", () => {
+      const listener = jest.spyOn(component.submissionDone, "emit");
+
+      component.ngOnChanges(submitPendingChange(false, true));
+
+      expect(listener).not.toHaveBeenCalled();
+    });
+
+    it("should not report a submission the form never made", () => {
+      const listener = jest.spyOn(component.submissionDone, "emit");
+
+      component.ngOnChanges({
+        submitPending: new SimpleChange(undefined, false, true),
+      });
+
+      expect(listener).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("a task that becomes read-only", () => {
+    let formioComponent: { options: { readOnly?: boolean }; disabled: boolean };
+    let webform: {
+      options: { readOnly?: boolean };
+      everyComponent: jest.Mock;
+      redraw: jest.Mock;
+    };
+
+    beforeEach(() => {
+      formioComponent = { options: {}, disabled: false };
+      webform = {
+        options: {},
+        everyComponent: jest.fn((callback: (component: unknown) => void) =>
+          callback(formioComponent),
+        ),
+        redraw: jest.fn().mockResolvedValue(undefined),
+      };
+      component.formioComponent = { formio: webform } as never;
+    });
+
+    it("should disable the live form, which Form.io reads for its `readOnly` state only while building", () => {
+      component.readOnly = true;
+
+      component.ngOnChanges({
+        readOnly: new SimpleChange(false, true, false),
+      });
+
+      expect(webform.options.readOnly).toBe(true);
+      expect(formioComponent.options.readOnly).toBe(true);
+      expect(formioComponent.disabled).toBe(true);
+      expect(webform.redraw).toHaveBeenCalledTimes(1);
+    });
+
+    it("should leave the form alone while it is being built", () => {
+      component.ngOnChanges({
+        readOnly: new SimpleChange(undefined, false, true),
+      });
+
+      expect(webform.redraw).not.toHaveBeenCalled();
+    });
+
+    it("should not throw before Form.io has handed over its form", () => {
+      component.formioComponent = undefined as never;
+
+      expect(() =>
+        component.ngOnChanges({
+          readOnly: new SimpleChange(false, true, false),
+        }),
+      ).not.toThrow();
     });
   });
 

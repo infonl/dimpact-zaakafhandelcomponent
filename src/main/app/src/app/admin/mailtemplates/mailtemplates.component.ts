@@ -10,7 +10,7 @@ import {
   transition,
   trigger,
 } from "@angular/animations";
-import { NgFor, NgIf } from "@angular/common";
+import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -65,7 +65,6 @@ import { MailtemplateKoppelingService } from "../mailtemplate-koppeling.service"
   standalone: true,
   imports: [
     NgIf,
-    NgFor,
     MatSidenavModule,
     MatTableModule,
     MatSortModule,
