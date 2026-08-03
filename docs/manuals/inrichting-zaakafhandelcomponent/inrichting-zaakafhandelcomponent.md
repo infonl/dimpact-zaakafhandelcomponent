@@ -2,7 +2,7 @@
 
 
 > **Colofon** <br>
-> Datum : 29-07-2026 <br>
+> Datum : 3-08-2026 <br>
 > Versie :   1.15 <br>
 > Verandering : ZAC v5.5.0 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
@@ -30,7 +30,7 @@ Versiegeschiedenis:
 | 1.12 | ZAC versie 4.6.0   |
 | 1.13 | ZAC versie 4.8.0   |
 | 1.14 | ZAC versie 5.4     |
-| 1.14 | ZAC versie 5.5.0   |
+| 1.15 | ZAC versie 5.5.0   |
 
 # Inhoud
 
