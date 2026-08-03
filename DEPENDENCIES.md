@@ -9,7 +9,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **postgis**: 17-3.4
 - **redis**: 8.6.5
 - **solr**: 9.10.1-slim
-- **openpolicyagent/opa**: 1.18.2-static
+- **openpolicyagent/opa**: 1.19.0-static
 - **brp-api/personen-mock**: 2.7.0-202606291131
 - **gotenberg**: 8.34.0
 - **otel/opentelemetry-collector-contrib**: 0.157.0
@@ -21,7 +21,7 @@ This document lists the Docker images and versions that the corresponding versio
 
 ## Common Ground components
 
-- **open-zaak**: 1.29.1
+- **open-zaak**: 1.29.2
 - **open-object**: 4.0.2
 - **open-klant**: 2.15.0
 - **open-forms**: 3.5.6
