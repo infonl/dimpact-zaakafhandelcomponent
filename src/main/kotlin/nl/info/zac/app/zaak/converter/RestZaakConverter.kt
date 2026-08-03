@@ -27,7 +27,7 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.policy.model.toRestZaakRechten
-import nl.info.zac.app.zaak.model.RESTZaakKenmerk
+import nl.info.zac.app.zaak.model.RestZaakKenmerk
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
 import nl.info.zac.app.zaak.model.RestZaak
@@ -96,7 +96,11 @@ class RestZaakConverter @Inject constructor(
             ?.betrokkeneIdentificatie
             ?.let { restUserConverter.convertUserId(it.identificatie) }
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
-
+        val initiatorIndentificatie = initiator?.let {
+            identificationService.createBetrokkeneIdentificatieForInitiatorRole(it)
+        }
+        val zaakSpecificContactDetails = initiator?.let { klantClientService.findZaakSpecificContactDetails(zaak.uuid) }
+        val zaakData = zaakVariabelenService.readZaakdata(zaak.uuid)
         val hasSentConfirmationOfReceipt = zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
         return RestZaak(
@@ -127,11 +131,7 @@ class RestZaakConverter @Inject constructor(
                     add(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             },
-            initiatorIdentificatie = initiator?.let {
-                identificationService.createBetrokkeneIdentificatieForInitiatorRole(
-                    it
-                )
-            },
+            initiatorIdentificatie = initiatorIndentificatie,
             isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
             isDeelzaak = zaak.isDeelzaak(),
             isHeropend = statustype.isHeropend(),
@@ -141,7 +141,7 @@ class RestZaakConverter @Inject constructor(
             isOpgeschort = zaak.isOpgeschort(),
             isProcesGestuurd = bpmnProcessDefinition != null,
             isVerlengd = zaak.isVerlengd(),
-            kenmerken = zaak.kenmerken?.map { RESTZaakKenmerk(it.kenmerk, it.bron) },
+            kenmerken = zaak.kenmerken?.map { RestZaakKenmerk(it.kenmerk, it.bron) },
             omschrijving = zaak.omschrijving,
             publicatiedatum = zaak.publicatiedatum,
             rechten = zaakRechten.toRestZaakRechten(),
@@ -158,9 +158,9 @@ class RestZaakConverter @Inject constructor(
             verantwoordelijkeOrganisatie = zaak.verantwoordelijkeOrganisatie,
             // use the name because the frontend expects this value to be in uppercase
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
-            zaakdata = zaakVariabelenService.readZaakdata(zaak.uuid),
+            zaakdata = zaakData,
             zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
-            zaakSpecificContactDetails = initiator?.let { klantClientService.findZaakSpecificContactDetails(zaak.uuid) },
+            zaakSpecificContactDetails = zaakSpecificContactDetails,
             zaaktype = restZaaktypeConverter.convert(zaakType)
         )
     }

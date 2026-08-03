@@ -72,7 +72,7 @@ data class RestZaak(
     @get:JsonbProperty("isVerlengd")
     var isVerlengd: Boolean,
 
-    var kenmerken: List<RESTZaakKenmerk>?,
+    var kenmerken: List<RestZaakKenmerk>?,
     var omschrijving: String,
     var publicatiedatum: LocalDate?,
     var rechten: RestZaakRechten,

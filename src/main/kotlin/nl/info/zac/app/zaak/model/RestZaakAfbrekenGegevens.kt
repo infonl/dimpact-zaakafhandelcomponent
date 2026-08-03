@@ -7,8 +7,8 @@ package nl.info.zac.app.zaak.model
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
-@AllOpen
 @NoArgConstructor
-data class RESTReden(
-    var reden: String
+@AllOpen
+data class RestZaakAfbrekenGegevens(
+    var zaakbeeindigRedenId: String
 )
