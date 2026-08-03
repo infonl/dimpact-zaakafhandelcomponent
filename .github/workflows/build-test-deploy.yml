@@ -418,7 +418,8 @@ jobs:
         # seen with the older apt-packaged Podman.
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7644fe05a72172a9c494812c8efbc5bc6c4fa8a3/Formula/p/podman.rb
+          curl -fsSL -o /tmp/podman.rb "https://raw.githubusercontent.com/Homebrew/homebrew-core/7644fe05a72172a9c494812c8efbc5bc6c4fa8a3/Formula/p/podman.rb"
+          brew install /tmp/podman.rb
           echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
 
       # Rootless Podman forwards published ports via a userspace "rootlessport" helper that binds
@@ -530,7 +531,8 @@ jobs:
         # Pinned to 6.0.2 via a pinned Homebrew formula, see the itest job above for why.
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7644fe05a72172a9c494812c8efbc5bc6c4fa8a3/Formula/p/podman.rb
+          curl -fsSL -o /tmp/podman.rb "https://raw.githubusercontent.com/Homebrew/homebrew-core/7644fe05a72172a9c494812c8efbc5bc6c4fa8a3/Formula/p/podman.rb"
+          brew install /tmp/podman.rb
           echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
 
       - name: Podman Login
