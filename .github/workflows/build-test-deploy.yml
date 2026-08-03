@@ -411,7 +411,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install Podman
-        run: sudo apt-get update && sudo apt-get install -y podman
+        # Pinned to 6.0.2 via a pinned Homebrew formula (matches the version validated locally, see
+        # openspec/changes/migrate-docker-to-podman/design.md) instead of Ubuntu's unpinned apt package,
+        # whose version silently drifts with runner-image updates. Homebrew's Linux build also vendors its
+        # own netavark/aardvark-dns, which fixed a rootless container-to-container DNS flakiness regression
+        # seen with the older apt-packaged Podman.
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7644fe05a72172a9c494812c8efbc5bc6c4fa8a3/Formula/p/podman.rb
+          echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
 
       # Rootless Podman forwards published ports via a userspace "rootlessport" helper that binds
       # the host-side socket as the unprivileged runner user, so cap_add: NET_BIND_SERVICE on a
@@ -519,7 +527,11 @@ jobs:
       RELEASE_TYPE: ${{ needs.determine-version.outputs.release-type }}
     steps:
       - name: Install Podman
-        run: sudo apt-get update && sudo apt-get install -y podman
+        # Pinned to 6.0.2 via a pinned Homebrew formula, see the itest job above for why.
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/7644fe05a72172a9c494812c8efbc5bc6c4fa8a3/Formula/p/podman.rb
+          echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
 
       - name: Podman Login
         run: podman login ${{ env.CONTAINER_REGISTRY_URL }} -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
