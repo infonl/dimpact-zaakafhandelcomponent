@@ -12,6 +12,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
@@ -52,7 +53,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
         lateinit var humanTaskItemGoedkeurenId: String
         var goedkeurenTaskId = 0
         val intakeId: Int
-        zacClient.createZaak(
+        zacClient.createZaakAndRetrieve(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
             groupName = GROUP_BEHANDELAARS_TEST_1.description,

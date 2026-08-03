@@ -127,12 +127,7 @@ describe(ZaakCreateComponent.name, () => {
     );
     jest.spyOn(zakenService, "createZaak").mockReturnValue({
       mutationKey: [],
-      mutationFn: () =>
-        Promise.resolve(
-          fromPartial<GeneratedType<"RestZaak">>({
-            identificatie: "test-zaak-uuid-123",
-          }),
-        ),
+      mutationFn: () => Promise.resolve("test-zaak-uuid-123"),
     });
 
     zaakafhandelParametersService = TestBed.inject(

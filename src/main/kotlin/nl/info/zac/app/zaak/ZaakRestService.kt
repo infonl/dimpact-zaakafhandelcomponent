@@ -192,11 +192,16 @@ class ZaakRestService @Inject constructor(
         )
     }
 
+    /**
+     * Creates a new zaak.
+     *
+     * @return the identification (`identificatie`) of the newly created zaak. Use
+     * [readZaakById] to retrieve the full zaak details.
+     */
     @Suppress("LongMethod")
     @POST
     @Path("zaak")
-    fun createZaak(@Valid restZaakAanmaakGegevens: RestZaakAanmaakGegevens): RestZaak {
-        val loggedInUser = loggedInUserInstance.get()
+    fun createZaak(@Valid restZaakAanmaakGegevens: RestZaakAanmaakGegevens): String {
         val restZaak = restZaakAanmaakGegevens.zaak
         val zaaktypeUUID = restZaak.zaaktype.uuid
         val zaakType = zaakService.readZaakTypeByUUID(zaaktypeUUID)
@@ -224,8 +229,7 @@ class ZaakRestService @Inject constructor(
         restZaakAanmaakGegevens.bagObjecten?.forEach {
             zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(it, zaak))
         }
-        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
-        return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
+        return zaak.identificatie
     }
 
     @DELETE

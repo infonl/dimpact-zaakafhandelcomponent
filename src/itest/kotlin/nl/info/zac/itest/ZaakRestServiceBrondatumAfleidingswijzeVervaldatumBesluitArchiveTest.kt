@@ -13,6 +13,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration
@@ -44,7 +45,7 @@ class ZaakRestServiceBrondatumAfleidingswijzeVervaldatumBesluitArchiveTest : Beh
         lateinit var besluitTypeUuid: UUID
         lateinit var vervaldatumBesluit: LocalDate
         val intakeId: Int
-        zacClient.createZaak(
+        zacClient.createZaakAndRetrieve(
             zaakTypeUUID = ItestConfiguration.ZAAKTYPE_CMMN_TEST_4_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
             groupName = GROUP_BEHANDELAARS_TEST_1.description,

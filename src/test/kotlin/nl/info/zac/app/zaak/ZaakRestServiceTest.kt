@@ -283,7 +283,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val objectRegistratieObject = createORObject()
                 val productaanvraagDimpact = createProductaanvraagDimpact()
                 val restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now().minusDays(1))
-                val restZaak = createRestZaak(einddatumGepland = LocalDate.now().minusDays(1))
                 val zaakTypeUUID = UUID.randomUUID()
                 val zaakType = createZaakType(
                     omschrijving = ZAAK_TYPE_1_OMSCHRIJVING,
@@ -339,7 +338,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                         zaak.url
                     )
                 } just runs
-                every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
                 every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
                 every {
                     zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID)
@@ -388,7 +386,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     val restZaakReturned = zaakRestService.createZaak(restZaakAanmaakGegevens)
 
                     then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
-                        restZaakReturned shouldBe restZaak
+                        restZaakReturned shouldBe zaak.identificatie
                         verify(exactly = 1) {
                             zgwApiService.createZaak(any())
                             cmmnService.startCase(zaak, zaakType, zaaktypeCmmnConfiguration, null)
@@ -492,7 +490,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                         zaak.url
                     )
                 } just runs
-                every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
                 every { zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID) } returns zaaktypeBpmnConfiguration
                 every { zaakVariabelenService.setZaakdata(zaak.uuid, formulierData) } just runs
                 every { zgwApiService.createZaak(capture(zaakCreatedSlot)) } returns zaak
@@ -539,7 +536,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     val restZaakReturned = zaakRestService.createZaak(restZaakAanmaakGegevens)
 
                     then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
-                        restZaakReturned shouldBe restZaak
+                        restZaakReturned shouldBe zaak.identificatie
                         verify(exactly = 1) {
                             zgwApiService.createZaak(any())
                             bpmnService.startProcess(
@@ -586,7 +583,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
                 } returns createZaaktypeBpmnConfiguration()
                 every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
-                every { loggedInUserInstance.get() } returns createLoggedInUser()
 
                 `when`("zaak creation is attempted") {
                     val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -611,7 +607,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
                 } returns createZaaktypeBpmnConfiguration()
                 every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
-                every { loggedInUserInstance.get() } returns createLoggedInUser()
 
                 `when`("zaak creation is attempted") {
                     val exception = shouldThrow<CommunicationChannelNotFound> {
@@ -636,7 +631,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
                 } returns createZaaktypeBpmnConfiguration()
                 every { policyService.readOverigeRechten(zaakType.omschrijving) } returns createOverigeRechten()
-                every { loggedInUserInstance.get() } returns createLoggedInUser()
 
                 `when`("zaak creation is attempted") {
                     val exception = shouldThrow<DueDateNotAllowed> {
@@ -667,7 +661,6 @@ class ZaakRestServiceTest : BehaviorSpec({
                     every {
                         zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
                     } returns zaaktypeCmmnConfiguration
-                    every { loggedInUserInstance.get() } returns createLoggedInUser()
 
                     val exception = shouldThrow<BetrokkeneNotAllowedException> {
                         zaakRestService.createZaak(zaakAanmaakGegevens)
