@@ -12,7 +12,7 @@ import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 @AllOpen
-data class RESTZaakAanmaakGegevens(
+data class RestZaakAanmaakGegevens(
     @field:Valid
     var zaak: RestZaakCreateData,
 

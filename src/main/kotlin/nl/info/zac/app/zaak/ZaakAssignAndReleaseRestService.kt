@@ -20,8 +20,8 @@ import kotlinx.coroutines.launch
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
-import nl.info.zac.app.zaak.model.RESTZakenVerdeelGegevens
-import nl.info.zac.app.zaak.model.RESTZakenVrijgevenGegevens
+import nl.info.zac.app.zaak.model.RestZakenVerdeelGegevens
+import nl.info.zac.app.zaak.model.RestZakenVrijgevenGegevens
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
@@ -60,7 +60,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
      */
     @PUT
     @Path("lijst/verdelen")
-    fun assignFromList(@Valid restZakenVerdeelGegevens: RESTZakenVerdeelGegevens) {
+    fun assignFromList(@Valid restZakenVerdeelGegevens: RestZakenVerdeelGegevens) {
         // Only the 'zaken taken verdelen' permission is currently required to assign tasks from the list.
         // Checking the user's authorization for each task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
@@ -144,7 +144,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
      */
     @PUT
     @Path("lijst/vrijgeven")
-    fun releaseZakenFromList(@Valid restZakenVrijgevenGegevens: RESTZakenVrijgevenGegevens) {
+    fun releaseZakenFromList(@Valid restZakenVrijgevenGegevens: RestZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation, so run it asynchronously
         CoroutineScope(dispatcher).launch {

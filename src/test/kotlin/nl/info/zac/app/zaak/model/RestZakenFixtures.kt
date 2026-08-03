@@ -143,66 +143,66 @@ fun createRestUser(
 @Suppress("LongParameterList")
 fun createRestZaak(
     behandelaar: RestUser = createRestUser(),
-    restGroup: RestGroup = createRestGroup(),
+    communicatiekanaal: String? = "fakeCommunicatiekanaal",
+    einddatumGepland: LocalDate? = null,
+    heeftOntvangstbevestigingVerstuurd: Boolean = false,
     indicaties: EnumSet<ZaakIndicatie> = EnumSet.noneOf(ZaakIndicatie::class.java),
+    initiatorBetrokkeneIdentificatie: BetrokkeneIdentificatie? = null,
+    isOpen: Boolean = true,
+    rechten: RestZaakRechten = createRestZaakRechten(),
+    restGroup: RestGroup = createRestGroup(),
     restZaakType: RestZaaktype = createRestZaaktype(),
+    startDatum: LocalDate = LocalDate.of(2023, 9, 15),
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
     uuid: UUID = UUID.randomUUID(),
-    rechten: RestZaakRechten = createRestZaakRechten(),
-    einddatumGepland: LocalDate? = null,
-    communicatiekanaal: String? = "fakeCommunicatiekanaal",
-    isOpen: Boolean = true,
-    startDatum: LocalDate = LocalDate.of(2023, 9, 15),
-    vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name,
-    heeftOntvangstbevestigingVerstuurd: Boolean = false,
-    initiatorBetrokkeneIdentificatie: BetrokkeneIdentificatie? = null
+    vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
 ) = RestZaak(
-    uuid = uuid,
-    identificatie = "ZA2023001",
-    omschrijving = "Sample Zaak",
-    toelichting = "This is a test zaak",
-    zaaktype = restZaakType,
-    status = createRestZaakStatus(),
-    resultaat = createRestZaakResultaat(),
-    besluiten = listOf(createRestBesluit()),
-    bronorganisatie = "Sample Bronorganisatie",
-    verantwoordelijkeOrganisatie = "Sample Verantwoordelijke Organisatie",
-    registratiedatum = LocalDate.of(2023, 9, 14),
-    startdatum = startDatum,
-    einddatumGepland = einddatumGepland,
-    einddatum = LocalDate.of(2023, 10, 5),
-    uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening,
-    publicatiedatum = LocalDate.of(2023, 9, 16),
     archiefActiedatum = LocalDate.of(2023, 10, 15),
-    startdatumBewaartermijn = LocalDate.of(2032, 10, 15),
     archiefNominatie = "Sample Archief Nominatie",
-    communicatiekanaal = communicatiekanaal,
-    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
-    zaakgeometrie = createRESTGeometry(),
-    isOpgeschort = true,
-    eerdereOpschorting = false,
-    redenOpschorting = "Sample Reden Opschorting",
-    isVerlengd = true,
-    redenVerlenging = "Sample Reden Verlenging",
-    duurVerlenging = "Sample Duur Verlenging",
-    groep = restGroup,
     behandelaar = behandelaar,
+    besluiten = listOf(createRestBesluit()),
+    bpmnProcessDefinition = null,
+    bronorganisatie = "Sample Bronorganisatie",
+    communicatiekanaal = communicatiekanaal,
+    duurVerlenging = "Sample Duur Verlenging",
+    eerdereOpschorting = false,
+    einddatum = LocalDate.of(2023, 10, 5),
+    einddatumGepland = einddatumGepland,
     gerelateerdeZaken = listOf(createRESTGerelateerdeZaak()),
-    kenmerken = listOf(createRESTZaakKenmerk()),
-    zaakdata = createZaakData(),
+    groep = restGroup,
+    heeftOntvangstbevestigingVerstuurd = heeftOntvangstbevestigingVerstuurd,
+    identificatie = "ZA2023001",
     indicaties = indicaties,
-    isOpen = isOpen,
+    initiatorIdentificatie = initiatorBetrokkeneIdentificatie,
+    isBesluittypeAanwezig = false,
+    isDeelzaak = false,
     isHeropend = false,
     isHoofdzaak = true,
-    isDeelzaak = false,
-    isBesluittypeAanwezig = false,
     isInIntakeFase = true,
+    isOpen = isOpen,
+    isOpgeschort = true,
     isProcesGestuurd = false,
-    bpmnProcessDefinition = null,
-    heeftOntvangstbevestigingVerstuurd = heeftOntvangstbevestigingVerstuurd,
+    isVerlengd = true,
+    kenmerken = listOf(createRESTZaakKenmerk()),
+    omschrijving = "Sample Zaak",
+    publicatiedatum = LocalDate.of(2023, 9, 16),
     rechten = rechten,
-    initiatorIdentificatie = initiatorBetrokkeneIdentificatie,
-    zaakSpecificContactDetails = null
+    redenOpschorting = "Sample Reden Opschorting",
+    redenVerlenging = "Sample Reden Verlenging",
+    registratiedatum = LocalDate.of(2023, 9, 14),
+    resultaat = createRestZaakResultaat(),
+    startdatum = startDatum,
+    startdatumBewaartermijn = LocalDate.of(2032, 10, 15),
+    status = createRestZaakStatus(),
+    toelichting = "This is a test zaak",
+    uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening,
+    uuid = uuid,
+    verantwoordelijkeOrganisatie = "Sample Verantwoordelijke Organisatie",
+    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
+    zaakdata = createZaakData(),
+    zaakgeometrie = createRESTGeometry(),
+    zaakSpecificContactDetails = null,
+    zaaktype = restZaakType
 )
 
 fun createRestZaakDataUpdate(
@@ -255,7 +255,7 @@ fun createRESTZaakAanmaakGegevens(
     ),
     inboxProductaanvraag: RestInboxProductaanvraag = createRestInboxProductaanvraag(),
     bagObjecten: List<RESTBAGObject> = listOf(createRESTPand(), createRESTOpenbareRuimte())
-) = RESTZaakAanmaakGegevens(
+) = RestZaakAanmaakGegevens(
     zaak = restZaakCreateData,
     inboxProductaanvraag = inboxProductaanvraag,
     bagObjecten = bagObjecten
@@ -274,7 +274,7 @@ fun createRestZaakInitiatorGegevens(
     betrokkeneIdentificatie = betrokkeneIdentificatie
 )
 
-fun createRESTZaakKenmerk() = RESTZaakKenmerk("Sample kenmerk", "Sample bron")
+fun createRESTZaakKenmerk() = RestZaakKenmerk("Sample kenmerk", "Sample bron")
 
 fun createRESTZaakAssignmentData(
     zaakUUID: UUID = UUID.randomUUID(),
@@ -304,7 +304,7 @@ fun createRESTZakenVerdeelGegevens(
     behandelaarGebruikersnaam: String? = null,
     reden: String? = null,
     screenEventResourceId: String? = null
-) = RESTZakenVerdeelGegevens(
+) = RestZakenVerdeelGegevens(
     uuids = uuids,
     groepId = groepId,
     behandelaarGebruikersnaam = behandelaarGebruikersnaam,
@@ -316,7 +316,7 @@ fun createRESTZakenVrijgevenGegevens(
     uuids: List<UUID> = emptyList(),
     reden: String? = null,
     screenEventResourceId: String? = null
-) = RESTZakenVrijgevenGegevens(
+) = RestZakenVrijgevenGegevens(
     uuids = uuids,
     reden = reden,
     screenEventResourceId = screenEventResourceId
