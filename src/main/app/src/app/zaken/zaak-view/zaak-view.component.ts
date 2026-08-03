@@ -57,6 +57,14 @@ import { ZakenService } from "../zaken.service";
 
 type InitiatorViewType = "PERSON" | "COMPANY" | "CONTACT_DETAILS" | "ADD";
 
+type ZaakDetailField = {
+  /** omitting this renders the field; only an explicit `false` hides it */
+  show?: boolean;
+  label: string;
+  value: string | null;
+  format?: "date";
+};
+
 @Component({
   templateUrl: "./zaak-view.component.html",
   styleUrls: ["./zaak-view.component.less"],
@@ -199,6 +207,61 @@ export class ZaakViewComponent
     this.websocketService.removeListener(this.zaakListener);
     this.websocketService.removeListener(this.zaakBesluitenListener);
     this.websocketService.removeListener(this.zaakRollenListener);
+  }
+
+  protected zaakDetailFields(): ZaakDetailField[] {
+    const bronArchiefprocedure =
+      this.zaak.resultaat?.resultaattype?.bronArchiefprocedure;
+
+    const fields: ZaakDetailField[] = [
+      {
+        label: "status",
+        value: this.zaak.status?.naam ?? null,
+      },
+      {
+        label: "registratiedatum",
+        value: this.zaak.registratiedatum ?? null,
+        format: "date",
+      },
+      {
+        label: "resultaat",
+        value: this.zaak.resultaat?.resultaattype?.naam ?? null,
+      },
+      {
+        show: Boolean(this.zaak.einddatum),
+        label: "einddatum",
+        value: this.zaak.einddatum ?? null,
+        format: "date",
+      },
+      {
+        show: Boolean(this.zaak.startdatumBewaartermijn),
+        label: "startdatumBewaartermijn",
+        value: this.zaak.startdatumBewaartermijn ?? null,
+        format: "date",
+      },
+      {
+        show: Boolean(bronArchiefprocedure?.afleidingswijze),
+        label: "afleidingswijzeBrondatum",
+        value: bronArchiefprocedure?.afleidingswijze ?? null,
+      },
+      {
+        show: this.zaak.archiefNominatie === "VERNIETIGEN",
+        label: `archiefNominatie.datum.${this.zaak.archiefNominatie}`,
+        value: this.zaak.archiefActiedatum ?? null,
+        format: "date",
+      },
+      {
+        show: this.zaak.archiefNominatie === "BLIJVEND_BEWAREN",
+        label: "archiefNominatie",
+        value: String(
+          this.translate.instant(
+            `archiefNominatie.${this.zaak.archiefNominatie}`,
+          ),
+        ),
+      },
+    ];
+
+    return fields.filter(({ show }) => show !== false);
   }
 
   private setDateFieldIconSet() {
