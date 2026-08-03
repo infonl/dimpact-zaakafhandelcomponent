@@ -28,7 +28,7 @@ export abstract class AbstractTaskForm implements OnDestroy {
   ): Promise<FormField[]>;
 
   /**
-   * Called once the taak is completed. Forms whose fields depend on what completing did -
+   * Called once the task is completed. Forms whose fields depend on what completing did -
    * signing a document, for instance - update them here. Does nothing by default.
    */
   onTaskCompleted(
