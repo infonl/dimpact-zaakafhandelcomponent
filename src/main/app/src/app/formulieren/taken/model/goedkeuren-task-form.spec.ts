@@ -5,6 +5,7 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
+import { FormControl, FormGroup } from "@angular/forms";
 import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { lastValueFrom, Observable, of } from "rxjs";
@@ -181,6 +182,8 @@ describe(GoedkeurenTaskForm.name, () => {
     const mockTaak = fromPartial<GeneratedType<"RestTask">>({
       zaakUuid: "zaak-uuid",
       zaakIdentificatie: "ZAAK-2026-001",
+      status: "TOEGEKEND",
+      rechten: { wijzigen: true },
       taakdata: {},
     });
 
@@ -387,6 +390,96 @@ describe(GoedkeurenTaskForm.name, () => {
         expect(control?.value).toEqual([]);
       });
 
+      it("should list only the signed documents from the ondertekenen taakdata when the taak is afgerond", async () => {
+        const signedDocument = fromPartial<
+          GeneratedType<"RestEnkelvoudigInformatieobject">
+        >({
+          uuid: "doc-uuid-1",
+          titel: "Signed document",
+          ondertekening: { soort: "digitaal", datum: "2026-01-01" },
+        });
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([signedDocument, mockDocument2]),
+        );
+        const afgerondeTaak = fromPartial<GeneratedType<"RestTask">>({
+          ...mockTaak,
+          status: "AFGEROND",
+          taakdata: {
+            relevanteDocumenten: "doc-uuid-1;doc-uuid-2",
+            ondertekenen: "doc-uuid-1;doc-uuid-2",
+          },
+        });
+
+        const fields = await formulier.handleForm(afgerondeTaak);
+
+        const field = fields.find((f) => f.key === "ondertekenen");
+        expect("options" in field! ? field.options : []).toEqual([
+          signedDocument,
+        ]);
+        expect(field?.control?.value).toEqual([signedDocument]);
+      });
+
+      it("should fetch only the ondertekenen uuids when the taak is afgerond", async () => {
+        const afgerondeTaak = fromPartial<GeneratedType<"RestTask">>({
+          ...mockTaak,
+          status: "AFGEROND",
+          taakdata: {
+            relevanteDocumenten: "doc-uuid-1;doc-uuid-2",
+            ondertekenen: "doc-uuid-1",
+          },
+        });
+
+        await formulier.handleForm(afgerondeTaak);
+
+        expect(
+          informatieObjectenService.listEnkelvoudigInformatieobjecten,
+        ).toHaveBeenCalledWith({
+          zaakUUID: "zaak-uuid",
+          informatieobjectUUIDs: ["doc-uuid-1"],
+        });
+      });
+
+      it("should omit a document that was put forward for signing but is not signed", async () => {
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([mockDocument1, mockDocument2]),
+        );
+        const afgerondeTaak = fromPartial<GeneratedType<"RestTask">>({
+          ...mockTaak,
+          status: "AFGEROND",
+          taakdata: { ondertekenen: "doc-uuid-1;doc-uuid-2" },
+        });
+
+        const fields = await formulier.handleForm(afgerondeTaak);
+
+        const field = fields.find((f) => f.key === "ondertekenen");
+        expect("options" in field! ? field.options : []).toEqual([]);
+      });
+
+      it("should list the signed documents when the user may not edit the taak", async () => {
+        const signedDocument = fromPartial<
+          GeneratedType<"RestEnkelvoudigInformatieobject">
+        >({
+          uuid: "doc-uuid-1",
+          titel: "Signed document",
+          ondertekening: { soort: "digitaal", datum: "2026-01-01" },
+        });
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([signedDocument]),
+        );
+        const readonlyTaak = fromPartial<GeneratedType<"RestTask">>({
+          ...mockTaak,
+          rechten: { wijzigen: false },
+          taakdata: { ondertekenen: "doc-uuid-1" },
+        });
+
+        const fields = await formulier.handleForm(readonlyTaak);
+
+        const field = fields.find((f) => f.key === "ondertekenen");
+        expect("options" in field! ? field.options : []).toEqual([
+          signedDocument,
+        ]);
+      });
+
       it("should initialize ondertekenen as empty when no documents were previously signed", async () => {
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
           of([mockDocument1, mockDocument2]),
@@ -438,6 +531,54 @@ describe(GoedkeurenTaskForm.name, () => {
         expect(
           fields.find((f) => f.key === "goedkeuren")?.control?.value,
         ).toBeFalsy();
+      });
+    });
+
+    describe("onTaskCompleted", () => {
+      const signedDocument = fromPartial<
+        GeneratedType<"RestEnkelvoudigInformatieobject">
+      >({
+        uuid: "doc-uuid-1",
+        titel: "Signed document",
+        ondertekening: { soort: "digitaal", datum: "2026-01-01" },
+      });
+
+      it("should narrow the ondertekenen field to the signed documents", async () => {
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([mockDocument1, mockDocument2]),
+        );
+        const fields = await formulier.handleForm(mockTaak);
+        const form = new FormGroup({
+          ondertekenen: fields.find((f) => f.key === "ondertekenen")
+            ?.control as FormControl,
+        });
+
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([signedDocument, mockDocument2]),
+        );
+        const completedTaak = fromPartial<GeneratedType<"RestTask">>({
+          ...mockTaak,
+          status: "AFGEROND",
+          taakdata: { ondertekenen: "doc-uuid-1;doc-uuid-2" },
+        });
+
+        await formulier.onTaskCompleted(completedTaak, form, fields);
+
+        const field = fields.find((f) => f.key === "ondertekenen");
+        expect("options" in field! ? field.options : []).toEqual([
+          signedDocument,
+        ]);
+        expect(form.get("ondertekenen")?.value).toEqual([signedDocument]);
+      });
+
+      it("should do nothing when the form has no ondertekenen field", async () => {
+        const form = new FormGroup({});
+
+        await formulier.onTaskCompleted(mockTaak, form, []);
+
+        expect(
+          informatieObjectenService.listEnkelvoudigInformatieobjecten,
+        ).not.toHaveBeenCalled();
       });
     });
   });

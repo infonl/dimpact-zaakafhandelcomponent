@@ -36,6 +36,15 @@ module.exports = {
         "@angular-eslint/use-lifecycle-interface": "error",
         "@angular-eslint/prefer-standalone": "warn",
         "@angular-eslint/prefer-inject": "warn",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            args: "after-used",
+            argsIgnorePattern: "^_",
+            varsIgnorePattern: "^_",
+            caughtErrorsIgnorePattern: "^_",
+          },
+        ],
       },
     },
     {

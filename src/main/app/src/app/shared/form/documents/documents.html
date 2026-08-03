@@ -17,7 +17,7 @@
           *ngIf="!readonly()"
           (change)="onToggleOption(document)"
           [disabled]="readonly()"
-          [checked]="selection.isSelected(document)"
+          [checked]="isChecked(document)"
         >
         </mat-checkbox>
       </td>
