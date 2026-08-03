@@ -68,11 +68,11 @@ services:
     platform: linux/arm64
 
   openzaak.local:
-    image: ghcr.io/infonl/open-zaak:1.29.1@sha256:d7157acb03be6358837647b01db88558d5c766414f1c401f75ccb83bcc5e910c
+    image: ghcr.io/infonl/open-zaak:1.29.2@sha256:83522ce5cbb6f57b123e61914ed41913bae3041d607f19ee91ffb600e8164275
     platform: linux/arm64
 
   openzaak-celery:
-    image: ghcr.io/infonl/open-zaak:1.29.1@sha256:d7157acb03be6358837647b01db88558d5c766414f1c401f75ccb83bcc5e910c
+    image: ghcr.io/infonl/open-zaak:1.29.2@sha256:83522ce5cbb6f57b123e61914ed41913bae3041d607f19ee91ffb600e8164275
     platform: linux/arm64
 
   pabc-migrations:
