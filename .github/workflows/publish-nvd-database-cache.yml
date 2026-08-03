@@ -68,6 +68,9 @@ jobs:
         # openspec/changes/migrate-docker-to-podman/design.md) instead of Ubuntu's unpinned apt package.
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          # `brew tap-new` commits the scaffolded tap, which needs a git identity - this runner has none.
+          git config --global user.email "ci@localhost"
+          git config --global user.name "CI"
           brew tap-new local/podman
           curl -fsSL -o "$(brew --repo local/podman)/Formula/podman.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/7644fe05a72172a9c494812c8efbc5bc6c4fa8a3/Formula/p/podman.rb"
           brew install local/podman/podman
