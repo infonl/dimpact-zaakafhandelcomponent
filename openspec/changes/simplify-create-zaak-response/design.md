@@ -24,13 +24,12 @@ The itest suite has ~30 files that call `zacClient.createZaak(...)` (raw HTTP wr
 
 **Non-Goals:**
 - Not changing the response shape of `GET /rest/zaken/zaak/{uuid}` or `GET /rest/zaken/zaak/id/{identificatie}` — those keep returning full `RestZaak` and remain the way to fetch a zaak's full details after creation.
-- Not introducing a wrapper DTO (e.g. `RestZaakIdentificatie(identificatie: String)`) — a bare string matches the literal ask and has in-repo precedent; a wrapper would only add ceremony for a single scalar field.
 - Not touching `RestZaakCreateData`/`RestZaakAanmaakGegevens` (the request body) — only the response changes.
 
 ## Decisions
 
-### Return a bare `String`, not a wrapper object
-Considered wrapping in a small `data class RestZaakIdentificatie(val identificatie: String)` so the frontend could keep destructuring `{ identificatie }`. Rejected: the user's ask is explicit ("only returns the zaak identification as a string"), there's existing precedent in the codebase for bare-string JSON responses, and a single-field wrapper is exactly the kind of unnecessary abstraction the project's conventions discourage. The frontend change is a one-line adjustment either way.
+### Return a `CreateZaakResponse` wrapper data class, not a bare `String`
+Initially implemented as a bare `String` response (matching an in-repo precedent for bare-string JSON responses, e.g. `ConfigurationRestService.readGemeenteCode()`). Superseded on explicit request: the endpoint now returns a small `data class CreateZaakResponse(var identificatie: String)` (`src/main/kotlin/nl/info/zac/app/zaak/model/CreateZaakResponse.kt`), following the project's `@NoArgConstructor` / `@AllOpen` convention for simple REST DTOs (matching e.g. `RestReden`). This restores object-shaped destructuring on the frontend (`{ identificatie }`) and gives the response room to grow an additional field later without a breaking shape change (object → object is additive; string → object is not).
 
 ### Drop the trailing policy/conversion calls entirely
 `policyService.readZaakRechten(...)` and `restZaakConverter.toRestZaak(...)` at the end of `createZaak` are removed rather than kept-but-unused, since their only purpose was producing the now-discarded `RestZaak`. `zaakType` and `loggedInUser` remain used earlier in the function (permission checks, `addInitiator`, `startZaak`), so no other cleanup is needed there.
@@ -44,7 +43,7 @@ Considered wrapping in a small `data class RestZaakIdentificatie(val identificat
 Trade-off: every itest that needs the zaak UUID now costs one extra HTTP round-trip. Given itest suites already tolerate many sequential calls (Docker/TestContainers-backed), this is an acceptable, and correctly scoped, cost.
 
 ### itest files asserting full `RestZaak` structure on the create response
-The two `ZaakRestServiceTest.kt` (itest) scenarios that assert broad `RestZaak` JSON structure (bronorganisatie, groep, besluiten, isOpen, etc.) directly against the create response are rewritten to: (1) assert the create response is exactly the identification string, then (2) call the existing zaak-read endpoint and assert the detailed structure against that response instead. This preserves the original test intent (verifying the zaak was created with the right attributes) while adapting to the new contract.
+The two `ZaakRestServiceTest.kt` (itest) scenarios that assert broad `RestZaak` JSON structure (bronorganisatie, groep, besluiten, isOpen, etc.) directly against the create response are rewritten to: (1) assert the create response contains only `identificatie`, then (2) call the existing zaak-read endpoint and assert the detailed structure against that response instead. This preserves the original test intent (verifying the zaak was created with the right attributes) while adapting to the new contract. One of these rewrites also surfaced a genuine (pre-existing) timing quirk: the old synchronous create response reflected the zaak *before* the CMMN engine had asynchronously set its first status, so `isInIntakeFase` read as `false`; a fresh read after creation correctly shows `true` once that first status exists — the test's expected value was updated to match, matching an identical assertion already present elsewhere in the same file.
 
 ## Risks / Trade-offs
 
