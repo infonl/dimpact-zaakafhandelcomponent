@@ -173,7 +173,7 @@ describe(ZacDocuments.name, () => {
     });
 
     it("should check documents that were in the form control before the first render", async () => {
-      // Reproduces re-opening a saved taak: the control is filled while building the
+      // Reproduces re-opening a saved task: the control is filled while building the
       // form, so it never emits a `valueChanges` the component could pick up
       const form = createTestForm();
       form.controls.documents.setValue([makeDocument()]);
