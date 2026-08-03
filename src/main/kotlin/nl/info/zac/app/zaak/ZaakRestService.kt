@@ -65,6 +65,7 @@ import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
+import nl.info.zac.app.zaak.model.CreateZaakResponse
 import nl.info.zac.app.zaak.model.RestReden
 import nl.info.zac.app.zaak.model.RestZaakAanmaakGegevens
 import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
@@ -192,16 +193,10 @@ class ZaakRestService @Inject constructor(
         )
     }
 
-    /**
-     * Creates a new zaak.
-     *
-     * @return the identification (`identificatie`) of the newly created zaak. Use
-     * [readZaakById] to retrieve the full zaak details.
-     */
     @Suppress("LongMethod")
     @POST
     @Path("zaak")
-    fun createZaak(@Valid restZaakAanmaakGegevens: RestZaakAanmaakGegevens): String {
+    fun createZaak(@Valid restZaakAanmaakGegevens: RestZaakAanmaakGegevens): CreateZaakResponse {
         val restZaak = restZaakAanmaakGegevens.zaak
         val zaaktypeUUID = restZaak.zaaktype.uuid
         val zaakType = zaakService.readZaakTypeByUUID(zaaktypeUUID)
@@ -229,7 +224,7 @@ class ZaakRestService @Inject constructor(
         restZaakAanmaakGegevens.bagObjecten?.forEach {
             zrcClientService.createZaakobject(RestBagConverter.convertToZaakobject(it, zaak))
         }
-        return zaak.identificatie
+        return CreateZaakResponse(zaak.identificatie)
     }
 
     @DELETE

@@ -104,7 +104,7 @@ export class ZaakCreateComponent {
 
   protected createZaakMutation = injectMutation(() => ({
     ...this.zakenService.createZaak(),
-    onSuccess: (identificatie) => {
+    onSuccess: ({ identificatie }) => {
       void this.router.navigate(["/zaken/", identificatie]);
     },
     onError: (error) => {

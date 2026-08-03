@@ -9,7 +9,7 @@ import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.TestUser
-import org.json.JSONTokener
+import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -47,6 +47,6 @@ fun ZacClient.createZaakAndRetrieve(
         testUser = testUser
     )
     createResponse.code shouldBe HttpURLConnection.HTTP_OK
-    val zaakIdentification = JSONTokener(createResponse.bodyAsString).nextValue() as String
+    val zaakIdentification = JSONObject(createResponse.bodyAsString).getString("identificatie")
     return retrieveZaak(zaakIdentification, testUser)
 }

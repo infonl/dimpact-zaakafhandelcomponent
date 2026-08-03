@@ -81,7 +81,6 @@ import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
 import org.json.JSONObject
-import org.json.JSONTokener
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
@@ -246,7 +245,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
-                    zaakIdentification = JSONTokener(responseBody).nextValue() as String
+                    zaakIdentification = JSONObject(responseBody).getString("identificatie")
                     zaakIdentification shouldNotBe null
                 }
 
@@ -1277,7 +1276,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
-                    zaakIdentification = JSONTokener(responseBody).nextValue() as String
+                    zaakIdentification = JSONObject(responseBody).getString("identificatie")
                     zaakIdentification shouldNotBe null
                 }
             }

@@ -69,6 +69,7 @@ import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
+import nl.info.zac.app.zaak.model.CreateZaakResponse
 import nl.info.zac.app.zaak.model.RestReden
 import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
 import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
@@ -386,7 +387,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     val restZaakReturned = zaakRestService.createZaak(restZaakAanmaakGegevens)
 
                     then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
-                        restZaakReturned shouldBe zaak.identificatie
+                        restZaakReturned shouldBe CreateZaakResponse(zaak.identificatie)
                         verify(exactly = 1) {
                             zgwApiService.createZaak(any())
                             cmmnService.startCase(zaak, zaakType, zaaktypeCmmnConfiguration, null)
@@ -536,7 +537,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     val restZaakReturned = zaakRestService.createZaak(restZaakAanmaakGegevens)
 
                     then("a zaak is created using the ZGW API and a zaak is started in the ZAC CMMN service") {
-                        restZaakReturned shouldBe zaak.identificatie
+                        restZaakReturned shouldBe CreateZaakResponse(zaak.identificatie)
                         verify(exactly = 1) {
                             zgwApiService.createZaak(any())
                             bpmnService.startProcess(

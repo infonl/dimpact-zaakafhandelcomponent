@@ -19,7 +19,6 @@ import nl.info.zac.itest.config.TestGroup
 import nl.info.zac.itest.config.TestUser
 import okhttp3.Headers
 import org.json.JSONObject
-import org.json.JSONTokener
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.ZoneId
@@ -66,7 +65,7 @@ class ZaakHelper(
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_OK
-            JSONTokener(bodyAsString).nextValue() as String
+            JSONObject(bodyAsString).getString("identificatie")
         }
         val zaakUuid = zacClient.retrieveZaak(zaakIdentification, testUser).run {
             code shouldBe HTTP_OK
