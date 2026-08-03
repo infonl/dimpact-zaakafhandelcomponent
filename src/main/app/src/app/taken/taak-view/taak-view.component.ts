@@ -411,8 +411,7 @@ export class TaakViewComponent
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     const taskBody:
-      | PutBody<"/rest/taken/taakdata">
-      | PatchBody<"/rest/taken/complete"> = {
+      PutBody<"/rest/taken/taakdata"> | PatchBody<"/rest/taken/complete"> = {
       ...this.taak!,
       taakdata: {
         ...this.taak!.taakdata,
@@ -447,6 +446,9 @@ export class TaakViewComponent
     this.completeTaakMutation.mutate(taskBody, {
       onSuccess: (task) => {
         this.init(task, false);
+        void this.taakFormulierenService
+          .getAngularTaskForm(task.formulierDefinitieId)
+          .onTaskCompleted(task, this.form, this.formFields);
       },
     });
   }

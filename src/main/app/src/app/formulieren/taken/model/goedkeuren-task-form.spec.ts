@@ -5,6 +5,7 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
+import { FormControl, FormGroup } from "@angular/forms";
 import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { lastValueFrom, Observable, of } from "rxjs";
@@ -530,6 +531,54 @@ describe(GoedkeurenTaskForm.name, () => {
         expect(
           fields.find((f) => f.key === "goedkeuren")?.control?.value,
         ).toBeFalsy();
+      });
+    });
+
+    describe("onTaskCompleted", () => {
+      const signedDocument = fromPartial<
+        GeneratedType<"RestEnkelvoudigInformatieobject">
+      >({
+        uuid: "doc-uuid-1",
+        titel: "Signed document",
+        ondertekening: { soort: "digitaal", datum: "2026-01-01" },
+      });
+
+      it("should narrow the ondertekenen field to the signed documents", async () => {
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([mockDocument1, mockDocument2]),
+        );
+        const fields = await formulier.handleForm(mockTaak);
+        const form = new FormGroup({
+          ondertekenen: fields.find((f) => f.key === "ondertekenen")
+            ?.control as FormControl,
+        });
+
+        listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
+          of([signedDocument, mockDocument2]),
+        );
+        const completedTaak = fromPartial<GeneratedType<"RestTask">>({
+          ...mockTaak,
+          status: "AFGEROND",
+          taakdata: { ondertekenen: "doc-uuid-1;doc-uuid-2" },
+        });
+
+        await formulier.onTaskCompleted(completedTaak, form, fields);
+
+        const field = fields.find((f) => f.key === "ondertekenen");
+        expect("options" in field! ? field.options : []).toEqual([
+          signedDocument,
+        ]);
+        expect(form.get("ondertekenen")?.value).toEqual([signedDocument]);
+      });
+
+      it("should do nothing when the form has no ondertekenen field", async () => {
+        const form = new FormGroup({});
+
+        await formulier.onTaskCompleted(mockTaak, form, []);
+
+        expect(
+          informatieObjectenService.listEnkelvoudigInformatieobjecten,
+        ).not.toHaveBeenCalled();
       });
     });
   });

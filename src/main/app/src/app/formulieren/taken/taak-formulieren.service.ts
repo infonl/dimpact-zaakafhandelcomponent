@@ -8,6 +8,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { AbstractTaskForm } from "./model/abstract-task-form";
 import { AanvullendeInformatieTaskForm } from "./model/aanvullende-informatie-task-form";
 import { AdviesTaskForm } from "./model/advies-task-form";
 import { DefaultTaskForm } from "./model/default-task-form";
@@ -66,29 +67,38 @@ export class TaakFormulierenService {
     }
   }
 
+  public getAngularTaskForm(
+    formulierDefinitieId: GeneratedType<"RestTask">["formulierDefinitieId"],
+  ): AbstractTaskForm {
+    switch (formulierDefinitieId) {
+      case "DEFAULT_TAAKFORMULIER":
+        return this.defaultTaskForm;
+      case "GOEDKEUREN":
+        return this.goedkeurenTaskForm;
+      case "AANVULLENDE_INFORMATIE":
+        return this.aanvullendeInformatieTaskForm;
+      case "ADVIES":
+        return this.adviesTaskForm;
+      case "EXTERN_ADVIES_VASTLEGGEN":
+        return this.externAdviesVastleggenTaskForm;
+      case "EXTERN_ADVIES_MAIL":
+        return this.externAdviesMailTaskForm;
+      case "DOCUMENT_VERZENDEN_POST":
+        return this.documentVerzendenPostTaskForm;
+      default:
+        throw new Error(
+          `${formulierDefinitieId}: Onbekende formulierDefinitie for Angular`,
+        );
+    }
+  }
+
   public async getAngularHandleFormBuilder(
     taak: GeneratedType<"RestTask">,
     zaak: GeneratedType<"RestZaak">,
   ): Promise<FormField[]> {
-    switch (taak.formulierDefinitieId) {
-      case "DEFAULT_TAAKFORMULIER":
-        return this.defaultTaskForm.handleForm(taak);
-      case "GOEDKEUREN":
-        return this.goedkeurenTaskForm.handleForm(taak);
-      case "AANVULLENDE_INFORMATIE":
-        return this.aanvullendeInformatieTaskForm.handleForm(taak, zaak);
-      case "ADVIES":
-        return this.adviesTaskForm.handleForm(taak);
-      case "EXTERN_ADVIES_VASTLEGGEN":
-        return this.externAdviesVastleggenTaskForm.handleForm(taak);
-      case "EXTERN_ADVIES_MAIL":
-        return this.externAdviesMailTaskForm.handleForm(taak);
-      case "DOCUMENT_VERZENDEN_POST":
-        return this.documentVerzendenPostTaskForm.handleForm(taak);
-      default:
-        throw new Error(
-          `${taak.formulierDefinitieId}: Onbekende formulierDefinitie for Angular`,
-        );
-    }
+    return this.getAngularTaskForm(taak.formulierDefinitieId).handleForm(
+      taak,
+      zaak,
+    );
   }
 }

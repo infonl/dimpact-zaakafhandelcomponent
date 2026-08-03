@@ -4,7 +4,7 @@
  */
 
 import { inject, Injectable, OnDestroy } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
@@ -26,6 +26,16 @@ export abstract class AbstractTaskForm implements OnDestroy {
     taak: GeneratedType<"RestTask">,
     zaak?: GeneratedType<"RestZaak">,
   ): Promise<FormField[]>;
+
+  /**
+   * Called once the taak is completed. Forms whose fields depend on what completing did -
+   * signing a document, for instance - update them here. Does nothing by default.
+   */
+  onTaskCompleted(
+    _taak: GeneratedType<"RestTask">,
+    _form: FormGroup,
+    _formFields: FormField[],
+  ): Promise<void> | void {}
 
   ngOnDestroy() {
     this.destroy$.next();
