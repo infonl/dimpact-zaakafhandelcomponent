@@ -96,10 +96,10 @@ class RestZaakConverter @Inject constructor(
             ?.betrokkeneIdentificatie
             ?.let { restUserConverter.convertUserId(it.identificatie) }
         val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
-        val initiatorIndentificatie = initiator?.let {
+        val initiatorIdentificatie = initiator?.let {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(it)
         }
-        val zaakSpecificContactDetails = initiator?.let { klantClientService.findZaakSpecificContactDetails(zaak.uuid) }
+        val zaakSpecificContactDetails = klantClientService.findZaakSpecificContactDetails(zaak.uuid)
         val zaakData = zaakVariabelenService.readZaakdata(zaak.uuid)
         val hasSentConfirmationOfReceipt = zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
@@ -131,7 +131,7 @@ class RestZaakConverter @Inject constructor(
                     add(ONTVANGSTBEVESTIGING_NIET_VERSTUURD)
                 }
             },
-            initiatorIdentificatie = initiatorIndentificatie,
+            initiatorIdentificatie = initiatorIdentificatie,
             isBesluittypeAanwezig = zaakType.besluittypen?.isNotEmpty() ?: false,
             isDeelzaak = zaak.isDeelzaak(),
             isHeropend = statustype.isHeropend(),
