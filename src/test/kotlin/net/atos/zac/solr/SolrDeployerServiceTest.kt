@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.request.SolrPing
 import org.apache.solr.client.solrj.request.schema.SchemaRequest
 import org.apache.solr.client.solrj.request.schema.SchemaRequest.Fields
 import org.apache.solr.client.solrj.request.schema.SchemaRequest.MultiUpdate
+import org.apache.solr.common.SolrException
 import java.util.concurrent.CompletableFuture
 
 class SolrDeployerServiceTest : BehaviorSpec({
@@ -49,7 +50,7 @@ class SolrDeployerServiceTest : BehaviorSpec({
         val solrSchemaUpdateInstance = mockk<Instance<SolrSchemaUpdate>>()
         val solrSchemaUpdate = mockk<SolrSchemaUpdate>()
         val solrSchemaRequestUpdate = mockk<SchemaRequest.Update>()
-        every { solrSchemaUpdateInstance.stream().sorted(any()).toList() } returns listOf(solrSchemaUpdate)
+        every { solrSchemaUpdateInstance.iterator() } returns mutableListOf(solrSchemaUpdate).iterator()
         every { solrSchemaUpdate.versie } returns 1
         every { solrSchemaUpdate.schemaUpdates } returns listOf(solrSchemaRequestUpdate)
         mockkConstructor(MultiUpdate::class)
@@ -68,6 +69,38 @@ class SolrDeployerServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     anyConstructed<MultiUpdate>().process(any())
                     managedExecutorService.submit(any())
+                }
+            }
+        }
+    }
+
+    given("Solr does not respond successfully to the first two ping attempts but does on the third") {
+        mockkConstructor(SolrPing::class)
+        var pingAttempt = 0
+        every { anyConstructed<SolrPing>().setActionPing().process(any()).status } answers {
+            pingAttempt++
+            if (pingAttempt < 3) {
+                throw SolrException(SolrException.ErrorCode.SERVER_ERROR, "Solr is not reachable yet")
+            }
+            0
+        }
+        mockkConstructor(Fields::class)
+        // mock that the current Solr schema version is already up to date, so no schema update is needed
+        every { anyConstructed<Fields>().process(any()).fields } returns emptyList()
+        val solrSchemaUpdateInstance = mockk<Instance<SolrSchemaUpdate>>()
+        val solrSchemaUpdate = mockk<SolrSchemaUpdate>()
+        every { solrSchemaUpdateInstance.iterator() } returns mutableListOf(solrSchemaUpdate).iterator()
+        every { solrSchemaUpdate.versie } returns 0
+
+        solrDeployerService.setManagedExecutorService(managedExecutorService)
+        solrDeployerService.setSchemaUpdates(solrSchemaUpdateInstance)
+
+        `when`("the ZAC Solr deployer service is started") {
+            solrDeployerService.onStartup(Any())
+
+            then("it retries the ping with backoff until Solr becomes available") {
+                verify(exactly = 3) {
+                    anyConstructed<SolrPing>().setActionPing().process(any())
                 }
             }
         }
