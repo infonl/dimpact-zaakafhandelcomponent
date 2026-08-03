@@ -48,7 +48,7 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
   }
 
   /**
-   * What the taak actually signed: the documents it put forward for signing that carry a
+   * What the task actually signed: the documents it put forward for signing that carry a
    * signature now. Re-reading all relevante documenten and dropping the signed ones would
    * show exactly the opposite.
    */
