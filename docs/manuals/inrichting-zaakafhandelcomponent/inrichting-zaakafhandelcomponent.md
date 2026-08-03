@@ -430,7 +430,7 @@ Stappen:
 
 ## Procestermijnen
 
-Een procestermijn is de periode tussen het afsluiten van een zaak en het moment waarop de archieftermijn (vernietigen of blijvend bewaren) daadwerkelijk start. De procestermijn wordt gebruikt wanneer de geldigheid of levensduur van een procesobject nog doorloopt nadat de zaak administratief is afgehandeld.
+Een procestermijn is de periode tussen het afsluiten van een zaak en het moment waarop de archieftermijn (vernietigen of blijvend bewaren) daadwerkelijk start. De procestermijn wordt gebruikt wanneer de geldigheid of levensduur van een procesobject nog doorloopt nadat de zaak administratief is afgehandeld. Zie ook: [Selectielijsten ter inzage - Nationaal Archief](https://www.nationaalarchief.nl/archiveren/kennisbank/selectielijsten-ter-inzage) en [Handreiking Selectielijst - GEMMA Online](https://www.gemmaonline.nl/wiki/Bijlage_2._Uitleg_procestermijn,_bewaartermijn_en_relatie_met_procesobject).
 
 De archiefactiedatum wordt bepaald door de combinatie van:
 
