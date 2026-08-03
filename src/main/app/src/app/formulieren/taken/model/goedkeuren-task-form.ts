@@ -61,14 +61,24 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
       taak.taakdata?.["relevanteDocumenten"],
     );
 
-    const documentsToSign = (
-      await lastValueFrom(
-        this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-          zaakUUID: taak.zaakUuid,
-          informatieobjectUUIDs: relevantDocumentUUIDs,
-        }),
-      )
-    ).filter((document) => !document.ondertekening);
+    const readonly = taak.status === "AFGEROND" || !taak.rechten?.wijzigen;
+
+    // A read-only taak reports what it did: only the documents it put forward for signing
+    // that actually carry a signature now. Re-reading all relevante documenten and dropping
+    // the signed ones would show exactly the opposite.
+    const documentUUIDs = readonly ? checkedDocuments : relevantDocumentUUIDs;
+
+    const documents = await lastValueFrom(
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: taak.zaakUuid,
+        informatieobjectUUIDs: documentUUIDs,
+      }),
+    );
+
+    const documentsToSign = readonly
+      ? documents.filter((document) => document.ondertekening)
+      : documents.filter((document) => !document.ondertekening);
+
     const initiallyCheckedDocuments = documentsToSign.filter((document) =>
       checkedDocuments.includes(document.uuid!),
     );
