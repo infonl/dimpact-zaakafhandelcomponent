@@ -69,10 +69,10 @@ import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
-import nl.info.zac.app.zaak.model.RESTReden
-import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
-import nl.info.zac.app.zaak.model.RESTZaakAfsluitenGegevens
-import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
+import nl.info.zac.app.zaak.model.RestReden
+import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
+import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
+import nl.info.zac.app.zaak.model.RestZaakEditMetRedenGegevens
 import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.ZAAK_TYPE_1_OMSCHRIJVING
 import nl.info.zac.app.zaak.model.createBetrokkeneIdentificatie
@@ -196,7 +196,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val reden = "Fake reden"
             val resultaattypeUuid = UUID.randomUUID()
-            val restZaakAfsluitenGegevens = RESTZaakAfsluitenGegevens(reden, resultaattypeUuid)
+            val restZaakAfsluitenGegevens = RestZaakAfsluitenGegevens(reden, resultaattypeUuid)
             val loggedInUser = createLoggedInUser()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
@@ -221,7 +221,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val reden = "Fake reden"
             val resultaattypeUuid = UUID.randomUUID()
             val brondatumEigenschap = "2023-12-01T00:00:00.000+01:00"
-            val restZaakAfsluitenGegevens = RESTZaakAfsluitenGegevens(reden, resultaattypeUuid, brondatumEigenschap)
+            val restZaakAfsluitenGegevens = RestZaakAfsluitenGegevens(reden, resultaattypeUuid, brondatumEigenschap)
             val loggedInUser = createLoggedInUser()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
@@ -252,7 +252,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val reden = "Fake reden"
             val resultaattypeUuid = UUID.randomUUID()
-            val restZaakAfsluitenGegevens = RESTZaakAfsluitenGegevens(reden, resultaattypeUuid, "not-a-date")
+            val restZaakAfsluitenGegevens = RestZaakAfsluitenGegevens(reden, resultaattypeUuid, "not-a-date")
             val loggedInUser = createLoggedInUser()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
@@ -699,7 +699,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("the initiator is deleted") {
-                val updatedRestZaak = zaakRestService.deleteInitiator(zaak.uuid, RESTReden("fake reason"))
+                val updatedRestZaak = zaakRestService.deleteInitiator(zaak.uuid, RestReden("fake reason"))
 
                 then("the initiator should be removed from the zaak") {
                     updatedRestZaak shouldBe restZaak
@@ -1247,7 +1247,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             `when`("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
                 zaakRestService.terminateZaak(
                     zaak.uuid,
-                    RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
+                    RestZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
                 )
 
                 then("it is ended with result") {
@@ -1281,7 +1281,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 shouldThrow<ZaakWithABesluitCannotBeTerminatedException> {
                     zaakRestService.terminateZaak(
                         zaakUuid,
-                        RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
+                        RestZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
                     )
                 }
 
@@ -1324,7 +1324,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { zgwApiService.closeZaak(zaak, resultTypeUUID, "-2 name") } just runs
                 every { cmmnService.terminateCase(zaak.uuid) } returns Unit
                 every { loggedInUserInstance.get() } returns loggedInUser
-                zaakRestService.terminateZaak(zaak.uuid, RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
+                zaakRestService.terminateZaak(zaak.uuid, RestZaakAfbrekenGegevens(zaakbeeindigRedenId = "-2"))
 
                 then("it is ended with result") {
                     verify(exactly = 1) {
@@ -1344,7 +1344,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 val exception = shouldThrow<IllegalArgumentException> {
                     zaakRestService.terminateZaak(
                         zaak.uuid,
-                        RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = "not a number")
+                        RestZaakAfbrekenGegevens(zaakbeeindigRedenId = "not a number")
                     )
                 }
 
@@ -1375,7 +1375,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             `when`("aborted with the hardcoded 'niet ontvankelijk' zaakbeeindigreden") {
                 zaakRestService.terminateZaak(
                     zaak.uuid,
-                    RESTZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
+                    RestZaakAfbrekenGegevens(zaakbeeindigRedenId = INADMISSIBLE_TERMINATION_ID)
                 )
 
                 then("it is ended with result") {
@@ -1601,7 +1601,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 einddatumGepland = startdatum
             }
             val restZaakEditMetRedenGegevens =
-                RESTZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
             val patchedZaak = createZaak()
             val patchedRestZaak = createRestZaak()
             val task = mockk<Task>()
@@ -1663,7 +1663,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val zaakType = createZaakType()
             val restZaakCreateData = createRestZaakCreateData()
-            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaakCreateData, changeDescription)
+            val restZaakEditMetRedenGegevens = RestZaakEditMetRedenGegevens(restZaakCreateData, changeDescription)
             val loggedInUser = createLoggedInUser()
 
             every {
@@ -1692,7 +1692,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
             val restZaakCreateData =
                 createRestZaakCreateData(uiterlijkeEinddatumAfdoening = newZaakFinalDate, einddatumGepland = null)
-            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaakCreateData, "change description")
+            val restZaakEditMetRedenGegevens = RestZaakEditMetRedenGegevens(restZaakCreateData, "change description")
             val loggedInUser = createLoggedInUser()
 
             every {
@@ -1742,7 +1742,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val newZaakFinalDate = zaak.uiterlijkeEinddatumAfdoening.minusDays(10)
             val restZaakCreateData =
                 createRestZaakCreateData(uiterlijkeEinddatumAfdoening = newZaakFinalDate, einddatumGepland = null)
-            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaakCreateData, "change description")
+            val restZaakEditMetRedenGegevens = RestZaakEditMetRedenGegevens(restZaakCreateData, "change description")
             val loggedInUser = createLoggedInUser()
 
             every {
@@ -1793,7 +1793,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val zaakRechten = createZaakRechten()
             val restZaakCreateData = createRestZaakCreateData(einddatumGepland = LocalDate.now())
-            val restZaakEditMetRedenGegevens = RESTZaakEditMetRedenGegevens(restZaakCreateData, "change description")
+            val restZaakEditMetRedenGegevens = RestZaakEditMetRedenGegevens(restZaakCreateData, "change description")
             val loggedInUser = createLoggedInUser()
 
             every {

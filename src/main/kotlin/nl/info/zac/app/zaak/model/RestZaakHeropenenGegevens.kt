@@ -9,6 +9,6 @@ import nl.info.zac.util.NoArgConstructor
 
 @NoArgConstructor
 @AllOpen
-data class RESTZaakHeropenenGegevens(
+data class RestZaakHeropenenGegevens(
     var reden: String? = null
 )
