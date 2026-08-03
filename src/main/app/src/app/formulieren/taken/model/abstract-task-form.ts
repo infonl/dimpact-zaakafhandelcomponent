@@ -29,7 +29,7 @@ export abstract class AbstractTaskForm implements OnDestroy {
 
   /**
    * Called once the task is completed. Forms whose fields depend on what completing did -
-   * signing a document, for instance - update them here. Does nothing by default.
+   * signing a document, for instance - should update them here. Does nothing by default.
    */
   onTaskCompleted(
     _taak: GeneratedType<"RestTask">,
