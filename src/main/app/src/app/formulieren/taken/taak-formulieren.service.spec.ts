@@ -128,4 +128,23 @@ describe("TaakFormulierenService", () => {
       expect(spy).toHaveBeenCalledWith(mockZaak);
     });
   });
+
+  describe("getAngularTaskForm", () => {
+    it("should return the form belonging to the formulierDefinitieId", () => {
+      expect(service.getAngularTaskForm("GOEDKEUREN")).toBe(
+        TestBed.inject(GoedkeurenTaskForm),
+      );
+      expect(service.getAngularTaskForm("ADVIES")).toBe(
+        TestBed.inject(AdviesTaskForm),
+      );
+    });
+
+    it("should throw for an unknown formulierDefinitieId", () => {
+      expect(() =>
+        service.getAngularTaskForm(
+          "UNKNOWN" as GeneratedType<"FormulierDefinitie">,
+        ),
+      ).toThrow("Onbekende formulierDefinitie for Angular");
+    });
+  });
 });

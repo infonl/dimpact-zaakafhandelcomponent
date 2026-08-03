@@ -4,7 +4,6 @@
  *
  */
 
-import { SelectionModel } from "@angular/cdk/collections";
 import { NgIf } from "@angular/common";
 import { booleanAttribute, Component, effect, input } from "@angular/core";
 import { AbstractControl, ReactiveFormsModule } from "@angular/forms";
@@ -14,7 +13,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
-import { takeUntil } from "rxjs";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { DocumentIconComponent } from "../../document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
@@ -51,7 +49,6 @@ export class ZacDocuments<
     transform: booleanAttribute,
   });
 
-  protected selection = new SelectionModel<Option>(true, []);
   protected dataSource = new MatTableDataSource<Option>();
   protected columnsWithSelect = [
     "select",
@@ -74,21 +71,36 @@ export class ZacDocuments<
     effect(() => {
       this.dataSource.data = this.availableOptions();
     });
+  }
 
-    effect(() => {
-      this.control()
-        ?.valueChanges.pipe(takeUntil(this.destroy$))
-        .subscribe((options) => {
-          this.selection.select(...((options as unknown as Option[]) ?? [])); // Re-select current values
-        });
-    });
+  // Documents are matched on their uuid rather than on object identity, because the
+  // control's value and the options are often fetched separately
+  protected override compareWith = (a: Option, b: Option) => {
+    const compare = this.compare();
+    if (compare) return compare.call(this, a, b);
+
+    return Boolean(a?.uuid) && a?.uuid === b?.uuid;
+  };
+
+  protected isChecked(option: Option) {
+    return this.selectedOptions().some((selected) =>
+      this.compareWith(selected, option),
+    );
   }
 
   protected onToggleOption(option: Option) {
-    this.selection.toggle(option);
     const control = this.control();
-    control?.setValue(this.selection.selected as unknown as Option);
+    const selected = this.selectedOptions();
+    const updated = this.isChecked(option)
+      ? selected.filter((it) => !this.compareWith(it, option))
+      : [...selected, option];
+
+    control?.setValue(updated as unknown as Option);
     control?.markAsDirty();
+  }
+
+  private selectedOptions() {
+    return (this.control()?.value as unknown as Option[] | null) ?? [];
   }
 
   protected viewLink(option: Option) {

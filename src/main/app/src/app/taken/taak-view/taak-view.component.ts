@@ -449,6 +449,9 @@ export class TaakViewComponent
     this.completeTaakMutation.mutate(taskBody, {
       onSuccess: (task) => {
         this.init(task, false);
+        void this.taakFormulierenService
+          .getAngularTaskForm(task.formulierDefinitieId)
+          .onTaskCompleted(task, this.form, this.formFields);
       },
     });
   }
