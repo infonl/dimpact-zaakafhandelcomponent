@@ -298,7 +298,7 @@ Stappen:
 5. Om een waarde aan de tabel toe te voegen open je de tabel en klik op ‘Waarde toevoegen’. Een dialoog verschijnt. Voer hier de nieuwe waarde in en klik op de knop 'Opslaan'. De dialoog kan gesloten worden door met knop 'Annuleer' of het kruis-icoon rechts bovenin de dialoog.
 ![image](images/referentietabellen3.png)
 
-6. Om een waarde uit een tabel te verwijderen klik je in de regel van de waarde op het prullenbakicoon. De waarde wordt direct verwijderd.
+6. Om een tabel of waarde te verwijderen klik je in aan het eind van respectievelijke regel op het prullenbakicoon. Dan verschijnt er een 'Bevestig' dialoog. Als een prullenbakicoon grijs van kleur is betreft het een systeemtabel of systeemwaarde die niet verwijderd kan worden.
 
 ## Mailafzenders
 
