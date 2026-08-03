@@ -59,6 +59,7 @@ export class FormioWrapperComponent
   @Input() taakdata?: Record<string, unknown>;
   @Input() options?: FormioHookOptions;
   @Input({ required: true, transform: booleanAttribute }) readOnly = false;
+  @Input({ required: true, transform: booleanAttribute }) submitPending = false;
   @Output() formSubmit = new EventEmitter<FormioSubmitEvent>();
   @Output() formChange = new EventEmitter<FormioChangeEvent>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();
@@ -92,6 +93,21 @@ export class FormioWrapperComponent
   ngOnChanges(changes: SimpleChanges) {
     if (changes["form"]) {
       this.rebuild$.next();
+    }
+
+    if (changes["readOnly"] && !changes["readOnly"].firstChange) {
+      this.applyReadOnly();
+    }
+
+    // Form.io keeps the submit button spinning until it sees `submitDone`.
+    const submitPendingChange = changes["submitPending"];
+    if (
+      submitPendingChange &&
+      !submitPendingChange.firstChange &&
+      submitPendingChange.previousValue &&
+      !submitPendingChange.currentValue
+    ) {
+      this.submissionDone.emit(true);
     }
   }
 
@@ -156,6 +172,19 @@ export class FormioWrapperComponent
     FormioWrapperComponent.activeElementPatched = true;
   }
 
+  // Form.io reads `readOnly` while building only, and its components render from `disabled` - hence both.
+  private applyReadOnly() {
+    const webform = this.formioComponent?.formio as FormioWebform | undefined;
+    if (!webform) return;
+
+    webform.options.readOnly = this.readOnly;
+    webform.everyComponent((component) => {
+      component.options.readOnly = this.readOnly;
+      component.disabled = this.readOnly;
+    });
+    void webform.redraw();
+  }
+
   private async loadBootstrapStyles(): Promise<void> {
     const shadowRoot = this.elementRef.nativeElement.shadowRoot as ShadowRoot;
     if (!shadowRoot) return;
@@ -171,7 +200,6 @@ export class FormioWrapperComponent
 
   onSubmit(event: object) {
     this.formSubmit.emit(event as FormioSubmitEvent);
-    this.submissionDone.emit(true);
   }
 
   onChange(event: object) {
@@ -201,6 +229,18 @@ export class FormioWrapperComponent
       this.createDocument.emit(event);
     }
   }
+}
+
+/** `@formio/angular` types the live form instance as `any`. */
+interface FormioWebform {
+  options: { readOnly?: boolean };
+  everyComponent(
+    callback: (component: {
+      options: { readOnly?: boolean };
+      disabled: boolean;
+    }) => void,
+  ): void;
+  redraw(): Promise<void>;
 }
 
 export interface FormioCustomEvent {

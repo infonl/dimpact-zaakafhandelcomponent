@@ -49,7 +49,128 @@
   }
 }
 
+/**
+ * Repeated from `styles.less`: class rules do not cross the shadow boundary, the `@font-face` does.
+ * The 24x24 box comes from `.mat-icon`, which these icons do not have here.
+ */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  overflow: hidden;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  user-select: none;
+  // `styles.less` fills every `mat-icon`, so the outlined family renders solid there too
+  font-variation-settings: "FILL" 1;
+}
+
+/**
+ * Match a `mat-icon` rather than Bootstrap's link blue. The underline has to go here: it propagates
+ * from the anchor and cannot be cancelled on the span.
+ */
+a:has(> .material-symbols-outlined) {
+  color: rgba(0, 0, 0, 0.87);
+  text-decoration: none;
+}
+
 // Hide Form.io's post-submit confirmation.
 [ref="buttonMessageContainer"] {
   display: none;
+}
+
+// Bootstrap is injected after these styles, so equal specificity loses. Hence the element name.
+input.form-check-input {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+
+  &[type="radio"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:not(:checked):not(:indeterminate) {
+    border-color: rgba(0, 0, 0, 0.54);
+  }
+}
+
+// Form.io's `overflow-x: auto` makes its `overflow-y: visible` compute to auto, clipping the last border
+.formio-component-datagrid {
+  padding-bottom: 1px;
+}
+
+// Form.io ships `border: 3px !important`; `table` outweighs its selector, the flag matches its flag
+.formio-component-datagrid table.datagrid-table,
+.formio-component-datagrid table.datagrid-table :is(th, td) {
+  border: 1px solid var(--bs-border-color) !important;
+}
+
+// Bootstrap's cell padding widens the narrow columns past the widths set below
+.datagrid-table :is(th, td) {
+  padding: 0;
+}
+
+// Form.io asks for `table-layout: fixed` inline when read-only, which ignores those widths
+.formio-component-datagrid table.datagrid-table {
+  table-layout: auto !important;
+}
+
+// Form.io renders datagrid checkboxes flush left at the top of their cell; centre them instead.
+.datagrid-table td {
+  vertical-align: middle;
+}
+
+.datagrid-table td .formio-component-checkbox {
+  margin-bottom: 0;
+
+  .form-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .form-check-input {
+    float: none;
+    margin: 0;
+  }
+}
+
+// The cell has to centre: Form.io puts `formio-component-htmlelement` on the tag, not on a wrapper.
+.datagrid-table td:has(.formio-component-htmlelement) {
+  text-align: center;
+}
+
+// The title takes the surplus width, or `table-layout: auto` spreads it over these columns too.
+.datagrid-table td:has(.formio-component-checkbox),
+.datagrid-table td:has(.formio-component-htmlelement) {
+  width: 80px;
+  white-space: nowrap;
+}
+
+/**
+ * Form.io keeps rendering a field's chrome when it has nothing to show. Drop that chrome and leave
+ * the label plus the description that `FormioSetupService` fills with the reason. Field types
+ * without chrome of their own need no rule here; they just show the description.
+ */
+.formio-component.zac-empty-input-field {
+  // a datagrid would otherwise render as a bare frame of column headers
+  .datagrid-table {
+    display: none;
+  }
+
+  .form-text {
+    margin-top: 0;
+  }
 }
