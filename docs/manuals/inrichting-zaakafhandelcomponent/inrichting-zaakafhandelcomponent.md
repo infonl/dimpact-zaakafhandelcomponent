@@ -2,7 +2,7 @@
 
 
 > **Colofon** <br>
-> Datum : 3-08-2026 <br>
+> Datum : 03-08-2026 <br>
 > Versie :   1.15 <br>
 > Verandering : ZAC v5.5.0 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
@@ -445,16 +445,16 @@ Wanneer geen procestermijn van toepassing is, begint de bewaartermijn direct na 
 | **Type**                     | **Omschrijving**                                                                                       | **Start archieftermijn**                                                                 | **Voorbeeld**                                                                                                                              |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | Nihil                        | Er is geen procestermijn.                                                                              | Direct na afsluiting van de zaak.                                                        | Aansprakelijk stellen van gemeente door derden.                                                                                            |
-| Bekende variabele periode    | De procestermijn is afhankelijk van de vooraf bekende werkelijke geldigheidsduur van het procesobject. | Nadat het object zijn geldigheid verliest.                                               | Gebiedsverbod opleggen - wordt opgelegd voor soms 1 maand, 6 maand of 1 jaar.                                                              |
-| Bekende - vaste periode      | Er wordt vooraf een maximale geldigheidsduur vastgesteld.                                              | Na afloop van de vooraf bepaalde periode.                                                | Gehandicaptenparkeerkaart- wordt altijd verstrekt voor een vaste periode.                                                                  |
-| Onbekende -variabele periode | De duur van het procesobject is nog onbekend.                                                          | Archieftermijn begint in de toekomst en wordt later toegevoegd door een handmatige actie | Automatische incasso WOZ - blijven net zo lang geldig tot er een trigger is (bv intrekken incasso, verhuizen buiten gemeente, overlijden). |
+| Bekende variabele periode    | De procestermijn is afhankelijk van de vooraf bekende werkelijke geldigheidsduur van het procesobject. | Nadat het object zijn geldigheid verliest.                                               | Gebiedsverbod opleggen - wordt opgelegd voor soms 1 maand, 6 maanden of 1 jaar.                                                              |
+| Bekende - vaste periode      | Er wordt vooraf een maximale geldigheidsduur vastgesteld.                                              | Na afloop van de vooraf bepaalde periode.                                                | Gehandicaptenparkeerkaart - wordt altijd verstrekt voor een vaste periode.                                                                  |
+| Onbekende - variabele periode | De duur van het procesobject is nog onbekend.                                                          | Archieftermijn begint in de toekomst en wordt later toegevoegd door een handmatige actie. | Automatische incasso WOZ - blijft net zo lang geldig tot er een trigger is (bijv. intrekken incasso, verhuizen buiten gemeente, overlijden). |
 
 \
 **Verwerking van procestermijnen in relatie tot resultaattypen en afleidingswijzen**
 
-In OpenZaak wordt aan ieder resultaattype een selectielijstitem gekoppeld uit de geselecteerde selectielijst. Op basis van dit selectielijstitem is bekend of een procestermijn van toepassing is.
+In Open Zaak wordt aan ieder resultaattype een selectielijstitem gekoppeld uit de geselecteerde selectielijst. Op basis van dit selectielijstitem is bekend of een procestermijn van toepassing is.
 
-Om de juiste einddatum van de procestermijn (de brondatum in OpenZaak) vast te stellen, moet een passende afleidingswijze worden gekozen. De afleidingswijze bepaalt vanuit welk gegeven de brondatum wordt afgeleid. Welke afleidingswijzen kunnen worden toegepast bij de verschillende typen procestermijnen, is hieronder beschreven.
+Om de juiste einddatum van de procestermijn (de brondatum in Open Zaak) vast te stellen, moet een passende afleidingswijze worden gekozen. De afleidingswijze bepaalt vanuit welk gegeven de brondatum wordt afgeleid. Welke afleidingswijzen kunnen worden toegepast bij de verschillende typen procestermijnen, is hieronder beschreven.
 
 **Let op:** wanneer er een procestermijn van toepassing is, mag de afleidingswijze **'Afgehandeld'** niet worden gebruikt. Deze afleidingswijze is uitsluitend toegestaan wanneer de procestermijn van het gekoppelde selectielijstitem **nihil** is. In dat geval start de bewaartermijn direct na het afhandelen van de zaak.
 
