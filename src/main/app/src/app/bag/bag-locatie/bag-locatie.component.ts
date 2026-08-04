@@ -188,10 +188,12 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
 
   private zoom(): void {
     const locationExtent = this.geometrieSource.getExtent();
-    this.map?.getView().fit(locationExtent, {
-      size: this.map.getSize(),
-      maxZoom: this.DEFAULT_ZOOM,
-    });
+    if (locationExtent) {
+      this.map?.getView().fit(locationExtent, {
+        size: this.map.getSize(),
+        maxZoom: this.DEFAULT_ZOOM,
+      });
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {

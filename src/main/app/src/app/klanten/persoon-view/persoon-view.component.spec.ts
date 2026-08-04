@@ -32,7 +32,7 @@ class KlantZakenTabelStubComponent {
   standalone: true,
 })
 class KlantContactmomentenTabelStubComponent {
-  @Input() bsn: GeneratedType<"RestPersoon">["bsn"];
+  @Input() bsn!: GeneratedType<"RestPersoon">["bsn"];
 }
 
 const makePersoon = (

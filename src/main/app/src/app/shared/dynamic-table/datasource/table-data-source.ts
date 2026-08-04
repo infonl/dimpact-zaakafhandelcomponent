@@ -17,8 +17,8 @@ export abstract class TableDataSource<OBJECT> extends DataSource<OBJECT> {
   private tableSubject = new BehaviorSubject<OBJECT[]>([]);
   public totalItems = 0;
 
-  paginator: MatPaginator;
-  sort: MatSort;
+  paginator!: MatPaginator;
+  sort!: MatSort;
   filters: Record<string, unknown> = {};
 
   private _columns: Map<string, ColumnPickerValue> = new Map();
@@ -41,7 +41,7 @@ export abstract class TableDataSource<OBJECT> extends DataSource<OBJECT> {
     return this.tableSubject.asObservable();
   }
 
-  filter(field, value) {
+  filter(field: string, value: unknown) {
     if (this.filters[field] && !value) {
       delete this.filters[field];
     } else {
@@ -85,7 +85,7 @@ export abstract class TableDataSource<OBJECT> extends DataSource<OBJECT> {
     this.tableSubject.next([]);
   }
 
-  abstract load();
+  abstract load(): void;
 
   protected getTableRequest(): TableRequest {
     return {
