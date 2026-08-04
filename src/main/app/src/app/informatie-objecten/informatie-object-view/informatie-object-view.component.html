@@ -126,7 +126,7 @@
                 </zac-static-text>
                 <zac-static-text
                   label="bestandsomvang"
-                  [value]="infoObject.bestandsomvang | bestandsomvang"
+                  [value]="infoObject.bestandsomvang! | bestandsomvang"
                   class="flex-item"
                 />
               </div>
@@ -165,7 +165,7 @@
                   <button
                     [disabled]="infoObject.versie === 1"
                     mat-icon-button
-                    (click)="haalVersieOp(infoObject.versie - 1)"
+                    (click)="haalVersieOp(infoObject.versie! - 1)"
                   >
                     <mat-icon>chevron_left</mat-icon>
                   </button>
@@ -176,7 +176,7 @@
                       infoObject.versie === laatsteVersieInfoObject.versie
                     "
                     mat-icon-button
-                    (click)="haalVersieOp(infoObject.versie + 1)"
+                    (click)="haalVersieOp(infoObject.versie! + 1)"
                   >
                     <mat-icon>chevron_right</mat-icon>
                   </button>

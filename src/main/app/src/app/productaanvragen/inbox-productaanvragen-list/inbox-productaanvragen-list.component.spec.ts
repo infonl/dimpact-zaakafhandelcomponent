@@ -66,7 +66,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     jest
       .spyOn(service, "list")
       .mockReturnValue(
-        of({ totaal: 0, resultaten: [], filterType: [] } as never),
+        of({ totaal: 0, resultaten: [], filterType: [] }) as never,
       );
     jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
@@ -258,7 +258,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
         totaal: 2,
         resultaten: rows,
         filterType: ["type-A", "type-B"],
-      } as never),
+      }) as never,
     );
     component["filterChange"].emit();
     expect(component["dataSource"].data).toEqual(rows);
