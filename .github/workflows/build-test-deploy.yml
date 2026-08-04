@@ -430,6 +430,10 @@ jobs:
           curl -fsSL -o "$(brew --repo local/podman)/Formula/podman.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/7644fe05a72172a9c494812c8efbc5bc6c4fa8a3/Formula/p/podman.rb"
           brew install local/podman/podman
           echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
+          # The runner ships a v1-format /etc/containers/registries.conf (from Ubuntu's preinstalled
+          # containers stack), but Homebrew's newer Podman only accepts v2 format and refuses to run
+          # at all otherwise ("registries.conf must be in v2 format but is in v1").
+          echo 'unqualified-search-registries = ["docker.io"]' | sudo tee /etc/containers/registries.conf > /dev/null
 
       # Rootless Podman forwards published ports via a userspace "rootlessport" helper that binds
       # the host-side socket as the unprivileged runner user, so cap_add: NET_BIND_SERVICE on a
@@ -556,6 +560,10 @@ jobs:
           curl -fsSL -o "$(brew --repo local/podman)/Formula/podman.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/7644fe05a72172a9c494812c8efbc5bc6c4fa8a3/Formula/p/podman.rb"
           brew install local/podman/podman
           echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
+          # The runner ships a v1-format /etc/containers/registries.conf (from Ubuntu's preinstalled
+          # containers stack), but Homebrew's newer Podman only accepts v2 format and refuses to run
+          # at all otherwise ("registries.conf must be in v2 format but is in v1").
+          echo 'unqualified-search-registries = ["docker.io"]' | sudo tee /etc/containers/registries.conf > /dev/null
 
       # ubuntu-24.04 restricts unprivileged user namespaces via AppArmor by default, which breaks
       # rootless Podman's reexec into a new userns ("failed to reexec: Permission denied").
