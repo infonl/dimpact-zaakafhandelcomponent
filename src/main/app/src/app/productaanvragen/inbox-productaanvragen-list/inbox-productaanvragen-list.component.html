@@ -10,9 +10,9 @@
       mat-table
       [dataSource]="dataSource"
       matSort
-      [matSortActive]="listParameters.sort"
+      [matSortActive]="listParameters.sort ?? ''"
       matSortDisableClear
-      [matSortDirection]="listParameters.order"
+      [matSortDirection]="$any(listParameters.order)"
       multiTemplateDataRows
     >
       <ng-container matColumnDef="ontvangstdatum_filter">
@@ -29,7 +29,7 @@
       <ng-container matColumnDef="initiator_filter">
         <th mat-header-cell *matHeaderCellDef>
           <zac-tekst-filter
-            [value]="listParameters.initiatorID"
+            [value]="listParameters.initiatorID ?? undefined"
             (changed)="filtersChanged({ event: $event, filter: 'initiatorID' })"
           ></zac-tekst-filter>
         </th>
@@ -60,7 +60,7 @@
         <th mat-header-cell *matHeaderCellDef>
           <zac-zoekopdracht
             [werklijst]="getWerklijst()"
-            [zoekFilters]="listParameters"
+            [zoekFilters]="$any(listParameters)"
             [filtersChanged]="clearZoekopdracht"
             (zoekopdracht)="zoekopdrachtChanged($event)"
           ></zac-zoekopdracht>

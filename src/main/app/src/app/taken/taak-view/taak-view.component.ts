@@ -19,6 +19,7 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import {
+  MatDrawer,
   MatSidenav,
   MatSidenavContainer,
   MatSidenavModule,
@@ -565,5 +566,9 @@ export class TaakViewComponent
       uuid: taak.zaakUuid,
       zaaktype,
     } satisfies Partial<GeneratedType<"RestZaak">> as GeneratedType<"RestZaak">;
+  }
+
+  protected isSideNav(drawer: MatDrawer): drawer is MatSidenav {
+    return drawer instanceof MatSidenav;
   }
 }

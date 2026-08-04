@@ -396,7 +396,7 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   ) {
     return this.zaakbeeindigFormGroup.get(
       `${parameter.zaakbeeindigReden?.id}__${field}`,
-    );
+    ) as FormControl | null;
   }
 
   private createZaakbeeindigForm() {

@@ -20,7 +20,6 @@ import {
 import { OpenLayersLocationMap } from "../../shared/location/open-layers-location-map";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { GeometryType } from "../model/geometryType";
 
 @Component({
   selector: "zac-locatie-tonen",
@@ -73,7 +72,7 @@ export class LocatieTonenComponent implements AfterViewInit, OnChanges {
     this.locationMap.clearMarkers();
 
     switch (geometry?.type) {
-      case GeometryType.POINT: {
+      case "POINT": {
         if (!geometry?.point) return;
 
         const coordinate = LocationUtil.pointToCoordinate(geometry.point);

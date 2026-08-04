@@ -161,7 +161,7 @@ class RestZaakConverter @Inject constructor(
             uuid = zaak.uuid,
             verantwoordelijkeOrganisatie = zaak.verantwoordelijkeOrganisatie,
             // use the name because the frontend expects this value to be in uppercase
-            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
+            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding,
             zaakdata = zaakData,
             zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
             zaakSpecificContactDetails = zaakSpecificContactDetails,
