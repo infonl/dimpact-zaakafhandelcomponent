@@ -273,6 +273,24 @@ describe(FormioCustomFunctions.name, () => {
       ).not.toHaveBeenCalled();
     });
 
+    it("should fetch a document only once when the same UUID occurs in several fields", async () => {
+      const formWithTwoCalls = {
+        components: [
+          { html: "{{ ZAC_getDocumentTitles(ZAAK_Docs_A) }}", type: "content" },
+          { html: "{{ ZAC_getDocumentTitles(ZAAK_Docs_B) }}", type: "content" },
+        ],
+      };
+
+      await service.prepareFormContext(formWithTwoCalls, {
+        ZAAK_Docs_A: [UUID_A, UUID_A],
+        ZAAK_Docs_B: [{ selected: true, uuid: UUID_A }],
+      });
+
+      expect(
+        informatieObjectenService.readEnkelvoudigInformatieobject,
+      ).toHaveBeenCalledTimes(1);
+    });
+
     it("should fetch each document by UUID", async () => {
       await service.prepareFormContext(formWithFunction("ZAAK_Docs"), {
         ZAAK_Docs: [UUID_A],

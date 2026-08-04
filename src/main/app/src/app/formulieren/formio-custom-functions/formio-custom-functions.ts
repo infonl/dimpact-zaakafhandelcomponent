@@ -101,7 +101,7 @@ export class FormioCustomFunctions {
     uuids: string[],
   ): Promise<Map<string, string>> {
     const entries = await Promise.all(
-      uuids.map(async (uuid) => {
+      [...new Set(uuids)].map(async (uuid) => {
         try {
           const document = await lastValueFrom(
             this.informatieObjectenService.readEnkelvoudigInformatieobject(
