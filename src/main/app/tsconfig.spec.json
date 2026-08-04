@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
     "types": ["jest", "node"],
-    "lib": ["DOM", "DOM.Iterable", "ES2021"],
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "target": "ES2016",
     "strict": false
   },
