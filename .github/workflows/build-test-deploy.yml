@@ -434,6 +434,10 @@ jobs:
           # containers stack), but Homebrew's newer Podman only accepts v2 format and refuses to run
           # at all otherwise ("registries.conf must be in v2 format but is in v1").
           echo 'unqualified-search-registries = ["docker.io"]' | sudo tee /etc/containers/registries.conf > /dev/null
+          # Podman resolves the crun OCI runtime by checking a fixed list of absolute paths before
+          # PATH is consulted, so it kept finding Ubuntu's preinstalled /usr/bin/crun - too old to
+          # understand the OCI spec version Homebrew's newer Podman emits ("unknown version specified").
+          printf '[engine.runtimes]\ncrun = ["%s/bin/crun"]\n' "$(brew --prefix)" | sudo tee /etc/containers/containers.conf > /dev/null
 
       # Rootless Podman forwards published ports via a userspace "rootlessport" helper that binds
       # the host-side socket as the unprivileged runner user, so cap_add: NET_BIND_SERVICE on a
