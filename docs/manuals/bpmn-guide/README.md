@@ -85,7 +85,7 @@ replaces the component with a red-bordered message in the rendered task form:
 > <span style="color: red; border: 1px solid red; padding: 0.25rem;">Undefined ZAC_TYPE: 'ZAC_documentn'</span>
 
 Seeing this message means the form needs to be corrected: check the spelling of the `ZAC_TYPE`
-attribute of the field named in the message and upload the form again.
+attribute on the affected component and upload the form again.
 
 ## JavaScript in Form.io forms
 
