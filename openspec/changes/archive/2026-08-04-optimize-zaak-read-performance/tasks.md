@@ -18,5 +18,5 @@
 
 ## 4. Verification
 
-- [ ] 4.1 Manually call `GET /zaken/zaak/{uuid}` and `GET /zaken/zaak/id/{identificatie}` against a local stack for a zaak with a group, behandelaar, and initiator, and confirm the response is unchanged from before the refactor.
+- [x] 4.1 Manually call `GET /zaken/zaak/{uuid}` and `GET /zaken/zaak/id/{identificatie}` against a local stack for a zaak with a group, behandelaar, and initiator, and confirm the response is unchanged from before the refactor.
 - [x] 4.2 Run `./gradlew spotlessApply detektApply` before committing.
