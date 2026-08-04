@@ -6,7 +6,6 @@ package nl.info.client.zgw.shared
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.client.zgw.util.convertToDateTime
 import net.atos.client.zgw.zrc.model.Rol
 import net.atos.client.zgw.zrc.model.RolListParameters
 import net.atos.client.zgw.zrc.model.RolMedewerker
@@ -18,6 +17,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateL
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.shared.exception.ResultTypeNotFoundException
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
+import nl.info.client.zgw.util.convertToDateTime
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
@@ -290,8 +290,7 @@ class ZgwApiService @Inject constructor(
 
     /**
      * @param roles pre-fetched roles for [zaak], to avoid a redundant `listRollen` call when the caller
-     * already fetched all roles for the zaak (e.g. because it also needs [findGroepForZaak]
-     * and/or [findBehandelaarMedewerkerRoleForZaak] for the same zaak). When 'null', the roles are fetched here.
+     * already fetched all roles for the zaak. When 'null', the roles are fetched here.
      */
     fun findInitiatorRoleForZaak(zaak: Zaak, roles: List<Rol<*>>? = null): Rol<*>? {
         val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR).also {
@@ -306,10 +305,10 @@ class ZgwApiService @Inject constructor(
                 roles?.filter { it.roltype == rolType.url }
                     ?: zrcClientService.listRollen(RolListParameters(zaak.url, rolType.url)).results()
                 ).also {
-                    check(it.size <= 1) {
-                        "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
-                    }
+                check(it.size <= 1) {
+                    "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
                 }
+            }
             matchingRoles.firstOrNull()
         }
     }
@@ -333,10 +332,10 @@ class ZgwApiService @Inject constructor(
                         RolListParameters(zaak.url, roleType.url, betrokkeneType)
                     ).results()
                 ).also {
-                    check(it.size <= 1) {
-                        "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
-                    }
+                check(it.size <= 1) {
+                    "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
                 }
+            }
             matchingRoles.firstOrNull()
         }
     }

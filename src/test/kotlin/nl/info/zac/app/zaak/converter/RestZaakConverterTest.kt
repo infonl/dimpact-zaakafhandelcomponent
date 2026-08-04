@@ -197,7 +197,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val restZaakType = createRestZaaktype()
         val zaakRechten = createZaakRechten()
         val loggedInUser = createLoggedInUser()
-        val zaakdata = mapOf(VAR_ONTVANGSTBEVESTIGING_VERSTUURD to true)
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
 
         every { zrcClientService.listRollen(zaak) } returns emptyList()
         with(zgwApiService) {
@@ -261,7 +261,7 @@ class RestZaakConverterTest : BehaviorSpec({
         val restZaakType = createRestZaaktype()
         val zaakRechten = createZaakRechten()
         val loggedInUser = createLoggedInUser()
-        val zaakdata = mapOf(VAR_ONTVANGSTBEVESTIGING_VERSTUURD to true)
+        val zaakdata = mapOf("fakeKey" to "fakeValue")
 
         every { zrcClientService.listRollen(zaak) } returns emptyList()
         with(zgwApiService) {
