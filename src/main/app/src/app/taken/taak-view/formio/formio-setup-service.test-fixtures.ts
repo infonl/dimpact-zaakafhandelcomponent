@@ -62,7 +62,7 @@ export const smartDocumentsTemplateGroupTemplatesComponent: ExtendedComponentSch
     type: "select",
     key: "SD_SmartDocuments_TemplateGroupTemplates",
     input: true,
-    refreshOn: "Fake_Smart_Documents_Template_Group_Templates",
+    refreshOn: smartDocumentsTemplateGroupsComponent.key,
     attributes: {
       [ZAC_FIELD_ATTRIBUTE]:
         KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUP_TEMPLATES,
