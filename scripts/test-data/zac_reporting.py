@@ -11,6 +11,39 @@ import sys
 
 import zac_testdata
 
+BANNER_WIDTH = 100
+BANNER_TEXT = "Also command line options possible"
+
+# Rows of the 'ZAC' letters, one tuple per row, one string per letter.
+# 'X' marks the letter strokes; they are rendered as spaces cut out of a field of '#'.
+BANNER_ZAC_GLYPHS = [
+    #  Z          A          C
+    ("XXXXXXX", ".XXXXX.", ".XXXXX."),
+    ("....XX.", "XX...XX", "XX...XX"),
+    ("...XX..", "XX...XX", "XX....."),
+    ("..XX...", "XXXXXXX", "XX....."),
+    (".XX....", "XX...XX", "XX...XX"),
+    ("XXXXXXX", "XX...XX", ".XXXXX."),
+]
+BANNER_GLYPH_PIXEL_WIDTH = 2  # widen each stroke: terminal characters are taller than wide
+BANNER_GLYPH_GAP = 3
+
+
+def print_banner() -> None:
+    """Print 'ZAC' as negative space in a hash field, above a hint about --help."""
+    full_line = "#" * BANNER_WIDTH
+    print()
+    print(full_line)
+    for row in BANNER_ZAC_GLYPHS:
+        cells = (" " * BANNER_GLYPH_GAP).join(row)
+        rendered = "".join(
+            (" " if cell == "X" else "#") * BANNER_GLYPH_PIXEL_WIDTH for cell in cells
+        )
+        print(rendered.center(BANNER_WIDTH, "#"))
+    print(full_line)
+    print(f" {BANNER_TEXT} ".center(BANNER_WIDTH, "#"))
+    print(full_line)
+
 
 def print_stats(zaak_results: list[dict]) -> None:
     """Print a summary table of zaak creation results grouped by zaaktype."""

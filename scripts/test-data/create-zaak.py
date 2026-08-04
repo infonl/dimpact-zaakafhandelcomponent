@@ -200,9 +200,28 @@ def print_zaak_links(zaak_results: list[dict], zac_url: str) -> None:
         print(f"    {FRONTEND_DEV_URL}/zaken/{identificatie}")
 
 
+def selectable_options_help() -> str:
+    """Render the selectable zaaktypes and document counts for the --help epilog."""
+    zaaktype_lines = "\n".join(
+        f"  {number}. [{zaaktype['flavour']}] {zaaktype['description']}"
+        for number, zaaktype in enumerate(ZAAKTYPES, start=1)
+    )
+    document_choices = ", ".join(str(choice) for choice in DOCUMENT_COUNT_CHOICES)
+    return (
+        f"selectable zaaktypes (--zaaktype accepts the number or the exact description,\n"
+        f"case-insensitive; omit to be prompted):\n{zaaktype_lines}\n\n"
+        f"document counts offered by the prompt: {document_choices} (default {DEFAULT_DOCUMENT_COUNT})\n"
+        f"--doc-count is not limited to those presets: any integer >= 0 is accepted,\n"
+        f"where 0 skips document upload entirely.\n\n"
+        f"passing both --zaaktype and --doc-count makes the run fully non-interactive."
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Create zaak(en) of a CMMN or BPMN test zaaktype, optionally with documents attached."
+        description="Create zaak(en) of a CMMN or BPMN test zaaktype, optionally with documents attached.",
+        epilog=selectable_options_help(),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "--zaaktype",
@@ -240,6 +259,9 @@ def main() -> None:
         parser.error("--count must be >= 1")
     if args.doc_count is not None and args.doc_count < 0:
         parser.error("--doc-count must be >= 0")
+
+    if args.zaaktype is None or args.doc_count is None:
+        zac_reporting.print_banner()
 
     if args.zaaktype:
         zaaktype = find_zaaktype(args.zaaktype)

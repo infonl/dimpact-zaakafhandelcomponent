@@ -621,6 +621,8 @@ def main() -> None:
     if args.concurrency < 1:
         parser.error("--concurrency must be >= 1")
 
+    zac_reporting.print_banner()
+
     print(f"ZAC load test — {args.zaken_count} zaken, concurrency={args.concurrency}"
           + (" + documents" if args.add_documents else ""))
     print(f"ZAC: {args.zac_url}  Keycloak: {args.keycloak_url}")
