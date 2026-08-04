@@ -43,6 +43,7 @@ header:
     - "mvnw.cmd"
     - "mvnw"
     - ".nvmrc"
+    - ".python-version"
     - "src/main/resources/api-specs/**"
     - "src/main/resources/cmmn/**"
     - "src/main/resources/openapi-generator-templates/**"

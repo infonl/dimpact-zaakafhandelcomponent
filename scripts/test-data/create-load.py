@@ -9,17 +9,20 @@
 # zaakafhandelparameters for all 7 zaaktypes in Open Zaak (3 CMMN, 4 BPMN),
 # then creates a user-specified number of zaken distributed across all zaaktypes.
 #
+# HTTP/auth lives in zac_client.py, the zaaktype/document catalogue and the single-item
+# create/upload operations in zac_testdata.py, the summary tables in zac_reporting.py.
+#
 # Prerequisites: Python 3.10+, all Docker Compose services (including ZAC) must be running.
 #
 # Usage:
-#   ./scripts/load-test/create-load.py <zaken_count> [--skip-config]
-#                                       [--concurrency N] [--zac-url URL]
-#                                       [--keycloak-url URL] [--add-documents]
+#   ./scripts/test-data/create-load.py <zaken_count> [--skip-config]
+#                                      [--concurrency N] [--zac-url URL]
+#                                      [--keycloak-url URL] [--add-documents]
 #
 # Examples:
-#   ./scripts/load-test/create-load.py 10
-#   ./scripts/load-test/create-load.py 100 --skip-config --concurrency 4
-#   ./scripts/load-test/create-load.py 50 --add-documents --concurrency 4
+#   ./scripts/test-data/create-load.py 10
+#   ./scripts/test-data/create-load.py 100 --skip-config --concurrency 4
+#   ./scripts/test-data/create-load.py 50 --add-documents --concurrency 4
 
 import sys
 
@@ -28,17 +31,14 @@ if sys.version_info < (3, 10):
     sys.exit(1)
 
 import argparse
-import base64
 import json
 import pathlib
-import threading
 import time
-import urllib.error
-import urllib.parse
-import urllib.request
-import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any
+
+import zac_client
+import zac_reporting
+import zac_testdata
 
 _SCRIPT_DIR = pathlib.Path(__file__).parent
 
@@ -46,95 +46,12 @@ _SCRIPT_DIR = pathlib.Path(__file__).parent
 # Constants — sourced from src/itest/kotlin/nl/info/zac/itest/config/
 # ---------------------------------------------------------------------------
 
-KEYCLOAK_REALM = "zaakafhandelcomponent"
-KEYCLOAK_CLIENT_ID = "zaakafhandelcomponent"
-KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
-
-# beheerder1newiam = BEHEERDER_ELK_ZAAKTYPE
-CONFIG_USER = "beheerder1newiam"
-CONFIG_PASSWORD = "beheerder1newiam"
-
-# Use the same beheerder user for zaak creation: they have access to all zaaktypes
-# (behandelaar1newiam is restricted to domein_test_1 only)
-ZAAK_USER = "beheerder1newiam"
-ZAAK_PASSWORD = "beheerder1newiam"
-
-# Group used when creating zaken
-ZAAK_GROUP_ID = "behandelaars-test-1"
-ZAAK_GROUP_NAME = "Test group behandelaars domein test 1"
-
 # Niet-ontvankelijk resultaattype shared by all CMMN zaaktypes
 CMMN_NIET_ONTVANKELIJK_UUID = "dd2bcd87-ed7e-4b23-a8e3-ea7fe7ef00c6"
 
-# Single BPMN process definition uploaded and shared by all 4 BPMN zaaktypes
-LOAD_TEST_PROCESS_KEY = "loadTestProcess"
-LOAD_TEST_FORM_KEY = "loadTestForm"
-
-# Default bijlage informatieobjecttype UUID — shared by all zaaktypes except zaaktype-test-1
-INFORMATIEOBJECTTYPE_BIJLAGE_UUID = "b1933137-94d6-49bc-9e12-afe712512276"
-
-# Zaaktype-test-1 (8f24ad2f) defines its own separate bijlage IOT UUID in the Open Zaak DB setup
-# (5-setup-zaaktype-test-1.sql). All other zaaktypes reuse the shared UUID from zaaktype-test-3.
-BIJLAGE_UUID_BY_ZAAKTYPE = {
-    "8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a": "4a689f8a-11d3-4ddd-ae26-00fb258305a5",
-}
-
-CMMN_ZAAKTYPES = [
-    {
-        "uuid": "8f24ad2f-ef2d-47fc-b2d9-7325d4922d9a",
-        "identificatie": "zaaktype-test-1",
-        "description": "Test zaaktype 1",
-        "productaanvraagtype": "productaanvraag-type-3",
-        "domein": "domein_test_2",
-    },
-    {
-        "uuid": "fd2bf643-c98a-4b00-b2b3-9ae0c41ed425",
-        "identificatie": "test-zaaktype-2",
-        "description": "Test zaaktype 2",
-        "productaanvraagtype": "productaanvraag-type-2",
-        "domein": "domein_test_1",
-    },
-    {
-        "uuid": "448356ff-dcfb-4504-9501-7fe929077c4f",
-        "identificatie": "test-zaaktype-3",
-        "description": "Test zaaktype 3",
-        "productaanvraagtype": "productaanvraag-type-1",
-        "domein": None,
-    },
-]
-
-BPMN_ZAAKTYPES = [
-    {
-        "uuid": "26076928-ce07-4d5d-8638-c2d276f6caca",
-        "description": "BPMN test zaaktype 1",
-        "process_key": LOAD_TEST_PROCESS_KEY,
-        "productaanvraagtype": "bpmn-test-1-productaanvraagtype",
-        "niet_ontvankelijk_uuid": "82442c7f-05f2-4e9d-a0ae-c038344809af",
-    },
-    {
-        "uuid": "7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e",
-        "description": "BPMN test zaaktype 2",
-        "process_key": LOAD_TEST_PROCESS_KEY,
-        "productaanvraagtype": "bpmn-test-2-productaanvraagtype",
-        "niet_ontvankelijk_uuid": "4f9da4cd-a910-4f85-98ca-adb33e215f43",
-    },
-    {
-        "uuid": "e2b2d4f9-3b02-4b3e-b3d5-d26b85a7f37c",
-        "description": "BPMN test zaaktype 3",
-        "process_key": LOAD_TEST_PROCESS_KEY,
-        "productaanvraagtype": "bpmn-test-3-productaanvraagtype",
-        "niet_ontvankelijk_uuid": "c1d2e3f4-5678-9abc-def0-1234567890ab",
-    },
-    {
-        "uuid": "f5a7b8c9-d0e1-2345-f012-345678901bcd",
-        "description": "BPMN test zaaktype 4",
-        "process_key": LOAD_TEST_PROCESS_KEY,
-        "productaanvraagtype": "bpmn-test-4-productaanvraagtype",
-        "niet_ontvankelijk_uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    },
-]
-
-ALL_ZAAKTYPE_UUIDS = [z["uuid"] for z in CMMN_ZAAKTYPES] + [z["uuid"] for z in BPMN_ZAAKTYPES]
+# Stamped on every zaak this script creates, to tell them apart from create-zaak.py's
+ZAAK_OMSCHRIJVING_PREFIX = "load-test-zaak"
+ZAAK_TOELICHTING = "Created by ZAC load test script"
 
 # ---------------------------------------------------------------------------
 # BPMN process definition and form.io task form — loaded from bpmn/ subfolder
@@ -145,171 +62,8 @@ ALL_ZAAKTYPE_UUIDS = [z["uuid"] for z in CMMN_ZAAKTYPES] + [z["uuid"] for z in B
 # All 4 BPMN zaaktypes in this script share this single process definition.
 # ---------------------------------------------------------------------------
 
-LOAD_TEST_BPMN = (_SCRIPT_DIR / "bpmn" / f"{LOAD_TEST_PROCESS_KEY}.bpmn").read_text()
-LOAD_TEST_FORM = (_SCRIPT_DIR / "bpmn" / f"{LOAD_TEST_FORM_KEY}.json").read_text()
-
-# ---------------------------------------------------------------------------
-# Test documents — loaded from documents/ subfolder
-# ---------------------------------------------------------------------------
-
-def _load_doc(filename: str, formaat: str, titel: str) -> dict:
-    data = (_SCRIPT_DIR / "documents" / filename).read_bytes()
-    return {"filename": filename, "formaat": formaat, "titel": titel, "bytes": data, "size": len(data)}
-
-
-LOAD_TEST_DOCUMENTS = [
-    _load_doc(
-        "fakeWordDocument.docx",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "load-test-document-docx",
-    ),
-    _load_doc(
-        "fäkeTestDocument.pdf",
-        "application/pdf",
-        "load-test-document-pdf",
-    ),
-]
-
-# ---------------------------------------------------------------------------
-# HTTP helpers
-# ---------------------------------------------------------------------------
-
-
-def _http(method: str, url: str, body: Any = None, headers: dict | None = None) -> tuple[int, str]:
-    """Perform an HTTP request. Returns (status_code, response_body)."""
-    if headers is None:
-        headers = {}
-    data = None
-    if body is not None:
-        if isinstance(body, bytes):
-            data = body
-        elif isinstance(body, dict) and headers.get("Content-Type") == "application/x-www-form-urlencoded":
-            data = urllib.parse.urlencode(body).encode()
-        else:
-            data = json.dumps(body).encode()
-            headers.setdefault("Content-Type", "application/json")
-    req = urllib.request.Request(url, data=data, headers=headers, method=method)
-    try:
-        with urllib.request.urlopen(req) as resp:
-            return resp.status, resp.read().decode()
-    except urllib.error.HTTPError as e:
-        return e.code, e.read().decode()
-
-
-def _get_tokens(username: str, password: str, keycloak_url: str) -> tuple[str, str]:
-    """Obtain Keycloak access + refresh tokens via Resource Owner Password flow."""
-    url = f"{keycloak_url}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/token"
-    body = {
-        "grant_type": "password",
-        "client_id": KEYCLOAK_CLIENT_ID,
-        "client_secret": KEYCLOAK_CLIENT_SECRET,
-        "username": username,
-        "password": password,
-    }
-    status, response = _http("POST", url, body=body, headers={"Content-Type": "application/x-www-form-urlencoded"})
-    if status != 200:
-        print(f"ERROR: Keycloak auth failed for '{username}' (HTTP {status}): {response[:200]}")
-        sys.exit(1)
-    data = json.loads(response)
-    return data["access_token"], data["refresh_token"]
-
-
-def get_token(username: str, password: str, keycloak_url: str) -> str:
-    """Obtain a Keycloak Bearer token via Resource Owner Password flow."""
-    return _get_tokens(username, password, keycloak_url)[0]
-
-
-def _jwt_expiry(token: str) -> float:
-    """Return the exp claim from a JWT without verifying the signature."""
-    payload = token.split(".")[1]
-    payload += "=" * (-len(payload) % 4)
-    return float(json.loads(base64.urlsafe_b64decode(payload))["exp"])
-
-
-_TOKEN_REFRESH_MARGIN = 30  # seconds before expiry at which to proactively refresh
-
-
-class TokenManager:
-    """Thread-safe Keycloak token holder that auto-refreshes before expiry."""
-
-    def __init__(self, username: str, password: str, keycloak_url: str) -> None:
-        self._username = username
-        self._password = password
-        self._keycloak_url = keycloak_url
-        self._lock = threading.Lock()
-        self._access_token, self._refresh_token = _get_tokens(username, password, keycloak_url)
-        self._expiry = _jwt_expiry(self._access_token)
-
-    def get_token(self) -> str:
-        """Return a valid access token, refreshing proactively when near expiry."""
-        with self._lock:
-            if time.time() >= self._expiry - _TOKEN_REFRESH_MARGIN:
-                self._do_refresh()
-            # Refresh token may itself have been expired, leaving us with a still-expired
-            # access token. Fall back to full re-authentication in that case.
-            if time.time() >= self._expiry:
-                print("  [Token] Token still expired after refresh — re-authenticating...")
-                self._access_token, self._refresh_token = _get_tokens(
-                    self._username, self._password, self._keycloak_url
-                )
-                self._expiry = _jwt_expiry(self._access_token)
-                print(f"  [Token] Re-authenticated (expires in {int(self._expiry - time.time())}s)")
-            return self._access_token
-
-    def _do_refresh(self) -> None:
-        url = f"{self._keycloak_url}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/token"
-        body = {
-            "grant_type": "refresh_token",
-            "client_id": KEYCLOAK_CLIENT_ID,
-            "client_secret": KEYCLOAK_CLIENT_SECRET,
-            "refresh_token": self._refresh_token,
-        }
-        status, response = _http(
-            "POST", url, body=body, headers={"Content-Type": "application/x-www-form-urlencoded"}
-        )
-        if status == 200:
-            data = json.loads(response)
-            self._access_token = data["access_token"]
-            self._refresh_token = data["refresh_token"]
-            self._expiry = _jwt_expiry(self._access_token)
-            remaining = int(self._expiry - time.time())
-            if remaining > 0:
-                print(f"  [Token] Refreshed (expires in {remaining}s)")
-            else:
-                # Keycloak session has expired; the returned token is already stale.
-                # get_token() will detect this and re-authenticate after we return.
-                print(f"  [Token] Refresh returned expired token ({remaining}s), will re-authenticate")
-        else:
-            print(f"  [Token] Refresh failed (HTTP {status}), re-authenticating...")
-            self._access_token, self._refresh_token = _get_tokens(
-                self._username, self._password, self._keycloak_url
-            )
-            self._expiry = _jwt_expiry(self._access_token)
-
-
-def _auth_headers(token: str) -> dict:
-    return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-
-
-def _build_multipart(fields: list) -> tuple:
-    """Build a multipart/form-data body from a list of (name, value, filename, content_type) tuples.
-    value may be str or bytes. Returns (body_bytes, content_type_header_value).
-    """
-    boundary = uuid.uuid4().hex
-    parts = []
-    for name, value, filename, content_type in fields:
-        disposition = f'form-data; name="{name}"'
-        if filename is not None:
-            disposition += f'; filename="{filename}"'
-        header_lines = f"Content-Disposition: {disposition}\r\n"
-        if content_type is not None:
-            header_lines += f"Content-Type: {content_type}\r\n"
-        part_header = f"--{boundary}\r\n{header_lines}\r\n".encode("utf-8")
-        if isinstance(value, str):
-            value = value.encode("utf-8")
-        parts.append(part_header + value + b"\r\n")
-    body = b"".join(parts) + f"--{boundary}--\r\n".encode("utf-8")
-    return body, f"multipart/form-data; boundary={boundary}"
+LOAD_TEST_BPMN = (_SCRIPT_DIR / "bpmn" / f"{zac_testdata.LOAD_TEST_PROCESS_KEY}.bpmn").read_text()
+LOAD_TEST_FORM = (_SCRIPT_DIR / "bpmn" / f"{zac_testdata.LOAD_TEST_FORM_KEY}.json").read_text()
 
 
 # ---------------------------------------------------------------------------
@@ -328,29 +82,29 @@ def upload_bpmn_process_definitions(token: str, zac_url: str) -> None:
 
     # Upload BPMN process definition
     t0 = time.monotonic()
-    status, body = _http(
+    status, body = zac_client.http_request(
         "POST",
         f"{zac_url}/rest/bpmn-process-definitions",
-        body={"filename": f"{LOAD_TEST_PROCESS_KEY}.bpmn", "content": LOAD_TEST_BPMN},
-        headers=_auth_headers(token),
+        body={"filename": f"{zac_testdata.LOAD_TEST_PROCESS_KEY}.bpmn", "content": LOAD_TEST_BPMN},
+        headers=zac_client.auth_headers(token),
     )
     elapsed = int((time.monotonic() - t0) * 1000)
     ok = "OK" if status == 201 else "FAIL"
-    print(f"  [{ok}] BPMN process '{LOAD_TEST_PROCESS_KEY}': HTTP {status} ({elapsed}ms)")
+    print(f"  [{ok}] BPMN process '{zac_testdata.LOAD_TEST_PROCESS_KEY}': HTTP {status} ({elapsed}ms)")
     if status != 201:
         print(f"         Response: {body[:300]}")
 
     # Upload form.io task form
     t0 = time.monotonic()
-    status, body = _http(
+    status, body = zac_client.http_request(
         "POST",
-        f"{zac_url}/rest/bpmn-process-definitions/{LOAD_TEST_PROCESS_KEY}/forms",
-        body={"filename": f"{LOAD_TEST_FORM_KEY}.json", "content": LOAD_TEST_FORM},
-        headers=_auth_headers(token),
+        f"{zac_url}/rest/bpmn-process-definitions/{zac_testdata.LOAD_TEST_PROCESS_KEY}/forms",
+        body={"filename": f"{zac_testdata.LOAD_TEST_FORM_KEY}.json", "content": LOAD_TEST_FORM},
+        headers=zac_client.auth_headers(token),
     )
     elapsed = int((time.monotonic() - t0) * 1000)
     ok = "OK" if status == 201 else "FAIL"
-    print(f"  [{ok}] Form '{LOAD_TEST_FORM_KEY}': HTTP {status} ({elapsed}ms)")
+    print(f"  [{ok}] Form '{zac_testdata.LOAD_TEST_FORM_KEY}': HTTP {status} ({elapsed}ms)")
     if status != 201:
         print(f"         Response: {body[:300]}")
 
@@ -543,7 +297,7 @@ def _cmmn_body(zaaktype: dict) -> dict:
             ],
         },
         "domein": zaaktype["domein"],
-        "defaultGroepId": ZAAK_GROUP_ID,
+        "defaultGroepId": zac_testdata.ZAAK_GROUP_ID,
         "defaultBehandelaarId": None,
         "einddatumGeplandWaarschuwing": None,
         "uiterlijkeEinddatumAfdoeningWaarschuwing": None,
@@ -582,8 +336,8 @@ def _bpmn_body(zaaktype: dict) -> dict:
         "zaaktypeOmschrijving": zaaktype["description"],
         "bpmnProcessDefinitionKey": zaaktype["process_key"],
         "productaanvraagtype": zaaktype["productaanvraagtype"],
-        "groepNaam": ZAAK_GROUP_ID,
-        "defaultBehandelaarId": ZAAK_USER,
+        "groepNaam": zac_testdata.ZAAK_GROUP_ID,
+        "defaultBehandelaarId": zac_client.ZAAK_USER,
         "betrokkeneKoppelingen": {"brpKoppelen": True, "kvkKoppelen": True},
         "brpDoelbindingen": {
             "zoekWaarde": "BRPACT-ZoekenAlgemeen",
@@ -695,25 +449,25 @@ def create_zaakafhandelparameters(token: str, zac_url: str) -> None:
     """Create zaakafhandelparameters for all 7 zaaktypes (3 CMMN, 4 BPMN)."""
     print("\n=== Creating zaakafhandelparameters ===")
 
-    for zaaktype in CMMN_ZAAKTYPES:
+    for zaaktype in zac_testdata.CMMN_ZAAKTYPES:
         # GET first: ZAC's PUT uses JPA merge semantics. When a record already exists every
         # nested entity needs its numeric DB id in the request body, otherwise Hibernate raises
         # "detached entity passed to persist". We fetch the existing config and merge the IDs.
-        get_status, get_body = _http(
+        get_status, get_body = zac_client.http_request(
             "GET",
             f"{zac_url}/rest/zaakafhandelparameters/{zaaktype['uuid']}",
-            headers=_auth_headers(token),
+            headers=zac_client.auth_headers(token),
         )
         desired = _cmmn_body(zaaktype)
         if get_status == 200:
             desired = _merge_existing_ids(desired, json.loads(get_body))
 
         t0 = time.monotonic()
-        status, body = _http(
+        status, body = zac_client.http_request(
             "PUT",
             f"{zac_url}/rest/zaakafhandelparameters",
             body=desired,
-            headers=_auth_headers(token),
+            headers=zac_client.auth_headers(token),
         )
         elapsed = int((time.monotonic() - t0) * 1000)
         ok = "OK" if status == 200 else "FAIL"
@@ -721,13 +475,13 @@ def create_zaakafhandelparameters(token: str, zac_url: str) -> None:
         if status != 200:
             print(f"         Response: {body[:500]}")
 
-    for zaaktype in BPMN_ZAAKTYPES:
+    for zaaktype in zac_testdata.BPMN_ZAAKTYPES:
         t0 = time.monotonic()
-        status, body = _http(
+        status, body = zac_client.http_request(
             "POST",
             f"{zac_url}/rest/zaaktype-bpmn-configuration",
             body=_bpmn_body(zaaktype),
-            headers=_auth_headers(token),
+            headers=zac_client.auth_headers(token),
         )
         elapsed = int((time.monotonic() - t0) * 1000)
         ok = "OK" if status == 200 else "FAIL"
@@ -737,57 +491,26 @@ def create_zaakafhandelparameters(token: str, zac_url: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Zaak creation
+# Bulk zaak creation
 # ---------------------------------------------------------------------------
 
 
-def create_zaak(index: int, zaaktype_uuid: str, token_manager: TokenManager, zac_url: str) -> dict:
-    """Create a single zaak. Returns result dict with timing info."""
-    body = {
-        "zaak": {
-            "zaaktype": {"uuid": zaaktype_uuid},
-            "startdatum": "2020-01-01T00:00:00+01:00",
-            "groep": {"id": ZAAK_GROUP_ID, "naam": ZAAK_GROUP_NAME},
-            "communicatiekanaal": "fakeCommunicatiekanaal1",
-            "vertrouwelijkheidaanduiding": "OPENBAAR",
-            "omschrijving": f"load-test-zaak-{index}",
-            "toelichting": "Created by ZAC load test script",
-        },
-        "bagObjecten": [],
-    }
-    t0 = time.monotonic()
-    status, response_body = _http(
-        "POST", f"{zac_url}/rest/zaken/zaak", body=body, headers=_auth_headers(token_manager.get_token())
-    )
-    elapsed = int((time.monotonic() - t0) * 1000)
-    zaak_uuid = None
-    parse_error = None
-    if status == 200:
-        try:
-            parsed_response = json.loads(response_body)
-            zaak_uuid = parsed_response.get("zaakUUID") or parsed_response.get("uuid")
-        except json.JSONDecodeError as exc:
-            parse_error = f"Failed to parse zaak creation response JSON: {exc}"
-    return {
-        "index": index,
-        "zaaktype_uuid": zaaktype_uuid,
-        "success": status == 200,
-        "status_code": status,
-        "zaak_uuid": zaak_uuid,
-        "elapsed_ms": elapsed,
-        "error": response_body[:200] if status != 200 else parse_error,
-    }
-
-
-def create_zaken(n: int, token_manager: TokenManager, zac_url: str, concurrency: int) -> list[dict]:
+def create_zaken(n: int, token_manager: zac_client.TokenManager, zac_url: str, concurrency: int) -> list[dict]:
     """Create n zaken, distributed round-robin across all 7 zaaktypes."""
     print(f"\n=== Creating {n} zaken (concurrency={concurrency}) ===")
     results = []
     completed = 0
 
     def _task(i: int) -> dict:
-        zaaktype_uuid = ALL_ZAAKTYPE_UUIDS[i % len(ALL_ZAAKTYPE_UUIDS)]
-        return create_zaak(i + 1, zaaktype_uuid, token_manager, zac_url)
+        zaaktype_uuid = zac_testdata.ALL_ZAAKTYPE_UUIDS[i % len(zac_testdata.ALL_ZAAKTYPE_UUIDS)]
+        return zac_testdata.create_zaak(
+            i + 1,
+            zaaktype_uuid,
+            token_manager,
+            zac_url,
+            omschrijving_prefix=ZAAK_OMSCHRIJVING_PREFIX,
+            toelichting=ZAAK_TOELICHTING,
+        )
 
     with ThreadPoolExecutor(max_workers=concurrency) as executor:
         futures = {executor.submit(_task, i): i for i in range(n)}
@@ -808,62 +531,25 @@ def create_zaken(n: int, token_manager: TokenManager, zac_url: str, concurrency:
 
 
 # ---------------------------------------------------------------------------
-# Document upload
+# Bulk document upload
 # ---------------------------------------------------------------------------
 
 
-def upload_document_to_zaak(zaak_uuid: str, zaaktype_uuid: str, doc: dict, token_manager: TokenManager, zac_url: str) -> dict:
-    """Upload a single document to a zaak. Returns result dict with timing info."""
-    iot_uuid = BIJLAGE_UUID_BY_ZAAKTYPE.get(zaaktype_uuid, INFORMATIEOBJECTTYPE_BIJLAGE_UUID)
-    file_bytes = doc["bytes"]
-    creatiedatum = time.strftime("%Y-%m-%dT%H:%M+01:00")
-    fields = [
-        ("bestandsnaam", doc["filename"], None, None),
-        ("titel", doc["titel"], None, None),
-        ("bestandsomvang", str(doc["size"]), None, None),
-        ("formaat", doc["formaat"], None, None),
-        ("informatieobjectTypeUUID", iot_uuid, None, None),
-        ("vertrouwelijkheidaanduiding", "OPENBAAR", None, None),
-        ("status", "in_bewerking", None, None),
-        ("creatiedatum", creatiedatum, None, None),
-        ("auteur", "load-test", None, None),
-        ("taal", "dut", None, None),
-        ("file", file_bytes, doc["filename"], doc["formaat"]),
-    ]
-    body, content_type = _build_multipart(fields)
-    t0 = time.monotonic()
-    status, response = _http(
-        "POST",
-        f"{zac_url}/rest/informatieobjecten/informatieobject/{zaak_uuid}/{zaak_uuid}",
-        body=body,
-        headers={"Authorization": f"Bearer {token_manager.get_token()}", "Content-Type": content_type},
-    )
-    elapsed = int((time.monotonic() - t0) * 1000)
-    return {
-        "zaak_uuid": zaak_uuid,
-        "filename": doc["filename"],
-        "success": status == 200,
-        "status_code": status,
-        "elapsed_ms": elapsed,
-        "error": response[:200] if status != 200 else None,
-    }
-
-
 def upload_documents_to_zaken(
-    zaak_results: list[dict], token_manager: TokenManager, zac_url: str, concurrency: int
+    zaak_results: list[dict], token_manager: zac_client.TokenManager, zac_url: str, concurrency: int
 ) -> list[dict]:
     """Upload all test documents to every successfully created zaak."""
     successful = [r for r in zaak_results if r["success"] and r["zaak_uuid"]]
-    tasks = [(r["zaak_uuid"], r["zaaktype_uuid"], doc) for r in successful for doc in LOAD_TEST_DOCUMENTS]
+    tasks = [(r["zaak_uuid"], r["zaaktype_uuid"], doc) for r in successful for doc in zac_testdata.TEST_DOCUMENTS]
     total = len(tasks)
-    print(f"\n=== Uploading documents ({len(LOAD_TEST_DOCUMENTS)} per zaak) to {len(successful)} zaken"
+    print(f"\n=== Uploading documents ({len(zac_testdata.TEST_DOCUMENTS)} per zaak) to {len(successful)} zaken"
           f" ({total} total, concurrency={concurrency}) ===")
 
     doc_results: list[dict] = []
     completed = 0
 
     def _task(zaak_uuid: str, zaaktype_uuid: str, doc: dict) -> dict:
-        return upload_document_to_zaak(zaak_uuid, zaaktype_uuid, doc, token_manager, zac_url)
+        return zac_testdata.upload_document_to_zaak(zaak_uuid, zaaktype_uuid, doc, token_manager, zac_url)
 
     with ThreadPoolExecutor(max_workers=concurrency) as executor:
         futures = {executor.submit(_task, zaak_uuid, zaaktype_uuid, doc): (zaak_uuid, doc) for zaak_uuid, zaaktype_uuid, doc in tasks}
@@ -881,97 +567,6 @@ def upload_documents_to_zaken(
                 )
 
     return doc_results
-
-
-def print_document_stats(doc_results: list[dict]) -> None:
-    """Print a summary table of document upload results grouped by filename."""
-    print("\n=== Document upload results ===")
-
-    by_filename: dict[str, list[dict]] = {}
-    for r in doc_results:
-        by_filename.setdefault(r["filename"], []).append(r)
-
-    total_ok = sum(1 for r in doc_results if r["success"])
-    total_fail = len(doc_results) - total_ok
-
-    header = f"{'Document':<55} {'OK':>5} {'FAIL':>5} {'Mean(ms)':>10} {'Min(ms)':>8} {'Max(ms)':>8}"
-    print(header)
-    print("-" * len(header))
-
-    for filename, rows in by_filename.items():
-        ok = sum(1 for r in rows if r["success"])
-        fail = len(rows) - ok
-        times = [r["elapsed_ms"] for r in rows if r["success"]]
-        mean_ms = int(sum(times) / len(times)) if times else 0
-        min_ms = min(times) if times else 0
-        max_ms = max(times) if times else 0
-        print(f"{filename:<55} {ok:>5} {fail:>5} {mean_ms:>10} {min_ms:>8} {max_ms:>8}")
-
-    print("-" * len(header))
-    print(f"{'TOTAL':<55} {total_ok:>5} {total_fail:>5}")
-
-    if total_fail > 0:
-        print(f"WARNING: {total_fail} document upload(s) failed.")
-        sys.exit(1)
-
-
-# ---------------------------------------------------------------------------
-# Stats reporting
-# ---------------------------------------------------------------------------
-
-
-def print_stats(results: list[dict]) -> None:
-    """Print a summary table of results grouped by zaaktype."""
-    print("\n=== Results ===")
-
-    label_map = {}
-    for z in CMMN_ZAAKTYPES:
-        label_map[z["uuid"]] = f"CMMN {z['description']}"
-    for z in BPMN_ZAAKTYPES:
-        label_map[z["uuid"]] = f"BPMN {z['description']}"
-
-    by_zaaktype: dict[str, list[dict]] = {}
-    for r in results:
-        by_zaaktype.setdefault(r["zaaktype_uuid"], []).append(r)
-
-    total_ok = sum(1 for r in results if r["success"])
-    total_fail = len(results) - total_ok
-
-    header = f"{'Zaaktype':<35} {'OK':>5} {'FAIL':>5} {'Mean(ms)':>10} {'Min(ms)':>8} {'Max(ms)':>8}"
-    print(header)
-    print("-" * len(header))
-
-    for uuid in ALL_ZAAKTYPE_UUIDS:
-        rows = by_zaaktype.get(uuid, [])
-        if not rows:
-            continue
-        ok = sum(1 for r in rows if r["success"])
-        fail = len(rows) - ok
-        times = [r["elapsed_ms"] for r in rows if r["success"]]
-        if times:
-            mean_ms = int(sum(times) / len(times))
-            min_ms = min(times)
-            max_ms = max(times)
-        else:
-            mean_ms = min_ms = max_ms = 0
-        label = label_map.get(uuid, uuid[:8])
-        print(f"{label:<35} {ok:>5} {fail:>5} {mean_ms:>10} {min_ms:>8} {max_ms:>8}")
-
-    print("-" * len(header))
-    all_times = [r["elapsed_ms"] for r in results if r["success"]]
-    if all_times:
-        overall_mean = int(sum(all_times) / len(all_times))
-        overall_min = min(all_times)
-        overall_max = max(all_times)
-    else:
-        overall_mean = overall_min = overall_max = 0
-    print(f"{'TOTAL':<35} {total_ok:>5} {total_fail:>5} {overall_mean:>10} {overall_min:>8} {overall_max:>8}")
-
-    overall_elapsed = sum(r["elapsed_ms"] for r in results)
-    print(f"\nTotal HTTP time (sum): {overall_elapsed}ms")
-    if total_fail > 0:
-        print(f"WARNING: {total_fail} zaak(en) failed to create.")
-        sys.exit(1)
 
 
 # ---------------------------------------------------------------------------
@@ -1026,6 +621,8 @@ def main() -> None:
     if args.concurrency < 1:
         parser.error("--concurrency must be >= 1")
 
+    zac_reporting.print_banner()
+
     print(f"ZAC load test — {args.zaken_count} zaken, concurrency={args.concurrency}"
           + (" + documents" if args.add_documents else ""))
     print(f"ZAC: {args.zac_url}  Keycloak: {args.keycloak_url}")
@@ -1033,23 +630,23 @@ def main() -> None:
     wall_start = time.monotonic()
 
     if not args.skip_config:
-        print("\nObtaining config token (beheerder1newiam)...")
-        config_token = get_token(CONFIG_USER, CONFIG_PASSWORD, args.keycloak_url)
+        print(f"\nObtaining config token ({zac_client.CONFIG_USER})...")
+        config_token = zac_client.get_token(zac_client.CONFIG_USER, zac_client.CONFIG_PASSWORD, args.keycloak_url)
         upload_bpmn_process_definitions(config_token, args.zac_url)
         create_zaakafhandelparameters(config_token, args.zac_url)
     else:
         print("\nSkipping BPMN upload and zaakafhandelparameters creation (--skip-config)")
 
-    print("\nObtaining zaak creation token (beheerder1newiam)...")
-    zaak_token_manager = TokenManager(ZAAK_USER, ZAAK_PASSWORD, args.keycloak_url)
+    print(f"\nObtaining zaak creation token ({zac_client.ZAAK_USER})...")
+    zaak_token_manager = zac_client.TokenManager(zac_client.ZAAK_USER, zac_client.ZAAK_PASSWORD, args.keycloak_url)
 
     results = create_zaken(args.zaken_count, zaak_token_manager, args.zac_url, args.concurrency)
 
     if args.add_documents:
         doc_results = upload_documents_to_zaken(results, zaak_token_manager, args.zac_url, args.concurrency)
-        print_document_stats(doc_results)
+        zac_reporting.print_document_stats(doc_results)
 
-    print_stats(results)
+    zac_reporting.print_stats(results)
 
     wall_elapsed = time.monotonic() - wall_start
     print(f"Wall-clock time: {wall_elapsed:.1f}s")
