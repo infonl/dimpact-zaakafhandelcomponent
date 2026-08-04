@@ -28,8 +28,8 @@ export enum KNOWN_ZAC_FIELDS {
   DOCUMENTEN = "ZAC_documenten",
   DOCUMENTEN_NIET_ONDERTEKEND = "ZAC_documenten_niet_ondertekend",
   GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND = "ZAC_gekozen_documenten_niet_ondertekend",
-  REGEL_LINK = "ZAC_regel_link",
-  REGEL_LINK_VIEW_ICON = "ZAC_regel_link_view_icon",
+  REGEL_LINK = "ZAC_regel_link_tekstueel",
+  REGEL_LINK_VIEW_ICON = "ZAC_regel_link_oog_icoon",
   RESULTAAT = "ZAC_resultaat",
   STATUS = "ZAC_status",
   PROCESS_DATA = "ZAC_process_data",
@@ -63,7 +63,7 @@ const DOCUMENT_ROW_LINK: RowLink = {
   textKey: "actie.document.openen-nieuw-tabblad",
 };
 
-/** Where a `ZAC_regel_link` column points, per `ZAC_TYPE` of the datagrid holding it. */
+/** Where a `ZAC_regel_link_tekstueel` column points, per `ZAC_TYPE` of the datagrid holding it. */
 const ROW_LINKS: Record<string, RowLink> = {
   [KNOWN_ZAC_FIELDS.DOCUMENTEN_NIET_ONDERTEKEND]: DOCUMENT_ROW_LINK,
   [KNOWN_ZAC_FIELDS.GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND]: DOCUMENT_ROW_LINK,
