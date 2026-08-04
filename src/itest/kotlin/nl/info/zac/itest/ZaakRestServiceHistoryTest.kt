@@ -11,6 +11,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_1
@@ -34,7 +35,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
         lateinit var gerelateerdeZaakIdentificatie: String
         lateinit var gerelateerdeZaakUuid: UUID
 
-        zacClient.createZaak(
+        zacClient.createZaakAndRetrieve(
             description = ZAAK_DESCRIPTION_1,
             groupId = GROUP_RAADPLEGERS_TEST_1.name,
             groupName = GROUP_RAADPLEGERS_TEST_1.description,
@@ -46,7 +47,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
                 zaakUuid = getString("uuid").run(UUID::fromString)
             }
         }
-        zacClient.createZaak(
+        zacClient.createZaakAndRetrieve(
             description = ZAAK_DESCRIPTION_1,
             groupId = GROUP_RAADPLEGERS_TEST_1.name,
             groupName = GROUP_RAADPLEGERS_TEST_1.description,
@@ -93,7 +94,7 @@ class ZaakRestServiceHistoryTest : BehaviorSpec({
     given("A behandelaar is logged in and a zaak exists that has not been assigned yet") {
         lateinit var zaakUuid: UUID
         lateinit var zaakIdentificatie: String
-        zacClient.createZaak(
+        zacClient.createZaakAndRetrieve(
             description = ZAAK_DESCRIPTION_1,
             groupId = GROUP_RAADPLEGERS_TEST_1.name,
             groupName = GROUP_RAADPLEGERS_TEST_1.description,

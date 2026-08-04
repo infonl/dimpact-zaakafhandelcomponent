@@ -13,6 +13,7 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
@@ -59,7 +60,7 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
 
         lateinit var zaakUuid: UUID
         lateinit var zaakIdentification: String
-        zacClient.createZaak(
+        zacClient.createZaakAndRetrieve(
             description = ZAAK_DESCRIPTION_1,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
             groupName = GROUP_BEHANDELAARS_TEST_1.description,

@@ -18,6 +18,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
 import { MatInputHarness } from "@angular/material/input/testing";
 import { MatSelectHarness } from "@angular/material/select/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
@@ -28,6 +29,7 @@ import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { ZacDate } from "../../shared/form/date/date";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZakenService } from "../zaken.service";
@@ -416,6 +418,20 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         'button[type="submit"]',
       );
       expect(submitBtn.disabled).toBe(false);
+    });
+
+    it("should restrict the brondatumEigenschap datepicker to today or later", async () => {
+      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
+      await resultaattypeSelect.open();
+
+      const options = await resultaattypeSelect.getOptions();
+      await options[0]?.click(); // Select a type that requires brondatumEigenschap
+      fixture.detectChanges();
+
+      const zacDate = fixture.debugElement.query(By.directive(ZacDate));
+      const min = zacDate.componentInstance["min"]();
+
+      expect(min?.valueOf()).toBe(moment().startOf("day").valueOf());
     });
   });
 

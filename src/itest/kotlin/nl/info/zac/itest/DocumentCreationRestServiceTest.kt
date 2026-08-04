@@ -12,6 +12,7 @@ import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.client.urlEncode
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHEERDER_1
@@ -51,7 +52,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
         and a behandelaar is logged in
         """
     ) {
-        zacClient.createZaak(
+        zacClient.createZaakAndRetrieve(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
             groupName = GROUP_BEHANDELAARS_TEST_1.description,

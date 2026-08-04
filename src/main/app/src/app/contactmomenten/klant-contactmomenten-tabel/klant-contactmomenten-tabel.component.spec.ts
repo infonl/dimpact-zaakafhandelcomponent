@@ -225,7 +225,11 @@ describe(KlantContactmomentenTabelComponent.name, () => {
       tick(0);
 
       const listSpy = jest.spyOn(contactmomentenService, "listContactmomenten");
-      listSpy.mockReturnValue(new Subject().asObservable());
+      listSpy.mockReturnValue(
+        new Subject<
+          GeneratedType<"RESTResultaatRestContactmoment">
+        >().asObservable(),
+      );
 
       component.ngOnChanges();
 

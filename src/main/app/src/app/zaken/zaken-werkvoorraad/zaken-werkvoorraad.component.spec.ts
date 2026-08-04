@@ -110,7 +110,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
     it("returns false when loggedInUser is null", () => {
       testQueryClient.setQueryData(
         identityService.readLoggedInUser().queryKey,
-        null,
+        null as never,
       );
       const zaakZoekObject = fromPartial<ZaakZoekObject>({
         id: "zaak-no-user",

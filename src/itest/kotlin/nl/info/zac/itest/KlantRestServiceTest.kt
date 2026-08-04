@@ -16,6 +16,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.client.authenticate
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_2
@@ -123,7 +124,7 @@ class KlantRestServiceTest : BehaviorSpec({
             authenticate(BEHANDELAAR_1)
 
             `when`("zaak is created") {
-                val response = zacClient.createZaak(
+                val response = zacClient.createZaakAndRetrieve(
                     zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
                     groupId = GROUP_BEHANDELAARS_TEST_1.name,
                     groupName = GROUP_BEHANDELAARS_TEST_1.description,

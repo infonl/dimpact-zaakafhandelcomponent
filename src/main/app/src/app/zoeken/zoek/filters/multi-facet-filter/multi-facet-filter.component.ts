@@ -46,7 +46,7 @@ export class MultiFacetFilterComponent implements OnInit {
   private selected: string[] = [];
 
   /* veld: prefix */
-  protected VERTAALBARE_FACETTEN = {
+  protected VERTAALBARE_FACETTEN: Record<string, string> = {
     TAAK_STATUS: "taak.status.",
     TYPE: "type.",
     TOEGEKEND: "zoeken.filter.jaNee.",
@@ -55,7 +55,7 @@ export class MultiFacetFilterComponent implements OnInit {
     DOCUMENT_STATUS: "informatieobject.status.",
     ZAAK_VERTROUWELIJKHEIDAANDUIDING: "vertrouwelijkheidaanduiding.",
     ZAAK_ARCHIEF_NOMINATIE: "archiefNominatie.",
-  };
+  } as const;
 
   constructor(private _formBuilder: FormBuilder) {}
 

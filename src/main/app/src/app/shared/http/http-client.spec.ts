@@ -130,9 +130,7 @@ describe(HttpClient.name, () => {
           path: { aantal: 2, werklijst: "AFGEHANDELDE_ZAKEN" },
         })
         .subscribe((data) => {
-          expectTypeOf(data).toExtend<
-            paths[typeof path]["put"]["responses"]["204"]["content"]
-          >();
+          expectTypeOf<typeof data>().toBeNever();
           expect(data).toBe(true);
           done();
         });
@@ -179,9 +177,7 @@ describe(HttpClient.name, () => {
           path: { id: 123 },
         })
         .subscribe((data) => {
-          expectTypeOf(data).toExtend<
-            paths[typeof path]["delete"]["responses"]["204"]["content"]
-          >();
+          expectTypeOf<typeof data>().toBeNever();
           expect(data).toBe(true);
           done();
         });

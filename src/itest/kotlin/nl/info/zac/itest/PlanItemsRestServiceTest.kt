@@ -12,6 +12,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
@@ -38,7 +39,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
     given("A zaak has been created for test zaaktype 3 and a behandelaar is logged in") {
         lateinit var zaakUuid: UUID
-        zacClient.createZaak(
+        zacClient.createZaakAndRetrieve(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
             groupName = GROUP_BEHANDELAARS_TEST_1.description,

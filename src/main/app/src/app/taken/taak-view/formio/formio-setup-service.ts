@@ -170,6 +170,8 @@ export class FormioSetupService {
             case KNOWN_ZAC_FIELDS.STATUS:
               this.initializeZaakStatusField(component, taak);
               break;
+            default:
+              this.markUnknownZacType(component);
           }
           await this.initializeSpecializedFormioComponents(
             this.getChildComponents(component),
@@ -179,6 +181,17 @@ export class FormioSetupService {
         },
       );
     }
+  }
+
+  // Form.io flags an unknown `type` itself, but a misspelled `ZAC_TYPE` renders a silently empty field.
+  private markUnknownZacType(component: ExtendedComponentSchema) {
+    const zacType = component.attributes?.[ZAC_FIELD_ATTRIBUTE];
+    if (!zacType) return;
+
+    component.type = "content";
+    component.label = "";
+    component.input = false;
+    component.html = `<div class="zac-unknown-zac-type">Undefined ZAC_TYPE: '${zacType}'</div>`;
   }
 
   private async safeInit(context: string, fn: () => Promise<void>) {

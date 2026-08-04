@@ -129,7 +129,7 @@ describe(ZaakCreateComponent.name, () => {
       mutationKey: [],
       mutationFn: () =>
         Promise.resolve(
-          fromPartial<GeneratedType<"RestZaak">>({
+          fromPartial<GeneratedType<"CreateZaakResponse">>({
             identificatie: "test-zaak-uuid-123",
           }),
         ),
