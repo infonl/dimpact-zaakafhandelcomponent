@@ -419,6 +419,10 @@ jobs:
         # vendors its own newer netavark/aardvark-dns, which fixed it.
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          # The runner image disables brew's auto-update, so its bundled Homebrew internals can
+          # lag behind the live homebrew-core API. That mismatch broke unpinned transitive
+          # dependencies (e.g. dbus) using a post-install step type the stale brew didn't recognize.
+          brew update
           # `brew tap-new` commits the scaffolded tap, which needs a git identity - this runner has none.
           git config --global user.email "ci@localhost"
           git config --global user.name "CI"
@@ -536,6 +540,10 @@ jobs:
         # Pinned to 6.0.2 via a pinned Homebrew formula, see the itest job above for why.
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          # The runner image disables brew's auto-update, so its bundled Homebrew internals can
+          # lag behind the live homebrew-core API. That mismatch broke unpinned transitive
+          # dependencies (e.g. dbus) using a post-install step type the stale brew didn't recognize.
+          brew update
           # `brew tap-new` commits the scaffolded tap, which needs a git identity - this runner has none.
           git config --global user.email "ci@localhost"
           git config --global user.name "CI"
