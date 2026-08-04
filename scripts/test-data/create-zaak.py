@@ -147,6 +147,17 @@ def upload_documents(
         return []
 
     successful_zaken = [result for result in zaak_results if result["success"] and result["zaak_uuid"]]
+    zaken_without_uuid = [result for result in zaak_results if result["success"] and not result["zaak_uuid"]]
+    if zaken_without_uuid:
+        indices = ", ".join(str(result["index"]) for result in zaken_without_uuid)
+        print(
+            f"\n  WARNING: {len(zaken_without_uuid)} zaak(en) were created but no UUID could be"
+            f" resolved (index {indices}); no documents will be uploaded to them."
+        )
+    if not successful_zaken:
+        print("\n=== Uploading documents: no zaken with a resolved UUID ===")
+        return []
+
     print(
         f"\n=== Uploading documents ({document_count} per zaak) to {len(successful_zaken)} zaken"
         f" ({document_count * len(successful_zaken)} total) ==="

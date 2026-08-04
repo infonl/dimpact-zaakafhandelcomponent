@@ -8,6 +8,7 @@
 
 import base64
 import json
+import os
 import sys
 import threading
 import time
@@ -21,18 +22,22 @@ from typing import Any
 # Constants — sourced from src/itest/kotlin/nl/info/zac/itest/config/
 # ---------------------------------------------------------------------------
 
-KEYCLOAK_REALM = "zaakafhandelcomponent"
-KEYCLOAK_CLIENT_ID = "zaakafhandelcomponent"
-KEYCLOAK_CLIENT_SECRET = "keycloakZaakafhandelcomponentClientSecret"
+# Local Docker Compose Keycloak fixtures — the same values as in .env.example and the committed
+# realm import. Overridable so the scripts can target a differently-configured local realm.
+KEYCLOAK_REALM = os.environ.get("ZAC_TESTDATA_KEYCLOAK_REALM", "zaakafhandelcomponent")
+KEYCLOAK_CLIENT_ID = os.environ.get("ZAC_TESTDATA_KEYCLOAK_CLIENT_ID", "zaakafhandelcomponent")
+KEYCLOAK_CLIENT_SECRET = os.environ.get(
+    "ZAC_TESTDATA_KEYCLOAK_CLIENT_SECRET", "keycloakZaakafhandelcomponentClientSecret"
+)
 
 # beheerder1newiam = BEHEERDER_ELK_ZAAKTYPE
-CONFIG_USER = "beheerder1newiam"
-CONFIG_PASSWORD = "beheerder1newiam"
+CONFIG_USER = os.environ.get("ZAC_TESTDATA_USER", "beheerder1newiam")
+CONFIG_PASSWORD = os.environ.get("ZAC_TESTDATA_PASSWORD", "beheerder1newiam")
 
 # Use the same beheerder user for zaak creation: they have access to all zaaktypes
 # (behandelaar1newiam is restricted to domein_test_1 only)
-ZAAK_USER = "beheerder1newiam"
-ZAAK_PASSWORD = "beheerder1newiam"
+ZAAK_USER = CONFIG_USER
+ZAAK_PASSWORD = CONFIG_PASSWORD
 
 _TOKEN_REFRESH_MARGIN = 30  # seconds before expiry at which to proactively refresh
 
@@ -61,6 +66,10 @@ def http_request(method: str, url: str, body: Any = None, headers: dict | None =
             return response.status, response.read().decode()
     except urllib.error.HTTPError as httpError:
         return httpError.code, httpError.read().decode()
+    except urllib.error.URLError as urlError:
+        # Connection/DNS failure: no HTTP status exists, so report 0 rather than crashing
+        # a long-running load test.
+        return 0, str(urlError)
 
 
 def auth_headers(token: str) -> dict:

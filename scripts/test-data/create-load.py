@@ -628,14 +628,14 @@ def main() -> None:
     wall_start = time.monotonic()
 
     if not args.skip_config:
-        print("\nObtaining config token (beheerder1newiam)...")
+        print(f"\nObtaining config token ({zac_client.CONFIG_USER})...")
         config_token = zac_client.get_token(zac_client.CONFIG_USER, zac_client.CONFIG_PASSWORD, args.keycloak_url)
         upload_bpmn_process_definitions(config_token, args.zac_url)
         create_zaakafhandelparameters(config_token, args.zac_url)
     else:
         print("\nSkipping BPMN upload and zaakafhandelparameters creation (--skip-config)")
 
-    print("\nObtaining zaak creation token (beheerder1newiam)...")
+    print(f"\nObtaining zaak creation token ({zac_client.ZAAK_USER})...")
     zaak_token_manager = zac_client.TokenManager(zac_client.ZAAK_USER, zac_client.ZAAK_PASSWORD, args.keycloak_url)
 
     results = create_zaken(args.zaken_count, zaak_token_manager, args.zac_url, args.concurrency)

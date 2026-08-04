@@ -219,7 +219,9 @@ def upload_document_to_zaak(
     informatieobjecttype_uuid = BIJLAGE_UUID_BY_ZAAKTYPE.get(
         zaaktype_uuid, INFORMATIEOBJECTTYPE_BIJLAGE_UUID
     )
-    creatiedatum = time.strftime("%Y-%m-%dT%H:%M+01:00")
+    # ZAC parses this with the strict pattern "yyyy-MM-dd'T'HH:mmXXX", so minute precision
+    # is required: an ISO string including seconds is rejected.
+    creatiedatum = datetime.datetime.now().astimezone().isoformat(timespec="minutes")
     fields = [
         ("bestandsnaam", document["filename"], None, None),
         ("titel", document["titel"], None, None),
