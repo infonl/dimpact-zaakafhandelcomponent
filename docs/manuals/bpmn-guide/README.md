@@ -1,15 +1,19 @@
 # BPMN guide
 
 ## ZAC and BPMN
-ZAC uses [Flowable](https://www.flowable.com/) as embedded process automation engine to support BPMN processes. 
+
+ZAC uses [Flowable](https://www.flowable.com/) as embedded process automation engine to support BPMN processes.
 Forms that provide input for user tasks in BPMN processes are implemented using the open source [Form.io](https://form.io/) web form library.
 
 ## BPMN process definition
+
 To create a BPMN process definition, you can:
-* use Flowable [web editor](https://trial.flowable.com/design)
-* start with our integration tests [process](../../../src/itest/resources/bpmn/itProcessDefinition.bpmn)
+
+- use Flowable [web editor](https://trial.flowable.com/design)
+- start with our integration tests [process](../../../src/itest/resources/bpmn/itProcessDefinition.bpmn)
 
 ## Use of quotes
+
 Please make sure that you use straight quotes (') in expressions. Sometimes your system will use
 [smart (curly) quotes](https://practicaltypography.com/straight-and-curly-quotes.html) which will
 not parse correctly.
@@ -17,9 +21,11 @@ not parse correctly.
 ### Requirements
 
 #### Candidate group/user
-The "User tasks" should have a candidate group or user set. 
+
+The "User tasks" should have a candidate group or user set.
 
 ### Upload
+
 1. Open ZAC
 2. Go to the "Beheer-instellingen"
 3. Open "BPMN Process definities"
@@ -29,11 +35,14 @@ The "User tasks" should have a candidate group or user set.
 ![image](./images/1036ca6b-d39e-429e-9356-80005807fc9c.png)
 
 ## Form.io form
+
 To create a Form.io form:
-* use the Form.io [Builder](https://formio.github.io/formio.js/app/builder)
-* upload our integration tests [form](../../../src/itest/resources/bpmn/testForm.json)
+
+- use the Form.io [Builder](https://formio.github.io/formio.js/app/builder)
+- upload our integration tests [form](../../../src/itest/resources/bpmn/testForm.json)
 
 ### Upload
+
 1. Open ZAC
 2. Go to the "Beheer-instellingen"
 3. Open "Form.io formulieren"
@@ -41,9 +50,11 @@ To create a Form.io form:
 5. Select the Form.io form
 
 ### Validation
+
 Form.io offers validation of the data entered in the form.
 
 For example, the emails can be validated by specifying `validate` and `type` keys:
+
 ```json
 {
   "label": "E-mail sender",
@@ -62,19 +73,20 @@ For example, the emails can be validated by specifying `validate` and `type` key
 ZAC extension fields are added to the Form.io form as an `ZAC_TYPE` `attribute` to the field component.
 
 Available ZAC types are:
-* `ZAC_groep`
-* `ZAC_medewerker`
-* `ZAC_smart_documents_template_groups`
-* `ZAC_smart_documents_template_group_templates`
-* `ZAC_referentie_tabel`
-* `ZAC_documenten`
-* `ZAC_documenten_niet_ondertekend`
-* `ZAC_gekozen_documenten_niet_ondertekend`
-* `ZAC_regel_link`
-* `ZAC_regel_link_view_icon`
-* `ZAC_resultaat`
-* `ZAC_status`
-* `ZAC_process_data`
+
+- `ZAC_groep`
+- `ZAC_medewerker`
+- `ZAC_smart_documents_template_groups`
+- `ZAC_smart_documents_template_group_templates`
+- `ZAC_referentie_tabel`
+- `ZAC_documenten`
+- `ZAC_documenten_niet_ondertekend`
+- `ZAC_gekozen_documenten_niet_ondertekend`
+- `ZAC_regel_link_tekstueel`
+- `ZAC_regel_link_oog_icoon`
+- `ZAC_resultaat`
+- `ZAC_status`
+- `ZAC_process_data`
 
 #### Undefined ZAC_TYPE
 
@@ -102,24 +114,28 @@ Any JavaScript added to a Form.io component runs unrestricted in the browser of 
 ### Prefer JSON Logic over JavaScript where available
 
 Form.io offers [JSON Logic](https://jsonlogic.com/) as a safer, declarative alternative to JavaScript for:
-* conditional (advanced) logic — showing/hiding a component based on other field values
-* custom validation — rejecting a submission unless a rule holds
+
+- conditional (advanced) logic — showing/hiding a component based on other field values
+- custom validation — rejecting a submission unless a rule holds
 
 A JSON Logic rule can only compute a value from the submitted form data. Unlike JavaScript, it cannot access the page (DOM), make network calls, or have other side effects. See:
-* https://jsonlogic.com/ — the JSON Logic specification, with an interactive playground to try out rules
-* https://jsonlogic.com/operations.html — a reference of all supported JSON Logic operators
-* https://help.form.io/form-building/logic-and-conditions — Form.io's documentation on Advanced Conditions, Logic and Custom Validation, including where JSON Logic can be used instead of JavaScript
+
+- https://jsonlogic.com/ — the JSON Logic specification, with an interactive playground to try out rules
+- https://jsonlogic.com/operations.html — a reference of all supported JSON Logic operators
+- https://help.form.io/form-building/logic-and-conditions — Form.io's documentation on Advanced Conditions, Logic and Custom Validation, including where JSON Logic can be used instead of JavaScript
 
 For simple show/hide behavior, also consider Form.io's "Simple Conditions", which need no code at all.
 
 #### Example: conditional display
 
 Not recommended (JavaScript, in "Advanced Conditions"):
+
 ```js
-show = data.aanvraagType === 'spoed';
+show = data.aanvraagType === "spoed";
 ```
 
 Recommended (JSON Logic, in "Advanced Conditions"):
+
 ```json
 {
   "==": [{ "var": "aanvraagType" }, "spoed"]
@@ -129,11 +145,16 @@ Recommended (JSON Logic, in "Advanced Conditions"):
 #### Example: custom validation
 
 Not recommended (JavaScript):
+
 ```js
-valid = (data.eindDatum > data.startDatum) ? true : 'Einddatum moet na startdatum liggen';
+valid =
+  data.eindDatum > data.startDatum
+    ? true
+    : "Einddatum moet na startdatum liggen";
 ```
 
 Recommended (JSON Logic):
+
 ```json
 {
   ">": [{ "var": "eindDatum" }, { "var": "startDatum" }]
@@ -155,47 +176,54 @@ Some behavior cannot be expressed with JSON Logic or a calculated value, for exa
 ```
 
 This is a **not recommended** pattern:
-* it reaches into `instance.root` and mutates the renderer's internal state (`root.shouldValidate`)
-* it disables form validation for the entire form (`root.shouldValidate = function(){return false;}`)
-* it calls an external API directly from the browser with an API key embedded in the form definition, which every user who opens the task can read
-* it force-submits the form once the lookup completes, without the user confirming the result
+
+- it reaches into `instance.root` and mutates the renderer's internal state (`root.shouldValidate`)
+- it disables form validation for the entire form (`root.shouldValidate = function(){return false;}`)
+- it calls an external API directly from the browser with an API key embedded in the form definition, which every user who opens the task can read
+- it force-submits the form once the lookup completes, without the user confirming the result
 
 If similar behavior is genuinely needed, and JSON Logic or a calculated value cannot express it:
-* reach out to the ZAC development team to discuss the use case; possibly the behavior can be implemented differently, or possibly it warrants a feature request
-* keep the JavaScript as small and narrowly scoped as possible
-* avoid disabling validation, embedding credentials, or calling external APIs directly from the browser unless there is no other way to achieve the required behavior
-* have the code reviewed by someone who understands JavaScript before uploading the form
+
+- reach out to the ZAC development team to discuss the use case; possibly the behavior can be implemented differently, or possibly it warrants a feature request
+- keep the JavaScript as small and narrowly scoped as possible
+- avoid disabling validation, embedding credentials, or calling external APIs directly from the browser unless there is no other way to achieve the required behavior
+- have the code reviewed by someone who understands JavaScript before uploading the form
 
 ## Supported functionality
+
 The following functionality is supported by the BPMN process definition:
-* Zaak
-   * listing status and result types
-   * changing status and result
-   * suspending
-   * resuming
-   * extending
-* Send email
-* Send automatische ontvangstbevestiging
-* User/group
-   * listing groups/users
-   * assigning a group/user to a zaak
-   * assigning zaak's default group/user to a task
-   * assigning the group/user of another task
-* Documents
-  * listing attached documents
-  * listing available SmartDocuments templates
-  * creating documents
-  * signing documents
-* Listing reference table data
-* Process data
+
+- Zaak
+  - listing status and result types
+  - changing status and result
+  - suspending
+  - resuming
+  - extending
+- Send email
+- Send automatische ontvangstbevestiging
+- User/group
+  - listing groups/users
+  - assigning a group/user to a zaak
+  - assigning zaak's default group/user to a task
+  - assigning the group/user of another task
+- Documents
+  - listing attached documents
+  - listing available SmartDocuments templates
+  - creating documents
+  - signing documents
+- Listing reference table data
+- Process data
 
 ### Zaak
 
 #### Listing statustypes
+
 The available status types for a zaak can be displayed with:
-* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_status`
+
+- A `select` component, with the attribute `ZAC_TYPE` of `ZAC_status`
 
 Example:
+
 ```json
 {
   "label": "Select status",
@@ -216,10 +244,13 @@ Example:
 ```
 
 #### Listing resultaattypes
+
 The available result types for a zaak can be displayed with:
-* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_resultaat`
+
+- A `select` component, with the attribute `ZAC_TYPE` of `ZAC_resultaat`
 
 Example:
+
 ```json
 {
   "label": "Select result",
@@ -240,14 +271,17 @@ Example:
 ```
 
 #### Changing status and result
+
 To change zaak status, you have to:
-* create a service task
-* set class `net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate`
-* add fields
-  * `statustypeOmschrijving` to `stringvalue` or `expression` representing your desired zaak statustype omschrijving
-  * `resultaattypeOmschrijving` to a valid `stringvalue` or `expression`, required by your zaak statustype
+
+- create a service task
+- set class `net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate`
+- add fields
+  - `statustypeOmschrijving` to `stringvalue` or `expression` representing your desired zaak statustype omschrijving
+  - `resultaattypeOmschrijving` to a valid `stringvalue` or `expression`, required by your zaak statustype
 
 For example:
+
 ```xml
     <serviceTask id="ServiceTask_357" name="Status to &quot;Verleend&quot;" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakJavaDelegate">
       <extensionElements>
@@ -264,14 +298,17 @@ For example:
 ```
 
 #### Suspending
+
 To suspend a zaak:
-* create a service task
-* set class `net.atos.zac.flowable.delegate.SuspendZaakDelegate`
-* add fields:
-  * `aantalDagen` - number of days to suspend the zaak for. Added to the current date.
-  * `opschortingReden` - reason for suspension
+
+- create a service task
+- set class `net.atos.zac.flowable.delegate.SuspendZaakDelegate`
+- add fields:
+  - `aantalDagen` - number of days to suspend the zaak for. Added to the current date.
+  - `opschortingReden` - reason for suspension
 
 For example:
+
 ```xml
     <serviceTask id="ServiceTask_360" name="Suspend" flowable:class="net.atos.zac.flowable.delegate.SuspendZaakDelegate">
       <extensionElements>
@@ -288,14 +325,17 @@ For example:
 ```
 
 #### Resuming
+
 To resume a zaak:
-* create a service task
-* set class `net.atos.zac.flowable.delegate.ResumeZaakDelegate`
-* add fields:
-  * `hervattenReden` - reason for resuming
-  * `hervattenDatum` - resume date (optional). If not set, the current date is used.
+
+- create a service task
+- set class `net.atos.zac.flowable.delegate.ResumeZaakDelegate`
+- add fields:
+  - `hervattenReden` - reason for resuming
+  - `hervattenDatum` - resume date (optional). If not set, the current date is used.
 
 For example:
+
 ```xml
     <serviceTask id="ServiceTask_361" name="Resume" flowable:class="net.atos.zac.flowable.delegate.ResumeZaakDelegate">
       <extensionElements>
@@ -311,18 +351,21 @@ For example:
     </serviceTask>
 ```
 
-The `hervattenDatum` is a date-time string with a time-zone in the ISO-8601 calendar system: `2025-11-14T17:38:21.929149+01:00[Europe/Amsterdam]`. 
+The `hervattenDatum` is a date-time string with a time-zone in the ISO-8601 calendar system: `2025-11-14T17:38:21.929149+01:00[Europe/Amsterdam]`.
 
 #### Extending
+
 To extend a zaak:
-* create a service task
-* set class `net.atos.zac.flowable.delegate.ExtendZaakDelegate`
-* add fields:
-  * `aantalDagen` - number of days to extend the zaak for
-  * `verlengingReden` - reason for extending
-  * `takenVerlengen` - whether to extend all tasks in the zaak (optional, default `false`)
+
+- create a service task
+- set class `net.atos.zac.flowable.delegate.ExtendZaakDelegate`
+- add fields:
+  - `aantalDagen` - number of days to extend the zaak for
+  - `verlengingReden` - reason for extending
+  - `takenVerlengen` - whether to extend all tasks in the zaak (optional, default `false`)
 
 For example:
+
 ```xml
     <serviceTask id="ServiceTask_378" name="Extend" flowable:class="net.atos.zac.flowable.delegate.ExtendZaakDelegate">
       <extensionElements>
@@ -342,16 +385,19 @@ For example:
 ```
 
 ### Send email
+
 To send email:
-* create a service task
-* set class `net.atos.zac.flowable.delegate.SendEmailDelegate`
-* add fields:
-  * `to` - equal to the receiver's email address
-  * `from` - the sender's email address
-  * `replyTo` - the replyTo's email address
-  * `template` - the name of the email template you want to use
+
+- create a service task
+- set class `net.atos.zac.flowable.delegate.SendEmailDelegate`
+- add fields:
+  - `to` - equal to the receiver's email address
+  - `from` - the sender's email address
+  - `replyTo` - the replyTo's email address
+  - `template` - the name of the email template you want to use
 
 For example:
+
 ```xml
     <serviceTask id="ServiceTask_358" name="Send email" flowable:class="net.atos.zac.flowable.delegate.SendEmailDelegate">
       <extensionElements>
@@ -379,6 +425,7 @@ Email templates support dynamic substitution of zaakdata values. This allows you
 data that was collected during the BPMN process (e.g. from Form.io form fields) directly in the email subject and body.
 
 Use the following syntax in the email template subject or body:
+
 ```
 {ZAAKDATA:<key>}
 ```
@@ -389,11 +436,13 @@ or any other variable stored in the zaakdata during the process.
 :warning: If the key does not exist or has no value, it will be replaced with `Onbekend`.
 
 Example: if your Form.io form has a field with key `customerPhone`, add the following to your email template subject or body:
+
 ```
 Het telefoonnummer van de klant is: {ZAAKDATA:customerPhone}
 ```
 
 To store a Form.io field value as zaakdata, use the `ZAC_process_data` type (see [Process data](#process-data)):
+
 ```json
 {
   "label": "Telefoonnummer",
@@ -409,14 +458,16 @@ To store a Form.io field value as zaakdata, use the `ZAC_process_data` type (see
 ### Send confirmation email (automatische ontvangstbevestiging)
 
 To send a confirmation email to the zaak initiator or zaak-specific contact email address from a BPMN process:
-* create a service task
-* set class `nl.info.zac.flowable.bpmn.delegate.SendConfirmationEmailDelegate`
-* add fields:
-  * `from` - the sender's email address
-  * `replyTo` - the reply-to email address (optional)
-  * `template` - the name of the email template to use
+
+- create a service task
+- set class `nl.info.zac.flowable.bpmn.delegate.SendConfirmationEmailDelegate`
+- add fields:
+  - `from` - the sender's email address
+  - `replyTo` - the reply-to email address (optional)
+  - `template` - the name of the email template to use
 
 Unlike `SendEmailDelegate`, the recipient address is resolved automatically from the zaak:
+
 1. The email address from the zaak-specific contact details is used if available.
 2. Otherwise, the default email address of the initiator of zaak is used. Or if the initiator does not have a default email address, the first email address of the initiator is used3. If no address can be found, no email is sent and the process continues.
 3. If no email address could be found, no email is sent and the process continues.
@@ -424,6 +475,7 @@ Unlike `SendEmailDelegate`, the recipient address is resolved automatically from
 The email is stored as a document attached to the zaak.
 
 For example:
+
 ```xml
     <serviceTask id="ServiceTask_359" name="Send confirmation email" flowable:class="nl.info.zac.flowable.bpmn.delegate.SendConfirmationEmailDelegate">
       <extensionElements>
@@ -445,7 +497,8 @@ For example:
 ### User/group
 
 #### Listing groups
-* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_groep`
+
+- A `select` component, with the attribute `ZAC_TYPE` of `ZAC_groep`
 
 ```json
 {
@@ -462,8 +515,9 @@ For example:
 ```
 
 #### Listing users in a group
-* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_medewerker`
-* An optional attribute `refreshOn` to refresh the user list when the group changes. The value of this attribute should be the key of the group component.
+
+- A `select` component, with the attribute `ZAC_TYPE` of `ZAC_medewerker`
+- An optional attribute `refreshOn` to refresh the user list when the group changes. The value of this attribute should be the key of the group component.
 
 ```json
 {
@@ -481,15 +535,18 @@ For example:
 ```
 
 #### Assigning a group/user to a zaak
+
 To assign a group or user to a zaak:
-* create a service task
-* set class `net.atos.zac.flowable.delegate.UpdateZaakAssignmentDelegate`
-* add fields:
-    * `groepId` - group to use for the assignment
-    * `behandelaarGebruikersnaam` - user to use for the assignment (optional)
-    * `reden` - the reason for the assignment
+
+- create a service task
+- set class `net.atos.zac.flowable.delegate.UpdateZaakAssignmentDelegate`
+- add fields:
+  - `groepId` - group to use for the assignment
+  - `behandelaarGebruikersnaam` - user to use for the assignment (optional)
+  - `reden` - the reason for the assignment
 
 For example:
+
 ```xml
     <serviceTask id="ServiceTask_362" name="Assign for approval" flowable:class="net.atos.zac.flowable.delegate.UpdateZaakAssignmentDelegate">
       <extensionElements>
@@ -509,12 +566,15 @@ For example:
 ```
 
 #### Assigning zaak's default group/user to a task
+
 The following BPMN-specific variables can be used in expressions in the BPMN process:
-* `zaakGroep` - group assigned to the zaak
-* `zaakBehandelaar` (optional) - user assigned to the zaak
+
+- `zaakGroep` - group assigned to the zaak
+- `zaakBehandelaar` (optional) - user assigned to the zaak
 
 The above variables can be used in `assignee` and `candidateGroups` attributes for example:
 For example:
+
 ```xml
 <userTask id="userTask"
           name="User details"
@@ -529,9 +589,10 @@ For example:
 We are using `var:get` [function](https://documentation.flowable.com/latest/develop/be/be-expressions#variable-functions) here which tries to get a `zaakBehandelaar` variable value, so that it will not throw an exception when the variable does not exist.
 As the group should always be provided when creating a zaak we set the candidate group directly to the value of `zaakGroep` variable.
 
-
 #### Assigning the group/user of another task
-To set the asignee and candidate group to the user/group used in another user task, you can use the `taken:behandelaar` and `taken:groep` functions:
+
+To set the assignee and candidate group to the user/group used in another user task, you can use the `taken:behandelaar` and `taken:groep` functions:
+
 ```xml
 <userTask id="userTask"
           name="User details"
@@ -548,15 +609,18 @@ Note: the `userTaskId` should be replaced with the actual id of the user task in
 ### Documents
 
 #### Listing available documents
+
 To display linked documents of a zaak you can use:
-* `select` type component with:
-  * custom data source
-  * attributes containing `ZAC_TYPE` of `ZAC_documenten`
-  * multi select attribute (`type=select` with `multiple=true`)
+
+- `select` type component with:
+  - custom data source
+  - attributes containing `ZAC_TYPE` of `ZAC_documenten`
+  - multi select attribute (`type=select` with `multiple=true`)
 
 Example:
+
 ```json
- {
+{
   "label": "Documents",
   "type": "select",
   "key": "ZAAK_Documents_Select",
@@ -585,10 +649,12 @@ Example:
 ```
 
 #### Creating documents
+
 This requires these three components:
 
 ##### Listing SmartDocuments template groups linked to the current zaaktype
-* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_smart_documents_template_groups`
+
+- A `select` component, with the attribute `ZAC_TYPE` of `ZAC_smart_documents_template_groups`
 
 ```json
 {
@@ -605,8 +671,9 @@ This requires these three components:
 ```
 
 ##### Listing SmartDocuments templates linked to a template group and the current zaaktype
-* A `select` component, with the attribute `ZAC_TYPE` of `ZAC_smart_documents_template_group_templates`
-* An optional attribute `refreshOn` to refresh the template list when the template group changes. The value of this attribute should be the key of the template group component.
+
+- A `select` component, with the attribute `ZAC_TYPE` of `ZAC_smart_documents_template_group_templates`
+- An optional attribute `refreshOn` to refresh the template list when the template group changes. The value of this attribute should be the key of the template group component.
 
 ```json
 {
@@ -624,10 +691,12 @@ This requires these three components:
 ```
 
 ##### Create document button
-* A `button` with:
-* custom event: `"event": "createDocument"`
+
+- A `button` with:
+- custom event: `"event": "createDocument"`
 
 Example:
+
 ```json
 {
   "label": "Create",
@@ -643,7 +712,8 @@ Example:
 ```
 
 #### Listing attached documents
-* A `choicesjs` widget `select` component, with the attribute `ZAC_TYPE` of `ZAC_documenten`
+
+- A `choicesjs` widget `select` component, with the attribute `ZAC_TYPE` of `ZAC_documenten`
 
 ```json
 {
@@ -675,18 +745,21 @@ Example:
 ```
 
 #### Signing documents
+
 To automatically sign one or more documents as part of a process:
-* create a user task with a form that lets the user select documents to sign (see form field below)
-* create a service task after the user task
-* set class `net.atos.zac.flowable.delegate.SignDocumentDelegate`
-* optionally add a field:
-  * `documentenKey` - the key of the form field that contains the selected documents (defaults to `ZAAK_Documenten_Te_Ondertekenen` if not set)
+
+- create a user task with a form that lets the user select documents to sign (see form field below)
+- create a service task after the user task
+- set class `net.atos.zac.flowable.delegate.SignDocumentDelegate`
+- optionally add a field:
+  - `documentenKey` - the key of the form field that contains the selected documents (defaults to `ZAAK_Documenten_Te_Ondertekenen` if not set)
 
 The delegate signs every row of that field whose `selected` checkbox is ticked. Documents that are already signed will be skipped automatically.
 
 The form field for selecting documents to sign is a `datagrid` with the attribute `ZAC_TYPE` of
 `ZAC_documenten_niet_ondertekend`. It is filled with all documents of the zaak that are not yet
 signed, each with a `selected` checkbox:
+
 ```json
 {
   "label": "Documenten",
@@ -698,14 +771,25 @@ signed, each with a `selected` checkbox:
   "attributes": { "ZAC_TYPE": "ZAC_documenten_niet_ondertekend" },
   "components": [
     { "label": "", "key": "selected", "type": "checkbox", "input": true },
-    { "label": "Titel", "key": "titel", "type": "textfield", "input": true, "disabled": true },
-    { "key": "openen", "type": "htmlelement", "input": false, "attributes": { "ZAC_TYPE": "ZAC_regel_link_view_icon" } }
+    {
+      "label": "Titel",
+      "key": "titel",
+      "type": "textfield",
+      "input": true,
+      "disabled": true
+    },
+    {
+      "key": "openen",
+      "type": "htmlelement",
+      "input": false,
+      "attributes": { "ZAC_TYPE": "ZAC_regel_link_oog_icoon" }
+    }
   ]
 }
 ```
 
-The optional `ZAC_regel_link_view_icon` column renders an icon linking to the document of that row in
-a new tab; `ZAC_regel_link` renders the same link as text. Both take their route from the datagrid
+The optional `ZAC_regel_link_oog_icoon` column renders an icon linking to the document of that row in
+a new tab; `ZAC_regel_link_tekstueel` renders the same link as text. Both take their route from the datagrid
 they sit in, so no URL has to be configured in the form.
 
 To confirm that selection in a following user task, use a `datagrid` with the attribute `ZAC_TYPE` of
@@ -713,6 +797,7 @@ To confirm that selection in a following user task, use a `datagrid` with the at
 above. Only the documents selected there are shown. Because a task can stay open for days, their
 titles and signing state are re-read when the task is opened, and any document that has been signed
 in the meantime is left out:
+
 ```json
 {
   "label": "Documenten",
@@ -724,8 +809,19 @@ in the meantime is left out:
   "attributes": { "ZAC_TYPE": "ZAC_gekozen_documenten_niet_ondertekend" },
   "components": [
     { "label": "", "key": "selected", "type": "checkbox", "input": true },
-    { "label": "Titel", "key": "titel", "type": "textfield", "input": true, "disabled": true },
-    { "key": "openen", "type": "htmlelement", "input": false, "attributes": { "ZAC_TYPE": "ZAC_regel_link_view_icon" } }
+    {
+      "label": "Titel",
+      "key": "titel",
+      "type": "textfield",
+      "input": true,
+      "disabled": true
+    },
+    {
+      "key": "openen",
+      "type": "htmlelement",
+      "input": false,
+      "attributes": { "ZAC_TYPE": "ZAC_regel_link_oog_icoon" }
+    }
   ]
 }
 ```
@@ -735,14 +831,17 @@ drops a document again, and the delegate will then not sign it. Disabling the ch
 view-only and every listed document will be signed.
 
 ### Reference Table values
+
 To display and use values from a reference table you can use:
-* a fieldset with type `referenceTableFieldset`
-* `select` type component with:
-  * custom data source
-  * attribute `ZAC_TYPE` of `ZAC_referentie_tabel`
-  * properties containing `ReferenceTable_Code`
+
+- a fieldset with type `referenceTableFieldset`
+- `select` type component with:
+  - custom data source
+  - attribute `ZAC_TYPE` of `ZAC_referentie_tabel`
+  - properties containing `ReferenceTable_Code`
 
 Example:
+
 ```json
 {
   "label": "Communication channel",
@@ -762,10 +861,12 @@ Example:
   }
 }
 ```
-:warning: prefixing the reference table code with 'BPMN_' is recommended to avoid conflicts with other ZAAK types and reference tables.
+
+:warning: prefixing the reference table code with 'BPMN\_' is recommended to avoid conflicts with other ZAAK types and reference tables.
 
 ### Process data
-* A `input` component, with the attribute `ZAC_TYPE` of `ZAC_process_data`, where the `key` is the name of the process data variable
+
+- A `input` component, with the attribute `ZAC_TYPE` of `ZAC_process_data`, where the `key` is the name of the process data variable
 
 ```json
 {
@@ -790,17 +891,18 @@ These functions are evaluated client-side and can be used to display dynamic dat
 Resolves a list of document UUIDs stored in a taakdata field to their human-readable document titles.
 The titles are formatted as a Dutch conjunction list (e.g. `Document A, Document B en Document C`).
 
-* Use a `content` component with an `html` property containing `{{ ZAC_getDocumentTitles(<fieldKey>) }}`
-* `<fieldKey>` must match the name of a taakdata field containing documents, in any of the shapes below (it does not need to be a component in the form)
+- Use a `content` component with an `html` property containing `{{ ZAC_getDocumentTitles(<fieldKey>) }}`
+- `<fieldKey>` must match the name of a taakdata field containing documents, in any of the shapes below (it does not need to be a component in the form)
 
 The argument is the bare field name, without quotes. Taakdata is available as variables in the template, so
 what the function receives is the value of that field. Several `content` components may call it with different
 fields; the titles of all of them are fetched when the form is opened.
 
 Any field holding documents works, whichever shape it stores them in:
-* a single UUID
-* a list of UUIDs, the way a `ZAC_documenten` select stores them: `["06a47923-…", "44e891f7-…"]`
-* a list of datagrid rows, the way the signing grids store them: `[{ "selected": true, "titel": "…", "uuid": "…" }]`
+
+- a single UUID
+- a list of UUIDs, the way a `ZAC_documenten` select stores them: `["06a47923-…", "44e891f7-…"]`
+- a list of datagrid rows, the way the signing grids store them: `[{ "selected": true, "titel": "…", "uuid": "…" }]`
 
 Rows whose `selected` checkbox was unticked are left out, so the list matches what a signing task will
 actually sign. Entries without a UUID are ignored. Titles are always read from the document itself, so a
@@ -819,13 +921,11 @@ actually sign. Entries without a UUID are ignored. Titles are always read from t
 If a document cannot be fetched or has no title, the UUID is used as a fallback.
 
 #### Supported process data variables
-* `zaakUUID` - zaak UUID
-* `zaakIdentificatie` - zaak id
-* `zaakCommunicatiekanaal` - zaak communication channel
-* `zaakGroep` - zaak group
-* `zaakBehandelaar` - zaak assigned user`
-* `zaaktypeUUID` - zaaktype UUID
-* `zaaktypeOmschrijving` - zaaktype description
 
-
-
+- `zaakUUID` - zaak UUID
+- `zaakIdentificatie` - zaak id
+- `zaakCommunicatiekanaal` - zaak communication channel
+- `zaakGroep` - zaak group
+- `zaakBehandelaar` - zaak assigned user
+- `zaaktypeUUID` - zaaktype UUID
+- `zaaktypeOmschrijving` - zaaktype description
