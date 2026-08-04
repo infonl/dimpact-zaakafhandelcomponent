@@ -267,8 +267,7 @@ class ZgwApiService @Inject constructor(
      *
      * @param zaak [Zaak].
      * @param roles pre-fetched roles for [zaak], to avoid a redundant `listRollen` call when the caller
-     * already fetched all roles for the zaak (e.g. because it also needs [findBehandelaarMedewerkerRoleForZaak]
-     * and/or [findInitiatorRoleForZaak] for the same zaak). When 'null', the roles are fetched here.
+     * already fetched all roles for the zaak. When 'null', the roles are fetched here.
      * @return [RolOrganisatorischeEenheid] or 'null'.
      */
     fun findGroepForZaak(zaak: Zaak, roles: List<Rol<*>>? = null): RolOrganisatorischeEenheid? =
@@ -281,8 +280,7 @@ class ZgwApiService @Inject constructor(
      *
      * @param zaak [Zaak]
      * @param roles pre-fetched roles for [zaak], to avoid a redundant `listRollen` call when the caller
-     * already fetched all roles for the zaak (e.g. because it also needs [findGroepForZaak]
-     * and/or [findInitiatorRoleForZaak] for the same zaak). When 'null', the roles are fetched here.
+     * already fetched all roles for the zaak. When 'null', the roles are fetched here.
      * @return [RolMedewerker] or 'null' if the rol medewerker could not be found.
      */
     fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak, roles: List<Rol<*>>? = null): RolMedewerker? =
