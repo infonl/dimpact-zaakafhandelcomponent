@@ -103,7 +103,7 @@ class RestZaakConverter @Inject constructor(
         }
         val zaakSpecificContactDetails = klantClientService.findZaakSpecificContactDetails(zaak.uuid)
         val zaakData = zaakVariabelenService.readZaakdata(zaak.uuid)
-        val hasSentConfirmationOfReceipt = (zaakData[VAR_ONTVANGSTBEVESTIGING_VERSTUURD] as Boolean?) ?: false
+        val hasSentConfirmationOfReceipt = (zaakData[VAR_ONTVANGSTBEVESTIGING_VERSTUURD] as? Boolean) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
         return RestZaak(
             archiefActiedatum = zaak.archiefactiedatum,
