@@ -266,10 +266,13 @@ class ZgwApiService @Inject constructor(
      * Find [RolOrganisatorischeEenheid] for [Zaak] with initiator [OmschrijvingGeneriekEnum].
      *
      * @param zaak [Zaak].
+     * @param roles pre-fetched roles for [zaak], to avoid a redundant `listRollen` call when the caller
+     * already fetched all roles for the zaak (e.g. because it also needs [findBehandelaarMedewerkerRoleForZaak]
+     * and/or [findInitiatorRoleForZaak] for the same zaak). When 'null', the roles are fetched here.
      * @return [RolOrganisatorischeEenheid] or 'null'.
      */
-    fun findGroepForZaak(zaak: Zaak): RolOrganisatorischeEenheid? =
-        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID)?.let {
+    fun findGroepForZaak(zaak: Zaak, roles: List<Rol<*>>? = null): RolOrganisatorischeEenheid? =
+        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID, roles)?.let {
             it as RolOrganisatorischeEenheid
         }
 
@@ -277,14 +280,22 @@ class ZgwApiService @Inject constructor(
      * Find [RolMedewerker] for [Zaak] with initiator [OmschrijvingGeneriekEnum].
      *
      * @param zaak [Zaak]
+     * @param roles pre-fetched roles for [zaak], to avoid a redundant `listRollen` call when the caller
+     * already fetched all roles for the zaak (e.g. because it also needs [findGroepForZaak]
+     * and/or [findInitiatorRoleForZaak] for the same zaak). When 'null', the roles are fetched here.
      * @return [RolMedewerker] or 'null' if the rol medewerker could not be found.
      */
-    fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak): RolMedewerker? =
-        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.MEDEWERKER)?.let {
+    fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak, roles: List<Rol<*>>? = null): RolMedewerker? =
+        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.MEDEWERKER, roles)?.let {
             it as RolMedewerker
         }
 
-    fun findInitiatorRoleForZaak(zaak: Zaak): Rol<*>? {
+    /**
+     * @param roles pre-fetched roles for [zaak], to avoid a redundant `listRollen` call when the caller
+     * already fetched all roles for the zaak (e.g. because it also needs [findGroepForZaak]
+     * and/or [findBehandelaarMedewerkerRoleForZaak] for the same zaak). When 'null', the roles are fetched here.
+     */
+    fun findInitiatorRoleForZaak(zaak: Zaak, roles: List<Rol<*>>? = null): Rol<*>? {
         val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR).also {
             if (it.size > 1) {
                 LOG.warning(
@@ -293,18 +304,22 @@ class ZgwApiService @Inject constructor(
             }
         }
         return roleTypes.firstOrNull()?.let { rolType ->
-            val roles = zrcClientService.listRollen(RolListParameters(zaak.url, rolType.url)).results().also {
-                check(it.size <= 1) {
-                    "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
+            val matchingRoles = (
+                roles?.filter { it.roltype == rolType.url }
+                    ?: zrcClientService.listRollen(RolListParameters(zaak.url, rolType.url)).results()
+                ).also {
+                    check(it.size <= 1) {
+                        "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
+                    }
                 }
-            }
-            roles.firstOrNull()
+            matchingRoles.firstOrNull()
         }
     }
 
     private fun findBehandelaarRoleForZaak(
         zaak: Zaak,
-        betrokkeneType: BetrokkeneTypeEnum
+        betrokkeneType: BetrokkeneTypeEnum,
+        roles: List<Rol<*>>? = null
     ): Rol<*>? {
         val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).also {
             if (it.size > 1) {
@@ -314,14 +329,17 @@ class ZgwApiService @Inject constructor(
             }
         }
         return roleTypes.firstOrNull()?.let { roleType ->
-            val roles = zrcClientService.listRollen(
-                RolListParameters(zaak.url, roleType.url, betrokkeneType)
-            ).results().also {
-                check(it.size <= 1) {
-                    "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
+            val matchingRoles = (
+                roles?.filter { it.roltype == roleType.url && it.betrokkeneType == betrokkeneType }
+                    ?: zrcClientService.listRollen(
+                        RolListParameters(zaak.url, roleType.url, betrokkeneType)
+                    ).results()
+                ).also {
+                    check(it.size <= 1) {
+                        "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
+                    }
                 }
-            }
-            roles.firstOrNull()
+            matchingRoles.firstOrNull()
         }
     }
 
