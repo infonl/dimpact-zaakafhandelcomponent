@@ -591,7 +591,7 @@ As the group should always be provided when creating a zaak we set the candidate
 
 #### Assigning the group/user of another task
 
-To set the asignee and candidate group to the user/group used in another user task, you can use the `taken:behandelaar` and `taken:groep` functions:
+To set the assignee and candidate group to the user/group used in another user task, you can use the `taken:behandelaar` and `taken:groep` functions:
 
 ```xml
 <userTask id="userTask"
@@ -926,6 +926,6 @@ If a document cannot be fetched or has no title, the UUID is used as a fallback.
 - `zaakIdentificatie` - zaak id
 - `zaakCommunicatiekanaal` - zaak communication channel
 - `zaakGroep` - zaak group
-- `zaakBehandelaar` - zaak assigned user`
+- `zaakBehandelaar` - zaak assigned user
 - `zaaktypeUUID` - zaaktype UUID
 - `zaaktypeOmschrijving` - zaaktype description
