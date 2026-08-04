@@ -11,6 +11,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
@@ -72,7 +73,7 @@ class BpmnUserGroupAssignTest : BehaviorSpec({
         var zaakIdentificatie: String? = null
 
         `when`("zaak is created") {
-            val response = zacClient.createZaak(
+            val response = zacClient.createZaakAndRetrieve(
                 zaakTypeUUID = ZAAKTYPE_BPMN_TEST_2_UUID,
                 groupId = GROUP_BEHANDELAARS_TEST_1.name,
                 groupName = GROUP_BEHANDELAARS_TEST_1.description,

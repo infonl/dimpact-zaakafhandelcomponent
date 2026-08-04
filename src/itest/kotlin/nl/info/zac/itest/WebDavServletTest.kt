@@ -12,6 +12,7 @@ import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.MediaType
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
@@ -49,7 +50,7 @@ class WebDavServletTest : BehaviorSpec({
 
     given("A zaak that was created and a logged-in behandelaar") {
         lateinit var zaakUUID: UUID
-        zacClient.createZaak(
+        zacClient.createZaakAndRetrieve(
             zaakTypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
             groupName = GROUP_BEHANDELAARS_TEST_1.description,

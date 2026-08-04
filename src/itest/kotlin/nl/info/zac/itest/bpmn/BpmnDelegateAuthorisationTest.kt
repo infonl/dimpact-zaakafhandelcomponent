@@ -8,6 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
@@ -29,7 +30,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
         var zaakIdentificatie: String? = null
 
         `when`("zaak is created for sendEmailAfterClosingZaak") {
-            val response = zacClient.createZaak(
+            val response = zacClient.createZaakAndRetrieve(
                 zaakTypeUUID = ZAAKTYPE_BPMN_TEST_5_UUID,
                 groupId = GROUP_BEHANDELAARS_TEST_1.name,
                 groupName = GROUP_BEHANDELAARS_TEST_1.description,
@@ -70,7 +71,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
         }
 
         `when`("zaak is created for resumeZaakWhichIsNotSuspended") {
-            val response = zacClient.createZaak(
+            val response = zacClient.createZaakAndRetrieve(
                 zaakTypeUUID = ZAAKTYPE_BPMN_TEST_5_UUID,
                 groupId = GROUP_BEHANDELAARS_TEST_1.name,
                 groupName = GROUP_BEHANDELAARS_TEST_1.description,
@@ -111,7 +112,7 @@ class BpmnDelegateAuthorisationTest : BehaviorSpec({
         }
 
         `when`("zaak is created for assignZaak") {
-            val response = zacClient.createZaak(
+            val response = zacClient.createZaakAndRetrieve(
                 zaakTypeUUID = ZAAKTYPE_BPMN_TEST_5_UUID,
                 groupId = GROUP_BEHANDELAARS_TEST_1.name,
                 groupName = GROUP_BEHANDELAARS_TEST_1.description,
