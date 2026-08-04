@@ -1,0 +1,12 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+
+# Integration tests always run against a `zac` image built locally moments earlier by the
+# `buildDockerImage` Gradle task, never one pushed to a registry. Compose's default pull_policy
+# ("missing") still attempts a registry pull for it under Podman, which fails with
+# "manifest unknown" since that tag was never pushed anywhere.
+services:
+  zac:
+    pull_policy: never

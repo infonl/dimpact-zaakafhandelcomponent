@@ -354,7 +354,10 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         val envFile = Files.createTempFile("zac-itest", ".env").toFile()
         emptyEnvFile = envFile
 
-        val composeFiles: MutableList<File> = mutableListOf(File("docker-compose.yaml"))
+        val composeFiles: MutableList<File> = mutableListOf(
+            File("docker-compose.yaml"),
+            File("docker-compose.itest-override.yaml")
+        )
         System.getenv(DOCKER_USE_ARM64_CONTAINERS_ENV_VAR)
             ?.takeIf { it.isNotBlank() }
             ?.let {
