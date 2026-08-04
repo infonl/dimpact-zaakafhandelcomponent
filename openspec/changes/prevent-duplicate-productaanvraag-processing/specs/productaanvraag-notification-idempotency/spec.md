@@ -26,7 +26,12 @@ When a notification for a productaanvraag object UUID that is already claimed or
 
 ### Requirement: A stalled claim is automatically reclaimable
 
-If a productaanvraag object UUID was claimed for processing but never marked as completed (for example, due to a crash or restart during processing), the system SHALL allow that productaanvraag to be reclaimed and reprocessed after a fixed staleness period, without requiring manual intervention.
+If a productaanvraag object UUID was claimed for processing but never marked as completed (for example, due to a crash or restart during processing), the system SHALL allow that productaanvraag to be reclaimed and reprocessed after a configurable staleness period (default 10 minutes), without requiring manual intervention.
+
+#### Scenario: Staleness period is configurable
+
+- **WHEN** the staleness period is set to a non-default value via configuration
+- **THEN** the system uses that configured value, instead of the 10-minute default, to decide whether an in-progress claim is stale
 
 #### Scenario: Stale in-progress claim is reclaimed
 - **WHEN** a productaanvraag object UUID's claim record has status "in progress" and was started longer ago than the configured staleness period
