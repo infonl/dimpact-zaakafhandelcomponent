@@ -124,8 +124,8 @@ describe(ZacDocuments.name, () => {
 
     it("should show document title in the titel column", () => {
       const rows = fixture.nativeElement.querySelectorAll("td[mat-cell]");
-      const titelCell = Array.from(rows).find((cell: Element) =>
-        (cell as HTMLElement).textContent?.includes("Test Document"),
+      const titelCell = Array.from<HTMLElement>(rows).find((cell) =>
+        cell.textContent?.includes("Test Document"),
       );
       expect(titelCell).toBeTruthy();
     });
@@ -133,7 +133,7 @@ describe(ZacDocuments.name, () => {
     it("should render a view link with correct href", () => {
       const viewLinks =
         fixture.nativeElement.querySelectorAll("a[mat-icon-button]");
-      const viewLink = Array.from(viewLinks).find((link: Element) =>
+      const viewLink = Array.from<Element>(viewLinks).find((link) =>
         (link as HTMLAnchorElement).href?.includes(
           "/informatie-objecten/doc-uuid-1",
         ),
@@ -144,7 +144,7 @@ describe(ZacDocuments.name, () => {
     it("should render a download link via service", () => {
       const downloadLinks =
         fixture.nativeElement.querySelectorAll("a[mat-icon-button]");
-      const downloadLink = Array.from(downloadLinks).find((link: Element) =>
+      const downloadLink = Array.from<Element>(downloadLinks).find((link) =>
         (link as HTMLAnchorElement).href?.includes("/download/doc-uuid-1"),
       );
       expect(downloadLink).toBeTruthy();

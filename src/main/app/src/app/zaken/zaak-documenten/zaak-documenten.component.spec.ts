@@ -397,7 +397,7 @@ describe(ZaakDocumentenComponent.name, () => {
       await createComponent();
       jest
         .spyOn(informatieObjectenService, "getZIPDownload")
-        .mockReturnValue(of({} as never));
+        .mockReturnValue(of({}) as never);
       jest.spyOn(utilService, "downloadBlobResponse").mockImplementation();
       component.downloadAlsZipSelection.select(fakeDocument);
 

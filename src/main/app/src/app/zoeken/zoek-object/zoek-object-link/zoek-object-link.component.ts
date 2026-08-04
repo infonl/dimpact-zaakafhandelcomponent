@@ -83,4 +83,11 @@ export class ZoekObjectLinkComponent {
         );
     }
   }
+
+  protected navigate(event: Event) {
+    if (!this._newtab) {
+      this.sideNav.close();
+    }
+    event.stopPropagation();
+  }
 }
