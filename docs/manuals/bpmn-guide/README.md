@@ -926,6 +926,6 @@ If a document cannot be fetched or has no title, the UUID is used as a fallback.
 - `zaakIdentificatie` - zaak id
 - `zaakCommunicatiekanaal` - zaak communication channel
 - `zaakGroep` - zaak group
-- `zaakBehandelaar` - zaak assigned user`
+- `zaakBehandelaar` - zaak assigned user
 - `zaaktypeUUID` - zaaktype UUID
 - `zaaktypeOmschrijving` - zaaktype description
