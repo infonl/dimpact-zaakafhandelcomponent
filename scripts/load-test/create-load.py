@@ -29,6 +29,7 @@ if sys.version_info < (3, 10):
 
 import argparse
 import base64
+import datetime
 import json
 import pathlib
 import threading
@@ -746,7 +747,7 @@ def create_zaak(index: int, zaaktype_uuid: str, token_manager: TokenManager, zac
     body = {
         "zaak": {
             "zaaktype": {"uuid": zaaktype_uuid},
-            "startdatum": "2020-01-01T00:00:00+01:00",
+            "startdatum": datetime.datetime.now().astimezone().replace(microsecond=0).isoformat(),
             "groep": {"id": ZAAK_GROUP_ID, "naam": ZAAK_GROUP_NAME},
             "communicatiekanaal": "fakeCommunicatiekanaal1",
             "vertrouwelijkheidaanduiding": "OPENBAAR",
