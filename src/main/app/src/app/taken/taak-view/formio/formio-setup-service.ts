@@ -191,10 +191,7 @@ export class FormioSetupService {
     component.type = "content";
     component.label = "";
     component.input = false;
-    // Inline styles: global CSS rules do not reach the Form.io shadow DOM.
-    component.html =
-      '<div style="border: 1px solid red; color: red; padding: 0.5rem;">' +
-      `Undefined ZAC_TYPE: '${zacType}'</div>`;
+    component.html = `<div class="zac-unknown-zac-type">Undefined ZAC_TYPE: '${zacType}'</div>`;
   }
 
   private async safeInit(context: string, fn: () => Promise<void>) {
