@@ -438,6 +438,11 @@ jobs:
       - name: Allow rootless Podman to bind privileged ports
         run: sudo sysctl net.ipv4.ip_unprivileged_port_start=0
 
+      # ubuntu-24.04 restricts unprivileged user namespaces via AppArmor by default, which breaks
+      # rootless Podman's reexec into a new userns ("failed to reexec: Permission denied").
+      - name: Allow rootless Podman to create user namespaces
+        run: sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Authenticate with Docker Hub to avoid rate limiting issues
         # Skip for pull requests from forks because a forked repository is not allowed to access our secrets
         if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
@@ -551,6 +556,11 @@ jobs:
           curl -fsSL -o "$(brew --repo local/podman)/Formula/podman.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/7644fe05a72172a9c494812c8efbc5bc6c4fa8a3/Formula/p/podman.rb"
           brew install local/podman/podman
           echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
+
+      # ubuntu-24.04 restricts unprivileged user namespaces via AppArmor by default, which breaks
+      # rootless Podman's reexec into a new userns ("failed to reexec: Permission denied").
+      - name: Allow rootless Podman to create user namespaces
+        run: sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
 
       - name: Podman Login
         run: podman login ${{ env.CONTAINER_REGISTRY_URL }} -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
