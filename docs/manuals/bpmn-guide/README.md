@@ -76,6 +76,17 @@ Available ZAC types are:
 * `ZAC_status`
 * `ZAC_process_data`
 
+#### Undefined ZAC_TYPE
+
+A `ZAC_TYPE` that is not in the list above (for example a typo such as `ZAC_documentn`) cannot be
+recognised by ZAC. Form.io itself does not flag this, so instead of a silently empty field ZAC
+replaces the component with a red-bordered message in the rendered task form:
+
+> <span style="color: red; border: 1px solid red; padding: 0.25rem;">Undefined ZAC_TYPE: 'ZAC_documentn'</span>
+
+Seeing this message means the form needs to be corrected: check the spelling of the `ZAC_TYPE`
+attribute on the affected component and upload the form again.
+
 ## JavaScript in Form.io forms
 
 Form.io forms support several places where script-like logic can be configured: conditional display, custom validation, calculated values, and `custom` component logic (e.g. a button's custom action). Before adding any JavaScript to a form, beheerders should understand what it can do and prefer a safer alternative where one exists.
@@ -780,14 +791,27 @@ Resolves a list of document UUIDs stored in a taakdata field to their human-read
 The titles are formatted as a Dutch conjunction list (e.g. `Document A, Document B en Document C`).
 
 * Use a `content` component with an `html` property containing `{{ ZAC_getDocumentTitles(<fieldKey>) }}`
-* `<fieldKey>` must match the name of a taakdata field containing a list of document UUIDs (it does not need to be a component in the form)
+* `<fieldKey>` must match the name of a taakdata field containing documents, in any of the shapes below (it does not need to be a component in the form)
+
+The argument is the bare field name, without quotes. Taakdata is available as variables in the template, so
+what the function receives is the value of that field. Several `content` components may call it with different
+fields; the titles of all of them are fetched when the form is opened.
+
+Any field holding documents works, whichever shape it stores them in:
+* a single UUID
+* a list of UUIDs, the way a `ZAC_documenten` select stores them: `["06a47923-…", "44e891f7-…"]`
+* a list of datagrid rows, the way the signing grids store them: `[{ "selected": true, "titel": "…", "uuid": "…" }]`
+
+Rows whose `selected` checkbox was unticked are left out, so the list matches what a signing task will
+actually sign. Entries without a UUID are ignored. Titles are always read from the document itself, so a
+`titel` stored in a row earlier can never show up out of date.
 
 ```json
 {
   "label": "Selected documents",
   "type": "content",
   "key": "selectedDocuments",
-  "html": "<p>Te ondertekenen documenten:</p><p>{{ ZAC_getDocumentTitles(ZAAK_Documenten_Ondertekenen_Selectie) }}</p>",
+  "html": "<p>Gekozen documenten:</p><p>{{ ZAC_getDocumentTitles(ZAAK_Documents_Select) }}</p>",
   "input": false
 }
 ```

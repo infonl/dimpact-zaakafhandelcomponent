@@ -189,7 +189,10 @@ export class BedrijfZoekComponent implements OnInit, OnDestroy {
 
   openBedrijfPagina(bedrijf: GeneratedType<"RestBedrijf">) {
     this.sideNav?.close();
-    void this.router.navigate(buildBedrijfRouteLink(bedrijf));
+    const link = buildBedrijfRouteLink(bedrijf);
+    if (link) {
+      void this.router.navigate(link);
+    }
   }
 
   selectBedrijf(bedrijf: GeneratedType<"RestBedrijf">) {

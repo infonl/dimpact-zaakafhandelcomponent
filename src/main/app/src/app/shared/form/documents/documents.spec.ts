@@ -124,8 +124,8 @@ describe(ZacDocuments.name, () => {
 
     it("should show document title in the titel column", () => {
       const rows = fixture.nativeElement.querySelectorAll("td[mat-cell]");
-      const titelCell = Array.from(rows).find((cell: Element) =>
-        (cell as HTMLElement).textContent?.includes("Test Document"),
+      const titelCell = Array.from<HTMLElement>(rows).find((cell) =>
+        cell.textContent?.includes("Test Document"),
       );
       expect(titelCell).toBeTruthy();
     });
@@ -133,7 +133,7 @@ describe(ZacDocuments.name, () => {
     it("should render a view link with correct href", () => {
       const viewLinks =
         fixture.nativeElement.querySelectorAll("a[mat-icon-button]");
-      const viewLink = Array.from(viewLinks).find((link: Element) =>
+      const viewLink = Array.from<Element>(viewLinks).find((link) =>
         (link as HTMLAnchorElement).href?.includes(
           "/informatie-objecten/doc-uuid-1",
         ),
@@ -144,7 +144,7 @@ describe(ZacDocuments.name, () => {
     it("should render a download link via service", () => {
       const downloadLinks =
         fixture.nativeElement.querySelectorAll("a[mat-icon-button]");
-      const downloadLink = Array.from(downloadLinks).find((link: Element) =>
+      const downloadLink = Array.from<Element>(downloadLinks).find((link) =>
         (link as HTMLAnchorElement).href?.includes("/download/doc-uuid-1"),
       );
       expect(downloadLink).toBeTruthy();
@@ -170,6 +170,70 @@ describe(ZacDocuments.name, () => {
       fixture.detectChanges();
       const checkboxes = await loader.getAllHarnesses(MatCheckboxHarness);
       expect(checkboxes.length).toBe(0);
+    });
+
+    it("should check documents that were in the form control before the first render", async () => {
+      // Reproduces re-opening a saved task: the control is filled while building the
+      // form, so it never emits a `valueChanges` the component could pick up
+      const form = createTestForm();
+      form.controls.documents.setValue([makeDocument()]);
+
+      const freshFixture = TestBed.createComponent(
+        ZacDocuments<TestForm, "documents", Document>,
+      );
+      freshFixture.componentRef.setInput("form", form);
+      freshFixture.componentRef.setInput("key", "documents");
+      freshFixture.componentRef.setInput("options", of([makeDocument()]));
+      freshFixture.detectChanges();
+      await freshFixture.whenStable();
+      freshFixture.detectChanges();
+
+      const checkbox =
+        await TestbedHarnessEnvironment.loader(freshFixture).getHarness(
+          MatCheckboxHarness,
+        );
+      expect(await checkbox.isChecked()).toBe(true);
+    });
+
+    it("should check the documents already present in the form control", async () => {
+      component.form().controls.documents.setValue([makeDocument()]);
+      fixture.detectChanges();
+
+      const checkbox = await loader.getHarness(MatCheckboxHarness);
+      expect(await checkbox.isChecked()).toBe(true);
+    });
+
+    it("should check documents on uuid, not on object identity", async () => {
+      component
+        .form()
+        .controls.documents.setValue([
+          makeDocument({ titel: "Andere titel, zelfde document" }),
+        ]);
+      fixture.detectChanges();
+
+      const checkbox = await loader.getHarness(MatCheckboxHarness);
+      expect(await checkbox.isChecked()).toBe(true);
+    });
+
+    it("should uncheck a document that is removed from the form control", async () => {
+      component.form().controls.documents.setValue([makeDocument()]);
+      fixture.detectChanges();
+
+      component.form().controls.documents.setValue([]);
+      fixture.detectChanges();
+
+      const checkbox = await loader.getHarness(MatCheckboxHarness);
+      expect(await checkbox.isChecked()).toBe(false);
+    });
+
+    it("should remove the document from the form control when unchecked", async () => {
+      component.form().controls.documents.setValue([makeDocument()]);
+      fixture.detectChanges();
+
+      const checkbox = await loader.getHarness(MatCheckboxHarness);
+      await checkbox.uncheck();
+
+      expect(component.form().controls.documents.value).toEqual([]);
     });
 
     it("should update form control when checkbox is toggled", async () => {

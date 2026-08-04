@@ -53,9 +53,7 @@ class ZaakHelper(
         behandelaarId: String? = null,
         behandelaarName: String? = null
     ): Pair<String, UUID> {
-        var zaakIdentification: String
-        var zaakUuid: UUID
-        zacClient.createZaak(
+        val zaakIdentification = zacClient.createZaak(
             zaakTypeUUID = zaaktypeUuid,
             description = zaakDescription,
             groupId = group.name,
@@ -67,10 +65,11 @@ class ZaakHelper(
         ).run {
             logger.info { "Response: $bodyAsString" }
             code shouldBe HTTP_OK
-            JSONObject(bodyAsString).run {
-                zaakIdentification = getString("identificatie")
-                zaakUuid = getString("uuid").run(UUID::fromString)
-            }
+            JSONObject(bodyAsString).getString("identificatie")
+        }
+        val zaakUuid = zacClient.retrieveZaak(zaakIdentification, testUser).run {
+            code shouldBe HTTP_OK
+            JSONObject(bodyAsString).getString("uuid").run(UUID::fromString)
         }
         if (indexZaak) {
             indexZaak(zaakUuid, zaakIdentification, testUser)

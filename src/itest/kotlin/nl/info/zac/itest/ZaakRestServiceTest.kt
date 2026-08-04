@@ -16,6 +16,7 @@ import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.BEHANDELAAR_2
 import nl.info.zac.itest.config.BEHANDELAAR_LONG_NAME_TEST
@@ -225,6 +226,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             """
         ) {
             lateinit var responseBody: String
+            lateinit var zaakIdentification: String
 
             `when`("the create zaak endpoint is called and the user has permissions for the zaaktype used") {
                 val response = zacClient.createZaak(
@@ -239,18 +241,25 @@ class ZaakRestServiceTest : BehaviorSpec({
                     testUser = BEHANDELAAR_1
                 )
 
-                then("the response should be a 200 HTTP response") {
+                then("the response should be a 200 HTTP response containing only the zaak identification") {
                     responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
+                    zaakIdentification = JSONObject(responseBody).getString("identificatie")
+                    zaakIdentification shouldNotBe null
                 }
 
                 And(
                     """
-                the response should contain the created zaak with the 'bekijkenZaakdata' and 'heropenen' permissions
-                set to false since these actions are not allowed for the 'behandelaar' role
+                the retrieved zaak should contain the created zaak with the 'bekijkenZaakdata' and 'heropenen'
+                permissions set to false since these actions are not allowed for the 'behandelaar' role
                 """
                 ) {
+                    // Fetch the full zaak via a separate read, since the create endpoint no longer returns it.
+                    val response = zacClient.retrieveZaak(id = zaakIdentification, testUser = BEHANDELAAR_1)
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
                     // Note that we do not check the contents of the `zaakafhandelparameters` field below, in order to make
                     // this test more manageable.
                     // Also, the `zaakafhandelparameters` are already tested in other integration tests.
@@ -266,12 +275,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "naam": "${GROUP_BEHANDELAARS_TEST_1.description}"
                       },
                       "heeftOntvangstbevestigingVerstuurd": false,
+                      "identificatie": "$zaakIdentification",
                       "indicaties": ["ONTVANGSTBEVESTIGING_NIET_VERSTUURD"],
                       "isBesluittypeAanwezig": false,
                       "isDeelzaak": false,
                       "isHeropend": false,
                       "isHoofdzaak": false,
-                      "isInIntakeFase": false,
+                      "isInIntakeFase": true,
                       "isOpen": true,
                       "isOpgeschort": false,
                       "isProcesGestuurd": false,
@@ -326,7 +336,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
                         "verlengingMogelijk": false,
                         "versiedatum": "$DATE_2023_09_21",
-                        "vertrouwelijkheidaanduiding": "openbaar",                    
+                        "vertrouwelijkheidaanduiding": "openbaar",
                         "zaaktypeRelaties": []
                       }
                     }
@@ -428,7 +438,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
     context("Updating zaken and adding betrokkenen") {
         given("A zaak has been created and a behandelaar authorised for this zaaktype is logged in") {
-            zaak2UUID = zacClient.createZaak(
+            zaak2UUID = zacClient.createZaakAndRetrieve(
                 zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
                 groupId = GROUP_BEHANDELAARS_TEST_1.name,
                 groupName = GROUP_BEHANDELAARS_TEST_1.description,
@@ -1250,6 +1260,8 @@ class ZaakRestServiceTest : BehaviorSpec({
             both exist in Keycloak, and an authorised behandelaar is logged in
             """
         ) {
+            lateinit var zaakIdentification: String
+
             `when`("the create zaak endpoint is called with the long-name group and the long-name user as behandelaar") {
                 val response = zacClient.createZaak(
                     zaakTypeUUID = ZAAKTYPE_CMMN_TEST_3_UUID,
@@ -1260,7 +1272,19 @@ class ZaakRestServiceTest : BehaviorSpec({
                     behandelaarId = BEHANDELAAR_LONG_NAME_TEST.username,
                     behandelaarName = BEHANDELAAR_LONG_NAME_TEST.displayName
                 )
-                then("the zaak is created and the response contains the full long group name and behandelaar name") {
+                then("the create response is a 200 HTTP response containing only the zaak identification") {
+                    response.code shouldBe HTTP_OK
+                    val responseBody = response.bodyAsString
+                    logger.info { "Response: $responseBody" }
+                    zaakIdentification = JSONObject(responseBody).getString("identificatie")
+                    zaakIdentification shouldNotBe null
+                }
+            }
+
+            `when`("the get zaak endpoint is called for the created zaak") {
+                val response = zacClient.retrieveZaak(id = zaakIdentification, testUser = BEHANDELAAR_1)
+
+                then("the response contains the full long group name and behandelaar name") {
                     response.code shouldBe HTTP_OK
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }

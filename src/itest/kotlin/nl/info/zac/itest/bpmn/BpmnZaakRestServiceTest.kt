@@ -14,6 +14,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.COORDINATOR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
@@ -53,7 +54,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
     given("A behandelaar is logged in and a BPMN type zaak has been created") {
         var bpmnZaakUuid: UUID
         var zaakIdentificatie: String
-        zacClient.createZaak(
+        zacClient.createZaakAndRetrieve(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_1_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
             groupName = GROUP_BEHANDELAARS_TEST_1.description,
@@ -230,7 +231,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
 
     given("A behandelaar is logged in and a BPMN type zaak has been created for a case that will be aborted") {
         var bpmnZaakUuid: UUID
-        zacClient.createZaak(
+        zacClient.createZaakAndRetrieve(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_1_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
             groupName = GROUP_BEHANDELAARS_TEST_1.description,

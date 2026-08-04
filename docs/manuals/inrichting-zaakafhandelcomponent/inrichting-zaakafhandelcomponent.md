@@ -2,8 +2,8 @@
 
 
 > **Colofon** <br>
-> Datum : 29-07-2026 <br>
-> Versie :   1.15 <br>
+> Datum : 03-08-2026 <br>
+> Versie :   1.14 <br>
 > Verandering : ZAC v5.5.0 Inrichting Zaakafhandelcomponent <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
@@ -29,7 +29,6 @@ Versiegeschiedenis:
 | 1.11 | ZAC versie 4.1.27  |
 | 1.12 | ZAC versie 4.6.0   |
 | 1.13 | ZAC versie 4.8.0   |
-| 1.14 | ZAC versie 5.4     |
 | 1.14 | ZAC versie 5.5.0   |
 
 # Inhoud
@@ -430,9 +429,34 @@ Stappen:
 
 ## Procestermijnen
 
-Deze sectie beschrijft hoe procestermijnen kunnen worden ingericht in Open Zaak en hoe ZAC daar vervolgens mee omgaat.
+Een procestermijn is de periode tussen het afsluiten van een zaak en het moment waarop de archieftermijn (vernietigen of blijvend bewaren) daadwerkelijk start. De procestermijn wordt gebruikt wanneer de geldigheid of levensduur van een procesobject nog doorloopt nadat de zaak administratief is afgehandeld. Zie ook: [Selectielijsten ter inzage - Nationaal Archief](https://www.nationaalarchief.nl/archiveren/kennisbank/selectielijsten-ter-inzage) en [Handreiking Selectielijst - GEMMA Online](https://www.gemmaonline.nl/wiki/Bijlage_2._Uitleg_procestermijn,_bewaartermijn_en_relatie_met_procesobject).
 
-Zodra een zaak is afgerond (einddatum is bekend), begint de procestermijn te lopen. Deze kan leeg zijn (nihil), een vaste of variabele waarde hebben of onbekend zijn. Zodra de procestermijn afgelopen is, begint de archieftermijn. De startdatum van de archieftermijn wordt ook wel brondatum genoemd. Nadat de archieftermijn verstreken is, wordt de zaak vernietigd.
+De archiefactiedatum wordt bepaald door de combinatie van:
+
+1. De juridische einddatum van de zaak.
+2. De eventuele procestermijn.
+3. De bewaartermijn uit de selectielijst.
+
+Wanneer geen procestermijn van toepassing is, begint de bewaartermijn direct na het afsluiten van de zaak. Wanneer wel een procestermijn geldt, wordt eerst gewacht tot de procestermijn is verstreken. Pas daarna start de archieftermijn.
+
+**Typen procestermijnen**
+
+| **Type**                     | **Omschrijving**                                                                                       | **Start archieftermijn**                                                                 | **Voorbeeld**                                                                                                                              |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Nihil                        | Er is geen procestermijn.                                                                              | Direct na afsluiting van de zaak.                                                        | Aansprakelijk stellen van gemeente door derden.                                                                                            |
+| Bekende variabele periode    | De procestermijn is afhankelijk van de vooraf bekende werkelijke geldigheidsduur van het procesobject. | Nadat het object zijn geldigheid verliest.                                               | Gebiedsverbod opleggen - wordt opgelegd voor soms 1 maand, 6 maanden of 1 jaar.                                                              |
+| Bekende - vaste periode      | Er wordt vooraf een maximale geldigheidsduur vastgesteld.                                              | Na afloop van de vooraf bepaalde periode.                                                | Gehandicaptenparkeerkaart - wordt altijd verstrekt voor een vaste periode.                                                                  |
+| Onbekende - variabele periode | De duur van het procesobject is nog onbekend.                                                          | Archieftermijn begint in de toekomst en wordt later toegevoegd door een handmatige actie. | Automatische incasso WOZ - blijft net zo lang geldig tot er een trigger is (bijv. intrekken incasso, verhuizen buiten gemeente, overlijden). |
+
+\
+**Verwerking van procestermijnen in relatie tot resultaattypen en afleidingswijzen**
+
+In Open Zaak wordt aan ieder resultaattype een selectielijstitem gekoppeld uit de geselecteerde selectielijst. Op basis van dit selectielijstitem is bekend of een procestermijn van toepassing is.
+
+Om de juiste einddatum van de procestermijn (de brondatum in Open Zaak) vast te stellen, moet een passende afleidingswijze worden gekozen. De afleidingswijze bepaalt vanuit welk gegeven de brondatum wordt afgeleid. Welke afleidingswijzen kunnen worden toegepast bij de verschillende typen procestermijnen, is hieronder beschreven.
+
+**Let op:** wanneer er een procestermijn van toepassing is, mag de afleidingswijze **'Afgehandeld'** niet worden gebruikt. Deze afleidingswijze is uitsluitend toegestaan wanneer de procestermijn van het gekoppelde selectielijstitem **nihil** is. In dat geval start de bewaartermijn direct na het afhandelen van de zaak.
+
 
 ### Procestermijn bekend – variabele periode
 
@@ -440,19 +464,21 @@ In Open Zaak kunnen bij een resultaattype onderstaande afhandelwijzes worden gek
 
 #### Afhandelwijze brondatum - Eigenschap
 
-Bij deze afhandelwijze wordt bij het afhandelen van de zaak aan de behandelaar gevraagd om een brondatum in te vullen. Zie dit voorbeeldscherm:
+Bij deze afhandelwijze wordt bij het afhandelen van de zaak aan de behandelaar gevraagd om een brondatum in te vullen. Het veld `Datumkenmerk` wordt gevuld met de eigenschapsnaam van de hieronder toe te voegen eigenschap.
 
-![image](images/zac_afhandelen_zaak_brondatum_eigenschap.png)
-
+![image](images/open_zaak_bepaling_brondatum_archiefprocedure_eigenschap.png)
 Om dit in Open Zaak in te richten, moet er aan het zaaktype een eigenschap worden toegevoegd:
 
 ![image](images/open_zaak_eigenschap_toevoegen.png)
 
-Hoewel de naam van de eigenschap in principe vrij te kiezen is, is het aan te raden om altijd bij `Eigenschapsnaam` de waarde `brondatum` in te vullen. In het veld `Definitie` vul je vervolgens in hoe het datumveld aan de behandelaar wordt getoond.
+De naam van de eigenschap is vrij te kiezen, maar het is aan te raden om altijd bij `Eigenschapsnaam` de waarde `brondatum` in te vullen. In het veld `Definitie` vul je vervolgens in hoe het datumveld aan de behandelaar wordt getoond.
 
-Bij het veld `Specificatie van de eigenschap` kies je de waarde `datum`. Als deze nog niet bestaat, moet deze als eigenschap specificatie worden toegevoegd:
+Bij het veld `Specificatie van de eigenschap` kies je de waarde `datum`. Als deze nog niet bestaat, moet deze als eigenschap specificatie worden toegevoegd. Vul hierbij precies onderstaande waarden in:
 
 ![image](images/open_zaak_eigenschap_specificatie_toevoegen.png)
+
+Voorbeeldscherm voor de behandelaar:
+![image](images/zac_afhandelen_zaak_brondatum_eigenschap.png)
 
 #### Afhandelwijze brondatum - Ingangsdatum besluit
 
@@ -468,7 +494,7 @@ Bij deze afhandelwijze wordt de brondatum gezet aan de hand van de vervaldatum v
 
 #### Afhandelwijze brondatum - Hoofdzaak
 
-Deze afhandelwijze wordt met zaken die aan elkaar zijn gerelateerd als hoofd- en deelzaak. Als je deze afhandelwijze kiest bij het zaaktype van de deelzaak, dan wordt de brondatum gezet op de einddatum van de hoofdzaak zodra die is afgesloten.
+Deze afhandelwijze wordt met zaken die aan elkaar zijn gerelateerd als hoofd- en deelzaak. Als je deze afhandelwijze kiest bij het zaaktype van de deelzaak, dan wordt de brondatum gezet op de brondatum van de hoofdzaak zodra die is afgesloten.
 
 ![image](images/open_zaak_bepaling_brondatum_archiefprocedure_hoofdzaak.png)
 
@@ -478,7 +504,7 @@ In Open Zaak kan bij een resultaattype onderstaande afhandelwijze worden gekozen
 
 #### Afhandelwijze brondatum - Termijn
 
-Bij het afhandelen van de zaak wordt de brondatum gezet op de einddatum van de zaak plus de ingestelde termijn.
+Bij het afhandelen van de zaak wordt de brondatum gezet op de einddatum van de zaak plus de ingestelde procestermijn. In het onderste veld moet de procestermijn worden ingevuld.
 
 ![image](images/open_zaak_bepaling_brondatum_archiefprocedure_termijn.png)
 

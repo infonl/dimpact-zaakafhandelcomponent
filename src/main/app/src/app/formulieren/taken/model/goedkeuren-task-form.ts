@@ -4,7 +4,7 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { Validators } from "@angular/forms";
+import { FormGroup, Validators } from "@angular/forms";
 import { lastValueFrom, map } from "rxjs";
 import { mapStringToDocumentenStrings } from "../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
@@ -47,6 +47,60 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
     ];
   }
 
+  /**
+   * What the task actually signed: the documents it put forward for signing that carry a
+   * signature now. Re-reading all relevante documenten and dropping the signed ones would
+   * show exactly the opposite.
+   */
+  private async readSignedDocuments(taak: GeneratedType<"RestTask">) {
+    const signedDocumentUUIDs = mapStringToDocumentenStrings(
+      taak.taakdata?.["ondertekenen"],
+    );
+
+    const documents = await lastValueFrom(
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: taak.zaakUuid,
+        informatieobjectUUIDs: signedDocumentUUIDs,
+      }),
+    );
+
+    return documents.filter((document) => document.ondertekening);
+  }
+
+  /** Already signed documents cannot be offered for signing again */
+  private async readDocumentsAwaitingSignature(
+    taak: GeneratedType<"RestTask">,
+    relevantDocumentUUIDs: string[],
+  ) {
+    const documents = await lastValueFrom(
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: taak.zaakUuid,
+        informatieobjectUUIDs: relevantDocumentUUIDs,
+      }),
+    );
+
+    return documents.filter((document) => !document.ondertekening);
+  }
+
+  /**
+   * Completing signs the chosen documents, which changes what this form should show: the
+   * record of what was signed instead of a choice of what to sign.
+   */
+  override async onTaskCompleted(
+    taak: GeneratedType<"RestTask">,
+    form: FormGroup,
+    formFields: FormField[],
+  ) {
+    const ondertekenenField = formFields.find(
+      (formField) => formField.key === "ondertekenen",
+    );
+    if (ondertekenenField?.type !== "documents") return;
+
+    const signedDocuments = await this.readSignedDocuments(taak);
+    ondertekenenField.options = signedDocuments;
+    form.get("ondertekenen")?.setValue(signedDocuments);
+  }
+
   async handleForm(taak: GeneratedType<"RestTask">): Promise<FormField[]> {
     const goedkeurenControl = this.formBuilder.control(
       taak.taakdata?.["goedkeuren"],
@@ -61,14 +115,12 @@ export class GoedkeurenTaskForm extends AbstractTaskForm {
       taak.taakdata?.["relevanteDocumenten"],
     );
 
-    const documentsToSign = (
-      await lastValueFrom(
-        this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-          zaakUUID: taak.zaakUuid,
-          informatieobjectUUIDs: relevantDocumentUUIDs,
-        }),
-      )
-    ).filter((document) => !document.ondertekening);
+    const readonly = taak.status === "AFGEROND" || !taak.rechten?.wijzigen;
+
+    const documentsToSign = readonly
+      ? await this.readSignedDocuments(taak)
+      : await this.readDocumentsAwaitingSignature(taak, relevantDocumentUUIDs);
+
     const initiallyCheckedDocuments = documentsToSign.filter((document) =>
       checkedDocuments.includes(document.uuid!),
     );

@@ -120,7 +120,7 @@ describe(InformatieobjectenCardComponent.name, () => {
     );
     jest
       .spyOn(signaleringenService, "listInformatieobjectenSignalering")
-      .mockReturnValue(of(null as never));
+      .mockReturnValue(of([]) as never);
 
     component["onLoad"]();
     await sleep();

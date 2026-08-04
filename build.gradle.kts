@@ -381,6 +381,18 @@ smallryeOpenApi {
     outputFileTypeFilter.set("JSON")
 }
 
+val nodeExt = extensions.getByType(com.github.gradle.node.NodeExtension::class.java)
+val npmExec = file(".gradle/npm/npm-v${nodeExt.npmVersion.get()}/bin/npm")
+val nodeExec = file(".gradle/nodejs/node-v${nodeExt.version.get()}-linux-x64/bin/node")
+
+val prettierBase = libs.versions.spotless.prettier.base.get()
+val prettierOrganizeImports = libs.versions.spotless.prettier.organize.imports.get()
+val prettierDevDependencies = mapOf("prettier" to prettierBase, "prettier-plugin-organize-imports" to prettierOrganizeImports)
+val prettierTypescriptConfig = mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports"))
+
+fun com.diffplug.gradle.spotless.FormatExtension.PrettierConfig.withNodeExecutables() =
+    npmExecutable(npmExec).nodeExecutable(nodeExec)
+
 configure<SpotlessExtension> {
     format("misc") {
         target(".gitattributes", ".gitignore", ".containerignore", ".dockerignore")
@@ -405,12 +417,7 @@ configure<SpotlessExtension> {
         target("$e2ePath/**/*.js", "$e2ePath/**/*.ts")
         targetExclude("$e2ePath/node_modules/**")
 
-        prettier(
-            mapOf(
-                "prettier" to libs.versions.spotless.prettier.base.get(),
-                "prettier-plugin-organize-imports" to libs.versions.spotless.prettier.organize.imports.get()
-            )
-        ).config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
+        prettier(prettierDevDependencies).withNodeExecutables().config(prettierTypescriptConfig)
     }
     gherkin {
         target("$e2ePath/**/*.feature")
@@ -428,12 +435,7 @@ configure<SpotlessExtension> {
             "$appPath/.angular/**"
         )
 
-        prettier(
-            mapOf(
-                "prettier" to libs.versions.spotless.prettier.base.get(),
-                "prettier-plugin-organize-imports" to libs.versions.spotless.prettier.organize.imports.get()
-            )
-        ).config(mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports")))
+        prettier(prettierDevDependencies).withNodeExecutables().config(prettierTypescriptConfig)
     }
     format("json") {
         target(
@@ -452,7 +454,7 @@ configure<SpotlessExtension> {
             "$appPath/coverage/**"
         )
 
-        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "json"))
+        prettier(mapOf("prettier" to prettierBase)).withNodeExecutables().config(mapOf("parser" to "json"))
     }
     format("html") {
         target("src/**/*.html", "src/**/*.htm")
@@ -465,9 +467,7 @@ configure<SpotlessExtension> {
             "$appPath/coverage/**",
         )
 
-        prettier(
-            mapOf("prettier" to libs.versions.spotless.prettier.base.get())
-        ).config(mapOf("parser" to "angular"))
+        prettier(mapOf("prettier" to prettierBase)).withNodeExecutables().config(mapOf("parser" to "angular"))
     }
     format("less") {
         target("src/**/*.less")
@@ -479,7 +479,7 @@ configure<SpotlessExtension> {
             "$appPath/.angular/**",
         )
 
-        prettier(mapOf("prettier" to libs.versions.spotless.prettier.base.get())).config(mapOf("parser" to "less"))
+        prettier(mapOf("prettier" to prettierBase)).withNodeExecutables().config(mapOf("parser" to "less"))
     }
 }
 
@@ -563,6 +563,7 @@ tasks {
     // the linting task has as it's output the frontend source files which are
     // input for the spotless tasks
     getByName("spotlessApp").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
+    getByName("spotlessE2e").dependsOn("npmSetup")
     getByName("spotlessHtml").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
     getByName("spotlessJson").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")
     getByName("spotlessLess").dependsOn("npmRunBuild").mustRunAfter("npmRunLint")

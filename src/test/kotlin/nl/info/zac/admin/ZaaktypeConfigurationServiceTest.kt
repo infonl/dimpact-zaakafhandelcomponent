@@ -47,6 +47,9 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
             val zaaktype = createZaakType(concept = true)
 
             every { ztcClientService.clearZaaktypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearRoltypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearResultaattypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearStatustypeCache() } returns cacheClearMessage
             every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaaktype
 
             `when`("updating zaakafhandel parameters") {
@@ -65,6 +68,9 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
             val zaaktype = createZaakType()
 
             every { ztcClientService.clearZaaktypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearRoltypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearResultaattypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearStatustypeCache() } returns cacheClearMessage
             every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaaktype
 
             // Relaxed entity manager mocking; criteria queries and persisting
@@ -94,6 +100,9 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
 
             every { ztcClientService.clearZaaktypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearRoltypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearResultaattypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearStatustypeCache() } returns cacheClearMessage
             every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaaktype
 
             // Relaxed entity manager mocking; criteria queries and persisting
@@ -127,6 +136,9 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
             val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
 
             every { ztcClientService.clearZaaktypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearRoltypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearResultaattypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearStatustypeCache() } returns cacheClearMessage
             every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaaktype
 
             // Relaxed entity manager mocking; criteria queries and persisting

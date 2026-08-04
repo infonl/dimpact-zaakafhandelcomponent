@@ -12,6 +12,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_SUSPEND_RESUME_EXTEND_TASK_NAME
@@ -44,7 +45,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
     }
 
     given("A BPMN suspend-resume zaak exists") {
-        val (zaakUuid, zaakIdentificatie) = zacClient.createZaak(
+        val (zaakUuid, zaakIdentificatie) = zacClient.createZaakAndRetrieve(
             zaakTypeUUID = ZAAKTYPE_BPMN_TEST_4_UUID,
             groupId = GROUP_BEHANDELAARS_TEST_1.name,
             groupName = GROUP_BEHANDELAARS_TEST_1.description,

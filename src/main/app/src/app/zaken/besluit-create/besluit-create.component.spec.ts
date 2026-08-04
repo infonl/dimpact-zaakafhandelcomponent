@@ -74,10 +74,10 @@ describe(BesluitCreateComponent.name, () => {
 
     jest
       .spyOn(zakenService, "listResultaattypes")
-      .mockReturnValue(of([] as never));
+      .mockReturnValue(of([]) as never);
     jest
       .spyOn(zakenService, "listBesluittypes")
-      .mockReturnValue(of([fakeBesluittype] as never));
+      .mockReturnValue(of([fakeBesluittype]) as never);
 
     createBesluitMutationFn = jest.fn(() => new Promise<void>(() => {}));
     jest.spyOn(zakenService, "createBesluit").mockReturnValue(
@@ -156,7 +156,7 @@ describe(BesluitCreateComponent.name, () => {
     it("is shown when selected besluittype has publication enabled", () => {
       jest
         .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-        .mockReturnValue(of([] as never));
+        .mockReturnValue(of([]) as never);
       component["form"].controls.besluit.setValue(
         fakeBesluittypeWithPublication,
       );
