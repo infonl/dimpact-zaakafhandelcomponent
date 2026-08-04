@@ -378,6 +378,44 @@ describe(FormioSetupService.name, () => {
       );
     });
 
+    it("should render a red bordered message when a field carries an unknown ZAC_TYPE", async () => {
+      const unknownComponent: ExtendedComponentSchema = {
+        key: "ZAAK_Documenten_Typo",
+        type: "select",
+        attributes: { [ZAC_FIELD_ATTRIBUTE]: "ZAC_documentn" },
+      };
+
+      await formioSetupService.createFormioForm(
+        { components: [unknownComponent] } as FormioForm,
+        taak,
+      );
+
+      expect(unknownComponent.type).toBe("content");
+      expect(unknownComponent.input).toBe(false);
+      expect(unknownComponent.html).toContain(
+        "Undefined ZAC_TYPE: 'ZAC_documentn'",
+      );
+      expect(unknownComponent.html).toContain("border: 1px solid red");
+      expect(unknownComponent.html).toContain("color: red");
+    });
+
+    it("should leave a plain Form.io component without a ZAC_TYPE untouched", async () => {
+      const components: ExtendedComponentSchema[] = [
+        { key: "toelichting", type: "textfield" },
+        { key: "submit", type: "button" },
+      ];
+
+      await formioSetupService.createFormioForm(
+        { components } as FormioForm,
+        taak,
+      );
+
+      expect(components).toEqual([
+        { key: "toelichting", type: "textfield" },
+        { key: "submit", type: "button" },
+      ]);
+    });
+
     it("should invoke behandelaar groups for zaaktype description endpoint", async () => {
       const clientQuerySpy = jest
         .spyOn(testQueryClient, "ensureQueryData")

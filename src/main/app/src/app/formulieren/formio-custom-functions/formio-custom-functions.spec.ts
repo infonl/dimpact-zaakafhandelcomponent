@@ -209,6 +209,70 @@ describe(FormioCustomFunctions.name, () => {
       expect(fn([UUID_B])).toBe("Document B");
     });
 
+    it("should render titles for datagrid rows as well as plain UUIDs", async () => {
+      informatieObjectenService.readEnkelvoudigInformatieobject.mockImplementation(
+        (uuid) => mockDocument(uuid === UUID_A ? "Document A" : "Document B"),
+      );
+      const rows = [
+        { selected: true, titel: "stale", uuid: UUID_A },
+        { selected: true, titel: "stale", uuid: UUID_B },
+      ];
+
+      const context = await service.prepareFormContext(
+        formWithFunction("ZAAK_Docs"),
+        { ZAAK_Docs: rows },
+      );
+      const fn = context["ZAC_getDocumentTitles"] as (rows: unknown) => string;
+
+      expect(fn(rows)).toBe("Document A en Document B");
+    });
+
+    it("should leave out datagrid rows that were unticked", async () => {
+      informatieObjectenService.readEnkelvoudigInformatieobject.mockImplementation(
+        (uuid) => mockDocument(uuid === UUID_A ? "Document A" : "Document B"),
+      );
+      const rows = [
+        { selected: true, uuid: UUID_A },
+        { selected: false, uuid: UUID_B },
+      ];
+
+      const context = await service.prepareFormContext(
+        formWithFunction("ZAAK_Docs"),
+        { ZAAK_Docs: rows },
+      );
+      const fn = context["ZAC_getDocumentTitles"] as (rows: unknown) => string;
+
+      expect(fn(rows)).toBe("Document A");
+      expect(
+        informatieObjectenService.readEnkelvoudigInformatieobject,
+      ).not.toHaveBeenCalledWith(UUID_B);
+    });
+
+    it("should accept a single UUID that is not wrapped in an array", async () => {
+      const context = await service.prepareFormContext(
+        formWithFunction("ZAAK_Docs"),
+        { ZAAK_Docs: UUID_A },
+      );
+      const fn = context["ZAC_getDocumentTitles"] as (uuid: unknown) => string;
+
+      expect(fn(UUID_A)).toBe("Document A");
+    });
+
+    it("should ignore entries that carry no uuid", async () => {
+      const context = await service.prepareFormContext(
+        formWithFunction("ZAAK_Docs"),
+        { ZAAK_Docs: [{ selected: true, titel: "no uuid here" }, null, 42] },
+      );
+      const fn = context["ZAC_getDocumentTitles"] as (rows: unknown) => string;
+
+      expect(fn([{ selected: true, titel: "no uuid here" }, null, 42])).toBe(
+        "",
+      );
+      expect(
+        informatieObjectenService.readEnkelvoudigInformatieobject,
+      ).not.toHaveBeenCalled();
+    });
+
     it("should fetch each document by UUID", async () => {
       await service.prepareFormContext(formWithFunction("ZAAK_Docs"), {
         ZAAK_Docs: [UUID_A],
