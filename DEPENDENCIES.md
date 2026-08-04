@@ -12,7 +12,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **openpolicyagent/opa**: 1.19.0-static
 - **brp-api/personen-mock**: 2.7.0-202606291131
 - **gotenberg**: 8.34.0
-- **otel/opentelemetry-collector-contrib**: 0.157.0
+- **otel/opentelemetry-collector-contrib**: 0.158.0
 - **grafana/tempo**: 3.0.2
 - **prom/prometheus**: v3.13.2
 - **grafana/grafana**: 13.1.2
