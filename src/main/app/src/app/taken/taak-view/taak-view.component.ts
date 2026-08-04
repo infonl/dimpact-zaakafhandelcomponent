@@ -269,13 +269,13 @@ export class TaakViewComponent
 
     this.zakenService.readZaak(taak.zaakUuid).subscribe((zaak) => {
       this.zaak = zaak;
-      this.createTaakForm(taak, zaak);
+      void this.createTaakForm(taak, zaak);
       this.initialized = true;
       this.setupMenu();
     });
   }
 
-  private createTaakForm(
+  private async createTaakForm(
     taak: GeneratedType<"RestTask">,
     zaak: GeneratedType<"RestZaak">,
   ) {
@@ -285,10 +285,12 @@ export class TaakViewComponent
 
     if (taak.formulierDefinitieId) {
       void this.createHardCodedTaakForm(taak, zaak);
-    } else if (!this.formioFormulier) {
-      this.formioFormulier = taak.formioFormulier ?? undefined;
-      if (!this.formioFormulier) return;
-      this.formioSetupService.createFormioForm(this.formioFormulier, taak);
+    } else if (taak.formioFormulier) {
+      await this.formioSetupService.createFormioForm(
+        taak.formioFormulier,
+        taak,
+      );
+      this.formioFormulier = taak.formioFormulier;
     }
   }
 
@@ -447,6 +449,9 @@ export class TaakViewComponent
     this.completeTaakMutation.mutate(taskBody, {
       onSuccess: (task) => {
         this.init(task, false);
+        void this.taakFormulierenService
+          .getAngularTaskForm(task.formulierDefinitieId)
+          .onTaskCompleted(task, this.form, this.formFields);
       },
     });
   }

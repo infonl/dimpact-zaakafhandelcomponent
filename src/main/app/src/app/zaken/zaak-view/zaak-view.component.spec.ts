@@ -8,6 +8,7 @@ import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
+import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatIconHarness } from "@angular/material/icon/testing";
@@ -142,6 +143,8 @@ describe(ZaakViewComponent.name, () => {
           useValue: dialogMock,
         },
         VertrouwelijkaanduidingToTranslationKeyPipe,
+        // matches the locale the app provides, so dates format as they do in production
+        { provide: LOCALE_ID, useValue: "nl-NL" },
       ],
     }).compileComponents();
 
@@ -1190,6 +1193,198 @@ describe(ZaakViewComponent.name, () => {
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("em")).toBeNull();
+    });
+  });
+
+  describe("afleidingswijzeBrondatum", () => {
+    const findAfleidingswijzeField = () =>
+      fixture.debugElement
+        .queryAll((debugElement) => debugElement.name === "zac-static-text")
+        .find(
+          (debugElement) =>
+            debugElement.componentInstance.label === "afleidingswijzeBrondatum",
+        );
+
+    it("should show the field when afleidingswijze is set", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
+            resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
+              bronArchiefprocedure: fromPartial<
+                GeneratedType<"BrondatumArchiefprocedure">
+              >({
+                afleidingswijze: "TERMIJN",
+              }),
+            }),
+          }),
+        },
+      });
+      fixture.detectChanges();
+
+      const field = findAfleidingswijzeField();
+
+      expect(field).toBeTruthy();
+      expect(field?.componentInstance.value).toBe("TERMIJN");
+    });
+
+    it("should not show the field when resultaat is absent", () => {
+      mockActivatedRoute.data.next({ zaak: { ...zaak, resultaat: null } });
+      fixture.detectChanges();
+
+      expect(findAfleidingswijzeField()).toBeUndefined();
+    });
+
+    it("should not show the field when resultaattype is absent", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
+            resultaattype: null,
+          }),
+        },
+      });
+      fixture.detectChanges();
+
+      expect(findAfleidingswijzeField()).toBeUndefined();
+    });
+
+    it("should not show the field when bronArchiefprocedure is absent", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
+            resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
+              bronArchiefprocedure: null,
+            }),
+          }),
+        },
+      });
+      fixture.detectChanges();
+
+      expect(findAfleidingswijzeField()).toBeUndefined();
+    });
+  });
+
+  describe("zaak detail grid", () => {
+    const gridPlaceholderCount = () =>
+      (fixture.nativeElement as HTMLElement).querySelectorAll(
+        ".zaak-grid .grid-placeholder",
+      ).length;
+
+    const detailFields = () =>
+      fixture.debugElement
+        .queryAll((debugElement) => debugElement.name === "zac-static-text")
+        .map(
+          (debugElement) =>
+            debugElement.componentInstance as StaticTextComponent,
+        );
+
+    const detailFieldLabels = () => detailFields().map(({ label }) => label);
+
+    const findDetailField = (label: string) =>
+      detailFields().find((staticText) => staticText.label === label);
+
+    it("should format date fields with the datum pipe", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          registratiedatum: "2026-01-15",
+          einddatum: "2026-03-31",
+        },
+      });
+      fixture.detectChanges();
+
+      // the datum pipe renders non-breaking hyphens so a date never wraps
+      expect(findDetailField("registratiedatum")?.value).toBe("15‑01‑2026");
+      expect(findDetailField("einddatum")?.value).toBe("31‑03‑2026");
+    });
+
+    // the edit button occupies the action column, so grant the right that renders
+    // it — otherwise its @else placeholder is counted along with the row closers
+    const zaakWithAllDetailFields = {
+      ...zaak,
+      rechten: { ...zaak.rechten, wijzigen: true },
+      einddatum: "2026-01-15",
+      startdatumBewaartermijn: "2026-02-15",
+      archiefNominatie: "BLIJVEND_BEWAREN",
+      resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
+        resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
+          naam: "fakeResultaattypeNaam",
+          bronArchiefprocedure: fromPartial<
+            GeneratedType<"BrondatumArchiefprocedure">
+          >({
+            afleidingswijze: "TERMIJN",
+          }),
+        }),
+      }),
+    } satisfies GeneratedType<"RestZaak">;
+
+    it("should close every row of three fields when all fields are shown", () => {
+      mockActivatedRoute.data.next({ zaak: zaakWithAllDetailFields });
+      fixture.detectChanges();
+
+      expect(detailFieldLabels()).toEqual(
+        expect.arrayContaining([
+          "status",
+          "registratiedatum",
+          "resultaat",
+          "einddatum",
+          "startdatumBewaartermijn",
+          "afleidingswijzeBrondatum",
+          "archiefNominatie",
+        ]),
+      );
+      // seven visible fields, so rows three and six need closing
+      expect(gridPlaceholderCount()).toBe(2);
+    });
+
+    it("should keep the rows aligned when conditional fields are hidden", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          rechten: { ...zaak.rechten, wijzigen: true },
+          einddatum: null,
+          startdatumBewaartermijn: null,
+          archiefNominatie: "VERNIETIGEN",
+          resultaat: null,
+        },
+      });
+      fixture.detectChanges();
+
+      const labels = detailFieldLabels();
+
+      expect(labels).toEqual(
+        expect.arrayContaining([
+          "status",
+          "registratiedatum",
+          "resultaat",
+          "archiefNominatie.datum.VERNIETIGEN",
+        ]),
+      );
+      expect(labels).not.toContain("einddatum");
+      expect(labels).not.toContain("startdatumBewaartermijn");
+      expect(labels).not.toContain("afleidingswijzeBrondatum");
+      // four visible fields, so only row three needs closing
+      expect(gridPlaceholderCount()).toBe(1);
+    });
+
+    it("should fill the action column when the user may not edit the zaak", async () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaakWithAllDetailFields,
+          rechten: { ...zaak.rechten, wijzigen: false, toekennen: false },
+        },
+      });
+      fixture.detectChanges();
+
+      const editIcon = await loader.getHarnessOrNull(
+        MatIconHarness.with({ name: "edit" }),
+      );
+
+      expect(editIcon).toBeNull();
+      // the two row closers plus one standing in for the missing edit button
+      expect(gridPlaceholderCount()).toBe(3);
     });
   });
 

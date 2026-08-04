@@ -10,7 +10,7 @@ import java.util.UUID
 
 @NoArgConstructor
 @AllOpen
-data class RESTZaakAfsluitenGegevens(
+data class RestZaakAfsluitenGegevens(
     var reden: String? = null,
 
     var resultaattypeUuid: UUID,

@@ -65,13 +65,13 @@ import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
-import nl.info.zac.app.zaak.model.RESTReden
-import nl.info.zac.app.zaak.model.RESTZaakAanmaakGegevens
-import nl.info.zac.app.zaak.model.RESTZaakAfbrekenGegevens
-import nl.info.zac.app.zaak.model.RESTZaakAfsluitenGegevens
-import nl.info.zac.app.zaak.model.RESTZaakEditMetRedenGegevens
-import nl.info.zac.app.zaak.model.RESTZaakHeropenenGegevens
-import nl.info.zac.app.zaak.model.RESTZaakVerlengGegevens
+import nl.info.zac.app.zaak.model.RestReden
+import nl.info.zac.app.zaak.model.RestZaakAanmaakGegevens
+import nl.info.zac.app.zaak.model.RestZaakAfbrekenGegevens
+import nl.info.zac.app.zaak.model.RestZaakAfsluitenGegevens
+import nl.info.zac.app.zaak.model.RestZaakEditMetRedenGegevens
+import nl.info.zac.app.zaak.model.RestZaakHeropenenGegevens
+import nl.info.zac.app.zaak.model.RestZaakVerlengGegevens
 import nl.info.zac.app.zaak.model.RestDetachDocumentData
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.RestStatustype
@@ -180,7 +180,7 @@ class ZaakRestService @Inject constructor(
     @Path("/zaak/{uuid}/afsluiten")
     fun closeZaak(
         @PathParam("uuid") zaakUUID: UUID,
-        afsluitenGegevens: RESTZaakAfsluitenGegevens
+        afsluitenGegevens: RestZaakAfsluitenGegevens
     ) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).behandelen)
@@ -195,7 +195,7 @@ class ZaakRestService @Inject constructor(
     @Suppress("LongMethod")
     @POST
     @Path("zaak")
-    fun createZaak(@Valid restZaakAanmaakGegevens: RESTZaakAanmaakGegevens): RestZaak {
+    fun createZaak(@Valid restZaakAanmaakGegevens: RestZaakAanmaakGegevens): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val restZaak = restZaakAanmaakGegevens.zaak
         val zaaktypeUUID = restZaak.zaaktype.uuid
@@ -232,7 +232,7 @@ class ZaakRestService @Inject constructor(
     @Path("betrokkene/{uuid}")
     fun deleteBetrokkene(
         @PathParam("uuid") betrokkeneUUID: UUID,
-        reden: RESTReden
+        reden: RestReden
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val betrokkene = zrcClientService.readRol(betrokkeneUUID)
@@ -244,7 +244,7 @@ class ZaakRestService @Inject constructor(
 
     @DELETE
     @Path("{uuid}/initiator")
-    fun deleteInitiator(@PathParam("uuid") zaakUUID: UUID, reden: RESTReden): RestZaak {
+    fun deleteInitiator(@PathParam("uuid") zaakUUID: UUID, reden: RestReden): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
@@ -467,7 +467,7 @@ class ZaakRestService @Inject constructor(
     @Path("/zaak/{uuid}/heropenen")
     fun reopenZaak(
         @PathParam("uuid") zaakUUID: UUID,
-        heropenenGegevens: RESTZaakHeropenenGegevens
+        heropenenGegevens: RestZaakHeropenenGegevens
     ) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         assertPolicy(
@@ -488,7 +488,7 @@ class ZaakRestService @Inject constructor(
     @Suppress("NestedBlockDepth")
     fun terminateZaak(
         @PathParam("uuid") zaakUUID: UUID,
-        afbrekenGegevens: RESTZaakAfbrekenGegevens
+        afbrekenGegevens: RestZaakAfbrekenGegevens
     ) {
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val statustype = zaak.status?.let {
@@ -554,7 +554,7 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/{uuid}")
     fun updateZaak(
         @PathParam("uuid") zaakUUID: UUID,
-        @Valid restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens
+        @Valid restZaakEditMetRedenGegevens: RestZaakEditMetRedenGegevens
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
@@ -625,7 +625,7 @@ class ZaakRestService @Inject constructor(
     @Path("zaak/{uuid}/verlenging")
     fun verlengenZaak(
         @PathParam("uuid") zaakUUID: UUID,
-        restZaakVerlengGegevens: RESTZaakVerlengGegevens
+        restZaakVerlengGegevens: RestZaakVerlengGegevens
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
@@ -717,7 +717,7 @@ class ZaakRestService @Inject constructor(
 
     private fun checkZaakUpdatePermissions(
         zaakRechten: ZaakRechten,
-        restZaakEditMetRedenGegevens: RESTZaakEditMetRedenGegevens,
+        restZaakEditMetRedenGegevens: RestZaakEditMetRedenGegevens,
         zaak: Zaak
     ) {
         with(zaakRechten) {
