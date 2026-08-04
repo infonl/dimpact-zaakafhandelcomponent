@@ -18,13 +18,13 @@
     </a>
   </div>
   <zac-zaak-indicaties
-    *ngIf="zoekObject.type == 'ZAAK'"
+    *ngIf="isZaak(zoekObject)"
     [layout]="indicatiesLayout.SEARCH"
-    [zaakZoekObject]="$any(zoekObject)"
+    [zaakZoekObject]="zoekObject"
   ></zac-zaak-indicaties>
   <zac-informatie-object-indicaties
-    *ngIf="zoekObject.type == 'DOCUMENT'"
+    *ngIf="isDocument(zoekObject)"
     [layout]="indicatiesLayout.SEARCH"
-    [documentZoekObject]="$any(zoekObject)"
+    [documentZoekObject]="zoekObject"
   ></zac-informatie-object-indicaties>
 </div>

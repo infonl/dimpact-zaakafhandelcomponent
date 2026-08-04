@@ -12,7 +12,11 @@
       matSort
       [matSortActive]="listParameters.sort ?? ''"
       matSortDisableClear
-      [matSortDirection]="$any(listParameters.order)"
+      [matSortDirection]="
+        listParameters.order === 'asc' || listParameters.order === 'desc'
+          ? listParameters.order
+          : ''
+      "
       multiTemplateDataRows
     >
       <ng-container matColumnDef="ontvangstdatum_filter">
