@@ -591,7 +591,7 @@ As the group should always be provided when creating a zaak we set the candidate
 
 #### Assigning the group/user of another task
 
-To set the asignee and candidate group to the user/group used in another user task, you can use the `taken:behandelaar` and `taken:groep` functions:
+To set the assignee and candidate group to the user/group used in another user task, you can use the `taken:behandelaar` and `taken:groep` functions:
 
 ```xml
 <userTask id="userTask"
