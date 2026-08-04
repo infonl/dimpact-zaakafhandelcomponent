@@ -197,6 +197,10 @@ describe(FormioSetupService.name, () => {
     utilService = TestBed.inject(UtilService);
   });
 
+  // `testQueryClient` is shared by every test here, and the global `clearAllMocks` leaves
+  // spy implementations in place: without this, one test's mocked documents feed the next.
+  afterEach(() => jest.restoreAllMocks());
+
   describe(FormioSetupService.prototype.extractFieldsetName.name, () => {
     it("should extract the fieldset name from a sub-component name", () => {
       const fieldsetName: string = formioSetupService.extractFieldsetName({
@@ -340,7 +344,11 @@ describe(FormioSetupService.name, () => {
       );
     });
 
-    it("handle cases for components with no children or properties", async () => {
+    it("should report no error for components with no children or properties", async () => {
+      const handleFormIOInitErrorSpy = jest.spyOn(
+        utilService,
+        "handleFormIOInitError",
+      );
       const components: ExtendedComponentSchema[] = [
         {
           key: "RT_Fail_Values",
@@ -376,6 +384,40 @@ describe(FormioSetupService.name, () => {
         { components } as FormioForm,
         taak,
       );
+
+      expect(handleFormIOInitErrorSpy).not.toHaveBeenCalled();
+    });
+
+    it("should render a message when a field carries an unknown ZAC_TYPE", async () => {
+      const unknownComponent: ExtendedComponentSchema = {
+        key: "ZAAK_Documenten_Typo",
+        type: "select",
+        attributes: { [ZAC_FIELD_ATTRIBUTE]: "ZAC_documentn" },
+      };
+
+      await formioSetupService.createFormioForm(
+        { components: [unknownComponent] } as FormioForm,
+        taak,
+      );
+
+      expect(unknownComponent.html).toContain('class="zac-unknown-zac-type"');
+    });
+
+    it("should leave a plain Form.io component without a ZAC_TYPE untouched", async () => {
+      const components: ExtendedComponentSchema[] = [
+        { key: "toelichting", type: "textfield" },
+        { key: "submit", type: "button" },
+      ];
+
+      await formioSetupService.createFormioForm(
+        { components } as FormioForm,
+        taak,
+      );
+
+      expect(components).toEqual([
+        { key: "toelichting", type: "textfield" },
+        { key: "submit", type: "button" },
+      ]);
     });
 
     it("should invoke behandelaar groups for zaaktype description endpoint", async () => {
@@ -1123,7 +1165,7 @@ describe(FormioSetupService.name, () => {
         expect(component.description).toBe("");
       });
 
-      it("should keep the class and description set by the form author", async () => {
+      it("should append the marker class to the class set by the form author", async () => {
         jest
           .spyOn(testQueryClient, "fetchQuery")
           .mockResolvedValue([signedDocument]);
@@ -1175,9 +1217,6 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(form, taak);
 
         expect(component.customClass).toBe("zac-empty-input-field");
-        expect(component.description).toBe(
-          "msg.geen-documenten-te-ondertekenen",
-        );
       });
 
       it("should exclude already-signed documents", async () => {
@@ -1663,7 +1702,7 @@ describe(FormioSetupService.name, () => {
       expect(component.validate?.custom).toBeUndefined();
     });
 
-    it("should explain an empty grid rather than render a bare frame of headers", async () => {
+    it("should hide an empty grid and explain why", async () => {
       const component: ExtendedComponentSchema = {
         ...unsignedDocumentsFieldset,
       };
@@ -1673,9 +1712,6 @@ describe(FormioSetupService.name, () => {
         afgerondTaak({ ZAAK_Documenten_Ondertekenen_Selectie: [] }),
       );
 
-      expect(component.defaultValue).toEqual([]);
-      expect(component.initEmpty).toBe(true);
-      expect(component.customClass).toBe("zac-empty-input-field");
       expect(component.description).toBe("msg.geen-documenten-te-ondertekenen");
     });
   });

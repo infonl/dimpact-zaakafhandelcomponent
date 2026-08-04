@@ -24,10 +24,9 @@ export class FormioCustomFunctions {
 
   private readonly functionRegistry: Record<string, FormioFunctionFactory> = {
     ZAC_getDocumentTitles: async (taakdata, parameters) => {
-      const documentUuids = parameters.flatMap((parameter) => {
-        const fieldValue = taakdata[parameter];
-        return Array.isArray(fieldValue) ? (fieldValue as string[]) : [];
-      });
+      const documentUuids = parameters.flatMap((parameter) =>
+        this.extractDocumentUuids(taakdata[parameter]),
+      );
       const titleByUuid =
         await this.fetchInformatieObjectTitlesByUuid(documentUuids);
 
@@ -35,9 +34,9 @@ export class FormioCustomFunctions {
         style: "long",
         type: "conjunction",
       });
-      return (uuids) =>
+      return (documents) =>
         listFormat.format(
-          (Array.isArray(uuids) ? uuids : []).map(
+          this.extractDocumentUuids(documents).map(
             (uuid) => titleByUuid.get(uuid) ?? uuid,
           ),
         );
@@ -83,11 +82,26 @@ export class FormioCustomFunctions {
     return result;
   }
 
+  // Accepts a uuid, a list of uuids or datagrid rows, so both dropdown and datagrid fields work.
+  private extractDocumentUuids(value: unknown): string[] {
+    return (Array.isArray(value) ? value : [value]).flatMap((entry) => {
+      if (typeof entry === "string") return [entry];
+      if (!entry || typeof entry !== "object") return [];
+
+      const { uuid, selected } = entry as {
+        uuid?: unknown;
+        selected?: unknown;
+      };
+      // An unticked row is not going to be signed, so it does not belong in the summary.
+      return typeof uuid === "string" && selected !== false ? [uuid] : [];
+    });
+  }
+
   private async fetchInformatieObjectTitlesByUuid(
     uuids: string[],
   ): Promise<Map<string, string>> {
     const entries = await Promise.all(
-      uuids.map(async (uuid) => {
+      [...new Set(uuids)].map(async (uuid) => {
         try {
           const document = await lastValueFrom(
             this.informatieObjectenService.readEnkelvoudigInformatieobject(
