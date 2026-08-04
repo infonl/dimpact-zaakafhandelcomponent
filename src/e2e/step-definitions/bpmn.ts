@@ -33,6 +33,41 @@ async function waitForFormioContent(page: Page, target: Locator) {
   await target.waitFor({ state: "visible", timeout: FORTY_SECONDS_IN_MS });
 }
 
+// A form without a submit button of its own gets the renderer's default one ("Indienen"), which
+// carries no `formio-component-submit` wrapper — so match on the label instead of on the key.
+function submitButton(page: Page) {
+  return formioForm(page)
+    .getByRole("button")
+    .filter({ hasText: /^\s*(Indienen|Selecteren|Ondertekenen)\s*$/ });
+}
+
+const SELECT_DOCUMENTS_GRID_KEY = "ZAAK_Documenten_Ondertekenen_Selectie";
+const SIGN_DOCUMENTS_GRID_KEY = "ZAAK_Documenten_Te_Ondertekenen";
+
+function documentGrid(page: Page, gridKey: string) {
+  return formioForm(page).locator(`.formio-component-${gridKey}`);
+}
+
+function documentGridRows(page: Page, gridKey: string) {
+  return documentGrid(page, gridKey).locator("tbody tr");
+}
+
+// The document title sits in a disabled textfield, so it cannot be matched with a text filter:
+// read every row's input value instead.
+async function documentGridRow(page: Page, gridKey: string, title: string) {
+  const rows = documentGridRows(page, gridKey);
+  await expect
+    .poll(() => rows.count(), { timeout: FORTY_SECONDS_IN_MS })
+    .toBeGreaterThan(0);
+  for (let index = 0; index < (await rows.count()); index++) {
+    const row = rows.nth(index);
+    if ((await row.getByRole("textbox").first().inputValue()) === title) {
+      return row;
+    }
+  }
+  throw new Error(`No row for document "${title}" in datagrid "${gridKey}"`);
+}
+
 // UUID v4 regex pattern (replacement for deprecated uuidv4 package)
 const UUID_V4_REGEX =
   /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
@@ -224,10 +259,7 @@ When(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await this.page.keyboard.press("Escape");
-    await formioForm(this.page)
-      .getByRole("button")
-      .filter({ hasText: "Indienen" })
-      .click();
+    await submitButton(this.page).click();
   },
 );
 
@@ -401,12 +433,18 @@ Then(
   "{string} sees the select documents to sign form",
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await waitForFormioReady(this.page);
-    await expect(
-      formioForm(this.page).getByRole("searchbox", {
-        name: "Select one or more documents",
-      }),
-    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+    await waitForFormioContent(
+      this.page,
+      documentGrid(this.page, SELECT_DOCUMENTS_GRID_KEY),
+    );
+    await expect
+      .poll(
+        () => documentGridRows(this.page, SELECT_DOCUMENTS_GRID_KEY).count(),
+        {
+          timeout: FORTY_SECONDS_IN_MS,
+        },
+      )
+      .toBeGreaterThan(0);
   },
 );
 
@@ -418,13 +456,12 @@ When(
     user: z.infer<typeof worldUsers>,
     documentName: string,
   ) {
-    const form = formioForm(this.page);
-    await form
-      .getByRole("searchbox", { name: "Select one or more documents" })
-      .click();
-    await this.page
-      .getByRole("option", { name: documentName, exact: true })
-      .click();
+    const row = await documentGridRow(
+      this.page,
+      SELECT_DOCUMENTS_GRID_KEY,
+      documentName,
+    );
+    await row.getByRole("checkbox").check();
   },
 );
 
@@ -436,13 +473,18 @@ Then(
     _user: z.infer<typeof worldUsers>,
     expectedCount: number,
   ) {
-    const titlesParagraph = formioForm(this.page).locator(
-      ".formio-component-selectedDocuments .formio-component-htmlelement p:nth-child(2)",
+    await waitForFormioContent(
+      this.page,
+      documentGrid(this.page, SIGN_DOCUMENTS_GRID_KEY),
     );
-    await expect(titlesParagraph).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
-    const text = (await titlesParagraph.textContent()) ?? "";
-    const count = text.split(" en ").filter(Boolean).length;
-    expect(count).toBe(expectedCount);
+    await expect
+      .poll(
+        () => documentGridRows(this.page, SIGN_DOCUMENTS_GRID_KEY).count(),
+        {
+          timeout: FORTY_SECONDS_IN_MS,
+        },
+      )
+      .toBe(expectedCount);
   },
 );
 
@@ -454,13 +496,11 @@ Then(
     user: z.infer<typeof worldUsers>,
     fileName: string,
   ) {
-    const selectedDocuments = formioForm(this.page).locator(
-      ".formio-component-selectedDocuments .formio-component-htmlelement",
+    await waitForFormioContent(
+      this.page,
+      documentGrid(this.page, SIGN_DOCUMENTS_GRID_KEY),
     );
-    await waitForFormioContent(this.page, selectedDocuments);
-    await expect(selectedDocuments).toContainText(fileName, {
-      timeout: FORTY_SECONDS_IN_MS,
-    });
+    await documentGridRow(this.page, SIGN_DOCUMENTS_GRID_KEY, fileName);
   },
 );
 
@@ -468,7 +508,12 @@ When(
   "{string} confirms the signing of the documents",
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await formioForm(this.page).getByRole("button", { name: "Sign" }).click();
+    // Rows in the confirmation grid arrive unticked; ticking is what marks a document for signing.
+    const rows = documentGridRows(this.page, SIGN_DOCUMENTS_GRID_KEY);
+    for (let index = 0; index < (await rows.count()); index++) {
+      await rows.nth(index).getByRole("checkbox").check();
+    }
+    await submitButton(this.page).click();
   },
 );
 
