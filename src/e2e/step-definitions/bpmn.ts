@@ -33,8 +33,7 @@ async function waitForFormioContent(page: Page, target: Locator) {
   await target.waitFor({ state: "visible", timeout: FORTY_SECONDS_IN_MS });
 }
 
-// A form without a submit button of its own gets the renderer's default one ("Indienen"), which
-// carries no `formio-component-submit` wrapper — so match on the label instead of on the key.
+// The default submit button ("Indienen") has no formio-component-submit wrapper to match on.
 function submitButton(page: Page) {
   return formioForm(page)
     .getByRole("button")
@@ -52,8 +51,7 @@ function documentGridRows(page: Page, gridKey: string) {
   return documentGrid(page, gridKey).locator("tbody tr");
 }
 
-// The document title sits in a disabled textfield, so it cannot be matched with a text filter:
-// read every row's input value instead.
+// The title sits in a textfield, so it needs an input value rather than a text filter.
 async function documentGridRow(page: Page, gridKey: string, title: string) {
   const rows = documentGridRows(page, gridKey);
   await expect

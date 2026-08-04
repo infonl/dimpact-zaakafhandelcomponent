@@ -13,7 +13,6 @@ import {
   ONE_MINUTE_IN_MS,
   TEN_SECONDS_IN_MS,
   TWO_MINUTES_IN_MS,
-  TWO_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
@@ -156,25 +155,35 @@ When(
       .getByRole("tabpanel", { name: "Gegevens" })
       .getByRole("button")
       .click();
+    await this.page.getByRole("combobox", { name: "Groep" }).click();
     await this.page
-      .getByRole("combobox", { name: "Groep" })
-      .locator("svg")
+      .getByRole("option", { name: groupName, exact: true })
       .click();
-    await this.page.getByText(groupName).click();
+
+    // The users fetched after a group change overwrite any behandelaar picked meanwhile.
     await this.page.getByRole("combobox", { name: "Behandelaar" }).click();
-    await this.page.getByText(userName, { exact: true }).click();
-    await this.page.getByRole("textbox", { name: "Reden" }).click();
+    const userOption = this.page.getByRole("option", {
+      name: userName,
+      exact: true,
+    });
+    await userOption.waitFor({
+      state: "visible",
+      timeout: FORTY_SECONDS_IN_MS,
+    });
+    await userOption.click();
+
     await this.page.getByRole("textbox", { name: "Reden" }).fill("test");
 
     await this.page.getByRole("button", { name: "Opslaan" }).click();
 
-    await this.page.waitForTimeout(TWO_SECONDS_IN_MS);
-    await this.expect(this.page.getByLabel("topic Gegevens")).toContainText(
-      groupName,
-    );
-    await this.expect(this.page.getByLabel("topic Gegevens")).toContainText(
-      userName,
-    );
+    // The Gegevens panel is redrawn on a websocket event, not on the save response.
+    const gegevensPanel = this.page.getByLabel("topic Gegevens");
+    await this.expect(gegevensPanel).toContainText(groupName, {
+      timeout: FORTY_SECONDS_IN_MS,
+    });
+    await this.expect(gegevensPanel).toContainText(userName, {
+      timeout: FORTY_SECONDS_IN_MS,
+    });
   },
 );
 
