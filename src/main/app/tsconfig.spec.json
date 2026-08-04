@@ -3,8 +3,8 @@
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
     "types": ["jest", "node"],
-    "lib": ["DOM", "DOM.Iterable", "ES2021"],
-    "target": "ES2016",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "target": "ES2022",
     "strict": false
   },
   "angularCompilerOptions": {
