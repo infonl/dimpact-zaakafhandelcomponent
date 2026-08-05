@@ -10,6 +10,7 @@ import {
   FORTY_SECONDS_IN_MS,
   TEN_SECONDS_IN_MS,
   TWENTY_SECONDS_IN_MS,
+  TWO_MINUTES_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
@@ -263,14 +264,21 @@ When(
 
 Then(
   "{string} sees that the initial task is completed",
-  { timeout: FORTY_SECONDS_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    // An absent task cell also reads as completed on a zaak page that has yet to render.
+    const completedTasksSwitch = this.page.getByRole("switch", {
+      name: "Toon afgeronde taken",
+    });
+    await completedTasksSwitch.waitFor({
+      state: "visible",
+      timeout: FORTY_SECONDS_IN_MS,
+    });
+
     await expect(
       this.page.getByRole("cell", { name: "Test", exact: true }),
     ).not.toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
-    await this.page
-      .getByRole("switch", { name: "Toon afgeronde taken" })
-      .click();
+    await completedTasksSwitch.click();
     await expect(
       this.page.getByRole("cell", { name: "Test", exact: true }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
