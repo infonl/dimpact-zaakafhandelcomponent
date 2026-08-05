@@ -7,6 +7,7 @@ Feature: Taken toevoegen
 
   Scenario: Employee "Bob" does not have enough information to finish Intake and assigns a task to Employee "Oscar"
     Given "Bob" is logged in to zac
+    And "Bob" wants to create a new "CMMN" zaak
     And Employee "Bob" is on the newly created zaak with status "Intake"
     When Employee "Bob" does not have enough information to finish Intake and assigns a task to Employee "Oscar"
     And Employee "Bob" logs out of zac
