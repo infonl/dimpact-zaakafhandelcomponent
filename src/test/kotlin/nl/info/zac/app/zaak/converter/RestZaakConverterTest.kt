@@ -176,9 +176,9 @@ class RestZaakConverterTest : BehaviorSpec({
             }
 
             then("the same pre-fetched roles list is reused for all role lookups") {
-                verify(exactly = 1) { zgwApiService.findGroepForZaak(zaak, refEq(roles)) }
-                verify(exactly = 1) { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, refEq(roles)) }
-                verify(exactly = 1) { zgwApiService.findInitiatorRoleForZaak(zaak, refEq(roles)) }
+                verify(exactly = 1) { zgwApiService.findGroepForZaak(zaak = zaak, roles = refEq(roles)) }
+                verify(exactly = 1) { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak = zaak, roles =refEq(roles)) }
+                verify(exactly = 1) { zgwApiService.findInitiatorRoleForZaak(zaak = zaak, roles = refEq(roles)) }
             }
         }
     }
