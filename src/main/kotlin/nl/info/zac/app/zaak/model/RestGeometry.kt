@@ -28,7 +28,7 @@ data class RestGeometry(
 fun RestGeometry.toGeoJSONGeometry(): GeoJSONGeometry =
     when (this.type) {
         GeometryTypeEnum.POINT -> GeoJSONGeometry().apply {
-            type = type
+            type = GeometryTypeEnum.POINT
             coordinates = listOf(
                 this@toGeoJSONGeometry.point?.longitude?.toBigDecimal(),
                 this@toGeoJSONGeometry.point?.latitude?.toBigDecimal()
