@@ -9,8 +9,12 @@ import { test as base } from "../fixture";
 export const test = base.extend<{
   caseNumber: { value: string };
   caseType: { value: string };
+  caseDescription: { value: string };
 }>({
   caseNumber: async ({}, use) => {
+    await use({ value: "" });
+  },
+  caseDescription: async ({}, use) => {
     await use({ value: "" });
   },
   caseType: async ({}, use) => {
