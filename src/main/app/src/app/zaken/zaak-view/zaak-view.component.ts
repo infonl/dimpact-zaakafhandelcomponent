@@ -242,7 +242,14 @@ export class ZaakViewComponent
       {
         show: Boolean(bronArchiefprocedure?.afleidingswijze),
         label: "afleidingswijzeBrondatum",
-        value: bronArchiefprocedure?.afleidingswijze ?? null,
+        value:
+          (bronArchiefprocedure?.afleidingswijze === "EIGENSCHAP".toLowerCase()
+            ? this.zaak.resultaat?.resultaattype?.datumKenmerkOmschrijving
+            : String(
+                this.translate.instant(
+                  `afleidingswijzeBrondatum.${bronArchiefprocedure?.afleidingswijze}`,
+                ),
+              )) ?? null,
       },
       {
         show: this.zaak.archiefNominatie === "VERNIETIGEN",

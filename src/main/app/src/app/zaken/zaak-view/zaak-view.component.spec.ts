@@ -1228,6 +1228,32 @@ describe(ZaakViewComponent.name, () => {
       expect(field?.componentInstance.value).toBe("TERMIJN");
     });
 
+    it("should show the datumKenmerkOmschrijving when afleidingswijze is EIGENSCHAP", () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
+            resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
+              datumKenmerkOmschrijving: "fakeDatumKenmerkOmschrijving",
+              bronArchiefprocedure: fromPartial<
+                GeneratedType<"BrondatumArchiefprocedure">
+              >({
+                afleidingswijze: "EIGENSCHAP",
+              }),
+            }),
+          }),
+        },
+      });
+      fixture.detectChanges();
+
+      const field = findAfleidingswijzeField();
+
+      expect(field).toBeTruthy();
+      expect(field?.componentInstance.value).toBe(
+        "fakeDatumKenmerkOmschrijving",
+      );
+    });
+
     it("should not show the field when resultaat is absent", () => {
       mockActivatedRoute.data.next({ zaak: { ...zaak, resultaat: null } });
       fixture.detectChanges();
