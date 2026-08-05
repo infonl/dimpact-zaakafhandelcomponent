@@ -21,6 +21,8 @@ export class CustomWorld extends World {
   initialized: boolean = false;
   worldParameters: z.infer<typeof worldParametersScheme>["parameters"];
   testStorage: TestStorageService;
+  /** Feature and scenario currently running, so created data can name its origin. */
+  testName: string = "";
 
   constructor(attach: unknown) {
     const res = worldParametersScheme.parse(attach);

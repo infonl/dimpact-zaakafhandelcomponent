@@ -15,6 +15,10 @@ Before(async function (this: CustomWorld, { gherkinDocument, pickle }) {
   const feature = escape(gherkinDocument.feature.name);
   const videoFolder = [feature, scenario].filter(Boolean).join("/");
 
+  this.testName = [gherkinDocument.feature?.name, pickle.name]
+    .filter(Boolean)
+    .join(" - ");
+
   await this.context?.clearCookies();
 
   await this.init({ videoFolder });

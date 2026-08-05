@@ -261,6 +261,7 @@ When(
     const caseDescription = `E2etest-${crypto.randomUUID()}`;
     await this.page.getByLabel("Omschrijving").fill(caseDescription);
     this.testStorage.set("caseDescription", caseDescription);
+    await this.page.getByLabel("Toelichting").fill(this.testName);
 
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
 
