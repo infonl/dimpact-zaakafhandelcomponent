@@ -169,7 +169,6 @@
         </zac-date-filter>
         <zac-date-filter
           *ngIf="hasZaken || !!zoekParameters.datums.ZAAK_FATALE_DATUM"
-          )
           label="zaak.fataledatum"
           [range]="zoekParameters.datums.ZAAK_FATALE_DATUM"
           (changed)="dateFilterChange('ZAAK_FATALE_DATUM', $event)"
