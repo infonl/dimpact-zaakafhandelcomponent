@@ -128,11 +128,13 @@ class RestZaakConverterTest : BehaviorSpec({
         val zaakdata = mapOf("fakeKey" to "fakeValue")
         val loggedInUser = createLoggedInUser()
 
-        every { zrcClientService.listRollen(zaak) } returns emptyList()
+        val roles = listOf(rolOrganisatorischeEenheid, rolMedewerker, rolNatuurlijkPersoon)
+
+        every { zrcClientService.listRollen(zaak) } returns roles
         with(zgwApiService) {
-            every { findGroepForZaak(zaak, any()) } returns rolOrganisatorischeEenheid
-            every { findBehandelaarMedewerkerRoleForZaak(zaak, any()) } returns rolMedewerker
-            every { findInitiatorRoleForZaak(zaak, any()) } returns rolNatuurlijkPersoon
+            every { findGroepForZaak(zaak, roles) } returns rolOrganisatorischeEenheid
+            every { findBehandelaarMedewerkerRoleForZaak(zaak, roles) } returns rolMedewerker
+            every { findInitiatorRoleForZaak(zaak, roles) } returns rolNatuurlijkPersoon
         }
         every { zaakVariabelenService.readZaakdata(zaak.uuid) } returns zaakdata
         every { restGroupConverter.convertGroupId(rolOrganisatorischeEenheid.identificatienummer!!) } returns restGroup
@@ -171,6 +173,12 @@ class RestZaakConverterTest : BehaviorSpec({
             then("only a single role list lookup and a single zaak variables lookup are performed") {
                 verify(exactly = 1) { zrcClientService.listRollen(zaak) }
                 verify(exactly = 1) { zaakVariabelenService.readZaakdata(zaak.uuid) }
+            }
+
+            then("the same pre-fetched roles list is reused for all role lookups") {
+                verify(exactly = 1) { zgwApiService.findGroepForZaak(zaak, refEq(roles)) }
+                verify(exactly = 1) { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, refEq(roles)) }
+                verify(exactly = 1) { zgwApiService.findInitiatorRoleForZaak(zaak, refEq(roles)) }
             }
         }
     }
