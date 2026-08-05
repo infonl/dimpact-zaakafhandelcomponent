@@ -182,7 +182,7 @@ class RestInformatieobjectConverter @Inject constructor(
             status = restEnkelvoudigInformatieobject.status
             verzenddatum = restEnkelvoudigInformatieobject.verzenddatum
             ontvangstdatum = restEnkelvoudigInformatieobject.ontvangstdatum
-            restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding
+            vertrouwelijkheidaanduiding = restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding
         }
     }
 
