@@ -40,7 +40,6 @@ fun RestGeometry.toGeoJSONGeometry(): GeoJSONGeometry =
     }
 
 fun GeoJSONGeometry.toRestGeometry() = RestGeometry(
-    // we currently use the value of [GeometryTypeEnum] as a string
     type = this.type,
     point = if (this.type == GeometryTypeEnum.POINT) {
         RestCoordinates(
