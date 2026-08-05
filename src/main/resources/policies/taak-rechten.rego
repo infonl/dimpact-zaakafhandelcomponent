@@ -7,8 +7,11 @@
 #
 package net.atos.zac.taak
 
+import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.behandelaar
+import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.raadpleger
+import data.net.atos.zac.rol.recordmanager
 import input.user
 import input.taak
 
@@ -34,15 +37,65 @@ lezen if {
     zaaktype_allowed
 }
 
+lezen if {
+    behandelaar.rol in user.rollen
+    zaaktype_allowed
+}
+
+lezen if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+}
+
+lezen if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+lezen if {
+    beheerder.rol in user.rollen
+    zaaktype_allowed
+}
+
 default wijzigen := false
 wijzigen if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
 }
 
+wijzigen if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+}
+
+wijzigen if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+wijzigen if {
+    beheerder.rol in user.rollen
+    zaaktype_allowed
+}
+
 default toekennen := false
 toekennen if {
     behandelaar.rol in user.rollen
+    zaaktype_allowed
+}
+
+toekennen if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+}
+
+toekennen if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+toekennen if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -53,9 +106,45 @@ creeren_document if {
     taak.open
 }
 
+creeren_document if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    taak.open
+}
+
+creeren_document if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+    taak.open
+}
+
+creeren_document if {
+    beheerder.rol in user.rollen
+    zaaktype_allowed
+    taak.open
+}
+
 default toevoegen_document := false
 toevoegen_document if {
     behandelaar.rol in user.rollen
+    zaaktype_allowed
+    taak.open
+}
+
+toevoegen_document if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    taak.open
+}
+
+toevoegen_document if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+    taak.open
+}
+
+toevoegen_document if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
     taak.open
 }

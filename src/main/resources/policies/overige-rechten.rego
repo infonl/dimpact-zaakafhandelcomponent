@@ -7,9 +7,11 @@
 #
 package net.atos.zac.overig
 
-import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.beheerder
+import data.net.atos.zac.rol.behandelaar
+import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.raadpleger
+import data.net.atos.zac.rol.recordmanager
 import input.user
 
 overige_rechten := {
@@ -23,6 +25,18 @@ starten_zaak if {
     behandelaar.rol in user.rollen
 }
 
+starten_zaak if {
+    coordinator.rol in user.rollen
+}
+
+starten_zaak if {
+    recordmanager.rol in user.rollen
+}
+
+starten_zaak if {
+    beheerder.rol in user.rollen
+}
+
 default beheren := false
 beheren if {
     beheerder.rol in user.rollen
@@ -31,4 +45,20 @@ beheren if {
 default zoeken := false
 zoeken if {
     raadpleger.rol in user.rollen
+}
+
+zoeken if {
+    behandelaar.rol in user.rollen
+}
+
+zoeken if {
+    coordinator.rol in user.rollen
+}
+
+zoeken if {
+    recordmanager.rol in user.rollen
+}
+
+zoeken if {
+    beheerder.rol in user.rollen
 }

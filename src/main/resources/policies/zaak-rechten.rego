@@ -60,6 +60,26 @@ lezen if {
     zaaktype_allowed
 }
 
+lezen if {
+    behandelaar.rol in user.rollen
+    zaaktype_allowed
+}
+
+lezen if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+}
+
+lezen if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+lezen if {
+    beheerder.rol in user.rollen
+    zaaktype_allowed
+}
+
 default wijzigen := false
 wijzigen if {
     behandelaar.rol in user.rollen
@@ -68,7 +88,18 @@ wijzigen if {
 }
 
 wijzigen if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+wijzigen if {
     recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+wijzigen if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -80,7 +111,18 @@ toekennen if {
 }
 
 toekennen if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+toekennen if {
     recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+toekennen if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -90,15 +132,50 @@ behandelen if {
     zaaktype_allowed
 }
 
+behandelen if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+}
+
+behandelen if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+behandelen if {
+    beheerder.rol in user.rollen
+    zaaktype_allowed
+}
+
 default afbreken := false
 afbreken if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
 }
 
+afbreken if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+}
+
+afbreken if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+afbreken if {
+    beheerder.rol in user.rollen
+    zaaktype_allowed
+}
+
 default heropenen := false
 heropenen if {
     recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+heropenen if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -114,9 +191,54 @@ wijzigen_doorlooptijd if {
     zaak.open
 }
 
+wijzigen_doorlooptijd if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+wijzigen_doorlooptijd if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+wijzigen_doorlooptijd if {
+    beheerder.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
 default verlengen := false
 verlengen if {
     behandelaar.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+    not zaak.heropend
+    not zaak.opgeschort
+    not zaak.verlengd
+}
+
+verlengen if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+    not zaak.heropend
+    not zaak.opgeschort
+    not zaak.verlengd
+}
+
+verlengen if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+    not zaak.heropend
+    not zaak.opgeschort
+    not zaak.verlengd
+}
+
+verlengen if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
     zaak.open
     not zaak.heropend
@@ -133,15 +255,72 @@ opschorten if {
     not zaak.opgeschort
 }
 
+opschorten if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+    not zaak.heropend
+    not zaak.opgeschort
+}
+
+opschorten if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+    not zaak.heropend
+    not zaak.opgeschort
+}
+
+opschorten if {
+    beheerder.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+    not zaak.heropend
+    not zaak.opgeschort
+}
+
 default hervatten := false
 hervatten if {
     behandelaar.rol in user.rollen
     zaaktype_allowed
 }
 
+hervatten if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+}
+
+hervatten if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+hervatten if {
+    beheerder.rol in user.rollen
+    zaaktype_allowed
+}
+
 default creeren_document := false
 creeren_document if {
     behandelaar.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+creeren_document if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+creeren_document if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+creeren_document if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
     zaak.open
 }
@@ -154,7 +333,18 @@ toevoegen_document if {
 }
 
 toevoegen_document if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+toevoegen_document if {
     recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+toevoegen_document if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -166,7 +356,18 @@ koppelen if {
 }
 
 koppelen if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+koppelen if {
     recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+koppelen if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -177,9 +378,45 @@ versturen_email if {
     zaak.open
 }
 
+versturen_email if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+versturen_email if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+versturen_email if {
+    beheerder.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
 default versturen_ontvangstbevestiging := false
 versturen_ontvangstbevestiging if {
     behandelaar.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+versturen_ontvangstbevestiging if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+versturen_ontvangstbevestiging if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+versturen_ontvangstbevestiging if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
     zaak.open
 }
@@ -192,7 +429,18 @@ toevoegen_initiator_persoon if {
 }
 
 toevoegen_initiator_persoon if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+toevoegen_initiator_persoon if {
     recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+toevoegen_initiator_persoon if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -204,7 +452,18 @@ toevoegen_initiator_bedrijf if {
 }
 
 toevoegen_initiator_bedrijf if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+toevoegen_initiator_bedrijf if {
     recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+toevoegen_initiator_bedrijf if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -216,7 +475,18 @@ verwijderen_initiator if {
 }
 
 verwijderen_initiator if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+verwijderen_initiator if {
     recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+verwijderen_initiator if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -228,7 +498,18 @@ toevoegen_betrokkene_persoon if {
 }
 
 toevoegen_betrokkene_persoon if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+toevoegen_betrokkene_persoon if {
     recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+toevoegen_betrokkene_persoon if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -240,7 +521,18 @@ toevoegen_betrokkene_bedrijf if {
 }
 
 toevoegen_betrokkene_bedrijf if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+toevoegen_betrokkene_bedrijf if {
     recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+toevoegen_betrokkene_bedrijf if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -252,7 +544,18 @@ verwijderen_betrokkene if {
 }
 
 verwijderen_betrokkene if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+verwijderen_betrokkene if {
     recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+verwijderen_betrokkene if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
@@ -264,13 +567,42 @@ toevoegen_bag_object if {
 }
 
 toevoegen_bag_object if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+toevoegen_bag_object if {
     recordmanager.rol in user.rollen
+    zaaktype_allowed
+}
+
+toevoegen_bag_object if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
 }
 
 default starten_taak := false
 starten_taak if {
     behandelaar.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+starten_taak if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+starten_taak if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+starten_taak if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
     zaak.open
 }
@@ -284,9 +616,51 @@ vastleggen_besluit if {
     zaak.besloten
 }
 
+vastleggen_besluit if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+    not zaak.intake
+    zaak.besloten
+}
+
+vastleggen_besluit if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+    not zaak.intake
+    zaak.besloten
+}
+
+vastleggen_besluit if {
+    beheerder.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+    not zaak.intake
+    zaak.besloten
+}
+
 default verlengen_doorlooptijd := false
 verlengen_doorlooptijd if {
     behandelaar.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+verlengen_doorlooptijd if {
+    coordinator.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+verlengen_doorlooptijd if {
+    recordmanager.rol in user.rollen
+    zaaktype_allowed
+    zaak.open
+}
+
+verlengen_doorlooptijd if {
+    beheerder.rol in user.rollen
     zaaktype_allowed
     zaak.open
 }
