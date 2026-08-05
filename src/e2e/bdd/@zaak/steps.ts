@@ -27,8 +27,9 @@ When(
     await page.getByRole("combobox", { name: "Communication channel" }).click();
     await page.getByRole("option", { name: "E-mail" }).click();
 
-    // A unique omschrijving tells this case apart from every other one on a shared environment.
-    caseDescription.value = `E2E-BDD-test-${crypto.randomUUID()}`;
+    // A UTC timestamp with millisecond precision tells this case apart from every other one on a shared environment.
+    const timestampUtc = new Date().toISOString().replace(/[-:.]/g, "");
+    caseDescription.value = `E2E-BDD-test-${timestampUtc}`;
     await page
       .getByRole("textbox", { name: "Description" })
       .fill(caseDescription.value);

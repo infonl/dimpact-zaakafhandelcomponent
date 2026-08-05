@@ -257,8 +257,9 @@ When(
     await this.page.getByRole("option", { name: " E-mail " }).click();
     // Openbaar should be automatically selected on openbaar
     await this.expect(this.page.getByText("Openbaar").first()).toBeVisible();
-    // A unique omschrijving tells this zaak apart from every other one on a shared environment.
-    const caseDescription = `E2E-test-${crypto.randomUUID()}`;
+    // A UTC timestamp with millisecond precision tells this zaak apart from every other one on a shared environment.
+    const timestampUtc = new Date().toISOString().replace(/[-:.]/g, "");
+    const caseDescription = `E2E-test-${timestampUtc}`;
     await this.page.getByLabel("Omschrijving").fill(caseDescription);
     this.testStorage.set("caseDescription", caseDescription);
     await this.page
