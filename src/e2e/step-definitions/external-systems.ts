@@ -6,8 +6,9 @@
 import { Then, When } from "@cucumber/cucumber";
 import { Page, expect } from "@playwright/test";
 import {
+  FIVE_SECONDS_IN_MS,
+  FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
-  TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 
@@ -127,6 +128,8 @@ When(
     await expect(wizardResultDiv).toHaveClass(/wizard-result success/);
     await expect(wizardResultDiv.getByText("succes")).toBeVisible();
 
+    // Give ZAC time to store the document and notify the zaak before the wizard tab disappears.
+    await smartDocumentsWizardPage.waitForTimeout(FIVE_SECONDS_IN_MS);
     await smartDocumentsWizardPage.close();
   },
 );
@@ -143,7 +146,7 @@ When(
     const documentTitleText = this.page.locator(`text=${documentInput.title}`);
     // increase the timout because it can take a while for the document to be visible
     await expect(documentTitleText.first()).toBeVisible({
-      timeout: TWENTY_SECONDS_IN_MS,
+      timeout: FORTY_SECONDS_IN_MS,
     });
 
     const anchorLocator = this.page.locator('a[title="Document bekijken"]');
