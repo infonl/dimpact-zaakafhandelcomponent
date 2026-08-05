@@ -55,11 +55,11 @@ test_beheren_with_recordmanager_role_fails if {
 ########
 # zoeken
 ########
-test_zoeken_with_behandelaar_role if {
+test_zoeken_with_raadpleger_role if {
     zoeken with input.user.rollen as [ "raadpleger" ]
 }
 
-test_zoeken_with_behandelaar_role_only if {
+test_zoeken_with_behandelaar_role if {
     zoeken with input.user.rollen as [ "behandelaar" ]
 }
 
