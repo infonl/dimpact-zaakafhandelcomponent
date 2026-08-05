@@ -31,11 +31,12 @@ export class VertrouwelijkaanduidingToTranslationKeyPipe
       | null
       | undefined,
   ) {
-    if (!value || !this.expectedKeys.includes(value)) {
+    if (value && !this.expectedKeys.includes(value)) {
       throw new Error(`Unexpected vertrouwelijkheidaanduiding: ${value}`);
     }
 
-    return `vertrouwelijkheidaanduiding.${value}`;
+    const v = !value || value === "EMPTY" ? "-geen-" : value
+    return `vertrouwelijkheidaanduiding.${v}`;
   }
 
   toUpperCase<T extends string>(v: T): Uppercase<T> {

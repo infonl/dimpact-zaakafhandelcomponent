@@ -8,6 +8,7 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "./vertrouwelijkaand
 describe("Vertrouwelijkaanduiding-to-translation-pipe", () => {
   it("should create the correct key values for all expected strings", () => {
     const results = [
+      "vertrouwelijkheidaanduiding.-geen-",
       "vertrouwelijkheidaanduiding.OPENBAAR",
       "vertrouwelijkheidaanduiding.BEPERKT_OPENBAAR",
       "vertrouwelijkheidaanduiding.INTERN",
