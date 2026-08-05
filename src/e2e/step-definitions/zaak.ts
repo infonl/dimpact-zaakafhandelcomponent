@@ -258,10 +258,12 @@ When(
     // Openbaar should be automatically selected on openbaar
     await this.expect(this.page.getByText("Openbaar").first()).toBeVisible();
     // A unique omschrijving tells this zaak apart from every other one on a shared environment.
-    const caseDescription = `E2etest-${crypto.randomUUID()}`;
+    const caseDescription = `E2E-test-${crypto.randomUUID()}`;
     await this.page.getByLabel("Omschrijving").fill(caseDescription);
     this.testStorage.set("caseDescription", caseDescription);
-    await this.page.getByLabel("Toelichting").fill(this.testName);
+    await this.page
+      .getByLabel("Toelichting")
+      .fill(`This task is created by E2E test scenario: ${this.testName}`);
 
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
 
