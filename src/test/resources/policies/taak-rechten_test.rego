@@ -190,7 +190,7 @@ test_toevoegen_document_with_beheerder_role if {
         with input.taak.open as true
 }
 
-test_creeren_document_taak_closed_fails if {
+test_toevoegen_document_taak_closed_fails if {
     not toevoegen_document
         with input.user.rollen as [ "behandelaar" ]
         with input.taak.open as false
