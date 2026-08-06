@@ -89,7 +89,7 @@ export class ColumnPickerComponent {
     return this._columns;
   }
 
-  protected isSelected(column: string) {
-    return this._selection.includes(column as ZoekenColumn);
+  protected isSelected(column: ZoekenColumn) {
+    return this._selection.includes(column);
   }
 }
