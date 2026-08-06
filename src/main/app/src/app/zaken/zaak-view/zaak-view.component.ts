@@ -280,7 +280,9 @@ export class ZaakViewComponent
     }
 
     return String(
-      this.translate.instant(`afleidingswijzeBrondatum.${afleidingswijzeBrondatum}`),
+      this.translate.instant(
+        `afleidingswijzeBrondatum.${afleidingswijzeBrondatum}`,
+      ),
     );
   }
 
