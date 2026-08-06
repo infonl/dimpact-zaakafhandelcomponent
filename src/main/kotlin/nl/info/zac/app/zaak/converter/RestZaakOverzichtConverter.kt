@@ -45,7 +45,7 @@ class RestZaakOverzichtConverter @Inject constructor(
             omschrijving = zaakrechten.lezen.takeIf { it }?.let { zaak.omschrijving },
             zaaktype = zaakrechten.lezen.takeIf { it }?.let { zaaktype.omschrijving },
             openstaandeTaken = openstaandeTakenConverter.convert(zaak.uuid),
-            resultaat = zaakrechten.lezen.takeIf { it }?.let { getResultaatForZaak(zaak) },
+            resultaat = zaakrechten.lezen.takeIf { it }?.let { zaak.toRestZaakResultaat() },
             status = zaakrechten.lezen.takeIf { it }?.let { zaak.status }
                 ?.let { zrcClientService.readStatus(it).statustype }
                 ?.let { ztcClientService.readStatustype(it).omschrijving },
@@ -68,10 +68,8 @@ class RestZaakOverzichtConverter @Inject constructor(
         }
     }
 
-    private fun getResultaatForZaak(
-        zaak: Zaak
-    ): RestZaakResultaat? = zaak.resultaat
-        ?.let { zaakResultaatConverter.convert(resultaatURI = it, zaaktypeURI = zaak.zaaktype) }
+    private fun Zaak.toRestZaakResultaat(): RestZaakResultaat? = this.resultaat
+        ?.let { zaakResultaatConverter.convert(resultaatURI = it, zaaktypeURI = this.zaaktype) }
 
     private fun getBehandelaarForZaak(
         zaak: Zaak
