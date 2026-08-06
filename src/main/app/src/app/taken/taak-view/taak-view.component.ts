@@ -42,6 +42,7 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import {
   FormioChangeEvent,
   FormioCustomEvent,
@@ -174,8 +175,8 @@ export class TaakViewComponent
     onSuccess: () => {
       this.utilService.openSnackbar("msg.taak.opgeslagen");
     },
-    onError: () => {
-      this.utilService.openSnackbarError("msg.taak.opslaan.mislukt");
+    onError: (error) => {
+      this.foutAfhandelingService.foutAfhandelen(error);
     },
   }));
 
@@ -184,8 +185,8 @@ export class TaakViewComponent
     onSuccess: () => {
       this.utilService.openSnackbar("msg.taak.afgerond");
     },
-    onError: () => {
-      this.utilService.openSnackbarError("msg.taak.afronden.mislukt");
+    onError: (error) => {
+      this.foutAfhandelingService.foutAfhandelen(error);
     },
   }));
 
@@ -214,6 +215,7 @@ export class TaakViewComponent
     private readonly changeDetectorRef: ChangeDetectorRef,
     private readonly formBuilder: FormBuilder,
     private readonly informatieObjectenService: InformatieObjectenService,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {
     super();
   }

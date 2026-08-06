@@ -110,9 +110,9 @@ export class FormioWrapperComponent
         !submitPendingChange.currentValue
       ) {
         if (this.submitFailed) {
-          this.submissionError.emit({
-            message: "msg.formulier.verzenden.mislukt",
-          });
+          // Form.io renders its own translated `submitError` text, so this message is not displayed -
+          // it only has to be a non-empty error for Form.io to mark the button as failed.
+          this.submissionError.emit({ message: "submit failed" });
         } else {
           this.submissionDone.emit(true);
         }

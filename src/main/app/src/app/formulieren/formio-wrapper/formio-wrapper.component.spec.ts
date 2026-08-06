@@ -104,9 +104,7 @@ describe(FormioWrapperComponent.name, () => {
       component.ngOnChanges(submitPendingChange(true, false));
 
       expect(doneListener).not.toHaveBeenCalled();
-      expect(errorListener).toHaveBeenCalledWith({
-        message: "msg.formulier.verzenden.mislukt",
-      });
+      expect(errorListener).toHaveBeenCalledWith({ message: "submit failed" });
     });
 
     it("should not report an error for a submit that succeeded", () => {
