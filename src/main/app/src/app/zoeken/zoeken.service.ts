@@ -33,7 +33,7 @@ export class ZoekenService {
   list(body: ZoekParametersInternal) {
     return this.zacHttpClient.PUT(
       "/rest/zoeken/list",
-      body as unknown as PutBody<"/rest/zoeken/list">,
+      body,
     );
   }
 

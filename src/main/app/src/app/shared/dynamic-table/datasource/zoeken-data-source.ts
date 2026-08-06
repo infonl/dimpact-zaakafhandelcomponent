@@ -71,7 +71,7 @@ export abstract class ZoekenDataSource<
     this.zoekParameters.page = this.paginator.pageIndex;
     this.zoekParameters.rows = this.paginator.pageSize;
     this.zoekParameters.sorteerRichting = this.sort.direction;
-    this.zoekParameters.sorteerVeld = this.sort.active;
+    this.zoekParameters.sorteerVeld = this.sort.active as GeneratedType<"RestZoekParameters">["sorteerVeld"];
 
     return SessionStorageUtil.setItem(
       `${this.werklijst}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,

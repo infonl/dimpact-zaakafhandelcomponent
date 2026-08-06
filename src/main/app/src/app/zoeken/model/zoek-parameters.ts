@@ -7,20 +7,21 @@ import { SortDirection } from "@angular/material/sort";
 import { ZoekFilters } from "../../gebruikersvoorkeuren/zoekopdracht/zoekfilters.model";
 import { GeneratedType } from "../../shared/utils/generated-types";
 
+type RestZoekParameters = GeneratedType<"RestZoekParameters">;
+
 /**
  * A stricter version of RestZoekParameters used internally where
  * zoeken, filters, and datums are always initialized (never null/undefined).
  */
 export type ZoekParametersInternal = Omit<
-  GeneratedType<"RestZoekParameters">,
-  "zoeken" | "filters" | "datums" | "sorteerRichting" | "sorteerVeld"
+  RestZoekParameters,
+  "zoeken" | "filters" | "datums" | "sorteerRichting"
 > & {
-  filtersType: "ZoekParameters";
-  zoeken: Record<string, string | undefined>;
-  filters: Record<string, GeneratedType<"FilterParameters">>;
-  datums: Record<string, GeneratedType<"RestDatumRange">>;
+  filtersType: ZoekFilters["filtersType"];
+  zoeken: NonNullable<RestZoekParameters["zoeken"]>;
+  filters: NonNullable<RestZoekParameters["filters"]>;
+  datums: NonNullable<RestZoekParameters["datums"]>;
   sorteerRichting: SortDirection;
-  sorteerVeld?: string;
 };
 
 export function getDefaultZoekParameters(): ZoekParametersInternal {
