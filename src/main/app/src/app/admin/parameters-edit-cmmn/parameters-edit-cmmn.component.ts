@@ -404,11 +404,11 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected getHumanTaskControl(
     parameter: GeneratedType<"RESTHumanTaskParameters">,
     field: string,
-  ): FormControl {
+  ) {
     const formGroup = this.humanTasksFormGroup.get(
       parameter.planItemDefinition?.id ?? "",
-    ) as FormGroup;
-    return formGroup.get(field) as FormControl;
+    );
+    return formGroup?.get(field) as unknown as FormControl | null;
   }
 
   getMailtemplateKoppelingControl(
@@ -416,7 +416,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     field: string,
   ) {
     const formGroup = this.mailFormGroup.get(koppeling);
-    return formGroup?.get(field) as FormControl | null;
+    return formGroup?.get(field) as unknown as FormControl | null;
   }
 
   async createForm() {
@@ -838,7 +838,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   ) {
     return this.mailFormGroup.get(
       `afzender${zaakAfzender.index}__${field}`,
-    ) as FormControl | null;
+    ) as unknown as FormControl | null;
   }
 
   private initAfzenders() {
@@ -873,7 +873,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   ) {
     return this.zaakbeeindigFormGroup.get(
       `${parameter.zaakbeeindigReden?.id}__${field}`,
-    ) as FormControl | null;
+    ) as unknown as FormControl | null;
   }
 
   protected isValid(): boolean {

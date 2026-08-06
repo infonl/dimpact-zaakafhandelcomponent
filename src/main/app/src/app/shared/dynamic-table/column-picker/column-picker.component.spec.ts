@@ -9,13 +9,16 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { ZoekenColumn } from "../model/zoeken-column";
 import { ColumnPickerValue } from "./column-picker-value";
 import { ColumnPickerComponent } from "./column-picker.component";
 
 const makeColumns = (
-  fields: Partial<Record<string, ColumnPickerValue>> = {},
-): Map<string, ColumnPickerValue> =>
-  new Map(Object.entries(fields) as [string, ColumnPickerValue][]);
+  fields: Partial<Record<ZoekenColumn, ColumnPickerValue>> = {},
+): Map<ZoekenColumn, ColumnPickerValue> =>
+  new Map(
+    Object.entries(fields) as [ZoekenColumn, ColumnPickerValue][],
+  );
 
 describe(ColumnPickerComponent.name, () => {
   let fixture: ComponentFixture<ColumnPickerComponent>;
@@ -38,31 +41,31 @@ describe(ColumnPickerComponent.name, () => {
 
   it("excludes STICKY columns from the selectable list", () => {
     component.columnSrc = makeColumns({
-      id: ColumnPickerValue.STICKY,
-      naam: ColumnPickerValue.VISIBLE,
-      datum: ColumnPickerValue.HIDDEN,
+      [ZoekenColumn.ZAAK_IDENTIFICATIE]: ColumnPickerValue.STICKY,
+      [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
+      [ZoekenColumn.CREATIEDATUM]: ColumnPickerValue.HIDDEN,
     });
 
-    expect([...component["_columns"].keys()]).not.toContain("id");
-    expect([...component["_columns"].keys()]).toContain("naam");
-    expect([...component["_columns"].keys()]).toContain("datum");
+    expect([...component["_columns"].keys()]).not.toContain(ZoekenColumn.ZAAK_IDENTIFICATIE);
+    expect([...component["_columns"].keys()]).toContain(ZoekenColumn.NAAM);
+    expect([...component["_columns"].keys()]).toContain(ZoekenColumn.CREATIEDATUM);
   });
 
   it("marks VISIBLE columns as selected when columnSrc is set", () => {
     component.columnSrc = makeColumns({
-      naam: ColumnPickerValue.VISIBLE,
-      datum: ColumnPickerValue.HIDDEN,
+      [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE,
+      [ZoekenColumn.CREATIEDATUM]: ColumnPickerValue.HIDDEN,
     });
 
-    expect(component["isSelected"]("naam")).toBe(true);
-    expect(component["isSelected"]("datum")).toBe(false);
+    expect(component["isSelected"](ZoekenColumn.NAAM)).toBe(true);
+    expect(component["isSelected"](ZoekenColumn.CREATIEDATUM)).toBe(false);
   });
 
   it("resets selection state when columnSrc is reassigned", () => {
-    component.columnSrc = makeColumns({ naam: ColumnPickerValue.VISIBLE });
-    component.columnSrc = makeColumns({ naam: ColumnPickerValue.HIDDEN });
+    component.columnSrc = makeColumns({ [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE });
+    component.columnSrc = makeColumns({ [ZoekenColumn.NAAM]: ColumnPickerValue.HIDDEN });
 
-    expect(component["isSelected"]("naam")).toBe(false);
+    expect(component["isSelected"](ZoekenColumn.NAAM)).toBe(false);
   });
 
   it("resets changed flag when menu opens", () => {
@@ -72,31 +75,31 @@ describe(ColumnPickerComponent.name, () => {
   });
 
   it("toggles column from VISIBLE to HIDDEN on selectionChanged", () => {
-    component.columnSrc = makeColumns({ naam: ColumnPickerValue.VISIBLE });
+    component.columnSrc = makeColumns({ [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE });
 
-    const mockOption = { value: "naam" };
+    const mockOption = { value: ZoekenColumn.NAAM };
     const mockEvent = { options: [mockOption] } as never;
     component["selectionChanged"](mockEvent);
 
-    expect(component["_columnSrc"].get("naam")).toBe(ColumnPickerValue.HIDDEN);
+    expect(component["_columnSrc"].get(ZoekenColumn.NAAM)).toBe(ColumnPickerValue.HIDDEN);
     expect(component["changed"]).toBe(true);
   });
 
   it("toggles column from HIDDEN to VISIBLE on selectionChanged", () => {
-    component.columnSrc = makeColumns({ naam: ColumnPickerValue.HIDDEN });
+    component.columnSrc = makeColumns({ [ZoekenColumn.NAAM]: ColumnPickerValue.HIDDEN });
 
-    const mockOption = { value: "naam" };
+    const mockOption = { value: ZoekenColumn.NAAM };
     const mockEvent = { options: [mockOption] } as never;
     component["selectionChanged"](mockEvent);
 
-    expect(component["_columnSrc"].get("naam")).toBe(ColumnPickerValue.VISIBLE);
+    expect(component["_columnSrc"].get(ZoekenColumn.NAAM)).toBe(ColumnPickerValue.VISIBLE);
   });
 
   it("emits columnsChanged when updateColumns is called after a change", () => {
-    component.columnSrc = makeColumns({ naam: ColumnPickerValue.VISIBLE });
+    component.columnSrc = makeColumns({ [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE });
     component["changed"] = true;
 
-    const emitted: Map<string, ColumnPickerValue>[] = [];
+    const emitted: Map<ZoekenColumn, ColumnPickerValue>[] = [];
     component.columnsChanged.subscribe((v) => emitted.push(v));
 
     component["updateColumns"]();
@@ -105,10 +108,10 @@ describe(ColumnPickerComponent.name, () => {
   });
 
   it("does not emit columnsChanged when nothing changed", () => {
-    component.columnSrc = makeColumns({ naam: ColumnPickerValue.VISIBLE });
+    component.columnSrc = makeColumns({ [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE });
     component["changed"] = false;
 
-    const emitted: Map<string, ColumnPickerValue>[] = [];
+    const emitted: Map<ZoekenColumn, ColumnPickerValue>[] = [];
     component.columnsChanged.subscribe((v) => emitted.push(v));
 
     component["updateColumns"]();
@@ -117,7 +120,7 @@ describe(ColumnPickerComponent.name, () => {
   });
 
   it("renders the column picker trigger button", async () => {
-    component.columnSrc = makeColumns({ naam: ColumnPickerValue.VISIBLE });
+    component.columnSrc = makeColumns({ [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE });
     fixture.detectChanges();
 
     const button = await loader.getHarness(MatButtonHarness);
@@ -125,8 +128,8 @@ describe(ColumnPickerComponent.name, () => {
   });
 
   it("exposes columns map via getter", () => {
-    component.columnSrc = makeColumns({ naam: ColumnPickerValue.VISIBLE });
+    component.columnSrc = makeColumns({ [ZoekenColumn.NAAM]: ColumnPickerValue.VISIBLE });
     expect(component["columns"].size).toBe(1);
-    expect(component["columns"].has("naam")).toBe(true);
+    expect(component["columns"].has(ZoekenColumn.NAAM)).toBe(true);
   });
 });

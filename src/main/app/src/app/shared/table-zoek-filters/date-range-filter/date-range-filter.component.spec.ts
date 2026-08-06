@@ -12,8 +12,10 @@ import {
   MatStartDateHarness,
 } from "@angular/material/datepicker/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { DatumRange } from "../../../zoeken/model/datum-range";
+import { GeneratedType } from "../../utils/generated-types";
 import { DateRangeFilterComponent } from "./date-range-filter.component";
+
+type DatumRange = GeneratedType<"RestDatumRange">;
 
 describe(DateRangeFilterComponent.name, () => {
   let fixture: ComponentFixture<DateRangeFilterComponent>;
@@ -34,17 +36,17 @@ describe(DateRangeFilterComponent.name, () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(DateRangeFilterComponent);
     component = fixture.componentInstance;
-    component.range = new DatumRange();
+    component.range = {};
     component.label = "test.label";
     fixture.detectChanges();
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
   it("should display dates in dd-MM-yyyy format", async () => {
-    component.range = new DatumRange(
-      new Date(2026, 2, 25),
-      new Date(2026, 2, 31),
-    );
+    component.range = {
+      van: new Date(2026, 2, 25).toISOString(),
+      tot: new Date(2026, 2, 31).toISOString(),
+    };
     component.ngOnChanges();
     fixture.detectChanges();
     await fixture.whenStable();
@@ -59,7 +61,7 @@ describe(DateRangeFilterComponent.name, () => {
     it("should sync dateVan and dateTM from the range input", () => {
       const van = new Date(2024, 0, 1);
       const tot = new Date(2024, 0, 31);
-      component.range = new DatumRange(van, tot);
+      component.range = { van: van.toISOString(), tot: tot.toISOString() };
 
       component.ngOnChanges();
 
@@ -67,35 +69,35 @@ describe(DateRangeFilterComponent.name, () => {
       expect(component["dateTM"].value).toEqual(tot);
     });
 
-    it("should initialise range to an empty DatumRange when range is falsy", () => {
+    it("should initialise range to an empty object when range is falsy", () => {
       component.range = null as unknown as DatumRange;
 
       component.ngOnChanges();
 
-      expect(component.range).toBeInstanceOf(DatumRange);
-      expect(component.range.van).toBeNull();
-      expect(component.range.tot).toBeNull();
+      expect(component.range).toEqual({});
+      expect(component.range.van).toBeUndefined();
+      expect(component.range.tot).toBeUndefined();
     });
   });
 
   describe("hasRange", () => {
     it("should return false when both dates are null", () => {
-      component.range = new DatumRange();
+      component.range = {};
 
       expect(component["hasRange"]()).toBe(false);
     });
 
     it("should return false when only van is set", () => {
-      component.range = new DatumRange(new Date(2024, 0, 1), null);
+      component.range = { van: new Date(2024, 0, 1).toISOString() };
 
       expect(component["hasRange"]()).toBe(false);
     });
 
     it("should return true when both van and tot are set", () => {
-      component.range = new DatumRange(
-        new Date(2024, 0, 1),
-        new Date(2024, 0, 31),
-      );
+      component.range = {
+        van: new Date(2024, 0, 1).toISOString(),
+        tot: new Date(2024, 0, 31).toISOString(),
+      };
 
       expect(component["hasRange"]()).toBe(true);
     });
@@ -103,10 +105,10 @@ describe(DateRangeFilterComponent.name, () => {
 
   describe("clearDate", () => {
     it("should reset form controls, clear range van/tot, and emit changed", () => {
-      component.range = new DatumRange(
-        new Date(2024, 0, 1),
-        new Date(2024, 0, 31),
-      );
+      component.range = {
+        van: new Date(2024, 0, 1).toISOString(),
+        tot: new Date(2024, 0, 31).toISOString(),
+      };
       component.ngOnChanges();
       const emitted: DatumRange[] = [];
       component.changed.subscribe((val) => emitted.push(val));
@@ -132,8 +134,8 @@ describe(DateRangeFilterComponent.name, () => {
 
       component["change"]();
 
-      expect(component.range.van).toEqual(van);
-      expect(component.range.tot).toEqual(tot);
+      expect(component.range!.van).toEqual(van.toISOString());
+      expect(component.range!.tot).toEqual(tot.toISOString());
     });
 
     it("should emit changed when both dates are set", () => {
