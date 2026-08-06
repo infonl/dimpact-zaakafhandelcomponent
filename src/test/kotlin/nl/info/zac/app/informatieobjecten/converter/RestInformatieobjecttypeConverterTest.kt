@@ -50,8 +50,8 @@ class RestInformatieobjecttypeConverterTest : BehaviorSpec({
                 }
 
                 then("vertrouwelijkheidaanduiding is mapped as uppercase enum name") {
-                    result[0].vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR.name
-                    result[1].vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.INTERN.name
+                    result[0].vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
+                    result[1].vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.INTERN
                 }
             }
         }

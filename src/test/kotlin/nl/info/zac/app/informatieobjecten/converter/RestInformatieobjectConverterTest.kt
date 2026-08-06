@@ -100,7 +100,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     bestandsnaam shouldBe restFileUpload.filename
                     // status should always be DEFINITIEF
                     status shouldBe StatusEnum.DEFINITIEF
-                    vertrouwelijkheidaanduiding shouldBe restTaakDocumentData.documentType.vertrouwelijkheidaanduiding!!
+                    vertrouwelijkheidaanduiding.name shouldBe restTaakDocumentData.documentType.vertrouwelijkheidaanduiding!!.name
                 }
             }
         }
@@ -140,7 +140,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     formaat shouldBe restFileUpload.type
                     bestandsnaam shouldBe restEnkelvoudigInformatieobject.bestandsnaam
                     status.name shouldBe restEnkelvoudigInformatieobject.status!!.name
-                    vertrouwelijkheidaanduiding.name shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding!!
+                    vertrouwelijkheidaanduiding shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding
                 }
             }
         }
@@ -178,7 +178,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     informatieobjectTypeUUID shouldBe expectedUUID
                     versie shouldBe 1234
                     bestandsomvang shouldBe 1234
-                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.ZEER_GEHEIM.name
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.ZEER_GEHEIM
                 }
             }
         }
