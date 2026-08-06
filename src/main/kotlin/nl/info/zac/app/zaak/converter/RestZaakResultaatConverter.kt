@@ -18,21 +18,21 @@ class RestZaakResultaatConverter @Inject constructor(
     val ztcClientService: ZtcClientService
 ) {
     fun convert(resultaatURI: URI, zaaktypeURI: URI): RestZaakResultaat =
-        zrcClientService.readResultaat(resultaatURI).let { resultaat ->
-            ztcClientService.readResultaattype(resultaat.resultaattype).let {
-                val resultaat = RestZaakResultaat(
-                    toelichting = it.toelichting,
-                    resultaattype = it.toRestResultaatType()
+        zrcClientService.readResultaat(resultaatURI).let { zaakResultaat ->
+            ztcClientService.readResultaattype(zaakResultaat.resultaattype).let { resultaattype ->
+                val restZaakResultaat = RestZaakResultaat(
+                    toelichting = resultaattype.toelichting,
+                    resultaattype = resultaattype.toRestResultaatType()
                 )
-                if (resultaat.resultaattype?.bronArchiefprocedure?.afleidingswijze == AfleidingswijzeEnum.EIGENSCHAP) {
+                if (restZaakResultaat.resultaattype?.bronArchiefprocedure?.afleidingswijze == AfleidingswijzeEnum.EIGENSCHAP) {
                     val eigenschappen = ztcClientService.readEigenschappen(zaaktypeURI)
                     eigenschappen
-                        .find { it.naam == resultaat.resultaattype?.bronArchiefprocedure?.datumkenmerk }
+                        .find { it.naam == restZaakResultaat.resultaattype?.bronArchiefprocedure?.datumkenmerk }
                         ?.definitie
                         ?.takeIf { it.isNotBlank() }
-                        ?.let { resultaat.resultaattype?.datumKenmerkOmschrijving = it }
+                        ?.let { restZaakResultaat.resultaattype?.datumKenmerkOmschrijving = it }
                 }
-                return resultaat
+                restZaakResultaat
             }
         }
 }
