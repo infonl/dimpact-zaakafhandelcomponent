@@ -1225,7 +1225,9 @@ describe(ZaakViewComponent.name, () => {
       const field = findAfleidingswijzeField();
 
       expect(field).toBeTruthy();
-      expect(field?.componentInstance.value).toBe("TERMIJN");
+      expect(field?.componentInstance.value).toBe(
+        "afleidingswijzeBrondatum.TERMIJN",
+      );
     });
 
     it("should show the datumKenmerkOmschrijving when afleidingswijze is EIGENSCHAP", () => {
