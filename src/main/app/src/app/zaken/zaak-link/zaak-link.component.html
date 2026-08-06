@@ -31,10 +31,10 @@
         {{ "actie.zoeken.zaak" | translate }}
       </legend>
       @switch (form.controls.caseRelationType.value?.value) {
-        @case ('HOOFDZAAK') {
+        @case ("HOOFDZAAK") {
           <p>{{ "zaak.koppelen.hint.hoofdzaak-aan-deelzaak" | translate }}</p>
         }
-        @case ('DEELZAAK') {
+        @case ("DEELZAAK") {
           <p>{{ "zaak.koppelen.hint.deelzaak-aan-hoofdzaak" | translate }}</p>
         }
         @default {

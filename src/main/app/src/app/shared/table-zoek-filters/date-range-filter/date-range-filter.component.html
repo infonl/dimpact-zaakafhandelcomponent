@@ -12,8 +12,16 @@
     </mat-label>
   }
   <mat-date-range-input [rangePicker]="datumPicker" (change)="change()">
-    <input matStartDate placeholder="Van" [formControl]="dateVan" />
-    <input matEndDate placeholder="t/m" [formControl]="dateTM" />
+    <input
+      matStartDate
+      [placeholder]="'zoeken.filter.van' | translate"
+      [formControl]="dateVan"
+    />
+    <input
+      matEndDate
+      [placeholder]="'zoeken.filter.tot_en_met' | translate"
+      [formControl]="dateTM"
+    />
   </mat-date-range-input>
   <mat-datepicker-toggle
     *ngIf="!hasRange()"

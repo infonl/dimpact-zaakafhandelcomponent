@@ -1038,6 +1038,8 @@
   "zoeken.filter.zaak_vertrouwelijkheidaanduiding": "Zaak vertrouwelijkheidaanduiding",
   "zoeken.filter.zaak_archief_nominatie": "Zaak archief nominatie",
   "zoeken.filter.zaak_communicatiekanaal": "Zaak communicatiekanaal",
+  "zoeken.filter.van": "Van",
+  "zoeken.filter.tot_en_met": "t/m",
   "zoekVeld.ALLE": "Alles",
   "zoekVeld.ZAAK_OMSCHRIJVING": "Zaak omschrijving",
   "zoekVeld.ZAAK_TOELICHTING": "Zaak toelichting",

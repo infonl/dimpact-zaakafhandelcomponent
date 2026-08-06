@@ -1038,6 +1038,8 @@
   "zoeken.filter.zaak_vertrouwelijkheidaanduiding": "Case confidentiality notice",
   "zoeken.filter.zaak_archief_nominatie": "Case archive nomination",
   "zoeken.filter.zaak_communicatiekanaal": "Case communication channel",
+  "zoeken.filter.van": "From",
+  "zoeken.filter.tot_en_met": "until",
   "zoekVeld.ALLE": "All",
   "zoekVeld.ZAAK_OMSCHRIJVING": "Case description",
   "zoekVeld.ZAAK_TOELICHTING": "Case explanation",
