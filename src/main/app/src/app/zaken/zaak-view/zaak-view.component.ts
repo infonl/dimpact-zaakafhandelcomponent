@@ -242,14 +242,9 @@ export class ZaakViewComponent
       {
         show: Boolean(bronArchiefprocedure?.afleidingswijze),
         label: "afleidingswijzeBrondatum",
-        value:
-          (bronArchiefprocedure?.afleidingswijze === "EIGENSCHAP".toLowerCase()
-            ? this.zaak.resultaat?.resultaattype?.datumKenmerkOmschrijving
-            : String(
-                this.translate.instant(
-                  `afleidingswijzeBrondatum.${bronArchiefprocedure?.afleidingswijze}`,
-                ),
-              )) ?? null,
+        value: this.afleidingswijzeBrondatumValue(
+          bronArchiefprocedure?.afleidingswijze,
+        ),
       },
       {
         show: this.zaak.archiefNominatie === "VERNIETIGEN",
@@ -269,6 +264,22 @@ export class ZaakViewComponent
     ];
 
     return fields.filter(({ show }) => show !== false);
+  }
+
+  private afleidingswijzeBrondatumValue(
+    afleidingswijze?: GeneratedType<"AfleidingswijzeEnum"> | null,
+  ) {
+    if (!afleidingswijze) return null;
+
+    if (afleidingswijze === "EIGENSCHAP") {
+      return (
+        this.zaak.resultaat?.resultaattype?.datumKenmerkOmschrijving ?? null
+      );
+    }
+
+    return String(
+      this.translate.instant(`afleidingswijzeBrondatum.${afleidingswijze}`),
+    );
   }
 
   private setDateFieldIconSet() {
