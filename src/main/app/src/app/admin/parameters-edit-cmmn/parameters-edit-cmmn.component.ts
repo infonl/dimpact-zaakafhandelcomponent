@@ -408,7 +408,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     const formGroup = this.humanTasksFormGroup.get(
       parameter.planItemDefinition?.id ?? "",
     );
-    return formGroup?.get(field) as unknown as FormControl | null;
+    return formGroup?.get(field) as unknown as FormControl;
   }
 
   getMailtemplateKoppelingControl(
@@ -416,7 +416,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     field: string,
   ) {
     const formGroup = this.mailFormGroup.get(koppeling);
-    return formGroup?.get(field) as unknown as FormControl | null;
+    return formGroup?.get(field) as unknown as FormControl;
   }
 
   async createForm() {
