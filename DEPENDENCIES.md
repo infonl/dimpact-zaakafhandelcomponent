@@ -16,7 +16,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **grafana/tempo**: 3.0.2
 - **prom/prometheus**: v3.13.2
 - **grafana/grafana**: 13.1.2
-- **greenmail/standalone**: 2.1.11
+- **greenmail/standalone**: 2.1.12
 - **nginxinc/nginx-unprivileged**: 1.31.3
 
 ## Common Ground components
