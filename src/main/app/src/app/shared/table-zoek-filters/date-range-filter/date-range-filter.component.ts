@@ -18,6 +18,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { TranslateModule } from "@ngx-translate/core";
 import { DatumRange } from "../../../zoeken/model/datum-range";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
+import { MAT_DATE_FORMATS } from "@angular/material/core";
 
 @Component({
   selector: "zac-date-range-filter",
@@ -32,6 +33,22 @@ import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pip
     MatIconModule,
     TranslateModule,
     CapitalizeFirstLetterPipe,
+  ],
+  providers: [
+    {
+      provide: MAT_DATE_FORMATS,
+      useValue: {
+        parse: {
+          dateInput: "DD-MM-yyyy",
+        },
+        display: {
+          dateInput: "DD-MM-yyyy",
+          monthYearLabel: "MMMM YYYY",
+          dateA11yLabel: "LL",
+          monthYearA11yLabel: "MMMM YYYY",
+        },
+      },
+    },
   ],
 })
 export class DateRangeFilterComponent implements OnChanges {
