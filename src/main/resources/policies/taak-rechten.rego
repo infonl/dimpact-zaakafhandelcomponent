@@ -33,118 +33,37 @@ zaaktype_allowed if {
 
 default lezen := false
 lezen if {
-    raadpleger.rol in user.rollen
     zaaktype_allowed
-}
-
-lezen if {
-    behandelaar.rol in user.rollen
-    zaaktype_allowed
-}
-
-lezen if {
-    coordinator.rol in user.rollen
-    zaaktype_allowed
-}
-
-lezen if {
-    recordmanager.rol in user.rollen
-    zaaktype_allowed
-}
-
-lezen if {
-    beheerder.rol in user.rollen
-    zaaktype_allowed
+    some role in {raadpleger, behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default wijzigen := false
 wijzigen if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
-}
-
-wijzigen if {
-    coordinator.rol in user.rollen
-    zaaktype_allowed
-}
-
-wijzigen if {
-    recordmanager.rol in user.rollen
-    zaaktype_allowed
-}
-
-wijzigen if {
-    beheerder.rol in user.rollen
-    zaaktype_allowed
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default toekennen := false
 toekennen if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
-}
-
-toekennen if {
-    coordinator.rol in user.rollen
-    zaaktype_allowed
-}
-
-toekennen if {
-    recordmanager.rol in user.rollen
-    zaaktype_allowed
-}
-
-toekennen if {
-    beheerder.rol in user.rollen
-    zaaktype_allowed
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default creeren_document := false
 creeren_document if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     taak.open
-}
-
-creeren_document if {
-    coordinator.rol in user.rollen
-    zaaktype_allowed
-    taak.open
-}
-
-creeren_document if {
-    recordmanager.rol in user.rollen
-    zaaktype_allowed
-    taak.open
-}
-
-creeren_document if {
-    beheerder.rol in user.rollen
-    zaaktype_allowed
-    taak.open
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default toevoegen_document := false
 toevoegen_document if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     taak.open
-}
-
-toevoegen_document if {
-    coordinator.rol in user.rollen
-    zaaktype_allowed
-    taak.open
-}
-
-toevoegen_document if {
-    recordmanager.rol in user.rollen
-    zaaktype_allowed
-    taak.open
-}
-
-toevoegen_document if {
-    beheerder.rol in user.rollen
-    zaaktype_allowed
-    taak.open
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }

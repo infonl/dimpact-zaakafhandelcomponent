@@ -21,38 +21,12 @@ notitie_rechten := {
 
 default lezen := false
 lezen if {
-    raadpleger.rol in user.rollen
-}
-
-lezen if {
-    behandelaar.rol in user.rollen
-}
-
-lezen if {
-    coordinator.rol in user.rollen
-}
-
-lezen if {
-    recordmanager.rol in user.rollen
-}
-
-lezen if {
-    beheerder.rol in user.rollen
+    some role in {raadpleger, behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default wijzigen := false
 wijzigen if {
-    behandelaar.rol in user.rollen
-}
-
-wijzigen if {
-    coordinator.rol in user.rollen
-}
-
-wijzigen if {
-    recordmanager.rol in user.rollen
-}
-
-wijzigen if {
-    beheerder.rol in user.rollen
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }

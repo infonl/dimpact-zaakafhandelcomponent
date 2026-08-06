@@ -22,19 +22,8 @@ overige_rechten := {
 
 default starten_zaak := false
 starten_zaak if {
-    behandelaar.rol in user.rollen
-}
-
-starten_zaak if {
-    coordinator.rol in user.rollen
-}
-
-starten_zaak if {
-    recordmanager.rol in user.rollen
-}
-
-starten_zaak if {
-    beheerder.rol in user.rollen
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default beheren := false
@@ -44,21 +33,6 @@ beheren if {
 
 default zoeken := false
 zoeken if {
-    raadpleger.rol in user.rollen
-}
-
-zoeken if {
-    behandelaar.rol in user.rollen
-}
-
-zoeken if {
-    coordinator.rol in user.rollen
-}
-
-zoeken if {
-    recordmanager.rol in user.rollen
-}
-
-zoeken if {
-    beheerder.rol in user.rollen
+    some role in {raadpleger, behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
