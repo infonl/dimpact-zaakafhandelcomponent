@@ -96,6 +96,27 @@ describe(FormioWrapperComponent.name, () => {
       expect(listener).not.toHaveBeenCalled();
     });
 
+    it("should report a failed submit as an error, not as a success", () => {
+      const doneListener = jest.spyOn(component.submissionDone, "emit");
+      const errorListener = jest.spyOn(component.submissionError, "emit");
+      component.submitFailed = true;
+
+      component.ngOnChanges(submitPendingChange(true, false));
+
+      expect(doneListener).not.toHaveBeenCalled();
+      expect(errorListener).toHaveBeenCalledWith({
+        message: "msg.formulier.verzenden.mislukt",
+      });
+    });
+
+    it("should not report an error for a submit that succeeded", () => {
+      const errorListener = jest.spyOn(component.submissionError, "emit");
+
+      component.ngOnChanges(submitPendingChange(true, false));
+
+      expect(errorListener).not.toHaveBeenCalled();
+    });
+
     it("should not report a submission the form never made", () => {
       const listener = jest.spyOn(component.submissionDone, "emit");
 
@@ -104,6 +125,97 @@ describe(FormioWrapperComponent.name, () => {
       });
 
       expect(listener).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("a form whose submit is in flight", () => {
+    let input: HTMLInputElement;
+    let formioComponent: {
+      options: { readOnly?: boolean };
+      disabled: boolean;
+      refs: { input: HTMLElement[] };
+      setDisabled: jest.Mock;
+    };
+    let webform: {
+      options: { readOnly?: boolean };
+      everyComponent: jest.Mock;
+      redraw: jest.Mock;
+    };
+
+    beforeEach(() => {
+      input = document.createElement("input");
+      formioComponent = {
+        options: {},
+        disabled: false,
+        refs: { input: [input] },
+        setDisabled: jest.fn((element: HTMLInputElement, disabled: boolean) => {
+          element.disabled = disabled;
+        }),
+      };
+      webform = {
+        options: {},
+        everyComponent: jest.fn((callback: (component: unknown) => void) =>
+          callback(formioComponent),
+        ),
+        redraw: jest.fn().mockResolvedValue(undefined),
+      };
+      component.formioComponent = { formio: webform } as never;
+    });
+
+    it("should lock the fields so the answers cannot be changed mid-submit", () => {
+      component.submitPending = true;
+
+      component.ngOnChanges({
+        submitPending: new SimpleChange(false, true, false),
+      });
+
+      expect(formioComponent.disabled).toBe(true);
+      expect(input.disabled).toBe(true);
+    });
+
+    it("should not redraw, which would discard the spinner on the submit button", () => {
+      component.submitPending = true;
+
+      component.ngOnChanges({
+        submitPending: new SimpleChange(false, true, false),
+      });
+
+      expect(webform.redraw).not.toHaveBeenCalled();
+    });
+
+    it("should unlock the fields once the submit fails and the form is editable again", () => {
+      component.submitPending = false;
+      formioComponent.disabled = true;
+      input.disabled = true;
+
+      component.ngOnChanges({
+        submitPending: new SimpleChange(true, false, false),
+      });
+
+      expect(formioComponent.disabled).toBe(false);
+      expect(input.disabled).toBe(false);
+    });
+
+    it("should keep a read-only form locked after the submit settles", () => {
+      component.readOnly = true;
+      component.submitPending = false;
+
+      component.ngOnChanges({
+        submitPending: new SimpleChange(true, false, false),
+      });
+
+      expect(formioComponent.disabled).toBe(true);
+      expect(input.disabled).toBe(true);
+    });
+
+    it("should not throw before Form.io has handed over its form", () => {
+      component.formioComponent = undefined as never;
+
+      expect(() =>
+        component.ngOnChanges({
+          submitPending: new SimpleChange(false, true, false),
+        }),
+      ).not.toThrow();
     });
   });
 

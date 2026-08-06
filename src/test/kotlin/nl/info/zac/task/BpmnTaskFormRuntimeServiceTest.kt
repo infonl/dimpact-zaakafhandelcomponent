@@ -92,6 +92,7 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         val zaakUuid = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUuid)
         val task = createTestTask()
+        val reReadTask = createTestTask(description = "fakeDescriptionBeforeUpdate")
         val updatedTask = createTestTask(description = "updated description")
         val restTask = createRestTask(
             zaakUuid = zaakUuid,
@@ -102,14 +103,19 @@ class BpmnTaskFormRuntimeServiceTest : BehaviorSpec({
         every { taakVariabelenService.setTaskData(any(), any()) } just runs
         every { zaakVariabelenService.readProcessZaakdata(zaakUuid) } returns emptyMap()
         every { zaakVariabelenService.setZaakdata(zaakUuid, any()) } just runs
-        every { flowableTaskService.updateTask(any()) } returns updatedTask
+        every { flowableTaskService.readOpenTask(task.id) } returns reReadTask
+        every { flowableTaskService.updateTask(reReadTask) } returns updatedTask
 
         `when`("submit is called") {
             val result = service.submit(restTask, task, zaak)
 
             then("updates the task description via flowableTaskService and returns the updated task") {
                 result shouldBe updatedTask
-                verify(exactly = 1) { flowableTaskService.updateTask(any()) }
+            }
+            then("saves the task as re-read after the task variables were written") {
+                // saving the instance held before writing the variables fails on optimistic locking
+                verify(exactly = 1) { flowableTaskService.updateTask(reReadTask) }
+                reReadTask.description shouldBe "updated description"
             }
         }
     }

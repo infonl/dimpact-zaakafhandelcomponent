@@ -174,6 +174,9 @@ export class TaakViewComponent
     onSuccess: () => {
       this.utilService.openSnackbar("msg.taak.opgeslagen");
     },
+    onError: () => {
+      this.utilService.openSnackbarError("msg.taak.opslaan.mislukt");
+    },
   }));
 
   private readonly completeTaakMutation = injectMutation(() => ({
@@ -181,12 +184,21 @@ export class TaakViewComponent
     onSuccess: () => {
       this.utilService.openSnackbar("msg.taak.afgerond");
     },
+    onError: () => {
+      this.utilService.openSnackbarError("msg.taak.afronden.mislukt");
+    },
   }));
 
   protected readonly isPending = computed(
     () =>
       this.updateTaakdataMutation.isPending() ||
       this.completeTaakMutation.isPending(),
+  );
+
+  protected readonly hasFailed = computed(
+    () =>
+      this.updateTaakdataMutation.isError() ||
+      this.completeTaakMutation.isError(),
   );
 
   constructor(
@@ -413,8 +425,7 @@ export class TaakViewComponent
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     const taskBody:
-      | PutBody<"/rest/taken/taakdata">
-      | PatchBody<"/rest/taken/complete"> = {
+      PutBody<"/rest/taken/taakdata"> | PatchBody<"/rest/taken/complete"> = {
       ...this.taak!,
       taakdata: {
         ...this.taak!.taakdata,
@@ -467,12 +478,17 @@ export class TaakViewComponent
     }
     if (!this.taak) return;
 
+    // Re-initialise from the response so the view reflects whatever the flow decided, without waiting
+    // for the websocket event to arrive.
+    const onSuccess = (task: GeneratedType<"RestTask">) =>
+      this.init(task, false);
+
     if (submission.state === "submitted") {
-      this.completeTaakMutation.mutate(this.taak);
+      this.completeTaakMutation.mutate(this.taak, { onSuccess });
       return;
     }
 
-    this.updateTaakdataMutation.mutate(this.taak);
+    this.updateTaakdataMutation.mutate(this.taak, { onSuccess });
   }
 
   onFormioFormChange(event: FormioChangeEvent) {

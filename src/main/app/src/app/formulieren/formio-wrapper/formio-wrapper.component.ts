@@ -60,10 +60,12 @@ export class FormioWrapperComponent
   @Input() options?: FormioHookOptions;
   @Input({ required: true, transform: booleanAttribute }) readOnly = false;
   @Input({ required: true, transform: booleanAttribute }) submitPending = false;
+  @Input({ transform: booleanAttribute }) submitFailed = false;
   @Output() formSubmit = new EventEmitter<FormioSubmitEvent>();
   @Output() formChange = new EventEmitter<FormioChangeEvent>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();
   @Output() submissionDone = new EventEmitter<boolean>();
+  @Output() submissionError = new EventEmitter<FormioSubmitError>();
 
   @HostListener("click", ["$event"])
   onClickInside(event: MouseEvent) {
@@ -99,15 +101,23 @@ export class FormioWrapperComponent
       this.applyReadOnly();
     }
 
-    // Form.io keeps the submit button spinning until it sees `submitDone`.
     const submitPendingChange = changes["submitPending"];
-    if (
-      submitPendingChange &&
-      !submitPendingChange.firstChange &&
-      submitPendingChange.previousValue &&
-      !submitPendingChange.currentValue
-    ) {
-      this.submissionDone.emit(true);
+    if (submitPendingChange && !submitPendingChange.firstChange) {
+      // Form.io keeps the submit button spinning until it hears the outcome, and paints it green on
+      // `submitDone` - so a failed submit has to be reported as an error instead.
+      if (
+        submitPendingChange.previousValue &&
+        !submitPendingChange.currentValue
+      ) {
+        if (this.submitFailed) {
+          this.submissionError.emit({
+            message: "msg.formulier.verzenden.mislukt",
+          });
+        } else {
+          this.submissionDone.emit(true);
+        }
+      }
+      this.applySubmitPending();
     }
   }
 
@@ -185,6 +195,25 @@ export class FormioWrapperComponent
     void webform.redraw();
   }
 
+  /**
+   * Locks the fields while a submit is in flight. Deliberately does not redraw: a redraw rebuilds the
+   * submit button and throws away the spinner Form.io is showing for this very submit.
+   */
+  private applySubmitPending() {
+    const webform = this.formioComponent?.formio as FormioWebform | undefined;
+    if (!webform) return;
+
+    const disabled = this.readOnly || this.submitPending;
+    webform.everyComponent((component) => {
+      // Select and Tags override this setter to disable their Choices widget too.
+      component.disabled = disabled;
+      // Other components only stamp `disabled` onto the DOM while rendering, so push it onto the inputs.
+      component.refs?.input?.forEach((input) =>
+        component.setDisabled(input, disabled),
+      );
+    });
+  }
+
   private async loadBootstrapStyles(): Promise<void> {
     const shadowRoot = this.elementRef.nativeElement.shadowRoot as ShadowRoot;
     if (!shadowRoot) return;
@@ -234,13 +263,15 @@ export class FormioWrapperComponent
 /** `@formio/angular` types the live form instance as `any`. */
 interface FormioWebform {
   options: { readOnly?: boolean };
-  everyComponent(
-    callback: (component: {
-      options: { readOnly?: boolean };
-      disabled: boolean;
-    }) => void,
-  ): void;
+  everyComponent(callback: (component: FormioLiveComponent) => void): void;
   redraw(): Promise<void>;
+}
+
+interface FormioLiveComponent {
+  options: { readOnly?: boolean };
+  disabled: boolean;
+  refs?: { input?: HTMLElement[] };
+  setDisabled(element: HTMLElement, disabled: boolean): void;
 }
 
 export interface FormioCustomEvent {
@@ -248,6 +279,10 @@ export interface FormioCustomEvent {
   component: ExtendedComponentSchema;
   data: Record<string, string>;
   event?: Event;
+}
+
+export interface FormioSubmitError {
+  message: string;
 }
 
 export interface FormioSubmitEvent {
