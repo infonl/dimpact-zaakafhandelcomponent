@@ -16,6 +16,7 @@ import { TranslatePipe } from "@ngx-translate/core";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { DocumentIconComponent } from "../../document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
+import { IndicatiesLayout } from "../../indicaties/indicaties.component";
 import { BestandsomvangPipe } from "../../pipes/bestandsomvang.pipe";
 import { GeneratedType } from "../../utils/generated-types";
 import { MultiInputFormField } from "../BaseFormField";
@@ -44,6 +45,7 @@ export class ZacDocuments<
   Key extends keyof Form,
   Option extends GeneratedType<"RestEnkelvoudigInformatieobject">,
 > extends MultiInputFormField<Form, Key, Option, () => string> {
+  protected indicatiesLayout = IndicatiesLayout;
   protected selectLabel = input<string>();
   protected viewDocumentInNewTab = input(false, {
     transform: booleanAttribute,

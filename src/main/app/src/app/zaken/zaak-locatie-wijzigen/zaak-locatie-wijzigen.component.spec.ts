@@ -155,7 +155,7 @@ const makeSubmittable = (
 };
 
 const point = fromPartial<GeneratedType<"RestGeometry">>({
-  type: "Point",
+  type: "POINT",
   point: { latitude: 52, longitude: 5 },
 });
 

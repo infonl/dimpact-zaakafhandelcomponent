@@ -61,7 +61,7 @@
             <div class="content flex-row flex-wrap">
               <zac-static-text
                 label="identificatie"
-                [value]="adres.panden?.[0].identificatie"
+                [value]="adres.panden?.[0]?.identificatie"
               />
               <zac-static-text
                 label="bouwjaar"
@@ -376,7 +376,7 @@
         ></zac-bag-zaken-tabel>
         <zac-bag-locatie
           *ngIf="geometrie"
-          [bagGeometrie]="geometrie!"
+          [bagGeometrie]="geometrie"
         ></zac-bag-locatie>
       </div>
     </div>

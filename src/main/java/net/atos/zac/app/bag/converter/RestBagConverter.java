@@ -12,22 +12,12 @@ import java.util.List;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
-import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject;
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres;
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding;
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte;
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand;
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats;
-import net.atos.zac.app.bag.model.RESTBAGAdres;
-import net.atos.zac.app.bag.model.RESTBAGObject;
-import net.atos.zac.app.bag.model.RESTBAGObjectGegevens;
-import net.atos.zac.app.bag.model.RESTNummeraanduiding;
-import net.atos.zac.app.bag.model.RESTOpenbareRuimte;
-import net.atos.zac.app.bag.model.RESTPand;
-import net.atos.zac.app.bag.model.RESTWoonplaats;
+import net.atos.client.zgw.zrc.model.zaakobjecten.*;
+import net.atos.zac.app.bag.model.*;
 import nl.info.client.bag.model.generated.PointGeoJSON;
 import nl.info.client.bag.model.generated.PuntOfVlak;
 import nl.info.client.bag.model.generated.Surface;
+import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.app.zaak.model.RestCoordinates;
 import nl.info.zac.app.zaak.model.RestGeometry;
@@ -78,7 +68,7 @@ public class RestBagConverter {
 
     public static RestGeometry convertVlak(final Surface surface) {
         return new RestGeometry(
-                surface.getType().value(),
+                GeometryTypeEnum.POLYGON,
                 null,
                 surface.getCoordinates()
                         .stream()
@@ -92,7 +82,7 @@ public class RestBagConverter {
 
     public static RestGeometry convertPunt(PointGeoJSON punt) {
         return new RestGeometry(
-                punt.getType().value(),
+                GeometryTypeEnum.POINT,
                 convertCoordinates(punt.getCoordinates()),
                 null,
                 null);

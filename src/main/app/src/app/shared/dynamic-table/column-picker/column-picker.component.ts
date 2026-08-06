@@ -16,6 +16,7 @@ import { MatMenu, MatMenuTrigger } from "@angular/material/menu";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { SortPipe } from "../pipes/sort.pipe";
 import { ColumnPickerValue } from "./column-picker-value";
+import { ZoekenColumn } from "../model/zoeken-column";
 
 @Component({
   selector: "zac-column-picker",
@@ -36,7 +37,7 @@ import { ColumnPickerValue } from "./column-picker-value";
   ],
 })
 export class ColumnPickerComponent {
-  @Input() set columnSrc(columns: Map<string, ColumnPickerValue>) {
+  @Input() set columnSrc(columns: Map<ZoekenColumn, ColumnPickerValue>) {
     this._selection = [];
     this._columnSrc = columns;
     this._columns = new Map(
@@ -46,16 +47,18 @@ export class ColumnPickerComponent {
           if (columns.get(key) === ColumnPickerValue.VISIBLE) {
             this._selection.push(key);
           }
-          return [key, this.translate.instant(key)];
+          return [key, this.translate.instant(key)] as [ZoekenColumn, string];
         }),
     );
   }
 
-  @Output() columnsChanged = new EventEmitter<Map<string, ColumnPickerValue>>();
+  @Output() columnsChanged = new EventEmitter<
+    Map<ZoekenColumn, ColumnPickerValue>
+  >();
 
-  private _columnSrc = new Map<string, ColumnPickerValue>();
-  private _columns = new Map<string, string>();
-  private _selection: string[] = [];
+  private _columnSrc = new Map<ZoekenColumn, ColumnPickerValue>();
+  private _columns = new Map<ZoekenColumn, string>();
+  private _selection: ZoekenColumn[] = [];
   private changed = false;
 
   constructor(private readonly translate: TranslateService) {}
@@ -86,7 +89,7 @@ export class ColumnPickerComponent {
     return this._columns;
   }
 
-  protected isSelected(column: string) {
+  protected isSelected(column: ZoekenColumn) {
     return this._selection.includes(column);
   }
 }

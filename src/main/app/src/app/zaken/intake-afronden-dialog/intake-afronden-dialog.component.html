@@ -56,7 +56,7 @@
             >{{ formGroup.get("reden")?.value.length }}/100</mat-hint
           >
           <mat-error>{{
-            getError(formGroup.get("reden"), "redenNietOntvankelijk")
+            getError(formGroup.get("reden")!, "redenNietOntvankelijk")
           }}</mat-error>
         </mat-form-field>
       </ng-container>
@@ -125,7 +125,7 @@
           >{{ formGroup.get("ontvanger")?.value.length }}/200</mat-hint
         >
         <mat-error>{{
-          getError(formGroup.get("ontvanger"), "ontvanger")
+          getError(formGroup.get("ontvanger")!, "ontvanger")
         }}</mat-error>
       </mat-form-field>
       <mat-expansion-panel

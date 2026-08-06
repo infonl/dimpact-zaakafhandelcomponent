@@ -5,6 +5,7 @@
 package nl.info.zac.app.zaak.model
 
 import jakarta.json.bind.annotation.JsonbProperty
+import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.contactdetails.ContactDetails
@@ -87,7 +88,7 @@ data class RestZaak(
     var uiterlijkeEinddatumAfdoening: LocalDate?,
     var uuid: UUID,
     var verantwoordelijkeOrganisatie: String?,
-    var vertrouwelijkheidaanduiding: String?,
+    var vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum?,
     var zaakdata: Map<String, Any>?,
     var zaakgeometrie: RestGeometry?,
     var zaakSpecificContactDetails: ContactDetails?,

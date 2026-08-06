@@ -89,7 +89,7 @@ describe(LocatieTonenComponent.name, () => {
     component = fixture.componentInstance;
 
     component.currentLocation = fromPartial<GeneratedType<"RestGeometry">>({
-      type: "Point",
+      type: "POINT",
     });
 
     fixture.detectChanges();

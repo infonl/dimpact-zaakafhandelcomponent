@@ -16,7 +16,6 @@ import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { EMPTY, of, throwError } from "rxjs";
-import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
@@ -152,14 +151,14 @@ describe(ZaakLinkComponent.name, () => {
           omschrijving: "ZAAKTYPEOMSCHR",
         }),
       );
-      component["startdatum"] = new DatumRange(
-        new Date(2026, 1, 1),
-        new Date(2026, 2, 1),
-      );
-      component["einddatum"] = new DatumRange(
-        new Date(2026, 3, 1),
-        new Date(2026, 4, 1),
-      );
+      component["startdatum"] = {
+        van: new Date(2026, 1, 1).toISOString(),
+        tot: new Date(2026, 2, 1).toISOString(),
+      };
+      component["einddatum"] = {
+        van: new Date(2026, 3, 1).toISOString(),
+        tot: new Date(2026, 4, 1).toISOString(),
+      };
       component["searchCases"]();
 
       expect(zoekenService.findLinkableZaken).toHaveBeenCalledWith({

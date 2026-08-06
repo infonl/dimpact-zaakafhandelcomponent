@@ -29,7 +29,7 @@
           <ng-container matColumnDef="identificatie_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.identificatie"
+                [value]="listParameters.identificatie ?? undefined"
                 (changed)="
                   listParameters.identificatie = $event; filtersChanged()
                 "
@@ -48,7 +48,7 @@
           <ng-container matColumnDef="titel_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.titel"
+                [value]="listParameters.titel ?? undefined"
                 (changed)="listParameters.titel = $event; filtersChanged()"
               ></zac-tekst-filter>
             </th>

@@ -8,6 +8,7 @@ package nl.info.zac.app.zaak.model
 import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
+import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.model.RestZaakafhandelParameters
 import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
@@ -98,7 +99,7 @@ fun createRestBesluitChangeData(
 fun createRESTGerelateerdeZaak() = RestGerelateerdeZaak()
 
 fun createRESTGeometry(
-    type: String = "Point",
+    type: GeometryTypeEnum = GeometryTypeEnum.POINT,
     point: RestCoordinates = createRestCoordinates()
 ) = RestGeometry(
     type = type,
@@ -155,7 +156,8 @@ fun createRestZaak(
     startDatum: LocalDate = LocalDate.of(2023, 9, 15),
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
     uuid: UUID = UUID.randomUUID(),
-    vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
+    vertrouwelijkheidaanduiding: nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
+        = nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum.OPENBAAR
 ) = RestZaak(
     archiefActiedatum = LocalDate.of(2023, 10, 15),
     archiefNominatie = "Sample Archief Nominatie",

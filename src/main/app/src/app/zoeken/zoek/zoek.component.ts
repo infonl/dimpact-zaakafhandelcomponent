@@ -51,7 +51,10 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../model/zaken/zaak-zoek-object";
-import { getDefaultZoekParameters } from "../model/zoek-parameters";
+import {
+  getDefaultZoekParameters,
+  ZoekParametersInternal,
+} from "../model/zoek-parameters";
 import { ZoekResultaat } from "../model/zoek-resultaat";
 import { ZoekType } from "../model/zoek-type";
 import { ZoekVeld } from "../model/zoek-veld";
@@ -119,8 +122,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
   protected zoekResultaat = new ZoekResultaat<
     GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">
   >();
-  protected zoekParameters: GeneratedType<"RestZoekParameters"> =
-    getDefaultZoekParameters();
+  protected zoekParameters: ZoekParametersInternal = getDefaultZoekParameters();
   protected isLoadingResults = true;
   protected slow = false;
   protected zoekveldControl = new FormControl<ZoekVeld>(ZoekVeld.ALLE);

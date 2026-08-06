@@ -6,7 +6,7 @@
 @if (form && stylesLoaded && evalContextReady) {
   <formio
     [submission]="submission"
-    [submitDone]="submissionDone"
+    [submitDone]="$any(submissionDone)"
     [form]="form"
     [readOnly]="readOnly"
     [options]="{ disableAlerts: true, evalContext: evalContext }"
@@ -14,6 +14,6 @@
     (ready)="onFormioReady($event)"
     (submit)="onSubmit($event)"
     (change)="onChange($event)"
-    (customEvent)="onCustomEvent($event)"
+    (customEvent)="onCustomEvent($any($event))"
   ></formio>
 }

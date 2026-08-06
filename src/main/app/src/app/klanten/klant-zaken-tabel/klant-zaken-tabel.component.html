@@ -21,7 +21,7 @@
             <zac-tekst-filter
               [value]="zoekParameters.zoeken?.ZAAK_IDENTIFICATIE ?? ''"
               (changed)="
-                zoekParameters.zoeken.ZAAK_IDENTIFICATIE = $event;
+                zoekParameters.zoeken!.ZAAK_IDENTIFICATIE = $event;
                 filtersChanged()
               "
             ></zac-tekst-filter>
@@ -80,7 +80,7 @@
               [filter]="zoekParameters.filters?.ZAAK_STATUS"
               [opties]="this.zoekResultaat.filters.ZAAK_STATUS"
               (changed)="
-                zoekParameters.filters.ZAAK_STATUS = $event; filtersChanged()
+                zoekParameters.filters!.ZAAK_STATUS = $event; filtersChanged()
               "
             >
             </zac-facet-filter>
@@ -102,7 +102,7 @@
               [filter]="zoekParameters.filters?.GROEP"
               [opties]="this.zoekResultaat.filters.GROEP"
               (changed)="
-                zoekParameters.filters.GROEP = $event; filtersChanged()
+                zoekParameters.filters!.GROEP = $event; filtersChanged()
               "
             >
             </zac-facet-filter>
@@ -124,7 +124,7 @@
               [filter]="zoekParameters.filters?.BEHANDELAAR"
               [opties]="this.zoekResultaat.filters.BEHANDELAAR"
               (changed)="
-                zoekParameters.filters.BEHANDELAAR = $event; filtersChanged()
+                zoekParameters.filters!.BEHANDELAAR = $event; filtersChanged()
               "
             >
             </zac-facet-filter>
@@ -147,9 +147,10 @@
           <th mat-header-cell *matHeaderCellDef>
             <zac-date-range-filter
               label="startdatum"
-              [range]="zoekParameters.datums?.ZAAK_STARTDATUM"
+              [range]="zoekParameters.datums.ZAAK_STARTDATUM"
               (changed)="
-                zoekParameters.datums.ZAAK_STARTDATUM = $event; filtersChanged()
+                zoekParameters.datums!.ZAAK_STARTDATUM = $event;
+                filtersChanged()
               "
             >
             </zac-date-range-filter>
@@ -175,7 +176,7 @@
               [filter]="zoekParameters.filters?.ZAAKTYPE"
               [opties]="zoekResultaat.filters.ZAAKTYPE"
               (changed)="
-                zoekParameters.filters.ZAAKTYPE = $event; filtersChanged()
+                zoekParameters.filters!.ZAAKTYPE = $event; filtersChanged()
               "
             >
             </zac-facet-filter>
@@ -195,7 +196,7 @@
             <zac-tekst-filter
               [value]="zoekParameters.zoeken?.ZAAK_OMSCHRIJVING ?? ''"
               (changed)="
-                zoekParameters.zoeken.ZAAK_OMSCHRIJVING = $event;
+                zoekParameters.zoeken!.ZAAK_OMSCHRIJVING = $event;
                 filtersChanged()
               "
             ></zac-tekst-filter>

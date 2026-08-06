@@ -14,6 +14,7 @@ export class VertrouwelijkaanduidingToTranslationKeyPipe
   implements PipeTransform
 {
   public expectedKeys = [
+    "EMPTY",
     "OPENBAAR",
     "BEPERKT_OPENBAAR",
     "INTERN",
@@ -24,12 +25,18 @@ export class VertrouwelijkaanduidingToTranslationKeyPipe
     "ZEER_GEHEIM",
   ] as const;
 
-  transform(value?: GeneratedType<"VertrouwelijkheidaanduidingEnum"> | null) {
-    if (!value || !this.expectedKeys.includes(value)) {
+  transform(
+    value?:
+      | GeneratedType<"VertrouwelijkheidaanduidingEnum1">
+      | null
+      | undefined,
+  ) {
+    if (value && !this.expectedKeys.includes(value)) {
       throw new Error(`Unexpected vertrouwelijkheidaanduiding: ${value}`);
     }
 
-    return `vertrouwelijkheidaanduiding.${value}`;
+    const v = !value || value === "EMPTY" ? "-geen-" : value;
+    return `vertrouwelijkheidaanduiding.${v}`;
   }
 
   toUpperCase<T extends string>(v: T): Uppercase<T> {

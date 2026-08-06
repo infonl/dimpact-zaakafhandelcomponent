@@ -137,7 +137,7 @@
           <zac-multi-facet-filter
             *ngIf="hasOption(filter.value ?? [])"
             [label]="filter.key"
-            [filter]="zoekParameters.filters?.[filter.key] ?? { values: [] }"
+            [filter]="zoekParameters.filters[filter.key]"
             [opties]="filter.value ?? []"
             (changed)="filterChanged(filter.key, $event)"
           >
@@ -153,31 +153,31 @@
             hasZaken ||
             hasTaken ||
             hasDocument ||
-            !!zoekParameters.datums?.STARTDATUM
+            !!zoekParameters.datums.STARTDATUM
           "
           label="startdatum"
-          [range]="zoekParameters.datums?.STARTDATUM"
+          [range]="zoekParameters.datums.STARTDATUM"
           (changed)="dateFilterChange('STARTDATUM', $event)"
         >
         </zac-date-filter>
         <zac-date-filter
-          *ngIf="hasZaken || !!zoekParameters.datums?.ZAAK_STREEFDATUM"
+          *ngIf="hasZaken || !!zoekParameters.datums.ZAAK_STREEFDATUM"
           label="zaak.streefdatum"
-          [range]="zoekParameters.datums?.ZAAK_STREEFDATUM"
+          [range]="zoekParameters.datums.ZAAK_STREEFDATUM"
           (changed)="dateFilterChange('ZAAK_STREEFDATUM', $event)"
         >
         </zac-date-filter>
         <zac-date-filter
-          *ngIf="hasZaken || !!zoekParameters.datums?.ZAAK_FATALE_DATUM"
+          *ngIf="hasZaken || !!zoekParameters.datums.ZAAK_FATALE_DATUM"
           label="zaak.fataledatum"
-          [range]="zoekParameters.datums?.ZAAK_FATALE_DATUM"
+          [range]="zoekParameters.datums.ZAAK_FATALE_DATUM"
           (changed)="dateFilterChange('ZAAK_FATALE_DATUM', $event)"
         >
         </zac-date-filter>
         <zac-date-filter
-          *ngIf="hasZaken || !!zoekParameters.datums?.ZAAK_EINDDATUM"
+          *ngIf="hasZaken || !!zoekParameters.datums.ZAAK_EINDDATUM"
           label="zaak.einddatum"
-          [range]="zoekParameters.datums?.ZAAK_EINDDATUM"
+          [range]="zoekParameters.datums.ZAAK_EINDDATUM"
           (changed)="dateFilterChange('ZAAK_EINDDATUM', $event)"
         >
         </zac-date-filter>

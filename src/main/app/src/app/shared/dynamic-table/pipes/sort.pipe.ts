@@ -12,7 +12,10 @@ import { Pipe, PipeTransform } from "@angular/core";
   standalone: true,
 })
 export class SortPipe implements PipeTransform {
-  transform(value: KeyValue<string, string>[], property: "key" | "value") {
+  transform<K extends string, V extends string>(
+    value: KeyValue<K, V>[],
+    property: "key" | "value",
+  ) {
     return value.sort((a, b) => a[property].localeCompare(b[property]));
   }
 }
