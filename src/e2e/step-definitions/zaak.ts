@@ -11,13 +11,14 @@ import {
   FIFTEEN_SECONDS_IN_MS,
   FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
-  TEN_SECONDS_IN_MS,
   TWO_MINUTES_IN_MS,
-  TWO_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakStatus } from "../utils/schemes";
+
+const ZAAK_NUMBER_REGEX = /ZAAK-\d{4}-\d+/;
+const ZAAK_DETAIL_URL_REGEX = /\/zaken\/ZAAK-\d{4}-\d+/;
 
 const TEST_PERSON_HENDRIKA_JANSE_BSN = "999993896";
 const TEST_PERSON_HENDRIKA_JANSE_NAME = "Héndrika Janse";
@@ -156,25 +157,35 @@ When(
       .getByRole("tabpanel", { name: "Gegevens" })
       .getByRole("button")
       .click();
+    await this.page.getByRole("combobox", { name: "Groep" }).click();
     await this.page
-      .getByRole("combobox", { name: "Groep" })
-      .locator("svg")
+      .getByRole("option", { name: groupName, exact: true })
       .click();
-    await this.page.getByText(groupName).click();
+
+    // The users fetched after a group change overwrite any behandelaar picked meanwhile.
     await this.page.getByRole("combobox", { name: "Behandelaar" }).click();
-    await this.page.getByText(userName, { exact: true }).click();
-    await this.page.getByRole("textbox", { name: "Reden" }).click();
+    const userOption = this.page.getByRole("option", {
+      name: userName,
+      exact: true,
+    });
+    await userOption.waitFor({
+      state: "visible",
+      timeout: FORTY_SECONDS_IN_MS,
+    });
+    await userOption.click();
+
     await this.page.getByRole("textbox", { name: "Reden" }).fill("test");
 
     await this.page.getByRole("button", { name: "Opslaan" }).click();
 
-    await this.page.waitForTimeout(TWO_SECONDS_IN_MS);
-    await this.expect(this.page.getByLabel("topic Gegevens")).toContainText(
-      groupName,
-    );
-    await this.expect(this.page.getByLabel("topic Gegevens")).toContainText(
-      userName,
-    );
+    // The Gegevens panel is redrawn on a websocket event, not on the save response.
+    const gegevensPanel = this.page.getByLabel("topic Gegevens");
+    await this.expect(gegevensPanel).toContainText(groupName, {
+      timeout: FORTY_SECONDS_IN_MS,
+    });
+    await this.expect(gegevensPanel).toContainText(userName, {
+      timeout: FORTY_SECONDS_IN_MS,
+    });
   },
 );
 
@@ -246,29 +257,26 @@ When(
     await this.page.getByRole("option", { name: " E-mail " }).click();
     // Openbaar should be automatically selected on openbaar
     await this.expect(this.page.getByText("Openbaar").first()).toBeVisible();
-    await this.page.getByLabel("Omschrijving").fill("E2etest1");
+    // A UTC timestamp with millisecond precision tells this zaak apart from every other one on a shared environment.
+    const timestampUtc = new Date().toISOString().replace(/[-:.]/g, "");
+    const caseDescription = `E2E-test-${timestampUtc}`;
+    await this.page.getByLabel("Omschrijving").fill(caseDescription);
+    this.testStorage.set("caseDescription", caseDescription);
+    await this.page
+      .getByLabel("Toelichting")
+      .fill(`This task is created by E2E test scenario: ${this.testName}`);
+
     await this.page.getByRole("button", { name: "Aanmaken" }).click();
 
-    await this.page.waitForTimeout(TEN_SECONDS_IN_MS);
-
-    const currentYear = new Date().getFullYear();
-
-    // Construct the regex pattern with the current year
-    const regexPattern = new RegExp(`ZAAK-${currentYear}-\\d+`, "g");
-
-    await this.expect(this.page.getByText(regexPattern).first()).toBeVisible();
-
-    // Get the HTML content of the page
-    const content = await this.page.content();
-
-    // Find all matches
-    const matches = content.match(regexPattern);
-
-    if (matches && matches.length > 0) {
-      this.testStorage.set("caseNumber", matches[0]);
-    } else {
-      throw new Error("No case number found");
+    // Creating a zaak routes to /zaken/<zaaknummer>, which names it exactly.
+    await this.page.waitForURL(ZAAK_DETAIL_URL_REGEX, {
+      timeout: FORTY_SECONDS_IN_MS,
+    });
+    const [caseNumber] = this.page.url().match(ZAAK_NUMBER_REGEX) ?? [];
+    if (!caseNumber) {
+      throw new Error(`No case number in url ${this.page.url()}`);
     }
+    this.testStorage.set("caseNumber", caseNumber);
   },
 );
 
@@ -313,15 +321,37 @@ Then(
 
 Then(
   "{string} sees the created zaak",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    await this.page.waitForTimeout(3000);
-    await this.page.reload();
     const caseNumber = this.testStorage.get("caseNumber");
-    await this.page
-      .getByText(caseNumber)
-      .first()
-      .waitFor({ timeout: FIFTEEN_SECONDS_IN_MS });
+    const caseDescription = this.testStorage.get("caseDescription");
+    const zaak = this.page.getByText(caseNumber).first();
+
+    // A zaak shows up only once it has been indexed, where indexing can take some time
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      await this.page.reload();
+
+      const isLastAttempt = attempt === maxAttempts;
+      if (isLastAttempt) {
+        await zaak.waitFor({
+          state: "visible",
+          timeout: FIFTEEN_SECONDS_IN_MS,
+        });
+        break;
+      }
+
+      const isVisible = await zaak
+        .waitFor({ state: "visible", timeout: FIFTEEN_SECONDS_IN_MS })
+        .then(() => true)
+        .catch(() => false);
+      if (isVisible) break;
+    }
+
+    // Both the detail page and the werkvoorraad show the omschrijving of a zaak.
+    await this.expect(this.page.getByText(caseDescription).first()).toBeVisible(
+      { timeout: FIFTEEN_SECONDS_IN_MS },
+    );
   },
 );
 

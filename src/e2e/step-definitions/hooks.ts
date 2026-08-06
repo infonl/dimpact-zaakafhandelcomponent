@@ -15,6 +15,10 @@ Before(async function (this: CustomWorld, { gherkinDocument, pickle }) {
   const feature = escape(gherkinDocument.feature.name);
   const videoFolder = [feature, scenario].filter(Boolean).join("/");
 
+  this.testName = [gherkinDocument.feature?.name, pickle.name]
+    .filter(Boolean)
+    .join(" - ");
+
   await this.context?.clearCookies();
 
   await this.init({ videoFolder });
@@ -32,10 +36,18 @@ AfterAll(async function (this: CustomWorld) {
   console.log("Deleted auth file successfully.");
 });
 
-AfterStep(async function (this: CustomWorld, { result, testStepId }) {
-  if (result.status === Status.FAILED) {
-    const screenshot = await this.page.screenshot({
-      path: `./reports/screenshots/${testStepId}.png`,
+AfterStep(async function (
+  this: CustomWorld,
+  { result, testStepId },
+): Promise<void> {
+  if (result.status !== Status.FAILED) return;
+
+  // A popup such as the SmartDocuments wizard is a page of its own, and often the one that failed.
+  for (const [index, page] of this.context.pages().entries()) {
+    if (page.isClosed()) continue;
+
+    const screenshot = await page.screenshot({
+      path: `./reports/screenshots/${testStepId}-${index}.png`,
     });
     this.attach(screenshot, "image/png");
   }
