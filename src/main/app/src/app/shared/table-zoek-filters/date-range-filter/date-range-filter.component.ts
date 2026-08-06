@@ -12,13 +12,13 @@ import {
   Output,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MAT_DATE_FORMATS } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslateModule } from "@ngx-translate/core";
 import { DatumRange } from "../../../zoeken/model/datum-range";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
-import { MAT_DATE_FORMATS } from "@angular/material/core";
 
 @Component({
   selector: "zac-date-range-filter",
