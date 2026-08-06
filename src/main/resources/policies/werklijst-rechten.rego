@@ -25,67 +25,32 @@ werklijst_rechten := {
 
 default inbox := false
 inbox if {
-    coordinator.rol in user.rollen
-}
-
-inbox if {
-    recordmanager.rol in user.rollen
-}
-
-inbox if {
-    beheerder.rol in user.rollen
+    some role in {coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default ontkoppelde_documenten_verwijderen := false
 ontkoppelde_documenten_verwijderen if {
-    recordmanager.rol in user.rollen
-}
-
-ontkoppelde_documenten_verwijderen if {
-    beheerder.rol in user.rollen
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default inbox_productaanvragen_verwijderen := false
 inbox_productaanvragen_verwijderen if {
-    recordmanager.rol in user.rollen
-}
-
-inbox_productaanvragen_verwijderen if {
-    beheerder.rol in user.rollen
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default zaken_taken := false
 zaken_taken if {
-    raadpleger.rol in user.rollen
-}
-
-zaken_taken if {
-    behandelaar.rol in user.rollen
-}
-
-zaken_taken if {
-    coordinator.rol in user.rollen
-}
-
-zaken_taken if {
-    recordmanager.rol in user.rollen
-}
-
-zaken_taken if {
-    beheerder.rol in user.rollen
+    some role in {raadpleger, behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default zaken_taken_verdelen := false
 zaken_taken_verdelen if {
-    coordinator.rol in user.rollen
-}
-
-zaken_taken_verdelen if {
-    recordmanager.rol in user.rollen
-}
-
-zaken_taken_verdelen if {
-    beheerder.rol in user.rollen
+    some role in {coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default zaken_taken_exporteren := false
