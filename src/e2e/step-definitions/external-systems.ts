@@ -6,12 +6,18 @@
 import { Then, When } from "@cucumber/cucumber";
 import { Page, expect } from "@playwright/test";
 import {
+  FIVE_SECONDS_IN_MS,
+  FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
-  TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 
 let smartDocumentsWizardPage: Page;
+
+const templateInput = {
+  group: "Dimpact",
+  template: "Data Test",
+};
 
 const documentInput = {
   title: "E2E Test - SmartDocuments Document Title",
@@ -43,12 +49,27 @@ When(
 
     await this.expect(submitButton).toBeDisabled();
 
-    await this.page.getByLabel("Sjabloongroep").click();
+    // Typing filters the autocomplete, so the option clicked below is the only one left.
+    // By role, not by label: an open autocomplete panel carries the same label as its input.
+    const templateGroupField = this.page.getByRole("combobox", {
+      name: "Sjabloongroep",
+    });
+    await templateGroupField.click();
+    await templateGroupField.fill(templateInput.group);
     await this.page
-      .getByRole("option", { name: "Melding evenement organiseren behandelen" })
+      .getByRole("option", { name: templateInput.group, exact: true })
       .click();
 
-    // The only existing template is selected by default, so no need to click on it.
+    // Leaving the template to its default sends SmartDocuments to its own selection screen.
+    const templateField = this.page.getByRole("combobox", {
+      name: "Sjabloon",
+      exact: true,
+    });
+    await templateField.click();
+    await templateField.fill(templateInput.template);
+    await this.page
+      .getByRole("option", { name: templateInput.template, exact: true })
+      .click();
 
     const inputTitle = this.page.getByLabel(/Titel/i);
     await inputTitle.fill(documentInput.title);
@@ -107,6 +128,8 @@ When(
     await expect(wizardResultDiv).toHaveClass(/wizard-result success/);
     await expect(wizardResultDiv.getByText("succes")).toBeVisible();
 
+    // Give ZAC time to store the document and notify the zaak before the wizard tab disappears.
+    await smartDocumentsWizardPage.waitForTimeout(FIVE_SECONDS_IN_MS);
     await smartDocumentsWizardPage.close();
   },
 );
@@ -123,7 +146,7 @@ When(
     const documentTitleText = this.page.locator(`text=${documentInput.title}`);
     // increase the timout because it can take a while for the document to be visible
     await expect(documentTitleText.first()).toBeVisible({
-      timeout: TWENTY_SECONDS_IN_MS,
+      timeout: FORTY_SECONDS_IN_MS,
     });
 
     const anchorLocator = this.page.locator('a[title="Document bekijken"]');

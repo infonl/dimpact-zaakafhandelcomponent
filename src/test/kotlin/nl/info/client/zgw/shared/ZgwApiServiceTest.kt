@@ -344,6 +344,59 @@ class ZgwApiServiceTest : BehaviorSpec({
         }
     }
 
+    context("Finding roles for zaak using a pre-fetched role list") {
+        given("A zaak with a group, a behandelaar, and an initiator, and their pre-fetched roles") {
+            val zaak = createZaak()
+            val behandelaarRolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
+            val initiatorRolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
+            val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid(zaakURI = zaak.url, rolType = behandelaarRolType)
+            val rolMedewerker = createRolMedewerker(zaakURI = zaak.url, rolType = behandelaarRolType)
+            val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(zaakURI = zaak.url, rolType = initiatorRolType)
+            val roles = listOf(rolOrganisatorischeEenheid, rolMedewerker, rolNatuurlijkPersoon)
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns listOf(behandelaarRolType)
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
+            } returns listOf(initiatorRolType)
+
+            `when`("the group, behandelaar medewerker, and initiator are requested using the pre-fetched roles") {
+                val group = zgwApiService.findGroepForZaak(zaak, roles)
+                val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, roles)
+                val initiator = zgwApiService.findInitiatorRoleForZaak(zaak, roles)
+
+                then("the group, behandelaar medewerker, and initiator are resolved from the pre-fetched list") {
+                    group shouldNotBe null
+                    group!!.identificatienummer shouldBe rolOrganisatorischeEenheid.identificatienummer
+                    behandelaar shouldNotBe null
+                    behandelaar!!.identificatienummer shouldBe rolMedewerker.identificatienummer
+                    initiator shouldNotBe null
+                    initiator!!.identificatienummer shouldBe rolNatuurlijkPersoon.identificatienummer
+                }
+
+                then("no additional role list HTTP call is made") {
+                    verify(exactly = 0) { zrcClientService.listRollen(any<RolListParameters>()) }
+                }
+            }
+        }
+        given("A zaak with a pre-fetched role list that contains no matching roles") {
+            val zaak = createZaak()
+            val behandelaarRolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns listOf(behandelaarRolType)
+
+            `when`("the group is requested using an empty pre-fetched role list") {
+                val group = zgwApiService.findGroepForZaak(zaak, emptyList())
+
+                then("no group is returned and no additional role list HTTP call is made") {
+                    group shouldBe null
+                    verify(exactly = 0) { zrcClientService.listRollen(any<RolListParameters>()) }
+                }
+            }
+        }
+    }
+
     context("Closing a zaak") {
         given("A zaak with resultaattype and statustype") {
             val zaakType = createZaakType()

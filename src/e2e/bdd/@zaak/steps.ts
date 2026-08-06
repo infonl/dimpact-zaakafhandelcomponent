@@ -15,24 +15,34 @@ Given("the case type {string} exists", async ({ caseType }, type: string) => {
   caseType.value = caseTypeName;
 });
 
-When("I add a new case", async ({ page, caseType }) => {
-  await page.getByRole("combobox", { name: "Casetype" }).click();
-  await page.getByRole("option", { name: caseType.value }).click();
+When(
+  "I add a new case",
+  async ({ page, caseType, caseDescription, $testInfo }) => {
+    await page.getByRole("combobox", { name: "Casetype" }).click();
+    await page.getByRole("option", { name: caseType.value }).click();
 
-  await page.getByRole("combobox", { name: "Assign case to group" }).click();
-  await page.getByRole("option").first().click();
+    await page.getByRole("combobox", { name: "Assign case to group" }).click();
+    await page.getByRole("option").first().click();
 
-  await page.getByRole("combobox", { name: "Communication channel" }).click();
-  await page.getByRole("option", { name: "E-mail" }).click();
+    await page.getByRole("combobox", { name: "Communication channel" }).click();
+    await page.getByRole("option", { name: "E-mail" }).click();
 
-  await page
-    .getByRole("textbox", { name: "Description" })
-    .fill("E2E test omschrijving");
+    // A UTC timestamp with millisecond precision tells this case apart from every other one on a shared environment.
+    const timestampUtc = new Date().toISOString().replace(/[-:.]/g, "");
+    caseDescription.value = `E2E-BDD-test-${timestampUtc}`;
+    await page
+      .getByRole("textbox", { name: "Description" })
+      .fill(caseDescription.value);
 
-  const response = page.waitForResponse(/zaken\/zaak/);
-  await page.getByRole("button", { name: "Create" }).click();
-  await response;
-});
+    await page
+      .getByRole("textbox", { name: "Explanation" })
+      .fill(`This case is created by E2E test scenario: ${$testInfo.title}`);
+
+    const response = page.waitForResponse(/zaken\/zaak/);
+    await page.getByRole("button", { name: "Create" }).click();
+    await response;
+  },
+);
 
 Then("the case gets created", async ({ page, caseNumber }) => {
   await page.waitForURL(/zaken\/ZAAK-\d{4}-\d+/);

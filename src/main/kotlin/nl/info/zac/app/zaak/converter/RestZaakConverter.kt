@@ -6,6 +6,7 @@ package nl.info.zac.app.zaak.converter
 
 import jakarta.inject.Inject
 import net.atos.zac.flowable.ZaakVariabelenService
+import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ONTVANGSTBEVESTIGING_VERSTUURD
 import nl.info.zac.util.time.PeriodUtil
 import nl.info.client.klant.KlantClientService
 import nl.info.client.zgw.brc.BrcClientService
@@ -85,23 +86,24 @@ class RestZaakConverter @Inject constructor(
         status: Status?,
         statustype: StatusType?
     ): RestZaak {
-        val groep = zgwApiService.findGroepForZaak(zaak)?.let { rolOrganisatorischeEenheid ->
+        val roles = zrcClientService.listRollen(zaak)
+        val groep = zgwApiService.findGroepForZaak(zaak, roles)?.let { rolOrganisatorischeEenheid ->
             rolOrganisatorischeEenheid.betrokkeneIdentificatie?.let {
                 restGroupConverter.convertGroupId(it.identificatie)
             }
         }
         val besluiten = brcClientService.listBesluiten(zaak)
             .map { restBesluitConverter.convertToRestBesluit(it) }
-        val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+        val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, roles)
             ?.betrokkeneIdentificatie
             ?.let { restUserConverter.convertUserId(it.identificatie) }
-        val initiator = zgwApiService.findInitiatorRoleForZaak(zaak)
+        val initiator = zgwApiService.findInitiatorRoleForZaak(zaak, roles)
         val initiatorIdentificatie = initiator?.let {
             identificationService.createBetrokkeneIdentificatieForInitiatorRole(it)
         }
         val zaakSpecificContactDetails = klantClientService.findZaakSpecificContactDetails(zaak.uuid)
         val zaakData = zaakVariabelenService.readZaakdata(zaak.uuid)
-        val hasSentConfirmationOfReceipt = zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.uuid) ?: false
+        val hasSentConfirmationOfReceipt = (zaakData[VAR_ONTVANGSTBEVESTIGING_VERSTUURD] as? Boolean) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
         return RestZaak(
             archiefActiedatum = zaak.archiefactiedatum,
@@ -148,7 +150,9 @@ class RestZaakConverter @Inject constructor(
             redenOpschorting = takeIf { zaak.isOpgeschort() }?.let { zaak.opschorting?.reden },
             redenVerlenging = if (zaak.isVerlengd()) zaak.verlenging.reden else null,
             registratiedatum = zaak.registratiedatum,
-            resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
+            resultaat = zaak.resultaat?.let {
+                restZaakResultaatConverter.convert(resultaatURI = it, zaaktypeURI = zaak.zaaktype)
+            },
             startdatum = zaak.startdatum,
             startdatumBewaartermijn = zaak.startdatumBewaartermijn,
             status = status?.takeIf { statustype != null }?.let { toRestZaakStatus(statustype!!, it) },
