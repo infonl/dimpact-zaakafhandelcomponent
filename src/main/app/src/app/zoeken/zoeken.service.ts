@@ -7,7 +7,6 @@ import { inject, Injectable, signal } from "@angular/core";
 import { Subject } from "rxjs";
 import { PathParameters, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { ZoekParametersInternal } from "./model/zoek-parameters";
 
 const ZOEK_KOPPELBARE_ZAKEN_PATH =
   "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken" as const;
@@ -30,11 +29,8 @@ export class ZoekenService {
 
   private readonly zacHttpClient = inject(ZacHttpClient);
 
-  list(body: ZoekParametersInternal) {
-    return this.zacHttpClient.PUT(
-      "/rest/zoeken/list",
-      body,
-    );
+  list(body: PutBody<"/rest/zoeken/list">) {
+    return this.zacHttpClient.PUT("/rest/zoeken/list", body);
   }
 
   listDocumentKoppelbareZaken(body: PutBody<"/rest/zoeken/zaken">) {
