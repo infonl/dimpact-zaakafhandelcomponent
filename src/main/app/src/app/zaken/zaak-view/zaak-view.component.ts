@@ -242,7 +242,9 @@ export class ZaakViewComponent
       {
         show: Boolean(bronArchiefprocedure?.afleidingswijze),
         label: "afleidingswijzeBrondatum",
-        value: bronArchiefprocedure?.afleidingswijze ?? null,
+        value: this.afleidingswijzeBrondatumValue(
+          bronArchiefprocedure?.afleidingswijze,
+        ),
       },
       {
         show: this.zaak.archiefNominatie === "VERNIETIGEN",
@@ -262,6 +264,26 @@ export class ZaakViewComponent
     ];
 
     return fields.filter(({ show }) => show !== false);
+  }
+
+  private afleidingswijzeBrondatumValue(
+    afleidingswijze?: GeneratedType<"AfleidingswijzeEnum"> | null,
+  ) {
+    if (!afleidingswijze) return null;
+    // Workaround: the value returned from the backend is lowercase and generated typescript types expect uppercase.
+    const afleidingswijzeBrondatum: string = afleidingswijze.toUpperCase();
+
+    if (afleidingswijzeBrondatum === "EIGENSCHAP") {
+      return (
+        this.zaak.resultaat?.resultaattype?.datumKenmerkOmschrijving ?? null
+      );
+    }
+
+    return String(
+      this.translate.instant(
+        `afleidingswijzeBrondatum.${afleidingswijzeBrondatum}`,
+      ),
+    );
   }
 
   private setDateFieldIconSet() {

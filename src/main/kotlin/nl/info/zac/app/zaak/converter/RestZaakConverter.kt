@@ -150,7 +150,9 @@ class RestZaakConverter @Inject constructor(
             redenOpschorting = takeIf { zaak.isOpgeschort() }?.let { zaak.opschorting?.reden },
             redenVerlenging = if (zaak.isVerlengd()) zaak.verlenging.reden else null,
             registratiedatum = zaak.registratiedatum,
-            resultaat = zaak.resultaat?.let(restZaakResultaatConverter::convert),
+            resultaat = zaak.resultaat?.let {
+                restZaakResultaatConverter.convert(resultaatURI = it, zaaktypeURI = zaak.zaaktype)
+            },
             startdatum = zaak.startdatum,
             startdatumBewaartermijn = zaak.startdatumBewaartermijn,
             status = status?.takeIf { statustype != null }?.let { toRestZaakStatus(statustype!!, it) },
