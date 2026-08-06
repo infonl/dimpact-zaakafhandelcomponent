@@ -27,9 +27,20 @@
       [optionDisplayValue]="'label'"
     ></zac-select>
     <fieldset class="p-0">
-      <legend style="font-weight: bold" class="m-1">
+      <legend style="font-weight: bold" class="m-0">
         {{ "actie.zoeken.zaak" | translate }}
       </legend>
+      @switch (form.controls.caseRelationType.value?.value) {
+        @case ('HOOFDZAAK') {
+          <p>{{ "zaak.koppelen.hint.hoofdzaak-aan-deelzaak" | translate }}</p>
+        }
+        @case ('DEELZAAK') {
+          <p>{{ "zaak.koppelen.hint.deelzaak-aan-hoofdzaak" | translate }}</p>
+        }
+        @default {
+          <p></p>
+        }
+      }
       <zac-input
         [form]="form"
         label="zaak.identificatie"

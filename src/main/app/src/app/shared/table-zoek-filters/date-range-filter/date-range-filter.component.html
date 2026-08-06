@@ -3,7 +3,7 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-<mat-form-field subscriptSizing="dynamic">
+<mat-form-field subscriptSizing="dynamic" floatLabel="always">
   @if (showLabel) {
     <mat-label>
       <ng-content select="mat-label">
@@ -12,8 +12,8 @@
     </mat-label>
   }
   <mat-date-range-input [rangePicker]="datumPicker" (change)="change()">
-    <input matStartDate placeholder="van" [formControl]="dateVan" />
-    <input matEndDate placeholder="tot" [formControl]="dateTM" />
+    <input matStartDate placeholder="Van" [formControl]="dateVan" />
+    <input matEndDate placeholder="t/m" [formControl]="dateTM" />
   </mat-date-range-input>
   <mat-datepicker-toggle
     *ngIf="!hasRange()"
