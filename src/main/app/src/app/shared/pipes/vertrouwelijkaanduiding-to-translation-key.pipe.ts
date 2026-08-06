@@ -35,7 +35,7 @@ export class VertrouwelijkaanduidingToTranslationKeyPipe
       throw new Error(`Unexpected vertrouwelijkheidaanduiding: ${value}`);
     }
 
-    const v = !value || value === "EMPTY" ? "-geen-" : value
+    const v = !value || value === "EMPTY" ? "-geen-" : value;
     return `vertrouwelijkheidaanduiding.${v}`;
   }
 
