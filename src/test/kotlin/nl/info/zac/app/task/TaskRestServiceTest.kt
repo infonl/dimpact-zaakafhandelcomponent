@@ -374,47 +374,6 @@ class TaskRestServiceTest : BehaviorSpec({
                 }
             }
         }
-
-        given("a task with a Form.io form that is not assigned to the current user") {
-            val openTask = createTestTask(description = "fakeDescriptionBeforeAssignment")
-            val assignedTask = createTestTask(description = "fakeDescriptionAfterAssignment")
-            val restTask = createRestTask(
-                behandelaar = createRESTUser(id = "fakeOtherUserId", name = "fakeOtherUserName"),
-                formioFormulier = Json.createObjectBuilder().build()
-            )
-            val restTaskConverted = createRestTask()
-            val zaak = createZaak()
-            val historicTaskInstance = mockk<HistoricTaskInstance>()
-
-            every { loggedInUserInstance.get() } returns loggedInUser
-            every { flowableTaskService.readOpenTask(restTask.id) } returns openTask
-            every { policyService.readTaakRechten(openTask) } returns createTaakRechtenAllDeny(wijzigen = true)
-            every {
-                flowableTaskService.assignTaskToUser(openTask.id, loggedInUser.id, "Afgesloten")
-            } returns assignedTask
-            every { zrcClientService.readZaak(restTask.zaakUuid) } returns zaak
-            every { bpmnTaskFormRuntimeService.submit(restTask, assignedTask, zaak) } returns assignedTask
-            every { flowableTaskService.completeTask(assignedTask) } returns historicTaskInstance
-            every { historicTaskInstance.id } returns restTask.id
-            every { indexingService.addOrUpdateZaak(restTask.zaakUuid, false) } just runs
-            every { restTaskConverter.convert(historicTaskInstance) } returns restTaskConverted
-            every { eventingService.send(any<ScreenEvent>()) } just runs
-
-            `when`("the task is completed") {
-                val restTaskReturned = taskRestService.completeTask(restTask)
-
-                then("the form data is submitted using the task returned by the assignment") {
-                    // the task instance read before assigning is stale and would fail on optimistic locking
-                    verify(exactly = 1) {
-                        bpmnTaskFormRuntimeService.submit(restTask, assignedTask, zaak)
-                        flowableTaskService.completeTask(assignedTask)
-                    }
-                }
-                And("the completed task is returned") {
-                    restTaskReturned shouldBe restTaskConverted
-                }
-            }
-        }
     }
 
     context("Assigning tasks from a list") {

@@ -66,15 +66,11 @@ class BpmnTaskFormRuntimeService @Inject constructor(
         val bpmnTaskFormData = BpmnTaskFormData(restTask.taakdata ?: emptyMap())
 
         if (bpmnTaskFormData.toelichting != null || bpmnTaskFormData.taakFataleDatum != null) {
-            // Writing the task variables above bumped the task revision, so re-read it before updating.
-            // Saving the instance we still hold would fail with an optimistic locking exception.
-            task = flowableTaskService.readOpenTask(task.id).apply {
-                bpmnTaskFormData.toelichting?.let {
-                    description = it
-                }
-                bpmnTaskFormData.taakFataleDatum?.let {
-                    dueDate = convertToDate(it)
-                }
+            bpmnTaskFormData.toelichting?.let {
+                task.description = it
+            }
+            bpmnTaskFormData.taakFataleDatum?.let {
+                task.dueDate = convertToDate(it)
             }
             task = flowableTaskService.updateTask(task)
         }

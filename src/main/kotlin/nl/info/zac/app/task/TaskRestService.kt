@@ -232,16 +232,12 @@ class TaskRestService @Inject constructor(
     @PATCH
     @Path("complete")
     fun completeTask(restTask: RestTask): RestTask {
-        val openTask = flowableTaskService.readOpenTask(restTask.id)
-        assertPolicy(TaskUtil.isOpen(openTask) && policyService.readTaakRechten(openTask).wijzigen)
+        val task = flowableTaskService.readOpenTask(restTask.id)
+        assertPolicy(TaskUtil.isOpen(task) && policyService.readTaakRechten(task).wijzigen)
 
         val loggedInUserId = loggedInUserInstance.get().id
-        // Assigning bumps the task revision, so continue with the task as returned by the assignment.
-        // Using the stale instance would fail with an optimistic locking exception further down.
-        val task = if (restTask.behandelaar?.id != loggedInUserId) {
-            flowableTaskService.assignTaskToUser(openTask.id, loggedInUserId, REDEN_TAAK_AFGESLOTEN)
-        } else {
-            openTask
+        if (restTask.behandelaar == null || restTask.behandelaar!!.id != loggedInUserId) {
+            flowableTaskService.assignTaskToUser(task.id, loggedInUserId, REDEN_TAAK_AFGESLOTEN)
         }
 
         val zaak = zrcClientService.readZaak(restTask.zaakUuid)
