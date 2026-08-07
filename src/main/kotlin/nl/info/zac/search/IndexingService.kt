@@ -8,7 +8,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.zrc.model.ZaakListParameters
+import nl.info.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
@@ -132,7 +132,7 @@ class IndexingService @Inject constructor(
 
     fun addOrUpdateInformatieobjectByZaakinformatieobject(zaakinformatieobjectUUID: UUID) =
         addOrUpdateInformatieobject(
-            zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject.extractUuid()
+            zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject!!.extractUuid()
         )
 
     fun addOrUpdateTaak(taskID: String) = indexeerDirect(taskID, ZoekObjectType.TAAK, false)

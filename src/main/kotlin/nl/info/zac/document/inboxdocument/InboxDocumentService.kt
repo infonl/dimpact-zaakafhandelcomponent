@@ -65,7 +65,7 @@ class InboxDocumentService @Inject constructor(
     @Transactional(REQUIRED)
     fun deleteForZaakinformatieobject(zaakinformatieobjectUUID: UUID) {
         val zaakInformatieobject = zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID)
-        inboxDocumentRepository.find(zaakInformatieobject.informatieobject.extractUuid())
+        inboxDocumentRepository.find(zaakInformatieobject.informatieobject!!.extractUuid())
             ?.let { inboxDocumentRepository.delete(it) }
     }
 

@@ -11,7 +11,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.ZaakInformatieobject
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates

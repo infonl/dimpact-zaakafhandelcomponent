@@ -5,7 +5,7 @@
 package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.shared.ZgwApiService
@@ -124,7 +124,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             // In this case, we treat the rol as an empty 'orphaned' role and ignore it here.
             role.toBetrokkeneIdentification()?.run {
                 zaakZoekObject.addBetrokkene(
-                    rol = role.omschrijving,
+                    rol = role.omschrijving.orEmpty(),
                     identificatie = this.toSolrFormatting()
                 )
             }
@@ -148,7 +148,7 @@ class ZaakZoekObjectConverter @Inject constructor(
         return zrcClientService.listZaakobjecten(zaakobjectListParameters)
             .results()
             .filter { it.isBagObject }
-            .map { it.waarde }
+            .mapNotNull { it.waarde }
             .let { it.ifEmpty { emptyList() } }
     }
 }

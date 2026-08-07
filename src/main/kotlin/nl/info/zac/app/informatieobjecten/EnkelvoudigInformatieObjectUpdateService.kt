@@ -9,7 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
@@ -138,7 +138,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
 
             mutableListOf<UUID>().apply {
                 addAll(readTaskDocuments(task))
-                add(zaakInformatieobject.informatieobject.extractUuid())
+                add(zaakInformatieobject.informatieobject!!.extractUuid())
             }.let {
                 taakVariabelenService.setTaakdocumenten(task, it)
             }

@@ -21,7 +21,7 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.websocket.event.ScreenEventType
@@ -159,7 +159,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         val zaak = zrcClientService.readZaak(zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).lezen)
         return zrcClientService.listZaakinformatieobjecten(zaak)
-            .map { it.informatieobject }
+            .map { it.informatieobject!! }
             .map(drcClientService::readEnkelvoudigInformatieobject)
             .filter(::isVerzendenToegestaan)
             .map { restInformatieobjectConverter.convertToREST(it, zaak) }
@@ -257,7 +257,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     fun readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(
         @PathParam("uuid") uuid: UUID
     ): RestEnkelvoudigInformatieobject =
-        zrcClientService.readZaakinformatieobject(uuid).informatieobject
+        zrcClientService.readZaakinformatieobject(uuid).informatieobject!!
             .let(drcClientService::readEnkelvoudigInformatieobject)
             .let(restInformatieobjectConverter::convertToREST)
 
@@ -444,7 +444,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid)
             .apply { assertPolicy(policyService.readDocumentRechten(this).lezen) }
             .let(zrcClientService::listZaakinformatieobjecten)
-            .map { zrcClientService.readZaak(it.zaak).identificatie }
+            .map { zrcClientService.readZaak(it.zaak!!).identificatie }
 
     @POST
     @Path("/informatieobject/{uuid}/onderteken")
@@ -556,7 +556,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         ).let(restInformatieobjectConverter::convertToREST)
 
     private fun toRestZaakInformatieobject(zaakInformatieobject: ZaakInformatieobject): RestZaakInformatieobject {
-        val zaak = zrcClientService.readZaak(zaakInformatieobject.zaak)
+        val zaak = zrcClientService.readZaak(zaakInformatieobject.zaak!!)
         val zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype())
         val zaakrechten = policyService.readZaakRechten(zaak, zaaktype, loggedInUserInstance.get())
         return RestZaakInformatieobject(

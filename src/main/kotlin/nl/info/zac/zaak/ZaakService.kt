@@ -7,11 +7,11 @@ package nl.info.zac.zaak
 import io.opentelemetry.instrumentation.annotations.SpanAttribute
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.RolMedewerker
-import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolMedewerker
+import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.exception.CaseOrProcessNotFoundException
@@ -273,7 +273,7 @@ class ZaakService @Inject constructor(
             // filter out the roles that are not 'betrokkenen'
             .filter {
                 BETROKKENEN_ENUMSET.contains(
-                    OmschrijvingGeneriekEnum.valueOf(it.omschrijvingGeneriek.uppercase(Locale.getDefault()))
+                    OmschrijvingGeneriekEnum.valueOf(it.omschrijvingGeneriek!!.uppercase(Locale.getDefault()))
                 )
             }
 

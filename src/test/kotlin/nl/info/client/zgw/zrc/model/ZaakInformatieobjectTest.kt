@@ -1,0 +1,28 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package nl.info.client.zgw.zrc.model
+
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.checkUnnecessaryStub
+import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import java.util.UUID
+
+class ZaakInformatieobjectTest : BehaviorSpec({
+    afterEach { checkUnnecessaryStub() }
+
+    given("a ZaakInformatieobject whose zaak URI ends in a valid UUID") {
+        val zaakUUID = UUID.randomUUID()
+        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(zaakUUID = zaakUUID)
+
+        `when`("getZaakUUID is called") {
+            val result = zaakInformatieobject.zaakUUID
+
+            then("it returns the UUID extracted from the zaak URI") {
+                result shouldBe zaakUUID
+            }
+        }
+    }
+})

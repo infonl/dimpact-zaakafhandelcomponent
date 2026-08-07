@@ -8,8 +8,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
+import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
 import net.atos.zac.app.bag.model.RESTWoonplaats
 import nl.info.client.bag.model.generated.HalLink
 import nl.info.client.bag.model.generated.Indicatie
@@ -84,8 +84,8 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
                 }
 
                 And("it should populate the ObjectWoonplaats with identificatie and naam") {
-                    result.objectIdentificatie.identificatie shouldBe "fakeIdentificatie"
-                    result.objectIdentificatie.woonplaatsNaam shouldBe "fakeWoonplaatsNaam"
+                    result.objectIdentificatie!!.identificatie shouldBe "fakeIdentificatie"
+                    result.objectIdentificatie!!.woonplaatsNaam shouldBe "fakeWoonplaatsNaam"
                 }
             }
         }

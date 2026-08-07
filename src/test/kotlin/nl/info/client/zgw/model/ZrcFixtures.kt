@@ -4,18 +4,13 @@
  */
 package nl.info.client.zgw.model
 
-import net.atos.client.zgw.zrc.model.RolMedewerker
-import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.RolVestiging
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
-import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.RolMedewerker
+import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import nl.info.client.zgw.zrc.model.RolVestiging
+import nl.info.client.zgw.zrc.model.ZaakInformatieobject
 import nl.info.client.zgw.zrc.model.generated.AardRelatieWeergaveEnum
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
@@ -31,6 +26,11 @@ import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
+import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectPand
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.generated.RolType
 import java.math.BigDecimal
