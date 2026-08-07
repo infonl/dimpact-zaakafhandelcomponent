@@ -92,11 +92,11 @@ class ZrcClientServiceTest : BehaviorSpec({
 
             then("it should remove only the first role of the matching betrokkene type") {
                 verify(exactly = 1) {
-                    zrcClient.rolDelete(medewerkerRole1.uuid)
+                    zrcClient.rolDelete(medewerkerRole1.uuid!!)
                 }
                 verify(exactly = 0) {
-                    zrcClient.rolDelete(medewerkerRole2.uuid)
-                    zrcClient.rolDelete(organisatorischeEenheidRol.uuid)
+                    zrcClient.rolDelete(medewerkerRole2.uuid!!)
+                    zrcClient.rolDelete(organisatorischeEenheidRol.uuid!!)
                 }
             }
         }

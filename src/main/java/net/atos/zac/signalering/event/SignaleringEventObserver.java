@@ -21,16 +21,16 @@ import jakarta.inject.Named;
 
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.zrc.model.Rol;
-import net.atos.client.zgw.zrc.model.RolListParameters;
-import net.atos.client.zgw.zrc.model.RolMedewerker;
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid;
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import net.atos.zac.event.AbstractEventObserver;
 import net.atos.zac.flowable.task.FlowableTaskService;
 import net.atos.zac.signalering.model.Signalering;
 import net.atos.zac.signalering.model.SignaleringInstellingen;
 import nl.info.client.zgw.zrc.ZrcClientService;
+import nl.info.client.zgw.zrc.model.Rol;
+import nl.info.client.zgw.zrc.model.RolListParameters;
+import nl.info.client.zgw.zrc.model.RolMedewerker;
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid;
+import nl.info.client.zgw.zrc.model.ZaakInformatieobject;
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.client.zgw.ztc.ZtcClientService;
