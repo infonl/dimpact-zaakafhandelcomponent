@@ -59,11 +59,53 @@ class RolVestigingTest : BehaviorSpec({
             vestigingIdentificatie = createVestigingIdentificatie(vestigingsNummer = "fakeVestigingsNummer", handelsnaam = listOf("B"))
         )
 
+        `when`("equals and hashCode are called") {
+            then("the instances are equal based on vestigingsNummer alone") {
+                rolA shouldBe rolB
+                rolA.hashCode() shouldBe rolB.hashCode()
+            }
+        }
+    }
+
+    given("a RolVestiging created via the no-arg constructor") {
+        val rol = RolVestiging()
+
+        `when`("getNaam and getIdentificatienummer are called") {
+            then("both return null since there is no betrokkeneIdentificatie") {
+                rol.naam shouldBe null
+                rol.identificatienummer shouldBe null
+            }
+        }
+    }
+
+    given("two RolVestiging instances with the exact same betrokkeneIdentificatie reference") {
+        val roltype = createRolType()
+        val sharedIdentificatie = createVestigingIdentificatie(vestigingsNummer = "fakeVestigingsNummer")
+        val rolA = createRolVestiging(rolType = roltype, vestigingIdentificatie = sharedIdentificatie)
+        val rolB = createRolVestiging(rolType = roltype, vestigingIdentificatie = sharedIdentificatie)
+
         `when`("equals is called") {
             val isEqual = rolA == rolB
 
-            then("the instances are equal based on vestigingsNummer alone") {
+            then("the instances are equal via reference identity") {
                 isEqual shouldBe true
+            }
+        }
+    }
+
+    given("a RolVestiging with a betrokkeneIdentificatie compared to one without") {
+        val roltype = createRolType()
+        val rolA = createRolVestiging(
+            rolType = roltype,
+            vestigingIdentificatie = createVestigingIdentificatie(vestigingsNummer = "fakeVestigingsNummer")
+        )
+        val rolB = createRolVestiging(rolType = roltype, vestigingIdentificatie = null)
+
+        `when`("equals is called") {
+            val isEqual = rolA == rolB
+
+            then("the instances are not equal") {
+                isEqual shouldBe false
             }
         }
     }

@@ -16,7 +16,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 /**
- * Constructor for PATCH request (no-arg) / POST and PUT requests ([informatieobject], [zaak]) /
+ * Constructor for POST and PUT requests ([informatieobject], [zaak]) /
  * GET response ([url], [uuid], [aardRelatieWeergave], [registratiedatum]).
  */
 data class ZaakInformatieobject(
@@ -32,11 +32,11 @@ data class ZaakInformatieobject(
     /**
      * URL-referentie naar het INFORMATIEOBJECT (in de Documenten API), waar ook de relatieinformatie opgevraagd kan worden.
      */
-    var informatieobject: URI? = null,
+    var informatieobject: URI,
     /**
      * URL-referentie naar de ZAAK.
      */
-    var zaak: URI? = null,
+    var zaak: URI,
     /**
      * Aard relatie weergave
      */
@@ -57,6 +57,10 @@ data class ZaakInformatieobject(
     @JsonbDateFormat(DATE_TIME_FORMAT_WITH_MILLISECONDS)
     val registratiedatum: ZonedDateTime? = null
 ) {
+    companion object {
+        const val TITEL_MAX_LENGTH = 200
+    }
+
     /**
      * Constructor with required attributes for POST and PUT requests
      */
@@ -69,15 +73,20 @@ data class ZaakInformatieobject(
     constructor(
         @JsonbProperty("url") urlValue: URI?,
         @JsonbProperty("uuid") uuidValue: UUID?,
+        @JsonbProperty("informatieobject") informatieobjectValue: URI,
+        @JsonbProperty("zaak") zaakValue: URI,
         @JsonbProperty("aardRelatieWeergave") aardRelatieWeergaveValue: AardRelatieWeergaveEnum?,
         @JsonbProperty("registratiedatum") registratiedatumValue: ZonedDateTime?
-    ) : this(url = urlValue, uuid = uuidValue, aardRelatieWeergave = aardRelatieWeergaveValue, registratiedatum = registratiedatumValue)
+    ) : this(
+        url = urlValue,
+        uuid = uuidValue,
+        informatieobject = informatieobjectValue,
+        zaak = zaakValue,
+        aardRelatieWeergave = aardRelatieWeergaveValue,
+        registratiedatum = registratiedatumValue
+    )
 
     @get:JsonbTransient
-    val zaakUUID: UUID?
-        get() = zaak?.extractUuid()
-
-    companion object {
-        const val TITEL_MAX_LENGTH = 200
-    }
+    val zaakUUID: UUID
+        get() = zaak.extractUuid()
 }

@@ -8,6 +8,10 @@ import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import java.net.URI
 
 class ZaakobjectProductaanvraag : Zaakobject {
+    companion object {
+        const val OBJECT_TYPE_OVERIGE = "ProductAanvraag"
+    }
+
     /**
      * No-arg constructor for JSONB deserialization
      */
@@ -16,14 +20,10 @@ class ZaakobjectProductaanvraag : Zaakobject {
     /**
      * Constructor with required attributes
      */
-    constructor(zaak: URI?, productaanvraag: URI?) : super(zaak, productaanvraag, ObjectTypeEnum.OVERIGE) {
+    constructor(zaak: URI, productaanvraag: URI?) : super(zaak, productaanvraag, ObjectTypeEnum.OVERIGE) {
         objectTypeOverige = OBJECT_TYPE_OVERIGE
     }
 
     override val waarde: String?
         get() = `object`?.path?.substringAfterLast("/")
-
-    companion object {
-        const val OBJECT_TYPE_OVERIGE = "ProductAanvraag"
-    }
 }

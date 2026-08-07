@@ -52,8 +52,16 @@ fun createMedewerkerIdentificatie(
     this.voorvoegselAchternaam = voorvoegselAchternaam
 }
 
-fun createNatuurlijkPersoonIdentificatie(bsn: String = "fakeBsn") = NatuurlijkPersoonIdentificatie().apply {
+fun createNatuurlijkPersoonIdentificatie(
+    bsn: String? = "fakeBsn",
+    anpIdentificatie: String? = null,
+    inpANummer: String? = null,
+    voorvoegselGeslachtsnaam: String? = null
+) = NatuurlijkPersoonIdentificatie().apply {
     this.inpBsn = bsn
+    this.anpIdentificatie = anpIdentificatie
+    this.inpANummer = inpANummer
+    this.voorvoegselGeslachtsnaam = voorvoegselGeslachtsnaam
 }
 
 fun createNietNatuurlijkPersoonIdentificatie(
@@ -143,7 +151,7 @@ fun createRolMedewerkerForReads(
     uuid: UUID = UUID.randomUUID(),
     rolType: RolType = createRolType(),
     roltoelichting: String = "fakeToelichting",
-    medewerkerIdentificatie: MedewerkerIdentificatie = createMedewerkerIdentificatie()
+    medewerkerIdentificatie: MedewerkerIdentificatie? = createMedewerkerIdentificatie()
 ) = RolMedewerker(
     uuid,
     rolType,
@@ -179,7 +187,7 @@ fun createRolNietNatuurlijkPersoon(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(zaakTypeUri = zaakURI),
     toelichting: String = "fakeToelichting",
-    nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie()
+    nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie? = createNietNatuurlijkPersoonIdentificatie()
 ) = RolNietNatuurlijkPersoon(
     zaakURI,
     rolType,
@@ -203,7 +211,7 @@ fun createRolOrganisatorischeEenheid(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
     toelichting: String = "fakeToelichting",
-    organisatorischeEenheidIdentificatie: OrganisatorischeEenheidIdentificatie = createOrganisatorischeEenheid()
+    organisatorischeEenheidIdentificatie: OrganisatorischeEenheidIdentificatie? = createOrganisatorischeEenheid()
 ) = RolOrganisatorischeEenheid(
     zaakURI,
     rolType,
@@ -228,7 +236,7 @@ fun createRolVestiging(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
     toelichting: String = "fakeToelichting",
-    vestigingIdentificatie: VestigingIdentificatie = createVestigingIdentificatie()
+    vestigingIdentificatie: VestigingIdentificatie? = createVestigingIdentificatie()
 ) = RolVestiging(
     zaakURI,
     rolType,
@@ -339,11 +347,15 @@ fun createZaakInformatieobjectForCreatesAndUpdates(
 fun createZaakInformatieobjectForReads(
     url: URI = URI("https://example.com/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID(),
+    informatieobject: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    zaak: URI = URI("https://example.com/${UUID.randomUUID()}"),
     aardRelatieWeergave: AardRelatieWeergaveEnum = AardRelatieWeergaveEnum.HOORT_BIJ_OMGEKEERD_KENT,
     registratiedatum: ZonedDateTime = ZonedDateTime.now()
 ) = ZaakInformatieobject(
     url,
     uuid,
+    informatieobject,
+    zaak,
     aardRelatieWeergave,
     registratiedatum
 )

@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
+import nl.info.client.zgw.model.createRolMedewerkerForReads
 import nl.info.client.zgw.ztc.model.createRolType
 
 class RolMedewerkerTest : BehaviorSpec({
@@ -91,6 +92,61 @@ class RolMedewerkerTest : BehaviorSpec({
 
             then("the instances are equal regardless of other fields") {
                 isEqual shouldBe true
+            }
+        }
+    }
+
+    given("a RolMedewerker created via the no-arg constructor") {
+        val rol = RolMedewerker()
+
+        `when`("getNaam and getIdentificatienummer are called") {
+            then("both return null since there is no betrokkeneIdentificatie") {
+                rol.naam shouldBe null
+                rol.identificatienummer shouldBe null
+            }
+        }
+    }
+
+    given("a RolMedewerker created via the uuid constructor for reads") {
+        val rol = createRolMedewerkerForReads(
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeIdentificatie")
+        )
+
+        `when`("getIdentificatienummer is called") {
+            then("it returns the identificatie") {
+                rol.identificatienummer shouldBe "fakeIdentificatie"
+            }
+        }
+    }
+
+    given("two RolMedewerker instances with the exact same betrokkeneIdentificatie reference") {
+        val roltype = createRolType()
+        val sharedIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeIdentificatie")
+        val rolA = createRolMedewerker(rolType = roltype, medewerkerIdentificatie = sharedIdentificatie)
+        val rolB = createRolMedewerker(rolType = roltype, medewerkerIdentificatie = sharedIdentificatie)
+
+        `when`("equals is called") {
+            val isEqual = rolA == rolB
+
+            then("the instances are equal via reference identity") {
+                isEqual shouldBe true
+            }
+        }
+    }
+
+    given("a RolMedewerker with a betrokkeneIdentificatie compared to one without") {
+        val roltype = createRolType()
+        val rolA = createRolMedewerker(
+            rolType = roltype,
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeIdentificatie")
+        )
+        val rolB = createRolMedewerker(rolType = roltype, medewerkerIdentificatie = null)
+
+        `when`("equals is called") {
+            val isEqual = rolA == rolB
+
+            then("the instances are not equal") {
+                isEqual shouldBe false
             }
         }
     }

@@ -14,7 +14,7 @@ import java.util.Objects
 /**
  * Manually copied from [nl.info.client.zgw.zrc.model.generated.RolVestiging] and modified to allow for
  * polymorphism using a generic base [Rol] class.
- * Ideally we would use the generated class, but currently we cannot get the OpenAPI Generator framework to generate
+ * Ideally, we would use the generated class, but currently we cannot get the OpenAPI Generator framework to generate
  * polymorphic relationships correctly.
  *
  * In ZAC, we only use the vestiging role for retrieving existing roles, but not / no longer for storing new roles.

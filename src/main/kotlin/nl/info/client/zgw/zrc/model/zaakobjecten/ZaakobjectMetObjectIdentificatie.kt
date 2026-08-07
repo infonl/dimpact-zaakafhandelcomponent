@@ -24,7 +24,7 @@ abstract class ZaakobjectMetObjectIdentificatie<T> : Zaakobject {
      * Constructor with required attributes
      */
     protected constructor(
-        zaak: URI?,
+        zaak: URI,
         objectUri: URI?,
         objectType: ObjectTypeEnum,
         objectIdentificatie: T?

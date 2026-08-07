@@ -133,8 +133,10 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
             val document = createDetachedDocument()
             val informatieObject = EnkelvoudigInformatieObject()
-            val zaakInformatieObject = ZaakInformatieobject()
-            zaakInformatieObject.zaak = URI.create("https://example.com/${UUID.randomUUID()}")
+            val zaakInformatieObject = ZaakInformatieobject(
+                informatieobject = URI.create("https://example.com/${UUID.randomUUID()}"),
+                zaak = URI.create("https://example.com/${UUID.randomUUID()}")
+            )
             every {
                 policyService.readWerklijstRechten()
             } returns werklijstRechten
@@ -170,8 +172,10 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             document.documentUUID = UUID.randomUUID()
             document.id = 1
             val informatieObject = EnkelvoudigInformatieObject()
-            val zaakInformatieObject = ZaakInformatieobject()
-            zaakInformatieObject.zaak = URI.create("https://example.com/${UUID.randomUUID()}")
+            val zaakInformatieObject = ZaakInformatieobject(
+                informatieobject = URI.create("https://example.com/${UUID.randomUUID()}"),
+                zaak = URI.create("https://example.com/${UUID.randomUUID()}")
+            )
             every {
                 policyService.readWerklijstRechten()
             } returns werklijstRechten

@@ -11,6 +11,10 @@ import java.net.URI
  * ZaakobjectNummeraanduiding
  */
 class ZaakobjectNummeraanduiding : ZaakobjectMetObjectIdentificatie<ObjectOverige<ObjectNummeraanduiding>> {
+    companion object {
+        const val OBJECT_TYPE_OVERIGE = "nummeraanduiding"
+    }
+
     /**
      * Constructor for JSONB deserialization
      */
@@ -19,7 +23,7 @@ class ZaakobjectNummeraanduiding : ZaakobjectMetObjectIdentificatie<ObjectOverig
     /**
      * Constructor with required attributes
      */
-    constructor(zaak: URI?, bagObjectUri: URI?, nummeraanduiding: ObjectNummeraanduiding?) : super(
+    constructor(zaak: URI, bagObjectUri: URI?, nummeraanduiding: ObjectNummeraanduiding?) : super(
         zaak,
         bagObjectUri,
         ObjectTypeEnum.OVERIGE,
@@ -30,8 +34,4 @@ class ZaakobjectNummeraanduiding : ZaakobjectMetObjectIdentificatie<ObjectOverig
 
     override val waarde: String?
         get() = objectIdentificatie?.overigeData?.identificatie
-
-    companion object {
-        const val OBJECT_TYPE_OVERIGE = "nummeraanduiding"
-    }
 }

@@ -189,9 +189,10 @@ class ZrcClientService @Inject constructor(
                 "en InformatieObject: '${informatieobject.getInhoud().extractUuid()}'"
         }
         val oudeZaakInformatieobject = zaakInformatieobjecten.first()
-        val nieuweZaakInformatieObject = ZaakInformatieobject().apply {
-            this.zaak = nieuweZaak.url
-            this.informatieobject = informatieobject.getUrl()
+        val nieuweZaakInformatieObject = ZaakInformatieobject(
+            informatieobject = informatieobject.getUrl(),
+            zaak = nieuweZaak.url
+        ).apply {
             this.titel = oudeZaakInformatieobject.titel
             this.beschrijving = oudeZaakInformatieobject.beschrijving
         }
@@ -209,9 +210,10 @@ class ZrcClientService @Inject constructor(
         listZaakinformatieobjecten(enkelvoudigInformatieObject).firstOrNull()?.let {
             throw IllegalStateException("Informatieobject is reeds gekoppeld aan zaak '${it.zaak!!.extractUuid()}'")
         }
-        val nieuweZaakInformatieObject = ZaakInformatieobject().apply {
+        val nieuweZaakInformatieObject = ZaakInformatieobject(
+            informatieobject = enkelvoudigInformatieObject.getUrl(),
             zaak = targetZaak.url
-            informatieobject = enkelvoudigInformatieObject.getUrl()
+        ).apply {
             titel = enkelvoudigInformatieObject.getTitel()
             beschrijving = enkelvoudigInformatieObject.getBeschrijving()
         }

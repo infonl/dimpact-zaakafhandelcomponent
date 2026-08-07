@@ -53,6 +53,7 @@ abstract class Rol<T> {
 
     /**
      * Betrokkene type
+     * Can be null, according to the ZGW API, and this does occur in practice in certain circumstances.
      * - Required
      */
     var betrokkeneType: BetrokkeneTypeEnum? = null
@@ -62,13 +63,13 @@ abstract class Rol<T> {
      * URL-referentie naar een roltype binnen het ZAAKTYPE van de ZAAK.
      * - Required
      */
-    var roltype: URI? = null
+    lateinit var roltype: URI
         private set
 
     /**
      * Omschrijving van de aard van de ROL, afgeleid uit het ROLTYPE.
      */
-    var omschrijving: String? = null
+    lateinit var omschrijving: String
         private set
 
     /**
@@ -85,14 +86,14 @@ abstract class Rol<T> {
      * daarover gemaakte afspraken.
      * 'mede_initiator' - 'Mede-initiator'
      */
-    var omschrijvingGeneriek: String? = null
+    lateinit var omschrijvingGeneriek: String
         private set
 
     /**
      * Roltoelichting
      * - Required
      */
-    var roltoelichting: String? = null
+    lateinit var roltoelichting: String
         private set
 
     /**

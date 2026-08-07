@@ -101,4 +101,30 @@ class ZaakobjectWaardeTest : BehaviorSpec({
             }
         }
     }
+
+    given("a ZaakobjectProductaanvraag without a productaanvraag URI") {
+        val zaakobject = ZaakobjectProductaanvraag(
+            URI("https://example.com/zaak/${UUID.randomUUID()}"),
+            null
+        )
+
+        `when`("getWaarde is called") {
+            then("it returns null since there is no object URI") {
+                zaakobject.waarde shouldBe null
+            }
+        }
+    }
+
+    given("Zaakobject* leaf classes created via the no-arg constructor") {
+        `when`("getWaarde is called") {
+            then("it returns null since there is no objectIdentificatie") {
+                ZaakobjectAdres().waarde shouldBe null
+                ZaakobjectNummeraanduiding().waarde shouldBe null
+                ZaakobjectOpenbareRuimte().waarde shouldBe null
+                ZaakobjectPand().waarde shouldBe null
+                ZaakobjectProductaanvraag().waarde shouldBe null
+                ZaakobjectWoonplaats().waarde shouldBe null
+            }
+        }
+    }
 })

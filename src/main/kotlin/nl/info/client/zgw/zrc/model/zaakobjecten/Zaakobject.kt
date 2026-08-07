@@ -32,7 +32,7 @@ abstract class Zaakobject {
      * URL-referentie naar de ZAAK
      * - required
      */
-    var zaak: URI? = null
+    lateinit var zaak: URI
 
     /**
      * URL-referentie naar de resource die het OBJECT beschrijft
@@ -43,7 +43,7 @@ abstract class Zaakobject {
      * Beschrijft het type OBJECT gerelateerd aan de ZAAK
      * - required
      */
-    var objectType: ObjectTypeEnum? = null
+    lateinit var objectType: ObjectTypeEnum
 
     /**
      * Beschrijft het type OBJECT als `objectType` de waarde "overige" heeft
@@ -66,7 +66,7 @@ abstract class Zaakobject {
     /**
      * Constructor with required attributes
      */
-    protected constructor(zaakUri: URI?, objectUri: URI?, objectType: ObjectTypeEnum) {
+    protected constructor(zaakUri: URI, objectUri: URI?, objectType: ObjectTypeEnum) {
         this.zaak = zaakUri
         this.`object` = objectUri
         this.objectType = objectType
@@ -87,9 +87,9 @@ abstract class Zaakobject {
     }
 
     override fun hashCode(): Int {
-        var result = zaak?.hashCode() ?: 0
+        var result = zaak.hashCode()
         result = 31 * result + (`object`?.hashCode() ?: 0)
-        result = 31 * result + (objectType?.hashCode() ?: 0)
+        result = 31 * result + objectType.hashCode()
         result = 31 * result + (objectTypeOverige?.hashCode() ?: 0)
         return result
     }

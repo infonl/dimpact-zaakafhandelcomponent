@@ -19,7 +19,7 @@ class ZaakobjectPand : ZaakobjectMetObjectIdentificatie<ObjectPand> {
     /**
      * Constructor with all required fields.
      */
-    constructor(zaak: URI?, bagobjectUri: URI?, pand: ObjectPand?) : super(zaak, bagobjectUri, ObjectTypeEnum.PAND, pand)
+    constructor(zaak: URI, bagobjectUri: URI?, pand: ObjectPand?) : super(zaak, bagobjectUri, ObjectTypeEnum.PAND, pand)
 
     override val waarde: String?
         get() = objectIdentificatie?.identificatie

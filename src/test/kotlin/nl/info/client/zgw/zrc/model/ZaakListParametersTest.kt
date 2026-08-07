@@ -7,8 +7,11 @@ package nl.info.client.zgw.zrc.model
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.ArchiefstatusEnum
+import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 
 class ZaakListParametersTest : BehaviorSpec({
     afterEach { checkUnnecessaryStub() }
@@ -106,6 +109,72 @@ class ZaakListParametersTest : BehaviorSpec({
         `when`("getArchiefstatusIn is called") {
             then("it returns null") {
                 zaakListParameters.archiefstatusIn shouldBe null
+            }
+        }
+    }
+
+    given("a ZaakListParameters without rolBetrokkeneType set") {
+        val zaakListParameters = ZaakListParameters()
+
+        `when`("getRolBetrokkeneType is called") {
+            then("it returns null") {
+                zaakListParameters.rolBetrokkeneType shouldBe null
+            }
+        }
+    }
+
+    given("a ZaakListParameters with rolBetrokkeneType set") {
+        val zaakListParameters = ZaakListParameters().apply {
+            setRolBetrokkeneType(BetrokkeneTypeEnum.MEDEWERKER)
+        }
+
+        `when`("getRolBetrokkeneType is called") {
+            then("it returns the enum's toString") {
+                zaakListParameters.rolBetrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER.toString()
+            }
+        }
+    }
+
+    given("a ZaakListParameters without rolOmschrijvingGeneriek set") {
+        val zaakListParameters = ZaakListParameters()
+
+        `when`("getRolOmschrijvingGeneriek is called") {
+            then("it returns null") {
+                zaakListParameters.rolOmschrijvingGeneriek shouldBe null
+            }
+        }
+    }
+
+    given("a ZaakListParameters with rolOmschrijvingGeneriek set") {
+        val zaakListParameters = ZaakListParameters().apply {
+            setRolOmschrijvingGeneriek(OmschrijvingGeneriekEnum.BEHANDELAAR)
+        }
+
+        `when`("getRolOmschrijvingGeneriek is called") {
+            then("it returns the lowercased enum name") {
+                zaakListParameters.rolOmschrijvingGeneriek shouldBe "behandelaar"
+            }
+        }
+    }
+
+    given("a ZaakListParameters without maximaleVertrouwelijkheidaanduiding set") {
+        val zaakListParameters = ZaakListParameters()
+
+        `when`("getMaximaleVertrouwelijkheidaanduiding is called") {
+            then("it returns null") {
+                zaakListParameters.maximaleVertrouwelijkheidaanduiding shouldBe null
+            }
+        }
+    }
+
+    given("a ZaakListParameters with maximaleVertrouwelijkheidaanduiding set") {
+        val zaakListParameters = ZaakListParameters().apply {
+            setMaximaleVertrouwelijkheidaanduiding(VertrouwelijkheidaanduidingEnum.OPENBAAR)
+        }
+
+        `when`("getMaximaleVertrouwelijkheidaanduiding is called") {
+            then("it returns the enum's toString") {
+                zaakListParameters.maximaleVertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR.toString()
             }
         }
     }

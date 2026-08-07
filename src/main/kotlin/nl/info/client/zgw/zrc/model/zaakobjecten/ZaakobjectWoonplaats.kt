@@ -20,7 +20,7 @@ class ZaakobjectWoonplaats : ZaakobjectMetObjectIdentificatie<ObjectWoonplaats> 
      * Constructor with required attributes
      */
     constructor(
-        zaak: URI?,
+        zaak: URI,
         bagobjectUri: URI?,
         woonplaats: ObjectWoonplaats?
     ) : super(zaak, bagobjectUri, ObjectTypeEnum.WOONPLAATS, woonplaats)

@@ -20,7 +20,7 @@ class ZaakobjectOpenbareRuimte : ZaakobjectMetObjectIdentificatie<ObjectOpenbare
      * Constructor with required attributes
      */
     constructor(
-        zaak: URI?,
+        zaak: URI,
         bagobjectURI: URI?,
         objectOpenbareRuimte: ObjectOpenbareRuimte?
     ) : super(zaak, bagobjectURI, ObjectTypeEnum.OPENBARE_RUIMTE, objectOpenbareRuimte)

@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
+import nl.info.client.zgw.model.createRolNietNatuurlijkPersoonForReads
 import nl.info.client.zgw.ztc.model.createRolType
 
 class RolNietNatuurlijkPersoonTest : BehaviorSpec({
@@ -96,11 +97,153 @@ class RolNietNatuurlijkPersoonTest : BehaviorSpec({
             )
         )
 
+        `when`("equals and hashCode are called") {
+            then("innNnpId takes precedence and the instances are equal") {
+                rolA shouldBe rolB
+                rolA.hashCode() shouldBe rolB.hashCode()
+            }
+        }
+    }
+
+    given("two RolNietNatuurlijkPersoon instances with equal kvkNummer and no innNnpId") {
+        val roltype = createRolType()
+        val rolA = createRolNietNatuurlijkPersoon(
+            rolType = roltype,
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = "fakeKvkNummer")
+        )
+        val rolB = createRolNietNatuurlijkPersoon(
+            rolType = roltype,
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = "fakeKvkNummer")
+        )
+
+        `when`("equals and hashCode are called") {
+            then("kvkNummer is used and the instances are equal") {
+                rolA shouldBe rolB
+                rolA.hashCode() shouldBe rolB.hashCode()
+            }
+        }
+    }
+
+    given("two RolNietNatuurlijkPersoon instances with equal vestigingsNummer and no kvkNummer or innNnpId") {
+        val roltype = createRolType()
+        val rolA = createRolNietNatuurlijkPersoon(
+            rolType = roltype,
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                kvkNummer = null,
+                vestigingsnummer = "fakeVestigingsNummer"
+            )
+        )
+        val rolB = createRolNietNatuurlijkPersoon(
+            rolType = roltype,
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                kvkNummer = null,
+                vestigingsnummer = "fakeVestigingsNummer"
+            )
+        )
+
+        `when`("equals and hashCode are called") {
+            then("vestigingsNummer is used and the instances are equal") {
+                rolA shouldBe rolB
+                rolA.hashCode() shouldBe rolB.hashCode()
+            }
+        }
+    }
+
+    given("two RolNietNatuurlijkPersoon instances with equal annIdentificatie and no other identifiers") {
+        val roltype = createRolType()
+        val rolA = createRolNietNatuurlijkPersoon(
+            rolType = roltype,
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                kvkNummer = null,
+                annIdentificatie = "fakeAnnIdentificatie"
+            )
+        )
+        val rolB = createRolNietNatuurlijkPersoon(
+            rolType = roltype,
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(
+                kvkNummer = null,
+                annIdentificatie = "fakeAnnIdentificatie"
+            )
+        )
+
+        `when`("equals and hashCode are called") {
+            then("annIdentificatie is used and the instances are equal") {
+                rolA shouldBe rolB
+                rolA.hashCode() shouldBe rolB.hashCode()
+            }
+        }
+    }
+
+    given("two RolNietNatuurlijkPersoon instances with no identifiers at all") {
+        val roltype = createRolType()
+        val rolA = createRolNietNatuurlijkPersoon(
+            rolType = roltype,
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = null)
+        )
+        val rolB = createRolNietNatuurlijkPersoon(
+            rolType = roltype,
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = null)
+        )
+
+        `when`("equals and hashCode are called") {
+            then("the instances are still considered equal") {
+                rolA shouldBe rolB
+                rolA.hashCode() shouldBe rolB.hashCode()
+            }
+        }
+    }
+
+    given("a RolNietNatuurlijkPersoon created via the no-arg constructor") {
+        val rol = RolNietNatuurlijkPersoon()
+
+        `when`("getNaam and getIdentificatienummer are called") {
+            then("both return null since there is no betrokkeneIdentificatie") {
+                rol.naam shouldBe null
+                rol.identificatienummer shouldBe null
+            }
+        }
+    }
+
+    given("a RolNietNatuurlijkPersoon created via the uuid constructor for reads") {
+        val rol = createRolNietNatuurlijkPersoonForReads(
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = "fakeKvkNummer")
+        )
+
+        `when`("getIdentificatienummer is called") {
+            then("it returns the kvkNummer") {
+                rol.identificatienummer shouldBe "fakeKvkNummer"
+            }
+        }
+    }
+
+    given("two RolNietNatuurlijkPersoon instances with the exact same betrokkeneIdentificatie reference") {
+        val roltype = createRolType()
+        val sharedIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = "fakeKvkNummer")
+        val rolA = createRolNietNatuurlijkPersoon(rolType = roltype, nietNatuurlijkPersoonIdentificatie = sharedIdentificatie)
+        val rolB = createRolNietNatuurlijkPersoon(rolType = roltype, nietNatuurlijkPersoonIdentificatie = sharedIdentificatie)
+
         `when`("equals is called") {
             val isEqual = rolA == rolB
 
-            then("innNnpId takes precedence and the instances are equal") {
+            then("the instances are equal via reference identity") {
                 isEqual shouldBe true
+            }
+        }
+    }
+
+    given("a RolNietNatuurlijkPersoon with a betrokkeneIdentificatie compared to one without") {
+        val roltype = createRolType()
+        val rolA = createRolNietNatuurlijkPersoon(
+            rolType = roltype,
+            nietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie(kvkNummer = "fakeKvkNummer")
+        )
+        val rolB = createRolNietNatuurlijkPersoon(rolType = roltype, nietNatuurlijkPersoonIdentificatie = null)
+
+        `when`("equals is called") {
+            val isEqual = rolA == rolB
+
+            then("the instances are not equal") {
+                isEqual shouldBe false
             }
         }
     }

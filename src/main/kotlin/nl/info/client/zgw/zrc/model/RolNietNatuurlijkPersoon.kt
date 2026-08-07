@@ -15,7 +15,7 @@ import java.util.UUID
 /**
  * Manually copied from [nl.info.client.zgw.zrc.model.generated.RolNietNatuurlijkPersoon] and modified to allow for
  * polymorphism using a generic base [Rol] class.
- * Ideally we would use the generated class, but currently we cannot get the OpenAPI Generator framework to generate
+ * Ideally, we would use the generated class, but currently we cannot get the OpenAPI Generator framework to generate
  * polymorphic relationships correctly.
  */
 class RolNietNatuurlijkPersoon : Rol<NietNatuurlijkPersoonIdentificatie> {
