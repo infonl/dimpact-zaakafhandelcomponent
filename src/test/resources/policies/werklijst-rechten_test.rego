@@ -24,6 +24,14 @@ test_inbox if {
     inbox with input.user.rollen as [ "coordinator" ]
 }
 
+test_inbox_with_recordmanager_role if {
+    inbox with input.user.rollen as [ "recordmanager" ]
+}
+
+test_inbox_with_beheerder_role if {
+    inbox with input.user.rollen as [ "beheerder" ]
+}
+
 test_inbox_wrong_role_fails if {
     not inbox with input.user.rollen as [ "fakeRole" ]
 }
@@ -41,6 +49,10 @@ test_ontkoppelde_documenten_verwijderen_wrong_role_fails if {
 
 test_ontkoppelde_documenten_verwijderen if {
     ontkoppelde_documenten_verwijderen with input.user.rollen as [ "recordmanager" ]
+}
+
+test_ontkoppelde_documenten_verwijderen_with_beheerder_role if {
+    ontkoppelde_documenten_verwijderen with input.user.rollen as [ "beheerder" ]
 }
 
 test_ontkoppelde_documenten_verwijderen_wrong_role_fails if {
@@ -62,6 +74,10 @@ test_inbox_productaanvragen_verwijderen if {
     inbox_productaanvragen_verwijderen with input.user.rollen as [ "recordmanager" ]
 }
 
+test_inbox_productaanvragen_verwijderen_with_beheerder_role if {
+    inbox_productaanvragen_verwijderen with input.user.rollen as [ "beheerder" ]
+}
+
 test_inbox_productaanvragen_verwijderen_wrong_role_fails if {
     not inbox_productaanvragen_verwijderen with input.user.rollen as [ "fakeRole" ]
 }
@@ -75,6 +91,22 @@ test_inbox_productaanvragen_verwijderen_missing_role_fails if {
 #############
 test_zaken_taken if {
     zaken_taken with input.user.rollen as [ "raadpleger" ]
+}
+
+test_zaken_taken_with_behandelaar_role if {
+    zaken_taken with input.user.rollen as [ "behandelaar" ]
+}
+
+test_zaken_taken_with_coordinator_role if {
+    zaken_taken with input.user.rollen as [ "coordinator" ]
+}
+
+test_zaken_taken_with_recordmanager_role if {
+    zaken_taken with input.user.rollen as [ "recordmanager" ]
+}
+
+test_zaken_taken_with_beheerder_role if {
+    zaken_taken with input.user.rollen as [ "beheerder" ]
 }
 
 test_zaken_taken_wrong_role_fails if {
@@ -94,6 +126,14 @@ test_zaken_taken_verdelen_wrong_role_fails if {
 
 test_zaken_taken_verdelen if {
     zaken_taken_verdelen with input.user.rollen as [ "coordinator" ]
+}
+
+test_zaken_taken_verdelen_with_recordmanager_role if {
+    zaken_taken_verdelen with input.user.rollen as [ "recordmanager" ]
+}
+
+test_zaken_taken_verdelen_with_beheerder_role if {
+    zaken_taken_verdelen with input.user.rollen as [ "beheerder" ]
 }
 
 test_zaken_taken_verdelen_wrong_role_fails if {

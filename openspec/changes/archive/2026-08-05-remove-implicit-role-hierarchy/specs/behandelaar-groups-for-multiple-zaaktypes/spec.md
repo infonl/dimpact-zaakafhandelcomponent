@@ -1,8 +1,5 @@
-# behandelaar-groups-for-multiple-zaaktypes Specification
+## MODIFIED Requirements
 
-## Purpose
-This capability documents the `POST /rest/identity/behandelaar-groups` endpoint, which returns the intersection of active groups authorised for the `behandelaar` application role across a list of zaaktype descriptions, and its unit-test coverage.
-## Requirements
 ### Requirement: Fetch behandelaar groups for multiple zaaktypes
 The system SHALL provide a POST endpoint that accepts a list of zaaktype descriptions and returns the intersection of active groups whose functional role is explicitly mapped (via PABC) to the `behandelaar` application role, across all of them. This endpoint requires the PABC integration feature flag to be enabled. Groups whose functional role is mapped only to `coordinator`, `recordmanager`, or `beheerder` (and not `behandelaar`) SHALL NOT be included, even for a functional role with no domain restriction.
 
@@ -30,15 +27,3 @@ The system SHALL provide a POST endpoint that accepts a list of zaaktype descrip
 - **WHEN** a client calls `POST /rest/identity/behandelaar-groups` with body `{ "zaaktypeDescriptions": ["TypeA", "TypeB"] }`
 - **AND** a group's functional role has no domain restriction but is mapped only to the `beheerder` application role (not `behandelaar`)
 - **THEN** the system SHALL return HTTP 200 excluding that group, even though it would match every zaaktype domain
-
-### Requirement: IdentityRestService unit-tested for the multi-zaaktype endpoint
-The `IdentityRestService.listBehandelaarGroupsForZaaktypes` function SHALL be covered by unit tests that verify the HTTP response contract without relying on PABC or Keycloak.
-
-#### Scenario: Non-empty descriptions list with a common authorised group
-- **WHEN** `listBehandelaarGroupsForZaaktypes` is called with a non-empty `RestBehandelaarGroupsRequest`
-- **THEN** it SHALL return HTTP 200 with the groups provided by `IdentityService.listActiveGroupsForBehandelaarRoleAndZaaktypes`
-
-#### Scenario: Empty descriptions list
-- **WHEN** `listBehandelaarGroupsForZaaktypes` is called with a `RestBehandelaarGroupsRequest` containing an empty list
-- **THEN** it SHALL return HTTP 400 without calling `IdentityService`
-

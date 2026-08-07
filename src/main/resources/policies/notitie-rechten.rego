@@ -7,8 +7,11 @@
 #
 package net.atos.zac.notitie
 
+import data.net.atos.zac.rol.beheerder
 import data.net.atos.zac.rol.behandelaar
+import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.raadpleger
+import data.net.atos.zac.rol.recordmanager
 import input.user
 
 notitie_rechten := {
@@ -18,10 +21,12 @@ notitie_rechten := {
 
 default lezen := false
 lezen if {
-    raadpleger.rol in user.rollen
+    some role in {raadpleger, behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default wijzigen := false
 wijzigen if {
-    behandelaar.rol in user.rollen
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }

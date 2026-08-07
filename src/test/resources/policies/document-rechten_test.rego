@@ -18,6 +18,7 @@ import data.net.atos.zac.document.toevoegen_nieuwe_versie
 import data.net.atos.zac.document.verplaatsen
 import data.net.atos.zac.document.ontkoppelen
 import data.net.atos.zac.document.downloaden
+import data.net.atos.zac.document.converteren
 
 ##################
 # zaaktype_allowed
@@ -107,6 +108,34 @@ test_lezen if {
         with input.user.zaaktypen as ["firstType", "type"]
 }
 
+test_lezen_with_behandelaar_role if {
+    lezen
+        with input.user.rollen as ["behandelaar"]
+        with input.document.zaaktype as "type"
+        with input.user.zaaktypen as ["firstType", "type"]
+}
+
+test_lezen_with_coordinator_role if {
+    lezen
+        with input.user.rollen as ["coordinator"]
+        with input.document.zaaktype as "type"
+        with input.user.zaaktypen as ["firstType", "type"]
+}
+
+test_lezen_with_recordmanager_role if {
+    lezen
+        with input.user.rollen as ["recordmanager"]
+        with input.document.zaaktype as "type"
+        with input.user.zaaktypen as ["firstType", "type"]
+}
+
+test_lezen_with_beheerder_role if {
+    lezen
+        with input.user.rollen as ["beheerder"]
+        with input.document.zaaktype as "type"
+        with input.user.zaaktypen as ["firstType", "type"]
+}
+
 test_lezen_missing_role_fails if {
     not lezen
         with input.document.zaaktype as "type"
@@ -154,6 +183,14 @@ test_wijzigen_behandelaar_locked_by_user if {
         with input.document.vergrendeld as true
         with input.document.vergrendeld_door as "1"
         with input.user.id as "1"
+}
+
+test_wijzigen_coordinator_unlocked if {
+    wijzigen
+        with input.user.rollen as ["coordinator"]
+        with input.document.zaak_open as true
+        with input.document.definitief as false
+        with input.document.vergrendeld as false
 }
 
 test_wijzigen_behandelaar_missing_role_fails if {
@@ -210,6 +247,11 @@ test_wijzigen_behandelaar_not_onvergrendeld_of_vergrendeld_door_user_fails if {
 test_wijzigen_recordmanager if {
     wijzigen
         with input.user.rollen as ["recordmanager"]
+}
+
+test_wijzigen_beheerder if {
+    wijzigen
+        with input.user.rollen as ["beheerder"]
 }
 
 test_wijzigen_recordmanager_zaaktype_not_allowed_fails if {
@@ -273,9 +315,23 @@ test_verwijderen_behandelaar_missing_role_fails if {
         with input.document.vergrendeld as false
 }
 
+test_verwijderen_coordinator if {
+    verwijderen
+        with input.user.rollen as ["coordinator"]
+        with input.document.zaak_open as true
+        with input.document.definitief as false
+        with input.document.vergrendeld as false
+}
+
 test_verwijderen_recordmanager if {
     verwijderen
         with input.user.rollen as ["recordmanager"]
+        with input.document.vergrendeld as false
+}
+
+test_verwijderen_beheerder if {
+    verwijderen
+        with input.user.rollen as ["beheerder"]
         with input.document.vergrendeld as false
 }
 
@@ -303,6 +359,24 @@ test_verwijderen_wrong_role_fails if {
 test_vergrendelen if {
     vergrendelen
         with input.user.rollen as ["behandelaar"]
+        with input.document.zaak_open as true
+}
+
+test_vergrendelen_with_coordinator_role if {
+    vergrendelen
+        with input.user.rollen as ["coordinator"]
+        with input.document.zaak_open as true
+}
+
+test_vergrendelen_with_recordmanager_role if {
+    vergrendelen
+        with input.user.rollen as ["recordmanager"]
+        with input.document.zaak_open as true
+}
+
+test_vergrendelen_with_beheerder_role if {
+    vergrendelen
+        with input.user.rollen as ["beheerder"]
         with input.document.zaak_open as true
 }
 
@@ -350,6 +424,14 @@ test_ontgrendelen_behandelaar_locked_by_other_user_fails if {
         with input.document.vergrendeld_door as "2"
 }
 
+test_ontgrendelen_coordinator if {
+    ontgrendelen
+        with input.user.rollen as ["coordinator"]
+        with input.document.zaak_open as true
+        with input.user.id as "1"
+        with input.document.vergrendeld_door as "1"
+}
+
 test_ontgrendelen_recordmanager if {
     ontgrendelen
         with input.user.rollen as ["recordmanager"]
@@ -360,6 +442,12 @@ test_ontgrendelen_recordmanager_zaak_closed if {
     ontgrendelen
         with input.user.rollen as ["recordmanager"]
         with input.document.zaak_open as false
+}
+
+test_ontgrendelen_beheerder if {
+    ontgrendelen
+        with input.user.rollen as ["beheerder"]
+        with input.document.zaak_open as true
 }
 
 test_ontgrendelen_wrong_role_fails if {
@@ -406,6 +494,27 @@ test_ondertekenen_behandelaar_locked_by_another_user_fails if  {
         with input.document.vergrendeld_door as "2"
 }
 
+test_ondertekenen_with_coordinator_role if {
+    ondertekenen
+        with input.user.rollen as ["coordinator"]
+        with input.document.zaak_open as true
+        with input.document.vergrendeld as false
+}
+
+test_ondertekenen_with_recordmanager_role if {
+    ondertekenen
+        with input.user.rollen as ["recordmanager"]
+        with input.document.zaak_open as true
+        with input.document.vergrendeld as false
+}
+
+test_ondertekenen_with_beheerder_role if {
+    ondertekenen
+        with input.user.rollen as ["beheerder"]
+        with input.document.zaak_open as true
+        with input.document.vergrendeld as false
+}
+
 test_ondertekenen_wrong_role_fails if {
     not ondertekenen
         with input.user.rollen as ["fakeRole"]
@@ -419,14 +528,6 @@ test_ondertekenen_missing_role_fails if {
 #########################
 # toevoegen_nieuwe_versie
 #########################
-test_toevoegen_nieuwe_versie_behandelaar if {
-    toevoegen_nieuwe_versie
-        with input.user.rollen as ["behandelaar"]
-        with input.document.zaak_open as true
-        with input.document.definitief as false
-        with input.document.vergrendeld as false
-}
-
 test_toevoegen_nieuwe_versie_behandelaar if {
     toevoegen_nieuwe_versie
         with input.user.rollen as ["behandelaar"]
@@ -471,6 +572,14 @@ test_toevoegen_nieuwe_versie_behandelaar_locked_by_other_user_fails if {
         with input.document.vergrendeld_door as "2"
 }
 
+test_toevoegen_nieuwe_versie_coordinator if {
+    toevoegen_nieuwe_versie
+        with input.user.rollen as ["coordinator"]
+        with input.document.zaak_open as true
+        with input.document.definitief as false
+        with input.document.vergrendeld as false
+}
+
 test_toevoegen_nieuwe_versie_recordmanager if {
     toevoegen_nieuwe_versie
         with input.user.rollen as ["recordmanager"]
@@ -481,6 +590,11 @@ test_toevoegen_nieuwe_versie_recordmanager_ondertekend if {
     toevoegen_nieuwe_versie
         with input.user.rollen as ["recordmanager"]
         with input.document.ondertekend as true
+}
+
+test_toevoegen_nieuwe_versie_beheerder if {
+    toevoegen_nieuwe_versie
+        with input.user.rollen as ["beheerder"]
 }
 
 test_toevoegen_nieuwe_versie_wrong_role_fails if {
@@ -535,13 +649,26 @@ test_verplaatsen_behandelaar_locked_other_user_fails if {
         with input.document.vergrendeld_door as "2"
 }
 
+test_verplaatsen_coordinator if {
+    verplaatsen
+        with input.user.rollen as ["coordinator"]
+        with input.document.zaak_open as true
+        with input.document.definitief as false
+        with input.document.vergrendeld as false
+}
+
 test_verplaatsen_recordmanager if {
     verplaatsen
         with input.user.rollen as ["recordmanager"]
 }
 
-test_verplaatsen_behandelaar_wrong_role_fails if {
-    not toevoegen_nieuwe_versie
+test_verplaatsen_beheerder if {
+    verplaatsen
+        with input.user.rollen as ["beheerder"]
+}
+
+test_verplaatsen_wrong_role_fails if {
+    not verplaatsen
         with input.user.rollen as ["fakeRole"]
 }
 
@@ -592,9 +719,22 @@ test_ontkoppelen_behandelaar_locked_by_another_user_fails if {
         with input.document.vergrendeld_door as "2"
 }
 
+test_ontkoppelen_coordinator if {
+    ontkoppelen
+        with input.user.rollen as ["coordinator"]
+        with input.document.zaak_open as true
+        with input.document.definitief as false
+        with input.document.vergrendeld as false
+}
+
 test_ontkoppelen_recordmanager if  {
     ontkoppelen
         with input.user.rollen as ["recordmanager"]
+}
+
+test_ontkoppelen_beheerder if  {
+    ontkoppelen
+        with input.user.rollen as ["beheerder"]
 }
 
 test_ontkoppelen_missing_role_fails if {
@@ -615,12 +755,32 @@ test_downloaden if  {
         with input.user.rollen as ["raadpleger"]
 }
 
-test_ontkoppelen_missing_role_fails if {
+test_downloaden_with_behandelaar_role if {
+    downloaden
+        with input.user.rollen as ["behandelaar"]
+}
+
+test_downloaden_with_coordinator_role if {
+    downloaden
+        with input.user.rollen as ["coordinator"]
+}
+
+test_downloaden_with_recordmanager_role if {
+    downloaden
+        with input.user.rollen as ["recordmanager"]
+}
+
+test_downloaden_with_beheerder_role if {
+    downloaden
+        with input.user.rollen as ["beheerder"]
+}
+
+test_downloaden_missing_role_fails if {
     not downloaden
         with input.document.zaak_open as true
 }
 
-test_ontkoppelen_wrong_role_fails if {
+test_downloaden_wrong_role_fails if {
     not downloaden
         with input.user.rollen as ["fakeRole"]
 }
@@ -631,6 +791,24 @@ test_ontkoppelen_wrong_role_fails if {
 test_converteren if  {
     converteren
         with input.user.rollen as ["behandelaar"]
+        with input.document.definitief as true
+}
+
+test_converteren_with_coordinator_role if {
+    converteren
+        with input.user.rollen as ["coordinator"]
+        with input.document.definitief as true
+}
+
+test_converteren_with_recordmanager_role if {
+    converteren
+        with input.user.rollen as ["recordmanager"]
+        with input.document.definitief as true
+}
+
+test_converteren_with_beheerder_role if {
+    converteren
+        with input.user.rollen as ["beheerder"]
         with input.document.definitief as true
 }
 

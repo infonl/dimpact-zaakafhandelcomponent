@@ -64,6 +64,22 @@ test_lezen if {
     lezen with input.user.rollen as [ "raadpleger" ]
 }
 
+test_lezen_with_behandelaar_role if {
+    lezen with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_with_coordinator_role if {
+    lezen with input.user.rollen as [ "coordinator" ]
+}
+
+test_lezen_with_recordmanager_role if {
+    lezen with input.user.rollen as [ "recordmanager" ]
+}
+
+test_lezen_with_beheerder_role if {
+    lezen with input.user.rollen as [ "beheerder" ]
+}
+
 test_lezen_wrong_role_fails if {
     not lezen with input.user.rollen as [ "fakeRole" ]
 }
@@ -87,13 +103,42 @@ test_wijzigen_behandelaar_zaak_closed_fails if {
         with input.zaak.open as false
 }
 
+test_wijzigen_coordinator if {
+    wijzigen
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_wijzigen_coordinator_zaak_closed_fails if {
+    not wijzigen
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as false
+}
+
 test_wijzigen_recordmanager if {
     wijzigen
         with input.user.rollen as [ "recordmanager" ]
 }
 
+test_wijzigen_beheerder if {
+    wijzigen
+        with input.user.rollen as [ "beheerder" ]
+}
+
+test_wijzigen_beheerder_zaak_closed_still_succeeds if {
+    wijzigen
+        with input.user.rollen as [ "beheerder" ]
+        with input.zaak.open as false
+}
+
 test_wijzigen_wrong_role_fails if {
     not wijzigen with input.user.rollen as [ "fakeRole" ]
+}
+
+test_wijzigen_raadpleger_role_fails if {
+    not wijzigen
+        with input.user.rollen as [ "raadpleger" ]
+        with input.zaak.open as true
 }
 
 test_wijzigen_missing_role_fails if {
@@ -115,13 +160,36 @@ test_toekennen_behandelaar_zaak_closed_fails if {
         with input.zaak.open as false
 }
 
+test_toekennen_coordinator if {
+    toekennen
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_toekennen_coordinator_zaak_closed_fails if {
+    not toekennen
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as false
+}
+
 test_toekennen_recordmanager if {
-    wijzigen
+    toekennen
         with input.user.rollen as [ "recordmanager" ]
+}
+
+test_toekennen_beheerder if {
+    toekennen
+        with input.user.rollen as [ "beheerder" ]
 }
 
 test_toekennen_wrong_role_fails if {
     not toekennen with input.user.rollen as [ "fakeRole" ]
+}
+
+test_toekennen_raadpleger_role_fails if {
+    not toekennen
+        with input.user.rollen as [ "raadpleger" ]
+        with input.zaak.open as true
 }
 
 test_toekennen_missing_role_fails if {
@@ -133,6 +201,18 @@ test_toekennen_missing_role_fails if {
 ############
 test_behandelen if {
     behandelen with input.user.rollen as [ "behandelaar" ]
+}
+
+test_behandelen_with_coordinator_role if {
+    behandelen with input.user.rollen as [ "coordinator" ]
+}
+
+test_behandelen_with_recordmanager_role if {
+    behandelen with input.user.rollen as [ "recordmanager" ]
+}
+
+test_behandelen_with_beheerder_role if {
+    behandelen with input.user.rollen as [ "beheerder" ]
 }
 
 test_behandelen_wrong_role_fails if {
@@ -150,6 +230,18 @@ test_afbreken if {
     afbreken with input.user.rollen as [ "behandelaar" ]
 }
 
+test_afbreken_with_coordinator_role if {
+    afbreken with input.user.rollen as [ "coordinator" ]
+}
+
+test_afbreken_with_recordmanager_role if {
+    afbreken with input.user.rollen as [ "recordmanager" ]
+}
+
+test_afbreken_with_beheerder_role if {
+    afbreken with input.user.rollen as [ "beheerder" ]
+}
+
 test_afbreken_wrong_role_fails if {
     not afbreken with input.user.rollen as [ "fakeRole" ]
 }
@@ -163,6 +255,10 @@ test_afbreken_missing_role_fails if {
 ###########
 test_heropenen if {
     heropenen with input.user.rollen as [ "recordmanager" ]
+}
+
+test_heropenen_with_beheerder_role if {
+    heropenen with input.user.rollen as [ "beheerder" ]
 }
 
 test_heropenen_wrong_role_fails if {
@@ -197,6 +293,24 @@ test_wijzigen_doorlooptijd if {
         with input.zaak.open as true
 }
 
+test_wijzigen_doorlooptijd_with_coordinator_role if {
+    wijzigen_doorlooptijd
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_wijzigen_doorlooptijd_with_recordmanager_role if {
+    wijzigen_doorlooptijd
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as true
+}
+
+test_wijzigen_doorlooptijd_with_beheerder_role if {
+    wijzigen_doorlooptijd
+        with input.user.rollen as [ "beheerder" ]
+        with input.zaak.open as true
+}
+
 test_wijzigen_doorlooptijd_wrong_role_fails if {
     not wijzigen_doorlooptijd
         with input.user.rollen as [ "fakeRole" ]
@@ -221,6 +335,33 @@ test_wijzigen_doorlooptijd_zaak_closed_fails if {
 test_verlengen if {
     verlengen
         with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as false
+        with input.zaak.verlengd as false
+}
+
+test_verlengen_with_coordinator_role if {
+    verlengen
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as false
+        with input.zaak.verlengd as false
+}
+
+test_verlengen_with_recordmanager_role if {
+    verlengen
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as true
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as false
+        with input.zaak.verlengd as false
+}
+
+test_verlengen_with_beheerder_role if {
+    verlengen
+        with input.user.rollen as [ "beheerder" ]
         with input.zaak.open as true
         with input.zaak.heropend as false
         with input.zaak.opgeschort as false
@@ -282,6 +423,30 @@ test_opschorten if {
         with input.zaak.opgeschort as false
 }
 
+test_opschorten_with_coordinator_role if {
+    opschorten
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as false
+}
+
+test_opschorten_with_recordmanager_role if {
+    opschorten
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as true
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as false
+}
+
+test_opschorten_with_beheerder_role if {
+    opschorten
+        with input.user.rollen as [ "beheerder" ]
+        with input.zaak.open as true
+        with input.zaak.heropend as false
+        with input.zaak.opgeschort as false
+}
+
 test_opschorten_zaak_closed_fails if {
     not opschorten
         with input.user.rollen as [ "behandelaar" ]
@@ -321,6 +486,18 @@ test_hervatten if {
     hervatten with input.user.rollen as [ "behandelaar" ]
 }
 
+test_hervatten_with_coordinator_role if {
+    hervatten with input.user.rollen as [ "coordinator" ]
+}
+
+test_hervatten_with_recordmanager_role if {
+    hervatten with input.user.rollen as [ "recordmanager" ]
+}
+
+test_hervatten_with_beheerder_role if {
+    hervatten with input.user.rollen as [ "beheerder" ]
+}
+
 test_hervatten_wrong_role_fails if {
     not hervatten with input.user.rollen as [ "fakeRole" ]
 }
@@ -335,6 +512,24 @@ test_hervatten_missing_role_fails if {
 test_creeren_document if {
     creeren_document
         with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_creeren_document_with_coordinator_role if {
+    creeren_document
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_creeren_document_with_recordmanager_role if {
+    creeren_document
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as true
+}
+
+test_creeren_document_with_beheerder_role if {
+    creeren_document
+        with input.user.rollen as [ "beheerder" ]
         with input.zaak.open as true
 }
 
@@ -367,10 +562,27 @@ test_toevoegen_document_behandelaar_zaak_closed_fails if {
         with input.zaak.open as false
 }
 
+test_toevoegen_document_coordinator if {
+    toevoegen_document
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_document_coordinator_zaak_closed_fails if {
+    not toevoegen_document
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as false
+}
+
 test_toevoegen_document_recordmanager if {
     toevoegen_document
         with input.user.rollen as [ "recordmanager" ]
         with input.zaak.open as true
+}
+
+test_toevoegen_document_beheerder if {
+    toevoegen_document
+        with input.user.rollen as [ "beheerder" ]
 }
 
 test_toevoegen_document_wrong_role_fails if {
@@ -396,9 +608,26 @@ test_koppelen_zaak_closed_fails if {
         with input.zaak.open as false
 }
 
+test_koppelen_coordinator if {
+    koppelen
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_koppelen_coordinator_zaak_closed_fails if {
+    not koppelen
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as false
+}
+
 test_koppelen_recordmanager if {
     koppelen
         with input.user.rollen as [ "recordmanager" ]
+}
+
+test_koppelen_beheerder if {
+    koppelen
+        with input.user.rollen as [ "beheerder" ]
 }
 
 test_koppelen_wrong_role_fails if {
@@ -416,6 +645,24 @@ test_koppelen_missing_role_fails if {
 test_versturen_email if {
     versturen_email
         with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_versturen_email_with_coordinator_role if {
+    versturen_email
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_versturen_email_with_recordmanager_role if {
+    versturen_email
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as true
+}
+
+test_versturen_email_with_beheerder_role if {
+    versturen_email
+        with input.user.rollen as [ "beheerder" ]
         with input.zaak.open as true
 }
 
@@ -439,6 +686,24 @@ test_versturen_email_missing_role_fails if {
 test_versturen_ontvangstbevestiging if {
     versturen_ontvangstbevestiging
         with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_versturen_ontvangstbevestiging_with_coordinator_role if {
+    versturen_ontvangstbevestiging
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_versturen_ontvangstbevestiging_with_recordmanager_role if {
+    versturen_ontvangstbevestiging
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as true
+}
+
+test_versturen_ontvangstbevestiging_with_beheerder_role if {
+    versturen_ontvangstbevestiging
+        with input.user.rollen as [ "beheerder" ]
         with input.zaak.open as true
 }
 
@@ -471,9 +736,26 @@ test_toevoegen_initiator_persoon_behandelaar_zaak_closed_fails if {
         with input.zaak.open as false
 }
 
+test_toevoegen_initiator_persoon_coordinator if {
+    toevoegen_initiator_persoon
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_initiator_persoon_coordinator_zaak_closed_fails if {
+    not toevoegen_initiator_persoon
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as false
+}
+
 test_toevoegen_initiator_persoon_recordmanager if {
     toevoegen_initiator_persoon
         with input.user.rollen as [ "recordmanager" ]
+}
+
+test_toevoegen_initiator_persoon_beheerder if {
+    toevoegen_initiator_persoon
+        with input.user.rollen as [ "beheerder" ]
 }
 
 test_toevoegen_initiator_persoon_wrong_role_fails if {
@@ -499,9 +781,26 @@ test_toevoegen_initiator_bedrijf_behandelaar_zaak_closed_fails if {
         with input.zaak.open as false
 }
 
+test_toevoegen_initiator_bedrijf_coordinator if {
+    toevoegen_initiator_bedrijf
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_initiator_bedrijf_coordinator_zaak_closed_fails if {
+    not toevoegen_initiator_bedrijf
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as false
+}
+
 test_toevoegen_initiator_bedrijf_recordmanager if {
     toevoegen_initiator_bedrijf
         with input.user.rollen as [ "recordmanager" ]
+}
+
+test_toevoegen_initiator_bedrijf_beheerder if {
+    toevoegen_initiator_bedrijf
+        with input.user.rollen as [ "beheerder" ]
 }
 
 test_toevoegen_initiator_bedrijf_wrong_role_fails if {
@@ -527,9 +826,26 @@ test_verwijderen_initiator_behandelaar_zaak_closed_fails if {
         with input.zaak.open as false
 }
 
+test_verwijderen_initiator_coordinator if {
+    verwijderen_initiator
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_verwijderen_initiator_coordinator_zaak_closed_fails if {
+    not verwijderen_initiator
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as false
+}
+
 test_verwijderen_initiator_recordmanager if {
     verwijderen_initiator
         with input.user.rollen as [ "recordmanager" ]
+}
+
+test_verwijderen_initiator_beheerder if {
+    verwijderen_initiator
+        with input.user.rollen as [ "beheerder" ]
 }
 
 test_verwijderen_initiator_wrong_role_fails if {
@@ -555,9 +871,26 @@ test_toevoegen_betrokkene_persoon_behandelaar_zaak_closed_fails if {
         with input.zaak.open as false
 }
 
+test_toevoegen_betrokkene_persoon_coordinator if {
+    toevoegen_betrokkene_persoon
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_betrokkene_persoon_coordinator_zaak_closed_fails if {
+    not toevoegen_betrokkene_persoon
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as false
+}
+
 test_toevoegen_betrokkene_persoon_recordmanager if {
     toevoegen_betrokkene_persoon
         with input.user.rollen as [ "recordmanager" ]
+}
+
+test_toevoegen_betrokkene_persoon_beheerder if {
+    toevoegen_betrokkene_persoon
+        with input.user.rollen as [ "beheerder" ]
 }
 
 test_toevoegen_betrokkene_persoon_wrong_role_fails if {
@@ -583,9 +916,26 @@ test_toevoegen_betrokkene_bedrijf_behandelaar_zaak_closed_fails if {
         with input.zaak.open as false
 }
 
+test_toevoegen_betrokkene_bedrijf_coordinator if {
+    toevoegen_betrokkene_bedrijf
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_betrokkene_bedrijf_coordinator_zaak_closed_fails if {
+    not toevoegen_betrokkene_bedrijf
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as false
+}
+
 test_toevoegen_betrokkene_bedrijf_recordmanager if {
     toevoegen_betrokkene_bedrijf
         with input.user.rollen as [ "recordmanager" ]
+}
+
+test_toevoegen_betrokkene_bedrijf_beheerder if {
+    toevoegen_betrokkene_bedrijf
+        with input.user.rollen as [ "beheerder" ]
 }
 
 test_toevoegen_betrokkene_bedrijf_wrong_role_fails if {
@@ -611,9 +961,26 @@ test_verwijderen_betrokkene_behandelaar_zaak_closed_fails if {
         with input.zaak.open as false
 }
 
+test_verwijderen_betrokkene_coordinator if {
+    verwijderen_betrokkene
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_verwijderen_betrokkene_coordinator_zaak_closed_fails if {
+    not verwijderen_betrokkene
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as false
+}
+
 test_verwijderen_betrokkene_recordmanager if {
     verwijderen_betrokkene
         with input.user.rollen as [ "recordmanager" ]
+}
+
+test_verwijderen_betrokkene_beheerder if {
+    verwijderen_betrokkene
+        with input.user.rollen as [ "beheerder" ]
 }
 
 test_verwijderen_betrokkene_wrong_role_fails if {
@@ -639,9 +1006,26 @@ test_toevoegen_bag_object_behandelaar_zaak_closed_fails if {
         with input.zaak.open as false
 }
 
+test_toevoegen_bag_object_coordinator if {
+    toevoegen_bag_object
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_toevoegen_bag_object_coordinator_zaak_closed_fails if {
+    not toevoegen_bag_object
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as false
+}
+
 test_toevoegen_bag_object_recordmanager if {
     toevoegen_bag_object
         with input.user.rollen as [ "recordmanager" ]
+}
+
+test_toevoegen_bag_object_beheerder if {
+    toevoegen_bag_object
+        with input.user.rollen as [ "beheerder" ]
 }
 
 test_toevoegen_bag_object_wrong_role_fails if {
@@ -658,6 +1042,24 @@ test_toevoegen_bag_object_missing_role_fails if {
 test_starten_taak if {
     starten_taak
         with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+}
+
+test_starten_taak_with_coordinator_role if {
+    starten_taak
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_starten_taak_with_recordmanager_role if {
+    starten_taak
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as true
+}
+
+test_starten_taak_with_beheerder_role if {
+    starten_taak
+        with input.user.rollen as [ "beheerder" ]
         with input.zaak.open as true
 }
 
@@ -681,6 +1083,30 @@ test_starten_taak_missing_role_fails if {
 test_vastleggen_besluit if {
     vastleggen_besluit
         with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as true
+        with input.zaak.intake as false
+        with input.zaak.besloten as true
+}
+
+test_vastleggen_besluit_with_coordinator_role if {
+    vastleggen_besluit
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+        with input.zaak.intake as false
+        with input.zaak.besloten as true
+}
+
+test_vastleggen_besluit_with_recordmanager_role if {
+    vastleggen_besluit
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as true
+        with input.zaak.intake as false
+        with input.zaak.besloten as true
+}
+
+test_vastleggen_besluit_with_beheerder_role if {
+    vastleggen_besluit
+        with input.user.rollen as [ "beheerder" ]
         with input.zaak.open as true
         with input.zaak.intake as false
         with input.zaak.besloten as true
@@ -733,6 +1159,24 @@ test_verlengen_doorlooptijd if {
         with input.zaak.open as true
 }
 
+test_verlengen_doorlooptijd_with_coordinator_role if {
+    verlengen_doorlooptijd
+        with input.user.rollen as [ "coordinator" ]
+        with input.zaak.open as true
+}
+
+test_verlengen_doorlooptijd_with_recordmanager_role if {
+    verlengen_doorlooptijd
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as true
+}
+
+test_verlengen_doorlooptijd_with_beheerder_role if {
+    verlengen_doorlooptijd
+        with input.user.rollen as [ "beheerder" ]
+        with input.zaak.open as true
+}
+
 test_verlengen_doorlooptijd_zaak_closed_fails if {
     not verlengen_doorlooptijd
         with input.user.rollen as [ "behandelaar" ]
@@ -765,6 +1209,12 @@ test_wijzigen_locatie_zaak_closed_fails if {
 test_wijzigen_locatie_close_case_recordmanager if {
     wijzigen_locatie
         with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as false
+}
+
+test_wijzigen_locatie_close_case_beheerder if {
+    wijzigen_locatie
+        with input.user.rollen as [ "beheerder" ]
         with input.zaak.open as false
 }
 

@@ -121,8 +121,11 @@ class IdentityServiceTest : BehaviorSpec({
     context("Getting authorised behandelaar groups for a zaaktype") {
         given(
             """
-            Authorised groups for the application role 'behandelaar' and the given zaaktype, 
-            using the groups' functional roles and the available PABC mappings, and a logged-in beheerder
+            Authorised groups for the application role 'behandelaar' and the given zaaktype,
+            using the groups' functional roles and the available PABC mappings (with no implicit role
+            hierarchy: a group is only returned if its functional role is itself mapped to the
+            'behandelaar' application role, not because it is mapped to 'coordinator', 'recordmanager'
+            or 'beheerder'), and a logged-in beheerder
         """
         ) {
             `when`(
@@ -135,8 +138,9 @@ class IdentityServiceTest : BehaviorSpec({
                 )
                 then(
                     """
-                only the groups authorised for the application role 'behandelaar' and
-                zaaktype test 2 (via the PABC mappings and the group's functional roles) are returned                
+                only the groups explicitly authorised for the application role 'behandelaar' and
+                zaaktype test 2 (via the PABC mappings and the group's functional roles) are returned,
+                and groups only authorised for 'coordinator', 'recordmanager' or 'beheerder' are absent
                 """
                 ) {
                     response.code shouldBe HTTP_OK
@@ -151,24 +155,12 @@ class IdentityServiceTest : BehaviorSpec({
                                     "active": true,
                                     "id": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.name}",
                                     "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}"
-                                },
-                                {
-                                    "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
-                                    "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
-                                    "active": true
-                                },
-                                {
-                                    "id": "${GROUP_COORDINATORS_TEST_1.name}",
-                                    "naam": "${GROUP_COORDINATORS_TEST_1.description}",
-                                    "active": true
-                                },
-                                {
-                                    "id": "${GROUP_RECORDMANAGERS_TEST_1.name}",
-                                    "naam": "${GROUP_RECORDMANAGERS_TEST_1.description}",
-                                    "active": true
                                 }
                             ]
                     """.trimIndent()
+                    response.bodyAsString shouldNotContain GROUP_COORDINATORS_TEST_1.name
+                    response.bodyAsString shouldNotContain GROUP_RECORDMANAGERS_TEST_1.name
+                    response.bodyAsString shouldNotContain GROUP_BEHEERDERS_ELK_DOMEIN.name
                 }
             }
         }
@@ -300,7 +292,8 @@ class IdentityServiceTest : BehaviorSpec({
         given(
             """
             Authorised groups for the application role 'behandelaar' for zaaktype 1 and zaaktype 2,
-            with only 'beheerders-elk-domein' (beheerder_elk_domein functional role) authorised for both,
+            with no implicit role hierarchy: 'beheerders-elk-domein' (beheerder_elk_domein functional role)
+            is mapped only to the 'beheerder' application role and no longer to 'behandelaar',
             and a logged-in beheerder
         """
         ) {
@@ -323,18 +316,14 @@ class IdentityServiceTest : BehaviorSpec({
                     testUser = BEHEERDER_1
                 )
                 then(
-                    "only the group authorised as behandelaar for both zaaktypes (beheerders-elk-domein) is returned"
+                    """
+                    no group is authorised as behandelaar for both zaaktypes, since 'beheerders-elk-domein'
+                    is no longer authorised for the 'behandelaar' application role
+                    """
                 ) {
                     response.code shouldBe HTTP_OK
-                    response.bodyAsString shouldEqualSpecifiedJson """
-                        [
-                            {
-                                "id": "${GROUP_BEHEERDERS_ELK_DOMEIN.name}",
-                                "naam": "${GROUP_BEHEERDERS_ELK_DOMEIN.description}",
-                                "active": true
-                            }
-                        ]
-                    """.trimIndent()
+                    response.bodyAsString shouldEqualSpecifiedJson "[]"
+                    response.bodyAsString shouldNotContain GROUP_BEHEERDERS_ELK_DOMEIN.name
                 }
             }
         }
