@@ -4,9 +4,9 @@
 
 
 > **Colofon** <br>
-> Datum :21-05-2026 <br>
-> Versie :   1.7.1 <br>
-> Verandering : ZAC v5.2 Handleiding <br>
+> Datum :05-08-2026 <br>
+> Versie :   1.8 <br>
+> Verandering : ZAC v5.5 Handleiding <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -16,28 +16,29 @@
 
 Versiegeschiedenis:
 
-| 0.1   | Initiële versie |
+| 0.1   | Initiële versie                                                                                                                            |
 |-------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| 0.2   | Update nav sprints opgeleverd op 30-11-2022, 14-12-2022, 11-1-2023, 25-1-2023  |
+| 0.2   | Update nav sprints opgeleverd op 30-11-2022, 14-12-2022, 11-1-2023, 25-1-2023                                                              |
 | 1.0   | Update nav sprints opgeleverd op 9-2-2023 en 23-2-2023<br><br>Heropenen zaak, Zaak koppelen, Werking van de taak: Advies extern toegevoegd |
-| 1.1   | Update nav sprints opgeleverd op 8-3-2023 en 22-3-2023 |
-| 1.2   | Update nav sprints opgeleverd op 5-4-2023 en 19-4-2023 |
-| 1.3   | Update nav sprints opgeleverd op 3-5-2023 en 31-5-2023 |
-| 1.4   | Update format wijziging en redigeerwerk van 29-8-2023|
-| 1.5   | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024 |
-| 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon 
-| 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown |
-| 1.6.1 | Toevoeging indicaties voor personen |
-| 1.6.2 | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen |
-| 1.6.3 | Screendumps vernieuwd naar aanleiding van menu en detailveld, en kleine tekstuele aanpassingen |
-| 1.6.4 | Nieuwe screendumps, koppeling aanpassingen tekstueel verwerkt |
-| 1.6.5 | Aanpassingen locatie scherm en werking verwerkt |
-| 1.6.6 | ZAC v3.8 Handleiding |
-| 1.6.7 | ZAC v3.9 Handleiding |
-| 1.6.8 | ZAC v3.11 Handleiding |
-| 1.6.9 | ZAC v3.12 Handleiding |
-| 1.7 | ZAC v4.10 Handleiding |
-| 1.7.1 | ZAC v5.2 Handleiding, toevoeging gerelateerde zaken |
+| 1.1   | Update nav sprints opgeleverd op 8-3-2023 en 22-3-2023                                                                                     |
+| 1.2   | Update nav sprints opgeleverd op 5-4-2023 en 19-4-2023                                                                                     |
+| 1.3   | Update nav sprints opgeleverd op 3-5-2023 en 31-5-2023                                                                                     |
+| 1.4   | Update format wijziging en redigeerwerk van 29-8-2023                                                                                      |
+| 1.5   | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024                                                                                   |
+| 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                 |
+| 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown                                                                                          |
+| 1.6.1 | Toevoeging indicaties voor personen                                                                                                        |
+| 1.6.2 | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen                                              |
+| 1.6.3 | Screendumps vernieuwd naar aanleiding van menu en detailveld, en kleine tekstuele aanpassingen                                             |
+| 1.6.4 | Nieuwe screendumps, koppeling aanpassingen tekstueel verwerkt                                                                              |
+| 1.6.5 | Aanpassingen locatie scherm en werking verwerkt                                                                                            |
+| 1.6.6 | ZAC v3.8 Handleiding                                                                                                                       |
+| 1.6.7 | ZAC v3.9 Handleiding                                                                                                                       |
+| 1.6.8 | ZAC v3.11 Handleiding                                                                                                                      |
+| 1.6.9 | ZAC v3.12 Handleiding                                                                                                                      |
+| 1.7   | ZAC v4.10 Handleiding                                                                                                                      |
+| 1.7.1 | ZAC v5.2 Handleiding, toevoeging gerelateerde zaken                                                                                        |
+| 1.8   | ZAC v5.5 Handleiding, verwijderen impliciete applicatierol hiërarchie                                                                      |
 
 <div style="page-break-after: always"></div>
 
@@ -167,15 +168,17 @@ Zodra een werklijst, zaak, taak of document geopend is, dan verschijnt deze in h
 
 ## Rollen en rechten
 
-De beschikbaarheid van functionaliteit voor een gebruiker in het ZAC is verbonden aan rechten. Er wordt momenteel gewerkt met vier rollen voor gebruikers, hieronder volgt een korte omschrijving. Deze rollen zijn nog in ontwikkeling. Het komt dus voor dat functionaliteit, zoals beschreven in deze handleiding, niet beschikbaar voor jou is omdat een rol niet aan jou is toegewezen.
+De beschikbaarheid van functionaliteit voor een gebruiker in het ZAC is verbonden aan rechten. Er wordt momenteel gewerkt met vijf rollen voor gebruikers, hieronder volgt een korte omschrijving. Deze rollen zijn nog in ontwikkeling. Het komt dus voor dat functionaliteit, zoals beschreven in deze handleiding, niet beschikbaar voor jou is omdat een rol niet aan jou is toegewezen.
 
-Raadpleger: heeft rechten om zaken, taken, notities en documenten te raadplegen, maar niet om deze te wijzigen.
+* Raadpleger: heeft rechten om zaken, taken, notities en documenten te raadplegen, maar niet om deze te wijzigen.
 
-Behandelaar: heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken. Er zijn enkele beperkingen op het gebied van werk verdelen, definitieve documenten en beëindigde zaken.
+* Behandelaar: heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken. Er zijn enkele beperkingen op het gebied van werk verdelen, definitieve documenten en beëindigde zaken.
 
-Coördinator: heeft rechten om vanuit werklijsten werk te verdelen en zaken en taken te raadplegen
+* Coördinator: heeft rechten om vanuit werklijsten werk te verdelen, en om zaken, taken, documenten en notities te raadplegen en te wijzigen. Er gelden dezelfde beperkingen op het gebied van definitieve documenten en beëindigde zaken als voor de behandelaar.
 
-Recordmanager: mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken zoals een zaak heropenen.
+* Recordmanager: mag zaken en taken raadplegen, wijzigen en toekennen, en een zaak heropenen. Daarnaast mag de recordmanager documenten raadplegen, wijzigen, verwijderen, (ont)vergrendelen, van een nieuwe versie voorzien, verplaatsen, ontkoppelen en converteren (ook als de zaak beëindigd of het document definitief is).
+
+* Beheerder: heeft toegang tot de beheerschermen van ZAC om instellingen aan te maken en te wijzigen, en heeft daarnaast ook alle rechten van de hierboven genoemde rollen. Deze beheerfunctionaliteit wordt beschreven in het document: "Inrichting Zaakafhandelcomponent". 
 
 <div style="page-break-after: always"></div>
 
