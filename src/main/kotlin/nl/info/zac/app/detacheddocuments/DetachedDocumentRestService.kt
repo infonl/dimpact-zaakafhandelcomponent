@@ -99,7 +99,7 @@ class DetachedDocumentRestService @Inject constructor(
         enkelvoudigInformatieobject?.let { informatieobject ->
             val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(informatieobject)
             if (zaakInformatieobjecten.isNotEmpty()) {
-                val zaakUuid = zaakInformatieobjecten.first().zaak!!.extractUuid()
+                val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
                 error("Informatieobject is gekoppeld aan zaak '$zaakUuid'")
             }
             drcClientService.deleteEnkelvoudigInformatieobject(documentUUID)

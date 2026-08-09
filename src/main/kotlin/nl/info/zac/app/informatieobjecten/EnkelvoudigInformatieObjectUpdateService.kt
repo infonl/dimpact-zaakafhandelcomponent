@@ -138,7 +138,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
 
             mutableListOf<UUID>().apply {
                 addAll(readTaskDocuments(task))
-                add(zaakInformatieobject.informatieobject!!.extractUuid())
+                add(zaakInformatieobject.informatieobject.extractUuid())
             }.let {
                 taakVariabelenService.setTaakdocumenten(task, it)
             }

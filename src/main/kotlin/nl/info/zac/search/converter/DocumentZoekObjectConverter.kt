@@ -44,7 +44,7 @@ class DocumentZoekObjectConverter @Inject constructor(
         informatieobject: EnkelvoudigInformatieObject,
         gekoppeldeZaakInformatieobject: ZaakInformatieobject
     ): DocumentZoekObject {
-        val zaak = zrcClientService.readZaak(gekoppeldeZaakInformatieobject.zaakUUID!!)
+        val zaak = zrcClientService.readZaak(gekoppeldeZaakInformatieobject.zaakUUID)
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val informatieobjecttype = ztcClientService.readInformatieobjecttype(informatieobject.informatieobjecttype)
         val informatieobjectUUID = informatieobject.url.extractUuid()

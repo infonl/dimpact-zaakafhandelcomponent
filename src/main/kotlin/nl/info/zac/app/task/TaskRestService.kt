@@ -349,7 +349,7 @@ class TaskRestService @Inject constructor(
                             )
                             taakdata.replace(
                                 key,
-                                zaakInformatieobject.informatieobject!!.extractUuid().toString()
+                                zaakInformatieobject.informatieobject.extractUuid().toString()
                             )
                         } catch (jsonProcessingException: JsonProcessingException) {
                             throw IllegalArgumentException(

@@ -132,7 +132,7 @@ class IndexingService @Inject constructor(
 
     fun addOrUpdateInformatieobjectByZaakinformatieobject(zaakinformatieobjectUUID: UUID) =
         addOrUpdateInformatieobject(
-            zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject!!.extractUuid()
+            zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject.extractUuid()
         )
 
     fun addOrUpdateTaak(taskID: String) = indexeerDirect(taskID, ZoekObjectType.TAAK, false)

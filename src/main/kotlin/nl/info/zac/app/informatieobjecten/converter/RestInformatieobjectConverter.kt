@@ -63,9 +63,9 @@ class RestInformatieobjectConverter @Inject constructor(
 
     fun convertToREST(zaakInformatieObject: ZaakInformatieobject): RestEnkelvoudigInformatieobject {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
-            zaakInformatieObject.informatieobject!!
+            zaakInformatieObject.informatieobject
         )
-        val zaak = zrcClientService.readZaak(zaakInformatieObject.zaakUUID!!)
+        val zaak = zrcClientService.readZaak(zaakInformatieObject.zaakUUID)
         return convertToREST(enkelvoudigInformatieObject = enkelvoudigInformatieObject, zaak = zaak)
     }
 
@@ -318,7 +318,7 @@ class RestInformatieobjectConverter @Inject constructor(
         zaak: Zaak
     ): RestGekoppeldeZaakEnkelvoudigInformatieObject {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
-            zaakInformatieObject.informatieobject!!
+            zaakInformatieObject.informatieobject
         )
         val enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObject.url.extractUuid()
         val lock = if (enkelvoudigInformatieObject.locked) {

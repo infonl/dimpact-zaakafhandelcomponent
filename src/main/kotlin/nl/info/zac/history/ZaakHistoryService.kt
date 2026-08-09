@@ -145,6 +145,6 @@ class ZaakHistoryService @Inject constructor(
     private fun getObjectType(zaakobject: Zaakobject): String? = when {
         zaakobject is ZaakobjectProductaanvraag -> null
         zaakobject.objectType == ObjectTypeEnum.OVERIGE -> zaakobject.objectTypeOverige
-        else -> zaakobject.objectType!!.name
+        else -> zaakobject.objectType.name
     }
 }

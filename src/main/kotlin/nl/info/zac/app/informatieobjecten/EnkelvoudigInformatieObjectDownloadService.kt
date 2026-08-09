@@ -70,7 +70,7 @@ class EnkelvoudigInformatieObjectDownloadService @Inject constructor(
 
     private fun getInformatieObjectZipPath(enkelvoudigInformatieobject: EnkelvoudigInformatieObject): String {
         val zaakInformatieObjectenList = zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieobject)
-        val zaakUri = zaakInformatieObjectenList.first().zaak!!
+        val zaakUri = zaakInformatieObjectenList.first().zaak
         val zaakId = zrcClientService.readZaak(zaakUri).identificatie
         val subfolder = when {
             enkelvoudigInformatieobject.ontvangstdatum != null -> RICHTING_INKOMEND

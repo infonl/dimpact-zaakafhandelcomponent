@@ -208,7 +208,7 @@ class ZrcClientService @Inject constructor(
         description: String?
     ) {
         listZaakinformatieobjecten(enkelvoudigInformatieObject).firstOrNull()?.let {
-            throw IllegalStateException("Informatieobject is reeds gekoppeld aan zaak '${it.zaak!!.extractUuid()}'")
+            throw IllegalStateException("Informatieobject is reeds gekoppeld aan zaak '${it.zaak.extractUuid()}'")
         }
         val nieuweZaakInformatieObject = ZaakInformatieobject(
             informatieobject = enkelvoudigInformatieObject.getUrl(),

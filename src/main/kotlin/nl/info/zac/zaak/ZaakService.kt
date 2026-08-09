@@ -273,7 +273,7 @@ class ZaakService @Inject constructor(
             // filter out the roles that are not 'betrokkenen'
             .filter {
                 BETROKKENEN_ENUMSET.contains(
-                    OmschrijvingGeneriekEnum.valueOf(it.omschrijvingGeneriek!!.uppercase(Locale.getDefault()))
+                    OmschrijvingGeneriekEnum.valueOf(it.omschrijvingGeneriek.uppercase(Locale.getDefault()))
                 )
             }
 
