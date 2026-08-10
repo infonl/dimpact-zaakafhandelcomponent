@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+name: "ZAC CodeQL configuration"
+
+# Kotest's BehaviorSpec (and other BDD-style specs) intentionally expose both
+# lowercase (given/when/then/context) and capitalized (Given/When/Then/Context)
+# aliases for the same DSL functions. We consistently use the lowercase style
+# to follow the Kotlin coding conventions, but CodeQL still flags the inherited
+# capitalized aliases as "confusing" since it can't see that we never call them.
+query-filters:
+  - exclude:
+      id: java/confusing-method-name
