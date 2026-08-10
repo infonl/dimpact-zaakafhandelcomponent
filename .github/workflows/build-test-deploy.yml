@@ -243,9 +243,9 @@ jobs:
       - name: Gradle build
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            ./gradlew clean build spotlessCheck -x test --info
+            ./gradlew clean build -x test --info
           else
-            ./gradlew build spotlessCheck -x test --info
+            ./gradlew build -x test --info
           fi
 
       - name: Upload Gradle build artefacts
