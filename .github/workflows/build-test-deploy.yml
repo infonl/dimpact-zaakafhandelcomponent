@@ -225,7 +225,7 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    needs: [paths-filter, validate-input]
+    needs: [spotless-check, paths-filter, validate-input]
     if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     outputs:
       branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
