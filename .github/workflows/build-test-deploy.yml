@@ -201,30 +201,10 @@ jobs:
               - '!openspec/**'
               - '!renovate.json'
 
-  spotless-check:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Setup JDK
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
-        with:
-            java-version: ${{ env.JAVA_VERSION }}
-            distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
-
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
-
-      - name: Spotless
-        run: ./gradlew spotlessCheck
-
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    needs: [spotless-check, paths-filter, validate-input]
+    needs: [paths-filter, validate-input]
     if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' || github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'hotfix/') }}
     outputs:
       branch_name: ${{ steps.gen_branch_name.outputs.BRANCH_NAME }}
@@ -263,9 +243,9 @@ jobs:
       - name: Gradle build
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            ./gradlew clean build -x test --info
+            ./gradlew clean build spotlessCheck -x test --info
           else
-            ./gradlew build -x test --info
+            ./gradlew build -x spotlessCheck test --info
           fi
 
       - name: Upload Gradle build artefacts
