@@ -2,9 +2,9 @@
 
 
 > **Colofon** <br>
-> Datum : 03-08-2026 <br>
-> Versie :   1.14 <br>
-> Verandering : ZAC v5.5.0 Inrichting Zaakafhandelcomponent <br>
+> Datum : 07-08-2026 <br>
+> Versie :   1.15 <br>
+> Verandering : Herindeling handleiding <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -16,20 +16,9 @@ Versiegeschiedenis:
 
 | 1.0  | Initiële versie    |
 |------|--------------------|
-| 1.1  | ZAC versie 3.7     |
-| 1.2  | ZAC versie 3.9     |
-| 1.3  | ZAC versie 3.11    |
-| 1.4  | ZAC versie 3.12    |
-| 1.5  | ZAC versie 3.17.67 |
-| 1.6  | ZAC versie 3.20.53 |
-| 1.7  | ZAC versie 4.0.54  |
-| 1.8  | ZAC versie 4.0.54  |
-| 1.9  | ZAC versie 4.0.83  |
-| 1.10 | ZAC versie 4.1.0   |
-| 1.11 | ZAC versie 4.1.27  |
-| 1.12 | ZAC versie 4.6.0   |
 | 1.13 | ZAC versie 4.8.0   |
-| 1.14 | ZAC versie 5.5.0   |
+| 1.14 | ZAC versie 5.0.0   |
+| 1.15 | ZAC versie 5.5.0   |
 
 # Inhoud
 
@@ -75,199 +64,27 @@ Versiegeschiedenis:
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Inrichting Zaakafhandelcomponent 
+# Inrichting Algemeen
 
-### Zaakafhandelcomponent
-De Zaakafhandelcomponent (ZAC) is een applicatie bedoeld voor het behandelen van zaken en managen van de werkvoorraad van zaken. De applicatie is daarmee ook gepositioneerd in de interactielaag van het 5 lagen model van Common Ground. 
-Om zaken te registeren en behandelen maakt de applicatie gebruik van registratiecomponenten die zicht in de datalaag bevinden. Een groot deel van de inrichting zal dan ook in deze componenten gebeuren, een belangrijke daarvan is de zaaktypecatalogus. Om de ZAC in gebruik te nemen en te werken met de ingerichte zaaktypecatalogus is configuratie in de ZAC noodzakelijk. Daarnaast is er een aantal instellingen in de ZAC beschikbaar om het werken met het component naar eigen wens in te richten. Alle benodigde inrichting is in deze handleiding beschreven.
-
-### Beheerinstellingen
+## Beheerinstellingen
 Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het radar icoon. Het beheermenu bestaat 5 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
 ![image](images/beheerinstellingen.png)
 
 In deze handleiding wordt de werking van de beheer-instellingen per onderdeel beschreven.
 
-## Zaakafhandelparameters  
-De zaakafhandelparameters (hierna ‘zaps’) zijn bedoeld om een zaaktype dat in de ZAC gebruikt wordt in te richten.
+### Groepsignalering-instellingen
 
-### Werking van de zaakafhandelparameters
-Bij het openen van de zaps worden alle zaaktypen uit de zaaktypecatalogus getoond. Ook de oudere versies met een einde geldigheid worden opgehaald. Vanuit het overzicht kan een zaaktype geopend worden om deze in te richten. Wijzigingen in een actief zaaktype zijn na het opslaan direct zichtbaar in de ZAC.
+Het e-mailadres voor een groep moet in Keycloak worden ingesteld door een attribuut toe te voegen aan de groep met de naam `email` en als waarde het gewenste e-mailadres.
+Hiervoor is het nodig om in te loggen in Keycloak met een account dat rechten heeft om groepen te mogen bewerken.
 
-### Inrichten van een zaaktype
-Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandelparameters’. Alle zaaktypen worden opgehaald en het overzicht wordt geopend. Het is mogelijk om in dit overzicht te filteren en sorteren.
-![image](images/207916618-434d6cbc-d8f1-4522-aeec-7556d11b8e27.png)
+![E-mailadres groep instellen](images/keycloak_group_email.png)
 
-!Klik op het bolletje links van het zaaktype kolom om snel te filteren op geldig en niet geldig!
-
+### Groepsignalering inschakelen
 Stappen:
-Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
-
-### CMMN/BPMN
-Bij een volledig nieuw zaaktype kies je hier of het een BPMN- of CMMN-zaaktype afhandelconfiguratie moet krijgen.
-![Zaakafhandelparameters CMMN](images/zaps_cmmn.png)
-Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
-###### CMMN
-![Zaakafhandelparameters CMMN](images/zaps_cmmn_cmmn.png)
-###### BPMN
-![Zaakafhandelparameters BPMN](images/zaps_cmmn_bpmn.png)
-
-### BPMN inrichten
-#### Gegevens
-Na de keuze van een BPMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
-
-- BPMN-procesdefinitie (v) | de keuzes die hier gemaakt kunnen worden zijn definities die zijn gekoppeld specifiek aan deze Zaakafhandel omgeving (zie, hoofdstuk BPMN definities)
-- Groep (v) |  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
-- Behandelaar |  de behandelaar die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de behandelaar waar een nieuwe zaak initieel op gezet wordt
-- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
-![Zaakafhandelparameters gegevens BPMN](images/zaps_gegevens_bpmn.png)
-
-#### Zaakbeëindigen gegevens
-Ga verder naar ‘Zaakbeëindigen gegevens’.  In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het resultaat dat de zaak krijgt bepaald worden. De mogelijke resultaten zijn ingesteld bij het zaaktype. Stel voor de volgende situaties het resultaat in:
-- Zaak is niet ontvankelijk (v) | bepaalt het resultaat wanneer een gebruiker bij de actie ‘Intake afronden’ deze optie kiest.
-- Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
-- Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
-- Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
-![image](images/zaps_zaakgegevens_gegevens.png)
-
-#### Koppelingen
-
-1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk SmartDocuments sjabloon moet worden verwerkt.
-
-##### Landelijke registratie koppelingen
-
-- Hiermee kan voor een zaaktype de BRP en/of KvK koppelingen worden uitgezet, met de knoppen:
-  - Basisregistratie personen (persoonsgegevens) koppelen
-  - KvK (bedrijfsgegevens) koppelen
-
-Afhankelijk van je proxy is er aanvullende informatie nodig.
-Voor BRP via de PinkRoccade iConnect proxy geldt het volgende:
-
-Met de dropdown keuzes Zoekwaarde en Raadpleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
-
-- BRP_DOELBINDING_RAADPLEEG_WAARDE
-- BRP_DOELBINDING_ZOEK_WAARDE
-- BRP_VERWERKINGSREGISTER_WAARDE
-
-De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
-
-##### SmartDocuments
-
-- SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
-- Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
-- SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
-- De sjabloongroep uitvouwen (stap 2)
-- Documenttype selecteren (stap 3)
-- De configuratie opslaan (stap 4) 
-  
-![image](images/zaps_koppelingen.png)
-
-- Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
-
-2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
-
-### CMMN inrichten
-
-Na de keuze van een CMMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
-
-- CMMN-model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
-- Groep (v)|  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
-- Behandelaar |  de behandelaar waar een nieuwe zaak na het aanmaken initieel op gezet wordt
-- Streefdatum waarschuwingsvenster | het aantal kalenderdagen voordat de streefdatum van de zaak wordt bereikt dat bepaalt:
-  - wanneer zaken een waarschuwingsindicatie (rode driehoek) krijgen
-  - wanneer de signalering ‘Mijn zaak nadert de streefdatum’ wordt verstuurd
-  - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
-- Fatale datum waarschuwingsvenster | het aantal kalenderdagen voordat de fatale datum van de zaak wordt bereikt dat bepaalt:
-  - wanneer zaken een waarschuwingsindicatie (rode driehoek) krijgen
-  - wanneer de signalering ‘Mijn zaak nadert de fatale datum’ wordt verstuurd
-  - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
-- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
-![image](images/zaps_gegevens.png)
-
-#### Taakgegevens
-1. Klik op de knop Volgende om naar het volgende tabblad ‘Taakgegevens’ te gaan. Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan, maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
-![image](images/zaps_taakgegevens.png)
- 
-2. Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
-- Formulierdefinitie (v) | welk formulier voor het taakbehandelformulier wordt gebruikt
-- Groep | de groep die standaard bij taaktoewijzing wordt ingevuld als een gebruiker de taak start
-- Doorlooptijd | bepaalt de fatale datum van de taak
-In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
-![image](images/zaps_advies_intern.png)
-#### Actiegegevens
-Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moet zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
-![image](images/zaps_actiegegevens.png)
-#### Mailgegevens
-1. Ga verder naar ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
-- Voor de statusmails kan bepaald worden of deze beschikbaar zijn en wat de standaard geselecteerde keuze is:
-  - Statusmail intake fase (v) | bepaalt of bij het afronden van de fase ‘Intake’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
-  - Statusmail afronden fase (v) | bepaalt of bij het afronden van de fase ‘In behandeling’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
-  
-  ![image](images/zaps_mailgegevens.png)
-
-2. **Mailafzenders** Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn, is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender. Een uitgebreide beschrijving van de mailafzenders is in het hoofdstuk Mailafzenders te vinden.
--  Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
-3. **Mailtemplates** Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
-![image](images/zaps_mailgegevens-2.png)
-4. **Automatische ontvangsbevestiging** Als een zaak wordt aangemaakt via SmartDocuments waar een mailadres van de aanvrager bij is ingevuld kan hiervoor een automatische ontvangstbevestiging worden verstuurd vanuit ZAC. Op deze plek kan dit aan of uit worden gezet en gekozen worden voor:
-- De mailtemplate
-- Het verzendadres
-- Het retouradres
-#### Zaakbeëindig gegevens
-Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het resultaat dat de zaak krijgt bepaald worden. De mogelijke resultaten zijn ingesteld bij het zaaktype. Stel voor de volgende situaties het resultaat in:
-- Zaak is niet ontvankelijk (v) | bepaalt het resultaat wanneer een gebruiker bij de actie ‘Intake afronden’ deze optie kiest.
-- Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
-- Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
-- Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
-    ![image](images/zaps_zaakgegevens_gegevens.png)
-
-#### Koppelingen
-
-1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk SmartDocuments sjabloon moet worden verwerkt.
-
-##### Landelijke registratie koppelingen
-
-- Hiermee kan voor een zaaktype de BRP en/of KvK koppelingen worden uitgezet, met de knoppen:
-  - Basisregistratie personen (persoonsgegevens) koppelen
-  - KvK (bedrijfsgegevens) koppelen
-
-Afhankelijk van je proxy is er aanvullende informatie nodig.
-Voor BRP via de PinkRoccade iConnect proxy geldt het volgende:
-
-Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
-
-- BRP_DOELBINDING_RAADPLEEG_WAARDE
-- BRP_DOELBINDING_ZOEK_WAARDE
-- BRP_VERWERKINGSREGISTER_WAARDE
-
-De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
-
-##### SmartDocuments
-
-- SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
-- Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
-- SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
-- De sjabloongroep uitvouwen (stap 2)
-- Documenttype selecteren (stap 3)
-- De configuratie opslaan (stap 4) 
-  
-![image](images/zaps_koppelingen.png)
-
-- Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
-
-2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
-
-## BPMN Definities
-
-Voor het inrichten van BPMN-zaaktypes zijn verschillende definities nodig. Deze zijn toe te voegen via het beheerinstellingen menu.
-![image](images/zaps_BPMN_definities.png)
-
-- BPMN-procesdefinities - hier kunnen de met bijvoorbeeld Flowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
-- Formulieren - door de procesdefinitie open te klappen is het mogelijk om de formulierdefinities te uploaden die bij de procesdefinitie horen.
-
-Als een procesdefinitie eenmaal gebruikt is kan deze niet meer worden verwijderd.
-
-Als een procesdefinitie niet goed is geconfigureerd is dit zichtbaar door middel van een rode cirkel met uitroepteken en is bij het openklappen zichtbaar wat het probleem is.
-![image](images/zaps_BPMN_definities_2.png)
+1. In het Beheer-instellingen menu kies je ‘Groepsignalering-instellingen’
+2. Kies de groep uit de keuzelijst die je wilt instellen
+3. Schakel een signalering per e-mail in door deze aan te vinken
+![image](images/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
 
 ## Referentietabellen
 
@@ -299,33 +116,6 @@ Stappen:
 
 6. Om een tabel of waarde te verwijderen klik je in aan het eind van respectievelijke regel op het prullenbakicoon. Dan verschijnt er een 'Bevestig' dialoog. Als een prullenbakicoon grijs van kleur is betreft het een systeemtabel of systeemwaarde die niet verwijderd kan worden.
 
-## Mailafzenders
-
-### Werking van de mailafzenders
-Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties kan als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender.
-Let op, de 'Van' afzender mailadressen kunnen in veel gevallen niet vrij gekozen worden. Steeds vaker is namelijk in het DNS bij een domeinnaam vastgelegd welke mailservers exclusief mail mogen versturen met een Van-adres wat op de bewuste domeinnaam eindigt. Als dergelijke mail dan door een andere mailserver wordt verstuurd dan wordt dat in de meeste gevallen geweigerd, het hangt af van de ontvangende mailserver of daar naar gekeken wordt maar meestal wel. Het gevolg daarvan is dat het 'Van' e-mailadres een domein moet hebben (bijv. @example.com) wat toegestaan wordt door de betreffende mailserver.
-
-### Mailafzender bewerken
-De mailafzenders kunnen in de zaps bij menukeuze 'Mailgegevens' ingesteld worden. Het e-mailadres van de gemeente, inclusief de daarbij weergegeven naam van de gemeente, is in een omgevingsvariabele ingesteld. Het e-mailadres van de medewerker wordt uit de gebruikersbeheer component opgehaald. Deze twee opties zijn altijd beschikbaar en hierbij kan voor beide een 'Antwoord aan' e-mailadres worden ingesteld. Aan deze opties kunnen mailafzenders worden toegevoegd, deze extra mailafzenders worden opgehaald uit een referentietabel.
-
-Stappen:
-1. In het Beheer-instellingen menu kies je ‘Zaakafhandelparameters’
-2. Ga naar menukeuze 'Mailgegevens'
-3. Kies een 'Antwoord aan' e-mailadres voor de opties e-mailadres van de gemeente en e-mailadres van de medewerker
-4. Voeg optioneel een extra mailafzender toe door op het plus-icoon te klikken en op de keuze te klikken. De hier beschikbare keuzes komen uit de referentietabel 'AFZENDER' en kunnen aan deze tabel worden toegevoegd, zie de beschrijving onder het volgende kopje.
-5. Selecteer een van de mailafzenders als default door de radiobutton aan te vinken
-6. Klik op ‘Opslaan’ om de wijziging door te voeren
-
-### Mailafzender aan de referentietabel toevoegen
-Extra mailafzenders kunnen aan de referentietabel worden toegevoegd om ze daarna te gebruiken bij het instellen van de mailgegevens. Ook 'Antwoord aan' e-mailadressen kunnen aan deze tabel worden toegevoegd.
-
-Stappen:
-1. In het Beheer-instellingen menu kies je ‘Referentie-tabellen’
-2. Open de tabel 'AFZENDER' door op het oog icoon te klikken
-3. Maak een nieuwe waarde aan door op het plus-icoon (Toevoegen) te klikken
-4. Vul de nieuwe waarde van in
-5. Klik op ‘Opslaan’ om de waarde toe te voegen, deze is daarna beschikbaar bij het instellen van de mailafzenders
- 
 ## Mailtemplates
 
 Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt.
@@ -378,6 +168,25 @@ Stappen:
 5. Vul het onderwerp en het bericht in
 6. Klik op ‘Opslaan’ om de mailtemplate toe te voegen. Het template is daarna beschikbaar in het overzicht.
 
+## Zaakafhandelparameters  
+De zaakafhandelparameters (hierna ‘zaps’) zijn bedoeld om een zaaktype dat in de ZAC gebruikt wordt in te richten.
+
+### Werking van de zaakafhandelparameters
+Bij het openen van de zaps worden alle zaaktypen uit de zaaktypecatalogus getoond. Ook de oudere versies met een einde geldigheid worden opgehaald. Vanuit het overzicht kan een zaaktype geopend worden om deze in te richten. Wijzigingen in een actief zaaktype zijn na het opslaan direct zichtbaar in de ZAC.
+
+## BPMN Definities
+
+Voor het inrichten van BPMN-zaaktypes zijn verschillende definities nodig. Deze zijn toe te voegen via het beheerinstellingen menu.
+![image](images/zaps_BPMN_definities.png)
+
+- BPMN-procesdefinities - hier kunnen de met bijvoorbeeld Flowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
+- Formulieren - door de procesdefinitie open te klappen is het mogelijk om de formulierdefinities te uploaden die bij de procesdefinitie horen.
+
+Als een procesdefinitie eenmaal gebruikt is kan deze niet meer worden verwijderd.
+
+Als een procesdefinitie niet goed is geconfigureerd is dit zichtbaar door middel van een rode cirkel met uitroepteken en is bij het openklappen zichtbaar wat het probleem is.
+![image](images/zaps_BPMN_definities_2.png)
+
 ## Inrichtingscheck
 Dit onderdeel is bedoeld als hulpmiddel om de inrichting van een zaaktype in zowel de ZAC als de zaaktypecatalogus te controleren op minimaal benodigde inrichting.
 ![Inrichtingscheck](images/beheer_instellingen_inrchtingscheck.png)
@@ -396,119 +205,7 @@ Voor nu worden de volgende onderdelen gecheckt:
 - Informatieobjecttype | er wordt voor de werking van de ZAC gecheckt of het zaaktype aan de vereiste informatieobjecttypen is gekoppeld. Dit is momenteel ‘e-mail’ dat gebruikt wordt voor het als document toevoegen van vanuit de ZAC verzonden e-mails.
 - Besluittype | er wordt gecheckt of aan het zaaktype een besluittype is gekoppeld. Dit gebeurt alleen als aan het zaaktype een resultaattype is toegevoegd dat als afleidingswijze de begin- of vervaldatum van een besluit heeft.
 
-### Roltypen
-ZAC zoekt naar een roltype met behulp van één van deze velden:
-- Omschrijving generiek | een set vooraf gedefinieerde waarden
-- Omschrijving | beschrijving van de roltype
-![OpenZaak roltype velden](images/90beb6d0-8b0e-4462-9f86-5cae079e602f.png)
-
-ZAC zoekt eerst in `Omschrijving` en daarna in `Omschrijving generiek`. Als voor een roltype zowel het `Omschrijving` als het `Omschrijving generiek` veld gevuld is dan wordt het `Omschrijving` veld gebruikt.
-
-## Signaleringen
-De ZAC heeft naast signaleringen voor gebruikers, die in de gebruikershandleiding worden beschreven, ook signaleringen voor groepen. 
-In tegenstelling tot gebruikers-signaleringen, kunnen groepsignaleringen alleen per e-mail worden verstuurd en niet als een dashboard signalering.
-
-### Werking van de signaleringen
-Als er een trigger voor een signalering die niet voor een gebruiker is bestemd komt dan wordt gekeken of de groepsignalering is ingeschakeld. 
-Als dit het geval is dan wordt het voor de groep ingestelde e-mailadres gebruikt om de signaleringsmail naar toe te sturen.
-Er is één signalering beschikbaar voor groepen, dat is ‘Er is een zaak op de groep gezet’ die verstuurd wordt als er een zaak nieuw aan een groep wordt toegewezen zonder dat er ook een behandelaar is gekozen.
-
-### E-mailadres instellen voor een groep
-
-Het e-mailadres voor een groep moet in Keycloak worden ingesteld door een attribuut toe te voegen aan de groep met de naam `email` en als waarde het gewenste e-mailadres.
-Hiervoor is het nodig om in te loggen in Keycloak met een account dat rechten heeft om groepen te mogen bewerken.
-
-![E-mailadres groep instellen](images/keycloak_group_email.png)
-
-### Groepsignalering inschakelen
-Stappen:
-1. In het Beheer-instellingen menu kies je ‘Groepsignalering-instellingen’
-2. Kies de groep uit de keuzelijst die je wilt instellen
-3. Schakel een signalering per e-mail in door deze aan te vinken
-![image](images/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
-
-## Procestermijnen
-
-Een procestermijn is de periode tussen het afsluiten van een zaak en het moment waarop de archieftermijn (vernietigen of blijvend bewaren) daadwerkelijk start. De procestermijn wordt gebruikt wanneer de geldigheid of levensduur van een procesobject nog doorloopt nadat de zaak administratief is afgehandeld. Zie ook: [Selectielijsten ter inzage - Nationaal Archief](https://www.nationaalarchief.nl/archiveren/kennisbank/selectielijsten-ter-inzage) en [Handreiking Selectielijst - GEMMA Online](https://www.gemmaonline.nl/wiki/Bijlage_2._Uitleg_procestermijn,_bewaartermijn_en_relatie_met_procesobject).
-
-De archiefactiedatum wordt bepaald door de combinatie van:
-
-1. De juridische einddatum van de zaak.
-2. De eventuele procestermijn.
-3. De bewaartermijn uit de selectielijst.
-
-Wanneer geen procestermijn van toepassing is, begint de bewaartermijn direct na het afsluiten van de zaak. Wanneer wel een procestermijn geldt, wordt eerst gewacht tot de procestermijn is verstreken. Pas daarna start de archieftermijn.
-
-**Typen procestermijnen**
-
-| **Type**                     | **Omschrijving**                                                                                       | **Start archieftermijn**                                                                 | **Voorbeeld**                                                                                                                              |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Nihil                        | Er is geen procestermijn.                                                                              | Direct na afsluiting van de zaak.                                                        | Aansprakelijk stellen van gemeente door derden.                                                                                            |
-| Bekende variabele periode    | De procestermijn is afhankelijk van de vooraf bekende werkelijke geldigheidsduur van het procesobject. | Nadat het object zijn geldigheid verliest.                                               | Gebiedsverbod opleggen - wordt opgelegd voor soms 1 maand, 6 maanden of 1 jaar.                                                              |
-| Bekende - vaste periode      | Er wordt vooraf een maximale geldigheidsduur vastgesteld.                                              | Na afloop van de vooraf bepaalde periode.                                                | Gehandicaptenparkeerkaart - wordt altijd verstrekt voor een vaste periode.                                                                  |
-| Onbekende - variabele periode | De duur van het procesobject is nog onbekend.                                                          | Archieftermijn begint in de toekomst en wordt later toegevoegd door een handmatige actie. | Automatische incasso WOZ - blijft net zo lang geldig tot er een trigger is (bijv. intrekken incasso, verhuizen buiten gemeente, overlijden). |
-
-\
-**Verwerking van procestermijnen in relatie tot resultaattypen en afleidingswijzen**
-
-In Open Zaak wordt aan ieder resultaattype een selectielijstitem gekoppeld uit de geselecteerde selectielijst. Op basis van dit selectielijstitem is bekend of een procestermijn van toepassing is.
-
-Om de juiste einddatum van de procestermijn (de brondatum in Open Zaak) vast te stellen, moet een passende afleidingswijze worden gekozen. De afleidingswijze bepaalt vanuit welk gegeven de brondatum wordt afgeleid. Welke afleidingswijzen kunnen worden toegepast bij de verschillende typen procestermijnen, is hieronder beschreven.
-
-**Let op:** wanneer er een procestermijn van toepassing is, mag de afleidingswijze **'Afgehandeld'** niet worden gebruikt. Deze afleidingswijze is uitsluitend toegestaan wanneer de procestermijn van het gekoppelde selectielijstitem **nihil** is. In dat geval start de bewaartermijn direct na het afhandelen van de zaak.
-
-
-### Procestermijn bekend – variabele periode
-
-In Open Zaak kunnen bij een resultaattype onderstaande afhandelwijzes worden gekozen waarbij de procestermijn variabel is.
-
-#### Afhandelwijze brondatum - Eigenschap
-
-Bij deze afhandelwijze wordt bij het afhandelen van de zaak aan de behandelaar gevraagd om een brondatum in te vullen. Het veld `Datumkenmerk` wordt gevuld met de eigenschapsnaam van de hieronder toe te voegen eigenschap.
-
-![image](images/open_zaak_bepaling_brondatum_archiefprocedure_eigenschap.png)
-Om dit in Open Zaak in te richten, moet er aan het zaaktype een eigenschap worden toegevoegd:
-
-![image](images/open_zaak_eigenschap_toevoegen.png)
-
-De naam van de eigenschap is vrij te kiezen, maar het is aan te raden om altijd bij `Eigenschapsnaam` de waarde `brondatum` in te vullen. In het veld `Definitie` vul je vervolgens in hoe het datumveld aan de behandelaar wordt getoond.
-
-Bij het veld `Specificatie van de eigenschap` kies je de waarde `datum`. Als deze nog niet bestaat, moet deze als eigenschap specificatie worden toegevoegd. Vul hierbij precies onderstaande waarden in:
-
-![image](images/open_zaak_eigenschap_specificatie_toevoegen.png)
-
-Voorbeeldscherm voor de behandelaar:
-![image](images/zac_afhandelen_zaak_brondatum_eigenschap.png)
-
-#### Afhandelwijze brondatum - Ingangsdatum besluit
-
-Bij deze afhandelwijze wordt de brondatum gezet aan de hand van de ingangsdatum van het aan de zaak gekoppelde besluit.
-
-![image](images/open_zaak_bepaling_brondatum_archiefprocedure_ingangsdatum_besluit.png)
-
-#### Afhandelwijze brondatum - Vervaldatum besluit
-
-Bij deze afhandelwijze wordt de brondatum gezet aan de hand van de vervaldatum van het aan de zaak gekoppelde besluit.
-
-![image](images/open_zaak_bepaling_brondatum_archiefprocedure_vervaldatum_besluit.png)
-
-#### Afhandelwijze brondatum - Hoofdzaak
-
-Deze afhandelwijze wordt met zaken die aan elkaar zijn gerelateerd als hoofd- en deelzaak. Als je deze afhandelwijze kiest bij het zaaktype van de deelzaak, dan wordt de brondatum gezet op de brondatum van de hoofdzaak zodra die is afgesloten.
-
-![image](images/open_zaak_bepaling_brondatum_archiefprocedure_hoofdzaak.png)
-
-### Procestermijn bekend – vaste periode
-
-In Open Zaak kan bij een resultaattype onderstaande afhandelwijze worden gekozen waarbij de procestermijn vast is.
-
-#### Afhandelwijze brondatum - Termijn
-
-Bij het afhandelen van de zaak wordt de brondatum gezet op de einddatum van de zaak plus de ingestelde procestermijn. In het onderste veld moet de procestermijn worden ingevuld.
-
-![image](images/open_zaak_bepaling_brondatum_archiefprocedure_termijn.png)
-
-## Identiteits- en toegangsbeheer
+# Identiteits- en toegangsbeheer
 
 Identiteits- en toegangsbeheer (Identity and Access Management, IAM) maakt gebruik van het PABC (Platform Autorisatie Beheer Component) om (zaaktype) autorisaties te beheren.
 
@@ -744,3 +441,297 @@ Dergelijke subgroepen worden niet ondersteund.
 > Let op! Als er data (zoals een zaak) aan een groep is gekoppeld dan kan deze groep niet meer hernoemd of verwijderd worden. Dit koppelen gebeurt namelijk op basis van de groepsnaam.
 > Wordt de groepsnaam toch aangepast, dan zal de betreffende data niet meer gekoppeld zijn aan deze groep, en zal de ZGW API blijven uitgaan van de oude, niet meer bestaande, groepsnaam. 
 > Hier wordt geen foutmelding van getoond. 
+
+# Inrichting Zaakafhandelcomponent 
+
+### Zaakafhandelcomponent
+De Zaakafhandelcomponent (ZAC) is een applicatie bedoeld voor het behandelen van zaken en managen van de werkvoorraad van zaken. De applicatie is daarmee ook gepositioneerd in de interactielaag van het 5 lagen model van Common Ground. 
+Om zaken te registeren en behandelen maakt de applicatie gebruik van registratiecomponenten die zicht in de datalaag bevinden. Een groot deel van de inrichting zal dan ook in deze componenten gebeuren, een belangrijke daarvan is de zaaktypecatalogus. Om de ZAC in gebruik te nemen en te werken met de ingerichte zaaktypecatalogus is configuratie in de ZAC noodzakelijk. Daarnaast is er een aantal instellingen in de ZAC beschikbaar om het werken met het component naar eigen wens in te richten. Alle benodigde inrichting is in deze handleiding beschreven.
+
+### Inrichten van een zaaktype
+Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandelparameters’. Alle zaaktypen worden opgehaald en het overzicht wordt geopend. Het is mogelijk om in dit overzicht te filteren en sorteren.
+![image](images/207916618-434d6cbc-d8f1-4522-aeec-7556d11b8e27.png)
+
+!Klik op het bolletje links van het zaaktype kolom om snel te filteren op geldig en niet geldig!
+
+Stappen:
+Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
+
+### CMMN/BPMN
+Bij een volledig nieuw zaaktype kies je hier of het een BPMN- of CMMN-zaaktype afhandelconfiguratie moet krijgen.
+![Zaakafhandelparameters CMMN](images/zaps_cmmn.png)
+Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
+###### CMMN
+![Zaakafhandelparameters CMMN](images/zaps_cmmn_cmmn.png)
+###### BPMN
+![Zaakafhandelparameters BPMN](images/zaps_cmmn_bpmn.png)
+
+### BPMN inrichten
+#### Gegevens
+Na de keuze van een BPMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
+
+- BPMN-procesdefinitie (v) | de keuzes die hier gemaakt kunnen worden zijn definities die zijn gekoppeld specifiek aan deze Zaakafhandel omgeving (zie, hoofdstuk BPMN definities)
+- Groep (v) |  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
+- Behandelaar |  de behandelaar die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de behandelaar waar een nieuwe zaak initieel op gezet wordt
+- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
+![Zaakafhandelparameters gegevens BPMN](images/zaps_gegevens_bpmn.png)
+
+#### Zaakbeëindigen gegevens
+Ga verder naar ‘Zaakbeëindigen gegevens’.  In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het resultaat dat de zaak krijgt bepaald worden. De mogelijke resultaten zijn ingesteld bij het zaaktype. Stel voor de volgende situaties het resultaat in:
+- Zaak is niet ontvankelijk (v) | bepaalt het resultaat wanneer een gebruiker bij de actie ‘Intake afronden’ deze optie kiest.
+- Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
+- Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
+- Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
+![image](images/zaps_zaakgegevens_gegevens.png)
+
+#### Koppelingen
+
+1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk SmartDocuments sjabloon moet worden verwerkt.
+
+##### Landelijke registratie koppelingen
+
+- Hiermee kan voor een zaaktype de BRP en/of KvK koppelingen worden uitgezet, met de knoppen:
+  - Basisregistratie personen (persoonsgegevens) koppelen
+  - KvK (bedrijfsgegevens) koppelen
+
+Afhankelijk van je proxy is er aanvullende informatie nodig.
+Voor BRP via de PinkRoccade iConnect proxy geldt het volgende:
+
+Met de dropdown keuzes Zoekwaarde en Raadpleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
+
+- BRP_DOELBINDING_RAADPLEEG_WAARDE
+- BRP_DOELBINDING_ZOEK_WAARDE
+- BRP_VERWERKINGSREGISTER_WAARDE
+
+De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
+
+##### SmartDocuments
+
+- SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
+- Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
+- SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
+- De sjabloongroep uitvouwen (stap 2)
+- Documenttype selecteren (stap 3)
+- De configuratie opslaan (stap 4) 
+  
+![image](images/zaps_koppelingen.png)
+
+- Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
+
+2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
+
+### CMMN inrichten
+
+Na de keuze van een CMMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
+
+- CMMN-model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
+- Groep (v)|  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
+- Behandelaar |  de behandelaar waar een nieuwe zaak na het aanmaken initieel op gezet wordt
+- Streefdatum waarschuwingsvenster | het aantal kalenderdagen voordat de streefdatum van de zaak wordt bereikt dat bepaalt:
+  - wanneer zaken een waarschuwingsindicatie (rode driehoek) krijgen
+  - wanneer de signalering ‘Mijn zaak nadert de streefdatum’ wordt verstuurd
+  - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
+- Fatale datum waarschuwingsvenster | het aantal kalenderdagen voordat de fatale datum van de zaak wordt bereikt dat bepaalt:
+  - wanneer zaken een waarschuwingsindicatie (rode driehoek) krijgen
+  - wanneer de signalering ‘Mijn zaak nadert de fatale datum’ wordt verstuurd
+  - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
+- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
+![image](images/zaps_gegevens.png)
+
+#### Taakgegevens
+1. Klik op de knop Volgende om naar het volgende tabblad ‘Taakgegevens’ te gaan. Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan, maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
+![image](images/zaps_taakgegevens.png)
+ 
+2. Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
+- Formulierdefinitie (v) | welk formulier voor het taakbehandelformulier wordt gebruikt
+- Groep | de groep die standaard bij taaktoewijzing wordt ingevuld als een gebruiker de taak start
+- Doorlooptijd | bepaalt de fatale datum van de taak
+In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
+![image](images/zaps_advies_intern.png)
+#### Actiegegevens
+Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moet zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
+![image](images/zaps_actiegegevens.png)
+#### Mailgegevens
+1. Ga verder naar ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
+- Voor de statusmails kan bepaald worden of deze beschikbaar zijn en wat de standaard geselecteerde keuze is:
+  - Statusmail intake fase (v) | bepaalt of bij het afronden van de fase ‘Intake’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
+  - Statusmail afronden fase (v) | bepaalt of bij het afronden van de fase ‘In behandeling’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
+  
+  ![image](images/zaps_mailgegevens.png)
+
+2. **Mailafzenders** Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn, is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender. Een uitgebreide beschrijving van de mailafzenders is in het hoofdstuk Mailafzenders te vinden.
+-  Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
+3. **Mailtemplates** Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
+![image](images/zaps_mailgegevens-2.png)
+4. **Automatische ontvangsbevestiging** Als een zaak wordt aangemaakt via SmartDocuments waar een mailadres van de aanvrager bij is ingevuld kan hiervoor een automatische ontvangstbevestiging worden verstuurd vanuit ZAC. Op deze plek kan dit aan of uit worden gezet en gekozen worden voor:
+- De mailtemplate
+- Het verzendadres
+- Het retouradres
+#### Zaakbeëindig gegevens
+Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het resultaat dat de zaak krijgt bepaald worden. De mogelijke resultaten zijn ingesteld bij het zaaktype. Stel voor de volgende situaties het resultaat in:
+- Zaak is niet ontvankelijk (v) | bepaalt het resultaat wanneer een gebruiker bij de actie ‘Intake afronden’ deze optie kiest.
+- Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
+- Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
+- Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
+    ![image](images/zaps_zaakgegevens_gegevens.png)
+
+#### Koppelingen
+
+1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk SmartDocuments sjabloon moet worden verwerkt.
+
+##### Landelijke registratie koppelingen
+
+- Hiermee kan voor een zaaktype de BRP en/of KvK koppelingen worden uitgezet, met de knoppen:
+  - Basisregistratie personen (persoonsgegevens) koppelen
+  - KvK (bedrijfsgegevens) koppelen
+
+Afhankelijk van je proxy is er aanvullende informatie nodig.
+Voor BRP via de PinkRoccade iConnect proxy geldt het volgende:
+
+Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
+
+- BRP_DOELBINDING_RAADPLEEG_WAARDE
+- BRP_DOELBINDING_ZOEK_WAARDE
+- BRP_VERWERKINGSREGISTER_WAARDE
+
+De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
+
+##### SmartDocuments
+
+- SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
+- Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
+- SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
+- De sjabloongroep uitvouwen (stap 2)
+- Documenttype selecteren (stap 3)
+- De configuratie opslaan (stap 4) 
+  
+![image](images/zaps_koppelingen.png)
+
+- Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
+
+2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
+
+## Mailafzenders
+
+### Werking van de mailafzenders
+Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties kan als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender.
+Let op, de 'Van' afzender mailadressen kunnen in veel gevallen niet vrij gekozen worden. Steeds vaker is namelijk in het DNS bij een domeinnaam vastgelegd welke mailservers exclusief mail mogen versturen met een Van-adres wat op de bewuste domeinnaam eindigt. Als dergelijke mail dan door een andere mailserver wordt verstuurd dan wordt dat in de meeste gevallen geweigerd, het hangt af van de ontvangende mailserver of daar naar gekeken wordt maar meestal wel. Het gevolg daarvan is dat het 'Van' e-mailadres een domein moet hebben (bijv. @example.com) wat toegestaan wordt door de betreffende mailserver.
+
+### Mailafzender bewerken
+De mailafzenders kunnen in de zaps bij menukeuze 'Mailgegevens' ingesteld worden. Het e-mailadres van de gemeente, inclusief de daarbij weergegeven naam van de gemeente, is in een omgevingsvariabele ingesteld. Het e-mailadres van de medewerker wordt uit de gebruikersbeheer component opgehaald. Deze twee opties zijn altijd beschikbaar en hierbij kan voor beide een 'Antwoord aan' e-mailadres worden ingesteld. Aan deze opties kunnen mailafzenders worden toegevoegd, deze extra mailafzenders worden opgehaald uit een referentietabel.
+
+Stappen:
+1. In het Beheer-instellingen menu kies je ‘Zaakafhandelparameters’
+2. Ga naar menukeuze 'Mailgegevens'
+3. Kies een 'Antwoord aan' e-mailadres voor de opties e-mailadres van de gemeente en e-mailadres van de medewerker
+4. Voeg optioneel een extra mailafzender toe door op het plus-icoon te klikken en op de keuze te klikken. De hier beschikbare keuzes komen uit de referentietabel 'AFZENDER' en kunnen aan deze tabel worden toegevoegd, zie de beschrijving onder het volgende kopje.
+5. Selecteer een van de mailafzenders als default door de radiobutton aan te vinken
+6. Klik op ‘Opslaan’ om de wijziging door te voeren
+
+### Mailafzender aan de referentietabel toevoegen
+Extra mailafzenders kunnen aan de referentietabel worden toegevoegd om ze daarna te gebruiken bij het instellen van de mailgegevens. Ook 'Antwoord aan' e-mailadressen kunnen aan deze tabel worden toegevoegd.
+
+Stappen:
+1. In het Beheer-instellingen menu kies je ‘Referentie-tabellen’
+2. Open de tabel 'AFZENDER' door op het oog icoon te klikken
+3. Maak een nieuwe waarde aan door op het plus-icoon (Toevoegen) te klikken
+4. Vul de nieuwe waarde van in
+5. Klik op ‘Opslaan’ om de waarde toe te voegen, deze is daarna beschikbaar bij het instellen van de mailafzenders
+
+### Roltypen
+ZAC zoekt naar een roltype met behulp van één van deze velden:
+- Omschrijving generiek | een set vooraf gedefinieerde waarden
+- Omschrijving | beschrijving van de roltype
+![OpenZaak roltype velden](images/90beb6d0-8b0e-4462-9f86-5cae079e602f.png)
+
+ZAC zoekt eerst in `Omschrijving` en daarna in `Omschrijving generiek`. Als voor een roltype zowel het `Omschrijving` als het `Omschrijving generiek` veld gevuld is dan wordt het `Omschrijving` veld gebruikt.
+
+## Signaleringen
+De ZAC heeft naast signaleringen voor gebruikers, die in de gebruikershandleiding worden beschreven, ook signaleringen voor groepen. 
+In tegenstelling tot gebruikers-signaleringen, kunnen groepsignaleringen alleen per e-mail worden verstuurd en niet als een dashboard signalering.
+
+### Werking van de signaleringen
+Als er een trigger voor een signalering die niet voor een gebruiker is bestemd komt dan wordt gekeken of de groepsignalering is ingeschakeld. 
+Als dit het geval is dan wordt het voor de groep ingestelde e-mailadres gebruikt om de signaleringsmail naar toe te sturen.
+Er is één signalering beschikbaar voor groepen, dat is ‘Er is een zaak op de groep gezet’ die verstuurd wordt als er een zaak nieuw aan een groep wordt toegewezen zonder dat er ook een behandelaar is gekozen.
+
+## Procestermijnen
+
+Een procestermijn is de periode tussen het afsluiten van een zaak en het moment waarop de archieftermijn (vernietigen of blijvend bewaren) daadwerkelijk start. De procestermijn wordt gebruikt wanneer de geldigheid of levensduur van een procesobject nog doorloopt nadat de zaak administratief is afgehandeld. Zie ook: [Selectielijsten ter inzage - Nationaal Archief](https://www.nationaalarchief.nl/archiveren/kennisbank/selectielijsten-ter-inzage) en [Handreiking Selectielijst - GEMMA Online](https://www.gemmaonline.nl/wiki/Bijlage_2._Uitleg_procestermijn,_bewaartermijn_en_relatie_met_procesobject).
+
+De archiefactiedatum wordt bepaald door de combinatie van:
+
+1. De juridische einddatum van de zaak.
+2. De eventuele procestermijn.
+3. De bewaartermijn uit de selectielijst.
+
+Wanneer geen procestermijn van toepassing is, begint de bewaartermijn direct na het afsluiten van de zaak. Wanneer wel een procestermijn geldt, wordt eerst gewacht tot de procestermijn is verstreken. Pas daarna start de archieftermijn.
+
+**Typen procestermijnen**
+
+| **Type**                     | **Omschrijving**                                                                                       | **Start archieftermijn**                                                                 | **Voorbeeld**                                                                                                                              |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Nihil                        | Er is geen procestermijn.                                                                              | Direct na afsluiting van de zaak.                                                        | Aansprakelijk stellen van gemeente door derden.                                                                                            |
+| Bekende variabele periode    | De procestermijn is afhankelijk van de vooraf bekende werkelijke geldigheidsduur van het procesobject. | Nadat het object zijn geldigheid verliest.                                               | Gebiedsverbod opleggen - wordt opgelegd voor soms 1 maand, 6 maanden of 1 jaar.                                                              |
+| Bekende - vaste periode      | Er wordt vooraf een maximale geldigheidsduur vastgesteld.                                              | Na afloop van de vooraf bepaalde periode.                                                | Gehandicaptenparkeerkaart - wordt altijd verstrekt voor een vaste periode.                                                                  |
+| Onbekende - variabele periode | De duur van het procesobject is nog onbekend.                                                          | Archieftermijn begint in de toekomst en wordt later toegevoegd door een handmatige actie. | Automatische incasso WOZ - blijft net zo lang geldig tot er een trigger is (bijv. intrekken incasso, verhuizen buiten gemeente, overlijden). |
+
+\
+**Verwerking van procestermijnen in relatie tot resultaattypen en afleidingswijzen**
+
+In Open Zaak wordt aan ieder resultaattype een selectielijstitem gekoppeld uit de geselecteerde selectielijst. Op basis van dit selectielijstitem is bekend of een procestermijn van toepassing is.
+
+Om de juiste einddatum van de procestermijn (de brondatum in Open Zaak) vast te stellen, moet een passende afleidingswijze worden gekozen. De afleidingswijze bepaalt vanuit welk gegeven de brondatum wordt afgeleid. Welke afleidingswijzen kunnen worden toegepast bij de verschillende typen procestermijnen, is hieronder beschreven.
+
+**Let op:** wanneer er een procestermijn van toepassing is, mag de afleidingswijze **'Afgehandeld'** niet worden gebruikt. Deze afleidingswijze is uitsluitend toegestaan wanneer de procestermijn van het gekoppelde selectielijstitem **nihil** is. In dat geval start de bewaartermijn direct na het afhandelen van de zaak.
+
+
+### Procestermijn bekend – variabele periode
+
+In Open Zaak kunnen bij een resultaattype onderstaande afhandelwijzes worden gekozen waarbij de procestermijn variabel is.
+
+#### Afhandelwijze brondatum - Eigenschap
+
+Bij deze afhandelwijze wordt bij het afhandelen van de zaak aan de behandelaar gevraagd om een brondatum in te vullen. Het veld `Datumkenmerk` wordt gevuld met de eigenschapsnaam van de hieronder toe te voegen eigenschap.
+
+![image](images/open_zaak_bepaling_brondatum_archiefprocedure_eigenschap.png)
+Om dit in Open Zaak in te richten, moet er aan het zaaktype een eigenschap worden toegevoegd:
+
+![image](images/open_zaak_eigenschap_toevoegen.png)
+
+De naam van de eigenschap is vrij te kiezen, maar het is aan te raden om altijd bij `Eigenschapsnaam` de waarde `brondatum` in te vullen. In het veld `Definitie` vul je vervolgens in hoe het datumveld aan de behandelaar wordt getoond.
+
+Bij het veld `Specificatie van de eigenschap` kies je de waarde `datum`. Als deze nog niet bestaat, moet deze als eigenschap specificatie worden toegevoegd. Vul hierbij precies onderstaande waarden in:
+
+![image](images/open_zaak_eigenschap_specificatie_toevoegen.png)
+
+Voorbeeldscherm voor de behandelaar:
+![image](images/zac_afhandelen_zaak_brondatum_eigenschap.png)
+
+#### Afhandelwijze brondatum - Ingangsdatum besluit
+
+Bij deze afhandelwijze wordt de brondatum gezet aan de hand van de ingangsdatum van het aan de zaak gekoppelde besluit.
+
+![image](images/open_zaak_bepaling_brondatum_archiefprocedure_ingangsdatum_besluit.png)
+
+#### Afhandelwijze brondatum - Vervaldatum besluit
+
+Bij deze afhandelwijze wordt de brondatum gezet aan de hand van de vervaldatum van het aan de zaak gekoppelde besluit.
+
+![image](images/open_zaak_bepaling_brondatum_archiefprocedure_vervaldatum_besluit.png)
+
+#### Afhandelwijze brondatum - Hoofdzaak
+
+Deze afhandelwijze wordt met zaken die aan elkaar zijn gerelateerd als hoofd- en deelzaak. Als je deze afhandelwijze kiest bij het zaaktype van de deelzaak, dan wordt de brondatum gezet op de brondatum van de hoofdzaak zodra die is afgesloten.
+
+![image](images/open_zaak_bepaling_brondatum_archiefprocedure_hoofdzaak.png)
+
+### Procestermijn bekend – vaste periode
+
+In Open Zaak kan bij een resultaattype onderstaande afhandelwijze worden gekozen waarbij de procestermijn vast is.
+
+#### Afhandelwijze brondatum - Termijn
+
+Bij het afhandelen van de zaak wordt de brondatum gezet op de einddatum van de zaak plus de ingestelde procestermijn. In het onderste veld moet de procestermijn worden ingevuld.
+
+![image](images/open_zaak_bepaling_brondatum_archiefprocedure_termijn.png)
