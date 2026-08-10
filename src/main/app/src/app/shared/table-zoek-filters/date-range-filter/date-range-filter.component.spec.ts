@@ -6,6 +6,7 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { TranslateService } from "@ngx-translate/core";
 import { MAT_DATE_LOCALE, MatNativeDateModule } from "@angular/material/core";
 import {
   MatEndDateHarness,
@@ -26,6 +27,7 @@ describe(DateRangeFilterComponent.name, () => {
         DateRangeFilterComponent,
         NoopAnimationsModule,
         MatNativeDateModule,
+        TranslateModule.forRoot()
       ],
       providers: [{ provide: MAT_DATE_LOCALE, useValue: "nl-NL" }],
     }).compileComponents();
