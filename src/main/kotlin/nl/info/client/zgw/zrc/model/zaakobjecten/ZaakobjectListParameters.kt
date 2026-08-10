@@ -31,7 +31,7 @@ class ZaakobjectListParameters {
         @QueryParam("objectType")
         get() = objectTypeValue?.let(ObjectTypeEnum::fromValue)
         set(value) {
-            objectTypeValue = value.toString()
+            objectTypeValue = value?.toString()
         }
 
     /**
