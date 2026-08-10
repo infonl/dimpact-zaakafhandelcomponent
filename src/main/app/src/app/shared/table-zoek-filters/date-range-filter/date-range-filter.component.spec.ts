@@ -27,7 +27,7 @@ describe(DateRangeFilterComponent.name, () => {
         DateRangeFilterComponent,
         NoopAnimationsModule,
         MatNativeDateModule,
-        TranslateModule.forRoot()
+        TranslateModule.forRoot(),
       ],
       providers: [{ provide: MAT_DATE_LOCALE, useValue: "nl-NL" }],
     }).compileComponents();
