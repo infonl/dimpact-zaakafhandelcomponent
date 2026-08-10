@@ -559,6 +559,13 @@ tasks {
 
     getByName("spotlessApply").finalizedBy(listOf("detektApply"))
 
+    // disable the Gradle build cache for all Spotless tasks: GitHub Actions restores a build cache shared
+    // across branches/PRs, which can let spotlessCheck tasks report UP-TO-DATE/FROM-CACHE without actually
+    // re-verifying the current file content, silently masking real formatting violations in CI
+    matching { it.name.startsWith("spotless") }.configureEach {
+        outputs.cacheIf { false }
+    }
+
     // run all spotless frontend tasks after the frontend linting task because
     // the linting task has as it's output the frontend source files which are
     // input for the spotless tasks
