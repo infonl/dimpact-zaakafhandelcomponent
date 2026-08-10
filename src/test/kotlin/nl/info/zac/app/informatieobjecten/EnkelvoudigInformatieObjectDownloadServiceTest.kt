@@ -15,7 +15,7 @@ import io.mockk.mockk
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectDownloadException
 import java.io.ByteArrayInputStream
@@ -61,7 +61,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         val fileContent = "hello world"
 
         every { zrcClientService.listZaakinformatieobjecten(informatieobject) } returns
-            listOf(createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri))
+            listOf(createZaakInformatieobjectForReads(zaak = zaakUri))
         every { zrcClientService.readZaak(zaakUri) } returns createZaak(identificatie = "ZAAK-2024-001")
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns
             ByteArrayInputStream(fileContent.toByteArray())
@@ -98,7 +98,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         }
 
         every { zrcClientService.listZaakinformatieobjecten(informatieobject) } returns
-            listOf(createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri))
+            listOf(createZaakInformatieobjectForReads(zaak = zaakUri))
         every { zrcClientService.readZaak(zaakUri) } returns createZaak(identificatie = "ZAAK-2024-002")
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns
             ByteArrayInputStream(ByteArray(0))
@@ -126,7 +126,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         }
 
         every { zrcClientService.listZaakinformatieobjecten(informatieobject) } returns
-            listOf(createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri))
+            listOf(createZaakInformatieobjectForReads(zaak = zaakUri))
         every { zrcClientService.readZaak(zaakUri) } returns createZaak(identificatie = "ZAAK-2024-003")
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns
             ByteArrayInputStream(ByteArray(0))
@@ -163,9 +163,9 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         }
 
         every { zrcClientService.listZaakinformatieobjecten(informatieobject1) } returns
-            listOf(createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri1))
+            listOf(createZaakInformatieobjectForReads(zaak = zaakUri1))
         every { zrcClientService.listZaakinformatieobjecten(informatieobject2) } returns
-            listOf(createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri2))
+            listOf(createZaakInformatieobjectForReads(zaak = zaakUri2))
         every { zrcClientService.readZaak(zaakUri1) } returns createZaak(identificatie = "ZAAK-A")
         every { zrcClientService.readZaak(zaakUri2) } returns createZaak(identificatie = "ZAAK-B")
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid1) } returns ByteArrayInputStream(ByteArray(0))
@@ -207,7 +207,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
         }
 
         every { zrcClientService.listZaakinformatieobjecten(informatieobject) } returns
-            listOf(createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri))
+            listOf(createZaakInformatieobjectForReads(zaak = zaakUri))
         every { zrcClientService.readZaak(zaakUri) } returns createZaak(identificatie = "ZAAK-ERR")
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns failingStream
 

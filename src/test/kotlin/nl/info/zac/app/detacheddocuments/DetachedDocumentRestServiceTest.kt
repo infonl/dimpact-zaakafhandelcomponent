@@ -17,7 +17,7 @@ import io.mockk.runs
 import io.mockk.verify
 import net.atos.client.zgw.shared.exception.ZgwErrorException
 import net.atos.client.zgw.shared.model.ZgwError
-import nl.info.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -133,7 +133,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
             val werklijstRechten = createWerklijstRechten(ontkoppeldeDocumentenVerwijderen = true)
             val document = createDetachedDocument()
             val informatieObject = EnkelvoudigInformatieObject()
-            val zaakInformatieObject = ZaakInformatieobject(
+            val zaakInformatieObject = createZaakInformatieobjectForReads(
                 informatieobject = URI.create("https://example.com/${UUID.randomUUID()}"),
                 zaak = URI.create("https://example.com/${UUID.randomUUID()}")
             )

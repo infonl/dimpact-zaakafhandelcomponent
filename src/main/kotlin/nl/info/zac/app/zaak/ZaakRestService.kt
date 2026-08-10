@@ -275,7 +275,7 @@ class ZaakRestService @Inject constructor(
         }
         zaakInformatieobjecten.forEach {
             zrcClientService.deleteZaakInformatieobject(
-                it.uuid!!,
+                it.uuid,
                 restDetachDocumentData.reden,
                 "Ontkoppeld"
             )

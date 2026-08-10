@@ -10,7 +10,6 @@ import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import nl.info.client.zgw.zrc.model.RolVestiging
-import nl.info.client.zgw.zrc.model.ZaakInformatieobject
 import nl.info.client.zgw.zrc.model.generated.AardRelatieWeergaveEnum
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
@@ -26,6 +25,8 @@ import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectPand
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
@@ -339,10 +340,10 @@ fun createZaakInformatieobjectForCreatesAndUpdates(
     zaakUUID: UUID = UUID.randomUUID(),
     informatieObjectURL: URI = URI("https://example.com/$informatieobjectUUID"),
     zaakURL: URI = URI("https://example.com/$zaakUUID")
-) = ZaakInformatieobject(
-    informatieObjectURL,
-    zaakURL
-)
+) = ZaakInformatieObjectRequest().apply {
+    informatieobject = informatieObjectURL
+    zaak = zaakURL
+}
 
 fun createZaakInformatieobjectForReads(
     url: URI = URI("https://example.com/${UUID.randomUUID()}"),
@@ -351,14 +352,15 @@ fun createZaakInformatieobjectForReads(
     zaak: URI = URI("https://example.com/${UUID.randomUUID()}"),
     aardRelatieWeergave: AardRelatieWeergaveEnum = AardRelatieWeergaveEnum.HOORT_BIJ_OMGEKEERD_KENT,
     registratiedatum: ZonedDateTime = ZonedDateTime.now()
-) = ZaakInformatieobject(
+) = ZaakInformatieObject(
     url,
     uuid,
-    informatieobject,
-    zaak,
     aardRelatieWeergave,
-    registratiedatum
-)
+    registratiedatum.toOffsetDateTime()
+).apply {
+    this.informatieobject = informatieobject
+    this.zaak = zaak
+}
 
 fun createZaakobjectProductaanvraag(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),

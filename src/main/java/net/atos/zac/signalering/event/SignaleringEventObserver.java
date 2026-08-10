@@ -30,9 +30,9 @@ import nl.info.client.zgw.zrc.model.Rol;
 import nl.info.client.zgw.zrc.model.RolListParameters;
 import nl.info.client.zgw.zrc.model.RolMedewerker;
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid;
-import nl.info.client.zgw.zrc.model.ZaakInformatieobject;
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject;
 import nl.info.client.zgw.ztc.ZtcClientService;
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum;
 import nl.info.client.zgw.ztc.model.generated.RolType;
@@ -137,7 +137,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     private @Nullable Signalering getSignaleringVoorBehandelaar(
             final SignaleringEvent<?> event,
             final Zaak subject,
-            final ZaakInformatieobject detail
+            final ZaakInformatieObject detail
     ) {
         final Optional<Rol<?>> behandelaar = getRolBehandelaarMedewerker(subject);
         if (behandelaar.isPresent()) {
@@ -177,7 +177,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
         switch (event.getObjectType()) {
             case ZAAK_DOCUMENT_TOEGEVOEGD -> {
                 final Zaak subject = zrcClientService.readZaak((URI) event.getObjectId().resource());
-                final ZaakInformatieobject detail = zrcClientService.readZaakinformatieobject(
+                final ZaakInformatieObject detail = zrcClientService.readZaakinformatieobject(
                         extractUuid((URI) event.getObjectId().detail()));
                 return getSignaleringVoorBehandelaar(event, subject, detail);
             }

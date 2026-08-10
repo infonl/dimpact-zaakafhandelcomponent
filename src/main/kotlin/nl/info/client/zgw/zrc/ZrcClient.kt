@@ -20,8 +20,9 @@ import net.atos.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.JsonbConfiguration
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.RolListParameters
-import nl.info.client.zgw.zrc.model.ZaakInformatieobject
 import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
@@ -120,11 +121,11 @@ interface ZrcClient {
 
     @GET
     @Path("zaakinformatieobjecten")
-    fun zaakinformatieobjectList(@BeanParam parameters: ZaakInformatieobjectListParameters): List<ZaakInformatieobject>
+    fun zaakinformatieobjectList(@BeanParam parameters: ZaakInformatieobjectListParameters): List<ZaakInformatieObject>
 
     @POST
     @Path("zaakinformatieobjecten")
-    fun zaakinformatieobjectCreate(zaakInformatieObject: ZaakInformatieobject): ZaakInformatieobject
+    fun zaakinformatieobjectCreate(zaakInformatieObjectRequest: ZaakInformatieObjectRequest): ZaakInformatieObject
 
     @DELETE
     @Path("zaakinformatieobjecten/{uuid}")
@@ -200,5 +201,5 @@ interface ZrcClient {
 
     @GET
     @Path("zaakinformatieobjecten/{uuid}")
-    fun zaakinformatieobjectRead(@PathParam("uuid") zaakinformatieobjectUUID: UUID): ZaakInformatieobject
+    fun zaakinformatieobjectRead(@PathParam("uuid") zaakinformatieobjectUUID: UUID): ZaakInformatieObject
 }
