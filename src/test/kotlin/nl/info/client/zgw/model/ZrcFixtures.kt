@@ -338,11 +338,11 @@ fun createZaakobjectOpenbareRuimte(
 fun createZaakInformatieobjectForCreatesAndUpdates(
     informatieobjectUUID: UUID = UUID.randomUUID(),
     zaakUUID: UUID = UUID.randomUUID(),
-    informatieObjectURL: URI = URI("https://example.com/$informatieobjectUUID"),
-    zaakURL: URI = URI("https://example.com/$zaakUUID")
+    informatieObjectUrl: URI = URI("https://example.com/$informatieobjectUUID"),
+    zaakUrl: URI = URI("https://example.com/$zaakUUID")
 ) = ZaakInformatieObjectRequest().apply {
-    informatieobject = informatieObjectURL
-    zaak = zaakURL
+    informatieobject = informatieObjectUrl
+    zaak = zaakUrl
 }
 
 fun createZaakInformatieobjectForReads(
