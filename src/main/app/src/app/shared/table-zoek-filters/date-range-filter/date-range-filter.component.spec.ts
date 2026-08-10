@@ -6,7 +6,7 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { TranslateService } from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { MAT_DATE_LOCALE, MatNativeDateModule } from "@angular/material/core";
 import {
   MatEndDateHarness,
