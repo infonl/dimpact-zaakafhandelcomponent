@@ -387,7 +387,16 @@ val nodeExec = file(".gradle/nodejs/node-v${nodeExt.version.get()}-linux-x64/bin
 
 val prettierBase = libs.versions.spotless.prettier.base.get()
 val prettierOrganizeImports = libs.versions.spotless.prettier.organize.imports.get()
-val prettierDevDependencies = mapOf("prettier" to prettierBase, "prettier-plugin-organize-imports" to prettierOrganizeImports)
+// prettier-plugin-organize-imports only declares an unbounded ">=2.9" peer dependency on typescript, so without
+// pinning it explicitly npm resolves whatever the latest typescript release happens to be at install time. That
+// makes the import-organizing result non-deterministic across environments/CI runs. Pin it to the same version
+// the frontend itself uses (src/main/app/package.json) so results are consistent everywhere.
+val prettierTypescript = "5.9.3"
+val prettierDevDependencies = mapOf(
+    "prettier" to prettierBase,
+    "prettier-plugin-organize-imports" to prettierOrganizeImports,
+    "typescript" to prettierTypescript
+)
 val prettierTypescriptConfig = mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports"))
 
 fun com.diffplug.gradle.spotless.FormatExtension.PrettierConfig.withNodeExecutables() =
