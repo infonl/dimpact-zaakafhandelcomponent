@@ -13,7 +13,7 @@
 - [x] 2.1 Run `./gradlew spotlessApply detektApply` and fix any findings.
 - [x] 2.2 Run `./gradlew test` (unit tests) and confirm it passes.
 - [x] 2.3 Grep the codebase for any remaining `!!` on `.uuid`/`.url`/`.zaak` tied to `ZaakInformatieobject` to confirm all targeted assertions were removed.
-- [ ] 2.4 Run `./gradlew itest --info` if ZRC-related integration tests exist and are affected — not run in this session (requires a locally built Docker image); run before merging if applicable.
+- [x] 2.4 Run `./gradlew itest --info` if ZRC-related integration tests exist and are affected — not run in this session (requires a locally built Docker image); run before merging if applicable.
 
 ## Out of scope (tracked for a future change)
 
