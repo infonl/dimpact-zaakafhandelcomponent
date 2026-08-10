@@ -116,7 +116,7 @@ fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = 
     }
     return RestZaakBetrokkene(
         rolid = this.uuid.toString(),
-        roltype = this.omschrijving.orEmpty(),
+        roltype = this.omschrijving,
         roltoelichting = this.roltoelichting,
         type = betrokkeneType.name,
         bsn = bsn,
