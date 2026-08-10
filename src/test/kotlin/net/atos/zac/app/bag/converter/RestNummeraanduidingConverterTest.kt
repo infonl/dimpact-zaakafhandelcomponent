@@ -8,8 +8,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectNummeraanduiding
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding
+import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectNummeraanduiding
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding
 import net.atos.zac.app.bag.model.RESTNummeraanduiding
 import nl.info.client.bag.model.createNummeraanduiding
 import nl.info.client.bag.model.generated.Indicatie
@@ -197,24 +197,24 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
                 }
 
                 And("it should populate ObjectNummeraanduiding with the correct identificatie") {
-                    result.objectIdentificatie.overigeData.identificatie shouldBe "fakeIdentificatie"
+                    result.objectIdentificatie!!.overigeData!!.identificatie shouldBe "fakeIdentificatie"
                 }
 
                 And("it should populate ObjectNummeraanduiding with the correct postcode") {
-                    result.objectIdentificatie.overigeData.postcode shouldBe "1111AA"
+                    result.objectIdentificatie!!.overigeData!!.postcode shouldBe "1111AA"
                 }
 
                 And("it should populate ObjectNummeraanduiding with the correct huisnummer") {
-                    result.objectIdentificatie.overigeData.huisnummer shouldBe 7
+                    result.objectIdentificatie!!.overigeData!!.huisnummer shouldBe 7
                 }
 
                 And("it should populate ObjectNummeraanduiding with the correct typeAdresseerbaarObject string") {
-                    result.objectIdentificatie.overigeData.typeAdresseerbaarObject shouldBe
+                    result.objectIdentificatie!!.overigeData!!.typeAdresseerbaarObject shouldBe
                         TypeAdresseerbaarObject.VERBLIJFSOBJECT.toString()
                 }
 
                 And("it should populate ObjectNummeraanduiding with the correct status string") {
-                    result.objectIdentificatie.overigeData.status shouldBe
+                    result.objectIdentificatie!!.overigeData!!.status shouldBe
                         StatusNaamgeving.NAAMGEVING_UITGEGEVEN.toString()
                 }
             }

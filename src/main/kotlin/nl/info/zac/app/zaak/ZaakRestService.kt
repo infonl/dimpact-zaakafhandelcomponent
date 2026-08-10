@@ -20,9 +20,9 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
-import net.atos.client.zgw.zrc.model.ZaakListParameters
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
+import nl.info.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.app.bag.converter.RestBagConverter
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -235,7 +235,7 @@ class ZaakRestService @Inject constructor(
     ): RestZaak {
         val loggedInUser = loggedInUserInstance.get()
         val betrokkene = zrcClientService.readRol(betrokkeneUUID)
-        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakURI(betrokkene.zaak)
+        val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakURI(betrokkene.zaak!!)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         removeBetrokkene(zaakRechten, betrokkene, reden.reden)
         return restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -275,7 +275,7 @@ class ZaakRestService @Inject constructor(
         }
         zaakInformatieobjecten.forEach {
             zrcClientService.deleteZaakInformatieobject(
-                it.uuid,
+                it.uuid!!,
                 restDetachDocumentData.reden,
                 "Ontkoppeld"
             )

@@ -9,7 +9,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.ws.rs.HttpMethod
 import jakarta.ws.rs.core.UriBuilder
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.ZaakInformatieobject
 import net.atos.zac.util.MediaTypes
 import nl.info.client.smartdocuments.model.document.File
 import nl.info.client.smartdocuments.model.document.OutputFormat

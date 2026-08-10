@@ -475,7 +475,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
         every { zrcClientService.listZaakobjecten(any()) } returns Results(listOf(zaakobjectProductaanvraag), 1)
         every {
-            objectsClientService.readObject(zaakobjectProductaanvraag.getObject().extractUuid())
+            objectsClientService.readObject(zaakobjectProductaanvraag.`object`!!.extractUuid())
         } returns modelObject
         every { productaanvraagService.getProductaanvraag(modelObject) } returns productaanvraagDimpact
         every { productaanvraagService.getAanvraaggegevens(modelObject) } returns aanvraaggegevens

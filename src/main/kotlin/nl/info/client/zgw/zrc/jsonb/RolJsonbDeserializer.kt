@@ -8,12 +8,12 @@ import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
 import nl.info.client.zgw.util.JSONB
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.RolMedewerker
-import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.RolVestiging
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolMedewerker
+import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import nl.info.client.zgw.zrc.model.RolVestiging
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import java.lang.reflect.Type
 

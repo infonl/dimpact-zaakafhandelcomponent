@@ -5,9 +5,9 @@
 package nl.info.zac.history
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService

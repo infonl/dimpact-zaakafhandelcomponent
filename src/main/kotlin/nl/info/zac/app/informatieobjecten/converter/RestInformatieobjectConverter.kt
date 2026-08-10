@@ -7,7 +7,7 @@ package nl.info.zac.app.informatieobjecten.converter
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.exception.ZgwErrorException
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.ZaakInformatieobject
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject

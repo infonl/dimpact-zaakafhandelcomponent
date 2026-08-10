@@ -6,8 +6,8 @@ package nl.info.zac.productaanvraag
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
+import nl.info.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -44,9 +44,10 @@ class ProductaanvraagDocumentService @Inject constructor(
             LOG.warning { "No PDF found in productaanvraag to link to the zaak" }
             return
         }
-        ZaakInformatieobject().apply {
-            informatieobject = productaanvraag.pdf
+        ZaakInformatieobject(
+            informatieobject = productaanvraag.pdf,
             zaak = zaakUrl
+        ).apply {
             titel = AANVRAAG_PDF_TITEL
             beschrijving = AANVRAAG_PDF_BESCHRIJVING
         }.run {
@@ -56,9 +57,10 @@ class ProductaanvraagDocumentService @Inject constructor(
 
     fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI) =
         bijlageURIs.map(drcClientService::readEnkelvoudigInformatieobject).forEach { bijlage ->
-            ZaakInformatieobject().apply {
-                informatieobject = bijlage.url
+            ZaakInformatieobject(
+                informatieobject = bijlage.url,
                 zaak = zaakUrl
+            ).apply {
                 titel = bijlage.titel
                 beschrijving = bijlage.beschrijving
             }.run {
@@ -70,9 +72,10 @@ class ProductaanvraagDocumentService @Inject constructor(
         bijlageURIs.forEach { bijlageURI ->
             runCatching {
                 val bijlage = drcClientService.readEnkelvoudigInformatieobject(bijlageURI)
-                ZaakInformatieobject().apply {
-                    informatieobject = bijlage.url
+                ZaakInformatieobject(
+                    informatieobject = bijlage.url,
                     zaak = zaakUrl
+                ).apply {
                     titel = bijlage.titel
                     beschrijving = bijlage.beschrijving
                 }.run {

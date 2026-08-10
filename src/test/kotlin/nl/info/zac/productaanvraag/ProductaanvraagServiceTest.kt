@@ -15,9 +15,9 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.model.ProductaanvraagSpecificContactDetails
