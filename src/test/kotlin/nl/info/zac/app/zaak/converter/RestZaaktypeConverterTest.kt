@@ -17,7 +17,7 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
-import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
+import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import java.time.LocalDate
 
 class RestZaaktypeConverterTest : BehaviorSpec({
@@ -36,7 +36,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         val zaaktypeUuid = zaaktype.url.extractUuid()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         val now = LocalDate.now()
-        val restZaakafhandelParameters = createRestZaakafhandelParameters()
+        val restZaakafhandelParameters = createRestZaaktypeConfiguration()
 
         every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns null
         every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid) } returns zaaktypeCmmnConfiguration
@@ -76,7 +76,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         val zaaktypeUuid = zaaktype.url.extractUuid()
         val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
         val now = LocalDate.now()
-        val restZaakafhandelParameters = createRestZaakafhandelParameters()
+        val restZaakafhandelParameters = createRestZaaktypeConfiguration()
 
         every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns zaaktypeBpmnConfiguration
         every {

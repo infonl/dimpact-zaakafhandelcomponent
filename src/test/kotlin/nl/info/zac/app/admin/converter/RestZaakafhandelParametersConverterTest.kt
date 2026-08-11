@@ -24,7 +24,7 @@ import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakAfzender
-import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
+import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaakbeeindigParameter
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
@@ -125,7 +125,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
     given("RestZaakafhandelParameters CMMN with minimal content") {
         val restResultType = createResultaatType().toRestResultaatType()
-        val restZaakafhandelParameters = createRestZaakafhandelParameters().apply {
+        val restZaakafhandelParameters = createRestZaaktypeConfiguration().apply {
             caseDefinition = RESTCaseDefinition()
             zaakNietOntvankelijkResultaattype = restResultType
         }

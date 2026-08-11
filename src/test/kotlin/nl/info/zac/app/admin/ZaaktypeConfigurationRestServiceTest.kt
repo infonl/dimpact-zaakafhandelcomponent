@@ -26,7 +26,7 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
-import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
+import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
@@ -78,7 +78,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
     context("Zaakafhandelparameters without an ID (indicating new zaakafhandelparameters)") {
         given("productaanvraagtype that is not already in use by another zaaktype") {
             val productaanvraagtype = "fakeProductaanvraagtype"
-            val restZaakafhandelParameters = createRestZaakafhandelParameters(
+            val restZaakafhandelParameters = createRestZaaktypeConfiguration(
                 id = null,
                 productaanvraagtype = productaanvraagtype
             )
@@ -88,7 +88,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
             val createdZaakafhandelParameters = createZaaktypeCmmnConfiguration(
                 id = 1234L
             )
-            val updatedRestZaakafhandelParameters = createRestZaakafhandelParameters(
+            val updatedRestZaakafhandelParameters = createRestZaaktypeConfiguration(
                 id = 1234L,
                 productaanvraagtype = productaanvraagtype
             )
@@ -135,7 +135,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         }
         given("productaanvraagtype that is already in use by another zaaktype") {
             val productaanvraagtype = "fakeProductaanvraagtype"
-            val restZaakafhandelParameters = createRestZaakafhandelParameters(
+            val restZaakafhandelParameters = createRestZaaktypeConfiguration(
                 id = null,
                 productaanvraagtype = productaanvraagtype,
                 restZaaktypeOverzicht = createRestZaaktypeOverzicht(omschrijving = "fakeZaaktypeOmschrijving2")
@@ -200,7 +200,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         } throws UserNotInGroupException()
 
         `when`("zaaktypeCmmnConfiguration are created") {
-            val restZaakafhandelParameters = createRestZaakafhandelParameters(
+            val restZaakafhandelParameters = createRestZaaktypeConfiguration(
                 defaultBehandelaarId = behandelaarId,
                 defaultGroupId = behandelaarGroupId
             )
@@ -231,7 +231,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         } returns zaaktypeCmmnConfiguration
         every {
             zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
-        } returns createRestZaakafhandelParameters()
+        } returns createRestZaaktypeConfiguration()
 
         `when`("zaaktypeCmmnConfiguration is requested") {
             zaaktypeConfigurationRestService.readZaaktypeConfiguration(
@@ -261,7 +261,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         } returns zaaktypeBpmnConfiguration
         every {
             zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration)
-        } returns createRestZaakafhandelParameters()
+        } returns createRestZaaktypeConfiguration()
 
         `when`("zaaktypeCmmnConfiguration is requested") {
             zaaktypeConfigurationRestService.readZaaktypeConfiguration(
@@ -289,7 +289,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
         } returns zaaktypeCmmnConfiguration
         every {
             zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
-        } returns createRestZaakafhandelParameters()
+        } returns createRestZaaktypeConfiguration()
 
         `when`("zaaktypeConfiguration is requested") {
             zaaktypeConfigurationRestService.readZaaktypeConfiguration(
