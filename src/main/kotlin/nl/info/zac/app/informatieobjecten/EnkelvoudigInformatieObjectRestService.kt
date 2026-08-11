@@ -21,7 +21,7 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
-import nl.info.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import net.atos.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.websocket.event.ScreenEventType
@@ -555,7 +555,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             enkelvoudigInformatieObjectVersieGegevens.toelichting
         ).let(restInformatieobjectConverter::convertToREST)
 
-    private fun toRestZaakInformatieobject(zaakInformatieobject: ZaakInformatieobject): RestZaakInformatieobject {
+    private fun toRestZaakInformatieobject(zaakInformatieobject: ZaakInformatieObject): RestZaakInformatieobject {
         val zaak = zrcClientService.readZaak(zaakInformatieobject.zaak)
         val zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype())
         val zaakrechten = policyService.readZaakRechten(zaak, zaaktype, loggedInUserInstance.get())

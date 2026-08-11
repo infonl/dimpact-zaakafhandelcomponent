@@ -8,18 +8,20 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import jakarta.json.bind.JsonbBuilder
-import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import java.net.URI
 import java.util.UUID
 
-class ZaakInformatieobjectTest : BehaviorSpec({
+class ZaakInformatieObjectExtensionsTest : BehaviorSpec({
     afterEach { checkUnnecessaryStub() }
 
-    given("a ZaakInformatieobject whose zaak URI ends in a valid UUID") {
+    given("a ZaakInformatieObject whose zaak URI ends in a valid UUID") {
         val zaakUUID = UUID.randomUUID()
-        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(zaakUUID = zaakUUID)
+        val zaakInformatieObject = createZaakInformatieobjectForReads(zaak = URI("https://example.com/zaken/$zaakUUID"))
 
-        `when`("getZaakUUID is called") {
-            val result = zaakInformatieobject.zaakUUID
+        `when`("zaakUUID is read") {
+            val result = zaakInformatieObject.zaakUUID
 
             then("it returns the UUID extracted from the zaak URI") {
                 result shouldBe zaakUUID
@@ -42,11 +44,11 @@ class ZaakInformatieobjectTest : BehaviorSpec({
         """.trimIndent()
 
         `when`("it is deserialized via JSON-B") {
-            val zaakInformatieobject = jsonb.fromJson(json, ZaakInformatieobject::class.java)
+            val zaakInformatieObject = jsonb.fromJson(json, ZaakInformatieObject::class.java)
 
             then("titel and beschrijving are populated, not silently dropped") {
-                zaakInformatieobject.titel shouldBe "fakeTitel"
-                zaakInformatieobject.beschrijving shouldBe "fakeBeschrijving"
+                zaakInformatieObject.titel shouldBe "fakeTitel"
+                zaakInformatieObject.beschrijving shouldBe "fakeBeschrijving"
             }
         }
     }
