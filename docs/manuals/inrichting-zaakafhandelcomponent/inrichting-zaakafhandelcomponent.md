@@ -62,12 +62,13 @@ Versiegeschiedenis:
 
 ## Zaakafhandelcomponent
 De Zaakafhandelcomponent (ZAC) is een applicatie bedoeld voor het behandelen van zaken en managen van de werkvoorraad van zaken. De applicatie is daarmee ook gepositioneerd in de interactielaag van het 5 lagen model van Common Ground. 
-Om zaken te registeren en behandelen maakt de applicatie gebruik van registratiecomponenten die zicht in de datalaag bevinden. Een groot deel van de inrichting zal dan ook in deze componenten gebeuren, een belangrijke daarvan is de zaaktypecatalogus. Om de ZAC in gebruik te nemen en te werken met de ingerichte zaaktypecatalogus is configuratie in de ZAC noodzakelijk. Daarnaast is er een aantal instellingen in de ZAC beschikbaar om het werken met het component naar eigen wens in te richten. Alle benodigde inrichting is in deze handleiding beschreven.
+Om zaken te registeren en behandelen maakt de applicatie gebruik van registratiecomponenten die zich in de datalaag bevinden. Een groot deel van de inrichting zal dan ook in deze componenten gebeuren, een belangrijke daarvan is de zaaktypecatalogus. Om de ZAC in gebruik te nemen en te werken met de ingerichte zaaktypecatalogus is configuratie in de ZAC noodzakelijk. Daarnaast is er een aantal instellingen in de ZAC beschikbaar om het werken met het component naar eigen wens in te richten. Alle benodigde inrichting is in deze handleiding beschreven.
 
 # Inrichting Algemeen
 
 ## Beheerinstellingen
-Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het radar icoon. Het beheermenu bestaat 5 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
+Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het radar icoon. Het beheermenu bestaat 6 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
+
 ![image](images/beheerinstellingen.png)
 
 In deze handleiding wordt de werking van de beheer-instellingen per onderdeel beschreven.
@@ -93,7 +94,7 @@ ZAC maakt onderscheid tussen systeemreferentietabellen en zelf toegevoegde refer
 ZAC kent de volgende systeemreferentietabellen:
 
 - ADVIES | bevat de mogelijk waarde voor de keuzelijst ‘Advies’ die gebruikt wordt bij het afronden van de taak ‘Intern advies’
-- AFZENDER | bevat de mogelijke afzenders van een e-mail; zie sectie 'Mailafzenders' voor meer details
+- AFZENDER | bevat de mogelijke afzenders van een e-mail; zie sectie 'Afzenders referentietabel' voor meer details
 - BRP_DOELBINDING_RAADPLEEG_WAARDE | bevat de 1ste waarde die gebruikt wordt bij het configureren de BRP-doelbinding voor dit zaaktype
 - BRP_DOELBINDING_ZOEK_WAARDE | bevat de 2de waarde die gebruikt worden bij het configureren de BRP-doelbinding voor dit zaaktype
 - COMMUNICATIEKANAAL | bevat de mogelijke waarden voor de keuzelijst ‘Communicatiekanaal’ die gebruikt wordt bij het aanmaken of aanpassen van een zaak
@@ -119,7 +120,7 @@ Stappen:
 ##### Afzenders referentietabel
 
 ###### Werking van de mailafzenders
-Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties kan als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender.
+Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender.
 Let op, de 'Van' afzender mailadressen kunnen in veel gevallen niet vrij gekozen worden. Steeds vaker is namelijk in het DNS bij een domeinnaam vastgelegd welke mailservers exclusief mail mogen versturen met een Van-adres wat op de bewuste domeinnaam eindigt. Als dergelijke mail dan door een andere mailserver wordt verstuurd dan wordt dat in de meeste gevallen geweigerd, het hangt af van de ontvangende mailserver of daar naar gekeken wordt maar meestal wel. Het gevolg daarvan is dat het 'Van' e-mailadres een domein moet hebben (bijv. @example.com) wat toegestaan wordt door de betreffende mailserver.
 
 ###### Mailafzender bewerken
@@ -139,7 +140,7 @@ Extra mailafzenders kunnen aan de referentietabel worden toegevoegd om ze daarna
 Stappen:
 1. In het Beheer-instellingen menu kies je ‘Referentie-tabellen’
 2. Open de tabel 'AFZENDER' door op het oog icoon te klikken
-3. Maak een nieuwe waarde aan door op het plus-icoon (Toevoegen) te klikken
+3. Maak een nieuwe waarde aan door op de "Waarde Toevoegen" knop te klikken
 4. Vul de nieuwe waarde van in
 5. Klik op ‘Opslaan’ om de waarde toe te voegen, deze is daarna beschikbaar bij het instellen van de mailafzenders
 
@@ -169,7 +170,7 @@ Er zijn drie categoriën mails die verstuurd kunnen worden tijdens de zaakbehand
 
 #### Werking van de mailtemplates
 De mailtemplates kunnen vanuit menukeuze ‘Mailtemplates’ benaderd worden. Vanuit het overzicht kan een template ingezien en bewerkt worden. Iedere mail heeft een default template dat in het overzicht te herkennen is aan de vink in de 'default' kolom. Het is ook mogelijk om zelf een template voor een  mail aan te maken. Deze templates zijn daarna in het overzicht te herkennen door de X in de 'default' kolom.
-Het gebruiken van de mailtemplates uit de categorie 'taak' en 'statusmail' gebeurt door deze te koppelen via de zaakafhandelparameters, zie hoofdstuk Zaakafhandelparameters voor een beschrijving hiervan.
+Het gebruiken van de mailtemplates uit de categorie 'taak' en 'statusmail' gebeurt door deze te koppelen via de zaakafhandelparameters van een zaaktype, zie hoofdstuk Zaakafhandelparameters voor een beschrijving hiervan.
 De mailtemplates voor de signaleringen zijn automatisch gekoppeld en kunnen direct gebruikt worden.
 
 #### Mailtemplate bewerken
@@ -250,7 +251,7 @@ Deze sectie beschrijft de werking van de IAM-architectuur in ZAC, vanaf versie 5
 
 De voornaamste kenmerken van de nieuwe IAM-architectuur zijn:
 * Het is toekomstgericht en generiek ontworpen om in de toekomst meerdere 'entiteitstypes' te kunnen gaan autoriseren. 
-Op dit moment worden alleen nog zaaktypes als entiteitstype ondersteund.
+Op dit moment worden alleen nog zaaktypes en gemeente als entiteitstype ondersteund.
 * Het biedt meer flexibiliteit in het beheren van autorisaties, en het is bijvoorbeeld mogelijk om een medewerker 
 verschillende applicatierollen toe te kennen voor verschillende domeinen.
 * Het verlaagt de autorisatiebeheer-last met behulp van hoog-niveau abstracties zoals domeinen en functionele rollen. 
@@ -262,7 +263,7 @@ Om een zaaktype te autoriseren voor ZAC, moeten de volgende stappen doorlopen wo
 
 #### Functionele rollen
 
-Functionele rollen zijn hoog-niveau rollen die gebruikt worden om groepen medewerkers te autoriseren op functie.
+Functionele rollen (`Realm Roles` in Keycloak) zijn hoog-niveau rollen die gebruikt worden om groepen medewerkers te autoriseren op functie.
 Deze functionele rollen kunnen in de toekomst door meerdere applicaties gebruikt worden,
 zodra ook andere applicaties zijn aangesloten op de nieuwe IAM-architectuur.
 Functionele rollen worden beheerd in Keycloak, en worden in de PABC gebruikt voor autorisatie-koppelingen.
@@ -276,7 +277,7 @@ In werkelijkheid zal dit iets zijn als 'behandelaar_vergunningen' of 'raadpleger
 
 ##### Groepen
 
-In de nieuwe IAM-architectuur worden de `functionele rollen` toegekend aan groepen.
+In de nieuwe IAM-architectuur worden de `functionele rollen` (`Realm Roles` in Keycloak) toegekend aan groepen.
 De ZAC-applicatierollen bestaan niet meer in Keycloak in de nieuwe IAM-architectuur.
 Het concept 'domein-rollen' bestaat helemaal niet meer in de nieuwe IAM-architectuur.
 
@@ -288,7 +289,7 @@ Daarom is het van belang om rollen altijd toe te kennen aan groepen, en niet dir
 ##### Medewerkers
 
 Een medewerker zit in één of meerdere groepen en krijgt de autorisaties die aan deze groep(en) is/zijn toegekend,
-via de functionele rollen die aan de groep(en) zijn toegekend.
+via de functionele rollen (`Realm Roles`) die aan de groep(en) zijn toegekend.
 
   ![Keycloak medewerker die in 1 groep zit](images/keycloak_employee_1.png)
 
@@ -360,7 +361,7 @@ van entiteitstypes (zoals zaaktypes of gemeenten) te autoriseren.
 ###### Functionele rollen
 
 De functionele rollen waarop geautoriseerd moet worden moeten in de PABC worden ingericht.
-De namen van deze functionele rollen moet overeen komen met die in Keycloak.
+De namen van deze functionele rollen moet exact overeen komen met `Realm Roles` in Keycloak.
 
   ![PABC functionele rollen](images/pabc_functionele_rollen.png)
 
@@ -441,7 +442,7 @@ Om te migreren van de oude naar de nieuwe IAM-architectuur, moeten de volgende s
 
 - Applicatierollen: deze moeten worden verwijderd. In de nieuwe IAM-architectuur bestaan applicatierollen niet meer in Keycloak.
 - Domein-rollen: deze moeten worden verwijderd. Domein-rollen bestaan niet meer in de nieuwe IAM-architectuur.
-- Functionele rollen: deze moeten worden ingericht. Functionele rollen bestaan niet in de oude IAM-architectuur.
+- Functionele rollen (`Realm Roles` in Keycloak): deze moeten worden ingericht. Functionele rollen bestaan niet in de oude IAM-architectuur.
 - Groepen: groepen uit de oude IAM-architectuur kunnen in principe worden gebruikt voor de nieuwe IAM-architectuur. 
 Wel is het zo dat groepen in de nieuwe IAM-architectuur functionele rollen bevatten, terwijl ze in de oude
 IAM-architectuur applicatierollen en domein-rollen bevatten.
@@ -483,7 +484,7 @@ Dergelijke subgroepen worden niet ondersteund.
 Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandelparameters’. Alle zaaktypen worden opgehaald en het overzicht wordt geopend. Het is mogelijk om in dit overzicht te filteren en sorteren.
 ![image](images/207916618-434d6cbc-d8f1-4522-aeec-7556d11b8e27.png)
 
-!Klik op het bolletje links van het zaaktype kolom om snel te filteren op geldig en niet geldig!
+!Klik op het bolletje links van het zaaktype kolom om snel te filteren op ongeldig, alle en niet geldig. Standaard staat dit op geldig!
 
 Stappen:
 Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
@@ -501,7 +502,7 @@ Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
 
 
 ### Gegevens
-Na de keuze van een BPMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
+Na de keuze van een BPMN-zaaktype krijg je het "Gegevens" veld met de volgende invulvelden:
 
 - BPMN-procesdefinitie (v) | de keuzes die hier gemaakt kunnen worden zijn definities die zijn gekoppeld specifiek aan deze Zaakafhandel omgeving (zie, hoofdstuk BPMN definities)
 - Groep (v) |  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
@@ -549,11 +550,13 @@ Het volgende tabblad is ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt 
   ![image](images/zaps_mailgegevens.png)
 
 **Mailafzenders** Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn, is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender. Een uitgebreide beschrijving van de mailafzenders is in het hoofdstuk Mailafzenders te vinden.
--  Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
+
+- Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
 
 **Mailtemplates** Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
 ![image](images/zaps_mailgegevens-2.png)
 **Automatische ontvangsbevestiging** Als een zaak wordt aangemaakt via SmartDocuments waar een mailadres van de aanvrager bij is ingevuld kan hiervoor een automatische ontvangstbevestiging worden verstuurd vanuit ZAC. Op deze plek kan dit aan of uit worden gezet en gekozen worden voor:
+
 - De mailtemplate
 - Het verzendadres
 - Het retouradres
@@ -567,6 +570,7 @@ In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het
     ![image](images/zaps_zaakgegevens_gegevens.png)
 
 ### Koppelingen
+
 Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk SmartDocuments sjabloon moet worden verwerkt.
 
 #### Landelijke registratie koppelingen
