@@ -17,8 +17,10 @@ import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslateModule } from "@ngx-translate/core";
-import { DatumRange } from "../../../zoeken/model/datum-range";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
+import { GeneratedType } from "../../utils/generated-types";
+
+type DatumRange = GeneratedType<"RestDatumRange">;
 
 @Component({
   selector: "zac-date-range-filter",
@@ -52,7 +54,7 @@ import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pip
   ],
 })
 export class DateRangeFilterComponent implements OnChanges {
-  @Input({ required: true }) range!: DatumRange;
+  @Input({ required: true }) range: DatumRange | null | undefined = {};
   @Input() label!: string;
   @Input() showLabel?: boolean;
   @Output() changed = new EventEmitter<DatumRange>();
@@ -62,13 +64,16 @@ export class DateRangeFilterComponent implements OnChanges {
 
   ngOnChanges(): void {
     if (!this.range) {
-      this.range = new DatumRange();
+      this.range = {};
     }
-    this.dateVan.setValue(this.range.van);
-    this.dateTM.setValue(this.range.tot);
+    this.dateVan.setValue(this.range?.van ? new Date(this.range.van) : null);
+    this.dateTM.setValue(this.range?.tot ? new Date(this.range.tot) : null);
   }
 
   protected clearDate($event: MouseEvent): void {
+    if (!this.range) {
+      this.range = {};
+    }
     $event.stopPropagation();
     this.dateVan.setValue(null);
     this.dateTM.setValue(null);
@@ -78,16 +83,30 @@ export class DateRangeFilterComponent implements OnChanges {
   }
 
   protected change(): void {
-    this.range.van = this.dateVan.value;
-    this.range.tot = this.dateTM.value;
+    this.updateRangeProperty("van", this.dateVan);
+    this.updateRangeProperty("tot", this.dateTM);
     if (this.hasRange()) {
-      this.changed.emit(this.range);
+      this.changed.emit(this.range!);
+    }
+  }
+
+  private updateRangeProperty(
+    property: "van" | "tot",
+    control: FormControl<Date | null>,
+  ) {
+    if (this.range?.[property]) {
+      this.range[property] = control.value?.toISOString();
+    } else {
+      this.range = {
+        ...this.range,
+        [property]: control.value?.toISOString(),
+      };
     }
   }
 
   protected hasRange(): boolean {
     if (this.range) {
-      return this.range.van != null && this.range.tot != null;
+      return !!this.range.van && !!this.range.tot;
     }
     return false;
   }

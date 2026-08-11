@@ -12,6 +12,7 @@ import io.mockk.mockk
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
@@ -58,7 +59,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
                     versiedatum!! shouldHaveSameDayAs now
                     beginGeldigheid!! shouldHaveSameDayAs now
                     eindeGeldigheid shouldBe null
-                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
+                    vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
                     nuGeldig shouldBe true
                     opschortingMogelijk shouldBe null
                     verlengingMogelijk shouldBe null
@@ -97,7 +98,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
                     versiedatum!! shouldHaveSameDayAs now
                     beginGeldigheid!! shouldHaveSameDayAs now
                     eindeGeldigheid shouldBe null
-                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
+                    vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
                     nuGeldig shouldBe true
                     opschortingMogelijk shouldBe null
                     verlengingMogelijk shouldBe null

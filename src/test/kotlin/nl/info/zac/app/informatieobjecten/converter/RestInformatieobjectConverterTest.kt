@@ -28,6 +28,7 @@ import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.app.task.model.createRestTaskDocumentData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
@@ -100,9 +101,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     bestandsnaam shouldBe restFileUpload.filename
                     // status should always be DEFINITIEF
                     status shouldBe StatusEnum.DEFINITIEF
-                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.valueOf(
-                        restTaakDocumentData.documentType.vertrouwelijkheidaanduiding!!
-                    )
+                    vertrouwelijkheidaanduiding.name shouldBe restTaakDocumentData.documentType.vertrouwelijkheidaanduiding!!.name
                 }
             }
         }
@@ -112,7 +111,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
         // when converting a zaak more fields in the RESTEnkelvoudigInformatieobject are used in the
         // conversion compared to when converting a taak
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject(
-            vertrouwelijkheidaanduiding = "vertrouwelijk",
+            vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.VERTROUWELIJK,
             creatieDatum = LocalDate.now(),
             auteur = "fakeAuteur",
             taal = "fakeTaal",
@@ -142,7 +141,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     formaat shouldBe restFileUpload.type
                     bestandsnaam shouldBe restEnkelvoudigInformatieobject.bestandsnaam
                     status.name shouldBe restEnkelvoudigInformatieobject.status!!.name
-                    vertrouwelijkheidaanduiding.name shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding!!.uppercase()
+                    vertrouwelijkheidaanduiding?.name shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding?.name
                 }
             }
         }
@@ -180,7 +179,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     informatieobjectTypeUUID shouldBe expectedUUID
                     versie shouldBe 1234
                     bestandsomvang shouldBe 1234
-                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.ZEER_GEHEIM.name
+                    vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.ZEER_GEHEIM
                 }
             }
         }
@@ -260,7 +259,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
     given("A 'REST enkelvoudiginformatieobject versie gegevens' object containing a file, bestandsnaam and formaat") {
         val informatieobjectType = createInformatieObjectType()
         val restEnkelvoudigInformatieobjectVersieGegevens = createRestEnkelvoudigInformatieObjectVersieGegevens(
-            vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR.name.lowercase()
+            vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR
         )
 
         every {

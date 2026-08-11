@@ -35,11 +35,11 @@ import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filt
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
-import { DatumRange } from "../../zoeken/model/datum-range";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import {
   getDefaultZoekParameters,
   hasActiveSearchFilters,
+  ZoekParametersInternal,
 } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
@@ -96,7 +96,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   protected filterColumns = this.columns.map((n) => n + "_filter");
   protected isLoadingResults = true;
   protected filterChange = new EventEmitter<void>();
-  protected zoekParameters: GeneratedType<"RestZoekParameters"> = {
+  protected zoekParameters: ZoekParametersInternal = {
     ...getDefaultZoekParameters(),
     type: "ZAAK",
   };
@@ -155,11 +155,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
         filtersType: "ZoekParameters",
         zoeken: this.zoekParameters.zoeken ?? {},
         filters: this.zoekParameters.filters ?? {},
-        datums:
-          (this.zoekParameters.datums as unknown as Record<
-            string,
-            DatumRange
-          >) ?? null,
+        datums: this.zoekParameters.datums,
         type: this.zoekParameters.type as string,
       });
 

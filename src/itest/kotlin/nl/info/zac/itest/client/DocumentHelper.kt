@@ -7,7 +7,7 @@ package nl.info.zac.itest.client
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.shouldBe
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
@@ -43,7 +43,7 @@ class DocumentHelper(
         documentTitle: String,
         authorName: String,
         mediaType: String = PDF_MIME_TYPE,
-        vertrouwelijkheidsaanduiding: String = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK,
+        vertrouwelijkheidsaanduiding: String = VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK,
         indexDocument: Boolean = false,
         testUser: TestUser
     ): Pair<UUID, String> {

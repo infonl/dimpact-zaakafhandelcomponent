@@ -8,6 +8,7 @@ package net.atos.zac.app.bag.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum;
 import nl.info.zac.app.zaak.model.RestGeometry;
 
 public class RESTBAGAdres extends RESTBAGObject {
@@ -58,7 +59,7 @@ public class RESTBAGAdres extends RESTBAGObject {
             restGeometries.add(panden.getFirst().geometry);
         }
         RestGeometry restGeometry = new RestGeometry(
-                "GeometryCollection",
+                GeometryTypeEnum.GEOMETRY_COLLECTION,
                 null,
                 null,
                 restGeometries

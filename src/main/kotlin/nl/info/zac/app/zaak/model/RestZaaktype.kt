@@ -4,8 +4,8 @@
  */
 package nl.info.zac.app.zaak.model
 
-import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -32,7 +32,7 @@ data class RestZaaktype(
 
     var eindeGeldigheid: LocalDate? = null,
 
-    var vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum? = null,
+    var vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding? = null,
 
     var nuGeldig: Boolean? = null,
 

@@ -18,6 +18,9 @@ import { DocumentZoekObject } from "../../model/documenten/document-zoek-object"
 import { TaakZoekObject } from "../../model/taken/taak-zoek-object";
 import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
 
+type AbstractRestZoekObject =
+  GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">;
+
 @Component({
   selector: "zac-zoek-object-link",
   styleUrls: ["./zoek-object-link.component.less"],
@@ -35,7 +38,7 @@ import { ZaakZoekObject } from "../../model/zaken/zaak-zoek-object";
 })
 export class ZoekObjectLinkComponent {
   @Input({ required: true })
-  zoekObject!: GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">;
+  zoekObject!: AbstractRestZoekObject;
   @Input({ required: true }) sideNav!: MatSidenav;
   protected _newtab = false;
   protected indicatiesLayout = IndicatiesLayout;
@@ -70,13 +73,13 @@ export class ZoekObjectLinkComponent {
   }
 
   protected getName() {
-    switch (this.zoekObject.type) {
-      case "ZAAK":
-        return (this.zoekObject as ZaakZoekObject).identificatie;
-      case "TAAK":
-        return (this.zoekObject as TaakZoekObject).naam;
-      case "DOCUMENT":
-        return (this.zoekObject as DocumentZoekObject).titel;
+    switch (true) {
+      case this.isZaak(this.zoekObject):
+        return this.zoekObject.identificatie;
+      case this.isTaak(this.zoekObject):
+        return this.zoekObject.naam;
+      case this.isDocument(this.zoekObject):
+        return this.zoekObject.titel;
       default:
         throw new Error(
           `Search object type ${this.zoekObject.type} is not supported`,
@@ -89,5 +92,23 @@ export class ZoekObjectLinkComponent {
       this.sideNav.close();
     }
     event.stopPropagation();
+  }
+
+  protected isZaak(
+    zoekObject: AbstractRestZoekObject,
+  ): zoekObject is ZaakZoekObject {
+    return zoekObject.type === "ZAAK";
+  }
+
+  protected isDocument(
+    zoekObject: AbstractRestZoekObject,
+  ): zoekObject is DocumentZoekObject {
+    return zoekObject.type === "DOCUMENT";
+  }
+
+  protected isTaak(
+    zoekObject: AbstractRestZoekObject,
+  ): zoekObject is TaakZoekObject {
+    return zoekObject.type === "TAAK";
   }
 }

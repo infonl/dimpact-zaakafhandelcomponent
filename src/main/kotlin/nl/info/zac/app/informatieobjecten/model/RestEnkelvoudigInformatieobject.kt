@@ -8,9 +8,11 @@ package nl.info.zac.app.informatieobjecten.model
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.constraints.NotNull
 import jakarta.ws.rs.FormParam
+import nl.info.client.zgw.drc.model.generated.EnkelvoudiginformatieobjectZoekRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.policy.model.RestDocumentRechten
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -55,7 +57,7 @@ data class RestEnkelvoudigInformatieobject(
 
     // not always required
     @field:FormParam("vertrouwelijkheidaanduiding")
-    var vertrouwelijkheidaanduiding: String? = null,
+    var vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding? = null,
 
     // not always required
     @field:FormParam("auteur")

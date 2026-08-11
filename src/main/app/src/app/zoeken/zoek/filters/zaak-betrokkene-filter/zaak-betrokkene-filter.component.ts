@@ -14,6 +14,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { TranslateModule } from "@ngx-translate/core";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
+import { ZoekParametersInternal } from "../../../model/zoek-parameters";
 import { ZoekVeld } from "../../../model/zoek-veld";
 import { KlantZoekDialog } from "./klant-zoek-dialog.component";
 
@@ -36,7 +37,7 @@ import { KlantZoekDialog } from "./klant-zoek-dialog.component";
 })
 export class ZaakBetrokkeneFilterComponent implements OnInit {
   @Input({ required: true })
-  zoekparameters!: GeneratedType<"RestZoekParameters">;
+  zoekparameters!: GeneratedType<"RestZoekParameters"> | ZoekParametersInternal;
   @Output() changed = new EventEmitter<void>();
   protected dialogOpen: boolean = false;
   protected betrokkeneSelectControl = new FormControl<ZoekVeld>(

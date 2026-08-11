@@ -63,7 +63,7 @@
 
           <div
             *ngIf="
-              notitieRechten.wijzigen && geselecteerdeNotitieId === notitie.id
+              notitieRechten?.wijzigen && geselecteerdeNotitieId === notitie.id
             "
           >
             <mat-form-field appearance="fill" class="full-width">
@@ -108,14 +108,14 @@
 
         <mat-card-actions
           *ngIf="
-            notitieRechten.wijzigen &&
+            notitieRechten?.wijzigen &&
             notitie.bewerkenToegestaan &&
             geselecteerdeNotitieId !== notitie.id
           "
           class="flex-row justify-content-end"
         >
           <button
-            (click)="pasNotitieAan(notitie.id)"
+            (click)="pasNotitieAan(notitie.id!)"
             id="notitieBewerk_button"
             mat-icon-button
             title="{{ 'actie.bewerken' | translate }}"
@@ -123,7 +123,7 @@
             <mat-icon>edit</mat-icon>
           </button>
           <button
-            (click)="verwijderNotitie(notitie.id)"
+            (click)="verwijderNotitie(notitie.id!)"
             id="notitieVerwijder_button"
             mat-icon-button
             title="{{ 'actie.verwijderen' | translate }}"
@@ -135,7 +135,7 @@
     </ng-container>
   </mat-card-content>
 
-  <mat-card-actions *ngIf="notitieRechten.wijzigen">
+  <mat-card-actions *ngIf="notitieRechten?.wijzigen">
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>{{ "actie.notitie.aanmaken" | translate }}</mat-label>
       <textarea

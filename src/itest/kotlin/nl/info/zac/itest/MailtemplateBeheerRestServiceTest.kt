@@ -14,6 +14,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_07_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2026_07_23
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_OP_NAAM_MAIL
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_OP_NAAM_NAME
 import nl.info.zac.itest.config.ItestConfiguration.MAIL_TEMPLATE_SIGNALERING_TAAK_VERLOPEN_MAIL
@@ -245,7 +246,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_CMMN_TEST_1_UUID",
                           "versiedatum": "$DATE_2025_07_01",
-                          "vertrouwelijkheidaanduiding": "openbaar"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
                         }
                       }
                     },
@@ -313,7 +314,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_CMMN_TEST_2_UUID",
                           "versiedatum": "$DATE_2023_10_01",
-                          "vertrouwelijkheidaanduiding": "openbaar"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
                         }
                       }
                     },
@@ -381,7 +382,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
                           "versiedatum": "$DATE_2023_09_21",
-                          "vertrouwelijkheidaanduiding": "openbaar"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
                         }
                       }
                     },
@@ -449,7 +450,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_CMMN_TEST_4_UUID",
                           "versiedatum": "$DATE_2023_10_01",
-                          "vertrouwelijkheidaanduiding": "openbaar"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
                         }
                       }
                     }

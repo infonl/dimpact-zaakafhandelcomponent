@@ -4,7 +4,6 @@
  */
 
 import { Coordinate } from "ol/coordinate";
-import { GeometryType } from "../../zaken/model/geometryType";
 import { GeneratedType } from "../utils/generated-types";
 
 export class LocationUtil {
@@ -24,7 +23,7 @@ export class LocationUtil {
 
   public static coordinateToPoint([x, y]: Coordinate) {
     const geometry: GeneratedType<"RestGeometry"> = {
-      type: GeometryType.POINT,
+      type: "POINT",
       point: {
         latitude: y,
         longitude: x,
@@ -44,7 +43,7 @@ export class LocationUtil {
   }
 
   public static format(geometry?: GeneratedType<"RestGeometry">) {
-    if (geometry?.type == GeometryType.POINT) {
+    if (geometry?.type == "POINT") {
       return geometry.point?.latitude + ", " + geometry.point?.longitude;
     }
     return null;
@@ -57,15 +56,15 @@ export class LocationUtil {
     if (left?.type !== right?.type) return false;
 
     switch (left?.type) {
-      case GeometryType.POINT:
+      case "POINT":
         return (
           left?.point?.latitude === right?.point?.latitude &&
           left?.point?.longitude === right?.point?.longitude
         );
-      case GeometryType.POLYGON:
+      case "POLYGON":
         console.log("Polygon comparison not implemented");
         return false;
-      case GeometryType.GEOMETRY_COLLECTION:
+      case "GEOMETRY_COLLECTION":
         console.log("Geometry collection comparison not implemented");
         return false;
       default:
