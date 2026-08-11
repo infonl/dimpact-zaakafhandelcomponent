@@ -59,7 +59,6 @@ import {
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { DatumRange } from "../../zoeken/model/datum-range";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
 
 @Component({
@@ -192,7 +191,7 @@ export class InboxProductaanvragenListComponent
   }
 
   protected filtersChanged(options: {
-    event: MatSelectChange | string | DatumRange;
+    event: MatSelectChange | string | GeneratedType<"RestDatumRange">;
     filter: keyof GeneratedType<"RestInboxProductaanvraagListParameters">;
   }) {
     this.listParameters[options.filter] =

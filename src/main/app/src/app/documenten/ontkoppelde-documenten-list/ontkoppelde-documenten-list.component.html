@@ -29,7 +29,7 @@
           <ng-container matColumnDef="titel_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.titel"
+                [value]="listParameters.titel ?? undefined"
                 (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>
@@ -46,7 +46,7 @@
           <ng-container matColumnDef="zaakID_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.zaakID"
+                [value]="listParameters.zaakID ?? undefined"
                 (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>
@@ -83,7 +83,7 @@
           <ng-container matColumnDef="reden_filter">
             <th mat-header-cell *matHeaderCellDef>
               <zac-tekst-filter
-                [value]="listParameters.reden"
+                [value]="listParameters.reden ?? undefined"
                 (changed)="filtersChanged()"
               ></zac-tekst-filter>
             </th>

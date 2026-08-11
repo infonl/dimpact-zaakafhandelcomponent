@@ -29,37 +29,39 @@
     [ngSwitch]="activeSideAction"
     (closedStart)="activeSideAction = null"
   >
-    @if (taak) {
-      <zac-taak-edit
-        *ngSwitchCase="'actie.taak.wijzigen'"
+    @if (isSideNav(actionsSidenav)) {
+      @if (taak) {
+        <zac-taak-edit
+          *ngSwitchCase="'actie.taak.wijzigen'"
+          [sideNav]="actionsSidenav"
+          [task]="taak"
+        />
+      }
+      <zac-informatie-object-create-attended
+        *ngSwitchCase="'actie.document.maken'"
         [sideNav]="actionsSidenav"
-        [task]="taak"
+        [zaak]="zaak!"
+        [taak]="taak"
+        [smartDocumentsGroupId]="smartDocumentsGroupId"
+        [smartDocumentsTemplateId]="smartDocumentsTemplateId"
+        (document)="documentCreated()"
+      ></zac-informatie-object-create-attended>
+      <zac-informatie-object-add
+        *ngSwitchCase="'actie.document.toevoegen'"
+        [sideNav]="actionsSidenav"
+        [zaakUuid]="taak!.zaakUuid"
+        [taakId]="taak!.id ?? undefined"
+        (document)="updateTaakdocumenten($event)"
+      ></zac-informatie-object-add>
+      <zac-informatie-object-link
+        *ngSwitchCase="'actie.document.verplaatsen'"
+        actionLabel="actie.document.verplaatsen"
+        [infoObject]="documentToMove"
+        [sideNav]="actionsSidenav"
+        [source]="zaak?.identificatie ?? ''"
+        (informationObjectLinked)="updateZaakDocumentList()"
       />
     }
-    <zac-informatie-object-create-attended
-      *ngSwitchCase="'actie.document.maken'"
-      [sideNav]="actionsSidenav"
-      [zaak]="zaak"
-      [taak]="taak"
-      [smartDocumentsGroupId]="smartDocumentsGroupId"
-      [smartDocumentsTemplateId]="smartDocumentsTemplateId"
-      (document)="documentCreated()"
-    ></zac-informatie-object-create-attended>
-    <zac-informatie-object-add
-      *ngSwitchCase="'actie.document.toevoegen'"
-      [sideNav]="actionsSidenav"
-      [zaakUuid]="taak!.zaakUuid"
-      [taakId]="taak!.id"
-      (document)="updateTaakdocumenten($event)"
-    ></zac-informatie-object-add>
-    <zac-informatie-object-link
-      *ngSwitchCase="'actie.document.verplaatsen'"
-      actionLabel="actie.document.verplaatsen"
-      [infoObject]="documentToMove"
-      [sideNav]="actionsSidenav"
-      [source]="zaak?.identificatie"
-      (informationObjectLinked)="updateZaakDocumentList()"
-    />
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-10">
@@ -78,9 +80,9 @@
           <div class="form">
             <zac-formio-wrapper
               *ngIf="formioFormulier"
-              [submission]="{ data: taak.taakdata }"
+              [submission]="{ data: taak!.taakdata }"
               [form]="formioFormulier"
-              [taakdata]="taak.taakdata"
+              [taakdata]="taak!.taakdata ?? undefined"
               [readOnly]="isReadonly()"
               [submitPending]="isPending()"
               (formSubmit)="onFormioFormSubmit($event)"
@@ -264,14 +266,14 @@
         <zac-zaak-verkort
           *ngIf="zaak"
           class="zaak-card"
-          [zaak]="zaak"
+          [zaak]="zaak!"
         ></zac-zaak-verkort>
       </div>
     </div>
     <zac-zaak-documenten
       #zaakDocumentenComponent
       *ngIf="initialized"
-      [zaak]="zaak"
+      [zaak]="zaak!"
       (documentMoveToCase)="documentMoveToCase($event)"
     ></zac-zaak-documenten>
     <mat-card *ngIf="!initialized">

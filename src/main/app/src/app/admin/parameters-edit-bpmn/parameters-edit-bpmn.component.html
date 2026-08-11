@@ -199,19 +199,21 @@
                     translate="resultaat"
                   ></th>
                   <td mat-cell *matCellDef="let parameter">
-                    <mat-select
-                      placeholder="{{ 'resultaat.-kies-' | translate }}"
-                      [formControl]="
-                        getZaakbeeindigControl(parameter, 'beeindigResultaat')
-                      "
-                      [compareWith]="compareObject"
-                    >
-                      <mat-option
-                        *ngFor="let resultaattype of resultaattypes"
-                        [value]="resultaattype"
-                        >{{ resultaattype.naam }}</mat-option
+                    @let control =
+                      getZaakbeeindigControl(parameter, "beeindigResultaat");
+                    @if (control) {
+                      <mat-select
+                        placeholder="{{ 'resultaat.-kies-' | translate }}"
+                        [formControl]="control"
+                        [compareWith]="compareObject"
                       >
-                    </mat-select>
+                        <mat-option
+                          *ngFor="let resultaattype of resultaattypes"
+                          [value]="resultaattype"
+                          >{{ resultaattype.naam }}</mat-option
+                        >
+                      </mat-select>
+                    }
                   </td>
                 </ng-container>
                 <tr

@@ -11,7 +11,6 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { of } from "rxjs";
-import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { fromPartial } from "src/test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -87,8 +86,8 @@ describe(`${ParametersComponent.name} applyFilter`, () => {
         geldig: ToggleSwitchOptions.INDETERMINATE,
         zaaktype: null,
         caseDefinition: null,
-        beginGeldigheid: new DatumRange(),
-        eindeGeldigheid: new DatumRange(),
+        beginGeldigheid: {},
+        eindeGeldigheid: {},
         sort: "",
         order: "",
         page: 0,

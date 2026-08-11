@@ -23,7 +23,7 @@
       [form]="form"
       key="caseRelationType"
       label="zaak.koppelen.label"
-      [options]="caseRelationOptionsList"
+      [options]="$any(caseRelationOptionsList)"
       [optionDisplayValue]="'label'"
     ></zac-select>
     <fieldset class="p-0">

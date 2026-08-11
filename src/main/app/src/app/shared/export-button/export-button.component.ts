@@ -9,7 +9,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { TranslateModule } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
 import { CsvService } from "../../csv/csv.service";
-import { GeneratedType } from "../utils/generated-types";
+import { ZoekParametersInternal } from "../../zoeken/model/zoek-parameters";
 
 @Component({
   selector: "zac-export-button[zoekParameters][filename]",
@@ -18,7 +18,7 @@ import { GeneratedType } from "../utils/generated-types";
   imports: [MatButtonModule, MatIconModule, TranslateModule],
 })
 export class ExportButtonComponent {
-  @Input() zoekParameters!: GeneratedType<"RestZoekParameters">;
+  @Input() zoekParameters!: ZoekParametersInternal;
   @Input() filename!: string;
 
   constructor(

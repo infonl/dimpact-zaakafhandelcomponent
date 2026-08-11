@@ -166,7 +166,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   mailtemplateKoppelingen = getBeschikbareMailtemplateKoppelingen();
 
   protected readonly modellingMethodOptions: Array<{
-    label: string;
+    label: ProcessModelMethod;
     value: ProcessModelMethod;
   }> = [
     { label: "CMMN", value: "CMMN" },
@@ -220,7 +220,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     kvkKoppelen: new FormControl(false),
   });
   protected filteredMedewerkerMail: GeneratedType<"RESTReplyTo">[] = [];
-  protected ontvangstBevestigingsMailtemplates: GeneratedType<"RESTReplyTo">[] =
+  protected ontvangstBevestigingsMailtemplates: GeneratedType<"RESTMailtemplate">[] =
     [];
 
   protected automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
@@ -404,11 +404,11 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected getHumanTaskControl(
     parameter: GeneratedType<"RESTHumanTaskParameters">,
     field: string,
-  ): FormControl {
+  ) {
     const formGroup = this.humanTasksFormGroup.get(
       parameter.planItemDefinition?.id ?? "",
-    ) as FormGroup;
-    return formGroup.get(field) as FormControl;
+    );
+    return formGroup?.get(field) as unknown as FormControl;
   }
 
   getMailtemplateKoppelingControl(
@@ -416,7 +416,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     field: string,
   ) {
     const formGroup = this.mailFormGroup.get(koppeling);
-    return formGroup?.get(field);
+    return formGroup?.get(field) as unknown as FormControl;
   }
 
   async createForm() {
@@ -836,7 +836,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     zaakAfzender: GeneratedType<"RestZaakAfzender"> & { index?: number },
     field: string,
   ) {
-    return this.mailFormGroup.get(`afzender${zaakAfzender.index}__${field}`);
+    return this.mailFormGroup.get(
+      `afzender${zaakAfzender.index}__${field}`,
+    ) as unknown as FormControl | null;
   }
 
   private initAfzenders() {
@@ -871,7 +873,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   ) {
     return this.zaakbeeindigFormGroup.get(
       `${parameter.zaakbeeindigReden?.id}__${field}`,
-    );
+    ) as unknown as FormControl | null;
   }
 
   protected isValid(): boolean {
@@ -1091,7 +1093,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-  private getAvailableMailtemplates(mailtemplate: GeneratedType<"Mail">) {
+  protected getAvailableMailtemplates(mailtemplate: GeneratedType<"Mail">) {
     return this.mailtemplates.filter(
       (template) => template.mail === mailtemplate,
     );
@@ -1101,10 +1103,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     return parseInt(value?.toString(), 10);
   }
 
-  protected replyToDisplayValue(replyTo: GeneratedType<"RESTReplyTo">) {
+  protected replyToDisplayValue(replyTo: GeneratedType<"RESTReplyTo">): string {
     return replyTo.speciaal
       ? "gegevens.mail.afzender." + replyTo.mail
-      : replyTo.mail;
+      : (replyTo.mail ?? "");
   }
 
   confirmModellingMethodSwitch() {

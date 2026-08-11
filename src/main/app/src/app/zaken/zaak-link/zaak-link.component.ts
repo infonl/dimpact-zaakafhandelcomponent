@@ -38,7 +38,6 @@ import { ZacSelect } from "src/app/shared/form/select/select";
 import { EmptyPipe } from "src/app/shared/pipes/empty.pipe";
 import { DateRangeFilterComponent } from "src/app/shared/table-zoek-filters/date-range-filter/date-range-filter.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { ZakenService } from "../zaken.service";
 
@@ -128,8 +127,8 @@ export class ZaakLinkComponent implements OnDestroy {
 
   protected caseTypes = this.zakenService.listZaaktypesToLink();
 
-  startdatum = new DatumRange();
-  einddatum = new DatumRange();
+  startdatum: GeneratedType<"RestDatumRange"> = {};
+  einddatum: GeneratedType<"RestDatumRange"> = {};
 
   constructor() {
     this.form.controls.caseRelationType.valueChanges
@@ -158,14 +157,8 @@ export class ZaakLinkComponent implements OnDestroy {
         zoekZaakOmschrijving: caseDescriptionToSearchFor,
         zoekZaakTypeOmschrijving: caseTypeToSearchFor?.omschrijving,
         relationType: caseRelationType.value,
-        startdatum: {
-          van: this.startdatum?.van?.toISOString(),
-          tot: this.startdatum?.tot?.toISOString(),
-        },
-        einddatum: {
-          van: this.einddatum?.van?.toISOString(),
-          tot: this.einddatum?.tot?.toISOString(),
-        },
+        startdatum: this.startdatum,
+        einddatum: this.einddatum,
       })
       .subscribe({
         next: (result) => {
@@ -225,8 +218,8 @@ export class ZaakLinkComponent implements OnDestroy {
 
   protected reset() {
     this.form.reset();
-    this.startdatum = new DatumRange();
-    this.einddatum = new DatumRange();
+    this.startdatum = {};
+    this.einddatum = {};
     this.clearSearchResult();
   }
 
