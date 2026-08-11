@@ -38,8 +38,8 @@ import nl.info.zac.admin.model.FormulierDefinitie
 import nl.info.zac.admin.model.ReferenceTable.SystemReferenceTable.AFZENDER
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.BPMN
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZaaktypeConfigurationType.CMMN
-import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
-import nl.info.zac.app.admin.model.RestZaakafhandelParameters
+import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
+import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.zaak.model.RestResultaattype
 import nl.info.zac.app.zaak.model.toRestResultaatTypes
 import nl.info.zac.configuration.ConfigurationService
@@ -63,7 +63,7 @@ import java.util.UUID
 @AllOpen
 @NoArgConstructor
 @Suppress("LongParameterList", "TooManyFunctions")
-class ZaaktypeCmmnConfigurationRestService @Inject constructor(
+class ZaaktypeConfigurationRestService @Inject constructor(
     private val ztcClientService: ZtcClientService,
     private val configurationService: ConfigurationService,
     private val cmmnService: CMMNService,
@@ -71,7 +71,7 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val zaaktypeCmmnConfigurationBeheerService: ZaaktypeCmmnConfigurationBeheerService,
     private val referenceTableService: ReferenceTableService,
-    private val zaaktypeCmmnConfigurationConverter: RestZaakafhandelParametersConverter,
+    private val zaaktypeCmmnConfigurationConverter: RestZaaktypeConfigurationConverter,
     private val zaaktypeBpmnConfigurationService: ZaaktypeBpmnConfigurationService,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService,
     private val caseDefinitionConverter: RESTCaseDefinitionConverter,
@@ -106,41 +106,45 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     }
 
     /**
-     * Retrieve all zaakafhandelparameters for all available zaaktypes in the zaakregister.
+     * Retrieve all zaaktype configurations (=zaakafhandelparameters) for all available zaaktypes in the zaakregister.
+     * Note that the current implementation is very simplistic and will only retrieve the 100 most recently updated zaaktypes
+     * from the ZTC zaakregister (this is including zaaktype 'versions').
+     * This is a known limitation of the used ZGW ZTC API request.
+     * In future a completely different solution with pagination and possibly the use of Solr is required in ZAC.
      *
-     * @return list of all zaakafhandelparameters
+     * @return list of all zaaktype configurations with a maximum of 100
      */
     @GET
-    fun listZaaktypeCmmnConfiguration(): List<RestZaakafhandelParameters> {
+    fun listZaaktypeConfigurations(): List<RestZaaktypeConfiguration> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return ztcClientService.listZaaktypen(configurationService.readDefaultCatalogusURI())
             .map { it.url.extractUuid() }
             .map(zaaktypeCmmnConfigurationService::readZaaktypeCmmnConfiguration)
-            .map { zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(it, false) }
-            .onEach { restZaakafhandelParameters ->
+            .map { zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(it, false) }
+            .onEach { restZaaktypeConfiguration ->
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(
-                    restZaakafhandelParameters.zaaktype.uuid
+                    restZaaktypeConfiguration.zaaktype.uuid
                 )?.let {
-                    restZaakafhandelParameters.valide = true
+                    restZaaktypeConfiguration.valide = true
                 }
             }
     }
 
     /**
-     * Retrieve the ZaaktypeConfiguration for a ZAAKTYPE
+     * Retrieve the zaaktype configuration for a zaaktype by uuid.
      *
-     * @return RestZaakafhandelParameters for a ZAAKTYPE by uuid of the ZAAKTYPE
+     * @return zaaktype configuration
      */
     @GET
     @Path("{zaaktypeUUID}")
-    fun readZaaktypeConfiguration(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID): RestZaakafhandelParameters {
+    fun readZaaktypeConfiguration(@PathParam("zaaktypeUUID") zaakTypeUUID: UUID): RestZaaktypeConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
         zaaktypeConfigurationService.readZaaktypeConfiguration(zaakTypeUUID)?.let {
             return when (it.getConfigurationType()) {
                 CMMN -> {
                     zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID).let {
                             zaaktypeCmmnConfiguration ->
-                        zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(
+                        zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(
                             zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
                             inclusiefRelaties = true
                         )
@@ -149,22 +153,22 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
                 BPMN -> {
                     zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakTypeUUID).let {
                             zaaktypeBpmnConfiguration ->
-                        zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration!!)
+                        zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration!!)
                     }
                 }
             }
         }
 
-        // Use CMMN ZaakafhandelParameters as default when no configuration exists yet
+        // Use CMMN zaaktype configuration as default when no configuration exists yet
         return zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID).let {
-            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(it, true)
+            zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(it, true)
         }
     }
 
     /**
      * Creates or updates ZaaktypeCmmnConfiguration.
      *
-     * @param restZaakafhandelParameters the ZaaktypeCmmnConfiguration to save or update;
+     * @param restZaaktypeConfiguration the ZaaktypeCmmnConfiguration to save or update;
      * if the `id` field is null, a new ZaaktypeCmmnConfiguration will be created,
      * otherwise the existing ZaaktypeCmmnConfiguration will be updated
      * @throws InputValidationFailedException if the productaanvraagtype is already in use by another active zaaktype
@@ -172,12 +176,12 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
      */
     @PUT
     fun createOrUpdateZaaktypeCmmnConfiguration(
-        @Valid restZaakafhandelParameters: RestZaakafhandelParameters
-    ): RestZaakafhandelParameters {
+        @Valid restZaaktypeConfiguration: RestZaaktypeConfiguration
+    ): RestZaaktypeConfiguration {
         assertPolicy(policyService.readOverigeRechten().beheren)
 
-        restZaakafhandelParameters.productaanvraagtype?.also { productaanvraagtype ->
-            restZaakafhandelParameters.zaaktype.omschrijving?.also {
+        restZaaktypeConfiguration.productaanvraagtype?.also { productaanvraagtype ->
+            restZaaktypeConfiguration.zaaktype.omschrijving?.also {
                 zaaktypeCmmnConfigurationBeheerService.checkIfProductaanvraagtypeIsNotAlreadyInUse(
                     productaanvraagtype,
                     it
@@ -185,21 +189,21 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
             }
             zaaktypeBpmnConfigurationService.checkIfProductaanvraagtypeIsNotAlreadyInUse(productaanvraagtype)
         }
-        restZaakafhandelParameters.defaultBehandelaarId?.let { defaultBehandelaarId ->
-            restZaakafhandelParameters.defaultGroepId?.let { defaultGroepId ->
+        restZaaktypeConfiguration.defaultBehandelaarId?.let { defaultBehandelaarId ->
+            restZaaktypeConfiguration.defaultGroepId?.let { defaultGroepId ->
                 identityService.validateIfUserIsInGroup(defaultBehandelaarId, defaultGroepId)
             }
         }
         return zaaktypeCmmnConfigurationConverter.toZaaktypeCmmnConfiguration(
-            restZaakafhandelParameters
-        ).let { zaakafhandelParameters ->
-            val updatedZaakafhandelParameters = zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(
-                zaakafhandelParameters
+            restZaaktypeConfiguration
+        ).let { zaaktypeConfiguration ->
+            val updatedZaaktypeConfiguration = zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(
+                zaaktypeConfiguration
             )
-            zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaaktypeUuid)
+            zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaaktypeConfiguration.zaaktypeUuid)
             zaaktypeCmmnConfigurationService.clearListCache()
-            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(
-                updatedZaakafhandelParameters,
+            zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(
+                updatedZaaktypeConfiguration,
                 true
             )
         }
@@ -314,22 +318,20 @@ class ZaaktypeCmmnConfigurationRestService @Inject constructor(
     @GET
     @Path("{zaakafhandelUUID}/smartdocuments-templates-mapping")
     fun getSmartDocumentsTemplatesMapping(
-        @PathParam("zaakafhandelUUID") zaakafhandelParameterUUID: UUID
+        @PathParam("zaakafhandelUUID") zaaktypeUuid: UUID
     ): Set<RestMappedSmartDocumentsTemplateGroup> =
-        smartDocumentsTemplatesService.getTemplatesMapping(zaakafhandelParameterUUID)
+        smartDocumentsTemplatesService.getTemplatesMapping(zaaktypeUuid)
 
     @POST
     @Path("{zaakafhandelUUID}/smartdocuments-templates-mapping")
     fun storeSmartDocumentsTemplatesMapping(
-        @PathParam("zaakafhandelUUID") zaakafhandelParameterUUID: UUID,
+        @PathParam("zaakafhandelUUID") zaaktypeUuid: UUID,
         restTemplateGroups: Set<RestMappedSmartDocumentsTemplateGroup>
     ) {
         assertPolicy(policyService.readOverigeRechten().beheren)
-
         val smartDocumentsTemplates = smartDocumentsTemplatesService.listTemplates()
         restTemplateGroups isSubsetOf smartDocumentsTemplates
-
-        smartDocumentsTemplatesService.storeTemplatesMapping(restTemplateGroups, zaakafhandelParameterUUID)
+        smartDocumentsTemplatesService.storeTemplatesMapping(restTemplateGroups, zaaktypeUuid)
     }
 
     private fun createHardcodedZaakTerminationReasons() =

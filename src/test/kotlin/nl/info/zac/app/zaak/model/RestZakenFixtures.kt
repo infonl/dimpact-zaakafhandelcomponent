@@ -9,7 +9,7 @@ import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
-import nl.info.zac.app.admin.model.RestZaakafhandelParameters
+import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
@@ -400,7 +400,7 @@ fun createRestZaakStatus(
 )
 
 fun createRestZaaktype(
-    zaaktypeConfiguration: RestZaakafhandelParameters = createRestZaakafhandelParameters()
+    zaaktypeConfiguration: RestZaaktypeConfiguration = createRestZaakafhandelParameters()
 ) = RestZaaktype(
     uuid = UUID.randomUUID(),
     identificatie = "fakeIdentificatie",

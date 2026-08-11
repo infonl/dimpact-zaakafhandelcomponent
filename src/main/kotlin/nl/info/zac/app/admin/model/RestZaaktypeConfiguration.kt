@@ -17,15 +17,15 @@ import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
 
 /**
- * Currently this class it used both for creating and updating as well as for reading
- * zaakafhandelparameter data.
+ * Currently, this class is used both for creating and updating as well as for reading
+ * zaaktype configuration (zaakafhandelparameters).
  * For this reason, all fields are currently nullable.
  * In future, we should consider splitting this class into separate classes, depending
  * on the CRUD operation.
  */
 @NoArgConstructor
 @AllOpen
-data class RestZaakafhandelParameters(
+data class RestZaaktypeConfiguration(
     var id: Long? = null,
     var zaaktype: RestZaaktypeOverzicht,
     var caseDefinition: RESTCaseDefinition? = null,

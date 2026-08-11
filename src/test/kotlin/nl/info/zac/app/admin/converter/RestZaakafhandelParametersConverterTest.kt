@@ -38,7 +38,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val smartDocumentsService = mockk<SmartDocumentsService>()
 
-    val restZaakafhandelParametersConverter = RestZaakafhandelParametersConverter(
+    val restZaaktypeConfigurationConverter = RestZaaktypeConfigurationConverter(
         caseDefinitionConverter,
         zaakbeeindigParameterConverter,
         restHumanTaskParametersConverter,
@@ -72,7 +72,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns null
 
         `when`("converted to REST representation") {
-            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaakafhandelParameters(
+            val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
                 zaaktypeCmmnConfiguration,
                 true
             )
@@ -136,7 +136,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
 
         `when`("converted to DB model representation") {
-            val zaaktypeCmmnConfiguration = restZaakafhandelParametersConverter.toZaaktypeCmmnConfiguration(
+            val zaaktypeCmmnConfiguration = restZaaktypeConfigurationConverter.toZaaktypeCmmnConfiguration(
                 restZaakafhandelParameters
             )
 
@@ -180,7 +180,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         every { smartDocumentsService.isEnabled() } returns true
 
         `when`("converted to REST representation") {
-            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaakafhandelParameters(
+            val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
                 zaaktypeBpmnConfiguration
             )
 

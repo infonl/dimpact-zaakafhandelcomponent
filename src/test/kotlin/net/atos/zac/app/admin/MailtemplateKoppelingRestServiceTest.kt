@@ -20,18 +20,18 @@ import nl.info.zac.admin.MailTemplateKoppelingenService
 import nl.info.zac.admin.model.createMailTemplate
 import nl.info.zac.admin.model.createMailtemplateKoppelingen
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
+import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createOverigeRechten
 
 class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
     val mailTemplateKoppelingenService = mockk<MailTemplateKoppelingenService>()
-    val restZaakafhandelParametersConverter = mockk<RestZaakafhandelParametersConverter>()
+    val restZaaktypeConfigurationConverter = mockk<RestZaaktypeConfigurationConverter>()
     val policyService = mockk<PolicyService>()
     val service = MailtemplateKoppelingRestService(
         mailTemplateKoppelingenService,
-        restZaakafhandelParametersConverter,
+        restZaaktypeConfigurationConverter,
         policyService
     )
 

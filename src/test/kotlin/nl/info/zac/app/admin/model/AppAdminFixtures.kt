@@ -70,7 +70,7 @@ fun createRestZaakafhandelParameters(
     defaultBehandelaarId: String? = null,
     restBetrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen(),
     restBrpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen()
-) = RestZaakafhandelParameters(
+) = RestZaaktypeConfiguration(
     id = id,
     zaaktype = restZaaktypeOverzicht,
     productaanvraagtype = productaanvraagtype,

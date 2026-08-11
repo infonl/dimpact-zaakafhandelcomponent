@@ -228,7 +228,7 @@ describe(PersoonsgegevensComponent.name, () => {
       zaaktype: {
         uuid: "test-zaaktype-uuid",
         zaakafhandelparameters: fromPartial<
-          GeneratedType<"RestZaakafhandelParameters">
+          GeneratedType<"RestZaaktypeConfiguration">
         >({
           betrokkeneKoppelingen: fromPartial<
             GeneratedType<"RestBetrokkeneKoppelingen">
@@ -276,7 +276,7 @@ describe(PersoonsgegevensComponent.name, () => {
         zaaktype: {
           ...zaakWithWijzigenRechten.zaaktype,
           zaakafhandelparameters: fromPartial<
-            GeneratedType<"RestZaakafhandelParameters">
+            GeneratedType<"RestZaaktypeConfiguration">
           >({
             betrokkeneKoppelingen: fromPartial<
               GeneratedType<"RestBetrokkeneKoppelingen">

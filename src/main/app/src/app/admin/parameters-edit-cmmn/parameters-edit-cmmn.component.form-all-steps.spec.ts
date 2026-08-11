@@ -35,7 +35,7 @@ describe(ParametersEditCmmnComponent.name, () => {
   let utilService: UtilService;
 
   const zaakafhandelParameters = fromPartial<
-    GeneratedType<"RestZaakafhandelParameters">
+    GeneratedType<"RestZaaktypeConfiguration">
   >({
     defaultGroepId: "test-group-id",
     defaultBehandelaarId: "test-user-id",
