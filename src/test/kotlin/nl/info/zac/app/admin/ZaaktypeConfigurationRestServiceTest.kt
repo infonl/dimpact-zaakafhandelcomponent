@@ -25,8 +25,8 @@ import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
-import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
+import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
+import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaaktypeOverzicht
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_PRODUCTAANVRAAGTYPE_ALREADY_IN_USE
@@ -39,14 +39,14 @@ import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import java.util.UUID
 
-class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
+class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val configurationService = mockk<ConfigurationService>()
     val cmmnService = mockk<CMMNService>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaaktypeCmmnConfigurationBeheerService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val referenceTableService = mockk<ReferenceTableService>()
-    val zaaktypeCmmnConfigurationConverter = mockk<RestZaakafhandelParametersConverter>()
+    val zaaktypeCmmnConfigurationConverter = mockk<RestZaaktypeConfigurationConverter>()
     val zaaktypeBpmnConfigurationService = mockk<ZaaktypeBpmnConfigurationService>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
@@ -54,7 +54,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
     val policyService = mockk<PolicyService>()
     val identityService = mockk<IdentityService>()
-    val zaaktypeCmmnConfigurationRestService = ZaaktypeCmmnConfigurationRestService(
+    val zaaktypeConfigurationRestService = ZaaktypeConfigurationRestService(
         ztcClientService = ztcClientService,
         configurationService = configurationService,
         cmmnService = cmmnService,
@@ -78,7 +78,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
     context("Zaakafhandelparameters without an ID (indicating new zaakafhandelparameters)") {
         given("productaanvraagtype that is not already in use by another zaaktype") {
             val productaanvraagtype = "fakeProductaanvraagtype"
-            val restZaakafhandelParameters = createRestZaakafhandelParameters(
+            val restZaakafhandelParameters = createRestZaaktypeConfiguration(
                 id = null,
                 productaanvraagtype = productaanvraagtype
             )
@@ -88,7 +88,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             val createdZaakafhandelParameters = createZaaktypeCmmnConfiguration(
                 id = 1234L
             )
-            val updatedRestZaakafhandelParameters = createRestZaakafhandelParameters(
+            val updatedRestZaakafhandelParameters = createRestZaaktypeConfiguration(
                 id = 1234L,
                 productaanvraagtype = productaanvraagtype
             )
@@ -108,7 +108,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 zaaktypeCmmnConfigurationBeheerService.storeZaaktypeCmmnConfiguration(zaakafhandelParameters)
             } returns createdZaakafhandelParameters
             every {
-                zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(createdZaakafhandelParameters, true)
+                zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(createdZaakafhandelParameters, true)
             } returns updatedRestZaakafhandelParameters
             every {
                 zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(zaakafhandelParameters.zaaktypeUuid)
@@ -117,7 +117,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
 
             `when`("the zaakafhandelparameters are created") {
                 val returnedRestZaakafhandelParameters =
-                    zaaktypeCmmnConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
+                    zaaktypeConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
                         restZaakafhandelParameters
                     )
 
@@ -135,7 +135,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         }
         given("productaanvraagtype that is already in use by another zaaktype") {
             val productaanvraagtype = "fakeProductaanvraagtype"
-            val restZaakafhandelParameters = createRestZaakafhandelParameters(
+            val restZaakafhandelParameters = createRestZaaktypeConfiguration(
                 id = null,
                 productaanvraagtype = productaanvraagtype,
                 restZaaktypeOverzicht = createRestZaaktypeOverzicht(omschrijving = "fakeZaaktypeOmschrijving2")
@@ -152,7 +152,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
 
             `when`("the zaakafhandelparameters are created") {
                 val exception = shouldThrow<InputValidationFailedException> {
-                    zaaktypeCmmnConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
+                    zaaktypeConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
                         restZaakafhandelParameters
                     )
                 }
@@ -178,7 +178,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
 
         `when`("storing templates mapping") {
             val exception = shouldThrow<SmartDocumentsConfigurationException> {
-                zaaktypeCmmnConfigurationRestService.storeSmartDocumentsTemplatesMapping(
+                zaaktypeConfigurationRestService.storeSmartDocumentsTemplatesMapping(
                     UUID.randomUUID(),
                     emptySet()
                 )
@@ -200,12 +200,12 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
         } throws UserNotInGroupException()
 
         `when`("zaaktypeCmmnConfiguration are created") {
-            val restZaakafhandelParameters = createRestZaakafhandelParameters(
+            val restZaakafhandelParameters = createRestZaaktypeConfiguration(
                 defaultBehandelaarId = behandelaarId,
                 defaultGroupId = behandelaarGroupId
             )
             val exception = shouldThrow<InputValidationFailedException> {
-                zaaktypeCmmnConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
+                zaaktypeConfigurationRestService.createOrUpdateZaaktypeCmmnConfiguration(
                     restZaakafhandelParameters
                 )
             }
@@ -230,11 +230,11 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every {
-            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
-        } returns createRestZaakafhandelParameters()
+            zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
+        } returns createRestZaaktypeConfiguration()
 
         `when`("zaaktypeCmmnConfiguration is requested") {
-            zaaktypeCmmnConfigurationRestService.readZaaktypeConfiguration(
+            zaaktypeConfigurationRestService.readZaaktypeConfiguration(
                 zaaktypeCmmnConfiguration.zaaktypeUuid
             )
 
@@ -244,7 +244,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                     zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
                         zaaktypeCmmnConfiguration.zaaktypeUuid
                     )
-                    zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
+                    zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
                 }
             }
         }
@@ -260,11 +260,11 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
         } returns zaaktypeBpmnConfiguration
         every {
-            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration)
-        } returns createRestZaakafhandelParameters()
+            zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration)
+        } returns createRestZaaktypeConfiguration()
 
         `when`("zaaktypeCmmnConfiguration is requested") {
-            zaaktypeCmmnConfigurationRestService.readZaaktypeConfiguration(
+            zaaktypeConfigurationRestService.readZaaktypeConfiguration(
                 zaaktypeBpmnConfiguration.zaaktypeUuid
             )
 
@@ -272,7 +272,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
                     zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeBpmnConfiguration.zaaktypeUuid)
-                    zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration)
+                    zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration)
                 }
             }
         }
@@ -288,11 +288,11 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration.zaaktypeUuid)
         } returns zaaktypeCmmnConfiguration
         every {
-            zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
-        } returns createRestZaakafhandelParameters()
+            zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
+        } returns createRestZaaktypeConfiguration()
 
         `when`("zaaktypeConfiguration is requested") {
-            zaaktypeCmmnConfigurationRestService.readZaaktypeConfiguration(
+            zaaktypeConfigurationRestService.readZaaktypeConfiguration(
                 zaaktypeCmmnConfiguration.zaaktypeUuid
             )
 
@@ -302,7 +302,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                     zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(
                         zaaktypeCmmnConfiguration.zaaktypeUuid
                     )
-                    zaaktypeCmmnConfigurationConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
+                    zaaktypeCmmnConfigurationConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
                 }
             }
         }

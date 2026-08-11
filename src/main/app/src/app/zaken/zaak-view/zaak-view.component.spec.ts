@@ -679,7 +679,7 @@ describe(ZaakViewComponent.name, () => {
           zaaktype: {
             ...zaak.zaaktype,
             zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaakafhandelParameters">
+              GeneratedType<"RestZaaktypeConfiguration">
             >({
               betrokkeneKoppelingen: koppelingen,
             }),
@@ -705,7 +705,7 @@ describe(ZaakViewComponent.name, () => {
           zaaktype: {
             ...zaak.zaaktype,
             zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaakafhandelParameters">
+              GeneratedType<"RestZaaktypeConfiguration">
             >({
               betrokkeneKoppelingen: koppelingen,
             }),
@@ -732,7 +732,7 @@ describe(ZaakViewComponent.name, () => {
           zaaktype: {
             ...zaak.zaaktype,
             zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaakafhandelParameters">
+              GeneratedType<"RestZaaktypeConfiguration">
             >({
               betrokkeneKoppelingen: koppelingen,
             }),
@@ -780,7 +780,7 @@ describe(ZaakViewComponent.name, () => {
           zaaktype: {
             ...zaak.zaaktype,
             zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaakafhandelParameters">
+              GeneratedType<"RestZaaktypeConfiguration">
             >({
               betrokkeneKoppelingen: koppelingen,
             }),
@@ -811,7 +811,7 @@ describe(ZaakViewComponent.name, () => {
           zaaktype: {
             ...zaak.zaaktype,
             zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaakafhandelParameters">
+              GeneratedType<"RestZaaktypeConfiguration">
             >({
               betrokkeneKoppelingen: fromPartial<
                 GeneratedType<"RestBetrokkeneKoppelingen">
@@ -996,7 +996,7 @@ describe(ZaakViewComponent.name, () => {
       zaaktype: {
         ...zaak.zaaktype,
         zaakafhandelparameters: fromPartial<
-          GeneratedType<"RestZaakafhandelParameters">
+          GeneratedType<"RestZaaktypeConfiguration">
         >({
           betrokkeneKoppelingen: fromPartial<
             GeneratedType<"RestBetrokkeneKoppelingen">
@@ -1045,7 +1045,7 @@ describe(ZaakViewComponent.name, () => {
           zaaktype: {
             ...zaakWithPersoonRechten.zaaktype,
             zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaakafhandelParameters">
+              GeneratedType<"RestZaaktypeConfiguration">
             >({
               betrokkeneKoppelingen: fromPartial<
                 GeneratedType<"RestBetrokkeneKoppelingen">
@@ -1085,7 +1085,7 @@ describe(ZaakViewComponent.name, () => {
       zaaktype: {
         ...zaak.zaaktype,
         zaakafhandelparameters: fromPartial<
-          GeneratedType<"RestZaakafhandelParameters">
+          GeneratedType<"RestZaaktypeConfiguration">
         >({
           betrokkeneKoppelingen: fromPartial<
             GeneratedType<"RestBetrokkeneKoppelingen">
@@ -1124,7 +1124,7 @@ describe(ZaakViewComponent.name, () => {
           zaaktype: {
             ...zaakWithBetrokkeneRechten.zaaktype,
             zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaakafhandelParameters">
+              GeneratedType<"RestZaaktypeConfiguration">
             >({
               betrokkeneKoppelingen: fromPartial<
                 GeneratedType<"RestBetrokkeneKoppelingen">

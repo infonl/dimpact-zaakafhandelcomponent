@@ -5,13 +5,13 @@
 
 package net.atos.zac.app.admin.model;
 
-import nl.info.zac.app.admin.model.RestZaakafhandelParameters;
+import nl.info.zac.app.admin.model.RestZaaktypeConfiguration;
 
 public class RESTMailtemplateKoppeling {
 
     public Long id;
 
-    public RestZaakafhandelParameters zaakafhandelParameters;
+    public RestZaaktypeConfiguration zaakafhandelParameters;
 
     public RESTMailtemplate mailtemplate;
 }

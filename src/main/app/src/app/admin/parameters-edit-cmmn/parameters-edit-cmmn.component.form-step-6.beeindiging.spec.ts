@@ -36,7 +36,7 @@ describe("Beeindiging form step", () => {
   });
 
   const zaakafhandelParameters = fromPartial<
-    GeneratedType<"RestZaakafhandelParameters">
+    GeneratedType<"RestZaaktypeConfiguration">
   >({
     defaultGroepId: "test-group-id",
     defaultBehandelaarId: "test-user-id",
