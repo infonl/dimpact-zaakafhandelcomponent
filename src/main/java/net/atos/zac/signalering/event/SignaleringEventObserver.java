@@ -137,13 +137,13 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     private @Nullable Signalering getSignaleringVoorBehandelaar(
             final SignaleringEvent<?> event,
             final Zaak subject,
-            final ZaakInformatieObject detail
+            final ZaakInformatieObject zaakInformatieObject
     ) {
         final Optional<Rol<?>> behandelaar = getRolBehandelaarMedewerker(subject);
         if (behandelaar.isPresent()) {
             final Signalering signalering = getSignaleringVoorRol(event, subject, behandelaar.get());
             if (signalering != null) {
-                signalering.setDetailFromZaakInformatieobject(detail);
+                signalering.setDetailFromZaakInformatieobject(zaakInformatieObject);
             }
             return signalering;
         }
@@ -177,9 +177,10 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
         switch (event.getObjectType()) {
             case ZAAK_DOCUMENT_TOEGEVOEGD -> {
                 final Zaak subject = zrcClientService.readZaak((URI) event.getObjectId().resource());
-                final ZaakInformatieObject detail = zrcClientService.readZaakinformatieobject(
-                        extractUuid((URI) event.getObjectId().detail()));
-                return getSignaleringVoorBehandelaar(event, subject, detail);
+                final ZaakInformatieObject zaakInformatieObject = zrcClientService.readZaakinformatieobject(
+                        extractUuid((URI) event.getObjectId().detail())
+                );
+                return getSignaleringVoorBehandelaar(event, subject, zaakInformatieObject);
             }
             case ZAAK_OP_NAAM -> {
                 final Rol<?> rol = zrcClientService.readRol((URI) event.getObjectId().resource());
@@ -202,7 +203,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
                 return getSignaleringVoorBehandelaar(fixActor(event, subject), subject);
             }
             case ZAAK_VERLOPEND, TAAK_VERLOPEN ->
-                // These are NOT event driven and should not show up here
+                // These are NOT event-driven and should not show up here
                 LOG.warning(String.format("ignored SignaleringType %s", event.getObjectType()));
         }
         return null;
