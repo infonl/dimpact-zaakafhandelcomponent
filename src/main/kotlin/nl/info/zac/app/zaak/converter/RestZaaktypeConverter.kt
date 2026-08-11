@@ -19,7 +19,7 @@ import nl.info.zac.app.zaak.model.RestZaaktypeRelatie
 import nl.info.zac.app.zaak.model.toRestZaaktypeRelatie
 
 class RestZaaktypeConverter @Inject constructor(
-    private val zaakafhandelParametersConverter: RestZaaktypeConfigurationConverter,
+    private val restZaaktypeConfigurationConverter: RestZaaktypeConfigurationConverter,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService
 ) {
@@ -48,9 +48,9 @@ class RestZaaktypeConverter @Inject constructor(
             referentieproces = zaaktype.referentieproces?.naam,
             zaakafhandelparameters = zaaktypeUuid.let { uuid ->
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(uuid)?.let {
-                    zaakafhandelParametersConverter.toRestZaaktypeConfiguration(it)
+                    restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(it)
                 } ?: zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(uuid).let {
-                    zaakafhandelParametersConverter.toRestZaaktypeConfiguration(it, true)
+                    restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(it, true)
                 }
             }
         )
