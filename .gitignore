@@ -16,6 +16,7 @@ wildfly-*
 src/e2e/ExportData/*
 src/main/app/.nvmrc
 bin
+node-compile-cache
 
 ### Python virtual environment ###
 scripts/python/.venv
