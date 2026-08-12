@@ -17,6 +17,7 @@ src/e2e/ExportData/*
 src/main/app/.nvmrc
 bin
 .classpath
+.settings
 
 ### Python virtual environment ###
 scripts/python/.venv
