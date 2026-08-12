@@ -165,7 +165,7 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
       const coordinates: Coordinate[][] = [[]];
       geometry.polygon?.forEach((cs) => {
         coordinates.push(
-          (cs as unknown as components["schemas"]["RestCoordinates"][]).map(
+          (cs as unknown as GeneratedType<"RestCoordinates">[]).map(
             LocationUtil.pointToCoordinate,
           ),
         );
