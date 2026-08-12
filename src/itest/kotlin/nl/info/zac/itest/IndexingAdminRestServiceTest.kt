@@ -15,7 +15,7 @@ import nl.info.zac.itest.client.createZaakAndRetrieve
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_ZAAKVERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
@@ -61,7 +61,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             zaakUUID = zaakUuid,
             fileName = TEST_PDF_FILE_NAME,
             fileMediaType = PDF_MIME_TYPE,
-            vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK,
+            vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_ZAAKVERTROUWELIJK,
             testUser = BEHEERDER_1
         )
 

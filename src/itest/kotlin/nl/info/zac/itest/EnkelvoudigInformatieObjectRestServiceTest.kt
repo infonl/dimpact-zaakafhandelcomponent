@@ -20,7 +20,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_UPDATED_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_ZAAKVERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_OMSCHRIJVING
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
@@ -83,7 +83,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 zaakUUID = zaakUuid,
                 fileName = TEST_PDF_FILE_NAME,
                 fileMediaType = PDF_MIME_TYPE,
-                vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK,
+                vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_ZAAKVERTROUWELIJK,
                 testUser = BEHANDELAAR_1
             )
 
@@ -122,7 +122,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                           "taal" : "Nederlands",
                           "titel" : "$DOCUMENT_FILE_TITLE",
                           "versie" : 1,
-                          "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
+                          "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_ZAAKVERTROUWELIJK"
                         }
                 """.trimIndent()
                 enkelvoudigInformatieObjectUuid = JSONObject(responseBody).getString("uuid")
@@ -150,7 +150,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     .addFormDataPart("formaat", TEXT_MIME_TYPE)
                     .addFormDataPart(
                         "vertrouwelijkheidaanduiding",
-                        VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK
+                        VERTROUWELIJKHEIDS_AANDUIDING_ZAAKVERTROUWELIJK
                     )
                     .addFormDataPart(
                         "file",
@@ -202,7 +202,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "taal" : "Nederlands",
                       "titel" : "$DOCUMENT_UPDATED_FILE_TITLE",
                       "versie" : 2,
-                      "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
+                      "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_ZAAKVERTROUWELIJK"
                     }
                 """.trimIndent()
                 responseBody shouldContainJsonKey("registratiedatumTijd")
@@ -275,7 +275,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "taal" : "Nederlands",
                       "titel" : "$DOCUMENT_UPDATED_FILE_TITLE",
                       "versie" : 3,
-                      "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
+                      "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_ZAAKVERTROUWELIJK"
                     }
                 """.trimIndent()
             }
@@ -304,7 +304,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                         "name" : "Dutch"
                       },
                       "titel" : "$DOCUMENT_UPDATED_FILE_TITLE",
-                      "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK"
+                      "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_ZAAKVERTROUWELIJK"
                     }
                 """.trimIndent()
                 responseBody shouldContainJsonKey("uuid")
