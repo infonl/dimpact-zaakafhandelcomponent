@@ -14,8 +14,8 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.zrc.model.RolListParameters
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.RolListParameters
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
@@ -25,7 +25,7 @@ import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -761,15 +761,17 @@ class ZgwApiServiceTest : BehaviorSpec({
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
                 creatiedatum = today
             )
-            val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val gebruiksrechten = createGebruiksrechten()
             val gebruiksrechtenSlot = slot<Gebruiksrechten>()
-            val zaakInformatieObjectSlot = slot<ZaakInformatieobject>()
+            val zaakInformatieObjectRequestSlot = slot<ZaakInformatieObjectRequest>()
             every {
                 drcClientService.createEnkelvoudigInformatieobject(enkelvoudigInformatieObjectCreateLockRequest)
             } returns enkelvoudigInformatieObject
             every { drcClientService.createGebruiksrechten(capture(gebruiksrechtenSlot)) } returns gebruiksrechten
-            every { zrcClientService.createZaakInformatieobject(capture(zaakInformatieObjectSlot)) } returns zaakInformatieobject
+            every {
+                zrcClientService.createZaakInformatieobject(capture(zaakInformatieObjectRequestSlot))
+            } returns createdZaakInformatieobject
 
             `when`("a ZaakInformatieobject is created") {
                 val returnedZaakInformatieobjectForZaak = zgwApiService.createZaakInformatieobjectForZaak(
@@ -781,7 +783,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                 )
 
                 then("a ZaakInformatieobject is created and returned") {
-                    returnedZaakInformatieobjectForZaak shouldBe zaakInformatieobject
+                    returnedZaakInformatieobjectForZaak shouldBe createdZaakInformatieobject
                 }
 
                 And("the DRC and ZRC clients are called with correct parameters") {
@@ -801,7 +803,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                 }
 
                 And("the created ZaakInformatieobject has expected values") {
-                    with(zaakInformatieObjectSlot.captured) {
+                    with(zaakInformatieObjectRequestSlot.captured) {
                         this.zaak shouldBe zaak.url
                         this.informatieobject shouldBe enkelvoudigInformatieObject.url
                         this.titel shouldBe "fakeTitle"

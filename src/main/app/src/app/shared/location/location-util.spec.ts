@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { GeometryType } from "../../zaken/model/geometryType";
 import { GeneratedType } from "../utils/generated-types";
 import { LocationUtil } from "./location-util";
 
@@ -12,7 +11,7 @@ describe(LocationUtil.isSameGeometry.name, () => {
     latitude: number,
     longitude: number,
   ): GeneratedType<"RestGeometry"> => ({
-    type: GeometryType.POINT,
+    type: "POINT",
     point: { latitude, longitude },
   });
 
@@ -24,17 +23,17 @@ describe(LocationUtil.isSameGeometry.name, () => {
     [undefined, null, false],
     [null, undefined, false],
     [undefined, undefined, false],
-    [makePoint(52.1, 4.3), { type: GeometryType.POLYGON, polygon: [] }, false],
-    [{ type: GeometryType.POINT }, { type: GeometryType.POINT }, true],
-    [{ type: GeometryType.POINT }, makePoint(52.1, 4.3), false],
+    [makePoint(52.1, 4.3), { type: "POLYGON" as const, polygon: [] }, false],
+    [{ type: "POINT" as const }, { type: "POINT" as const }, true],
+    [{ type: "POINT" as const }, makePoint(52.1, 4.3), false],
     [
-      { type: GeometryType.POLYGON, polygon: [] },
-      { type: GeometryType.POLYGON, polygon: [] },
+      { type: "POLYGON" as const, polygon: [] },
+      { type: "POLYGON" as const, polygon: [] },
       false,
     ],
     [
-      { type: GeometryType.GEOMETRY_COLLECTION, geometries: [] },
-      { type: GeometryType.GEOMETRY_COLLECTION, geometries: [] },
+      { type: "GEOMETRY_COLLECTION" as const, geometries: [] },
+      { type: "GEOMETRY_COLLECTION" as const, geometries: [] },
       false,
     ],
   ])("geometry %p and %p are the same: %p", (left, right, expected) => {

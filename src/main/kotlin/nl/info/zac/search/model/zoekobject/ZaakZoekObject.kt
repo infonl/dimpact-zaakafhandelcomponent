@@ -4,7 +4,7 @@
  */
 package nl.info.zac.search.model.zoekobject
 
-import net.atos.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.Rol
 import nl.info.zac.search.model.ZaakIndicatie
 import nl.info.zac.util.NoArgConstructor
 import org.apache.solr.client.solrj.beans.Field
@@ -158,7 +158,7 @@ data class ZaakZoekObject(
     }
 
     fun setInitiator(initiatorRole: Rol<*>) {
-        this.initiatorIdentificatie = initiatorRole.getIdentificatienummer()
+        this.initiatorIdentificatie = initiatorRole.identificatienummer
         this.initiatorType = initiatorRole.betrokkeneType.toString()
     }
 

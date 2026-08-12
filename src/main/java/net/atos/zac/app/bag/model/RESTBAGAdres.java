@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.info.zac.app.zaak.model.RestGeometry;
+import nl.info.zac.app.zaak.model.RestGeometryType;
 
 public class RESTBAGAdres extends RESTBAGObject {
 
@@ -58,7 +59,7 @@ public class RESTBAGAdres extends RESTBAGObject {
             restGeometries.add(panden.getFirst().geometry);
         }
         RestGeometry restGeometry = new RestGeometry(
-                "GeometryCollection",
+                RestGeometryType.GEOMETRY_COLLECTION,
                 null,
                 null,
                 restGeometries

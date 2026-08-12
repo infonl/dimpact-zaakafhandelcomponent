@@ -55,7 +55,7 @@ describe(MailtemplatesComponent.name, () => {
         omschrijving: "Test zaaktype",
         uuid: "uuid-1",
       },
-    } as GeneratedType<"RestZaakafhandelParameters">,
+    } as GeneratedType<"RestZaaktypeConfiguration">,
   };
 
   beforeEach(async () => {

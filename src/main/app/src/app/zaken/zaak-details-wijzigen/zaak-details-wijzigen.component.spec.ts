@@ -78,7 +78,6 @@ describe(CaseDetailsEditComponent.name, () => {
       uuid: "zaaktype-123",
       omschrijving: "Test zaaktype",
     },
-    isProcesGestuurd: false,
   });
 
   beforeEach(async () => {
@@ -249,7 +248,6 @@ describe(CaseDetailsEditComponent.name, () => {
         } as Partial<
           GeneratedType<"RestZaakRechten">
         > as unknown as GeneratedType<"RestZaakRechten">,
-        isProcesGestuurd: false,
       });
 
       // Act
@@ -261,6 +259,30 @@ describe(CaseDetailsEditComponent.name, () => {
       );
       expect(await dateInputs[0].isDisabled()).toBe(true); // startdatum
       expect(await dateInputs[2].isDisabled()).toBe(true); // uiterlijkeEinddatumAfdoening
+    });
+
+    it("should not disable date controls when wijzigen and wijzigenDoorlooptijd are allowed, regardless of isProcesGestuurd", async () => {
+      // Arrange
+      renderComponent({
+        rechten: {
+          wijzigen: true,
+          wijzigenDoorlooptijd: true,
+          toekennen: true,
+        } as Partial<
+          GeneratedType<"RestZaakRechten">
+        > as unknown as GeneratedType<"RestZaakRechten">,
+        isProcesGestuurd: true,
+      });
+
+      // Act
+      await fixture.whenStable();
+
+      // Assert
+      const dateInputs = await loader.getAllHarnesses(
+        MatDatepickerInputHarness,
+      );
+      expect(await dateInputs[0].isDisabled()).toBe(false); // startdatum
+      expect(await dateInputs[2].isDisabled()).toBe(false); // uiterlijkeEinddatumAfdoening
     });
   });
 

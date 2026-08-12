@@ -9,7 +9,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
 import nl.info.client.bag.model.createAdresIOHal
 import nl.info.client.bag.model.generated.OpenbareRuimteIOHal
 import nl.info.client.bag.model.generated.OpenbareRuimteIOHalBasis
@@ -78,7 +78,7 @@ class RestOpenbareRuimteConverterTest : BehaviorSpec({
                 val result = RestOpenbareRuimteConverter.convertToZaakobject(restOpenbareRuimte, zaak)
 
                 then("the result is a ZaakobjectOpenbareRuimte with the openbareRuimte URL set") {
-                    result.getObject() shouldBe fakeOpenbareRuimteUrl
+                    result.`object` shouldBe fakeOpenbareRuimteUrl
                 }
             }
         }

@@ -7,7 +7,8 @@ package nl.info.zac.app.informatieobjecten.converter
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import net.atos.client.zgw.shared.exception.ZgwErrorException
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -58,10 +59,10 @@ class RestInformatieobjectConverter @Inject constructor(
         private val LOG = Logger.getLogger(RestInformatieobjectConverter::class.java.name)
     }
 
-    fun convertToREST(zaakInformatieobjecten: List<ZaakInformatieobject>): List<RestEnkelvoudigInformatieobject> =
+    fun convertToREST(zaakInformatieobjecten: List<ZaakInformatieObject>): List<RestEnkelvoudigInformatieobject> =
         zaakInformatieobjecten.map(::convertToREST)
 
-    fun convertToREST(zaakInformatieObject: ZaakInformatieobject): RestEnkelvoudigInformatieobject {
+    fun convertToREST(zaakInformatieObject: ZaakInformatieObject): RestEnkelvoudigInformatieobject {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(
             zaakInformatieObject.informatieobject
         )
@@ -313,7 +314,7 @@ class RestInformatieobjectConverter @Inject constructor(
         }
 
     fun convertToREST(
-        zaakInformatieObject: ZaakInformatieobject,
+        zaakInformatieObject: ZaakInformatieObject,
         relatieType: RelatieType,
         zaak: Zaak
     ): RestGekoppeldeZaakEnkelvoudigInformatieObject {

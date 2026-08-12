@@ -30,7 +30,7 @@ describe("Mailgegevens form step", () => {
   let activatedRouteMock: Pick<ActivatedRoute, "data">;
 
   const zaakafhandelParameters = fromPartial<
-    GeneratedType<"RestZaakafhandelParameters">
+    GeneratedType<"RestZaaktypeConfiguration">
   >({
     defaultGroepId: "test-group-id",
     defaultBehandelaarId: "test-user-id",

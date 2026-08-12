@@ -5,9 +5,9 @@
 package nl.info.zac.documentcreation
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.util.StringUtil
 import nl.info.client.brp.BrpClientService
@@ -169,13 +169,14 @@ class DocumentCreationDataService @Inject constructor(
             objectType = ObjectTypeEnum.OVERIGE
         }.let(zrcClientService::listZaakobjecten)
             .results()
-            .filter { ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE == it.objectTypeOverige }
-            .map { zaakobject ->
-                val productAanvraagObject = objectsClientService.readObject(zaakobject.getObject().extractUuid())
-                StartformulierData(
-                    productAanvraagtype = productaanvraagService.getProductaanvraag(productAanvraagObject).type,
-                    data = productaanvraagService.getAanvraaggegevens(productAanvraagObject)
-                )
+            .filter { ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE_PRODUCTAANVRAAG == it.objectTypeOverige }
+            .mapNotNull { zaakobject ->
+                zaakobject.`object`?.extractUuid()?.let(objectsClientService::readObject)?.let { productAanvraagObject ->
+                    StartformulierData(
+                        productAanvraagtype = productaanvraagService.getProductaanvraag(productAanvraagObject).type,
+                        data = productaanvraagService.getAanvraaggegevens(productAanvraagObject)
+                    )
+                }
             }
             .singleOrNull()
 

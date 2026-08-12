@@ -174,7 +174,7 @@ class BpmnTaskFormRuntimeService @Inject constructor(
 
     private fun getBehandelaarForZaakDefaultValue(zaak: Zaak) =
         zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak).let { behandelaar ->
-            behandelaar?.getIdentificatienummer()?.let {
+            behandelaar?.identificatienummer?.let {
                 identityService.readUser(it).id
             }
         }

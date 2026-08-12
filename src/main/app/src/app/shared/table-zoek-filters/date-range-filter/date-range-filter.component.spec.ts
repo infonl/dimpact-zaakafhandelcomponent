@@ -12,6 +12,7 @@ import {
   MatStartDateHarness,
 } from "@angular/material/datepicker/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { TranslateModule } from "@ngx-translate/core";
 import { DatumRange } from "../../../zoeken/model/datum-range";
 import { DateRangeFilterComponent } from "./date-range-filter.component";
 
@@ -26,6 +27,7 @@ describe(DateRangeFilterComponent.name, () => {
         DateRangeFilterComponent,
         NoopAnimationsModule,
         MatNativeDateModule,
+        TranslateModule.forRoot(),
       ],
       providers: [{ provide: MAT_DATE_LOCALE, useValue: "nl-NL" }],
     }).compileComponents();
