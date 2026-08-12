@@ -171,7 +171,10 @@ class ZaakobjectRequestSerializationTest : BehaviorSpec({
         `when`("it is serialized") {
             val json = toJsonObject(zaakobjectProductaanvraagRequest)
 
-            then("it has objectType 'overige', the productaanvraag objectTypeOverige marker, no objectIdentificatie field, and no url or uuid") {
+            then(
+                "it has objectType 'overige', the productaanvraag objectTypeOverige marker, no objectIdentificatie " +
+                    "field, and no url or uuid"
+            ) {
                 json.getString("zaak") shouldBe zaakUri.toString()
                 json.getString("object") shouldBe productaanvraagUri.toString()
                 json.getString("objectType") shouldBe "overige"
