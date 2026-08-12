@@ -227,6 +227,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
         val zaakType = createZaakType(uri = zaaktypeUri, servicenorm = "P30D", concept = false)
 
         every { zaaktypeCmmnConfigurationService.clearListCache() } returns "Cache cleared"
+        every { zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(any()) } just runs
 
         // ZtcClientService mocking
         every { ztcClientService.readResultaattype(any<URI>()) } returns createResultaatType()
