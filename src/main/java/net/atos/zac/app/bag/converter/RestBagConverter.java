@@ -31,6 +31,7 @@ import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand;
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats;
 import nl.info.zac.app.zaak.model.RestCoordinates;
 import nl.info.zac.app.zaak.model.RestGeometry;
+import nl.info.zac.app.zaak.model.RestGeometryType;
 
 public class RestBagConverter {
     public static Zaakobject convertToZaakobject(final RESTBAGObject restbagObject, final Zaak zaak) {
@@ -78,7 +79,7 @@ public class RestBagConverter {
 
     public static RestGeometry convertVlak(final Surface surface) {
         return new RestGeometry(
-                surface.getType().value(),
+                RestGeometryType.POLYGON,
                 null,
                 surface.getCoordinates()
                         .stream()
@@ -92,7 +93,7 @@ public class RestBagConverter {
 
     public static RestGeometry convertPunt(PointGeoJSON punt) {
         return new RestGeometry(
-                punt.getType().value(),
+                RestGeometryType.POINT,
                 convertCoordinates(punt.getCoordinates()),
                 null,
                 null);
