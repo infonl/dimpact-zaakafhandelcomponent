@@ -17,6 +17,7 @@ import nl.info.client.bag.model.generated.StatusNaamgeving
 import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
 import nl.info.client.zgw.model.createZaak
 import java.net.URI
+import java.util.UUID
 
 class RestNummeraanduidingConverterTest : BehaviorSpec({
     afterEach {
@@ -129,7 +130,9 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
             val zaakobjectNummeraanduiding = ZaakobjectNummeraanduiding(
                 fakeZaakUri,
                 fakeObjectUri,
-                objectNummeraanduiding
+                objectNummeraanduiding,
+                URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
+                UUID.randomUUID()
             )
 
             `when`("convertToREST is called") {

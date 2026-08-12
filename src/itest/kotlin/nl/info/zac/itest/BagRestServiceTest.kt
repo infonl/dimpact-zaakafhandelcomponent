@@ -20,6 +20,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
@@ -1193,50 +1194,76 @@ class BagRestServiceTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
-            then("it is successfully added to the zaak") {
+            then(
+                "it is successfully added to the zaak, the zaakobject's own uuid is present in the response, " +
+                    "and it can be removed from the zaak again"
+            ) {
                 response.code shouldBe HTTP_NO_CONTENT
 
                 // retrieve the BAG objects for the zaak
+                val listResponseBody = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/bag/zaak/$zaakUUID",
+                    testUser = BEHANDELAAR_1
+                ).bodyAsString
+                logger.info { "Response: $listResponseBody" }
+                listResponseBody shouldEqualJsonIgnoringExtraneousFields """
+                    [
+                        {
+                            "zaakUuid": "$zaakUUID",
+                            "zaakobject": {
+                                "geconstateerd": false,
+                                "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
+                                "url": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen/$BAG_TEST_ADRES_1_IDENTIFICATION",
+                                "bagObjectType": "ADRES",
+                                "huisnummer": 0,
+                                "huisnummerWeergave": "0",
+                                "omschrijving": "Dam 0,  Amsterdam",
+                                "openbareRuimteNaam": "Dam",
+                                "panden": [],
+                                "postcode": "",
+                                "woonplaatsNaam": "Amsterdam"
+                            },
+                            "bagObject": {
+                                "geconstateerd": false,
+                                "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
+                                "url": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen/$BAG_TEST_ADRES_1_IDENTIFICATION",
+                                "bagObjectType": "ADRES",
+                                "huisnummer": 0,
+                                "huisnummerWeergave": "0",
+                                "omschrijving": "Dam 0,  Amsterdam",
+                                "openbareRuimteNaam": "Dam",
+                                "panden": [],
+                                "postcode": "",
+                                "woonplaatsNaam": "Amsterdam"
+                            }
+                        }
+                    ]
+                """.trimIndent()
+
+                // the ZGW zaakobject resource always has its own uuid on a real read result (as opposed to the
+                // zaak's own uuid, asserted above as 'zaakUuid'); getString throws if the field is absent and
+                // fromString throws if it is not a well-formed UUID, so this doubles as the assertion
+                val zaakobjectUuid = JSONArray(listResponseBody).getJSONObject(0).getString("uuid").run(UUID::fromString)
+
+                // remove the BAG object from the zaak again
+                val deleteResponse = itestHttpClient.performDeleteRequest(
+                    url = "$ZAC_API_URI/bag",
+                    requestBodyAsString = """
+                        {
+                            "zaakUuid": "$zaakUUID",
+                            "uuid": "$zaakobjectUuid",
+                            "redenWijzigen": "fakeRedenWijzigen"
+                        }
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_1
+                )
+                deleteResponse.code shouldBe HTTP_NO_CONTENT
+
+                // verify it is no longer linked to the zaak
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/bag/zaak/$zaakUUID",
                     testUser = BEHANDELAAR_1
-                ).run {
-                    val responseBody = bodyAsString
-                    logger.info { "Response: $responseBody" }
-                    responseBody shouldEqualJsonIgnoringExtraneousFields """
-                        [
-                            {                             
-                                "zaakUuid": "$zaakUUID",
-                                "zaakobject": {
-                                    "geconstateerd": false,
-                                    "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
-                                    "url": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen/$BAG_TEST_ADRES_1_IDENTIFICATION",
-                                    "bagObjectType": "ADRES",
-                                    "huisnummer": 0,
-                                    "huisnummerWeergave": "0",
-                                    "omschrijving": "Dam 0,  Amsterdam",
-                                    "openbareRuimteNaam": "Dam",
-                                    "panden": [],
-                                    "postcode": "",
-                                    "woonplaatsNaam": "Amsterdam"
-                                },
-                                "bagObject": {
-                                    "geconstateerd": false,
-                                    "identificatie": "$BAG_TEST_ADRES_1_IDENTIFICATION",
-                                    "url": "http://bag-wiremock.local:8080/lvbag/individuelebevragingen/v2/adressen/$BAG_TEST_ADRES_1_IDENTIFICATION",
-                                    "bagObjectType": "ADRES",
-                                    "huisnummer": 0,
-                                    "huisnummerWeergave": "0",
-                                    "omschrijving": "Dam 0,  Amsterdam",
-                                    "openbareRuimteNaam": "Dam",
-                                    "panden": [],
-                                    "postcode": "",
-                                    "woonplaatsNaam": "Amsterdam"
-                                }
-                            }
-                        ]
-                    """.trimIndent()
-                }
+                ).bodyAsString shouldEqualJsonIgnoringExtraneousFields "[]"
             }
         }
     }

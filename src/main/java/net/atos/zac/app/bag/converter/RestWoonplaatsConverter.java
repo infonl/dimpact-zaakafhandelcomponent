@@ -14,6 +14,7 @@ import nl.info.client.bag.model.generated.WoonplaatsIOHalBasis;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats;
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats;
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaatsRequest;
 
 public class RestWoonplaatsConverter {
     public static RESTWoonplaats convertToREST(final WoonplaatsIOHalBasis woonplaatsIO) {
@@ -46,8 +47,9 @@ public class RestWoonplaatsConverter {
         return restWoonplaats;
     }
 
-    public static ZaakobjectWoonplaats convertToZaakobject(final RESTWoonplaats woonplaats, final Zaak zaak) {
-        return new ZaakobjectWoonplaats(zaak.getUrl(), woonplaats.url, new ObjectWoonplaats(woonplaats.identificatie, woonplaats.naam));
+    public static ZaakobjectWoonplaatsRequest convertToZaakobject(final RESTWoonplaats woonplaats, final Zaak zaak) {
+        return new ZaakobjectWoonplaatsRequest(zaak.getUrl(), woonplaats.url, new ObjectWoonplaats(woonplaats.identificatie,
+                woonplaats.naam));
     }
 
     private static RESTWoonplaats convertToREST(final Woonplaats woonplaats) {

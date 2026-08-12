@@ -15,6 +15,7 @@ import nl.info.client.bag.model.generated.PandIOHalBasis;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectPand;
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand;
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPandRequest;
 
 public class RestPandConverter {
     public static List<RESTPand> convertToREST(final List<PandIOHalBasis> panden) {
@@ -50,8 +51,8 @@ public class RestPandConverter {
         return restPand;
     }
 
-    public static ZaakobjectPand convertToZaakobject(final RESTPand pand, final Zaak zaak) {
-        return new ZaakobjectPand(zaak.getUrl(), pand.url, new ObjectPand(pand.identificatie));
+    public static ZaakobjectPandRequest convertToZaakobject(final RESTPand pand, final Zaak zaak) {
+        return new ZaakobjectPandRequest(zaak.getUrl(), pand.url, new ObjectPand(pand.identificatie));
     }
 
     public static RESTPand convertToREST(final Pand pand) {

@@ -17,6 +17,7 @@ import nl.info.client.bag.model.generated.TypeAdresseerbaarObject;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectNummeraanduiding;
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding;
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduidingRequest;
 
 public class RestNummeraanduidingConverter {
     public static RESTNummeraanduiding convertToREST(final NummeraanduidingIOHalBasis nummeraanduidingIO) {
@@ -60,7 +61,7 @@ public class RestNummeraanduidingConverter {
         return restNummeraanduiding;
     }
 
-    public static ZaakobjectNummeraanduiding convertToZaakobject(final RESTNummeraanduiding nummeraanduiding, final Zaak zaak) {
+    public static ZaakobjectNummeraanduidingRequest convertToZaakobject(final RESTNummeraanduiding nummeraanduiding, final Zaak zaak) {
         final ObjectNummeraanduiding objectNummeraanduiding = new ObjectNummeraanduiding(
                 nummeraanduiding.identificatie,
                 nummeraanduiding.huisnummer,
@@ -70,7 +71,7 @@ public class RestNummeraanduidingConverter {
                 nummeraanduiding.typeAdresseerbaarObject != null ? nummeraanduiding.typeAdresseerbaarObject.toString() : null,
                 nummeraanduiding.status != null ? nummeraanduiding.status.toString() : null
         );
-        return new ZaakobjectNummeraanduiding(zaak.getUrl(), nummeraanduiding.url, objectNummeraanduiding);
+        return new ZaakobjectNummeraanduidingRequest(zaak.getUrl(), nummeraanduiding.url, objectNummeraanduiding);
     }
 
     private static String convertHuisnummerWeergave(final Nummeraanduiding nummeraanduiding) {

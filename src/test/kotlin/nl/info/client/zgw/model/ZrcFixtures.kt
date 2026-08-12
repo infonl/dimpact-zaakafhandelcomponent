@@ -328,11 +328,15 @@ fun createZaak(
 fun createZaakobjectOpenbareRuimte(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     bagobjectURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
-    objectOpenbareRuimte: ObjectOpenbareRuimte = createObjectOpenbareRuimte()
+    objectOpenbareRuimte: ObjectOpenbareRuimte = createObjectOpenbareRuimte(),
+    url: URI = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID()
 ) = ZaakobjectOpenbareRuimte(
     zaakURI,
     bagobjectURI,
-    objectOpenbareRuimte
+    objectOpenbareRuimte,
+    url,
+    uuid
 )
 
 fun createZaakInformatieobjectForCreatesAndUpdates(
@@ -364,22 +368,30 @@ fun createZaakInformatieobjectForReads(
 
 fun createZaakobjectProductaanvraag(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
-    productaanvraagURI: URI = URI("https://example.com/${UUID.randomUUID()}")
+    productaanvraagURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    url: URI = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID()
 ) =
     ZaakobjectProductaanvraag(
         zaakURI,
-        productaanvraagURI
+        productaanvraagURI,
+        url,
+        uuid
     )
 
 fun createZaakobjectPand(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     bagobjectURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
-    objectPand: ObjectPand = createObjectPand()
+    objectPand: ObjectPand = createObjectPand(),
+    url: URI = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID()
 ) =
     ZaakobjectPand(
         zaakURI,
         bagobjectURI,
-        objectPand
+        objectPand,
+        url,
+        uuid
     )
 
 fun createZaakStatus(
