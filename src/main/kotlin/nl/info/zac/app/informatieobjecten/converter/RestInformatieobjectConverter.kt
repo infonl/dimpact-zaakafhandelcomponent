@@ -258,9 +258,10 @@ class RestInformatieobjectConverter @Inject constructor(
         if (restEnkelvoudigInformatieObjectVersieGegevens.status != null) {
             enkelvoudigInformatieObjectWithLockData.status = restEnkelvoudigInformatieObjectVersieGegevens.status
         }
-        enkelvoudigInformatieObjectWithLockData.vertrouwelijkheidaanduiding =
-            restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding
-                .toDrcVertrouwelijkheidaanduidingEnum()
+        restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding?.let {
+            enkelvoudigInformatieObjectWithLockData.vertrouwelijkheidaanduiding =
+                it.toDrcVertrouwelijkheidaanduidingEnum()
+        }
         if (restEnkelvoudigInformatieObjectVersieGegevens.beschrijving != null) {
             enkelvoudigInformatieObjectWithLockData.beschrijving = restEnkelvoudigInformatieObjectVersieGegevens.beschrijving
         }
