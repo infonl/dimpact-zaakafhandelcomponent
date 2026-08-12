@@ -17,11 +17,7 @@ class ZaakobjectNummeraanduidingRequest(
     ObjectTypeEnum.OVERIGE,
     ObjectOverige(nummeraanduiding)
 ) {
-    companion object {
-        const val OBJECT_TYPE_OVERIGE = "nummeraanduiding"
-    }
-
     init {
-        objectTypeOverige = OBJECT_TYPE_OVERIGE
+        objectTypeOverige = ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE_NUMMERAANDUIDING
     }
 }

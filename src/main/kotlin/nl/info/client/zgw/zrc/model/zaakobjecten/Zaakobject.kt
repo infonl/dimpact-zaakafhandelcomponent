@@ -11,9 +11,6 @@ import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import java.net.URI
 import java.util.UUID
 
-/**
- * Zaakobject
- */
 @JsonbTypeDeserializer(ZaakObjectJsonbDeserializer::class)
 abstract class Zaakobject {
     /**
@@ -100,7 +97,7 @@ abstract class Zaakobject {
     val isBagObject: Boolean
         get() = when (objectType) {
             ObjectTypeEnum.ADRES, ObjectTypeEnum.PAND, ObjectTypeEnum.OPENBARE_RUIMTE, ObjectTypeEnum.WOONPLAATS -> true
-            ObjectTypeEnum.OVERIGE -> ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE == objectTypeOverige
+            ObjectTypeEnum.OVERIGE -> ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE_NUMMERAANDUIDING == objectTypeOverige
             else -> false
         }
 

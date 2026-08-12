@@ -11,11 +11,7 @@ class ZaakobjectProductaanvraagRequest(
     zaak: URI,
     productaanvraag: URI?
 ) : ZaakobjectRequest(zaak, productaanvraag, ObjectTypeEnum.OVERIGE) {
-    companion object {
-        const val OBJECT_TYPE_OVERIGE = "ProductAanvraag"
-    }
-
     init {
-        objectTypeOverige = OBJECT_TYPE_OVERIGE
+        objectTypeOverige = ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE_PRODUCTAANVRAAG
     }
 }

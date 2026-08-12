@@ -9,7 +9,7 @@ import java.net.URI
 
 class ZaakobjectProductaanvraag : Zaakobject {
     companion object {
-        const val OBJECT_TYPE_OVERIGE = "ProductAanvraag"
+        const val OBJECT_TYPE_OVERIGE_PRODUCTAANVRAAG = "ProductAanvraag"
     }
 
     /**
@@ -21,7 +21,7 @@ class ZaakobjectProductaanvraag : Zaakobject {
      * Constructor with required attributes
      */
     constructor(zaak: URI, productaanvraag: URI?) : super(zaak, productaanvraag, ObjectTypeEnum.OVERIGE) {
-        objectTypeOverige = OBJECT_TYPE_OVERIGE
+        objectTypeOverige = OBJECT_TYPE_OVERIGE_PRODUCTAANVRAAG
     }
 
     override val waarde: String?

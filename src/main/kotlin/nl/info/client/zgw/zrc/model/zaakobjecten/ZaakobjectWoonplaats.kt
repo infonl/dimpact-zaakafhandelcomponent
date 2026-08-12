@@ -7,9 +7,6 @@ package nl.info.client.zgw.zrc.model.zaakobjecten
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import java.net.URI
 
-/**
- * ZaakobjectWoonplaats
- */
 class ZaakobjectWoonplaats : ZaakobjectMetObjectIdentificatie<ObjectWoonplaats> {
     /**
      * Constructor for JSONB deserialization

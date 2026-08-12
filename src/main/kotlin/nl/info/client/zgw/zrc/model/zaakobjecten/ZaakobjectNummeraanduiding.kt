@@ -7,12 +7,9 @@ package nl.info.client.zgw.zrc.model.zaakobjecten
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import java.net.URI
 
-/**
- * ZaakobjectNummeraanduiding
- */
 class ZaakobjectNummeraanduiding : ZaakobjectMetObjectIdentificatie<ObjectOverige<ObjectNummeraanduiding>> {
     companion object {
-        const val OBJECT_TYPE_OVERIGE = "nummeraanduiding"
+        const val OBJECT_TYPE_OVERIGE_NUMMERAANDUIDING = "nummeraanduiding"
     }
 
     /**
@@ -29,7 +26,7 @@ class ZaakobjectNummeraanduiding : ZaakobjectMetObjectIdentificatie<ObjectOverig
         ObjectTypeEnum.OVERIGE,
         ObjectOverige(nummeraanduiding)
     ) {
-        objectTypeOverige = OBJECT_TYPE_OVERIGE
+        objectTypeOverige = OBJECT_TYPE_OVERIGE_NUMMERAANDUIDING
     }
 
     override val waarde: String?
