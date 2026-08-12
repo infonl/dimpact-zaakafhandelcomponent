@@ -272,9 +272,7 @@ export class InformatieObjectEditComponent implements OnChanges {
       ...value,
       informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
       status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
-      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value as
-        | GeneratedType<"RestVertrouwelijkheidaanduiding">
-        | undefined,
+      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
       bestandsnaam: value.bestand?.name,
       verzenddatum: value.verzenddatum?.toISOString(),
       ontvangstdatum: value.ontvangstdatum?.toISOString(),
