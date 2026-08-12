@@ -233,10 +233,8 @@ export class InformatieObjectEditComponent implements OnChanges {
         : null,
       vertrouwelijkheidaanduiding: infoObject.vertrouwelijkheidaanduiding
         ? {
-            label: this.translateService.instant(
-              this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-                infoObject.vertrouwelijkheidaanduiding,
-              ),
+            label: this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
+              infoObject.vertrouwelijkheidaanduiding,
             ),
             value: infoObject.vertrouwelijkheidaanduiding,
           }
