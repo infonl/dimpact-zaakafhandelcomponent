@@ -113,7 +113,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                         if (zaakInformatieobjecten.size > 1) {
                             LOG.log(Level.WARNING) {
                                 "Informatieobject '$uuid' is linked to ${zaakInformatieobjecten.size} zaken; " +
-                                    "using the first one to determine document rights."
+                                    "using ${zaakInformatieobjecten[0].zaakUUID} to determine document rights."
                             }
                         }
                     }
