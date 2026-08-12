@@ -111,13 +111,13 @@ class ZaakServiceTest : BehaviorSpec({
             )
             val reason = "fakeReason"
             every { zrcClientService.listRollen(zaak) } returns emptyList()
-            every { zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason) } just runs
             every { zrcClientService.createRol(capture(medewerkerRolSlot), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, capture(groupRolSlot), reason) } just runs
             every { identityService.readUser(user.id) } returns user
             every { zgwApiService.findGroepForZaak(zaak) } returns null
             every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
+            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar") } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
             every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
@@ -127,10 +127,7 @@ class ZaakServiceTest : BehaviorSpec({
             `when`("the zaak is assigned to a user and a group") {
                 zaakService.assignZaak(zaak, group.name, user.id, "fakeReason")
 
-                then("the old behandelaar role is deleted and a new one is created for the user") {
-                    verify(exactly = 1) {
-                        zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
-                    }
+                then("a new behandelaar role is created for the user") {
                     with(medewerkerRolSlot[0]) {
                         betrokkeneType shouldBe BetrokkeneTypeEnum.MEDEWERKER
                         with(betrokkeneIdentificatie as MedewerkerIdentificatie) {
@@ -189,22 +186,23 @@ class ZaakServiceTest : BehaviorSpec({
         given("a zaak exists, with a user and group already assigned and zaak assignment data is provided") {
             val zaak = createZaak()
             val user = createLoggedInUser()
-            val existingRolMedewerker = createRolMedewerker()
-            val group = createGroup()
             val rolTypeBehandelaar = createRolType(
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
             )
+            val existingRolMedewerker = createRolMedewerker(rolType = rolTypeBehandelaar)
+            val group = createGroup()
             val existingRolGroup = createRolOrganisatorischeEenheid()
             val reason = "fakeReason"
 
             every { zrcClientService.listRollen(zaak) } returns listOf(existingRolMedewerker)
-            every { zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason) } just runs
+            every { zrcClientService.deleteRol(any<Rol<*>>(), reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
             every { identityService.readUser(user.id) } returns user
             every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
             every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
+            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar") } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
             every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
@@ -217,7 +215,7 @@ class ZaakServiceTest : BehaviorSpec({
 
                 then("the existing behandelaar role is deleted and a new one is created for the new user") {
                     verifyOrder {
-                        zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
+                        zrcClientService.deleteRol(any<Rol<*>>(), reason)
                         zrcClientService.createRol(any(), reason)
                     }
                 }
@@ -246,7 +244,11 @@ class ZaakServiceTest : BehaviorSpec({
         given("a zaak exists with a behandelaar already assigned matching the requested user") {
             val zaak = createZaak()
             val user = createLoggedInUser()
+            val rolTypeBehandelaar = createRolType(
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
             val existingRolMedewerker = createRolMedewerker(
+                rolType = rolTypeBehandelaar,
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = user.id)
             )
             val group = createGroup()
@@ -258,9 +260,8 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.readUser(user.id) } returns user
             every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
             every { identityService.readGroup(group.name) } returns group
-            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns createRolType(
-                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
-            )
+            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
+            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar") } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
             every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
@@ -270,7 +271,7 @@ class ZaakServiceTest : BehaviorSpec({
 
                 then("the behandelaar role is not modified") {
                     verify(exactly = 0) {
-                        zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, any())
+                        zrcClientService.deleteRol(any<Rol<*>>(), any())
                         zrcClientService.createRol(any(), any())
                     }
                 }
@@ -335,16 +336,16 @@ class ZaakServiceTest : BehaviorSpec({
         ) {
             val zaak = createZaak()
             val user = createLoggedInUser()
-            val existingRolMedewerker = createRolMedewerker()
-            val group = createGroup()
             val rolTypeBehandelaar = createRolType(
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
             )
+            val existingRolMedewerker = createRolMedewerker(rolType = rolTypeBehandelaar)
+            val group = createGroup()
             val existingRolGroup = createRolOrganisatorischeEenheid()
             val reason = "fakeReason"
 
             every { zrcClientService.listRollen(zaak) } returns listOf(existingRolMedewerker)
-            every { zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason) } just runs
+            every { zrcClientService.deleteRol(any<Rol<*>>(), reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
             every { identityService.readUser(user.id) } returns user
@@ -354,6 +355,13 @@ class ZaakServiceTest : BehaviorSpec({
                 ztcClientService.readRoltype(
                     zaak.zaaktype,
                     OmschrijvingGeneriekEnum.BEHANDELAAR
+                )
+            } returns rolTypeBehandelaar
+            every {
+                ztcClientService.readRoltype(
+                    zaak.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR,
+                    "Behandelaar"
                 )
             } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
@@ -372,7 +380,7 @@ class ZaakServiceTest : BehaviorSpec({
 
                 then("the behandelaar role is replaced and the group role is updated") {
                     verify(exactly = 1) {
-                        zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
+                        zrcClientService.deleteRol(any<Rol<*>>(), reason)
                         zrcClientService.createRol(any(), reason)
                         zrcClientService.updateRol(zaak, any(), reason)
                     }
@@ -396,24 +404,28 @@ class ZaakServiceTest : BehaviorSpec({
             val zaak = createZaak()
             val user = createLoggedInUser()
             val group = createGroup()
+            val rolTypeBehandelaar = createRolType(
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
             val duplicateRole1 = createRolMedewerker(
+                rolType = rolTypeBehandelaar,
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeOtherUserId1")
             )
             val duplicateRole2 = createRolMedewerker(
+                rolType = rolTypeBehandelaar,
                 medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeOtherUserId2")
             )
             val reason = "fakeReason"
 
             every { zrcClientService.listRollen(zaak) } returns listOf(duplicateRole1, duplicateRole2)
-            every { zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason) } just runs
+            every { zrcClientService.deleteRol(any<Rol<*>>(), reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
             every { zgwApiService.findGroepForZaak(zaak) } returns null
             every { identityService.readUser(user.id) } returns user
             every { identityService.readGroup(group.name) } returns group
-            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns createRolType(
-                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
-            )
+            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
+            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar") } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
             every { identityService.validateIfUserIsInGroup(user.id, group.name) } just runs
@@ -432,7 +444,7 @@ class ZaakServiceTest : BehaviorSpec({
 
                 And("the duplicate roles are purged and a single new role is created") {
                     verifyOrder {
-                        zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
+                        zrcClientService.deleteRol(any<Rol<*>>(), reason)
                         zrcClientService.createRol(any(), reason)
                     }
                     unmockkStatic("nl.info.zac.log.LogUtilsKt")
@@ -451,7 +463,6 @@ class ZaakServiceTest : BehaviorSpec({
             val reason = "fakeReason"
 
             every { zrcClientService.listRollen(zaak) } returns emptyList()
-            every { zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason) } just runs
             every { zrcClientService.createRol(any(), reason) } returns createRolMedewerker()
             every { zrcClientService.updateRol(zaak, any(), reason) } just runs
             every { zgwApiService.findGroepForZaak(zaak) } returns null
@@ -460,6 +471,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.readGroup(group.name) } returns group
             every { identityService.validateIfUserIsInGroup(any(), group.name) } just runs
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
+            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar") } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
 
@@ -515,6 +527,13 @@ class ZaakServiceTest : BehaviorSpec({
                     ztcClientService.readRoltype(
                         it.zaaktype,
                         OmschrijvingGeneriekEnum.BEHANDELAAR
+                    )
+                } returns rolTypeBehandelaar
+                every {
+                    ztcClientService.readRoltype(
+                        it.zaaktype,
+                        OmschrijvingGeneriekEnum.BEHANDELAAR,
+                        "Behandelaar"
                     )
                 } returns rolTypeBehandelaar
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
@@ -591,6 +610,13 @@ class ZaakServiceTest : BehaviorSpec({
                 ztcClientService.readRoltype(
                     openZaak.zaaktype,
                     OmschrijvingGeneriekEnum.BEHANDELAAR
+                )
+            } returns rolTypeBehandelaar
+            every {
+                ztcClientService.readRoltype(
+                    openZaak.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR,
+                    "Behandelaar"
                 )
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(openZaak, any(), explanation) } just Runs

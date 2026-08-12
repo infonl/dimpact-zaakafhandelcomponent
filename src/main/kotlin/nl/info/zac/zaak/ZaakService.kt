@@ -258,7 +258,8 @@ class ZaakService @Inject constructor(
             zaak.url,
             ztcClientService.readRoltype(
                 zaak.zaaktype,
-                OmschrijvingGeneriekEnum.BEHANDELAAR
+                OmschrijvingGeneriekEnum.BEHANDELAAR,
+                ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
             ),
             "Behandelaar van de zaak",
             MedewerkerIdentificatie().apply {
@@ -383,22 +384,27 @@ class ZaakService @Inject constructor(
         user: User,
         reason: String?,
     ): Boolean {
-        val medewerkerRoles = zrcClientService.listRollen(zaak)
-            .filter { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER }
+        val behandelaarRoltype = ztcClientService.readRoltype(
+            zaak.zaaktype,
+            OmschrijvingGeneriekEnum.BEHANDELAAR,
+            ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
+        )
+        val behandelaarRoles = zrcClientService.listRollen(zaak)
+            .filter { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER && it.roltype == behandelaarRoltype.url }
 
-        if (medewerkerRoles.size > 1) {
+        if (behandelaarRoles.size > 1) {
             log(
                 LOG,
                 Level.WARNING,
-                "Zaak ${zaak.uuid} has ${medewerkerRoles.size} duplicate MEDEWERKER behandelaar roles; purging all before reassignment"
+                "Zaak ${zaak.uuid} has ${behandelaarRoles.size} duplicate behandelaar roles; purging all before reassignment"
             )
         }
 
-        val currentBehandelaarId = (medewerkerRoles.singleOrNull() as? RolMedewerker)
+        val currentBehandelaarId = (behandelaarRoles.singleOrNull() as? RolMedewerker)
             ?.betrokkeneIdentificatie?.identificatie
 
-        return if (medewerkerRoles.size != 1 || currentBehandelaarId != user.id) {
-            zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
+        return if (behandelaarRoles.size != 1 || currentBehandelaarId != user.id) {
+            behandelaarRoles.forEach { zrcClientService.deleteRol(it, reason) }
             zrcClientService.createRol(bepaalRolMedewerker(user, zaak), reason)
             true
         } else {

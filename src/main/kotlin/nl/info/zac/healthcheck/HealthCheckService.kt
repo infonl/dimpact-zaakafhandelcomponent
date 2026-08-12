@@ -7,6 +7,7 @@ package nl.info.zac.healthcheck
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import nl.info.zac.util.time.dateNowIsBetween
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
@@ -184,7 +185,12 @@ class HealthCheckService @Inject constructor(
                     BESLISSER,
                     KLANTCONTACTER,
                     ZAAKCOORDINATOR -> zaaktypeInrichtingscheck.isRolOverigeAanwezig = true
-                    BEHANDELAAR -> zaaktypeInrichtingscheck.aantalBehandelaarroltypen++
+                    BEHANDELAAR -> {
+                        zaaktypeInrichtingscheck.aantalBehandelaarroltypen++
+                        if (it.omschrijving == ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR) {
+                            zaaktypeInrichtingscheck.isBehandelaarRoltypeOmschrijvingCorrect = true
+                        }
+                    }
                     INITIATOR -> zaaktypeInrichtingscheck.aantalInitiatorroltypen++
                 }
             }

@@ -151,7 +151,7 @@ class ProductaanvraagService @Inject constructor(
         }.let { organisatieEenheid ->
             RolOrganisatorischeEenheid(
                 zaak.url,
-                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR),
+                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR),
                 "Behandelend groep van de zaak",
                 organisatieEenheid
             )
@@ -167,7 +167,7 @@ class ProductaanvraagService @Inject constructor(
         }.let { medewerker ->
             RolMedewerker(
                 zaak.url,
-                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR),
+                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR),
                 "Behandelaar van de zaak",
                 medewerker
             )

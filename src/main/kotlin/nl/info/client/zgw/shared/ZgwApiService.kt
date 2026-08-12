@@ -68,6 +68,15 @@ class ZgwApiService @Inject constructor(
         // Page numbering in ZGW APIs starts with 1
         const val FIRST_PAGE_NUMBER_ZGW_APIS: Int = 1
         const val ZAAK_OBJECT_DELETION_PREFIX = "Verwijderd"
+
+        /**
+         * The role type description for a zaak behandelaar in ZAC.
+         * ZAC requires that the behandelaar role type has this exact description _and_ has the
+         * 'omschrijving generiek' set to [OmschrijvingGeneriekEnum.BEHANDELAAR].
+         * This so that ZAC can support other non-behandelaar role types with this same
+         * 'omschrijving generiek' but with a different description.
+         */
+        const val ROLTYPE_OMSCHRIJVING_BEHANDELAAR = "Behandelaar"
     }
 
     /**
@@ -318,13 +327,16 @@ class ZgwApiService @Inject constructor(
         betrokkeneType: BetrokkeneTypeEnum,
         roles: List<Rol<*>>? = null
     ): Rol<*>? {
-        val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).also {
-            if (it.size > 1) {
-                LOG.warning(
-                    "Multiple behandelaar role types found for zaaktype: '${zaak.zaaktype}', using the first one."
-                )
+        val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            .filter { it.omschrijving == ROLTYPE_OMSCHRIJVING_BEHANDELAAR }
+            .also {
+                if (it.size > 1) {
+                    LOG.warning(
+                        "Multiple behandelaar role types with omschrijving '$ROLTYPE_OMSCHRIJVING_BEHANDELAAR' " +
+                            "found for zaaktype: '${zaak.zaaktype}', using the first one."
+                    )
+                }
             }
-        }
         return roleTypes.firstOrNull()?.let { roleType ->
             val matchingRoles = (
                 roles?.filter { it.roltype == roleType.url && it.betrokkeneType == betrokkeneType }

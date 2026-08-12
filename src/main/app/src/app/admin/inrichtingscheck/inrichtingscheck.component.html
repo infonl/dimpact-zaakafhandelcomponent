@@ -304,6 +304,17 @@
                             | translate
                         }}
                       </div>
+                      <div
+                        *ngIf="
+                          row.aantalBehandelaarroltypen === 1 &&
+                          !row.behandelaarRoltypeOmschrijvingCorrect
+                        "
+                      >
+                        {{
+                          "healthCheck.zaaktype.behandelaarRoltypeOmschrijvingOnjuist"
+                            | translate
+                        }}
+                      </div>
                       <div *ngIf="!row.rolOverigeAanwezig">
                         {{
                           "healthCheck.zaaktype.geenRolOverigeAanwezig"

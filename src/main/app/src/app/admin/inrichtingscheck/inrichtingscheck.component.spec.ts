@@ -59,6 +59,7 @@ const mockZaaktype1 = {
   resultaattypeAanwezig: true,
   aantalInitiatorroltypen: 1,
   aantalBehandelaarroltypen: 1,
+  behandelaarRoltypeOmschrijvingCorrect: true,
   rolOverigeAanwezig: true,
   informatieobjecttypeEmailAanwezig: true,
   resultaattypesMetVerplichtBesluit: [],

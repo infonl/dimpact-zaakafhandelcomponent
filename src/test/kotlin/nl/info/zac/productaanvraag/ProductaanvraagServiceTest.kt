@@ -473,7 +473,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
             every { identityService.readUser(defaultBehandelaarId) } returns createUser()
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
-            every { ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
+            every { ztcClientService.readRoltype(any(), any(), any()) } returns rolTypeBehandelaar
             every {
                 productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                     createdZaak,
@@ -609,7 +609,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
             every { identityService.readUser(defaultBehandelaarId) } returns createUser()
-            every { ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
+            every { ztcClientService.readRoltype(any(), any(), any()) } returns rolTypeBehandelaar
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
             every { configurationService.readBronOrganisatie() } returns "123443210"
             every {
@@ -1561,7 +1561,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { configurationService.readBronOrganisatie() } returns "123443210"
             every { identityService.readGroup(groupName) } returns group
             every {
-                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar")
             } returns behandelaarRolType
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
             every { zrcClientService.createRol(capture(createdRolSlot)) } returns mockk()
@@ -1832,7 +1832,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { configurationService.readBronOrganisatie() } returns "123443210"
             every { identityService.readGroup(groupName) } returns group
             every {
-                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar")
             } returns behandelaarRolType
             every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
             every { klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(contactDetails, createdZaak.uuid) } just runs
