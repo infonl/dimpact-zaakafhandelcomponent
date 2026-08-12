@@ -622,7 +622,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                                     "longitude": $longitude,
                                     "latitude": $latitude
                                 },
-                                "type": "Point"
+                                "type": "POINT"
                             },
                             "reden": "fakeReason"
                         }
@@ -706,7 +706,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                             "latitude" : $latitude,
                             "longitude" : $longitude
                          },
-                         "type" : "Point"
+                         "type" : "POINT"
                       }
                    }
                     """.trimIndent()

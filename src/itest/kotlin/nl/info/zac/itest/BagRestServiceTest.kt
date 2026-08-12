@@ -187,7 +187,7 @@ class BagRestServiceTest : BehaviorSpec({
                             "latitude" : 487383.0,
                             "longitude" : 121394.0
                           },
-                          "type" : "Point"
+                          "type" : "POINT"
                         },
                         "omschrijving" : "Verblijfsobject 0363010003761571",
                         "status" : "Verblijfsobject in gebruik",
@@ -202,7 +202,7 @@ class BagRestServiceTest : BehaviorSpec({
                             "latitude" : 487383.0,
                             "longitude" : 121394.0
                           },
-                          "type" : "Point"
+                          "type" : "POINT"
                         }, {
                           "polygon" : [ [ {
                             "latitude" : 487444.779,
@@ -652,7 +652,7 @@ class BagRestServiceTest : BehaviorSpec({
                             "latitude" : 487444.779,
                             "longitude" : 121488.34
                           } ] ],
-                          "type" : "Polygon"
+                          "type" : "POLYGON"
                         } ],
                         "type" : "GeometryCollection"
                       },
@@ -1137,7 +1137,7 @@ class BagRestServiceTest : BehaviorSpec({
                             "latitude" : 487444.779,
                             "longitude" : 121488.34
                           } ] ],
-                          "type" : "Polygon"
+                          "type" : "POLYGON"
                         },
                         "omschrijving" : "0363100012168052",
                         "oorspronkelijkBouwjaar" : "1914",
