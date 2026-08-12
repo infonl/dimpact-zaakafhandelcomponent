@@ -119,6 +119,8 @@ object ItestConfiguration {
     const val SCREEN_EVENT_TYPE_ZAKEN_VRIJGEVEN = "ZAKEN_VRIJGEVEN"
     const val SCREEN_EVENT_TYPE_ZAAK_ROLLEN = "ZAAK_ROLLEN"
     const val STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE = "Wacht op aanvullende informatie"
+    const val VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK = "ZAAKVERTROUWELIJK"
+    const val VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR = "OPENBAAR"
 
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
     const val TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG = "1916"
@@ -166,8 +168,7 @@ object ItestConfiguration {
     const val DOCUMENT_FILE_TITLE = "fakeTitel"
     const val WORD_DOCUMENT_FILE_TITLE = "fakeWordTitel"
     const val DOCUMENT_UPDATED_FILE_TITLE = "updated title with Špëcîål characters"
-    const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK = "ZAAKVERTROUWELIJK"
-    const val DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR = "OPENBAAR"
+
     const val DOCUMENT_STATUS_DEFINITIEF = "definitief"
     const val DOCUMENT_STATUS_IN_BEWERKING = "in_bewerking"
     const val TEXT_MIME_TYPE = "text/plain"

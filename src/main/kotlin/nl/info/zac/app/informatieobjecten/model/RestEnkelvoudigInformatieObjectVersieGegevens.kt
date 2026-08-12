@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull
 import jakarta.ws.rs.FormParam
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.zac.app.configuration.model.RestTaal
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -27,7 +28,7 @@ data class RestEnkelvoudigInformatieObjectVersieGegevens(
     var titel: String? = null,
 
     @field:FormParam("vertrouwelijkheidaanduiding")
-    var vertrouwelijkheidaanduiding: String? = null,
+    var vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding? = null,
 
     @field:FormParam("auteur")
     var auteur: String? = null,

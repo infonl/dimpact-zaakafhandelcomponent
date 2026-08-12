@@ -41,7 +41,6 @@ import { MaterialFormBuilderModule } from "../../shared/material-form-builder/ma
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
-import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
 @Component({
   selector: "zac-informatie-object-edit",
@@ -82,10 +81,7 @@ export class InformatieObjectEditComponent implements OnChanges {
     );
 
   protected readonly vertrouwelijkheidsAanduidingen =
-    this.utilService.getEnumAsSelectList(
-      "vertrouwelijkheidaanduiding",
-      Vertrouwelijkheidaanduiding,
-    );
+    VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
 
   protected informatieObjectTypes: GeneratedType<"RestInformatieobjecttype">[] =
     [];
@@ -239,7 +235,7 @@ export class InformatieObjectEditComponent implements OnChanges {
         ? {
             label: this.translateService.instant(
               this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-                infoObject.vertrouwelijkheidaanduiding as GeneratedType<"VertrouwelijkheidaanduidingEnum">, // TODO: `RestEnkelvoudigInformatieObjectVersieGegevens` has the wrong `vertrouwelijkheidaanduiding` type
+                infoObject.vertrouwelijkheidaanduiding.toUpperCase() as GeneratedType<"RestVertrouwelijkheidaanduiding">,
               ),
             ),
             value: infoObject.vertrouwelijkheidaanduiding,
@@ -276,7 +272,9 @@ export class InformatieObjectEditComponent implements OnChanges {
       ...value,
       informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
       status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
-      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value as
+        | GeneratedType<"RestVertrouwelijkheidaanduiding">
+        | undefined,
       bestandsnaam: value.bestand?.name,
       verzenddatum: value.verzenddatum?.toISOString(),
       ontvangstdatum: value.ontvangstdatum?.toISOString(),

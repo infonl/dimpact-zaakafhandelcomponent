@@ -19,6 +19,7 @@ import {
   injectQuery,
 } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -35,7 +36,6 @@ import { appendFileToFormData } from "../../shared/utils/file-upload";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
-import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
 @Component({
   selector: "zac-informatie-object-add",
@@ -114,10 +114,7 @@ export class InformatieObjectAddComponent {
     );
 
   protected readonly vertrouwelijkheidsAanduidingen =
-    this.utilService.getEnumAsSelectList(
-      "vertrouwelijkheidaanduiding",
-      Vertrouwelijkheidaanduiding,
-    );
+    VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
 
   protected informatieObjectTypes: GeneratedType<"RestInformatieobjecttype">[] =
     [];
@@ -235,10 +232,7 @@ export class InformatieObjectAddComponent {
 
         this.form.controls.vertrouwelijkheidaanduiding.setValue(
           this.vertrouwelijkheidsAanduidingen.find(
-            (option) =>
-              Vertrouwelijkheidaanduiding[
-                option.value as keyof typeof Vertrouwelijkheidaanduiding
-              ] === value.vertrouwelijkheidaanduiding,
+            (option) => option.value === value.vertrouwelijkheidaanduiding,
           ) ?? null,
         );
       });
@@ -286,7 +280,8 @@ export class InformatieObjectAddComponent {
       beschrijving: value.beschrijving,
       informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
       status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
-      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding
+        ?.value as unknown as GeneratedType<"RestVertrouwelijkheidaanduiding">,
       creatiedatum: value.creatiedatum?.toISOString(),
       verzenddatum: value.verzenddatum?.toISOString(),
       ontvangstdatum: value.ontvangstdatum?.toISOString(),

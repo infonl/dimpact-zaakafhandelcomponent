@@ -17,7 +17,7 @@ import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SELECT_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SUMMARY_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
@@ -70,7 +70,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
             zaakUUID = zaakUuid,
             fileName = TEST_PDF_FILE_NAME,
             fileMediaType = PDF_MIME_TYPE,
-            vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+            vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
             testUser = BEHANDELAAR_1
         ).run {
             val responseBody = bodyAsString
