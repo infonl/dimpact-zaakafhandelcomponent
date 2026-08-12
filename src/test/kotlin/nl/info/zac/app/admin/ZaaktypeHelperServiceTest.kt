@@ -22,11 +22,6 @@ import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import java.net.URI
 import java.util.UUID
 
-/**
- * Regression tests for PZ-12241: when a new version of a zaaktype is published, the 'zaak beeindigen gegevens'
- * (completion parameters) must be matched to the new resultaattypen by omschrijving. A shadowed lambda parameter
- * caused every previous resultaattype to be mapped to the *first* resultaattype of the new zaaktype instead.
- */
 class ZaaktypeHelperServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeHelperService = ZaaktypeHelperService(ztcClientService)
@@ -63,8 +58,6 @@ class ZaaktypeHelperServiceTest : BehaviorSpec({
             val newNietOntvankelijkUuid = UUID.randomUUID()
             val newAfgebrokenUuid = UUID.randomUUID()
 
-            // the new zaaktype deliberately lists 'Verlengd' first so that a mapping which always picks the
-            // first resultaattype produces the wrong result
             val newZaaktype = createZaakType(
                 resultTypes = listOf(
                     resultaattypeUri(newVerlengdUuid),

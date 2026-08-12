@@ -105,8 +105,7 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         } else {
             entityManager.merge(zaaktypeCmmnConfiguration)
         }.also {
-            // every write goes through here, so invalidate the cached configuration here as well; otherwise readers
-            // keep seeing the pre-update configuration after e.g. a zaaktype notification was handled
+            // without this, readers keep seeing the pre-update configuration until the cache entry expires
             zaaktypeCmmnConfigurationService.cacheRemoveZaaktypeCmmnConfiguration(
                 zaaktypeCmmnConfiguration.zaaktypeUuid
             )
