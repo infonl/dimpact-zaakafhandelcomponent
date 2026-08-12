@@ -14,6 +14,7 @@ import nl.info.client.bag.model.generated.Geconstateerd;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectAdres;
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres;
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdresRequest;
 
 public class RestAdresConverter {
     public static RESTBAGAdres convertToREST(final AdresIOHal adres) {
@@ -63,7 +64,7 @@ public class RestAdresConverter {
         return restBAGAdres;
     }
 
-    public static ZaakobjectAdres convertToZaakobject(final RESTBAGAdres restBAGAdres, final Zaak zaak) {
+    public static ZaakobjectAdresRequest convertToZaakobject(final RESTBAGAdres restBAGAdres, final Zaak zaak) {
         ObjectAdres objectAdres = new ObjectAdres(
                 restBAGAdres.identificatie,
                 restBAGAdres.woonplaatsNaam,
@@ -73,7 +74,7 @@ public class RestAdresConverter {
                 restBAGAdres.huisnummertoevoeging,
                 restBAGAdres.postcode
         );
-        return new ZaakobjectAdres(zaak.getUrl(), restBAGAdres.url, objectAdres);
+        return new ZaakobjectAdresRequest(zaak.getUrl(), restBAGAdres.url, objectAdres);
     }
 
     private static String convertToVolledigHuisnummer(final AdresIOHal adresHal) {

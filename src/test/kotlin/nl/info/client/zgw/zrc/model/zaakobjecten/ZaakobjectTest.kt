@@ -220,7 +220,10 @@ class ZaakobjectTest : BehaviorSpec({
         given("a Zaakobject") {
             val zaakURI = URI("https://example.com/zaak/${UUID.randomUUID()}")
             val bagobjectURI = URI("https://example.com/pand/${UUID.randomUUID()}")
-            val zaakobject = ZaakobjectPand(zaakURI, bagobjectURI, createObjectPand(identificatie = "fakeIdentificatie"))
+            val zaakobject = ZaakobjectPand(zaakURI, bagobjectURI, createObjectPand(identificatie = "fakeIdentificatie")).apply {
+                url = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}")
+                uuid = UUID.randomUUID()
+            }
 
             `when`("toString is called") {
                 val stringRepresentation = zaakobject.toString()

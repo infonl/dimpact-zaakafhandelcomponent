@@ -19,14 +19,16 @@ abstract class Zaakobject {
     /**
      * URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object
      * - readOnly
+     * Always present on a deserialized read result; absent from [ZaakobjectRequest].
      */
-    var url: URI? = null
+    lateinit var url: URI
 
     /**
      * Unieke resource identifier (UUID4)
      * - readOnly
+     * Always present on a deserialized read result; absent from [ZaakobjectRequest].
      */
-    var uuid: UUID? = null
+    lateinit var uuid: UUID
 
     /**
      * URL-referentie naar de ZAAK
