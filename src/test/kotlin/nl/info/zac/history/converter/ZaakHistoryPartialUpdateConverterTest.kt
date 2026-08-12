@@ -72,7 +72,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
             "uiterlijkeEinddatumAfdoening" to "2024-11-30",
             "einddatumGepland" to "2024-12-30",
             "zaakgeometrie" to mapOf(
-                "type" to "POINT",
+                "type" to "Point",
                 "coordinates" to listOf(
                     BigDecimal("53.602182801494195"),
                     BigDecimal("5.363728969647492")
@@ -149,7 +149,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
         )
         val oldValues = mapOf(
             "zaakgeometrie" to mapOf(
-                "type" to "POINT",
+                "type" to "Point",
                 "coordinates" to listOf(
                     BigDecimal("52.602182801494195"),
                     BigDecimal("4.363728969647492")
@@ -158,7 +158,7 @@ class ZaakHistoryPartialUpdateConverterTest : BehaviorSpec({
         )
         val newValues = mapOf(
             "zaakgeometrie" to mapOf(
-                "type" to "POINT",
+                "type" to "Point",
                 "coordinates" to listOf(
                     BigDecimal("53.602182801494195"),
                     BigDecimal("5.363728969647492")
