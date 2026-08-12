@@ -11,7 +11,6 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
-import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.util.AllOpen
@@ -26,61 +25,48 @@ class ZaaktypeHelperService @Inject constructor(
     private val ztcClientService: ZtcClientService,
 ) {
     /**
-     * Update ZaakbeeindigGegevens based on the given zaaktype
+     * Remaps the ZaakbeeindigGegevens of the given zaaktype configuration onto the resultaattypen of the given
+     * zaaktype, in place. Passing the configuration as both source and destination is safe: [mapZaakbeeindigGegevens]
+     * resolves all resultaattypen into local variables before it writes anything back.
      *
-     * @param zaaktypeConfiguration source
+     * @param zaaktypeConfiguration source and destination
      * @param newZaaktype           zaaktype to read the results from
      */
     fun updateZaakbeeindigGegevens(
         zaaktypeConfiguration: ZaaktypeConfiguration,
         newZaaktype: ZaakType
-    ) {
-        val newResultaattypen = newZaaktype.resultaattypen.map { ztcClientService.readResultaattype(it) }
-
-        zaaktypeConfiguration.nietOntvankelijkResultaattype?.let {
-            mapPreviousResultaattypeToNewResultaattype(it, newResultaattypen)
-        }
-
-        // ignore the return value for now; this code may not work properly and will be improved in future
-        val _ = zaaktypeConfiguration.getZaakbeeindigParameters().mapNotNull { zaakbeeindigParameter ->
-            mapPreviousResultaattypeToNewResultaattype(
-                zaakbeeindigParameter.resultaattype,
-                newResultaattypen
-            )?.let {
-                ZaaktypeCompletionParameters().apply {
-                    zaakbeeindigReden = zaakbeeindigParameter.zaakbeeindigReden
-                    resultaattype = it
-                }
-            }
-        }
-    }
+    ) = mapZaakbeeindigGegevens(zaaktypeConfiguration, zaaktypeConfiguration, newZaaktype)
 
     private fun mapPreviousResultaattypeToNewResultaattype(
         previousResultaattypeUUID: UUID,
         newResultaattypen: List<ResultaatType>,
     ): UUID? =
-        ztcClientService.readResultaattype(previousResultaattypeUUID)
-            .let { newResultaattypen.firstOrNull { it.omschrijving == it.omschrijving } }
+        ztcClientService.readResultaattype(previousResultaattypeUUID).let { previousResultaattype ->
+            newResultaattypen.firstOrNull { it.omschrijving == previousResultaattype.omschrijving }
+        }
             ?.url
             ?.extractUuid()
 
     /**
-     * Copying of the ZaakbeeindigGegevens from the old ZaaktypeCmmnConfiguration to the new ZaaktypeCmmnConfiguration
+     * Copying of the ZaakbeeindigGegevens from the old ZaaktypeConfiguration to the new ZaaktypeConfiguration.
+     * Resultaattypen of the previous configuration are matched to those of the new zaaktype by omschrijving;
+     * parameters without a match are dropped.
+     *
+     * Source and destination may be the same instance; everything is read into local variables before the first write.
      *
      * @param previousZaaktypeCmmnConfiguration source
      * @param newZaaktypeCmmnConfiguration      destination
      * @param newZaaktype                       new zaaktype to read the results from
      */
     fun mapZaakbeeindigGegevens(
-        previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration,
+        previousZaaktypeCmmnConfiguration: ZaaktypeConfiguration,
+        newZaaktypeCmmnConfiguration: ZaaktypeConfiguration,
         newZaaktype: ZaakType
     ) {
         val newResultaattypen = newZaaktype.resultaattypen.map { ztcClientService.readResultaattype(it) }
-        newZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype =
-            previousZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let {
-                mapPreviousResultaattypeToNewResultaattype(it, newResultaattypen)
-            }
+        val nietOntvankelijkResultaattype = previousZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let {
+            mapPreviousResultaattypeToNewResultaattype(it, newResultaattypen)
+        }
         val zaakbeeindigParametersCollection = previousZaaktypeCmmnConfiguration.getZaakbeeindigParameters()
             .mapNotNull { zaakbeeindigParameter ->
                 zaakbeeindigParameter.resultaattype
@@ -92,6 +78,7 @@ class ZaaktypeHelperService @Inject constructor(
                         }
                     }
             }.toMutableSet()
+        newZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
         newZaaktypeCmmnConfiguration.setZaakbeeindigParameters(zaakbeeindigParametersCollection)
     }
 }
