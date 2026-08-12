@@ -6,6 +6,7 @@ package nl.info.client.zgw.zrc.model.zaakobjecten
 
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import java.net.URI
+import java.util.UUID
 
 class ZaakobjectProductaanvraag : Zaakobject {
     companion object {
@@ -20,7 +21,8 @@ class ZaakobjectProductaanvraag : Zaakobject {
     /**
      * Constructor with required attributes
      */
-    constructor(zaak: URI, productaanvraag: URI?) : super(zaak, productaanvraag, ObjectTypeEnum.OVERIGE) {
+    constructor(zaak: URI, productaanvraag: URI?, url: URI, uuid: UUID) :
+        super(zaak, productaanvraag, ObjectTypeEnum.OVERIGE, url, uuid) {
         objectTypeOverige = OBJECT_TYPE_OVERIGE_PRODUCTAANVRAAG
     }
 

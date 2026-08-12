@@ -6,6 +6,7 @@ package nl.info.client.zgw.zrc.model.zaakobjecten
 
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import java.net.URI
+import java.util.UUID
 
 class ZaakobjectWoonplaats : ZaakobjectMetObjectIdentificatie<ObjectWoonplaats> {
     /**
@@ -19,8 +20,10 @@ class ZaakobjectWoonplaats : ZaakobjectMetObjectIdentificatie<ObjectWoonplaats> 
     constructor(
         zaak: URI,
         bagobjectUri: URI?,
-        woonplaats: ObjectWoonplaats?
-    ) : super(zaak, bagobjectUri, ObjectTypeEnum.WOONPLAATS, woonplaats)
+        woonplaats: ObjectWoonplaats?,
+        url: URI,
+        uuid: UUID
+    ) : super(zaak, bagobjectUri, ObjectTypeEnum.WOONPLAATS, woonplaats, url, uuid)
 
     override val waarde: String?
         get() = objectIdentificatie?.identificatie

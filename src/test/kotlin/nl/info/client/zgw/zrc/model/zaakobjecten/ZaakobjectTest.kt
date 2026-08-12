@@ -17,12 +17,19 @@ import java.util.UUID
 class ZaakobjectTest : BehaviorSpec({
     afterEach { checkUnnecessaryStub() }
 
+    // Every read Zaakobject requires a url and uuid, since both are always present on an actual deserialized
+    // result; their concrete value is irrelevant to the scenarios below, so a single fake pair is reused.
+    val fakeUrl = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}")
+    val fakeUuid = UUID.randomUUID()
+
     context("isBagObject") {
         given("a Zaakobject of type ADRES") {
             val zaakobject = ZaakobjectAdres(
                 URI("https://example.com/zaak/${UUID.randomUUID()}"),
                 URI("https://example.com/adres/${UUID.randomUUID()}"),
-                null
+                null,
+                fakeUrl,
+                fakeUuid
             )
 
             `when`("isBagObject is called") {
@@ -36,7 +43,9 @@ class ZaakobjectTest : BehaviorSpec({
             val zaakobject = ZaakobjectPand(
                 URI("https://example.com/zaak/${UUID.randomUUID()}"),
                 URI("https://example.com/pand/${UUID.randomUUID()}"),
-                createObjectPand()
+                createObjectPand(),
+                fakeUrl,
+                fakeUuid
             )
 
             `when`("isBagObject is called") {
@@ -50,7 +59,9 @@ class ZaakobjectTest : BehaviorSpec({
             val zaakobject = ZaakobjectOpenbareRuimte(
                 URI("https://example.com/zaak/${UUID.randomUUID()}"),
                 URI("https://example.com/openbareruimte/${UUID.randomUUID()}"),
-                createObjectOpenbareRuimte()
+                createObjectOpenbareRuimte(),
+                fakeUrl,
+                fakeUuid
             )
 
             `when`("isBagObject is called") {
@@ -64,7 +75,9 @@ class ZaakobjectTest : BehaviorSpec({
             val zaakobject = ZaakobjectWoonplaats(
                 URI("https://example.com/zaak/${UUID.randomUUID()}"),
                 URI("https://example.com/woonplaats/${UUID.randomUUID()}"),
-                null
+                null,
+                fakeUrl,
+                fakeUuid
             )
 
             `when`("isBagObject is called") {
@@ -78,7 +91,9 @@ class ZaakobjectTest : BehaviorSpec({
             val zaakobject = ZaakobjectNummeraanduiding(
                 URI("https://example.com/zaak/${UUID.randomUUID()}"),
                 URI("https://example.com/nummeraanduiding/${UUID.randomUUID()}"),
-                null
+                null,
+                fakeUrl,
+                fakeUuid
             )
 
             `when`("isBagObject is called") {
@@ -91,7 +106,9 @@ class ZaakobjectTest : BehaviorSpec({
         given("a Zaakobject of type OVERIGE without the nummeraanduiding marker") {
             val zaakobject = ZaakobjectProductaanvraag(
                 URI("https://example.com/zaak/${UUID.randomUUID()}"),
-                URI("https://example.com/productaanvraag/${UUID.randomUUID()}")
+                URI("https://example.com/productaanvraag/${UUID.randomUUID()}"),
+                fakeUrl,
+                fakeUuid
             )
 
             `when`("isBagObject is called") {
@@ -105,7 +122,9 @@ class ZaakobjectTest : BehaviorSpec({
             val zaakobject = ZaakobjectAdres(
                 URI("https://example.com/zaak/${UUID.randomUUID()}"),
                 URI("https://example.com/medewerker/${UUID.randomUUID()}"),
-                null
+                null,
+                fakeUrl,
+                fakeUuid
             ).apply { objectType = ObjectTypeEnum.MEDEWERKER }
 
             `when`("isBagObject is called") {
@@ -120,8 +139,20 @@ class ZaakobjectTest : BehaviorSpec({
         given("two Zaakobject instances of the same subclass with equal zaak, object, objectType and objectTypeOverige") {
             val zaakURI = URI("https://example.com/zaak/${UUID.randomUUID()}")
             val bagobjectURI = URI("https://example.com/pand/${UUID.randomUUID()}")
-            val zaakobjectA = ZaakobjectPand(zaakURI, bagobjectURI, createObjectPand(identificatie = "fakeIdentificatieA"))
-            val zaakobjectB = ZaakobjectPand(zaakURI, bagobjectURI, createObjectPand(identificatie = "fakeIdentificatieB"))
+            val zaakobjectA = ZaakobjectPand(
+                zaakURI,
+                bagobjectURI,
+                createObjectPand(identificatie = "fakeIdentificatieA"),
+                fakeUrl,
+                fakeUuid
+            )
+            val zaakobjectB = ZaakobjectPand(
+                zaakURI,
+                bagobjectURI,
+                createObjectPand(identificatie = "fakeIdentificatieB"),
+                fakeUrl,
+                fakeUuid
+            )
 
             `when`("equals is called") {
                 val isEqual = zaakobjectA == zaakobjectB
@@ -135,8 +166,8 @@ class ZaakobjectTest : BehaviorSpec({
         given("a ZaakobjectAdres compared to a ZaakobjectPand with the same zaak and object") {
             val zaakURI = URI("https://example.com/zaak/${UUID.randomUUID()}")
             val objectURI = URI("https://example.com/object/${UUID.randomUUID()}")
-            val zaakobjectAdres = ZaakobjectAdres(zaakURI, objectURI, null)
-            val zaakobjectPand = ZaakobjectPand(zaakURI, objectURI, createObjectPand())
+            val zaakobjectAdres = ZaakobjectAdres(zaakURI, objectURI, null, fakeUrl, fakeUuid)
+            val zaakobjectPand = ZaakobjectPand(zaakURI, objectURI, createObjectPand(), fakeUrl, fakeUuid)
 
             `when`("equals is called") {
                 val isEqual = zaakobjectAdres.equals(zaakobjectPand)
@@ -151,7 +182,9 @@ class ZaakobjectTest : BehaviorSpec({
             val zaakobject = ZaakobjectPand(
                 URI("https://example.com/zaak/${UUID.randomUUID()}"),
                 URI("https://example.com/pand/${UUID.randomUUID()}"),
-                createObjectPand()
+                createObjectPand(),
+                fakeUrl,
+                fakeUuid
             )
 
             `when`("equals is called with the same reference") {
@@ -167,7 +200,9 @@ class ZaakobjectTest : BehaviorSpec({
             val zaakobject = ZaakobjectPand(
                 URI("https://example.com/zaak/${UUID.randomUUID()}"),
                 URI("https://example.com/pand/${UUID.randomUUID()}"),
-                createObjectPand()
+                createObjectPand(),
+                fakeUrl,
+                fakeUuid
             )
 
             `when`("equals is called with null") {
@@ -184,12 +219,16 @@ class ZaakobjectTest : BehaviorSpec({
             val zaakobjectA = ZaakobjectPand(
                 URI("https://example.com/zaak/${UUID.randomUUID()}"),
                 URI("https://example.com/pand/${UUID.randomUUID()}"),
-                createObjectPand()
+                createObjectPand(),
+                fakeUrl,
+                fakeUuid
             )
             val zaakobjectB = ZaakobjectPand(
                 URI("https://example.com/zaak/${UUID.randomUUID()}"),
                 URI("https://example.com/pand/${UUID.randomUUID()}"),
-                createObjectPand()
+                createObjectPand(),
+                fakeUrl,
+                fakeUuid
             )
 
             `when`("equals and hashCode are called") {
@@ -220,10 +259,13 @@ class ZaakobjectTest : BehaviorSpec({
         given("a Zaakobject") {
             val zaakURI = URI("https://example.com/zaak/${UUID.randomUUID()}")
             val bagobjectURI = URI("https://example.com/pand/${UUID.randomUUID()}")
-            val zaakobject = ZaakobjectPand(zaakURI, bagobjectURI, createObjectPand(identificatie = "fakeIdentificatie")).apply {
-                url = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}")
-                uuid = UUID.randomUUID()
-            }
+            val zaakobject = ZaakobjectPand(
+                zaakURI,
+                bagobjectURI,
+                createObjectPand(identificatie = "fakeIdentificatie"),
+                fakeUrl,
+                fakeUuid
+            )
 
             `when`("toString is called") {
                 val stringRepresentation = zaakobject.toString()

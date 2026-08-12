@@ -63,9 +63,12 @@ abstract class Zaakobject {
     protected constructor()
 
     /**
-     * Constructor with required attributes
+     * Constructor with required attributes, including [url] and [uuid] since this constructor is only used to
+     * manually build a read result (e.g. in tests) and both are always present on an actual deserialized one.
      */
-    protected constructor(zaakUri: URI, objectUri: URI?, objectType: ObjectTypeEnum) {
+    protected constructor(zaakUri: URI, objectUri: URI?, objectType: ObjectTypeEnum, url: URI, uuid: UUID) {
+        this.url = url
+        this.uuid = uuid
         this.zaak = zaakUri
         this.`object` = objectUri
         this.objectType = objectType

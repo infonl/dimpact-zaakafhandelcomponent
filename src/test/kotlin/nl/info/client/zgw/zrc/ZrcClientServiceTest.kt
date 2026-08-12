@@ -126,7 +126,7 @@ class ZrcClientServiceTest : BehaviorSpec({
     }
 
     given("A zaakobject to be deleted") {
-        val zaakobject = createZaakobjectPand().apply { uuid = UUID.randomUUID() }
+        val zaakobject = createZaakobjectPand()
         val toelichting = "fakeToelichting"
         every { zrcClient.zaakobjectDelete(zaakobject.uuid) } just Runs
         every { zgwClientHeadersFactory.setAuditExplanation(toelichting) } just Runs

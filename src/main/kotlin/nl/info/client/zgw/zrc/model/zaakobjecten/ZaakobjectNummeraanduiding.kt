@@ -6,6 +6,7 @@ package nl.info.client.zgw.zrc.model.zaakobjecten
 
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import java.net.URI
+import java.util.UUID
 
 class ZaakobjectNummeraanduiding : ZaakobjectMetObjectIdentificatie<ObjectOverige<ObjectNummeraanduiding>> {
     companion object {
@@ -20,11 +21,13 @@ class ZaakobjectNummeraanduiding : ZaakobjectMetObjectIdentificatie<ObjectOverig
     /**
      * Constructor with required attributes
      */
-    constructor(zaak: URI, bagObjectUri: URI?, nummeraanduiding: ObjectNummeraanduiding?) : super(
+    constructor(zaak: URI, bagObjectUri: URI?, nummeraanduiding: ObjectNummeraanduiding?, url: URI, uuid: UUID) : super(
         zaak,
         bagObjectUri,
         ObjectTypeEnum.OVERIGE,
-        ObjectOverige(nummeraanduiding)
+        ObjectOverige(nummeraanduiding),
+        url,
+        uuid
     ) {
         objectTypeOverige = OBJECT_TYPE_OVERIGE_NUMMERAANDUIDING
     }
