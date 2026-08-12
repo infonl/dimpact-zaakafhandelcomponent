@@ -16,6 +16,7 @@ wildfly-*
 src/e2e/ExportData/*
 src/main/app/.nvmrc
 bin
+.classpath
 
 ### Python virtual environment ###
 scripts/python/.venv
