@@ -17,6 +17,9 @@ src/e2e/ExportData/*
 src/main/app/.nvmrc
 bin
 node-compile-cache
+.classpath
+.settings
+.project
 
 ### Python virtual environment ###
 scripts/python/.venv

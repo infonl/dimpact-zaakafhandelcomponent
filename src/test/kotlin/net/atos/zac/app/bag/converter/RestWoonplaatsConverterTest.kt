@@ -19,6 +19,7 @@ import nl.info.client.bag.model.generated.WoonplaatsIOHalBasis
 import nl.info.client.bag.model.generated.WoonplaatsLinks
 import nl.info.client.zgw.model.createZaak
 import java.net.URI
+import java.util.UUID
 
 class RestWoonplaatsConverterTest : BehaviorSpec({
     afterEach {
@@ -42,7 +43,13 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
             val fakeObjectUri = URI("https://example.com/bag/woonplaats/fakeObjectUri")
             val fakeZaakUri = URI("https://example.com/zaken/fakeZaakUri")
             val objectWoonplaats = ObjectWoonplaats("fakeIdentificatie", "fakeWoonplaatsNaam")
-            val zaakobjectWoonplaats = ZaakobjectWoonplaats(fakeZaakUri, fakeObjectUri, objectWoonplaats)
+            val zaakobjectWoonplaats = ZaakobjectWoonplaats(
+                fakeZaakUri,
+                fakeObjectUri,
+                objectWoonplaats,
+                URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
+                UUID.randomUUID()
+            )
 
             `when`("convertToREST is called") {
                 val result = RestWoonplaatsConverter.convertToREST(zaakobjectWoonplaats)
