@@ -347,7 +347,10 @@ class ZgwApiServiceTest : BehaviorSpec({
     context("Finding roles for zaak using a pre-fetched role list") {
         given("A zaak with a group, a behandelaar, and an initiator, and their pre-fetched roles") {
             val zaak = createZaak()
-            val behandelaarRolType = createRolType(omschrijving = "Behandelaar", omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
+            val behandelaarRolType = createRolType(
+                omschrijving = "Behandelaar",
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
             val initiatorRolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
             val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid(zaakURI = zaak.url, rolType = behandelaarRolType)
             val rolMedewerker = createRolMedewerker(zaakURI = zaak.url, rolType = behandelaarRolType)
@@ -381,7 +384,10 @@ class ZgwApiServiceTest : BehaviorSpec({
         }
         given("A zaak with a pre-fetched role list that contains no matching roles") {
             val zaak = createZaak()
-            val behandelaarRolType = createRolType(omschrijving = "Behandelaar", omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
+            val behandelaarRolType = createRolType(
+                omschrijving = "Behandelaar",
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+            )
             every {
                 ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
             } returns listOf(behandelaarRolType)
