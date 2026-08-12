@@ -243,7 +243,7 @@ ZAC zoekt eerst in `Omschrijving` en daarna in `Omschrijving generiek`. Als voor
 
 ## Identiteits- en toegangsbeheer
 
-Identiteits- en toegangsbeheer (Identity and Access Management, IAM) maakt gebruik van het PABC (Platform Autorisatie Beheer Component) om (zaaktype) autorisaties te beheren.
+Identiteits- en toegangsbeheer (Identity and Access Management, IAM) maakt gebruik van het PABC (Platform Autorisatie Beheer Component) en Keycloak om (zaaktype) autorisaties te beheren.
 
 ### IAM-architectuur
 
@@ -478,7 +478,7 @@ Dergelijke subgroepen worden niet ondersteund.
 > Wordt de groepsnaam toch aangepast, dan zal de betreffende data niet meer gekoppeld zijn aan deze groep, en zal de ZGW API blijven uitgaan van de oude, niet meer bestaande, groepsnaam. 
 > Hier wordt geen foutmelding van getoond. 
 
-# Inrichting Zaaktype
+# Inrichting zaakafhandel parameters (zaaktype)
 
 ## Inrichten van een zaaktype
 Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandelparameters’. Alle zaaktypen worden opgehaald en het overzicht wordt geopend. Het is mogelijk om in dit overzicht te filteren en sorteren.
@@ -579,31 +579,19 @@ Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het document
   - Basisregistratie personen (persoonsgegevens) koppelen
   - KvK (bedrijfsgegevens) koppelen
 
-Afhankelijk van je proxy is er aanvullende informatie nodig.
-Voor BRP via de PinkRoccade iConnect proxy geldt het volgende:
-
-Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
-
-- BRP_DOELBINDING_RAADPLEEG_WAARDE
-- BRP_DOELBINDING_ZOEK_WAARDE
-- BRP_VERWERKINGSREGISTER_WAARDE
-
-De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
-
 #### SmartDocuments
 
-- SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
-- Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
-- SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
-- De sjabloongroep uitvouwen (stap 2)
-- Documenttype selecteren (stap 3)
-- De configuratie opslaan (stap 4) 
-  
+SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen en elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
+
+- SmartDocuments inschakelen voor het huidige zaaktype aanzetten
+- Sjabloongroep uitvouwen
+- Documenttype selecteren
+
 ![image](images/zaps_koppelingen.png)
 
 - Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
 
-2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
+Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
 
 # Inrichting in OpenZaak - voor functionaliteiten in ZAC
 
