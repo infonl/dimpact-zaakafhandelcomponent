@@ -7,7 +7,7 @@ package nl.info.zac.app.shared
 /**
  * ZAC REST API enum for vertrouwelijkheidaanduiding.
  *
- * This is a separate enum from the ZGW-generated [VertrouwelijkheidaanduidingEnum] types because
+ * This is a separate enum from the ZGW-generated VertrouwelijkheidaanduidingEnum types because
  * those are serialized as lowercase by JSON-B (for ZGW API compatibility), while the ZAC REST API
  * needs to consistently use UPPERCASE values matching the OpenAPI spec.
  */
