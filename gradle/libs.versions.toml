@@ -5,7 +5,7 @@ jsonschema2pojo = "1.3.3"
 kotlin-csv = "2.0.0"
 openapi = "4.3.5"
 openapi-generator = "7.24.0"
-opentelemetry = "1.64.0"
+opentelemetry = "1.65.0"
 opentelemetry-instrumentation = "2.30.0"
 node-gradle = "7.1.0"
 detekt = "2.0.0-alpha.6"
@@ -16,11 +16,11 @@ spotless-prettier-organize-imports = "4.1.0"
 jacoco = "0.8.15"
 owasp-dependencycheck = "13.0.0"
 glassfish-expressly = "6.0.0"
-keycloak = "26.0.11"
+keycloak = "26.0.12"
 
 apache-commons-lang = "3.20.0"
 apache-commons-text = "1.15.0"
-apache-commons-collections = "4.5.0"
+apache-commons-collections = "4.6.0"
 commons-io = "2.22.0"
 opencsv = "5.12.0"
 flowable = "8.0.0"
@@ -30,9 +30,9 @@ javax-cache = "1.1.1"
 google-guava = "33.6.0-jre"
 itextpdf = "9.7.1"
 itextpdf-html2pdf = "6.3.3"
-flyway = "13.1.0"
+flyway = "13.2.0"
 apache-solr = "9.10.1"
-webdav-servlet = "1.2.318"
+webdav-servlet = "1.2.321"
 htmlcleaner = "2.29"
 infinispan = "16.2.2"
 apache-httpclient = "4.5.14"
@@ -61,7 +61,7 @@ jakarta-jakartaee = "11.0.0"
 
 eclipse-yasson = "3.0.5"
 
-kotest = "6.2.3"
+kotest = "6.2.4"
 mockk = "1.14.11"
 
 testcontainers = "2.0.5"
@@ -145,7 +145,7 @@ wildfly-security-elytron-http-oidc = { group = "org.wildfly.security", name = "w
 
 # yasson is required for using a JSONB context in our unit tests
 # where we do not have the WildFly runtime environment available
-eclipse-yasson = { group = "org.eclipse", name = "yasson", version.ref = "eclipse-yasson" }
+eclipse-yasson = { group = "org.eclipse.yasson", name = "yasson", version.ref = "eclipse-yasson" }
 
 # unit test dependencies
 kotest-runner-junit5 = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest" }

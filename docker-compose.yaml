@@ -392,7 +392,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: gotenberg/gotenberg:8.34.0@sha256:67097317623a503ba2a6a7e9ae8db6929a1f7e1bbd88077bacf2d325fbdab923
+    image: gotenberg/gotenberg:8.35.0@sha256:a16a14e1f18a71405624bc028e90d4ef50ea774c352b303639c10bf7b141f760
     # Disable Chromium routes since we only use LibreOffice for document conversion.
     command:
       - "gotenberg"
@@ -445,7 +445,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:13.1.2@sha256:d177053ab62253815f130d81504f77063baf5fd4ca93299d6048453bd31e047a
+    image: grafana/grafana:13.1.3@sha256:ab5cb380e3ff3172d6c8bd2e7cfd31cce977d2881b260e1f5bc089bf0b759b43
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -467,7 +467,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: greenmail/standalone:2.1.11@sha256:53cf220d34e4f2ca9e216f9ae5d9051624780ee510740370b8026915094b87fa
+    image: greenmail/standalone:2.1.12@sha256:9f32971b4f25d32b4de6fa2e297423768441c65e4541f6aecd7631c890a229a7
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0

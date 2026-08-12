@@ -6,8 +6,8 @@ package nl.info.zac.productaanvraag
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -44,7 +44,7 @@ class ProductaanvraagDocumentService @Inject constructor(
             LOG.warning { "No PDF found in productaanvraag to link to the zaak" }
             return
         }
-        ZaakInformatieobject().apply {
+        ZaakInformatieObjectRequest().apply {
             informatieobject = productaanvraag.pdf
             zaak = zaakUrl
             titel = AANVRAAG_PDF_TITEL
@@ -56,7 +56,7 @@ class ProductaanvraagDocumentService @Inject constructor(
 
     fun pairBijlagenWithZaak(bijlageURIs: List<URI>, zaakUrl: URI) =
         bijlageURIs.map(drcClientService::readEnkelvoudigInformatieobject).forEach { bijlage ->
-            ZaakInformatieobject().apply {
+            ZaakInformatieObjectRequest().apply {
                 informatieobject = bijlage.url
                 zaak = zaakUrl
                 titel = bijlage.titel
@@ -70,7 +70,7 @@ class ProductaanvraagDocumentService @Inject constructor(
         bijlageURIs.forEach { bijlageURI ->
             runCatching {
                 val bijlage = drcClientService.readEnkelvoudigInformatieobject(bijlageURI)
-                ZaakInformatieobject().apply {
+                ZaakInformatieObjectRequest().apply {
                     informatieobject = bijlage.url
                     zaak = zaakUrl
                     titel = bijlage.titel

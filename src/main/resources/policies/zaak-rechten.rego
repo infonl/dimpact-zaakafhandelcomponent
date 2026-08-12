@@ -56,50 +56,56 @@ zaaktype_allowed if {
 
 default lezen := false
 lezen if {
-    raadpleger.rol in user.rollen
     zaaktype_allowed
+    some role in {raadpleger, behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default wijzigen := false
 wijzigen if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator}
+    role.rol in user.rollen
 }
-
 wijzigen if {
-    recordmanager.rol in user.rollen
     zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default toekennen := false
 toekennen if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator}
+    role.rol in user.rollen
 }
-
 toekennen if {
-    recordmanager.rol in user.rollen
     zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default behandelen := false
 behandelen if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default afbreken := false
 afbreken if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default heropenen := false
 heropenen if {
-    recordmanager.rol in user.rollen
     zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default bekijken_zaakdata := false
@@ -109,186 +115,205 @@ bekijken_zaakdata if {
 
 default wijzigen_doorlooptijd := false
 wijzigen_doorlooptijd if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default verlengen := false
 verlengen if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
     not zaak.heropend
     not zaak.opgeschort
     not zaak.verlengd
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default opschorten := false
 opschorten if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
     not zaak.heropend
     not zaak.opgeschort
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default hervatten := false
 hervatten if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default creeren_document := false
 creeren_document if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default toevoegen_document := false
 toevoegen_document if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator}
+    role.rol in user.rollen
 }
-
 toevoegen_document if {
-    recordmanager.rol in user.rollen
     zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default koppelen := false
 koppelen if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator}
+    role.rol in user.rollen
 }
-
 koppelen if {
-    recordmanager.rol in user.rollen
     zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default versturen_email := false
 versturen_email if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default versturen_ontvangstbevestiging := false
 versturen_ontvangstbevestiging if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default toevoegen_initiator_persoon := false
 toevoegen_initiator_persoon if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator}
+    role.rol in user.rollen
 }
-
 toevoegen_initiator_persoon if {
-    recordmanager.rol in user.rollen
     zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default toevoegen_initiator_bedrijf := false
 toevoegen_initiator_bedrijf if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator}
+    role.rol in user.rollen
 }
-
 toevoegen_initiator_bedrijf if {
-    recordmanager.rol in user.rollen
     zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default verwijderen_initiator := false
 verwijderen_initiator if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator}
+    role.rol in user.rollen
 }
-
 verwijderen_initiator if {
-    recordmanager.rol in user.rollen
     zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default toevoegen_betrokkene_persoon := false
 toevoegen_betrokkene_persoon if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator}
+    role.rol in user.rollen
 }
-
 toevoegen_betrokkene_persoon if {
-    recordmanager.rol in user.rollen
     zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default toevoegen_betrokkene_bedrijf := false
 toevoegen_betrokkene_bedrijf if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator}
+    role.rol in user.rollen
 }
-
 toevoegen_betrokkene_bedrijf if {
-    recordmanager.rol in user.rollen
     zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default verwijderen_betrokkene := false
 verwijderen_betrokkene if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator}
+    role.rol in user.rollen
 }
-
 verwijderen_betrokkene if {
-    recordmanager.rol in user.rollen
     zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default toevoegen_bag_object := false
 toevoegen_bag_object if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator}
+    role.rol in user.rollen
 }
-
 toevoegen_bag_object if {
-    recordmanager.rol in user.rollen
     zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default starten_taak := false
 starten_taak if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default vastleggen_besluit := false
 vastleggen_besluit if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
     not zaak.intake
     zaak.besloten
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default verlengen_doorlooptijd := false
 verlengen_doorlooptijd if {
-    behandelaar.rol in user.rollen
     zaaktype_allowed
     zaak.open
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
+    role.rol in user.rollen
 }
 
 default wijzigen_locatie := false

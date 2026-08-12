@@ -12,6 +12,7 @@ import {
   Output,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { MAT_DATE_FORMATS } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
@@ -32,6 +33,22 @@ import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pip
     MatIconModule,
     TranslateModule,
     CapitalizeFirstLetterPipe,
+  ],
+  providers: [
+    {
+      provide: MAT_DATE_FORMATS,
+      useValue: {
+        parse: {
+          dateInput: "DD-MM-yyyy",
+        },
+        display: {
+          dateInput: "DD-MM-yyyy",
+          monthYearLabel: "MMMM YYYY",
+          dateA11yLabel: "LL",
+          monthYearA11yLabel: "MMMM YYYY",
+        },
+      },
+    },
   ],
 })
 export class DateRangeFilterComponent implements OnChanges {

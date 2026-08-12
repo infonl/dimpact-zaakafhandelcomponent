@@ -176,9 +176,7 @@ export class CaseDetailsEditComponent implements OnInit {
   ngOnInit() {
     const zaak = this.zaak();
     const dateChangesAllowed = Boolean(
-      !zaak.isProcesGestuurd &&
-        zaak.rechten.wijzigen &&
-        zaak.rechten.wijzigenDoorlooptijd,
+      zaak.rechten.wijzigen && zaak.rechten.wijzigenDoorlooptijd,
     );
 
     this.groups = this.identityService

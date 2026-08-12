@@ -6,18 +6,18 @@ package nl.info.client.zgw.shared
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import nl.info.client.zgw.util.convertToDateTime
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.RolListParameters
-import net.atos.client.zgw.zrc.model.RolMedewerker
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolListParameters
+import nl.info.client.zgw.zrc.model.RolMedewerker
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.shared.exception.ResultTypeNotFoundException
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
+import nl.info.client.zgw.util.convertToDateTime
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
@@ -28,6 +28,8 @@ import nl.info.client.zgw.zrc.model.generated.StatusSub
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.zrc.model.generated.ZaakSub
 import nl.info.client.zgw.zrc.util.toZaakSub
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -197,15 +199,15 @@ class ZgwApiService @Inject constructor(
     }
 
     /**
-     * Create [EnkelvoudigInformatieObject] and [ZaakInformatieobject] for [Zaak].
+     * Create [EnkelvoudigInformatieObject] and [ZaakInformatieObject] for [Zaak].
      *
      * @param zaak [Zaak].
      * @param enkelvoudigInformatieObjectCreateLockRequest [EnkelvoudigInformatieObject] to be created.
-     * @param titel Titel of the new [ZaakInformatieobject].
-     * @param beschrijving Beschrijving of the new [ZaakInformatieobject].
+     * @param titel Titel of the new [ZaakInformatieObject].
+     * @param beschrijving Beschrijving of the new [ZaakInformatieObject].
      * @param omschrijvingVoorwaardenGebruiksrechten Used to create the [Gebruiksrechten] for the to be created
      * [EnkelvoudigInformatieObject]
-     * @return Created [ZaakInformatieobject].
+     * @return Created [ZaakInformatieObject].
      */
     fun createZaakInformatieobjectForZaak(
         zaak: Zaak,
@@ -213,7 +215,7 @@ class ZgwApiService @Inject constructor(
         titel: String,
         beschrijving: String?,
         omschrijvingVoorwaardenGebruiksrechten: String?
-    ): ZaakInformatieobject {
+    ): ZaakInformatieObject {
         val newInformatieObjectData = drcClientService.createEnkelvoudigInformatieobject(
             enkelvoudigInformatieObjectCreateLockRequest
         )
@@ -226,18 +228,18 @@ class ZgwApiService @Inject constructor(
         }
         drcClientService.createGebruiksrechten(gebruiksrechten)
 
-        val zaakInformatieObject = ZaakInformatieobject().apply {
-            this.zaak = zaak.url
+        val zaakInformatieObjectRequest = ZaakInformatieObjectRequest().apply {
             informatieobject = newInformatieObjectData.url
+            this.zaak = zaak.url
             this.titel = titel
             this.beschrijving = beschrijving
         }
-        return zrcClientService.createZaakInformatieobject(zaakInformatieObject)
+        return zrcClientService.createZaakInformatieobject(zaakInformatieObjectRequest)
     }
 
     /**
-     * Delete [ZaakInformatieobject] which relates [EnkelvoudigInformatieObject] and [Zaak] with zaakUUID. When the
-     * [EnkelvoudigInformatieObject] has no other related [ZaakInformatieobject]s then it is also deleted.
+     * Delete [ZaakInformatieObject] which relates [EnkelvoudigInformatieObject] and [Zaak] with zaakUUID. When the
+     * [EnkelvoudigInformatieObject] has no other related [ZaakInformatieObject]s then it is also deleted.
      *
      * @param enkelvoudigInformatieobject [EnkelvoudigInformatieObject]
      * @param zaakUUID UUID of a [Zaak]
@@ -248,15 +250,13 @@ class ZgwApiService @Inject constructor(
         zaakUUID: UUID,
         reason: String?
     ) {
-        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
-            enkelvoudigInformatieobject
-        )
+        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieobject)
         // delete the relationship of the EnkelvoudigInformatieobject with the zaak.
         zaakInformatieobjecten
             .filter { it.zaakUUID == zaakUUID }
             .forEach { zrcClientService.deleteZaakInformatieobject(it.uuid, reason, ZAAK_OBJECT_DELETION_PREFIX) }
 
-        // if the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be deleted.
+        // if the EnkelvoudigInformatieobject has no relationship(s) with other zaken, it can be deleted.
         if (zaakInformatieobjecten.all { it.zaakUUID == zaakUUID }) {
             drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobject.url.extractUuid())
         }
@@ -266,10 +266,12 @@ class ZgwApiService @Inject constructor(
      * Find [RolOrganisatorischeEenheid] for [Zaak] with initiator [OmschrijvingGeneriekEnum].
      *
      * @param zaak [Zaak].
+     * @param roles pre-fetched roles for [zaak], to avoid a redundant `listRollen` call when the caller
+     * already fetched all roles for the zaak. When 'null', the roles are fetched here.
      * @return [RolOrganisatorischeEenheid] or 'null'.
      */
-    fun findGroepForZaak(zaak: Zaak): RolOrganisatorischeEenheid? =
-        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID)?.let {
+    fun findGroepForZaak(zaak: Zaak, roles: List<Rol<*>>? = null): RolOrganisatorischeEenheid? =
+        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID, roles)?.let {
             it as RolOrganisatorischeEenheid
         }
 
@@ -277,14 +279,20 @@ class ZgwApiService @Inject constructor(
      * Find [RolMedewerker] for [Zaak] with initiator [OmschrijvingGeneriekEnum].
      *
      * @param zaak [Zaak]
+     * @param roles pre-fetched roles for [zaak], to avoid a redundant `listRollen` call when the caller
+     * already fetched all roles for the zaak. When 'null', the roles are fetched here.
      * @return [RolMedewerker] or 'null' if the rol medewerker could not be found.
      */
-    fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak): RolMedewerker? =
-        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.MEDEWERKER)?.let {
+    fun findBehandelaarMedewerkerRoleForZaak(zaak: Zaak, roles: List<Rol<*>>? = null): RolMedewerker? =
+        findBehandelaarRoleForZaak(zaak, BetrokkeneTypeEnum.MEDEWERKER, roles)?.let {
             it as RolMedewerker
         }
 
-    fun findInitiatorRoleForZaak(zaak: Zaak): Rol<*>? {
+    /**
+     * @param roles pre-fetched roles for [zaak], to avoid a redundant `listRollen` call when the caller
+     * already fetched all roles for the zaak. When 'null', the roles are fetched here.
+     */
+    fun findInitiatorRoleForZaak(zaak: Zaak, roles: List<Rol<*>>? = null): Rol<*>? {
         val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR).also {
             if (it.size > 1) {
                 LOG.warning(
@@ -293,18 +301,22 @@ class ZgwApiService @Inject constructor(
             }
         }
         return roleTypes.firstOrNull()?.let { rolType ->
-            val roles = zrcClientService.listRollen(RolListParameters(zaak.url, rolType.url)).results().also {
+            val matchingRoles = (
+                roles?.filter { it.roltype == rolType.url }
+                    ?: zrcClientService.listRollen(RolListParameters(zaak.url, rolType.url)).results()
+                ).also {
                 check(it.size <= 1) {
                     "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
                 }
             }
-            roles.firstOrNull()
+            matchingRoles.firstOrNull()
         }
     }
 
     private fun findBehandelaarRoleForZaak(
         zaak: Zaak,
-        betrokkeneType: BetrokkeneTypeEnum
+        betrokkeneType: BetrokkeneTypeEnum,
+        roles: List<Rol<*>>? = null
     ): Rol<*>? {
         val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).also {
             if (it.size > 1) {
@@ -314,14 +326,17 @@ class ZgwApiService @Inject constructor(
             }
         }
         return roleTypes.firstOrNull()?.let { roleType ->
-            val roles = zrcClientService.listRollen(
-                RolListParameters(zaak.url, roleType.url, betrokkeneType)
-            ).results().also {
+            val matchingRoles = (
+                roles?.filter { it.roltype == roleType.url && it.betrokkeneType == betrokkeneType }
+                    ?: zrcClientService.listRollen(
+                        RolListParameters(zaak.url, roleType.url, betrokkeneType)
+                    ).results()
+                ).also {
                 check(it.size <= 1) {
                     "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
                 }
             }
-            roles.firstOrNull()
+            matchingRoles.firstOrNull()
         }
     }
 

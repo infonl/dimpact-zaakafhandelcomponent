@@ -20,10 +20,10 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -729,7 +729,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns listOf(zaakinformatiebject)
             every { zrcClientService.listZaakinformatieobjecten(enkelvoudiginformatieobject) } returns emptyList()
             every {
-                zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid, "veryFakeReason", "Ontkoppeld")
+                zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid!!, "veryFakeReason", "Ontkoppeld")
             } just Runs
             every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
             every {
@@ -747,7 +747,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 ) {
                     verify(exactly = 1) {
                         zrcClientService.deleteZaakInformatieobject(
-                            zaakinformatiebject.uuid,
+                            zaakinformatiebject.uuid!!,
                             "veryFakeReason",
                             "Ontkoppeld"
                         )
@@ -782,7 +782,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns listOf(zaakinformatiebject)
             every { zrcClientService.listZaakinformatieobjecten(enkelvoudiginformatieobject) } returns listOf(zaakInformatieobject2)
             every {
-                zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid, "veryFakeReason", "Ontkoppeld")
+                zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid!!, "veryFakeReason", "Ontkoppeld")
             } just Runs
 
             `when`("a request is done to unlink the zaakinformatieobject from the zaak") {
@@ -793,7 +793,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 ) {
                     verify(exactly = 1) {
                         zrcClientService.deleteZaakInformatieobject(
-                            zaakinformatiebject.uuid,
+                            zaakinformatiebject.uuid!!,
                             "veryFakeReason",
                             "Ontkoppeld"
                         )

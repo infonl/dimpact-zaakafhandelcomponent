@@ -14,8 +14,8 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.zrc.model.RolListParameters
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.RolListParameters
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
@@ -25,7 +25,7 @@ import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.shared.exception.StatusTypeNotFoundException
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
@@ -339,6 +339,59 @@ class ZgwApiServiceTest : BehaviorSpec({
 
                 then("an exception should be thrown") {
                     exception.message shouldBe "More than one initiator role found for zaak with UUID: '${zaak.uuid}' (count: 2)"
+                }
+            }
+        }
+    }
+
+    context("Finding roles for zaak using a pre-fetched role list") {
+        given("A zaak with a group, a behandelaar, and an initiator, and their pre-fetched roles") {
+            val zaak = createZaak()
+            val behandelaarRolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
+            val initiatorRolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR)
+            val rolOrganisatorischeEenheid = createRolOrganisatorischeEenheid(zaakURI = zaak.url, rolType = behandelaarRolType)
+            val rolMedewerker = createRolMedewerker(zaakURI = zaak.url, rolType = behandelaarRolType)
+            val rolNatuurlijkPersoon = createRolNatuurlijkPersoon(zaakURI = zaak.url, rolType = initiatorRolType)
+            val roles = listOf(rolOrganisatorischeEenheid, rolMedewerker, rolNatuurlijkPersoon)
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns listOf(behandelaarRolType)
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.INITIATOR)
+            } returns listOf(initiatorRolType)
+
+            `when`("the group, behandelaar medewerker, and initiator are requested using the pre-fetched roles") {
+                val group = zgwApiService.findGroepForZaak(zaak, roles)
+                val behandelaar = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, roles)
+                val initiator = zgwApiService.findInitiatorRoleForZaak(zaak, roles)
+
+                then("the group, behandelaar medewerker, and initiator are resolved from the pre-fetched list") {
+                    group shouldNotBe null
+                    group!!.identificatienummer shouldBe rolOrganisatorischeEenheid.identificatienummer
+                    behandelaar shouldNotBe null
+                    behandelaar!!.identificatienummer shouldBe rolMedewerker.identificatienummer
+                    initiator shouldNotBe null
+                    initiator!!.identificatienummer shouldBe rolNatuurlijkPersoon.identificatienummer
+                }
+
+                then("no additional role list HTTP call is made") {
+                    verify(exactly = 0) { zrcClientService.listRollen(any<RolListParameters>()) }
+                }
+            }
+        }
+        given("A zaak with a pre-fetched role list that contains no matching roles") {
+            val zaak = createZaak()
+            val behandelaarRolType = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
+            every {
+                ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            } returns listOf(behandelaarRolType)
+
+            `when`("the group is requested using an empty pre-fetched role list") {
+                val group = zgwApiService.findGroepForZaak(zaak, emptyList())
+
+                then("no group is returned and no additional role list HTTP call is made") {
+                    group shouldBe null
+                    verify(exactly = 0) { zrcClientService.listRollen(any<RolListParameters>()) }
                 }
             }
         }
@@ -708,15 +761,17 @@ class ZgwApiServiceTest : BehaviorSpec({
             val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
                 creatiedatum = today
             )
-            val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val gebruiksrechten = createGebruiksrechten()
             val gebruiksrechtenSlot = slot<Gebruiksrechten>()
-            val zaakInformatieObjectSlot = slot<ZaakInformatieobject>()
+            val zaakInformatieObjectRequestSlot = slot<ZaakInformatieObjectRequest>()
             every {
                 drcClientService.createEnkelvoudigInformatieobject(enkelvoudigInformatieObjectCreateLockRequest)
             } returns enkelvoudigInformatieObject
             every { drcClientService.createGebruiksrechten(capture(gebruiksrechtenSlot)) } returns gebruiksrechten
-            every { zrcClientService.createZaakInformatieobject(capture(zaakInformatieObjectSlot)) } returns zaakInformatieobject
+            every {
+                zrcClientService.createZaakInformatieobject(capture(zaakInformatieObjectRequestSlot))
+            } returns createdZaakInformatieobject
 
             `when`("a ZaakInformatieobject is created") {
                 val returnedZaakInformatieobjectForZaak = zgwApiService.createZaakInformatieobjectForZaak(
@@ -728,7 +783,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                 )
 
                 then("a ZaakInformatieobject is created and returned") {
-                    returnedZaakInformatieobjectForZaak shouldBe zaakInformatieobject
+                    returnedZaakInformatieobjectForZaak shouldBe createdZaakInformatieobject
                 }
 
                 And("the DRC and ZRC clients are called with correct parameters") {
@@ -748,7 +803,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                 }
 
                 And("the created ZaakInformatieobject has expected values") {
-                    with(zaakInformatieObjectSlot.captured) {
+                    with(zaakInformatieObjectRequestSlot.captured) {
                         this.zaak shouldBe zaak.url
                         this.informatieobject shouldBe enkelvoudigInformatieObject.url
                         this.titel shouldBe "fakeTitle"

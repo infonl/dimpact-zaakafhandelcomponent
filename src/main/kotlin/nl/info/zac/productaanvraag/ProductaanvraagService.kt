@@ -8,8 +8,8 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.json.bind.JsonbBuilder
 import jakarta.json.bind.JsonbConfig
-import net.atos.client.zgw.zrc.model.RolMedewerker
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import nl.info.client.zgw.zrc.model.RolMedewerker
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import net.atos.zac.flowable.ZaakVariabelenService.Companion.VAR_ZAAK_GROUP
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.util.JsonbUtil

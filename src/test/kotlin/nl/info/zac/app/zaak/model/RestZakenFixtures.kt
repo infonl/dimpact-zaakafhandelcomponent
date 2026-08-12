@@ -9,8 +9,8 @@ import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
-import nl.info.zac.app.admin.model.RestZaakafhandelParameters
-import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
+import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
+import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.klant.IdentificatieType
@@ -98,7 +98,7 @@ fun createRestBesluitChangeData(
 fun createRESTGerelateerdeZaak() = RestGerelateerdeZaak()
 
 fun createRESTGeometry(
-    type: String = "Point",
+    type: RestGeometryType = RestGeometryType.POINT,
     point: RestCoordinates = createRestCoordinates()
 ) = RestGeometry(
     type = type,
@@ -400,7 +400,7 @@ fun createRestZaakStatus(
 )
 
 fun createRestZaaktype(
-    zaaktypeConfiguration: RestZaakafhandelParameters = createRestZaakafhandelParameters()
+    zaaktypeConfiguration: RestZaaktypeConfiguration = createRestZaaktypeConfiguration()
 ) = RestZaaktype(
     uuid = UUID.randomUUID(),
     identificatie = "fakeIdentificatie",

@@ -12,7 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createResultaat

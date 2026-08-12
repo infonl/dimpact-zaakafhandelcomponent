@@ -6,7 +6,7 @@
 package nl.info.client.zgw.shared.model
 
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 
 fun createResultsOfZaakObjecten(
     list: List<Zaakobject> = emptyList(),

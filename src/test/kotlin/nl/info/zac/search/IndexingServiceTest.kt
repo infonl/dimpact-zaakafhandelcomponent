@@ -15,7 +15,7 @@ import io.mockk.mockkStatic
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.zrc.model.ZaakListParameters
+import nl.info.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createZaak

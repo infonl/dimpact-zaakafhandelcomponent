@@ -181,7 +181,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Skip job when only certain files or file types are changed which do not require a pull request build
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: paths-filter
         with:
           # the field below incorrectly results in a schema validation. see: https://github.com/dorny/paths-filter/issues/225
@@ -200,28 +200,6 @@ jobs:
               - '!src/e2e/**'
               - '!openspec/**'
               - '!renovate.json'
-
-  spotless-check:
-    runs-on: ubuntu-24.04
-    needs: [paths-filter]
-    if: ${{ needs.paths-filter.outputs.changes-requiring-build != 'true' }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Setup JDK
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
-        with:
-            java-version: ${{ env.JAVA_VERSION }}
-            distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
-
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
-
-      - name: Spotless
-        run: ./gradlew spotlessCheck
 
   build:
     runs-on: ubuntu-24.04

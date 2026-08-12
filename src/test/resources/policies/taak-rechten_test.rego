@@ -40,6 +40,22 @@ test_lezen if {
     lezen with input.user.rollen as [ "raadpleger" ]
 }
 
+test_lezen_with_behandelaar_role if {
+    lezen with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_with_coordinator_role if {
+    lezen with input.user.rollen as [ "coordinator" ]
+}
+
+test_lezen_with_recordmanager_role if {
+    lezen with input.user.rollen as [ "recordmanager" ]
+}
+
+test_lezen_with_beheerder_role if {
+    lezen with input.user.rollen as [ "beheerder" ]
+}
+
 test_lezen_wrong_role_fails if {
     not lezen with input.user.rollen as [ "fakeRole" ]
 }
@@ -55,8 +71,24 @@ test_wijzigen if {
     wijzigen with input.user.rollen as [ "behandelaar" ]
 }
 
+test_wijzigen_with_coordinator_role if {
+    wijzigen with input.user.rollen as [ "coordinator" ]
+}
+
+test_wijzigen_with_recordmanager_role if {
+    wijzigen with input.user.rollen as [ "recordmanager" ]
+}
+
+test_wijzigen_with_beheerder_role if {
+    wijzigen with input.user.rollen as [ "beheerder" ]
+}
+
 test_wijzigen_wrong_role_fails if {
     not wijzigen with input.user.rollen as [ "fakeRole" ]
+}
+
+test_wijzigen_with_raadpleger_role_fails if {
+    not wijzigen with input.user.rollen as [ "raadpleger" ]
 }
 
 test_wijzigen_missing_role_fails if {
@@ -68,6 +100,18 @@ test_wijzigen_missing_role_fails if {
 ###########
 test_toekennen if {
     toekennen with input.user.rollen as [ "behandelaar" ]
+}
+
+test_toekennen_with_coordinator_role if {
+    toekennen with input.user.rollen as [ "coordinator" ]
+}
+
+test_toekennen_with_recordmanager_role if {
+    toekennen with input.user.rollen as [ "recordmanager" ]
+}
+
+test_toekennen_with_beheerder_role if {
+    toekennen with input.user.rollen as [ "beheerder" ]
 }
 
 test_toekennen_wrong_role_fails if {
@@ -84,6 +128,24 @@ test_toekennen_missing_role_fails if {
 test_creeren_document if {
     creeren_document
         with input.user.rollen as [ "behandelaar" ]
+        with input.taak.open as true
+}
+
+test_creeren_document_with_coordinator_role if {
+    creeren_document
+        with input.user.rollen as [ "coordinator" ]
+        with input.taak.open as true
+}
+
+test_creeren_document_with_recordmanager_role if {
+    creeren_document
+        with input.user.rollen as [ "recordmanager" ]
+        with input.taak.open as true
+}
+
+test_creeren_document_with_beheerder_role if {
+    creeren_document
+        with input.user.rollen as [ "beheerder" ]
         with input.taak.open as true
 }
 
@@ -110,7 +172,25 @@ test_toevoegen_document if {
         with input.taak.open as true
 }
 
-test_creeren_document_taak_closed_fails if {
+test_toevoegen_document_with_coordinator_role if {
+    toevoegen_document
+        with input.user.rollen as [ "coordinator" ]
+        with input.taak.open as true
+}
+
+test_toevoegen_document_with_recordmanager_role if {
+    toevoegen_document
+        with input.user.rollen as [ "recordmanager" ]
+        with input.taak.open as true
+}
+
+test_toevoegen_document_with_beheerder_role if {
+    toevoegen_document
+        with input.user.rollen as [ "beheerder" ]
+        with input.taak.open as true
+}
+
+test_toevoegen_document_taak_closed_fails if {
     not toevoegen_document
         with input.user.rollen as [ "behandelaar" ]
         with input.taak.open as false
