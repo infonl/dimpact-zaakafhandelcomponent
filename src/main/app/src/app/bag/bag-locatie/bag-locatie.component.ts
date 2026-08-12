@@ -30,7 +30,6 @@ import proj4 from "proj4";
 import { LocationUtil } from "src/app/shared/location/location-util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { environment } from "src/environments/environment";
-import { components } from "src/generated/types/zac-openapi-types";
 
 type Geometry = GeneratedType<"RestGeometry">;
 
