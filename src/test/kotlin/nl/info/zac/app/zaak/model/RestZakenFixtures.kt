@@ -98,7 +98,7 @@ fun createRestBesluitChangeData(
 fun createRESTGerelateerdeZaak() = RestGerelateerdeZaak()
 
 fun createRESTGeometry(
-    type: String = "Point",
+    type: RestGeometryType = RestGeometryType.POINT,
     point: RestCoordinates = createRestCoordinates()
 ) = RestGeometry(
     type = type,
