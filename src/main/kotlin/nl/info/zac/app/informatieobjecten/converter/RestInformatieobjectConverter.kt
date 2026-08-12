@@ -203,7 +203,7 @@ class RestInformatieobjectConverter @Inject constructor(
             bestandsnaam = bestand.filename
             status = StatusEnum.DEFINITIEF
             vertrouwelijkheidaanduiding =
-                VertrouwelijkheidaanduidingEnum.valueOf(documentData.documentType.vertrouwelijkheidaanduiding!!.name)
+                documentData.documentType.vertrouwelijkheidaanduiding.toDrcVertrouwelijkheidaanduidingEnum()
         }
     }
 
@@ -258,11 +258,9 @@ class RestInformatieobjectConverter @Inject constructor(
         if (restEnkelvoudigInformatieObjectVersieGegevens.status != null) {
             enkelvoudigInformatieObjectWithLockData.status = restEnkelvoudigInformatieObjectVersieGegevens.status
         }
-        if (restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding != null) {
-            enkelvoudigInformatieObjectWithLockData.vertrouwelijkheidaanduiding =
-                restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding!!
-                    .toDrcVertrouwelijkheidaanduidingEnum()
-        }
+        enkelvoudigInformatieObjectWithLockData.vertrouwelijkheidaanduiding =
+            restEnkelvoudigInformatieObjectVersieGegevens.vertrouwelijkheidaanduiding
+                .toDrcVertrouwelijkheidaanduidingEnum()
         if (restEnkelvoudigInformatieObjectVersieGegevens.beschrijving != null) {
             enkelvoudigInformatieObjectWithLockData.beschrijving = restEnkelvoudigInformatieObjectVersieGegevens.beschrijving
         }

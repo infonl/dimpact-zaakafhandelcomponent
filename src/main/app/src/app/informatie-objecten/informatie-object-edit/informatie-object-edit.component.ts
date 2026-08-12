@@ -235,7 +235,7 @@ export class InformatieObjectEditComponent implements OnChanges {
         ? {
             label: this.translateService.instant(
               this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-                infoObject.vertrouwelijkheidaanduiding.toUpperCase() as GeneratedType<"RestVertrouwelijkheidaanduiding">,
+                infoObject.vertrouwelijkheidaanduiding,
               ),
             ),
             value: infoObject.vertrouwelijkheidaanduiding,

@@ -280,8 +280,7 @@ export class InformatieObjectAddComponent {
       beschrijving: value.beschrijving,
       informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
       status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
-      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding
-        ?.value as unknown as GeneratedType<"RestVertrouwelijkheidaanduiding">,
+      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
       creatiedatum: value.creatiedatum?.toISOString(),
       verzenddatum: value.verzenddatum?.toISOString(),
       ontvangstdatum: value.ontvangstdatum?.toISOString(),

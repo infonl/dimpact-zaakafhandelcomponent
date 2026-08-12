@@ -72,6 +72,15 @@ class RestVertrouwelijkheidaanduidingTest : BehaviorSpec({
                 }
             }
         }
+
+        given("a null RestVertrouwelijkheidaanduiding") {
+            `when`("it is converted") {
+                then("it should return DRC EMPTY") {
+                    val nullValue: RestVertrouwelijkheidaanduiding? = null
+                    nullValue.toDrcVertrouwelijkheidaanduidingEnum() shouldBe DrcVertrouwelijkheidaanduidingEnum.EMPTY
+                }
+            }
+        }
     }
 
     context("Converting RestVertrouwelijkheidaanduiding to ZRC VertrouwelijkheidaanduidingEnum") {
