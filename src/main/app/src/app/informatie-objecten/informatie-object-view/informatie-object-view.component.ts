@@ -155,8 +155,7 @@ export class InformatieObjectViewComponent
           .subscribe((infoObject) => {
             this.laatsteVersieInfoObject = infoObject;
             this.updateVersieInformatie();
-            this.
-            loadZaakInformatieobjecten();
+            this.loadZaakInformatieobjecten();
           });
         this.documentPreviewBeschikbaar = FileFormatUtil.isPreviewAvailable(
           this.infoObject.formaat as FileFormat,
@@ -387,7 +386,11 @@ export class InformatieObjectViewComponent
 
   protected haalVersieOp(versie: number) {
     this.websocketService.removeListener(this.documentListener);
-    this.router.navigate(["/informatie-objecten", this.infoObject.uuid, versie]);
+    this.router.navigate([
+      "/informatie-objecten",
+      this.infoObject.uuid,
+      versie,
+    ]);
   }
 
   protected versieToegevoegd(
