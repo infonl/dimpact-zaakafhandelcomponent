@@ -48,7 +48,7 @@ class ZaaktypeHelperService @Inject constructor(
             ?.extractUuid()
 
     /**
-     * Copying of the ZaakbeeindigGegevens from the old ZaaktypeCmmnConfiguration to the new ZaaktypeCmmnConfiguration.
+     * Copying of the ZaakbeeindigGegevens from the old ZaaktypeConfiguration to the new ZaaktypeConfiguration.
      * Resultaattypen of the previous configuration are matched to those of the new zaaktype by omschrijving;
      * parameters without a match are dropped.
      *
