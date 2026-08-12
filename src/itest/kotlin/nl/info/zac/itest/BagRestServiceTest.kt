@@ -654,7 +654,7 @@ class BagRestServiceTest : BehaviorSpec({
                           } ] ],
                           "type" : "POLYGON"
                         } ],
-                        "type" : "GeometryCollection"
+                        "type" : "GEOMETRY_COLLECTION"
                       },
                       "huisnummer" : 1,
                       "huisnummerWeergave" : "1",

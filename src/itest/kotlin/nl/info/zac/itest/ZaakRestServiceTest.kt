@@ -638,7 +638,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         shouldContainJsonKey("zaakgeometrie")
                         val geometrie = JSONObject(responseBody)["zaakgeometrie"].toString()
                         with(geometrie) {
-                            shouldContainJsonKeyValue("type", "Point")
+                            shouldContainJsonKeyValue("type", "POINT")
                             shouldContainJsonKey("point")
                             with(JSONObject(geometrie)["point"].toString()) {
                                 shouldContainJsonKeyValue("longitude", longitude)
