@@ -382,12 +382,45 @@ Then(
 
 Then(
   "Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay",
-  { timeout: ONE_MINUTE_IN_MS },
+  { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    // Load duration is necessary in order for added documents to load into the zaak
-    await this.page.waitForTimeout(FIFTEEN_SECONDS_IN_MS);
+    // Load duration is necessary in order for the zaak that was submitted in open-forms to be
+    // registered in ZAC and for its documents to load into the zaak
+    await this.page.waitForTimeout(ONE_MINUTE_IN_MS);
     await this.page.reload();
-    await this.page.getByText("visibility").first().click();
+    await this.expect(this.page.getByText("visibility").first()).toBeVisible();
+
+    // The werkvoorraad contains test zaken with zaaknummers of other years, which would be listed
+    // first when sorting descending. Filter on the current year to leave those out.
+    const currentYearZaakNumberPrefix = `ZAAK-${new Date().getFullYear()}-`;
+    const zaakNumberFilter = this.page.locator(
+      "th.mat-column-zaak-identificatie_filter input",
+    );
+    await zaakNumberFilter.fill(currentYearZaakNumberPrefix);
+    await zaakNumberFilter.press("Enter");
+
+    // Sorting cycles through no sorting, ascending and descending, so click the column header
+    // until the zaak with the highest zaaknummer, being the zaak created last, is listed first.
+    const zaakNumberColumnHeader = this.page.getByRole("columnheader", {
+      name: "Zaaknummer",
+    });
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const sorting = await zaakNumberColumnHeader.getAttribute("aria-sort");
+      if (sorting === "descending") break;
+      await zaakNumberColumnHeader.click();
+    }
+    await this.expect(zaakNumberColumnHeader).toHaveAttribute(
+      "aria-sort",
+      "descending",
+    );
+
+    const newestZaakRow = this.page
+      .getByRole("row")
+      .filter({ hasText: currentYearZaakNumberPrefix })
+      .first();
+    await newestZaakRow.getByText("visibility").click();
+
+    await this.expect(this.page).toHaveURL(ZAAK_DETAIL_URL_REGEX);
   },
 );
 
