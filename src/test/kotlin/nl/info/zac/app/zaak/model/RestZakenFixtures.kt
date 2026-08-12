@@ -8,6 +8,7 @@ package nl.info.zac.app.zaak.model
 import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
+import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
@@ -98,7 +99,7 @@ fun createRestBesluitChangeData(
 fun createRESTGerelateerdeZaak() = RestGerelateerdeZaak()
 
 fun createRESTGeometry(
-    type: String = "Point",
+    type: GeometryTypeEnum = GeometryTypeEnum.POINT,
     point: RestCoordinates = createRestCoordinates()
 ) = RestGeometry(
     type = type,

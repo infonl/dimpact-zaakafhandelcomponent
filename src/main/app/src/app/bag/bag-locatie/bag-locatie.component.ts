@@ -28,9 +28,11 @@ import * as style from "ol/style.js";
 import WMTSTileGrid from "ol/tilegrid/WMTS.js";
 import proj4 from "proj4";
 import { LocationUtil } from "src/app/shared/location/location-util";
+import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { environment } from "src/environments/environment";
-import { Geometry } from "../../zaken/model/geometry";
-import { GeometryType } from "../../zaken/model/geometryType";
+import { components } from "src/generated/types/zac-openapi-types";
+
+type Geometry = GeneratedType<"RestGeometry">;
 
 @Component({
   selector: "zac-bag-locatie",
@@ -155,19 +157,23 @@ export class BagLocatieComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   private draw(geometry: Geometry): void {
-    if (geometry.type === GeometryType.POINT) {
+    if (geometry.type === "POINT") {
       const coordinate = LocationUtil.pointToCoordinate(geometry.point);
       this.addPoint(coordinate);
     }
-    if (geometry.type === GeometryType.POLYGON) {
+    if (geometry.type === "POLYGON") {
       const coordinates: Coordinate[][] = [[]];
-      geometry.polygon.forEach((cs) => {
-        coordinates.push(cs.map(LocationUtil.pointToCoordinate));
+      geometry.polygon?.forEach((cs) => {
+        coordinates.push(
+          (cs as unknown as components["schemas"]["RestCoordinates"][]).map(
+            LocationUtil.pointToCoordinate,
+          ),
+        );
       });
       this.addVlak(coordinates);
     }
-    if (geometry.type === GeometryType.GEOMETRY_COLLECTION) {
-      geometry.geometrycollection.forEach((g) => this.draw(g));
+    if (geometry.type === "GEOMETRY_COLLECTION") {
+      geometry?.geometrycollection?.forEach((g) => this.draw(g));
     }
   }
 
