@@ -38,6 +38,7 @@ import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
@@ -118,7 +119,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
-                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar")
+                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
@@ -205,7 +206,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
-                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar")
+                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
@@ -266,7 +267,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
-                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar")
+                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
@@ -432,7 +433,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.readGroup(group.name) } returns group
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
-                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar")
+                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false
@@ -483,7 +484,7 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.validateIfUserIsInGroup(any(), group.name) } just runs
             every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
-                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar")
+                ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns false

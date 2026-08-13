@@ -32,6 +32,7 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.model.createZaakobjectProductaanvraag
 import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
@@ -1565,7 +1566,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { configurationService.readBronOrganisatie() } returns "123443210"
             every { identityService.readGroup(groupName) } returns group
             every {
-                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar")
+                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns behandelaarRolType
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
             every { zrcClientService.createRol(capture(createdRolSlot)) } returns mockk()
@@ -1836,7 +1837,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { configurationService.readBronOrganisatie() } returns "123443210"
             every { identityService.readGroup(groupName) } returns group
             every {
-                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, "Behandelaar")
+                ztcClientService.readRoltype(createdZaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns behandelaarRolType
             every { zrcClientService.createRol(any<RolOrganisatorischeEenheid>()) } returns createRolOrganisatorischeEenheid()
             every { klantClientService.linkProductaanvraagSpecificContactDetailsToZaak(contactDetails, createdZaak.uuid) } just runs
