@@ -121,7 +121,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   protected isSavedZaakafhandelParameters: boolean = false;
 
-  parameters: GeneratedType<"RestZaakafhandelParameters"> = {
+  parameters: GeneratedType<"RestZaaktypeConfiguration"> = {
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
@@ -709,7 +709,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private getZaaknietontvankelijkParameter(
-    zaakafhandelParameters: GeneratedType<"RestZaakafhandelParameters">,
+    zaakafhandelParameters: GeneratedType<"RestZaaktypeConfiguration">,
   ) {
     const parameter: RestPristineZaakbeeindigParameterFormData = {
       resultaattype: zaakafhandelParameters.zaakNietOntvankelijkResultaattype,

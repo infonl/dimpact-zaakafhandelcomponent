@@ -62,7 +62,7 @@ fun createRestReferenceTableValue(
 )
 
 @Suppress("LongParameterList")
-fun createRestZaakafhandelParameters(
+fun createRestZaaktypeConfiguration(
     id: Long? = 1234L,
     restZaaktypeOverzicht: RestZaaktypeOverzicht = createRestZaaktypeOverzicht(),
     productaanvraagtype: String? = null,
@@ -70,7 +70,7 @@ fun createRestZaakafhandelParameters(
     defaultBehandelaarId: String? = null,
     restBetrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen(),
     restBrpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen()
-) = RestZaakafhandelParameters(
+) = RestZaaktypeConfiguration(
     id = id,
     zaaktype = restZaaktypeOverzicht,
     productaanvraagtype = productaanvraagtype,

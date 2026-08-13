@@ -12,7 +12,7 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 data class RestBrpDoelbindingen(
     var id: Long? = null,
-    var zaakafhandelParameters: RestZaakafhandelParameters? = null,
+    var zaakafhandelParameters: RestZaaktypeConfiguration? = null,
     var zoekWaarde: String? = null,
     var raadpleegWaarde: String? = null,
     var verwerkingregisterWaarde: String? = null

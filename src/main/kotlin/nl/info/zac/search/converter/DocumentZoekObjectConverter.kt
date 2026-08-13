@@ -5,7 +5,8 @@
 package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
@@ -42,7 +43,7 @@ class DocumentZoekObjectConverter @Inject constructor(
     @Suppress("LongMethod")
     private fun convert(
         informatieobject: EnkelvoudigInformatieObject,
-        gekoppeldeZaakInformatieobject: ZaakInformatieobject
+        gekoppeldeZaakInformatieobject: ZaakInformatieObject
     ): DocumentZoekObject {
         val zaak = zrcClientService.readZaak(gekoppeldeZaakInformatieobject.zaakUUID)
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)

@@ -4,18 +4,12 @@
  */
 package nl.info.client.zgw.model
 
-import net.atos.client.zgw.zrc.model.RolMedewerker
-import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.RolVestiging
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
-import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectPand
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.RolMedewerker
+import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import nl.info.client.zgw.zrc.model.RolVestiging
 import nl.info.client.zgw.zrc.model.generated.AardRelatieWeergaveEnum
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GeometryTypeEnum
@@ -31,6 +25,13 @@ import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
+import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
+import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectPand
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.generated.RolType
 import java.math.BigDecimal
@@ -52,8 +53,16 @@ fun createMedewerkerIdentificatie(
     this.voorvoegselAchternaam = voorvoegselAchternaam
 }
 
-fun createNatuurlijkPersoonIdentificatie(bsn: String = "fakeBsn") = NatuurlijkPersoonIdentificatie().apply {
+fun createNatuurlijkPersoonIdentificatie(
+    bsn: String? = "fakeBsn",
+    anpIdentificatie: String? = null,
+    inpANummer: String? = null,
+    voorvoegselGeslachtsnaam: String? = null
+) = NatuurlijkPersoonIdentificatie().apply {
     this.inpBsn = bsn
+    this.anpIdentificatie = anpIdentificatie
+    this.inpANummer = inpANummer
+    this.voorvoegselGeslachtsnaam = voorvoegselGeslachtsnaam
 }
 
 fun createNietNatuurlijkPersoonIdentificatie(
@@ -143,7 +152,7 @@ fun createRolMedewerkerForReads(
     uuid: UUID = UUID.randomUUID(),
     rolType: RolType = createRolType(),
     roltoelichting: String = "fakeToelichting",
-    medewerkerIdentificatie: MedewerkerIdentificatie = createMedewerkerIdentificatie()
+    medewerkerIdentificatie: MedewerkerIdentificatie? = createMedewerkerIdentificatie()
 ) = RolMedewerker(
     uuid,
     rolType,
@@ -179,7 +188,7 @@ fun createRolNietNatuurlijkPersoon(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(zaakTypeUri = zaakURI),
     toelichting: String = "fakeToelichting",
-    nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie = createNietNatuurlijkPersoonIdentificatie()
+    nietNatuurlijkPersoonIdentificatie: NietNatuurlijkPersoonIdentificatie? = createNietNatuurlijkPersoonIdentificatie()
 ) = RolNietNatuurlijkPersoon(
     zaakURI,
     rolType,
@@ -203,7 +212,7 @@ fun createRolOrganisatorischeEenheid(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
     toelichting: String = "fakeToelichting",
-    organisatorischeEenheidIdentificatie: OrganisatorischeEenheidIdentificatie = createOrganisatorischeEenheid()
+    organisatorischeEenheidIdentificatie: OrganisatorischeEenheidIdentificatie? = createOrganisatorischeEenheid()
 ) = RolOrganisatorischeEenheid(
     zaakURI,
     rolType,
@@ -228,7 +237,7 @@ fun createRolVestiging(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     rolType: RolType = createRolType(),
     toelichting: String = "fakeToelichting",
-    vestigingIdentificatie: VestigingIdentificatie = createVestigingIdentificatie()
+    vestigingIdentificatie: VestigingIdentificatie? = createVestigingIdentificatie()
 ) = RolVestiging(
     zaakURI,
     rolType,
@@ -319,53 +328,70 @@ fun createZaak(
 fun createZaakobjectOpenbareRuimte(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     bagobjectURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
-    objectOpenbareRuimte: ObjectOpenbareRuimte = createObjectOpenbareRuimte()
+    objectOpenbareRuimte: ObjectOpenbareRuimte = createObjectOpenbareRuimte(),
+    url: URI = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID()
 ) = ZaakobjectOpenbareRuimte(
     zaakURI,
     bagobjectURI,
-    objectOpenbareRuimte
+    objectOpenbareRuimte,
+    url,
+    uuid
 )
 
 fun createZaakInformatieobjectForCreatesAndUpdates(
     informatieobjectUUID: UUID = UUID.randomUUID(),
     zaakUUID: UUID = UUID.randomUUID(),
-    informatieObjectURL: URI = URI("https://example.com/$informatieobjectUUID"),
-    zaakURL: URI = URI("https://example.com/$zaakUUID")
-) = ZaakInformatieobject(
-    informatieObjectURL,
-    zaakURL
-)
+    informatieObjectUrl: URI = URI("https://example.com/$informatieobjectUUID"),
+    zaakUrl: URI = URI("https://example.com/$zaakUUID")
+) = ZaakInformatieObjectRequest().apply {
+    informatieobject = informatieObjectUrl
+    zaak = zaakUrl
+}
 
 fun createZaakInformatieobjectForReads(
     url: URI = URI("https://example.com/${UUID.randomUUID()}"),
     uuid: UUID = UUID.randomUUID(),
+    informatieobject: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    zaak: URI = URI("https://example.com/${UUID.randomUUID()}"),
     aardRelatieWeergave: AardRelatieWeergaveEnum = AardRelatieWeergaveEnum.HOORT_BIJ_OMGEKEERD_KENT,
     registratiedatum: ZonedDateTime = ZonedDateTime.now()
-) = ZaakInformatieobject(
+) = ZaakInformatieObject(
     url,
     uuid,
     aardRelatieWeergave,
-    registratiedatum
-)
+    registratiedatum.toOffsetDateTime()
+).apply {
+    this.informatieobject = informatieobject
+    this.zaak = zaak
+}
 
 fun createZaakobjectProductaanvraag(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
-    productaanvraagURI: URI = URI("https://example.com/${UUID.randomUUID()}")
+    productaanvraagURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
+    url: URI = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID()
 ) =
     ZaakobjectProductaanvraag(
         zaakURI,
-        productaanvraagURI
+        productaanvraagURI,
+        url,
+        uuid
     )
 
 fun createZaakobjectPand(
     zaakURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
     bagobjectURI: URI = URI("https://example.com/${UUID.randomUUID()}"),
-    objectPand: ObjectPand = createObjectPand()
+    objectPand: ObjectPand = createObjectPand(),
+    url: URI = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
+    uuid: UUID = UUID.randomUUID()
 ) =
     ZaakobjectPand(
         zaakURI,
         bagobjectURI,
-        objectPand
+        objectPand,
+        url,
+        uuid
     )
 
 fun createZaakStatus(

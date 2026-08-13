@@ -22,7 +22,7 @@ import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
@@ -75,7 +75,7 @@ class MailServiceTest : BehaviorSpec({
             // omschrijving has to be exactly "e-mail"
             omschrijving = "e-mail"
         )
-        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+        val zaakInformatieobject = createZaakInformatieobjectForReads()
         val resolvedSubject = "resolvedSubject"
 
         every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
