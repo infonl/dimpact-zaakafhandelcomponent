@@ -473,7 +473,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
             every { identityService.readUser(defaultBehandelaarId) } returns createUser()
             every { ztcClientService.findRoltypen(any(), "Initiator") } returns listOf(rolTypeInitiator)
-            every { ztcClientService.readRoltype(any(), any(), any()) } returns rolTypeBehandelaar
+            every {
+                ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR, ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
+            } returns rolTypeBehandelaar
             every {
                 productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                     createdZaak,
@@ -609,7 +611,9 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } returns createdZaakInformatieobject
             every { cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any()) } just runs
             every { identityService.readUser(defaultBehandelaarId) } returns createUser()
-            every { ztcClientService.readRoltype(any(), any(), any()) } returns rolTypeBehandelaar
+            every {
+                ztcClientService.readRoltype(any(), OmschrijvingGeneriekEnum.BEHANDELAAR, ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
+            } returns rolTypeBehandelaar
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
             every { configurationService.readBronOrganisatie() } returns "123443210"
             every {

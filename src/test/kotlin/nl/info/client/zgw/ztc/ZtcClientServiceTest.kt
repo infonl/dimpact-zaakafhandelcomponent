@@ -15,9 +15,15 @@ import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.zgw.ztc.ZtcClientService.Companion.MAX_CACHE_SIZE
 import nl.info.client.zgw.ztc.exception.CatalogusNotFoundException
+import nl.info.client.zgw.ztc.exception.RoltypeNotFoundException
 import nl.info.client.zgw.ztc.model.createCatalogus
 import nl.info.client.zgw.ztc.model.createCatalogusListParameters
+import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
+import nl.info.client.zgw.ztc.model.generated.RolType
+import nl.info.client.zgw.ztc.model.RoltypeListGeneriekParameters
+import net.atos.client.zgw.shared.model.Results
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Optional
@@ -152,6 +158,88 @@ class ZtcClientServiceTest : BehaviorSpec({
                 with(ztcClientService.cacheStatistics()["ZTC Time"]) {
                     this?.hitCount() shouldBe 1
                     this?.missCount() shouldBe 2
+                }
+            }
+        }
+    }
+
+    context("Reading roltype with omschrijving") {
+        given("a zaaktype with a matching roltype") {
+            val zaaktypeUri = URI("https://example.com/zaaktypes/${UUID.randomUUID()}")
+            val matchingRolType = createRolType(
+                omschrijving = "Behandelaar",
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR,
+                zaakTypeUri = zaaktypeUri
+            )
+            val otherRolType = createRolType(
+                omschrijving = "Andere omschrijving",
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR,
+                zaakTypeUri = zaaktypeUri
+            )
+            every {
+                ztcClient.roltypeListGeneriek(any<RoltypeListGeneriekParameters>())
+            } returns Results(listOf(matchingRolType, otherRolType), 2)
+
+            `when`("readRoltype is called with the matching omschrijving") {
+                val result = ztcClientService.readRoltype(
+                    zaaktypeUri,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR,
+                    "Behandelaar"
+                )
+
+                then("it should return the matching roltype") {
+                    result shouldBe matchingRolType
+                }
+            }
+        }
+
+        given("a zaaktype without a matching roltype omschrijving") {
+            val zaaktypeUri = URI("https://example.com/zaaktypes/${UUID.randomUUID()}")
+            val nonMatchingRolType = createRolType(
+                omschrijving = "Andere omschrijving",
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR,
+                zaakTypeUri = zaaktypeUri
+            )
+            every {
+                ztcClient.roltypeListGeneriek(any<RoltypeListGeneriekParameters>())
+            } returns Results(listOf(nonMatchingRolType), 1)
+
+            `when`("readRoltype is called with a non-matching omschrijving") {
+                val roltypeNotFoundException = shouldThrow<RoltypeNotFoundException> {
+                    ztcClientService.readRoltype(
+                        zaaktypeUri,
+                        OmschrijvingGeneriekEnum.BEHANDELAAR,
+                        "Behandelaar"
+                    )
+                }
+
+                then("it should throw RoltypeNotFoundException") {
+                    roltypeNotFoundException.message shouldBe
+                        "Roltype with aard 'behandelaar' and omschrijving 'Behandelaar' " +
+                        "not found for zaaktype '$zaaktypeUri'"
+                }
+            }
+        }
+
+        given("a zaaktype with no roltypen at all") {
+            val zaaktypeUri = URI("https://example.com/zaaktypes/${UUID.randomUUID()}")
+            every {
+                ztcClient.roltypeListGeneriek(any<RoltypeListGeneriekParameters>())
+            } returns Results(emptyList(), 0)
+
+            `when`("readRoltype is called") {
+                val roltypeNotFoundException = shouldThrow<RoltypeNotFoundException> {
+                    ztcClientService.readRoltype(
+                        zaaktypeUri,
+                        OmschrijvingGeneriekEnum.BEHANDELAAR,
+                        "Behandelaar"
+                    )
+                }
+
+                then("it should throw RoltypeNotFoundException") {
+                    roltypeNotFoundException.message shouldBe
+                        "Roltype with aard 'behandelaar' and omschrijving 'Behandelaar' " +
+                        "not found for zaaktype '$zaaktypeUri'"
                 }
             }
         }

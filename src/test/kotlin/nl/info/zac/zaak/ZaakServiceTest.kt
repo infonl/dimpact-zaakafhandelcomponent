@@ -451,6 +451,9 @@ class ZaakServiceTest : BehaviorSpec({
                 }
 
                 And("the duplicate roles are purged and a single new role is created") {
+                    verify(exactly = 2) {
+                        zrcClientService.deleteRol(any<Rol<*>>(), reason)
+                    }
                     verifyOrder {
                         zrcClientService.deleteRol(any<Rol<*>>(), reason)
                         zrcClientService.createRol(any(), reason)
