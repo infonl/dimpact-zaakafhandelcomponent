@@ -9,8 +9,10 @@ import { PDFParse } from "pdf-parse";
 import { z } from "zod";
 import {
   FIFTEEN_SECONDS_IN_MS,
+  FIVE_SECONDS_IN_MS,
   FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
+  TEN_SECONDS_IN_MS,
   TWO_MINUTES_IN_MS,
 } from "../support/time-constants";
 import { users } from "../support/worlds/users";
@@ -381,45 +383,35 @@ Then(
 );
 
 Then(
-  "Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay",
+  "Employee {string} opens the zaak that was created from the open-forms submission",
   { timeout: TWO_MINUTES_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    // Load duration is necessary in order for the zaak that was submitted in open-forms to be
-    // registered in ZAC and for its documents to load into the zaak
-    await this.page.waitForTimeout(ONE_MINUTE_IN_MS);
-    await this.page.reload();
-    await this.expect(this.page.getByText("visibility").first()).toBeVisible();
+    const openFormsReference = this.testStorage.get("open-forms-reference");
+    const zaakLink = this.page
+      .locator("mat-sidenav")
+      .getByRole("link", { name: ZAAK_NUMBER_REGEX });
 
-    // The werkvoorraad contains test zaken with zaaknummers of other years, which would be listed
-    // first when sorting descending. Filter on the current year to leave those out.
-    const currentYearZaakNumberPrefix = `ZAAK-${new Date().getFullYear()}-`;
-    const zaakNumberFilter = this.page.locator(
-      "th.mat-column-zaak-identificatie_filter input",
-    );
-    await zaakNumberFilter.fill(currentYearZaakNumberPrefix);
-    await zaakNumberFilter.press("Enter");
+    // ZAC stores the reference of the open-forms submission in the toelichting of the zaak, which is
+    // searchable, so the zaak can be looked up instead of guessing which zaak it is. The zaak is
+    // registered and indexed for search asynchronously, so search until it shows up. Reloading in
+    // between is needed because ZAC only searches again when the entered keyword changed.
+    await this.expect(async () => {
+      await this.page.reload();
+      const searchField = this.page
+        .getByRole("textbox", { name: "Zoeken" })
+        .first();
+      await searchField.fill(openFormsReference);
+      await searchField.press("Enter");
 
-    // Sorting cycles through no sorting, ascending and descending, so click the column header
-    // until the zaak with the highest zaaknummer, being the zaak created last, is listed first.
-    const zaakNumberColumnHeader = this.page.getByRole("columnheader", {
-      name: "Zaaknummer",
+      await this.expect(zaakLink).toHaveCount(1, {
+        timeout: FIVE_SECONDS_IN_MS,
+      });
+    }).toPass({
+      intervals: [FIVE_SECONDS_IN_MS, TEN_SECONDS_IN_MS, FIFTEEN_SECONDS_IN_MS],
+      timeout: ONE_MINUTE_IN_MS,
     });
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const sorting = await zaakNumberColumnHeader.getAttribute("aria-sort");
-      if (sorting === "descending") break;
-      await zaakNumberColumnHeader.click();
-    }
-    await this.expect(zaakNumberColumnHeader).toHaveAttribute(
-      "aria-sort",
-      "descending",
-    );
 
-    const newestZaakRow = this.page
-      .getByRole("row")
-      .filter({ hasText: currentYearZaakNumberPrefix })
-      .first();
-    await newestZaakRow.getByText("visibility").click();
-
+    await zaakLink.click();
     await this.expect(this.page).toHaveURL(ZAAK_DETAIL_URL_REGEX);
   },
 );
