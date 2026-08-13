@@ -22,7 +22,7 @@ interface BrpConfigurationProvider {
     fun getDoelbindingZoekMetDefault(): BrpConfigurationValue
     fun getDoelbindingRaadpleegMetDefault(): BrpConfigurationValue
     fun getVerwerkingRegisterDefault(): BrpConfigurationValue
-    fun isVerwerkingRegisterExtendedWithZaaktype() : Boolean
+    fun isVerwerkingRegisterExtendedWithZaaktype(): Boolean
     fun getToepassing(): BrpConfigurationValue
     fun getApiKey(): BrpConfigurationValue
     fun buildDoelbinding(doelbindingSupplier: () -> String?): BrpConfigurationValue
