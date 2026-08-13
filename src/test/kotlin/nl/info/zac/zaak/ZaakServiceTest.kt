@@ -117,7 +117,6 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.readUser(user.id) } returns user
             every { zgwApiService.findGroepForZaak(zaak) } returns null
             every { identityService.readGroup(group.name) } returns group
-            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
                 ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns rolTypeBehandelaar
@@ -204,7 +203,6 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.readUser(user.id) } returns user
             every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
             every { identityService.readGroup(group.name) } returns group
-            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
                 ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns rolTypeBehandelaar
@@ -265,7 +263,6 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.readUser(user.id) } returns user
             every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
             every { identityService.readGroup(group.name) } returns group
-            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
                 ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns rolTypeBehandelaar
@@ -292,7 +289,8 @@ class ZaakServiceTest : BehaviorSpec({
             val updateRolSlot = mutableListOf<Rol<*>>()
             val group = createGroup()
             val rolTypeBehandelaar = createRolType(
-                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR
+                omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR,
+                omschrijving = ROLTYPE_OMSCHRIJVING_BEHANDELAAR
             )
             val existingRolGroup = createRolOrganisatorischeEenheid()
             val reason = "fakeReason"
@@ -300,7 +298,13 @@ class ZaakServiceTest : BehaviorSpec({
             every { zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason) } just runs
             every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
             every { identityService.readGroup(group.name) } returns group
-            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
+            every { 
+                ztcClientService.readRoltype(
+                zaak.zaaktype,
+                OmschrijvingGeneriekEnum.BEHANDELAAR,
+                ROLTYPE_OMSCHRIJVING_BEHANDELAAR
+                )
+            } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
             every { bpmnService.isZaakProcessDriven(zaak.uuid) } returns true
             every { zaakVariabelenService.setGroup(zaak.uuid, group.name) } just runs
@@ -361,14 +365,8 @@ class ZaakServiceTest : BehaviorSpec({
             every {
                 ztcClientService.readRoltype(
                     zaak.zaaktype,
-                    OmschrijvingGeneriekEnum.BEHANDELAAR
-                )
-            } returns rolTypeBehandelaar
-            every {
-                ztcClientService.readRoltype(
-                    zaak.zaaktype,
                     OmschrijvingGeneriekEnum.BEHANDELAAR,
-                    "Behandelaar"
+                    ROLTYPE_OMSCHRIJVING_BEHANDELAAR
                 )
             } returns rolTypeBehandelaar
             every { indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false) } just runs
@@ -431,7 +429,6 @@ class ZaakServiceTest : BehaviorSpec({
             every { zgwApiService.findGroepForZaak(zaak) } returns null
             every { identityService.readUser(user.id) } returns user
             every { identityService.readGroup(group.name) } returns group
-            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
                 ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns rolTypeBehandelaar
@@ -482,7 +479,6 @@ class ZaakServiceTest : BehaviorSpec({
             every { identityService.readUser(user2.id) } returns user2
             every { identityService.readGroup(group.name) } returns group
             every { identityService.validateIfUserIsInGroup(any(), group.name) } just runs
-            every { ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR) } returns rolTypeBehandelaar
             every {
                 ztcClientService.readRoltype(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR)
             } returns rolTypeBehandelaar
@@ -540,14 +536,8 @@ class ZaakServiceTest : BehaviorSpec({
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
-                        OmschrijvingGeneriekEnum.BEHANDELAAR
-                    )
-                } returns rolTypeBehandelaar
-                every {
-                    ztcClientService.readRoltype(
-                        it.zaaktype,
                         OmschrijvingGeneriekEnum.BEHANDELAAR,
-                        "Behandelaar"
+                        ROLTYPE_OMSCHRIJVING_BEHANDELAAR
                     )
                 } returns rolTypeBehandelaar
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
@@ -623,14 +613,8 @@ class ZaakServiceTest : BehaviorSpec({
             every {
                 ztcClientService.readRoltype(
                     openZaak.zaaktype,
-                    OmschrijvingGeneriekEnum.BEHANDELAAR
-                )
-            } returns rolTypeBehandelaar
-            every {
-                ztcClientService.readRoltype(
-                    openZaak.zaaktype,
                     OmschrijvingGeneriekEnum.BEHANDELAAR,
-                    "Behandelaar"
+                    ROLTYPE_OMSCHRIJVING_BEHANDELAAR
                 )
             } returns rolTypeBehandelaar
             every { zrcClientService.updateRol(openZaak, any(), explanation) } just Runs
@@ -751,7 +735,8 @@ class ZaakServiceTest : BehaviorSpec({
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
-                        OmschrijvingGeneriekEnum.BEHANDELAAR
+                        OmschrijvingGeneriekEnum.BEHANDELAAR,
+                        ROLTYPE_OMSCHRIJVING_BEHANDELAAR
                     )
                 } returns rolTypeBehandelaar
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs

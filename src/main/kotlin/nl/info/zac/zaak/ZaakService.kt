@@ -244,7 +244,8 @@ class ZaakService @Inject constructor(
             zaak.url,
             ztcClientService.readRoltype(
                 zaak.zaaktype,
-                OmschrijvingGeneriekEnum.BEHANDELAAR
+                OmschrijvingGeneriekEnum.BEHANDELAAR,
+                ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
             ),
             "Behandelend groep van de zaak",
             OrganisatorischeEenheidIdentificatie().apply {
