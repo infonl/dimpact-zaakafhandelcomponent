@@ -9,7 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.readTaskDocuments
@@ -127,7 +127,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
 
     private fun addZaakInformatieobjectToTaak(
         taskId: String,
-        zaakInformatieobject: ZaakInformatieobject,
+        zaakInformatieobject: ZaakInformatieObject,
         skipPolicyCheck: Boolean,
     ) {
         val lock = stripes.get(taskId).also { it.lock() }

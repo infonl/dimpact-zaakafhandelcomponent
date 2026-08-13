@@ -6,11 +6,11 @@ package nl.info.client.zgw.shared
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.RolListParameters
-import net.atos.client.zgw.zrc.model.RolMedewerker
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolListParameters
+import nl.info.client.zgw.zrc.model.RolMedewerker
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
@@ -28,6 +28,8 @@ import nl.info.client.zgw.zrc.model.generated.StatusSub
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.zrc.model.generated.ZaakSub
 import nl.info.client.zgw.zrc.util.toZaakSub
 import nl.info.client.zgw.ztc.ZtcClientService
@@ -197,15 +199,15 @@ class ZgwApiService @Inject constructor(
     }
 
     /**
-     * Create [EnkelvoudigInformatieObject] and [ZaakInformatieobject] for [Zaak].
+     * Create [EnkelvoudigInformatieObject] and [ZaakInformatieObject] for [Zaak].
      *
      * @param zaak [Zaak].
      * @param enkelvoudigInformatieObjectCreateLockRequest [EnkelvoudigInformatieObject] to be created.
-     * @param titel Titel of the new [ZaakInformatieobject].
-     * @param beschrijving Beschrijving of the new [ZaakInformatieobject].
+     * @param titel Titel of the new [ZaakInformatieObject].
+     * @param beschrijving Beschrijving of the new [ZaakInformatieObject].
      * @param omschrijvingVoorwaardenGebruiksrechten Used to create the [Gebruiksrechten] for the to be created
      * [EnkelvoudigInformatieObject]
-     * @return Created [ZaakInformatieobject].
+     * @return Created [ZaakInformatieObject].
      */
     fun createZaakInformatieobjectForZaak(
         zaak: Zaak,
@@ -213,7 +215,7 @@ class ZgwApiService @Inject constructor(
         titel: String,
         beschrijving: String?,
         omschrijvingVoorwaardenGebruiksrechten: String?
-    ): ZaakInformatieobject {
+    ): ZaakInformatieObject {
         val newInformatieObjectData = drcClientService.createEnkelvoudigInformatieobject(
             enkelvoudigInformatieObjectCreateLockRequest
         )
@@ -226,18 +228,18 @@ class ZgwApiService @Inject constructor(
         }
         drcClientService.createGebruiksrechten(gebruiksrechten)
 
-        val zaakInformatieObject = ZaakInformatieobject().apply {
-            this.zaak = zaak.url
+        val zaakInformatieObjectRequest = ZaakInformatieObjectRequest().apply {
             informatieobject = newInformatieObjectData.url
+            this.zaak = zaak.url
             this.titel = titel
             this.beschrijving = beschrijving
         }
-        return zrcClientService.createZaakInformatieobject(zaakInformatieObject)
+        return zrcClientService.createZaakInformatieobject(zaakInformatieObjectRequest)
     }
 
     /**
-     * Delete [ZaakInformatieobject] which relates [EnkelvoudigInformatieObject] and [Zaak] with zaakUUID. When the
-     * [EnkelvoudigInformatieObject] has no other related [ZaakInformatieobject]s then it is also deleted.
+     * Delete [ZaakInformatieObject] which relates [EnkelvoudigInformatieObject] and [Zaak] with zaakUUID. When the
+     * [EnkelvoudigInformatieObject] has no other related [ZaakInformatieObject]s then it is also deleted.
      *
      * @param enkelvoudigInformatieobject [EnkelvoudigInformatieObject]
      * @param zaakUUID UUID of a [Zaak]
@@ -248,15 +250,13 @@ class ZgwApiService @Inject constructor(
         zaakUUID: UUID,
         reason: String?
     ) {
-        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
-            enkelvoudigInformatieobject
-        )
+        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieobject)
         // delete the relationship of the EnkelvoudigInformatieobject with the zaak.
         zaakInformatieobjecten
             .filter { it.zaakUUID == zaakUUID }
             .forEach { zrcClientService.deleteZaakInformatieobject(it.uuid, reason, ZAAK_OBJECT_DELETION_PREFIX) }
 
-        // if the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be deleted.
+        // if the EnkelvoudigInformatieobject has no relationship(s) with other zaken, it can be deleted.
         if (zaakInformatieobjecten.all { it.zaakUUID == zaakUUID }) {
             drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobject.url.extractUuid())
         }

@@ -71,7 +71,7 @@ export class ParametersComponent
 
   protected filterParameters!: ZaakafhandelParametersListParameters;
   protected parameters = new MatTableDataSource<
-    GeneratedType<"RestZaakafhandelParameters">
+    GeneratedType<"RestZaaktypeConfiguration">
   >();
   protected loading = false;
 

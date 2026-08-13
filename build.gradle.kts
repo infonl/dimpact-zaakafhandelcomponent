@@ -387,7 +387,16 @@ val nodeExec = file(".gradle/nodejs/node-v${nodeExt.version.get()}-linux-x64/bin
 
 val prettierBase = libs.versions.spotless.prettier.base.get()
 val prettierOrganizeImports = libs.versions.spotless.prettier.organize.imports.get()
-val prettierDevDependencies = mapOf("prettier" to prettierBase, "prettier-plugin-organize-imports" to prettierOrganizeImports)
+// prettier-plugin-organize-imports only declares an unbounded ">=2.9" peer dependency on TypeScript, so without
+// pinning it explicitly, npm resolves whatever the latest TypeScript release happens to be at install time. That
+// makes the import-organizing result non-deterministic across environments/CI runs. Pin it to the same version
+// the frontend itself uses, read directly from src/main/app/package.json, so results are consistent everywhere.
+val prettierTypescript = readPackageJsonDependencyVersion(srcApp.file("package.json").asFile, "typescript")
+val prettierDevDependencies = mapOf(
+    "prettier" to prettierBase,
+    "prettier-plugin-organize-imports" to prettierOrganizeImports,
+    "typescript" to prettierTypescript
+)
 val prettierTypescriptConfig = mapOf("parser" to "typescript", "plugins" to arrayOf("prettier-plugin-organize-imports"))
 
 fun com.diffplug.gradle.spotless.FormatExtension.PrettierConfig.withNodeExecutables() =
@@ -1031,5 +1040,14 @@ fun readWildFlyVersion(pomFile: File): String {
     val wildflyVersionNodes = document.getElementsByTagName("wildfly.version")
     check(wildflyVersionNodes.length > 0) { "Could not find a <wildfly.version> property in ${pomFile.path}" }
     return wildflyVersionNodes.item(0).textContent.trim()
+}
+
+// Reads a dependency version pinned in a package.json file, so that version does not need to be
+// duplicated anywhere in the Gradle build.
+fun readPackageJsonDependencyVersion(packageJsonFile: File, dependencyName: String): String {
+    val packageJson = packageJsonFile.readText()
+    val regex = """"$dependencyName":\s*"([^"]+)"""".toRegex()
+    return regex.find(packageJson)?.groups?.get(1)?.value
+        ?: error("Could not find dependency '$dependencyName' in ${packageJsonFile.path}")
 }
 

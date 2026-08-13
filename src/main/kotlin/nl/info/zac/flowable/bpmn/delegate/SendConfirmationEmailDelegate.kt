@@ -4,7 +4,7 @@
  */
 package nl.info.zac.flowable.bpmn.delegate
 
-import net.atos.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.delegate.AbstractDelegate
 import net.atos.zac.flowable.delegate.resolveValueAsString
@@ -81,7 +81,7 @@ class SendConfirmationEmailDelegate : AbstractDelegate() {
     }
 
     private fun findEmailForInitiatorRole(initiatorRole: Rol<*>): String? {
-        val identificatie = initiatorRole.getIdentificatienummer() ?: return null
+        val identificatie = initiatorRole.identificatienummer ?: return null
         return when (initiatorRole.betrokkeneType) {
             BetrokkeneTypeEnum.NATUURLIJK_PERSOON ->
                 flowableHelper.klantClientService.findDigitalAddressesForNaturalPerson(identificatie)

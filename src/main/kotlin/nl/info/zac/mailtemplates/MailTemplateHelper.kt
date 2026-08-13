@@ -5,7 +5,7 @@
 package nl.info.zac.mailtemplates
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaakIdentificatie
 import net.atos.zac.flowable.task.TaakVariabelenService.readZaaktypeOmschrijving
@@ -124,7 +124,7 @@ class MailTemplateHelper @Inject constructor(
             } ?: replaceInitiatorVariablesWithEmptyText(resolvedTekst)
         }
         if (resolvedTekst.contains(MailTemplateVariables.ZAAK_BEHANDELAAR_GROEP.getVariable())) {
-            val groupName = zgwApiService.findGroepForZaak(zaak)?.getNaam()
+            val groupName = zgwApiService.findGroepForZaak(zaak)?.naam
             resolvedTekst = replaceVariable(
                 targetString = resolvedTekst,
                 mailTemplateVariable = MailTemplateVariables.ZAAK_BEHANDELAAR_GROEP,
@@ -132,7 +132,7 @@ class MailTemplateHelper @Inject constructor(
             )
         }
         if (resolvedTekst.contains(MailTemplateVariables.ZAAK_BEHANDELAAR_MEDEWERKER.getVariable())) {
-            val medewerkerName = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.getNaam()
+            val medewerkerName = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.naam
             resolvedTekst = replaceVariable(
                 targetString = resolvedTekst,
                 mailTemplateVariable = MailTemplateVariables.ZAAK_BEHANDELAAR_MEDEWERKER,
@@ -253,7 +253,7 @@ class MailTemplateHelper @Inject constructor(
         initiatorRole: Rol<*>,
         userName: String
     ): String {
-        val identificatie = initiatorRole.getIdentificatienummer() ?: run {
+        val identificatie = initiatorRole.identificatienummer ?: run {
             LOG.warning { "Initiator role '$initiatorRole' has no 'identificatie'. Cannot resolve initiator variables." }
             return ""
         }

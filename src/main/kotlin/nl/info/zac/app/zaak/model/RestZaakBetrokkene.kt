@@ -4,12 +4,12 @@
  */
 package nl.info.zac.app.zaak.model
 
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.RolMedewerker
-import net.atos.client.zgw.zrc.model.RolNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolNietNatuurlijkPersoon
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.RolVestiging
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolMedewerker
+import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import nl.info.client.zgw.zrc.model.RolVestiging
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.MEDEWERKER
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NATUURLIJK_PERSOON
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.NIET_NATUURLIJK_PERSOON
@@ -74,13 +74,14 @@ data class RestZaakBetrokkene(
  */
 @Suppress("ReturnCount", "CyclomaticComplexMethod")
 fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = null): RestZaakBetrokkene? {
+    val betrokkeneType = this.betrokkeneType ?: return null
     var bsn: String? = null
     var temporaryPersonId: UUID? = null
     var identificatieType: IdentificatieType? = null
     var vestigingsnummer: String? = null
     var kvkNummer: String? = null
     var naam: String? = null
-    when (this.betrokkeneType) {
+    when (betrokkeneType) {
         NATUURLIJK_PERSOON -> {
             bsn = (this as RolNatuurlijkPersoon).betrokkeneIdentificatie?.inpBsn ?: return null
             identificatieType = IdentificatieType.BSN
@@ -107,17 +108,17 @@ fun Rol<*>.toRestZaakBetrokkene(identificationService: IdentificationService? = 
             identificatieType = IdentificatieType.VN
         }
         ORGANISATORISCHE_EENHEID -> {
-            naam = (this as RolOrganisatorischeEenheid).getNaam() ?: return null
+            naam = (this as RolOrganisatorischeEenheid).naam ?: return null
         }
         MEDEWERKER -> {
-            naam = (this as RolMedewerker).getNaam() ?: return null
+            naam = (this as RolMedewerker).naam ?: return null
         }
     }
     return RestZaakBetrokkene(
         rolid = this.uuid.toString(),
         roltype = this.omschrijving,
         roltoelichting = this.roltoelichting,
-        type = this.betrokkeneType.name,
+        type = betrokkeneType.name,
         bsn = bsn,
         temporaryPersonId = temporaryPersonId,
         identificatieType = identificatieType,

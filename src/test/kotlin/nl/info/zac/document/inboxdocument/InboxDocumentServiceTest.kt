@@ -16,7 +16,7 @@ import io.mockk.slot
 import io.mockk.verify
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.document.inboxdocument.repository.InboxDocumentRepository
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
@@ -24,6 +24,7 @@ import nl.info.zac.document.inboxdocument.repository.model.InboxDocumentListPara
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.document.inboxdocument.repository.model.createInboxDocumentListParameters
 import nl.info.zac.search.model.DatumRange
+import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
@@ -269,8 +270,8 @@ class InboxDocumentServiceTest : BehaviorSpec({
             val zioUuid = UUID.randomUUID()
             val eioUuid = UUID.randomUUID()
             val document = createInboxDocument(uuid = eioUuid)
-            val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(
-                informatieobjectUUID = eioUuid
+            val zaakInformatieobject = createZaakInformatieobjectForReads(
+                informatieobject = URI("https://example.com/$eioUuid")
             )
             every { zrcClientService.readZaakinformatieobject(zioUuid) } returns zaakInformatieobject
             every { inboxDocumentRepository.find(eioUuid) } returns document
@@ -288,8 +289,8 @@ class InboxDocumentServiceTest : BehaviorSpec({
         given("no inbox document exists linked to a ZaakInformatieobject UUID") {
             val zioUuid = UUID.randomUUID()
             val eioUuid = UUID.randomUUID()
-            val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(
-                informatieobjectUUID = eioUuid
+            val zaakInformatieobject = createZaakInformatieobjectForReads(
+                informatieobject = URI("https://example.com/$eioUuid")
             )
             every { zrcClientService.readZaakinformatieobject(zioUuid) } returns zaakInformatieobject
             every { inboxDocumentRepository.find(eioUuid) } returns null
