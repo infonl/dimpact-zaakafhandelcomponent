@@ -10,6 +10,5 @@ Feature: Open Formulieren
     Given Resident "Alice" fills in the indienen-aansprakelijkheid-behandelen open-forms form
     When Resident "Alice" submits the open-forms form
     And "Bob" is logged in to zac
-    And Employee "Bob" navigates to "/zaken/werkvoorraad"
-    And Employee "Bob" clicks on the first zaak in the zaak-werkvoorraad with delay
+    And Employee "Bob" opens the zaak that was created from the open-forms submission
     Then Employee "Bob" sees the zaak that "Alice" created in open-forms
