@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.296](https://img.shields.io/badge/Version-1.0.296-informational?style=flat-square) ![AppVersion: 5.5](https://img.shields.io/badge/AppVersion-5.5-informational?style=flat-square)
+![Version: 1.0.297](https://img.shields.io/badge/Version-1.0.297-informational?style=flat-square) ![AppVersion: 5.5](https://img.shields.io/badge/AppVersion-5.5-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -73,6 +73,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | brpApi.protocollering.systemUser | string | `"SystemUser"` |  |
 | brpApi.protocollering.toepassing.header | string | `""` | Header name for the toepassing value. Set to empty string to disable this header. |
 | brpApi.protocollering.toepassing.value | string | `"ZAC"` |  |
+| brpApi.protocollering.verwerking.extendWithZaaktype | string | `""` | Note that for iConnect it is required to extend the verwerking register with the zaaktype. |
 | brpApi.protocollering.verwerking.header | string | `""` | Header name for the verwerking value. Set to empty string to disable this header. |
 | brpApi.protocollering.verwerking.register | string | `""` |  |
 | brpApi.url | string | `""` |  |
