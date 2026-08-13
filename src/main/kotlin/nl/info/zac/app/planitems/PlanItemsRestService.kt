@@ -199,7 +199,10 @@ class PlanItemsRestService @Inject constructor(
     fun doUserEventListenerPlanItem(userEventListenerData: RESTUserEventListenerData) {
         val zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid)
         val zaakRechten = policyService.readZaakRechten(zaak, loggedInUserInstance.get())
-        assertPolicy(zaakRechten.startenTaak)
+        when (userEventListenerData.actie) {
+            UserEventListenerActie.BRONDATUM_ZETTEN -> assertPolicy(zaakRechten.brondatumZetten)
+            else -> assertPolicy(zaakRechten.startenTaak)
+        }
         userEventListenerData.restMailGegevens?.run {
             assertPolicy(zaakRechten.versturenEmail)
         }

@@ -724,7 +724,7 @@ describe(ZaakViewComponent.name, () => {
 
       expect(updateZaakSpy).toHaveBeenCalled();
       expect(reload).toHaveBeenCalled();
-      expect(snackbarSpy).toHaveBeenCalledWith("msg.zaak.afgesloten");
+      expect(snackbarSpy).toHaveBeenCalledWith("msg.zaak.brondatum.gezet");
     });
 
     it("should not update the zaak when the dialog closes without a result", async () => {

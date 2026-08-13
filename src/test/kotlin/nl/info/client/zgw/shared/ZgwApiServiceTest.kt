@@ -853,6 +853,38 @@ class ZgwApiServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        given("a zaak with a resultaat and a resultaattype without a brondatumArchiefprocedure") {
+            val resultaatURI = URI("https://example.com/resultaten/${UUID.randomUUID()}")
+            val zaak = createZaak(resultaat = resultaatURI)
+            val resultaatTypeURI = URI("https://example.com/resultaattypes/${UUID.randomUUID()}")
+            val resultaat = createResultaat(
+                url = resultaatURI,
+                resultaatTypeURI = resultaatTypeURI
+            )
+            val resultaatType = createResultaatType(
+                url = resultaatTypeURI,
+                brondatumArchiefprocedure = null
+            )
+            val brondatum = LocalDate.of(2023, 12, 1)
+
+            every { zrcClientService.readResultaat(resultaatURI) } returns resultaat
+            every { ztcClientService.readResultaattype(resultaatTypeURI) } returns resultaatType
+
+            `when`("the brondatum procedure is processed") {
+                val notSupportedException = shouldThrow<NotSupportedException> {
+                    zgwApiService.setBrondatum(zaak, brondatum)
+                }
+
+                then("a NotSupportedException is thrown and no zaakeigenschap is created or updated") {
+                    notSupportedException.errorCode shouldBe ErrorCode.ERROR_CODE_AFLEIDINGSWIJZE_BRONDATUM_NOT_SUPPORTED
+                    verify(exactly = 0) {
+                        zrcClientService.createEigenschap(any(), any())
+                        zrcClientService.updateZaakeigenschap(any(), any(), any())
+                    }
+                }
+            }
+        }
     }
 
     context("Creating a ZaakInformatieobject for zaak") {

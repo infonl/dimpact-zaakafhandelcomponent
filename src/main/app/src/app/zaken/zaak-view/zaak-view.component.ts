@@ -823,7 +823,7 @@ export class ZaakViewComponent
         if (!result) return;
         this.updateZaak();
         this.zaakTakenComponent.reload();
-        this.utilService.openSnackbar("msg.zaak.afgesloten");
+        this.utilService.openSnackbar("msg.zaak.brondatum.gezet");
       });
   }
 

@@ -157,12 +157,12 @@ class ZgwApiService @Inject constructor(
 
     fun setBrondatum(zaak: Zaak, brondatum: LocalDate?) {
         getResultaatType(zaak)?.let {
-            when (it.brondatumArchiefprocedure.afleidingswijze) {
+            when (it.brondatumArchiefprocedure?.afleidingswijze) {
                 AfleidingswijzeEnum.EIGENSCHAP -> processBrondatumProcedure(zaak, it, brondatum)
                 else -> {
                     LOG.warning {
                         "Failed to set brondatum to $brondatum for afleidingswijze brondatum " +
-                        "${it.brondatumArchiefprocedure.afleidingswijze} for zaak ${zaak.identificatie}"
+                        "${it.brondatumArchiefprocedure?.afleidingswijze} for zaak ${zaak.identificatie}"
                     }
                     throw NotSupportedException(ErrorCode.ERROR_CODE_AFLEIDINGSWIJZE_BRONDATUM_NOT_SUPPORTED)
                 }
