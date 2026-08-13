@@ -202,7 +202,7 @@ describe(CaseLocationEditComponent.name, () => {
   });
 
   it("emits and closes the side nav on a successful save", async () => {
-    const { component, fixture, httpTestingController } = setup();
+    const { component, fixture, httpTestingController, zakenService } = setup();
     jest.spyOn(component.locatie, "emit");
     makeSubmittable(component, point);
 
@@ -216,6 +216,7 @@ describe(CaseLocationEditComponent.name, () => {
     await sleep();
     fixture.detectChanges();
 
+    expect(zakenService.cacheZaak).toHaveBeenCalledWith(updatedZaak);
     expect(component.locatie.emit).toHaveBeenCalled();
     expect(mockSideNav.close).toHaveBeenCalled();
   });
