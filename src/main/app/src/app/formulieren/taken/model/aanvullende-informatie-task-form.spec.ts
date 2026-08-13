@@ -7,6 +7,10 @@ import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import {
+  provideQueryClient,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { of } from "rxjs";
 import { fromPartial } from "../../../../test-helpers";
@@ -49,7 +53,11 @@ describe(AanvullendeInformatieTaskForm.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        provideQueryClient(new QueryClient()),
+      ],
     });
 
     listAfzendersVoorZaakSpy = jest
