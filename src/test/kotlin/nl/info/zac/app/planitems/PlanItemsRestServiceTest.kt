@@ -581,7 +581,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
                 restMailGegevens = null,
                 resultaattypeUuid = resultaattypeUuid,
-                brondatumEigenschap = brondatumEigenschap
+                brondatum = brondatumEigenschap
             )
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -612,7 +612,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
                 restMailGegevens = null,
                 resultaattypeUuid = resultaattypeUuid,
-                brondatumEigenschap = "not-a-date"
+                brondatum = "not-a-date"
             )
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -855,7 +855,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.BRONDATUM_ZETTEN,
                 restMailGegevens = null,
-                brondatumEigenschap = brondatum
+                brondatum = brondatum
             )
             val loggedInUser = createLoggedInUser()
 
@@ -915,7 +915,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.BRONDATUM_ZETTEN,
                 restMailGegevens = null,
-                brondatumEigenschap = brondatum
+                brondatum = brondatum
             )
             val loggedInUser = createLoggedInUser()
 
