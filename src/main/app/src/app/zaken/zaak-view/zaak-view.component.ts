@@ -667,11 +667,10 @@ export class ZaakViewComponent
   }
 
   private hasAfleidingswijzeBrondatumEigenschap() {
-    // Workaround: the value returned from the backend is lowercase and generated typescript types expects uppercase.
-    return (
-      this.zaak.resultaat?.resultaattype?.bronArchiefprocedure
-        ?.afleidingswijze == "EIGENSCHAP".toLocaleLowerCase()
-    );
+    // Workaround: the value returned from the backend is lowercase and generated TypeScript types expect uppercase.
+    const afleidingswijze =
+      this.zaak.resultaat?.resultaattype?.bronArchiefprocedure?.afleidingswijze;
+    return afleidingswijze?.toUpperCase() === "EIGENSCHAP";
   }
 
   private openPlanItemStartenDialog(planItem: GeneratedType<"RESTPlanItem">) {
