@@ -169,8 +169,8 @@
       </extensionElements>
     </sequenceFlow>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_itProcessDefinition">
-    <bpmndi:BPMNPlane bpmnElement="itProcessDefinition" id="BPMNPlane_itProcessDefinition">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_E2ETestProcessDefinition">
+    <bpmndi:BPMNPlane bpmnElement="E2ETestProcessDefinition" id="BPMNPlane_E2ETestProcessDefinition">
       <bpmndi:BPMNShape bpmnElement="ServiceTask_374" id="BPMNShape_ServiceTask_374">
         <omgdc:Bounds height="59.0" width="146.0" x="-270.98531315696385" y="417.588204925627"></omgdc:Bounds>
       </bpmndi:BPMNShape>
