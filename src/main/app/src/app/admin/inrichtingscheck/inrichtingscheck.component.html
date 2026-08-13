@@ -196,14 +196,6 @@
                       <div *ngIf="!row.aantalBehandelaarroltypen">
                         {{ "rol" | translate }}
                       </div>
-                      <div
-                        *ngIf="
-                          row.aantalBehandelaarroltypen === 1 &&
-                          !row.behandelaarRoltypeOmschrijvingCorrect
-                        "
-                      >
-                        {{ "rol" | translate }}
-                      </div>
                       <div *ngIf="!row.rolOverigeAanwezig">
                         {{ "rol" | translate }}
                       </div>
@@ -311,17 +303,6 @@
                       <div *ngIf="(row.aantalBehandelaarroltypen ?? 0) > 1">
                         {{
                           "healthCheck.zaaktype.teVeelRolBehandelaarAanwezig"
-                            | translate
-                        }}
-                      </div>
-                      <div
-                        *ngIf="
-                          row.aantalBehandelaarroltypen === 1 &&
-                          !row.behandelaarRoltypeOmschrijvingCorrect
-                        "
-                      >
-                        {{
-                          "healthCheck.zaaktype.behandelaarRoltypeOmschrijvingOnjuist"
                             | translate
                         }}
                       </div>
