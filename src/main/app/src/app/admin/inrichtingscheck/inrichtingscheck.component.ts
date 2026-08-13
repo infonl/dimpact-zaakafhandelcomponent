@@ -217,4 +217,8 @@ export class InrichtingscheckComponent
   ) {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
+
+  protected asTypedRow(v: unknown) {
+    return v as GeneratedType<"RESTZaaktypeInrichtingscheck">;
+  }
 }

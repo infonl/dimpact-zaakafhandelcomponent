@@ -153,7 +153,8 @@
                   <td mat-cell *matCellDef="let row" colspan="2"></td>
                 </ng-container>
                 <ng-container matColumnDef="expandedTitle">
-                  <td mat-cell *matCellDef="let row">
+                  <td mat-cell *matCellDef="let untypedRow">
+                    @let row = asTypedRow(untypedRow);
                     <div
                       class="detail flex-col"
                       [@detailExpand]="
@@ -189,10 +190,18 @@
                       <div *ngIf="!row.resultaattypeAanwezig">
                         {{ "resultaattype" | translate }}
                       </div>
-                      <div *ngIf="row.aantalInitiatorroltypen < 1">
+                      <div *ngIf="!row.aantalInitiatorroltypen">
                         {{ "rol" | translate }}
                       </div>
-                      <div *ngIf="row.aantalBehandelaarroltypen < 1">
+                      <div *ngIf="!row.aantalBehandelaarroltypen">
+                        {{ "rol" | translate }}
+                      </div>
+                      <div
+                        *ngIf="
+                          row.aantalBehandelaarroltypen === 1 &&
+                          !row.behandelaarRoltypeOmschrijvingCorrect
+                        "
+                      >
                         {{ "rol" | translate }}
                       </div>
                       <div *ngIf="!row.rolOverigeAanwezig">
@@ -203,13 +212,13 @@
                       </div>
                       <div
                         *ngIf="
-                          row.resultaattypesMetVerplichtBesluit.length &&
+                          row.resultaattypesMetVerplichtBesluit?.length &&
                           !row.besluittypeAanwezig
                         "
                       >
                         {{ "besluittype" | translate }}
                       </div>
-                      <div *ngIf="!row.isBrpInstellingenCorrect">
+                      <div *ngIf="!row.brpInstellingenCorrect">
                         {{ "brp-protocollering" | translate }}
                       </div>
                     </div>
@@ -218,9 +227,10 @@
                 <ng-container matColumnDef="expandedDetail">
                   <td
                     mat-cell
-                    *matCellDef="let row"
+                    *matCellDef="let untypedRow"
                     [attr.colspan]="columnsToDisplay.length - 3"
                   >
+                    @let row = asTypedRow(untypedRow);
                     <div
                       class="detail flex-col"
                       [@detailExpand]="
@@ -280,25 +290,25 @@
                             | translate
                         }}
                       </div>
-                      <div *ngIf="row.aantalInitiatorroltypen < 1">
+                      <div *ngIf="!row.aantalInitiatorroltypen">
                         {{
                           "healthCheck.zaaktype.geenRolInitiatorAanwezig"
                             | translate
                         }}
                       </div>
-                      <div *ngIf="row.aantalBehandelaarroltypen < 1">
+                      <div *ngIf="!row.aantalBehandelaarroltypen">
                         {{
                           "healthCheck.zaaktype.geenRolBehandelaarAanwezig"
                             | translate
                         }}
                       </div>
-                      <div *ngIf="row.aantalInitiatorroltypen > 1">
+                      <div *ngIf="(row.aantalInitiatorroltypen ?? 0) > 1">
                         {{
                           "healthCheck.zaaktype.teVeelRolInitiatorAanwezig"
                             | translate
                         }}
                       </div>
-                      <div *ngIf="row.aantalBehandelaarroltypen > 1">
+                      <div *ngIf="(row.aantalBehandelaarroltypen ?? 0) > 1">
                         {{
                           "healthCheck.zaaktype.teVeelRolBehandelaarAanwezig"
                             | translate
@@ -329,7 +339,7 @@
                       </div>
                       <div
                         *ngIf="
-                          row.resultaattypesMetVerplichtBesluit.length &&
+                          row.resultaattypesMetVerplichtBesluit?.length &&
                           !row.besluittypeAanwezig
                         "
                         [innerHTML]="
@@ -337,7 +347,7 @@
                             | translate
                               : {
                                   resultaattypes:
-                                    row.resultaattypesMetVerplichtBesluit.join(
+                                    row.resultaattypesMetVerplichtBesluit!.join(
                                       ', '
                                     ),
                                 }
