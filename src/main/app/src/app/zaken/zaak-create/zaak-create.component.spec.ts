@@ -151,12 +151,6 @@ describe(ZaakCreateComponent.name, () => {
       );
 
     utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "getEnumAsSelectList").mockImplementation(
-      jest.fn(() => [
-        { label: "Openbaar", value: "OPENBAAR" },
-        { label: "INTERN", value: "INTERN" },
-      ]),
-    );
     jest.spyOn(utilService, "setTitle").mockImplementation(jest.fn());
 
     referentieTabelService = TestBed.inject(ReferentieTabelService);
@@ -347,7 +341,9 @@ describe(ZaakCreateComponent.name, () => {
 
         const selectFields = await loader.getAllHarnesses(MatSelectHarness);
         expect(selectFields.length).toEqual(2);
-        expect(await selectFields[1].getValueText()).toBe("Openbaar");
+        expect(await selectFields[1].getValueText()).toBe(
+          "vertrouwelijkheidaanduiding.OPENBAAR",
+        );
       });
 
       it("should fill all fields and submit", async () => {

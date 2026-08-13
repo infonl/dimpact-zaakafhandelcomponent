@@ -39,6 +39,7 @@ import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.app.exception.RestExceptionMapper
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
@@ -638,13 +639,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     with(this[0]) {
                         uuid shouldBe informatieObjectTypeUUID1
                         omschrijving shouldBe "fakeOmschrijving1"
-                        vertrouwelijkheidaanduiding shouldBe "OPENBAAR"
+                        vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
                         concept shouldBe true
                     }
                     with(this[1]) {
                         uuid shouldBe informatieObjectTypeUUID2
                         omschrijving shouldBe "fakeOmschrijving2"
-                        vertrouwelijkheidaanduiding shouldBe "BEPERKT_OPENBAAR"
+                        vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.BEPERKT_OPENBAAR
                         concept shouldBe false
                     }
                 }

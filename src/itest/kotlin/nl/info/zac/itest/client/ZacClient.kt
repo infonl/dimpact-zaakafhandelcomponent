@@ -11,7 +11,7 @@ import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.FORMULIER_DEFINITIE_AANVULLENDE_INFORMATIE
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
@@ -313,7 +313,7 @@ class ZacClient(
                 "servicenorm": false,
                 "uuid": "$zaakTypeUuid",
                 "versiedatum": "2023-09-21",
-                "vertrouwelijkheidaanduiding": "openbaar"
+                "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
               },
               "intakeMail": "BESCHIKBAAR_UIT",
               "afrondenMail": "BESCHIKBAAR_UIT",
@@ -417,7 +417,7 @@ class ZacClient(
         toelichting: String? = null,
         startDate: ZonedDateTime,
         communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1,
-        vertrouwelijkheidaanduiding: String? = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+        vertrouwelijkheidaanduiding: String? = VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
         testUser: TestUser
     ): ResponseContent {
         logger.info {

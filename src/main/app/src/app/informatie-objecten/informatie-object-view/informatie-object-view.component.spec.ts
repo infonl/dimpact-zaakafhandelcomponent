@@ -33,7 +33,6 @@ import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat } from "../model/file-format";
-import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
 
 describe(InformatieObjectViewComponent.name, () => {
@@ -55,7 +54,7 @@ describe(InformatieObjectViewComponent.name, () => {
     identificatie: "test",
     indicaties: [],
     omschrijving: "test omschrijving",
-    vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
+    vertrouwelijkheidaanduiding: "OPENBAAR",
     rechten: fromPartial<GeneratedType<"RestZaakRechten">>({}),
     zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
       uuid: "zaaktype-001",
@@ -75,7 +74,7 @@ describe(InformatieObjectViewComponent.name, () => {
     informatieobjectTypeUUID: "test-uuid",
     indicaties: [],
     titel: "test informatieobject",
-    vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
+    vertrouwelijkheidaanduiding: "OPENBAAR",
     rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({}),
     formaat: FileFormat.DOCX,
   });
@@ -124,7 +123,7 @@ describe(InformatieObjectViewComponent.name, () => {
           uuid: "enkelvoudig-informatieobject-001",
           informatieobjectTypeUUID: "test-uuid",
           titel: "test informatieobject",
-          vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
+          vertrouwelijkheidaanduiding: "OPENBAAR",
           rechten: {},
         }),
       );
