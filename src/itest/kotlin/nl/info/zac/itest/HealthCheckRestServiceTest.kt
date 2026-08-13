@@ -89,7 +89,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                     [
                       {
                         "aantalBehandelaarroltypen": 1,
-                        "behandelaarRoltypeOmschrijvingCorrect": true,
                         "aantalInitiatorroltypen": 1,
                         "brpInstellingenCorrect": true,
                         "besluittypeAanwezig": true,
@@ -122,7 +121,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                       },
                       {
                         "aantalBehandelaarroltypen": 1,
-                        "behandelaarRoltypeOmschrijvingCorrect": true,
                         "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": false,
                         "brpInstellingenCorrect": true,
@@ -152,7 +150,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                       },
                       {
                         "aantalBehandelaarroltypen": 1,
-                        "behandelaarRoltypeOmschrijvingCorrect": true,
                         "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": false,
                         "brpInstellingenCorrect": true,
@@ -182,7 +179,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                       },
                       {
                         "aantalBehandelaarroltypen": 1,
-                        "behandelaarRoltypeOmschrijvingCorrect": true,
                         "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": false,
                         "brpInstellingenCorrect": true,
@@ -212,7 +208,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                       },
                       {
                         "aantalBehandelaarroltypen": 1,
-                        "behandelaarRoltypeOmschrijvingCorrect": true,
                         "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": false,
                         "brpInstellingenCorrect": true,
@@ -242,7 +237,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                       },
                       {
                         "aantalBehandelaarroltypen": 1,
-                        "behandelaarRoltypeOmschrijvingCorrect": true,
                         "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": false,
                         "brpInstellingenCorrect": true,
@@ -272,7 +266,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                       },
                       {
                         "aantalBehandelaarroltypen": 1,
-                        "behandelaarRoltypeOmschrijvingCorrect": true,
                         "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": false,
                         "brpInstellingenCorrect": true,
@@ -302,7 +295,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                       },
                       {
                         "aantalBehandelaarroltypen": 1,
-                        "behandelaarRoltypeOmschrijvingCorrect": true,
                         "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": true,
                         "brpInstellingenCorrect": true,
@@ -332,7 +324,6 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                       },
                       {
                         "aantalBehandelaarroltypen": 1,
-                        "behandelaarRoltypeOmschrijvingCorrect": true,
                         "aantalInitiatorroltypen": 1,
                         "brpInstellingenCorrect": true,
                         "besluittypeAanwezig": false,
