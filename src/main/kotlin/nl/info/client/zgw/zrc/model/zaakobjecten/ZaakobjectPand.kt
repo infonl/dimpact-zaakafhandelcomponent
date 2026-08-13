@@ -6,10 +6,8 @@ package nl.info.client.zgw.zrc.model.zaakobjecten
 
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import java.net.URI
+import java.util.UUID
 
-/**
- * ZaakobjectPand
- */
 class ZaakobjectPand : ZaakobjectMetObjectIdentificatie<ObjectPand> {
     /**
      * Constructor for JSONB deserialization
@@ -19,7 +17,8 @@ class ZaakobjectPand : ZaakobjectMetObjectIdentificatie<ObjectPand> {
     /**
      * Constructor with all required fields.
      */
-    constructor(zaak: URI, bagobjectUri: URI?, pand: ObjectPand?) : super(zaak, bagobjectUri, ObjectTypeEnum.PAND, pand)
+    constructor(zaak: URI, bagobjectUri: URI?, pand: ObjectPand?, url: URI, uuid: UUID) :
+        super(zaak, bagobjectUri, ObjectTypeEnum.PAND, pand, url, uuid)
 
     override val waarde: String?
         get() = objectIdentificatie?.identificatie

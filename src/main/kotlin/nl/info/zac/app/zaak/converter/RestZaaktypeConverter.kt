@@ -13,6 +13,7 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
+import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.RestZaaktypeRelatie
@@ -39,7 +40,7 @@ class RestZaaktypeConverter @Inject constructor(
             nuGeldig = zaaktype.isNuGeldig(),
             beginGeldigheid = zaaktype.beginGeldigheid,
             eindeGeldigheid = zaaktype.eindeGeldigheid,
-            vertrouwelijkheidaanduiding = zaaktype.vertrouwelijkheidaanduiding,
+            vertrouwelijkheidaanduiding = zaaktype.vertrouwelijkheidaanduiding?.toRestVertrouwelijkheidaanduiding(),
             opschortingMogelijk = zaaktype.opschortingEnAanhoudingMogelijk,
             verlengingMogelijk = zaaktype.verlengingMogelijk,
             verlengingstermijn = zaaktype.extensionPeriodDays(),

@@ -48,8 +48,6 @@ import { OpenLayersLocationMap } from "../../shared/location/open-layers-locatio
 import { LocationPipe } from "../../shared/pipes/location.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { GeometryGegevens } from "../model/geometry-gegevens";
-import { GeometryType } from "../model/geometryType";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -83,7 +81,7 @@ export class CaseLocationEditComponent
 {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
-  @Output() locatie = new EventEmitter<GeometryGegevens | null>();
+  @Output() locatie = new EventEmitter<void>();
 
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
 
@@ -221,7 +219,7 @@ export class CaseLocationEditComponent
     this.searchControl.reset();
 
     switch (geometry?.type) {
-      case GeometryType.POINT: {
+      case "POINT": {
         if (!geometry?.point) return;
 
         const coordinate = LocationUtil.pointToCoordinate(geometry.point);

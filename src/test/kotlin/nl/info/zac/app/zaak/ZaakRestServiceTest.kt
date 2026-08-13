@@ -22,8 +22,8 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
-import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
-import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimteRequest
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPandRequest
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -352,8 +352,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                         any()
                     )
                 } just runs
-                every { zrcClientService.createZaakobject(any<ZaakobjectPand>()) } returns zaakObjectPand
-                every { zrcClientService.createZaakobject(any<ZaakobjectOpenbareRuimte>()) } returns zaakObjectOpenbareRuimte
+                every { zrcClientService.createZaakobject(any<ZaakobjectPandRequest>()) } returns zaakObjectPand
+                every { zrcClientService.createZaakobject(any<ZaakobjectOpenbareRuimteRequest>()) } returns zaakObjectOpenbareRuimte
                 every { zaakService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
                 every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
                 every { zaakService.readZaakTypeByUUID(zaakTypeUUID) } returns zaakType
@@ -501,8 +501,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                         any()
                     )
                 } just runs
-                every { zrcClientService.createZaakobject(any<ZaakobjectPand>()) } returns zaakObjectPand
-                every { zrcClientService.createZaakobject(any<ZaakobjectOpenbareRuimte>()) } returns zaakObjectOpenbareRuimte
+                every { zrcClientService.createZaakobject(any<ZaakobjectPandRequest>()) } returns zaakObjectPand
+                every { zrcClientService.createZaakobject(any<ZaakobjectOpenbareRuimteRequest>()) } returns zaakObjectOpenbareRuimte
                 every { zaakService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
                 every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
                 every { zaakService.readZaakTypeByUUID(zaakTypeUUID) } returns zaakType

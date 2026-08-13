@@ -16,6 +16,7 @@ import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
@@ -61,12 +62,12 @@ class ZrcClientService @Inject constructor(
         zrcClient.rolDelete(rol.uuid!!)
     }
 
-    fun createZaakobject(zaakobject: Zaakobject): Zaakobject =
+    fun createZaakobject(zaakobject: ZaakobjectRequest): Zaakobject =
         zrcClient.zaakobjectCreate(zaakobject)
 
     fun deleteZaakobject(zaakobject: Zaakobject, toelichting: String?) {
         toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        zrcClient.zaakobjectDelete(zaakobject.uuid!!)
+        zrcClient.zaakobjectDelete(zaakobject.uuid)
     }
 
     fun readZaakobject(zaakobjectUUID: UUID): Zaakobject = zrcClient.zaakobjectRead(zaakobjectUUID)

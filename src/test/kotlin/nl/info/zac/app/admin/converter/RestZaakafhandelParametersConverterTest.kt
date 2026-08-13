@@ -89,7 +89,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                         versiedatum shouldBe zaakType.versiedatum
                         beginGeldigheid shouldBe zaakType.beginGeldigheid
                         eindeGeldigheid shouldBe zaakType.eindeGeldigheid
-                        vertrouwelijkheidaanduiding shouldBe zaakType.vertrouwelijkheidaanduiding
+                        vertrouwelijkheidaanduiding?.name shouldBe zaakType.vertrouwelijkheidaanduiding?.name
                         nuGeldig shouldBe true
                     }
                     caseDefinition shouldBe null
@@ -196,7 +196,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                         versiedatum shouldBe zaakType.versiedatum
                         beginGeldigheid shouldBe zaakType.beginGeldigheid
                         eindeGeldigheid shouldBe zaakType.eindeGeldigheid
-                        vertrouwelijkheidaanduiding shouldBe zaakType.vertrouwelijkheidaanduiding
+                        vertrouwelijkheidaanduiding?.name shouldBe zaakType.vertrouwelijkheidaanduiding?.name
                         nuGeldig shouldBe true
                     }
                     defaultGroepId shouldBe null

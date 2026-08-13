@@ -538,11 +538,11 @@ describe(CaseDetailsEditComponent.name, () => {
   });
 
   describe("initialisation", () => {
-    it("maps vertrouwelijkheidaanduiding to the matching select option (case-insensitive)", () => {
+    it("maps vertrouwelijkheidaanduiding to the matching select option", () => {
       renderComponent({ vertrouwelijkheidaanduiding: "OPENBAAR" });
       expect(
         component["form"].controls.vertrouwelijkheidaanduiding.value?.value,
-      ).toBe("openbaar");
+      ).toBe("OPENBAAR");
     });
 
     it("patches toelichting from the zaak value", () => {

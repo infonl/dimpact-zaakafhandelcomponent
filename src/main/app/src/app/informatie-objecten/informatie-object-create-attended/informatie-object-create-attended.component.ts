@@ -221,7 +221,7 @@ export class InformatieObjectCreateAttendedComponent
         this.form.controls.confidentiality.setValue(
           this.translateService.instant(
             this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-              infoObjectType.vertrouwelijkheidaanduiding as GeneratedType<"VertrouwelijkheidaanduidingEnum">,
+              infoObjectType.vertrouwelijkheidaanduiding,
             ),
           ),
         );

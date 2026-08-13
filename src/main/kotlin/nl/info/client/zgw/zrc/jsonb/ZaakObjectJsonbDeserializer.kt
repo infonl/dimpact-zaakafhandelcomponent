@@ -43,11 +43,11 @@ class ZaakObjectJsonbDeserializer : JsonbDeserializer<Zaakobject> {
                 ZaakobjectWoonplaats::class.java
             )
             ObjectTypeEnum.OVERIGE -> when (objecttypeOverige) {
-                ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE -> JSONB.fromJson(
+                ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE_PRODUCTAANVRAAG -> JSONB.fromJson(
                     jsonObject.toString(),
                     ZaakobjectProductaanvraag::class.java
                 )
-                ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE -> JSONB.fromJson(
+                ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE_NUMMERAANDUIDING -> JSONB.fromJson(
                     jsonObject.toString(),
                     ZaakobjectNummeraanduiding::class.java
                 )

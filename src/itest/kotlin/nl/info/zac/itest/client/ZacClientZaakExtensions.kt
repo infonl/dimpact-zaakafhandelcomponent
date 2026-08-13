@@ -6,7 +6,7 @@ package nl.info.zac.itest.client
 
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
 import nl.info.zac.itest.config.TestUser
 import org.json.JSONObject
@@ -30,7 +30,7 @@ fun ZacClient.createZaakAndRetrieve(
     toelichting: String? = null,
     startDate: ZonedDateTime,
     communicatiekanaal: String? = COMMUNICATIEKANAAL_TEST_1,
-    vertrouwelijkheidaanduiding: String? = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+    vertrouwelijkheidaanduiding: String? = VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
     testUser: TestUser
 ): ResponseContent {
     val createResponse = createZaak(
