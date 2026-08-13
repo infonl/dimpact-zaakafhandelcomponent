@@ -39,7 +39,7 @@ Versiegeschiedenis:
     - [IAM-architectuur](#iam-architectuur)
     - [Migratie van de oude naar de nieuwe IAM-architectuur](#migratie-van-de-oude-naar-de-nieuwe-iam-architectuur)
     - [Groepen](#groepen)
-- [Inrichting Zaaktype](#inrichting-zaaktype)
+- [Inrichting zaakafhandel parameters (zaaktype)](#inrichting-zaakafhandel-parameters-zaaktype)
   - [Inrichten van een zaaktype](#inrichten-van-een-zaaktype)
     - [CMMN/BPMN](#cmmnbpmn)
     - [Gegevens](#gegevens)
@@ -54,6 +54,7 @@ Versiegeschiedenis:
     - [Procestermijn bekend – vaste periode](#procestermijn-bekend--vaste-periode)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 
 
