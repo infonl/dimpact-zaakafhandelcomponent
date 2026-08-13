@@ -8,6 +8,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
@@ -82,7 +83,7 @@ class HealthCheckServiceTest : BehaviorSpec({
         every {
             ztcClientService.listRoltypen(zaaktypeUri)
         } returns listOf(
-            createRolType(omschrijving = "Behandelaar", omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR),
+            createRolType(omschrijving = ROLTYPE_OMSCHRIJVING_BEHANDELAAR, omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR),
             createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.ZAAKCOORDINATOR),
             // Two initiator roles
             createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
@@ -189,7 +190,7 @@ class HealthCheckServiceTest : BehaviorSpec({
         every {
             ztcClientService.listRoltypen(zaaktypeUri)
         } returns listOf(
-            createRolType(omschrijving = "Behandelaar", omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR),
+            createRolType(omschrijving = ROLTYPE_OMSCHRIJVING_BEHANDELAAR, omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR),
             createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.ZAAKCOORDINATOR),
             createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.INITIATOR),
         )

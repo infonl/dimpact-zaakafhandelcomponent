@@ -24,6 +24,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.RoltypeListGeneriekParameters
 import net.atos.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import java.net.URI
 import java.time.ZonedDateTime
 import java.util.Optional
@@ -167,7 +168,7 @@ class ZtcClientServiceTest : BehaviorSpec({
         given("a zaaktype with a matching roltype") {
             val zaaktypeUri = URI("https://example.com/zaaktypes/${UUID.randomUUID()}")
             val matchingRolType = createRolType(
-                omschrijving = "Behandelaar",
+                omschrijving = ROLTYPE_OMSCHRIJVING_BEHANDELAAR,
                 omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR,
                 zaakTypeUri = zaaktypeUri
             )
