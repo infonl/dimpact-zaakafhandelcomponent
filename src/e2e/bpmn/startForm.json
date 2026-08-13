@@ -1,0 +1,209 @@
+{
+  "display": "wizard",
+  "name": "startForm",
+  "title": "Start Form",
+  "settings": {
+    "pdf": {
+      "id": "1ec0f8ee-6685-5d98-a847-26f67b67d6f0",
+      "src": "https://files.form.io/pdf/5692b91fd1028f01000407e3/file/1ec0f8ee-6685-5d98-a847-26f67b67d6f0"
+    }
+  },
+  "components": [
+    {
+      "title": "Form page",
+      "label": "Form page",
+      "type": "panel",
+      "key": "form",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "title": "Approval",
+          "collapsible": false,
+          "key": "PL_ApprovedBy",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Group",
+              "type": "select",
+              "key": "AM_TeamBehandelaar_Groep",
+              "input": true,
+              "widget": "html5",
+              "validate": {
+                "required": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_groep"
+              },
+              "dataSrc": "custom",
+              "clearOnRefresh": true
+            },
+            {
+              "label": "User",
+              "type": "select",
+              "key": "AM_TeamBehandelaar_Medewerker",
+              "widget": "html5",
+              "input": true,
+              "validate": {
+                "required": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_medewerker"
+              },
+              "dataSrc": "custom",
+              "refreshOn": "AM_TeamBehandelaar_Groep",
+              "clearOnRefresh": true
+            }
+          ]
+        },
+        {
+          "title": "Documents",
+          "collapsible": false,
+          "key": "PL_Documents",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Smart Documents Template Group",
+              "type": "select",
+              "key": "SD_SmartDocuments_Group",
+              "input": true,
+              "widget": "html5",
+              "attributes": {
+                "ZAC_TYPE": "ZAC_smart_documents_template_groups"
+              },
+              "dataSrc": "custom",
+              "clearOnRefresh": true
+            },
+            {
+              "label": "Smart Documents Template",
+              "type": "select",
+              "key": "SD_SmartDocuments_Template",
+              "input": true,
+              "widget": "html5",
+              "attributes": {
+                "ZAC_TYPE": "ZAC_smart_documents_template_group_templates"
+              },
+              "dataSrc": "custom",
+              "refreshOn": "SD_SmartDocuments_Group",
+              "clearOnRefresh": true
+            },
+            {
+              "label": "Create",
+              "action": "event",
+              "showValidations": false,
+              "block": true,
+              "tableView": false,
+              "key": "SD_SmartDocuments_Create",
+              "type": "button",
+              "event": "createDocument",
+              "input": true
+            },
+            {
+              "label": "Documents",
+              "type": "select",
+              "key": "ZAAK_Documents_Select",
+              "input": true,
+              "widget": "choicesjs",
+              "multiple": true,
+              "defaultValue": [],
+              "refreshOn": "data",
+              "dataSrc": "custom",
+              "placeholder": "Select one or more documents",
+              "customOptions": {
+                "choicesOptions": {
+                  "removeItemButton": true,
+                  "placeholder": true,
+                  "searchEnabled": true,
+                  "shouldSort": false
+                }
+              },
+              "validate": {
+                "required": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_documenten"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Communication",
+          "collapsible": false,
+          "key": "PL_Communication_Channel",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Communication channel",
+              "type": "select",
+              "key": "RT_ReferenceTable_Values",
+              "input": true,
+              "widget": "html5",
+              "validate": {
+                "required": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_referentie_tabel"
+              },
+              "dataSrc": "custom",
+              "properties": {
+                "ReferenceTable_Code": "COMMUNICATIEKANAAL"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Result & Status",
+          "collapsible": false,
+          "key": "PL_Result_Status",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Select result",
+              "optionsLabelPosition": "right",
+              "key": "ZK_Result",
+              "widget": "html5",
+              "validate": {
+                "required": true,
+                "onlyAvailableItems": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_resultaat"
+              },
+              "type": "select",
+              "input": true,
+              "dataSrc": "custom"
+            },
+            {
+              "label": "Select status",
+              "optionsLabelPosition": "right",
+              "key": "ZK_Status",
+              "widget": "html5",
+              "validate": {
+                "required": true,
+                "onlyAvailableItems": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_status"
+              },
+              "type": "select",
+              "input": true,
+              "dataSrc": "custom"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

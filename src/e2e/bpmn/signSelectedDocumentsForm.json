@@ -1,0 +1,53 @@
+{
+  "type": "form",
+  "name": "signSelectedDocumentsForm",
+  "path": "signSelectedDocumentsForm",
+  "title": "Sign Selected Documents Form",
+  "pdfComponents": [],
+  "display": "form",
+  "tags": [],
+  "settings": {},
+  "components": [
+    {
+      "label": "Documenten",
+      "type": "datagrid",
+      "key": "ZAAK_Documenten_Te_Ondertekenen",
+      "input": true,
+      "disableAddingRemovingRows": true,
+      "refreshOn": "ZAAK_Documenten_Ondertekenen_Selectie",
+      "attributes": { "ZAC_TYPE": "ZAC_gekozen_documenten_niet_ondertekend" },
+      "components": [
+        {
+          "label": "",
+          "key": "selected",
+          "type": "checkbox",
+          "input": true,
+          "tableView": true
+        },
+        {
+          "label": "Titel",
+          "key": "titel",
+          "type": "textfield",
+          "input": true,
+          "disabled": true,
+          "tableView": true
+        },
+        {
+          "key": "openen",
+          "type": "htmlelement",
+          "input": false,
+          "tableView": false,
+          "attributes": { "ZAC_TYPE": "ZAC_regel_link_oog_icoon" }
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Ondertekenen",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

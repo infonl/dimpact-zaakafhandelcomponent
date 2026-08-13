@@ -275,11 +275,11 @@ Then(
     });
 
     await expect(
-      this.page.getByRole("cell", { name: "Test", exact: true }),
+      this.page.getByRole("cell", { name: "Start", exact: true }),
     ).not.toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await completedTasksSwitch.click();
     await expect(
-      this.page.getByRole("cell", { name: "Test", exact: true }),
+      this.page.getByRole("cell", { name: "Start", exact: true }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
