@@ -12,8 +12,8 @@ import {
   FIVE_SECONDS_IN_MS,
   FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
-  TEN_SECONDS_IN_MS,
   TWO_MINUTES_IN_MS,
+  TWO_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
@@ -384,7 +384,7 @@ Then(
 
 Then(
   "Employee {string} opens the zaak that was created from the open-forms submission",
-  { timeout: TWO_MINUTES_IN_MS },
+  { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     const openFormsReference = this.testStorage.get("open-forms-reference");
     const zaakLink = this.page
@@ -404,11 +404,11 @@ Then(
       await searchField.press("Enter");
 
       await this.expect(zaakLink).toHaveCount(1, {
-        timeout: FIVE_SECONDS_IN_MS,
+        timeout: TWO_SECONDS_IN_MS,
       });
     }).toPass({
-      intervals: [FIVE_SECONDS_IN_MS, TEN_SECONDS_IN_MS, FIFTEEN_SECONDS_IN_MS],
-      timeout: ONE_MINUTE_IN_MS,
+      intervals: [FIVE_SECONDS_IN_MS],
+      timeout: FORTY_SECONDS_IN_MS,
     });
 
     await zaakLink.click();
