@@ -10,10 +10,10 @@
     <serviceTask id="ServiceTask_374" name="Stuur Automatische Ontvangstbevestiging" flowable:class="nl.info.zac.flowable.bpmn.delegate.SendConfirmationEmailDelegate">
       <extensionElements>
         <flowable:field name="from">
-          <flowable:string><![CDATA[team-geneve@team-dimpact.info.nl]]></flowable:string>
+          <flowable:string><![CDATA[noreply@example.com]]></flowable:string>
         </flowable:field>
         <flowable:field name="replyTo">
-          <flowable:string><![CDATA[team-geneve@team-dimpact.info.nl]]></flowable:string>
+          <flowable:string><![CDATA[noreply@example.com]]></flowable:string>
         </flowable:field>
         <flowable:field name="template">
           <flowable:string><![CDATA[Algemene e-mail]]></flowable:string>
