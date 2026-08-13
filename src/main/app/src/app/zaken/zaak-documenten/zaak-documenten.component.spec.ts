@@ -463,33 +463,6 @@ describe(ZaakDocumentenComponent.name, () => {
     });
   });
 
-  describe("getZaakUuidVanInformatieObject()", () => {
-    it("returns the document's zaakUUID when present", async () => {
-      await createComponent();
-      const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>(
-        {
-          uuid: "doc-uuid-1",
-        },
-      );
-      (doc as never as { zaakUUID: string }).zaakUUID = "other-zaak-uuid";
-      expect(component.getZaakUuidVanInformatieObject(doc as never)).toBe(
-        "other-zaak-uuid",
-      );
-    });
-
-    it("falls back to zaak.uuid when zaakUUID is absent", async () => {
-      await createComponent();
-      const doc = fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>(
-        {
-          uuid: "doc-uuid-1",
-        },
-      );
-      expect(component.getZaakUuidVanInformatieObject(doc as never)).toBe(
-        "zaak-uuid-1",
-      );
-    });
-  });
-
   describe("getDownloadURL()", () => {
     it("delegates to informatieObjectenService.getDownloadURL", async () => {
       await createComponent();

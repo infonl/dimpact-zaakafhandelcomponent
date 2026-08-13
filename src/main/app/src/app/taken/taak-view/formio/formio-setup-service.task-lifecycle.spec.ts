@@ -89,7 +89,7 @@ describe(FormioSetupService.name, () => {
         expect.arrayContaining([
           {
             attr: "href",
-            value: `/informatie-objecten/{{ row.uuid }}/${taak.zaakUuid}`,
+            value: `/informatie-objecten/{{ row.uuid }}`,
           },
         ]),
       );
@@ -97,7 +97,7 @@ describe(FormioSetupService.name, () => {
         expect.arrayContaining([
           {
             attr: "href",
-            value: `/informatie-objecten/{{ row.uuid }}/${otherTaak.zaakUuid}`,
+            value: `/informatie-objecten/{{ row.uuid }}`,
           },
         ]),
       );

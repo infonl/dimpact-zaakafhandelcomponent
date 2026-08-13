@@ -150,15 +150,10 @@ export class InformatieObjectViewComponent
       this.route.data.subscribe((data) => {
         this.infoObject =
           data.informatieObject as GeneratedType<"RestEnkelvoudigInformatieobject">;
-        this.zaak = data.zaak as GeneratedType<"RestZaak">;
         this.informatieObjectenService
-          .readEnkelvoudigInformatieobject(
-            this.infoObject.uuid!,
-            this.zaak?.uuid,
-          )
+          .readEnkelvoudigInformatieobject(this.infoObject.uuid!)
           .subscribe((infoObject) => {
             this.laatsteVersieInfoObject = infoObject;
-            this.toevoegenActies();
             this.updateVersieInformatie();
             this.loadZaakInformatieobjecten();
           });
@@ -377,7 +372,7 @@ export class InformatieObjectViewComponent
 
   private loadInformatieObject() {
     this.informatieObjectenService
-      .readEnkelvoudigInformatieobject(this.infoObject.uuid!, this.zaak?.uuid)
+      .readEnkelvoudigInformatieobject(this.infoObject.uuid!)
       .subscribe((infoObject) => {
         this.infoObject = infoObject;
         this.laatsteVersieInfoObject = infoObject;
@@ -395,7 +390,6 @@ export class InformatieObjectViewComponent
       "/informatie-objecten",
       this.infoObject.uuid,
       versie,
-      this.zaak?.uuid,
     ]);
   }
 
@@ -465,19 +459,23 @@ export class InformatieObjectViewComponent
   }
 
   /**
-   * Voor het geval dat er bij navigatie naar het enkelvoudiginformatieobject geen zaak meegegeven is,
-   * dan wordt deze via de verkorte zaak gegevens opgehaald.
+   * De zaak van het document wordt via de gekoppelde zaakinformatieobjecten opgehaald,
+   * zodat de knoppen in het linkermenu pas gebouwd worden nadat de zaak (indien aanwezig) bekend is.
    *
-   * Als er ook geen verkorte zaak gegevens beschikbaar, dan is dit een document zonder zaak.
+   * Als er geen gekoppelde zaak is, is dit een document zonder zaak.
    */
   private loadZaak() {
     const zaakobject = this.zaakInformatieObjecten.at(0);
-    if (!this.zaak && zaakobject?.zaakIdentificatie) {
+    if (zaakobject?.zaakIdentificatie) {
       this.zakenService
         .readZaakByID(zaakobject.zaakIdentificatie)
         .subscribe((zaak) => {
           this.zaak = zaak;
+          this.toevoegenActies();
         });
+    } else {
+      this.zaak = undefined;
+      this.toevoegenActies();
     }
   }
 }
