@@ -126,7 +126,6 @@ class HealthCheckServiceTest : BehaviorSpec({
                     isResultaattypeAanwezig shouldBe true
                     aantalInitiatorroltypen shouldBe 2
                     aantalBehandelaarroltypen shouldBe 1
-                    isBehandelaarRoltypeOmschrijvingCorrect shouldBe true
                     isRolOverigeAanwezig shouldBe true
                     isInformatieobjecttypeEmailAanwezig shouldBe true
                     isBesluittypeAanwezig shouldBe true
@@ -231,7 +230,6 @@ class HealthCheckServiceTest : BehaviorSpec({
                     isResultaattypeAanwezig shouldBe true
                     aantalInitiatorroltypen shouldBe 1
                     aantalBehandelaarroltypen shouldBe 1
-                    isBehandelaarRoltypeOmschrijvingCorrect shouldBe true
                     isRolOverigeAanwezig shouldBe true
                     isInformatieobjecttypeEmailAanwezig shouldBe true
                     isBesluittypeAanwezig shouldBe true

@@ -97,7 +97,6 @@ class HealthCheckRestService @Inject constructor(
             resultaattypeAanwezig = check.isResultaattypeAanwezig,
             informatieobjecttypeEmailAanwezig = check.isInformatieobjecttypeEmailAanwezig,
             aantalBehandelaarroltypen = check.aantalBehandelaarroltypen,
-            behandelaarRoltypeOmschrijvingCorrect = check.isBehandelaarRoltypeOmschrijvingCorrect,
             aantalInitiatorroltypen = check.aantalInitiatorroltypen,
             rolOverigeAanwezig = check.isRolOverigeAanwezig,
             statustypeAfgerondAanwezig = check.isStatustypeAfgerondAanwezig,

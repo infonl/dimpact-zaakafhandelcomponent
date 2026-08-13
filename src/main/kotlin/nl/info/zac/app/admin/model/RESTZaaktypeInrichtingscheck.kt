@@ -15,7 +15,6 @@ data class RESTZaaktypeInrichtingscheck(
     var resultaattypeAanwezig: Boolean = false,
     var aantalInitiatorroltypen: Int = 0,
     var aantalBehandelaarroltypen: Int = 0,
-    var behandelaarRoltypeOmschrijvingCorrect: Boolean = false,
     var rolOverigeAanwezig: Boolean = false,
     var informatieobjecttypeEmailAanwezig: Boolean = false,
     var besluittypeAanwezig: Boolean = false,

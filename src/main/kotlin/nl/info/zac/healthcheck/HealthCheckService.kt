@@ -186,9 +186,8 @@ class HealthCheckService @Inject constructor(
                     KLANTCONTACTER,
                     ZAAKCOORDINATOR -> zaaktypeInrichtingscheck.isRolOverigeAanwezig = true
                     BEHANDELAAR -> {
-                        zaaktypeInrichtingscheck.aantalBehandelaarroltypen++
                         if (it.omschrijving == ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR) {
-                            zaaktypeInrichtingscheck.isBehandelaarRoltypeOmschrijvingCorrect = true
+                            zaaktypeInrichtingscheck.aantalBehandelaarroltypen++
                         }
                     }
                     INITIATOR -> zaaktypeInrichtingscheck.aantalInitiatorroltypen++
