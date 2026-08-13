@@ -11,22 +11,21 @@ import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import java.net.URI
 import java.util.UUID
 
-/**
- * Zaakobject
- */
 @JsonbTypeDeserializer(ZaakObjectJsonbDeserializer::class)
 abstract class Zaakobject {
     /**
      * URL-referentie naar dit object. Dit is de unieke identificatie en locatie van dit object
      * - readOnly
+     * Always present on a deserialized read result; absent from [ZaakobjectRequest].
      */
-    var url: URI? = null
+    lateinit var url: URI
 
     /**
      * Unieke resource identifier (UUID4)
      * - readOnly
+     * Always present on a deserialized read result; absent from [ZaakobjectRequest].
      */
-    var uuid: UUID? = null
+    lateinit var uuid: UUID
 
     /**
      * URL-referentie naar de ZAAK
@@ -64,9 +63,12 @@ abstract class Zaakobject {
     protected constructor()
 
     /**
-     * Constructor with required attributes
+     * Constructor with required attributes, including [url] and [uuid] since this constructor is only used to
+     * manually build a read result (e.g. in tests) and both are always present on an actual deserialized one.
      */
-    protected constructor(zaakUri: URI, objectUri: URI?, objectType: ObjectTypeEnum) {
+    protected constructor(zaakUri: URI, objectUri: URI?, objectType: ObjectTypeEnum, url: URI, uuid: UUID) {
+        this.url = url
+        this.uuid = uuid
         this.zaak = zaakUri
         this.`object` = objectUri
         this.objectType = objectType
@@ -98,7 +100,7 @@ abstract class Zaakobject {
     val isBagObject: Boolean
         get() = when (objectType) {
             ObjectTypeEnum.ADRES, ObjectTypeEnum.PAND, ObjectTypeEnum.OPENBARE_RUIMTE, ObjectTypeEnum.WOONPLAATS -> true
-            ObjectTypeEnum.OVERIGE -> ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE == objectTypeOverige
+            ObjectTypeEnum.OVERIGE -> ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE_NUMMERAANDUIDING == objectTypeOverige
             else -> false
         }
 

@@ -169,13 +169,14 @@ class DocumentCreationDataService @Inject constructor(
             objectType = ObjectTypeEnum.OVERIGE
         }.let(zrcClientService::listZaakobjecten)
             .results()
-            .filter { ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE == it.objectTypeOverige }
-            .map { zaakobject ->
-                val productAanvraagObject = objectsClientService.readObject(zaakobject.`object`!!.extractUuid())
-                StartformulierData(
-                    productAanvraagtype = productaanvraagService.getProductaanvraag(productAanvraagObject).type,
-                    data = productaanvraagService.getAanvraaggegevens(productAanvraagObject)
-                )
+            .filter { ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE_PRODUCTAANVRAAG == it.objectTypeOverige }
+            .mapNotNull { zaakobject ->
+                zaakobject.`object`?.extractUuid()?.let(objectsClientService::readObject)?.let { productAanvraagObject ->
+                    StartformulierData(
+                        productAanvraagtype = productaanvraagService.getProductaanvraag(productAanvraagObject).type,
+                        data = productaanvraagService.getAanvraaggegevens(productAanvraagObject)
+                    )
+                }
             }
             .singleOrNull()
 

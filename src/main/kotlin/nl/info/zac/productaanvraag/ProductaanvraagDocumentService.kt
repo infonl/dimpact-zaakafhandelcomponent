@@ -7,7 +7,7 @@ package nl.info.zac.productaanvraag
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
-import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraagRequest
 import nl.info.client.or.objects.model.generated.ModelObject
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -35,7 +35,7 @@ class ProductaanvraagDocumentService @Inject constructor(
     }
 
     fun pairProductaanvraagWithZaak(productaanvraag: ModelObject, zaakUrl: URI) {
-        ZaakobjectProductaanvraag(zaakUrl, productaanvraag.url)
+        ZaakobjectProductaanvraagRequest(zaakUrl, productaanvraag.url)
             .let(zrcClientService::createZaakobject)
     }
 
