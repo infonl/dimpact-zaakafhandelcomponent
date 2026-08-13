@@ -999,7 +999,6 @@
   "healthCheck.zaaktype.geenRolBehandelaarAanwezig": "The required role \"Behandelaar\" does not exist",
   "healthCheck.zaaktype.teVeelRolInitiatorAanwezig": "Only one \"Initiator\" role type can exist",
   "healthCheck.zaaktype.teVeelRolBehandelaarAanwezig": "Only one \"Behandelaar\" role type can exist",
-  "healthCheck.zaaktype.behandelaarRoltypeOmschrijvingOnjuist": "The role type with generic description \"Behandelaar\" must have description \"Behandelaar\"",
   "healthCheck.zaaktype.geenRolOverigeAanwezig": "In addition to the roles \"Behandelaar\" and \"Initiator\", at least one other role must be present",
   "healthCheck.zaaktype.geenInformatieobjecttypeEmailAanwezig": "The required informationobject type \"E-mail\" does not exist",
   "healthCheck.zaaktype.geenBesluittypeAanwezig": "Result type(s) \"<b>{{resultaattypes}}</b>\" require a decision type, but no decision type is found",
