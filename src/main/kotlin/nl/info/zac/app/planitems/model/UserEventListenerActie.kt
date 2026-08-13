@@ -6,5 +6,6 @@ package nl.info.zac.app.planitems.model
 
 enum class UserEventListenerActie {
     INTAKE_AFRONDEN,
-    ZAAK_AFHANDELEN
+    ZAAK_AFHANDELEN,
+    BRONDATUM_ZETTEN
 }

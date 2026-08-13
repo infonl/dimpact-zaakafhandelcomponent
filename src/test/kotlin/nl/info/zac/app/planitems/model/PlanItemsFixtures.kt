@@ -50,5 +50,5 @@ fun createRESTUserEventListenerData(
     actie = actie,
     restMailGegevens = restMailGegevens,
     resultaattypeUuid = resultaattypeUuid,
-    brondatumEigenschap = brondatumEigenschap
+    brondatum = brondatumEigenschap
 )

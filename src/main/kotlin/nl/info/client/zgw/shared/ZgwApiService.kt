@@ -30,7 +30,6 @@ import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
-import nl.info.client.zgw.zrc.model.generated.ZaakSub
 import nl.info.client.zgw.zrc.util.toZaakSub
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
@@ -39,7 +38,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.zac.exception.ErrorCode
-import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.exception.NotSupportedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
@@ -130,9 +129,9 @@ class ZgwApiService @Inject constructor(
      * @param zaak [Zaak] to be closed.
      * @param resultaatTypeUUID [UUID] the UUID of the resultaat for closing the [Zaak].
      * @param description [String] of the [Resultaat] and [Status].
-     * @param brondatumEigenschap [LocalDate]
+     * @param brondatum [LocalDate]
      */
-    fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, description: String?, brondatumEigenschap: LocalDate? = null) {
+    fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, description: String?, brondatum: LocalDate? = null) {
         val resultaatType = getResultaatType(resultaatTypeUUID)
         val resultaat = ResultaatSub().apply {
             resultaattype = resultaatType.url
@@ -152,33 +151,51 @@ class ZgwApiService @Inject constructor(
             this.resultaat = resultaat
             this.status = status
         }
-        processBrondatumProcedure(zaakAfsluiten, resultaatType, brondatumEigenschap)
+        processBrondatumProcedure(zaak, resultaatType, brondatum)
         zrcClientService.closeCase(zaak.uuid, zaakAfsluiten)
     }
 
-    private fun processBrondatumProcedure(zaakAfsluiten: ZaakAfsluiten, resultaatType: ResultaatType, brondatumEigenschap: LocalDate?) {
+    fun setBrondatum(zaak: Zaak, brondatum: LocalDate?) {
+        getResultaatType(zaak)?.let {
+            when (it.brondatumArchiefprocedure.afleidingswijze) {
+                AfleidingswijzeEnum.EIGENSCHAP -> processBrondatumProcedure(zaak, it, brondatum)
+                else -> {
+                    LOG.warning {
+                        "Failed to set brondatum to $brondatum for afleidingswijze brondatum " +
+                        "${it.brondatumArchiefprocedure.afleidingswijze} for zaak ${zaak.identificatie}"
+                    }
+                    throw NotSupportedException(ErrorCode.ERROR_CODE_AFLEIDINGSWIJZE_BRONDATUM_NOT_SUPPORTED)
+                }
+            }
+        }
+    }
+
+    private fun getResultaatType(zaak: Zaak): ResultaatType? {
+        if (zaak.resultaat == null) return null
+        return zrcClientService.readResultaat(zaak.resultaat).let {
+            ztcClientService.readResultaattype(it.resultaattype)
+        }
+    }
+
+  private fun processBrondatumProcedure(zaak: Zaak, resultaatType: ResultaatType, brondatum: LocalDate?) {
         val brondatumArchiefprocedure = resultaatType.brondatumArchiefprocedure ?: return
 
         when (brondatumArchiefprocedure.afleidingswijze) {
             AfleidingswijzeEnum.EIGENSCHAP -> {
-                if (brondatumArchiefprocedure.datumkenmerk.isNullOrBlank() || brondatumEigenschap == null) {
-                    throw InputValidationFailedException(
-                        errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
-                        message = "'brondatumEigenschap' moet gevuld zijn bij het afsluiten van een zaak met een " +
-                            "resultaattype dat een 'brondatumArchiefprocedure' heeft met 'afleidingswijze' 'EIGENSCHAP'."
-                    )
+                if (brondatumArchiefprocedure.datumkenmerk.isNullOrBlank() || brondatum == null) {
+                    return
                 }
                 this.upsertEigenschapToZaak(
                     brondatumArchiefprocedure.datumkenmerk,
-                    brondatumEigenschap.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
-                    zaakAfsluiten.zaak
+                    brondatum.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                    zaak
                 )
             }
             else -> Unit
         }
     }
 
-    private fun upsertEigenschapToZaak(eigenschap: String, waarde: String, zaak: ZaakSub) {
+    private fun upsertEigenschapToZaak(eigenschap: String, waarde: String, zaak: Zaak) {
         zrcClientService.listZaakeigenschappen(zaak.uuid).firstOrNull { it.naam == eigenschap }?.let {
             zrcClientService.updateZaakeigenschap(
                 zaak.uuid, it.uuid,

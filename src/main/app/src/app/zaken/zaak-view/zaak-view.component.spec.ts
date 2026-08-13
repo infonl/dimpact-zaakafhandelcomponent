@@ -49,9 +49,11 @@ import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { ZaakBetrokkeneListComponent } from "../zaak-betrokkenen-list/zaak-betrokkene-list.component";
+import { ZaakBrondatumZettenDialogComponent } from "../zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
+import { ZaakTakenComponent } from "../zaak-taken/zaak-taken.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakViewComponent } from "./zaak-view.component";
 
@@ -595,6 +597,149 @@ describe(ZaakViewComponent.name, () => {
         "msg.planitem.uitgevoerd.INTAKE_AFRONDEN",
       );
       expect(fixture.componentInstance.activeSideAction).toBe(null);
+    });
+  });
+
+  describe("actie.zaak.brondatumZetten", () => {
+    const brondatumZettenZaak = {
+      ...zaak,
+      rechten: {
+        ...zaak.rechten,
+        brondatumZetten: true,
+      },
+      resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
+        resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
+          bronArchiefprocedure: fromPartial<
+            GeneratedType<"BrondatumArchiefprocedure">
+          >({
+            // the backend returns this value in lowercase, unlike the
+            // uppercase generated typescript enum type
+            afleidingswijze:
+              "eigenschap" as GeneratedType<"AfleidingswijzeEnum">,
+          }),
+        }),
+      }),
+    } satisfies GeneratedType<"RestZaak">;
+
+    it("should show the button when the brondatumZetten right is true and the afleidingswijze is EIGENSCHAP", async () => {
+      mockActivatedRoute.data.next({ zaak: brondatumZettenZaak });
+
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({
+          title: "actie.zaak.brondatumZetten",
+        }),
+      );
+      expect(button).toBeTruthy();
+    });
+
+    it("should not show the button when the brondatumZetten right is false", async () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...brondatumZettenZaak,
+          rechten: { ...brondatumZettenZaak.rechten, brondatumZetten: false },
+        },
+      });
+
+      const button = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({
+          title: "actie.zaak.brondatumZetten",
+        }),
+      );
+      expect(button).toBeNull();
+    });
+
+    it("should not show the button when the afleidingswijze is not EIGENSCHAP", async () => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...brondatumZettenZaak,
+          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
+            resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
+              bronArchiefprocedure: fromPartial<
+                GeneratedType<"BrondatumArchiefprocedure">
+              >({
+                afleidingswijze: "TERMIJN",
+              }),
+            }),
+          }),
+        },
+      });
+
+      const button = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({
+          title: "actie.zaak.brondatumZetten",
+        }),
+      );
+      expect(button).toBeNull();
+    });
+
+    it("should not show the button when the resultaat is absent", async () => {
+      mockActivatedRoute.data.next({
+        zaak: { ...brondatumZettenZaak, resultaat: null },
+      });
+
+      const button = await loader.getHarnessOrNull(
+        MatNavListItemHarness.with({
+          title: "actie.zaak.brondatumZetten",
+        }),
+      );
+      expect(button).toBeNull();
+    });
+
+    it("should open the dialog with the zaak data when clicked", async () => {
+      mockActivatedRoute.data.next({ zaak: brondatumZettenZaak });
+      const dialog = TestBed.inject(MatDialog);
+
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({
+          title: "actie.zaak.brondatumZetten",
+        }),
+      );
+      await button.click();
+
+      expect(dialog.open).toHaveBeenCalledWith(
+        ZaakBrondatumZettenDialogComponent,
+        { data: { zaak: brondatumZettenZaak } },
+      );
+    });
+
+    it("should update the zaak, reload the taken and show a snackbar when the dialog closes with a result", async () => {
+      mockActivatedRoute.data.next({ zaak: brondatumZettenZaak });
+      const updateZaakSpy = jest.spyOn(fixture.componentInstance, "updateZaak");
+      const snackbarSpy = jest.spyOn(utilService, "openSnackbar");
+      jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
+
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({
+          title: "actie.zaak.brondatumZetten",
+        }),
+      );
+      // the '#zaakTakenComponent' view child is only populated once the real
+      // zac-zaak-taken component is rendered, which this narrow test module
+      // does not import; stub it right before the click so the success
+      // callback's `reload()` call has something to call.
+      const reload = jest.fn();
+      fixture.componentInstance["zaakTakenComponent"] =
+        fromPartial<ZaakTakenComponent>({ reload });
+      await button.click();
+
+      expect(updateZaakSpy).toHaveBeenCalled();
+      expect(reload).toHaveBeenCalled();
+      expect(snackbarSpy).toHaveBeenCalledWith("msg.zaak.afgesloten");
+    });
+
+    it("should not update the zaak when the dialog closes without a result", async () => {
+      mockActivatedRoute.data.next({ zaak: brondatumZettenZaak });
+      const updateZaakSpy = jest.spyOn(fixture.componentInstance, "updateZaak");
+      jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(undefined));
+
+      const button = await loader.getHarness(
+        MatNavListItemHarness.with({
+          title: "actie.zaak.brondatumZetten",
+        }),
+      );
+      await button.click();
+
+      expect(updateZaakSpy).not.toHaveBeenCalled();
     });
   });
 

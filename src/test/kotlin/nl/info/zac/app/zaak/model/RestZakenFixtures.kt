@@ -366,7 +366,8 @@ fun createRestZaakRechten(
     verwijderenInitiator: Boolean = true,
     creerenDocument: Boolean = true,
     versturenEmail: Boolean = true,
-    wijzigenLocatie: Boolean = true
+    wijzigenLocatie: Boolean = true,
+    brondatumZetten: Boolean = true
 ) = RestZaakRechten(
     lezen = lezen,
     wijzigen = wijzigen,
@@ -386,7 +387,8 @@ fun createRestZaakRechten(
     verwijderenInitiator = verwijderenInitiator,
     creerenDocument = creerenDocument,
     versturenEmail = versturenEmail,
-    wijzigenLocatie = wijzigenLocatie
+    wijzigenLocatie = wijzigenLocatie,
+    brondatumZetten = brondatumZetten
 )
 
 fun createRestZaakResultaat() = RestZaakResultaat()
@@ -457,4 +459,10 @@ fun createRestDetachDocumentData(
     zaakUUID = zaakUUID,
     documentUUID = documentUUID,
     reden = reden
+)
+
+fun createRestZaakSetBrondatum(
+    brondatum: LocalDate = LocalDate.now()
+) = RestZaakSetBrondatum(
+    brondatum = brondatum
 )
