@@ -398,4 +398,78 @@ class BrpClientServiceTest : BehaviorSpec({
             }
         }
     }
+
+    given("Verwerkingregister extended with zaaktype is enabled") {
+        val bsn = "123456789"
+        val person = createPersoon(bsn = bsn)
+        val processingValue = "Leerplicht"
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+            zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
+                raadpleegWaarde = "raadpleegWaarde"
+                verwerkingregisterWaarde = processingValue
+            }
+        )
+        val configWithZaaktypeExtension = createBrpConfiguration(verwerkingRegisterExtendedWithZaaktype = true)
+
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+        } returns zaaktypeCmmnConfiguration
+        every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = configWithZaaktypeExtension,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            brpProtocolleringContext = localContext
+        )
+
+        `when`("find person is called with the BSN of the person") {
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
+
+            then("the verwerking header value is suffixed with the zaaktype omschrijving") {
+                personResponse shouldBe person
+                localContext.headers["x-verwerking"] shouldBe "$processingValue@${zaaktypeCmmnConfiguration.zaaktypeOmschrijving}"
+            }
+        }
+    }
+
+    given("Verwerkingregister extended with zaaktype is disabled") {
+        val bsn = "123456789"
+        val person = createPersoon(bsn = bsn)
+        val processingValue = "Leerplicht"
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
+            zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
+                raadpleegWaarde = "raadpleegWaarde"
+                verwerkingregisterWaarde = processingValue
+            }
+        )
+        val configWithoutZaaktypeExtension = createBrpConfiguration(verwerkingRegisterExtendedWithZaaktype = false)
+
+        every {
+            zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid)
+        } returns zaaktypeCmmnConfiguration
+        every { personenApi.personen(any<PersonenQuery>()) } returns createRaadpleegMetBurgerservicenummerResponse(
+            persons = listOf(person)
+        )
+
+        val localContext = BrpProtocolleringContext()
+        val localService = BrpClientService(
+            personenApi = personenApi,
+            brpConfiguration = configWithoutZaaktypeExtension,
+            zaaktypeCmmnConfigurationService = zaaktypeCmmnConfigurationService,
+            brpProtocolleringContext = localContext
+        )
+
+        `when`("find person is called with the BSN of the person") {
+            val personResponse = localService.retrievePersoon(bsn, zaaktypeUuid, "fakeTestUser")
+
+            then("the verwerking header value is not suffixed with the zaaktype omschrijving") {
+                personResponse shouldBe person
+                localContext.headers["x-verwerking"] shouldBe processingValue
+            }
+        }
+    }
 })

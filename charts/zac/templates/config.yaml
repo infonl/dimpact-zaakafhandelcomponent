@@ -27,6 +27,10 @@ data:
   BRP_VERWERKING_HEADER: {{ .Values.brpApi.protocollering.verwerking.header | quote }}
   {{- if .Values.brpApi.protocollering.verwerking.header }}
   BRP_VERWERKINGSREGISTER: {{ required "Valid .Values.brpApi.protocollering.verwerking.register entry required!" .Values.brpApi.protocollering.verwerking.register | quote }}
+  {{- if not (hasKey .Values.brpApi.protocollering.verwerking "extendWithZaaktype") }}
+  {{- fail "Valid .Values.brpApi.protocollering.verwerking.extendWithZaaktype entry required!" }}
+  {{- end }}
+  BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE: {{ .Values.brpApi.protocollering.verwerking.extendWithZaaktype | quote }}
   {{- end }}
   BRP_GEBRUIKER_HEADER: {{ .Values.brpApi.protocollering.gebruiker.header | quote }}
   BRP_TOEPASSING_HEADER: {{ .Values.brpApi.protocollering.toepassing.header | quote }}

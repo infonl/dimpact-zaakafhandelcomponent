@@ -273,4 +273,31 @@ class BrpConfigurationTest : BehaviorSpec({
             }
         }
     }
+
+    context("verwerkingregister extended with zaaktype flag") {
+
+        given("verwerkingRegisterExtendedWithZaaktype is false") {
+            val brpConfiguration = createBrpConfiguration(verwerkingRegisterExtendedWithZaaktype = false)
+
+            `when`("isVerwerkingRegisterExtendedWithZaaktype is called") {
+                val result = brpConfiguration.isVerwerkingRegisterExtendedWithZaaktype()
+
+                then("false is returned") {
+                    result.shouldBeFalse()
+                }
+            }
+        }
+
+        given("verwerkingRegisterExtendedWithZaaktype is true") {
+            val brpConfiguration = createBrpConfiguration(verwerkingRegisterExtendedWithZaaktype = true)
+
+            `when`("isVerwerkingRegisterExtendedWithZaaktype is called") {
+                val result = brpConfiguration.isVerwerkingRegisterExtendedWithZaaktype()
+
+                then("true is returned") {
+                    result.shouldBeTrue()
+                }
+            }
+        }
+    }
 })

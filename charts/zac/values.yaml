@@ -117,6 +117,10 @@ brpApi:
       header: ""
     verwerking:
       register: ""
+       # -- Set true to ensure the verwerking register value will be extended with the zaaktype context for this BRP request, i.e. <verwerking register>@<zaaktype>.
+       # -- If set to false the verwerking register value will be used on its own, i.e. <verwerking register>.
+       # -- Note that for iConnect it is required to extend the verwerking register with the zaaktype.
+      extendWithZaaktype: ""
        # -- Header name for the verwerking value. Set to empty string to disable this header.
       header: ""
     toepassing:
