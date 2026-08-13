@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
@@ -31,25 +32,25 @@ import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import java.net.HttpURLConnection.HTTP_OK
 
-class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
+class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
     val itestHttpClient = ItestHttpClient()
 
     given(
         """
-        Zaaktype CMMN configuration have been created for the CMMN test zaaktypes,
+        Zaaktype CMMN configurations have been created for the CMMN test zaaktypes,
         a test domein exists in the domein reference table, 
         and a beheerder is logged in
         """.trimIndent()
     ) {
         `when`(
-            "the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION' zaaktype"
+            "the list zaaktype configurations endpoint is called for the '$ZAAKTYPE_CMMN_TEST_3_DESCRIPTION' zaaktype"
         ) {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_CMMN_TEST_3_UUID",
                 testUser = BEHEERDER_1
             )
-            then("the response should be ok and it should return the zaakafhandelparameters") {
+            then("the response should be ok and it should return the zaaktype configurations") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
@@ -62,14 +63,14 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
             }
         }
         `when`(
-            "the list zaakafhandelparameters endpoint is called for the '$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION' zaaktype"
+            "the list zaaktype configurations endpoint is called for the '$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION' zaaktype"
         ) {
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/zaakafhandelparameters/$ZAAKTYPE_CMMN_TEST_2_UUID",
                 testUser = BEHEERDER_1
             )
             then(
-                "the response should be ok and it should return the zaakafhandelparameters with the configured domein"
+                "the response should be ok and it should return the zaaktype configurations"
             ) {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
@@ -274,7 +275,7 @@ class ZaaktypeCmmnConfigurationRestServiceTest : BehaviorSpec({
                         "servicenorm" : false,
                         "uuid" : "$ZAAKTYPE_CMMN_TEST_2_UUID",
                         "versiedatum" : "2023-10-01",
-                        "vertrouwelijkheidaanduiding" : "openbaar"
+                        "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
                       }
                     }
                 """.trimIndent()

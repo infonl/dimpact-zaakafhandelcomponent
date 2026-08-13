@@ -41,7 +41,6 @@ import { MaterialFormBuilderModule } from "../../shared/material-form-builder/ma
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
-import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
 @Component({
   selector: "zac-informatie-object-edit",
@@ -82,10 +81,7 @@ export class InformatieObjectEditComponent implements OnChanges {
     );
 
   protected readonly vertrouwelijkheidsAanduidingen =
-    this.utilService.getEnumAsSelectList(
-      "vertrouwelijkheidaanduiding",
-      Vertrouwelijkheidaanduiding,
-    );
+    VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
 
   protected informatieObjectTypes: GeneratedType<"RestInformatieobjecttype">[] =
     [];
@@ -237,10 +233,8 @@ export class InformatieObjectEditComponent implements OnChanges {
         : null,
       vertrouwelijkheidaanduiding: infoObject.vertrouwelijkheidaanduiding
         ? {
-            label: this.translateService.instant(
-              this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
-                infoObject.vertrouwelijkheidaanduiding as GeneratedType<"VertrouwelijkheidaanduidingEnum">, // TODO: `RestEnkelvoudigInformatieObjectVersieGegevens` has the wrong `vertrouwelijkheidaanduiding` type
-              ),
+            label: this.vertrouwelijkaanduidingToTranslationKeyPipe.transform(
+              infoObject.vertrouwelijkheidaanduiding,
             ),
             value: infoObject.vertrouwelijkheidaanduiding,
           }

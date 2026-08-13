@@ -25,7 +25,7 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockReq
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.drc.model.generated.StatusEnum
-import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.test.org.flowable.task.api.createTestTask
@@ -57,7 +57,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
     )
     val zaak = Zaak()
     val enkelvoudigInformatieObjectCreateLockRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
-    val zaakInformatieObject = createZaakInformatieobjectForCreatesAndUpdates()
+    val zaakInformatieObject = createZaakInformatieobjectForReads()
     val taskId = "1234"
     val task = createTestTask()
 

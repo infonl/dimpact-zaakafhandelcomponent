@@ -24,7 +24,7 @@ import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.admin.model.RestSmartDocuments
 import nl.info.zac.app.admin.model.RestZaakAfzender
-import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
+import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaakbeeindigParameter
 import nl.info.zac.app.zaak.model.toRestResultaatType
 import nl.info.zac.smartdocuments.SmartDocumentsService
@@ -38,7 +38,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationBeheerService>()
     val smartDocumentsService = mockk<SmartDocumentsService>()
 
-    val restZaakafhandelParametersConverter = RestZaakafhandelParametersConverter(
+    val restZaaktypeConfigurationConverter = RestZaaktypeConfigurationConverter(
         caseDefinitionConverter,
         zaakbeeindigParameterConverter,
         restHumanTaskParametersConverter,
@@ -72,7 +72,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         } returns null
 
         `when`("converted to REST representation") {
-            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaakafhandelParameters(
+            val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
                 zaaktypeCmmnConfiguration,
                 true
             )
@@ -89,7 +89,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                         versiedatum shouldBe zaakType.versiedatum
                         beginGeldigheid shouldBe zaakType.beginGeldigheid
                         eindeGeldigheid shouldBe zaakType.eindeGeldigheid
-                        vertrouwelijkheidaanduiding shouldBe zaakType.vertrouwelijkheidaanduiding
+                        vertrouwelijkheidaanduiding?.name shouldBe zaakType.vertrouwelijkheidaanduiding?.name
                         nuGeldig shouldBe true
                     }
                     caseDefinition shouldBe null
@@ -125,7 +125,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
 
     given("RestZaakafhandelParameters CMMN with minimal content") {
         val restResultType = createResultaatType().toRestResultaatType()
-        val restZaakafhandelParameters = createRestZaakafhandelParameters().apply {
+        val restZaakafhandelParameters = createRestZaaktypeConfiguration().apply {
             caseDefinition = RESTCaseDefinition()
             zaakNietOntvankelijkResultaattype = restResultType
         }
@@ -136,7 +136,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         every { restHumanTaskParametersConverter.convertRESTHumanTaskParameters(any()) } returns emptyList()
 
         `when`("converted to DB model representation") {
-            val zaaktypeCmmnConfiguration = restZaakafhandelParametersConverter.toZaaktypeCmmnConfiguration(
+            val zaaktypeCmmnConfiguration = restZaaktypeConfigurationConverter.toZaaktypeCmmnConfiguration(
                 restZaakafhandelParameters
             )
 
@@ -180,7 +180,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
         every { smartDocumentsService.isEnabled() } returns true
 
         `when`("converted to REST representation") {
-            val restZaakafhandelParameters = restZaakafhandelParametersConverter.toRestZaakafhandelParameters(
+            val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
                 zaaktypeBpmnConfiguration
             )
 
@@ -196,7 +196,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                         versiedatum shouldBe zaakType.versiedatum
                         beginGeldigheid shouldBe zaakType.beginGeldigheid
                         eindeGeldigheid shouldBe zaakType.eindeGeldigheid
-                        vertrouwelijkheidaanduiding shouldBe zaakType.vertrouwelijkheidaanduiding
+                        vertrouwelijkheidaanduiding?.name shouldBe zaakType.vertrouwelijkheidaanduiding?.name
                         nuGeldig shouldBe true
                     }
                     defaultGroepId shouldBe null

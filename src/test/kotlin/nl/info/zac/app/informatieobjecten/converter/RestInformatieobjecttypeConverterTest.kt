@@ -12,6 +12,7 @@ import io.mockk.mockk
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import java.net.URI
 import java.util.UUID
 
@@ -50,8 +51,8 @@ class RestInformatieobjecttypeConverterTest : BehaviorSpec({
                 }
 
                 then("vertrouwelijkheidaanduiding is mapped as uppercase enum name") {
-                    result[0].vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR.name
-                    result[1].vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.INTERN.name
+                    result[0].vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
+                    result[1].vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.INTERN
                 }
             }
         }

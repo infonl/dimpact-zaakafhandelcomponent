@@ -6,8 +6,8 @@
 package nl.info.zac.app.informatieobjecten.model
 
 import nl.info.client.zgw.drc.model.generated.StatusEnum
-import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.identity.model.RestUser
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import java.time.LocalDate
 import java.util.UUID
 
@@ -27,7 +27,7 @@ fun createRestDocumentVerzendGegevens(
 fun createRestEnkelvoudigInformatieobject(
     uuid: UUID = UUID.randomUUID(),
     status: StatusEnum = StatusEnum.IN_BEWERKING,
-    vertrouwelijkheidaanduiding: String? = null,
+    vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding? = null,
     creatieDatum: LocalDate? = null,
     auteur: String? = null,
     taal: String? = null,
@@ -74,7 +74,8 @@ fun createRestFileUpload(
 fun createRestInformatieobjecttype(
     uuid: UUID = UUID.randomUUID(),
     omschrijving: String = "fakeOmschrijving",
-    vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name,
+    vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding =
+        RestVertrouwelijkheidaanduiding.OPENBAAR,
     concept: Boolean = false
 ) = RestInformatieobjecttype(
     uuid = uuid,
@@ -91,7 +92,8 @@ fun createRestEnkelvoudigInformatieObjectVersieGegevens(
     file: ByteArray = "fakeFile".toByteArray(),
     formaat: String = "fakeType",
     informatieobjectTypeUUID: UUID = UUID.randomUUID(),
-    vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
+    vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding =
+        RestVertrouwelijkheidaanduiding.OPENBAAR
 ) = RestEnkelvoudigInformatieObjectVersieGegevens(
     uuid = uuid,
     zaakUuid = zaakUuid,

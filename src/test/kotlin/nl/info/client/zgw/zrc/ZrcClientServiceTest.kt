@@ -21,7 +21,7 @@ import nl.info.client.zgw.model.createRolMedewerkerForReads
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheidForReads
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.model.createZaakobjectPand
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.util.extractUuid
@@ -126,9 +126,9 @@ class ZrcClientServiceTest : BehaviorSpec({
     }
 
     given("A zaakobject to be deleted") {
-        val zaakobject = createZaakobjectPand().apply { uuid = UUID.randomUUID() }
+        val zaakobject = createZaakobjectPand()
         val toelichting = "fakeToelichting"
-        every { zrcClient.zaakobjectDelete(zaakobject.uuid!!) } just Runs
+        every { zrcClient.zaakobjectDelete(zaakobject.uuid) } just Runs
         every { zgwClientHeadersFactory.setAuditExplanation(toelichting) } just Runs
 
         `when`("deleteZaakobject is called") {
@@ -137,7 +137,7 @@ class ZrcClientServiceTest : BehaviorSpec({
             then("it should delete the zaakobject and set the audit description") {
                 verify(exactly = 1) {
                     zgwClientHeadersFactory.setAuditExplanation(toelichting)
-                    zrcClient.zaakobjectDelete(zaakobject.uuid!!)
+                    zrcClient.zaakobjectDelete(zaakobject.uuid)
                 }
             }
         }
@@ -148,7 +148,7 @@ class ZrcClientServiceTest : BehaviorSpec({
         val targetZaak = createZaak()
         val description = "fakeDescription"
         every { zrcClient.zaakinformatieobjectList(any()) } returns emptyList()
-        every { zrcClient.zaakinformatieobjectCreate(any()) } answers { firstArg() }
+        every { zrcClient.zaakinformatieobjectCreate(any()) } returns createZaakInformatieobjectForReads()
         every { zgwClientHeadersFactory.setAuditExplanation(description) } just Runs
 
         `when`("koppelInformatieobject is called") {
@@ -165,7 +165,7 @@ class ZrcClientServiceTest : BehaviorSpec({
     given("An informatieobject that is already linked to a zaak") {
         val informatieobject = createEnkelvoudigInformatieObject()
         val targetZaak = createZaak()
-        val existingZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+        val existingZaakInformatieobject = createZaakInformatieobjectForReads()
         every { zrcClient.zaakinformatieobjectList(any()) } returns listOf(existingZaakInformatieobject)
 
         `when`("koppelInformatieobject is called") {

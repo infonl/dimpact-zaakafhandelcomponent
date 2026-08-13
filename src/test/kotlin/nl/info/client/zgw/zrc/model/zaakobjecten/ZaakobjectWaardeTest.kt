@@ -15,12 +15,19 @@ import java.util.UUID
 class ZaakobjectWaardeTest : BehaviorSpec({
     afterEach { checkUnnecessaryStub() }
 
+    // Every read Zaakobject requires a url and uuid, since both are always present on an actual deserialized
+    // result; their concrete value is irrelevant to the scenarios below, so a single fake pair is reused.
+    val fakeUrl = URI("https://example.com/zaakobjecten/${UUID.randomUUID()}")
+    val fakeUuid = UUID.randomUUID()
+
     given("a ZaakobjectAdres wrapping an ObjectAdres") {
         val objectAdres = ObjectAdres("fakeIdentificatie", "fakeWoonplaats", "fakeOpenbareRuimte", 1, null, null, null)
         val zaakobject = ZaakobjectAdres(
             URI("https://example.com/zaak/${UUID.randomUUID()}"),
             URI("https://example.com/adres/${UUID.randomUUID()}"),
-            objectAdres
+            objectAdres,
+            fakeUrl,
+            fakeUuid
         )
 
         `when`("getWaarde is called") {
@@ -35,7 +42,9 @@ class ZaakobjectWaardeTest : BehaviorSpec({
         val zaakobject = ZaakobjectNummeraanduiding(
             URI("https://example.com/zaak/${UUID.randomUUID()}"),
             URI("https://example.com/nummeraanduiding/${UUID.randomUUID()}"),
-            objectNummeraanduiding
+            objectNummeraanduiding,
+            fakeUrl,
+            fakeUuid
         )
 
         `when`("getWaarde is called") {
@@ -49,7 +58,9 @@ class ZaakobjectWaardeTest : BehaviorSpec({
         val zaakobject = ZaakobjectOpenbareRuimte(
             URI("https://example.com/zaak/${UUID.randomUUID()}"),
             URI("https://example.com/openbareruimte/${UUID.randomUUID()}"),
-            createObjectOpenbareRuimte(identificatie = "fakeIdentificatie")
+            createObjectOpenbareRuimte(identificatie = "fakeIdentificatie"),
+            fakeUrl,
+            fakeUuid
         )
 
         `when`("getWaarde is called") {
@@ -63,7 +74,9 @@ class ZaakobjectWaardeTest : BehaviorSpec({
         val zaakobject = ZaakobjectPand(
             URI("https://example.com/zaak/${UUID.randomUUID()}"),
             URI("https://example.com/pand/${UUID.randomUUID()}"),
-            createObjectPand(identificatie = "fakeIdentificatie")
+            createObjectPand(identificatie = "fakeIdentificatie"),
+            fakeUrl,
+            fakeUuid
         )
 
         `when`("getWaarde is called") {
@@ -77,7 +90,9 @@ class ZaakobjectWaardeTest : BehaviorSpec({
         val productaanvraagURI = URI("https://example.com/productaanvraag/${UUID.randomUUID()}")
         val zaakobject = ZaakobjectProductaanvraag(
             URI("https://example.com/zaak/${UUID.randomUUID()}"),
-            productaanvraagURI
+            productaanvraagURI,
+            fakeUrl,
+            fakeUuid
         )
 
         `when`("getWaarde is called") {
@@ -92,7 +107,9 @@ class ZaakobjectWaardeTest : BehaviorSpec({
         val zaakobject = ZaakobjectWoonplaats(
             URI("https://example.com/zaak/${UUID.randomUUID()}"),
             URI("https://example.com/woonplaats/${UUID.randomUUID()}"),
-            objectWoonplaats
+            objectWoonplaats,
+            fakeUrl,
+            fakeUuid
         )
 
         `when`("getWaarde is called") {
@@ -105,7 +122,9 @@ class ZaakobjectWaardeTest : BehaviorSpec({
     given("a ZaakobjectProductaanvraag without a productaanvraag URI") {
         val zaakobject = ZaakobjectProductaanvraag(
             URI("https://example.com/zaak/${UUID.randomUUID()}"),
-            null
+            null,
+            fakeUrl,
+            fakeUuid
         )
 
         `when`("getWaarde is called") {

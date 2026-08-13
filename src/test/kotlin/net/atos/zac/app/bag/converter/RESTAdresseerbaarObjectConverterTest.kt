@@ -14,6 +14,7 @@ import net.atos.zac.app.bag.createVerblijfsAdresseerbaarObject
 import nl.info.client.bag.model.generated.StatusPlaats
 import nl.info.client.bag.model.generated.StatusVerblijfsobject
 import nl.info.client.bag.model.generated.TypeAdresseerbaarObject
+import nl.info.zac.app.zaak.model.RestGeometryType
 
 class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
     afterEach {
@@ -33,7 +34,7 @@ class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
                     vboDoel shouldBe null
                     vboOppervlakte shouldBe 0
                     with(geometry) {
-                        type shouldBe "Polygon"
+                        type shouldBe RestGeometryType.POLYGON
                         point shouldBe null
                         with(polygon!!) {
                             size shouldBe 1
@@ -60,7 +61,7 @@ class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
                     vboDoel shouldBe null
                     vboOppervlakte shouldBe 0
                     with(geometry) {
-                        type shouldBe "Polygon"
+                        type shouldBe RestGeometryType.POLYGON
                         point shouldBe null
                         with(polygon!!) {
                             size shouldBe 1
@@ -87,7 +88,7 @@ class RESTAdresseerbaarObjectConverterTest : BehaviorSpec({
                     vboDoel shouldBe ""
                     vboOppervlakte shouldBe 0
                     with(geometry) {
-                        type shouldBe "Point"
+                        type shouldBe RestGeometryType.POINT
                         polygon shouldBe null
                         point!!.latitude shouldBe 0.0
                         point!!.longitude shouldBe 0.0

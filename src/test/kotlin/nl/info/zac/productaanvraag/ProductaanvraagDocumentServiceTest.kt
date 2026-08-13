@@ -11,11 +11,11 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import nl.info.client.zgw.zrc.model.ZaakInformatieobject
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
-import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import java.net.URI
 
 class ProductaanvraagDocumentServiceTest : BehaviorSpec({
@@ -36,11 +36,11 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
                 createEnkelvoudigInformatieObject()
             )
             val zaakInformatieobjecten = listOf(
-                createZaakInformatieobjectForCreatesAndUpdates(),
-                createZaakInformatieobjectForCreatesAndUpdates()
+                createZaakInformatieobjectForReads(),
+                createZaakInformatieobjectForReads()
             )
             val zaakUrl = URI("fakeZaakUrl")
-            val createdZaakInformatieobjectSlot = slot<ZaakInformatieobject>()
+            val createdZaakInformatieobjectSlot = slot<ZaakInformatieObjectRequest>()
             val beschrijving = "Document toegevoegd tijdens het starten van de zaak vanuit een product aanvraag"
             bijlageURIs.forEachIndexed { index, uri ->
                 every { drcClientService.readEnkelvoudigInformatieobject(uri) } returns enkelvoudigInformatieobjecten[index]
@@ -77,7 +77,7 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
             val successBijlageURI = URI("fakeSuccessURI")
             val bijlageURIs = listOf(failingBijlageURI, successBijlageURI)
             val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject()
-            val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val zaakInformatieobject = createZaakInformatieobjectForReads()
             val zaakUrl = URI("fakeZaakUrl")
 
             every {
@@ -94,7 +94,7 @@ class ProductaanvraagDocumentServiceTest : BehaviorSpec({
                 productaanvraagDocumentService.pairBijlagenWithZaakIgnoringExceptions(bijlageURIs, zaakUrl)
 
                 then("the method should not throw an exception and only the successful bijlage should be linked") {
-                    val createdZaakInformatieobjectSlot = slot<ZaakInformatieobject>()
+                    val createdZaakInformatieobjectSlot = slot<ZaakInformatieObjectRequest>()
                     verify(exactly = 1) {
                         zrcClientService.createZaakInformatieobject(capture(createdZaakInformatieobjectSlot), any())
                     }

@@ -29,7 +29,7 @@ import nl.info.client.or.`object`.model.createObjectRecord
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.model.createZaakobjectProductaanvraag
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
@@ -247,7 +247,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
             )
@@ -407,7 +407,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
                 defaultBehandelaarId = defaultBehandelaarId
@@ -541,7 +541,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
                 defaultBehandelaarId = defaultBehandelaarId
@@ -768,7 +768,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID,
             )
@@ -870,7 +870,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID
             )
@@ -958,7 +958,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID
             )
@@ -1045,7 +1045,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(
                 zaaktypeUUID = zaakTypeUUID
             )
@@ -1499,7 +1499,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakTypeUUID = zaakType.url.extractUuid()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val formulierBron = createBron()
             val groupName = "fakeGroupID"
             val group = createGroup(
@@ -1632,7 +1632,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
             val bpmnDefinition = createZaaktypeBpmnConfiguration()
             val formulierBron = createBron()
@@ -1707,7 +1707,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakType = createZaakType()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration(zaaktypeUUID = zaakTypeUUID)
             val formulierBron = createBron()
             val productAanvraagORObject = createORObject(
@@ -1784,7 +1784,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             val zaakTypeUUID = zaakType.url.extractUuid()
             val createdZaak = createZaak()
             val createdZaakobjectProductAanvraag = createZaakobjectProductaanvraag()
-            val createdZaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+            val createdZaakInformatieobject = createZaakInformatieobjectForReads()
             val contactDetails = ProductaanvraagSpecificContactDetails(
                 klantcontactUuid = UUID.randomUUID(),
                 contactDetails = ContactDetails(

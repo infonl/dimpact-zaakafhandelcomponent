@@ -10,11 +10,13 @@ import jakarta.ws.rs.NotFoundException
 import net.atos.client.zgw.shared.model.Results
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.RolListParameters
-import nl.info.client.zgw.zrc.model.ZaakInformatieobject
 import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
@@ -60,22 +62,22 @@ class ZrcClientService @Inject constructor(
         zrcClient.rolDelete(rol.uuid!!)
     }
 
-    fun createZaakobject(zaakobject: Zaakobject): Zaakobject =
+    fun createZaakobject(zaakobject: ZaakobjectRequest): Zaakobject =
         zrcClient.zaakobjectCreate(zaakobject)
 
     fun deleteZaakobject(zaakobject: Zaakobject, toelichting: String?) {
         toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        zrcClient.zaakobjectDelete(zaakobject.uuid!!)
+        zrcClient.zaakobjectDelete(zaakobject.uuid)
     }
 
     fun readZaakobject(zaakobjectUUID: UUID): Zaakobject = zrcClient.zaakobjectRead(zaakobjectUUID)
 
     fun createZaakInformatieobject(
-        zaakInformatieobject: ZaakInformatieobject,
+        zaakInformatieObjectRequest: ZaakInformatieObjectRequest,
         toelichting: String? = null
-    ): ZaakInformatieobject {
+    ): ZaakInformatieObject {
         toelichting?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
-        return zrcClient.zaakinformatieobjectCreate(zaakInformatieobject)
+        return zrcClient.zaakinformatieobjectCreate(zaakInformatieObjectRequest)
     }
 
     fun deleteZaakInformatieobject(
@@ -95,7 +97,7 @@ class ZrcClientService @Inject constructor(
         return readZaak(zaakURI.extractUuid())
     }
 
-    fun readZaakinformatieobject(zaakinformatieobjectUUID: UUID): ZaakInformatieobject =
+    fun readZaakinformatieobject(zaakinformatieobjectUUID: UUID): ZaakInformatieObject =
         zrcClient.zaakinformatieobjectRead(zaakinformatieobjectUUID)
 
     fun updateRol(zaak: Zaak, rol: Rol<*>, toelichting: String?) {
@@ -143,17 +145,17 @@ class ZrcClientService @Inject constructor(
 
     fun listZakenUuids(filter: ZaakListParameters): Results<ZaakUuid> = zrcClient.zaakListUuids(filter)
 
-    fun listZaakinformatieobjecten(filter: ZaakInformatieobjectListParameters): List<ZaakInformatieobject> =
+    fun listZaakinformatieobjecten(filter: ZaakInformatieobjectListParameters): List<ZaakInformatieObject> =
         zrcClient.zaakinformatieobjectList(filter)
 
-    fun listZaakinformatieobjecten(zaak: Zaak): List<ZaakInformatieobject> =
+    fun listZaakinformatieobjecten(zaak: Zaak): List<ZaakInformatieObject> =
         listZaakinformatieobjecten(
             ZaakInformatieobjectListParameters().apply {
                 this.zaak = zaak.url
             }
         )
 
-    fun listZaakinformatieobjecten(informatieobject: EnkelvoudigInformatieObject): List<ZaakInformatieobject> =
+    fun listZaakinformatieobjecten(informatieobject: EnkelvoudigInformatieObject): List<ZaakInformatieObject> =
         listZaakinformatieobjecten(
             ZaakInformatieobjectListParameters().apply {
                 this.informatieobject = informatieobject.getUrl()
@@ -189,17 +191,16 @@ class ZrcClientService @Inject constructor(
                 "en InformatieObject: '${informatieobject.getInhoud().extractUuid()}'"
         }
         val oudeZaakInformatieobject = zaakInformatieobjecten.first()
-        val nieuweZaakInformatieObject = ZaakInformatieobject(
-            informatieobject = informatieobject.getUrl(),
-            zaak = nieuweZaak.url
-        ).apply {
-            this.titel = oudeZaakInformatieobject.titel
-            this.beschrijving = oudeZaakInformatieobject.beschrijving
+        val nieuweZaakInformatieObjectRequest = ZaakInformatieObjectRequest().apply {
+            this.informatieobject = informatieobject.getUrl()
+            this.zaak = nieuweZaak.url
+            titel = oudeZaakInformatieobject.titel
+            beschrijving = oudeZaakInformatieobject.beschrijving
         }
 
         val toelichting = "${oudeZaak.identificatie} -> ${nieuweZaak.identificatie}"
-        createZaakInformatieobject(nieuweZaakInformatieObject, toelichting)
-        deleteZaakInformatieobject(oudeZaakInformatieobject.uuid!!, toelichting, "Verplaatst")
+        createZaakInformatieobject(nieuweZaakInformatieObjectRequest, toelichting)
+        deleteZaakInformatieobject(oudeZaakInformatieobject.uuid, toelichting, "Verplaatst")
     }
 
     fun koppelInformatieobject(
@@ -210,14 +211,13 @@ class ZrcClientService @Inject constructor(
         listZaakinformatieobjecten(enkelvoudigInformatieObject).firstOrNull()?.let {
             throw IllegalStateException("Informatieobject is reeds gekoppeld aan zaak '${it.zaak.extractUuid()}'")
         }
-        val nieuweZaakInformatieObject = ZaakInformatieobject(
-            informatieobject = enkelvoudigInformatieObject.getUrl(),
+        val nieuweZaakInformatieObjectRequest = ZaakInformatieObjectRequest().apply {
+            informatieobject = enkelvoudigInformatieObject.getUrl()
             zaak = targetZaak.url
-        ).apply {
             titel = enkelvoudigInformatieObject.getTitel()
             beschrijving = enkelvoudigInformatieObject.getBeschrijving()
         }
-        createZaakInformatieobject(nieuweZaakInformatieObject, description)
+        createZaakInformatieobject(nieuweZaakInformatieObjectRequest, description)
     }
 
     fun listAuditTrail(zaakUUID: UUID): List<ZRCAuditTrailRegel> =

@@ -21,7 +21,7 @@ import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.UriInfo
-import nl.info.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import net.atos.zac.event.EventingService
 import net.atos.zac.util.MediaTypes
 import net.atos.zac.websocket.event.ScreenEventType
@@ -62,10 +62,13 @@ import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.webdav.WebdavHelper
+import nl.info.client.zgw.zrc.model.zaakUUID
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.io.IOException
 import java.net.URI
 import java.util.UUID
+import java.util.logging.Level
+import java.util.logging.Logger
 
 @Singleton
 @Path("informatieobjecten")
@@ -93,19 +96,30 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
     private val enkelvoudigInformatieObjectConvertService: EnkelvoudigInformatieObjectConvertService,
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(EnkelvoudigInformatieObjectRestService::class.java.name)
+    }
 
     @GET
     @Path("informatieobject/{uuid}")
     fun readEnkelvoudigInformatieobject(
-        @PathParam("uuid") uuid: UUID,
-        @QueryParam("zaak") zaakUUID: UUID?
+        @PathParam("uuid") uuid: UUID
     ): RestEnkelvoudigInformatieobject =
         uuid
             .let(drcClientService::readEnkelvoudigInformatieobject)
             .let { enkelvoudigInformatieObject ->
-                zaakUUID?.let(zrcClientService::readZaak).let {
-                    restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, it)
-                }
+                zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
+                    .also { zaakInformatieobjecten ->
+                        if (zaakInformatieobjecten.size > 1) {
+                            LOG.log(Level.WARNING) {
+                                "Document with UUID '$uuid' is linked to ${zaakInformatieobjecten.size} zaken; " +
+                                    "using ${zaakInformatieobjecten[0].zaakUUID} to determine document rights."
+                            }
+                        }
+                    }
+                    .firstOrNull()
+                    ?.let { zrcClientService.readZaak(it.zaakUUID) }
+                    .let { zaak -> restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak) }
             }
 
     @GET
@@ -555,7 +569,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             enkelvoudigInformatieObjectVersieGegevens.toelichting
         ).let(restInformatieobjectConverter::convertToREST)
 
-    private fun toRestZaakInformatieobject(zaakInformatieobject: ZaakInformatieobject): RestZaakInformatieobject {
+    private fun toRestZaakInformatieobject(zaakInformatieobject: ZaakInformatieObject): RestZaakInformatieobject {
         val zaak = zrcClientService.readZaak(zaakInformatieobject.zaak)
         val zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype())
         val zaakrechten = policyService.readZaakRechten(zaak, zaaktype, loggedInUserInstance.get())

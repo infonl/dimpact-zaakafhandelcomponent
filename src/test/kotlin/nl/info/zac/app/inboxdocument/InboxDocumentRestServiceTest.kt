@@ -12,7 +12,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.ws.rs.NotFoundException
-import nl.info.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
@@ -231,9 +231,9 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject().apply {
                     setIdentificatie("DOC-123")
                 }
-                val zaakInformatieobject = ZaakInformatieobject(
-                    URI("https://example.com/informatieobject/$documentUUID"),
-                    URI("https://example.com/zaak/$zaakUUID")
+                val zaakInformatieobject = createZaakInformatieobjectForReads(
+                    informatieobject = URI("https://example.com/informatieobject/$documentUUID"),
+                    zaak = URI("https://example.com/zaak/$zaakUUID")
                 )
 
                 every { policyService.readWerklijstRechten() } returns werklijstRechten

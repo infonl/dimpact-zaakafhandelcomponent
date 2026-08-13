@@ -61,7 +61,7 @@ describe(FormioSetupService.name, () => {
         );
       };
 
-      it("should link to the document with the zaak uuid of the task filled in", async () => {
+      it("should link to the document by its own uuid", async () => {
         const column: ExtendedComponentSchema = { ...regelLinkColumn };
 
         await initializeLinkInGrid(unsignedDocumentsFieldset, column);
@@ -70,7 +70,7 @@ describe(FormioSetupService.name, () => {
           {
             attr: "href",
             // the row uuid stays a template: only Form.io can resolve it, per row
-            value: `/informatie-objecten/{{ row.uuid }}/${taak.zaakUuid}`,
+            value: `/informatie-objecten/{{ row.uuid }}`,
           },
           { attr: "target", value: "_blank" },
           { attr: "rel", value: "noopener noreferrer" },
@@ -86,7 +86,7 @@ describe(FormioSetupService.name, () => {
           expect.arrayContaining([
             {
               attr: "href",
-              value: `/informatie-objecten/{{ row.uuid }}/${taak.zaakUuid}`,
+              value: `/informatie-objecten/{{ row.uuid }}`,
             },
           ]),
         );
@@ -142,7 +142,7 @@ describe(FormioSetupService.name, () => {
         expect(column.attrs).toEqual([
           {
             attr: "href",
-            value: `/informatie-objecten/{{ row.uuid }}/${taak.zaakUuid}`,
+            value: `/informatie-objecten/{{ row.uuid }}`,
           },
           { attr: "target", value: "_blank" },
           { attr: "rel", value: "noopener noreferrer" },

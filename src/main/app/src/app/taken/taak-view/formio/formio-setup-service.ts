@@ -59,7 +59,7 @@ const VIEW_ICON_CONTENT =
   '<span class="material-symbols-outlined">visibility</span>';
 
 const DOCUMENT_ROW_LINK: RowLink = {
-  href: (taak) => `/informatie-objecten/{{ row.uuid }}/${taak.zaakUuid}`,
+  href: () => `/informatie-objecten/{{ row.uuid }}`,
   textKey: "actie.document.openen-nieuw-tabblad",
 };
 

@@ -12,14 +12,15 @@ import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
-import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
+import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
+import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestZaaktype
 import nl.info.zac.app.zaak.model.RestZaaktypeRelatie
 import nl.info.zac.app.zaak.model.toRestZaaktypeRelatie
 
 class RestZaaktypeConverter @Inject constructor(
-    private val zaakafhandelParametersConverter: RestZaakafhandelParametersConverter,
+    private val restZaaktypeConfigurationConverter: RestZaaktypeConfigurationConverter,
     private val zaaktypeCmmnConfigurationService: ZaaktypeCmmnConfigurationService,
     private val zaaktypeBpmnConfigurationBeheerService: ZaaktypeBpmnConfigurationBeheerService
 ) {
@@ -39,7 +40,7 @@ class RestZaaktypeConverter @Inject constructor(
             nuGeldig = zaaktype.isNuGeldig(),
             beginGeldigheid = zaaktype.beginGeldigheid,
             eindeGeldigheid = zaaktype.eindeGeldigheid,
-            vertrouwelijkheidaanduiding = zaaktype.vertrouwelijkheidaanduiding,
+            vertrouwelijkheidaanduiding = zaaktype.vertrouwelijkheidaanduiding?.toRestVertrouwelijkheidaanduiding(),
             opschortingMogelijk = zaaktype.opschortingEnAanhoudingMogelijk,
             verlengingMogelijk = zaaktype.verlengingMogelijk,
             verlengingstermijn = zaaktype.extensionPeriodDays(),
@@ -48,9 +49,9 @@ class RestZaaktypeConverter @Inject constructor(
             referentieproces = zaaktype.referentieproces?.naam,
             zaakafhandelparameters = zaaktypeUuid.let { uuid ->
                 zaaktypeBpmnConfigurationBeheerService.findConfiguration(uuid)?.let {
-                    zaakafhandelParametersConverter.toRestZaakafhandelParameters(it)
+                    restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(it)
                 } ?: zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(uuid).let {
-                    zaakafhandelParametersConverter.toRestZaakafhandelParameters(it, true)
+                    restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(it, true)
                 }
             }
         )

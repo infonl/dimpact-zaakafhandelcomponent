@@ -15,6 +15,7 @@ import nl.info.client.bag.model.generated.OpenbareRuimteIOHalBasis;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte;
 import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte;
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimteRequest;
 
 public class RestOpenbareRuimteConverter {
     public static RESTOpenbareRuimte convertToREST(final OpenbareRuimteIOHalBasis openbareRuimteIO, final AdresIOHal adres) {
@@ -60,12 +61,12 @@ public class RestOpenbareRuimteConverter {
         return restOpenbareRuimte;
     }
 
-    public static ZaakobjectOpenbareRuimte convertToZaakobject(final RESTOpenbareRuimte openbareRuimte, final Zaak zaak) {
+    public static ZaakobjectOpenbareRuimteRequest convertToZaakobject(final RESTOpenbareRuimte openbareRuimte, final Zaak zaak) {
         final ObjectOpenbareRuimte objectOpenbareRuimte = new ObjectOpenbareRuimte(
                 openbareRuimte.identificatie,
                 openbareRuimte.naam,
                 openbareRuimte.woonplaatsNaam);
-        return new ZaakobjectOpenbareRuimte(zaak.getUrl(), openbareRuimte.url, objectOpenbareRuimte);
+        return new ZaakobjectOpenbareRuimteRequest(zaak.getUrl(), openbareRuimte.url, objectOpenbareRuimte);
     }
 
     private static RESTOpenbareRuimte convertToREST(final OpenbareRuimte openbareRuimte) {
