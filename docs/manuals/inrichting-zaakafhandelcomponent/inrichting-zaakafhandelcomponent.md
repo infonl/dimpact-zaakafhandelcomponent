@@ -2,7 +2,7 @@
 
 
 > **Colofon** <br>
-> Datum : 07-08-2026 <br>
+> Datum : 13-08-2026 <br>
 > Versie :   1.15 <br>
 > Verandering : Herindeling handleiding <br>
 > Project referentie : ZAC <br>
