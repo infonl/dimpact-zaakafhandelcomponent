@@ -250,7 +250,12 @@ class BrpClientService @Inject constructor(
             valueDescription = "verwerkingregister value",
             resolveFunction = { it.zaaktypeBrpParameters?.verwerkingregisterWaarde },
             buildFunction = { resolvedValue, zaakTypeConfiguration ->
-                "${resolvedValue ?: defaultVerwerkingregisterValue}@${zaakTypeConfiguration.zaaktypeOmschrijving}"
+                (resolvedValue ?: defaultVerwerkingregisterValue) +
+                    if (brpConfiguration.isVerwerkingRegisterExtendedWithZaaktype()) {
+                        "@${zaakTypeConfiguration.zaaktypeOmschrijving}"
+                    } else {
+                        ""
+                    }
             }
         )
 

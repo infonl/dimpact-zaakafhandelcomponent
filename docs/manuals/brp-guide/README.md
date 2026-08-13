@@ -15,7 +15,7 @@ This guide covers configuration for the three supported providers:
 ZAC builds a set of outgoing BRP request headers from the environment variables listed below. Before each BRP API call:
 
 1. The current user's ID is read from the session and placed in the configured gebruiker header.
-2. The doelbinding and verwerkingregister values are resolved — either from the zaaktype-level configuration in the admin UI (when `BRP_DOELBINDING_PER_ZAAKTYPE=true`) or from the fallback environment variable values.
+2. The doelbinding and verwerkingregister values are resolved — either from the zaaktype-level configuration in the admin UI (when `BRP_DOELBINDING_PER_ZAAKTYPE=true`) or from the fallback environment variable values. When `BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE=true`, the resolved verwerkingregister value is suffixed with the zaaktype omschrijving (`<verwerkingsregister>@<zaaktype>`) so the verwerking header reflects which case type the BRP request was made for.
 3. All configured headers are forwarded to the BRP proxy by `BrpClientHeadersFactory`.
 
 Setting a header name environment variable to an empty string disables that header entirely.
@@ -35,6 +35,7 @@ Setting a header name environment variable to an empty string disables that head
 | `BRP_DOELBINDING_RAADPLEEGMET` | When doelbinding header is enabled | Default doelbinding for retrieval requests |
 | `BRP_VERWERKING_HEADER` | No | Header name for the verwerkingregister value. Empty string disables the header |
 | `BRP_VERWERKINGSREGISTER` | When verwerking header is enabled | Default verwerkingregister value |
+| `BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE` | When verwerking header is enabled | Set to `true` to suffix the verwerkingregister value with the zaaktype omschrijving (`<verwerkingsregister>@<zaaktype>`). Required for iConnect; other providers may not support this and require `false`. Default: `false` |
 | `BRP_GEBRUIKER_HEADER` | No | Header name for the gebruiker (user) value. Empty string disables the header |
 | `BRP_TOEPASSING_HEADER` | No | Header name for the toepassing value. Empty string disables the header |
 | `BRP_TOEPASSING` | When toepassing header is enabled | Value to send in the toepassing header, e.g. `ZAC` |
@@ -67,6 +68,8 @@ BRP_DOELBINDING_RAADPLEEGMET=BRPACT-Totaal
 # Verwerkingregister — fallback value used when no zaaktype-level value is configured
 BRP_VERWERKING_HEADER=x-verwerking
 BRP_VERWERKINGSREGISTER=<verwerkingsregister>
+# iConnect requires the verwerkingregister value to be extended with the zaaktype
+BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE=true
 
 # Logged-in user header
 BRP_GEBRUIKER_HEADER=x-gebruiker
@@ -106,6 +109,7 @@ brpApi:
     verwerking:
       header: "x-verwerking"
       register: "<verwerkingsregister>"
+      extendWithZaaktype: true
     gebruiker:
       header: "x-gebruiker"
     toepassing:
@@ -145,6 +149,8 @@ BRP_DOELBINDING_RAADPLEEGMET=BRPACT-Totaal
 # Verwerkingregister
 BRP_VERWERKING_HEADER=x-verwerking
 BRP_VERWERKINGSREGISTER=<verwerkingsregister>
+# Only iConnect is known to require the zaaktype extension; leave disabled unless your provider needs it
+BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE=false
 
 # Logged-in user header
 BRP_GEBRUIKER_HEADER=x-gebruiker
@@ -184,6 +190,7 @@ brpApi:
     verwerking:
       header: "x-verwerking"
       register: "<verwerkingsregister>"
+      extendWithZaaktype: false
     gebruiker:
       header: "x-gebruiker"
     toepassing:
@@ -213,6 +220,8 @@ BRP_DOELBINDING_HEADER=
 # Verwerkingregister — sent on x-request-application
 BRP_VERWERKING_HEADER=x-request-application
 BRP_VERWERKINGSREGISTER=<verwerkingsregister>
+# Only iConnect is known to require the zaaktype extension; leave disabled unless your provider needs it
+BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE=false
 
 # Logged-in user header
 BRP_GEBRUIKER_HEADER=x-request-user
@@ -248,6 +257,7 @@ brpApi:
     verwerking:
       header: "x-request-application"
       register: "<verwerkingsregister>"
+      extendWithZaaktype: false
     gebruiker:
       header: "x-request-user"
     toepassing:
