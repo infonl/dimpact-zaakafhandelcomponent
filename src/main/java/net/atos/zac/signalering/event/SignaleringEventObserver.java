@@ -4,11 +4,22 @@
  */
 package net.atos.zac.signalering.event;
 
+import static nl.info.client.zgw.shared.ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR;
+import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
+
+import java.net.URI;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+
+import org.flowable.task.api.TaskInfo;
+
 import net.atos.zac.event.AbstractEventObserver;
 import net.atos.zac.flowable.task.FlowableTaskService;
 import net.atos.zac.signalering.model.Signalering;
@@ -27,15 +38,6 @@ import nl.info.client.zgw.ztc.model.generated.RolType;
 import nl.info.zac.identity.IdentityService;
 import nl.info.zac.identity.model.User;
 import nl.info.zac.signalering.SignaleringService;
-import org.flowable.task.api.TaskInfo;
-
-import java.net.URI;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static nl.info.client.zgw.shared.ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR;
-import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
 
 /**
  * This bean listens for SignaleringEvents and handles them.
