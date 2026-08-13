@@ -271,7 +271,7 @@ export class ZaakViewComponent
     afleidingswijze?: GeneratedType<"AfleidingswijzeEnum"> | null,
   ) {
     if (!afleidingswijze) return null;
-    // Workaround: the value returned from the backend is lowercase and generated typescript types expects uppercase.
+    // Workaround: the value returned from the backend is lowercase and generated TypeScript types expect uppercase.
     const afleidingswijzeBrondatum: string = afleidingswijze.toUpperCase();
 
     if (afleidingswijzeBrondatum === "EIGENSCHAP") {
