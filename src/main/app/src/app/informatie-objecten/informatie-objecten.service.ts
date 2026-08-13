@@ -24,15 +24,11 @@ export class InformatieObjectenService {
     private readonly zacQueryClient: ZacQueryClient,
   ) {}
 
-  /**
-   * Het EnkelvoudigInformatieobject kan opgehaald worden binnen de context van een specifieke zaak.
-   */
-  readEnkelvoudigInformatieobject(uuid: string, zaakUuid?: string) {
+  readEnkelvoudigInformatieobject(uuid: string) {
     return this.zacHttpClient.GET(
       "/rest/informatieobjecten/informatieobject/{uuid}",
       {
         path: { uuid },
-        query: { zaak: zaakUuid ?? null },
       },
     );
   }

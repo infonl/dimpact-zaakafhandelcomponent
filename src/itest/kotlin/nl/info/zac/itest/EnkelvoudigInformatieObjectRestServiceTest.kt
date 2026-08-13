@@ -264,10 +264,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                       "rechten" : {
                         "converteren" : true,
                         "lezen" : true,
-                        "ondertekenen" : false,
+                        "ondertekenen" : true,
                         "ontgrendelen" : false,
                         "toevoegenNieuweVersie" : false,
-                        "vergrendelen" : false,
+                        "vergrendelen" : true,
                         "verwijderen" : false,
                         "wijzigen" : false
                       },
@@ -453,10 +453,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                   "rechten": {
                     "converteren": true,
                     "lezen": true,
-                    "ondertekenen": false,
+                    "ondertekenen": true,
                     "ontgrendelen": false,
                     "toevoegenNieuweVersie": false,
-                    "vergrendelen": false,
+                    "vergrendelen": true,
                     "verwijderen": false,
                     "wijzigen": false
                   },

@@ -162,11 +162,7 @@
               <a
                 *ngIf="row.rechten.lezen"
                 mat-icon-button
-                [routerLink]="[
-                  '/informatie-objecten',
-                  row.uuid,
-                  this.getZaakUuidVanInformatieObject(row),
-                ]"
+                [routerLink]="['/informatie-objecten', row.uuid]"
                 title="{{ 'actie.document.bekijken' | translate }}"
               >
                 <mat-icon>visibility</mat-icon>
