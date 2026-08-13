@@ -7,8 +7,12 @@ import { ComponentType } from "@angular/cdk/portal";
 import {
   AfterViewInit,
   Component,
+  computed,
+  effect,
   inject,
   OnDestroy,
+  signal,
+  untracked,
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -79,7 +83,28 @@ export class ZaakViewComponent
   private readonly queryClient = inject(QueryClient);
 
   readonly indicatiesLayout = IndicatiesLayout;
-  zaak!: GeneratedType<"RestZaak">;
+
+  private readonly zaakUuid = signal<string | undefined>(undefined);
+
+  private readonly zaakQuery = injectQuery(() => {
+    const uuid = this.zaakUuid();
+    return {
+      ...this.zakenService.readZaakQuery(uuid ?? ""),
+      enabled: Boolean(uuid),
+    };
+  });
+
+  get zaak(): GeneratedType<"RestZaak"> {
+    return this.zaakQuery.data()!;
+  }
+
+  // Narrowed off `zaakQuery.data()` so this only changes value (and re-runs
+  // dependent effects) when `isOpgeschort` itself changes, not on every
+  // unrelated zaak content write.
+  private readonly isOpgeschort = computed(
+    () => this.zaakQuery.data()?.isOpgeschort,
+  );
+
   zaakOpschorting!: GeneratedType<"RESTZaakOpschorting">;
   menu: MenuItem[] = [];
   actiefPlanItem: GeneratedType<"RESTPlanItem"> | null = null;
@@ -155,7 +180,8 @@ export class ZaakViewComponent
     super();
     this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
       const zaak = data["zaak"] as GeneratedType<"RestZaak">;
-      this.init(zaak);
+      this.zakenService.cacheZaak(zaak);
+      this.zaakUuid.set(zaak.uuid);
 
       this.zaakListener = this.websocketService.addListenerWithSnackbar(
         Opcode.ANY,
@@ -185,16 +211,32 @@ export class ZaakViewComponent
 
       this.loadNotitieRechten();
     });
-  }
 
-  private init(zaak: GeneratedType<"RestZaak">) {
-    this.zaak = zaak;
-    this.invalidateZaakHistorie();
-    this.loadBagObjecten();
-    this.setupMenu();
-    this.loadOpschorting();
-    this.setDateFieldIconSet();
-    ViewResourceUtil.actieveZaak = zaak;
+    effect(() => {
+      const uuid = this.zaakUuid();
+      if (!uuid) return;
+      // invalidateZaakHistorie/loadBagObjecten read the whole zaak getter
+      // internally (for .uuid) — untracked so that doesn't also make this
+      // effect re-run on unrelated content changes.
+      untracked(() => {
+        this.invalidateZaakHistorie();
+        this.loadBagObjecten();
+      });
+    });
+
+    effect(() => {
+      const isOpgeschort = this.isOpgeschort();
+      if (isOpgeschort === undefined) return;
+      untracked(() => this.loadOpschorting());
+    });
+
+    effect(() => {
+      const zaak = this.zaakQuery.data();
+      if (!zaak) return;
+      this.setupMenu();
+      this.setDateFieldIconSet();
+      ViewResourceUtil.actieveZaak = zaak;
+    });
   }
 
   ngAfterViewInit() {
@@ -836,7 +878,7 @@ export class ZaakViewComponent
       .subscribe((result) => {
         this.activeSideAction = null;
         if (result) {
-          this.init(result);
+          this.zakenService.cacheZaak(result);
           this.utilService.openSnackbar("msg.zaak.opgeschort");
         }
       });
@@ -852,7 +894,7 @@ export class ZaakViewComponent
       .subscribe((result) => {
         this.activeSideAction = null;
         if (result) {
-          this.init(result);
+          this.zakenService.cacheZaak(result);
           this.utilService.openSnackbar("msg.zaak.verlengd");
         }
       });
@@ -899,9 +941,9 @@ export class ZaakViewComponent
   }
 
   public updateZaak() {
-    this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
-      this.init(zaak);
-    });
+    this.zakenService
+      .readZaak(this.zaak.uuid)
+      .subscribe((zaak) => this.zakenService.cacheZaak(zaak));
   }
 
   private invalidateZaakHistorie() {
@@ -942,7 +984,9 @@ export class ZaakViewComponent
   private loadBesluiten() {
     this.zakenService
       .listBesluitenForZaak(this.zaak.uuid)
-      .subscribe((besluiten) => (this.zaak.besluiten = besluiten));
+      .subscribe((besluiten) =>
+        this.zakenService.cacheZaak({ ...this.zaak, besluiten }),
+      );
   }
 
   private loadNotitieRechten() {
@@ -988,7 +1032,7 @@ export class ZaakViewComponent
   ) {
     if (!zaak) return;
 
-    this.zaak = zaak;
+    this.zakenService.cacheZaak(zaak);
     const naam = [
       zaak.initiatorIdentificatie?.kvkNummer,
       zaak.initiatorIdentificatie?.vestigingsnummer,
@@ -1025,7 +1069,7 @@ export class ZaakViewComponent
         if (result) {
           this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
           this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
-            this.zaak = zaak;
+            this.zakenService.cacheZaak(zaak);
             this.invalidateZaakHistorie();
           });
         }
@@ -1045,7 +1089,7 @@ export class ZaakViewComponent
         ),
       })
       .subscribe((zaak) => {
-        this.zaak = zaak;
+        this.zakenService.cacheZaak(zaak);
         this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
           roltype: klantgegevens.betrokkeneRoltype.naam,
         });
@@ -1266,17 +1310,17 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.kvkKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.brpKoppelen &&
-        this.brpRechtenQuery.data()?.zoeken,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen &&
+      this.brpRechtenQuery.data()?.zoeken,
     );
   }
 

@@ -270,6 +270,7 @@ describe(ZaakViewComponent.name, () => {
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
       mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
@@ -358,15 +359,15 @@ describe(ZaakViewComponent.name, () => {
   });
 
   describe("dateFieldIconMap icon logic", () => {
-    let component: ZaakViewComponent;
     const yesterdayDate = moment().subtract(1, "days").format("YYYY-MM-DD");
     const today = moment().format("YYYY-MM-DD");
     const tomorrowDate = moment().add(1, "days").format("YYYY-MM-DD");
 
     beforeEach(async () => {
       fixture = TestBed.createComponent(ZaakViewComponent);
-      component = fixture.componentInstance;
-      component.zaak = { ...zaak } as GeneratedType<"RestZaak">;
+      mockActivatedRoute.data.next({
+        zaak: { ...zaak } as GeneratedType<"RestZaak">,
+      });
 
       loader = TestbedHarnessEnvironment.loader(fixture);
 
@@ -1561,6 +1562,82 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
+  describe("zaak from cache", () => {
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("renders the zaak the route resolved", () => {
+      expect(fixture.componentInstance.zaak.uuid).toBe("1234");
+    });
+
+    it("re-renders from a cache write without a route emission", () => {
+      zakenService.cacheZaak({
+        ...zaak,
+        omschrijving: "fakeUpdatedOmschrijving",
+      });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.zaak.omschrijving).toBe(
+        "fakeUpdatedOmschrijving",
+      );
+    });
+  });
+
+  describe("side effects on zaak changes", () => {
+    const opschortbareZaak = {
+      ...zaak,
+      isOpen: true,
+      rechten: {
+        ...zaak.rechten,
+        behandelen: true,
+      },
+      zaaktype: {
+        ...zaak.zaaktype,
+        opschortingMogelijk: true,
+      },
+      isHeropend: false,
+      isOpgeschort: false,
+      eerdereOpschorting: false,
+      isProcesGestuurd: false,
+    } satisfies GeneratedType<"RestZaak">;
+
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak: opschortbareZaak });
+      fixture.detectChanges();
+      jest.mocked(bagService.list).mockClear();
+    });
+
+    it("does not reload BAG objects when only zaak content changes", () => {
+      zakenService.cacheZaak({
+        ...opschortbareZaak,
+        omschrijving: "fakeUpdatedOmschrijving",
+      });
+      fixture.detectChanges();
+
+      expect(bagService.list).not.toHaveBeenCalled();
+    });
+
+    it("rebuilds the action menu when rechten change", () => {
+      const menuTitlesBeforeWrite = fixture.componentInstance.menu.map(
+        (item) => item.title,
+      );
+      expect(menuTitlesBeforeWrite).toContain("actie.zaak.opschorten");
+
+      zakenService.cacheZaak({
+        ...opschortbareZaak,
+        rechten: { ...opschortbareZaak.rechten, behandelen: false },
+      });
+      fixture.detectChanges();
+
+      const menuTitlesAfterWrite = fixture.componentInstance.menu.map(
+        (item) => item.title,
+      );
+      expect(menuTitlesAfterWrite).not.toContain("actie.zaak.opschorten");
+    });
+  });
+
   describe("Menu item ordering", () => {
     it("should sort human task plan items alphabetically by their name", () => {
       jest
@@ -1587,6 +1664,7 @@ describe(ZaakViewComponent.name, () => {
           },
         },
       });
+      fixture.detectChanges();
 
       const menu = fixture.componentInstance.menu;
       const startHeaderIndex = menu.findIndex(
