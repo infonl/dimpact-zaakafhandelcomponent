@@ -14,6 +14,7 @@ import { UtilService } from "../core/service/util.service";
 import { PatchBody, PostBody, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -67,7 +68,8 @@ export class ZakenService {
   }
 
   updateMutation() {
-    return mutationOptions({
+    return mergeMutationOptions(
+      mutationOptions({
       mutationKey: ["/rest/zaken/zaak/{uuid}"],
       mutationFn: (variables: {
         uuid: string;
@@ -86,7 +88,9 @@ export class ZakenService {
             { path: { uuid: variables.uuid } },
           ),
         ),
-    });
+      }),
+      { onSuccess: (zaak) => this.cacheZaak(zaak) },
+    );
   }
 
   readOpschortingZaak(uuid: string) {
@@ -111,9 +115,12 @@ export class ZakenService {
   }
 
   verlengenZaak(uuid: string) {
-    return this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/verlenging", {
-      path: { uuid },
-    });
+    return mergeMutationOptions(
+      this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/verlenging", {
+        path: { uuid },
+      }),
+      { onSuccess: (zaak) => this.cacheZaak(zaak) },
+    );
   }
 
   listZaakWaarschuwingen() {
@@ -169,9 +176,12 @@ export class ZakenService {
   }
 
   updateZaakLocatie(uuid: string) {
-    return this.zacQueryClient.PATCH("/rest/zaken/{uuid}/zaaklocatie", {
-      path: { uuid },
-    });
+    return mergeMutationOptions(
+      this.zacQueryClient.PATCH("/rest/zaken/{uuid}/zaaklocatie", {
+        path: { uuid },
+      }),
+      { onSuccess: (zaak) => this.cacheZaak(zaak) },
+    );
   }
 
   ontkoppelInformatieObject(

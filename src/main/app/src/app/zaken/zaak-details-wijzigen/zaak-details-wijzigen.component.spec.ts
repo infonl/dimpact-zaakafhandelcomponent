@@ -786,5 +786,24 @@ describe(CaseDetailsEditComponent.name, () => {
       );
       expect(await submitButton.isDisabled()).toBe(true);
     });
+
+    it("caches the zaak returned by the save so the view updates without a refetch", async () => {
+      const updatedZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: "zaak-123",
+        omschrijving: "fakeUpdatedOmschrijving",
+      });
+      const cacheZaak = jest.spyOn(zakenService, "cacheZaak");
+      renderComponent();
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("fakeReden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      expectUpdateZaakRequest().flush(updatedZaak);
+      await new Promise(requestAnimationFrame);
+
+      expect(cacheZaak).toHaveBeenCalledWith(updatedZaak);
+    });
   });
 });
