@@ -579,6 +579,14 @@ Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het document
   - Basisregistratie personen (persoonsgegevens) koppelen
   - KvK (bedrijfsgegevens) koppelen
 
+Als in de proxy configuratie "doelbinding per zaaktype" aan staat bij de inrichting van PodiumD, is er aanvullende informatie nodig.
+
+Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
+
+- BRP_DOELBINDING_RAADPLEEG_WAARDE
+- BRP_DOELBINDING_ZOEK_WAARDE
+- BRP_VERWERKINGSREGISTER_WAARDE
+
 #### SmartDocuments
 
 SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen en elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
