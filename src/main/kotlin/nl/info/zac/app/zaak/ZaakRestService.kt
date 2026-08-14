@@ -194,7 +194,8 @@ class ZaakRestService @Inject constructor(
             brondatum = afsluitenGegevens.brondatum?.let(String::toLocalDate)
         )
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (closedZaak, closedZaakType) ->
-            restZaakConverter.toRestZaak(closedZaak, closedZaakType, zaakRechten, loggedInUser)
+            val closedZaakRechten = policyService.readZaakRechten(closedZaak, closedZaakType, loggedInUser)
+            restZaakConverter.toRestZaak(closedZaak, closedZaakType, closedZaakRechten, loggedInUser)
         }
     }
 
@@ -486,7 +487,8 @@ class ZaakRestService @Inject constructor(
             zrcClientService.deleteResultaat(it.extractUuid())
         }
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (reopenedZaak, reopenedZaakType) ->
-            restZaakConverter.toRestZaak(reopenedZaak, reopenedZaakType, zaakRechten, loggedInUser)
+            val reopenedZaakRechten = policyService.readZaakRechten(reopenedZaak, reopenedZaakType, loggedInUser)
+            restZaakConverter.toRestZaak(reopenedZaak, reopenedZaakType, reopenedZaakRechten, loggedInUser)
         }
     }
 
@@ -535,7 +537,8 @@ class ZaakRestService @Inject constructor(
             }
         }
         return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (terminatedZaak, terminatedZaakType) ->
-            restZaakConverter.toRestZaak(terminatedZaak, terminatedZaakType, zaakRechten, loggedInUser)
+            val terminatedZaakRechten = policyService.readZaakRechten(terminatedZaak, terminatedZaakType, loggedInUser)
+            restZaakConverter.toRestZaak(terminatedZaak, terminatedZaakType, terminatedZaakRechten, loggedInUser)
         }
     }
 
