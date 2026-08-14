@@ -182,15 +182,20 @@ class ZaakRestService @Inject constructor(
     fun closeZaak(
         @PathParam("uuid") zaakUUID: UUID,
         afsluitenGegevens: RestZaakAfsluitenGegevens
-    ) {
+    ): RestZaak {
+        val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).behandelen)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        assertPolicy(zaakRechten.behandelen)
         zgwApiService.closeZaak(
             zaak = zaak,
             resultaatTypeUUID = afsluitenGegevens.resultaattypeUuid,
             description = afsluitenGegevens.reden,
             brondatum = afsluitenGegevens.brondatum?.let(String::toLocalDate)
         )
+        return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (closedZaak, closedZaakType) ->
+            restZaakConverter.toRestZaak(closedZaak, closedZaakType, zaakRechten, loggedInUser)
+        }
     }
 
     @Suppress("LongMethod")
@@ -467,11 +472,11 @@ class ZaakRestService @Inject constructor(
     fun reopenZaak(
         @PathParam("uuid") zaakUUID: UUID,
         heropenenGegevens: RestZaakHeropenenGegevens
-    ) {
+    ): RestZaak {
+        val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
-        assertPolicy(
-            !zaak.isOpen() && policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).heropenen
-        )
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        assertPolicy(!zaak.isOpen() && zaakRechten.heropenen)
         zgwApiService.createStatusForZaak(
             zaak,
             ConfigurationService.STATUSTYPE_OMSCHRIJVING_HEROPEND,
@@ -479,6 +484,9 @@ class ZaakRestService @Inject constructor(
         )
         zaak.resultaat?.let {
             zrcClientService.deleteResultaat(it.extractUuid())
+        }
+        return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (reopenedZaak, reopenedZaakType) ->
+            restZaakConverter.toRestZaak(reopenedZaak, reopenedZaakType, zaakRechten, loggedInUser)
         }
     }
 
@@ -488,12 +496,14 @@ class ZaakRestService @Inject constructor(
     fun terminateZaak(
         @PathParam("uuid") zaakUUID: UUID,
         afbrekenGegevens: RestZaakAfbrekenGegevens
-    ) {
+    ): RestZaak {
+        val loggedInUser = loggedInUserInstance.get()
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID)
         val statustype = zaak.status?.let {
             ztcClientService.readStatustype(zrcClientService.readStatus(it).statustype)
         }
-        assertPolicy(policyService.readZaakRechten(zaak, zaakType, loggedInUserInstance.get()).afbreken)
+        val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+        assertPolicy(zaakRechten.afbreken)
         assertPolicy(zaak.isOpen() && !statustype.isHeropend())
         zaak.resultaat?.run {
             throw ZaakWithABesluitCannotBeTerminatedException(
@@ -523,6 +533,9 @@ class ZaakRestService @Inject constructor(
                 CMMN -> cmmnService.terminateCase(zaakUUID)
                 BPMN -> bpmnService.terminateCase(zaakUUID)
             }
+        }
+        return zaakService.readZaakAndZaakTypeByZaakUUID(zaakUUID).let { (terminatedZaak, terminatedZaakType) ->
+            restZaakConverter.toRestZaak(terminatedZaak, terminatedZaakType, zaakRechten, loggedInUser)
         }
     }
 
