@@ -7,7 +7,10 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -30,6 +33,10 @@ import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
+import { ObjectType } from "../../core/websocket/model/object-type";
+import { Opcode } from "../../core/websocket/model/opcode";
+import { ScreenEvent } from "../../core/websocket/model/screen-event";
+import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { BedrijfsgegevensComponent } from "../../klanten/bedrijfsgegevens/bedrijfsgegevens.component";
@@ -1635,6 +1642,66 @@ describe(ZaakViewComponent.name, () => {
         (item) => item.title,
       );
       expect(menuTitlesAfterWrite).not.toContain("actie.zaak.opschorten");
+    });
+  });
+
+  describe("websocket echo suppression", () => {
+    let httpTestingController: HttpTestingController;
+    let zaakChangedCallback: (event: ScreenEvent) => Promise<void>;
+
+    const zaakChangedEvent = new ScreenEvent(
+      Opcode.UPDATED,
+      ObjectType.ZAAK,
+      new ScreenEventId(zaak.uuid),
+    );
+
+    const flushRefetch = async (body: GeneratedType<"RestZaak">) => {
+      await new Promise(requestAnimationFrame);
+      httpTestingController
+        .expectOne((request) => request.url.endsWith("/rest/zaken/zaak/1234"))
+        .flush(body);
+      await new Promise(requestAnimationFrame);
+    };
+
+    beforeEach(() => {
+      httpTestingController = TestBed.inject(HttpTestingController);
+      jest.spyOn(utilService, "openSnackbar");
+      jest
+        .spyOn(websocketService, "addListener")
+        .mockImplementation((_opcode, objectType, _objectId, callback) => {
+          if (objectType === ObjectType.ZAAK) {
+            zaakChangedCallback = callback as unknown as (
+              event: ScreenEvent,
+            ) => Promise<void>;
+          }
+          return fromPartial<WebsocketListener>({});
+        });
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+      // Mounting the component fires several unrelated queries (identity,
+      // policy, betrokkenen, ...). Drain them so this describe's afterEach
+      // only has to account for the zaak refetch it triggers itself.
+      httpTestingController.match(() => true);
+    });
+
+    afterEach(() => {
+      httpTestingController.verify();
+    });
+
+    it("stays quiet when the refetch returns identical data", async () => {
+      const pending = zaakChangedCallback(zaakChangedEvent);
+      await flushRefetch({ ...zaak });
+      await pending;
+
+      expect(utilService.openSnackbar).not.toHaveBeenCalled();
+    });
+
+    it("notifies when the refetch returns different data", async () => {
+      const pending = zaakChangedCallback(zaakChangedEvent);
+      await flushRefetch({ ...zaak, omschrijving: "changedByOtherUser" });
+      await pending;
+
+      expect(utilService.openSnackbar).toHaveBeenCalled();
     });
   });
 
