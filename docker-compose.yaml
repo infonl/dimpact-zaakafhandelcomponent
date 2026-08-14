@@ -508,8 +508,8 @@ services:
       ALLOWED_HOSTS: "*"
       CACHE_DEFAULT: redis:6379/0
       CACHE_AXES: redis:6379/0
-      CELERY_BROKER_URL: redis://redis:6379/1
-      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      CELERY_BROKER_URL: redis://redis:6379/3
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
       CELERY_LOGLEVEL: DEBUG
       DB_HOST: opennotificaties-database
       DB_NAME: opennotificaties
