@@ -283,6 +283,20 @@ describe(ZaakViewComponent.name, () => {
         queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
       });
     });
+
+    it("invalidates the historie query again on a content-only change, without a route re-navigation", () => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      zakenService.cacheZaak({ ...zaak, isOpgeschort: true });
+      fixture.detectChanges();
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
+      });
+    });
   });
 
   describe("actie.zaak.hervatten", () => {
@@ -1745,6 +1759,20 @@ describe(ZaakViewComponent.name, () => {
       await new Promise(requestAnimationFrame);
     };
 
+    // A 4xx status is used (rather than 5xx) because ZacQueryClient.GET retries
+    // 5xx/network failures up to DEFAULT_RETRY_COUNT times, which would make this
+    // helper race the retry backoff instead of resolving after a single failure.
+    const flushRefetchError = async () => {
+      await new Promise(requestAnimationFrame);
+      httpTestingController
+        .expectOne((request) => request.url.endsWith("/rest/zaken/zaak/1234"))
+        .flush("fakeClientError", {
+          status: 400,
+          statusText: "Bad Request",
+        });
+      await new Promise(requestAnimationFrame);
+    };
+
     beforeEach(() => {
       httpTestingController = TestBed.inject(HttpTestingController);
       jest.spyOn(utilService, "openSnackbar");
@@ -1784,6 +1812,49 @@ describe(ZaakViewComponent.name, () => {
       await pending;
 
       expect(utilService.openSnackbar).toHaveBeenCalled();
+    });
+
+    it("notifies when the refetch fails, rather than silently treating it as an echo", async () => {
+      const pending = zaakChangedCallback(zaakChangedEvent);
+      await flushRefetchError();
+      await pending;
+
+      expect(utilService.openSnackbar).toHaveBeenCalled();
+    });
+  });
+
+  describe("zaak rollen websocket listener", () => {
+    let zaakRollenCallback: (event: ScreenEvent) => void;
+
+    beforeEach(() => {
+      jest.spyOn(utilService, "openSnackbar");
+      jest
+        .spyOn(websocketService, "addListenerWithSnackbar")
+        .mockImplementation((_opcode, objectType, _objectId, callback) => {
+          if (objectType === ObjectType.ZAAK_ROLLEN) {
+            zaakRollenCallback = callback as (event: ScreenEvent) => void;
+          }
+          return fromPartial<WebsocketListener>({});
+        });
+
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("invalidates the betrokkenen query when a betrokkene changes elsewhere", () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      zaakRollenCallback(
+        new ScreenEvent(
+          Opcode.UPDATED,
+          ObjectType.ZAAK_ROLLEN,
+          new ScreenEventId(zaak.uuid),
+        ),
+      );
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.listBetrokkenenVoorZaakQuery(zaak.uuid).queryKey,
+      });
     });
   });
 

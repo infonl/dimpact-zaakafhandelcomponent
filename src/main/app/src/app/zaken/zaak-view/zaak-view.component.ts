@@ -191,11 +191,11 @@ export class ZaakViewComponent
         (event) => this.onZaakChanged(event),
       );
 
-      this.zaakRollenListener = this.websocketService.addListener(
+      this.zaakRollenListener = this.websocketService.addListenerWithSnackbar(
         Opcode.UPDATED,
         ObjectType.ZAAK_ROLLEN,
         zaak.uuid,
-        (event) => this.onZaakChanged(event),
+        () => this.invalidateBetrokkenen(),
       );
 
       this.zaakBesluitenListener =
@@ -216,13 +216,10 @@ export class ZaakViewComponent
     effect(() => {
       const uuid = this.zaakUuid();
       if (!uuid) return;
-      // invalidateZaakHistorie/loadBagObjecten read the whole zaak getter
-      // internally (for .uuid) — untracked so that doesn't also make this
-      // effect re-run on unrelated content changes.
-      untracked(() => {
-        this.invalidateZaakHistorie();
-        this.loadBagObjecten();
-      });
+      // loadBagObjecten reads the whole zaak getter internally (for .uuid) —
+      // untracked so that doesn't also make this effect re-run on unrelated
+      // content changes.
+      untracked(() => this.loadBagObjecten());
     });
 
     effect(() => {
@@ -234,6 +231,7 @@ export class ZaakViewComponent
     effect(() => {
       const zaak = this.zaakQuery.data();
       if (!zaak) return;
+      this.invalidateZaakHistorie();
       this.setupMenu();
       this.setDateFieldIconSet();
       ViewResourceUtil.actieveZaak = zaak;
@@ -947,12 +945,14 @@ export class ZaakViewComponent
   }
 
   /**
-   * Refetches the zaak and only announces the change when the refreshed
-   * content actually differs from what is already cached. TanStack's
+   * Refetches the zaak and only stays quiet when the refetch succeeded and
+   * its content is unchanged from what was already cached. TanStack's
    * structural sharing keeps the same object reference when a refetch
    * returns a deep-equal payload, so a reference comparison is enough to
    * tell a genuine change made by someone else from the echo of our own
-   * save (which already updated the cache from the save's own response).
+   * save (which already updated the cache from the save's own response). A
+   * failed refetch is never treated as an echo, so it still announces the
+   * change rather than silently doing nothing.
    */
   private async onZaakChanged(event: ScreenEvent) {
     const queryKey = this.zakenService.readZaakQuery(this.zaak.uuid).queryKey;
@@ -960,7 +960,10 @@ export class ZaakViewComponent
 
     await this.queryClient.refetchQueries({ queryKey });
 
-    if (this.queryClient.getQueryData(queryKey) === zaakBeforeRefetch) return;
+    const refetchSucceeded =
+      this.queryClient.getQueryState(queryKey)?.status === "success";
+    const zaakAfterRefetch = this.queryClient.getQueryData(queryKey);
+    if (refetchSucceeded && zaakAfterRefetch === zaakBeforeRefetch) return;
 
     forkJoin({
       msgPart1: this.translate.get(
