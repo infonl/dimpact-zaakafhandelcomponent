@@ -14,7 +14,6 @@ import { UtilService } from "../core/service/util.service";
 import { PatchBody, PostBody, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -70,24 +69,24 @@ export class ZakenService {
   updateMutation() {
     return mergeMutationOptions(
       mutationOptions({
-      mutationKey: ["/rest/zaken/zaak/{uuid}"],
-      mutationFn: (variables: {
-        uuid: string;
-        zaak: ZaakDetailsUpdate;
-        reden: string;
-      }) =>
-        lastValueFrom(
-          this.zacHttpClient.PATCH(
-            "/rest/zaken/zaak/{uuid}",
-            // Endpoint accepts a partial zaak; the generated body type requires
-            // the full RestZaakCreateData, so assert the partial here (one spot).
-            {
-              zaak: variables.zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
-              reden: variables.reden,
-            },
-            { path: { uuid: variables.uuid } },
+        mutationKey: ["/rest/zaken/zaak/{uuid}"],
+        mutationFn: (variables: {
+          uuid: string;
+          zaak: ZaakDetailsUpdate;
+          reden: string;
+        }) =>
+          lastValueFrom(
+            this.zacHttpClient.PATCH(
+              "/rest/zaken/zaak/{uuid}",
+              // Endpoint accepts a partial zaak; the generated body type requires
+              // the full RestZaakCreateData, so assert the partial here (one spot).
+              {
+                zaak: variables.zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
+                reden: variables.reden,
+              },
+              { path: { uuid: variables.uuid } },
+            ),
           ),
-        ),
       }),
       { onSuccess: (zaak) => this.cacheZaak(zaak) },
     );
@@ -246,6 +245,15 @@ export class ZakenService {
     return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/heropenen", body, {
       path: { uuid },
     });
+  }
+
+  afsluitenMutation(uuid: string) {
+    return mergeMutationOptions(
+      this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", {
+        path: { uuid },
+      }),
+      { onSuccess: (zaak) => this.cacheZaak(zaak) },
+    );
   }
 
   afsluiten(

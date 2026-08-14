@@ -720,5 +720,32 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       );
       req.flush({});
     });
+
+    it("caches the closed zaak returned by the afsluiten mutation and closes the dialog", async () => {
+      const cacheZaakSpy = jest.spyOn(zakenService, "cacheZaak");
+      const fakeClosedZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: "test-zaak-uuid-no-planitem",
+      });
+
+      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
+      await resultaattypeSelect.open();
+
+      const options = await resultaattypeSelect.getOptions();
+      await options[2]?.click();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
+      );
+      await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
+      httpTestingController
+        .expectOne(`/rest/zaken/zaak/test-zaak-uuid-no-planitem/afsluiten`)
+        .flush(fakeClosedZaak);
+      await new Promise(requestAnimationFrame);
+
+      expect(cacheZaakSpy).toHaveBeenCalledWith(fakeClosedZaak);
+      expect(mockDialogRef.close).toHaveBeenCalledWith(true);
+    });
   });
 });

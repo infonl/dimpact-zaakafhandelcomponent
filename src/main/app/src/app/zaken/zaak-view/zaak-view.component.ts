@@ -49,6 +49,7 @@ import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
+import { isRestZaak } from "../is-rest-zaak";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakBrondatumZettenDialogComponent } from "../zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component";
@@ -804,7 +805,11 @@ export class ZaakViewComponent
       .subscribe((result) => {
         this.activeSideAction = null;
         if (result) {
-          this.updateZaak();
+          if (isRestZaak(result)) {
+            this.zakenService.cacheZaak(result);
+          } else {
+            this.updateZaak();
+          }
           this.zaakTakenComponent.reload();
           this.utilService.openSnackbar("msg.zaak.afgebroken");
         }
@@ -820,7 +825,11 @@ export class ZaakViewComponent
       .subscribe((result) => {
         this.activeSideAction = null;
         if (result) {
-          this.updateZaak();
+          if (isRestZaak(result)) {
+            this.zakenService.cacheZaak(result);
+          } else {
+            this.updateZaak();
+          }
           this.zaakTakenComponent.reload();
           this.utilService.openSnackbar("msg.zaak.heropend");
         }

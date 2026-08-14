@@ -127,10 +127,7 @@ export class ZaakAfhandelenDialogComponent {
   }));
 
   protected readonly afsluitenMutation = injectMutation(
-    () =>
-      this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", {
-        path: { uuid: this.data.zaak.uuid },
-      }),
+    () => this.zakenService.afsluitenMutation(this.data.zaak.uuid),
     {
       onSuccess: () => this.dialogRef.close(true),
       onError: () => this.dialogRef.close(false),

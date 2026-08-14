@@ -751,6 +751,88 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
+  describe("openZaakAfbrekenDialog", () => {
+    let reloadSpy: jest.Mock;
+
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+      reloadSpy = jest.fn();
+      fixture.componentInstance["zaakTakenComponent"] =
+        fromPartial<ZaakTakenComponent>({ reload: reloadSpy });
+    });
+
+    it("writes the returned zaak into the cache when the dialog closes with one", () => {
+      const cacheZaakSpy = jest
+        .spyOn(zakenService, "cacheZaak")
+        .mockImplementation();
+      const fakeReturnedZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: zaak.uuid,
+      });
+      jest
+        .spyOn(dialogRef, "afterClosed")
+        .mockReturnValue(of(fakeReturnedZaak));
+
+      fixture.componentInstance["openZaakAfbrekenDialog"]();
+
+      expect(cacheZaakSpy).toHaveBeenCalledWith(fakeReturnedZaak);
+    });
+
+    it("falls back to a refetch when the dialog closes with a confirmation-only result", () => {
+      jest.spyOn(zakenService, "cacheZaak").mockImplementation();
+      const readZaakSpy = jest
+        .spyOn(zakenService, "readZaak")
+        .mockReturnValue(of(zaak));
+      jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
+
+      fixture.componentInstance["openZaakAfbrekenDialog"]();
+
+      expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+      expect(reloadSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("openZaakHeropenenDialog", () => {
+    let reloadSpy: jest.Mock;
+
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+      reloadSpy = jest.fn();
+      fixture.componentInstance["zaakTakenComponent"] =
+        fromPartial<ZaakTakenComponent>({ reload: reloadSpy });
+    });
+
+    it("writes the returned zaak into the cache when the dialog closes with one", () => {
+      const cacheZaakSpy = jest
+        .spyOn(zakenService, "cacheZaak")
+        .mockImplementation();
+      const fakeReturnedZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: zaak.uuid,
+      });
+      jest
+        .spyOn(dialogRef, "afterClosed")
+        .mockReturnValue(of(fakeReturnedZaak));
+
+      fixture.componentInstance["openZaakHeropenenDialog"]();
+
+      expect(cacheZaakSpy).toHaveBeenCalledWith(fakeReturnedZaak);
+    });
+
+    it("falls back to a refetch when the dialog closes with a confirmation-only result", () => {
+      jest.spyOn(zakenService, "cacheZaak").mockImplementation();
+      const readZaakSpy = jest
+        .spyOn(zakenService, "readZaak")
+        .mockReturnValue(of(zaak));
+      jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
+
+      fixture.componentInstance["openZaakHeropenenDialog"]();
+
+      expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+      expect(reloadSpy).toHaveBeenCalled();
+    });
+  });
+
   describe("subscriptions$", () => {
     let subscriptionsPushSpy: jest.SpyInstance;
 
