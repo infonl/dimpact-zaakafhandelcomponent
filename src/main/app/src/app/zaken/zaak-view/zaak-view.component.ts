@@ -188,7 +188,11 @@ export class ZaakViewComponent
         Opcode.ANY,
         ObjectType.ZAAK,
         zaak.uuid,
-        (event) => this.onZaakChanged(event),
+        (event) => {
+          void this.onZaakChanged(event).catch((error: unknown) =>
+            console.error("Websocket zaak listener error: ", error),
+          );
+        },
       );
 
       this.zaakRollenListener = this.websocketService.addListenerWithSnackbar(

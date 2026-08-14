@@ -16,4 +16,11 @@ describe("isRestZaak", () => {
       expect(isRestZaak(value)).toBe(false);
     },
   );
+
+  it.each([{ uuid: undefined }, { uuid: null }, { uuid: 1 }, { uuid: {} }])(
+    "rejects a dialog result whose uuid is not a string %p",
+    (value) => {
+      expect(isRestZaak(value)).toBe(false);
+    },
+  );
 });

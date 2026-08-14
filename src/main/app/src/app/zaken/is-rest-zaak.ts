@@ -6,5 +6,10 @@
 import { GeneratedType } from "../shared/utils/generated-types";
 
 export function isRestZaak(value: unknown): value is GeneratedType<"RestZaak"> {
-  return typeof value === "object" && value !== null && "uuid" in value;
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "uuid" in value &&
+    typeof value.uuid === "string"
+  );
 }
