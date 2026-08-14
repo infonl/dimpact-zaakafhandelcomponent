@@ -60,7 +60,9 @@ describe("ZaakService", () => {
       service.cacheZaak(zaak);
 
       expect(
-        queryClient.getQueryData(service.readZaakQuery("fakeZaakUuid1").queryKey),
+        queryClient.getQueryData(
+          service.readZaakQuery("fakeZaakUuid1").queryKey,
+        ),
       ).toBe(zaak);
     });
   });

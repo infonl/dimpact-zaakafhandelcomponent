@@ -6,8 +6,8 @@
 import { inject, Injectable } from "@angular/core";
 import {
   mutationOptions,
-  queryOptions,
   QueryClient,
+  queryOptions,
 } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { UtilService } from "../core/service/util.service";
@@ -49,7 +49,9 @@ export class ZakenService {
   }
 
   readZaakQuery(uuid: string) {
-    return this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}", { path: { uuid } });
+    return this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}", {
+      path: { uuid },
+    });
   }
 
   cacheZaak(zaak: GeneratedType<"RestZaak">) {
