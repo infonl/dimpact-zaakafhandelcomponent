@@ -12,8 +12,10 @@ import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatRowHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
 import { SharedModule } from "../../../shared/shared.module";
@@ -88,11 +90,14 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         TranslateModule.forRoot(),
       ],
       providers: [
+        provideQueryClient(testQueryClient),
         {
           provide: BpmnService,
           useValue: {
             uploadProcessDefinitionForm: jest.fn().mockReturnValue(of(null)),
-            deleteProcessDefinitionForm: jest.fn().mockReturnValue(of(null)),
+            deleteProcessDefinitionForm: jest
+              .fn()
+              .mockReturnValue(createMutationOptions({})),
           },
         },
         {
@@ -440,21 +445,24 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       expect(dialogData._melding.args).toEqual({ naam: "form-uploaded" });
     });
 
-    it("should pass the deleteProcessDefinitionForm observable to the dialog", () => {
-      const deleteObservable = of({});
-      bpmnService.deleteProcessDefinitionForm.mockReturnValue(deleteObservable);
+    it("should call deleteProcessDefinitionForm with the process key and form name when confirmed", async () => {
+      dialogOpenSpy.mockReturnValue({ afterClosed: () => of(true) } as never);
 
       component["deleteBpmnForm"]("form-uploaded");
+      await sleep();
 
-      const dialogData = dialogOpenSpy.mock.calls[0][1].data;
-      expect(dialogData.observable).toBe(deleteObservable);
+      expect(bpmnService.deleteProcessDefinitionForm).toHaveBeenCalledWith(
+        "test-key",
+        "form-uploaded",
+      );
     });
 
-    it("should show snackbar and emit bpmnFormListChanged when dialog is confirmed", () => {
+    it("should show snackbar and emit bpmnFormListChanged when dialog is confirmed", async () => {
       dialogOpenSpy.mockReturnValue({ afterClosed: () => of(true) } as never);
       const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
 
       component["deleteBpmnForm"]("form-uploaded");
+      await sleep();
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.bpmn.task-forms.deleted",
@@ -488,8 +496,9 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       fixture.detectChanges();
     });
 
-    it("should call deleteProcessDefinitionForm for each orphaned form", () => {
+    it("should call deleteProcessDefinitionForm for each orphaned form", async () => {
       component["deleteAllOrphanedForms"]();
+      await sleep();
 
       expect(bpmnService.deleteProcessDefinitionForm).toHaveBeenCalledWith(
         "test-key",
@@ -497,10 +506,11 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       );
     });
 
-    it("should show snackbar and emit bpmnFormListChanged after all deletions", () => {
+    it("should show snackbar and emit bpmnFormListChanged after all deletions", async () => {
       const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
 
       component["deleteAllOrphanedForms"]();
+      await sleep();
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.bpmn.task-forms.deleted",

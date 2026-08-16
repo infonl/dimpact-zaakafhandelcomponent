@@ -12,11 +12,14 @@ import { MatSort } from "@angular/material/sort";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { sleep, testQueryClient } from "../../../../setupJest";
+import { createMutationOptions } from "../../../test-helpers";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
 import { InboxProductaanvragenListComponent } from "./inbox-productaanvragen-list.component";
 
@@ -51,6 +54,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
       ],
       providers: [
         provideHttpClient(),
+        provideQueryClient(testQueryClient),
         provideRouter([]),
         {
           provide: ActivatedRoute,
@@ -216,7 +220,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
     });
   });
 
-  it("should open confirm dialog and emit filterChange on inboxProductaanvragenVerwijderen when confirmed", () => {
+  it("should open confirm dialog and emit filterChange on inboxProductaanvragenVerwijderen when confirmed", async () => {
     jest.spyOn(component["dialog"], "open").mockReturnValue({
       afterClosed: () => of(true),
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
@@ -224,12 +228,16 @@ describe(InboxProductaanvragenListComponent.name, () => {
       .spyOn(utilService, "openSnackbar")
       .mockImplementation(() => {});
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    jest.spyOn(service, "delete").mockReturnValue(of(undefined) as never);
+    jest
+      .spyOn(service, "delete")
+      .mockReturnValue(createMutationOptions(undefined) as never);
 
     component["inboxProductaanvragenVerwijderen"](
       makeProductaanvraag({ id: 42 }),
     );
+    await sleep();
 
+    expect(service.delete).toHaveBeenCalledWith(42);
     expect(snackbarSpy).toHaveBeenCalledWith(
       "msg.inboxProductaanvraag.verwijderen.uitgevoerd",
     );
@@ -241,7 +249,9 @@ describe(InboxProductaanvragenListComponent.name, () => {
       afterClosed: () => of(false),
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    jest.spyOn(service, "delete").mockReturnValue(of(undefined) as never);
+    jest
+      .spyOn(service, "delete")
+      .mockReturnValue(createMutationOptions(undefined) as never);
 
     component["inboxProductaanvragenVerwijderen"](makeProductaanvraag());
 

@@ -3,22 +3,24 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class InboxDocumentenService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   list(body: PutBody<"/rest/inboxdocumenten">) {
     return this.zacHttpClient.PUT("/rest/inboxdocumenten", body);
   }
 
   delete(id: number) {
-    return this.zacHttpClient.DELETE("/rest/inboxdocumenten/{id}", {
+    return this.zacQueryClient.DELETE("/rest/inboxdocumenten/{id}", {
       path: { id },
     });
   }

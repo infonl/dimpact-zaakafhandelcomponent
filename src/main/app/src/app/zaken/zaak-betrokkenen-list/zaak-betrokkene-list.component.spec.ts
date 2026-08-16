@@ -18,7 +18,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -67,6 +67,9 @@ describe(ZaakBetrokkeneListComponent.name, () => {
   let utilService: UtilService;
   let dialogRef: MatDialogRef<unknown>;
   let openOntkoppelBetrokkeneSpy: jest.Mock;
+  let deleteBetrokkeneMutation: ReturnType<
+    typeof createMutationOptions<GeneratedType<"RestZaak">, { reden: string }>
+  >;
 
   const fakeZaak = makeZaak();
 
@@ -111,9 +114,13 @@ describe(ZaakBetrokkeneListComponent.name, () => {
     websocketService = TestBed.inject(WebsocketService);
     jest.spyOn(websocketService, "suspendListener").mockImplementation();
 
+    deleteBetrokkeneMutation = createMutationOptions<
+      GeneratedType<"RestZaak">,
+      { reden: string }
+    >(fromPartial<GeneratedType<"RestZaak">>({}));
     jest
       .spyOn(zakenService, "deleteBetrokkene")
-      .mockReturnValue(of(fromPartial<GeneratedType<"RestZaak">>({})));
+      .mockReturnValue(deleteBetrokkeneMutation as never);
 
     testQueryClient.setQueryData(
       zakenService.listBetrokkenenVoorZaakQuery(fakeZaak.uuid).queryKey,
@@ -254,9 +261,13 @@ describe(ZaakBetrokkeneListComponent.name, () => {
       ) => unknown;
       callback("fake-reden");
 
-      expect(zakenService.deleteBetrokkene).toHaveBeenCalledWith(
-        "fake-rol-id",
-        "fake-reden",
+      expect(zakenService.deleteBetrokkene).toHaveBeenCalledWith("fake-rol-id");
+      expect(deleteBetrokkeneMutation.mutationFn).toHaveBeenCalledWith(
+        { reden: "fake-reden" },
+        expect.objectContaining({
+          client: testQueryClient,
+          mutationKey: deleteBetrokkeneMutation.mutationKey,
+        }),
       );
     });
 

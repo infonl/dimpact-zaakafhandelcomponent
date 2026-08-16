@@ -19,7 +19,8 @@ import { UtilService } from "src/app/core/service/util.service";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
+import { createMutationOptions } from "../../../test-helpers";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list.component";
 
@@ -241,7 +242,7 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     );
   });
 
-  it("should open confirm dialog and emit filterChange with snackbar on documentVerwijderen when confirmed", () => {
+  it("should open confirm dialog and emit filterChange with snackbar on documentVerwijderen when confirmed", async () => {
     jest.spyOn(component["dialog"], "open").mockReturnValue({
       afterClosed: () => of(true),
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
@@ -251,11 +252,13 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     jest
       .spyOn(ontkoppeldeDocumentenService, "delete")
-      .mockReturnValue(of(undefined) as never);
+      .mockReturnValue(createMutationOptions(undefined) as never);
 
     const doc = makeDetachedDocument({ id: 42, titel: "My doc" });
     component["documentVerwijderen"](doc);
+    await sleep();
 
+    expect(ontkoppeldeDocumentenService.delete).toHaveBeenCalledWith(42);
     expect(snackbarSpy).toHaveBeenCalledWith(
       "msg.document.verwijderen.uitgevoerd",
       {
@@ -272,7 +275,7 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     jest
       .spyOn(ontkoppeldeDocumentenService, "delete")
-      .mockReturnValue(of(undefined) as never);
+      .mockReturnValue(createMutationOptions(undefined) as never);
 
     component["documentVerwijderen"](makeDetachedDocument());
 

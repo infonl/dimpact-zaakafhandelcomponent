@@ -139,24 +139,20 @@ export class ZakenService {
     return this.zacHttpClient.PATCH("/rest/zaken/initiator", body, {});
   }
 
-  deleteInitiator(zaakUuid: string, reden: string) {
-    return this.zacHttpClient.DELETE(
-      "/rest/zaken/{uuid}/initiator",
-      { path: { uuid: zaakUuid } },
-      { reden },
-    );
+  deleteInitiator(zaakUuid: string) {
+    return this.zacQueryClient.DELETE("/rest/zaken/{uuid}/initiator", {
+      path: { uuid: zaakUuid },
+    });
   }
 
   createBetrokkene(body: PostBody<"/rest/zaken/betrokkene">) {
     return this.zacHttpClient.POST("/rest/zaken/betrokkene", body);
   }
 
-  deleteBetrokkene(rolUUID: string, reden: string) {
-    return this.zacHttpClient.DELETE(
-      "/rest/zaken/betrokkene/{uuid}",
-      { path: { uuid: rolUUID } },
-      { reden },
-    );
+  deleteBetrokkene(rolUUID: string) {
+    return this.zacQueryClient.DELETE("/rest/zaken/betrokkene/{uuid}", {
+      path: { uuid: rolUUID },
+    });
   }
 
   updateZaakLocatie(uuid: string) {

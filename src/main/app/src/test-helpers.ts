@@ -30,3 +30,14 @@ export function updateComponentInputs<T extends OnChanges>(
   });
   component.ngOnChanges(simpleChanges);
 }
+
+export function createMutationOptions<TData, TVariables = void>(data: TData) {
+  const mutationFn = jest
+    .fn<Promise<TData>, [TVariables]>()
+    .mockResolvedValue(data);
+
+  return {
+    mutationKey: ["test-mutation"],
+    mutationFn,
+  };
+}

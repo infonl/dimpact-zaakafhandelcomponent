@@ -71,7 +71,7 @@ export class ReferentieTabelService {
   }
 
   deleteReferentieTabel(id: number) {
-    return this.zacHttpClient.DELETE("/rest/referentietabellen/{id}", {
+    return this.zacQueryClient.DELETE("/rest/referentietabellen/{id}", {
       path: { id },
     });
   }
@@ -82,13 +82,6 @@ export class ReferentieTabelService {
     body: PutBody<"/rest/referentietabellen/{id}">,
   ) {
     return this.updateReferentieTabel(id, body).pipe(
-      tap(() => void this.invalidateReferentieTabel(id)),
-    );
-  }
-
-  // Cold observable (fires on subscribe), so it's safe to pass to ConfirmDialogData.
-  deleteReferentieTabelWithRefresh(id: number) {
-    return this.deleteReferentieTabel(id).pipe(
       tap(() => void this.invalidateReferentieTabel(id)),
     );
   }

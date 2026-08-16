@@ -14,7 +14,7 @@ import {
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -59,12 +59,14 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
   let foutAfhandelingService: jest.Mocked<FoutAfhandelingService>;
   let dialogOpenSpy: jest.SpyInstance;
   let queryClient: QueryClient;
-  let deleteMutationFn: jest.Mock;
+  let deleteProcessDefinitionMock: jest.Mock;
 
   beforeEach(async () => {
     notifyManager.setScheduler((fn) => fn());
 
-    deleteMutationFn = jest.fn().mockResolvedValue({});
+    deleteProcessDefinitionMock = jest
+      .fn()
+      .mockReturnValue(createMutationOptions({}));
 
     await TestBed.configureTestingModule({
       imports: [
@@ -88,7 +90,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
             uploadProcessDefinitionQuery: jest.fn().mockReturnValue({
               mutationFn: jest.fn().mockResolvedValue({}),
             }),
-            deleteProcessDefinition: deleteMutationFn,
+            deleteProcessDefinition: deleteProcessDefinitionMock,
             uploadProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
             deleteProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
           },
@@ -398,7 +400,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       component["deleteProcessDefinition"]({ key: "key-a", name: "Process A" });
       await fixture.whenStable();
 
-      expect(deleteMutationFn).toHaveBeenCalledWith("key-a");
+      expect(deleteProcessDefinitionMock).toHaveBeenCalledWith("key-a");
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.bpmn.process-definition.deleted",
         { naam: "Process A" },

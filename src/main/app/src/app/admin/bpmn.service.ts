@@ -4,7 +4,6 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { lastValueFrom } from "rxjs";
 import { PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -27,11 +26,9 @@ export class BpmnService {
   }
 
   deleteProcessDefinition(key: string) {
-    return lastValueFrom(
-      this.zacHttpClient.DELETE("/rest/bpmn-process-definitions/{key}", {
-        path: { key },
-      }),
-    );
+    return this.zacQueryClient.DELETE("/rest/bpmn-process-definitions/{key}", {
+      path: { key },
+    });
   }
 
   uploadProcessDefinitionForm(
@@ -46,12 +43,10 @@ export class BpmnService {
   }
 
   deleteProcessDefinitionForm(processDefinitionKey: string, name: string) {
-    const key = processDefinitionKey;
-
-    return this.zacHttpClient.DELETE(
+    return this.zacQueryClient.DELETE(
       "/rest/bpmn-process-definitions/{key}/forms/{name}",
       {
-        path: { key, name },
+        path: { key: processDefinitionKey, name },
       },
     );
   }

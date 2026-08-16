@@ -19,7 +19,8 @@ import { UtilService } from "src/app/core/service/util.service";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
+import { createMutationOptions } from "../../../test-helpers";
 import { InboxDocumentenService } from "../inbox-documenten.service";
 import { InboxDocumentenListComponent } from "./inbox-documenten-list.component";
 
@@ -252,7 +253,7 @@ describe(InboxDocumentenListComponent.name, () => {
     );
   });
 
-  it("should open confirm dialog and emit filterChange with snackbar on documentVerwijderen when confirmed", () => {
+  it("should open confirm dialog and emit filterChange with snackbar on documentVerwijderen when confirmed", async () => {
     const dialogSpy = jest.spyOn(component["dialog"], "open").mockReturnValue({
       afterClosed: () => of(true),
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
@@ -262,12 +263,14 @@ describe(InboxDocumentenListComponent.name, () => {
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     jest
       .spyOn(inboxDocumentenService, "delete")
-      .mockReturnValue(of(undefined) as never);
+      .mockReturnValue(createMutationOptions(undefined) as never);
 
     const doc = makeInboxDocument({ id: 42, titel: "My doc" });
     component["documentVerwijderen"](doc);
+    await sleep();
 
     expect(dialogSpy).toHaveBeenCalled();
+    expect(inboxDocumentenService.delete).toHaveBeenCalledWith(42);
     expect(snackbarSpy).toHaveBeenCalledWith(
       "msg.document.verwijderen.uitgevoerd",
       {
@@ -284,7 +287,7 @@ describe(InboxDocumentenListComponent.name, () => {
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     jest
       .spyOn(inboxDocumentenService, "delete")
-      .mockReturnValue(of(undefined) as never);
+      .mockReturnValue(createMutationOptions(undefined) as never);
 
     component["documentVerwijderen"](makeInboxDocument());
 

@@ -29,6 +29,7 @@ import {
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { FileDragAndDropDirective } from "../../shared/directives/file-drag-and-drop.directive";
+import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
@@ -101,9 +102,22 @@ export class BpmnProcessDefinitionsComponent
     onSuccess: () => void this.processDefinitionsQuery.refetch(),
   }));
 
-  private readonly deleteMutation = injectMutation(() => ({
-    mutationFn: (key: string) => this.bpmnService.deleteProcessDefinition(key),
-  }));
+  private readonly deleteMutation = injectServiceMutation(
+    (processDefinition: { key: string; name: string }) =>
+      this.bpmnService.deleteProcessDefinition(processDefinition.key),
+    {
+      onSuccess: (_data, processDefinition) => {
+        if (!processDefinition) {
+          return;
+        }
+
+        this.utilService.openSnackbar("msg.bpmn.process-definition.deleted", {
+          naam: processDefinition.name,
+        });
+        void this.processDefinitionsQuery.refetch();
+      },
+    },
+  );
 
   constructor() {
     super(inject(UtilService), inject(ConfiguratieService));
@@ -177,15 +191,7 @@ export class BpmnProcessDefinitionsComponent
       .afterClosed()
       .subscribe((confirmed) => {
         if (confirmed) {
-          this.deleteMutation.mutate(processDefinition.key, {
-            onSuccess: () => {
-              this.utilService.openSnackbar(
-                "msg.bpmn.process-definition.deleted",
-                { naam: processDefinition.name },
-              );
-              void this.processDefinitionsQuery.refetch();
-            },
-          });
+          this.deleteMutation.mutate(processDefinition);
         }
       });
   }

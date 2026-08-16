@@ -19,7 +19,7 @@ import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -65,6 +65,9 @@ describe(ReferentieTabellenComponent.name, () => {
   let setTitle: jest.SpyInstance;
   let openSnackbar: jest.SpyInstance;
   let dialogOpen: jest.SpyInstance;
+  let deleteReferentieTabelMutation: ReturnType<
+    typeof createMutationOptions<undefined>
+  >;
 
   // jsdom has no scrollIntoView; stub it per test and restore to avoid leaking.
   const originalScrollIntoView = Element.prototype.scrollIntoView;
@@ -120,6 +123,10 @@ describe(ReferentieTabellenComponent.name, () => {
     }).compileComponents();
 
     service = TestBed.inject(ReferentieTabelService);
+    deleteReferentieTabelMutation = createMutationOptions(undefined);
+    jest
+      .spyOn(service, "deleteReferentieTabel")
+      .mockReturnValue(deleteReferentieTabelMutation as never);
     httpTestingController = TestBed.inject(HttpTestingController);
     const utilService = TestBed.inject(UtilService);
     setTitle = jest
@@ -188,14 +195,20 @@ describe(ReferentieTabellenComponent.name, () => {
     );
 
     component["verwijderReferentieTabel"](tabellen[0]);
+    await sleep();
 
     const dialogData = dialogOpen.mock.calls[0][1].data;
     expect(dialogData._melding.key).toBe("msg.tabel.verwijderen-bevestigen");
     expect(dialogData._melding.args).toEqual({ tabel: "TABEL_A" });
+    expect(service.deleteReferentieTabel).toHaveBeenCalledWith(1);
     expect(openSnackbar).toHaveBeenCalledWith(
       "msg.tabel.verwijderen.uitgevoerd",
       { tabel: "TABEL_A" },
     );
+
+    const refetches = httpTestingController.match("/rest/referentietabellen");
+    expect(refetches).toHaveLength(1);
+    refetches[0].flush(tabellen);
   });
 
   it("loads the full table then opens the rename dialog", async () => {

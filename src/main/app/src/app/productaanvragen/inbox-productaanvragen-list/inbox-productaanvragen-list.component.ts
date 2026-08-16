@@ -51,6 +51,7 @@ import {
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
+import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import {
   SessionStorageUtil,
@@ -133,6 +134,20 @@ export class InboxProductaanvragenListComponent
   protected filterChange = new EventEmitter<void>();
   protected clearZoekopdracht = new EventEmitter<void>();
   protected previewSrc: SafeUrl | null = null;
+  private readonly deleteMutation = injectServiceMutation(
+    (inboxProductaanvraag: GeneratedType<"RestInboxProductaanvraag">) =>
+      this.inboxProductaanvragenService.delete(
+        Number(inboxProductaanvraag.id ?? -1),
+      ),
+    {
+      onSuccess: () => {
+        this.utilService.openSnackbar(
+          "msg.inboxProductaanvraag.verwijderen.uitgevoerd",
+        );
+        this.filterChange.emit();
+      },
+    },
+  );
 
   constructor(
     private readonly inboxProductaanvragenService: InboxProductaanvragenService,
@@ -270,18 +285,12 @@ export class InboxProductaanvragenListComponent
       .open(ConfirmDialogComponent, {
         data: new ConfirmDialogData(
           "msg.inboxProductaanvraag.verwijderen.bevestigen",
-          this.inboxProductaanvragenService.delete(
-            Number(inboxProductaanvraag.id),
-          ),
         ),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.utilService.openSnackbar(
-            "msg.inboxProductaanvraag.verwijderen.uitgevoerd",
-          );
-          this.filterChange.emit();
+          this.deleteMutation.mutate(inboxProductaanvraag);
         }
       });
   }

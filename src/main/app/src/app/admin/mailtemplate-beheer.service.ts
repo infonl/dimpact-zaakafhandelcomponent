@@ -14,9 +14,8 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class MailtemplateBeheerService {
+  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
-
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
 
   readMailtemplateQuery(id: number) {
     return this.zacQueryClient.GET("/rest/beheer/mailtemplates/{id}", {
@@ -33,7 +32,7 @@ export class MailtemplateBeheerService {
   }
 
   deleteMailtemplate(id: number) {
-    return this.zacHttpClient.DELETE("/rest/beheer/mailtemplates/{id}", {
+    return this.zacQueryClient.DELETE("/rest/beheer/mailtemplates/{id}", {
       path: { id },
     });
   }

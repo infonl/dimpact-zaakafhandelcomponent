@@ -11,10 +11,10 @@ import {
 } from "@tanstack/angular-query-experimental";
 import type { PathsWithMethod } from "openapi-typescript-helpers";
 import { lastValueFrom } from "rxjs";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import type {
   ArgsTuple,
   DeleteBody,
-  IsRequired,
   Methods,
   PatchBody,
   PathParameters,
@@ -39,6 +39,7 @@ export enum StaleTimes {
   providedIn: "root",
 })
 export class ZacQueryClient {
+  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly httpClient = inject(HttpClient);
 
   public GET<
@@ -72,6 +73,7 @@ export class ZacQueryClient {
       mutationKey: [url, ...args],
       mutationFn: (body: PostBody<Path, Method>) =>
         lastValueFrom(this.httpClient.POST<Path, Method>(url, body, ...args)),
+      onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
     });
   }
 
@@ -88,24 +90,14 @@ export class ZacQueryClient {
       mutationKey: [url, ...args],
       mutationFn: (body: PutBody<Path, Method>) =>
         lastValueFrom(this.httpClient.PUT<Path, Method>(url, body, ...args)),
+      onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
     });
   }
 
   public DELETE<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "delete",
-  >(
-    url: Path,
-    ...args: IsRequired<PathParameters<Path, Method>> extends true
-      ? [
-          parameters: PathParameters<Path, Method>,
-          body?: DeleteBody<Path, Method>,
-        ]
-      : [
-          parameters?: PathParameters<Path, Method>,
-          body?: DeleteBody<Path, Method>,
-        ]
-  ) {
+  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
     return mutationOptions<
       Response<Path, Method>,
       HttpErrorResponse,
@@ -113,8 +105,15 @@ export class ZacQueryClient {
       void
     >({
       mutationKey: [url, ...args],
-      mutationFn: () =>
-        lastValueFrom(this.httpClient.DELETE<Path, Method>(url, ...args)),
+      mutationFn: (body: DeleteBody<Path, Method>) =>
+        lastValueFrom(
+          this.httpClient.DELETE<Path, Method>(
+            url,
+            args.at(0) as PathParameters<Path, Method>,
+            body,
+          ),
+        ),
+      onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
     });
   }
 
@@ -133,6 +132,7 @@ export class ZacQueryClient {
       mutationKey: [url, ...args],
       mutationFn: (body: PatchBody<Path, Method>) =>
         lastValueFrom(this.httpClient.PATCH<Path, Method>(url, body, ...args)),
+      onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
     });
   }
 }

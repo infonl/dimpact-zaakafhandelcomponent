@@ -24,6 +24,7 @@ import {
   ConfirmDialogData,
 } from "../../../shared/confirm-dialog/confirm-dialog.component";
 import { FileDragAndDropDirective } from "../../../shared/directives/file-drag-and-drop.directive";
+import { injectServiceMutation } from "../../../shared/http/inject-service-mutation";
 import { SharedModule } from "../../../shared/shared.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BpmnService } from "../../bpmn.service";
@@ -77,6 +78,25 @@ export class BpmnProcessDefinitionItemComponent {
   private readonly bpmnService = inject(BpmnService);
   private readonly utilService = inject(UtilService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
+  private readonly deleteProcessDefinitionFormMutation = injectServiceMutation(
+    (processDefinitionForm: { processDefinitionKey: string; name: string }) =>
+      this.bpmnService.deleteProcessDefinitionForm(
+        processDefinitionForm.processDefinitionKey,
+        processDefinitionForm.name,
+      ),
+    {
+      onSuccess: (_data, processDefinitionForm) => {
+        if (!processDefinitionForm) {
+          return;
+        }
+
+        this.utilService.openSnackbar("msg.bpmn.task-forms.deleted", {
+          namen: processDefinitionForm.name,
+        });
+        this.bpmnFormListChanged.emit();
+      },
+    },
+  );
 
   protected uploadBpmnForm() {
     this.bpmnFormFileInput().nativeElement.click();
@@ -133,43 +153,31 @@ export class BpmnProcessDefinitionItemComponent {
   protected deleteBpmnForm(bpmnFormName: string) {
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData(
-          {
-            key: "msg.bpmn.task-forms.delete.confirm",
-            args: { naam: bpmnFormName },
-          },
-          this.bpmnService.deleteProcessDefinitionForm(
-            this.processDefinition().key,
-            bpmnFormName,
-          ),
-        ),
+        data: new ConfirmDialogData({
+          key: "msg.bpmn.task-forms.delete.confirm",
+          args: { naam: bpmnFormName },
+        }),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.utilService.openSnackbar("msg.bpmn.task-forms.deleted", {
-            namen: bpmnFormName,
+          this.deleteProcessDefinitionFormMutation.mutate({
+            processDefinitionKey: this.processDefinition().key,
+            name: bpmnFormName,
           });
-          this.bpmnFormListChanged.emit();
         }
       });
   }
 
   protected deleteAllOrphanedForms() {
-    forkJoin(
-      (this.processDefinition().details?.orphanedForms ?? []).map((form) =>
-        this.bpmnService.deleteProcessDefinitionForm(
-          this.processDefinition().key,
-          form.formKey,
-        ),
-      ),
-    ).subscribe(() => {
-      this.utilService.openSnackbar("msg.bpmn.task-forms.deleted", {
-        namen: (this.processDefinition().details?.orphanedForms ?? [])
-          .map((f) => f.formKey)
-          .join(", "),
-      });
-      this.bpmnFormListChanged.emit();
-    });
+    void (async () => {
+      for (const form of this.processDefinition().details?.orphanedForms ??
+        []) {
+        await this.deleteProcessDefinitionFormMutation.mutateAsync({
+          processDefinitionKey: this.processDefinition().key,
+          name: form.formKey,
+        });
+      }
+    })().catch(() => undefined);
   }
 }

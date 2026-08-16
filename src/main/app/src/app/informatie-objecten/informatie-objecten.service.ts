@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { queryOptions } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { lastValueFrom, map, Observable } from "rxjs";
-import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
+import { PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 import { appendFileToFormData } from "../shared/utils/file-upload";
@@ -18,11 +18,8 @@ import { GeneratedType } from "../shared/utils/generated-types";
 })
 export class InformatieObjectenService {
   private basepath = "/rest/informatieobjecten";
-
-  constructor(
-    private readonly zacHttpClient: ZacHttpClient,
-    private readonly zacQueryClient: ZacQueryClient,
-  ) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   readEnkelvoudigInformatieobject(uuid: string) {
     return this.zacHttpClient.GET(
@@ -287,14 +284,10 @@ export class InformatieObjectenService {
     );
   }
 
-  deleteEnkelvoudigInformatieObject(
-    uuid: string,
-    body: DeleteBody<"/rest/informatieobjecten/informatieobject/{uuid}">,
-  ) {
-    return this.zacHttpClient.DELETE(
+  deleteEnkelvoudigInformatieObject(uuid: string) {
+    return this.zacQueryClient.DELETE(
       "/rest/informatieobjecten/informatieobject/{uuid}",
       { path: { uuid } },
-      body,
     );
   }
 
