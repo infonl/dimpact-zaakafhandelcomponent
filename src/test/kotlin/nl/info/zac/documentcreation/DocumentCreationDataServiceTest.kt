@@ -127,6 +127,9 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         behandelaar shouldBe "${rolMedewerker.betrokkeneIdentificatie!!.voorletters} " +
                             "${rolMedewerker.betrokkeneIdentificatie!!.achternaam}"
                         groep shouldBe rolOrganisatorischeEenheid.naam
+                        // because we map the generated ZGW enum directly to a string, this is lower case
+                        // if we change this, we might need to inform the municipalities that they need to update their templates
+                        vertrouwelijkheidaanduiding shouldBe "openbaar"
                     }
                     startformulierData shouldBe null
                     taskData shouldBe null
@@ -178,6 +181,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         zaaktype shouldBe zaakType.omschrijving
                         behandelaar shouldBe null
                         groep shouldBe null
+                        vertrouwelijkheidaanduiding shouldBe "openbaar"
                     }
                     startformulierData shouldBe null
                     taskData shouldBe null
@@ -238,6 +242,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         zaaktype shouldBe zaakType.omschrijving
                         behandelaar shouldBe null
                         groep shouldBe null
+                        vertrouwelijkheidaanduiding shouldBe "openbaar"
                     }
                     startformulierData shouldBe null
                     taskData shouldBe null
