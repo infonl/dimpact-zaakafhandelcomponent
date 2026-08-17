@@ -35,6 +35,7 @@ import data.net.atos.zac.zaak.starten_taak
 import data.net.atos.zac.zaak.vastleggen_besluit
 import data.net.atos.zac.zaak.verlengen_doorlooptijd
 import data.net.atos.zac.zaak.wijzigen_locatie
+import data.net.atos.zac.zaak.brondatum_zetten
 
 
 ##################
@@ -1222,4 +1223,39 @@ test_wijzigen_locatie_wrong_role_fails if {
     not wijzigen_locatie
         with input.user.rollen as [ "fakeRole" ]
         with input.zaak.open as false
+}
+
+########################
+# brondatum_zetten
+########################
+test_brondatum_zetten_recordmanager if {
+    brondatum_zetten
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as false
+        with input.zaak.brondatumBepaald as false
+}
+
+test_brondatum_zetten_zaak_open_fails if {
+    not brondatum_zetten
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as true
+        with input.zaak.brondatumBepaald as false
+}
+
+test_brondatum_zetten_already_bepaald_fails if {
+    not brondatum_zetten
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as false
+        with input.zaak.brondatumBepaald as true
+}
+
+test_brondatum_zetten_wrong_role_fails if {
+    not brondatum_zetten
+        with input.user.rollen as [ "behandelaar" ]
+        with input.zaak.open as false
+        with input.zaak.brondatumBepaald as false
+}
+
+test_brondatum_zetten_missing_role_fails if {
+    not brondatum_zetten with input.user.key as "value"
 }

@@ -16,8 +16,8 @@ data class RestZaakAfsluitenGegevens(
     var resultaattypeUuid: UUID,
 
     /**
-     * De einddatum van het processtermijn voor de zaak.
+     * De einddatum van de procestermijn voor de zaak.
      * Ook wel de 'brondatum' genoemd.
      */
-    var brondatumEigenschap: String? = null
+    var brondatum: String? = null
 )

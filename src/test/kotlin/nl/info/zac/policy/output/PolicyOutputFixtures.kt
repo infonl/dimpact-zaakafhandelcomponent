@@ -85,13 +85,14 @@ fun createZaakRechten(
     startenTaak: Boolean = true,
     vastleggenBesluit: Boolean = true,
     verlengenDoorlooptijd: Boolean = true,
-    wijzigenLocatie: Boolean = true
+    wijzigenLocatie: Boolean = true,
+    brondatumZetten: Boolean = true
 ) = ZaakRechten(
     lezen, wijzigen, toekennen, behandelen, afbreken, heropenen, bekijkenZaakdata, wijzigenDoorlooptijd,
     verlengen, opschorten, hervatten, creerenDocument, toevoegenDocument, koppelen, versturenEmail,
     versturenOntvangstbevestiging, toevoegenInitiatorPersoon, toevoegenInitiatorBedrijf, verwijderenInitiator,
     toevoegenBetrokkenePersoon, toevoegenBetrokkeneBedrijf, verwijderenBetrokkene, toevoegenBagObject, startenTaak,
-    vastleggenBesluit, verlengenDoorlooptijd, wijzigenLocatie
+    vastleggenBesluit, verlengenDoorlooptijd, wijzigenLocatie, brondatumZetten
 )
 
 @Suppress("LongParameterList")
@@ -121,7 +122,9 @@ fun createZaakRechtenAllDeny(
     toevoegenBagObject: Boolean = false,
     startenTaak: Boolean = false,
     vastleggenBesluit: Boolean = false,
-    verlengenDoorlooptijd: Boolean = false
+    verlengenDoorlooptijd: Boolean = false,
+    wijzigenLocatie: Boolean = false,
+    brondatumZetten: Boolean = false
 ) = createZaakRechten(
     lezen,
     wijzigen,
@@ -148,7 +151,9 @@ fun createZaakRechtenAllDeny(
     toevoegenBagObject,
     startenTaak,
     vastleggenBesluit,
-    verlengenDoorlooptijd
+    verlengenDoorlooptijd,
+    wijzigenLocatie,
+    brondatumZetten
 )
 
 @Suppress("LongParameterList")

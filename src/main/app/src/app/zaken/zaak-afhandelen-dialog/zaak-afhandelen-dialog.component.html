@@ -53,11 +53,11 @@
     <zac-input [form]="form" key="toelichting" />
     <zac-date
       [form]="form"
-      key="brondatumEigenschap"
+      key="brondatum"
       *ngIf="form.controls.resultaattype.value?.datumKenmerkVerplicht"
     >
       <mat-label>{{
-        brondatumEigenschapLabel || ("zaak.brondatum" | translate)
+        brondatumLabel || ("zaak.brondatum" | translate)
       }}</mat-label>
     </zac-date>
     <div

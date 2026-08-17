@@ -26,5 +26,8 @@ data class ZaakData(
     val besloten: Boolean?,
 
     @field:JsonbProperty("heropend")
-    val heropend: Boolean?
+    val heropend: Boolean?,
+
+    @field:JsonbProperty("brondatumBepaald")
+    val brondatumBepaald: Boolean?,
 )

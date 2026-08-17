@@ -181,6 +181,7 @@ class SearchRestServiceTest : BehaviorSpec({
                               "afbreken" : false,
                               "behandelen" : false,
                               "bekijkenZaakdata" : false,
+                              "brondatumZetten" : false,
                               "creerenDocument" : false,
                               "heropenen" : false,
                               "lezen" : true,
