@@ -22,7 +22,6 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { EMPTY, lastValueFrom, switchMap } from "rxjs";
 import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { TaakFormulierenService } from "../../formulieren/taken/taak-formulieren.service";
@@ -33,6 +32,7 @@ import {
   FormConfig,
   FormField,
 } from "../../shared/form/composed-form/form-field.types";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { PlanItemsService } from "../plan-items.service";
 
@@ -59,15 +59,14 @@ export class HumanTaskDoComponent implements OnInit {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Output() done = new EventEmitter<void>();
 
-  protected readonly doHumanTaskPlanItemMutation = injectMutation(() => ({
-    ...this.planItemsService.doHumanTaskPlanItem(),
-    onSuccess: () => {
-      this.done.emit();
+  protected readonly doHumanTaskPlanItemMutation = injectMutation(
+    () => this.planItemsService.doHumanTaskPlanItem(),
+    {
+      onSuccess: () => {
+        this.done.emit();
+      },
     },
-    onError: (error) => {
-      this.foutAfhandelingService.foutAfhandelen(error);
-    },
-  }));
+  );
 
   protected form = this.formBuilder.group({});
   protected formFields: FormField[] = [];

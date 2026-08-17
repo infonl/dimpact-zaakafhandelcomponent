@@ -3,16 +3,18 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
-import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
+import { inject, Injectable } from "@angular/core";
+import { PostBody, PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
 })
 export class BAGService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   listAdressen(body: PutBody<"/rest/bag/adres">) {
     return this.zacHttpClient.PUT("/rest/bag/adres", body);
@@ -28,8 +30,8 @@ export class BAGService {
     });
   }
 
-  delete(body: DeleteBody<"/rest/bag">) {
-    return this.zacHttpClient.DELETE("/rest/bag", {}, body);
+  delete() {
+    return this.zacQueryClient.DELETE("/rest/bag", {});
   }
 
   read(type: GeneratedType<"BAGObjectType">, id: string) {

@@ -31,13 +31,12 @@ import { MatInputModule } from "@angular/material/input";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import * as proj from "ol/proj.js";
 import * as style from "ol/style.js";
 import { BehaviorSubject, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { LocationUtil } from "../../shared/location/location-util";
 import {
   AddressResult,
@@ -87,7 +86,6 @@ export class CaseLocationEditComponent
 
   private readonly zakenService = inject(ZakenService);
   private readonly locationService = inject(LocationService);
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   // markerLocatie?: GeneratedType<"RestGeometry">;
   markerLocatie$ = new BehaviorSubject<GeneratedType<"RestGeometry"> | null>(
@@ -100,14 +98,15 @@ export class CaseLocationEditComponent
 
   protected readonly form = new FormGroup({ reason: this.reasonControl });
 
-  protected readonly mutation = injectMutation(() => ({
-    ...this.zakenService.updateZaakLocatie(this.zaak.uuid),
-    onSuccess: () => {
-      this.locatie.emit();
-      void this.sideNav.close();
+  protected readonly mutation = injectMutation(
+    () => this.zakenService.updateZaakLocatie(this.zaak.uuid),
+    {
+      onSuccess: () => {
+        this.locatie.emit();
+        void this.sideNav.close();
+      },
     },
-    onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
-  }));
+  );
 
   private unsubscribe$: Subject<void> = new Subject<void>();
   protected readonly: boolean = false;

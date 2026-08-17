@@ -53,6 +53,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/http-client";
+import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import {
@@ -148,6 +149,13 @@ export class OntkoppeldeDocumentenListComponent
   protected clearZoekopdracht = new EventEmitter<void>();
   protected selectedInformationObject: GeneratedType<"RestDetachedDocument"> | null =
     null;
+  private readonly deleteMutation = injectServiceMutation(
+    (detachedDocument: GeneratedType<"RestDetachedDocument">) =>
+      this.ontkoppeldeDocumentenService.delete(detachedDocument),
+    {
+      onSuccess: () => this.filterChange.emit(),
+    },
+  );
 
   constructor(
     private readonly ontkoppeldeDocumentenService: OntkoppeldeDocumentenService,
@@ -230,21 +238,15 @@ export class OntkoppeldeDocumentenListComponent
   ) {
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData(
-          {
-            key: "msg.document.verwijderen.bevestigen",
-            args: { document: detachedDocument.titel },
-          },
-          this.ontkoppeldeDocumentenService.delete(detachedDocument.id!),
-        ),
+        data: new ConfirmDialogData({
+          key: "msg.document.verwijderen.bevestigen",
+          args: { document: detachedDocument.titel },
+        }),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
-            document: detachedDocument.titel,
-          });
-          this.filterChange.emit();
+          this.deleteMutation.mutate(detachedDocument);
         }
       });
   }

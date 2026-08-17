@@ -29,8 +29,11 @@ import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { delay } from "rxjs/operators";
+import { sleep, testQueryClient } from "../../../../setupJest";
+import { createMutationOptions } from "../../../test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
@@ -125,6 +128,7 @@ describe(InrichtingscheckComponent.name, () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
         provideRouter([]),
         { provide: UtilService, useValue: utilServiceMock },
       ],
@@ -308,15 +312,12 @@ describe(InrichtingscheckComponent.name, () => {
     expect(component["dataSource"].data[1].zaaktype.doel).toBe("Doel A");
   });
 
-  it("should reload zaaktypes and update cache time on clearZTCCache", fakeAsync(() => {
+  it("should reload zaaktypes and update cache time on clearZTCCache", async () => {
     const newCacheTime = "2024-03-19T10:00:00";
+    const clearMutation = createMutationOptions(newCacheTime);
     jest
       .spyOn(healthCheckService, "clearZTCCaches")
-      .mockReturnValue(
-        of(newCacheTime).pipe(delay(0)) as ReturnType<
-          typeof healthCheckService.clearZTCCaches
-        >,
-      );
+      .mockReturnValue(clearMutation as never);
 
     const listSpy =
       healthCheckService.listZaaktypeInrichtingschecks as jest.Mock;
@@ -326,10 +327,11 @@ describe(InrichtingscheckComponent.name, () => {
     jest.spyOn(event, "stopPropagation");
 
     component["clearZTCCache"](event);
-    tick(0);
+    await sleep();
 
     expect(event.stopPropagation).toHaveBeenCalled();
+    expect(healthCheckService.clearZTCCaches).toHaveBeenCalled();
     expect(component["ztcCacheTime"]).toBe(newCacheTime);
     expect(listSpy).toHaveBeenCalled();
-  }));
+  });
 });
