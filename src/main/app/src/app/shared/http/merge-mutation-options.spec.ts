@@ -9,6 +9,7 @@ import {
   type MutationFunctionContext,
   QueryClient,
 } from "@tanstack/angular-query-experimental";
+import { fromPartial } from "../../../test-helpers";
 import { mergeMutationOptions } from "./merge-mutation-options";
 
 describe(mergeMutationOptions.name, () => {
@@ -95,5 +96,35 @@ describe(mergeMutationOptions.name, () => {
 
     expect(calls).toEqual(["base onMutate", "override onMutate"]);
     expect(context).toBe("override context");
+  });
+
+  it("should type the callbacks of the overrides from the base", () => {
+    const typedBase = fromPartial<
+      CreateMutationOptions<
+        { name: string },
+        DefaultError,
+        { id: number },
+        void
+      >
+    >({});
+    let seen: string | undefined;
+
+    const merged = mergeMutationOptions(typedBase, {
+      // annotating these would hide a regression: they must be inferred
+      onSuccess: (data, variables) => {
+        const name: string = data.name;
+        const id: number = variables.id;
+        seen = `${name}-${id}`;
+      },
+    });
+
+    void merged.onSuccess?.(
+      { name: "fakeName" },
+      { id: 1 },
+      undefined,
+      mutationContext,
+    );
+
+    expect(seen).toBe("fakeName-1");
   });
 });

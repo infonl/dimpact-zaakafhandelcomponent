@@ -30,8 +30,15 @@ export function injectMutation<
     TVariables,
     TOnMutateResult
   >,
+  // `NoInfer` keeps `options` the only source of the type arguments, so the
+  // callbacks of `overrides` are typed by the mutation they layer on
   overrides: Omit<
-    CreateMutationOptions<TData, TError, TVariables, TOnMutateResult>,
+    CreateMutationOptions<
+      NoInfer<TData>,
+      NoInfer<TError>,
+      NoInfer<TVariables>,
+      NoInfer<TOnMutateResult>
+    >,
     "mutationFn" | "mutationKey"
   > = {},
 ) {
