@@ -81,10 +81,13 @@ const RESULT_VALUE = "Verleend";
 const STATUS_VALUE = "Afgerond";
 
 When(
-  "{string} opens the active task",
+  "{string} opens the {string} task",
   { timeout: FORTY_SECONDS_IN_MS },
-  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    const viewTaskLink = this.page.getByRole("link", { name: "Taak bekijken" });
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>, taskName: string) {
+    const taskRow = this.page
+      .getByRole("row")
+      .filter({ has: this.page.getByRole("cell", { name: taskName, exact: true }) });
+    const viewTaskLink = taskRow.getByRole("link", { name: "Taak bekijken" });
     await viewTaskLink.waitFor({
       state: "visible",
       timeout: FORTY_SECONDS_IN_MS,
@@ -285,7 +288,7 @@ Then(
 );
 
 Then(
-  "{string} sees that the select documents to sign task is started with group {string} and user {string}",
+  "{string} sees that the summary task is started with group {string} and user {string}",
   { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
@@ -294,7 +297,7 @@ Then(
     userName: string,
   ) {
     const taskCell = this.page.getByRole("cell", {
-      name: "Select documents to sign",
+      name: "Summary",
     });
     await expect(taskCell).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await expect(

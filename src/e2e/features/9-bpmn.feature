@@ -22,13 +22,13 @@ Feature: BPMN
   Scenario: Bob opens the initial task form
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
-    And "Bob" opens the active task
+    And "Bob" opens the "Start" task
     Then "Bob" sees the form associated with the task
 
   Scenario: Bob creates two SmartDocuments Word files
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
-    And "Bob" opens the active task
+    And "Bob" opens the "Start" task
     Given "Bob" creates a SmartDocuments Word file named "file A"
     When "Bob" reloads the page
     Then "Bob" sees document "file A" in the documents list
@@ -39,18 +39,18 @@ Feature: BPMN
   Scenario: Bob fills-in and submits the task form
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
-    And "Bob" opens the active task
+    And "Bob" opens the "Start" task
     Then "Bob" sees the desired form fields values
     Given "Bob" fills all mandatory form fields
     And "Bob" submits the filled-in form
     When Employee "Bob" is on the newly created zaak
     Then "Bob" sees that the initial task is completed
-    Then "Bob" sees that the select documents to sign task is started with group "Test groep A" and user "E2etest User1"
+    Then "Bob" sees that the summary task is started with group "Test groep A" and user "E2etest User1"
 
   Scenario: Bob opens and fills in the sign documents form
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
-    When "Bob" opens the active task
+    And "Bob" opens the "Select documents to sign" task
     Then "Bob" sees the select documents to sign form
     When "Bob" selects document "file A" for signing
     And "Bob" selects document "file B" for signing
@@ -59,7 +59,7 @@ Feature: BPMN
   Scenario: Bob verifies the documents to sign and confirms signing
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
-    When "Bob" opens the active task
+    When "Bob" opens the "Verify documents to sign" task
     Then "Bob" sees 2 documents in the to be signed list
     Then "Bob" sees document "file A" in the to be signed list
     Then "Bob" sees document "file B" in the to be signed list
@@ -71,13 +71,13 @@ Feature: BPMN
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
-    When "Bob" opens the active task
+    When "Bob" opens the "Summary" task
     Then "Bob" sees that the summary form contains all filled-in data
 
   Scenario: Bob confirms the data in the summary form
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
-    When "Bob" opens the active task
+    When "Bob" opens the "Summary" task
     And "Bob" confirms the data in the form
     When Employee "Bob" is on the newly created zaak with status "Afgerond"
     Then "Bob" sees the zaak result is set to "Verleend"
