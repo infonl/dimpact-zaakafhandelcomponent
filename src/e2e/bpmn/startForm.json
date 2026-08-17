@@ -1,5 +1,5 @@
 {
-  "display": "wizard",
+  "display": "form",
   "name": "startForm",
   "title": "Start Form",
   "settings": {},
@@ -199,6 +199,14 @@
           ]
         }
       ]
+    },
+    {
+      "type": "button",
+      "label": "Opslaan",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
     }
   ]
 }
