@@ -153,8 +153,8 @@
                   <td mat-cell *matCellDef="let row" colspan="2"></td>
                 </ng-container>
                 <ng-container matColumnDef="expandedTitle">
-                  <td mat-cell *matCellDef="let untypedRow">
-                    @let row = asTypedRow(untypedRow);
+                  <td mat-cell *matCellDef="let cellRow">
+                    @let row = rowOf(dataSource, cellRow);
                     <div
                       class="detail flex-col"
                       [@detailExpand]="
@@ -219,10 +219,10 @@
                 <ng-container matColumnDef="expandedDetail">
                   <td
                     mat-cell
-                    *matCellDef="let untypedRow"
+                    *matCellDef="let cellRow"
                     [attr.colspan]="columnsToDisplay.length - 3"
                   >
-                    @let row = asTypedRow(untypedRow);
+                    @let row = rowOf(dataSource, cellRow);
                     <div
                       class="detail flex-col"
                       [@detailExpand]="
