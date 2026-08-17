@@ -35,6 +35,7 @@ import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { ToggleFilterComponent } from "../../shared/table-zoek-filters/toggle-filter/toggle-filter.component";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { rowOf } from "../../shared/utils/table-row";
 import {
   VersionComponent,
   VersionLayout,
@@ -83,6 +84,7 @@ export class InrichtingscheckComponent
   protected sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
   protected readonly versionLayout = VersionLayout;
+  protected readonly rowOf = rowOf;
   protected dataSource: MatTableDataSource<
     GeneratedType<"RESTZaaktypeInrichtingscheck">
   > = new MatTableDataSource<GeneratedType<"RESTZaaktypeInrichtingscheck">>();
