@@ -11,9 +11,9 @@ This document lists the Docker images and versions that the corresponding versio
 - **solr**: 9.10.1-slim
 - **openpolicyagent/opa**: 1.19.0-static
 - **brp-api/personen-mock**: 2.7.0-202606291131
-- **gotenberg**: 8.35.0
+- **gotenberg**: 8.36.0
 - **otel/opentelemetry-collector-contrib**: 0.158.0
-- **grafana/tempo**: 3.0.2
+- **grafana/tempo**: 3.0.3
 - **prom/prometheus**: v3.13.2
 - **grafana/grafana**: 13.1.3
 - **greenmail/standalone**: 2.1.12
@@ -21,7 +21,7 @@ This document lists the Docker images and versions that the corresponding versio
 
 ## Common Ground components
 
-- **open-zaak**: 1.29.2
+- **open-zaak**: 1.29.3
 - **open-object**: 4.0.2
 - **open-klant**: 2.15.0
 - **open-forms**: 3.5.6

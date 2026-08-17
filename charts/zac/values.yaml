@@ -119,6 +119,10 @@ brpApi:
       header: ""
     verwerking:
       register: ""
+       # -- Set true to ensure the verwerking register value will be extended with the zaaktype context for this BRP request, i.e. <verwerking register>@<zaaktype>.
+       # -- If set to false the verwerking register value will be used on its own, i.e. <verwerking register>.
+       # -- Note that for iConnect it is required to extend the verwerking register with the zaaktype.
+      extendWithZaaktype: ""
        # -- Header name for the verwerking value. Set to empty string to disable this header.
       header: ""
     toepassing:
@@ -612,7 +616,7 @@ office_converter:
    # url: ""
   image:
     repository: gotenberg/gotenberg
-    tag: "8.35.0@sha256:a16a14e1f18a71405624bc028e90d4ef50ea774c352b303639c10bf7b141f760"
+    tag: "8.36.0@sha256:87c16b9f364279d321bc9772d31fa58aa6abe036423c270698bd636c3a8e9466"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
