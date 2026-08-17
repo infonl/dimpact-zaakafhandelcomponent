@@ -59,6 +59,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                         "zaaktype.identificatie",
                         ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
                     )
+                    shouldContainJsonKeyValue("zaakspecifiekAutoriseerbaar", false)
                 }
             }
         }
