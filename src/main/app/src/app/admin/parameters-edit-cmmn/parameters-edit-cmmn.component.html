@@ -103,14 +103,18 @@
             [value]="parameters.zaaktype.uuid"
           />
         </section>
-        @if (parameters.zaakspecifiekAutoriseerbaar) {
-          <section class="row">
-            <div class="col-12 flex-row items-center gap-10">
-              <mat-icon outlined>lock</mat-icon>
-              <span>{{ "zaakspecifiekAutoriseerbaar" | translate }}</span>
-            </div>
-          </section>
-        }
+        <section class="row">
+          <zac-static-text
+            class="col-12 col-lg-6"
+            label="zaakspecifiekAutoriseerbaar"
+            [value]="
+              (parameters.zaakspecifiekAutoriseerbaar
+                ? 'actie.ja'
+                : 'actie.nee'
+              ) | translate
+            "
+          />
+        </section>
       </fieldset>
       <fieldset class="my-5">
         <section class="row">

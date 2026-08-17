@@ -204,19 +204,18 @@ describe("Algemeen form step", () => {
   });
 
   describe("Zaakspecifieke autorisatie", () => {
-    it("should not show the zaakspecifiek autoriseerbaar text by default", () => {
-      expect(fixture.nativeElement.textContent).not.toContain(
-        "zaakspecifiekAutoriseerbaar",
-      );
-    });
-
-    it("should show the zaakspecifiek autoriseerbaar text when the zaaktype supports it", () => {
-      fixture.componentInstance.parameters.zaakspecifiekAutoriseerbaar = true;
-      fixture.detectChanges();
-
+    it("should show 'nee' for a zaaktype without the eigenschap", () => {
       expect(fixture.nativeElement.textContent).toContain(
         "zaakspecifiekAutoriseerbaar",
       );
+      expect(fixture.nativeElement.textContent).toContain("actie.nee");
+    });
+
+    it("should show 'ja' for a zaaktype with the eigenschap", () => {
+      fixture.componentInstance.parameters.zaakspecifiekAutoriseerbaar = true;
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("actie.ja");
     });
   });
 
