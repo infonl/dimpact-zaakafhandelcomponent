@@ -170,6 +170,7 @@ export function injectServiceMutation<
       );
       const onMutateResult = await overrides?.onMutate?.(variables, context);
 
+      // there is no generic way to combine two contexts, so the outermost one wins
       return (onMutateResult ?? serviceOnMutateResult) as TOnMutateResult;
     },
     onError: async (error, variables, onMutateResult, context) => {

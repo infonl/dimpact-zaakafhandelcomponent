@@ -15,9 +15,9 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../shared/form/input/input";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenService } from "../zaken.service";
 
@@ -43,16 +43,18 @@ export class ZakenVrijgevenDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
   protected readonly data = inject<ZaakZoekObject[]>(MAT_DIALOG_DATA);
 
-  protected readonly mutation = injectMutation(() => ({
-    ...this.zakenService.vrijgevenVanuitLijst(),
-    onSuccess: () => this.dialogRef.close(true),
-    onMutate: () => {
-      this.dialogRef.disableClose = true;
+  protected readonly mutation = injectMutation(
+    () => this.zakenService.vrijgevenVanuitLijst(),
+    {
+      onSuccess: () => this.dialogRef.close(true),
+      onMutate: () => {
+        this.dialogRef.disableClose = true;
+      },
+      onSettled: () => {
+        this.dialogRef.disableClose = false;
+      },
     },
-    onSettled: () => {
-      this.dialogRef.disableClose = false;
-    },
-  }));
+  );
 
   constructor() {
     if (this.data.length) return;

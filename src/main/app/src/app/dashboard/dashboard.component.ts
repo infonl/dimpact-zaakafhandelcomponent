@@ -38,14 +38,12 @@ import { MatIcon } from "@angular/material/icon";
 import { MatMenu, MatMenuItem, MatMenuTrigger } from "@angular/material/menu";
 import { MatSlideToggle } from "@angular/material/slide-toggle";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  injectIsFetching,
-  injectMutation,
-} from "@tanstack/angular-query-experimental";
+import { injectIsFetching } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin, Subscription } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { injectMutation } from "../shared/http/inject-mutation";
 import { SessionStorageUtil } from "../shared/storage/session-storage.util";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { SignaleringenService } from "../signaleringen.service";
@@ -108,12 +106,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private syncScheduled = false;
   private suppressObserverUntil = 0;
   private pendingSyncTimer?: ReturnType<typeof setTimeout>;
-  private readonly deleteDashboardCardMutation = injectMutation(() => ({
-    ...this.gebruikersvoorkeurenService.deleteDashboardCard(),
-    onSuccess: (dashboardInstellingen) => {
-      this.instellingen = dashboardInstellingen;
+  private readonly deleteDashboardCardMutation = injectMutation(
+    () => this.gebruikersvoorkeurenService.deleteDashboardCard(),
+    {
+      onSuccess: (dashboardInstellingen) => {
+        this.instellingen = dashboardInstellingen;
+      },
     },
-  }));
+  );
   private static readonly TRANSITION_DURATION_MS = 200;
   // Must match the `@media (max-width: 1200px)` breakpoint in the .less file
   // where cards stack into a single column.

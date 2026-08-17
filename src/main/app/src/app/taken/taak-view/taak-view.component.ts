@@ -30,10 +30,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute } from "@angular/router";
 import { FormioForm } from "@formio/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import {
-  injectMutation,
-  injectQuery,
-} from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 import { UtilService } from "../../core/service/util.service";
@@ -65,6 +62,7 @@ import {
   FormConfig as NewFormConfig,
 } from "../../shared/form/composed-form/form-field.types";
 import { PatchBody, PutBody } from "../../shared/http/http-client";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { MimetypeToExtensionPipe } from "../../shared/pipes/mimetypeToExtension.pipe";
@@ -169,19 +167,23 @@ export class TaakViewComponent
     this.identityService.readLoggedInUser(),
   );
 
-  private readonly updateTaakdataMutation = injectMutation(() => ({
-    ...this.takenService.updateTaakdata(),
-    onSuccess: () => {
-      this.utilService.openSnackbar("msg.taak.opgeslagen");
+  private readonly updateTaakdataMutation = injectMutation(
+    () => this.takenService.updateTaakdata(),
+    {
+      onSuccess: () => {
+        this.utilService.openSnackbar("msg.taak.opgeslagen");
+      },
     },
-  }));
+  );
 
-  private readonly completeTaakMutation = injectMutation(() => ({
-    ...this.takenService.complete(),
-    onSuccess: () => {
-      this.utilService.openSnackbar("msg.taak.afgerond");
+  private readonly completeTaakMutation = injectMutation(
+    () => this.takenService.complete(),
+    {
+      onSuccess: () => {
+        this.utilService.openSnackbar("msg.taak.afgerond");
+      },
     },
-  }));
+  );
 
   protected readonly isPending = computed(
     () =>
@@ -413,8 +415,7 @@ export class TaakViewComponent
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     const taskBody:
-      | PutBody<"/rest/taken/taakdata">
-      | PatchBody<"/rest/taken/complete"> = {
+      PutBody<"/rest/taken/taakdata"> | PatchBody<"/rest/taken/complete"> = {
       ...this.taak!,
       taakdata: {
         ...this.taak!.taakdata,

@@ -28,16 +28,13 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import {
-  injectMutation,
-  injectQuery,
-} from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { FormHelper } from "../../shared/form/helpers";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { ZacQueryClient } from "../../shared/http/zac-query-client";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
@@ -79,7 +76,6 @@ export class ZaakAfhandelenDialogComponent {
   private readonly zakenService = inject(ZakenService);
   private readonly mailtemplateService = inject(MailtemplateService);
   private readonly zacQueryClient = inject(ZacQueryClient);
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly translateService = inject(TranslateService);
 
   private sendMailDefault: boolean;
@@ -130,25 +126,25 @@ export class ZaakAfhandelenDialogComponent {
       ),
   }));
 
-  protected readonly afsluitenMutation = injectMutation(() => ({
-    ...this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", {
-      path: { uuid: this.data.zaak.uuid },
-    }),
-    onSuccess: () => this.dialogRef.close(true),
-    onError: (error) => {
-      this.foutAfhandelingService.foutAfhandelen(error);
-      this.dialogRef.close(false);
+  protected readonly afsluitenMutation = injectMutation(
+    () =>
+      this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", {
+        path: { uuid: this.data.zaak.uuid },
+      }),
+    {
+      onSuccess: () => this.dialogRef.close(true),
+      onError: () => this.dialogRef.close(false),
     },
-  }));
+  );
 
-  protected readonly planItemAfhandelenMutation = injectMutation(() => ({
-    ...this.zacQueryClient.POST("/rest/planitems/doUserEventListenerPlanItem"),
-    onSuccess: () => this.dialogRef.close(true),
-    onError: (error) => {
-      this.foutAfhandelingService.foutAfhandelen(error);
-      this.dialogRef.close(false);
+  protected readonly planItemAfhandelenMutation = injectMutation(
+    () =>
+      this.zacQueryClient.POST("/rest/planitems/doUserEventListenerPlanItem"),
+    {
+      onSuccess: () => this.dialogRef.close(true),
+      onError: () => this.dialogRef.close(false),
     },
-  }));
+  );
 
   constructor() {
     effect(() => {

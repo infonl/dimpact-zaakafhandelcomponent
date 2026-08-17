@@ -8,6 +8,7 @@ import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { tap } from "rxjs/operators";
 import { PutBody } from "../shared/http/http-client";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 
@@ -49,10 +50,10 @@ export class ReferentieTabelService {
   }
 
   createReferentieTabelMutation() {
-    return {
-      ...this.zacQueryClient.POST("/rest/referentietabellen"),
-      onSuccess: () => void this.invalidateReferentieTabellen(),
-    };
+    return mergeMutationOptions(
+      this.zacQueryClient.POST("/rest/referentietabellen"),
+      { onSuccess: () => void this.invalidateReferentieTabellen() },
+    );
   }
 
   readReferentieTabelByCode(code: string) {

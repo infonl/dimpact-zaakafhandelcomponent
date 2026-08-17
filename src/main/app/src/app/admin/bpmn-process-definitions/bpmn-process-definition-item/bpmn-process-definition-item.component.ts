@@ -85,16 +85,7 @@ export class BpmnProcessDefinitionItemComponent {
         processDefinitionForm.name,
       ),
     {
-      onSuccess: (_data, processDefinitionForm) => {
-        if (!processDefinitionForm) {
-          return;
-        }
-
-        this.utilService.openSnackbar("msg.bpmn.task-forms.deleted", {
-          namen: processDefinitionForm.name,
-        });
-        this.bpmnFormListChanged.emit();
-      },
+      onSuccess: () => this.bpmnFormListChanged.emit(),
     },
   );
 
@@ -161,23 +152,40 @@ export class BpmnProcessDefinitionItemComponent {
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.deleteProcessDefinitionFormMutation.mutate({
-            processDefinitionKey: this.processDefinition().key,
-            name: bpmnFormName,
-          });
+          this.deleteProcessDefinitionFormMutation.mutate(
+            {
+              processDefinitionKey: this.processDefinition().key,
+              name: bpmnFormName,
+            },
+            {
+              onSuccess: () =>
+                this.utilService.openSnackbar("msg.bpmn.task-forms.deleted", {
+                  namen: bpmnFormName,
+                }),
+            },
+          );
         }
       });
   }
 
   protected deleteAllOrphanedForms() {
-    void (async () => {
-      for (const form of this.processDefinition().details?.orphanedForms ??
-        []) {
-        await this.deleteProcessDefinitionFormMutation.mutateAsync({
+    const orphanedForms = this.processDefinition().details?.orphanedForms ?? [];
+    if (!orphanedForms.length) return;
+
+    Promise.all(
+      orphanedForms.map((form) =>
+        this.deleteProcessDefinitionFormMutation.mutateAsync({
           processDefinitionKey: this.processDefinition().key,
           name: form.formKey,
-        });
-      }
-    })().catch(() => undefined);
+        }),
+      ),
+    )
+      .then(() =>
+        this.utilService.openSnackbar("msg.bpmn.task-forms.deleted", {
+          namen: orphanedForms.map(({ formKey }) => formKey).join(", "),
+        }),
+      )
+      // the query client already reported the failure to the user
+      .catch(() => undefined);
   }
 }

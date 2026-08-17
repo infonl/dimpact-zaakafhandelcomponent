@@ -12,17 +12,14 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  injectMutation,
-  injectQuery,
-} from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { UtilService } from "../../core/service/util.service";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacDocuments } from "../../shared/form/documents/documents";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { StaleTimes } from "../../shared/http/zac-query-client";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
@@ -51,7 +48,6 @@ export class InformatieObjectVerzendenComponent {
     InformatieObjectenService,
   );
   private readonly utilService = inject(UtilService);
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly formBuilder = inject(FormBuilder);
 
   protected readonly zaak = input.required<GeneratedType<"RestZaak">>();
@@ -77,18 +73,19 @@ export class InformatieObjectVerzendenComponent {
     ]),
   });
 
-  protected readonly verzendenMutation = injectMutation(() => ({
-    ...this.informatieObjectenService.verzenden(),
-    onSuccess: (_, { informatieobjecten }) => {
-      this.utilService.openSnackbar(
-        informatieobjecten.length > 1
-          ? "msg.documenten.verzenden.uitgevoerd"
-          : "msg.document.verzenden.uitgevoerd",
-      );
-      this.documentSent.emit();
+  protected readonly verzendenMutation = injectMutation(
+    () => this.informatieObjectenService.verzenden(),
+    {
+      onSuccess: (_, { informatieobjecten }) => {
+        this.utilService.openSnackbar(
+          informatieobjecten.length > 1
+            ? "msg.documenten.verzenden.uitgevoerd"
+            : "msg.document.verzenden.uitgevoerd",
+        );
+        this.documentSent.emit();
+      },
     },
-    onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
-  }));
+  );
 
   protected submit() {
     const { documenten, verzenddatum, toelichting } = this.form.value;

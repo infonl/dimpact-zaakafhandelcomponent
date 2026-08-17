@@ -21,7 +21,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer, MatSidenavModule } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import {
   defaultIfEmpty,
@@ -40,6 +39,7 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipe
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -117,20 +117,22 @@ export class CaseDetailsEditComponent implements OnInit {
     ]),
   });
 
-  protected readonly updateZaakMutation = injectMutation(() => ({
-    ...this.zakenService.updateMutation(),
-    onSuccess: () => {
-      void this.sideNav().close();
+  protected readonly updateZaakMutation = injectMutation(
+    () => this.zakenService.updateMutation(),
+    {
+      onSuccess: () => {
+        void this.sideNav().close();
+      },
+      onError: (error) => {
+        console.error(
+          this.translateService.instant(
+            "console.error.case-details-change.editing",
+          ),
+          error,
+        );
+      },
     },
-    onError: (error) => {
-      console.error(
-        this.translateService.instant(
-          "console.error.case-details-change.editing",
-        ),
-        error,
-      );
-    },
-  }));
+  );
 
   protected readonly patchBehandelaarMutation = injectMutation(() => ({
     mutationFn: () => {
@@ -298,9 +300,7 @@ export class CaseDetailsEditComponent implements OnInit {
 
   private validateDates(
     changedField:
-      | "startdatum"
-      | "einddatumGepland"
-      | "uiterlijkeEinddatumAfdoening",
+      "startdatum" | "einddatumGepland" | "uiterlijkeEinddatumAfdoening",
   ) {
     const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } =
       this.form.getRawValue();

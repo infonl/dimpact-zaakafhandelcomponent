@@ -98,6 +98,8 @@ export class ZacQueryClient {
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "delete",
   >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
+    const [parameters] = args as [PathParameters<Path, Method>];
+
     return mutationOptions<
       Response<Path, Method>,
       HttpErrorResponse,
@@ -107,11 +109,7 @@ export class ZacQueryClient {
       mutationKey: [url, ...args],
       mutationFn: (body: DeleteBody<Path, Method>) =>
         lastValueFrom(
-          this.httpClient.DELETE<Path, Method>(
-            url,
-            args.at(0) as PathParameters<Path, Method>,
-            body,
-          ),
+          this.httpClient.DELETE<Path, Method>(url, parameters, body),
         ),
       onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
     });

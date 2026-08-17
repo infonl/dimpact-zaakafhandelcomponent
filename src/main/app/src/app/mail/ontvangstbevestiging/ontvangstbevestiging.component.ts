@@ -13,11 +13,11 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
@@ -59,13 +59,15 @@ export class OntvangstbevestigingComponent implements OnInit {
   protected readonly contactEmailAddress = injectContactEmail(this.zaak);
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
-  protected readonly sendAcknowledgeReceiptMutation = injectMutation(() => ({
-    ...this.mailService.sendAcknowledgeReceipt(this.zaak().uuid),
-    onSuccess: () => {
-      this.utilService.openSnackbar("msg.email.verstuurd");
-      this.ontvangstBevestigd.emit(true);
+  protected readonly sendAcknowledgeReceiptMutation = injectMutation(
+    () => this.mailService.sendAcknowledgeReceipt(this.zaak().uuid),
+    {
+      onSuccess: () => {
+        this.utilService.openSnackbar("msg.email.verstuurd");
+        this.ontvangstBevestigd.emit(true);
+      },
     },
-  }));
+  );
 
   protected readonly form = this.formBuilder.group({
     verzender:

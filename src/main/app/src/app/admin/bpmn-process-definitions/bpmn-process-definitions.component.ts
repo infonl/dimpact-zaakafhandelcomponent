@@ -17,10 +17,7 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import {
-  injectMutation,
-  injectQuery,
-} from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -29,6 +26,7 @@ import {
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { FileDragAndDropDirective } from "../../shared/directives/file-drag-and-drop.directive";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -45,8 +43,7 @@ interface BpmnProcessDefinitionGroupNode {
 }
 
 type Node =
-  | BpmnProcessDefinitionGroupNode
-  | GeneratedType<"RestBpmnProcessDefinition">;
+  BpmnProcessDefinitionGroupNode | GeneratedType<"RestBpmnProcessDefinition">;
 
 @Component({
   standalone: true,
@@ -97,10 +94,10 @@ export class BpmnProcessDefinitionsComponent
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly injector = inject(Injector);
 
-  private readonly uploadMutation = injectMutation(() => ({
-    ...this.bpmnService.uploadProcessDefinitionQuery(),
-    onSuccess: () => void this.processDefinitionsQuery.refetch(),
-  }));
+  private readonly uploadMutation = injectMutation(
+    () => this.bpmnService.uploadProcessDefinitionQuery(),
+    { onSuccess: () => void this.processDefinitionsQuery.refetch() },
+  );
 
   private readonly deleteMutation = injectServiceMutation(
     (processDefinition: { key: string; name: string }) =>
