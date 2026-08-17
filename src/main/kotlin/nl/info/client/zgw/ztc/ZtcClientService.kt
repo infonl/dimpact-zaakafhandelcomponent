@@ -65,6 +65,8 @@ class ZtcClientService @Inject constructor(
          */
         const val ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM = "ZAAK_GEAUTORISEERD"
 
+        private const val ZTC_EIGENSCHAP = "ztc-eigenschap"
+
         private val CACHES = mutableMapOf<String, Cache<*, *>>()
         private val LOG = Logger.getLogger(ZtcClientService::class.java.name)
         private fun <K, V> createCache(name: String, size: Long = MAX_CACHE_SIZE): Cache<K & Any, V> {
@@ -433,6 +435,11 @@ class ZtcClientService @Inject constructor(
         uuidToBesluitTypeCache.invalidateAll()
         uriToBesluitTypeListCache.invalidateAll()
         return cleared(Caching.ZTC_BESLUITTYPE)
+    }
+
+    fun clearEigenschapCache(): String {
+        uriToEigenschappenCache.invalidateAll()
+        return cleared(ZTC_EIGENSCHAP)
     }
 
     fun clearRoltypeCache(): String {

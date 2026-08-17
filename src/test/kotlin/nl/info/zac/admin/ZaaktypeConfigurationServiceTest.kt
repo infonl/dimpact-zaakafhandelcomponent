@@ -50,6 +50,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
             every { ztcClientService.clearRoltypeCache() } returns cacheClearMessage
             every { ztcClientService.clearResultaattypeCache() } returns cacheClearMessage
             every { ztcClientService.clearStatustypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearEigenschapCache() } returns cacheClearMessage
             every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaaktype
 
             `when`("updating zaakafhandel parameters") {
@@ -71,6 +72,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
             every { ztcClientService.clearRoltypeCache() } returns cacheClearMessage
             every { ztcClientService.clearResultaattypeCache() } returns cacheClearMessage
             every { ztcClientService.clearStatustypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearEigenschapCache() } returns cacheClearMessage
             every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaaktype
 
             // Relaxed entity manager mocking; criteria queries and persisting
@@ -103,6 +105,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
             every { ztcClientService.clearRoltypeCache() } returns cacheClearMessage
             every { ztcClientService.clearResultaattypeCache() } returns cacheClearMessage
             every { ztcClientService.clearStatustypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearEigenschapCache() } returns cacheClearMessage
             every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaaktype
 
             // Relaxed entity manager mocking; criteria queries and persisting
@@ -139,6 +142,7 @@ class ZaaktypeConfigurationServiceTest : BehaviorSpec({
             every { ztcClientService.clearRoltypeCache() } returns cacheClearMessage
             every { ztcClientService.clearResultaattypeCache() } returns cacheClearMessage
             every { ztcClientService.clearStatustypeCache() } returns cacheClearMessage
+            every { ztcClientService.clearEigenschapCache() } returns cacheClearMessage
             every { ztcClientService.readZaaktype(zaaktypeUri) } returns zaaktype
 
             // Relaxed entity manager mocking; criteria queries and persisting

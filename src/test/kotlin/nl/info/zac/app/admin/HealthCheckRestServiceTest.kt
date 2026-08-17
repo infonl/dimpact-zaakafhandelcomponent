@@ -119,6 +119,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
         every { ztcClientService.clearInformatieobjecttypeCache() } returns "fakeResult"
         every { ztcClientService.clearZaaktypeInformatieobjecttypeCache() } returns "fakeResult"
         every { ztcClientService.clearRoltypeCache() } returns "fakeResult"
+        every { ztcClientService.clearEigenschapCache() } returns "fakeResult"
         every { ztcClientService.clearBesluittypeCache() } returns "fakeResult"
 
         `when`("clearZTCCaches is called") {
@@ -133,6 +134,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                     ztcClientService.clearZaaktypeInformatieobjecttypeCache()
                     ztcClientService.clearBesluittypeCache()
                     ztcClientService.clearRoltypeCache()
+                    ztcClientService.clearEigenschapCache()
                     ztcClientService.clearCacheTime()
                     ztcClientService.resetCacheTimeToNow()
                 }
