@@ -457,9 +457,8 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       );
     });
 
-    it("should show snackbar and emit bpmnFormListChanged when dialog is confirmed", async () => {
+    it("should show snackbar when dialog is confirmed", async () => {
       dialogOpenSpy.mockReturnValue({ afterClosed: () => of(true) } as never);
-      const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
 
       component["deleteBpmnForm"]("form-uploaded");
       await sleep();
@@ -468,16 +467,12 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         "msg.bpmn.task-forms.deleted",
         { namen: "form-uploaded" },
       );
-      expect(emitSpy).toHaveBeenCalled();
     });
 
-    it("should not show snackbar or emit when dialog is cancelled", () => {
-      const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
-
+    it("should not show snackbar when dialog is cancelled", () => {
       component["deleteBpmnForm"]("form-uploaded");
 
       expect(utilService.openSnackbar).not.toHaveBeenCalled();
-      expect(emitSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -506,9 +501,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       );
     });
 
-    it("should show snackbar and emit bpmnFormListChanged after all deletions", async () => {
-      const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
-
+    it("should show one snackbar naming every deleted form", async () => {
       component["deleteAllOrphanedForms"]();
       await sleep();
 
@@ -516,7 +509,6 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         "msg.bpmn.task-forms.deleted",
         { namen: "form-orphaned" },
       );
-      expect(emitSpy).toHaveBeenCalled();
     });
   });
 

@@ -84,9 +84,6 @@ export class BpmnProcessDefinitionItemComponent {
         processDefinitionForm.processDefinitionKey,
         processDefinitionForm.name,
       ),
-    {
-      onSuccess: () => this.bpmnFormListChanged.emit(),
-    },
   );
 
   protected uploadBpmnForm() {

@@ -71,6 +71,17 @@ function withServiceContext<TData, TError, TVariables, TOnMutateResult>(
   };
 }
 
+/**
+ * Injects a mutation whose options depend on the variables it is called with.
+ *
+ * The two layers see different variables, because that mapping is the point of
+ * this helper: the callbacks passed here receive what the component handed to
+ * `mutate`, while the callbacks the service put on its own options receive the
+ * request body that `body` derived from it. For a request without a body — a
+ * `DELETE` addressed by path — the service side is therefore `undefined`, and a
+ * service that needs the item it acted on takes it as a parameter and closes
+ * over it.
+ */
 export function injectServiceMutation<
   TData,
   TError,

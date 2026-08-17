@@ -47,4 +47,47 @@ describe(BpmnService.name, () => {
       );
     });
   });
+
+  describe("mutations that change the process definitions", () => {
+    let invalidateQueries: jest.SpyInstance;
+
+    beforeEach(() => {
+      invalidateQueries = jest
+        .spyOn(testQueryClient, "invalidateQueries")
+        .mockResolvedValue(undefined);
+    });
+
+    const expectListingInvalidated = () =>
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey: ["/rest/bpmn-process-definitions"],
+      });
+
+    it("invalidates every listing variant after an upload", async () => {
+      await runMutationOnSuccess(service.uploadProcessDefinitionQuery());
+
+      expectListingInvalidated();
+    });
+
+    it("invalidates every listing variant after deleting a definition", async () => {
+      await runMutationOnSuccess(
+        service.deleteProcessDefinition({
+          key: "fakeProcessDefinitionKey",
+          name: "fakeProcessDefinitionName",
+        }),
+      );
+
+      expectListingInvalidated();
+    });
+
+    it("invalidates every listing variant after deleting a form", async () => {
+      await runMutationOnSuccess(
+        service.deleteProcessDefinitionForm(
+          "fakeProcessDefinitionKey",
+          "fakeFormName",
+        ),
+      );
+
+      expectListingInvalidated();
+    });
+  });
 });

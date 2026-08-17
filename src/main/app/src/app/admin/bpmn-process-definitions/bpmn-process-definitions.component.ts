@@ -94,17 +94,13 @@ export class BpmnProcessDefinitionsComponent
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly injector = inject(Injector);
 
-  private readonly uploadMutation = injectMutation(
-    () => this.bpmnService.uploadProcessDefinitionQuery(),
-    { onSuccess: () => void this.processDefinitionsQuery.refetch() },
+  private readonly uploadMutation = injectMutation(() =>
+    this.bpmnService.uploadProcessDefinitionQuery(),
   );
 
   private readonly deleteMutation = injectServiceMutation(
     (processDefinition: { key: string; name: string }) =>
       this.bpmnService.deleteProcessDefinition(processDefinition),
-    {
-      onSuccess: () => void this.processDefinitionsQuery.refetch(),
-    },
   );
 
   constructor() {
