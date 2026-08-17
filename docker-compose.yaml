@@ -201,8 +201,8 @@ services:
       - TWO_FACTOR_PATCH_ADMIN=False
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_BROKER_URL=redis://redis:6379/4
+      - CELERY_RESULT_BACKEND=redis://redis:6379/4
       - EMAIL_HOST=localhost
       - OTEL_SDK_DISABLED=true
       - SITE_DOMAIN=open-object.local:8000
@@ -392,7 +392,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: gotenberg/gotenberg:8.35.0@sha256:a16a14e1f18a71405624bc028e90d4ef50ea774c352b303639c10bf7b141f760
+    image: gotenberg/gotenberg:8.36.0@sha256:87c16b9f364279d321bc9772d31fa58aa6abe036423c270698bd636c3a8e9466
     # Disable Chromium routes since we only use LibreOffice for document conversion.
     command:
       - "gotenberg"
@@ -418,7 +418,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: grafana/tempo:3.0.2@sha256:cda87c212d8c584dc0b89e337e7ed648a5100feb657e5d528480ee4fa03dbbe3
+    image: grafana/tempo:3.0.3@sha256:0296560ac66f8a3600d7fb3014a52c189d4d9c3549ad6ff441bf2409855d68d5
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -508,8 +508,8 @@ services:
       ALLOWED_HOSTS: "*"
       CACHE_DEFAULT: redis:6379/0
       CACHE_AXES: redis:6379/0
-      CELERY_BROKER_URL: redis://redis:6379/1
-      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      CELERY_BROKER_URL: redis://redis:6379/3
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
       CELERY_LOGLEVEL: DEBUG
       DB_HOST: opennotificaties-database
       DB_NAME: opennotificaties
