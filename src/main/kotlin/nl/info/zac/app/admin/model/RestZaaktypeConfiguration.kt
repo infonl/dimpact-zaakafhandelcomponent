@@ -43,7 +43,7 @@ data class RestZaaktypeConfiguration(
     var valide: Boolean = false,
     /**
      * Indicates that zaken of this zaaktype can be authorised on an individual basis,
-     * which is the case when the zaaktype defines the 'ZAAK_GEAUTORISEERD' eigenschap in Open Zaak.
+     * which is the case when the zaaktype defines the [ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM] eigenschap.
      */
     var zaakspecifiekAutoriseerbaar: Boolean = false,
     /**
