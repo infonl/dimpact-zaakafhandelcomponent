@@ -999,7 +999,7 @@
   "healthCheck.zaaktype.statustypeAfgerondLaatsteVolgnummer": "Statustype \"Afgerond\" is niet de <em>eindstatus</em> (heeft niet het laatste volgnummer)",
   "healthCheck.zaaktype.geenResultaattypeAanwezig": "Er is geen resultaattype gevonden. Minimaal één resultaattype is vereist",
   "healthCheck.zaaktype.geenRolInitiatorAanwezig": "De vereiste rol \"Initiator\" bestaat niet",
-  "healthCheck.zaaktype.geenRolBehandelaarAanwezig": "De vereiste rol \"Behandelaar\" bestaat niet",
+  "healthCheck.zaaktype.geenRolBehandelaarAanwezig": "De vereiste rol \"Behandelaar\" bestaat niet. Let op: voor het roltype 'Behandelaar' vereist ZAC dat zowel het veld `Omschrijving generiek` op 'Behandelaar' staat als het veld `Omschrijving` de exacte waarde 'Behandelaar' heeft",
   "healthCheck.zaaktype.teVeelRolInitiatorAanwezig": "Er kan slechts één roltype \"Initiator\" bestaan",
   "healthCheck.zaaktype.teVeelRolBehandelaarAanwezig": "Er kan slechts één roltype \"Behandelaar\" bestaan",
   "healthCheck.zaaktype.geenRolOverigeAanwezig": "Naast de rollen \"Behandelaar\" en \"Initiator\" moet er minimaal één andere rol aanwezig zijn",

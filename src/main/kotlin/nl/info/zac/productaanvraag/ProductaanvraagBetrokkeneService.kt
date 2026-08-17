@@ -6,6 +6,7 @@ package nl.info.zac.productaanvraag
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import nl.info.client.kvk.util.validateKvKVestigingsnummer
@@ -36,7 +37,6 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
         private val LOG = Logger.getLogger(ProductaanvraagBetrokkeneService::class.java.name)
 
         private const val ROLTYPE_OMSCHRIJVING_INITIATOR = "Initiator"
-        private const val ROLTYPE_OMSCHRIJVING_BEHANDELAAR = "Behandelaar"
         private const val ROL_TOELICHTING = "Overgenomen vanuit de product aanvraag"
     }
 
@@ -196,7 +196,7 @@ class ProductaanvraagBetrokkeneService @Inject constructor(
                 return true
             }
 
-            ROLTYPE_OMSCHRIJVING_BEHANDELAAR -> {
+            ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR -> {
                 LOG.warning(
                     "Betrokkene with role 'Behandelaar' is not supported in the mapping from a productaanvraag. " +
                         "No betrokkene role created for zaak ${zaak.identificatie}."

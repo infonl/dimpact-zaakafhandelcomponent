@@ -348,6 +348,27 @@ class ZtcClientService @Inject constructor(
             )
 
     /**
+     * Retrieves the [RolType] of the specified zaak type with the given generic role type description
+     * and the given specific description (omschrijving).
+     *
+     * @param zaaktypeURI URI of the zaak type
+     * @param omschrijvingGeneriekEnum the generic role type description
+     * @param omschrijving the specific role type description (exact match)
+     * @throws RoltypeNotFoundException if no matching role type could be found
+     */
+    fun readRoltype(
+        zaaktypeURI: URI,
+        omschrijvingGeneriekEnum: OmschrijvingGeneriekEnum,
+        omschrijving: String
+    ): RolType =
+        findRoltypen(zaaktypeURI, omschrijvingGeneriekEnum)
+            .firstOrNull { it.omschrijving == omschrijving }
+            ?: throw RoltypeNotFoundException(
+                "Roltype with aard '$omschrijvingGeneriekEnum' and omschrijving '$omschrijving' " +
+                    "not found for zaaktype '$zaaktypeURI'"
+            )
+
+    /**
      * Read [InformatieObjectType] via its URI.
      * Throws a RuntimeException if the [InformatieObjectType] can not be read.
      *
