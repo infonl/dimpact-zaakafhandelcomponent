@@ -4,6 +4,8 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { UtilService } from "../core/service/util.service";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
@@ -11,16 +13,23 @@ import { ZacQueryClient } from "../shared/http/zac-query-client";
 })
 export class MailService {
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly utilService = inject(UtilService);
 
   sendMail(zaakUuid: string) {
-    return this.zacQueryClient.POST("/rest/mail/send/{zaakUuid}", {
-      path: { zaakUuid },
-    });
+    return mergeMutationOptions(
+      this.zacQueryClient.POST("/rest/mail/send/{zaakUuid}", {
+        path: { zaakUuid },
+      }),
+      { onSuccess: () => this.utilService.openSnackbar("msg.email.verstuurd") },
+    );
   }
 
   sendAcknowledgeReceipt(zaakUuid: string) {
-    return this.zacQueryClient.POST("/rest/mail/acknowledge/{zaakUuid}", {
-      path: { zaakUuid },
-    });
+    return mergeMutationOptions(
+      this.zacQueryClient.POST("/rest/mail/acknowledge/{zaakUuid}", {
+        path: { zaakUuid },
+      }),
+      { onSuccess: () => this.utilService.openSnackbar("msg.email.verstuurd") },
+    );
   }
 }

@@ -15,14 +15,13 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { UtilService } from "../../../core/service/util.service";
 import { ZacDate } from "../../../shared/form/date/date";
 import { ZacFormActions } from "../../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../../shared/form/input/input";
 import { ZacSelect } from "../../../shared/form/select/select";
+import { injectMutation } from "../../../shared/http/inject-mutation";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken.service";
 
@@ -56,7 +55,6 @@ export class BesluitIntrekkenDialogComponent {
   );
   private readonly zakenService = inject(ZakenService);
   private readonly utilService = inject(UtilService);
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly formBuilder = inject(FormBuilder);
   protected readonly besluit =
     inject<GeneratedType<"RestBesluit">>(MAT_DIALOG_DATA);
@@ -93,20 +91,18 @@ export class BesluitIntrekkenDialogComponent {
     ),
   });
 
-  protected readonly mutation = injectMutation(() => ({
-    ...this.zakenService.intrekkenBesluit(),
-    onMutate: () => {
-      this.dialogRef.disableClose = true;
+  protected readonly mutation = injectMutation(
+    () => this.zakenService.intrekkenBesluit(),
+    {
+      onMutate: () => {
+        this.dialogRef.disableClose = true;
+      },
+      onSuccess: () => this.dialogRef.close(true),
+      onSettled: () => {
+        this.dialogRef.disableClose = false;
+      },
     },
-    onSuccess: () => {
-      this.utilService.openSnackbar("msg.besluit.ingetrokken");
-      this.dialogRef.close(true);
-    },
-    onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
-    onSettled: () => {
-      this.dialogRef.disableClose = false;
-    },
-  }));
+  );
 
   constructor() {
     if (this.besluit.ingangsdatum) {

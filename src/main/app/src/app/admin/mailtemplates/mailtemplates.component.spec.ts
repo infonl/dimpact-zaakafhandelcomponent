@@ -17,8 +17,9 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { EMPTY, Subject, config, of, throwError } from "rxjs";
+import { Subject, config, of, throwError } from "rxjs";
 import { testQueryClient } from "../../../../setupJest";
+import { createMutationOptions } from "../../../test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -97,7 +98,7 @@ describe(MailtemplatesComponent.name, () => {
       .mockReturnValue(of([mailtemplate]));
     jest
       .spyOn(mailtemplateBeheerService, "deleteMailtemplate")
-      .mockReturnValue(EMPTY);
+      .mockReturnValue(createMutationOptions(undefined) as never);
     jest
       .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
       .mockReturnValue(of([]));
@@ -144,15 +145,16 @@ describe(MailtemplatesComponent.name, () => {
     expect(dialog.open).toHaveBeenCalled();
   });
 
-  it("should reload mailtemplates and show snackbar after confirmed delete", () => {
+  it("should reload mailtemplates after confirmed delete", async () => {
     jest.spyOn(dialog, "open").mockReturnValue({
       afterClosed: () => of(true),
     } as MatDialogRef<unknown>);
 
     component["verwijderMailtemplate"](mailtemplate);
+    await fixture.whenStable();
 
-    expect(utilServiceMock.openSnackbar).toHaveBeenCalledWith(
-      "msg.mailtemplate.verwijderen.uitgevoerd",
+    expect(mailtemplateBeheerService.deleteMailtemplate).toHaveBeenCalledWith(
+      1,
     );
     expect(mailtemplateBeheerService.listMailtemplates).toHaveBeenCalledTimes(
       2,

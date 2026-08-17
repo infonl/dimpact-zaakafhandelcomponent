@@ -3,11 +3,13 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { queryOptions } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { lastValueFrom, map, Observable } from "rxjs";
-import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
+import { UtilService } from "../core/service/util.service";
+import { PostBody, PutBody } from "../shared/http/http-client";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
 import { appendFileToFormData } from "../shared/utils/file-upload";
@@ -18,11 +20,9 @@ import { GeneratedType } from "../shared/utils/generated-types";
 })
 export class InformatieObjectenService {
   private basepath = "/rest/informatieobjecten";
-
-  constructor(
-    private readonly zacHttpClient: ZacHttpClient,
-    private readonly zacQueryClient: ZacQueryClient,
-  ) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly utilService = inject(UtilService);
 
   readEnkelvoudigInformatieobject(uuid: string) {
     return this.zacHttpClient.GET(
@@ -65,11 +65,19 @@ export class InformatieObjectenService {
     documentReferenceId: string,
     taakObject: boolean,
   ) {
-    return this.zacQueryClient.POST(
-      "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
+    return mergeMutationOptions(
+      this.zacQueryClient.POST(
+        "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
+        {
+          path: { zaakUuid, documentReferenceId },
+          query: { taakObject },
+        },
+      ),
       {
-        path: { zaakUuid, documentReferenceId },
-        query: { taakObject },
+        onSuccess: () =>
+          this.utilService.openSnackbar(
+            "msg.document.nieuwe.versie.toegevoegd",
+          ),
       },
     );
   }
@@ -198,8 +206,18 @@ export class InformatieObjectenService {
   }
 
   verzenden() {
-    return this.zacQueryClient.POST(
-      "/rest/informatieobjecten/informatieobjecten/verzenden",
+    return mergeMutationOptions(
+      this.zacQueryClient.POST(
+        "/rest/informatieobjecten/informatieobjecten/verzenden",
+      ),
+      {
+        onSuccess: (_data, { informatieobjecten }) =>
+          this.utilService.openSnackbar(
+            informatieobjecten.length > 1
+              ? "msg.documenten.verzenden.uitgevoerd"
+              : "msg.document.verzenden.uitgevoerd",
+          ),
+      },
     );
   }
 
@@ -287,14 +305,10 @@ export class InformatieObjectenService {
     );
   }
 
-  deleteEnkelvoudigInformatieObject(
-    uuid: string,
-    body: DeleteBody<"/rest/informatieobjecten/informatieobject/{uuid}">,
-  ) {
-    return this.zacHttpClient.DELETE(
+  deleteEnkelvoudigInformatieObject(uuid: string) {
+    return this.zacQueryClient.DELETE(
       "/rest/informatieobjecten/informatieobject/{uuid}",
       { path: { uuid } },
-      body,
     );
   }
 
