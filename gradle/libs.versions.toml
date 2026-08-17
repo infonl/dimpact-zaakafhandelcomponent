@@ -9,7 +9,7 @@ opentelemetry = "1.65.0"
 opentelemetry-instrumentation = "2.30.0"
 node-gradle = "7.1.0"
 detekt = "2.0.0-alpha.6"
-spotless = "8.9.0"
+spotless = "8.10.0"
 spotless-eclipse-formatter = "4.21"
 spotless-prettier-base = "3.4.2"
 spotless-prettier-organize-imports = "4.1.0"
@@ -72,7 +72,7 @@ json-json = "20250517"
 slf4j-simple = "2.0.18"
 
 github-kotlin-logging = "8.0.4"
-okhttp = "5.4.0"
+okhttp = "5.5.0"
 
 [libraries]
 apache-commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "apache-commons-lang" }
