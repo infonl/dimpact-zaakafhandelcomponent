@@ -16,6 +16,8 @@ import net.atos.zac.app.admin.converter.RESTHumanTaskParametersConverter
 import net.atos.zac.app.admin.model.RESTCaseDefinition
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.ZtcClientService.Companion.ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM
+import nl.info.client.zgw.ztc.model.createEigenschap
 import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
@@ -70,6 +72,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                 true
             )
         } returns null
+        every { ztcClientService.findEigenschap(zaakType.url, ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM) } returns null
 
         `when`("converted to REST representation") {
             val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
@@ -105,6 +108,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     afrondenMail shouldBe ZaakafhandelparametersStatusMailOption.BESCHIKBAAR_UIT
                     productaanvraagtype shouldBe null
                     valide shouldBe false
+                    zaakspecifiekAutoriseerbaar shouldBe false
                     humanTaskParameters shouldBe emptyList()
                     userEventListenerParameters shouldBe emptyList()
                     mailtemplateKoppelingen shouldHaveSize 1
@@ -178,6 +182,7 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
             zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeBpmnConfiguration.getZaakbeeindigParameters())
         } returns listOf(restZaakbeeindigParameter)
         every { smartDocumentsService.isEnabled() } returns true
+        every { ztcClientService.findEigenschap(zaakType.url, ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM) } returns null
 
         `when`("converted to REST representation") {
             val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
@@ -204,11 +209,43 @@ class RestZaakafhandelParametersConverterTest : BehaviorSpec({
                     zaakNietOntvankelijkResultaattype shouldBe restResultType
                     productaanvraagtype shouldBe null
                     zaakbeeindigParameters shouldBe listOf(restZaakbeeindigParameter)
+                    zaakspecifiekAutoriseerbaar shouldBe false
                     smartDocuments shouldBe RestSmartDocuments(
                         enabledGlobally = true,
                         enabledForZaaktype = false
                     )
                 }
+            }
+        }
+    }
+
+    given("a zaaktype that has the 'ZAAK_GEAUTORISEERD' eigenschap") {
+        val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
+        val zaakType = createZaakType()
+        val resultaatType = createResultaatType()
+
+        every { ztcClientService.readZaaktype(zaaktypeCmmnConfiguration.zaaktypeUuid) } returns zaakType
+        every {
+            ztcClientService.readResultaattype(zaaktypeCmmnConfiguration.nietOntvankelijkResultaattype!!)
+        } returns resultaatType
+        every {
+            zaakbeeindigParameterConverter.convertZaakbeeindigParameters(zaaktypeCmmnConfiguration.getZaakbeeindigParameters())
+        } returns emptyList()
+        every { smartDocumentsService.isEnabled() } returns true
+        every {
+            caseDefinitionConverter.convertToRESTCaseDefinition(zaaktypeCmmnConfiguration.caseDefinitionID, true)
+        } returns null
+        every { ztcClientService.findEigenschap(zaakType.url, ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM) } returns
+            createEigenschap(naam = ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM)
+
+        `when`("converted to REST representation") {
+            val restZaakafhandelParameters = restZaaktypeConfigurationConverter.toRestZaaktypeConfiguration(
+                zaaktypeCmmnConfiguration,
+                true
+            )
+
+            then("the zaaktype configuration is marked as 'zaakspecifiek autoriseerbaar'") {
+                restZaakafhandelParameters.zaakspecifiekAutoriseerbaar shouldBe true
             }
         }
     }

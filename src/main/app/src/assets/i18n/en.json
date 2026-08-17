@@ -404,6 +404,7 @@
   "gerelateerdeZaken": "Related cases",
   "zaaktype": "Casetype",
   "zaaktypeOmschrijving": "Casetype",
+  "zaakspecifiekAutoriseerbaar": "Case specific authorisation possible",
   "zaaktype.-kies-": "- Select a casetype -",
   " 5 ": ">>--> OPSOMMINGEN <--<<",
   "action.entityType.DOCUMENT": "Document",

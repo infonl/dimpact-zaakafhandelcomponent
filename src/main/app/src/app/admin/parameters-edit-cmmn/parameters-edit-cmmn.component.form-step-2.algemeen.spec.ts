@@ -203,6 +203,23 @@ describe("Algemeen form step", () => {
     );
   });
 
+  describe("Zaakspecifieke autorisatie", () => {
+    it("should not show the zaakspecifiek autoriseerbaar text by default", () => {
+      expect(fixture.nativeElement.textContent).not.toContain(
+        "zaakspecifiekAutoriseerbaar",
+      );
+    });
+
+    it("should show the zaakspecifiek autoriseerbaar text when the zaaktype supports it", () => {
+      fixture.componentInstance.parameters.zaakspecifiekAutoriseerbaar = true;
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain(
+        "zaakspecifiekAutoriseerbaar",
+      );
+    });
+  });
+
   describe("Case handler", () => {
     it("should load medewerkers for the default group on initialization", () => {
       const component = fixture.componentInstance;

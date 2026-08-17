@@ -266,6 +266,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                         "vervaldatumBesluitVerplicht" : false
                       },
                       "zaakbeeindigParameters" : [ ],
+                      "zaakspecifiekAutoriseerbaar" : true,
                       "zaaktype" : {
                         "beginGeldigheid" : "2023-10-01",
                         "doel" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",

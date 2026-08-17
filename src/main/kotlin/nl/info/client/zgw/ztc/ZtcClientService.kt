@@ -59,6 +59,12 @@ class ZtcClientService @Inject constructor(
         const val MAX_CACHE_SIZE: Long = 1_000
         const val EXPIRATION_TIME_HOURS: Long = 1
 
+        /**
+         * Name of the zaaktype eigenschap that marks a zaaktype as being 'zaakspecifiek autoriseerbaar'.
+         * Open Zaak limits eigenschap names to 20 characters, hence the abbreviated name.
+         */
+        const val ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM = "ZAAK_GEAUTORISEERD"
+
         private val CACHES = mutableMapOf<String, Cache<*, *>>()
         private val LOG = Logger.getLogger(ZtcClientService::class.java.name)
         private fun <K, V> createCache(name: String, size: Long = MAX_CACHE_SIZE): Cache<K & Any, V> {
@@ -383,8 +389,11 @@ class ZtcClientService @Inject constructor(
             response.results()
         }
 
-    fun readEigenschap(zaaktype: URI, eigenschap: String) =
+    fun findEigenschap(zaaktype: URI, eigenschap: String): Eigenschap? =
         this.readEigenschappen(zaaktype).find { it.naam == eigenschap }
+
+    fun readEigenschap(zaaktype: URI, eigenschap: String) =
+        this.findEigenschap(zaaktype, eigenschap)
             ?: throw EigenschapNotFoundException(
                 """
                 No '${EigenschapListParametersStatus.DEFINITIEF}' eigenschap with naam '$eigenschap' found for zaaktype '$zaaktype'.
