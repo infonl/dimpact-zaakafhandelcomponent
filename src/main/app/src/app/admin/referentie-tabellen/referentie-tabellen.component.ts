@@ -32,6 +32,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
@@ -74,6 +75,17 @@ export class ReferentieTabellenComponent
   private readonly service = inject(ReferentieTabelService);
   private readonly dialog = inject(MatDialog);
   private readonly queryClient = inject(QueryClient);
+  private readonly deleteReferentieTabelMutation = injectServiceMutation(
+    (tabel: GeneratedType<"RestReferenceTable">) =>
+      this.service.deleteReferentieTabel(tabel),
+    {
+      onSuccess: (_data, tabel) => {
+        if (this.expandedId() === tabel.id) {
+          this.expandedId.set(null);
+        }
+      },
+    },
+  );
 
   protected readonly tabellenQuery = injectQuery(() =>
     this.service.listReferentieTabellenQuery(),
@@ -172,25 +184,17 @@ export class ReferentieTabellenComponent
     }
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData(
-          {
-            key: "msg.tabel.verwijderen-bevestigen",
-            args: { tabel: tabel.code },
-          },
-          this.service.deleteReferentieTabelWithRefresh(tabel.id),
-        ),
+        data: new ConfirmDialogData({
+          key: "msg.tabel.verwijderen-bevestigen",
+          args: { tabel: tabel.code },
+        }),
       })
       .afterClosed()
       .subscribe((confirmed) => {
         if (!confirmed) {
           return;
         }
-        this.utilService.openSnackbar("msg.tabel.verwijderen.uitgevoerd", {
-          tabel: tabel.code,
-        });
-        if (this.expandedId() === tabel.id) {
-          this.expandedId.set(null);
-        }
+        this.deleteReferentieTabelMutation.mutate(tabel);
       });
   }
 }

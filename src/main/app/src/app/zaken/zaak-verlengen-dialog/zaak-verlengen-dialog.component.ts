@@ -19,12 +19,12 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacInput } from "../../shared/form/input/input";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -52,15 +52,17 @@ import { ZakenService } from "../zaken.service";
 export class ZaakVerlengenDialogComponent implements OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
-  protected extendZaakMutation = injectMutation(() => ({
-    ...this.zakenService.verlengenZaak(this.data.zaak.uuid),
-    onSuccess: (result) => {
-      this.dialogRef.close(result);
+  protected extendZaakMutation = injectMutation(
+    () => this.zakenService.verlengenZaak(this.data.zaak.uuid),
+    {
+      onSuccess: (result) => {
+        this.dialogRef.close(result);
+      },
+      onError: () => {
+        this.dialogRef.disableClose = false;
+      },
     },
-    onError: () => {
-      this.dialogRef.disableClose = false;
-    },
-  }));
+  );
 
   protected readonly form = this.formBuilder.group({
     duurDagen: this.formBuilder.control<number | null>(null, [

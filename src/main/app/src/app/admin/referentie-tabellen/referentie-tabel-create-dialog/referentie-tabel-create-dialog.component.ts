@@ -16,10 +16,10 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../core/service/util.service";
 import { ZacFormActions } from "../../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../../shared/form/input/input";
+import { injectMutation } from "../../../shared/http/inject-mutation";
 import { ReferentieTabelService } from "../../referentie-tabel.service";
 
 @Component({
@@ -58,15 +58,17 @@ export class ReferentieTabelCreateDialogComponent {
     }),
   });
 
-  protected readonly mutation = injectMutation(() => ({
-    ...this.service.createReferentieTabelMutation(),
-    onMutate: () => {
-      this.dialogRef.disableClose = true;
+  protected readonly mutation = injectMutation(
+    () => this.service.createReferentieTabelMutation(),
+    {
+      onMutate: () => {
+        this.dialogRef.disableClose = true;
+      },
+      onSettled: () => {
+        this.dialogRef.disableClose = false;
+      },
     },
-    onSettled: () => {
-      this.dialogRef.disableClose = false;
-    },
-  }));
+  );
 
   protected submit() {
     if (this.form.invalid) {

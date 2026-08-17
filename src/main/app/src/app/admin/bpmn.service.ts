@@ -4,10 +4,14 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { lastValueFrom } from "rxjs";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { UtilService } from "../core/service/util.service";
 import { PostBody } from "../shared/http/http-client";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+
+const PROCESS_DEFINITIONS_PATH = "/rest/bpmn-process-definitions";
 
 @Injectable({
   providedIn: "root",
@@ -15,22 +19,42 @@ import { ZacQueryClient } from "../shared/http/zac-query-client";
 export class BpmnService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly utilService = inject(UtilService);
+  private readonly queryClient = inject(QueryClient, { optional: true });
 
   listProcessDefinitionsQuery(details: boolean = false) {
-    return this.zacQueryClient.GET("/rest/bpmn-process-definitions", {
+    return this.zacQueryClient.GET(PROCESS_DEFINITIONS_PATH, {
       query: { details },
     });
   }
 
-  uploadProcessDefinitionQuery() {
-    return this.zacQueryClient.POST("/rest/bpmn-process-definitions");
+  /** Matches every `details` variant of {@link listProcessDefinitionsQuery}. */
+  private invalidateProcessDefinitions() {
+    return this.queryClient?.invalidateQueries({
+      queryKey: [PROCESS_DEFINITIONS_PATH],
+    });
   }
 
-  deleteProcessDefinition(key: string) {
-    return lastValueFrom(
-      this.zacHttpClient.DELETE("/rest/bpmn-process-definitions/{key}", {
-        path: { key },
+  uploadProcessDefinitionQuery() {
+    return mergeMutationOptions(
+      this.zacQueryClient.POST(PROCESS_DEFINITIONS_PATH),
+      { onSuccess: () => void this.invalidateProcessDefinitions() },
+    );
+  }
+
+  deleteProcessDefinition(processDefinition: { key: string; name: string }) {
+    return mergeMutationOptions(
+      this.zacQueryClient.DELETE("/rest/bpmn-process-definitions/{key}", {
+        path: { key: processDefinition.key },
       }),
+      {
+        onSuccess: () => {
+          void this.invalidateProcessDefinitions();
+          this.utilService.openSnackbar("msg.bpmn.process-definition.deleted", {
+            naam: processDefinition.name,
+          });
+        },
+      },
     );
   }
 
@@ -46,13 +70,14 @@ export class BpmnService {
   }
 
   deleteProcessDefinitionForm(processDefinitionKey: string, name: string) {
-    const key = processDefinitionKey;
-
-    return this.zacHttpClient.DELETE(
-      "/rest/bpmn-process-definitions/{key}/forms/{name}",
-      {
-        path: { key, name },
-      },
+    return mergeMutationOptions(
+      this.zacQueryClient.DELETE(
+        "/rest/bpmn-process-definitions/{key}/forms/{name}",
+        {
+          path: { key: processDefinitionKey, name },
+        },
+      ),
+      { onSuccess: () => void this.invalidateProcessDefinitions() },
     );
   }
 }

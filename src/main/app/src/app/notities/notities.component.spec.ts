@@ -13,7 +13,8 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { testQueryClient } from "../../../setupJest";
+import { sleep, testQueryClient } from "../../../setupJest";
+import { createMutationOptions } from "../../test-helpers";
 import { IdentityService } from "../identity/identity.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitiesComponent } from "./notities.component";
@@ -54,6 +55,9 @@ describe(NotitiesComponent.name, () => {
     jest
       .spyOn(notitieService, "updateNotitie")
       .mockImplementation((notitie) => of(notitie));
+    jest
+      .spyOn(notitieService, "deleteNotitie")
+      .mockReturnValue(createMutationOptions(undefined) as never);
 
     fixture = TestBed.createComponent(NotitiesComponent);
     component = fixture.componentInstance;
@@ -85,5 +89,21 @@ describe(NotitiesComponent.name, () => {
     };
     component["updateNotitie"](notitie, "");
     expect(notitieService.updateNotitie).not.toHaveBeenCalled();
+  });
+
+  it("should delete the selected notitie and remove it from the list", async () => {
+    component["notities"] = [
+      { id: 1, tekst: "een" } as GeneratedType<"RestNote">,
+      { id: 2, tekst: "twee" } as GeneratedType<"RestNote">,
+    ];
+
+    component["verwijderNotitie"](2);
+    await sleep();
+    fixture.detectChanges();
+
+    expect(notitieService.deleteNotitie).toHaveBeenCalledWith(2);
+    expect(component["notities"]).toEqual([
+      { id: 1, tekst: "een" } as GeneratedType<"RestNote">,
+    ]);
   });
 });

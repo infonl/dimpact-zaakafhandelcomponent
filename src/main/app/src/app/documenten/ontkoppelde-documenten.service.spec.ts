@@ -1,0 +1,53 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+import { provideHttpClient } from "@angular/common/http";
+import { TestBed } from "@angular/core/testing";
+import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { testQueryClient } from "../../../setupJest";
+import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
+import { UtilService } from "../core/service/util.service";
+import { GeneratedType } from "../shared/utils/generated-types";
+import { OntkoppeldeDocumentenService } from "./ontkoppelde-documenten.service";
+
+describe(OntkoppeldeDocumentenService.name, () => {
+  let service: OntkoppeldeDocumentenService;
+  let utilService: UtilService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
+      providers: [provideHttpClient(), provideQueryClient(testQueryClient)],
+    });
+
+    service = TestBed.inject(OntkoppeldeDocumentenService);
+    utilService = TestBed.inject(UtilService);
+    jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    testQueryClient.clear();
+    jest.clearAllMocks();
+  });
+
+  describe("delete", () => {
+    it("names the deleted document in the confirmation", async () => {
+      const detachedDocument = fromPartial<
+        GeneratedType<"RestDetachedDocument">
+      >({
+        id: 42,
+        titel: "fakeDocumentTitel",
+      });
+
+      await runMutationOnSuccess(service.delete(detachedDocument));
+
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.document.verwijderen.uitgevoerd",
+        { document: "fakeDocumentTitel" },
+      );
+    });
+  });
+});

@@ -22,10 +22,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import {
-  injectMutation,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { lastValueFrom } from "rxjs";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
@@ -37,6 +34,7 @@ import { ZacFile } from "../../shared/form/file/file";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";

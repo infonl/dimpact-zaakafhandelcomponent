@@ -7,9 +7,12 @@ import { inject, Injectable } from "@angular/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { tap } from "rxjs/operators";
+import { UtilService } from "../core/service/util.service";
 import { PutBody } from "../shared/http/http-client";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
+import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
   providedIn: "root",
@@ -18,6 +21,7 @@ export class ReferentieTabelService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly queryClient = inject(QueryClient, { optional: true });
+  private readonly utilService = inject(UtilService);
 
   listReferentieTabellen() {
     return this.zacHttpClient.GET("/rest/referentietabellen");
@@ -49,10 +53,10 @@ export class ReferentieTabelService {
   }
 
   createReferentieTabelMutation() {
-    return {
-      ...this.zacQueryClient.POST("/rest/referentietabellen"),
-      onSuccess: () => void this.invalidateReferentieTabellen(),
-    };
+    return mergeMutationOptions(
+      this.zacQueryClient.POST("/rest/referentietabellen"),
+      { onSuccess: () => void this.invalidateReferentieTabellen() },
+    );
   }
 
   readReferentieTabelByCode(code: string) {
@@ -70,10 +74,22 @@ export class ReferentieTabelService {
     });
   }
 
-  deleteReferentieTabel(id: number) {
-    return this.zacHttpClient.DELETE("/rest/referentietabellen/{id}", {
-      path: { id },
-    });
+  deleteReferentieTabel(referenceTable: GeneratedType<"RestReferenceTable">) {
+    const id = referenceTable.id ?? -1;
+
+    return mergeMutationOptions(
+      this.zacQueryClient.DELETE("/rest/referentietabellen/{id}", {
+        path: { id },
+      }),
+      {
+        onSuccess: () => {
+          void this.invalidateReferentieTabel(id);
+          this.utilService.openSnackbar("msg.tabel.verwijderen.uitgevoerd", {
+            tabel: referenceTable.code,
+          });
+        },
+      },
+    );
   }
 
   // Cold observable (fires on subscribe), so it's safe to pass to ConfirmDialogData.
@@ -82,13 +98,6 @@ export class ReferentieTabelService {
     body: PutBody<"/rest/referentietabellen/{id}">,
   ) {
     return this.updateReferentieTabel(id, body).pipe(
-      tap(() => void this.invalidateReferentieTabel(id)),
-    );
-  }
-
-  // Cold observable (fires on subscribe), so it's safe to pass to ConfirmDialogData.
-  deleteReferentieTabelWithRefresh(id: number) {
-    return this.deleteReferentieTabel(id).pipe(
       tap(() => void this.invalidateReferentieTabel(id)),
     );
   }

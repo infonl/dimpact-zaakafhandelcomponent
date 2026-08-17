@@ -74,6 +74,9 @@ export class ZacHttpClient {
       );
   }
 
+  /**
+   * @deprecated Use ZacQueryClient.DELETE() for DELETE mutations.
+   */
   public DELETE<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "delete",

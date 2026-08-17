@@ -10,8 +10,11 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { Subject } from "rxjs";
+import { sleep } from "../../../setupJest";
+import { createMutationOptions } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { GeneratedType } from "../shared/utils/generated-types";
 import { SignaleringenService } from "../signaleringen.service";
 import { DashboardComponent } from "./dashboard.component";
 import { DashboardCard } from "./model/dashboard-card";
@@ -19,6 +22,9 @@ import { DashboardCardId } from "./model/dashboard-card-id";
 import { DashboardCardType } from "./model/dashboard-card-type";
 
 type RequestAnimationFrameCallback = (time: number) => void;
+
+const instellingenNaVerwijderen: GeneratedType<"RESTDashboardCardInstelling">[] =
+  [{ cardId: "MIJN_TAKEN", column: 0, row: 0 }];
 
 class FakeResizeObserver {
   static lastInstance: FakeResizeObserver | null = null;
@@ -77,6 +83,12 @@ describe("DashboardComponent row-height sync", () => {
   let originalRequestAnimationFrame: typeof requestAnimationFrame;
   let pendingRequestAnimationFrames: RequestAnimationFrameCallback[];
   let stacked: boolean;
+  let deleteDashboardCardMutation: ReturnType<
+    typeof createMutationOptions<
+      GeneratedType<"RESTDashboardCardInstelling">[],
+      GeneratedType<"RESTDashboardCardInstelling">
+    >
+  >;
 
   beforeEach(() => {
     originalResizeObserver = globalThis.ResizeObserver;
@@ -91,6 +103,11 @@ describe("DashboardComponent row-height sync", () => {
       pendingRequestAnimationFrames.push(callback);
       return pendingRequestAnimationFrames.length;
     }) as typeof requestAnimationFrame;
+
+    deleteDashboardCardMutation = createMutationOptions<
+      GeneratedType<"RESTDashboardCardInstelling">[],
+      GeneratedType<"RESTDashboardCardInstelling">
+    >(instellingenNaVerwijderen);
 
     stacked = false;
     jest.spyOn(window, "matchMedia").mockImplementation(
@@ -112,7 +129,12 @@ describe("DashboardComponent row-height sync", () => {
         provideAngularQuery(new QueryClient()),
         { provide: UtilService, useValue: { setTitle: jest.fn() } },
         { provide: SignaleringenService, useValue: {} },
-        { provide: GebruikersvoorkeurenService, useValue: {} },
+        {
+          provide: GebruikersvoorkeurenService,
+          useValue: {
+            deleteDashboardCard: () => deleteDashboardCardMutation,
+          },
+        },
       ],
     });
 
@@ -321,5 +343,20 @@ describe("DashboardComponent row-height sync", () => {
 
     component.ngOnDestroy();
     expect(observer.observed.size).toBe(0);
+  });
+
+  describe("deleteCard", () => {
+    it("deletes the instelling of the card and stores the returned instellingen", async () => {
+      const card = component["cards"][0];
+
+      component["deleteCard"](card);
+      await sleep();
+
+      expect(deleteDashboardCardMutation.mutationFn).toHaveBeenCalledWith(
+        expect.objectContaining({ cardId: card.id }),
+        expect.anything(),
+      );
+      expect(component["instellingen"]).toBe(instellingenNaVerwijderen);
+    });
   });
 });

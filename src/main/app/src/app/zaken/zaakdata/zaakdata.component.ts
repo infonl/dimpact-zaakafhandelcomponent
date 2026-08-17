@@ -24,11 +24,9 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  injectMutation,
-  injectQuery,
-} from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ZacInput } from "../../shared/form/input/input";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -72,13 +70,15 @@ export class ZaakdataComponent {
     this.zakenService.listProcesVariabelen(),
   );
 
-  protected readonly updateZaakDataMutation = injectMutation(() => ({
-    ...this.zakenService.updateZaakdata(),
-    onSuccess: async () => {
-      this.dataChanged.emit();
-      void this.sideNav().close();
+  protected readonly updateZaakDataMutation = injectMutation(
+    () => this.zakenService.updateZaakdata(),
+    {
+      onSuccess: async () => {
+        this.dataChanged.emit();
+        void this.sideNav().close();
+      },
     },
-  }));
+  );
 
   constructor() {
     effect(() => {

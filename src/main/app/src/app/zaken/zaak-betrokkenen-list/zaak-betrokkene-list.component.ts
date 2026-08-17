@@ -10,6 +10,7 @@ import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import { from } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -123,7 +124,21 @@ export class ZaakBetrokkeneListComponent {
         betrokkene.naam);
     this.zaakDialogService
       .openOntkoppelBetrokkene(betrokkeneIdentificatie, (reden) =>
-        this.zakenService.deleteBetrokkene(betrokkene.rolid, reden),
+        (() => {
+          const deleteBetrokkene = this.zakenService.deleteBetrokkene(
+            betrokkene.rolid,
+          );
+          return from(
+            deleteBetrokkene.mutationFn!(
+              { reden },
+              {
+                client: this.queryClient,
+                meta: deleteBetrokkene.meta,
+                mutationKey: deleteBetrokkene.mutationKey,
+              },
+            ),
+          );
+        })(),
       )
       .afterClosed()
       .subscribe((result) => {

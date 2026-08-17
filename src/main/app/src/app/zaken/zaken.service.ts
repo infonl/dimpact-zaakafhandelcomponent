@@ -9,7 +9,9 @@ import {
   queryOptions,
 } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
+import { UtilService } from "../core/service/util.service";
 import { PatchBody, PostBody, PutBody } from "../shared/http/http-client";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -36,6 +38,7 @@ type ZaakDetailsUpdate = Partial<
 export class ZakenService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly utilService = inject(UtilService);
 
   readZaak(uuid: string) {
     return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}", {
@@ -139,24 +142,20 @@ export class ZakenService {
     return this.zacHttpClient.PATCH("/rest/zaken/initiator", body, {});
   }
 
-  deleteInitiator(zaakUuid: string, reden: string) {
-    return this.zacHttpClient.DELETE(
-      "/rest/zaken/{uuid}/initiator",
-      { path: { uuid: zaakUuid } },
-      { reden },
-    );
+  deleteInitiator(zaakUuid: string) {
+    return this.zacQueryClient.DELETE("/rest/zaken/{uuid}/initiator", {
+      path: { uuid: zaakUuid },
+    });
   }
 
   createBetrokkene(body: PostBody<"/rest/zaken/betrokkene">) {
     return this.zacHttpClient.POST("/rest/zaken/betrokkene", body);
   }
 
-  deleteBetrokkene(rolUUID: string, reden: string) {
-    return this.zacHttpClient.DELETE(
-      "/rest/zaken/betrokkene/{uuid}",
-      { path: { uuid: rolUUID } },
-      { reden },
-    );
+  deleteBetrokkene(rolUUID: string) {
+    return this.zacQueryClient.DELETE("/rest/zaken/betrokkene/{uuid}", {
+      path: { uuid: rolUUID },
+    });
   }
 
   updateZaakLocatie(uuid: string) {
@@ -239,15 +238,32 @@ export class ZakenService {
   }
 
   createBesluit() {
-    return this.zacQueryClient.POST("/rest/zaken/besluit");
+    return mergeMutationOptions(
+      this.zacQueryClient.POST("/rest/zaken/besluit"),
+      {
+        onSuccess: () =>
+          this.utilService.openSnackbar("msg.besluit.vastgelegd"),
+      },
+    );
   }
 
   updateBesluit() {
-    return this.zacQueryClient.PUT("/rest/zaken/besluit");
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT("/rest/zaken/besluit"),
+      {
+        onSuccess: () => this.utilService.openSnackbar("msg.besluit.gewijzigd"),
+      },
+    );
   }
 
   intrekkenBesluit() {
-    return this.zacQueryClient.PUT("/rest/zaken/besluit/intrekken");
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT("/rest/zaken/besluit/intrekken"),
+      {
+        onSuccess: () =>
+          this.utilService.openSnackbar("msg.besluit.ingetrokken"),
+      },
+    );
   }
 
   listBesluittypes(zaaktypeUUID: string) {

@@ -20,7 +20,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { forkJoin } from "rxjs";
+import { forkJoin, from } from "rxjs";
 import { tap } from "rxjs/operators";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { PolicyService } from "src/app/policy/policy.service";
@@ -1003,7 +1003,21 @@ export class ZaakViewComponent
     this.websocketService.suspendListener(this.zaakRollenListener);
     this.zaakDialogService
       .openOntkoppelInitiator((reden) =>
-        this.zakenService.deleteInitiator(this.zaak.uuid, reden),
+        (() => {
+          const deleteInitiator = this.zakenService.deleteInitiator(
+            this.zaak.uuid,
+          );
+          return from(
+            deleteInitiator.mutationFn!(
+              { reden },
+              {
+                client: this.queryClient,
+                meta: deleteInitiator.meta,
+                mutationKey: deleteInitiator.mutationKey,
+              },
+            ),
+          );
+        })(),
       )
       .afterClosed()
       .subscribe((result) => {
@@ -1157,16 +1171,26 @@ export class ZaakViewComponent
     const bagObject = bagObjectGegevens.zaakobject;
     this.zaakDialogService
       .openVerwijderBagObject(bagObject?.omschrijving, (reden) =>
-        this.bagService
-          .delete({
-            redenWijzigen: reden,
-            bagObject,
-            uuid: bagObjectGegevens.uuid,
-            zaakUuid: this.zaak.uuid,
-          })
-          .pipe(
-            tap(() => this.websocketService.suspendListener(this.zaakListener)),
-          ),
+        (() => {
+          const deleteBagObject = this.bagService.delete();
+          return from(
+            deleteBagObject.mutationFn!(
+              {
+                redenWijzigen: reden,
+                bagObject,
+                uuid: bagObjectGegevens.uuid,
+                zaakUuid: this.zaak.uuid,
+              },
+              {
+                client: this.queryClient,
+                meta: deleteBagObject.meta,
+                mutationKey: deleteBagObject.mutationKey,
+              },
+            ),
+          );
+        })().pipe(
+          tap(() => this.websocketService.suspendListener(this.zaakListener)),
+        ),
       )
       .afterClosed()
       .subscribe((result) => {
