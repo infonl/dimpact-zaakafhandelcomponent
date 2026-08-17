@@ -294,8 +294,10 @@ class ZaakServiceTest : BehaviorSpec({
             )
             val existingRolGroup = createRolOrganisatorischeEenheid()
             val reason = "fakeReason"
+            val existingRolMedewerker = createRolMedewerker(rolType = rolTypeBehandelaar)
+            every { zrcClientService.listRollen(zaak) } returns listOf(existingRolMedewerker)
             every { zrcClientService.updateRol(zaak, capture(updateRolSlot), reason) } just runs
-            every { zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason) } just runs
+            every { zrcClientService.deleteRol(any<Rol<*>>(), reason) } just runs
             every { zgwApiService.findGroepForZaak(zaak) } returns existingRolGroup
             every { identityService.readGroup(group.name) } returns group
             every { 
@@ -740,7 +742,8 @@ class ZaakServiceTest : BehaviorSpec({
                     )
                 } returns rolTypeBehandelaar
                 every { zrcClientService.updateRol(it, any(), explanation) } just Runs
-                every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
+                every { zrcClientService.listRollen(it) } returns listOf(createRolMedewerker(rolType = rolTypeBehandelaar))
+                every { zrcClientService.deleteRol(any<Rol<*>>(), explanation) } just Runs
                 every { eventingService.send(capture(screenEventSlot)) } just Runs
             }
 
@@ -759,11 +762,13 @@ class ZaakServiceTest : BehaviorSpec({
                     """for both zaken the group roles should be updated
                     and the user roles should be deleted"""
                 ) {
-                    zaken.map {
+                    zaken.forEach {
                         verify(exactly = 1) {
                             zrcClientService.updateRol(it, any(), explanation)
-                            zrcClientService.deleteRol(it, any(), explanation)
                         }
+                    }
+                    verify(exactly = 2) {
+                        zrcClientService.deleteRol(any<Rol<*>>(), explanation)
                     }
                 }
             }

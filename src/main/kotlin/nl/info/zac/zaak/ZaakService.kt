@@ -165,7 +165,16 @@ class ZaakService @Inject constructor(
                 zrcClientService.updateRol(zaak, bepaalRolGroep(group, zaak), explanation)
                 user?.let {
                     zrcClientService.updateRol(zaak, bepaalRolMedewerker(it, zaak), explanation)
-                } ?: zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, explanation)
+                } ?: run {
+                    val behandelaarRoltype = ztcClientService.readRoltype(
+                        zaak.zaaktype,
+                        OmschrijvingGeneriekEnum.BEHANDELAAR,
+                        ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
+                    )
+                    zrcClientService.listRollen(zaak)
+                        .filter { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER && it.roltype == behandelaarRoltype.url }
+                        .forEach { zrcClientService.deleteRol(it, explanation) }
+                }
             }
 
         LOG.fine { "Successfully assigned ${zakenAssignedList.size} zaken." }
@@ -202,11 +211,18 @@ class ZaakService @Inject constructor(
                 }
             }
 
-            // No user should be assigned - delete the role
+            // No user should be assigned - delete any existing behandelaar roles
             var userDeleted = false
             if (user == null) {
-                zrcClientService.deleteRol(zaak, BetrokkeneTypeEnum.MEDEWERKER, reason)
-                userDeleted = true
+                val behandelaarRoltype = ztcClientService.readRoltype(
+                    zaak.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR,
+                    ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
+                )
+                val behandelaarRoles = zrcClientService.listRollen(zaak)
+                    .filter { it.betrokkeneType == BetrokkeneTypeEnum.MEDEWERKER && it.roltype == behandelaarRoltype.url }
+                behandelaarRoles.forEach { zrcClientService.deleteRol(it, reason) }
+                userDeleted = behandelaarRoles.isNotEmpty()
             }
 
             val group = identityService.readGroup(groupId)
