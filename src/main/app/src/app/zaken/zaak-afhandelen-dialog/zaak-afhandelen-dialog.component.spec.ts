@@ -329,19 +329,19 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       req.flush({});
     });
 
-    it("should send over a 'brondatumEigenschap' when a brondatumEigenschap is required", async () => {
+    it("should send over a 'brondatum' when a brondatum is required", async () => {
       const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
       await resultaattypeSelect.open();
 
       const options = await resultaattypeSelect.getOptions();
-      await options[0]?.click(); // Select a type that requires brondatumEigenschap
+      await options[0]?.click(); // Select a type that requires brondatum
 
       const inputs = await loader.getAllHarnesses(MatInputHarness);
 
-      const brondatumEigenschap = moment().add(1, "day");
+      const brondatum = moment().add(1, "day");
 
       await inputs[0].setValue("test toelichting");
-      await inputs[1].setValue(brondatumEigenschap.format("YYYY-MM-DD"));
+      await inputs[1].setValue(brondatum.format("YYYY-MM-DD"));
 
       const submitButton = await loader.getHarness(
         MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
@@ -360,32 +360,18 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           zaakUuid: "test-zaak-uuid",
           resultaattypeUuid: "resultaat-1",
           resultaatToelichting: "test toelichting",
-          brondatumEigenschap: brondatumEigenschap.startOf("day").toISOString(),
+          brondatum: brondatum.startOf("day").toISOString(),
         }),
       );
       req.flush({});
     });
 
-    it("should not allow the form to be submitted when a brondatumEigenschap is required", async () => {
+    it("should not allow the form to be submitted when brondatum is before today", async () => {
       const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
       await resultaattypeSelect.open();
 
       const options = await resultaattypeSelect.getOptions();
-      await options[0]?.click();
-      fixture.detectChanges();
-
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
-      );
-      expect(await submitButton.isDisabled()).toBe(true);
-    });
-
-    it("should not allow the form to be submitted when brondatumEigenschap is before today", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
-
-      const options = await resultaattypeSelect.getOptions();
-      await options[0]?.click(); // Select a type that requires brondatumEigenschap
+      await options[0]?.click(); // Select a type that requires brondatum
 
       const inputs = await loader.getAllHarnesses(MatInputHarness);
 
@@ -401,12 +387,12 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       expect(submitBtn.disabled).toBe(true);
     });
 
-    it("should allow the form to be submitted when brondatumEigenschap is today", async () => {
+    it("should allow the form to be submitted when brondatum is today", async () => {
       const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
       await resultaattypeSelect.open();
 
       const options = await resultaattypeSelect.getOptions();
-      await options[0]?.click(); // Select a type that requires brondatumEigenschap
+      await options[0]?.click(); // Select a type that requires brondatum
 
       const inputs = await loader.getAllHarnesses(MatInputHarness);
 
@@ -420,12 +406,29 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       expect(submitBtn.disabled).toBe(false);
     });
 
-    it("should restrict the brondatumEigenschap datepicker to today or later", async () => {
+    it("should allow the form to be submitted with an empty brondatum, even when brondatum is required by the resultaattype", async () => {
       const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
       await resultaattypeSelect.open();
 
       const options = await resultaattypeSelect.getOptions();
-      await options[0]?.click(); // Select a type that requires brondatumEigenschap
+      await options[0]?.click(); // Select a type that requires brondatum
+
+      const inputs = await loader.getAllHarnesses(MatInputHarness);
+      await inputs[0].setValue("test toelichting");
+      fixture.detectChanges();
+
+      const submitBtn = fixture.nativeElement.querySelector(
+        'button[type="submit"]',
+      );
+      expect(submitBtn.disabled).toBe(false);
+    });
+
+    it("should restrict the brondatum datepicker to today or later", async () => {
+      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
+      await resultaattypeSelect.open();
+
+      const options = await resultaattypeSelect.getOptions();
+      await options[0]?.click(); // Select a type that requires brondatum
       fixture.detectChanges();
 
       const zacDate = fixture.debugElement.query(By.directive(ZacDate));

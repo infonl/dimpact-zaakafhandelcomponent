@@ -47,6 +47,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
+import { ZaakBrondatumZettenDialogComponent } from "../zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component";
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakOntkoppelenDialogComponent } from "../zaak-ontkoppelen/zaak-ontkoppelen-dialog.component";
@@ -270,7 +271,7 @@ export class ZaakViewComponent
     afleidingswijze?: GeneratedType<"AfleidingswijzeEnum"> | null,
   ) {
     if (!afleidingswijze) return null;
-    // Workaround: the value returned from the backend is lowercase and generated typescript types expect uppercase.
+    // Workaround: the value returned from the backend is lowercase and generated TypeScript types expect uppercase.
     const afleidingswijzeBrondatum: string = afleidingswijze.toUpperCase();
 
     if (afleidingswijzeBrondatum === "EIGENSCHAP") {
@@ -649,7 +650,27 @@ export class ZaakViewComponent
       );
     }
 
+    if (
+      this.zaak.rechten.brondatumZetten &&
+      this.hasAfleidingswijzeBrondatumEigenschap()
+    ) {
+      actionMenuItems.push(
+        new ButtonMenuItem(
+          "actie.zaak.brondatumZetten",
+          () => this.openZaakBrondatumZettenDialog(),
+          "calendar_today",
+        ),
+      );
+    }
+
     return actionMenuItems;
+  }
+
+  private hasAfleidingswijzeBrondatumEigenschap() {
+    // Workaround: the value returned from the backend is lowercase and generated TypeScript types expect uppercase.
+    const afleidingswijze =
+      this.zaak.resultaat?.resultaattype?.bronArchiefprocedure?.afleidingswijze;
+    return afleidingswijze?.toUpperCase() === "EIGENSCHAP";
   }
 
   private openPlanItemStartenDialog(planItem: GeneratedType<"RESTPlanItem">) {
@@ -785,6 +806,23 @@ export class ZaakViewComponent
         this.updateZaak();
         this.zaakTakenComponent.reload();
         this.utilService.openSnackbar("msg.zaak.afgesloten");
+      });
+  }
+
+  private openZaakBrondatumZettenDialog() {
+    void this.actionsSidenav.close();
+
+    this.dialog
+      .open(ZaakBrondatumZettenDialogComponent, {
+        data: { zaak: this.zaak },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        this.activeSideAction = null;
+        if (!result) return;
+        this.updateZaak();
+        this.zaakTakenComponent.reload();
+        this.utilService.openSnackbar("msg.zaak.brondatum.gezet");
       });
   }
 
