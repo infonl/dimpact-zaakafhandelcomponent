@@ -15,7 +15,6 @@ import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { UtilService } from "src/app/core/service/util.service";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
@@ -45,7 +44,6 @@ describe(InboxDocumentenListComponent.name, () => {
   let component: InboxDocumentenListComponent;
   let inboxDocumentenService: InboxDocumentenService;
   let infoService: InformatieObjectenService;
-  let utilService: UtilService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -67,7 +65,6 @@ describe(InboxDocumentenListComponent.name, () => {
 
     inboxDocumentenService = TestBed.inject(InboxDocumentenService);
     infoService = TestBed.inject(InformatieObjectenService);
-    utilService = TestBed.inject(UtilService);
 
     jest
       .spyOn(inboxDocumentenService, "list")
@@ -253,13 +250,10 @@ describe(InboxDocumentenListComponent.name, () => {
     );
   });
 
-  it("should open confirm dialog and emit filterChange with snackbar on documentVerwijderen when confirmed", async () => {
+  it("should open confirm dialog and emit filterChange on documentVerwijderen when confirmed", async () => {
     const dialogSpy = jest.spyOn(component["dialog"], "open").mockReturnValue({
       afterClosed: () => of(true),
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
-    const snackbarSpy = jest
-      .spyOn(utilService, "openSnackbar")
-      .mockImplementation(() => {});
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     jest
       .spyOn(inboxDocumentenService, "delete")
@@ -270,13 +264,7 @@ describe(InboxDocumentenListComponent.name, () => {
     await sleep();
 
     expect(dialogSpy).toHaveBeenCalled();
-    expect(inboxDocumentenService.delete).toHaveBeenCalledWith(42);
-    expect(snackbarSpy).toHaveBeenCalledWith(
-      "msg.document.verwijderen.uitgevoerd",
-      {
-        document: "My doc",
-      },
-    );
+    expect(inboxDocumentenService.delete).toHaveBeenCalledWith(doc);
     expect(filterChangeSpy).toHaveBeenCalled();
   });
 

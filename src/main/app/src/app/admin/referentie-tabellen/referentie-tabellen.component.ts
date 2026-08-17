@@ -77,24 +77,9 @@ export class ReferentieTabellenComponent
   private readonly queryClient = inject(QueryClient);
   private readonly deleteReferentieTabelMutation = injectServiceMutation(
     (tabel: GeneratedType<"RestReferenceTable">) =>
-      this.service.deleteReferentieTabel(tabel.id ?? -1),
+      this.service.deleteReferentieTabel(tabel),
     {
       onSuccess: (_data, tabel) => {
-        if (tabel.id == null) {
-          return;
-        }
-
-        void Promise.all([
-          this.queryClient.invalidateQueries({
-            queryKey: this.service.listReferentieTabellenQuery().queryKey,
-          }),
-          this.queryClient.invalidateQueries({
-            queryKey: this.service.readReferentieTabelQuery(tabel.id).queryKey,
-          }),
-        ]);
-        this.utilService.openSnackbar("msg.tabel.verwijderen.uitgevoerd", {
-          tabel: tabel.code,
-        });
         if (this.expandedId() === tabel.id) {
           this.expandedId.set(null);
         }

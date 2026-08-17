@@ -151,14 +151,9 @@ export class OntkoppeldeDocumentenListComponent
     null;
   private readonly deleteMutation = injectServiceMutation(
     (detachedDocument: GeneratedType<"RestDetachedDocument">) =>
-      this.ontkoppeldeDocumentenService.delete(detachedDocument.id ?? -1),
+      this.ontkoppeldeDocumentenService.delete(detachedDocument),
     {
-      onSuccess: (_data, detachedDocument) => {
-        this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
-          document: detachedDocument.titel,
-        });
-        this.filterChange.emit();
-      },
+      onSuccess: () => this.filterChange.emit(),
     },
   );
 

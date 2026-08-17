@@ -51,10 +51,7 @@ export class MailCreateComponent implements OnInit {
   protected readonly sendMailMutation = injectMutation(
     () => this.mailService.sendMail(this.zaak().uuid),
     {
-      onSuccess: () => {
-        this.utilService.openSnackbar("msg.email.verstuurd");
-        this.mailVerstuurd.emit(true);
-      },
+      onSuccess: () => this.mailVerstuurd.emit(true),
       onError: () => {
         this.mailVerstuurd.emit(false);
       },

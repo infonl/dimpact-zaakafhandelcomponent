@@ -14,7 +14,6 @@ import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { UtilService } from "src/app/core/service/util.service";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
@@ -43,7 +42,6 @@ describe(InboxProductaanvragenListComponent.name, () => {
   let component: InboxProductaanvragenListComponent;
   let service: InboxProductaanvragenService;
   let infoService: InformatieObjectenService;
-  let utilService: UtilService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -65,7 +63,6 @@ describe(InboxProductaanvragenListComponent.name, () => {
 
     service = TestBed.inject(InboxProductaanvragenService);
     infoService = TestBed.inject(InformatieObjectenService);
-    utilService = TestBed.inject(UtilService);
 
     jest
       .spyOn(service, "list")
@@ -224,9 +221,6 @@ describe(InboxProductaanvragenListComponent.name, () => {
     jest.spyOn(component["dialog"], "open").mockReturnValue({
       afterClosed: () => of(true),
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
-    const snackbarSpy = jest
-      .spyOn(utilService, "openSnackbar")
-      .mockImplementation(() => {});
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     jest
       .spyOn(service, "delete")
@@ -238,9 +232,6 @@ describe(InboxProductaanvragenListComponent.name, () => {
     await sleep();
 
     expect(service.delete).toHaveBeenCalledWith(42);
-    expect(snackbarSpy).toHaveBeenCalledWith(
-      "msg.inboxProductaanvraag.verwijderen.uitgevoerd",
-    );
     expect(filterChangeSpy).toHaveBeenCalled();
   });
 

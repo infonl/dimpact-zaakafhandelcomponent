@@ -94,12 +94,7 @@ export class MailtemplatesComponent
     (mailtemplate: GeneratedType<"RESTMailtemplate">) =>
       this.mailtemplateBeheerService.deleteMailtemplate(mailtemplate.id ?? -1),
     {
-      onSuccess: () => {
-        this.utilService.openSnackbar(
-          "msg.mailtemplate.verwijderen.uitgevoerd",
-        );
-        this.laadMailtemplates();
-      },
+      onSuccess: () => this.laadMailtemplates(),
     },
   );
 

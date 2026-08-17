@@ -97,10 +97,7 @@ export class BesluitIntrekkenDialogComponent {
       onMutate: () => {
         this.dialogRef.disableClose = true;
       },
-      onSuccess: () => {
-        this.utilService.openSnackbar("msg.besluit.ingetrokken");
-        this.dialogRef.close(true);
-      },
+      onSuccess: () => this.dialogRef.close(true),
       onSettled: () => {
         this.dialogRef.disableClose = false;
       },

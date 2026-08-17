@@ -140,12 +140,7 @@ export class InboxProductaanvragenListComponent
         Number(inboxProductaanvraag.id ?? -1),
       ),
     {
-      onSuccess: () => {
-        this.utilService.openSnackbar(
-          "msg.inboxProductaanvraag.verwijderen.uitgevoerd",
-        );
-        this.filterChange.emit();
-      },
+      onSuccess: () => this.filterChange.emit(),
     },
   );
 

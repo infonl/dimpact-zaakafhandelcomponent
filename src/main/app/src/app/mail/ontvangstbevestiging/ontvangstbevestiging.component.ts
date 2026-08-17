@@ -62,10 +62,7 @@ export class OntvangstbevestigingComponent implements OnInit {
   protected readonly sendAcknowledgeReceiptMutation = injectMutation(
     () => this.mailService.sendAcknowledgeReceipt(this.zaak().uuid),
     {
-      onSuccess: () => {
-        this.utilService.openSnackbar("msg.email.verstuurd");
-        this.ontvangstBevestigd.emit(true);
-      },
+      onSuccess: () => this.ontvangstBevestigd.emit(true),
     },
   );
 

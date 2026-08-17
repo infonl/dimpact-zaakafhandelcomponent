@@ -126,10 +126,7 @@ export class BesluitEditComponent implements OnInit {
   protected readonly updateBesluitMutation = injectMutation(
     () => this.zakenService.updateBesluit(),
     {
-      onSuccess: () => {
-        this.utilService.openSnackbar("msg.besluit.gewijzigd");
-        this.besluitGewijzigd.emit(true);
-      },
+      onSuccess: () => this.besluitGewijzigd.emit(true),
     },
   );
 

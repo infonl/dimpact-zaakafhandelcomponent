@@ -138,14 +138,9 @@ export class InboxDocumentenListComponent
     null;
   private readonly deleteMutation = injectServiceMutation(
     (inboxDocument: GeneratedType<"RestInboxDocument">) =>
-      this.inboxDocumentenService.delete(inboxDocument.id ?? -1),
+      this.inboxDocumentenService.delete(inboxDocument),
     {
-      onSuccess: (_data, inboxDocument) => {
-        this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
-          document: inboxDocument.titel,
-        });
-        this.filterChange.emit();
-      },
+      onSuccess: () => this.filterChange.emit(),
     },
   );
 

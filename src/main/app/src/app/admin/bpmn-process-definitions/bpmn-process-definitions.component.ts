@@ -101,18 +101,9 @@ export class BpmnProcessDefinitionsComponent
 
   private readonly deleteMutation = injectServiceMutation(
     (processDefinition: { key: string; name: string }) =>
-      this.bpmnService.deleteProcessDefinition(processDefinition.key),
+      this.bpmnService.deleteProcessDefinition(processDefinition),
     {
-      onSuccess: (_data, processDefinition) => {
-        if (!processDefinition) {
-          return;
-        }
-
-        this.utilService.openSnackbar("msg.bpmn.process-definition.deleted", {
-          naam: processDefinition.name,
-        });
-        void this.processDefinitionsQuery.refetch();
-      },
+      onSuccess: () => void this.processDefinitionsQuery.refetch(),
     },
   );
 

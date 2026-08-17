@@ -63,7 +63,6 @@ describe(ReferentieTabellenComponent.name, () => {
   let service: ReferentieTabelService;
   let httpTestingController: HttpTestingController;
   let setTitle: jest.SpyInstance;
-  let openSnackbar: jest.SpyInstance;
   let dialogOpen: jest.SpyInstance;
   let deleteReferentieTabelMutation: ReturnType<
     typeof createMutationOptions<undefined>
@@ -132,9 +131,7 @@ describe(ReferentieTabellenComponent.name, () => {
     setTitle = jest
       .spyOn(utilService, "setTitle")
       .mockImplementation(() => undefined);
-    openSnackbar = jest
-      .spyOn(utilService, "openSnackbar")
-      .mockImplementation(() => undefined);
+    jest.spyOn(utilService, "openSnackbar").mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -188,7 +185,7 @@ describe(ReferentieTabellenComponent.name, () => {
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
   });
 
-  it("opens the delete confirmation and shows a snackbar when confirmed", async () => {
+  it("opens the delete confirmation and deletes the table when confirmed", async () => {
     await setup();
     dialogOpen.mockReturnValue(
       fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(true) }),
@@ -200,15 +197,7 @@ describe(ReferentieTabellenComponent.name, () => {
     const dialogData = dialogOpen.mock.calls[0][1].data;
     expect(dialogData._melding.key).toBe("msg.tabel.verwijderen-bevestigen");
     expect(dialogData._melding.args).toEqual({ tabel: "TABEL_A" });
-    expect(service.deleteReferentieTabel).toHaveBeenCalledWith(1);
-    expect(openSnackbar).toHaveBeenCalledWith(
-      "msg.tabel.verwijderen.uitgevoerd",
-      { tabel: "TABEL_A" },
-    );
-
-    const refetches = httpTestingController.match("/rest/referentietabellen");
-    expect(refetches).toHaveLength(1);
-    refetches[0].flush(tabellen);
+    expect(service.deleteReferentieTabel).toHaveBeenCalledWith(tabellen[0]);
   });
 
   it("loads the full table then opens the rename dialog", async () => {

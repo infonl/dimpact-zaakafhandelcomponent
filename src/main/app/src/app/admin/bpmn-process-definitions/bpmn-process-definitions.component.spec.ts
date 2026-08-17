@@ -394,22 +394,21 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       expect(dialogData._melding.args).toEqual({ naam: "Process A" });
     });
 
-    it("should call delete mutation and show snackbar when dialog is confirmed", async () => {
+    it("should call delete mutation when dialog is confirmed", async () => {
       dialogOpenSpy.mockReturnValue({ afterClosed: () => of(true) } as never);
 
       component["deleteProcessDefinition"]({ key: "key-a", name: "Process A" });
       await fixture.whenStable();
 
-      expect(deleteProcessDefinitionMock).toHaveBeenCalledWith("key-a");
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn.process-definition.deleted",
-        { naam: "Process A" },
-      );
+      expect(deleteProcessDefinitionMock).toHaveBeenCalledWith({
+        key: "key-a",
+        name: "Process A",
+      });
     });
 
-    it("should not show snackbar when dialog is cancelled", () => {
+    it("should not call the delete mutation when dialog is cancelled", () => {
       component["deleteProcessDefinition"]({ key: "key-a", name: "Process A" });
-      expect(utilService.openSnackbar).not.toHaveBeenCalled();
+      expect(deleteProcessDefinitionMock).not.toHaveBeenCalled();
     });
   });
 

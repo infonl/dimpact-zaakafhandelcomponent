@@ -145,7 +145,7 @@ describe(MailtemplatesComponent.name, () => {
     expect(dialog.open).toHaveBeenCalled();
   });
 
-  it("should reload mailtemplates and show snackbar after confirmed delete", async () => {
+  it("should reload mailtemplates after confirmed delete", async () => {
     jest.spyOn(dialog, "open").mockReturnValue({
       afterClosed: () => of(true),
     } as MatDialogRef<unknown>);
@@ -153,9 +153,6 @@ describe(MailtemplatesComponent.name, () => {
     component["verwijderMailtemplate"](mailtemplate);
     await fixture.whenStable();
 
-    expect(utilServiceMock.openSnackbar).toHaveBeenCalledWith(
-      "msg.mailtemplate.verwijderen.uitgevoerd",
-    );
     expect(mailtemplateBeheerService.deleteMailtemplate).toHaveBeenCalledWith(
       1,
     );

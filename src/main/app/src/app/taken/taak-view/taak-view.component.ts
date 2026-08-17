@@ -167,22 +167,12 @@ export class TaakViewComponent
     this.identityService.readLoggedInUser(),
   );
 
-  private readonly updateTaakdataMutation = injectMutation(
-    () => this.takenService.updateTaakdata(),
-    {
-      onSuccess: () => {
-        this.utilService.openSnackbar("msg.taak.opgeslagen");
-      },
-    },
+  private readonly updateTaakdataMutation = injectMutation(() =>
+    this.takenService.updateTaakdata(),
   );
 
-  private readonly completeTaakMutation = injectMutation(
-    () => this.takenService.complete(),
-    {
-      onSuccess: () => {
-        this.utilService.openSnackbar("msg.taak.afgerond");
-      },
-    },
+  private readonly completeTaakMutation = injectMutation(() =>
+    this.takenService.complete(),
   );
 
   protected readonly isPending = computed(

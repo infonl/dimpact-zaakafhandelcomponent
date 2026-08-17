@@ -5,6 +5,10 @@
  */
 
 import { OnChanges, SimpleChange, SimpleChanges } from "@angular/core";
+import type {
+  CreateMutationOptions,
+  MutationFunctionContext,
+} from "@tanstack/angular-query-experimental";
 
 type DeepPartial<T> = T extends null | undefined
   ? T
@@ -12,7 +16,7 @@ type DeepPartial<T> = T extends null | undefined
     ? { [P in keyof T]?: DeepPartial<T[P]> }
     : T;
 
-export const fromPartial = <T,>(partial: NoInfer<DeepPartial<T>>): T =>
+export const fromPartial = <T>(partial: NoInfer<DeepPartial<T>>): T =>
   partial as T;
 
 export function updateComponentInputs<T extends OnChanges>(
@@ -29,6 +33,27 @@ export function updateComponentInputs<T extends OnChanges>(
     simpleChanges[changeKey] = new SimpleChange(null, value, firstChange);
   });
   component.ngOnChanges(simpleChanges);
+}
+
+/**
+ * Invokes the `onSuccess` a service attached to its mutation options, without
+ * going through TanStack Query.
+ */
+export function runMutationOnSuccess<
+  TData,
+  TError,
+  TVariables,
+  TOnMutateResult,
+>(
+  options: CreateMutationOptions<TData, TError, TVariables, TOnMutateResult>,
+  variables?: TVariables,
+) {
+  return options.onSuccess?.(
+    undefined as TData,
+    variables as TVariables,
+    undefined as TOnMutateResult,
+    fromPartial<MutationFunctionContext>({}),
+  );
 }
 
 export function createMutationOptions<TData, TVariables = void>(data: TData) {

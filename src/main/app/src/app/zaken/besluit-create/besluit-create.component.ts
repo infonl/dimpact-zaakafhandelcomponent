@@ -89,10 +89,7 @@ export class BesluitCreateComponent implements OnInit {
   protected readonly createBesluitMutation = injectMutation(
     () => this.zakenService.createBesluit(),
     {
-      onSuccess: () => {
-        this.utilService.openSnackbar("msg.besluit.vastgelegd");
-        this.besluitVastgelegd.emit(true);
-      },
+      onSuccess: () => this.besluitVastgelegd.emit(true),
     },
   );
 

@@ -76,14 +76,7 @@ export class InformatieObjectVerzendenComponent {
   protected readonly verzendenMutation = injectMutation(
     () => this.informatieObjectenService.verzenden(),
     {
-      onSuccess: (_, { informatieobjecten }) => {
-        this.utilService.openSnackbar(
-          informatieobjecten.length > 1
-            ? "msg.documenten.verzenden.uitgevoerd"
-            : "msg.document.verzenden.uitgevoerd",
-        );
-        this.documentSent.emit();
-      },
+      onSuccess: () => this.documentSent.emit(),
     },
   );
 
