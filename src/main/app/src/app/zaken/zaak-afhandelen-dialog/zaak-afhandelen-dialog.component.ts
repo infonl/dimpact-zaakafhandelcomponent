@@ -87,7 +87,7 @@ export class ZaakAfhandelenDialogComponent {
     () => this.data.zaak,
   );
 
-  protected brondatumEigenschapLabel?: string | null;
+  protected brondatumLabel?: string | null;
 
   form = this.formBuilder.group({
     resultaattype:
@@ -97,7 +97,7 @@ export class ZaakAfhandelenDialogComponent {
     verzender:
       this.formBuilder.control<GeneratedType<"RestZaakAfzender"> | null>(null),
     ontvanger: this.formBuilder.control<string>("", [CustomValidators.email]),
-    brondatumEigenschap: this.formBuilder.control<Moment | null>(null, [
+    brondatum: this.formBuilder.control<Moment | null>(null, [
       this.brondatumNietVoorVandaag(),
       Validators.min(moment().startOf("day").valueOf()),
     ]),
@@ -208,16 +208,9 @@ export class ZaakAfhandelenDialogComponent {
         }
 
         if (value?.datumKenmerkVerplicht) {
-          this.form.controls.brondatumEigenschap.addValidators([
-            Validators.required,
-          ]);
-          this.brondatumEigenschapLabel = value?.datumKenmerkOmschrijving;
-        } else {
-          this.form.controls.brondatumEigenschap.removeValidators([
-            Validators.required,
-          ]);
+          this.brondatumLabel = value?.datumKenmerkOmschrijving;
         }
-        this.form.controls.brondatumEigenschap.updateValueAndValidity();
+        this.form.controls.brondatum.updateValueAndValidity();
       });
   }
 
@@ -231,7 +224,7 @@ export class ZaakAfhandelenDialogComponent {
         "msg.error.date.invalid.datum.brondatum-voor-vandaag",
         {
           label:
-            this.brondatumEigenschapLabel ||
+            this.brondatumLabel ||
             this.translateService.instant("zaak.brondatum"),
         },
       );
@@ -257,7 +250,7 @@ export class ZaakAfhandelenDialogComponent {
     this.afsluitenMutation.mutate({
       reden: value.toelichting,
       resultaattypeUuid: value.resultaattype!.id,
-      brondatumEigenschap: value.brondatumEigenschap?.toISOString(),
+      brondatum: value.brondatum?.toISOString(),
     });
   }
 
@@ -285,7 +278,7 @@ export class ZaakAfhandelenDialogComponent {
         this.data.zaak.resultaat?.resultaattype?.id ?? value.resultaattype?.id,
       resultaatToelichting: value.toelichting,
       restMailGegevens,
-      brondatumEigenschap: value.brondatumEigenschap?.toISOString(),
+      brondatum: value.brondatum?.toISOString(),
     });
   }
 

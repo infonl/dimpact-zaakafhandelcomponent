@@ -35,5 +35,6 @@ data class ZaakRechten @JsonbCreator constructor(
     @param:JsonbProperty("starten_taak") val startenTaak: Boolean,
     @param:JsonbProperty("vastleggen_besluit") val vastleggenBesluit: Boolean,
     @param:JsonbProperty("verlengen_doorlooptijd") val verlengenDoorlooptijd: Boolean,
-    @param:JsonbProperty("wijzigen_locatie") val wijzigenLocatie: Boolean
+    @param:JsonbProperty("wijzigen_locatie") val wijzigenLocatie: Boolean,
+    @param:JsonbProperty("brondatum_zetten") val brondatumZetten: Boolean
 ) : OpaRuleResult

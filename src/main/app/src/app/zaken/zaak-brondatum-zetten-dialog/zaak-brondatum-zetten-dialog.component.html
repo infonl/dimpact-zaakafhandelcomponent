@@ -1,0 +1,63 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-toolbar role="heading" class="gap-16" mat-dialog-title>
+  <mat-icon>thumb_up_alt</mat-icon>
+  <span class="flex-grow-1" *ngIf="data.planItem">
+    {{ "planitem." + data.planItem?.userEventListenerActie | translate }}
+  </span>
+  <span class="flex-grow-1" *ngIf="!data.planItem">
+    {{ "actie.zaak.brondatumZetten" | translate }}
+  </span>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-divider></mat-divider>
+
+<form [formGroup]="form" (submit)="afhandelen()">
+  <mat-dialog-content>
+    <zac-date [form]="form" key="brondatum">
+      <mat-label>{{
+        brondatumLabel || ("zaak.brondatum" | translate)
+      }}</mat-label>
+    </zac-date>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="
+        !form.valid ||
+        brondatumZettenMutation.isPending() ||
+        brondatumZettenMutation.isSuccess() ||
+        planItemAfhandelenMutation.isPending() ||
+        planItemAfhandelenMutation.isSuccess()
+      "
+    >
+      <mat-icon
+        *ngIf="
+          brondatumZettenMutation.isPending() ||
+          planItemAfhandelenMutation.isPending()
+        "
+      >
+        <mat-spinner diameter="18"></mat-spinner>
+      </mat-icon>
+      {{ "actie.zaak.brondatumZetten" | translate }}
+    </button>
+    <button
+      mat-raised-button
+      [disabled]="
+        brondatumZettenMutation.isPending() ||
+        planItemAfhandelenMutation.isPending()
+      "
+      (click)="close()"
+      type="button"
+    >
+      {{ "actie.annuleren" | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -30,8 +30,8 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-private const val BRONDATUM_EIGENSCHAP_MONTHS_IN_FUTURE = 3L
-private val BRONDATUM_EIGENSCHAP_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'00:00:00.000XXX")
+private const val BRONDATUM_MONTHS_IN_FUTURE = 3L
+private val BRONDATUM_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'00:00:00.000XXX")
 
 /**
  * This test creates a zaak, adds a task to complete the intake phase, closes the zaak with afleidingswijze 'eigenschap'.
@@ -108,7 +108,7 @@ class ZaakRestServiceBrondatumAfleidingswijzeEigenschapArchiveTest : BehaviorSpe
 
         `when`("the zaak is completed with afhandelwijze 'Opgelegd - Eigenschap' (afleidingswijze 'eigenschap'") {
             val afhandelenId: Int
-            val brondatumEigenschap = LocalDate.now().plusMonths(BRONDATUM_EIGENSCHAP_MONTHS_IN_FUTURE)
+            val brondatum = LocalDate.now().plusMonths(BRONDATUM_MONTHS_IN_FUTURE)
             itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/planitems/zaak/$zaakUuid/userEventListenerPlanItems",
                 testUser = RECORDMANAGER_1
@@ -128,8 +128,8 @@ class ZaakRestServiceBrondatumAfleidingswijzeEigenschapArchiveTest : BehaviorSpe
                     "actie":"$ACTIE_ZAAK_AFHANDELEN",
                     "resultaattypeUuid": "$resultaatTypeUuid",
                     "resultaatToelichting":"afronden",
-                    "brondatumEigenschap":"${
-                        brondatumEigenschap.atStartOfDay(ZoneId.systemDefault()).format(BRONDATUM_EIGENSCHAP_FORMATTER)
+                    "brondatum":"${
+                        brondatum.atStartOfDay(ZoneId.systemDefault()).format(BRONDATUM_FORMATTER)
                     }"
                 }
             """.trimIndent()
@@ -142,7 +142,7 @@ class ZaakRestServiceBrondatumAfleidingswijzeEigenschapArchiveTest : BehaviorSpe
                 code shouldBe HTTP_NO_CONTENT
             }
 
-            then("the zaak should be closed and have a result and startdatumBewaartermijn = brondatumEigenschap") {
+            then("the zaak should be closed and have a result and startdatumBewaartermijn = brondatum") {
                 zacClient.retrieveZaak(zaakUuid, RECORDMANAGER_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -152,7 +152,7 @@ class ZaakRestServiceBrondatumAfleidingswijzeEigenschapArchiveTest : BehaviorSpe
                         shouldContainJsonKey("resultaat")
                     }
                     JSONObject(responseBody).run {
-                        LocalDate.parse(getString("startdatumBewaartermijn")) shouldBe brondatumEigenschap
+                        LocalDate.parse(getString("startdatumBewaartermijn")) shouldBe brondatum
                     }
                 }
             }
