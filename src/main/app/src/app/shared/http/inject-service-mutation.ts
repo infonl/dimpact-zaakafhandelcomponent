@@ -184,7 +184,15 @@ export function injectServiceMutation<
       // there is no generic way to combine two contexts, so the outermost one wins
       return (onMutateResult ?? serviceOnMutateResult) as TOnMutateResult;
     },
+    // reporting a failure is one responsibility someone owns, so an `onError`
+    // passed here replaces the service default instead of adding to it — the
+    // same meaning a spread of the service options gives it
     onError: async (error, variables, onMutateResult, context) => {
+      if (overrides?.onError) {
+        await overrides.onError(error, variables, onMutateResult, context);
+        return;
+      }
+
       const serviceMutationOptions = mutationOptions(variables);
 
       await serviceMutationOptions.onError?.(
@@ -193,7 +201,6 @@ export function injectServiceMutation<
         onMutateResult,
         context,
       );
-      await overrides?.onError?.(error, variables, onMutateResult, context);
     },
     onSuccess: async (data, variables, onMutateResult, context) => {
       const serviceMutationOptions = mutationOptions(variables);

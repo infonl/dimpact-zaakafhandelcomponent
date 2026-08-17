@@ -16,7 +16,7 @@ type DeepPartial<T> = T extends null | undefined
     ? { [P in keyof T]?: DeepPartial<T[P]> }
     : T;
 
-export const fromPartial = <T>(partial: NoInfer<DeepPartial<T>>): T =>
+export const fromPartial = <T,>(partial: NoInfer<DeepPartial<T>>): T =>
   partial as T;
 
 export function updateComponentInputs<T extends OnChanges>(

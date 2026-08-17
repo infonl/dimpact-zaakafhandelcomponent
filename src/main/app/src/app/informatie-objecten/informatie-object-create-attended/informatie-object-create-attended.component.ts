@@ -41,11 +41,11 @@ import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../shared/form/input/input";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import {
   NotificationDialogComponent,
   NotificationDialogData,
 } from "../../shared/notification-dialog/notification-dialog.component";
-import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 

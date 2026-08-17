@@ -300,7 +300,9 @@ export class CaseDetailsEditComponent implements OnInit {
 
   private validateDates(
     changedField:
-      "startdatum" | "einddatumGepland" | "uiterlijkeEinddatumAfdoening",
+      | "startdatum"
+      | "einddatumGepland"
+      | "uiterlijkeEinddatumAfdoening",
   ) {
     const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } =
       this.form.getRawValue();
