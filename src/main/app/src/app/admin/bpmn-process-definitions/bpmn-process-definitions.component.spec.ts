@@ -134,7 +134,6 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
 
   afterEach(() => {
     notifyManager.setScheduler((fn) => setTimeout(fn, 0));
-    jest.clearAllMocks();
   });
 
   describe("on init", () => {

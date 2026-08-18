@@ -10,8 +10,10 @@ import { PageEvent } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../../setupJest";
 import { GebruikersvoorkeurenService } from "../../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
 import { GeneratedType } from "../../utils/generated-types";
 import { TabelGegevens } from "../model/tabel-gegevens";
@@ -54,6 +56,7 @@ describe(WerklijstComponent.name, () => {
       ],
       providers: [
         provideHttpClient(),
+        provideQueryClient(testQueryClient),
         provideRouter([]),
         {
           provide: ActivatedRoute,
@@ -65,7 +68,7 @@ describe(WerklijstComponent.name, () => {
     gebruikersvoorkeurenService = TestBed.inject(GebruikersvoorkeurenService);
     jest
       .spyOn(gebruikersvoorkeurenService, "updateAantalPerPagina")
-      .mockReturnValue(of(undefined) as never);
+      .mockReturnValue(createMutationOptions(undefined) as never);
 
     fixture = TestBed.createComponent(ConcreteWerklijstComponent);
     component = fixture.componentInstance;

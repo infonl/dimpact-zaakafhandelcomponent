@@ -12,7 +12,11 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of, Subject } from "rxjs";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { Subject } from "rxjs";
+import { createMutationOptions } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
+import { sleep } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenSettingsService } from "../signaleringen-settings.service";
@@ -49,7 +53,11 @@ describe(SignaleringenSettingsComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideQueryClient(testQueryClient),
+        provideHttpClient(),
+        provideRouter([]),
+      ],
     }).compileComponents();
 
     utilService = TestBed.inject(UtilService);
@@ -62,7 +70,7 @@ describe(SignaleringenSettingsComponent.name, () => {
       .mockReturnValue(listSubject.asObservable() as never);
     jest
       .spyOn(signaleringenService, "put")
-      .mockReturnValue(of(makeInstelling()) as never);
+      .mockReturnValue(createMutationOptions(makeInstelling()) as never);
 
     fixture = TestBed.createComponent(SignaleringenSettingsComponent);
     component = fixture.componentInstance;
@@ -204,12 +212,13 @@ describe(SignaleringenSettingsComponent.name, () => {
     component["changed"](row, "dashboard", true);
 
     expect(utilService.setLoading).toHaveBeenCalledWith(true);
-    expect(signaleringenService.put).toHaveBeenCalledWith(row);
+    expect(signaleringenService.put).toHaveBeenCalled();
   });
 
-  it("calls setLoading(false) after put completes", () => {
+  it("calls setLoading(false) after put completes", async () => {
     const row = makeInstelling({ dashboard: false });
     component["changed"](row, "dashboard", true);
+    await sleep();
 
     expect(utilService.setLoading).toHaveBeenCalledWith(false);
   });

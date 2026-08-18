@@ -30,7 +30,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { from, Observable, of, throwError } from "rxjs";
+import { Observable, of, throwError } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
 import { UtilService } from "../../core/service/util.service";
@@ -65,6 +65,7 @@ import { DocumentDialogService } from "../document-dialog.service";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
+import { runMutation } from "../../shared/http/run-mutation";
 
 @Component({
   templateUrl: "./informatie-object-view.component.html",
@@ -452,23 +453,12 @@ export class InformatieObjectViewComponent
 
   private deleteEnkelvoudigInformatieObject$(reden?: string): Observable<void> {
     if (!this.infoObject?.uuid) return of();
-    const deleteEnkelvoudigInformatieObject =
+    return runMutation(
+      this.queryClient,
       this.informatieObjectenService.deleteEnkelvoudigInformatieObject(
         this.infoObject.uuid,
-      );
-
-    return from(
-      deleteEnkelvoudigInformatieObject.mutationFn!(
-        {
-          zaakUuid: this.zaak?.uuid,
-          reden,
-        },
-        {
-          client: this.queryClient,
-          meta: deleteEnkelvoudigInformatieObject.meta,
-          mutationKey: deleteEnkelvoudigInformatieObject.mutationKey,
-        },
       ),
+      { zaakUuid: this.zaak?.uuid, reden },
     ).pipe(
       tap(() => this.websocketService.suspendListener(this.documentListener)),
     );

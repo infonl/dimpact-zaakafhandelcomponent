@@ -99,11 +99,6 @@ describe(BesluitCreateComponent.name, () => {
     fixture.detectChanges();
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   describe("initialisation", () => {
     it("loads resultaattypes and besluittypes for the zaak's zaaktype", () => {
       expect(zakenService.listResultaattypes).toHaveBeenCalledWith(

@@ -27,11 +27,6 @@ describe(InboxProductaanvragenService.name, () => {
     jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   describe("delete", () => {
     it("confirms the deletion to the user", async () => {
       await runMutationOnSuccess(service.delete(42));

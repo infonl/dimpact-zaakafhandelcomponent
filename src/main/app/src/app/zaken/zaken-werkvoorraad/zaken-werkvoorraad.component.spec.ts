@@ -7,7 +7,10 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -16,7 +19,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { TabelGegevens } from "../../shared/dynamic-table/model/tabel-gegevens";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
@@ -28,6 +31,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
   let component: ZakenWerkvoorraadComponent;
   let fixture: ComponentFixture<ZakenWerkvoorraadComponent>;
   let identityService: IdentityService;
+  let httpTestingController: HttpTestingController;
 
   const mockTabelGegevens: TabelGegevens = {
     aantalPerPagina: 10,
@@ -70,6 +74,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
     component = fixture.componentInstance;
 
     identityService = TestBed.inject(IdentityService);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
       id: "user1",
@@ -129,6 +134,62 @@ describe(ZakenWerkvoorraadComponent.name, () => {
         behandelaarGebruikersnaam: "user2",
       });
       expect(component["showAssignToMe"](zaakZoekObject)).toBe(false);
+    });
+  });
+
+  describe("assignToMe", () => {
+    const zaakZoekObject = () =>
+      fromPartial<ZaakZoekObject>({
+        id: "fakeZaakUuid",
+        groepId: "groupA",
+        behandelaarNaam: "",
+        behandelaarGebruikersnaam: "",
+      });
+
+    it("assigns the zaak of the row that was clicked", async () => {
+      component["assignToMe"](zaakZoekObject(), new MouseEvent("click"));
+      await sleep();
+
+      const request = httpTestingController.expectOne(
+        "/rest/zaken/lijst/toekennen/mij",
+      );
+      expect(request.request.method).toBe("PUT");
+      expect(request.request.body).toEqual({
+        zaakUUID: "fakeZaakUuid",
+        groepId: "groupA",
+      });
+    });
+
+    it("shows the assigned behandelaar on the row it was called for", async () => {
+      const row = zaakZoekObject();
+
+      component["assignToMe"](row, new MouseEvent("click"));
+      await sleep();
+
+      httpTestingController.expectOne("/rest/zaken/lijst/toekennen/mij").flush(
+        fromPartial<GeneratedType<"RestZaakOverzicht">>({
+          behandelaar: { id: "user1", naam: "testuser-1" },
+        }),
+      );
+      await sleep();
+
+      expect(row.behandelaarNaam).toBe("testuser-1");
+      expect(row.behandelaarGebruikersnaam).toBe("user1");
+    });
+
+    it("leaves the row alone when the response names no behandelaar", async () => {
+      const row = zaakZoekObject();
+
+      component["assignToMe"](row, new MouseEvent("click"));
+      await sleep();
+
+      httpTestingController
+        .expectOne("/rest/zaken/lijst/toekennen/mij")
+        .flush(fromPartial<GeneratedType<"RestZaakOverzicht">>({}));
+      await sleep();
+
+      expect(row.behandelaarNaam).toBe("");
+      expect(row.behandelaarGebruikersnaam).toBe("");
     });
   });
 

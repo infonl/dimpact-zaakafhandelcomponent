@@ -62,6 +62,7 @@ import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-r
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
+import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";
@@ -125,6 +126,21 @@ export class ZakenWerkvoorraadComponent
   implements AfterViewInit, OnInit, OnDestroy
 {
   protected readonly indicatiesLayout = IndicatiesLayout;
+  private readonly assignToMeMutation = injectServiceMutation({
+    mutationOptions: () =>
+      this.zakenService.toekennenAanIngelogdeMedewerkerVanuitLijst(),
+    body: (zaakZoekObject: ZaakZoekObject) => ({
+      zaakUUID: zaakZoekObject.id,
+      groepId: zaakZoekObject.groepId,
+    }),
+    onSuccess: (zaak, zaakZoekObject) => {
+      // the row's columns are not nullable, so there is nothing to show until
+      // the response names the behandelaar it assigned
+      if (!zaak.behandelaar) return;
+      zaakZoekObject.behandelaarNaam = zaak.behandelaar.naam;
+      zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.id;
+    },
+  });
   protected selection = new SelectionModel<ZaakZoekObject>(true, []);
   protected dataSource: ZakenWerkvoorraadDatasource;
   @ViewChild(MatPaginator) private paginator!: MatPaginator;
@@ -280,22 +296,7 @@ export class ZakenWerkvoorraadComponent
 
   protected assignToMe(zaakZoekObject: ZaakZoekObject, $event: Event) {
     $event.stopPropagation();
-
-    this.zakenService
-      .toekennenAanIngelogdeMedewerkerVanuitLijst(
-        zaakZoekObject.id,
-        zaakZoekObject.groepId,
-      )
-      .subscribe((zaak) => {
-        if (!zaak.behandelaar) {
-          return;
-        }
-        zaakZoekObject.behandelaarNaam = zaak.behandelaar?.naam;
-        zaakZoekObject.behandelaarGebruikersnaam = zaak.behandelaar.id;
-        this.utilService.openSnackbar("msg.zaak.toegekend", {
-          behandelaar: zaak.behandelaar.naam,
-        });
-      });
+    this.assignToMeMutation.mutate(zaakZoekObject);
   }
 
   protected showAssignToMe(zaakZoekObject: ZaakZoekObject) {

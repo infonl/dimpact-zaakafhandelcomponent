@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -52,6 +52,7 @@ import {
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -80,6 +81,11 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
 > & {
   zaakbeeindigReden?: GeneratedType<"RestZaakbeeindigReden">;
   resultaattype?: GeneratedType<"RestResultaattype"> | null;
+};
+
+type SaveVariables = {
+  parameters: GeneratedType<"RestZaaktypeConfiguration">;
+  afzenderMailByIndex: string[];
 };
 
 @Component({
@@ -243,6 +249,33 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     { label: "statusmail.optie.BESCHIKBAAR_UIT", value: "BESCHIKBAAR_UIT" },
     { label: "statusmail.optie.NIET_BESCHIKBAAR", value: "NIET_BESCHIKBAAR" },
   ];
+
+  private readonly updateZaakafhandelparametersMutation = injectServiceMutation(
+    {
+      mutationOptions: () =>
+        this.zaakafhandelParametersService.updateZaakafhandelparameters(),
+      body: ({ parameters }: SaveVariables) => parameters,
+      onSuccess: (savedParameters, { afzenderMailByIndex }) => {
+        this.cmmnBpmnFormGroup.disable({ emitEvent: false }); // disable form to prevent modifications until explicitly enabled again
+        this.parameters = savedParameters;
+        for (const afzender of this.parameters.zaakAfzenders!) {
+          for (let i = 0; i < afzenderMailByIndex.length; i++) {
+            if (afzenderMailByIndex[i] === afzender.mail) {
+              (
+                afzender as GeneratedType<"RestZaakAfzender"> & {
+                  index: number;
+                }
+              ).index = i;
+              break;
+            }
+          }
+        }
+      },
+      onSettled: () => {
+        this.isLoading = false;
+      },
+    },
+  );
 
   protected caseDefinitions =
     this.zaakafhandelParametersService.listCaseDefinitions();
@@ -1027,34 +1060,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       enabled: Boolean(enabled),
     };
 
-    this.zaakafhandelParametersService
-      .updateZaakafhandelparameters(this.parameters)
-      .subscribe({
-        next: (data) => {
-          this.isLoading = false;
-          this.cmmnBpmnFormGroup.disable({ emitEvent: false }); // disable form to prevent modifications until explicitly enabled again
-
-          this.utilService.openSnackbar(
-            "msg.zaakafhandelparameters.opgeslagen",
-          );
-          this.parameters = data;
-          for (const afzender of this.parameters.zaakAfzenders!) {
-            for (let i = 0; i < index.length; i++) {
-              if (index[i] === afzender.mail) {
-                (
-                  afzender as GeneratedType<"RestZaakAfzender"> & {
-                    index: number;
-                  }
-                ).index = i;
-                break;
-              }
-            }
-          }
-        },
-        error: () => {
-          this.isLoading = false;
-        },
-      });
+    this.updateZaakafhandelparametersMutation.mutate({
+      parameters: this.parameters,
+      afzenderMailByIndex: index,
+    });
 
     if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
       this.smartDocumentsFormComponent.saveSmartDocumentsMapping().subscribe();

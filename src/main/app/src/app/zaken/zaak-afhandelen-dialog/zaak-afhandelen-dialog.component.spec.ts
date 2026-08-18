@@ -183,11 +183,6 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
     await createTestBed(mockZaak, mockPlanItem);
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    httpTestingController.verify();
-  });
-
   describe("sendMail checkbox", () => {
     it("should show mail fields when sendMail is checked", async () => {
       const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);

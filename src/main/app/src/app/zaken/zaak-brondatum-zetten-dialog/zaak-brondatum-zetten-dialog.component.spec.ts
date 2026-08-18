@@ -85,11 +85,6 @@ describe(ZaakBrondatumZettenDialogComponent.name, () => {
     await createTestBed(mockZaak, mockPlanItem);
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    httpTestingController.verify();
-  });
-
   describe("form validation", () => {
     it("should disable submit button when brondatum is empty", async () => {
       const submitButton = await loader.getHarness(

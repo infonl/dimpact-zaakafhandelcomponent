@@ -144,11 +144,6 @@ describe(IntakeAfrondenDialogComponent.name, () => {
     fixture.detectChanges();
   }
 
-  afterEach(() => {
-    testQueryClient.clear();
-    httpTestingController.verify();
-  });
-
   describe("mail availability", () => {
     it("mailBeschikbaar is true when intakeMail is BESCHIKBAAR_AAN", async () => {
       await setup(makeZaak("BESCHIKBAAR_AAN"));

@@ -50,6 +50,7 @@ import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { runMutation } from "../../shared/http/run-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -291,20 +292,20 @@ export class ZaakDocumentenComponent implements AfterViewInit {
         }
         this.documentDialogService
           .openOntkoppelDocument(melding, (reden) =>
-            this.zakenService.ontkoppelInformatieObject({
-              zaakUUID: this.zaak().uuid,
-              documentUUID: informatieobject.uuid!,
-              reden: reden,
-            }),
+            runMutation(
+              this.queryClient,
+              this.zakenService.ontkoppelInformatieObject(informatieobject),
+              {
+                zaakUUID: this.zaak().uuid,
+                documentUUID: informatieobject.uuid!,
+                reden,
+              },
+            ),
           )
           .afterClosed()
           .subscribe((result) => {
             if (result) {
               this.reloadDocumenten();
-              this.utilService.openSnackbar(
-                "msg.document.ontkoppelen.uitgevoerd",
-                { document: informatieobject.titel },
-              );
             }
           });
       });

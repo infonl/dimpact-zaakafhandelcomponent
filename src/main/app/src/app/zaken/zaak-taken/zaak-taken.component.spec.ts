@@ -128,11 +128,6 @@ describe(ZaakTakenComponent.name, () => {
     component = fixture.componentInstance;
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   describe("init", () => {
     it("registers websocket listener for ZAAK_TAKEN on init", () => {
       expect(websocketService.addListener).toHaveBeenCalledWith(

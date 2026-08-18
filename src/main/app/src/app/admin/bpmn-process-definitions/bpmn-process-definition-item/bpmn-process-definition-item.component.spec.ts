@@ -134,7 +134,6 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
     jest.useRealTimers();
   });
 

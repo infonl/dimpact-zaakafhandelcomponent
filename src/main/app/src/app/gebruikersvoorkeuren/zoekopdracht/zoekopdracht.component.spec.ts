@@ -58,6 +58,9 @@ describe(ZoekopdrachtComponent.name, () => {
   let loader: HarnessLoader;
   let component: ZoekopdrachtComponent;
   let service: GebruikersvoorkeurenService;
+  let setZoekopdrachtActiefMutation: ReturnType<
+    typeof createMutationOptions<undefined, GeneratedType<"RESTZoekopdracht">>
+  >;
   let dialog: MatDialog;
   let filtersChanged: EventEmitter<void>;
 
@@ -80,9 +83,13 @@ describe(ZoekopdrachtComponent.name, () => {
     jest
       .spyOn(service, "deleteZoekOpdrachten")
       .mockReturnValue(createMutationOptions(undefined) as never);
+    setZoekopdrachtActiefMutation = createMutationOptions<
+      undefined,
+      GeneratedType<"RESTZoekopdracht">
+    >(undefined);
     jest
       .spyOn(service, "setZoekopdrachtActief")
-      .mockReturnValue(of(undefined) as never);
+      .mockReturnValue(setZoekopdrachtActiefMutation as never);
     jest
       .spyOn(service, "removeZoekopdrachtActief")
       .mockReturnValue(createMutationOptions(undefined) as never);
@@ -247,9 +254,11 @@ describe(ZoekopdrachtComponent.name, () => {
       await menu.open();
       const [item] = await menu.getItems();
       await item.click();
+      await sleep();
 
-      expect(service.setZoekopdrachtActief).toHaveBeenCalledWith(
+      expect(setZoekopdrachtActiefMutation.mutationFn).toHaveBeenCalledWith(
         expect.objectContaining({ id: 42 }),
+        expect.anything(),
       );
       expect(emitted).toHaveLength(1);
       expect(emitted[0]).toEqual(expect.objectContaining({ id: 42 }));

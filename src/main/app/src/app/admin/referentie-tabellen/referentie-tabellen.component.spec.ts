@@ -7,10 +7,7 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -61,7 +58,6 @@ describe(ReferentieTabellenComponent.name, () => {
   let fixture: ComponentFixture<ReferentieTabellenComponent>;
   let component: ReferentieTabellenComponent;
   let service: ReferentieTabelService;
-  let httpTestingController: HttpTestingController;
   let setTitle: jest.SpyInstance;
   let dialogOpen: jest.SpyInstance;
   let deleteReferentieTabelMutation: ReturnType<
@@ -126,7 +122,6 @@ describe(ReferentieTabellenComponent.name, () => {
     jest
       .spyOn(service, "deleteReferentieTabel")
       .mockReturnValue(deleteReferentieTabelMutation as never);
-    httpTestingController = TestBed.inject(HttpTestingController);
     const utilService = TestBed.inject(UtilService);
     setTitle = jest
       .spyOn(utilService, "setTitle")
@@ -136,8 +131,6 @@ describe(ReferentieTabellenComponent.name, () => {
 
   afterEach(() => {
     Element.prototype.scrollIntoView = originalScrollIntoView;
-    testQueryClient.clear();
-    httpTestingController.verify();
   });
 
   it("sets the title and renders a row per table on init", async () => {

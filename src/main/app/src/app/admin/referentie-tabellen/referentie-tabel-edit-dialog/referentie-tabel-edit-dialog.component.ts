@@ -20,10 +20,9 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { UtilService } from "../../../core/service/util.service";
 import { ZacFormActions } from "../../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../../shared/form/input/input";
-import { injectMutation } from "../../../shared/http/inject-mutation";
+import { injectServiceMutation } from "../../../shared/http/inject-service-mutation";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ReferentieTabelService } from "../../referentie-tabel.service";
 
@@ -51,7 +50,6 @@ export class ReferentieTabelEditDialogComponent {
       MatDialogRef,
     );
   private readonly service = inject(ReferentieTabelService);
-  private readonly utilService = inject(UtilService);
 
   protected readonly form = new FormGroup({
     code: new FormControl(
@@ -64,32 +62,22 @@ export class ReferentieTabelEditDialogComponent {
     }),
   });
 
-  protected readonly mutation = injectMutation(() => ({
-    mutationFn: () =>
-      this.service.updateReferentieTabelAsync(this.data.id!, {
-        code: this.data.code,
-        name: this.form.getRawValue().name,
-        values: this.data.values ?? [],
-      }),
+  protected readonly mutation = injectServiceMutation({
+    ...this.service.renameReferentieTabel(this.data),
     onMutate: () => {
       this.dialogRef.disableClose = true;
     },
     onSettled: () => {
       this.dialogRef.disableClose = false;
     },
-    onSuccess: () => {
-      this.utilService.openSnackbar("msg.referentietabel.gewijzigd", {
-        tabel: this.data.code,
-      });
-      this.dialogRef.close(true);
-    },
-  }));
+    onSuccess: () => this.dialogRef.close(true),
+  });
 
   protected submit() {
     if (this.form.invalid) {
       return;
     }
-    this.mutation.mutate();
+    this.mutation.mutate(this.form.getRawValue().name);
   }
 
   protected close() {

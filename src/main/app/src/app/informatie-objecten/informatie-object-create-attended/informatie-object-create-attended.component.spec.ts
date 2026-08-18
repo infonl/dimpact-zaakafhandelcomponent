@@ -50,10 +50,6 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
   let foutAfhandelingService: FoutAfhandelingService;
   let httpTestingController: HttpTestingController;
 
-  afterEach(() => {
-    httpTestingController.verify();
-  });
-
   const mockSideNav = fromPartial<MatDrawer>({
     close: jest.fn().mockReturnValue(Promise.resolve()),
   });

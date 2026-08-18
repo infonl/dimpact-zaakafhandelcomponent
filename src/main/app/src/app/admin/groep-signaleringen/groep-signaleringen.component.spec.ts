@@ -15,7 +15,11 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of, throwError } from "rxjs";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { of } from "rxjs";
+import { createMutationOptions } from "src/test-helpers";
+import { sleep } from "../../../../setupJest";
+import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -87,7 +91,7 @@ describe(GroepSignaleringenComponent.name, () => {
     identityServiceMock = { listGroups: jest.fn().mockReturnValue(of([])) };
     signaleringenServiceMock = {
       list: jest.fn().mockReturnValue(of([])),
-      put: jest.fn().mockReturnValue(of(null)),
+      put: jest.fn().mockReturnValue(createMutationOptions(null)),
     };
 
     await TestBed.configureTestingModule({
@@ -98,6 +102,7 @@ describe(GroepSignaleringenComponent.name, () => {
         RouterModule.forRoot([]),
       ],
       providers: [
+        provideQueryClient(testQueryClient),
         { provide: UtilService, useValue: utilServiceMock },
         {
           provide: ConfiguratieService,
@@ -191,10 +196,10 @@ describe(GroepSignaleringenComponent.name, () => {
     component.changed(row, "dashboard", true);
 
     expect(utilServiceMock.setLoading).toHaveBeenCalledWith(true);
-    expect(signaleringenServiceMock.put).toHaveBeenCalledWith("groep-1", row);
+    expect(signaleringenServiceMock.put).toHaveBeenCalledWith("groep-1");
   });
 
-  it("should call setLoading false after put completes", () => {
+  it("should call setLoading false after put completes", async () => {
     const groep = {
       id: "groep-1",
       naam: "Groep 1",
@@ -209,19 +214,21 @@ describe(GroepSignaleringenComponent.name, () => {
     } as GeneratedType<"RestSignaleringInstellingen">;
 
     component.changed(row, "dashboard", true);
+    await sleep();
 
     expect(utilServiceMock.setLoading).toHaveBeenCalledWith(false);
   });
 
-  it("should call setLoading false even when put fails", () => {
+  it("should call setLoading false even when put fails", async () => {
     const groep = {
       id: "groep-1",
       naam: "Groep 1",
     } as GeneratedType<"RestGroup">;
     component.laadSignaleringSettings(groep);
-    (signaleringenServiceMock.put as jest.Mock).mockReturnValue(
-      throwError(() => new Error("put failed")),
-    );
+    (signaleringenServiceMock.put as jest.Mock).mockReturnValue({
+      mutationKey: ["failing-mutation"],
+      mutationFn: () => Promise.reject(new Error("put failed")),
+    });
 
     const row = {
       type: "ZAAK_OP_NAAM",
@@ -231,6 +238,7 @@ describe(GroepSignaleringenComponent.name, () => {
     } as GeneratedType<"RestSignaleringInstellingen">;
 
     component.changed(row, "dashboard", true);
+    await sleep();
 
     expect(utilServiceMock.setLoading).toHaveBeenCalledWith(false);
   });

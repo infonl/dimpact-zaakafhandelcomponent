@@ -8,7 +8,10 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
@@ -19,7 +22,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ReferentieTabelItemComponent } from "./referentie-tabel-item.component";
@@ -40,7 +43,7 @@ describe(ReferentieTabelItemComponent.name, () => {
   let component: ReferentieTabelItemComponent;
   let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
   let dialogOpen: jest.SpyInstance;
-  let openSnackbar: jest.SpyInstance;
+  let httpTestingController: HttpTestingController;
 
   async function setup(
     referenceTable: GeneratedType<"RestReferenceTable"> = tabel,
@@ -60,6 +63,7 @@ describe(ReferentieTabelItemComponent.name, () => {
       ],
     }).compileComponents();
 
+    httpTestingController = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(ReferentieTabelItemComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -69,7 +73,7 @@ describe(ReferentieTabelItemComponent.name, () => {
         afterClosed: () => of(afterClosed),
       }),
     );
-    openSnackbar = jest
+    jest
       .spyOn(TestBed.inject(UtilService), "openSnackbar")
       .mockImplementation(() => undefined);
 
@@ -127,7 +131,7 @@ describe(ReferentieTabelItemComponent.name, () => {
     );
   });
 
-  it("confirms deletion and shows a snackbar when confirmed", async () => {
+  it("asks for confirmation naming the value to delete", async () => {
     await setup(tabel, true);
     component["deleteValue"](tabel.values![0]);
 
@@ -136,15 +140,31 @@ describe(ReferentieTabelItemComponent.name, () => {
       "msg.referentietabel.waarde-verwijderen-bevestigen",
     );
     expect(dialogData._melding.args).toEqual({ value: "Waarde A1" });
-    expect(openSnackbar).toHaveBeenCalledWith(
-      "msg.referentietabel.waarde-verwijderd",
-      { value: "Waarde A1" },
-    );
   });
 
-  it("does not show a snackbar when deletion is cancelled", async () => {
-    await setup(tabel, false);
+  it("does not send the request until the confirmation dialog subscribes", async () => {
+    await setup(tabel, true);
     component["deleteValue"](tabel.values![0]);
-    expect(openSnackbar).not.toHaveBeenCalled();
+
+    httpTestingController.expectNone(() => true);
+  });
+
+  it("puts the table back without the deleted value once confirmed", async () => {
+    await setup(tabel, true);
+    component["deleteValue"](tabel.values![0]);
+
+    const dialogData = dialogOpen.mock.calls[0][1].data;
+    dialogData.observable.subscribe();
+    await sleep();
+
+    const request = httpTestingController.expectOne(
+      "/rest/referentietabellen/1",
+    );
+    expect(request.request.method).toBe("PUT");
+    expect(request.request.body).toEqual({
+      code: "TABEL_A",
+      name: "Tabel A",
+      values: [{ id: 11, name: "Waarde A2", systemValue: true }],
+    });
   });
 });

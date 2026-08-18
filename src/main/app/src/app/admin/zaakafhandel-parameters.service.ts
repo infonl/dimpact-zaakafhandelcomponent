@@ -1,17 +1,22 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024-2025 INFO.nl
+ * SPDX-FileCopyrightText: 2021 Atos, 2024-2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
+import { UtilService } from "../core/service/util.service";
 import { PostBody, PutBody } from "../shared/http/http-client";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class ZaakafhandelParametersService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly utilService = inject(UtilService);
 
   listZaakafhandelParameters() {
     return this.zacHttpClient.GET("/rest/zaakafhandelparameters");
@@ -56,8 +61,16 @@ export class ZaakafhandelParametersService {
     );
   }
 
-  updateZaakafhandelparameters(body: PutBody<"/rest/zaakafhandelparameters">) {
-    return this.zacHttpClient.PUT("/rest/zaakafhandelparameters", body);
+  updateZaakafhandelparameters() {
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT("/rest/zaakafhandelparameters"),
+      {
+        onSuccess: () =>
+          this.utilService.openSnackbar(
+            "msg.zaakafhandelparameters.opgeslagen",
+          ),
+      },
+    );
   }
 
   getZaaktypeBpmnConfiguration() {

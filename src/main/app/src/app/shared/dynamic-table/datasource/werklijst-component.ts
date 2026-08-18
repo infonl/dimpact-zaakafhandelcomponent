@@ -7,6 +7,7 @@ import { Component, OnInit } from "@angular/core";
 import { PageEvent } from "@angular/material/paginator";
 import { ActivatedRoute } from "@angular/router";
 import { GebruikersvoorkeurenService } from "../../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { injectServiceMutation } from "../../http/inject-service-mutation";
 
 import { GeneratedType } from "../../utils/generated-types";
 import { TabelGegevens } from "../model/tabel-gegevens";
@@ -22,6 +23,14 @@ export abstract class WerklijstComponent implements OnInit {
   protected pageSizeOptions = [0];
   protected werklijstRechten!: GeneratedType<"RestWerklijstRechten">;
 
+  private readonly updateAantalPerPaginaMutation = injectServiceMutation(
+    (aantalPerPagina: number) =>
+      this.gebruikersvoorkeurenService.updateAantalPerPagina(
+        this.getWerklijst(),
+        aantalPerPagina,
+      ),
+  );
+
   protected constructor() {}
 
   ngOnInit(): void {
@@ -36,9 +45,7 @@ export abstract class WerklijstComponent implements OnInit {
   protected paginatorChanged($event: PageEvent) {
     if (this.aantalPerPagina !== $event.pageSize) {
       this.aantalPerPagina = $event.pageSize;
-      this.gebruikersvoorkeurenService
-        .updateAantalPerPagina(this.getWerklijst(), this.aantalPerPagina)
-        .subscribe();
+      this.updateAantalPerPaginaMutation.mutate(this.aantalPerPagina);
     }
   }
 

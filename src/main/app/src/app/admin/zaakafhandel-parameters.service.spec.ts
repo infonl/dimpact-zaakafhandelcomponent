@@ -8,13 +8,12 @@ import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { testQueryClient } from "../../../setupJest";
-import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
+import { runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
-import { GeneratedType } from "../shared/utils/generated-types";
-import { OntkoppeldeDocumentenService } from "./ontkoppelde-documenten.service";
+import { ZaakafhandelParametersService } from "./zaakafhandel-parameters.service";
 
-describe(OntkoppeldeDocumentenService.name, () => {
-  let service: OntkoppeldeDocumentenService;
+describe(ZaakafhandelParametersService.name, () => {
+  let service: ZaakafhandelParametersService;
   let utilService: UtilService;
 
   beforeEach(() => {
@@ -23,25 +22,17 @@ describe(OntkoppeldeDocumentenService.name, () => {
       providers: [provideHttpClient(), provideQueryClient(testQueryClient)],
     });
 
-    service = TestBed.inject(OntkoppeldeDocumentenService);
+    service = TestBed.inject(ZaakafhandelParametersService);
     utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
   });
 
-  describe("delete", () => {
-    it("names the deleted document in the confirmation", async () => {
-      const detachedDocument = fromPartial<
-        GeneratedType<"RestDetachedDocument">
-      >({
-        id: 42,
-        titel: "fakeDocumentTitel",
-      });
-
-      await runMutationOnSuccess(service.delete(detachedDocument));
+  describe("updateZaakafhandelparameters", () => {
+    it("confirms the save to the user", async () => {
+      await runMutationOnSuccess(service.updateZaakafhandelparameters());
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.document.verwijderen.uitgevoerd",
-        { document: "fakeDocumentTitel" },
+        "msg.zaakafhandelparameters.opgeslagen",
       );
     });
   });

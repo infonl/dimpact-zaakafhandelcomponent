@@ -10,8 +10,10 @@ import { MatSelectChange } from "@angular/material/select";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -120,6 +122,7 @@ describe("Human tasks form step", () => {
         NoopAnimationsModule,
       ],
       providers: [
+        provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: ActivatedRoute, useValue: activatedRouteMock },
@@ -307,7 +310,7 @@ describe("Human tasks form step", () => {
     const component = fixture.componentInstance;
     jest
       .spyOn(zaakafhandelParametersService, "updateZaakafhandelparameters")
-      .mockReturnValue(of(component.parameters));
+      .mockReturnValue(createMutationOptions(component.parameters) as never);
 
     component["getHumanTaskControl"](
       humanTaskParameters[0],

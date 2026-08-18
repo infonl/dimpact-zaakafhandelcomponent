@@ -21,6 +21,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer, MatSidenavModule } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import {
   defaultIfEmpty,
@@ -40,6 +41,7 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runMutation } from "../../shared/http/run-mutation";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -68,6 +70,7 @@ export class CaseDetailsEditComponent implements OnInit {
   private readonly identityService = inject(IdentityService);
   private readonly translateService = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly queryClient = inject(QueryClient);
 
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   readonly loggedInUser = input.required<GeneratedType<"RestLoggedInUser">>();
@@ -300,9 +303,7 @@ export class CaseDetailsEditComponent implements OnInit {
 
   private validateDates(
     changedField:
-      | "startdatum"
-      | "einddatumGepland"
-      | "uiterlijkeEinddatumAfdoening",
+      "startdatum" | "einddatumGepland" | "uiterlijkeEinddatumAfdoening",
   ) {
     const { startdatum, einddatumGepland, uiterlijkeEinddatumAfdoening } =
       this.form.getRawValue();
@@ -405,11 +406,15 @@ export class CaseDetailsEditComponent implements OnInit {
     if (isSameBehandelaar && isSameGroup) return EMPTY;
 
     if (zaak.behandelaar?.id === this.loggedInUser().id) {
-      return this.zakenService.toekennenAanIngelogdeMedewerker({
-        zaakUUID: currentZaak.uuid,
-        groepId: zaak.groep?.id as string,
-        reden: reason,
-      });
+      return runMutation(
+        this.queryClient,
+        this.zakenService.toekennenAanIngelogdeMedewerker(),
+        {
+          zaakUUID: currentZaak.uuid,
+          groepId: zaak.groep?.id as string,
+          reden: reason,
+        },
+      );
     }
 
     return this.zakenService.toekennen({

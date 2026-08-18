@@ -90,11 +90,6 @@ describe(ZaakHistorieComponent.name, () => {
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   describe("init", () => {
     it("calls listHistorieVoorZaakQuery with the zaak uuid", () => {
       const spy = jest.spyOn(zakenService, "listHistorieVoorZaakQuery");

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -16,14 +16,20 @@ import {
 } from "@angular/material/sidenav";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
-import { Observable, finalize } from "rxjs";
+import { Observable } from "rxjs";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
 import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-beheer.service";
+
+type PutVariables = {
+  groupId: string;
+  instellingen: GeneratedType<"RestSignaleringInstellingen">;
+};
 
 @Component({
   templateUrl: "./groep-signaleringen.component.html",
@@ -60,6 +66,12 @@ export class GroepSignaleringenComponent
     GeneratedType<"RestSignaleringInstellingen">
   >();
 
+  private readonly putMutation = injectServiceMutation({
+    mutationOptions: ({ groupId }: PutVariables) => this.service.put(groupId),
+    body: ({ instellingen }: PutVariables) => instellingen,
+    onSettled: () => this.utilService.setLoading(false),
+  });
+
   constructor(
     public utilService: UtilService,
     public configuratieService: ConfiguratieService,
@@ -91,9 +103,6 @@ export class GroepSignaleringenComponent
     if (!this.groepId) return;
     this.utilService.setLoading(true);
     (row as Record<string, unknown>)[column] = checked;
-    this.service
-      .put(this.groepId, row)
-      .pipe(finalize(() => this.utilService.setLoading(false)))
-      .subscribe();
+    this.putMutation.mutate({ groupId: this.groepId, instellingen: row });
   }
 }

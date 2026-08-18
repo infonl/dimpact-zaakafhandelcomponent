@@ -173,11 +173,6 @@ describe(OntvangstbevestigingComponent.name, () => {
     fixture.detectChanges();
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    httpTestingController.verify();
-  });
-
   describe("ngOnInit", () => {
     it("should load documents for the zaak", () => {
       expect(component["documents"]).toEqual(mockDocuments);

@@ -122,12 +122,6 @@ describe(BesluitEditComponent.name, () => {
     jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    httpTestingController.verify();
-    jest.clearAllMocks();
-  });
-
   describe("prefill", () => {
     it("fills the form with the current besluit values", async () => {
       await setupComponent();

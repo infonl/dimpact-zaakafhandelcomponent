@@ -63,11 +63,6 @@ const setup = (taken: TaakZoekObject[] = [makeTaak()]) => {
 };
 
 describe(TakenVrijgevenDialogComponent.name, () => {
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   describe("with a single taak", () => {
     it("shows singular message", () => {
       const { fixture } = setup([makeTaak()]);

@@ -33,7 +33,7 @@ import moment from "moment";
 import { of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
-import { fromPartial } from "src/test-helpers";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
@@ -679,7 +679,7 @@ describe(CaseDetailsEditComponent.name, () => {
       renderComponent();
       jest
         .spyOn(zakenService, "toekennenAanIngelogdeMedewerker")
-        .mockReturnValue(of(undefined) as never);
+        .mockReturnValue(createMutationOptions(undefined) as never);
       component["form"].controls.behandelaar.enable();
       component["form"].controls.behandelaar.setValue(
         fromPartial<GeneratedType<"RestUser">>({

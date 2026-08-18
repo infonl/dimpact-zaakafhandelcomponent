@@ -84,11 +84,6 @@ const fillValidForm = (component: BesluitIntrekkenDialogComponent) => {
 };
 
 describe(BesluitIntrekkenDialogComponent.name, () => {
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   describe("initial form state", () => {
     it("starts with an empty vervaldatum", () => {
       const { component } = setup();

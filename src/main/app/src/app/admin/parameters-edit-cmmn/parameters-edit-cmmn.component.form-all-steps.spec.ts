@@ -13,9 +13,11 @@ import { MatStepperHarness } from "@angular/material/stepper/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -92,6 +94,7 @@ describe(ParametersEditCmmnComponent.name, () => {
         NoopAnimationsModule,
       ],
       providers: [
+        provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideHttpClientTesting(),
         {

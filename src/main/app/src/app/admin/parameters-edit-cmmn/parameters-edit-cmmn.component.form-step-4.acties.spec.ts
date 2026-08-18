@@ -9,8 +9,10 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -95,6 +97,7 @@ describe("Acties form step", () => {
         NoopAnimationsModule,
       ],
       providers: [
+        provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: ActivatedRoute, useValue: activatedRouteMock },

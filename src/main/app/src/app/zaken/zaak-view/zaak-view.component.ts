@@ -60,6 +60,7 @@ import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-op
 import { ZaakTakenComponent } from "../zaak-taken/zaak-taken.component";
 import { ZaakVerlengenDialogComponent } from "../zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { ZakenService } from "../zaken.service";
+import { runMutation } from "../../shared/http/run-mutation";
 
 type InitiatorViewType = "PERSON" | "COMPANY" | "CONTACT_DETAILS" | "ADD";
 
@@ -1086,21 +1087,11 @@ export class ZaakViewComponent
   protected deleteInitiator() {
     this.zaakDialogService
       .openOntkoppelInitiator((reden) =>
-        (() => {
-          const deleteInitiator = this.zakenService.deleteInitiator(
-            this.zaak.uuid,
-          );
-          return from(
-            deleteInitiator.mutationFn!(
-              { reden },
-              {
-                client: this.queryClient,
-                meta: deleteInitiator.meta,
-                mutationKey: deleteInitiator.mutationKey,
-              },
-            ),
-          );
-        })(),
+        runMutation(
+          this.queryClient,
+          this.zakenService.deleteInitiator(this.zaak.uuid),
+          { reden },
+        ),
       )
       .afterClosed()
       .subscribe((result) => {
@@ -1345,17 +1336,17 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.kvkKoppelen,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-          ?.brpKoppelen &&
-        this.brpRechtenQuery.data()?.zoeken,
+      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+        ?.brpKoppelen &&
+      this.brpRechtenQuery.data()?.zoeken,
     );
   }
 

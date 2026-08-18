@@ -5,6 +5,8 @@
  */
 
 import "@angular/compiler";
+import { HttpTestingController } from "@angular/common/http/testing";
+import { TestBed } from "@angular/core/testing";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 
 const cryptoPolyfill = {
@@ -68,6 +70,14 @@ export const mockMutationFn = (timeout = MUTATION_TIMEOUT) =>
   new Promise((resolve) => sleep(timeout).then(resolve));
 
 afterEach(() => {
+  // Only the specs that provide `provideHttpClientTesting()` have one to verify.
+  // Asking for it instantiates the test module, so hand it back reset — this hook
+  // runs after the one the Angular preset uses to do that itself.
+  try {
+    TestBed.inject(HttpTestingController, null, { optional: true })?.verify();
+  } finally {
+    TestBed.resetTestingModule();
+  }
   jest.clearAllMocks();
   testQueryClient.clear();
 });

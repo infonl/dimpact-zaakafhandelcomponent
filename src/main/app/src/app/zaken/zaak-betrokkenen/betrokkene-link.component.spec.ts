@@ -102,7 +102,6 @@ describe(BetrokkeneLinkComponent.name, () => {
 
   afterEach(() => {
     notifyManager.setScheduler((fn) => setTimeout(fn, 0));
-    testQueryClient.clear();
   });
 
   describe("when betrokkene is BSN type with temporaryPersonId", () => {

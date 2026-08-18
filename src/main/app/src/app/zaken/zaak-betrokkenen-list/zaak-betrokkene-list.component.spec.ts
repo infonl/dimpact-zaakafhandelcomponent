@@ -17,9 +17,9 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { of } from "rxjs";
+import { Observable, of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -77,8 +77,6 @@ describe(ZaakBetrokkeneListComponent.name, () => {
 
   afterEach(() => {
     notifyManager.setScheduler(queueMicrotask);
-    testQueryClient.clear();
-    jest.clearAllMocks();
   });
 
   beforeEach(async () => {
@@ -238,15 +236,20 @@ describe(ZaakBetrokkeneListComponent.name, () => {
   });
 
   describe("deleteBetrokkene", () => {
-    it("calls zakenService.deleteBetrokkene with the betrokkene's rolid and the entered reden", () => {
+    it("calls zakenService.deleteBetrokkene with the betrokkene's rolid and the entered reden", async () => {
       const betrokkene = makeBetrokkene({ rolid: "fake-rol-id" });
 
       component["deleteBetrokkene"](betrokkene);
 
       const callback = openOntkoppelBetrokkeneSpy.mock.calls[0][1] as (
         reden: string,
-      ) => unknown;
-      callback("fake-reden");
+      ) => Observable<unknown>;
+      const request = callback("fake-reden");
+
+      expect(deleteBetrokkeneMutation.mutationFn).not.toHaveBeenCalled();
+
+      request.subscribe();
+      await sleep();
 
       expect(zakenService.deleteBetrokkene).toHaveBeenCalledWith("fake-rol-id");
       expect(deleteBetrokkeneMutation.mutationFn).toHaveBeenCalledWith(

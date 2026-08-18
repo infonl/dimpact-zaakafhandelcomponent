@@ -154,11 +154,6 @@ describe(MailCreateComponent.name, () => {
     fixture.detectChanges();
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    httpTestingController.verify();
-  });
-
   describe("ngOnInit", () => {
     it("should load verzender options", () => {
       expect(component["verzenderOptions"]).toEqual(mockAfzenders);

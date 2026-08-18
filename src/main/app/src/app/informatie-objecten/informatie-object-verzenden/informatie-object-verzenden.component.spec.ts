@@ -120,11 +120,6 @@ describe(InformatieObjectVerzendenComponent.name, () => {
     await fixture.whenStable();
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    httpTestingController.verify();
-  });
-
   describe("toolbar", () => {
     it("renders the toolbar title", () => {
       const toolbar = fixture.nativeElement.querySelector("mat-toolbar span");

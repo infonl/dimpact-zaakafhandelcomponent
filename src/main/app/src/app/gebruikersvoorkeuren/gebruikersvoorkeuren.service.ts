@@ -4,7 +4,7 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { PostBody, PutBody } from "../shared/http/http-client";
+import { PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -43,12 +43,9 @@ export class GebruikersvoorkeurenService {
     );
   }
 
-  setZoekopdrachtActief(
-    body: PutBody<"/rest/gebruikersvoorkeuren/zoekopdracht/actief">,
-  ) {
-    return this.zacHttpClient.PUT(
+  setZoekopdrachtActief() {
+    return this.zacQueryClient.PUT(
       "/rest/gebruikersvoorkeuren/zoekopdracht/actief",
-      body,
     );
   }
 
@@ -71,9 +68,8 @@ export class GebruikersvoorkeurenService {
   }
 
   updateAantalPerPagina(werklijst: GeneratedType<"Werklijst">, aantal: number) {
-    return this.zacHttpClient.PUT(
+    return this.zacQueryClient.PUT(
       "/rest/gebruikersvoorkeuren/aantal-per-pagina/{werklijst}/{aantal}",
-      undefined as never,
       {
         path: { werklijst, aantal },
       },
@@ -86,20 +82,14 @@ export class GebruikersvoorkeurenService {
     );
   }
 
-  updateDashboardCards(
-    body: PutBody<"/rest/gebruikersvoorkeuren/dasboardcard/actief">,
-  ) {
-    return this.zacHttpClient.PUT(
+  updateDashboardCards() {
+    return this.zacQueryClient.PUT(
       "/rest/gebruikersvoorkeuren/dasboardcard/actief",
-      body,
     );
   }
 
-  addDashboardCard(body: PutBody<"/rest/gebruikersvoorkeuren/dasboardcard">) {
-    return this.zacHttpClient.PUT(
-      "/rest/gebruikersvoorkeuren/dasboardcard",
-      body,
-    );
+  addDashboardCard() {
+    return this.zacQueryClient.PUT("/rest/gebruikersvoorkeuren/dasboardcard");
   }
 
   deleteDashboardCard() {

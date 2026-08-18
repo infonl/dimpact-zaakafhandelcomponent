@@ -104,9 +104,6 @@ const setup = (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
 const KOPPEL_URL = "/rest/zaken/zaak/koppel";
 
 describe(ZaakLinkComponent.name, () => {
-  afterEach(() => {
-    TestBed.inject(HttpTestingController).verify();
-  });
   describe("form initialisation", () => {
     it("form is initially invalid", () => {
       const { component } = setup();

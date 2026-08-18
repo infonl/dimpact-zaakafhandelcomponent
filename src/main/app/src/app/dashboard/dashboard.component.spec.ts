@@ -89,6 +89,18 @@ describe("DashboardComponent row-height sync", () => {
       GeneratedType<"RESTDashboardCardInstelling">
     >
   >;
+  let updateDashboardCardsMutation: ReturnType<
+    typeof createMutationOptions<
+      GeneratedType<"RESTDashboardCardInstelling">[],
+      GeneratedType<"RESTDashboardCardInstelling">[]
+    >
+  >;
+  let addDashboardCardMutation: ReturnType<
+    typeof createMutationOptions<
+      GeneratedType<"RESTDashboardCardInstelling">[],
+      GeneratedType<"RESTDashboardCardInstelling">
+    >
+  >;
 
   beforeEach(() => {
     originalResizeObserver = globalThis.ResizeObserver;
@@ -108,6 +120,14 @@ describe("DashboardComponent row-height sync", () => {
       GeneratedType<"RESTDashboardCardInstelling">[],
       GeneratedType<"RESTDashboardCardInstelling">
     >(instellingenNaVerwijderen);
+    updateDashboardCardsMutation = createMutationOptions<
+      GeneratedType<"RESTDashboardCardInstelling">[],
+      GeneratedType<"RESTDashboardCardInstelling">[]
+    >([]);
+    addDashboardCardMutation = createMutationOptions<
+      GeneratedType<"RESTDashboardCardInstelling">[],
+      GeneratedType<"RESTDashboardCardInstelling">
+    >([]);
 
     stacked = false;
     jest.spyOn(window, "matchMedia").mockImplementation(
@@ -133,6 +153,8 @@ describe("DashboardComponent row-height sync", () => {
           provide: GebruikersvoorkeurenService,
           useValue: {
             deleteDashboardCard: () => deleteDashboardCardMutation,
+            updateDashboardCards: () => updateDashboardCardsMutation,
+            addDashboardCard: () => addDashboardCardMutation,
           },
         },
       ],

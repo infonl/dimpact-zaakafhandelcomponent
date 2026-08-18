@@ -19,6 +19,7 @@ import { MatMenuModule } from "@angular/material/menu";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -67,6 +68,9 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     (werklijst: GeneratedType<"Werklijst">) =>
       this.gebruikersvoorkeurenService.removeZoekopdrachtActief(werklijst),
   );
+  private readonly setZoekopdrachtActiefMutation = injectMutation(() =>
+    this.gebruikersvoorkeurenService.setZoekopdrachtActief(),
+  );
 
   constructor(
     private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
@@ -103,9 +107,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     this.actieveZoekopdracht = zoekopdracht;
     this.actieveFilters = true;
     this.zoekopdracht.emit(this.actieveZoekopdracht);
-    this.gebruikersvoorkeurenService
-      .setZoekopdrachtActief(this.actieveZoekopdracht)
-      .subscribe();
+    this.setZoekopdrachtActiefMutation.mutate(this.actieveZoekopdracht);
   }
 
   protected deleteZoekopdracht(

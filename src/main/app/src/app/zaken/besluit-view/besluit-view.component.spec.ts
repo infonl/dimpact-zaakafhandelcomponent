@@ -77,11 +77,6 @@ describe(BesluitViewComponent.name, () => {
     jest.spyOn(zakenService, "listBesluitHistorie").mockReturnValue(of([]));
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   it("builds a documents form for the first besluit on init", () => {
     setup();
 

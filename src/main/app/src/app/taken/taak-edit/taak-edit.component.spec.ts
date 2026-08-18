@@ -130,7 +130,6 @@ describe(TaakEditComponent.name, () => {
 
   afterEach(() => {
     notifyManager.setScheduler((fn) => setTimeout(fn, 0));
-    httpTestingController.verify();
   });
 
   const setInputsAndDetect = (task: GeneratedType<"RestTask">) => {
