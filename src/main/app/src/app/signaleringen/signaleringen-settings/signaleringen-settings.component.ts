@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -10,6 +10,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
 import { UtilService } from "../../core/service/util.service";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenSettingsService } from "../signaleringen-settings.service";
 
@@ -39,6 +40,10 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
     GeneratedType<"RestSignaleringInstellingen">
   >();
 
+  private readonly putMutation = injectMutation(() => this.service.put(), {
+    onSettled: () => this.utilService.setLoading(false),
+  });
+
   constructor(
     private readonly service: SignaleringenSettingsService,
     private readonly utilService: UtilService,
@@ -65,8 +70,6 @@ export class SignaleringenSettingsComponent implements OnInit, AfterViewInit {
   ) {
     this.utilService.setLoading(true);
     row[column] = checked;
-    this.service.put(row).subscribe(() => {
-      this.utilService.setLoading(false);
-    });
+    this.putMutation.mutate(row);
   }
 }
