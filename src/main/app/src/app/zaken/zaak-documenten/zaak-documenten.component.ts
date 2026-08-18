@@ -147,7 +147,7 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   );
 
   private readonly documentenQuery = injectQuery(() =>
-    this.informatieObjectenService.listEnkelvoudigInformatieobjectenQuery({
+    this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
       zaakUUID: this.zaakUuid(),
       gekoppeldeZaakDocumenten: this.includeLinkedDocuments(),
     }),
@@ -221,8 +221,12 @@ export class ZaakDocumentenComponent implements AfterViewInit {
   }
 
   private reloadDocumenten() {
+    // the filters are part of the key, so match on the endpoint and pick out the zaak
     return this.queryClient.invalidateQueries({
-      queryKey: [LIST_QUERY_KEY, this.zaakUuid()],
+      queryKey: [LIST_QUERY_KEY],
+      predicate: ({ queryKey }) =>
+        (queryKey[1] as { zaakUUID?: string } | undefined)?.zaakUUID ===
+        this.zaakUuid(),
     });
   }
 
