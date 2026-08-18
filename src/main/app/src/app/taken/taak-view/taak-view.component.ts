@@ -10,6 +10,7 @@ import {
   computed,
   OnDestroy,
   OnInit,
+  signal,
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -182,11 +183,8 @@ export class TaakViewComponent
       this.completeTaakMutation.isPending(),
   );
 
-  protected readonly hasFailed = computed(
-    () =>
-      this.updateTaakdataMutation.isError() ||
-      this.completeTaakMutation.isError(),
-  );
+  private readonly lastSubmitFailed = signal(false);
+  protected readonly hasFailed = this.lastSubmitFailed.asReadonly();
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -470,13 +468,16 @@ export class TaakViewComponent
     // for the websocket event to arrive.
     const onSuccess = (task: GeneratedType<"RestTask">) =>
       this.init(task, false);
+    const onError = () => this.lastSubmitFailed.set(true);
+
+    this.lastSubmitFailed.set(false);
 
     if (submission.state === "submitted") {
-      this.completeTaakMutation.mutate(this.taak, { onSuccess });
+      this.completeTaakMutation.mutate(this.taak, { onSuccess, onError });
       return;
     }
 
-    this.updateTaakdataMutation.mutate(this.taak, { onSuccess });
+    this.updateTaakdataMutation.mutate(this.taak, { onSuccess, onError });
   }
 
   onFormioFormChange(event: FormioChangeEvent) {

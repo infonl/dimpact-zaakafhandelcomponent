@@ -10,7 +10,10 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatFormFieldHarness } from "@angular/material/form-field/testing";
@@ -407,6 +410,56 @@ describe(TaakViewComponent.name, () => {
       expect(
         (fixture.nativeElement as HTMLElement).querySelector("em"),
       ).toBeNull();
+    });
+  });
+  describe(TaakViewComponent.prototype.onFormioFormSubmit.name, () => {
+    let httpTestingController: HttpTestingController;
+
+    const flushMutationQueue = async () => {
+      for (let tick = 0; tick < 3; tick++) {
+        await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      }
+    };
+
+    beforeEach(() => {
+      httpTestingController = TestBed.inject(HttpTestingController);
+      jest
+        .spyOn(taakFormulierenService, "getAngularTaskForm")
+        .mockReturnValue(fromPartial({ onTaskCompleted: jest.fn() }));
+    });
+
+    it("should report a failure when saving fails", async () => {
+      component.instance.onFormioFormSubmit({ data: {}, state: "draft" });
+      await flushMutationQueue();
+
+      httpTestingController
+        .expectOne("/rest/taken/taakdata")
+        .flush("fakeServerError", {
+          status: 500,
+          statusText: "Internal Server Error",
+        });
+      await flushMutationQueue();
+
+      expect(component.instance["hasFailed"]()).toBe(true);
+    });
+
+    it("should not report a failure when a successful complete follows a failed save", async () => {
+      component.instance.onFormioFormSubmit({ data: {}, state: "draft" });
+      await flushMutationQueue();
+      httpTestingController
+        .expectOne("/rest/taken/taakdata")
+        .flush("fakeServerError", {
+          status: 500,
+          statusText: "Internal Server Error",
+        });
+      await flushMutationQueue();
+
+      component.instance.onFormioFormSubmit({ data: {}, state: "submitted" });
+      await flushMutationQueue();
+      httpTestingController.expectOne("/rest/taken/complete").flush(taak);
+      await flushMutationQueue();
+
+      expect(component.instance["hasFailed"]()).toBe(false);
     });
   });
 });
