@@ -4,19 +4,19 @@
  */
 
 import { Component, inject, input } from "@angular/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../../shared/confirm-dialog/confirm-dialog.component";
-import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import { runMutation } from "../../../shared/http/run-mutation";
+import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ReferentieTabelService } from "../../referentie-tabel.service";
 import { ReferentieTabelValueDialogComponent } from "./referentie-tabel-value-dialog/referentie-tabel-value-dialog.component";

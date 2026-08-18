@@ -10,9 +10,9 @@ import { map } from "rxjs";
 import { mapStringToDocumentenStrings } from "../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
+import { runQuery } from "../../../shared/http/run-query";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Goedkeuring } from "../goedkeuring.enum";
-import { runQuery } from "../../../shared/http/run-query";
 import { AbstractTaskForm } from "./abstract-task-form";
 
 @Injectable({

@@ -51,6 +51,7 @@ import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werkli
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
 import { TextIcon } from "../../shared/edit/text-icon";
 import { ExportButtonComponent } from "../../shared/export-button/export-button.component";
+import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { DagenPipe } from "../../shared/pipes/dagen.pipe";
@@ -62,7 +63,6 @@ import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-r
 import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { DateConditionals } from "../../shared/utils/date-conditionals";
-import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekenService } from "../../zoeken/zoeken.service";

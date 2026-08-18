@@ -43,6 +43,7 @@ import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { detailExpand } from "../../shared/animations/animations";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { runMutation } from "../../shared/http/run-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
@@ -60,7 +61,6 @@ import { ZaakOpschortenDialogComponent } from "../zaak-opschorten-dialog/zaak-op
 import { ZaakTakenComponent } from "../zaak-taken/zaak-taken.component";
 import { ZaakVerlengenDialogComponent } from "../zaak-verlengen-dialog/zaak-verlengen-dialog.component";
 import { ZakenService } from "../zaken.service";
-import { runMutation } from "../../shared/http/run-mutation";
 
 type InitiatorViewType = "PERSON" | "COMPANY" | "CONTACT_DETAILS" | "ADD";
 
@@ -1336,17 +1336,17 @@ export class ZaakViewComponent
   protected allowBedrijf() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorBedrijf &&
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.kvkKoppelen,
+        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.kvkKoppelen,
     );
   }
 
   protected allowPersoon() {
     return Boolean(
       this.zaak.rechten.toevoegenInitiatorPersoon &&
-      this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
-        ?.brpKoppelen &&
-      this.brpRechtenQuery.data()?.zoeken,
+        this.zaak.zaaktype.zaakafhandelparameters?.betrokkeneKoppelingen
+          ?.brpKoppelen &&
+        this.brpRechtenQuery.data()?.zoeken,
     );
   }
 

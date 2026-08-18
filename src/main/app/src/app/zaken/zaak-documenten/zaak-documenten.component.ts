@@ -44,13 +44,13 @@ import { GekoppeldeZaakEnkelvoudigInformatieobject } from "../../informatie-obje
 import { detailExpand } from "../../shared/animations/animations";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
+import { runMutation } from "../../shared/http/run-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import { runMutation } from "../../shared/http/run-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 

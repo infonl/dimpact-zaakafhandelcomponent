@@ -39,7 +39,7 @@ import { MatOption, MatSelect } from "@angular/material/select";
 import { MatSidenav } from "@angular/material/sidenav";
 
 import { TranslatePipe } from "@ngx-translate/core";
-import { QueryClient, injectQuery } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { merge, of, Subject, takeUntil } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
@@ -47,6 +47,7 @@ import { UtilService } from "../../core/service/util.service";
 import { BedrijfZoekComponent } from "../../klanten/zoek/bedrijven/bedrijf-zoek.component";
 import { PersoonZoekComponent } from "../../klanten/zoek/personen/persoon-zoek.component";
 import { PolicyService } from "../../policy/policy.service";
+import { runQuery } from "../../shared/http/run-query";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { DocumentZoekObject } from "../model/documenten/document-zoek-object";
 import { TaakZoekObject } from "../model/taken/taak-zoek-object";
@@ -62,7 +63,6 @@ import { ZoekenService } from "../zoeken.service";
 import { DateFilterComponent } from "./filters/date-filter/date-filter.component";
 import { MultiFacetFilterComponent } from "./filters/multi-facet-filter/multi-facet-filter.component";
 import { ZaakBetrokkeneFilterComponent } from "./filters/zaak-betrokkene-filter/zaak-betrokkene-filter.component";
-import { runQuery } from "../../shared/http/run-query";
 
 @Component({
   selector: "zac-zoeken",

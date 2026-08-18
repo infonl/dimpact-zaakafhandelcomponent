@@ -4,18 +4,18 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup } from "@angular/forms";
 import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { lastValueFrom, Observable } from "rxjs";
+import { testQueryClient } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Goedkeuring } from "../goedkeuring.enum";
 import { GoedkeurenTaskForm } from "./goedkeuren-task-form";
-import { testQueryClient } from "../../../../../setupJest";
 
 describe(GoedkeurenTaskForm.name, () => {
   let formulier: GoedkeurenTaskForm;

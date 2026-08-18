@@ -6,9 +6,9 @@
 import { NgFor, NgIf } from "@angular/common";
 import {
   AfterViewInit,
-  inject,
   Component,
   EventEmitter,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -42,7 +42,6 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { merge } from "rxjs";
-import { runQuery } from "../../shared/http/run-query";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
@@ -55,6 +54,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import {
   SessionStorageUtil,

@@ -4,8 +4,8 @@
  */
 
 import { inject, Injectable, signal } from "@angular/core";
-import { Subject } from "rxjs";
 import { QueryClient } from "@tanstack/angular-query-experimental";
+import { Subject } from "rxjs";
 import { PathParameters, PutBody } from "../shared/http/http-client";
 import { runQuery } from "../shared/http/run-query";
 import { ZacQueryClient } from "../shared/http/zac-query-client";

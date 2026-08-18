@@ -4,16 +4,15 @@
  */
 
 import { NgIf, TitleCasePipe } from "@angular/common";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   Component,
   EventEmitter,
+  inject,
   input,
   Input,
   OnDestroy,
   OnInit,
   Output,
-  inject,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -25,8 +24,10 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
+import { runQuery } from "../../../shared/http/run-query";
 import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
 import {
   BSN_LENGTH,
@@ -39,7 +40,6 @@ import { CustomValidators } from "../../../shared/validators/customValidators";
 import { buildBedrijfRouteLink } from "../../klanten-routing.module";
 import { KlantenService } from "../../klanten.service";
 import { FormCommunicatieService } from "../form-communicatie-service";
-import { runQuery } from "../../../shared/http/run-query";
 
 @Component({
   selector: "zac-bedrijf-zoek",

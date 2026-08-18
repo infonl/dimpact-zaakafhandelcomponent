@@ -4,7 +4,6 @@
  */
 
 import { CommonModule } from "@angular/common";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   Component,
   EventEmitter,
@@ -30,11 +29,12 @@ import {
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
+import { runQuery } from "../../shared/http/run-query";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
-import { runQuery } from "../../shared/http/run-query";
 
 @Component({
   selector: "zac-bag-zoek",

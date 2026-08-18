@@ -9,12 +9,12 @@ import {
   computed,
   effect,
   EventEmitter,
+  inject,
   input,
   Input,
   OnDestroy,
   OnInit,
   Output,
-  inject,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -31,11 +31,12 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { QueryClient, injectQuery } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
+import { runQuery } from "../../../shared/http/run-query";
 import { MaterialFormBuilderModule } from "../../../shared/material-form-builder/material-form-builder.module";
 import { DatumPipe } from "../../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
@@ -47,7 +48,6 @@ import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { KlantenService } from "../../klanten.service";
 import { FormCommunicatieService } from "../form-communicatie-service";
-import { runQuery } from "../../../shared/http/run-query";
 
 @Component({
   selector: "zac-persoon-zoek",

@@ -4,16 +4,16 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 
+import { testQueryClient } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { AdviesTaskForm } from "./advies-task-form";
-import { testQueryClient } from "../../../../../setupJest";
 
 describe(AdviesTaskForm.name, () => {
   let formulier: AdviesTaskForm;

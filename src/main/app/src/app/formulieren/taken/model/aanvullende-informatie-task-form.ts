@@ -13,10 +13,10 @@ import { InformatieObjectenService } from "../../../informatie-objecten/informat
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
+import { runQuery } from "../../../shared/http/run-query";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { OptionValue } from "../taak.utils";
-import { runQuery } from "../../../shared/http/run-query";
 import { AbstractTaskForm } from "./abstract-task-form";
 
 @Injectable({

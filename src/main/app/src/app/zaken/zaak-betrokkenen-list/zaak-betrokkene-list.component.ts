@@ -14,6 +14,7 @@ import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { KlantenService } from "../../klanten/klanten.service";
+import { runMutation } from "../../shared/http/run-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -22,7 +23,6 @@ import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { BetrokkeneLinkComponent } from "../zaak-betrokkenen/betrokkene-link.component";
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
-import { runMutation } from "../../shared/http/run-mutation";
 
 @Component({
   selector: "zac-zaak-betrokkene-list",

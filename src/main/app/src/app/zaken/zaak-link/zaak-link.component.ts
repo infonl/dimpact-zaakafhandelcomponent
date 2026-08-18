@@ -4,7 +4,6 @@
  */
 
 import { NgClass, NgIf } from "@angular/common";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   Component,
   EventEmitter,
@@ -28,6 +27,7 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete";
@@ -39,8 +39,8 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { ZakenService } from "../zaken.service";
 import { runQuery } from "../../shared/http/run-query";
+import { ZakenService } from "../zaken.service";
 
 const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
   ({

@@ -3,13 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { inputBinding, outputBinding } from "@angular/core";
 import { provideHttpClient } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { provideZonelessChangeDetection } from "@angular/core";
+import {
+  inputBinding,
+  outputBinding,
+  provideZonelessChangeDetection,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";

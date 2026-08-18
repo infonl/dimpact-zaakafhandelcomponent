@@ -4,7 +4,6 @@
  */
 
 import { NgClass, NgIf } from "@angular/common";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   Component,
   EventEmitter,
@@ -25,6 +24,7 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
@@ -34,9 +34,9 @@ import {
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import { runQuery } from "../../shared/http/run-query";
 
 type DocumentAction = "actie.document.koppelen" | "actie.document.verplaatsen";
 

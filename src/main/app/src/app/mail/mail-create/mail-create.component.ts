@@ -20,11 +20,11 @@ import { InformatieObjectenService } from "../../informatie-objecten/informatie-
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { MailService } from "../mail.service";
-import { runQuery } from "../../shared/http/run-query";
 
 @Component({
   selector: "zac-mail-create",

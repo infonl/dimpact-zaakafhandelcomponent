@@ -4,17 +4,17 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { of } from "rxjs";
+import { testQueryClient } from "../../../../../setupJest";
 import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { DocumentVerzendenPostTaskForm } from "./document-verzenden-post-task-form";
-import { testQueryClient } from "../../../../../setupJest";
 
 describe(DocumentVerzendenPostTaskForm.name, () => {
   let formulier: DocumentVerzendenPostTaskForm;

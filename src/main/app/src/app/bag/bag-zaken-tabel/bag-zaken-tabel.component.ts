@@ -4,7 +4,6 @@
  */
 
 import { NgIf } from "@angular/common";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   AfterViewInit,
   Component,
@@ -25,9 +24,11 @@ import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
@@ -38,7 +39,6 @@ import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekenService } from "../../zoeken/zoeken.service";
-import { runQuery } from "../../shared/http/run-query";
 
 @Component({
   selector: "zac-bag-zaken-tabel",

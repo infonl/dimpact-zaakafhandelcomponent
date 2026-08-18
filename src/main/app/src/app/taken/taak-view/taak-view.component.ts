@@ -6,10 +6,10 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
-  computed,
   OnDestroy,
   OnInit,
   ViewChild,
+  computed,
   inject,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -406,7 +406,8 @@ export class TaakViewComponent
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     const taskBody:
-      PutBody<"/rest/taken/taakdata"> | PatchBody<"/rest/taken/complete"> = {
+      | PutBody<"/rest/taken/taakdata">
+      | PatchBody<"/rest/taken/complete"> = {
       ...this.taak!,
       taakdata: {
         ...this.taak!.taakdata,

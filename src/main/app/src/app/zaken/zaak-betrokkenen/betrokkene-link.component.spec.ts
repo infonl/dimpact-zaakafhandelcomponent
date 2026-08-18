@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { inputBinding } from "@angular/core";
 import { provideHttpClient } from "@angular/common/http";
+import { inputBinding } from "@angular/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";

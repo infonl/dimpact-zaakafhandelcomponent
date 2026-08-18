@@ -45,6 +45,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
+import { runMutation } from "../../shared/http/run-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
@@ -65,7 +66,6 @@ import { DocumentDialogService } from "../document-dialog.service";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat, FileFormatUtil } from "../model/file-format";
-import { runMutation } from "../../shared/http/run-mutation";
 
 @Component({
   templateUrl: "./informatie-object-view.component.html",

@@ -4,7 +4,6 @@
  */
 
 import { NgIf } from "@angular/common";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   AfterViewInit,
   Component,
@@ -18,14 +17,15 @@ import { MatCardModule } from "@angular/material/card";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { PutBody } from "../../shared/http/http-client";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ContactmomentenService } from "../contactmomenten.service";
-import { runQuery } from "../../shared/http/run-query";
 
 @Component({
   selector: "zac-klant-contactmomenten-tabel",
