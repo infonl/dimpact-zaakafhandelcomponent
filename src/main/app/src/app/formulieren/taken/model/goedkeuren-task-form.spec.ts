@@ -8,8 +8,10 @@ import { TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup } from "@angular/forms";
 import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { lastValueFrom, Observable, of } from "rxjs";
-import { fromPartial } from "../../../../test-helpers";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { lastValueFrom, Observable } from "rxjs";
+import { testQueryClient } from "../../../../../setupJest";
+import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { Goedkeuring } from "../goedkeuring.enum";
@@ -36,13 +38,17 @@ describe(GoedkeurenTaskForm.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideQueryClient(testQueryClient),
+        provideHttpClient(),
+        provideRouter([]),
+      ],
     });
 
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
     listEnkelvoudigInformatieobjectenSpy = jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of([]));
+      .mockReturnValue(createQueryOptions([]) as never);
 
     translateService = TestBed.inject(TranslateService);
     jest.spyOn(translateService, "instant").mockReturnValue("translated-value");
@@ -129,7 +135,7 @@ describe(GoedkeurenTaskForm.name, () => {
 
       it("should expose the fetched documents as an Observable in options", async () => {
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([mockDocument1, mockDocument2]),
+          createQueryOptions([mockDocument1, mockDocument2]) as never,
         );
 
         const fields = await formulier.requestForm(mockZaak);
@@ -153,7 +159,11 @@ describe(GoedkeurenTaskForm.name, () => {
           ondertekening: { soort: "digitaal", datum: "2026-01-01" },
         });
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([mockDocument1, signedDocument, mockDocument2]),
+          createQueryOptions([
+            mockDocument1,
+            signedDocument,
+            mockDocument2,
+          ]) as never,
         );
 
         const fields = await formulier.requestForm(mockZaak);
@@ -305,7 +315,7 @@ describe(GoedkeurenTaskForm.name, () => {
 
       it("should set ondertekenen options to fetched documents", async () => {
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([mockDocument1, mockDocument2]),
+          createQueryOptions([mockDocument1, mockDocument2]) as never,
         );
 
         const fields = await formulier.handleForm(mockTaak);
@@ -319,7 +329,7 @@ describe(GoedkeurenTaskForm.name, () => {
 
       it("should pre-check documents that were previously signed (ondertekenen taakdata)", async () => {
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([mockDocument1, mockDocument2]),
+          createQueryOptions([mockDocument1, mockDocument2]) as never,
         );
         const taakWithSigned = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
@@ -334,7 +344,7 @@ describe(GoedkeurenTaskForm.name, () => {
 
       it("should not pre-check documents that were not previously signed", async () => {
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([mockDocument1, mockDocument2]),
+          createQueryOptions([mockDocument1, mockDocument2]) as never,
         );
         const taakWithSigned = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
@@ -356,7 +366,11 @@ describe(GoedkeurenTaskForm.name, () => {
           ondertekening: { soort: "digitaal", datum: "2026-01-01" },
         });
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([mockDocument1, signedDocument, mockDocument2]),
+          createQueryOptions([
+            mockDocument1,
+            signedDocument,
+            mockDocument2,
+          ]) as never,
         );
 
         const fields = await formulier.handleForm(mockTaak);
@@ -377,7 +391,7 @@ describe(GoedkeurenTaskForm.name, () => {
           ondertekening: { soort: "digitaal", datum: "2026-01-01" },
         });
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([mockDocument1, signedDocument]),
+          createQueryOptions([mockDocument1, signedDocument]) as never,
         );
         const taakWithSigned = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
@@ -399,7 +413,7 @@ describe(GoedkeurenTaskForm.name, () => {
           ondertekening: { soort: "digitaal", datum: "2026-01-01" },
         });
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([signedDocument, mockDocument2]),
+          createQueryOptions([signedDocument, mockDocument2]) as never,
         );
         const afgerondeTaak = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
@@ -441,7 +455,7 @@ describe(GoedkeurenTaskForm.name, () => {
 
       it("should omit a document that was put forward for signing but is not signed", async () => {
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([mockDocument1, mockDocument2]),
+          createQueryOptions([mockDocument1, mockDocument2]) as never,
         );
         const afgerondeTaak = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
@@ -464,7 +478,7 @@ describe(GoedkeurenTaskForm.name, () => {
           ondertekening: { soort: "digitaal", datum: "2026-01-01" },
         });
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([signedDocument]),
+          createQueryOptions([signedDocument]) as never,
         );
         const readonlyTaak = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,
@@ -482,7 +496,7 @@ describe(GoedkeurenTaskForm.name, () => {
 
       it("should initialize ondertekenen as empty when no documents were previously signed", async () => {
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([mockDocument1, mockDocument2]),
+          createQueryOptions([mockDocument1, mockDocument2]) as never,
         );
 
         const fields = await formulier.handleForm(mockTaak);
@@ -545,7 +559,7 @@ describe(GoedkeurenTaskForm.name, () => {
 
       it("should narrow the ondertekenen field to the signed documents", async () => {
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([mockDocument1, mockDocument2]),
+          createQueryOptions([mockDocument1, mockDocument2]) as never,
         );
         const fields = await formulier.handleForm(mockTaak);
         const form = new FormGroup({
@@ -554,7 +568,7 @@ describe(GoedkeurenTaskForm.name, () => {
         });
 
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([signedDocument, mockDocument2]),
+          createQueryOptions([signedDocument, mockDocument2]) as never,
         );
         const completedTaak = fromPartial<GeneratedType<"RestTask">>({
           ...mockTaak,

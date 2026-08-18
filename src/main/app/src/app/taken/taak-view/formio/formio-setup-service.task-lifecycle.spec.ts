@@ -45,11 +45,11 @@ describe(FormioSetupService.name, () => {
       };
       const resolvers: (() => void)[] = [];
       jest.spyOn(testQueryClient, "fetchQuery").mockImplementation(
-        ((options: { queryKey: [string, string, string[] | undefined] }) =>
+        ((options: { queryKey: [string, { zaakUUID: string }] }) =>
           new Promise<(typeof document1)[]>((resolve) =>
             // held back so both setups are in flight at once, then released in reverse order
             resolvers.push(() =>
-              resolve(documentsPerZaak[options.queryKey[1]]),
+              resolve(documentsPerZaak[options.queryKey[1].zaakUUID]),
             ),
           )) as typeof testQueryClient.fetchQuery,
       );
@@ -124,7 +124,10 @@ describe(FormioSetupService.name, () => {
 
       expect(fetchQuerySpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          queryKey: ["availableDocumentsQuery", taak.zaakUuid, undefined],
+          queryKey: [
+            "/rest/informatieobjecten/informatieobjectenList",
+            { zaakUUID: taak.zaakUuid, informatieobjectUUIDs: undefined },
+          ],
         }),
       );
     });
