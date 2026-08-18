@@ -11,7 +11,7 @@ import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../../setupJest";
-import { fromPartial } from "../../../../test-helpers";
+import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
@@ -76,7 +76,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         TestBed.inject(InformatieObjectenService),
         "listEnkelvoudigInformatieobjecten",
       )
-      .mockReturnValue(of([]));
+      .mockReturnValue(createQueryOptions([]) as never);
     getContactDetailsForPersonSpy = jest
       .spyOn(TestBed.inject(KlantenService), "getContactDetailsForPerson")
       .mockReturnValue(of({}));

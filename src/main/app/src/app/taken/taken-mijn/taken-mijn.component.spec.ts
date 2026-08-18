@@ -7,62 +7,44 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
-import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
-import { ColumnPickerValue } from "../../shared/dynamic-table/column-picker/column-picker-value";
-import { ColumnPickerComponent } from "../../shared/dynamic-table/column-picker/column-picker.component";
-import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
-import { ExportButtonComponent } from "../../shared/export-button/export-button.component";
-import { MaterialModule } from "../../shared/material/material.module";
-import { DagenPipe } from "../../shared/pipes/dagen.pipe";
-import { DatumPipe } from "../../shared/pipes/datum.pipe";
-import { EmptyPipe } from "../../shared/pipes/empty.pipe";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
-import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
-import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filter/facet-filter.component";
-import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZoekenService } from "../../zoeken/zoeken.service";
+import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenMijnComponent } from "./taken-mijn.component";
 
 describe(TakenMijnComponent.name, () => {
-  let component: TakenMijnComponent;
   let fixture: ComponentFixture<TakenMijnComponent>;
-  let utilService: UtilService;
-  let zoekenService: ZoekenService;
+  let setTitle: jest.SpyInstance;
+  let httpTestingController: HttpTestingController;
+
+  const user = userEvent.setup();
 
   beforeEach(async () => {
-    TestBed.configureTestingModule({
-      imports: [
-        TakenMijnComponent,
-        MaterialModule,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-        EmptyPipe,
-        DatumPipe,
-        DagenPipe,
-        FacetFilterComponent,
-        TekstFilterComponent,
-        DateRangeFilterComponent,
-        ZoekopdrachtComponent,
-        ColumnPickerComponent,
-        ExportButtonComponent,
-        StaticTextComponent,
-      ],
+    sessionStorage.clear();
+    setTitle = jest.spyOn(UtilService.prototype, "setTitle");
+
+    const { fixture: renderedFixture } = await render(TakenMijnComponent, {
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
+        provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: {
+          useValue: fromPartial<ActivatedRoute>({
             data: of({
               tabelGegevens: {
                 aantalPerPagina: 10,
@@ -72,7 +54,7 @@ describe(TakenMijnComponent.name, () => {
                 >({}),
               },
             }),
-          },
+          }),
         },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
@@ -81,86 +63,160 @@ describe(TakenMijnComponent.name, () => {
       ],
     });
 
-    utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setTitle").mockReturnValue(undefined);
+    fixture = renderedFixture;
+    httpTestingController = TestBed.inject(HttpTestingController);
+  });
 
-    zoekenService = TestBed.inject(ZoekenService);
-    jest
-      .spyOn(zoekenService, "list")
-      .mockReturnValue(of({ resultaten: [], totaal: 0 }) as never);
-
-    fixture = TestBed.createComponent(TakenMijnComponent);
-    component = fixture.componentInstance;
+  async function showTaken(taken: Partial<TaakZoekObject>[]) {
+    await sleep();
+    httpTestingController
+      .match("/rest/zoeken/list")
+      .forEach((request) =>
+        request.flush({ totaal: taken.length, resultaten: taken, filters: {} }),
+      );
+    await sleep();
+    // the table creates the row views in one pass and binds their cells in the next
     fixture.detectChanges();
+    fixture.detectChanges();
+  }
+
+  function filterRow() {
+    return screen.getAllByRole("row")[1];
+  }
+
+  function columnHeaderNames() {
+    return screen
+      .getAllByRole("columnheader")
+      .map((header) => header.textContent?.trim());
+  }
+
+  it("sets the page title", () => {
+    expect(setTitle).toHaveBeenCalledWith("title.taken.mijn");
   });
 
-  describe("ngOnInit", () => {
-    it("sets the page title to title.taken.mijn", () => {
-      expect(utilService.setTitle).toHaveBeenCalledWith("title.taken.mijn");
-    });
+  it("shows the default set of columns", async () => {
+    await showTaken([]);
+
+    const headers = columnHeaderNames();
+    expect(headers).toEqual(
+      expect.arrayContaining([
+        "naam",
+        "zaakIdentificatie",
+        "zaakOmschrijving",
+        "zaaktype",
+        "creatiedatum",
+        "fataledatum",
+        "dagenTotFataledatum",
+        "groep",
+      ]),
+    );
+    expect(headers).not.toContain("zaakToelichting");
+    expect(headers).not.toContain("toelichting");
   });
 
-  describe("getWerklijst", () => {
-    it("returns WERKVOORRAAD_TAKEN", () => {
-      expect(component["getWerklijst"]()).toBe("WERKVOORRAAD_TAKEN");
-    });
+  it("keeps the column actions pinned in their own column", async () => {
+    await showTaken([]);
+
+    expect(
+      screen.getByRole("button", { name: "actie.kolommen.reset" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "actie.kolommen.wijzig" }),
+    ).toBeVisible();
   });
 
-  describe("defaultColumns", () => {
-    it("includes NAAM as VISIBLE", () => {
-      const columns = component["defaultColumns"]();
-      expect(columns.get(ZoekenColumn.NAAM)).toBe(ColumnPickerValue.VISIBLE);
-    });
+  it("tells you there are no taken when the search comes back empty", async () => {
+    await showTaken([]);
 
-    it("includes URL as STICKY", () => {
-      const columns = component["defaultColumns"]();
-      expect(columns.get(ZoekenColumn.URL)).toBe(ColumnPickerValue.STICKY);
-    });
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+  });
 
-    it("includes FATALEDATUM as VISIBLE", () => {
-      const columns = component["defaultColumns"]();
-      expect(columns.get(ZoekenColumn.FATALEDATUM)).toBe(
-        ColumnPickerValue.VISIBLE,
+  it("flags a taak whose fatale datum has passed", async () => {
+    await showTaken([
+      fromPartial<TaakZoekObject>({
+        id: "fakeTaakId",
+        naam: "fakeTaakNaam",
+        fataledatum: "2020-01-01",
+      }),
+    ]);
+
+    expect(screen.getByTitle("msg.datum.overschreden")).toBeVisible();
+  });
+
+  it("does not flag a taak whose fatale datum lies ahead", async () => {
+    await showTaken([
+      fromPartial<TaakZoekObject>({
+        id: "fakeTaakId",
+        naam: "fakeTaakNaam",
+        fataledatum: "2999-01-01",
+      }),
+    ]);
+
+    expect(screen.queryByTitle("msg.datum.overschreden")).toBeNull();
+  });
+
+  it("searches again when a column filter is changed", async () => {
+    await showTaken([]);
+
+    const zaakIdentificatieFilter =
+      within(filterRow()).getAllByRole("textbox")[0];
+    await user.type(zaakIdentificatieFilter, "fakeZaakIdentificatie");
+    await user.tab();
+    await sleep();
+
+    const requests = httpTestingController.match("/rest/zoeken/list");
+    expect(requests).toHaveLength(1);
+    expect(requests[0].request.body).toEqual(
+      expect.objectContaining({
+        type: "TAAK",
+        alleenMijnTaken: true,
+        zoeken: expect.objectContaining({
+          TAAK_ZAAK_ID: "fakeZaakIdentificatie",
+        }),
+      }),
+    );
+    requests[0].flush({ totaal: 0, resultaten: [], filters: {} });
+  });
+
+  it("brings a column hidden through the column picker back", async () => {
+    await showTaken([]);
+
+    const columnPicker = screen.getByRole("button", {
+      name: "actie.kolommen.wijzig",
+    });
+    await user.click(columnPicker);
+    await user.click(
+      within(screen.getByRole("listbox")).getByRole("option", { name: "naam" }),
+    );
+    await user.click(columnPicker);
+    fixture.detectChanges();
+
+    expect(columnHeaderNames()).not.toContain("naam");
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.kolommen.reset" }),
+    );
+    fixture.detectChanges();
+
+    expect(columnHeaderNames()).toContain("naam");
+  });
+
+  it("stores the new page size for this werklijst", async () => {
+    await showTaken([]);
+
+    await user.click(screen.getByRole("combobox", { name: /Items per page/i }));
+    await user.click(screen.getByRole("option", { name: "25" }));
+    await sleep();
+
+    httpTestingController
+      .expectOne(
+        "/rest/gebruikersvoorkeuren/aantal-per-pagina/WERKVOORRAAD_TAKEN/25",
+      )
+      .flush(null);
+    httpTestingController
+      .match("/rest/zoeken/list")
+      .forEach((request) =>
+        request.flush({ totaal: 0, resultaten: [], filters: {} }),
       );
-    });
-
-    it("includes ZAAK_TOELICHTING as HIDDEN", () => {
-      const columns = component["defaultColumns"]();
-      expect(columns.get(ZoekenColumn.ZAAK_TOELICHTING)).toBe(
-        ColumnPickerValue.HIDDEN,
-      );
-    });
-  });
-
-  describe("isAfterDate", () => {
-    it("returns true for past dates", () => {
-      const pastDate = new Date("2020-01-01");
-      expect(component["isAfterDate"](pastDate)).toBe(true);
-    });
-
-    it("returns false for future dates", () => {
-      const futureDate = new Date("2030-01-01");
-      expect(component["isAfterDate"](futureDate)).toBe(false);
-    });
-  });
-
-  describe("resetColumns", () => {
-    it("delegates to dataSource.resetColumns", () => {
-      jest
-        .spyOn(component["dataSource"], "resetColumns")
-        .mockReturnValue(undefined);
-      component["resetColumns"]();
-      expect(component["dataSource"].resetColumns).toHaveBeenCalled();
-    });
-  });
-
-  describe("filtersChange", () => {
-    it("delegates to dataSource.filtersChanged", () => {
-      jest
-        .spyOn(component["dataSource"], "filtersChanged")
-        .mockReturnValue(undefined);
-      component["filtersChange"]();
-      expect(component["dataSource"].filtersChanged).toHaveBeenCalled();
-    });
   });
 });
