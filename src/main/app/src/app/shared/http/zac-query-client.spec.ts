@@ -38,10 +38,6 @@ describe(ZacQueryClient.name, () => {
     foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
   });
 
-  afterEach(() => {
-    httpTestingController.verify();
-  });
-
   describe("DELETE", () => {
     describe("an endpoint addressed by a path parameter", () => {
       it("takes the parameter from the variables it is mutated with", async () => {
@@ -117,6 +113,52 @@ describe(ZacQueryClient.name, () => {
       );
 
       expect(foutAfhandelen).toHaveBeenCalled();
+    });
+  });
+
+  describe("PUT_QUERY", () => {
+    it("keys the query on the endpoint, the body and the path parameters", () => {
+      const query = zacQueryClient.PUT_QUERY(
+        "/rest/signaleringen/zaken/{type}",
+        { page: 0, rows: 5, sortField: "CREATED", sortOrder: "DESC" },
+        { path: { type: "ZAAK_OP_NAAM" } },
+      );
+
+      expect(query.queryKey).toEqual([
+        "/rest/signaleringen/zaken/{type}",
+        { page: 0, rows: 5, sortField: "CREATED", sortOrder: "DESC" },
+        { path: { type: "ZAAK_OP_NAAM" } },
+      ]);
+    });
+
+    it("gives two sets of filters two cache entries", () => {
+      const first = zacQueryClient.PUT_QUERY("/rest/zoeken/list", {
+        page: 0,
+        rows: 10,
+      });
+      const second = zacQueryClient.PUT_QUERY("/rest/zoeken/list", {
+        page: 1,
+        rows: 10,
+      });
+
+      expect(first.queryKey).not.toEqual(second.queryKey);
+    });
+
+    it("sends the body as a PUT and resolves with the response", async () => {
+      const query = zacQueryClient.PUT_QUERY("/rest/zoeken/list", {
+        page: 0,
+        rows: 10,
+      });
+
+      const response = query.queryFn!({} as never);
+      const request = httpTestingController.expectOne({
+        method: "PUT",
+        url: "/rest/zoeken/list",
+      });
+      expect(request.request.body).toEqual({ page: 0, rows: 10 });
+      request.flush({ totaal: 0 });
+
+      await expect(response).resolves.toEqual({ totaal: 0 });
     });
   });
 });
