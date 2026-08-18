@@ -866,6 +866,7 @@
   "msg.error.extension.period.invalid": "Ongeldige verlengingsperiode.",
   "msg.error.zaak.has.besluit.cannot.be.terminated": "De zaak kan niet afgebroken worden als er een besluit aan hangt.",
   "msg.error.afleidingwijze.brondatum.not.supported": "Het zetten van de brondatum wordt niet ondersteund voor deze afleidingswijze brondatum.",
+  "msg.error.brondatum.cannot.be.before.end.date": "De brondatum kan niet voor de einddatum van de zaak liggen.",
   "msg.hint.kvk.unknown": "Herkoppel de betrokkene met een bekend KvK-nummer.",
   "msg.hint.kvk.outdated": "De gekoppelde betrokkene is niet meer bekend bij de KvK.",
   "msg.hint.kvk.other-error": "Er is een fout opgetreden bij het ophalen van de KvK-gegevens.",
