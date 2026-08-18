@@ -576,7 +576,8 @@ De Zaak verlengen knop bevindt zichin het linker menu onder Actie en is herkenba
 
 ## Brondatum zetten
 
-Als een zaak is afgehandeld met een resultaattype waarbij de afleidingswijze brondatum is ingesteld op 'Eigenschap', kan de behandelaar de zaak afsluiten zonder de brondatum in te vullen. In dit geval is het voor de recordmanager mogelijk om alsnog bij een afgesloten zaak de brondatum te zetten.
+Als een zaak is afgehandeld met een resultaattype waarbij de afleidingswijze brondatum is ingesteld op 'Eigenschap', kan de behandelaar de zaak afsluiten zonder de brondatum in te vullen.
+In dat geval kan de recordmanager bij een afgesloten zaak alsnog de brondatum zetten.
 
 De 'Brondatum zetten' knop bevindt zich in dat geval in het linker menu onder Actie en is herkenbaar aan het kalender-icoon.
 
