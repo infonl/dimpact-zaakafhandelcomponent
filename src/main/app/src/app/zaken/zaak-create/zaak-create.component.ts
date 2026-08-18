@@ -14,20 +14,16 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav, MatSidenavModule } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import {
-  injectMutation,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Observable, of } from "rxjs";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ReferentieTabelService } from "../../admin/referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { Vertrouwelijkheidaanduiding } from "../../informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { KlantenService } from "../../klanten/klanten.service";
 import { KlantKoppelComponent } from "../../klanten/koppel/klanten/klant-koppel/klant-koppel.component";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
@@ -35,6 +31,7 @@ import { ZacDate } from "../../shared/form/date/date";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { NavigationService } from "../../shared/navigation/navigation.service";
 import {
   BSN_LENGTH,
@@ -80,7 +77,6 @@ export class ZaakCreateComponent {
   private readonly zaakafhandelParametersService = inject(
     ZaakafhandelParametersService,
   );
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   private readonly queryClient = inject(QueryClient);
   static DEFAULT_CHANNEL = "E-formulier";
@@ -97,20 +93,17 @@ export class ZaakCreateComponent {
   protected bpmnCaseTypesConfigurations: GeneratedType<"RestZaaktypeBpmnConfiguration">[] =
     [];
   protected communicationChannels: string[] = [];
-  protected confidentialityNotices = this.utilService.getEnumAsSelectList(
-    "vertrouwelijkheidaanduiding",
-    Vertrouwelijkheidaanduiding,
-  );
+  protected confidentialityNotices =
+    VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
 
-  protected createZaakMutation = injectMutation(() => ({
-    ...this.zakenService.createZaak(),
-    onSuccess: ({ identificatie }) => {
-      void this.router.navigate(["/zaken/", identificatie]);
+  protected createZaakMutation = injectMutation(
+    () => this.zakenService.createZaak(),
+    {
+      onSuccess: ({ identificatie }) => {
+        void this.router.navigate(["/zaken/", identificatie]);
+      },
     },
-    onError: (error) => {
-      this.foutAfhandelingService.foutAfhandelen(error);
-    },
-  }));
+  );
 
   protected readonly form = this.formBuilder.group({
     zaaktype: this.formBuilder.control<GeneratedType<"RestZaaktype"> | null>(

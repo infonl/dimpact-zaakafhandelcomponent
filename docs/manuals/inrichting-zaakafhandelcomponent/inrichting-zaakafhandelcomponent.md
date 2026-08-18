@@ -2,9 +2,9 @@
 
 
 > **Colofon** <br>
-> Datum : 03-08-2026 <br>
-> Versie :   1.14 <br>
-> Verandering : ZAC v5.5.0 Inrichting Zaakafhandelcomponent <br>
+> Datum : 13-08-2026 <br>
+> Versie :   1.15 <br>
+> Verandering : Herindeling handleiding <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -16,20 +16,9 @@ Versiegeschiedenis:
 
 | 1.0  | Initiële versie    |
 |------|--------------------|
-| 1.1  | ZAC versie 3.7     |
-| 1.2  | ZAC versie 3.9     |
-| 1.3  | ZAC versie 3.11    |
-| 1.4  | ZAC versie 3.12    |
-| 1.5  | ZAC versie 3.17.67 |
-| 1.6  | ZAC versie 3.20.53 |
-| 1.7  | ZAC versie 4.0.54  |
-| 1.8  | ZAC versie 4.0.54  |
-| 1.9  | ZAC versie 4.0.83  |
-| 1.10 | ZAC versie 4.1.0   |
-| 1.11 | ZAC versie 4.1.27  |
-| 1.12 | ZAC versie 4.6.0   |
 | 1.13 | ZAC versie 4.8.0   |
-| 1.14 | ZAC versie 5.5.0   |
+| 1.14 | ZAC versie 5.0.0   |
+| 1.15 | ZAC versie 5.5.0   |
 
 # Inhoud
 
@@ -38,252 +27,82 @@ Versiegeschiedenis:
 
 - [Inrichting Zaakafhandelcomponent](#inrichting-zaakafhandelcomponent)
   - [Zaakafhandelcomponent](#zaakafhandelcomponent)
+- [Inrichting Algemeen](#inrichting-algemeen)
   - [Beheerinstellingen](#beheerinstellingen)
-- [Zaakafhandelparameters](#zaakafhandelparameters)
-  - [Werking van de zaakafhandelparameters](#werking-van-de-zaakafhandelparameters)
+    - [Groepsignalering-instellingen](#groepsignalering-instellingen)
+    - [Referentietabellen](#referentietabellen)
+    - [Mailtemplates](#mailtemplates)
+    - [Zaakafhandelparameters](#zaakafhandelparameters)
+    - [BPMN-procesdefinities](#bpmn-procesdefinities)
+    - [Inrichtingscheck](#inrichtingscheck)
+  - [Identiteits- en toegangsbeheer](#identiteits--en-toegangsbeheer)
+    - [IAM-architectuur](#iam-architectuur)
+    - [Migratie van de oude naar de nieuwe IAM-architectuur](#migratie-van-de-oude-naar-de-nieuwe-iam-architectuur)
+    - [Groepen](#groepen)
+- [Inrichting zaakafhandel parameters (zaaktype)](#inrichting-zaakafhandel-parameters-zaaktype)
   - [Inrichten van een zaaktype](#inrichten-van-een-zaaktype)
-  - [CMMN/BPMN](#cmmnbpmn)
-  - [BPMN inrichten](#bpmn-inrichten)
-  - [CMMN inrichten](#cmmn-inrichten)
-- [BPMN Definities](#bpmn-definities)
-- [Referentietabellen](#referentietabellen)
-  - [Referentietabel bewerken](#referentietabel-bewerken)
-- [Mailafzenders](#mailafzenders)
-  - [Werking van de mailafzenders](#werking-van-de-mailafzenders)
-  - [Mailafzender bewerken](#mailafzender-bewerken)
-  - [Mailafzender aan de referentietabel toevoegen](#mailafzender-aan-de-referentietabel-toevoegen)
-- [Mailtemplates](#mailtemplates)
-  - [Werking van de mailtemplates](#werking-van-de-mailtemplates)
-  - [Mailtemplate bewerken](#mailtemplate-bewerken)
-  - [Mailtemplate aanmaken](#mailtemplate-aanmaken)
-- [Inrichtingscheck](#inrichtingscheck)
-  - [Zaaktypecatalogus synchronisatie](#zaaktypecatalogus-synchronisatie)
-  - [Zaaktype inrichtingscheck](#zaaktype-inrichtingscheck)
-  - [Roltypen](#roltypen)
-- [Signaleringen](#signaleringen)
-  - [Werking van de signaleringen](#werking-van-de-signaleringen)
-  - [E-mailadres instellen voor een groep](#e-mailadres-instellen-voor-een-groep)
-  - [Groepsignalering inschakelen](#groepsignalering-inschakelen)
-- [Procestermijnen](#procestermijnen)
-  - [Procestermijn bekend – variabele periode](#procestermijn-bekend--variabele-periode)
-  - [Procestermijn bekend – vaste periode](#procestermijn-bekend--vaste-periode)
-- [Identiteits- en toegangsbeheer](#identiteits--en-toegangsbeheer)
-  - [IAM-architectuur](#iam-architectuur)
-  - [Migratie van de oude naar de nieuwe IAM-architectuur](#migratie-van-de-oude-naar-de-nieuwe-iam-architectuur)
-- [Groepen](#groepen)
-  - [Beheer van groepen](#beheer-van-groepen)
+    - [CMMN/BPMN](#cmmnbpmn)
+    - [Gegevens](#gegevens)
+    - [Taakgegevens](#taakgegevens)
+    - [Actiegegevens](#actiegegevens)
+    - [Mailgegevens](#mailgegevens)
+    - [Zaakbeëindig gegevens](#zaakbe%C3%ABindig-gegevens)
+    - [Koppelingen](#koppelingen)
+- [Inrichting in OpenZaak - voor functionaliteiten in ZAC](#inrichting-in-openzaak---voor-functionaliteiten-in-zac)
+  - [Procestermijnen](#procestermijnen)
+    - [Procestermijn bekend – variabele periode](#procestermijn-bekend--variabele-periode)
+    - [Procestermijn bekend – vaste periode](#procestermijn-bekend--vaste-periode)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Inrichting Zaakafhandelcomponent 
 
-### Zaakafhandelcomponent
+
+
+
+# Inrichting Zaakafhandelcomponent 
+
+## Zaakafhandelcomponent
 De Zaakafhandelcomponent (ZAC) is een applicatie bedoeld voor het behandelen van zaken en managen van de werkvoorraad van zaken. De applicatie is daarmee ook gepositioneerd in de interactielaag van het 5 lagen model van Common Ground. 
-Om zaken te registeren en behandelen maakt de applicatie gebruik van registratiecomponenten die zicht in de datalaag bevinden. Een groot deel van de inrichting zal dan ook in deze componenten gebeuren, een belangrijke daarvan is de zaaktypecatalogus. Om de ZAC in gebruik te nemen en te werken met de ingerichte zaaktypecatalogus is configuratie in de ZAC noodzakelijk. Daarnaast is er een aantal instellingen in de ZAC beschikbaar om het werken met het component naar eigen wens in te richten. Alle benodigde inrichting is in deze handleiding beschreven.
+Om zaken te registreren en te behandelen maakt de applicatie gebruik van registratiecomponenten die zich in de datalaag bevinden. Een groot deel van de inrichting zal dan ook in deze componenten gebeuren, een belangrijke daarvan is de zaaktypecatalogus. Om de ZAC in gebruik te nemen en te werken met de ingerichte zaaktypecatalogus is configuratie in de ZAC noodzakelijk. Daarnaast is er een aantal instellingen in de ZAC beschikbaar om het werken met het component naar eigen wens in te richten. Alle benodigde inrichting is in deze handleiding beschreven.
 
-### Beheerinstellingen
-Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het radar icoon. Het beheermenu bestaat 5 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
+# Inrichting Algemeen
+
+## Beheerinstellingen
+Het inrichten van de ZAC gaat via de beheermenu dat rechts in de werkbalk te openen is via het radar icoon. Het beheermenu bestaat 6 onderdelen, bij het openen van de beheerinstellingen is standaard ‘Inrichtingscheck’ geopend.
+
 ![image](images/beheerinstellingen.png)
 
 In deze handleiding wordt de werking van de beheer-instellingen per onderdeel beschreven.
 
-## Zaakafhandelparameters  
-De zaakafhandelparameters (hierna ‘zaps’) zijn bedoeld om een zaaktype dat in de ZAC gebruikt wordt in te richten.
+### Groepsignalering-instellingen
 
-### Werking van de zaakafhandelparameters
-Bij het openen van de zaps worden alle zaaktypen uit de zaaktypecatalogus getoond. Ook de oudere versies met een einde geldigheid worden opgehaald. Vanuit het overzicht kan een zaaktype geopend worden om deze in te richten. Wijzigingen in een actief zaaktype zijn na het opslaan direct zichtbaar in de ZAC.
+Het e-mailadres voor een groep moet in Keycloak worden ingesteld door een attribuut toe te voegen aan de groep met de naam `email` en als waarde het gewenste e-mailadres.
+Hiervoor is het nodig om in te loggen in Keycloak met een account dat rechten heeft om groepen te mogen bewerken.
 
-### Inrichten van een zaaktype
-Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandelparameters’. Alle zaaktypen worden opgehaald en het overzicht wordt geopend. Het is mogelijk om in dit overzicht te filteren en sorteren.
-![image](images/207916618-434d6cbc-d8f1-4522-aeec-7556d11b8e27.png)
+![E-mailadres groep instellen](images/keycloak_group_email.png)
 
-!Klik op het bolletje links van het zaaktype kolom om snel te filteren op geldig en niet geldig!
-
+#### Groepsignalering inschakelen
 Stappen:
-Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
+1. In het Beheer-instellingen menu kies je ‘Groepsignalering-instellingen’
+2. Kies de groep uit de keuzelijst die je wilt instellen
+3. Schakel een signalering per e-mail in door deze aan te vinken
+![image](images/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
 
-### CMMN/BPMN
-Bij een volledig nieuw zaaktype kies je hier of het een BPMN- of CMMN-zaaktype afhandelconfiguratie moet krijgen.
-![Zaakafhandelparameters CMMN](images/zaps_cmmn.png)
-Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
-###### CMMN
-![Zaakafhandelparameters CMMN](images/zaps_cmmn_cmmn.png)
-###### BPMN
-![Zaakafhandelparameters BPMN](images/zaps_cmmn_bpmn.png)
-
-### BPMN inrichten
-#### Gegevens
-Na de keuze van een BPMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
-
-- BPMN-procesdefinitie (v) | de keuzes die hier gemaakt kunnen worden zijn definities die zijn gekoppeld specifiek aan deze Zaakafhandel omgeving (zie, hoofdstuk BPMN definities)
-- Groep (v) |  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
-- Behandelaar |  de behandelaar die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de behandelaar waar een nieuwe zaak initieel op gezet wordt
-- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
-![Zaakafhandelparameters gegevens BPMN](images/zaps_gegevens_bpmn.png)
-
-#### Zaakbeëindigen gegevens
-Ga verder naar ‘Zaakbeëindigen gegevens’.  In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het resultaat dat de zaak krijgt bepaald worden. De mogelijke resultaten zijn ingesteld bij het zaaktype. Stel voor de volgende situaties het resultaat in:
-- Zaak is niet ontvankelijk (v) | bepaalt het resultaat wanneer een gebruiker bij de actie ‘Intake afronden’ deze optie kiest.
-- Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
-- Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
-- Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
-![image](images/zaps_zaakgegevens_gegevens.png)
-
-#### Koppelingen
-
-1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk SmartDocuments sjabloon moet worden verwerkt.
-
-##### Landelijke registratie koppelingen
-
-- Hiermee kan voor een zaaktype de BRP en/of KvK koppelingen worden uitgezet, met de knoppen:
-  - Basisregistratie personen (persoonsgegevens) koppelen
-  - KvK (bedrijfsgegevens) koppelen
-
-Afhankelijk van je proxy is er aanvullende informatie nodig.
-Voor BRP via de PinkRoccade iConnect proxy geldt het volgende:
-
-Met de dropdown keuzes Zoekwaarde en Raadpleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
-
-- BRP_DOELBINDING_RAADPLEEG_WAARDE
-- BRP_DOELBINDING_ZOEK_WAARDE
-- BRP_VERWERKINGSREGISTER_WAARDE
-
-De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
-
-##### SmartDocuments
-
-- SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
-- Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
-- SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
-- De sjabloongroep uitvouwen (stap 2)
-- Documenttype selecteren (stap 3)
-- De configuratie opslaan (stap 4) 
-  
-![image](images/zaps_koppelingen.png)
-
-- Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
-
-2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
-
-### CMMN inrichten
-
-Na de keuze van een CMMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
-
-- CMMN-model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
-- Groep (v)|  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
-- Behandelaar |  de behandelaar waar een nieuwe zaak na het aanmaken initieel op gezet wordt
-- Streefdatum waarschuwingsvenster | het aantal kalenderdagen voordat de streefdatum van de zaak wordt bereikt dat bepaalt:
-  - wanneer zaken een waarschuwingsindicatie (rode driehoek) krijgen
-  - wanneer de signalering ‘Mijn zaak nadert de streefdatum’ wordt verstuurd
-  - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
-- Fatale datum waarschuwingsvenster | het aantal kalenderdagen voordat de fatale datum van de zaak wordt bereikt dat bepaalt:
-  - wanneer zaken een waarschuwingsindicatie (rode driehoek) krijgen
-  - wanneer de signalering ‘Mijn zaak nadert de fatale datum’ wordt verstuurd
-  - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
-- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
-![image](images/zaps_gegevens.png)
-
-#### Taakgegevens
-1. Klik op de knop Volgende om naar het volgende tabblad ‘Taakgegevens’ te gaan. Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan, maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
-![image](images/zaps_taakgegevens.png)
- 
-2. Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
-- Formulierdefinitie (v) | welk formulier voor het taakbehandelformulier wordt gebruikt
-- Groep | de groep die standaard bij taaktoewijzing wordt ingevuld als een gebruiker de taak start
-- Doorlooptijd | bepaalt de fatale datum van de taak
-In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
-![image](images/zaps_advies_intern.png)
-#### Actiegegevens
-Ga verder naar het tabblad ‘Actiegegevens’. Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moet zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
-![image](images/zaps_actiegegevens.png)
-#### Mailgegevens
-1. Ga verder naar ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
-- Voor de statusmails kan bepaald worden of deze beschikbaar zijn en wat de standaard geselecteerde keuze is:
-  - Statusmail intake fase (v) | bepaalt of bij het afronden van de fase ‘Intake’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
-  - Statusmail afronden fase (v) | bepaalt of bij het afronden van de fase ‘In behandeling’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
-  
-  ![image](images/zaps_mailgegevens.png)
-
-2. **Mailafzenders** Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn, is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender. Een uitgebreide beschrijving van de mailafzenders is in het hoofdstuk Mailafzenders te vinden.
--  Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
-3. **Mailtemplates** Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
-![image](images/zaps_mailgegevens-2.png)
-4. **Automatische ontvangsbevestiging** Als een zaak wordt aangemaakt via SmartDocuments waar een mailadres van de aanvrager bij is ingevuld kan hiervoor een automatische ontvangstbevestiging worden verstuurd vanuit ZAC. Op deze plek kan dit aan of uit worden gezet en gekozen worden voor:
-- De mailtemplate
-- Het verzendadres
-- Het retouradres
-#### Zaakbeëindig gegevens
-Ga verder naar ‘Zaakbeëindig gegevens’.  In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het resultaat dat de zaak krijgt bepaald worden. De mogelijke resultaten zijn ingesteld bij het zaaktype. Stel voor de volgende situaties het resultaat in:
-- Zaak is niet ontvankelijk (v) | bepaalt het resultaat wanneer een gebruiker bij de actie ‘Intake afronden’ deze optie kiest.
-- Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
-- Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
-- Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
-    ![image](images/zaps_zaakgegevens_gegevens.png)
-
-#### Koppelingen
-
-1. Ga verder naar 'Koppelingen'. Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk SmartDocuments sjabloon moet worden verwerkt.
-
-##### Landelijke registratie koppelingen
-
-- Hiermee kan voor een zaaktype de BRP en/of KvK koppelingen worden uitgezet, met de knoppen:
-  - Basisregistratie personen (persoonsgegevens) koppelen
-  - KvK (bedrijfsgegevens) koppelen
-
-Afhankelijk van je proxy is er aanvullende informatie nodig.
-Voor BRP via de PinkRoccade iConnect proxy geldt het volgende:
-
-Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
-
-- BRP_DOELBINDING_RAADPLEEG_WAARDE
-- BRP_DOELBINDING_ZOEK_WAARDE
-- BRP_VERWERKINGSREGISTER_WAARDE
-
-De dropdowns zijn niet beschikbaar voor 2Secure BRP Protocollering aanbieder.
-
-##### SmartDocuments
-
-- SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen
-- Elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
-- SmartDocuments inschakelen voor het huidige zaaktype (stap 1)
-- De sjabloongroep uitvouwen (stap 2)
-- Documenttype selecteren (stap 3)
-- De configuratie opslaan (stap 4) 
-  
-![image](images/zaps_koppelingen.png)
-
-- Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
-
-2. Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
-
-## BPMN Definities
-
-Voor het inrichten van BPMN-zaaktypes zijn verschillende definities nodig. Deze zijn toe te voegen via het beheerinstellingen menu.
-![image](images/zaps_BPMN_definities.png)
-
-- BPMN-procesdefinities - hier kunnen de met bijvoorbeeld Flowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
-- Formulieren - door de procesdefinitie open te klappen is het mogelijk om de formulierdefinities te uploaden die bij de procesdefinitie horen.
-
-Als een procesdefinitie eenmaal gebruikt is kan deze niet meer worden verwijderd.
-
-Als een procesdefinitie niet goed is geconfigureerd is dit zichtbaar door middel van een rode cirkel met uitroepteken en is bij het openklappen zichtbaar wat het probleem is.
-![image](images/zaps_BPMN_definities_2.png)
-
-## Referentietabellen
+### Referentietabellen
 
 Referentietabellen worden in de ZAC onder meer gebruikt om de keuzes in keuzelijsten te beheren. Een keuzelijst heeft een standaard referentietabel gekoppeld waarin de waarden bewerkt kunnen worden. Er kan een referentietabel toegevoegd worden om deze vervolgens via de zaakafhandelparameters te koppelen aan een zaaktype en zo te gebruiken. Hiermee is het mogelijk om voor een zaaktype een van de standaard afwijkende referentietabel te gebruiken.
 ZAC maakt onderscheid tussen systeemreferentietabellen en zelf toegevoegde referentietabellen. De systeemreferentietabellen zijn standaard beschikbaar en kunnen niet verwijderd worden. De zelf toegevoegde referentietabellen kunnen wel verwijderd worden.
 ZAC kent de volgende systeemreferentietabellen:
 
 - ADVIES | bevat de mogelijk waarde voor de keuzelijst ‘Advies’ die gebruikt wordt bij het afronden van de taak ‘Intern advies’
-- AFZENDER | bevat de mogelijke afzenders van een e-mail; zie sectie 'Mailafzenders' voor meer details
+- AFZENDER | bevat de mogelijke afzenders van een e-mail; zie sectie 'Afzenders referentietabel' voor meer details
 - BRP_DOELBINDING_RAADPLEEG_WAARDE | bevat de 1ste waarde die gebruikt wordt bij het configureren de BRP-doelbinding voor dit zaaktype
 - BRP_DOELBINDING_ZOEK_WAARDE | bevat de 2de waarde die gebruikt worden bij het configureren de BRP-doelbinding voor dit zaaktype
 - COMMUNICATIEKANAAL | bevat de mogelijke waarden voor de keuzelijst ‘Communicatiekanaal’ die gebruikt wordt bij het aanmaken of aanpassen van een zaak
 - SERVER_ERROR_ERROR_PAGINA_TEKST | bevat (optionele) tekstparagrafen die getoond worden bij foutmeldingen voor 'server errors' (technische fouten afkomstig van de server of onderliggende systemen). Door een volgende waarde toe te voegen, zal deze onder de al bestaande waarde(s) worden getoond bij de foutmelding. 
 Dit kunnen bijvoorbeeld doorverwijzingen zijn naar een functioneelbeheerafdeling van de gemeente. Bijvoorbeeld: "Neem s.v.p. contact op met ...".  
 
-### Referentietabel bewerken
+#### Referentietabel bewerken
 
 Een systeem- of zelf toegevoegde referentietabel kan als volgt bewerkt worden.
 Stappen:
@@ -299,13 +118,13 @@ Stappen:
 
 6. Om een tabel of waarde te verwijderen klik je in aan het eind van respectievelijke regel op het prullenbakicoon. Dan verschijnt er een 'Bevestig' dialoog. Als een prullenbakicoon grijs van kleur is betreft het een systeemtabel of systeemwaarde die niet verwijderd kan worden.
 
-## Mailafzenders
+##### Afzenders referentietabel
 
-### Werking van de mailafzenders
-Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties kan als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender.
+###### Werking van de mailafzenders
+Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn is in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender.
 Let op, de 'Van' afzender mailadressen kunnen in veel gevallen niet vrij gekozen worden. Steeds vaker is namelijk in het DNS bij een domeinnaam vastgelegd welke mailservers exclusief mail mogen versturen met een Van-adres wat op de bewuste domeinnaam eindigt. Als dergelijke mail dan door een andere mailserver wordt verstuurd dan wordt dat in de meeste gevallen geweigerd, het hangt af van de ontvangende mailserver of daar naar gekeken wordt maar meestal wel. Het gevolg daarvan is dat het 'Van' e-mailadres een domein moet hebben (bijv. @example.com) wat toegestaan wordt door de betreffende mailserver.
 
-### Mailafzender bewerken
+###### Mailafzender bewerken
 De mailafzenders kunnen in de zaps bij menukeuze 'Mailgegevens' ingesteld worden. Het e-mailadres van de gemeente, inclusief de daarbij weergegeven naam van de gemeente, is in een omgevingsvariabele ingesteld. Het e-mailadres van de medewerker wordt uit de gebruikersbeheer component opgehaald. Deze twee opties zijn altijd beschikbaar en hierbij kan voor beide een 'Antwoord aan' e-mailadres worden ingesteld. Aan deze opties kunnen mailafzenders worden toegevoegd, deze extra mailafzenders worden opgehaald uit een referentietabel.
 
 Stappen:
@@ -316,17 +135,17 @@ Stappen:
 5. Selecteer een van de mailafzenders als default door de radiobutton aan te vinken
 6. Klik op ‘Opslaan’ om de wijziging door te voeren
 
-### Mailafzender aan de referentietabel toevoegen
+###### Mailafzender aan de referentietabel toevoegen
 Extra mailafzenders kunnen aan de referentietabel worden toegevoegd om ze daarna te gebruiken bij het instellen van de mailgegevens. Ook 'Antwoord aan' e-mailadressen kunnen aan deze tabel worden toegevoegd.
 
 Stappen:
 1. In het Beheer-instellingen menu kies je ‘Referentie-tabellen’
 2. Open de tabel 'AFZENDER' door op het oog icoon te klikken
-3. Maak een nieuwe waarde aan door op het plus-icoon (Toevoegen) te klikken
+3. Maak een nieuwe waarde aan door op de "Waarde Toevoegen" knop te klikken
 4. Vul de nieuwe waarde van in
 5. Klik op ‘Opslaan’ om de waarde toe te voegen, deze is daarna beschikbaar bij het instellen van de mailafzenders
- 
-## Mailtemplates
+
+### Mailtemplates
 
 Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt.
 
@@ -350,12 +169,12 @@ Er zijn drie categoriën mails die verstuurd kunnen worden tijdens de zaakbehand
 - Signalering taak op naam | deze mail wordt verstuurd aan de gebruiker op wiens naam de taak wordt gezet
 - Signalering taak verlopen | deze mail wordt verstuurd aan de gebruiker op wiens naam de taak staat
 
-### Werking van de mailtemplates
+#### Werking van de mailtemplates
 De mailtemplates kunnen vanuit menukeuze ‘Mailtemplates’ benaderd worden. Vanuit het overzicht kan een template ingezien en bewerkt worden. Iedere mail heeft een default template dat in het overzicht te herkennen is aan de vink in de 'default' kolom. Het is ook mogelijk om zelf een template voor een  mail aan te maken. Deze templates zijn daarna in het overzicht te herkennen door de X in de 'default' kolom.
-Het gebruiken van de mailtemplates uit de categorie 'taak' en 'statusmail' gebeurt door deze te koppelen via de zaakafhandelparameters, zie hoofdstuk Zaakafhandelparameters voor een beschrijving hiervan.
+Het gebruiken van de mailtemplates uit de categorie 'taak' en 'statusmail' gebeurt door deze te koppelen via de zaakafhandelparameters van een zaaktype, zie hoofdstuk Zaakafhandelparameters voor een beschrijving hiervan.
 De mailtemplates voor de signaleringen zijn automatisch gekoppeld en kunnen direct gebruikt worden.
 
-### Mailtemplate bewerken
+#### Mailtemplate bewerken
 Nadat een template is geopend kan het onderwerp en het bericht bewerkt worden. Voor het bericht kan gebruik gemaakt worden van de editor waarmee het mogelijk is om opmaak toe te voegen of bijvoorbeeld een link of afbeelding aan het bericht toe te voegen. Voor zowel het onderwerp als het bericht kan gebruik gemaakt worden van variabelen. De variabelen bevatten gegevens over de zaak of taak die bij het verzenden van de e-mail geresolved worden. Afhankelijk van de categorie zijn alleen de relevante variabelen beschikbaar om te gebruiken. Variabelen die verplicht gevuld horen te zijn, zoals zaaktype, worden als variabele getoond wanneer deze niet gevuld zijn. Zo is het duidelijk dat er iets mis gaat. Variabelen die optioneel gevuld kunnen zijn worden leeg gelaten.
 Het is ook mogelijk om de naam van de mailtemplate te wijzigen.
 
@@ -366,7 +185,7 @@ Stappen:
 ![image](images/208075315-0b74d514-1baa-409a-883d-2891a81b2d55.png)
 4. Klik op ‘Opslaan’ om de wijziging door te voeren
 
-### Mailtemplate aanmaken
+#### Mailtemplate aanmaken
 Er kan voor de zaak- en taakmailtemplates een template worden toegevoegd om deze vervolgens via de zaakafhandelparameters te koppelen aan een zaaktype en te gebruiken. Hiermee is het mogelijk om voor een zaaktype een van de standaard afwijkende mailtemplate te gebruiken.
 Zodra een zelf gemaakte template aan een zaaktype is gekoppeld dan is het niet meer mogelijk om deze te verwijderen.
 
@@ -378,25 +197,44 @@ Stappen:
 5. Vul het onderwerp en het bericht in
 6. Klik op ‘Opslaan’ om de mailtemplate toe te voegen. Het template is daarna beschikbaar in het overzicht.
 
-## Inrichtingscheck
+### Zaakafhandelparameters  
+De zaakafhandelparameters (hierna ‘zaps’) zijn bedoeld om een zaaktype dat in de ZAC gebruikt wordt in te richten.
+
+#### Werking van de zaakafhandelparameters
+Bij het openen van de zaps worden alle zaaktypen uit de zaaktypecatalogus getoond. Ook de oudere versies met een einde geldigheid worden opgehaald. Vanuit het overzicht kan een zaaktype geopend worden om deze in te richten. Wijzigingen in een actief zaaktype zijn na het opslaan direct zichtbaar in de ZAC.
+
+### BPMN-procesdefinities
+
+Voor het inrichten van BPMN-zaaktypes zijn verschillende definities nodig. Deze zijn toe te voegen via het beheerinstellingen menu.
+![image](images/zaps_BPMN_definities.png)
+
+- BPMN-procesdefinities - hier kunnen de met bijvoorbeeld Flowable aangemaakte proces definities toegevoegd worden. Deze zijn dan in de gegevens tab van de zaakafhandeldefinitie te kiezen.
+- Formulieren - door de procesdefinitie open te klappen is het mogelijk om de formulierdefinities te uploaden die bij de procesdefinitie horen.
+
+Als een procesdefinitie eenmaal gebruikt is kan deze niet meer worden verwijderd.
+
+Als een procesdefinitie niet goed is geconfigureerd is dit zichtbaar door middel van een rode cirkel met uitroepteken en is bij het openklappen zichtbaar wat het probleem is.
+![image](images/zaps_BPMN_definities_2.png)
+
+### Inrichtingscheck
 Dit onderdeel is bedoeld als hulpmiddel om de inrichting van een zaaktype in zowel de ZAC als de zaaktypecatalogus te controleren op minimaal benodigde inrichting.
 ![Inrichtingscheck](images/beheer_instellingen_inrchtingscheck.png)
 
-### Zaaktypecatalogus synchronisatie
+#### Zaaktypecatalogus synchronisatie
 Na het wijzigen van data in de zaaktypecatalogus in Open Zaak is het nodig om de gegevens te synchroniseren. Synchronisatie kan gestart worden door op de blauwe knop te klikken
 De volgende gegevens worden gesynchroniseerd: Zaaktypen, Informatieobjecttypen, Besluittypen, Zaaktype-informatieobjecttypen, Resultaattypen, Statustypen en Roltypen. 
 
-### Zaaktype inrichtingscheck
+#### Zaaktype inrichtingscheck
 Hier kan voor een zaaktype dat nog niet volledig en correct is ingericht worden gecheckt welke onderdelen nog inrichting nodig hebben. Als een zaaktype niet in deze lijst voorkomt dan is de minimaal benodigde inrichting correct. Er wordt hier een validatie uitgevoerd op de ZAC zaakafhandelparameters en de zaaktypecatalogus implementatie.
 Om een zaaktype in deze lijst te controleren klik je op de regel. Daarna worden alle inrichtingsonderdelen die aandacht nodig hebben geopend en wordt per onderdeel vermeld wat er niet correct is ingericht.
 Voor nu worden de volgende onderdelen gecheckt:
 - Zaakafhandelparameters | er wordt gecheckt of deze volledig zijn ingericht
 - Statustypen | er wordt gecheckt of voor de werking van de ZAC vereiste statustypen zijn toegevoegd aan het zaaktype. Dit zijn momenteel ‘Intake’, ‘In behandeling’, ‘Heropend’, ‘Wacht op aanvullende informatie’ en ‘Afgerond’ waarbij ‘Afgerond’ het hoogste volgnummer moet hebben zodat dit de eindstatus wordt.
-- Rollen | er wordt gecheckt of de voor de werking van de ZAC vereiste rollen zijn toegevoegd aan het zaaktype. Dit zijn momenteel ‘Initiator’ en ‘Behandelaar’ die nodig zijn om de functionaliteit voor het toevoegen van een initiator aan een zaak en het op naam van een behandelaar zetten van een zaak mogelijk te maken. ZAC vereist precies één roltype ‘Initiator’ en één roltype ‘Behandelaar’. Daarnaast wordt gecheckt of er minimaal één andere rol is toegevoegd die gebruikt wordt bij de functionaliteit voor het toevoegen van betrokkenen aan eem zaak.
+- Rollen | er wordt gecheckt of de voor de werking van de ZAC vereiste rollen zijn toegevoegd aan het zaaktype. Dit zijn momenteel 'Initiator' en 'Behandelaar' die nodig zijn om de functionaliteit voor het toevoegen van een initiator aan een zaak en het op naam van een behandelaar zetten van een zaak mogelijk te maken. ZAC vereist precies één roltype 'Initiator' en één roltype 'Behandelaar'. Het roltype 'Behandelaar' moet de volgende eigenschappen hebben: Betrokkene type 'Medewerker', Omschrijving generiek 'Behandelaar' én Omschrijving 'Behandelaar'. Daarnaast wordt gecheckt of er minimaal één andere rol is toegevoegd die gebruikt wordt bij de functionaliteit voor het toevoegen van betrokkenen aan een zaak.
 - Informatieobjecttype | er wordt voor de werking van de ZAC gecheckt of het zaaktype aan de vereiste informatieobjecttypen is gekoppeld. Dit is momenteel ‘e-mail’ dat gebruikt wordt voor het als document toevoegen van vanuit de ZAC verzonden e-mails.
 - Besluittype | er wordt gecheckt of aan het zaaktype een besluittype is gekoppeld. Dit gebeurt alleen als aan het zaaktype een resultaattype is toegevoegd dat als afleidingswijze de begin- of vervaldatum van een besluit heeft.
 
-### Roltypen
+#### Roltypen
 ZAC zoekt naar een roltype met behulp van één van deze velden:
 - Omschrijving generiek | een set vooraf gedefinieerde waarden
 - Omschrijving | beschrijving van de roltype
@@ -404,28 +242,369 @@ ZAC zoekt naar een roltype met behulp van één van deze velden:
 
 ZAC zoekt eerst in `Omschrijving` en daarna in `Omschrijving generiek`. Als voor een roltype zowel het `Omschrijving` als het `Omschrijving generiek` veld gevuld is dan wordt het `Omschrijving` veld gebruikt.
 
-## Signaleringen
-De ZAC heeft naast signaleringen voor gebruikers, die in de gebruikershandleiding worden beschreven, ook signaleringen voor groepen. 
-In tegenstelling tot gebruikers-signaleringen, kunnen groepsignaleringen alleen per e-mail worden verstuurd en niet als een dashboard signalering.
+**Let op:** voor het roltype 'Behandelaar' vereist ZAC dat zowel het veld `Omschrijving generiek` op 'Behandelaar' staat als het veld `Omschrijving` de exacte waarde 'Behandelaar' heeft. Als een gemeente een andere omschrijving gebruikt (bijv. 'Behandelaar domein X'), dan moet dit aangepast worden naar 'Behandelaar'.
 
-### Werking van de signaleringen
-Als er een trigger voor een signalering die niet voor een gebruiker is bestemd komt dan wordt gekeken of de groepsignalering is ingeschakeld. 
-Als dit het geval is dan wordt het voor de groep ingestelde e-mailadres gebruikt om de signaleringsmail naar toe te sturen.
-Er is één signalering beschikbaar voor groepen, dat is ‘Er is een zaak op de groep gezet’ die verstuurd wordt als er een zaak nieuw aan een groep wordt toegewezen zonder dat er ook een behandelaar is gekozen.
+## Identiteits- en toegangsbeheer
 
-### E-mailadres instellen voor een groep
+Identiteits- en toegangsbeheer (Identity and Access Management, IAM) maakt gebruik van het PABC (Platform Autorisatie Beheer Component) en Keycloak om (zaaktype) autorisaties te beheren.
 
-Het e-mailadres voor een groep moet in Keycloak worden ingesteld door een attribuut toe te voegen aan de groep met de naam `email` en als waarde het gewenste e-mailadres.
-Hiervoor is het nodig om in te loggen in Keycloak met een account dat rechten heeft om groepen te mogen bewerken.
+### IAM-architectuur
 
-![E-mailadres groep instellen](images/keycloak_group_email.png)
+Deze sectie beschrijft de werking van de IAM-architectuur in ZAC, vanaf versie 5.0. Voor eerdere versies, raadpleeg de handleiding voor versie 4.6.
 
-### Groepsignalering inschakelen
+De voornaamste kenmerken van de nieuwe IAM-architectuur zijn:
+* Het is toekomstgericht en generiek ontworpen om in de toekomst meerdere 'entiteitstypes' te kunnen gaan autoriseren. 
+Op dit moment worden alleen nog zaaktypes en gemeente als entiteitstype ondersteund.
+* Het biedt meer flexibiliteit in het beheren van autorisaties, en het is bijvoorbeeld mogelijk om een medewerker 
+verschillende applicatierollen toe te kennen voor verschillende domeinen.
+* Het verlaagt de autorisatiebeheer-last met behulp van hoog-niveau abstracties zoals domeinen en functionele rollen. 
+* Het vereist dat de PABC (Platform Autorisatie Beheer Component) is geïnstalleerd en geconfigureerd in de omgeving.
+
+Om een zaaktype te autoriseren voor ZAC, moeten de volgende stappen doorlopen worden (per component):
+
+#### Keycloak
+
+#### Functionele rollen
+
+Functionele rollen (`Realm Roles` in Keycloak) zijn hoog-niveau rollen die gebruikt worden om groepen medewerkers te autoriseren op functie.
+Deze functionele rollen kunnen in de toekomst door meerdere applicaties gebruikt worden,
+zodra ook andere applicaties zijn aangesloten op de nieuwe IAM-architectuur.
+Functionele rollen worden beheerd in Keycloak, en worden in de PABC gebruikt voor autorisatie-koppelingen.
+
+1. Selecteer het realm waarin de `zaakafhandelcomponent` client zich bevindt.
+2. Maak één of meerdere functionele rollen aan op het niveau van het realm (`Realm Roles` in Keycloak). 
+Bijvoorbeeld: 'behandelaar_domein_test_1' en 'raadpleger_domein_test_2'. 
+In werkelijkheid zal dit iets zijn als 'behandelaar_vergunningen' of 'raadpleger_fysieke_leefomgeving'.
+
+  ![Keycloak functionele rollen](images/keycloak_functionele_rollen.png)
+
+##### Groepen
+
+In de nieuwe IAM-architectuur worden de `functionele rollen` (`Realm Roles` in Keycloak) toegekend aan groepen.
+De ZAC-applicatierollen bestaan niet meer in Keycloak in de nieuwe IAM-architectuur.
+Het concept 'domein-rollen' bestaat helemaal niet meer in de nieuwe IAM-architectuur.
+
+ZAC maakt gebruik van autorisaties op groep-niveau, bijvoorbeeld bij het toekennen van een zaak aan een groep.
+Daarom is het van belang om rollen altijd toe te kennen aan groepen, en niet direct aan medewerkers.
+
+![Keycloak group](images/keycloak_group.png)
+
+##### Medewerkers
+
+Een medewerker zit in één of meerdere groepen en krijgt de autorisaties die aan deze groep(en) is/zijn toegekend,
+via de functionele rollen (`Realm Roles`) die aan de groep(en) zijn toegekend.
+
+  ![Keycloak medewerker die in 1 groep zit](images/keycloak_employee_1.png)
+
+###### Een medewerker in meerdere groepen
+
+Indien een medewerker in meerdere groepen zit waarbij elke groep verschillende autorisaties heeft binnen verschillende domeinen, 
+dan krijgt de medewerker verschillende autorisaties per domein via de groepen.
+
+Bijvoorbeeld, als een medewerker zowel in groep A en in groep B zit, en deze groepen zijn als volgt ingericht:
+- Groep A heeft de functionele rol 'Functionele rol A', en deze functionele rol heeft in de PABC de
+  autorisatie-mapping: 'Applicatie rol X' in 'Domein 1'.
+- Groep B heeft de functionele rol 'Functionele rol B', en deze functionele rol heeft in de PABC de
+  autorisatie-mapping: 'Applicatie rol Y' in 'Domein 2'.
+
+In dit geval krijgt de medewerker de applicatie rol 'Applicatie rol X' voor het domein 'Domein 1',
+en de applicatie rol 'Applicatie rol Y' voor het domein 'Domein 2'.
+
+Indien een medewerker in meerdere groepen zit waarbij elke groep verschillende autorisaties heeft binnen één en hetzelfde domein, 
+dan worden deze autorisaties samengevoegd binnen dat domein.
+
+Bijvoorbeeld, als een medewerker zowel in groep A en in groep B zit, en deze groepen zijn als volgt ingericht:
+- Groep A heeft de functionele rol 'Functionele rol A', en deze functionele rol heeft in de PABC de 
+autorisatie-mapping: 'Applicatie rol X' in 'Domein 1'.
+- Groep B heeft de functionele rol 'Functionele rol B', en deze functionele rol heeft in de PABC de 
+autorisatie-mapping: 'Applicatie rol Y' in 'Domein 1'.
+
+In dit geval krijgt de medewerker beide applicatierollen 'Applicatie rol X' en 'Applicatie rol Y' voor het domein 'Domein 1'.
+
+![Keycloak medewerker die in 2 groepen zit](images/keycloak_employee_2.png)
+
+#### PABC
+
+De PABC wordt gebruikt voor het beheer van zogenaamde 'autorisatie-koppelingen'. 
+ZAC gebruikt deze autorisatie-koppelingen voor het autoriseren groepen en medewerkers.
+
+##### Beheer - beheer van de lijsten
+
+Voordat de autorisatie-koppelingen kunnen worden beheerd, moeten een aantal lijsten in de PABC worden ingericht.
+
+###### Applicatierollen
+
+Applicatierollen zijn laag-niveau applicatie-specifieke rollen.
+Ze worden gedefinieerd door de specifieke applicatie (in dit geval ZAC) en kunnen niet worden aangepast.
+Ze moeten ook geconfigureerd worden in de PABC voor de ZAC-applicatie.
+
+ZAC kent op dit moment de volgende applicatierollen:
+* `raadpleger`
+* `behandelaar`
+* `coordinator`
+* `recordmanager`
+* `beheerder`
+* `brp_zoeken`
+
+De PABC wordt gebruikt om functionele rollen te autoriseren door vanuit functionele rollen koppelingen
+te maken naar combinaties van entiteitstypes (zoals zaaktypen) en applicatierollen.
+
+  ![PABC applicatierollen](images/pabc_applicatierollen.png)
+
+###### Domeinen
+
+Domeinen zijn in de nieuwe IAM-architectuur een nieuw en geheel ander concept dan in de oude IAM-architectuur.
+Domeinen worden uitsluitend in de PABC beheerd en zijn simpelweg verzamelingen van entiteitstypes (zoals zaaktypen of gemeenten).
+
+Autorisaties worden in de PABC beheerd op het niveau van domeinen, waardoor het mogelijk is om eenvoudig een hele verzameling
+van entiteitstypes (zoals zaaktypes of gemeenten) te autoriseren.
+
+  ![PABC domeinen](images/pabc_domeinen.png)
+
+###### Functionele rollen
+
+De functionele rollen waarop geautoriseerd moet worden moeten in de PABC worden ingericht.
+De namen van deze functionele rollen moet exact overeen komen met `Realm Roles` in Keycloak.
+
+  ![PABC functionele rollen](images/pabc_functionele_rollen.png)
+
+###### Applicaties
+
+De ZAC-applicatie moet worden ingericht in de PABC.
+Voor ZAC moet dit zijn: `zaakafhandelcomponent`.
+
+  ![PABC applicaties](images/pabc_applicaties.png)
+
+###### Entiteitstypes
+
+Dit zijn de zaaktypes waarop geautoriseerd moet worden.
+In de toekomst zullen ook andere entiteitstypes worden ondersteund.
+
+  ![PABC entiteitstypes](images/pabc_entiteitstypes.png)
+
+Elk zaaktype heeft de volgende velden:
+- `Entiteitstype`: dit moet `ZAAKTYPE` zijn (in hoofdletters).
+- `Entiteitstype ID`: de waarde van het `Omschrijving` veld van het zaaktype in het zaakregister (zoals Open Zaak)
+- `Entiteitstype naam`: gelijk aan het `Entiteitstype ID` veld. Dit veld wordt niet gebruikt door ZAC, maar is verplicht in de PABC.
+- `Entiteitstype URL`: leeg laten. Dit veld wordt niet gebruikt door ZAC.
+
+  ![PABC entiteitstype velden voor zaaktype](images/pabc_entiteitstype_velden.png)
+
+
+Elke gemeente heeft de volgende velden:
+- `Entiteitstype`: dit moet `GEMEENTE` zijn (in hoofdletters).
+- `Entiteitstype ID`: de viercijferige code van de gemeente zoals deze in het BRP gehanteerd wordt. 
+- `Entiteitstype naam`: De naam van de gemeente. Dit veld wordt getoond in ZAC in de dropdownlijst van gemeenten waaruit gekozen moet worden als een medewerker alleen binnengemeentelijk mag zoeken in het BRP.
+- `Entiteitstype URL`: leeg laten. Dit veld wordt niet gebruikt door ZAC.
+
+  ![PABC entiteitstype velden voor gemeente](images/pabc_entiteitstype_velden_gemeente.png)
+
+##### Dashboard - beheer van de domeinen en autorisatie-koppelingen
+
+###### Domeinen
+
+Een domein is een verzameling van entiteitstypes (zoals zaaktypes of gemeenten), en vormen het 
+abstractieniveau waarop geautoriseerd wordt.
+
+  ![PABC dashboard domeinen](images/pabc_dashboard_domeinen.png)
+
+###### Autorisatie-koppelingen (middels functionele rollen)
+
+Autorisatie-koppelingen zijn de combinaties van applicatie rollen en domeinen die zijn 
+gekoppeld aan een functionele rol.
+Hiermee wordt geregeld welke applicatierol(len) een functionele rol heeft binnen welk domein.
+
+Verreweg de meeste autorisatie-koppelingen zijn van het type `entiteitstype van een specifiek domein`. 
+Hiermee wordt een functionele rol gekoppeld aan applicatierollen voor een specifiek domein.
+
+  ![PABC autorisatie-koppeling voor een specifiek domein](images/pabc_autorisatie_koppeling_1.png)
+
+  ![PABC autorisatie-koppelingen 1](images/pabc_autorisatie_koppelingen_1.png)
+
+  ![PABC autorisatie-koppelingen 2](images/pabc_autorisatie_koppelingen_2.png)
+
+Voor (functioneel) beheerders in ZAC geldt dat ze toegang moeten hebben tot alle entiteitstypes (zoals zaaktypes) in alle domeinen. 
+Dit is bijvoorbeeld nodig voor het inrichten van zaakafhandelparameters waar je moet kunnen kiezen uit alle 
+(in de PABC beschikbaar gemaakte) zaaktypen.
+In dit geval kan er gekozen worden voor het type `Alle entiteitstypes`.
+
+  ![PABC autorisatie-koppeling voor alle entiteitstypes](images/pabc_autorisatie_koppeling_2.png)
+
+  ![PABC autorisatie-koppelingen 3](images/pabc_autorisatie_koppelingen_3.png)
+
+Het derde type autorisatie-koppeling, `Geen enkel entiteitstype`, is bedoeld voor rollen waar entiteitstypes niet voor van toepassing zijn.
+Dit type wordt ondersteund door ZAC voor medewerkers die personen mogen zoeken in het BRP, ongeacht de gemeente van inschrijving.
+
+  ![PABC autorisatie-koppelingen BRP geen enkel entiteitstype](images/pabc_autorisatie_koppelingen_brp_geen_enkel_entiteitstype.png)
+
+### Migratie van de oude naar de nieuwe IAM-architectuur
+
+Om te migreren van de oude naar de nieuwe IAM-architectuur, moeten de volgende stappen worden doorlopen:
+
+#### Keycloak
+
+- Applicatierollen: deze moeten worden verwijderd. In de nieuwe IAM-architectuur bestaan applicatierollen niet meer in Keycloak.
+- Domein-rollen: deze moeten worden verwijderd. Domein-rollen bestaan niet meer in de nieuwe IAM-architectuur.
+- Functionele rollen (`Realm Roles` in Keycloak): deze moeten worden ingericht. Functionele rollen bestaan niet in de oude IAM-architectuur.
+- Groepen: groepen uit de oude IAM-architectuur kunnen in principe worden gebruikt voor de nieuwe IAM-architectuur. 
+Wel is het zo dat groepen in de nieuwe IAM-architectuur functionele rollen bevatten, terwijl ze in de oude
+IAM-architectuur applicatierollen en domein-rollen bevatten.
+Daarom is het, indien mogelijk, aan te bevelen om te starten met nieuwe groepen voor de nieuwe IAM-architectuur.
+
+#### PABC
+
+Aangezien de PABC niet bestaat in de oude IAM-architectuur moet deze ingericht worden volgens de instructies hierboven
+beschreven.
+
+#### ZAC
+
+De `Domein` referentietabel in ZAC wordt niet meer gebruikt.
+Deze zal in de toekomst worden verwijderd.
+
+De nieuwe IAM-architectuur kent ook geen koppeling meer van de zaakafhandelparameters naar een domein.
+Het `Domein` veld in de zaakafhandelparameters is er daarom ook niet meer in de nieuwe IAM-architectuur.
+
+### Groepen
+
+Groepen van medewerkers worden beheerd in Keycloak. 
+In ZAC worden deze groepen, met behulp van de PABC, vervolgens gebruikt om bijvoorbeeld zaken en taken aan toe te wijzen.
+Dit gebeurt via zogenaamde groep-autorisaties op zaaktypes. Zie eerdere secties in dit document voor specifieke details.
+
+#### Beheer van groepen
+
+Het beheer van groepen, het toekennen van rollen aan groepen en het toekennen van medewerkers aan groepen vindt plaats in Keycloak.
+
+In Keycloak is het ook mogelijk om 'subgroepen' aan te maken, oftewel groepen binnen groepen.
+Dergelijke subgroepen worden niet ondersteund.
+
+> Let op! Als er data (zoals een zaak) aan een groep is gekoppeld dan kan deze groep niet meer hernoemd of verwijderd worden. Dit koppelen gebeurt namelijk op basis van de groepsnaam.
+> Wordt de groepsnaam toch aangepast, dan zal de betreffende data niet meer gekoppeld zijn aan deze groep, en zal de ZGW API blijven uitgaan van de oude, niet meer bestaande, groepsnaam. 
+> Hier wordt geen foutmelding van getoond. 
+
+# Inrichting zaakafhandel parameters (zaaktype)
+
+## Inrichten van een zaaktype
+Om de zaps te benaderen ga je door op het radar icoon te klikken naar de Beheer-instellingen. Open in het menu de ‘Zaakafhandelparameters’. Alle zaaktypen worden opgehaald en het overzicht wordt geopend. Het is mogelijk om in dit overzicht te filteren en sorteren.
+![image](images/207916618-434d6cbc-d8f1-4522-aeec-7556d11b8e27.png)
+
+!Klik op het bolletje links van het zaaktype kolom om snel te filteren op ongeldig, alle en niet geldig. Standaard staat dit op geldig!
+
 Stappen:
-1. In het Beheer-instellingen menu kies je ‘Groepsignalering-instellingen’
-2. Kies de groep uit de keuzelijst die je wilt instellen
-3. Schakel een signalering per e-mail in door deze aan te vinken
-![image](images/208075964-091b65fc-96f5-4351-be74-2aa0eb28b13b.png)
+Klik in het overzicht op het oog icoon van het zaaktype dat je wilt inrichten
+
+Afhankelijk van het soort zaaktype BPMN of CMMN krijg je een aantal stappen die je moet inrichten, deze worden hier behandeld
+
+### CMMN/BPMN
+Bij een volledig nieuw zaaktype kies je hier of het een BPMN- of CMMN-zaaktype afhandelconfiguratie moet krijgen.
+![Zaakafhandelparameters CMMN](images/zaps_cmmn.png)
+Nadat je een keuze hebt gemaakt worden de bijbehorende tabbladen zichtbaar.
+###### CMMN
+![Zaakafhandelparameters CMMN](images/zaps_cmmn_cmmn.png)
+###### BPMN
+![Zaakafhandelparameters BPMN](images/zaps_cmmn_bpmn.png)
+
+
+### Gegevens
+Na de keuze van een BPMN-zaaktype krijg je het "Gegevens" veld met de volgende invulvelden:
+
+- BPMN-procesdefinitie (v) | de keuzes die hier gemaakt kunnen worden zijn definities die zijn gekoppeld specifiek aan deze Zaakafhandel omgeving (zie, hoofdstuk BPMN definities)
+- Groep (v) |  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
+- Behandelaar |  de behandelaar die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de behandelaar waar een nieuwe zaak initieel op gezet wordt
+- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
+![Zaakafhandelparameters gegevens BPMN](images/zaps_gegevens_bpmn.png)
+
+Na de keuze van een CMMN-zaaktype krijg je het volgende "Gegevens" veld met de volgende invulvelden:
+
+- CMMN-model (v)| het zaakafhandelmodel waarmee de zaak wordt afgehandeld
+- Groep (v)|  de groep die standaard bij zaaktoewijzing wordt ingevuld als een gebruiker de zaak aanmaakt. Als de zaak op een andere wijze wordt aangemaakt, bijvoorbeeld via een productaanvraag, dan is dit de groep waar een nieuwe zaak initieel op gezet wordt
+- Behandelaar |  de behandelaar waar een nieuwe zaak na het aanmaken initieel op gezet wordt
+- Streefdatum waarschuwingsvenster | het aantal kalenderdagen voordat de streefdatum van de zaak wordt bereikt dat bepaalt:
+  - wanneer zaken een waarschuwingsindicatie (rode driehoek) krijgen
+  - wanneer de signalering ‘Mijn zaak nadert de streefdatum’ wordt verstuurd
+  - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
+- Fatale datum waarschuwingsvenster | het aantal kalenderdagen voordat de fatale datum van de zaak wordt bereikt dat bepaalt:
+  - wanneer zaken een waarschuwingsindicatie (rode driehoek) krijgen
+  - wanneer de signalering ‘Mijn zaak nadert de fatale datum’ wordt verstuurd
+  - wanneer een zaak in de dashboardkaart ‘Mijn binnenkort verlopende zaken’ verschijnt
+- Productaanvraagtype | het id van de productaanvraag zoals deze in Overige Registraties is ingericht. Deze instelling bepaalt dus voor een in Open Formulieren ingevuld formulier dat in Overige Registraties is geregistreerd van welk zaaktype door de ZAC een zaak aangemaakt moet worden.
+![image](images/zaps_gegevens.png)
+
+### Taakgegevens
+Hier worden alle beschikbare taken van het CMMN-model getoond. Standaard staan alle taken aan, maar het is mogelijk om een taak via het schuifje uit te zetten waardoor deze tijdens de zaakbehandeling niet beschikbaar is.
+![image](images/zaps_taakgegevens.png)
+ 
+Klik op een taak om de instellingen te openen. Iedere taak heeft standaard 3 instellingen:
+- Formulierdefinitie (v) | welk formulier voor het taakbehandelformulier wordt gebruikt
+- Groep | de groep die standaard bij taaktoewijzing wordt ingevuld als een gebruiker de taak start
+- Doorlooptijd | bepaalt de fatale datum van de taak
+In sommige taakbehandelformulieren komen keuzelijsten voor waarvan de opties via een referentietabel aangepast kunnen worden. Welke referentietabel in dat taakbehandelformulier gebruikt wordt is dan te zien bij de instelling ‘Referentietabel voor ...’. Om de opties aan te passen kun je later naar de menukeuze ‘Referentietabellen’ gaan en daar de juiste tabel te kiezen, dit wordt elders in deze handleiding omschreven. Het is ook mogelijk om zelf een referentietabel aan te maken en deze in het taakbehandelformulier te gebruiken. Na het aanmaken van de tabel kan deze in de lijst bij de instelling ‘Referentietabel voor ...’ gekozen worden.
+![image](images/zaps_advies_intern.png)
+
+### Actiegegevens
+Bij de acties waarmee een gebruiker een fase afrondt is het mogelijk om een toelichting te tonen, denk aan een herinnering aan een belangrijke handeling die in die fase moet zijn uitgevoerd. Klik op een fase om de toelichting in het veld in te vullen.
+![image](images/zaps_actiegegevens.png)
+
+### Mailgegevens
+Het volgende tabblad is ‘Mailgegevens’. Tijdens de zaakbehandeling gebruikt de ZAC een aantal e-mails dat verstuurd wordt, voornamelijk aan de klant. Sommige van deze mails worden verplicht verstuurd en anderen zijn optioneel. De beschikbare opties bij alle mails kunnen in 'Mailgegevens' ingesteld worden. 
+- Voor de statusmails kan bepaald worden of deze beschikbaar zijn en wat de standaard geselecteerde keuze is:
+  - Statusmail intake fase (v) | bepaalt of bij het afronden van de fase ‘Intake’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
+  - Statusmail afronden fase (v) | bepaalt of bij het afronden van de fase ‘In behandeling’ de optie voor het versturen van een e-mail beschikbaar is en of deze standaard aangevinkt is
+  
+  ![image](images/zaps_mailgegevens.png)
+
+**Mailafzenders** Bij het verzenden van een mail kan de behandelaar kiezen wat de afzender van de e-mail wordt. De keuzes die de behandelaar te zien krijgt zijn in dit tabblad in te stellen en gelden voor alle mails. Een mail heeft altijd de opties e-mailadres van de gemeente en het e-mailadres van de medewerker (de ingelogde gebruiker). Deze opties kunnen worden aangevuld met meer mailafzenders. Daarnaast kan een van deze opties als standaard ingevulde mailafzender worden ingesteld. Verder kan bij iedere mailafzender een eigen 'Antwoord aan' e-mailadres worden ingesteld, als dit niet wordt ingesteld dan is deze gelijk aan de afzender. Een uitgebreide beschrijving van de mailafzenders is te vinden in de sectie 'Afzenders referentietabel'.
+
+- Stel de lijst van mogelijke mailafzenders op en kies de 'Antwoord aan' bij iedere mailafzender. Selecteer daarna welke mailafzender als default wordt getoond aan de behandelaar.
+
+**Mailtemplates** Iedere e-mail heeft een eigen template dat de standaard inhoud van het bericht en het onderwerp bepaalt. In dit overzicht stel je in welke e-mail welke mailtemplate gebruikt. Iedere e-mail heeft een standaard mailtemplate. Om deze te bekijken of te bewerken kun je later naar de menukeuze ‘Mailtemplates’ gaan. Het is ook mogelijk om zelf een mailtemplate aan te maken en deze in een van de e-mails te gebruiken. Na het aanmaken van de template kan deze in de lijst bij de instelling ‘mailtemplate’ gekozen worden. Open een e-mail door er op te klikken en stel bij iedere e-mail het gewenste template in.
+![image](images/zaps_mailgegevens-2.png)
+**Automatische ontvangsbevestiging** Als een zaak wordt aangemaakt via SmartDocuments waar een mailadres van de aanvrager bij is ingevuld kan hiervoor een automatische ontvangstbevestiging worden verstuurd vanuit ZAC. Op deze plek kan dit aan of uit worden gezet en gekozen worden voor:
+
+- De mailtemplate
+- Het verzendadres
+- Het retouradres
+
+### Zaakbeëindig gegevens
+In dit tabblad kan voor een aantal situaties waarin de zaak wordt beëindigd het resultaat dat de zaak krijgt bepaald worden. De mogelijke resultaten zijn ingesteld bij het zaaktype. Stel voor de volgende situaties het resultaat in:
+- Zaak is niet ontvankelijk (v) | bepaalt het resultaat wanneer een gebruiker bij de actie ‘Intake afronden’ deze optie kiest.
+- Verzoek is bij verkeerde organisatie ingediend | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt. 
+- Verzoek is door initiator ingetrokken | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
+- Zaak is een duplicaat | dit is een van de opties wanneer een gebruiker de [Zaak afbreken] actie gebruikt. Om de optie te activeren vink je deze aan en stel je het resultaat in dat de zaak krijgt wanneer deze optie gekozen wordt.
+    ![image](images/zaps_zaakgegevens_gegevens.png)
+
+### Koppelingen
+
+Hier kunt u Landelijke registratie koppelingen aan of uit zetten en het documenttype selecteren dat door elk SmartDocuments sjabloon moet worden verwerkt.
+
+#### Landelijke registratie koppelingen
+
+- Hiermee kan voor een zaaktype de BRP en/of KvK koppelingen worden uitgezet, met de knoppen:
+  - Basisregistratie personen (persoonsgegevens) koppelen
+  - KvK (bedrijfsgegevens) koppelen
+
+Als in de proxy configuratie "doelbinding per zaaktype" aan staat bij de inrichting van PodiumD, is er aanvullende informatie nodig.
+
+Met de dropdown keuzes Zoekwaarde en Raapleegwaarde is de configuratie van de basisregistratie personen (persoonsgegevens) doelbinding voor dit zaaktype in te stellen. De waarden die hier te kiezen zijn, zijn in te richten bij de Referentie-tabellen:
+
+- BRP_DOELBINDING_RAADPLEEG_WAARDE
+- BRP_DOELBINDING_ZOEK_WAARDE
+- BRP_VERWERKINGSREGISTER_WAARDE
+
+#### SmartDocuments
+
+SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen en elk SmartDocuments-sjabloon moet de plug-in "RedirectURL" ingeschakeld hebben.
+
+- SmartDocuments inschakelen voor het huidige zaaktype aanzetten
+- Sjabloongroep uitvouwen
+- Documenttype selecteren
+
+![image](images/zaps_koppelingen.png)
+
+- Het documenttype deselecteren kan door het vinkje te verwijderen of in de dropdown "Geen documenttype" te selecteren.
+
+Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
+
+# Inrichting in OpenZaak - voor functionaliteiten in ZAC
 
 ## Procestermijnen
 
@@ -507,240 +686,3 @@ In Open Zaak kan bij een resultaattype onderstaande afhandelwijze worden gekozen
 Bij het afhandelen van de zaak wordt de brondatum gezet op de einddatum van de zaak plus de ingestelde procestermijn. In het onderste veld moet de procestermijn worden ingevuld.
 
 ![image](images/open_zaak_bepaling_brondatum_archiefprocedure_termijn.png)
-
-## Identiteits- en toegangsbeheer
-
-Identiteits- en toegangsbeheer (Identity and Access Management, IAM) maakt gebruik van het PABC (Platform Autorisatie Beheer Component) om (zaaktype) autorisaties te beheren.
-
-### IAM-architectuur
-
-Deze sectie beschrijft de werking van de IAM-architectuur in ZAC, vanaf versie 5.0. Voor eerdere versies, raadpleeg de handleiding voor versie 4.6.
-
-De voornaamste kenmerken van de nieuwe IAM-architectuur zijn:
-* Het is toekomstgericht en generiek ontworpen om in de toekomst meerdere 'entiteitstypes' te kunnen gaan autoriseren. 
-Op dit moment worden alleen nog zaaktypes als entiteitstype ondersteund.
-* Het biedt meer flexibiliteit in het beheren van autorisaties, en het is bijvoorbeeld mogelijk om een medewerker 
-verschillende applicatierollen toe te kennen voor verschillende domeinen.
-* Het verlaagt de autorisatiebeheer-last met behulp van hoog-niveau abstracties zoals domeinen en functionele rollen. 
-* Het vereist dat de PABC (Platform Autorisatie Beheer Component) is geïnstalleerd en geconfigureerd in de omgeving.
-
-Om een zaaktype te autoriseren voor ZAC, moeten de volgende stappen doorlopen worden (per component):
-
-#### Keycloak
-
-#### Functionele rollen
-
-Functionele rollen zijn hoog-niveau rollen die gebruikt worden om groepen medewerkers te autoriseren op functie.
-Deze functionele rollen kunnen in de toekomst door meerdere applicaties gebruikt worden,
-zodra ook andere applicaties zijn aangesloten op de nieuwe IAM-architectuur.
-Functionele rollen worden beheerd in Keycloak, en worden in de PABC gebruikt voor autorisatie-koppelingen.
-
-1. Selecteer het realm waarin de `zaakafhandelcomponent` client zich bevindt.
-2. Maak één of meerdere functionele rollen aan op het niveau van het realm (`Realm Roles` in Keycloak). 
-Bijvoorbeeld: 'behandelaar_domein_test_1' en 'raadpleger_domein_test_2'. 
-In werkelijkheid zal dit iets zijn als 'behandelaar_vergunningen' of 'raadpleger_fysieke_leefomgeving'.
-
-  ![Keycloak functionele rollen](images/keycloak_functionele_rollen.png)
-
-##### Groepen
-
-In de nieuwe IAM-architectuur worden de `functionele rollen` toegekend aan groepen.
-De ZAC-applicatierollen bestaan niet meer in Keycloak in de nieuwe IAM-architectuur.
-Het concept 'domein-rollen' bestaat helemaal niet meer in de nieuwe IAM-architectuur.
-
-ZAC maakt gebruik van autorisaties op groep-niveau, bijvoorbeeld bij het toekennen van een zaak aan een groep.
-Daarom is het van belang om rollen altijd toe te kennen aan groepen, en niet direct aan medewerkers.
-
-![Keycloak group](images/keycloak_group.png)
-
-##### Medewerkers
-
-Een medewerker zit in één of meerdere groepen en krijgt de autorisaties die aan deze groep(en) is/zijn toegekend,
-via de functionele rollen die aan de groep(en) zijn toegekend.
-
-  ![Keycloak medewerker die in 1 groep zit](images/keycloak_employee_1.png)
-
-###### Een medewerker in meerdere groepen
-
-Indien een medewerker in meerdere groepen zit waarbij elke groep verschillende autorisaties heeft binnen verschillende domeinen, 
-dan krijgt de medewerker verschillende autorisaties per domein via de groepen.
-
-Bijvoorbeeld, als een medewerker zowel in groep A en in groep B zit, en deze groepen zijn als volgt ingericht:
-- Groep A heeft de functionele rol 'Functionele rol A', en deze functionele rol heeft in de PABC de
-  autorisatie-mapping: 'Applicatie rol X' in 'Domein 1'.
-- Groep B heeft de functionele rol 'Functionele rol B', en deze functionele rol heeft in de PABC de
-  autorisatie-mapping: 'Applicatie rol Y' in 'Domein 2'.
-
-In dit geval krijgt de medewerker de applicatie rol 'Applicatie rol X' voor het domein 'Domein 1',
-en de applicatie rol 'Applicatie rol Y' voor het domein 'Domein 2'.
-
-Indien een medewerker in meerdere groepen zit waarbij elke groep verschillende autorisaties heeft binnen één en hetzelfde domein, 
-dan worden deze autorisaties samengevoegd binnen dat domein.
-
-Bijvoorbeeld, als een medewerker zowel in groep A en in groep B zit, en deze groepen zijn als volgt ingericht:
-- Groep A heeft de functionele rol 'Functionele rol A', en deze functionele rol heeft in de PABC de 
-autorisatie-mapping: 'Applicatie rol X' in 'Domein 1'.
-- Groep B heeft de functionele rol 'Functionele rol B', en deze functionele rol heeft in de PABC de 
-autorisatie-mapping: 'Applicatie rol Y' in 'Domein 1'.
-
-In dit geval krijgt de medewerker beide applicatierollen 'Applicatie rol X' en 'Applicatie rol Y' voor het domein 'Domein 1'.
-
-![Keycloak medewerker die in 2 groepen zit](images/keycloak_employee_2.png)
-
-#### PABC
-
-De PABC wordt gebruikt voor het beheer van zogenaamde 'autorisatie-koppelingen'. 
-ZAC gebruikt deze autorisatie-koppelingen voor het autoriseren groepen en medewerkers.
-
-##### Beheer - beheer van de lijsten
-
-Voordat de autorisatie-koppelingen kunnen worden beheerd, moeten een aantal lijsten in de PABC worden ingericht.
-
-###### Applicatierollen
-
-Applicatierollen zijn laag-niveau applicatie-specifieke rollen.
-Ze worden gedefinieerd door de specifieke applicatie (in dit geval ZAC) en kunnen niet worden aangepast.
-Ze moeten ook geconfigureerd worden in de PABC voor de ZAC-applicatie.
-
-ZAC kent op dit moment de volgende applicatierollen:
-* `raadpleger`
-* `behandelaar`
-* `coordinator`
-* `recordmanager`
-* `beheerder`
-* `brp_zoeken`
-
-De PABC wordt gebruikt om functionele rollen te autoriseren door vanuit functionele rollen koppelingen
-te maken naar combinaties van entiteitstypes (zoals zaaktypen) en applicatierollen.
-
-  ![PABC applicatierollen](images/pabc_applicatierollen.png)
-
-###### Domeinen
-
-Domeinen zijn in de nieuwe IAM-architectuur een nieuw en geheel ander concept dan in de oude IAM-architectuur.
-Domeinen worden uitsluitend in de PABC beheerd en zijn simpelweg verzamelingen van entiteitstypes (zoals zaaktypen of gemeenten).
-
-Autorisaties worden in de PABC beheerd op het niveau van domeinen, waardoor het mogelijk is om eenvoudig een hele verzameling
-van entiteitstypes (zoals zaaktypes of gemeenten) te autoriseren.
-
-  ![PABC domeinen](images/pabc_domeinen.png)
-
-###### Functionele rollen
-
-De functionele rollen waarop geautoriseerd moet worden moeten in de PABC worden ingericht.
-De namen van deze functionele rollen moet overeen komen met die in Keycloak.
-
-  ![PABC functionele rollen](images/pabc_functionele_rollen.png)
-
-###### Applicaties
-
-De ZAC-applicatie moet worden ingericht in de PABC.
-Voor ZAC moet dit zijn: `zaakafhandelcomponent`.
-
-  ![PABC applicaties](images/pabc_applicaties.png)
-
-###### Entiteitstypes
-
-Dit zijn de zaaktypes waarop geautoriseerd moet worden.
-In de toekomst zullen ook andere entiteitstypes worden ondersteund.
-
-  ![PABC entiteitstypes](images/pabc_entiteitstypes.png)
-
-Elk zaaktype heeft de volgende velden:
-- `Entiteitstype`: dit moet `ZAAKTYPE` zijn (in hoofdletters).
-- `Entiteitstype ID`: de waarde van het `Omschrijving` veld van het zaaktype in het zaakregister (zoals Open Zaak)
-- `Entiteitstype naam`: gelijk aan het `Entiteitstype ID` veld. Dit veld wordt niet gebruikt door ZAC, maar is verplicht in de PABC.
-- `Entiteitstype URL`: leeg laten. Dit veld wordt niet gebruikt door ZAC.
-
-  ![PABC entiteitstype velden voor zaaktype](images/pabc_entiteitstype_velden.png)
-
-
-Elke gemeente heeft de volgende velden:
-- `Entiteitstype`: dit moet `GEMEENTE` zijn (in hoofdletters).
-- `Entiteitstype ID`: de viercijferige code van de gemeente zoals deze in het BRP gehanteerd wordt. 
-- `Entiteitstype naam`: De naam van de gemeente. Dit veld wordt getoond in ZAC in de dropdownlijst van gemeenten waaruit gekozen moet worden als een medewerker alleen binnengemeentelijk mag zoeken in het BRP.
-- `Entiteitstype URL`: leeg laten. Dit veld wordt niet gebruikt door ZAC.
-
-  ![PABC entiteitstype velden voor gemeente](images/pabc_entiteitstype_velden_gemeente.png)
-
-##### Dashboard - beheer van de domeinen en autorisatie-koppelingen
-
-###### Domeinen
-
-Een domein is een verzameling van entiteitstypes (zoals zaaktypes of gemeenten), en vormen het 
-abstractieniveau waarop geautoriseerd wordt.
-
-  ![PABC dashboard domeinen](images/pabc_dashboard_domeinen.png)
-
-###### Autorisatie-koppelingen (middels functionele rollen)
-
-Autorisatie-koppelingen zijn de combinaties van applicatie rollen en domeinen die zijn 
-gekoppeld aan een functionele rol.
-Hiermee wordt geregeld welke applicatierol(len) een functionele rol heeft binnen welk domein.
-
-Verreweg de meeste autorisatie-koppelingen zijn van het type `entiteitstype van een specifiek domein`. 
-Hiermee wordt een functionele rol gekoppeld aan applicatierollen voor een specifiek domein.
-
-  ![PABC autorisatie-koppeling voor een specifiek domein](images/pabc_autorisatie_koppeling_1.png)
-
-  ![PABC autorisatie-koppelingen 1](images/pabc_autorisatie_koppelingen_1.png)
-
-  ![PABC autorisatie-koppelingen 2](images/pabc_autorisatie_koppelingen_2.png)
-
-Voor (functioneel) beheerders in ZAC geldt dat ze toegang moeten hebben tot alle entiteitstypes (zoals zaaktypes) in alle domeinen. 
-Dit is bijvoorbeeld nodig voor het inrichten van zaakafhandelparameters waar je moet kunnen kiezen uit alle 
-(in de PABC beschikbaar gemaakte) zaaktypen.
-In dit geval kan er gekozen worden voor het type `Alle entiteitstypes`.
-
-  ![PABC autorisatie-koppeling voor alle entiteitstypes](images/pabc_autorisatie_koppeling_2.png)
-
-  ![PABC autorisatie-koppelingen 3](images/pabc_autorisatie_koppelingen_3.png)
-
-Het derde type autorisatie-koppeling, `Geen enkel entiteitstype`, is bedoeld voor rollen waar entiteitstypes niet voor van toepassing zijn.
-Dit type wordt ondersteund door ZAC voor medewerkers die personen mogen zoeken in het BRP, ongeacht de gemeente van inschrijving.
-
-  ![PABC autorisatie-koppelingen BRP geen enkel entiteitstype](images/pabc_autorisatie_koppelingen_brp_geen_enkel_entiteitstype.png)
-
-### Migratie van de oude naar de nieuwe IAM-architectuur
-
-Om te migreren van de oude naar de nieuwe IAM-architectuur, moeten de volgende stappen worden doorlopen:
-
-#### Keycloak
-
-- Applicatierollen: deze moeten worden verwijderd. In de nieuwe IAM-architectuur bestaan applicatierollen niet meer in Keycloak.
-- Domein-rollen: deze moeten worden verwijderd. Domein-rollen bestaan niet meer in de nieuwe IAM-architectuur.
-- Functionele rollen: deze moeten worden ingericht. Functionele rollen bestaan niet in de oude IAM-architectuur.
-- Groepen: groepen uit de oude IAM-architectuur kunnen in principe worden gebruikt voor de nieuwe IAM-architectuur. 
-Wel is het zo dat groepen in de nieuwe IAM-architectuur functionele rollen bevatten, terwijl ze in de oude
-IAM-architectuur applicatierollen en domein-rollen bevatten.
-Daarom is het, indien mogelijk, aan te bevelen om te starten met nieuwe groepen voor de nieuwe IAM-architectuur.
-
-#### PABC
-
-Aangezien de PABC niet bestaat in de oude IAM-architectuur moet deze ingericht worden volgens de instructies hierboven
-beschreven.
-
-#### ZAC
-
-De `Domein` referentietabel in ZAC wordt niet meer gebruikt.
-Deze zal in de toekomst worden verwijderd.
-
-De nieuwe IAM-architectuur kent ook geen koppeling meer van de zaakafhandelparameters naar een domein.
-Het `Domein` veld in de zaakafhandelparameters is er daarom ook niet meer in de nieuwe IAM-architectuur.
-
-## Groepen
-
-Groepen van medewerkers worden beheerd in Keycloak. 
-In ZAC worden deze groepen, met behulp van de PABC, vervolgens gebruikt om bijvoorbeeld zaken en taken aan toe te wijzen.
-Dit gebeurt via zogenaamde groep-autorisaties op zaaktypes. Zie eerdere secties in dit document voor specifieke details.
-
-### Beheer van groepen
-
-Het beheer van groepen, het toekennen van rollen aan groepen en het toekennen van medewerkers aan groepen vindt plaats in Keycloak.
-
-In Keycloak is het ook mogelijk om 'subgroepen' aan te maken, oftewel groepen binnen groepen.
-Dergelijke subgroepen worden niet ondersteund.
-
-> Let op! Als er data (zoals een zaak) aan een groep is gekoppeld dan kan deze groep niet meer hernoemd of verwijderd worden. Dit koppelen gebeurt namelijk op basis van de groepsnaam.
-> Wordt de groepsnaam toch aangepast, dan zal de betreffende data niet meer gekoppeld zijn aan deze groep, en zal de ZGW API blijven uitgaan van de oude, niet meer bestaande, groepsnaam. 
-> Hier wordt geen foutmelding van getoond. 

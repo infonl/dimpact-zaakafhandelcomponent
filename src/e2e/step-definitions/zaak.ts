@@ -9,9 +9,11 @@ import { PDFParse } from "pdf-parse";
 import { z } from "zod";
 import {
   FIFTEEN_SECONDS_IN_MS,
+  FIVE_SECONDS_IN_MS,
   FORTY_SECONDS_IN_MS,
   ONE_MINUTE_IN_MS,
   TWO_MINUTES_IN_MS,
+  TWO_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { users } from "../support/worlds/users";
 import { CustomWorld } from "../support/worlds/world";
@@ -381,13 +383,36 @@ Then(
 );
 
 Then(
-  "Employee {string} clicks on the first zaak in the zaak-werkvoorraad with delay",
+  "Employee {string} opens the zaak that was created from the open-forms submission",
   { timeout: ONE_MINUTE_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    // Load duration is necessary in order for added documents to load into the zaak
-    await this.page.waitForTimeout(FIFTEEN_SECONDS_IN_MS);
-    await this.page.reload();
-    await this.page.getByText("visibility").first().click();
+    const openFormsReference = this.testStorage.get("open-forms-reference");
+    const zaakLink = this.page
+      .locator("mat-sidenav")
+      .getByRole("link", { name: ZAAK_NUMBER_REGEX });
+
+    // ZAC stores the reference of the open-forms submission in the toelichting of the zaak, which is
+    // searchable, so the zaak can be looked up instead of guessing which zaak it is. The zaak is
+    // registered and indexed for search asynchronously, so search until it shows up. Reloading in
+    // between is needed because ZAC only searches again when the entered keyword changed.
+    await this.expect(async () => {
+      await this.page.reload();
+      const searchField = this.page
+        .getByRole("textbox", { name: "Zoeken" })
+        .first();
+      await searchField.fill(openFormsReference);
+      await searchField.press("Enter");
+
+      await this.expect(zaakLink).toHaveCount(1, {
+        timeout: TWO_SECONDS_IN_MS,
+      });
+    }).toPass({
+      intervals: [FIVE_SECONDS_IN_MS],
+      timeout: FORTY_SECONDS_IN_MS,
+    });
+
+    await zaakLink.click();
+    await this.expect(this.page).toHaveURL(ZAAK_DETAIL_URL_REGEX);
   },
 );
 

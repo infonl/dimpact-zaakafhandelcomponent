@@ -15,6 +15,7 @@ import { MatInputModule } from "@angular/material/input";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../identity/identity.service";
+import { injectServiceMutation } from "../shared/http/inject-service-mutation";
 import { DatumPipe } from "../shared/pipes/datum.pipe";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitieService } from "./notities.service";
@@ -49,6 +50,17 @@ export class NotitiesComponent implements OnInit {
 
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
+  );
+  private readonly deleteNotitieMutation = injectServiceMutation(
+    (id: number) => this.notitieService.deleteNotitie(id),
+    {
+      onSuccess: (_data, id) => {
+        this.notities.splice(
+          this.notities.findIndex((notitie) => notitie.id === id),
+          1,
+        );
+      },
+    },
   );
 
   protected notities: GeneratedType<"RestNote">[] = [];
@@ -134,11 +146,6 @@ export class NotitiesComponent implements OnInit {
   }
 
   protected verwijderNotitie(id: number) {
-    this.notitieService.deleteNotitie(id).subscribe(() => {
-      this.notities.splice(
-        this.notities.findIndex((n) => n.id === id),
-        1,
-      );
-    });
+    this.deleteNotitieMutation.mutate(id);
   }
 }

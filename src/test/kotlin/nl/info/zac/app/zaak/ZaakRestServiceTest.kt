@@ -216,19 +216,19 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("open zaak with a valid brondatumEigenschap") {
+        given("open zaak with a valid brondatum") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val reden = "Fake reden"
             val resultaattypeUuid = UUID.randomUUID()
-            val brondatumEigenschap = "2023-12-01T00:00:00.000+01:00"
-            val restZaakAfsluitenGegevens = RestZaakAfsluitenGegevens(reden, resultaattypeUuid, brondatumEigenschap)
+            val brondatum = "2023-12-01T00:00:00.000+01:00"
+            val restZaakAfsluitenGegevens = RestZaakAfsluitenGegevens(reden, resultaattypeUuid, brondatum)
             val loggedInUser = createLoggedInUser()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(behandelen = true)
             every {
-                zgwApiService.closeZaak(zaak, resultaattypeUuid, reden, ZonedDateTime.parse(brondatumEigenschap).toLocalDate())
+                zgwApiService.closeZaak(zaak, resultaattypeUuid, reden, ZonedDateTime.parse(brondatum).toLocalDate())
             } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -241,14 +241,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                             zaak,
                             resultaattypeUuid,
                             reden,
-                            ZonedDateTime.parse(brondatumEigenschap).toLocalDate()
+                            ZonedDateTime.parse(brondatum).toLocalDate()
                         )
                     }
                 }
             }
         }
 
-        given("open zaak with an invalid brondatumEigenschap") {
+        given("open zaak with an invalid brondatum") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val reden = "Fake reden"

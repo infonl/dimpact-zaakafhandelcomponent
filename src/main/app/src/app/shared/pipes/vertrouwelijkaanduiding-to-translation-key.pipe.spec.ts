@@ -19,9 +19,9 @@ describe("Vertrouwelijkaanduiding-to-translation-pipe", () => {
     ];
     const pipe = new VertrouwelijkaanduidingToTranslationKeyPipe();
 
-    for (const key of pipe.expectedKeys) {
+    for (const key of VertrouwelijkaanduidingToTranslationKeyPipe.expectedKeys) {
       expect(pipe.transform(key)).toBe(
-        `${results[pipe.expectedKeys.indexOf(key)]}`,
+        `${results[VertrouwelijkaanduidingToTranslationKeyPipe.expectedKeys.indexOf(key)]}`,
       );
     }
   });

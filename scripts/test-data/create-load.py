@@ -242,7 +242,7 @@ def _cmmn_body(zaaktype: dict) -> dict:
             "servicenorm": False,
             "uuid": zaaktype["uuid"],
             "versiedatum": "2023-09-21",
-            "vertrouwelijkheidaanduiding": "openbaar",
+            "vertrouwelijkheidaanduiding": "OPENBAAR",
         },
         "intakeMail": "BESCHIKBAAR_UIT",
         "afrondenMail": "BESCHIKBAAR_UIT",

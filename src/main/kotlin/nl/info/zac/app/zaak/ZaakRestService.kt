@@ -189,7 +189,7 @@ class ZaakRestService @Inject constructor(
             zaak = zaak,
             resultaatTypeUUID = afsluitenGegevens.resultaattypeUuid,
             description = afsluitenGegevens.reden,
-            brondatumEigenschap = afsluitenGegevens.brondatumEigenschap?.let(String::toLocalDate)
+            brondatum = afsluitenGegevens.brondatum?.let(String::toLocalDate)
         )
     }
 

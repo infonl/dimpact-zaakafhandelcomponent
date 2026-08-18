@@ -28,12 +28,14 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
+import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { ToggleFilterComponent } from "../../shared/table-zoek-filters/toggle-filter/toggle-filter.component";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { rowOf } from "../../shared/utils/table-row";
 import {
   VersionComponent,
   VersionLayout,
@@ -82,6 +84,7 @@ export class InrichtingscheckComponent
   protected sideNavContainer!: MatSidenavContainer;
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
   protected readonly versionLayout = VersionLayout;
+  protected readonly rowOf = rowOf;
   protected dataSource: MatTableDataSource<
     GeneratedType<"RESTZaaktypeInrichtingscheck">
   > = new MatTableDataSource<GeneratedType<"RESTZaaktypeInrichtingscheck">>();
@@ -100,6 +103,15 @@ export class InrichtingscheckComponent
   private filterValue = "";
   protected bestaatCommunicatiekanaalEformulier = false;
   protected ztcCacheTime = "";
+  private readonly clearZTCCachesMutation = injectServiceMutation(
+    () => this.healtCheckService.clearZTCCaches(),
+    {
+      onSuccess: (value) => {
+        this.ztcCacheTime = value;
+        this.checkZaaktypes();
+      },
+    },
+  );
 
   constructor(
     public utilService: UtilService,
@@ -154,10 +166,7 @@ export class InrichtingscheckComponent
 
   protected clearZTCCache($event: MouseEvent) {
     $event.stopPropagation();
-    this.healtCheckService.clearZTCCaches().subscribe((value) => {
-      this.ztcCacheTime = value;
-      this.checkZaaktypes();
-    });
+    this.clearZTCCachesMutation.mutate();
   }
 
   private checkZaaktypes() {

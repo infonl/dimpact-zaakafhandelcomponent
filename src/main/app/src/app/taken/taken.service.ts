@@ -4,7 +4,9 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { UtilService } from "../core/service/util.service";
 import { PatchBody } from "../shared/http/http-client";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 
@@ -14,6 +16,7 @@ import { ZacQueryClient } from "../shared/http/zac-query-client";
 export class TakenService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly utilService = inject(UtilService);
 
   readTaak(taskId: string) {
     return this.zacHttpClient.GET("/rest/taken/{taskId}", {
@@ -56,11 +59,17 @@ export class TakenService {
   }
 
   updateTaakdata() {
-    return this.zacQueryClient.PUT("/rest/taken/taakdata");
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT("/rest/taken/taakdata"),
+      { onSuccess: () => this.utilService.openSnackbar("msg.taak.opgeslagen") },
+    );
   }
 
   complete() {
-    return this.zacQueryClient.PATCH("/rest/taken/complete");
+    return mergeMutationOptions(
+      this.zacQueryClient.PATCH("/rest/taken/complete"),
+      { onSuccess: () => this.utilService.openSnackbar("msg.taak.afgerond") },
+    );
   }
 
   verdelenVanuitLijst() {

@@ -63,6 +63,7 @@ class HealthCheckRestService @Inject constructor(
         ztcClientService.clearZaaktypeInformatieobjecttypeCache()
         ztcClientService.clearBesluittypeCache()
         ztcClientService.clearRoltypeCache()
+        ztcClientService.clearEigenschapCache()
         ztcClientService.clearCacheTime()
         return ztcClientService.resetCacheTimeToNow()
     }

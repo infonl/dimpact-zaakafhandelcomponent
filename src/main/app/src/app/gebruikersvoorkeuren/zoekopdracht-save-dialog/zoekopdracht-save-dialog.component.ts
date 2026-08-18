@@ -18,10 +18,10 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 

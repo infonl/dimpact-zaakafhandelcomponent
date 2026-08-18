@@ -5,7 +5,9 @@
 
 import { inject, Injectable } from "@angular/core";
 import { lastValueFrom } from "rxjs";
+import { UtilService } from "../core/service/util.service";
 import { PostBody } from "../shared/http/http-client";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -14,9 +16,9 @@ import { GeneratedType } from "../shared/utils/generated-types";
   providedIn: "root",
 })
 export class MailtemplateBeheerService {
+  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
-
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly utilService = inject(UtilService);
 
   readMailtemplateQuery(id: number) {
     return this.zacQueryClient.GET("/rest/beheer/mailtemplates/{id}", {
@@ -33,9 +35,17 @@ export class MailtemplateBeheerService {
   }
 
   deleteMailtemplate(id: number) {
-    return this.zacHttpClient.DELETE("/rest/beheer/mailtemplates/{id}", {
-      path: { id },
-    });
+    return mergeMutationOptions(
+      this.zacQueryClient.DELETE("/rest/beheer/mailtemplates/{id}", {
+        path: { id },
+      }),
+      {
+        onSuccess: () =>
+          this.utilService.openSnackbar(
+            "msg.mailtemplate.verwijderen.uitgevoerd",
+          ),
+      },
+    );
   }
 
   saveMailtemplate(

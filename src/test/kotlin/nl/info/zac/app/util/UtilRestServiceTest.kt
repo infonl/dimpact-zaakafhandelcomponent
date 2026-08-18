@@ -88,6 +88,7 @@ class UtilRestServiceTest : BehaviorSpec({
             } returns "zaaktype-informatieobjecttype-cache cleared"
             every { ztcClientService.clearBesluittypeCache() } returns "besluittype-cache cleared"
             every { ztcClientService.clearRoltypeCache() } returns "roltype-cache cleared"
+            every { ztcClientService.clearEigenschapCache() } returns "eigenschap-cache cleared"
             every { ztcClientService.clearCacheTime() } returns "cachetime cleared"
             every { zaaktypeCmmnConfigurationService.clearListCache() } returns "zaaktype-cmmn-cache cleared"
             every { zaaktypeCmmnConfigurationService.clearManagedCache() } returns "zaaktype-cmmn-managed-cache cleared"
@@ -103,6 +104,7 @@ class UtilRestServiceTest : BehaviorSpec({
                     ztcClientService.clearZaaktypeInformatieobjecttypeCache()
                     ztcClientService.clearBesluittypeCache()
                     ztcClientService.clearRoltypeCache()
+                    ztcClientService.clearEigenschapCache()
                     ztcClientService.clearCacheTime()
                     zaaktypeCmmnConfigurationService.clearListCache()
                     zaaktypeCmmnConfigurationService.clearManagedCache()
@@ -112,7 +114,7 @@ class UtilRestServiceTest : BehaviorSpec({
                 verify(exactly = 0) { sensitiveDataService.clearStorage() }
             }
             And("response should contain the all results") {
-                clearResponse.windowed("cleared".length) { it == "cleared" }.count { it } shouldBe 10
+                clearResponse.windowed("cleared".length) { it == "cleared" }.count { it } shouldBe 11
             }
         }
 

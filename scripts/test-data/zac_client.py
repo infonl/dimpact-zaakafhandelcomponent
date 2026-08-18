@@ -30,12 +30,12 @@ KEYCLOAK_CLIENT_SECRET = os.environ.get(
     "ZAC_TESTDATA_KEYCLOAK_CLIENT_SECRET", "keycloakZaakafhandelcomponentClientSecret"
 )
 
-# beheerder1newiam = BEHEERDER_ELK_ZAAKTYPE
-CONFIG_USER = os.environ.get("ZAC_TESTDATA_USER", "beheerder1newiam")
-CONFIG_PASSWORD = os.environ.get("ZAC_TESTDATA_PASSWORD", "beheerder1newiam")
+# beheerder1 = BEHEERDER_ELK_ZAAKTYPE
+CONFIG_USER = os.environ.get("ZAC_TESTDATA_USER", "beheerder1")
+CONFIG_PASSWORD = os.environ.get("ZAC_TESTDATA_PASSWORD", "beheerder1")
 
 # Use the same beheerder user for zaak creation: they have access to all zaaktypes
-# (behandelaar1newiam is restricted to domein_test_1 only)
+# (behandelaar1 is restricted to domein_test_1 only)
 ZAAK_USER = CONFIG_USER
 ZAAK_PASSWORD = CONFIG_PASSWORD
 

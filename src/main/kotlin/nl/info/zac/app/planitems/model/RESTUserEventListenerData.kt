@@ -28,5 +28,5 @@ data class RESTUserEventListenerData(
      * De einddatum van de procestermijn voor de zaak.
      * Ook wel de 'brondatum' genoemd.
      */
-    var brondatumEigenschap: String? = null
+    var brondatum: String? = null
 )

@@ -4,7 +4,7 @@
 #
 services:
   keycloak-database:
-    image: postgres:17.10@sha256:a426e44bac0b759c95894d68e1a0ac03ecc20b619f498a91aae373bf06d8508d
+    image: postgres:17.11@sha256:e38411452a464af89e5adadb8d223bf53b898d47d6ef918b2d58c08707350449
     ports:
       - "54326:5432"
     healthcheck:
@@ -17,7 +17,7 @@ services:
       - POSTGRES_PASSWORD=keycloak
       - POSTGRES_DB=keycloak
     volumes:
-      - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
+      - zac-keycloak-database-data:/var/lib/postgresql/data
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.6.4@sha256:0aae0de7fca85525f727d3354df17896092de8bb26ae4c12d89c77e5df8cbce4
@@ -94,12 +94,12 @@ services:
       - BAG_API_KEY=${BAG_API_KEY:-please-request-a-bag-api-key}
     volumes:
       - ./scripts/docker-compose/imports/openzaak-database:/docker-entrypoint-initdb.d
-      - ./scripts/docker-compose/volume-data/openzaak-database-data:/var/lib/postgresql/data
+      - openzaak-database-data:/var/lib/postgresql/data
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   openzaak.local:
-    image: openzaak/open-zaak:1.29.2@sha256:7e460df0fc025931476313a32c9d492dc37162fc8fd03e6dadf4981ca53404c6
+    image: openzaak/open-zaak:1.29.3@sha256:7ac22da287ac190a0e1c14849a370c433d3511678dcc8f3897007fd6de6dd4ac
     platform: linux/amd64
     environment: &openzaak-env
       - ALLOWED_HOSTS="*"
@@ -149,7 +149,7 @@ services:
   # Open Zaak Celery worker
   # Used for sending notifications from Open Zaak to Open Notificaties
   openzaak-celery:
-    image: openzaak/open-zaak:1.29.2@sha256:7e460df0fc025931476313a32c9d492dc37162fc8fd03e6dadf4981ca53404c6
+    image: openzaak/open-zaak:1.29.3@sha256:7ac22da287ac190a0e1c14849a370c433d3511678dcc8f3897007fd6de6dd4ac
     platform: linux/amd64
     environment: *openzaak-env
     command: /celery_worker.sh
@@ -201,8 +201,8 @@ services:
       - TWO_FACTOR_PATCH_ADMIN=False
       - CACHE_DEFAULT=redis:6379/0
       - CACHE_AXES=redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - CELERY_BROKER_URL=redis://redis:6379/4
+      - CELERY_RESULT_BACKEND=redis://redis:6379/4
       - EMAIL_HOST=localhost
       - OTEL_SDK_DISABLED=true
       - SITE_DOMAIN=open-object.local:8000
@@ -280,7 +280,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.19.0-static@sha256:2f42ca765bb739b40fc23ee625b3287012acdf8120ad4fcbdab68433a17be144
+    image: openpolicyagent/opa:1.19.1-static@sha256:32bf41d914b1505fea13303f60587cc57bdd2902262177585fb208f5dde76d32
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -305,7 +305,7 @@ services:
       - "5010:5010"
 
   openklant-database:
-    image: postgres:17.10@sha256:a426e44bac0b759c95894d68e1a0ac03ecc20b619f498a91aae373bf06d8508d
+    image: postgres:17.11@sha256:e38411452a464af89e5adadb8d223bf53b898d47d6ef918b2d58c08707350449
     ports:
       - "54325:5432"
     healthcheck:
@@ -319,7 +319,7 @@ services:
       - POSTGRES_DB=openklant
     volumes:
       - ./scripts/docker-compose/imports/openklant-database:/docker-entrypoint-initdb.d
-      - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
+      - openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
     image: maykinmedia/open-klant:2.15.0@sha256:ce59a2c60dab1c14e62fe34a99511839390dd2d482983c27334241e0d60c693d
@@ -383,7 +383,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.19.0@sha256:8523599954435a3659954ad51ee0304d22bd97576f16cdb02e5e39f38ff3962a
+    image: openpolicyagent/opa:1.19.1@sha256:378b7db7218985444b7bc14f0b0f5b05c864b9481fe470e133654a7fc084072c
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -392,7 +392,7 @@ services:
 
   office-converter:
     # When updating this Docker image please also update the Office Converter version accordingly in our Helm Chart (see values.yaml).
-    image: gotenberg/gotenberg:8.35.0@sha256:a16a14e1f18a71405624bc028e90d4ef50ea774c352b303639c10bf7b141f760
+    image: gotenberg/gotenberg:8.36.0@sha256:87c16b9f364279d321bc9772d31fa58aa6abe036423c270698bd636c3a8e9466
     # Disable Chromium routes since we only use LibreOffice for document conversion.
     command:
       - "gotenberg"
@@ -402,7 +402,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.158.0@sha256:c5918f78992ee73b0d6f0e599423ac5ec52dd5d9726733114d6eca53d5a32ed5
+    image: otel/opentelemetry-collector-contrib:0.159.0@sha256:1f2c54a30e713fac6b3ae77a1ec84010c2007e29ced8ec666214fc2f6739c1cc
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -418,7 +418,7 @@ services:
 
   # Observability traces data store
   tempo:
-    image: grafana/tempo:3.0.2@sha256:cda87c212d8c584dc0b89e337e7ed648a5100feb657e5d528480ee4fa03dbbe3
+    image: grafana/tempo:3.0.3@sha256:0296560ac66f8a3600d7fb3014a52c189d4d9c3549ad6ff441bf2409855d68d5
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./scripts/docker-compose/imports/tempo/tempo.yaml:/etc/tempo.yaml
@@ -432,7 +432,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: prom/prometheus:v3.13.2@sha256:508729e0e2d18e11fd742a5a5ca70e557b940a93948c3c95fd0123a6fd538b69
+    image: prom/prometheus:v3.14.0@sha256:5ce7540c3c00ef4ab0c9d2c995c6a5b9c421f44b4a115d97a2c7af3b1c21cbb0
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -445,7 +445,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:13.1.3@sha256:ab5cb380e3ff3172d6c8bd2e7cfd31cce977d2881b260e1f5bc089bf0b759b43
+    image: grafana/grafana:13.2.0@sha256:3fd54ae1214669f8355f065ec9f6445d5279a3d77095ab048ca045685272429b
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -498,18 +498,18 @@ services:
     command: postgres -c max_connections=300 -c log_min_messages=LOG
     volumes:
       - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
-      - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
+      - opennotificaties-database-data:/var/lib/postgresql/data
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties:
-    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
+    image: openzaak/open-notificaties:1.16.2@sha256:2988d538b30db30487ed89873877e1d22e12f80dfa42d80ec1a5c97265c7e4cd
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
       CACHE_DEFAULT: redis:6379/0
       CACHE_AXES: redis:6379/0
-      CELERY_BROKER_URL: redis://redis:6379/1
-      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      CELERY_BROKER_URL: redis://redis:6379/3
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
       CELERY_LOGLEVEL: DEBUG
       DB_HOST: opennotificaties-database
       DB_NAME: opennotificaties
@@ -521,6 +521,7 @@ services:
       DJANGO_SUPERUSER_PASSWORD: admin
       LOG_LEVEL: DEBUG
       LOG_NOTIFICATIONS_IN_DB: true
+      NOTIFICATION_SEC_INTERVAL: 5
       OPENNOTIFICATIES_SUPERUSER_USERNAME: admin
       OPENNOTIFICATIES_SUPERUSER_EMAIL: admin@example.com
       SECRET_KEY: opennotificatiesApiSecretKey
@@ -544,7 +545,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-init:
-    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
+    image: openzaak/open-notificaties:1.16.2@sha256:2988d538b30db30487ed89873877e1d22e12f80dfa42d80ec1a5c97265c7e4cd
     platform: linux/amd64
     environment:
       <<: *opennotificaties-env
@@ -560,7 +561,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-celery:
-    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
+    image: openzaak/open-notificaties:1.16.2@sha256:2988d538b30db30487ed89873877e1d22e12f80dfa42d80ec1a5c97265c7e4cd
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh
@@ -576,7 +577,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-celery-beat:
-    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
+    image: openzaak/open-notificaties:1.16.2@sha256:2988d538b30db30487ed89873877e1d22e12f80dfa42d80ec1a5c97265c7e4cd
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_beat.sh
@@ -602,7 +603,7 @@ services:
       - "54328:5432"
     volumes:
       - ./scripts/docker-compose/imports/openarchiefbeheer-database:/docker-entrypoint-initdb.d
-      - ./scripts/docker-compose/volume-data/openarchiefbeheer-database-data:/var/lib/postgresql/data
+      - openarchiefbeheer-database-data:/var/lib/postgresql/data
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
@@ -701,7 +702,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   pabc-database:
-    image: postgres:17.10@sha256:a426e44bac0b759c95894d68e1a0ac03ecc20b619f498a91aae373bf06d8508d
+    image: postgres:17.11@sha256:e38411452a464af89e5adadb8d223bf53b898d47d6ef918b2d58c08707350449
     ports:
       - "54329:5432"
     environment:
@@ -714,7 +715,7 @@ services:
       timeout: 10s
       retries: 10
     volumes:
-      - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
+      - pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.1.1@sha256:803596bb1f365a1296a4ef450a35fea5022798190b7b7a467a896c42675e280e
@@ -753,7 +754,7 @@ services:
         condition: "service_completed_successfully"
 
   zac-database:
-    image: postgres:17.10@sha256:a426e44bac0b759c95894d68e1a0ac03ecc20b619f498a91aae373bf06d8508d
+    image: postgres:17.11@sha256:e38411452a464af89e5adadb8d223bf53b898d47d6ef918b2d58c08707350449
     ports:
       - "54320:5432"
     healthcheck:
@@ -767,7 +768,7 @@ services:
       POSTGRES_DB: zac
     volumes:
       - ./scripts/docker-compose/imports/zac-database/init-zac-database.sql:/docker-entrypoint-initdb.d/init-zac-database.sql
-      - ./scripts/docker-compose/volume-data/zac-database-data:/var/lib/postgresql/data
+      - zac-database-data:/var/lib/postgresql/data
 
   zac:
     # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
@@ -791,6 +792,7 @@ services:
       - BRP_DOELBINDING_RAADPLEEGMET=${BRP_DOELBINDING_RAADPLEEGMET:-BRPACT-Totaal}
       - BRP_VERWERKING_HEADER=${BRP_VERWERKING_HEADER:-x-verwerking}
       - BRP_VERWERKINGSREGISTER=${BRP_VERWERKINGSREGISTER:-Algemeen}
+      - BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE=${BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE:-true}
       - BRP_GEBRUIKER_HEADER=${BRP_GEBRUIKER_HEADER:-x-gebruiker}
       - BRP_TOEPASSING_HEADER=${BRP_TOEPASSING_HEADER:-x-toepassing}
       - BRP_TOEPASSING=${BRP_TOEPASSING:-ZAC}
@@ -870,7 +872,7 @@ services:
     profiles: ["zac"]
 
   openformulieren-database:
-    image: postgres:17.10@sha256:a426e44bac0b759c95894d68e1a0ac03ecc20b619f498a91aae373bf06d8508d
+    image: postgres:17.11@sha256:e38411452a464af89e5adadb8d223bf53b898d47d6ef918b2d58c08707350449
     ports:
       - "54330:5432"
     healthcheck:
@@ -883,7 +885,7 @@ services:
       - POSTGRES_PASSWORD=openformulieren
       - POSTGRES_DB=openformulieren
     volumes:
-      - ./scripts/docker-compose/volume-data/openformulieren-database-data:/var/lib/postgresql/data
+      - openformulieren-database-data:/var/lib/postgresql/data
     profiles: [ "openformulieren" ]
 
   openformulieren-init:
@@ -1096,3 +1098,11 @@ volumes:
   openformulieren-media:
   openformulieren-private-media:
   openformulieren-log:
+  zac-keycloak-database-data:
+  openzaak-database-data:
+  openklant-database-data:
+  opennotificaties-database-data:
+  openarchiefbeheer-database-data:
+  pabc-database-data:
+  zac-database-data:
+  openformulieren-database-data:

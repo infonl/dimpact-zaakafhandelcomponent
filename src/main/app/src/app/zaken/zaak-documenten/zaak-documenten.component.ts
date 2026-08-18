@@ -314,12 +314,6 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     return FileFormatUtil.isPreviewAvailable(formaat);
   }
 
-  getZaakUuidVanInformatieObject(
-    informatieObject: GekoppeldeZaakEnkelvoudigInformatieobject,
-  ) {
-    return informatieObject.zaakUUID ?? this.zaak().uuid;
-  }
-
   updateSelected(document: GeneratedType<"RestEnkelvoudigInformatieobject">) {
     this.downloadAlsZipSelection.toggle(document);
   }
