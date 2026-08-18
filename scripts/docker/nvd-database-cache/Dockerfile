@@ -23,3 +23,7 @@ COPY build-metadata.txt /nvd-build-metadata.txt
 # 65534 is the conventional "nobody" uid/gid; `docker cp` reads the layer via the
 # daemon regardless of this user, so extraction is unaffected.
 USER 65534:65534
+
+# No container is ever run from this image, so no HEALTHCHECK applies; this
+# satisfies image-hardening policy (DS-0026).
+HEALTHCHECK NONE
