@@ -29,11 +29,7 @@ import { MatSort, MatSortHeader, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  injectMutation,
-  injectQuery,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { lastValueFrom } from "rxjs";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
@@ -45,6 +41,7 @@ import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { detailExpand } from "../../shared/animations/animations";
 import { ExpandableTableData } from "../../shared/dynamic-table/model/expandable-table-data";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";

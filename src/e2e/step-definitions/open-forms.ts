@@ -12,6 +12,8 @@ import { ONE_MINUTE_IN_MS, ONE_SECOND_IN_MS } from "../support/time-constants";
 
 export const profilesSchema = z.enum(["Alice"]);
 
+const OPEN_FORMS_REFERENCE_REGEX = /OF-[A-Z0-9]{6,}/;
+
 Given(
   "Resident {string} fills in the indienen-aansprakelijkheid-behandelen open-forms form",
   { timeout: ONE_MINUTE_IN_MS },
@@ -119,5 +121,22 @@ When(
   ) {
     profilesSchema.parse(profileType);
     await this.page.getByText("Verzenden").click();
+
+    // Open forms shows the reference of the submission on its confirmation page and ZAC stores that
+    // reference in the zaak, so it can be used to look up the zaak of this submission later on.
+    const confirmation = await this.page
+      .getByText(OPEN_FORMS_REFERENCE_REGEX)
+      .first()
+      .innerText();
+
+    const reference = confirmation.match(OPEN_FORMS_REFERENCE_REGEX)?.[0];
+
+    if (!reference) {
+      throw new Error(
+        "No open-forms reference found on the confirmation page of the submitted form",
+      );
+    }
+
+    this.testStorage.set("open-forms-reference", reference);
   },
 );

@@ -32,6 +32,22 @@ const cryptoPolyfill = {
   getRandomValues: jest.fn(),
 } as Crypto;
 
+// jsdom does not implement matchMedia
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: (query: string) =>
+    ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    }) as unknown as MediaQueryList,
+});
+
 Object.defineProperty(globalThis, "crypto", {
   value: cryptoPolyfill,
   writable: false,

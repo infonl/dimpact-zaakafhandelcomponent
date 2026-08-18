@@ -96,7 +96,8 @@ class PolicyService @Inject constructor(
             verlengd = zaak.isVerlengd(),
             besloten = zaaktype.getBesluittypen()?.isNotEmpty() == true,
             intake = statusType?.isIntake(),
-            heropend = statusType?.isHeropend()
+            heropend = statusType?.isHeropend(),
+            brondatumBepaald = zaak.startdatumBewaartermijn != null,
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(
@@ -118,7 +119,9 @@ class PolicyService @Inject constructor(
             // not taken into account when searching for a zaak
             intake = null,
             // not taken into account when searching for a zaak
-            besloten = null
+            besloten = null,
+            // not taken into account when searching for a zaak
+            brondatumBepaald = null
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(

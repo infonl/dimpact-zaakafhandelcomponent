@@ -123,12 +123,46 @@ class PolicyServiceTest : BehaviorSpec({
                         besloten shouldBe false
                         intake shouldBe false
                         heropend shouldBe false
+                        brondatumBepaald shouldBe false
                     }
                     with(zaakInput.user) {
                         id shouldBe loggedInUser.id
                         rollen shouldContainExactly applicationRolesForZaakType
                         zaaktypen shouldBe setOf(zaakType.omschrijving)
                     }
+                }
+            }
+        }
+
+        given("a zaak for which the brondatum has been determined") {
+            val zaaktypeOmschrijving = "fakeZaaktype1"
+            val zaak = createZaak(
+                status = URI("https://example.com/status/${UUID.randomUUID()}")
+            ).apply {
+                startdatumBewaartermijn = LocalDate.now()
+            }
+            val zaakType = createZaakType(
+                omschrijving = zaaktypeOmschrijving
+            )
+            val zaakStatus = createZaakStatus()
+            val statusType = createStatusType()
+            val expectedZaakRechten = createZaakRechten()
+            val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
+            every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
+            every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
+
+            `when`("policy rights are requested") {
+                val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
+
+                then("the returned zaakrechten are correct and brondatumBepaald is true") {
+                    zaakRechten shouldBe expectedZaakRechten
+                    verify(exactly = 1) {
+                        opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
+                    }
+                    ruleQuerySlot.captured.input.zaakData.brondatumBepaald shouldBe true
                 }
             }
         }
@@ -165,6 +199,7 @@ class PolicyServiceTest : BehaviorSpec({
                         besloten shouldBe false
                         intake shouldBe true
                         heropend shouldBe false
+                        brondatumBepaald shouldBe false
                     }
                 }
             }
@@ -202,6 +237,7 @@ class PolicyServiceTest : BehaviorSpec({
                         besloten shouldBe false
                         intake shouldBe false
                         heropend shouldBe true
+                        brondatumBepaald shouldBe false
                     }
                 }
             }
@@ -234,9 +270,10 @@ class PolicyServiceTest : BehaviorSpec({
                         opgeschort shouldBe true
                         verlengd shouldBe true
                         heropend shouldBe true
-                        // We don't set these two
+                        // We don't set these three
                         besloten shouldBe null
                         intake shouldBe null
+                        brondatumBepaald shouldBe null
                     }
                 }
             }

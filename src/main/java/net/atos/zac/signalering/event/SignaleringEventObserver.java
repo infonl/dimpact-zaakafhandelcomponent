@@ -4,9 +4,8 @@
  */
 package net.atos.zac.signalering.event;
 
+import static nl.info.client.zgw.shared.ZgwApiService.ROLTYPE_OMSCHRIJVING_BEHANDELAAR;
 import static nl.info.client.zgw.util.ZgwUriUtilsKt.extractUuid;
-import static nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.MEDEWERKER;
-import static nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum.ORGANISATORISCHE_EENHEID;
 
 import java.net.URI;
 import java.util.Optional;
@@ -210,7 +209,7 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     }
 
     private RolType getRoltypeBehandelaar(final Zaak zaak) {
-        return ztcClientService.readRoltype(zaak.getZaaktype(), OmschrijvingGeneriekEnum.BEHANDELAAR);
+        return ztcClientService.readRoltype(zaak.getZaaktype(), OmschrijvingGeneriekEnum.BEHANDELAAR, ROLTYPE_OMSCHRIJVING_BEHANDELAAR);
     }
 
     private Optional<Rol<?>> getRolBehandelaarMedewerker(final Zaak zaak) {

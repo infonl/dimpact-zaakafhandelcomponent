@@ -23,7 +23,6 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
@@ -32,6 +31,7 @@ import {
 } from "src/app/zoeken/zoeken.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ZacInput } from "../../shared/form/input/input";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
@@ -94,10 +94,10 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
     ]),
   });
 
-  protected readonly linkDocumentMutation = injectMutation(() => ({
-    ...this.informatieObjectService.linkDocumentToCaseMutation(),
-    onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
-  }));
+  protected readonly linkDocumentMutation = injectMutation(
+    () => this.informatieObjectService.linkDocumentToCaseMutation(),
+    { onError: (error) => this.foutAfhandelingService.foutAfhandelen(error) },
+  );
 
   constructor(
     private readonly zoekenService: ZoekenService,

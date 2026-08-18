@@ -32,7 +32,6 @@ import { MaterialModule } from "../../shared/material/material.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
-import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 import { InformatieObjectEditComponent } from "./informatie-object-edit.component";
 
 describe(InformatieObjectEditComponent.name, () => {
@@ -55,7 +54,7 @@ describe(InformatieObjectEditComponent.name, () => {
     uuid: "123",
     titel: "Test Title",
     beschrijving: "Test Description",
-    vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.intern,
+    vertrouwelijkheidaanduiding: "INTERN",
     informatieobjectTypeUUID: "456",
     auteur: "Test Author",
     bestandsnaam: "Test File Name",
@@ -272,7 +271,10 @@ describe(InformatieObjectEditComponent.name, () => {
         taal: mockTalen[0],
         status: { label: "In bewerking", value: "IN_BEWERKING" },
         informatieobjectType: mockInformatieObjectTypes[0],
-        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        vertrouwelijkheidaanduiding: {
+          label: "vertrouwelijkheidaanduiding.INTERN",
+          value: "INTERN",
+        },
         auteur: "Test Author",
         toelichting: "Test Explanation",
       });
@@ -305,7 +307,10 @@ describe(InformatieObjectEditComponent.name, () => {
         titel: "Test Title",
         taal: mockTalen[0],
         informatieobjectType: mockInformatieObjectTypes[0],
-        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        vertrouwelijkheidaanduiding: {
+          label: "vertrouwelijkheidaanduiding.INTERN",
+          value: "INTERN",
+        },
         auteur: "Test Author",
       });
       component["form"].markAsDirty();
@@ -335,7 +340,10 @@ describe(InformatieObjectEditComponent.name, () => {
         taal: mockTalen[0],
         status: { label: "In bewerking", value: "IN_BEWERKING" },
         informatieobjectType: mockInformatieObjectTypes[0],
-        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        vertrouwelijkheidaanduiding: {
+          label: "vertrouwelijkheidaanduiding.INTERN",
+          value: "INTERN",
+        },
         auteur: "Test Author",
       });
       component["form"].markAsDirty();
@@ -360,7 +368,10 @@ describe(InformatieObjectEditComponent.name, () => {
         taal: mockTalen[0],
         status: { label: "In bewerking", value: "IN_BEWERKING" },
         informatieobjectType: mockInformatieObjectTypes[0],
-        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        vertrouwelijkheidaanduiding: {
+          label: "vertrouwelijkheidaanduiding.INTERN",
+          value: "INTERN",
+        },
         auteur: "Test Author",
       });
       component["form"].markAsDirty();
@@ -393,7 +404,10 @@ describe(InformatieObjectEditComponent.name, () => {
         taal: mockTalen[0],
         status: { label: "In bewerking", value: "IN_BEWERKING" },
         informatieobjectType: mockInformatieObjectTypes[0],
-        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        vertrouwelijkheidaanduiding: {
+          label: "vertrouwelijkheidaanduiding.INTERN",
+          value: "INTERN",
+        },
         auteur: "Test Author",
       });
       component["form"].markAsDirty();

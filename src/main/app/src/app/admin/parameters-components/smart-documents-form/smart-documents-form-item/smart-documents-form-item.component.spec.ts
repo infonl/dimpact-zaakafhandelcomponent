@@ -22,12 +22,12 @@ describe(SmartDocumentsFormItemComponent.name, () => {
     fromPartial({
       uuid: "uuid-1",
       omschrijving: "Type A",
-      vertrouwelijkheidaanduiding: "openbaar",
+      vertrouwelijkheidaanduiding: "OPENBAAR",
     }),
     fromPartial({
       uuid: "uuid-2",
       omschrijving: "Type B",
-      vertrouwelijkheidaanduiding: "vertrouwelijk",
+      vertrouwelijkheidaanduiding: "VERTROUWELIJK",
     }),
   ];
 
@@ -99,7 +99,7 @@ describe(SmartDocumentsFormItemComponent.name, () => {
 
     it("should set confidentiality from the matching information object type", () => {
       expect(fixture.componentInstance["confidentiality"].value).toBe(
-        "vertrouwelijkheidaanduiding.openbaar",
+        "vertrouwelijkheidaanduiding.OPENBAAR",
       );
     });
   });

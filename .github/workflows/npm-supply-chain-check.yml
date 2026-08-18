@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install lockfile-lint
-        run: npm install --no-save lockfile-lint@5.0.0
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund lockfile-lint@5.0.1
 
       - name: Validate lockfile integrity (${{ matrix.name }})
         working-directory: ${{ matrix.working-directory }}

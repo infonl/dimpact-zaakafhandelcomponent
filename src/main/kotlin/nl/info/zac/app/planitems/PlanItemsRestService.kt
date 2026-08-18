@@ -54,7 +54,10 @@ import org.flowable.cmmn.api.runtime.PlanItemInstance
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import java.util.logging.Logger
 import kotlin.jvm.optionals.getOrNull
+
+private val LOG = Logger.getLogger(PlanItemsRestService::class.java.name)
 
 /**
  * Provides REST endpoints for CMMN plan items.
@@ -196,7 +199,10 @@ class PlanItemsRestService @Inject constructor(
     fun doUserEventListenerPlanItem(userEventListenerData: RESTUserEventListenerData) {
         val zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid)
         val zaakRechten = policyService.readZaakRechten(zaak, loggedInUserInstance.get())
-        assertPolicy(zaakRechten.startenTaak)
+        when (userEventListenerData.actie) {
+            UserEventListenerActie.BRONDATUM_ZETTEN -> assertPolicy(zaakRechten.brondatumZetten)
+            else -> assertPolicy(zaakRechten.startenTaak)
+        }
         userEventListenerData.restMailGegevens?.run {
             assertPolicy(zaakRechten.versturenEmail)
         }
@@ -204,6 +210,7 @@ class PlanItemsRestService @Inject constructor(
         when (userEventListenerData.actie) {
             UserEventListenerActie.INTAKE_AFRONDEN -> handleIntakeAfronden(zaak, userEventListenerData)
             UserEventListenerActie.ZAAK_AFHANDELEN -> handleZaakAfhandelen(zaak, userEventListenerData)
+            UserEventListenerActie.BRONDATUM_ZETTEN -> handleBrondatumZetten(zaak, userEventListenerData)
         }
 
         userEventListenerData.planItemInstanceId?.let {
@@ -246,11 +253,22 @@ class PlanItemsRestService @Inject constructor(
                 zaak = zaak,
                 resultaatTypeUUID = resultaattypeUUID,
                 description = userEventListenerData.resultaatToelichting,
-                brondatumEigenschap = userEventListenerData.brondatumEigenschap?.let(String::toLocalDate)
+                brondatum = userEventListenerData.brondatum?.let(String::toLocalDate)
             )
         } ?: throw InputValidationFailedException(
             errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
             message = "Resultaattype UUID moet gevuld zijn bij het afhandelen van een zaak."
+        )
+    }
+
+    private fun handleBrondatumZetten(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
+        userEventListenerData.brondatum?.let {
+            val brondatum = it.let(String::toLocalDate)
+            LOG.info { "Set brondatum to $brondatum for ${zaak.identificatie}" }
+            zgwApiService.setBrondatum(zaak, brondatum)
+        } ?: throw InputValidationFailedException(
+            errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
+            message = "Brondatum moet gevuld zijn bij het zetten van de brondatum van een zaak."
         )
     }
 

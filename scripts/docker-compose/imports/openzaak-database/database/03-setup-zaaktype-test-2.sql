@@ -507,7 +507,47 @@ VALUES
 
 
 -- PROPERTIES (eigenschappen)
--- no properties are defined for this zaaktype
+
+-- Boolean-like eigenschap specificatie used by the 'ZAAK_GEAUTORISEERD' eigenschap below.
+INSERT INTO catalogi_eigenschapspecificatie (id, groep, formaat, lengte, kardinaliteit, waardenverzameling)
+VALUES(
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_eigenschapspecificatie) + 1,
+  'Zaakspecifiek autoriseerbaar', -- groep
+  'tekst',                        -- formaat
+  '5',                            -- lengte
+  '2',                            -- kardinaliteit
+  '{true,false}'                  -- waardenverzameling
+);
+
+-- Marks this zaaktype as being 'zaakspecifiek autoriseerbaar' in ZAC.
+INSERT INTO catalogi_eigenschap
+(
+  id,
+  uuid,
+  eigenschapnaam,
+  definitie,
+  toelichting,
+  specificatie_van_eigenschap_id,
+  zaaktype_id,
+  _etag,
+  statustype_id,
+  datum_begin_geldigheid,
+  datum_einde_geldigheid
+)
+VALUES
+(
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_eigenschap) + 1,
+  'd7e1b06a-0e0f-4a5b-9c8e-1f4b6a2d3c51', -- UUID
+  'ZAAK_GEAUTORISEERD', -- eigenschapnaam
+  'Zaakspecifiek geautoriseerd', -- definitie
+  'Bepaalt of een zaak zaakspecifiek geautoriseerd is.', -- toelichting
+  (SELECT MAX(id) FROM catalogi_eigenschapspecificatie), -- specificatie_van_eigenschap_id
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = 'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425'), -- zaaktype_id
+  '_etag', -- _etag
+  NULL,    -- statustype_id
+  NULL,    -- datum_begin_geldigheid
+  NULL     -- datum_einde_geldigheid
+);
 
 -- ROLTYPEN
 -- Note that these rol types must be known to ZAC as defined in the 'AardVanRol' Java enum in the ZAC code base.

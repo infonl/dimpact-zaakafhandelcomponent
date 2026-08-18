@@ -160,6 +160,7 @@ class UtilRestService @Inject constructor(
                 ztcClientService.clearZaaktypeInformatieobjecttypeCache(),
                 ztcClientService.clearBesluittypeCache(),
                 ztcClientService.clearRoltypeCache(),
+                ztcClientService.clearEigenschapCache(),
                 ztcClientService.clearCacheTime()
             )
         )

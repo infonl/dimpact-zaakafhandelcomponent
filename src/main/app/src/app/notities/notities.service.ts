@@ -1,17 +1,19 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { PatchBody, PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
   providedIn: "root",
 })
 export class NotitieService {
-  constructor(private readonly zacHttpClient: ZacHttpClient) {}
+  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
 
   listNotities(uuid: string) {
     return this.zacHttpClient.GET("/rest/notities/zaken/{uuid}", {
@@ -28,7 +30,7 @@ export class NotitieService {
   }
 
   deleteNotitie(id: number) {
-    return this.zacHttpClient.DELETE("/rest/notities/{id}", {
+    return this.zacQueryClient.DELETE("/rest/notities/{id}", {
       path: { id },
     });
   }

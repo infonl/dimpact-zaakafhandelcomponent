@@ -19,7 +19,7 @@ import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -63,8 +63,10 @@ describe(ReferentieTabellenComponent.name, () => {
   let service: ReferentieTabelService;
   let httpTestingController: HttpTestingController;
   let setTitle: jest.SpyInstance;
-  let openSnackbar: jest.SpyInstance;
   let dialogOpen: jest.SpyInstance;
+  let deleteReferentieTabelMutation: ReturnType<
+    typeof createMutationOptions<undefined>
+  >;
 
   // jsdom has no scrollIntoView; stub it per test and restore to avoid leaking.
   const originalScrollIntoView = Element.prototype.scrollIntoView;
@@ -120,14 +122,16 @@ describe(ReferentieTabellenComponent.name, () => {
     }).compileComponents();
 
     service = TestBed.inject(ReferentieTabelService);
+    deleteReferentieTabelMutation = createMutationOptions(undefined);
+    jest
+      .spyOn(service, "deleteReferentieTabel")
+      .mockReturnValue(deleteReferentieTabelMutation as never);
     httpTestingController = TestBed.inject(HttpTestingController);
     const utilService = TestBed.inject(UtilService);
     setTitle = jest
       .spyOn(utilService, "setTitle")
       .mockImplementation(() => undefined);
-    openSnackbar = jest
-      .spyOn(utilService, "openSnackbar")
-      .mockImplementation(() => undefined);
+    jest.spyOn(utilService, "openSnackbar").mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -181,21 +185,19 @@ describe(ReferentieTabellenComponent.name, () => {
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
   });
 
-  it("opens the delete confirmation and shows a snackbar when confirmed", async () => {
+  it("opens the delete confirmation and deletes the table when confirmed", async () => {
     await setup();
     dialogOpen.mockReturnValue(
       fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(true) }),
     );
 
     component["verwijderReferentieTabel"](tabellen[0]);
+    await sleep();
 
     const dialogData = dialogOpen.mock.calls[0][1].data;
     expect(dialogData._melding.key).toBe("msg.tabel.verwijderen-bevestigen");
     expect(dialogData._melding.args).toEqual({ tabel: "TABEL_A" });
-    expect(openSnackbar).toHaveBeenCalledWith(
-      "msg.tabel.verwijderen.uitgevoerd",
-      { tabel: "TABEL_A" },
-    );
+    expect(service.deleteReferentieTabel).toHaveBeenCalledWith(tabellen[0]);
   });
 
   it("loads the full table then opens the rename dialog", async () => {
