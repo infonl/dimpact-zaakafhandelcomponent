@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpErrorResponse } from "@angular/common/http";
 import {
   Component,
   effect,
@@ -23,10 +22,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import {
-  injectMutation,
-  injectQuery,
-} from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import {
   EMPTY,
@@ -40,12 +36,12 @@ import {
 } from "rxjs";
 import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacDate } from "../../shared/form/date/date";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../shared/form/input/input";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import {
   NotificationDialogComponent,
   NotificationDialogData,
@@ -130,11 +126,9 @@ export class InformatieObjectCreateAttendedComponent
     this.identityService.readLoggedInUser(),
   );
 
-  protected readonly createDocumentMutation = injectMutation(() => ({
-    ...this.informatieObjectenService.createDocumentAttendedMutation(),
-    onError: (error: HttpErrorResponse) =>
-      this.foutAfhandelingService.foutAfhandelen(error),
-  }));
+  protected readonly createDocumentMutation = injectMutation(() =>
+    this.informatieObjectenService.createDocumentAttendedMutation(),
+  );
 
   constructor(
     private readonly smartDocumentsService: SmartDocumentsService,
@@ -144,7 +138,6 @@ export class InformatieObjectCreateAttendedComponent
     private readonly translateService: TranslateService,
     private readonly dialog: MatDialog,
     private readonly formBuilder: FormBuilder,
-    private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {
     effect(() => {
       this.form.controls.author.setValue(

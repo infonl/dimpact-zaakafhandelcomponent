@@ -19,10 +19,10 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
 import { ZacInput } from "../../shared/form/input/input";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZakenService } from "../zaken.service";
@@ -56,10 +56,10 @@ export class ZakenVerdelenDialogComponent {
 
   protected readonly data = inject<ZaakZoekObject[]>(MAT_DIALOG_DATA);
 
-  protected readonly mutation = injectMutation(() => ({
-    ...this.zakenService.verdelenVanuitLijst(),
-    onSuccess: () => this.dialogRef.close(this.form.value),
-  }));
+  protected readonly mutation = injectMutation(
+    () => this.zakenService.verdelenVanuitLijst(),
+    { onSuccess: () => this.dialogRef.close(this.form.value) },
+  );
 
   protected readonly form = this.formBuilder.group({
     groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [

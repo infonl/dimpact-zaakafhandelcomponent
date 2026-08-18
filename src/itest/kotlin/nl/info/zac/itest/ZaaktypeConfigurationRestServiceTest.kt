@@ -59,6 +59,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                         "zaaktype.identificatie",
                         ZAAKTYPE_CMMN_TEST_3_IDENTIFICATIE
                     )
+                    shouldContainJsonKeyValue("zaakspecifiekAutoriseerbaar", false)
                 }
             }
         }
@@ -266,6 +267,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                         "vervaldatumBesluitVerplicht" : false
                       },
                       "zaakbeeindigParameters" : [ ],
+                      "zaakspecifiekAutoriseerbaar" : true,
                       "zaaktype" : {
                         "beginGeldigheid" : "2023-10-01",
                         "doel" : "$ZAAKTYPE_CMMN_TEST_2_DESCRIPTION",

@@ -60,6 +60,8 @@ export class ZaakafhandelParametersResolver {
             bpmnZaakafhandelParameters: {
               ...bpmnZaakafhandelParameters,
               zaaktype: zaakafhandelParameters.zaaktype,
+              zaakspecifiekAutoriseerbaar:
+                zaakafhandelParameters.zaakspecifiekAutoriseerbaar,
               zaakbeeindigParameters:
                 zaakafhandelParameters.zaakbeeindigParameters,
               smartDocuments:

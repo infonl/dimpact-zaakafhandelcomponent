@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.admin.model
@@ -41,6 +41,11 @@ data class RestZaaktypeConfiguration(
     @field:Size(min = 1)
     var productaanvraagtype: String? = null,
     var valide: Boolean = false,
+    /**
+     * Indicates that zaken of this zaaktype can be authorised on an individual basis,
+     * which is the case when the zaaktype defines the [ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM] eigenschap.
+     */
+    var zaakspecifiekAutoriseerbaar: Boolean = false,
     /**
      * The frontend currently requires this field to be non-null
      */

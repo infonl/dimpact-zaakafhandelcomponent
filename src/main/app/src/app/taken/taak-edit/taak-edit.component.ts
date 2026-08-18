@@ -13,11 +13,11 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatSidenav } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacSelect } from "../../shared/form/select/select";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../taken.service";
 
@@ -56,12 +56,14 @@ export class TaakEditComponent {
       ? `${group.naam ?? ""} (${this.translateService.instant("inactief").toLowerCase()})`
       : (group.naam ?? "");
 
-  protected readonly mutation = injectMutation(() => ({
-    ...this.takenService.toekennen(),
-    onSuccess: () => {
-      void this.sideNav().close();
+  protected readonly mutation = injectMutation(
+    () => this.takenService.toekennen(),
+    {
+      onSuccess: () => {
+        void this.sideNav().close();
+      },
     },
-  }));
+  );
 
   protected readonly form = this.formBuilder.group({
     groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [

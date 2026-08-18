@@ -9,6 +9,7 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
+import java.util.concurrent.CopyOnWriteArrayList
 
 private val logger = KotlinLogging.logger {}
 
@@ -17,7 +18,8 @@ class WebSocketTestListener(private val textToBeSentOnOpen: String?) : WebSocket
         // as defined by the official websocket specification
         private const val NORMAL_CLOSURE_STATUS = 1000
     }
-    var messagesReceived = mutableListOf<String>()
+    // the websocket reader thread appends while the test thread iterates
+    val messagesReceived: MutableList<String> = CopyOnWriteArrayList()
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
         textToBeSentOnOpen?.let {
