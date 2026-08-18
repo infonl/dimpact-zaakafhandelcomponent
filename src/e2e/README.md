@@ -118,7 +118,7 @@ export const ENV = envSchema.parse({
 ### Setting up the BPMN E2E Test
 
 Running the BPMN E2E test requires the currently running ZAC instance to be configured with the BPMN case type and process definition.
-The [`process definition`](./bpmn/E2ETestProcessDefinition.bpmn) can be found in the [`e2e/bpmn`](./bpmn) folder along with the required forms. These are needed for the process to be selectable for a case type.
+The [`process definition`](./testdata/E2ETestProcessDefinition.bpmn) can be found in the [`e2e/testdata`](./testdata) folder along with the required forms. These are needed for the process to be selectable for a case type.
 
 ## Using `ENV` Parameters in Tests
 

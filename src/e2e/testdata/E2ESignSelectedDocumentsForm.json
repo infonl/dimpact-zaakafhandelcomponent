@@ -1,8 +1,8 @@
 {
   "type": "form",
-  "name": "signSelectedDocumentsForm",
-  "path": "signSelectedDocumentsForm",
-  "title": "Sign Selected Documents Form",
+  "name": "e2eSignSelectedDocumentsForm",
+  "path": "e2eSignSelectedDocumentsForm",
+  "title": "E2E Sign Selected Documents Form",
   "pdfComponents": [],
   "display": "form",
   "tags": [],

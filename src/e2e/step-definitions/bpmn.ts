@@ -5,6 +5,7 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect, type Locator, type Page } from "@playwright/test";
+import path from "path";
 import { z } from "zod";
 import {
   FORTY_SECONDS_IN_MS,
@@ -13,6 +14,15 @@ import {
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
+
+const E2E_PROCESS_DEFINITION_NAME = "E2E Test BPMN Process Definition";
+const E2E_PROCESS_DEFINITION_BPMN_FILE = "E2ETestProcessDefinition.bpmn";
+const E2E_PROCESS_DEFINITION_FORM_FILES = [
+    "E2EStartForm.json",
+    "E2ESelectDocumentsForm.json",
+    "E2ESignSelectedDocumentsForm.json",
+    "E2ESummaryForm.json",
+];
 
 function formioForm(page: Page) {
   return page.locator("zac-formio-wrapper");
@@ -296,20 +306,18 @@ Then(
     groupName: string,
     userName: string,
   ) {
-    const taskCell = this.page.getByRole("cell", {
-      name: "Summary",
+    const summaryRow = this.page.getByRole("row").filter({
+      has: this.page.getByRole("cell", { name: "Summary", exact: true }),
     });
-    await expect(taskCell).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+    await expect(summaryRow).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await expect(
-      this.page.getByRole("cell", { name: "Toegekend" }),
+      summaryRow.getByRole("cell", { name: "Toegekend" }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await expect(
-      this.page.getByRole("cell", { name: groupName }).nth(1),
-    ).toBeVisible({
-      timeout: FORTY_SECONDS_IN_MS,
-    });
+      summaryRow.getByRole("cell", { name: groupName }),
+    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await expect(
-      this.page.getByRole("cell", { name: userName, exact: true }).nth(1),
+      summaryRow.getByRole("cell", { name: userName, exact: true }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
@@ -541,6 +549,62 @@ Then(
     await expect(
       documentRow.locator("mat-chip-option").filter({
         has: this.page.locator("mat-icon", { hasText: "fact_check" }),
+      }),
+    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+  },
+);
+
+
+function processDefinitionGroupRow(page: Page, name: string) {
+  return page.locator("mat-nested-tree-node.group").filter({ hasText: name });
+}
+
+When(
+  "{string} uploads the E2E test processdefinition",
+  { timeout: FORTY_SECONDS_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    const fileChooserPromise = this.page.waitForEvent("filechooser");
+    await this.page.getByText("BPMN-procesdefinitie toevoegen").click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(
+      path.join(__dirname, "../testdata", E2E_PROCESS_DEFINITION_BPMN_FILE),
+    );
+    await expect(
+      processDefinitionGroupRow(this.page, E2E_PROCESS_DEFINITION_NAME),
+    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+  },
+);
+
+When(
+  "{string} uploads all of the forms of the E2E test processdefinition",
+  { timeout: FORTY_SECONDS_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    const processDefinitionGroup = processDefinitionGroupRow(
+      this.page,
+      E2E_PROCESS_DEFINITION_NAME,
+    );
+    const fileChooserPromise = this.page.waitForEvent("filechooser");
+    await processDefinitionGroup.getByText("Formulieren uploaden").click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(
+      E2E_PROCESS_DEFINITION_FORM_FILES.map((filename) =>
+        path.join(__dirname, "../testdata", filename),
+      ),
+    );
+  },
+);
+
+Then(
+  "{string} sees that the processdefinition is correctly setup",
+  { timeout: FORTY_SECONDS_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    const processDefinitionRowHeader = processDefinitionGroupRow(
+      this.page,
+      E2E_PROCESS_DEFINITION_NAME,
+    ).locator(".tree-group-row");
+    await expect(
+      processDefinitionRowHeader.locator("mat-icon.cursor-default", {
+        hasText: "check_circle",
       }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },

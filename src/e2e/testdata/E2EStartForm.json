@@ -1,7 +1,7 @@
 {
   "display": "form",
-  "name": "startForm",
-  "title": "Start Form",
+  "name": "e2eStartForm",
+  "title": "E2E Start Form",
   "settings": {},
   "components": [
     {
@@ -202,7 +202,7 @@
     },
     {
       "type": "button",
-      "label": "Opslaan",
+      "label": "Indienen",
       "key": "submit",
       "disableOnInvalid": true,
       "input": true,

@@ -1,7 +1,7 @@
 {
   "display": "form",
-  "name": "selectDocumentsForm",
-  "title": "Select Documents Form",
+  "name": "e2eSelectDocumentsForm",
+  "title": "E2E Select Documents Form",
   "components": [
     {
       "label": "Documenten",
