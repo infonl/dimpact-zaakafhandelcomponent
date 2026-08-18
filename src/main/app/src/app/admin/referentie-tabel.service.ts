@@ -5,11 +5,9 @@
 
 import { inject, Injectable } from "@angular/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { lastValueFrom } from "rxjs";
-import { tap } from "rxjs/operators";
 import { UtilService } from "../core/service/util.service";
-import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
+import { PutBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -65,13 +63,102 @@ export class ReferentieTabelService {
     });
   }
 
-  updateReferentieTabel(
-    id: number,
-    body: PutBody<"/rest/referentietabellen/{id}">,
+  /**
+   * Every edit of a reference table is the same `PUT` of the whole table, so the
+   * four intents below each derive their own body and name their own outcome.
+   * They return a `mutationOptions`/`body` pair: the body is the whole table as
+   * it should become, and the message that names the outcome is read back off
+   * that body, so what the snackbar reports is what was actually sent.
+   */
+  private updateReferentieTabel(
+    referenceTable: GeneratedType<"RestReferenceTable">,
+    message: (body: PutBody<"/rest/referentietabellen/{id}">) => {
+      key: string;
+      args: Record<string, unknown>;
+    },
   ) {
-    return this.zacHttpClient.PUT("/rest/referentietabellen/{id}", body, {
-      path: { id },
-    });
+    const id = referenceTable.id ?? -1;
+
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT("/rest/referentietabellen/{id}", {
+        path: { id },
+      }),
+      {
+        onSuccess: (_data, body) => {
+          void this.invalidateReferentieTabel(id);
+          const { key, args } = message(body);
+          this.utilService.openSnackbar(key, args);
+        },
+      },
+    );
+  }
+
+  renameReferentieTabel(referenceTable: GeneratedType<"RestReferenceTable">) {
+    return {
+      mutationOptions: this.updateReferentieTabel(referenceTable, () => ({
+        key: "msg.referentietabel.gewijzigd",
+        args: { tabel: referenceTable.code },
+      })),
+      body: (name: string) => ({
+        code: referenceTable.code,
+        name,
+        values: referenceTable.values ?? [],
+      }),
+    };
+  }
+
+  addReferentieTabelValue(referenceTable: GeneratedType<"RestReferenceTable">) {
+    return {
+      mutationOptions: this.updateReferentieTabel(referenceTable, (body) => ({
+        key: "msg.referentietabel.waarde-toegevoegd",
+        args: { value: body.values?.at(-1)?.name },
+      })),
+      body: (name: string) => ({
+        code: referenceTable.code,
+        name: referenceTable.name,
+        values: [...(referenceTable.values ?? []), { name }],
+      }),
+    };
+  }
+
+  updateReferentieTabelValue(
+    referenceTable: GeneratedType<"RestReferenceTable">,
+    value: GeneratedType<"RestReferenceTableValue">,
+  ) {
+    return {
+      mutationOptions: this.updateReferentieTabel(referenceTable, (body) => ({
+        key: "msg.referentietabel.waarde-gewijzigd",
+        args: {
+          value: body.values?.find((current) => current.id === value.id)?.name,
+        },
+      })),
+      body: (name: string) => ({
+        code: referenceTable.code,
+        name: referenceTable.name,
+        values: (referenceTable.values ?? []).map((current) =>
+          current.id === value.id ? { ...current, name } : current,
+        ),
+      }),
+    };
+  }
+
+  deleteReferentieTabelValue(
+    referenceTable: GeneratedType<"RestReferenceTable">,
+    value: GeneratedType<"RestReferenceTableValue">,
+  ) {
+    return {
+      mutationOptions: this.updateReferentieTabel(referenceTable, () => ({
+        key: "msg.referentietabel.waarde-verwijderd",
+        args: { value: value.name },
+      })),
+      body: {
+        code: referenceTable.code,
+        name: referenceTable.name,
+        values: (referenceTable.values ?? []).filter(
+          (current) => current.id !== value.id,
+        ),
+      },
+    };
   }
 
   deleteReferentieTabel() {
@@ -91,23 +178,6 @@ export class ReferentieTabelService {
         },
       },
     );
-  }
-
-  // Cold observable (fires on subscribe), so it's safe to pass to ConfirmDialogData.
-  updateReferentieTabelWithRefresh(
-    id: number,
-    body: PutBody<"/rest/referentietabellen/{id}">,
-  ) {
-    return this.updateReferentieTabel(id, body).pipe(
-      tap(() => void this.invalidateReferentieTabel(id)),
-    );
-  }
-
-  updateReferentieTabelAsync(
-    id: number,
-    body: PutBody<"/rest/referentietabellen/{id}">,
-  ) {
-    return lastValueFrom(this.updateReferentieTabelWithRefresh(id, body));
   }
 
   listAfzenders() {
