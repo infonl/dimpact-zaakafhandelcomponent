@@ -21,7 +21,6 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer, MatSidenavModule } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import {
   defaultIfEmpty,
@@ -32,15 +31,15 @@ import {
   of,
 } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
-import { UtilService } from "src/app/core/service/util.service";
-import { Vertrouwelijkheidaanduiding } from "src/app/informatie-objecten/model/vertrouwelijkheidaanduiding.enum";
 import { ZacDate } from "src/app/shared/form/date/date";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
 import { ZacTextarea } from "src/app/shared/form/textarea/textarea";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -65,7 +64,6 @@ import { ZakenService } from "../zaken.service";
 export class CaseDetailsEditComponent implements OnInit {
   private readonly zakenService = inject(ZakenService);
   private readonly referentieTabelService = inject(ReferentieTabelService);
-  private readonly utilService = inject(UtilService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly identityService = inject(IdentityService);
   private readonly translateService = inject(TranslateService);
@@ -84,10 +82,8 @@ export class CaseDetailsEditComponent implements OnInit {
       : (group.naam ?? "");
   protected readonly users = signal<GeneratedType<"RestUser">[]>([]);
   protected readonly communicationChannels = signal<string[]>([]);
-  protected confidentialityDesignations = this.utilService.getEnumAsSelectList(
-    "vertrouwelijkheidaanduiding",
-    Vertrouwelijkheidaanduiding,
-  );
+  protected confidentialityDesignations =
+    VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
 
   protected readonly form = this.formBuilder.group({
     groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
@@ -121,20 +117,22 @@ export class CaseDetailsEditComponent implements OnInit {
     ]),
   });
 
-  protected readonly updateZaakMutation = injectMutation(() => ({
-    ...this.zakenService.updateMutation(),
-    onSuccess: () => {
-      void this.sideNav().close();
+  protected readonly updateZaakMutation = injectMutation(
+    () => this.zakenService.updateMutation(),
+    {
+      onSuccess: () => {
+        void this.sideNav().close();
+      },
+      onError: (error) => {
+        console.error(
+          this.translateService.instant(
+            "console.error.case-details-change.editing",
+          ),
+          error,
+        );
+      },
     },
-    onError: (error) => {
-      console.error(
-        this.translateService.instant(
-          "console.error.case-details-change.editing",
-        ),
-        error,
-      );
-    },
-  }));
+  );
 
   protected readonly patchBehandelaarMutation = injectMutation(() => ({
     mutationFn: () => {
@@ -176,9 +174,7 @@ export class CaseDetailsEditComponent implements OnInit {
   ngOnInit() {
     const zaak = this.zaak();
     const dateChangesAllowed = Boolean(
-      !zaak.isProcesGestuurd &&
-        zaak.rechten.wijzigen &&
-        zaak.rechten.wijzigenDoorlooptijd,
+      zaak.rechten.wijzigen && zaak.rechten.wijzigenDoorlooptijd,
     );
 
     this.groups = this.identityService
@@ -235,8 +231,7 @@ export class CaseDetailsEditComponent implements OnInit {
         : null,
       vertrouwelijkheidaanduiding:
         this.confidentialityDesignations.find(
-          ({ value }) =>
-            value === zaak.vertrouwelijkheidaanduiding?.toLowerCase(),
+          ({ value }) => value === zaak.vertrouwelijkheidaanduiding,
         ) ?? null,
     });
 

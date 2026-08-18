@@ -5,7 +5,7 @@
 package nl.info.zac.app.admin.model
 
 import net.atos.zac.app.admin.model.RestZaakbeeindigReden
-import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.app.zaak.model.RestResultaattype
 import java.time.LocalDate
 import java.util.UUID
@@ -62,7 +62,7 @@ fun createRestReferenceTableValue(
 )
 
 @Suppress("LongParameterList")
-fun createRestZaakafhandelParameters(
+fun createRestZaaktypeConfiguration(
     id: Long? = 1234L,
     restZaaktypeOverzicht: RestZaaktypeOverzicht = createRestZaaktypeOverzicht(),
     productaanvraagtype: String? = null,
@@ -70,7 +70,7 @@ fun createRestZaakafhandelParameters(
     defaultBehandelaarId: String? = null,
     restBetrokkeneKoppelingen: RestBetrokkeneKoppelingen = RestBetrokkeneKoppelingen(),
     restBrpDoelbindingen: RestBrpDoelbindingen = RestBrpDoelbindingen()
-) = RestZaakafhandelParameters(
+) = RestZaaktypeConfiguration(
     id = id,
     zaaktype = restZaaktypeOverzicht,
     productaanvraagtype = productaanvraagtype,
@@ -122,7 +122,7 @@ fun createRestZaaktypeOverzicht(
     versiedatum: LocalDate = LocalDate.now(),
     beginGeldigheid: LocalDate = LocalDate.now(),
     eindeGeldigheid: LocalDate = LocalDate.now().plusDays(1),
-    vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR,
+    vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR,
     nuGeldig: Boolean = true
 ) = RestZaaktypeOverzicht(
     uuid = uuid,

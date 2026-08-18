@@ -20,10 +20,10 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimteRequest
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPandRequest
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -216,19 +216,19 @@ class ZaakRestServiceTest : BehaviorSpec({
             }
         }
 
-        given("open zaak with a valid brondatumEigenschap") {
+        given("open zaak with a valid brondatum") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val reden = "Fake reden"
             val resultaattypeUuid = UUID.randomUUID()
-            val brondatumEigenschap = "2023-12-01T00:00:00.000+01:00"
-            val restZaakAfsluitenGegevens = RestZaakAfsluitenGegevens(reden, resultaattypeUuid, brondatumEigenschap)
+            val brondatum = "2023-12-01T00:00:00.000+01:00"
+            val restZaakAfsluitenGegevens = RestZaakAfsluitenGegevens(reden, resultaattypeUuid, brondatum)
             val loggedInUser = createLoggedInUser()
 
             every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(behandelen = true)
             every {
-                zgwApiService.closeZaak(zaak, resultaattypeUuid, reden, ZonedDateTime.parse(brondatumEigenschap).toLocalDate())
+                zgwApiService.closeZaak(zaak, resultaattypeUuid, reden, ZonedDateTime.parse(brondatum).toLocalDate())
             } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
@@ -241,14 +241,14 @@ class ZaakRestServiceTest : BehaviorSpec({
                             zaak,
                             resultaattypeUuid,
                             reden,
-                            ZonedDateTime.parse(brondatumEigenschap).toLocalDate()
+                            ZonedDateTime.parse(brondatum).toLocalDate()
                         )
                     }
                 }
             }
         }
 
-        given("open zaak with an invalid brondatumEigenschap") {
+        given("open zaak with an invalid brondatum") {
             val zaakType = createZaakType(omschrijving = ZAAK_TYPE_1_OMSCHRIJVING)
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val reden = "Fake reden"
@@ -352,8 +352,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                         any()
                     )
                 } just runs
-                every { zrcClientService.createZaakobject(any<ZaakobjectPand>()) } returns zaakObjectPand
-                every { zrcClientService.createZaakobject(any<ZaakobjectOpenbareRuimte>()) } returns zaakObjectOpenbareRuimte
+                every { zrcClientService.createZaakobject(any<ZaakobjectPandRequest>()) } returns zaakObjectPand
+                every { zrcClientService.createZaakobject(any<ZaakobjectOpenbareRuimteRequest>()) } returns zaakObjectOpenbareRuimte
                 every { zaakService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
                 every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
                 every { zaakService.readZaakTypeByUUID(zaakTypeUUID) } returns zaakType
@@ -501,8 +501,8 @@ class ZaakRestServiceTest : BehaviorSpec({
                         any()
                     )
                 } just runs
-                every { zrcClientService.createZaakobject(any<ZaakobjectPand>()) } returns zaakObjectPand
-                every { zrcClientService.createZaakobject(any<ZaakobjectOpenbareRuimte>()) } returns zaakObjectOpenbareRuimte
+                every { zrcClientService.createZaakobject(any<ZaakobjectPandRequest>()) } returns zaakObjectPand
+                every { zrcClientService.createZaakobject(any<ZaakobjectOpenbareRuimteRequest>()) } returns zaakObjectOpenbareRuimte
                 every { zaakService.bepaalRolGroep(group, zaak) } returns rolOrganisatorischeEenheid
                 every { zaakService.bepaalRolMedewerker(user, zaak) } returns rolMedewerker
                 every { zaakService.readZaakTypeByUUID(zaakTypeUUID) } returns zaakType
@@ -729,7 +729,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns listOf(zaakinformatiebject)
             every { zrcClientService.listZaakinformatieobjecten(enkelvoudiginformatieobject) } returns emptyList()
             every {
-                zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid, "veryFakeReason", "Ontkoppeld")
+                zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid!!, "veryFakeReason", "Ontkoppeld")
             } just Runs
             every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
             every {
@@ -747,7 +747,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 ) {
                     verify(exactly = 1) {
                         zrcClientService.deleteZaakInformatieobject(
-                            zaakinformatiebject.uuid,
+                            zaakinformatiebject.uuid!!,
                             "veryFakeReason",
                             "Ontkoppeld"
                         )
@@ -782,7 +782,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns listOf(zaakinformatiebject)
             every { zrcClientService.listZaakinformatieobjecten(enkelvoudiginformatieobject) } returns listOf(zaakInformatieobject2)
             every {
-                zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid, "veryFakeReason", "Ontkoppeld")
+                zrcClientService.deleteZaakInformatieobject(zaakinformatiebject.uuid!!, "veryFakeReason", "Ontkoppeld")
             } just Runs
 
             `when`("a request is done to unlink the zaakinformatieobject from the zaak") {
@@ -793,7 +793,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 ) {
                     verify(exactly = 1) {
                         zrcClientService.deleteZaakInformatieobject(
-                            zaakinformatiebject.uuid,
+                            zaakinformatiebject.uuid!!,
                             "veryFakeReason",
                             "Ontkoppeld"
                         )

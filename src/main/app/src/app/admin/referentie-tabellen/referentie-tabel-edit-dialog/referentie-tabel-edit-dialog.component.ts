@@ -20,10 +20,10 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../core/service/util.service";
 import { ZacFormActions } from "../../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../../shared/form/input/input";
+import { injectMutation } from "../../../shared/http/inject-mutation";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ReferentieTabelService } from "../../referentie-tabel.service";
 

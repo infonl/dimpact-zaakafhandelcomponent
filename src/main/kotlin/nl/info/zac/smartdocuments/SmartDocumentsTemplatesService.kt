@@ -149,22 +149,22 @@ class SmartDocumentsTemplatesService @Inject constructor(
     /**
      * Lists all template groups for a zaaktypeConfiguration
      *
-     * @param zaaktypeUUID UUID of a zaaktype
+     * @param zaaktypeUuid UUID of a zaaktype
      * @return a set of all RESTSmartDocumentsTemplateGroup for the zaaktypeConfiguration
      */
     fun getTemplatesMapping(
-        zaaktypeUUID: UUID
+        zaaktypeUuid: UUID
     ): Set<RestMappedSmartDocumentsTemplateGroup> =
         if (!smartDocumentsService.isEnabled()) {
             LOG.fine { "Smart documents is disabled. Returning empty set of template groups" }
             emptySet()
-        } else if (zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID) == null) {
+        } else if (zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUuid) == null) {
             // A zaaktype configuration is only persisted after first save — return empty set rather than querying with a null id
-            LOG.fine { "No zaaktype configuration found for zaaktype UUID $zaaktypeUUID. Returning empty set of template groups" }
+            LOG.fine { "No zaaktype configuration found for zaaktype UUID '$zaaktypeUuid'. Returning empty set of template groups" }
             emptySet()
         } else {
-            LOG.fine { "Fetching template mapping for zaaktype UUID $zaaktypeUUID" }
-            fetchTemplatesMapping(zaaktypeUUID)
+            LOG.fine { "Fetching template mapping for zaaktype UUID $zaaktypeUuid" }
+            fetchTemplatesMapping(zaaktypeUuid)
         }
 
     private fun fetchTemplatesMapping(zaaktypeUUID: UUID): Set<RestMappedSmartDocumentsTemplateGroup> =

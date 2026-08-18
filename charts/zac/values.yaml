@@ -119,6 +119,10 @@ brpApi:
       header: ""
     verwerking:
       register: ""
+       # -- Set true to ensure the verwerking register value will be extended with the zaaktype context for this BRP request, i.e. <verwerking register>@<zaaktype>.
+       # -- If set to false the verwerking register value will be used on its own, i.e. <verwerking register>.
+       # -- Note that for iConnect it is required to extend the verwerking register with the zaaktype.
+      extendWithZaaktype: ""
        # -- Header name for the verwerking value. Set to empty string to disable this header.
       header: ""
     toepassing:
@@ -376,7 +380,7 @@ opa:
     annotations: {}
   image:
     repository: openpolicyagent/opa
-    tag: "1.19.0-static@sha256:2f42ca765bb739b40fc23ee625b3287012acdf8120ad4fcbdab68433a17be144"
+    tag: "1.19.1-static@sha256:32bf41d914b1505fea13303f60587cc57bdd2902262177585fb208f5dde76d32"
     pullPolicy: IfNotPresent
    # The settings below will be ignored when running as a sidecar (the zac values will be used instead), except for 'resources' and 'securityContext' which are always applied
   autoscaling:
@@ -612,7 +616,7 @@ office_converter:
    # url: ""
   image:
     repository: gotenberg/gotenberg
-    tag: "8.34.0@sha256:67097317623a503ba2a6a7e9ae8db6929a1f7e1bbd88077bacf2d325fbdab923"
+    tag: "8.36.0@sha256:87c16b9f364279d321bc9772d31fa58aa6abe036423c270698bd636c3a8e9466"
     pullPolicy: IfNotPresent
   name: "office-converter"
   replicas: 1
@@ -664,7 +668,7 @@ opentelemetry-collector:
   image:
     repository: otel/opentelemetry-collector-contrib
     pullPolicy: IfNotPresent
-    tag: "0.158.0@sha256:c5918f78992ee73b0d6f0e599423ac5ec52dd5d9726733114d6eca53d5a32ed5"
+    tag: "0.159.0@sha256:1f2c54a30e713fac6b3ae77a1ec84010c2007e29ced8ec666214fc2f6739c1cc"
   presets:
     clusterMetrics:
       enabled: false

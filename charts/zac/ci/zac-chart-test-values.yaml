@@ -51,6 +51,26 @@ brpApi:
   apiKey:
     header: "x-api-key"
     value: "brp-api-key"
+  protocollering:
+    enabled: true
+    doelbinding:
+      perZaaktype: false
+      zoekmet: "BRPACT-ZoekenAlgemeen"
+      raadpleegmet: "BRPACT-Totaal"
+      header: "x-doelbinding"
+    originOin:
+      oin: "123443210"
+      header: "x-origin-oin"
+    verwerking:
+      register: "Algemeen"
+      extendWithZaaktype: true
+      header: "x-verwerking"
+    toepassing:
+      value: "ZAC"
+      header: "x-toepassing"
+    gebruiker:
+      header: "x-gebruiker"
+    systemUser: "SystemUser"
 
 kvkApi:
   url: "https://kvk.test.local"

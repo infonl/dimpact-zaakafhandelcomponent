@@ -4,28 +4,28 @@ This document lists the Docker images and versions that the corresponding versio
 
 ## Core Dependencies
 
-- **postgres**: 17.10
+- **postgres**: 17.11
 - **keycloak**: 26.6.4
 - **postgis**: 17-3.4
 - **redis**: 8.6.5
 - **solr**: 9.10.1-slim
-- **openpolicyagent/opa**: 1.19.0-static
+- **openpolicyagent/opa**: 1.19.1-static
 - **brp-api/personen-mock**: 2.7.0-202606291131
-- **gotenberg**: 8.34.0
-- **otel/opentelemetry-collector-contrib**: 0.158.0
-- **grafana/tempo**: 3.0.2
-- **prom/prometheus**: v3.13.2
-- **grafana/grafana**: 13.1.3
+- **gotenberg**: 8.36.0
+- **otel/opentelemetry-collector-contrib**: 0.159.0
+- **grafana/tempo**: 3.0.3
+- **prom/prometheus**: v3.14.0
+- **grafana/grafana**: 13.2.0
 - **greenmail/standalone**: 2.1.12
 - **nginxinc/nginx-unprivileged**: 1.31.3
 
 ## Common Ground components
 
-- **open-zaak**: 1.29.2
+- **open-zaak**: 1.29.3
 - **open-object**: 4.0.2
 - **open-klant**: 2.15.0
 - **open-forms**: 3.5.6
-- **open-notificaties**: 1.16.1
+- **open-notificaties**: 1.16.2
 - **open-archiefbeheer**: 2.0.0
 - **pabc-migrations**: 1.1.1
 - **pabc-api**: 1.1.1

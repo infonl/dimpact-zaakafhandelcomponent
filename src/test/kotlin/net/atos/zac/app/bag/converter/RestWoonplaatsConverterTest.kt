@@ -8,8 +8,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
-import net.atos.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
+import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectWoonplaats
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
 import net.atos.zac.app.bag.model.RESTWoonplaats
 import nl.info.client.bag.model.generated.HalLink
 import nl.info.client.bag.model.generated.Indicatie
@@ -19,6 +19,7 @@ import nl.info.client.bag.model.generated.WoonplaatsIOHalBasis
 import nl.info.client.bag.model.generated.WoonplaatsLinks
 import nl.info.client.zgw.model.createZaak
 import java.net.URI
+import java.util.UUID
 
 class RestWoonplaatsConverterTest : BehaviorSpec({
     afterEach {
@@ -42,7 +43,13 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
             val fakeObjectUri = URI("https://example.com/bag/woonplaats/fakeObjectUri")
             val fakeZaakUri = URI("https://example.com/zaken/fakeZaakUri")
             val objectWoonplaats = ObjectWoonplaats("fakeIdentificatie", "fakeWoonplaatsNaam")
-            val zaakobjectWoonplaats = ZaakobjectWoonplaats(fakeZaakUri, fakeObjectUri, objectWoonplaats)
+            val zaakobjectWoonplaats = ZaakobjectWoonplaats(
+                fakeZaakUri,
+                fakeObjectUri,
+                objectWoonplaats,
+                URI("https://example.com/zaakobjecten/${UUID.randomUUID()}"),
+                UUID.randomUUID()
+            )
 
             `when`("convertToREST is called") {
                 val result = RestWoonplaatsConverter.convertToREST(zaakobjectWoonplaats)
@@ -84,8 +91,8 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
                 }
 
                 And("it should populate the ObjectWoonplaats with identificatie and naam") {
-                    result.objectIdentificatie.identificatie shouldBe "fakeIdentificatie"
-                    result.objectIdentificatie.woonplaatsNaam shouldBe "fakeWoonplaatsNaam"
+                    result.objectIdentificatie!!.identificatie shouldBe "fakeIdentificatie"
+                    result.objectIdentificatie!!.woonplaatsNaam shouldBe "fakeWoonplaatsNaam"
                 }
             }
         }

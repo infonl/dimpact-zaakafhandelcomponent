@@ -15,9 +15,9 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../shared/form/input/input";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenService } from "../taken.service";
 
@@ -47,16 +47,18 @@ export class TakenVrijgevenDialogComponent {
     screenEventResourceId: string;
   }>(MAT_DIALOG_DATA);
 
-  protected readonly mutation = injectMutation(() => ({
-    ...this.takenService.vrijgevenVanuitLijst(),
-    onSuccess: () => this.dialogRef.close(true),
-    onMutate: () => {
-      this.dialogRef.disableClose = true;
+  protected readonly mutation = injectMutation(
+    () => this.takenService.vrijgevenVanuitLijst(),
+    {
+      onSuccess: () => this.dialogRef.close(true),
+      onMutate: () => {
+        this.dialogRef.disableClose = true;
+      },
+      onSettled: () => {
+        this.dialogRef.disableClose = false;
+      },
     },
-    onSettled: () => {
-      this.dialogRef.disableClose = false;
-    },
-  }));
+  );
 
   protected readonly form = this.formBuilder.group({
     reden: this.formBuilder.control<string | null>(null, [

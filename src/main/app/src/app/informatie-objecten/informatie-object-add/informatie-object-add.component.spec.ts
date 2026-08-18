@@ -101,7 +101,10 @@ describe(InformatieObjectAddComponent.name, () => {
     creatiedatum: moment("2025-09-24T11:59:23.111Z"),
     ontvangstdatum: null,
     verzenddatum: moment("2025-09-24T11:59:23.333Z"),
-    vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+    vertrouwelijkheidaanduiding: {
+      label: "vertrouwelijkheidaanduiding.INTERN",
+      value: "INTERN",
+    },
     taal: mockTalen[0],
     auteur: "Test Author",
   } satisfies Parameters<InformatieObjectAddComponent["form"]["patchValue"]>[0];
@@ -325,7 +328,10 @@ describe(InformatieObjectAddComponent.name, () => {
         titel: "Test Title",
         taal: mockTalen[0],
         informatieobjectType: mockInformatieObjectTypes[0],
-        vertrouwelijkheidaanduiding: { label: "Intern", value: "intern" },
+        vertrouwelijkheidaanduiding: {
+          label: "vertrouwelijkheidaanduiding.INTERN",
+          value: "INTERN",
+        },
         auteur: "Test Author",
       });
       component["form"].controls.ontvangstdatum.setValue(moment());
@@ -380,14 +386,14 @@ describe(InformatieObjectAddComponent.name, () => {
   });
 
   describe("Automatic vertrouwelijkheidaanduiding selection", () => {
-    it("should set vertrouwelijkheidaanduiding to 'intern' when informatieobjectType with INTERN is selected", () => {
+    it("should set vertrouwelijkheidaanduiding to 'INTERN' when informatieobjectType with INTERN is selected", () => {
       component["form"].controls.informatieobjectType.setValue(
         mockInformatieObjectTypes[0],
       );
 
       const selectedValue =
         component["form"].controls.vertrouwelijkheidaanduiding.value;
-      expect(selectedValue?.value).toBe("intern");
+      expect(selectedValue?.value).toBe("INTERN");
     });
 
     it("should set vertrouwelijkheidaanduiding to 'confidentieel' when informatieobjectType with CONFIDENTIEEL is selected", () => {
@@ -397,7 +403,7 @@ describe(InformatieObjectAddComponent.name, () => {
 
       const selectedValue =
         component["form"].controls.vertrouwelijkheidaanduiding.value;
-      expect(selectedValue?.value).toBe("confidentieel");
+      expect(selectedValue?.value).toBe("CONFIDENTIEEL");
     });
   });
 });

@@ -78,7 +78,7 @@ describe(ParametersEditBpmnComponent.name, () => {
   ];
 
   const zaakafhandelParameters = fromPartial<
-    GeneratedType<"RestZaakafhandelParameters">
+    GeneratedType<"RestZaaktypeConfiguration">
   >({
     defaultGroepId: "test-group-id",
     defaultBehandelaarId: "test-user-id",
@@ -168,6 +168,23 @@ describe(ParametersEditBpmnComponent.name, () => {
     await fixture.whenStable();
 
     loader = TestbedHarnessEnvironment.loader(fixture);
+  });
+
+  describe("Zaakspecifieke autorisatie", () => {
+    it("should show 'nee' for a zaaktype without the eigenschap", () => {
+      expect(fixture.nativeElement.textContent).toContain(
+        "zaakspecifiekAutoriseerbaar",
+      );
+      expect(fixture.nativeElement.textContent).toContain("actie.nee");
+    });
+
+    it("should show 'ja' for a zaaktype with the eigenschap", () => {
+      component["bpmnZaakafhandelParameters"].zaakspecifiekAutoriseerbaar =
+        true;
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("actie.ja");
+    });
   });
 
   describe("Case handler", () => {

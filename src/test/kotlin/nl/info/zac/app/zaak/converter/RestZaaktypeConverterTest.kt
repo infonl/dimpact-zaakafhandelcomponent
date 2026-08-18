@@ -11,17 +11,17 @@ import io.mockk.every
 import io.mockk.mockk
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.createZaakType
-import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.admin.ZaaktypeBpmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
-import nl.info.zac.app.admin.converter.RestZaakafhandelParametersConverter
-import nl.info.zac.app.admin.model.createRestZaakafhandelParameters
+import nl.info.zac.app.admin.converter.RestZaaktypeConfigurationConverter
+import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import java.time.LocalDate
 
 class RestZaaktypeConverterTest : BehaviorSpec({
-    val zaakafhandelParametersConverter = mockk<RestZaakafhandelParametersConverter>()
+    val zaakafhandelParametersConverter = mockk<RestZaaktypeConfigurationConverter>()
     val zaaktypeCmmnConfigurationService = mockk<ZaaktypeCmmnConfigurationService>()
     val zaaktypeBpmnConfigurationBeheerService = mockk<ZaaktypeBpmnConfigurationBeheerService>()
 
@@ -36,12 +36,12 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         val zaaktypeUuid = zaaktype.url.extractUuid()
         val zaaktypeCmmnConfiguration = createZaaktypeCmmnConfiguration()
         val now = LocalDate.now()
-        val restZaakafhandelParameters = createRestZaakafhandelParameters()
+        val restZaakafhandelParameters = createRestZaaktypeConfiguration()
 
         every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns null
         every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaaktypeUuid) } returns zaaktypeCmmnConfiguration
         every {
-            zaakafhandelParametersConverter.toRestZaakafhandelParameters(zaaktypeCmmnConfiguration, true)
+            zaakafhandelParametersConverter.toRestZaaktypeConfiguration(zaaktypeCmmnConfiguration, true)
         } returns restZaakafhandelParameters
 
         `when`("converted to REST") {
@@ -58,7 +58,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
                     versiedatum!! shouldHaveSameDayAs now
                     beginGeldigheid!! shouldHaveSameDayAs now
                     eindeGeldigheid shouldBe null
-                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
+                    vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
                     nuGeldig shouldBe true
                     opschortingMogelijk shouldBe null
                     verlengingMogelijk shouldBe null
@@ -76,11 +76,11 @@ class RestZaaktypeConverterTest : BehaviorSpec({
         val zaaktypeUuid = zaaktype.url.extractUuid()
         val zaaktypeBpmnConfiguration = createZaaktypeBpmnConfiguration()
         val now = LocalDate.now()
-        val restZaakafhandelParameters = createRestZaakafhandelParameters()
+        val restZaakafhandelParameters = createRestZaaktypeConfiguration()
 
         every { zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaaktypeUuid) } returns zaaktypeBpmnConfiguration
         every {
-            zaakafhandelParametersConverter.toRestZaakafhandelParameters(zaaktypeBpmnConfiguration)
+            zaakafhandelParametersConverter.toRestZaaktypeConfiguration(zaaktypeBpmnConfiguration)
         } returns restZaakafhandelParameters
 
         `when`("converted to REST") {
@@ -97,7 +97,7 @@ class RestZaaktypeConverterTest : BehaviorSpec({
                     versiedatum!! shouldHaveSameDayAs now
                     beginGeldigheid!! shouldHaveSameDayAs now
                     eindeGeldigheid shouldBe null
-                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
+                    vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
                     nuGeldig shouldBe true
                     opschortingMogelijk shouldBe null
                     verlengingMogelijk shouldBe null

@@ -14,14 +14,11 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  injectMutation,
-  injectQuery,
-} from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { ZacCheckbox } from "../../shared/form/checkbox/checkbox";
 import { ZacDate } from "../../shared/form/date/date";
@@ -30,12 +27,12 @@ import { ZacFormActions } from "../../shared/form/form-actions/form-actions.comp
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
 import { PostBody } from "../../shared/http/http-client";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { appendFileToFormData } from "../../shared/utils/file-upload";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
-import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 
 @Component({
   selector: "zac-informatie-object-add",
@@ -65,7 +62,6 @@ export class InformatieObjectAddComponent {
   );
   private readonly utilService = inject(UtilService);
   private readonly configuratieService = inject(ConfiguratieService);
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly identityService = inject(IdentityService);
   private readonly formBuilder = inject(FormBuilder);
 
@@ -82,29 +78,28 @@ export class InformatieObjectAddComponent {
     this.configuratieService.readDefaultTaal(),
   );
 
-  protected createDocumentMutation = injectMutation(() => ({
-    ...this.informatieObjectenService.createEnkelvoudigInformatieobject(
-      this.zaakUuid(),
-      this.taakId() ?? this.zaakUuid(),
-      !!this.taakId(),
-    ),
-    onSuccess: (data) => {
-      this.document.emit(data);
-      this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
-      if (this.form.controls.addOtherInfoObject.value) {
-        const oldValues = this.form.getRawValue();
-        oldValues.titel = null;
-        oldValues.bestand = null;
-        this.form.reset(oldValues);
-        this.createDocumentMutation.reset();
-        return;
-      }
-      this.resetAndClose();
+  protected createDocumentMutation = injectMutation(
+    () =>
+      this.informatieObjectenService.createEnkelvoudigInformatieobject(
+        this.zaakUuid(),
+        this.taakId() ?? this.zaakUuid(),
+        !!this.taakId(),
+      ),
+    {
+      onSuccess: (data) => {
+        this.document.emit(data);
+        if (this.form.controls.addOtherInfoObject.value) {
+          const oldValues = this.form.getRawValue();
+          oldValues.titel = null;
+          oldValues.bestand = null;
+          this.form.reset(oldValues);
+          this.createDocumentMutation.reset();
+          return;
+        }
+        this.resetAndClose();
+      },
     },
-    onError: (error) => {
-      this.foutAfhandelingService.foutAfhandelen(error);
-    },
-  }));
+  );
 
   protected readonly informatieobjectStatussen =
     this.utilService.getEnumAsSelectListExceptFor(
@@ -114,10 +109,7 @@ export class InformatieObjectAddComponent {
     );
 
   protected readonly vertrouwelijkheidsAanduidingen =
-    this.utilService.getEnumAsSelectList(
-      "vertrouwelijkheidaanduiding",
-      Vertrouwelijkheidaanduiding,
-    );
+    VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
 
   protected informatieObjectTypes: GeneratedType<"RestInformatieobjecttype">[] =
     [];
@@ -235,10 +227,7 @@ export class InformatieObjectAddComponent {
 
         this.form.controls.vertrouwelijkheidaanduiding.setValue(
           this.vertrouwelijkheidsAanduidingen.find(
-            (option) =>
-              Vertrouwelijkheidaanduiding[
-                option.value as keyof typeof Vertrouwelijkheidaanduiding
-              ] === value.vertrouwelijkheidaanduiding,
+            (option) => option.value === value.vertrouwelijkheidaanduiding,
           ) ?? null,
         );
       });

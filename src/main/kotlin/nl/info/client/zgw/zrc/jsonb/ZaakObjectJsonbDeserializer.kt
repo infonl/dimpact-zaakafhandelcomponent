@@ -8,13 +8,13 @@ import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
 import nl.info.client.zgw.util.JSONB
-import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
+import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectAdres
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimte
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPand
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectProductaanvraag
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectWoonplaats
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum
 import java.lang.reflect.Type
@@ -43,11 +43,11 @@ class ZaakObjectJsonbDeserializer : JsonbDeserializer<Zaakobject> {
                 ZaakobjectWoonplaats::class.java
             )
             ObjectTypeEnum.OVERIGE -> when (objecttypeOverige) {
-                ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE -> JSONB.fromJson(
+                ZaakobjectProductaanvraag.OBJECT_TYPE_OVERIGE_PRODUCTAANVRAAG -> JSONB.fromJson(
                     jsonObject.toString(),
                     ZaakobjectProductaanvraag::class.java
                 )
-                ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE -> JSONB.fromJson(
+                ZaakobjectNummeraanduiding.OBJECT_TYPE_OVERIGE_NUMMERAANDUIDING -> JSONB.fromJson(
                     jsonObject.toString(),
                     ZaakobjectNummeraanduiding::class.java
                 )

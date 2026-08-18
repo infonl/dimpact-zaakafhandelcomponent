@@ -36,7 +36,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2021_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
-import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BELANGHEBBENDE
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_MEDEAANVRAGER
@@ -235,7 +235,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     groupName = GROUP_BEHANDELAARS_TEST_1.description,
                     startDate = DATE_TIME_2020_01_01,
                     communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
-                    vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                    vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
                     description = ZAAK_DESCRIPTION_2,
                     toelichting = ZAAK_EXPLANATION_1,
                     testUser = BEHANDELAAR_1
@@ -314,7 +314,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "toelichting": "$ZAAK_EXPLANATION_1",
                       "uiterlijkeEinddatumAfdoening": "$DATE_2021_01_01",
                       "verantwoordelijkeOrganisatie": "$VERANTWOORDELIJKE_ORGANISATIE",
-                      "vertrouwelijkheidaanduiding": "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
+                      "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                       "zaakdata": {
                         "initiator": null,
                         "zaaktypeUUID": "$ZAAKTYPE_CMMN_TEST_3_UUID",
@@ -336,7 +336,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
                         "verlengingMogelijk": false,
                         "versiedatum": "$DATE_2023_09_21",
-                        "vertrouwelijkheidaanduiding": "openbaar",
+                        "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                         "zaaktypeRelaties": []
                       }
                     }
@@ -444,7 +444,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 groupName = GROUP_BEHANDELAARS_TEST_1.description,
                 startDate = DATE_TIME_2020_01_01,
                 communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
-                vertrouwelijkheidaanduiding = DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
                 description = ZAAK_DESCRIPTION_2,
                 toelichting = ZAAK_EXPLANATION_1,
                 testUser = BEHANDELAAR_1
@@ -622,7 +622,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                                     "longitude": $longitude,
                                     "latitude": $latitude
                                 },
-                                "type": "Point"
+                                "type": "POINT"
                             },
                             "reden": "fakeReason"
                         }
@@ -638,7 +638,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         shouldContainJsonKey("zaakgeometrie")
                         val geometrie = JSONObject(responseBody)["zaakgeometrie"].toString()
                         with(geometrie) {
-                            shouldContainJsonKeyValue("type", "Point")
+                            shouldContainJsonKeyValue("type", "POINT")
                             shouldContainJsonKey("point")
                             with(JSONObject(geometrie)["point"].toString()) {
                                 shouldContainJsonKeyValue("longitude", longitude)
@@ -700,13 +700,13 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "uiterlijkeEinddatumAfdoening": "$fatalDateNew",
                       "uuid" : "$zaak2UUID",
                       "verantwoordelijkeOrganisatie" : "$VERANTWOORDELIJKE_ORGANISATIE",
-                      "vertrouwelijkheidaanduiding" : "$DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
+                      "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                       "zaakgeometrie" : {
                         "point" : {
                             "latitude" : $latitude,
                             "longitude" : $longitude
                          },
-                         "type" : "Point"
+                         "type" : "POINT"
                       }
                    }
                     """.trimIndent()

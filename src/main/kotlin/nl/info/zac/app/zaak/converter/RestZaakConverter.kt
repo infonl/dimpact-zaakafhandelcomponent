@@ -28,6 +28,7 @@ import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.app.identity.converter.RestGroupConverter
 import nl.info.zac.app.identity.converter.RestUserConverter
 import nl.info.zac.app.policy.model.toRestZaakRechten
+import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
 import nl.info.zac.app.zaak.model.RestZaakKenmerk
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.RestGerelateerdeZaak
@@ -160,8 +161,7 @@ class RestZaakConverter @Inject constructor(
             uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
             uuid = zaak.uuid,
             verantwoordelijkeOrganisatie = zaak.verantwoordelijkeOrganisatie,
-            // use the name because the frontend expects this value to be in uppercase
-            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name,
+            vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding?.toRestVertrouwelijkheidaanduiding(),
             zaakdata = zaakData,
             zaakgeometrie = zaak.zaakgeometrie?.toRestGeometry(),
             zaakSpecificContactDetails = zaakSpecificContactDetails,

@@ -12,7 +12,7 @@ import nl.info.zac.util.NoArgConstructor
 @NoArgConstructor
 data class RestBetrokkeneKoppelingen(
     var id: Long? = null,
-    var zaakafhandelParameters: RestZaakafhandelParameters? = null,
+    var zaakafhandelParameters: RestZaaktypeConfiguration? = null,
     var brpKoppelen: Boolean = false,
     var kvkKoppelen: Boolean = false,
 )

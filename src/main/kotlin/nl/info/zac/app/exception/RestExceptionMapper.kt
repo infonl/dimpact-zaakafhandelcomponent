@@ -40,6 +40,7 @@ import nl.info.zac.exception.ErrorCode.ERROR_CODE_SERVER_GENERIC
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZRC_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_ZTC_CLIENT
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.exception.NotSupportedException
 import nl.info.zac.exception.ServerErrorException
 import nl.info.zac.exception.ZacSetupException
 import nl.info.zac.log.log
@@ -136,6 +137,12 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
                 exception = exception,
                 exceptionMessage = exception.message,
                 logLevel = Level.WARNING
+            )
+            is NotSupportedException -> generateResponse(
+                responseStatus = Response.Status.BAD_REQUEST,
+                errorCode = exception.errorCode ?: ERROR_CODE_SERVER_GENERIC,
+                exception = exception,
+                logLevel = Level.FINE
             )
             else -> inspectCause(exception = exception)
         }

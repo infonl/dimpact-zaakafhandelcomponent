@@ -28,7 +28,7 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockR
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -39,6 +39,7 @@ import nl.info.client.zgw.ztc.model.createBesluitType
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.app.exception.RestExceptionMapper
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
@@ -128,7 +129,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val responseRestEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val restFileUpload = createRestFileUpload()
         val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectCreateLockRequest()
-        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+        val zaakInformatieobject = createZaakInformatieobjectForReads()
         val loggedInUser = createLoggedInUser()
 
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -257,7 +258,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val responseRestEnkelvoudigInformatieobject =
             createRestEnkelvoudigInformatieobject()
         val enkelvoudigInformatieObjectData = createEnkelvoudigInformatieObjectCreateLockRequest()
-        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+        val zaakInformatieobject = createZaakInformatieobjectForReads()
         val loggedInUser = createLoggedInUser()
 
         every { zrcClientService.readZaak(closedZaak.uuid) } returns closedZaak
@@ -434,7 +435,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
         )
         val zaakInformatieobjecten = listOf(
-            createZaakInformatieobjectForCreatesAndUpdates()
+            createZaakInformatieobjectForReads()
         )
         val besluitType = createBesluitType(
             url = URI("https://example.com/$besluittypeUuid"),
@@ -492,10 +493,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val restEnkelvoudigInformatieobjectVoorZaak = createRestEnkelvoudigInformatieobject()
         val restGekoppeldeZaakEnkelvoudigInformatieObject = RestGekoppeldeZaakEnkelvoudigInformatieObject()
         val zaakInformatieobjecten = listOf(
-            createZaakInformatieobjectForCreatesAndUpdates()
+            createZaakInformatieobjectForReads()
         )
         val gerelateerdeZaakInformatieobjecten = listOf(
-            createZaakInformatieobjectForCreatesAndUpdates()
+            createZaakInformatieobjectForReads()
         )
         val loggedInUser = createLoggedInUser()
 
@@ -638,13 +639,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                     with(this[0]) {
                         uuid shouldBe informatieObjectTypeUUID1
                         omschrijving shouldBe "fakeOmschrijving1"
-                        vertrouwelijkheidaanduiding shouldBe "OPENBAAR"
+                        vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
                         concept shouldBe true
                     }
                     with(this[1]) {
                         uuid shouldBe informatieObjectTypeUUID2
                         omschrijving shouldBe "fakeOmschrijving2"
-                        vertrouwelijkheidaanduiding shouldBe "BEPERKT_OPENBAAR"
+                        vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.BEPERKT_OPENBAAR
                         concept shouldBe false
                     }
                 }
@@ -792,42 +793,86 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
-    given("An enkelvoudig informatieobject and a zaak UUID") {
+    given("An enkelvoudig informatieobject linked to exactly one zaak") {
         val uuid = UUID.randomUUID()
         val zaakUUID = UUID.randomUUID()
         val zaak = createZaak(uuid = zaakUUID)
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val zaakInformatieobject = createZaakInformatieobjectForReads(
+            informatieobject = enkelvoudigInformatieObject.url,
+            zaak = zaak.url
+        )
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every {
+            zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
+        } returns listOf(zaakInformatieobject)
         every { zrcClientService.readZaak(zaakUUID) } returns zaak
         every {
             restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak)
         } returns restEnkelvoudigInformatieobject
 
-        `when`("readEnkelvoudigInformatieobject is called with a zaak UUID") {
-            val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, zaakUUID)
+        `when`("readEnkelvoudigInformatieobject is called") {
+            val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid)
 
-            then("the REST representation is returned with zaak context") {
+            then("the REST representation is returned with the linked zaak's context") {
                 result shouldBe restEnkelvoudigInformatieobject
             }
         }
     }
 
-    given("An enkelvoudig informatieobject and no zaak UUID") {
+    given("An enkelvoudig informatieobject not linked to any zaak") {
         val uuid = UUID.randomUUID()
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
         every {
+            zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
+        } returns emptyList()
+        every {
             restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
         } returns restEnkelvoudigInformatieobject
 
-        `when`("readEnkelvoudigInformatieobject is called without a zaak UUID") {
-            val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid, null)
+        `when`("readEnkelvoudigInformatieobject is called") {
+            val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid)
 
             then("the REST representation is returned without zaak context") {
+                result shouldBe restEnkelvoudigInformatieobject
+            }
+        }
+    }
+
+    given("An enkelvoudig informatieobject linked to multiple zaken") {
+        val uuid = UUID.randomUUID()
+        val firstZaakUUID = UUID.randomUUID()
+        val secondZaakUUID = UUID.randomUUID()
+        val firstZaak = createZaak(uuid = firstZaakUUID)
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val firstZaakInformatieobject = createZaakInformatieobjectForReads(
+            informatieobject = enkelvoudigInformatieObject.url,
+            zaak = firstZaak.url
+        )
+        val secondZaakInformatieobject = createZaakInformatieobjectForReads(
+            informatieobject = enkelvoudigInformatieObject.url,
+            zaak = createZaak(uuid = secondZaakUUID).url
+        )
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every {
+            zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
+        } returns listOf(firstZaakInformatieobject, secondZaakInformatieobject)
+        every { zrcClientService.readZaak(firstZaakUUID) } returns firstZaak
+        every {
+            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, firstZaak)
+        } returns restEnkelvoudigInformatieobject
+
+        `when`("readEnkelvoudigInformatieobject is called") {
+            val result = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid)
+
+            then("the REST representation is returned using the first linked zaak's context") {
                 result shouldBe restEnkelvoudigInformatieobject
             }
         }
@@ -890,7 +935,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             formaat = "application/pdf"
         )
         val zaakInformatieobjectList = listOf(
-            createZaakInformatieobjectForCreatesAndUpdates(informatieobjectUUID = enkelvoudigInformatieObjectUuid)
+            createZaakInformatieobjectForReads(informatieobject = enkelvoudigInformatieObjectUri)
         )
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val loggedInUser = createLoggedInUser()
@@ -940,7 +985,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val enkelvoudigInformatieObjectUuid = UUID.randomUUID()
         val enkelvoudigInformatieObjectUri = URI("https://example.com/$enkelvoudigInformatieObjectUuid")
         val zaakInformatieobject =
-            createZaakInformatieobjectForCreatesAndUpdates(informatieobjectUUID = enkelvoudigInformatieObjectUuid)
+            createZaakInformatieobjectForReads(informatieobject = enkelvoudigInformatieObjectUri)
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
 
@@ -1209,7 +1254,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val informatieobjectUuid = UUID.randomUUID()
         val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri)
+        val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaakUri)
         val zaak = createZaak(identificatie = "ZAAK-2024-999")
 
         every { drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid) } returns enkelvoudigInformatieObject
@@ -1400,7 +1445,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri)
+        val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaakUri)
         val startDate = LocalDate.of(2024, 1, 1)
         val plannedEndDate = LocalDate.of(2024, 12, 31)
         val zaak = createZaak(
@@ -1442,7 +1487,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates(zaakURL = zaakUri)
+        val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaakUri)
         val zaak = createZaak(
             zaaktypeUri = zaakTypeUri,
             startDate = LocalDate.of(2024, 6, 1),
@@ -1564,6 +1609,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every {
+            zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
+        } returns emptyList()
 
         withData(
             nameFn = { "expected indicaties: ${it.expectedIndicaties}" },
@@ -1620,10 +1668,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
             } returns restEnkelvoudigInformatieobject
 
-            `when`("readEnkelvoudigInformatieobject is called without a zaak UUID") {
+            `when`("readEnkelvoudigInformatieobject is called") {
                 val enkelvoudigInformatieobject = enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(
-                    uuid,
-                    null
+                    uuid
                 )
 
                 then("getIndicaties() reflects the document's indicator flags") {

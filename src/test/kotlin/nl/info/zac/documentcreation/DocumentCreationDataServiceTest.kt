@@ -127,6 +127,9 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         behandelaar shouldBe "${rolMedewerker.betrokkeneIdentificatie!!.voorletters} " +
                             "${rolMedewerker.betrokkeneIdentificatie!!.achternaam}"
                         groep shouldBe rolOrganisatorischeEenheid.naam
+                        io.kotest.assertions.withClue("SmartDocuments templates expect vertrouwelijkheidaanduiding in lowercase") {
+                            vertrouwelijkheidaanduiding shouldBe "openbaar"
+                        }
                     }
                     startformulierData shouldBe null
                     taskData shouldBe null
@@ -178,6 +181,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         zaaktype shouldBe zaakType.omschrijving
                         behandelaar shouldBe null
                         groep shouldBe null
+                        vertrouwelijkheidaanduiding shouldBe "openbaar"
                     }
                     startformulierData shouldBe null
                     taskData shouldBe null
@@ -238,6 +242,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         zaaktype shouldBe zaakType.omschrijving
                         behandelaar shouldBe null
                         groep shouldBe null
+                        vertrouwelijkheidaanduiding shouldBe "openbaar"
                     }
                     startformulierData shouldBe null
                     taskData shouldBe null
@@ -475,7 +480,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
         every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns null
         every { zrcClientService.listZaakobjecten(any()) } returns Results(listOf(zaakobjectProductaanvraag), 1)
         every {
-            objectsClientService.readObject(zaakobjectProductaanvraag.getObject().extractUuid())
+            objectsClientService.readObject(zaakobjectProductaanvraag.`object`!!.extractUuid())
         } returns modelObject
         every { productaanvraagService.getProductaanvraag(modelObject) } returns productaanvraagDimpact
         every { productaanvraagService.getAanvraaggegevens(modelObject) } returns aanvraaggegevens

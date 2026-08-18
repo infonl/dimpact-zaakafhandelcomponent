@@ -30,9 +30,9 @@ import jakarta.validation.constraints.NotNull;
 
 import org.flowable.task.api.TaskInfo;
 
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject;
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject;
 import nl.info.zac.identity.model.Group;
 import nl.info.zac.identity.model.User;
 
@@ -144,7 +144,7 @@ public class Signalering {
         this.detail = signaleringDetail.name();
     }
 
-    public void setDetailFromZaakInformatieobject(final ZaakInformatieobject zaakInformatieobject) {
+    public void setDetailFromZaakInformatieobject(final ZaakInformatieObject zaakInformatieobject) {
         this.detail = extractUuid(zaakInformatieobject.getInformatieobject()).toString();
     }
 

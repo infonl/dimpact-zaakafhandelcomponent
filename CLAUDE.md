@@ -126,7 +126,8 @@ Replace `<YEAR>` with the current year. So for example, if the current year is 2
  ```
 
 For `.html`/`.xml` use `<!-- ~ SPDX... -->` and for `.sh`, `.yaml`/`.yml` use `# SPDX...`.
-This `.yaml`/`.yml` rule applies to all YAML files in the repo, including dotfiles such as OpenSpec's `.openspec.yaml`.
+This `.yaml`/`.yml` rule applies to all YAML files in the repo, except files inside `openspec/` (e.g. `.openspec.yaml`),
+which are exempt from SPDX headers — do not add them there, including once archived.
 When modifying an existing file that already has an SPDX header, add `, <YEAR> INFO.nl` but only if `INFO.nl` is not already present in the SPDX header.
 For example, if the SPDX header already contains `2025 INFO.nl`, leave it as is and do not add the current year.
 For example `2025, 2026 INFO.nl` is wrong.
@@ -154,6 +155,25 @@ For example `catch (e: Exception)` should be `catch (exception: Exception)`.
 ### Avoid the use of `requireNotNull`
 When you encounter a nullable variable that is being forcefully unwrapped using `requireNotNull`, consider refactoring the code to handle the null case more gracefully, for example by making the variable non-nullable.
 This can improve the robustness of the code and prevent potential crashes.
+
+### Never reference Jira tickets in code
+Jira ticket references (`PZ-XXX`, `DRT-XXX`) belong in commit messages, PR descriptions and branch names — never in
+source code, comments or KDoc. A ticket number tells a future reader nothing without access to Jira, and it goes stale.
+Describe the behaviour itself instead, or leave it out.
+
+```kotlin
+// Before
+/**
+ * Regression test for PZ-12241, where a shadowed lambda parameter matched every resultaattype to the first one.
+ */
+// After
+// (no comment: the test name already states the expected behaviour)
+```
+
+### Do not write comments that narrate the code
+Only add a comment when it explains something the code cannot: a non-obvious "why", a workaround, an external
+constraint. Never restate what the next line already says. If a comment is needed to explain *what* the code does,
+rename the variable or function instead.
 
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
@@ -356,6 +376,19 @@ createRestUser(id = "user1", name = "User One")
 use:
 ```kotlin
 createRestUser(id = "fakeUserId1", name = "fakeUserName1")
+```
+
+### Let the `given`/`when`/`then` names carry the explanation, not comments
+Tests must be self-documenting through their `context`/`given`/`` `when` ``/`then` descriptions and their variable
+names. Do not add comments describing the scenario, the setup or the assertion — put that information in the block
+description instead. This also applies to class-level KDoc summarising what a test class covers.
+
+```kotlin
+// Before
+// the new zaaktype deliberately lists 'Verlengd' first so that a positional mapping produces the wrong result
+val newZaaktype = createZaakType(resultTypes = listOf(...))
+// After
+given("a previous configuration whose resultaattypen are not the first ones of the new zaaktype") { ... }
 ```
 
 ## Git branch conventions

@@ -6,11 +6,11 @@ package nl.info.client.zgw.shared
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.RolListParameters
-import net.atos.client.zgw.zrc.model.RolMedewerker
-import net.atos.client.zgw.zrc.model.RolOrganisatorischeEenheid
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolListParameters
+import nl.info.client.zgw.zrc.model.RolMedewerker
+import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
+import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
@@ -28,7 +28,8 @@ import nl.info.client.zgw.zrc.model.generated.StatusSub
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakAfsluiten
 import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
-import nl.info.client.zgw.zrc.model.generated.ZaakSub
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.zrc.util.toZaakSub
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
@@ -38,6 +39,7 @@ import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
+import nl.info.zac.exception.NotSupportedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI
@@ -66,6 +68,15 @@ class ZgwApiService @Inject constructor(
         // Page numbering in ZGW APIs starts with 1
         const val FIRST_PAGE_NUMBER_ZGW_APIS: Int = 1
         const val ZAAK_OBJECT_DELETION_PREFIX = "Verwijderd"
+
+        /**
+         * The role type description for a zaak behandelaar in ZAC.
+         * ZAC requires that the behandelaar role type has this exact description _and_ has the
+         * 'omschrijving generiek' set to [OmschrijvingGeneriekEnum.BEHANDELAAR].
+         * This so that ZAC can support other non-behandelaar role types with this same
+         * 'omschrijving generiek' but with a different description.
+         */
+        const val ROLTYPE_OMSCHRIJVING_BEHANDELAAR = "Behandelaar"
     }
 
     /**
@@ -128,9 +139,9 @@ class ZgwApiService @Inject constructor(
      * @param zaak [Zaak] to be closed.
      * @param resultaatTypeUUID [UUID] the UUID of the resultaat for closing the [Zaak].
      * @param description [String] of the [Resultaat] and [Status].
-     * @param brondatumEigenschap [LocalDate]
+     * @param brondatum [LocalDate]
      */
-    fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, description: String?, brondatumEigenschap: LocalDate? = null) {
+    fun closeZaak(zaak: Zaak, resultaatTypeUUID: UUID, description: String?, brondatum: LocalDate? = null) {
         val resultaatType = getResultaatType(resultaatTypeUUID)
         val resultaat = ResultaatSub().apply {
             resultaattype = resultaatType.url
@@ -150,33 +161,57 @@ class ZgwApiService @Inject constructor(
             this.resultaat = resultaat
             this.status = status
         }
-        processBrondatumProcedure(zaakAfsluiten, resultaatType, brondatumEigenschap)
+        processBrondatumProcedure(zaak, resultaatType, brondatum)
         zrcClientService.closeCase(zaak.uuid, zaakAfsluiten)
     }
 
-    private fun processBrondatumProcedure(zaakAfsluiten: ZaakAfsluiten, resultaatType: ResultaatType, brondatumEigenschap: LocalDate?) {
+    fun setBrondatum(zaak: Zaak, brondatum: LocalDate?) {
+        getResultaatType(zaak)?.let {
+            when (it.brondatumArchiefprocedure?.afleidingswijze) {
+                AfleidingswijzeEnum.EIGENSCHAP -> processBrondatumProcedure(zaak, it, brondatum)
+                else -> {
+                    LOG.warning {
+                        "Failed to set brondatum to $brondatum for afleidingswijze brondatum " +
+                        "${it.brondatumArchiefprocedure?.afleidingswijze} for zaak ${zaak.identificatie}"
+                    }
+                    throw NotSupportedException(ErrorCode.ERROR_CODE_AFLEIDINGSWIJZE_BRONDATUM_NOT_SUPPORTED)
+                }
+            }
+        }
+    }
+
+    private fun getResultaatType(zaak: Zaak): ResultaatType? {
+        if (zaak.resultaat == null) return null
+        return zrcClientService.readResultaat(zaak.resultaat).let {
+            ztcClientService.readResultaattype(it.resultaattype)
+        }
+    }
+
+  private fun processBrondatumProcedure(zaak: Zaak, resultaatType: ResultaatType, brondatum: LocalDate?) {
         val brondatumArchiefprocedure = resultaatType.brondatumArchiefprocedure ?: return
 
         when (brondatumArchiefprocedure.afleidingswijze) {
             AfleidingswijzeEnum.EIGENSCHAP -> {
-                if (brondatumArchiefprocedure.datumkenmerk.isNullOrBlank() || brondatumEigenschap == null) {
-                    throw InputValidationFailedException(
-                        errorCode = ErrorCode.ERROR_CODE_VALIDATION_GENERIC,
-                        message = "'brondatumEigenschap' moet gevuld zijn bij het afsluiten van een zaak met een " +
-                            "resultaattype dat een 'brondatumArchiefprocedure' heeft met 'afleidingswijze' 'EIGENSCHAP'."
-                    )
+                if (brondatumArchiefprocedure.datumkenmerk.isNullOrBlank() || brondatum == null) {
+                    return
+                }
+                if (zaak.einddatum != null && brondatum.isBefore(zaak.einddatum)) {
+                    throw InputValidationFailedException(ErrorCode.ERROR_CODE_BRONDATUM_CANNOT_BE_BEFORE_END_DATE)
+                }
+                if (zaak.einddatum == null && brondatum.isBefore(LocalDate.now())) {
+                    throw InputValidationFailedException(ErrorCode.ERROR_CODE_BRONDATUM_CANNOT_BE_BEFORE_END_DATE)
                 }
                 this.upsertEigenschapToZaak(
                     brondatumArchiefprocedure.datumkenmerk,
-                    brondatumEigenschap.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
-                    zaakAfsluiten.zaak
+                    brondatum.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                    zaak
                 )
             }
             else -> Unit
         }
     }
 
-    private fun upsertEigenschapToZaak(eigenschap: String, waarde: String, zaak: ZaakSub) {
+    private fun upsertEigenschapToZaak(eigenschap: String, waarde: String, zaak: Zaak) {
         zrcClientService.listZaakeigenschappen(zaak.uuid).firstOrNull { it.naam == eigenschap }?.let {
             zrcClientService.updateZaakeigenschap(
                 zaak.uuid, it.uuid,
@@ -197,15 +232,15 @@ class ZgwApiService @Inject constructor(
     }
 
     /**
-     * Create [EnkelvoudigInformatieObject] and [ZaakInformatieobject] for [Zaak].
+     * Create [EnkelvoudigInformatieObject] and [ZaakInformatieObject] for [Zaak].
      *
      * @param zaak [Zaak].
      * @param enkelvoudigInformatieObjectCreateLockRequest [EnkelvoudigInformatieObject] to be created.
-     * @param titel Titel of the new [ZaakInformatieobject].
-     * @param beschrijving Beschrijving of the new [ZaakInformatieobject].
+     * @param titel Titel of the new [ZaakInformatieObject].
+     * @param beschrijving Beschrijving of the new [ZaakInformatieObject].
      * @param omschrijvingVoorwaardenGebruiksrechten Used to create the [Gebruiksrechten] for the to be created
      * [EnkelvoudigInformatieObject]
-     * @return Created [ZaakInformatieobject].
+     * @return Created [ZaakInformatieObject].
      */
     fun createZaakInformatieobjectForZaak(
         zaak: Zaak,
@@ -213,7 +248,7 @@ class ZgwApiService @Inject constructor(
         titel: String,
         beschrijving: String?,
         omschrijvingVoorwaardenGebruiksrechten: String?
-    ): ZaakInformatieobject {
+    ): ZaakInformatieObject {
         val newInformatieObjectData = drcClientService.createEnkelvoudigInformatieobject(
             enkelvoudigInformatieObjectCreateLockRequest
         )
@@ -226,18 +261,18 @@ class ZgwApiService @Inject constructor(
         }
         drcClientService.createGebruiksrechten(gebruiksrechten)
 
-        val zaakInformatieObject = ZaakInformatieobject().apply {
-            this.zaak = zaak.url
+        val zaakInformatieObjectRequest = ZaakInformatieObjectRequest().apply {
             informatieobject = newInformatieObjectData.url
+            this.zaak = zaak.url
             this.titel = titel
             this.beschrijving = beschrijving
         }
-        return zrcClientService.createZaakInformatieobject(zaakInformatieObject)
+        return zrcClientService.createZaakInformatieobject(zaakInformatieObjectRequest)
     }
 
     /**
-     * Delete [ZaakInformatieobject] which relates [EnkelvoudigInformatieObject] and [Zaak] with zaakUUID. When the
-     * [EnkelvoudigInformatieObject] has no other related [ZaakInformatieobject]s then it is also deleted.
+     * Delete [ZaakInformatieObject] which relates [EnkelvoudigInformatieObject] and [Zaak] with zaakUUID. When the
+     * [EnkelvoudigInformatieObject] has no other related [ZaakInformatieObject]s then it is also deleted.
      *
      * @param enkelvoudigInformatieobject [EnkelvoudigInformatieObject]
      * @param zaakUUID UUID of a [Zaak]
@@ -248,15 +283,13 @@ class ZgwApiService @Inject constructor(
         zaakUUID: UUID,
         reason: String?
     ) {
-        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
-            enkelvoudigInformatieobject
-        )
+        val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieobject)
         // delete the relationship of the EnkelvoudigInformatieobject with the zaak.
         zaakInformatieobjecten
             .filter { it.zaakUUID == zaakUUID }
             .forEach { zrcClientService.deleteZaakInformatieobject(it.uuid, reason, ZAAK_OBJECT_DELETION_PREFIX) }
 
-        // if the EnkelvoudigInformatieobject has no relationship(s) with other zaken it can be deleted.
+        // if the EnkelvoudigInformatieobject has no relationship(s) with other zaken, it can be deleted.
         if (zaakInformatieobjecten.all { it.zaakUUID == zaakUUID }) {
             drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobject.url.extractUuid())
         }
@@ -318,13 +351,16 @@ class ZgwApiService @Inject constructor(
         betrokkeneType: BetrokkeneTypeEnum,
         roles: List<Rol<*>>? = null
     ): Rol<*>? {
-        val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR).also {
-            if (it.size > 1) {
-                LOG.warning(
-                    "Multiple behandelaar role types found for zaaktype: '${zaak.zaaktype}', using the first one."
-                )
+        val roleTypes = ztcClientService.findRoltypen(zaak.zaaktype, OmschrijvingGeneriekEnum.BEHANDELAAR)
+            .filter { it.omschrijving == ROLTYPE_OMSCHRIJVING_BEHANDELAAR }
+            .also {
+                if (it.size > 1) {
+                    LOG.warning(
+                        "Multiple behandelaar role types with omschrijving '$ROLTYPE_OMSCHRIJVING_BEHANDELAAR' " +
+                            "found for zaaktype: '${zaak.zaaktype}', using the first one."
+                    )
+                }
             }
-        }
         return roleTypes.firstOrNull()?.let { roleType ->
             val matchingRoles = (
                 roles?.filter { it.roltype == roleType.url && it.betrokkeneType == betrokkeneType }

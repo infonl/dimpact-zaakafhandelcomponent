@@ -31,13 +31,12 @@ import { MatInputModule } from "@angular/material/input";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import * as proj from "ol/proj.js";
 import * as style from "ol/style.js";
 import { BehaviorSubject, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { LocationUtil } from "../../shared/location/location-util";
 import {
   AddressResult,
@@ -48,8 +47,6 @@ import { OpenLayersLocationMap } from "../../shared/location/open-layers-locatio
 import { LocationPipe } from "../../shared/pipes/location.pipe";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { GeometryGegevens } from "../model/geometry-gegevens";
-import { GeometryType } from "../model/geometryType";
 import { ZakenService } from "../zaken.service";
 
 @Component({
@@ -83,13 +80,12 @@ export class CaseLocationEditComponent
 {
   @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
   @Input({ required: true }) sideNav!: MatDrawer;
-  @Output() locatie = new EventEmitter<GeometryGegevens | null>();
+  @Output() locatie = new EventEmitter<void>();
 
   @ViewChild("openLayersMap", { static: true }) openLayersMapRef!: ElementRef;
 
   private readonly zakenService = inject(ZakenService);
   private readonly locationService = inject(LocationService);
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   // markerLocatie?: GeneratedType<"RestGeometry">;
   markerLocatie$ = new BehaviorSubject<GeneratedType<"RestGeometry"> | null>(
@@ -102,14 +98,15 @@ export class CaseLocationEditComponent
 
   protected readonly form = new FormGroup({ reason: this.reasonControl });
 
-  protected readonly mutation = injectMutation(() => ({
-    ...this.zakenService.updateZaakLocatie(this.zaak.uuid),
-    onSuccess: () => {
-      this.locatie.emit();
-      void this.sideNav.close();
+  protected readonly mutation = injectMutation(
+    () => this.zakenService.updateZaakLocatie(this.zaak.uuid),
+    {
+      onSuccess: () => {
+        this.locatie.emit();
+        void this.sideNav.close();
+      },
     },
-    onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
-  }));
+  );
 
   private unsubscribe$: Subject<void> = new Subject<void>();
   protected readonly: boolean = false;
@@ -221,7 +218,7 @@ export class CaseLocationEditComponent
     this.searchControl.reset();
 
     switch (geometry?.type) {
-      case GeometryType.POINT: {
+      case "POINT": {
         if (!geometry?.point) return;
 
         const coordinate = LocationUtil.pointToCoordinate(geometry.point);

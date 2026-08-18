@@ -4,7 +4,6 @@
  */
 
 import { NgClass, NgIf } from "@angular/common";
-import { HttpErrorResponse } from "@angular/common/http";
 import {
   Component,
   EventEmitter,
@@ -28,10 +27,8 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
@@ -40,6 +37,7 @@ import { DateRangeFilterComponent } from "src/app/shared/table-zoek-filters/date
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { ZakenService } from "../zaken.service";
 
 const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
@@ -82,13 +80,10 @@ export class ZaakLinkComponent implements OnDestroy {
   private readonly zoekenService = inject(ZoekenService);
   private readonly zakenService = inject(ZakenService);
   private readonly utilService = inject(UtilService);
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
-  protected readonly koppelZaakMutation = injectMutation(() => ({
-    ...this.zakenService.koppelZaakMutation(),
-    onError: (error: HttpErrorResponse) =>
-      this.foutAfhandelingService.foutAfhandelen(error),
-  }));
+  protected readonly koppelZaakMutation = injectMutation(() =>
+    this.zakenService.koppelZaakMutation(),
+  );
 
   private ngDestroy = new Subject<void>();
 

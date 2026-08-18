@@ -91,6 +91,11 @@ on the top of the file by adding a `, <YYYY> INFO.nl` to the `SPDX-FileCopyright
 Note that each contributor should only be mentioned once in an SPDX header, where we use the convention that the year 
 indicates the _initial_ year when a contribution was made by that contributor.
 
+### Exemption: OpenSpec files
+
+Files inside the `openspec/` directory (e.g. `.openspec.yaml`, `proposal.md`, `tasks.md`, `design.md`, spec deltas) are
+exempt from the SPDX header requirement, including once archived. Do not add SPDX headers to these files.
+
 ### Checking for SPDX license identifiers and (optionally) adding them in bulk
 
 We automatically check for SPDX license identifiers in our source code with a GitHub workflow that uses the

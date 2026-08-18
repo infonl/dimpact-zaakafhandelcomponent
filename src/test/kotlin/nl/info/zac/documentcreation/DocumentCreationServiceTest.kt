@@ -19,7 +19,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateL
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
-import nl.info.client.zgw.model.createZaakInformatieobjectForCreatesAndUpdates
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createInformatieObjectType
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
@@ -73,7 +73,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val downloadedFile = createFile()
         val informatieObjectType = createInformatieObjectType()
-        val zaakInformatieobject = createZaakInformatieobjectForCreatesAndUpdates()
+        val zaakInformatieobject = createZaakInformatieobjectForReads()
         val enkelvoudigInformatieObjectLockRequestSlot = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
 
         every { smartDocumentsService.downloadDocument(smartDocumentId) } returns downloadedFile

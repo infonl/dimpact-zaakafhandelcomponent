@@ -18,13 +18,15 @@ import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper
 import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper
 import net.atos.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.JsonbConfiguration
-import net.atos.client.zgw.zrc.model.Rol
-import net.atos.client.zgw.zrc.model.RolListParameters
-import net.atos.client.zgw.zrc.model.ZaakInformatieobject
-import net.atos.client.zgw.zrc.model.ZaakInformatieobjectListParameters
-import net.atos.client.zgw.zrc.model.ZaakListParameters
-import net.atos.client.zgw.zrc.model.zaakobjecten.Zaakobject
-import net.atos.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolListParameters
+import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
+import nl.info.client.zgw.zrc.model.ZaakListParameters
+import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectListParameters
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectRequest
 import nl.info.client.zgw.shared.model.audit.ZRCAuditTrailRegel
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.client.zgw.zrc.exception.ZrcResponseExceptionMapper
@@ -120,11 +122,11 @@ interface ZrcClient {
 
     @GET
     @Path("zaakinformatieobjecten")
-    fun zaakinformatieobjectList(@BeanParam parameters: ZaakInformatieobjectListParameters): List<ZaakInformatieobject>
+    fun zaakinformatieobjectList(@BeanParam parameters: ZaakInformatieobjectListParameters): List<ZaakInformatieObject>
 
     @POST
     @Path("zaakinformatieobjecten")
-    fun zaakinformatieobjectCreate(zaakInformatieObject: ZaakInformatieobject): ZaakInformatieobject
+    fun zaakinformatieobjectCreate(zaakInformatieObjectRequest: ZaakInformatieObjectRequest): ZaakInformatieObject
 
     @DELETE
     @Path("zaakinformatieobjecten/{uuid}")
@@ -184,7 +186,7 @@ interface ZrcClient {
 
     @POST
     @Path("zaakobjecten")
-    fun zaakobjectCreate(zaakobject: Zaakobject): Zaakobject
+    fun zaakobjectCreate(zaakobject: ZaakobjectRequest): Zaakobject
 
     @DELETE
     @Path("zaakobjecten/{uuid}")
@@ -200,5 +202,5 @@ interface ZrcClient {
 
     @GET
     @Path("zaakinformatieobjecten/{uuid}")
-    fun zaakinformatieobjectRead(@PathParam("uuid") zaakinformatieobjectUUID: UUID): ZaakInformatieobject
+    fun zaakinformatieobjectRead(@PathParam("uuid") zaakinformatieobjectUUID: UUID): ZaakInformatieObject
 }
