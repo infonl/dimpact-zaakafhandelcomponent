@@ -18,6 +18,7 @@ import { KlantenService } from "../../klanten/klanten.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { isRestZaak } from "../is-rest-zaak";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { BetrokkeneLinkComponent } from "../zaak-betrokkenen/betrokkene-link.component";
 import { ZaakDialogService } from "../zaak-dialog.service";
@@ -114,7 +115,6 @@ export class ZaakBetrokkeneListComponent {
   }
 
   protected deleteBetrokkene(betrokkene: GeneratedType<"RestZaakBetrokkene">) {
-    this.websocketService.suspendListener(this.zaakRollenListener());
     const betrokkeneIdentificatie: string =
       betrokkene.roltype +
       " " +
@@ -143,6 +143,9 @@ export class ZaakBetrokkeneListComponent {
       .afterClosed()
       .subscribe((result) => {
         if (result) {
+          if (isRestZaak(result)) {
+            this.zakenService.cacheZaak(result);
+          }
           this.utilService.openSnackbar(
             "msg.betrokkene.ontkoppelen.uitgevoerd",
             { betrokkene: betrokkeneIdentificatie },

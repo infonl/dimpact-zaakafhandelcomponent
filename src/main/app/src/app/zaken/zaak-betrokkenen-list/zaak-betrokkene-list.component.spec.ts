@@ -22,7 +22,6 @@ import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
-import { WebsocketService } from "../../core/websocket/websocket.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
@@ -63,7 +62,6 @@ describe(ZaakBetrokkeneListComponent.name, () => {
   let loader: HarnessLoader;
   let zakenService: ZakenService;
   let klantenService: KlantenService;
-  let websocketService: WebsocketService;
   let utilService: UtilService;
   let dialogRef: MatDialogRef<unknown>;
   let openOntkoppelBetrokkeneSpy: jest.Mock;
@@ -110,9 +108,6 @@ describe(ZaakBetrokkeneListComponent.name, () => {
     klantenService = TestBed.inject(KlantenService);
     utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "openSnackbar").mockImplementation();
-
-    websocketService = TestBed.inject(WebsocketService);
-    jest.spyOn(websocketService, "suspendListener").mockImplementation();
 
     deleteBetrokkeneMutation = createMutationOptions<
       GeneratedType<"RestZaak">,
@@ -243,14 +238,6 @@ describe(ZaakBetrokkeneListComponent.name, () => {
   });
 
   describe("deleteBetrokkene", () => {
-    it("suspends the zaakRollenListener before opening the confirmation dialog", () => {
-      component["deleteBetrokkene"](makeBetrokkene());
-
-      expect(websocketService.suspendListener).toHaveBeenCalledWith(
-        component.zaakRollenListener(),
-      );
-    });
-
     it("calls zakenService.deleteBetrokkene with the betrokkene's rolid and the entered reden", () => {
       const betrokkene = makeBetrokkene({ rolid: "fake-rol-id" });
 
@@ -285,6 +272,29 @@ describe(ZaakBetrokkeneListComponent.name, () => {
         queryKey: zakenService.listBetrokkenenVoorZaakQuery(fakeZaak.uuid)
           .queryKey,
       });
+    });
+
+    it("writes the returned zaak into the cache when the dialog closes with one", () => {
+      const cacheZaakSpy = jest.spyOn(zakenService, "cacheZaak");
+      const fakeReturnedZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: fakeZaak.uuid,
+      });
+      jest
+        .spyOn(dialogRef, "afterClosed")
+        .mockReturnValue(of(fakeReturnedZaak));
+
+      component["deleteBetrokkene"](makeBetrokkene());
+
+      expect(cacheZaakSpy).toHaveBeenCalledWith(fakeReturnedZaak);
+    });
+
+    it("does not write to the cache when the dialog closes with a confirmation-only result", () => {
+      const cacheZaakSpy = jest.spyOn(zakenService, "cacheZaak");
+      jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
+
+      component["deleteBetrokkene"](makeBetrokkene());
+
+      expect(cacheZaakSpy).not.toHaveBeenCalled();
     });
 
     it("does nothing when the dialog is cancelled", () => {

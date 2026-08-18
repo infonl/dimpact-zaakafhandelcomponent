@@ -13,8 +13,10 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { ZacDate } from "../../shared/form/date/date";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
@@ -46,6 +48,7 @@ const setup = (zaak = makeZaak()) => {
       provideHttpClient(),
       provideRouter([]),
       provideNativeDateAdapter(),
+      provideQueryClient(testQueryClient),
       { provide: MAT_DIALOG_DATA, useValue: { zaak } },
       { provide: MatDialogRef, useValue: dialogRefMock },
     ],

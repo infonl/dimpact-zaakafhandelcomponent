@@ -6,6 +6,7 @@
 import { inject, Injectable } from "@angular/core";
 import {
   mutationOptions,
+  QueryClient,
   queryOptions,
 } from "@tanstack/angular-query-experimental";
 import { lastValueFrom } from "rxjs";
@@ -39,11 +40,22 @@ export class ZakenService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
+  private readonly queryClient = inject(QueryClient);
 
   readZaak(uuid: string) {
     return this.zacHttpClient.GET("/rest/zaken/zaak/{uuid}", {
       path: { uuid },
     });
+  }
+
+  readZaakQuery(uuid: string) {
+    return this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}", {
+      path: { uuid },
+    });
+  }
+
+  cacheZaak(zaak: GeneratedType<"RestZaak">) {
+    this.queryClient.setQueryData(this.readZaakQuery(zaak.uuid).queryKey, zaak);
   }
 
   readZaakByID(identificatie: string) {
@@ -57,26 +69,29 @@ export class ZakenService {
   }
 
   updateMutation() {
-    return mutationOptions({
-      mutationKey: ["/rest/zaken/zaak/{uuid}"],
-      mutationFn: (variables: {
-        uuid: string;
-        zaak: ZaakDetailsUpdate;
-        reden: string;
-      }) =>
-        lastValueFrom(
-          this.zacHttpClient.PATCH(
-            "/rest/zaken/zaak/{uuid}",
-            // Endpoint accepts a partial zaak; the generated body type requires
-            // the full RestZaakCreateData, so assert the partial here (one spot).
-            {
-              zaak: variables.zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
-              reden: variables.reden,
-            },
-            { path: { uuid: variables.uuid } },
+    return mergeMutationOptions(
+      mutationOptions({
+        mutationKey: ["/rest/zaken/zaak/{uuid}"],
+        mutationFn: (variables: {
+          uuid: string;
+          zaak: ZaakDetailsUpdate;
+          reden: string;
+        }) =>
+          lastValueFrom(
+            this.zacHttpClient.PATCH(
+              "/rest/zaken/zaak/{uuid}",
+              // Endpoint accepts a partial zaak; the generated body type requires
+              // the full RestZaakCreateData, so assert the partial here (one spot).
+              {
+                zaak: variables.zaak as PatchBody<"/rest/zaken/zaak/{uuid}">["zaak"],
+                reden: variables.reden,
+              },
+              { path: { uuid: variables.uuid } },
+            ),
           ),
-        ),
-    });
+      }),
+      { onSuccess: (zaak) => this.cacheZaak(zaak) },
+    );
   }
 
   readOpschortingZaak(uuid: string) {
@@ -101,9 +116,12 @@ export class ZakenService {
   }
 
   verlengenZaak(uuid: string) {
-    return this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/verlenging", {
-      path: { uuid },
-    });
+    return mergeMutationOptions(
+      this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/verlenging", {
+        path: { uuid },
+      }),
+      { onSuccess: (zaak) => this.cacheZaak(zaak) },
+    );
   }
 
   listZaakWaarschuwingen() {
@@ -159,9 +177,12 @@ export class ZakenService {
   }
 
   updateZaakLocatie(uuid: string) {
-    return this.zacQueryClient.PATCH("/rest/zaken/{uuid}/zaaklocatie", {
-      path: { uuid },
-    });
+    return mergeMutationOptions(
+      this.zacQueryClient.PATCH("/rest/zaken/{uuid}/zaaklocatie", {
+        path: { uuid },
+      }),
+      { onSuccess: (zaak) => this.cacheZaak(zaak) },
+    );
   }
 
   ontkoppelInformatieObject(
@@ -226,6 +247,15 @@ export class ZakenService {
     return this.zacHttpClient.PATCH("/rest/zaken/zaak/{uuid}/heropenen", body, {
       path: { uuid },
     });
+  }
+
+  afsluitenMutation(uuid: string) {
+    return mergeMutationOptions(
+      this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", {
+        path: { uuid },
+      }),
+      { onSuccess: (zaak) => this.cacheZaak(zaak) },
+    );
   }
 
   afsluiten(

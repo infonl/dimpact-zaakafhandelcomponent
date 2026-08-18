@@ -7,7 +7,10 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -30,6 +33,10 @@ import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
+import { ObjectType } from "../../core/websocket/model/object-type";
+import { Opcode } from "../../core/websocket/model/opcode";
+import { ScreenEvent } from "../../core/websocket/model/screen-event";
+import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { BedrijfsgegevensComponent } from "../../klanten/bedrijfsgegevens/bedrijfsgegevens.component";
@@ -270,6 +277,21 @@ describe(ZaakViewComponent.name, () => {
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
       mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
+      });
+    });
+
+    it("invalidates the historie query again on a content-only change, without a route re-navigation", () => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      zakenService.cacheZaak({ ...zaak, isOpgeschort: true });
+      fixture.detectChanges();
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
@@ -358,15 +380,15 @@ describe(ZaakViewComponent.name, () => {
   });
 
   describe("dateFieldIconMap icon logic", () => {
-    let component: ZaakViewComponent;
     const yesterdayDate = moment().subtract(1, "days").format("YYYY-MM-DD");
     const today = moment().format("YYYY-MM-DD");
     const tomorrowDate = moment().add(1, "days").format("YYYY-MM-DD");
 
     beforeEach(async () => {
       fixture = TestBed.createComponent(ZaakViewComponent);
-      component = fixture.componentInstance;
-      component.zaak = { ...zaak } as GeneratedType<"RestZaak">;
+      mockActivatedRoute.data.next({
+        zaak: { ...zaak } as GeneratedType<"RestZaak">,
+      });
 
       loader = TestbedHarnessEnvironment.loader(fixture);
 
@@ -740,6 +762,88 @@ describe(ZaakViewComponent.name, () => {
       await button.click();
 
       expect(updateZaakSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("openZaakAfbrekenDialog", () => {
+    let reloadSpy: jest.Mock;
+
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+      reloadSpy = jest.fn();
+      fixture.componentInstance["zaakTakenComponent"] =
+        fromPartial<ZaakTakenComponent>({ reload: reloadSpy });
+    });
+
+    it("writes the returned zaak into the cache when the dialog closes with one", () => {
+      const cacheZaakSpy = jest
+        .spyOn(zakenService, "cacheZaak")
+        .mockImplementation();
+      const fakeReturnedZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: zaak.uuid,
+      });
+      jest
+        .spyOn(dialogRef, "afterClosed")
+        .mockReturnValue(of(fakeReturnedZaak));
+
+      fixture.componentInstance["openZaakAfbrekenDialog"]();
+
+      expect(cacheZaakSpy).toHaveBeenCalledWith(fakeReturnedZaak);
+    });
+
+    it("falls back to a refetch when the dialog closes with a confirmation-only result", () => {
+      jest.spyOn(zakenService, "cacheZaak").mockImplementation();
+      const readZaakSpy = jest
+        .spyOn(zakenService, "readZaak")
+        .mockReturnValue(of(zaak));
+      jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
+
+      fixture.componentInstance["openZaakAfbrekenDialog"]();
+
+      expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+      expect(reloadSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("openZaakHeropenenDialog", () => {
+    let reloadSpy: jest.Mock;
+
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+      reloadSpy = jest.fn();
+      fixture.componentInstance["zaakTakenComponent"] =
+        fromPartial<ZaakTakenComponent>({ reload: reloadSpy });
+    });
+
+    it("writes the returned zaak into the cache when the dialog closes with one", () => {
+      const cacheZaakSpy = jest
+        .spyOn(zakenService, "cacheZaak")
+        .mockImplementation();
+      const fakeReturnedZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: zaak.uuid,
+      });
+      jest
+        .spyOn(dialogRef, "afterClosed")
+        .mockReturnValue(of(fakeReturnedZaak));
+
+      fixture.componentInstance["openZaakHeropenenDialog"]();
+
+      expect(cacheZaakSpy).toHaveBeenCalledWith(fakeReturnedZaak);
+    });
+
+    it("falls back to a refetch when the dialog closes with a confirmation-only result", () => {
+      jest.spyOn(zakenService, "cacheZaak").mockImplementation();
+      const readZaakSpy = jest
+        .spyOn(zakenService, "readZaak")
+        .mockReturnValue(of(zaak));
+      jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
+
+      fixture.componentInstance["openZaakHeropenenDialog"]();
+
+      expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+      expect(reloadSpy).toHaveBeenCalled();
     });
   });
 
@@ -1561,6 +1665,199 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
+  describe("zaak from cache", () => {
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("renders the zaak the route resolved", () => {
+      expect(fixture.componentInstance.zaak.uuid).toBe("1234");
+    });
+
+    it("re-renders from a cache write without a route emission", () => {
+      zakenService.cacheZaak({
+        ...zaak,
+        omschrijving: "fakeUpdatedOmschrijving",
+      });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.zaak.omschrijving).toBe(
+        "fakeUpdatedOmschrijving",
+      );
+    });
+  });
+
+  describe("side effects on zaak changes", () => {
+    const opschortbareZaak = {
+      ...zaak,
+      isOpen: true,
+      rechten: {
+        ...zaak.rechten,
+        behandelen: true,
+      },
+      zaaktype: {
+        ...zaak.zaaktype,
+        opschortingMogelijk: true,
+      },
+      isHeropend: false,
+      isOpgeschort: false,
+      eerdereOpschorting: false,
+      isProcesGestuurd: false,
+    } satisfies GeneratedType<"RestZaak">;
+
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak: opschortbareZaak });
+      fixture.detectChanges();
+      jest.mocked(bagService.list).mockClear();
+    });
+
+    it("does not reload BAG objects when only zaak content changes", () => {
+      zakenService.cacheZaak({
+        ...opschortbareZaak,
+        omschrijving: "fakeUpdatedOmschrijving",
+      });
+      fixture.detectChanges();
+
+      expect(bagService.list).not.toHaveBeenCalled();
+    });
+
+    it("rebuilds the action menu when rechten change", () => {
+      const menuTitlesBeforeWrite = fixture.componentInstance.menu.map(
+        (item) => item.title,
+      );
+      expect(menuTitlesBeforeWrite).toContain("actie.zaak.opschorten");
+
+      zakenService.cacheZaak({
+        ...opschortbareZaak,
+        rechten: { ...opschortbareZaak.rechten, behandelen: false },
+      });
+      fixture.detectChanges();
+
+      const menuTitlesAfterWrite = fixture.componentInstance.menu.map(
+        (item) => item.title,
+      );
+      expect(menuTitlesAfterWrite).not.toContain("actie.zaak.opschorten");
+    });
+  });
+
+  describe("websocket echo suppression", () => {
+    let httpTestingController: HttpTestingController;
+    let zaakChangedCallback: (event: ScreenEvent) => Promise<void>;
+
+    const zaakChangedEvent = new ScreenEvent(
+      Opcode.UPDATED,
+      ObjectType.ZAAK,
+      new ScreenEventId(zaak.uuid),
+    );
+
+    const flushRefetch = async (body: GeneratedType<"RestZaak">) => {
+      await new Promise(requestAnimationFrame);
+      httpTestingController
+        .expectOne((request) => request.url.endsWith("/rest/zaken/zaak/1234"))
+        .flush(body);
+      await new Promise(requestAnimationFrame);
+    };
+
+    // A 4xx status is used (rather than 5xx) because ZacQueryClient.GET retries
+    // 5xx/network failures up to DEFAULT_RETRY_COUNT times, which would make this
+    // helper race the retry backoff instead of resolving after a single failure.
+    const flushRefetchError = async () => {
+      await new Promise(requestAnimationFrame);
+      httpTestingController
+        .expectOne((request) => request.url.endsWith("/rest/zaken/zaak/1234"))
+        .flush("fakeClientError", {
+          status: 400,
+          statusText: "Bad Request",
+        });
+      await new Promise(requestAnimationFrame);
+    };
+
+    beforeEach(() => {
+      httpTestingController = TestBed.inject(HttpTestingController);
+      jest.spyOn(utilService, "openSnackbar");
+      jest
+        .spyOn(websocketService, "addListener")
+        .mockImplementation((_opcode, objectType, _objectId, callback) => {
+          if (objectType === ObjectType.ZAAK) {
+            zaakChangedCallback = callback as unknown as (
+              event: ScreenEvent,
+            ) => Promise<void>;
+          }
+          return fromPartial<WebsocketListener>({});
+        });
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+      // Mounting the component fires several unrelated queries (identity,
+      // policy, betrokkenen, ...). Drain them so this describe's afterEach
+      // only has to account for the zaak refetch it triggers itself.
+      httpTestingController.match(() => true);
+    });
+
+    afterEach(() => {
+      httpTestingController.verify();
+    });
+
+    it("stays quiet when the refetch returns identical data", async () => {
+      const pending = zaakChangedCallback(zaakChangedEvent);
+      await flushRefetch({ ...zaak });
+      await pending;
+
+      expect(utilService.openSnackbar).not.toHaveBeenCalled();
+    });
+
+    it("notifies when the refetch returns different data", async () => {
+      const pending = zaakChangedCallback(zaakChangedEvent);
+      await flushRefetch({ ...zaak, omschrijving: "changedByOtherUser" });
+      await pending;
+
+      expect(utilService.openSnackbar).toHaveBeenCalled();
+    });
+
+    it("notifies when the refetch fails, rather than silently treating it as an echo", async () => {
+      const pending = zaakChangedCallback(zaakChangedEvent);
+      await flushRefetchError();
+      await pending;
+
+      expect(utilService.openSnackbar).toHaveBeenCalled();
+    });
+  });
+
+  describe("zaak rollen websocket listener", () => {
+    let zaakRollenCallback: (event: ScreenEvent) => void;
+
+    beforeEach(() => {
+      jest.spyOn(utilService, "openSnackbar");
+      jest
+        .spyOn(websocketService, "addListenerWithSnackbar")
+        .mockImplementation((_opcode, objectType, _objectId, callback) => {
+          if (objectType === ObjectType.ZAAK_ROLLEN) {
+            zaakRollenCallback = callback as (event: ScreenEvent) => void;
+          }
+          return fromPartial<WebsocketListener>({});
+        });
+
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("invalidates the betrokkenen query when a betrokkene changes elsewhere", () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      zaakRollenCallback(
+        new ScreenEvent(
+          Opcode.UPDATED,
+          ObjectType.ZAAK_ROLLEN,
+          new ScreenEventId(zaak.uuid),
+        ),
+      );
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.listBetrokkenenVoorZaakQuery(zaak.uuid).queryKey,
+      });
+    });
+  });
+
   describe("Menu item ordering", () => {
     it("should sort human task plan items alphabetically by their name", () => {
       jest
@@ -1587,6 +1884,7 @@ describe(ZaakViewComponent.name, () => {
           },
         },
       });
+      fixture.detectChanges();
 
       const menu = fixture.componentInstance.menu;
       const startHeaderIndex = menu.findIndex(
