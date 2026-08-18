@@ -7,8 +7,9 @@ package nl.info.zac.app.admin.model
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.model.extensions.isNuGeldig
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
-import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
+import nl.info.zac.app.shared.toRestVertrouwelijkheidaanduiding
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.LocalDate
@@ -32,7 +33,7 @@ data class RestZaaktypeOverzicht(
     var versiedatum: LocalDate? = null,
     var beginGeldigheid: LocalDate? = null,
     var eindeGeldigheid: LocalDate? = null,
-    var vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum? = null,
+    var vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding? = null,
     var nuGeldig: Boolean = false
 )
 
@@ -46,5 +47,5 @@ fun ZaakType.toRestZaaktypeOverzicht() = RestZaaktypeOverzicht(
     nuGeldig = this.isNuGeldig(),
     beginGeldigheid = this.getBeginGeldigheid(),
     eindeGeldigheid = this.getEindeGeldigheid(),
-    vertrouwelijkheidaanduiding = this.getVertrouwelijkheidaanduiding()
+    vertrouwelijkheidaanduiding = this.getVertrouwelijkheidaanduiding()?.toRestVertrouwelijkheidaanduiding()
 )

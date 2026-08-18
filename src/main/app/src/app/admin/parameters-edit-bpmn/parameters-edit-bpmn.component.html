@@ -87,6 +87,18 @@
             [value]="bpmnZaakafhandelParameters.zaaktype.uuid"
           />
         </section>
+        <section class="row">
+          <zac-static-text
+            class="col-12 col-lg-6"
+            label="zaakspecifiekAutoriseerbaar"
+            [value]="
+              (bpmnZaakafhandelParameters.zaakspecifiekAutoriseerbaar
+                ? 'actie.ja'
+                : 'actie.nee'
+              ) | translate
+            "
+          />
+        </section>
       </fieldset>
       <fieldset class="my-5">
         <section class="row">

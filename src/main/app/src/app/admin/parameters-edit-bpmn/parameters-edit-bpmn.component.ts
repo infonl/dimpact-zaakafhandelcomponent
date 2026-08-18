@@ -121,7 +121,9 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
 
   protected bpmnZaakafhandelParameters: GeneratedType<"RestZaaktypeBpmnConfiguration"> & {
     zaaktype: GeneratedType<"RestZaaktype">;
+    zaakspecifiekAutoriseerbaar: boolean;
   } = {
+    zaakspecifiekAutoriseerbaar: false,
     zaaktypeUuid: "",
     zaaktypeOmschrijving: "",
     bpmnProcessDefinitionKey: "",

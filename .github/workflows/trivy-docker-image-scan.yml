@@ -36,7 +36,7 @@ jobs:
           image-ref: ${{ steps.image.outputs.ref }}
           # pin the Trivy scanner version independently of the action wrapper so that
           # the scanner itself stays current (e.g. for newer base image OS support)
-          version: v0.73.0 # trivy version updated by renovate
+          version: v0.74.0 # trivy version updated by renovate
           format: 'sarif'
           output: 'trivy-results.sarif'
           # limit the severities even when using Sarif
@@ -48,7 +48,7 @@ jobs:
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ steps.image.outputs.ref }}
-          version: v0.73.0 # trivy version updated by renovate
+          version: v0.74.0 # trivy version updated by renovate
           skip-setup-trivy: 'true'
           cache: 'false'
           format: 'table'
@@ -59,7 +59,7 @@ jobs:
           exit-code: '0'
 
       - name: Upload Trivy Scan Results to GitHub Security Tab
-        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
+        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         with:
           sarif_file: 'trivy-results.sarif'
           category: 'trivy-docker-image'

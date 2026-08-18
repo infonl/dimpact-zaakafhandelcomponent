@@ -15,11 +15,11 @@ import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { UtilService } from "src/app/core/service/util.service";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
+import { createMutationOptions } from "../../../test-helpers";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list.component";
 
@@ -46,7 +46,6 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
   let component: OntkoppeldeDocumentenListComponent;
   let ontkoppeldeDocumentenService: OntkoppeldeDocumentenService;
   let infoService: InformatieObjectenService;
-  let utilService: UtilService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -68,7 +67,6 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
 
     ontkoppeldeDocumentenService = TestBed.inject(OntkoppeldeDocumentenService);
     infoService = TestBed.inject(InformatieObjectenService);
-    utilService = TestBed.inject(UtilService);
 
     jest
       .spyOn(ontkoppeldeDocumentenService, "list")
@@ -241,27 +239,20 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     );
   });
 
-  it("should open confirm dialog and emit filterChange with snackbar on documentVerwijderen when confirmed", () => {
+  it("should open confirm dialog and emit filterChange on documentVerwijderen when confirmed", async () => {
     jest.spyOn(component["dialog"], "open").mockReturnValue({
       afterClosed: () => of(true),
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
-    const snackbarSpy = jest
-      .spyOn(utilService, "openSnackbar")
-      .mockImplementation(() => {});
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     jest
       .spyOn(ontkoppeldeDocumentenService, "delete")
-      .mockReturnValue(of(undefined) as never);
+      .mockReturnValue(createMutationOptions(undefined) as never);
 
     const doc = makeDetachedDocument({ id: 42, titel: "My doc" });
     component["documentVerwijderen"](doc);
+    await sleep();
 
-    expect(snackbarSpy).toHaveBeenCalledWith(
-      "msg.document.verwijderen.uitgevoerd",
-      {
-        document: "My doc",
-      },
-    );
+    expect(ontkoppeldeDocumentenService.delete).toHaveBeenCalledWith(doc);
     expect(filterChangeSpy).toHaveBeenCalled();
   });
 
@@ -272,7 +263,7 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
     jest
       .spyOn(ontkoppeldeDocumentenService, "delete")
-      .mockReturnValue(of(undefined) as never);
+      .mockReturnValue(createMutationOptions(undefined) as never);
 
     component["documentVerwijderen"](makeDetachedDocument());
 

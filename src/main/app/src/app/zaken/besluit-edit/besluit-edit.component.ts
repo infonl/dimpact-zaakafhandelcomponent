@@ -26,13 +26,9 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  injectMutation,
-  injectQuery,
-} from "@tanstack/angular-query-experimental";
+import { injectQuery } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import { firstValueFrom } from "rxjs";
-import { FoutAfhandelingService } from "src/app/fout-afhandeling/fout-afhandeling.service";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { ZacDate } from "../../shared/form/date/date";
@@ -41,6 +37,7 @@ import { ZacFormActions } from "../../shared/form/form-actions/form-actions.comp
 import { FormHelper } from "../../shared/form/helpers";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacTextarea } from "../../shared/form/textarea/textarea";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 
@@ -70,7 +67,6 @@ export class BesluitEditComponent implements OnInit {
     InformatieObjectenService,
   );
   private readonly utilService = inject(UtilService);
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly formBuilder = inject(FormBuilder);
 
   protected readonly besluit = input.required<GeneratedType<"RestBesluit">>();
@@ -127,14 +123,12 @@ export class BesluitEditComponent implements OnInit {
   private lastResponseDateMinDate: Moment | null = null;
   private documentsInitialised = false;
 
-  protected readonly updateBesluitMutation = injectMutation(() => ({
-    ...this.zakenService.updateBesluit(),
-    onSuccess: () => {
-      this.utilService.openSnackbar("msg.besluit.gewijzigd");
-      this.besluitGewijzigd.emit(true);
+  protected readonly updateBesluitMutation = injectMutation(
+    () => this.zakenService.updateBesluit(),
+    {
+      onSuccess: () => this.besluitGewijzigd.emit(true),
     },
-    onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
-  }));
+  );
 
   constructor() {
     this.form.controls.vervaldatum.addValidators(

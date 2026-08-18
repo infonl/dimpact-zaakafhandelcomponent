@@ -13,7 +13,7 @@
         "equalTo": "Basic fakeSmartDocumentsAuthentication"
       },
       "Username": {
-        "equalTo": "behandelaar1newiam"
+        "equalTo": "behandelaar1"
       }
     },
     "bodyPatterns": [
@@ -39,7 +39,7 @@
               },
               "data": {
                 "gebruiker": {
-                  "id": "behandelaar1newiam",
+                  "id": "behandelaar1",
                   "naam": "Test Behandelaar 1"
                 },
                 "zaak": {
@@ -79,7 +79,7 @@
               },
               "data": {
                 "gebruiker": {
-                  "id": "behandelaar1newiam",
+                  "id": "behandelaar1",
                   "naam": "Test Behandelaar 1"
                 },
                 "taak": {

@@ -581,7 +581,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
                 restMailGegevens = null,
                 resultaattypeUuid = resultaattypeUuid,
-                brondatumEigenschap = brondatumEigenschap
+                brondatum = brondatumEigenschap
             )
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -612,7 +612,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
                 restMailGegevens = null,
                 resultaattypeUuid = resultaattypeUuid,
-                brondatumEigenschap = "not-a-date"
+                brondatum = "not-a-date"
             )
 
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
@@ -843,6 +843,96 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 then("closeZaak should not be called") {
                     verify(exactly = 0) {
                         zgwApiService.closeZaak(any(), any(), any())
+                    }
+                }
+            }
+        }
+
+        given("Zaak with a valid brondatum when setting the brondatum") {
+            val zaak = createZaak(resultaat = null)
+            val brondatum = "2023-12-01T00:00:00.000+01:00"
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.BRONDATUM_ZETTEN,
+                restMailGegevens = null,
+                brondatum = brondatum
+            )
+            val loggedInUser = createLoggedInUser()
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(brondatumZetten = true)
+            every {
+                zgwApiService.setBrondatum(zaak, ZonedDateTime.parse(brondatum).toLocalDate())
+            } just runs
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("doUserEventListenerPlanItem is called to set the brondatum") {
+                planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+
+                then("processBrondatumProcedure should be called with the parsed brondatum") {
+                    verify(exactly = 1) {
+                        zgwApiService.setBrondatum(zaak, ZonedDateTime.parse(brondatum).toLocalDate())
+                    }
+                }
+            }
+        }
+
+        given("Zaak without a brondatum when setting the brondatum") {
+            val zaak = createZaak(resultaat = null)
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.BRONDATUM_ZETTEN,
+                restMailGegevens = null
+            )
+            val loggedInUser = createLoggedInUser()
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(brondatumZetten = true)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("doUserEventListenerPlanItem is called without a brondatum") {
+                val exception = shouldThrow<InputValidationFailedException> {
+                    planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+                }
+
+                then("an exception should be thrown") {
+                    exception.message shouldBe "Brondatum moet gevuld zijn bij het zetten van de brondatum van een zaak."
+                    exception.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
+                }
+
+                And("processBrondatumProcedure should not be called") {
+                    verify(exactly = 0) {
+                        zgwApiService.setBrondatum(any(), any())
+                    }
+                }
+            }
+        }
+
+        given("Zaak with a valid brondatum when setting the brondatum by a user without the brondatumZetten right") {
+            val zaak = createZaak(resultaat = null)
+            val brondatum = "2023-12-01T00:00:00.000+01:00"
+            val restUserEventListenerData = createRESTUserEventListenerData(
+                zaakUuid = zaak.uuid,
+                actie = UserEventListenerActie.BRONDATUM_ZETTEN,
+                restMailGegevens = null,
+                brondatum = brondatum
+            )
+            val loggedInUser = createLoggedInUser()
+
+            every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+            every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("doUserEventListenerPlanItem is called to set the brondatum") {
+                val exception = shouldThrow<PolicyException> {
+                    planItemsRESTService.doUserEventListenerPlanItem(restUserEventListenerData)
+                }
+
+                then("it throws exception with no message") { exception.message shouldBe null }
+
+                And("setBrondatum should not be called") {
+                    verify(exactly = 0) {
+                        zgwApiService.setBrondatum(any(), any())
                     }
                 }
             }

@@ -8,7 +8,6 @@ package nl.info.zac.app.zaak.model
 import net.atos.zac.app.bag.model.RESTBAGObject
 import net.atos.zac.app.bag.model.RESTOpenbareRuimte
 import net.atos.zac.app.bag.model.RESTPand
-import nl.info.client.zgw.ztc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration
 import nl.info.zac.app.admin.model.createRestZaaktypeConfiguration
 import nl.info.zac.app.identity.model.RestGroup
@@ -16,6 +15,7 @@ import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.klant.model.klant.IdentificatieType
 import nl.info.zac.app.policy.model.RestZaakRechten
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraag
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.app.zaak.model.besluit.RestBesluit
 import nl.info.zac.app.zaak.model.besluit.RestBesluitChangeData
 import nl.info.zac.app.zaak.model.besluit.RestBesluitCreateData
@@ -155,7 +155,8 @@ fun createRestZaak(
     startDatum: LocalDate = LocalDate.of(2023, 9, 15),
     uiterlijkeEinddatumAfdoening: LocalDate = LocalDate.of(2023, 10, 10),
     uuid: UUID = UUID.randomUUID(),
-    vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
+    vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding
+        = RestVertrouwelijkheidaanduiding.OPENBAAR
 ) = RestZaak(
     archiefActiedatum = LocalDate.of(2023, 10, 15),
     archiefNominatie = "Sample Archief Nominatie",
@@ -224,7 +225,7 @@ fun createRestZaakCreateData(
     einddatumGepland: LocalDate? = null,
     communicatiekanaal: String? = "fakeCommunicatiekanaal",
     startDatum: LocalDate = LocalDate.of(2023, 9, 15),
-    vertrouwelijkheidaanduiding: String = VertrouwelijkheidaanduidingEnum.OPENBAAR.name
+    vertrouwelijkheidaanduiding: String = RestVertrouwelijkheidaanduiding.OPENBAAR.name
 ) = RestZaakCreateData(
     omschrijving = description,
     toelichting = explanation,
@@ -366,7 +367,8 @@ fun createRestZaakRechten(
     verwijderenInitiator: Boolean = true,
     creerenDocument: Boolean = true,
     versturenEmail: Boolean = true,
-    wijzigenLocatie: Boolean = true
+    wijzigenLocatie: Boolean = true,
+    brondatumZetten: Boolean = true
 ) = RestZaakRechten(
     lezen = lezen,
     wijzigen = wijzigen,
@@ -386,7 +388,8 @@ fun createRestZaakRechten(
     verwijderenInitiator = verwijderenInitiator,
     creerenDocument = creerenDocument,
     versturenEmail = versturenEmail,
-    wijzigenLocatie = wijzigenLocatie
+    wijzigenLocatie = wijzigenLocatie,
+    brondatumZetten = brondatumZetten
 )
 
 fun createRestZaakResultaat() = RestZaakResultaat()
@@ -411,7 +414,7 @@ fun createRestZaaktype(
     versiedatum = LocalDate.now(),
     beginGeldigheid = LocalDate.of(2023, 1, 1),
     eindeGeldigheid = LocalDate.of(2023, 12, 31),
-    vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR,
+    vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR,
     nuGeldig = true,
     opschortingMogelijk = false,
     verlengingMogelijk = false,
@@ -457,4 +460,10 @@ fun createRestDetachDocumentData(
     zaakUUID = zaakUUID,
     documentUUID = documentUUID,
     reden = reden
+)
+
+fun createRestZaakSetBrondatum(
+    brondatum: LocalDate = LocalDate.now()
+) = RestZaakSetBrondatum(
+    brondatum = brondatum
 )

@@ -74,6 +74,9 @@ class BrpConfiguration @Inject constructor(
     @ConfigProperty(name = ENV_VAR_BRP_VERWERKINGSREGISTER)
     private val verwerkingregister: Optional<String>,
 
+    @ConfigProperty(name = ENV_VAR_BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE, defaultValue = "false")
+    private val verwerkingRegisterExtendedWithZaaktype: Boolean,
+
     @ConfigProperty(name = ENV_VAR_BRP_GEBRUIKER_HEADER)
     private val headerNameGebruiker: Optional<String>,
 
@@ -103,6 +106,7 @@ class BrpConfiguration @Inject constructor(
         const val ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET = "BRP_DOELBINDING_RAADPLEEGMET"
         const val ENV_VAR_BRP_VERWERKING_HEADER = "BRP_VERWERKING_HEADER"
         const val ENV_VAR_BRP_VERWERKINGSREGISTER = "BRP_VERWERKINGSREGISTER"
+        const val ENV_VAR_BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE = "BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE"
         const val ENV_VAR_BRP_GEBRUIKER_HEADER = "BRP_GEBRUIKER_HEADER"
         const val ENV_VAR_BRP_TOEPASSING_HEADER = "BRP_TOEPASSING_HEADER"
         const val ENV_VAR_BRP_TOEPASSING = "BRP_TOEPASSING"
@@ -238,6 +242,7 @@ class BrpConfiguration @Inject constructor(
         |- $ENV_VAR_BRP_DOELBINDING_RAADPLEEGMET: '${doelbindingRaadpleegMetDefault.getOrNull()}'
         |- $ENV_VAR_BRP_VERWERKING_HEADER: '${headerNameVerwerking.getOrNull()}'
         |- $ENV_VAR_BRP_VERWERKINGSREGISTER: '${verwerkingregister.getOrNull()}'
+        |- $ENV_VAR_BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE: '$verwerkingRegisterExtendedWithZaaktype'
         |- $ENV_VAR_BRP_GEBRUIKER_HEADER: '${headerNameGebruiker.getOrNull()}'
         |- $ENV_VAR_BRP_TOEPASSING_HEADER: '${headerNameToepassing.getOrNull()}'
         |- $ENV_VAR_BRP_TOEPASSING: '${toepassingValue.getOrNull()}'
@@ -250,6 +255,8 @@ class BrpConfiguration @Inject constructor(
 
     override fun isDoelbindingPerZaaktypeEnabled(): Boolean =
         doelbindingPerZaaktypeEnabled && headerNameDoelbinding.isPresentNotBlank()
+
+    override fun isVerwerkingRegisterExtendedWithZaaktype(): Boolean = verwerkingRegisterExtendedWithZaaktype
 
     override fun getHeaderUser(): String? = headerNameGebruiker.getOrNull()
 

@@ -29,10 +29,10 @@ import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZakenService } from "../../zaken/zaken.service";
 import { InformatieObjectEditComponent } from "../informatie-object-edit/informatie-object-edit.component";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { FileFormat } from "../model/file-format";
-import { Vertrouwelijkheidaanduiding } from "../model/vertrouwelijkheidaanduiding.enum";
 import { InformatieObjectViewComponent } from "./informatie-object-view.component";
 
 describe(InformatieObjectViewComponent.name, () => {
@@ -41,10 +41,10 @@ describe(InformatieObjectViewComponent.name, () => {
   let loader: HarnessLoader;
 
   let informatieObjectenService: InformatieObjectenService;
+  let zakenService: ZakenService;
 
   const mockActivatedRoute = {
     data: new ReplaySubject<{
-      zaak: GeneratedType<"RestZaak">;
       informatieObject: GeneratedType<"RestEnkelvoudigInformatieobject">;
     }>(1),
   };
@@ -54,11 +54,17 @@ describe(InformatieObjectViewComponent.name, () => {
     identificatie: "test",
     indicaties: [],
     omschrijving: "test omschrijving",
-    vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
+    vertrouwelijkheidaanduiding: "OPENBAAR",
     rechten: fromPartial<GeneratedType<"RestZaakRechten">>({}),
     zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
       uuid: "zaaktype-001",
     }),
+  });
+
+  const zaakInformatieobject = fromPartial<
+    GeneratedType<"RestZaakInformatieobject">
+  >({
+    zaakIdentificatie: zaak.identificatie,
   });
 
   const enkelvoudigInformatieobject = fromPartial<
@@ -68,7 +74,7 @@ describe(InformatieObjectViewComponent.name, () => {
     informatieobjectTypeUUID: "test-uuid",
     indicaties: [],
     titel: "test informatieobject",
-    vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
+    vertrouwelijkheidaanduiding: "OPENBAAR",
     rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({}),
     formaat: FileFormat.DOCX,
   });
@@ -117,10 +123,21 @@ describe(InformatieObjectViewComponent.name, () => {
           uuid: "enkelvoudig-informatieobject-001",
           informatieobjectTypeUUID: "test-uuid",
           titel: "test informatieobject",
-          vertrouwelijkheidaanduiding: Vertrouwelijkheidaanduiding.openbaar,
+          vertrouwelijkheidaanduiding: "OPENBAAR",
           rechten: {},
         }),
       );
+
+    jest
+      .spyOn(informatieObjectenService, "listZaakInformatieobjecten")
+      .mockReturnValue(of([zaakInformatieobject]));
+
+    jest
+      .spyOn(informatieObjectenService, "listHistorie")
+      .mockReturnValue(of([]));
+
+    zakenService = TestBed.inject(ZakenService);
+    jest.spyOn(zakenService, "readZaakByID").mockReturnValue(of(zaak));
 
     const identityService = TestBed.inject(IdentityService);
     testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
@@ -141,7 +158,6 @@ describe(InformatieObjectViewComponent.name, () => {
     loader = TestbedHarnessEnvironment.loader(fixture);
 
     mockActivatedRoute.data.next({
-      zaak,
       informatieObject: enkelvoudigInformatieobject,
     });
 
@@ -161,7 +177,6 @@ describe(InformatieObjectViewComponent.name, () => {
           }),
         );
       mockActivatedRoute.data.next({
-        zaak,
         informatieObject: enkelvoudigInformatieobject,
       });
 
@@ -184,7 +199,6 @@ describe(InformatieObjectViewComponent.name, () => {
           }),
         );
       mockActivatedRoute.data.next({
-        zaak,
         informatieObject: enkelvoudigInformatieobject,
       });
 
@@ -211,7 +225,6 @@ describe(InformatieObjectViewComponent.name, () => {
           }),
         );
       mockActivatedRoute.data.next({
-        zaak,
         informatieObject: enkelvoudigInformatieobject,
       });
 
@@ -234,7 +247,6 @@ describe(InformatieObjectViewComponent.name, () => {
           }),
         );
       mockActivatedRoute.data.next({
-        zaak,
         informatieObject: enkelvoudigInformatieobject,
       });
 
@@ -257,7 +269,6 @@ describe(InformatieObjectViewComponent.name, () => {
           }),
         );
       mockActivatedRoute.data.next({
-        zaak,
         informatieObject: {
           ...enkelvoudigInformatieobject,
           formaat: FileFormat.TEXT,
@@ -286,7 +297,6 @@ describe(InformatieObjectViewComponent.name, () => {
           }),
         );
       mockActivatedRoute.data.next({
-        zaak,
         informatieObject: enkelvoudigInformatieobject,
       });
 
@@ -310,7 +320,6 @@ describe(InformatieObjectViewComponent.name, () => {
           }),
         );
       mockActivatedRoute.data.next({
-        zaak,
         informatieObject: enkelvoudigInformatieobject,
       });
 
@@ -337,7 +346,6 @@ describe(InformatieObjectViewComponent.name, () => {
         .spyOn(informatieObjectenService, "unlockInformatieObject")
         .mockReturnValue(of({}));
       mockActivatedRoute.data.next({
-        zaak,
         informatieObject: enkelvoudigInformatieobject,
       });
 
@@ -367,8 +375,10 @@ describe(InformatieObjectViewComponent.name, () => {
       const unlockSpy = jest
         .spyOn(informatieObjectenService, "unlockInformatieObject")
         .mockReturnValue(of({}));
+      jest
+        .spyOn(informatieObjectenService, "listZaakInformatieobjecten")
+        .mockReturnValue(of([]));
       mockActivatedRoute.data.next({
-        zaak: undefined as unknown as GeneratedType<"RestZaak">,
         informatieObject: enkelvoudigInformatieobject,
       });
 

@@ -2566,7 +2566,7 @@
     },
     {
       "id": "17fa0786-159a-4939-ad74-03bad203fb4e",
-      "username": "raadpleger1newiam",
+      "username": "raadpleger1",
       "firstName": "Test",
       "lastName": "Raadpleger 1",
       "email": "${ZAC_RAADPLEGER_TEST_1_EMAIL_ADDRESS}",
@@ -2580,7 +2580,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"A/LHXHN0lEIaeG4h5HvuqDVCGAhRfTCUx1L6bWH0Pek=\",\"salt\":\"n9XqApsU9kQUt0aQ/Ox1iA==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"wG0jktfe5JuEnWri4IYb2jd6jSbsjwNilkemfMkPY7k=\",\"salt\":\"Tg8YU/ng/qiNr8LOo7vRaA==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
@@ -2592,7 +2592,7 @@
     },
     {
       "id": "584cc6b7-275e-4e44-86fc-d9703f3733bc",
-      "username": "raadpleger2newiam",
+      "username": "raadpleger2",
       "firstName": "Test",
       "lastName": "Raadpleger 2",
       "email": "${ZAC_RAADPLEGER_TEST_2_EMAIL_ADDRESS}",
@@ -2606,7 +2606,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"6/+cneOZEc5/FPzF2AdijvHYEVHUmJmCEgqDN9CAOSg=\",\"salt\":\"Js7ah2+SYp4977ESe8Hz+A==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"9AI1W8lUpxec4WJtYhXmpFOXV1kuom0bHb7E1z49k68=\",\"salt\":\"5FHqPKHRuwYmdasch70Y4Q==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
@@ -2618,7 +2618,7 @@
     },
     {
       "id": "08e8c9f7-b041-4e01-b717-d713764467d6",
-      "username": "behandelaar1newiam",
+      "username": "behandelaar1",
       "firstName": "Test",
       "lastName": "Behandelaar 1",
       "email": "${ZAC_BEHANDELAAR_TEST_1_EMAIL_ADDRESS}",
@@ -2632,7 +2632,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"PXZbGqh5iNZNjrY9Czz8B4luOaDN9G7Sbb4s9DZ1vnM=\",\"salt\":\"PshEG9Wr6tQHiivf3EShUg==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"DKqgb+H/0OUxC+jkXX/pSriUTv6oFU3aMuhwO6j7EpA=\",\"salt\":\"HwETqZ/lzTJSoHxXcu3dpQ==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
@@ -2644,7 +2644,7 @@
     },
     {
       "id": "8ec5e62b-36d9-42aa-bb02-520cfac91d5e",
-      "username": "behandelaar2newiam",
+      "username": "behandelaar2",
       "firstName": "Test",
       "lastName": "Behandelaar 2",
       "email": "${ZAC_BEHANDELAAR_TEST_2_EMAIL_ADDRESS}",
@@ -2658,7 +2658,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"QczWMh34f9XxhHMRLnEH2qm9rN/dXKQnSOGF0Xz8uEE=\",\"salt\":\"LGODy2BVhgA+KKZHojx3+A==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"NqjBu7tenNaSICt69YUSUK4Ysj9BnujxcQf5QhpluQw=\",\"salt\":\"xlmg8Yo+q1IGZeOZInChuw==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
@@ -2670,7 +2670,7 @@
     },
     {
       "id": "0043da56-52cb-4a94-a2fa-045ea019b9c2",
-      "username": "coordinator1newiam",
+      "username": "coordinator1",
       "firstName": "Test",
       "lastName": "Coordinator 1",
       "email": "${ZAC_COORDINATOR_TEST_1_EMAIL_ADDRESS}",
@@ -2684,7 +2684,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"2seGmxJ2RpfIHURfuFsX+nxGteJXwFSFCiCoGsU+jh4=\",\"salt\":\"sucfkzv723ZjhZoHE0EH3w==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"+ZKl+qWZPF4hLrP6h7cjEgojcoj0XmW3sA6Jk5ZmP8I=\",\"salt\":\"HjTnySo4SN2UsAVb2LZOKA==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
@@ -2696,7 +2696,7 @@
     },
     {
       "id": "96ccb0e4-67f5-447a-a717-4e3b12a5a4b7",
-      "username": "coordinator2newiam",
+      "username": "coordinator2",
       "firstName": "Test",
       "lastName": "Coordinator 2",
       "email": "${ZAC_COORDINATOR_TEST_2_EMAIL_ADDRESS}",
@@ -2710,7 +2710,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"9BoLi8hjTeUTxQ4zCXO2kNDXTx6Wgwntq/sgaybWe8Q=\",\"salt\":\"5Qw7DMqj0ToA6L49OLKoRw==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"6OjcWJNVTNLPl8+w6QKQ5734PAk83u9rb7iItBKJfec=\",\"salt\":\"PnFV7rRUHjGJ+Dv6M8Y8pQ==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
@@ -2722,7 +2722,7 @@
     },
     {
       "id": "d528c826-ebc6-4c80-9b58-72ef8b1585dd",
-      "username": "recordmanager1newiam",
+      "username": "recordmanager1",
       "firstName": "Test",
       "lastName": "Recordmanager 1",
       "email": "${ZAC_RECORDMANAGER_TEST_1_EMAIL_ADDRESS}",
@@ -2736,7 +2736,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"/Fnaf0+tE/Y5ilc5wm4dIzGhEmTAucxCsewPO5K/nxc=\",\"salt\":\"Ic8V2QIfF/hGjyh9CAbSRQ==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"tu3aQ2wYGBpxIKuhV4cpd2svl1cRZrBAUbP3nZCJQjs=\",\"salt\":\"MZ8jEsLHWF5ZTu3BuRERhg==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
@@ -2748,7 +2748,7 @@
     },
     {
       "id": "ff14aff2-fe5b-44b8-8d81-89f4c41e7dbc",
-      "username": "recordmanager2newiam",
+      "username": "recordmanager2",
       "firstName": "Test",
       "lastName": "Recordmanager 2",
       "email": "${ZAC_RECORDMANAGER_TEST_2_EMAIL_ADDRESS}",
@@ -2762,7 +2762,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"EgoppdMrmAOgXFoAg5Wz+19HmXNC/yO3/Bg+YhXM26s=\",\"salt\":\"5mMSFHBaFAzl8tfocVpe1g==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"WwdtuDerO7ODbTD5Qzarh1VGY+XoetRyEHu7TqY56js=\",\"salt\":\"FfpSycrRivs9RzVH86BxGg==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
@@ -2774,7 +2774,7 @@
     },
     {
       "id": "bb6ad48e-972e-4a7e-b1b2-75958a6d8070",
-      "username": "beheerder1newiam",
+      "username": "beheerder1",
       "firstName": "Test",
       "lastName": "Beheerder 1",
       "email": "${ZAC_BEHEERDER_TEST_1_EMAIL_ADDRESS}",
@@ -2788,7 +2788,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"h9ebp+3t1vvspXsecW8oWLHHv+E3uGaERLRKfhtCSL8=\",\"salt\":\"MVxNNDgVwte7W0W7kuLjRg==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"P/KzpnOao/2XSBk20ETbcrClOGPuns6Ywie5R3aB6mg=\",\"salt\":\"6F3VG+0fHzINkRab+lDacw==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
@@ -2800,7 +2800,7 @@
     },
     {
       "id": "a4ea43b6-459f-48c9-a167-33f2656eaa3f",
-      "username": "raadplegerenbehandelaar1newiam",
+      "username": "raadplegerenbehandelaar1",
       "firstName": "Test",
       "lastName": "Raadpleger domein 1 - behandelaar domein 2",
       "email": "${ZAC_RAADPLEGER_EN_BEHANDELAAR_TEST_1_EMAIL_ADDRESS}",
@@ -2814,7 +2814,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"v0M/NxEmXXbRXkZP9274dOWRQ9jN0FZ49f3LgLwAhAI=\",\"salt\":\"HLTZdR5TUL2hTSXzrx19tA==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"AVRq+iBWGmTv8jCQaEwLxSFbyzInSosMOqT4k9dOu5E=\",\"salt\":\"vs4zOA/KHJfynSnAvyyrfQ==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
@@ -2891,7 +2891,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"QczWMh34f9XxhHMRLnEH2qm9rN/dXKQnSOGF0Xz8uEE=\",\"salt\":\"LGODy2BVhgA+KKZHojx3+A==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"JeAycDJosV//ZDUEI9CpCGqvGyvkdbLw5yHJj3SXWM4=\",\"salt\":\"+qqI3krU5zs4BjrrVExdwA==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
@@ -2917,7 +2917,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"QczWMh34f9XxhHMRLnEH2qm9rN/dXKQnSOGF0Xz8uEE=\",\"salt\":\"LGODy2BVhgA+KKZHojx3+A==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"rs9hQ8gmg0Dzp1Yt7RuE7B6DsGPfSTACtbdyndjjyWk=\",\"salt\":\"SEY4v5OVw7UPQx6+W/aowQ==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],

@@ -14,7 +14,10 @@ import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatMenuHarness } from "@angular/material/menu/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { sleep, testQueryClient } from "../../../../setupJest";
+import { createMutationOptions } from "../../../test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 import { ZoekopdrachtSaveDialogComponent } from "../zoekopdracht-save-dialog/zoekopdracht-save-dialog.component";
@@ -67,7 +70,7 @@ describe(ZoekopdrachtComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [provideHttpClient()],
+      providers: [provideHttpClient(), provideQueryClient(testQueryClient)],
     }).compileComponents();
 
     service = TestBed.inject(GebruikersvoorkeurenService);
@@ -76,13 +79,13 @@ describe(ZoekopdrachtComponent.name, () => {
     jest.spyOn(service, "listZoekOpdrachten").mockReturnValue(of([]));
     jest
       .spyOn(service, "deleteZoekOpdrachten")
-      .mockReturnValue(of(undefined) as never);
+      .mockReturnValue(createMutationOptions(undefined) as never);
     jest
       .spyOn(service, "setZoekopdrachtActief")
       .mockReturnValue(of(undefined) as never);
     jest
       .spyOn(service, "removeZoekopdrachtActief")
-      .mockReturnValue(of(undefined) as never);
+      .mockReturnValue(createMutationOptions(undefined) as never);
     jest.spyOn(dialog, "open").mockReturnValue({
       afterClosed: () => of(null),
     } satisfies Pick<
@@ -154,6 +157,7 @@ describe(ZoekopdrachtComponent.name, () => {
         MatButtonHarness.with({ selector: "#clearZoekopdrachtButton1" }),
       );
       await btn.click();
+      await sleep();
 
       expect(service.removeZoekopdrachtActief).toHaveBeenCalledWith(
         "MIJN_ZAKEN",
@@ -326,20 +330,22 @@ describe(ZoekopdrachtComponent.name, () => {
   // -------------------------------------------------------------------------
 
   describe("deleteZoekopdracht", () => {
-    it("stops event propagation and calls deleteZoekOpdrachten", () => {
+    it("stops event propagation and calls deleteZoekOpdrachten", async () => {
       const zoek = makeZoekopdracht({ id: 7 });
       const event = new MouseEvent("click");
       const stopSpy = jest.spyOn(event, "stopPropagation");
 
       component["deleteZoekopdracht"](event, zoek);
+      await sleep();
 
       expect(stopSpy).toHaveBeenCalled();
       expect(service.deleteZoekOpdrachten).toHaveBeenCalledWith(7);
     });
 
-    it("reloads zoekopdrachten after deletion", () => {
+    it("reloads zoekopdrachten after deletion", async () => {
       const zoek = makeZoekopdracht({ id: 7 });
       component["deleteZoekopdracht"](new MouseEvent("click"), zoek);
+      await sleep();
 
       expect(service.listZoekOpdrachten).toHaveBeenCalledTimes(2);
     });
@@ -350,21 +356,23 @@ describe(ZoekopdrachtComponent.name, () => {
   // -------------------------------------------------------------------------
 
   describe("clearActief", () => {
-    it("clears the active search and calls removeZoekopdrachtActief", () => {
+    it("clears the active search and calls removeZoekopdrachtActief", async () => {
       component["actieveZoekopdracht"] = makeZoekopdracht();
       component["clearActief"]();
+      await sleep();
       expect(component["actieveZoekopdracht"]).toBeNull();
       expect(service.removeZoekopdrachtActief).toHaveBeenCalledWith(
         "MIJN_ZAKEN",
       );
     });
 
-    it("updates actieveFilters based on current zoekFilters after clearing", () => {
+    it("updates actieveFilters based on current zoekFilters after clearing", async () => {
       component["actieveZoekopdracht"] = makeZoekopdracht();
       component.zoekFilters = makeZoekFilters({
         zoeken: { zaakIdentificatie: "ZAAK-001" },
       });
       component["clearActief"]();
+      await sleep();
       expect(component["actieveFilters"]).toBe(true);
     });
   });

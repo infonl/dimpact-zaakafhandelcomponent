@@ -5,7 +5,6 @@
 
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { ZaakUuidResolver } from "../zaken/zaak-uuid.resolver";
 import { InformatieObjectViewComponent } from "./informatie-object-view/informatie-object-view.component";
 import { InformatieObjectResolver } from "./informatie-object.resolver";
 
@@ -19,20 +18,9 @@ const routes: Routes = [
         resolve: { informatieObject: InformatieObjectResolver },
       },
       {
-        path: ":uuid/:zaakUuid",
+        path: ":uuid/:versie",
         component: InformatieObjectViewComponent,
-        resolve: {
-          informatieObject: InformatieObjectResolver,
-          zaak: ZaakUuidResolver,
-        },
-      },
-      {
-        path: ":uuid/:versie/:zaakUuid",
-        component: InformatieObjectViewComponent,
-        resolve: {
-          informatieObject: InformatieObjectResolver,
-          zaak: ZaakUuidResolver,
-        },
+        resolve: { informatieObject: InformatieObjectResolver },
       },
     ],
   },

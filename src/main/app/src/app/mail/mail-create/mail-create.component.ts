@@ -14,11 +14,11 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
@@ -48,16 +48,15 @@ export class MailCreateComponent implements OnInit {
 
   protected readonly mailVerstuurd = output<boolean>();
 
-  protected readonly sendMailMutation = injectMutation(() => ({
-    ...this.mailService.sendMail(this.zaak().uuid),
-    onSuccess: () => {
-      this.utilService.openSnackbar("msg.email.verstuurd");
-      this.mailVerstuurd.emit(true);
+  protected readonly sendMailMutation = injectMutation(
+    () => this.mailService.sendMail(this.zaak().uuid),
+    {
+      onSuccess: () => this.mailVerstuurd.emit(true),
+      onError: () => {
+        this.mailVerstuurd.emit(false);
+      },
     },
-    onError: () => {
-      this.mailVerstuurd.emit(false);
-    },
-  }));
+  );
 
   protected form = this.formBuilder.group({
     verzender:
