@@ -3,43 +3,45 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { EventEmitter } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatIconHarness } from "@angular/material/icon/testing";
-import { MatMenuHarness } from "@angular/material/menu/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { createMutationOptions } from "../../../test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren.service";
 import { ZoekopdrachtSaveDialogComponent } from "../zoekopdracht-save-dialog/zoekopdracht-save-dialog.component";
 import { ZoekFilters } from "./zoekfilters.model";
 import { ZoekopdrachtComponent } from "./zoekopdracht.component";
 
-// ---------------------------------------------------------------------------
-// Factories
-// ---------------------------------------------------------------------------
+const WERKLIJST = "MIJN_ZAKEN";
+const ZOEKOPDRACHTEN_URL = `/rest/gebruikersvoorkeuren/zoekopdracht/${WERKLIJST}`;
+const ACTIEF_URL = "/rest/gebruikersvoorkeuren/zoekopdracht/actief";
+const REMOVE_ACTIEF_URL = `/rest/gebruikersvoorkeuren/zoekopdracht/${WERKLIJST}/actief`;
 
 const makeZoekopdracht = (
   fields: Partial<GeneratedType<"RESTZoekopdracht">> = {},
-): GeneratedType<"RESTZoekopdracht"> =>
-  ({
+) =>
+  fromPartial<GeneratedType<"RESTZoekopdracht">>({
     id: 1,
-    naam: "Test zoekopdracht",
+    naam: "Zoekopdracht A",
     actief: false,
-    werklijstID: "MIJN_ZAKEN",
+    lijstID: WERKLIJST,
     ...fields,
-  }) as Partial<
-    GeneratedType<"RESTZoekopdracht">
-  > as unknown as GeneratedType<"RESTZoekopdracht">;
+  });
 
 const makeZoekFilters = (fields: Partial<ZoekFilters> = {}): ZoekFilters => ({
   filtersType: "ZoekParameters",
@@ -49,425 +51,347 @@ const makeZoekFilters = (fields: Partial<ZoekFilters> = {}): ZoekFilters => ({
   ...fields,
 });
 
-// ---------------------------------------------------------------------------
-// Spec
-// ---------------------------------------------------------------------------
-
 describe(ZoekopdrachtComponent.name, () => {
   let fixture: ComponentFixture<ZoekopdrachtComponent>;
-  let loader: HarnessLoader;
-  let component: ZoekopdrachtComponent;
-  let service: GebruikersvoorkeurenService;
-  let dialog: MatDialog;
+  let httpTestingController: HttpTestingController;
   let filtersChanged: EventEmitter<void>;
+  let dialogOpen: jest.SpyInstance;
+  let zoekopdrachtEmitted: jest.Mock;
 
-  beforeEach(async () => {
+  const user = userEvent.setup();
+
+  async function setup(zoekFilters: ZoekFilters = makeZoekFilters()) {
     filtersChanged = new EventEmitter<void>();
+    zoekopdrachtEmitted = jest.fn();
 
-    await TestBed.configureTestingModule({
-      imports: [
-        ZoekopdrachtComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
+    const rendered = await render(ZoekopdrachtComponent, {
+      inputs: {
+        werklijst: WERKLIJST,
+        zoekFilters,
+        filtersChanged,
+      },
+      on: { zoekopdracht: zoekopdrachtEmitted },
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
       ],
-      providers: [provideHttpClient(), provideQueryClient(testQueryClient)],
-    }).compileComponents();
+    });
 
-    service = TestBed.inject(GebruikersvoorkeurenService);
-    dialog = TestBed.inject(MatDialog);
+    fixture = rendered.fixture;
+    httpTestingController = TestBed.inject(HttpTestingController);
+    dialogOpen = jest.spyOn(TestBed.inject(MatDialog), "open").mockReturnValue(
+      fromPartial<MatDialogRef<ZoekopdrachtSaveDialogComponent>>({
+        afterClosed: () => of(null),
+      }),
+    );
+  }
 
-    jest.spyOn(service, "listZoekOpdrachten").mockReturnValue(of([]));
-    jest
-      .spyOn(service, "deleteZoekOpdrachten")
-      .mockReturnValue(createMutationOptions(undefined) as never);
-    jest
-      .spyOn(service, "setZoekopdrachtActief")
-      .mockReturnValue(of(undefined) as never);
-    jest
-      .spyOn(service, "removeZoekopdrachtActief")
-      .mockReturnValue(createMutationOptions(undefined) as never);
-    jest.spyOn(dialog, "open").mockReturnValue({
-      afterClosed: () => of(null),
-    } satisfies Pick<
-      MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-      "afterClosed"
-    > as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>);
-
-    fixture = TestBed.createComponent(ZoekopdrachtComponent);
-    component = fixture.componentInstance;
-    loader = TestbedHarnessEnvironment.loader(fixture);
-
-    component.werklijst = "MIJN_ZAKEN";
-    component.zoekFilters = makeZoekFilters();
-    component.filtersChanged = filtersChanged;
-
+  async function loadZoekopdrachten(
+    zoekopdrachten: GeneratedType<"RESTZoekopdracht">[] = [],
+  ) {
+    httpTestingController.expectOne(ZOEKOPDRACHTEN_URL).flush(zoekopdrachten);
+    await sleep();
     fixture.detectChanges();
-  });
+  }
 
-  // -------------------------------------------------------------------------
-  // Empty-list state: clearZoekopdrachtButton1
-  // -------------------------------------------------------------------------
+  async function flushRemoveActief() {
+    await sleep();
+    httpTestingController.expectOne(REMOVE_ACTIEF_URL).flush(null);
+    await sleep();
+    fixture.detectChanges();
+  }
 
-  describe("when no saved searches exist", () => {
-    it("shows a disabled filter button when no active filters", () => {
-      const nativeElement = fixture.nativeElement as HTMLElement;
-      const btn = nativeElement.querySelector<HTMLButtonElement>(
-        "#clearZoekopdrachtButton1",
-      );
-      expect(btn?.disabled).toBe(true);
+  function clearButton() {
+    return screen.getByRole("button", { name: "actie.zoekopdracht.wissen" });
+  }
+
+  function selectButton() {
+    return screen.getByRole("button", { name: "actie.zoekopdracht.selecteer" });
+  }
+
+  function saveButton() {
+    return screen.getByRole("button", { name: "actie.zoekopdracht.opslaan" });
+  }
+
+  describe("without saved searches", () => {
+    it("cannot clear the filters when none are active", async () => {
+      await setup();
+      await loadZoekopdrachten();
+
+      expect(clearButton()).toBeDisabled();
+      expect(
+        within(clearButton()).queryByTitle("actie.zoekopdracht.wissen"),
+      ).not.toBeInTheDocument();
     });
 
-    it("shows filter_alt icon without the clear overlay", async () => {
-      const icons = await loader.getAllHarnesses(
-        MatIconHarness.with({ name: "filter_alt" }),
-      );
-      expect(icons).toHaveLength(1);
-      const clearIcons = await loader.getAllHarnesses(
-        MatIconHarness.with({ name: "filter_alt_off" }),
-      );
-      expect(clearIcons).toHaveLength(0);
+    it("offers to clear the filters when some are active", async () => {
+      await setup(makeZoekFilters({ zoeken: { zaakIdentificatie: "ZAAK-1" } }));
+      await loadZoekopdrachten();
+
+      expect(clearButton()).toBeEnabled();
+      expect(
+        within(clearButton()).getByTitle("actie.zoekopdracht.wissen"),
+      ).toBeInTheDocument();
     });
 
-    it("renders the clear overlay icon when actieveFilters is true", async () => {
-      component["actieveFilters"] = true;
-      fixture.detectChanges();
+    it("clears the stored active search when the filters are cleared", async () => {
+      await setup(makeZoekFilters({ zoeken: { zaakIdentificatie: "ZAAK-1" } }));
+      await loadZoekopdrachten();
 
-      const clearIcons = await loader.getAllHarnesses(
-        MatIconHarness.with({ name: "filter_alt_off" }),
-      );
-      expect(clearIcons).toHaveLength(1);
-    });
-
-    it("enables the filter button when actieveFilters is true", () => {
-      component["actieveFilters"] = true;
-      fixture.detectChanges();
-
-      const nativeElement = fixture.nativeElement as HTMLElement;
-      const btn = nativeElement.querySelector<HTMLButtonElement>(
-        "#clearZoekopdrachtButton1",
-      );
-      expect(btn?.disabled).toBe(false);
-    });
-
-    it("calls clearActief(true) and removeZoekopdrachtActief when filter button clicked", async () => {
-      component["actieveFilters"] = true;
-      fixture.detectChanges();
-
-      const btn = await loader.getHarness(
-        MatButtonHarness.with({ selector: "#clearZoekopdrachtButton1" }),
-      );
-      await btn.click();
+      await user.click(clearButton());
       await sleep();
 
-      expect(service.removeZoekopdrachtActief).toHaveBeenCalledWith(
-        "MIJN_ZAKEN",
-      );
+      const request = httpTestingController.expectOne(REMOVE_ACTIEF_URL);
+
+      expect(request.request.method).toBe("DELETE");
+
+      request.flush(null);
+      await sleep();
     });
+
+    it.each([
+      [
+        "offers to clear the filters when a search term is set",
+        makeZoekFilters({ zoeken: { q: "test" } }),
+        true,
+      ],
+      [
+        "cannot clear the filters when nothing is searched for",
+        makeZoekFilters({ zoeken: {} }),
+        false,
+      ],
+      [
+        "offers to clear the filters when a zaak is set",
+        makeZoekFilters({
+          filtersType: "DetachedDocumentListParameters",
+          zaakID: "ZAAK-001",
+        }),
+        true,
+      ],
+      [
+        "cannot clear the filters when no detached document filter is set",
+        makeZoekFilters({ filtersType: "DetachedDocumentListParameters" }),
+        false,
+      ],
+      [
+        "offers to clear the filters when a document identification is set",
+        makeZoekFilters({
+          filtersType: "InboxDocumentListParameters",
+          identificatie: "DOC-001",
+        }),
+        true,
+      ],
+      [
+        "cannot clear the filters when no inbox document filter is set",
+        makeZoekFilters({ filtersType: "InboxDocumentListParameters" }),
+        false,
+      ],
+    ])(
+      "%s",
+      async (
+        _description: string,
+        zoekFilters: ZoekFilters,
+        clearable: boolean,
+      ) => {
+        await setup(zoekFilters);
+        await loadZoekopdrachten();
+
+        expect(clearButton().hasAttribute("disabled")).toBe(!clearable);
+      },
+    );
   });
 
-  // -------------------------------------------------------------------------
-  // Non-empty list — selecteerZoekopdrachtButton / clearZoekopdrachtButton2
-  // -------------------------------------------------------------------------
+  describe("with saved searches", () => {
+    it("offers to select a saved search when nothing is filtered", async () => {
+      await setup();
+      await loadZoekopdrachten([makeZoekopdracht()]);
 
-  describe("when saved searches exist", () => {
-    beforeEach(() => {
-      component["zoekopdrachten"] = [makeZoekopdracht({ naam: "Mijn zoek" })];
-      component["actieveZoekopdracht"] = null;
-      component["actieveFilters"] = false;
-      fixture.detectChanges();
+      expect(selectButton()).toBeVisible();
+      expect(
+        screen.queryByRole("button", { name: "actie.zoekopdracht.wissen" }),
+      ).not.toBeInTheDocument();
     });
 
-    it("shows selecteer button when no active search and no active filters", async () => {
+    it("offers to clear instead when a saved search is active", async () => {
+      await setup();
+      await loadZoekopdrachten([makeZoekopdracht({ actief: true })]);
+
+      expect(clearButton()).toBeVisible();
       expect(
-        await loader.getHarnessOrNull(
-          MatButtonHarness.with({ selector: "#selecteerZoekopdrachtButton" }),
-        ),
-      ).not.toBeNull();
-      expect(
-        await loader.getHarnessOrNull(
-          MatButtonHarness.with({ selector: "#clearZoekopdrachtButton2" }),
-        ),
-      ).toBeNull();
+        screen.queryByRole("button", { name: "actie.zoekopdracht.selecteer" }),
+      ).not.toBeInTheDocument();
     });
 
-    it("hides selecteer button and shows clear button when actieveZoekopdracht is set", async () => {
-      component["actieveZoekopdracht"] = makeZoekopdracht({ naam: "Actief" });
-      fixture.detectChanges();
+    it("offers to clear instead when filters are active", async () => {
+      await setup(makeZoekFilters({ zoeken: { zaakIdentificatie: "ZAAK-1" } }));
+      await loadZoekopdrachten([makeZoekopdracht()]);
 
+      expect(clearButton()).toBeVisible();
       expect(
-        await loader.getHarnessOrNull(
-          MatButtonHarness.with({ selector: "#selecteerZoekopdrachtButton" }),
-        ),
-      ).toBeNull();
-      expect(
-        await loader.getHarnessOrNull(
-          MatButtonHarness.with({ selector: "#clearZoekopdrachtButton2" }),
-        ),
-      ).not.toBeNull();
+        screen.queryByRole("button", { name: "actie.zoekopdracht.selecteer" }),
+      ).not.toBeInTheDocument();
     });
 
-    it("hides selecteer button and shows clear button when actieveFilters is true", async () => {
-      component["actieveFilters"] = true;
-      fixture.detectChanges();
-
-      expect(
-        await loader.getHarnessOrNull(
-          MatButtonHarness.with({ selector: "#selecteerZoekopdrachtButton" }),
-        ),
-      ).toBeNull();
-      expect(
-        await loader.getHarnessOrNull(
-          MatButtonHarness.with({ selector: "#clearZoekopdrachtButton2" }),
-        ),
-      ).not.toBeNull();
-    });
-
-    it("renders one menu item per saved search in the filter menu", async () => {
-      component["zoekopdrachten"] = [
+    it("lists every saved search in the menu", async () => {
+      await setup();
+      await loadZoekopdrachten([
         makeZoekopdracht({ id: 1, naam: "Zoek A" }),
         makeZoekopdracht({ id: 2, naam: "Zoek B" }),
-      ];
-      fixture.detectChanges();
+      ]);
 
-      const menu = await loader.getHarness(MatMenuHarness);
-      await menu.open();
-      const items = await menu.getItems();
-      expect(items).toHaveLength(2);
+      await user.click(selectButton());
+
+      expect(screen.getByRole("menuitem", { name: /Zoek A/ })).toBeVisible();
+      expect(screen.getByRole("menuitem", { name: /Zoek B/ })).toBeVisible();
     });
 
-    it("calls setZoekopdrachtActief and emits zoekopdracht when menu item clicked", async () => {
-      const zoek = makeZoekopdracht({ id: 42, naam: "Klik mij" });
-      component["zoekopdrachten"] = [zoek];
-      fixture.detectChanges();
+    it("activates and reports the saved search that is chosen", async () => {
+      await setup();
+      await loadZoekopdrachten([
+        makeZoekopdracht({ id: 42, naam: "Klik mij" }),
+      ]);
 
-      const emitted: GeneratedType<"RESTZoekopdracht">[] = [];
-      component.zoekopdracht.subscribe((v) => emitted.push(v));
+      await user.click(selectButton());
+      await user.click(screen.getByRole("menuitem", { name: /Klik mij/ }));
+      await sleep();
 
-      const menu = await loader.getHarness(MatMenuHarness);
-      await menu.open();
-      const [item] = await menu.getItems();
-      await item.click();
+      const request = httpTestingController.expectOne(ACTIEF_URL);
 
-      expect(service.setZoekopdrachtActief).toHaveBeenCalledWith(
+      expect(request.request.method).toBe("PUT");
+      expect(request.request.body).toEqual(
+        expect.objectContaining({ id: 42, naam: "Klik mij" }),
+      );
+      expect(zoekopdrachtEmitted).toHaveBeenCalledWith(
         expect.objectContaining({ id: 42 }),
       );
-      expect(emitted).toHaveLength(1);
-      expect(emitted[0]).toEqual(expect.objectContaining({ id: 42 }));
-    });
-  });
 
-  // -------------------------------------------------------------------------
-  // Save button
-  // -------------------------------------------------------------------------
-
-  describe("saveZoekopdrachtButton", () => {
-    it("is enabled when no active search exists", async () => {
-      component["actieveZoekopdracht"] = null;
-      fixture.detectChanges();
-
-      const nativeElement = fixture.nativeElement as HTMLElement;
-      const btn = nativeElement.querySelector<HTMLButtonElement>(
-        "#saveZoekopdrachtButton",
-      );
-      expect(btn?.disabled).toBe(false);
-    });
-
-    it("is disabled when an active search exists", async () => {
-      component["actieveZoekopdracht"] = makeZoekopdracht();
-      fixture.detectChanges();
-
-      const nativeElement = fixture.nativeElement as HTMLElement;
-      const btn = nativeElement.querySelector<HTMLButtonElement>(
-        "#saveZoekopdrachtButton",
-      );
-      expect(btn?.disabled).toBe(true);
-    });
-
-    it("opens the save dialog on click", async () => {
-      const btn = await loader.getHarness(
-        MatButtonHarness.with({ selector: "#saveZoekopdrachtButton" }),
-      );
-      await btn.click();
-      expect(dialog.open).toHaveBeenCalledWith(
-        ZoekopdrachtSaveDialogComponent,
-        expect.objectContaining({
-          data: expect.objectContaining({
-            lijstID: "MIJN_ZAKEN",
-          }),
-        }),
-      );
-    });
-
-    it("reloads zoekopdrachten when save dialog closes with truthy result", () => {
-      (dialog.open as jest.Mock).mockReturnValue({
-        afterClosed: () => of(true),
-      } satisfies Pick<
-        MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-        "afterClosed"
-      > as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>);
-
-      component["saveSearch"]();
-
-      expect(service.listZoekOpdrachten).toHaveBeenCalledTimes(2);
-    });
-
-    it("does not reload zoekopdrachten when save dialog closes with falsy result", () => {
-      (dialog.open as jest.Mock).mockReturnValue({
-        afterClosed: () => of(null),
-      } satisfies Pick<
-        MatDialogRef<ZoekopdrachtSaveDialogComponent>,
-        "afterClosed"
-      > as unknown as MatDialogRef<ZoekopdrachtSaveDialogComponent>);
-
-      component["saveSearch"]();
-
-      expect(service.listZoekOpdrachten).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  // -------------------------------------------------------------------------
-  // deleteZoekopdracht
-  // -------------------------------------------------------------------------
-
-  describe("deleteZoekopdracht", () => {
-    it("stops event propagation and calls deleteZoekOpdrachten", async () => {
-      const zoek = makeZoekopdracht({ id: 7 });
-      const event = new MouseEvent("click");
-      const stopSpy = jest.spyOn(event, "stopPropagation");
-
-      component["deleteZoekopdracht"](event, zoek);
+      request.flush(null);
       await sleep();
-
-      expect(stopSpy).toHaveBeenCalled();
-      expect(service.deleteZoekOpdrachten).toHaveBeenCalledWith(7);
     });
 
-    it("reloads zoekopdrachten after deletion", async () => {
-      const zoek = makeZoekopdracht({ id: 7 });
-      component["deleteZoekopdracht"](new MouseEvent("click"), zoek);
-      await sleep();
+    it("reports the saved search that is already active on load", async () => {
+      await setup();
+      await loadZoekopdrachten([makeZoekopdracht({ id: 3, actief: true })]);
 
-      expect(service.listZoekOpdrachten).toHaveBeenCalledTimes(2);
-    });
-  });
-
-  // -------------------------------------------------------------------------
-  // clearActief
-  // -------------------------------------------------------------------------
-
-  describe("clearActief", () => {
-    it("clears the active search and calls removeZoekopdrachtActief", async () => {
-      component["actieveZoekopdracht"] = makeZoekopdracht();
-      component["clearActief"]();
-      await sleep();
-      expect(component["actieveZoekopdracht"]).toBeNull();
-      expect(service.removeZoekopdrachtActief).toHaveBeenCalledWith(
-        "MIJN_ZAKEN",
-      );
-    });
-
-    it("updates actieveFilters based on current zoekFilters after clearing", async () => {
-      component["actieveZoekopdracht"] = makeZoekopdracht();
-      component.zoekFilters = makeZoekFilters({
-        zoeken: { zaakIdentificatie: "ZAAK-001" },
-      });
-      component["clearActief"]();
-      await sleep();
-      expect(component["actieveFilters"]).toBe(true);
-    });
-  });
-
-  // -------------------------------------------------------------------------
-  // filtersChanged subscription
-  // -------------------------------------------------------------------------
-
-  describe("filtersChanged input subscription", () => {
-    it("clears the active search when filtersChanged emits", () => {
-      component["actieveZoekopdracht"] = makeZoekopdracht();
-      filtersChanged.emit();
-      expect(component["actieveZoekopdracht"]).toBeNull();
-    });
-  });
-
-  // -------------------------------------------------------------------------
-  // ngOnInit — loads searches and marks actief
-  // -------------------------------------------------------------------------
-
-  describe("ngOnInit", () => {
-    it("sets actieveZoekopdracht to the search marked as actief after load", async () => {
-      const actief = makeZoekopdracht({ id: 3, actief: true });
-      (service.listZoekOpdrachten as jest.Mock).mockReturnValue(of([actief]));
-
-      component["loadZoekopdrachten"]();
-
-      expect(component["actieveZoekopdracht"]).toEqual(
+      expect(zoekopdrachtEmitted).toHaveBeenCalledWith(
         expect.objectContaining({ id: 3 }),
       );
     });
 
-    it("emits the active zoekopdracht on load when one is marked actief", () => {
-      const actief = makeZoekopdracht({ id: 5, actief: true });
-      (service.listZoekOpdrachten as jest.Mock).mockReturnValue(of([actief]));
+    it("deletes a saved search without activating it", async () => {
+      await setup();
+      await loadZoekopdrachten([makeZoekopdracht({ id: 7 })]);
 
-      const emitted: GeneratedType<"RESTZoekopdracht">[] = [];
-      component.zoekopdracht.subscribe((v) => emitted.push(v));
+      await user.click(selectButton());
+      await user.click(
+        within(screen.getByRole("menuitem")).getByTitle(
+          "actie.zoekopdracht.verwijderen",
+        ),
+      );
+      await sleep();
 
-      component["loadZoekopdrachten"]();
+      const request = httpTestingController.expectOne(
+        "/rest/gebruikersvoorkeuren/zoekopdracht/7",
+      );
 
-      expect(emitted).toHaveLength(1);
-      expect(emitted[0]).toEqual(expect.objectContaining({ id: 5 }));
+      expect(request.request.method).toBe("DELETE");
+
+      request.flush(null);
+      await sleep();
+
+      httpTestingController.expectOne(ZOEKOPDRACHTEN_URL).flush([]);
+      await sleep();
+      fixture.detectChanges();
+    });
+
+    it("clears the active saved search when the clear button is clicked", async () => {
+      await setup();
+      await loadZoekopdrachten([makeZoekopdracht({ actief: true })]);
+
+      await user.click(clearButton());
+      await flushRemoveActief();
+
+      expect(selectButton()).toBeVisible();
+    });
+
+    it("keeps offering to clear when the current filters are still set", async () => {
+      await setup(makeZoekFilters({ zoeken: { zaakIdentificatie: "ZAAK-1" } }));
+      await loadZoekopdrachten([makeZoekopdracht({ actief: true })]);
+
+      await user.click(clearButton());
+      await flushRemoveActief();
+
+      expect(clearButton()).toBeVisible();
+    });
+
+    it("clears the active saved search when the filters change", async () => {
+      await setup();
+      await loadZoekopdrachten([makeZoekopdracht({ actief: true })]);
+
+      filtersChanged.emit();
+      await flushRemoveActief();
+
+      expect(selectButton()).toBeVisible();
     });
   });
 
-  // -------------------------------------------------------------------------
-  // heeftActieveFilters — per filtersType branch
-  // -------------------------------------------------------------------------
+  describe("saving the current filters", () => {
+    it("can save when no saved search is active", async () => {
+      await setup();
+      await loadZoekopdrachten([makeZoekopdracht()]);
 
-  describe("heeftActieveFilters", () => {
-    it("returns true for ZoekParameters when zoeken has a value", () => {
-      component.zoekFilters = makeZoekFilters({
-        filtersType: "ZoekParameters",
-        zoeken: { q: "test" },
-      });
-      expect(component["heeftActieveFilters"]()).toBe(true);
+      expect(saveButton()).toBeEnabled();
     });
 
-    it("returns false for ZoekParameters when zoeken is empty", () => {
-      component.zoekFilters = makeZoekFilters({
-        filtersType: "ZoekParameters",
-        zoeken: {},
-      });
-      expect(component["heeftActieveFilters"]()).toBe(false);
+    it("cannot save while a saved search is active", async () => {
+      await setup();
+      await loadZoekopdrachten([makeZoekopdracht({ actief: true })]);
+
+      expect(saveButton()).toBeDisabled();
     });
 
-    it("returns true for DetachedDocumentListParameters when zaakID is set", () => {
-      component.zoekFilters = makeZoekFilters({
-        filtersType: "DetachedDocumentListParameters",
-        zaakID: "ZAAK-001",
-      });
-      expect(component["heeftActieveFilters"]()).toBe(true);
+    it("opens the save dialog for the current werklijst", async () => {
+      await setup();
+      await loadZoekopdrachten();
+
+      await user.click(saveButton());
+
+      expect(dialogOpen).toHaveBeenCalledWith(
+        ZoekopdrachtSaveDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({ lijstID: WERKLIJST }),
+        }),
+      );
     });
 
-    it("returns false for DetachedDocumentListParameters when no fields set", () => {
-      component.zoekFilters = makeZoekFilters({
-        filtersType: "DetachedDocumentListParameters",
-      });
-      expect(component["heeftActieveFilters"]()).toBe(false);
+    it("reloads the saved searches after one was saved", async () => {
+      await setup();
+      await loadZoekopdrachten();
+
+      dialogOpen.mockReturnValue(
+        fromPartial<MatDialogRef<ZoekopdrachtSaveDialogComponent>>({
+          afterClosed: () => of(true),
+        }),
+      );
+
+      await user.click(saveButton());
+      await loadZoekopdrachten([makeZoekopdracht({ naam: "Nieuw" })]);
+
+      await user.click(selectButton());
+
+      expect(screen.getByRole("menuitem", { name: /Nieuw/ })).toBeVisible();
     });
 
-    it("returns true for InboxDocumentListParameters when identificatie is set", () => {
-      component.zoekFilters = makeZoekFilters({
-        filtersType: "InboxDocumentListParameters",
-        identificatie: "DOC-001",
-      });
-      expect(component["heeftActieveFilters"]()).toBe(true);
-    });
+    it("does not reload the saved searches when the dialog was cancelled", async () => {
+      await setup();
+      await loadZoekopdrachten();
 
-    it("returns false for InboxDocumentListParameters when no fields set", () => {
-      component.zoekFilters = makeZoekFilters({
-        filtersType: "InboxDocumentListParameters",
-      });
-      expect(component["heeftActieveFilters"]()).toBe(false);
+      await user.click(saveButton());
+      await sleep();
+
+      httpTestingController.expectNone(ZOEKOPDRACHTEN_URL);
     });
   });
 });
