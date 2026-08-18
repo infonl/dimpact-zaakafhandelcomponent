@@ -28,11 +28,6 @@ describe(OntkoppeldeDocumentenService.name, () => {
     jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   describe("delete", () => {
     it("names the deleted document in the confirmation", async () => {
       const detachedDocument = fromPartial<
