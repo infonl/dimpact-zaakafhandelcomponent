@@ -60,4 +60,5 @@ enum class ErrorCode(val value: String) {
     ERROR_CODE_BAD_BRP_PROTOCOLLERING_CONFIGURATION("msg.error.bad.brp.protocollering.configuration"),
     ERROR_CODE_EXTENSION_PERIOD_INVALID("msg.error.extension.period.invalid"),
     ERROR_CODE_AFLEIDINGSWIJZE_BRONDATUM_NOT_SUPPORTED("msg.error.afleidingwijze.brondatum.not.supported"),
+    ERROR_CODE_BRONDATUM_CANNOT_BE_BEFORE_END_DATE("msg.error.brondatum.cannot.be.before.end.date"),
 }

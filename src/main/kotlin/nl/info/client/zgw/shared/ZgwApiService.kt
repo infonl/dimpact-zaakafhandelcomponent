@@ -38,6 +38,7 @@ import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.zac.exception.ErrorCode
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.exception.NotSupportedException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
@@ -193,6 +194,12 @@ class ZgwApiService @Inject constructor(
             AfleidingswijzeEnum.EIGENSCHAP -> {
                 if (brondatumArchiefprocedure.datumkenmerk.isNullOrBlank() || brondatum == null) {
                     return
+                }
+                if (zaak.einddatum != null && brondatum.isBefore(zaak.einddatum)) {
+                    throw InputValidationFailedException(ErrorCode.ERROR_CODE_BRONDATUM_CANNOT_BE_BEFORE_END_DATE)
+                }
+                if (zaak.einddatum == null && brondatum.isBefore(LocalDate.now())) {
+                    throw InputValidationFailedException(ErrorCode.ERROR_CODE_BRONDATUM_CANNOT_BE_BEFORE_END_DATE)
                 }
                 this.upsertEigenschapToZaak(
                     brondatumArchiefprocedure.datumkenmerk,
