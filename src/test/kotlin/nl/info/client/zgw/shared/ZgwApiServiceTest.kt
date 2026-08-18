@@ -509,7 +509,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak with resultaattype that has EIGENSCHAP afleidingswijze and existing zaakeigenschap") {
+        given("A zaak with resultaattype that has EIGENSCHAP afleidingswijze and existing zaakeigenschap") {
             val zaakType = createZaakType()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val resultaatTypeUUID = UUID.randomUUID()
@@ -539,10 +539,10 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.updateZaakeigenschap(any(), any(), any()) } returns existingZaakEigenschap
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
 
-            When("closeZaak is called") {
+            `when`("closeZaak is called") {
                 zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", brondatum)
 
-                Then("it should update the existing zaakeigenschap") {
+                then("it should update the existing zaakeigenschap") {
                     verify { zrcClientService.updateZaakeigenschap(zaak.uuid, existingZaakEigenschapUUID, any()) }
                 }
 
@@ -558,7 +558,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak with resultaattype that has EIGENSCHAP afleidingswijze and non-existing zaakeigenschap") {
+        given("A zaak with resultaattype that has EIGENSCHAP afleidingswijze and non-existing zaakeigenschap") {
             val zaakType = createZaakType()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val resultaatTypeUUID = UUID.randomUUID()
@@ -589,10 +589,10 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { zrcClientService.createEigenschap(zaak.uuid, capture(zaakEigenschapSlot)) } returns createdZaakEigenschap
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
 
-            When("closeZaak is called") {
+            `when`("closeZaak is called") {
                 zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", brondatum)
 
-                Then("it should create a new zaakeigenschap") {
+                then("it should create a new zaakeigenschap") {
                     verify { zrcClientService.createEigenschap(zaak.uuid, any()) }
                     with(zaakEigenschapSlot.captured) {
                         this.eigenschap shouldBe eigenschap.url
@@ -613,7 +613,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak with resultaattype that has EIGENSCHAP afleidingswijze, an einddatum, and a brondatum before it") {
+        given("A zaak with resultaattype that has EIGENSCHAP afleidingswijze, an einddatum, and a brondatum before it") {
             val zaakType = createZaakType()
             val einddatum = LocalDate.of(2023, 12, 1)
             val zaak = createZaak(zaaktypeUri = zaakType.url, endDate = einddatum)
@@ -635,12 +635,12 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { ztcClientService.readResultaattype(resultaatTypeUUID) } returns resultaatType
             every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
 
-            When("closeZaak is called") {
+            `when`("closeZaak is called") {
                 val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
                     zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting", brondatum)
                 }
 
-                Then("an InputValidationFailedException is thrown and the zaak is not closed") {
+                then("an InputValidationFailedException is thrown and the zaak is not closed") {
                     inputValidationFailedException.errorCode shouldBe
                         ErrorCode.ERROR_CODE_BRONDATUM_CANNOT_BE_BEFORE_END_DATE
                     verify(exactly = 0) {
@@ -652,7 +652,7 @@ class ZgwApiServiceTest : BehaviorSpec({
             }
         }
 
-        Given("A zaak with resultaattype that does not have EIGENSCHAP afleidingswijze") {
+        given("A zaak with resultaattype that does not have EIGENSCHAP afleidingswijze") {
             val zaakType = createZaakType()
             val zaak = createZaak(zaaktypeUri = zaakType.url)
             val resultaatTypeUUID = UUID.randomUUID()
@@ -673,10 +673,10 @@ class ZgwApiServiceTest : BehaviorSpec({
             every { ztcClientService.readStatustypen(zaak.zaaktype) } returns listOf(statusType)
             every { zrcClientService.closeCase(zaak.uuid, capture(zaakAfsluitenSlot)) } returns zaakAfsluitenResult
 
-            When("closeZaak is called") {
+            `when`("closeZaak is called") {
                 zgwApiService.closeZaak(zaak, resultaatTypeUUID, "toelichting")
 
-                Then("it should not create or update any zaakeigenschap") {
+                then("it should not create or update any zaakeigenschap") {
                     verify(exactly = 0) { zrcClientService.createEigenschap(zaak.uuid, any()) }
                     verify(exactly = 0) { zrcClientService.updateZaakeigenschap(zaak.uuid, any(), any()) }
                 }
