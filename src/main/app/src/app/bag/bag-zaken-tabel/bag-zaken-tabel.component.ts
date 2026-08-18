@@ -12,6 +12,7 @@ import {
   OnChanges,
   OnInit,
   ViewChild,
+  inject,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -23,9 +24,11 @@ import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
@@ -86,6 +89,8 @@ export class BagZakenTabelComponent
   private init = false;
   protected inclusiefAfgerondeZaken = new FormControl(false);
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly utilService: UtilService,
     private readonly zoekenService: ZoekenService,
@@ -109,9 +114,10 @@ export class BagZakenTabelComponent
     this.zoekParameters.rows = this.paginator.pageSize;
     this.zoekParameters.alleenOpenstaandeZaken =
       !this.inclusiefAfgerondeZaken.value;
-    return this.zoekenService.list(this.zoekParameters) as Observable<
-      ZoekResultaat<ZaakZoekObject>
-    >;
+    return runQuery(
+      this.queryClient,
+      this.zoekenService.list(this.zoekParameters),
+    ) as Observable<ZoekResultaat<ZaakZoekObject>>;
   }
 
   ngAfterViewInit() {
