@@ -27,16 +27,14 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  provideQueryClient,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import moment from "moment";
 import { of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -91,7 +89,7 @@ describe(CaseDetailsEditComponent.name, () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
-        provideQueryClient(new QueryClient()),
+        provideQueryClient(testQueryClient),
         {
           provide: DateAdapter,
           useClass: MomentDateAdapter,

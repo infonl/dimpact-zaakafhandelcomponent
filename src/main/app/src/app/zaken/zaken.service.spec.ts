@@ -9,28 +9,24 @@ import {
 } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
-import {
-  provideQueryClient,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../setupJest";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { ZakenService } from "./zaken.service";
 
 describe("ZaakService", () => {
   let service: ZakenService;
-  let queryClient: QueryClient;
 
   beforeEach(() => {
-    queryClient = new QueryClient();
     TestBed.configureTestingModule({
       imports: [],
       providers: [
         { provide: FoutAfhandelingService, useValue: {} },
         { provide: TranslateService, useValue: {} },
         provideHttpClient(withInterceptorsFromDi()),
-        provideQueryClient(queryClient),
+        provideQueryClient(testQueryClient),
       ],
     });
 
@@ -60,7 +56,7 @@ describe("ZaakService", () => {
       service.cacheZaak(zaak);
 
       expect(
-        queryClient.getQueryData(
+        testQueryClient.getQueryData(
           service.readZaakQuery("fakeZaakUuid1").queryKey,
         ),
       ).toBe(zaak);
