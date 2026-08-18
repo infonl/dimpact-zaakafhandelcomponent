@@ -5,6 +5,7 @@
  */
 
 import "@angular/compiler";
+import "@testing-library/jest-dom";
 import { HttpTestingController } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { QueryClient } from "@tanstack/angular-query-experimental";

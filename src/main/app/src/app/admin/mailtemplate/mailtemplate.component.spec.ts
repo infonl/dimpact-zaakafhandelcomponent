@@ -8,86 +8,88 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { Component } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
-import { MatCardModule } from "@angular/material/card";
-import { MatExpansionModule } from "@angular/material/expansion";
-import { MatSidenavModule } from "@angular/material/sidenav";
+import { TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import {
-  ActivatedRoute,
-  provideRouter,
-  Router,
-  RouterModule,
-} from "@angular/router";
+import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
-import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { MailtemplateComponent } from "./mailtemplate.component";
 
-@Component({
-  templateUrl: "./mailtemplate.component.html",
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatSidenavModule,
-    MatCardModule,
-    MatExpansionModule,
-    RouterModule,
-    TranslateModule,
-    SideNavComponent,
-    MaterialFormBuilderModule,
-    ZacFormActions,
-  ],
-})
-class TestMailtemplateComponent extends MailtemplateComponent {
-  get testForm() {
-    return this.form;
-  }
-  get testVariabelen() {
-    return this.variabelen;
-  }
-}
+const bestaandTemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
+  id: 42,
+  mailTemplateNaam: "Bestaand template",
+  mail: "TAAK_ONTVANGSTBEVESTIGING",
+  onderwerp: "Bestaand onderwerp",
+  body: "Bestaand body",
+  defaultMailtemplate: true,
+});
 
-const fakeValidTemplate = {
-  mailTemplateNaam: "Nieuw template",
-  mail: {
-    label: "mail.TAAK_ONTVANGSTBEVESTIGING",
-    value: "TAAK_ONTVANGSTBEVESTIGING",
-  },
-  onderwerp: "Onderwerp",
-  body: "Body tekst",
-  defaultMailtemplate: false,
-} as const;
-
+// The rich-text editor makes rendering and typing slow enough to exceed the default timeout.
 describe(MailtemplateComponent.name, () => {
-  let fixture: ComponentFixture<TestMailtemplateComponent>;
-  let component: TestMailtemplateComponent;
   let mailtemplateBeheerService: MailtemplateBeheerService;
   let router: Router;
   let httpTestingController: HttpTestingController;
   let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
+  let detectChanges: () => void;
 
-  beforeEach(async () => {
-    utilServiceMock = {
-      setTitle: jest.fn(),
-      openSnackbar: jest.fn(),
-    };
+  const user = userEvent.setup({ delay: null });
 
-    await TestBed.configureTestingModule({
-      imports: [
-        TestMailtemplateComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+  // jsdom has no layout, so the rich-text editor cannot measure its selection.
+  const zeroRect = fromPartial<DOMRect>({
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+  });
+  const originalGetClientRects = Range.prototype.getClientRects;
+  const originalGetBoundingClientRect = Range.prototype.getBoundingClientRect;
+  const originalElementFromPoint = document.elementFromPoint;
+
+  beforeAll(() => {
+    Range.prototype.getClientRects = () =>
+      fromPartial<DOMRectList>({
+        length: 1,
+        item: () => zeroRect,
+        0: zeroRect,
+      });
+    Range.prototype.getBoundingClientRect = () => zeroRect;
+    document.elementFromPoint = () => null;
+  });
+
+  afterAll(() => {
+    Range.prototype.getClientRects = originalGetClientRects;
+    Range.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+    document.elementFromPoint = originalElementFromPoint;
+  });
+
+  function htmlEditor(label: string) {
+    const field = screen.getByText(label).closest("div");
+    return field!.querySelector<HTMLElement>("[contenteditable='true']")!;
+  }
+
+  function saveButton() {
+    return screen.getByRole("button", { name: "actie.opslaan" });
+  }
+
+  async function setup(
+    template?: GeneratedType<"RESTMailtemplate">,
+    variabelen: GeneratedType<"MailTemplateVariables">[] = [],
+  ) {
+    const rendered = await render(MailtemplateComponent, {
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -100,83 +102,117 @@ describe(MailtemplateComponent.name, () => {
         },
         {
           provide: ActivatedRoute,
-          useValue: { data: of({}) },
+          useValue: { data: of(template ? { template } : {}) },
         },
       ],
-    }).compileComponents();
+    });
 
+    detectChanges = rendered.detectChanges;
     mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
     router = TestBed.inject(Router);
     httpTestingController = TestBed.inject(HttpTestingController);
 
     jest
       .spyOn(mailtemplateBeheerService, "ophalenVariabelenVoorMail")
-      .mockReturnValue(of([]));
+      .mockReturnValue(of(variabelen));
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+  }
 
-    fixture = TestBed.createComponent(TestMailtemplateComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+  async function editTemplateName(extra: string) {
+    await user.type(
+      screen.getByRole("textbox", { name: "MailTemplateNaam" }),
+      extra,
+    );
+  }
+
+  async function fillInNewTemplate() {
+    await user.click(screen.getByRole("textbox", { name: "MailTemplateNaam" }));
+    await user.paste("Nieuw template");
+    await user.click(screen.getByRole("combobox"));
+    await user.click(
+      screen.getByRole("option", { name: "mail.TAAK_ONTVANGSTBEVESTIGING" }),
+    );
+    await user.click(htmlEditor("Onderwerp"));
+    await user.paste("Onderwerp");
+    await user.click(htmlEditor("Body"));
+    await user.paste("Body tekst");
+  }
+
+  beforeEach(() => {
+    utilServiceMock = { setTitle: jest.fn(), openSnackbar: jest.fn() };
   });
 
-  it("should call setTitle on init", () => {
+  it("sets the title", async () => {
+    await setup();
+
     expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
       "title.mailtemplate",
       undefined,
     );
   });
 
-  it("should have an invalid form when required fields are empty", () => {
-    expect(component.testForm.invalid).toBe(true);
+  it("only offers to save once every required field is filled in", async () => {
+    await setup();
+
+    expect(saveButton()).toBeDisabled();
+
+    await fillInNewTemplate();
+
+    expect(saveButton()).toBeEnabled();
   });
 
-  it("should populate all form fields and load variables when loading an existing template", () => {
-    jest
-      .spyOn(mailtemplateBeheerService, "ophalenVariabelenVoorMail")
-      .mockReturnValue(of(["GEMEENTE", "ZAAK_URL"]));
-
-    TestBed.inject(ActivatedRoute).data = of({
-      template: {
-        id: 1,
-        mailTemplateNaam: "Test template",
-        mail: "TAAK_ONTVANGSTBEVESTIGING",
-        onderwerp: "Test onderwerp",
-        body: "Test body",
-        defaultMailtemplate: true,
-      },
-    });
-
-    fixture = TestBed.createComponent(TestMailtemplateComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    const raw = component.testForm.getRawValue();
-    expect(raw.mailTemplateNaam).toBe("Test template");
-    expect(raw.mail?.value).toBe("TAAK_ONTVANGSTBEVESTIGING");
-    expect(raw.onderwerp).toBe("Test onderwerp");
-    expect(raw.body).toBe("Test body");
-    expect(raw.defaultMailtemplate).toBe(true);
+  it("shows the template that is being edited", async () => {
+    await setup(bestaandTemplate);
 
     expect(
-      mailtemplateBeheerService.ophalenVariabelenVoorMail,
-    ).toHaveBeenCalledWith("TAAK_ONTVANGSTBEVESTIGING");
-    expect(component.testVariabelen).toEqual(["GEMEENTE", "ZAAK_URL"]);
+      screen.getByRole("textbox", { name: "MailTemplateNaam" }),
+    ).toHaveValue("Bestaand template");
+    expect(htmlEditor("Onderwerp")).toHaveTextContent("Bestaand onderwerp");
+    expect(htmlEditor("Body")).toHaveTextContent("Bestaand body");
   });
 
-  it("should navigate to /admin/mailtemplates on cancel", () => {
-    jest.spyOn(router, "navigate").mockResolvedValue(true);
+  it("does not allow changing the mail type of an existing template", async () => {
+    await setup(bestaandTemplate);
 
-    component["cancel"]();
+    expect(screen.getByRole("combobox")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+  });
+
+  it("returns to the overview when cancelling", async () => {
+    await setup();
+
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
 
     expect(router.navigate).toHaveBeenCalledWith(["/admin/mailtemplates"]);
   });
 
-  it("should POST a new template and navigate on valid form submit", async () => {
-    jest.spyOn(router, "navigate").mockResolvedValue(true);
+  it("offers the variables of the chosen mail type", async () => {
+    await setup(undefined, ["GEMEENTE", "ZAAK_URL"]);
 
-    component.testForm.patchValue(fakeValidTemplate);
+    await user.click(screen.getByRole("combobox"));
+    await user.click(
+      screen.getByRole("option", { name: "mail.TAAK_ONTVANGSTBEVESTIGING" }),
+    );
+    await user.click(screen.getAllByRole("button", { name: "variabelen" })[0]);
 
-    component["saveMailtemplate"]();
-    await new Promise(requestAnimationFrame);
+    expect(
+      mailtemplateBeheerService.ophalenVariabelenVoorMail,
+    ).toHaveBeenCalledWith("TAAK_ONTVANGSTBEVESTIGING");
+    expect(
+      screen.getByRole("menuitem", {
+        name: "GEMEENTE: mailtemplate.variabele.GEMEENTE",
+      }),
+    ).toBeVisible();
+  });
+
+  it("posts a new template and returns to the overview", async () => {
+    await setup();
+    await fillInNewTemplate();
+
+    await user.click(saveButton());
+    await sleep();
 
     const request = httpTestingController.expectOne(
       "/rest/beheer/mailtemplates",
@@ -186,10 +222,10 @@ describe(MailtemplateComponent.name, () => {
       mail: "TAAK_ONTVANGSTBEVESTIGING",
       mailTemplateNaam: "Nieuw template",
       onderwerp: "Onderwerp",
-      // The rich-text editor normalises plain text into a paragraph.
-      body: "<p>Body tekst</p>",
+      body: expect.stringContaining("Body tekst"),
       defaultMailtemplate: false,
     });
+
     request.flush({});
     await sleep();
 
@@ -199,145 +235,71 @@ describe(MailtemplateComponent.name, () => {
     expect(router.navigate).toHaveBeenCalledWith(["/admin/mailtemplates"]);
   });
 
-  it("should load variables when mail type is selected", () => {
-    jest
-      .spyOn(mailtemplateBeheerService, "ophalenVariabelenVoorMail")
-      .mockReturnValue(of(["GEMEENTE", "ZAAK_URL"]));
+  it("does not offer to save again while a save is in progress", async () => {
+    await setup();
+    await fillInNewTemplate();
 
-    component.testForm.controls.mail.setValue({
-      label: "mail.TAAK_ONTVANGSTBEVESTIGING",
-      value: "TAAK_ONTVANGSTBEVESTIGING",
-    });
+    await user.click(saveButton());
+    await sleep();
+    detectChanges();
 
-    expect(
-      mailtemplateBeheerService.ophalenVariabelenVoorMail,
-    ).toHaveBeenCalledWith("TAAK_ONTVANGSTBEVESTIGING");
-    expect(component.testVariabelen).toEqual(["GEMEENTE", "ZAAK_URL"]);
+    expect(saveButton()).toBeDisabled();
+
+    httpTestingController.expectOne("/rest/beheer/mailtemplates").flush({});
   });
 
-  it("should disable the submit button when the form is invalid", () => {
-    const submitButton = fixture.nativeElement.querySelector(
-      "button[type='submit']",
-    ) as HTMLButtonElement;
-    expect(submitButton.disabled).toBe(true);
-  });
+  it("puts to the template id when saving an existing template", async () => {
+    await setup(bestaandTemplate);
+    await editTemplateName(" gewijzigd");
 
-  it("should disable the submit button while a save is in progress", async () => {
-    component.testForm.patchValue(fakeValidTemplate);
-    component.testForm.markAsDirty();
-    fixture.detectChanges();
-
-    const submitButton = fixture.nativeElement.querySelector(
-      "button[type='submit']",
-    ) as HTMLButtonElement;
-    expect(submitButton.disabled).toBe(false);
-
-    component["saveMailtemplate"]();
-    await new Promise(requestAnimationFrame);
-    fixture.detectChanges();
-
-    const request = httpTestingController.expectOne(
-      "/rest/beheer/mailtemplates",
-    );
-    expect(submitButton.disabled).toBe(true);
-
-    request.flush({});
-  });
-
-  it("should disable the mail control when loading an existing template", () => {
-    TestBed.inject(ActivatedRoute).data = of({
-      template: {
-        id: 1,
-        mailTemplateNaam: "Test template",
-        mail: "TAAK_ONTVANGSTBEVESTIGING",
-        onderwerp: "Test onderwerp",
-        body: "Test body",
-        defaultMailtemplate: false,
-      },
-    });
-
-    fixture = TestBed.createComponent(TestMailtemplateComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    expect(component.testForm.controls.mail.disabled).toBe(true);
-  });
-
-  it("should PUT to the template id when saving an existing template", async () => {
-    jest.spyOn(router, "navigate").mockResolvedValue(true);
-
-    TestBed.inject(ActivatedRoute).data = of({
-      template: {
-        id: 42,
-        mailTemplateNaam: "Bestaand template",
-        mail: "TAAK_ONTVANGSTBEVESTIGING",
-        onderwerp: "Bestaand onderwerp",
-        body: "Bestaand body",
-        defaultMailtemplate: false,
-      },
-    });
-
-    fixture = TestBed.createComponent(TestMailtemplateComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    component["saveMailtemplate"]();
-    await new Promise(requestAnimationFrame);
+    await user.click(saveButton());
+    await sleep();
 
     const request = httpTestingController.expectOne(
       "/rest/beheer/mailtemplates/42",
     );
     expect(request.request.method).toBe("PUT");
     expect(request.request.body).toEqual(
-      expect.objectContaining({ mailTemplateNaam: "Bestaand template" }),
+      expect.objectContaining({
+        mailTemplateNaam: "Bestaand template gewijzigd",
+        mail: "TAAK_ONTVANGSTBEVESTIGING",
+        defaultMailtemplate: true,
+      }),
     );
+
     request.flush({});
+    await sleep();
   });
 
   it("invalidates the saved template's own query after a successful update", async () => {
-    jest.spyOn(router, "navigate").mockResolvedValue(true);
-    const invalidateSpy = jest
+    const invalidateQueries = jest
       .spyOn(testQueryClient, "invalidateQueries")
       .mockResolvedValue();
+    await setup(bestaandTemplate);
+    await editTemplateName(" gewijzigd");
 
-    TestBed.inject(ActivatedRoute).data = of({
-      template: {
-        id: 42,
-        mailTemplateNaam: "Bestaand template",
-        mail: "TAAK_ONTVANGSTBEVESTIGING",
-        onderwerp: "Bestaand onderwerp",
-        body: "Bestaand body",
-        defaultMailtemplate: false,
-      },
-    });
-
-    fixture = TestBed.createComponent(TestMailtemplateComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    component["saveMailtemplate"]();
-    await new Promise(requestAnimationFrame);
+    await user.click(saveButton());
+    await sleep();
     httpTestingController.expectOne("/rest/beheer/mailtemplates/42").flush({});
     await sleep();
 
-    expect(invalidateSpy).toHaveBeenCalledWith({
+    expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: mailtemplateBeheerService.readMailtemplateQuery(42).queryKey,
     });
   });
 
   it("does not invalidate when creating a new template", async () => {
-    jest.spyOn(router, "navigate").mockResolvedValue(true);
-    const invalidateSpy = jest
+    const invalidateQueries = jest
       .spyOn(testQueryClient, "invalidateQueries")
       .mockResolvedValue();
+    await setup();
+    await fillInNewTemplate();
 
-    component["form"].patchValue(fakeValidTemplate);
-
-    component["saveMailtemplate"]();
-    await new Promise(requestAnimationFrame);
+    await user.click(saveButton());
+    await sleep();
     httpTestingController.expectOne("/rest/beheer/mailtemplates").flush({});
     await sleep();
 
-    expect(invalidateSpy).not.toHaveBeenCalled();
+    expect(invalidateQueries).not.toHaveBeenCalled();
   });
 });

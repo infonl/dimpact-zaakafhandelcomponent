@@ -4,19 +4,19 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
 import { BagZoekComponent } from "./bag-zoek.component";
-import { sleep, testQueryClient } from "../../../../setupJest";
 
 const makeBagObject = (
   fields: Partial<GeneratedType<"RESTBAGObject">> = {},
@@ -28,167 +28,242 @@ const makeBagObject = (
   });
 
 describe(BagZoekComponent.name, () => {
-  let component: BagZoekComponent;
-  let fixture: ComponentFixture<BagZoekComponent>;
-  let bagService: BAGService;
+  const user = userEvent.setup();
+  const listAdressen = jest.fn();
+  let detectChanges: () => void;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        BagZoekComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+  function returnFromSearch(...bagObjecten: GeneratedType<"RESTBAGObject">[]) {
+    listAdressen.mockReturnValue(
+      createQueryOptions({ resultaten: bagObjecten }),
+    );
+  }
+
+  async function setup({
+    gekoppeldeBagObjecten,
+    onBagObject,
+  }: {
+    gekoppeldeBagObjecten?:
+      | GeneratedType<"RESTBAGObject">[]
+      | FormControl<GeneratedType<"RESTBAGObject">[] | null>;
+    onBagObject?: (bagObject: GeneratedType<"RESTBAGObject">) => void;
+  } = {}) {
+    const rendered = await render(BagZoekComponent, {
+      inputs: {
+        sideNav: fromPartial<MatDrawer>({ close: jest.fn() }),
+        ...(gekoppeldeBagObjecten ? { gekoppeldeBagObjecten } : {}),
+      },
+      on: onBagObject ? { bagObject: onBagObject } : {},
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideRouter([]),
+        {
+          provide: BAGService,
+          useValue: fromPartial<BAGService>({ listAdressen }),
+        },
       ],
-    }).compileComponents();
+    });
 
-    bagService = TestBed.inject(BAGService);
-    fixture = TestBed.createComponent(BagZoekComponent);
-    component = fixture.componentInstance;
-    component.sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
-    fixture.detectChanges();
+    detectChanges = rendered.detectChanges;
+  }
+
+  async function search(trefwoorden: string) {
+    if (trefwoorden) {
+      await user.type(screen.getByLabelText("bagObjecten"), trefwoorden);
+    }
+    await user.click(screen.getByRole("button", { name: "actie.zoeken" }));
+    await sleep();
+    // the table creates the row views in one pass and binds their cells in the next
+    detectChanges();
+    detectChanges();
+  }
+
+  function rowOf(identificatie: string) {
+    return screen.getByRole("row", { name: new RegExp(identificatie) });
+  }
+
+  it("lists the bag objects found for the entered keywords", async () => {
+    returnFromSearch(makeBagObject());
+    await setup();
+
+    await search("Teststraat 1");
+
+    expect(listAdressen).toHaveBeenCalledWith({ trefwoorden: "Teststraat 1" });
+    expect(rowOf("0363010000012345")).toBeVisible();
   });
 
-  describe("zoek", () => {
-    it("should call bagService with trefwoorden and populate bagObjecten", async () => {
+  it("does not search when no keywords are entered", async () => {
+    await setup();
+
+    await search("");
+
+    expect(listAdressen).not.toHaveBeenCalled();
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+  });
+
+  it("clears the keywords and the results", async () => {
+    returnFromSearch(makeBagObject());
+    await setup();
+    await search("Teststraat");
+
+    await user.click(screen.getByRole("button", { name: "actie.wissen" }));
+    detectChanges();
+
+    expect(screen.getByLabelText("bagObjecten")).toHaveValue("");
+    expect(screen.queryByRole("row", { name: /0363010000012345/ })).toBeNull();
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+  });
+
+  describe("linking a bag object", () => {
+    it("emits the bag object of the row it was clicked on", async () => {
       const bagObject = makeBagObject();
-      jest.spyOn(bagService, "listAdressen").mockReturnValue(
-        createQueryOptions({
-          resultaten: [bagObject],
-        }) as never,
+      const onBagObject = jest.fn();
+      returnFromSearch(bagObject);
+      await setup({ onBagObject });
+      await search("Teststraat 1");
+
+      await user.click(
+        within(rowOf("0363010000012345")).getByRole("button", {
+          name: "actie.koppelen",
+        }),
+      );
+      detectChanges();
+
+      expect(onBagObject).toHaveBeenCalledWith(bagObject);
+      expect(
+        within(rowOf("0363010000012345")).getByRole("button", {
+          name: "actie.koppelen",
+        }),
+      ).toBeDisabled();
+    });
+
+    it("adds the bag object to the linked form control", async () => {
+      const alreadyLinked = makeBagObject({ identificatie: "existing" });
+      const bagObject = makeBagObject({ identificatie: "new" });
+      const gekoppeldeBagObjecten = new FormControl<
+        GeneratedType<"RESTBAGObject">[] | null
+      >([alreadyLinked]);
+      returnFromSearch(bagObject);
+      await setup({ gekoppeldeBagObjecten, onBagObject: jest.fn() });
+      await search("Teststraat 1");
+
+      await user.click(
+        within(rowOf("new")).getByRole("button", { name: "actie.koppelen" }),
       );
 
-      component["trefwoorden"].setValue("Teststraat 1");
-      component["zoek"]();
-      await sleep();
-
-      expect(bagService.listAdressen).toHaveBeenCalledWith({
-        trefwoorden: "Teststraat 1",
-      });
-      expect(component["bagObjecten"].data).toEqual([bagObject]);
+      expect(gekoppeldeBagObjecten.value).toEqual([alreadyLinked, bagObject]);
     });
 
-    it("should not call bagService when trefwoorden is empty", () => {
-      jest.spyOn(bagService, "listAdressen");
-      component["trefwoorden"].setValue("");
-      component["zoek"]();
-      expect(bagService.listAdressen).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("wissen", () => {
-    it("should reset trefwoorden and clear bagObjecten", () => {
-      component["trefwoorden"].setValue("Teststraat");
-      component["bagObjecten"].data = [makeBagObject()];
-
-      component["wissen"]();
-
-      expect(component["trefwoorden"].value).toBeNull();
-      expect(component["bagObjecten"].data).toHaveLength(0);
-    });
-  });
-
-  describe("selectBagObject", () => {
-    it("should add object to array and emit", () => {
-      const bagObject = makeBagObject();
-      let emitted: GeneratedType<"RESTBAGObject"> | undefined;
-      component.bagObject.subscribe((obj) => (emitted = obj));
-
-      component["selectBagObject"](bagObject);
-
-      expect(
-        component.gekoppeldeBagObjecten as GeneratedType<"RESTBAGObject">[],
-      ).toContain(bagObject);
-      expect(emitted).toBe(bagObject);
-    });
-
-    it("should update FormControl value and emit when gekoppeldeBagObjecten is a FormControl", () => {
-      const existing = makeBagObject({ identificatie: "existing" });
-      const newObject = makeBagObject({ identificatie: "new" });
-      const control = new FormControl<GeneratedType<"RESTBAGObject">[] | null>([
-        existing,
-      ]);
-      component.gekoppeldeBagObjecten = control;
-
-      let emitted: GeneratedType<"RESTBAGObject"> | undefined;
-      component.bagObject.subscribe((obj) => (emitted = obj));
-
-      component["selectBagObject"](newObject);
-
-      expect(control.value).toEqual([existing, newObject]);
-      expect(emitted).toBe(newObject);
-    });
-  });
-
-  describe("reedsGekoppeld", () => {
-    it("should return true when identificatie and bagObjectType both match", () => {
-      component.gekoppeldeBagObjecten = [
-        makeBagObject({ identificatie: "123", bagObjectType: "ADRES" }),
-      ];
-      expect(
-        component["reedsGekoppeld"](
+    it("cannot link a bag object that is already linked", async () => {
+      returnFromSearch(makeBagObject({ identificatie: "123" }));
+      await setup({
+        gekoppeldeBagObjecten: [
           makeBagObject({ identificatie: "123", bagObjectType: "ADRES" }),
-        ),
-      ).toBe(true);
+        ],
+        onBagObject: jest.fn(),
+      });
+
+      await search("Teststraat 1");
+
+      expect(
+        within(rowOf("123")).getByRole("button", { name: "actie.koppelen" }),
+      ).toBeDisabled();
     });
 
-    it("should return false when identificatie differs", () => {
-      component.gekoppeldeBagObjecten = [
-        makeBagObject({ identificatie: "123" }),
-      ];
+    it("can link a bag object with another identificatie", async () => {
+      returnFromSearch(makeBagObject({ identificatie: "456" }));
+      await setup({
+        gekoppeldeBagObjecten: [makeBagObject({ identificatie: "123" })],
+        onBagObject: jest.fn(),
+      });
+
+      await search("Teststraat 1");
+
       expect(
-        component["reedsGekoppeld"](makeBagObject({ identificatie: "456" })),
-      ).toBe(false);
+        within(rowOf("456")).getByRole("button", { name: "actie.koppelen" }),
+      ).toBeEnabled();
     });
 
-    it("should return false when bagObjectType differs", () => {
-      component.gekoppeldeBagObjecten = [
-        makeBagObject({ identificatie: "123", bagObjectType: "ADRES" }),
-      ];
+    it("can link a bag object with another bag object type", async () => {
+      returnFromSearch(
+        makeBagObject({ identificatie: "123", bagObjectType: "PAND" }),
+      );
+      await setup({
+        gekoppeldeBagObjecten: [
+          makeBagObject({ identificatie: "123", bagObjectType: "ADRES" }),
+        ],
+        onBagObject: jest.fn(),
+      });
+
+      await search("Teststraat 1");
+
       expect(
-        component["reedsGekoppeld"](
-          makeBagObject({ identificatie: "123", bagObjectType: "PAND" }),
-        ),
-      ).toBe(false);
+        within(rowOf("123")).getByRole("button", { name: "actie.koppelen" }),
+      ).toBeEnabled();
     });
   });
 
-  describe("expandable", () => {
-    it("should return false for non-ADRES bag objects", () => {
+  describe("related objects of a row", () => {
+    it("cannot be shown for a bag object that is not an adres", async () => {
+      returnFromSearch(makeBagObject({ bagObjectType: "PAND" }));
+      await setup();
+
+      await search("Teststraat 1");
+
       expect(
-        component["expandable"](makeBagObject({ bagObjectType: "PAND" })),
-      ).toBeFalsy();
+        within(rowOf("0363010000012345")).queryByRole("button", {
+          name: "actie.gerelateerde.gegevens.tonen",
+        }),
+      ).toBeNull();
     });
 
-    it("should return false for ADRES without child objects", () => {
-      expect(
-        component["expandable"](
-          makeBagObject({
+    it("cannot be shown for an adres without related objects", async () => {
+      returnFromSearch(
+        makeBagObject(
+          fromPartial<GeneratedType<"RESTBAGAdres">>({
             bagObjectType: "ADRES",
             openbareRuimte: undefined,
             nummeraanduiding: undefined,
             woonplaats: undefined,
             panden: [],
-          } as Partial<GeneratedType<"RESTBAGAdres">>),
+          }),
         ),
-      ).toBeFalsy();
+      );
+      await setup();
+
+      await search("Teststraat 1");
+
+      expect(
+        within(rowOf("0363010000012345")).queryByRole("button", {
+          name: "actie.gerelateerde.gegevens.tonen",
+        }),
+      ).toBeNull();
     });
 
-    it("should return truthy for ADRES with nummeraanduiding", () => {
-      expect(
-        component["expandable"](
-          makeBagObject({
+    it("shows the nummeraanduiding of an adres as an extra row", async () => {
+      returnFromSearch(
+        makeBagObject(
+          fromPartial<GeneratedType<"RESTBAGAdres">>({
             bagObjectType: "ADRES",
-            nummeraanduiding: fromPartial({
+            nummeraanduiding: {
               identificatie: "0363200000400021",
-            }),
-          } as Partial<GeneratedType<"RESTBAGAdres">>),
+              bagObjectType: "NUMMERAANDUIDING",
+            },
+          }),
         ),
-      ).toBeTruthy();
+      );
+      await setup();
+      await search("Teststraat 1");
+
+      await user.click(
+        within(rowOf("0363010000012345")).getByRole("button", {
+          name: "actie.gerelateerde.gegevens.tonen",
+        }),
+      );
+      detectChanges();
+
+      expect(rowOf("0363200000400021")).toBeVisible();
     });
   });
 });

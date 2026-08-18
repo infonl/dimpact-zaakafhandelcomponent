@@ -3,372 +3,354 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { Response } from "../../shared/http/http-client";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
-import { PipesModule } from "../../shared/pipes/pipes.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import {
-  LINKABLE_ZAKEN_PAGINATION_SIZE,
-  ZoekenService,
-} from "../../zoeken/zoeken.service";
+import { LINKABLE_ZAKEN_PAGINATION_SIZE } from "../../zoeken/zoeken.service";
 import { InformatieObjectLinkComponent } from "./informatie-object-link.component";
 
+const LINK_URL = "/rest/informatieobjecten/informatieobject/verplaats";
+
+const detachedDocument = fromPartial<GeneratedType<"RestDetachedDocument">>({
+  documentUUID: "fakeDocumentUuid",
+  documentID: "DOC-001",
+  titel: "Test Document",
+  informatieobjectTypeUUID: "fakeInformatieobjectTypeUuid",
+});
+
+const inboxDocument = fromPartial<GeneratedType<"RestInboxDocument">>({
+  enkelvoudiginformatieobjectUUID: "fakeInboxDocumentUuid",
+  enkelvoudiginformatieobjectID: "INBOX-001",
+  titel: "Inbox Document",
+  informatieobjectTypeUUID: "fakeInformatieobjectTypeUuid",
+});
+
+const koppelbareZaken = [
+  fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
+    identificatie: "ZAAK-001",
+    zaaktypeOmschrijving: "Type A",
+    statustypeOmschrijving: "In behandeling",
+    omschrijving: "Zaak omschrijving 1",
+    isKoppelbaar: true,
+  }),
+  fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
+    identificatie: "ZAAK-002",
+    zaaktypeOmschrijving: "Type B",
+    statustypeOmschrijving: "Afgerond",
+    omschrijving: "Zaak omschrijving 2",
+    isKoppelbaar: false,
+  }),
+  fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
+    identificatie: "SOURCE-ZAAK",
+    zaaktypeOmschrijving: "Type C",
+    statustypeOmschrijving: "Open",
+    omschrijving: "Zaak omschrijving 3",
+    isKoppelbaar: true,
+  }),
+];
+
 describe(InformatieObjectLinkComponent.name, () => {
-  let component: InformatieObjectLinkComponent;
-  let componentRef: ComponentRef<InformatieObjectLinkComponent>;
-  let fixture: ComponentFixture<typeof component>;
-  let loader: HarnessLoader;
-  let zoekenService: ZoekenService;
-  let utilService: UtilService;
-  let translateService: TranslateService;
-  let foutAfhandelingService: FoutAfhandelingService;
+  let fixture: ComponentFixture<InformatieObjectLinkComponent>;
   let httpTestingController: HttpTestingController;
+  let sideNav: MatDrawer;
+  let informationObjectLinked: jest.Mock;
+  let openSnackbar: jest.SpyInstance;
+  let foutAfhandelen: jest.SpyInstance;
 
-  const mockSideNav = fromPartial<MatDrawer>({
-    close: jest.fn().mockReturnValue(Promise.resolve()),
-  });
+  const user = userEvent.setup({ delay: null });
 
-  const mockInfoObjectRestDetachedDocument = fromPartial<
-    GeneratedType<"RestDetachedDocument">
-  >({
-    documentUUID: "doc-uuid-123",
-    documentID: "DOC-001",
-    titel: "Test Document",
-    informatieobjectTypeUUID: "info-type-uuid-456",
-  });
+  jest.setTimeout(20_000);
 
-  const mockInfoObjectRestInboxDocument = fromPartial<
-    GeneratedType<"RestInboxDocument">
-  >({
-    enkelvoudiginformatieobjectUUID: "inbox-uuid-789",
-    enkelvoudiginformatieobjectID: "inbox-doc-789",
-    titel: "Inbox Document",
-    informatieobjectTypeUUID: "info-type-uuid-456",
-  });
+  async function setup(
+    infoObject: GeneratedType<
+      "RestDetachedDocument" | "RestInboxDocument"
+    > | null = detachedDocument,
+  ) {
+    sideNav = fromPartial<MatDrawer>({
+      close: jest.fn().mockResolvedValue(undefined),
+    });
+    informationObjectLinked = jest.fn();
 
-  const mockCaseLinkSearchResult: {
-    resultaten: GeneratedType<"RestZaakKoppelenZoekObject">[];
-    totaal: number;
-    filters: Record<string, unknown>;
-  } = {
-    resultaten: [
-      fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
-        identificatie: "ZAAK-001",
-        zaaktypeOmschrijving: "Type A",
-        statustypeOmschrijving: "In behandeling",
-        omschrijving: "Zaak omschrijving 1",
-        isKoppelbaar: true,
-      }),
-      fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
-        identificatie: "ZAAK-002",
-        zaaktypeOmschrijving: "Type B",
-        statustypeOmschrijving: "Afgerond",
-        omschrijving: "Zaak omschrijving 2",
-        isKoppelbaar: false,
-      }),
-      fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
-        identificatie: "SOURCE-ZAAK",
-        zaaktypeOmschrijving: "Type C",
-        statustypeOmschrijving: "Open",
-        omschrijving: "Source zaak (same as source)",
-        isKoppelbaar: true,
-      }),
-    ],
-    totaal: 3,
-    filters: {},
-  };
+    const inputs = {
+      sideNav,
+      source: "SOURCE-ZAAK",
+      actionLabel: "actie.document.koppelen" as const,
+    };
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        InformatieObjectLinkComponent,
-        FormsModule,
-        ReactiveFormsModule,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-        MaterialModule,
-        MaterialFormBuilderModule,
-        PipesModule,
-      ],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
-        provideRouter([]),
-      ],
-    }).compileComponents();
+    const { fixture: renderedFixture, rerender } = await render(
+      InformatieObjectLinkComponent,
+      {
+        inputs: { ...inputs, infoObject: null },
+        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        providers: [
+          provideRouter([]),
+          provideHttpClient(withInterceptorsFromDi()),
+          provideHttpClientTesting(),
+          provideQueryClient(testQueryClient),
+        ],
+      },
+    );
 
-    zoekenService = TestBed.inject(ZoekenService);
-    utilService = TestBed.inject(UtilService);
-    translateService = TestBed.inject(TranslateService);
-    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    fixture = renderedFixture;
+    fixture.componentInstance.informationObjectLinked.subscribe(
+      informationObjectLinked,
+    );
     httpTestingController = TestBed.inject(HttpTestingController);
-
-    jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(of());
-
+    openSnackbar = jest
+      .spyOn(TestBed.inject(UtilService), "openSnackbar")
+      .mockImplementation(() => undefined);
+    foutAfhandelen = jest
+      .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+      .mockReturnValue(of());
     jest
-      .spyOn(zoekenService, "listDocumentKoppelbareZaken")
-      .mockReturnValue(
-        createQueryOptions(
-          mockCaseLinkSearchResult as Response<"/rest/zoeken/zaken", "put">,
-        ) as never,
+      .spyOn(TestBed.inject(TranslateService), "instant")
+      .mockImplementation((key, parameters) =>
+        parameters?.["documentID"]
+          ? `${key} ${parameters["documentID"]}`
+          : String(key),
       );
 
-    jest.spyOn(utilService, "setLoading").mockImplementation();
-    jest.spyOn(utilService, "openSnackbar").mockImplementation();
-
-    jest
-      .spyOn(translateService, "instant")
-      .mockImplementation(
-        (key: string | string[], params?: Record<string, unknown>) => {
-          if (typeof key !== "string") return key[0];
-          if (params && params["documentID"]) {
-            return `${key} ${params["documentID"]}`;
-          }
-          return key;
-        },
-      );
-
-    fixture = TestBed.createComponent(InformatieObjectLinkComponent);
-    component = fixture.componentInstance;
-    componentRef = fixture.componentRef;
-    loader = TestbedHarnessEnvironment.loader(fixture);
-
-    componentRef.setInput("sideNav", mockSideNav);
-    componentRef.setInput("source", "SOURCE-ZAAK");
-    componentRef.setInput("actionLabel", "actie.document.koppelen");
-
+    await rerender({ inputs: { ...inputs, infoObject } });
     fixture.detectChanges();
+  }
+
+  function searchField() {
+    return screen.getByLabelText(/identificatie/i);
+  }
+
+  function searchButton() {
+    return screen.getByRole("button", { name: "actie.zoeken" });
+  }
+
+  async function search(zaakIdentificatie: string) {
+    await user.type(searchField(), zaakIdentificatie);
+    await user.click(searchButton());
+    await sleep();
+  }
+
+  async function showKoppelbareZaken(totaal = koppelbareZaken.length) {
+    await search("ZAAK");
+    httpTestingController
+      .expectOne("/rest/zoeken/zaken")
+      .flush({ totaal, resultaten: koppelbareZaken, filters: {} });
+    await sleep();
+    // the table creates the row views in one pass and binds their cells in the next
+    fixture.detectChanges();
+    fixture.detectChanges();
+  }
+
+  function koppelButtonInRowOf(zaakIdentificatie: string) {
+    const row = screen.getByRole("row", {
+      name: new RegExp(zaakIdentificatie),
+    });
+    return within(row).getByRole("button", {
+      name: "actie.document.koppelen",
+    });
+  }
+
+  it("names the document to link in the introduction", async () => {
+    await setup();
+
+    expect(
+      screen.getByText("informatieobject.koppelen.uitleg DOC-001"),
+    ).toBeVisible();
   });
 
-  it("should validate form requires minimum 2 characters", () => {
-    const control = component["form"].get("caseSearch");
-    control?.setValue("a");
-    expect(control?.hasError("minlength")).toBe(true);
+  it("keeps the search disabled until at least two characters are typed", async () => {
+    await setup();
+
+    expect(searchButton()).toBeDisabled();
+
+    await user.type(searchField(), "Z");
+    expect(searchButton()).toBeDisabled();
+
+    await user.type(searchField(), "AAK-001");
+    expect(searchButton()).toBeEnabled();
   });
 
-  it("should disable submit button when form invalid", async () => {
-    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
-    fixture.detectChanges();
-    const submitButton = await loader.getHarness(
-      MatButtonHarness.with({ text: /actie\.zoeken/ }),
-    );
+  it("searches the zaken the document can be linked to", async () => {
+    await setup();
 
-    expect(await submitButton.isDisabled()).toBe(true);
-  });
+    await search("ZAAK-001");
 
-  it("should disable submit button when loading", async () => {
-    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
-    component["form"].patchValue({ caseSearch: "ZAAK-001" });
-    component["loading"] = true;
-    fixture.detectChanges();
-    const submitButton = await loader.getHarness(
-      MatButtonHarness.with({ text: /actie\.zoeken/ }),
-    );
-
-    expect(await submitButton.isDisabled()).toBe(true);
-  });
-
-  it("should search cases with correct parameters", () => {
-    const listSpy = jest.spyOn(zoekenService, "listDocumentKoppelbareZaken");
-    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
-    fixture.detectChanges();
-    component["form"].patchValue({ caseSearch: "ZAAK-001" });
-
-    component["searchCases"]();
-
-    expect(listSpy).toHaveBeenCalledWith({
+    const request = httpTestingController.expectOne("/rest/zoeken/zaken");
+    expect(request.request.body).toEqual({
       zaakIdentificator: "ZAAK-001",
-      informationObjectTypeUuid: "info-type-uuid-456",
+      informationObjectTypeUuid: "fakeInformatieobjectTypeUuid",
       page: 0,
       rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
     });
+    request.flush({ totaal: 0, resultaten: [], filters: {} });
   });
 
-  it("should populate results after search", async () => {
-    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
-    fixture.detectChanges();
-    component["form"].patchValue({ caseSearch: "ZAAK-001" });
+  it("does not offer to search again while a search is running", async () => {
+    await setup();
 
-    component["searchCases"]();
+    await search("ZAAK-001");
+
+    expect(searchButton()).toBeDisabled();
+    httpTestingController
+      .expectOne("/rest/zoeken/zaken")
+      .flush({ totaal: 0, resultaten: [], filters: {} });
+  });
+
+  it("does not search for a document without an informatieobjecttype", async () => {
+    await setup(
+      fromPartial<GeneratedType<"RestDetachedDocument">>({
+        ...detachedDocument,
+        informatieobjectTypeUUID: undefined,
+      }),
+    );
+
+    await search("ZAAK-001");
+
+    httpTestingController.expectNone("/rest/zoeken/zaken");
+    expect(screen.queryByText("msg.loading")).toBeNull();
+  });
+
+  it("shows a row for every zaak that was found", async () => {
+    await setup();
+
+    await showKoppelbareZaken();
+
+    expect(
+      within(screen.getByRole("row", { name: /ZAAK-001/ })).getByText("Type A"),
+    ).toBeVisible();
+    expect(screen.getByRole("row", { name: /ZAAK-002/ })).toBeVisible();
+  });
+
+  it("does not offer to link a zaak that is not koppelbaar or is the source", async () => {
+    await setup();
+
+    await showKoppelbareZaken();
+
+    expect(koppelButtonInRowOf("ZAAK-001")).toBeEnabled();
+    expect(koppelButtonInRowOf("ZAAK-002")).toBeDisabled();
+    expect(koppelButtonInRowOf("SOURCE-ZAAK")).toBeDisabled();
+  });
+
+  it("warns that only the first results are shown when there are more", async () => {
+    await setup();
+
+    await showKoppelbareZaken(30);
+
+    expect(screen.getByText(/Alleen de eerste 10 resultaten/)).toBeVisible();
+  });
+
+  it("links the document to the zaak of the row it was clicked on", async () => {
+    await setup();
+    await showKoppelbareZaken();
+
+    await user.click(koppelButtonInRowOf("ZAAK-001"));
     await sleep();
 
-    expect(component["cases"].data).toEqual(
-      mockCaseLinkSearchResult.resultaten,
-    );
-  });
-
-  it("does not start loading when the document has no informatieobjectTypeUUID", () => {
-    component["searchCases"]();
-
-    expect(component["loading"]).toBe(false);
-    expect(utilService.setLoading).not.toHaveBeenCalledWith(true);
-  });
-
-  const linkUrl = "/rest/informatieobjecten/informatieobject/verplaats";
-
-  it("should link document with correct UUID", async () => {
-    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
-    fixture.detectChanges();
-    const selectableCase = mockCaseLinkSearchResult.resultaten![0];
-
-    component["selectCase"](selectableCase);
-    await new Promise(requestAnimationFrame);
-
-    const request = httpTestingController.expectOne(linkUrl);
+    const request = httpTestingController.expectOne(LINK_URL);
     expect(request.request.method).toBe("POST");
     expect(request.request.body).toEqual({
-      documentUUID: "doc-uuid-123",
+      documentUUID: "fakeDocumentUuid",
       bron: "SOURCE-ZAAK",
       nieuweZaakID: "ZAAK-001",
     });
     request.flush(null);
   });
 
-  it("should show snackbar after successful link", async () => {
-    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
-    fixture.detectChanges();
-    const selectableCase = mockCaseLinkSearchResult.resultaten![0];
+  it("links an inbox document by its enkelvoudiginformatieobject", async () => {
+    await setup(inboxDocument);
+    await showKoppelbareZaken();
 
-    component["selectCase"](selectableCase);
-    await new Promise(requestAnimationFrame);
-    httpTestingController.expectOne(linkUrl).flush(null);
+    await user.click(koppelButtonInRowOf("ZAAK-001"));
     await sleep();
 
-    expect(utilService.openSnackbar).toHaveBeenCalledWith(
-      "msg.document.koppelen.uitgevoerd",
-      { document: "Test Document", case: "ZAAK-001" },
-    );
-  });
-
-  it("should emit event after successful link", async () => {
-    const emitSpy = jest.spyOn(component.informationObjectLinked, "emit");
-    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
-    fixture.detectChanges();
-    const selectableCase = mockCaseLinkSearchResult.resultaten![0];
-
-    component["selectCase"](selectableCase);
-    await new Promise(requestAnimationFrame);
-    httpTestingController.expectOne(linkUrl).flush(null);
-    await sleep();
-
-    expect(emitSpy).toHaveBeenCalled();
-  });
-
-  it("should route link failures through the error handler", async () => {
-    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
-    fixture.detectChanges();
-    const selectableCase = mockCaseLinkSearchResult.resultaten![0];
-
-    component["selectCase"](selectableCase);
-    await new Promise(requestAnimationFrame);
-    httpTestingController
-      .expectOne(linkUrl)
-      .flush(null, { status: 500, statusText: "Server Error" });
-    await sleep();
-
-    expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
-    expect(utilService.openSnackbar).not.toHaveBeenCalled();
-  });
-
-  it("should not fire a second link while one is already in progress", async () => {
-    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
-    fixture.detectChanges();
-    const selectableCase = mockCaseLinkSearchResult.resultaten![0];
-
-    component["selectCase"](selectableCase);
-    await new Promise(requestAnimationFrame);
-
-    const request = httpTestingController.expectOne(linkUrl);
-    expect(component["isLinking"](selectableCase)).toBe(true);
-    expect(
-      component["isLinking"](mockCaseLinkSearchResult.resultaten![1]),
-    ).toBe(false);
-
-    component["selectCase"](selectableCase);
-    await new Promise(requestAnimationFrame);
-    httpTestingController.expectNone(linkUrl);
-
+    const request = httpTestingController.expectOne(LINK_URL);
+    expect(request.request.body).toMatchObject({
+      documentUUID: "fakeInboxDocumentUuid",
+    });
     request.flush(null);
   });
 
-  it("should disable row when case is not koppelbaar", () => {
-    expect(
-      component["isUnlinkable"](
-        fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
-          identificatie: "ZAAK-1",
-          isKoppelbaar: false,
-        }),
-      ),
-    ).toBe(true);
+  it("reports the link, closes the side nav and announces it once linked", async () => {
+    await setup();
+    await showKoppelbareZaken();
+
+    await user.click(koppelButtonInRowOf("ZAAK-001"));
+    await sleep();
+    httpTestingController.expectOne(LINK_URL).flush(null);
+    await sleep();
+
+    expect(openSnackbar).toHaveBeenCalledWith(
+      "msg.document.koppelen.uitgevoerd",
+      {
+        document: "Test Document",
+        case: "ZAAK-001",
+      },
+    );
+    expect(sideNav.close).toHaveBeenCalled();
+    expect(informationObjectLinked).toHaveBeenCalled();
   });
 
-  it("should disable row when case matches source", () => {
-    expect(
-      component["isUnlinkable"](
-        fromPartial<GeneratedType<"RestZaakKoppelenZoekObject">>({
-          identificatie: "SOURCE-ZAAK",
-          isKoppelbaar: true,
-        }),
-      ),
-    ).toBe(true);
+  it("routes a failed link through the error handler", async () => {
+    await setup();
+    await showKoppelbareZaken();
+
+    await user.click(koppelButtonInRowOf("ZAAK-001"));
+    await sleep();
+    httpTestingController
+      .expectOne(LINK_URL)
+      .flush(null, { status: 500, statusText: "Server Error" });
+    await sleep();
+
+    expect(foutAfhandelen).toHaveBeenCalled();
+    expect(openSnackbar).not.toHaveBeenCalled();
   });
 
-  it("should reset form on reset", () => {
-    component["form"].patchValue({ caseSearch: "test-value" });
+  it("does not offer to link again while a link is in progress", async () => {
+    await setup();
+    await showKoppelbareZaken();
 
-    component["reset"]();
-
-    expect(component["form"].value.caseSearch).toBeNull();
-  });
-
-  it("should clear cases data on reset", () => {
-    component["cases"].data = mockCaseLinkSearchResult.resultaten || [];
-
-    component["reset"]();
-
-    expect(component["cases"].data).toEqual([]);
-  });
-
-  it("should close side nav on close", () => {
-    component["close"]();
-
-    expect(mockSideNav.close).toHaveBeenCalled();
-  });
-
-  it("should extract UUID from RestDetachedDocument", () => {
-    componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
+    await user.click(koppelButtonInRowOf("ZAAK-001"));
+    await sleep();
     fixture.detectChanges();
 
-    expect(component["getDocumentUUID"]()).toBe("doc-uuid-123");
+    expect(koppelButtonInRowOf("ZAAK-001")).toBeDisabled();
+    httpTestingController.expectOne(LINK_URL).flush(null);
   });
 
-  it("should extract UUID from RestInboxDocument", () => {
-    componentRef.setInput("infoObject", mockInfoObjectRestInboxDocument);
+  it("clears the search and its results", async () => {
+    await setup();
+    await showKoppelbareZaken();
+
+    await user.click(screen.getByRole("button", { name: "actie.wissen" }));
     fixture.detectChanges();
 
-    expect(component["getDocumentUUID"]()).toBe("inbox-uuid-789");
+    expect(searchField()).toHaveValue("");
+    expect(screen.queryByRole("row", { name: /ZAAK-001/ })).toBeNull();
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+  });
+
+  it("closes the side nav when the linking is cancelled", async () => {
+    await setup();
+
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
+
+    expect(sideNav.close).toHaveBeenCalled();
   });
 });

@@ -649,19 +649,14 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
-        this.brpProtocoleringFormGroup.controls.raadpleegWaarde.setValidators(
-          value ? [Validators.required] : [],
-        );
-        this.brpProtocoleringFormGroup.controls.zoekWaarde.setValidators(
-          value ? [Validators.required] : [],
-        );
-        this.brpProtocoleringFormGroup.controls.verwerkingregisterWaarde.setValidators(
-          value ? [Validators.required] : [],
-        );
+        for (const control of Object.values(
+          this.brpProtocoleringFormGroup.controls,
+        )) {
+          control.setValidators(value ? [Validators.required] : []);
+          // revalidating the group alone leaves each field on its previous status
+          control.updateValueAndValidity({ emitEvent: false });
+        }
 
-        this.brpProtocoleringFormGroup.updateValueAndValidity({
-          emitEvent: false,
-        });
         if (value) return;
 
         this.brpProtocoleringFormGroup.reset();
@@ -698,13 +693,13 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((enabled) => {
         const validators = enabled ? [Validators.required] : [];
-        this.automatischeOntvangstbevestigingFormGroup.controls.templateName.setValidators(
-          validators,
-        );
-        this.automatischeOntvangstbevestigingFormGroup.controls.emailSender.setValidators(
-          validators,
-        );
-        this.automatischeOntvangstbevestigingFormGroup.updateValueAndValidity();
+        const { templateName, emailSender } =
+          this.automatischeOntvangstbevestigingFormGroup.controls;
+        for (const control of [templateName, emailSender]) {
+          control.setValidators(validators);
+          // revalidating the group alone leaves each field on its previous status
+          control.updateValueAndValidity({ emitEvent: false });
+        }
       });
 
     this.automatischeOntvangstbevestigingFormGroup.patchValue({

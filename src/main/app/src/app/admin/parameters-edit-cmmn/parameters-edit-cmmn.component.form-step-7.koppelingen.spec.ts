@@ -5,315 +5,371 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { ReferentieTabelService } from "../referentie-tabel.service";
+import { SmartDocumentsService } from "../smart-documents.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
 
+// rendering this seven step form once per test needs more room than the default timeout
 describe("Koppelingen form step", () => {
-  let fixture: ComponentFixture<ParametersEditCmmnComponent>;
-  let zaakafhandelParametersService: ZaakafhandelParametersService;
-  let referentieTabelService: ReferentieTabelService;
-  let identityService: IdentityService;
-  let mailtemplateBeheerService: MailtemplateBeheerService;
-  let utilService: UtilService;
-  let activatedRouteMock: Pick<ActivatedRoute, "data">;
+  const user = userEvent.setup();
 
-  const zaakafhandelParameters = fromPartial<
-    GeneratedType<"RestZaaktypeConfiguration">
-  >({
-    defaultGroepId: "test-group-id",
-    defaultBehandelaarId: "test-user-id",
-    zaaktype: { uuid: "test-uuid" },
-    zaakAfzenders: [
-      {
-        speciaal: false,
-        defaultMail: false,
-        mail: "test@example.com",
-        replyTo: undefined,
-      },
-      {
-        speciaal: false,
-        defaultMail: false,
-        mail: "test2@example.com",
-        replyTo: undefined,
-      },
-    ],
-    humanTaskParameters: [],
-    mailtemplateKoppelingen: [],
-    zaakbeeindigParameters: [],
-    smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
-    userEventListenerParameters: [],
-    betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
-    brpDoelbindingen: {
-      zoekWaarde: "",
-      raadpleegWaarde: "",
-      verwerkingregisterWaarde: "",
-    },
-    productaanvraagtype: null,
-    automaticEmailConfirmation: {
-      enabled: false,
-      templateName: null,
-      emailSender: null,
-      emailReply: null,
-    },
+  const caseDefinition = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+    key: "case-1",
+    naam: "Case Definition 1",
   });
 
-  beforeEach(async () => {
-    activatedRouteMock = {
-      data: of({
-        parameters: {
-          zaakafhandelParameters,
-          isSavedZaakafhandelParameters: true,
-        },
-      }),
-    };
+  const brpSearchValues = ["zoeken-1", "zoeken-2"];
+  const brpViewValues = ["raadplegen-1", "raadplegen-2"];
+  const brpProcessingValues = ["verwerken-1", "verwerken-2"];
 
-    await TestBed.configureTestingModule({
-      imports: [
-        ParametersEditCmmnComponent,
-        TranslateModule.forRoot(),
-        RouterModule,
-        NoopAnimationsModule,
+  function createParameters(
+    overrides: Partial<GeneratedType<"RestZaaktypeConfiguration">> = {},
+  ) {
+    return fromPartial<GeneratedType<"RestZaaktypeConfiguration">>({
+      caseDefinition,
+      defaultGroepId: "test-group-id",
+      defaultBehandelaarId: "test-user-id",
+      zaaktype: { uuid: "test-uuid" },
+      zaakNietOntvankelijkResultaattype: {
+        id: "resultaat-1",
+        naam: "Afgehandeld",
+      },
+      zaakAfzenders: [
+        {
+          speciaal: false,
+          defaultMail: true,
+          mail: "test@example.com",
+          replyTo: undefined,
+        },
       ],
+      humanTaskParameters: [],
+      mailtemplateKoppelingen: [],
+      zaakbeeindigParameters: [],
+      smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
+      userEventListenerParameters: [],
+      betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
+      brpDoelbindingen: {
+        zoekWaarde: "",
+        raadpleegWaarde: "",
+        verwerkingregisterWaarde: "",
+      },
+      productaanvraagtype: null,
+      automaticEmailConfirmation: {
+        enabled: false,
+        templateName: null,
+        emailSender: null,
+        emailReply: null,
+      },
+      ...overrides,
+    });
+  }
+
+  async function setup(parameters = createParameters()) {
+    const { fixture } = await render(ParametersEditCmmnComponent, {
+      imports: [TranslateModule.forRoot(), RouterModule, NoopAnimationsModule],
       providers: [
         provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: ActivatedRoute, useValue: activatedRouteMock },
-      ],
-    }).compileComponents();
-
-    zaakafhandelParametersService = TestBed.inject(
-      ZaakafhandelParametersService,
-    );
-    jest
-      .spyOn(zaakafhandelParametersService, "listCaseDefinitions")
-      .mockReturnValue(
-        of([
-          fromPartial<GeneratedType<"RESTCaseDefinition">>({
-            key: "case-1",
-            naam: "Case Definition 1",
+        {
+          provide: ActivatedRoute,
+          useValue: fromPartial<ActivatedRoute>({
+            data: of({
+              parameters: {
+                zaakafhandelParameters: parameters,
+                isSavedZaakafhandelParameters: true,
+              },
+            }),
           }),
-        ]),
-      );
-    jest
-      .spyOn(zaakafhandelParametersService, "listFormulierDefinities")
-      .mockReturnValue(of([]));
-    jest.spyOn(zaakafhandelParametersService, "listReplyTos").mockReturnValue(
-      of([
-        { mail: "reply1@example.com", speciaal: false },
-        { mail: "reply2@example.com", speciaal: false },
-      ]),
-    );
-    jest
-      .spyOn(zaakafhandelParametersService, "listZaakbeeindigRedenen")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(zaakafhandelParametersService, "listResultaattypes")
-      .mockReturnValue(of([]));
+        },
+        {
+          provide: ZaakafhandelParametersService,
+          useValue: fromPartial<ZaakafhandelParametersService>({
+            listCaseDefinitions: () => of([caseDefinition]),
+            listFormulierDefinities: () => of([]),
+            listReplyTos: () => of([{ mail: "reply1@example.com" }]),
+            listZaakbeeindigRedenen: () => of([]),
+            listResultaattypes: () => of([]),
+            updateZaakafhandelparameters: () =>
+              createMutationOptions(parameters),
+          }),
+        },
+        {
+          provide: ReferentieTabelService,
+          useValue: fromPartial<ReferentieTabelService>({
+            listReferentieTabellen: () => of([]),
+            listAfzenders: () => of(["other@example.com"]),
+            listBrpSearchValues: () => of(brpSearchValues),
+            listBrpViewValues: () => of(brpViewValues),
+            listBrpProcessingValues: () => of(brpProcessingValues),
+          }),
+        },
+        {
+          provide: IdentityService,
+          useValue: fromPartial<IdentityService>({
+            listGroups: () => of([{ id: "test-group-id", naam: "test-group" }]),
+            listUsersInGroup: () =>
+              of([{ id: "test-user-id", naam: "test-user" }]),
+          }),
+        },
+        {
+          provide: MailtemplateBeheerService,
+          useValue: fromPartial<MailtemplateBeheerService>({
+            listKoppelbareMailtemplates: () => of([]),
+          }),
+        },
+        {
+          provide: ConfiguratieService,
+          useValue: fromPartial<ConfiguratieService>({
+            readBrpDoelbindingSetupEnabled: () => of(true),
+          }),
+        },
+        {
+          provide: SmartDocumentsService,
+          useValue: fromPartial<SmartDocumentsService>({
+            getAllSmartDocumentsTemplateGroups: () => of([]),
+            getTemplatesMapping: () => of([]),
+            addParentIdsToTemplates: () => [],
+            addTemplateMappings: () => [],
+            flattenGroups: () => [],
+            getTemplateMappings: () => [],
+          }),
+        },
+        {
+          provide: InformatieObjectenService,
+          useValue: fromPartial<InformatieObjectenService>({
+            listInformatieobjecttypes: () => of([]),
+          }),
+        },
+      ],
+    });
 
-    referentieTabelService = TestBed.inject(ReferentieTabelService);
-    jest
-      .spyOn(referentieTabelService, "listReferentieTabellen")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listAfzenders")
-      .mockReturnValue(of(["test@example.com", "other@example.com"]));
-    jest
-      .spyOn(referentieTabelService, "listBrpViewValues")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listBrpSearchValues")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listBrpProcessingValues")
-      .mockReturnValue(of([]));
-
-    identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "listGroups").mockReturnValue(
-      of([
-        { id: "test-group-id", naam: "test-group" },
-        { id: "test-group-id-2", naam: "test-group-2" },
-      ]),
-    );
-    jest
-      .spyOn(identityService, "listUsersInGroup")
-      .mockReturnValueOnce(
-        of([
-          { id: "test-user-id", naam: "test-user" },
-          { id: "test-user-id-2", naam: "test-user-2" },
-        ]),
-      )
-      .mockReturnValue(of([]));
-
-    utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "compare").mockReturnValue(true);
-
-    mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
-    jest
-      .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
-      .mockReturnValue(of([]));
-
-    const configuratieService = TestBed.inject(ConfiguratieService);
-    jest
-      .spyOn(configuratieService, "readBrpDoelbindingSetupEnabled")
-      .mockReturnValue(of(false));
-
-    fixture = TestBed.createComponent(ParametersEditCmmnComponent);
     await fixture.whenStable();
     fixture.detectChanges();
-  });
 
-  describe("Betrokkene koppelingen", () => {
-    it("should initialize form with values from parameters", () => {
-      const component = fixture.componentInstance;
-      expect(component["betrokkeneKoppelingen"].value).toEqual({
-        brpKoppelen: false,
-        kvkKoppelen: false,
+    return fixture;
+  }
+
+  async function goToStep(label: string) {
+    await user.click(screen.getByRole("tab", { name: new RegExp(label) }));
+    return screen.getByRole("tabpanel", { name: new RegExp(label) });
+  }
+
+  describe("Landelijke koppelingen", () => {
+    it("starts with both koppelingen switched off", async () => {
+      await setup();
+      const koppelingen = await goToStep("gegevens.koppelingen");
+
+      expect(
+        within(koppelingen).getByRole("switch", {
+          name: "gegevens.koppelen.brp",
+        }),
+      ).not.toBeChecked();
+      expect(
+        within(koppelingen).getByRole("switch", {
+          name: "gegevens.koppelen.kvk",
+        }),
+      ).not.toBeChecked();
+    });
+
+    it("asks for the BRP doelbinding values once BRP koppelen is switched on", async () => {
+      await setup();
+      const koppelingen = await goToStep("gegevens.koppelingen");
+
+      expect(
+        within(koppelingen).queryByRole("combobox", {
+          name: "brpDoelbinding.zoekWaarde",
+        }),
+      ).not.toBeInTheDocument();
+
+      await user.click(
+        within(koppelingen).getByRole("switch", {
+          name: "gegevens.koppelen.brp",
+        }),
+      );
+
+      expect(
+        within(koppelingen).getByRole("combobox", {
+          name: "brpDoelbinding.zoekWaarde",
+        }),
+      ).toBeVisible();
+      expect(
+        within(koppelingen).getByRole("combobox", {
+          name: "brpDoelbinding.raadpleegWaarde",
+        }),
+      ).toBeVisible();
+      expect(
+        within(koppelingen).getByRole("combobox", {
+          name: "brpDoelbinding.verwerkingregisterWaarde",
+        }),
+      ).toBeVisible();
+    });
+
+    it("blocks saving until every BRP doelbinding value is chosen", async () => {
+      await setup();
+      const koppelingen = await goToStep("gegevens.koppelingen");
+      const opslaan = within(koppelingen).getByRole("button", {
+        name: "actie.opslaan",
       });
-    });
 
-    it("should add required validators to brp fields when brpKoppelen is enabled", () => {
-      const component = fixture.componentInstance;
-
-      component["betrokkeneKoppelingen"].controls.brpKoppelen.setValue(true);
-      component.brpProtocoleringFormGroup.controls.raadpleegWaarde.updateValueAndValidity();
-      component.brpProtocoleringFormGroup.controls.zoekWaarde.updateValueAndValidity();
-      component.brpProtocoleringFormGroup.controls.verwerkingregisterWaarde.updateValueAndValidity();
-
-      expect(
-        component.brpProtocoleringFormGroup.controls.raadpleegWaarde.hasError(
-          "required",
-        ),
-      ).toBe(true);
-      expect(
-        component.brpProtocoleringFormGroup.controls.zoekWaarde.hasError(
-          "required",
-        ),
-      ).toBe(true);
-      expect(
-        component.brpProtocoleringFormGroup.controls.verwerkingregisterWaarde.hasError(
-          "required",
-        ),
-      ).toBe(true);
-    });
-
-    it("should clear required validators from brp fields when brpKoppelen is disabled", () => {
-      const component = fixture.componentInstance;
-
-      component["betrokkeneKoppelingen"].controls.brpKoppelen.setValue(true);
-      component["betrokkeneKoppelingen"].controls.brpKoppelen.setValue(false);
-      component.brpProtocoleringFormGroup.controls.raadpleegWaarde.updateValueAndValidity();
-
-      expect(
-        component.brpProtocoleringFormGroup.controls.raadpleegWaarde.hasError(
-          "required",
-        ),
-      ).toBe(false);
-    });
-
-    it("should reset brp fields when brpKoppelen is disabled", () => {
-      const component = fixture.componentInstance;
-
-      component.brpProtocoleringFormGroup.controls.raadpleegWaarde.setValue(
-        "some-value",
+      await user.click(
+        within(koppelingen).getByRole("switch", {
+          name: "gegevens.koppelen.brp",
+        }),
       );
-      component["betrokkeneKoppelingen"].controls.brpKoppelen.setValue(true);
-      component["betrokkeneKoppelingen"].controls.brpKoppelen.setValue(false);
+
+      expect(opslaan).toBeDisabled();
+
+      await chooseBrpDoelbinding(koppelingen, {
+        "brpDoelbinding.zoekWaarde": brpSearchValues[0],
+        "brpDoelbinding.raadpleegWaarde": brpViewValues[0],
+        "brpDoelbinding.verwerkingregisterWaarde": brpProcessingValues[0],
+      });
+
+      expect(opslaan).toBeEnabled();
+    });
+
+    it("allows saving again when BRP koppelen is switched back off", async () => {
+      await setup();
+      const koppelingen = await goToStep("gegevens.koppelingen");
+      const brpKoppelen = within(koppelingen).getByRole("switch", {
+        name: "gegevens.koppelen.brp",
+      });
+      const opslaan = within(koppelingen).getByRole("button", {
+        name: "actie.opslaan",
+      });
+
+      await user.click(brpKoppelen);
+      expect(opslaan).toBeDisabled();
+
+      await user.click(brpKoppelen);
 
       expect(
-        component.brpProtocoleringFormGroup.controls.raadpleegWaarde.value,
-      ).toBeNull();
+        within(koppelingen).queryByRole("combobox", {
+          name: "brpDoelbinding.zoekWaarde",
+        }),
+      ).not.toBeInTheDocument();
+      expect(opslaan).toBeEnabled();
+    });
+
+    it("forgets the chosen BRP doelbinding values when BRP koppelen is switched off", async () => {
+      await setup();
+      const koppelingen = await goToStep("gegevens.koppelingen");
+      const brpKoppelen = within(koppelingen).getByRole("switch", {
+        name: "gegevens.koppelen.brp",
+      });
+
+      await user.click(brpKoppelen);
+      await chooseBrpDoelbinding(koppelingen, {
+        "brpDoelbinding.zoekWaarde": brpSearchValues[0],
+      });
+      await user.click(brpKoppelen);
+      await user.click(brpKoppelen);
+
+      expect(
+        within(koppelingen).getByRole("combobox", {
+          name: "brpDoelbinding.zoekWaarde",
+        }),
+      ).not.toHaveTextContent(brpSearchValues[0]);
     });
   });
 
-  describe("Smart documents", () => {
-    it("should initialize enabledForZaaktype from parameters", () => {
-      const component = fixture.componentInstance;
-      expect(component.parameters.smartDocuments.enabledForZaaktype).toBe(
-        false,
-      );
+  describe("SmartDocuments", () => {
+    it("hides the SmartDocuments form when SmartDocuments is not enabled globally", async () => {
+      await setup();
+      const koppelingen = await goToStep("gegevens.koppelingen");
+
+      expect(
+        within(koppelingen).queryByText("title.smartdocuments.form"),
+      ).not.toBeInTheDocument();
     });
 
-    it("should not show smart documents form when enabledGlobally is false", () => {
-      const component = fixture.componentInstance;
-      expect(component.parameters.smartDocuments.enabledGlobally).toBe(false);
+    it("shows the SmartDocuments form as disabled for a zaaktype that has it switched off", async () => {
+      await setup(
+        createParameters({
+          smartDocuments: { enabledGlobally: true, enabledForZaaktype: false },
+        }),
+      );
+      const koppelingen = await goToStep("gegevens.koppelingen");
+
+      expect(
+        within(koppelingen).getByText("title.smartdocuments.form"),
+      ).toBeVisible();
+      expect(
+        within(koppelingen).getByText("msg.smartdocuments.form.disabled"),
+      ).toBeVisible();
     });
   });
 
   describe("Automatische ontvangstbevestiging", () => {
-    it("should initialize enabled as false", () => {
-      const component = fixture.componentInstance;
+    it("starts switched off without asking for a template or a sender", async () => {
+      await setup();
+      const mail = await goToStep("gegevens.mail");
+
       expect(
-        component["automatischeOntvangstbevestigingFormGroup"].controls.enabled
-          .value,
-      ).toBe(false);
+        within(mail).getByRole("switch", { name: /ontvangstbevestiging/i }),
+      ).not.toBeChecked();
+      expect(
+        within(mail).queryByRole("combobox", { name: /mail.antwoord/i }),
+      ).not.toBeInTheDocument();
     });
 
-    it("should add required validators to templateName and emailSender when enabled is set to true", () => {
-      const component = fixture.componentInstance;
+    it("blocks saving until a template and a sender are chosen", async () => {
+      await setup();
+      const mail = await goToStep("gegevens.mail");
 
-      component[
-        "automatischeOntvangstbevestigingFormGroup"
-      ].controls.enabled.setValue(true);
-      component[
-        "automatischeOntvangstbevestigingFormGroup"
-      ].controls.templateName.updateValueAndValidity();
-      component[
-        "automatischeOntvangstbevestigingFormGroup"
-      ].controls.emailSender.updateValueAndValidity();
+      await user.click(
+        within(mail).getByRole("switch", { name: /ontvangstbevestiging/i }),
+      );
 
       expect(
-        component[
-          "automatischeOntvangstbevestigingFormGroup"
-        ].controls.templateName.hasError("required"),
-      ).toBe(true);
+        within(mail).getByRole("combobox", { name: /mail.antwoord/i }),
+      ).toBeVisible();
       expect(
-        component[
-          "automatischeOntvangstbevestigingFormGroup"
-        ].controls.emailSender.hasError("required"),
-      ).toBe(true);
+        within(mail).getByRole("button", { name: "actie.opslaan" }),
+      ).toBeDisabled();
     });
 
-    it("should remove required validators when enabled is set back to false", () => {
-      const component = fixture.componentInstance;
+    it("allows saving again when switched back off", async () => {
+      await setup();
+      const mail = await goToStep("gegevens.mail");
+      const ontvangstbevestiging = within(mail).getByRole("switch", {
+        name: /ontvangstbevestiging/i,
+      });
 
-      component[
-        "automatischeOntvangstbevestigingFormGroup"
-      ].controls.enabled.setValue(true);
-      component[
-        "automatischeOntvangstbevestigingFormGroup"
-      ].controls.enabled.setValue(false);
-      component[
-        "automatischeOntvangstbevestigingFormGroup"
-      ].controls.templateName.updateValueAndValidity();
-      component[
-        "automatischeOntvangstbevestigingFormGroup"
-      ].controls.emailSender.updateValueAndValidity();
+      await user.click(ontvangstbevestiging);
+      await user.click(ontvangstbevestiging);
 
       expect(
-        component[
-          "automatischeOntvangstbevestigingFormGroup"
-        ].controls.templateName.hasError("required"),
-      ).toBe(false);
-      expect(
-        component[
-          "automatischeOntvangstbevestigingFormGroup"
-        ].controls.emailSender.hasError("required"),
-      ).toBe(false);
+        within(mail).getByRole("button", { name: "actie.opslaan" }),
+      ).toBeEnabled();
     });
   });
+
+  async function chooseBrpDoelbinding(
+    koppelingen: HTMLElement,
+    values: Record<string, string>,
+  ) {
+    for (const [label, value] of Object.entries(values)) {
+      await user.click(
+        within(koppelingen).getByRole("combobox", { name: label }),
+      );
+      await user.click(screen.getByRole("option", { name: value }));
+    }
+  }
 });

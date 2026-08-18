@@ -3,18 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { ComponentRef, provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ReactiveFormsModule } from "@angular/forms";
-import { MatButtonHarness } from "@angular/material/button/testing";
-import { MatDialog } from "@angular/material/dialog";
+import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -23,307 +21,302 @@ import {
   provideQueryClient,
   provideTanStackQuery,
 } from "@tanstack/angular-query-experimental";
-import { EMPTY, of } from "rxjs";
-import { SmartDocumentsService } from "src/app/admin/smart-documents.service";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { IdentityService } from "../../identity/identity.service";
-import { ZacAutoComplete } from "../../shared/form/auto-complete/auto-complete";
-import { ZacDate } from "../../shared/form/date/date";
-import { ZacInput } from "../../shared/form/input/input";
-import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "../../shared/material/material.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieObjectCreateAttendedComponent } from "./informatie-object-create-attended.component";
 
+const CREATE_URL = "/rest/document-creation/create-document-attended";
+const TEMPLATES_URL =
+  "/rest/zaakafhandelparameters/fakeZaaktypeUuid/smartdocuments-templates-mapping";
+const INFORMATIEOBJECTTYPES_URL =
+  "/rest/informatieobjecten/informatieobjecttypes/fakeZaaktypeUuid";
+
+const zaak = fromPartial<GeneratedType<"RestZaak">>({
+  uuid: "fakeZaakUuid",
+  zaaktype: { uuid: "fakeZaaktypeUuid" },
+});
+
+const templateGroup = fromPartial<
+  GeneratedType<"RestMappedSmartDocumentsTemplateGroup">
+>({
+  id: "fakeGroupId1",
+  name: "Group One",
+  templates: [
+    {
+      id: "fakeTemplateId1",
+      name: "Template One",
+      informatieObjectTypeUUID: "fakeInformatieobjectTypeUuid",
+    },
+    {
+      id: "fakeTemplateId2",
+      name: "Template Two",
+      informatieObjectTypeUUID: null,
+    },
+  ],
+  groups: null,
+});
+
+const singleTemplateGroup = fromPartial<
+  GeneratedType<"RestMappedSmartDocumentsTemplateGroup">
+>({
+  id: "fakeGroupId2",
+  name: "Group Two",
+  templates: [{ id: "fakeTemplateId3", name: "Template Three" }],
+  groups: null,
+});
+
+const loggedInUser = fromPartial<GeneratedType<"RestUser">>({
+  id: "fakeUserId1",
+  naam: "fakeUserName1",
+});
+
+const informatieobjecttype = fromPartial<
+  GeneratedType<"RestInformatieobjecttype">
+>({
+  uuid: "fakeInformatieobjectTypeUuid",
+  omschrijving: "Bijlage",
+  vertrouwelijkheidaanduiding: "OPENBAAR",
+});
+
 describe(InformatieObjectCreateAttendedComponent.name, () => {
-  let component: InformatieObjectCreateAttendedComponent;
-  let componentRef: ComponentRef<InformatieObjectCreateAttendedComponent>;
   let fixture: ComponentFixture<InformatieObjectCreateAttendedComponent>;
-  let loader: HarnessLoader;
-  let informatieObjectenService: InformatieObjectenService;
-  let smartDocumentsService: SmartDocumentsService;
-  let identityService: IdentityService;
-  let foutAfhandelingService: FoutAfhandelingService;
   let httpTestingController: HttpTestingController;
+  let sideNav: MatDrawer;
+  let documentCreated: jest.Mock;
+  let foutAfhandelen: jest.SpyInstance;
 
-  const mockSideNav = fromPartial<MatDrawer>({
-    close: jest.fn().mockReturnValue(Promise.resolve()),
-  });
+  const user = userEvent.setup({ delay: null });
 
-  const makeZaak = (
-    fields: Partial<GeneratedType<"RestZaak">> = {},
-  ): GeneratedType<"RestZaak"> =>
-    fromPartial<GeneratedType<"RestZaak">>({
-      uuid: "zaak-uuid-001",
-      zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
-        uuid: "zaaktype-uuid-001",
-      }),
-      ...fields,
+  jest.setTimeout(20_000);
+
+  async function setup(
+    inputs: {
+      smartDocumentsGroupId?: string;
+      smartDocumentsTemplateId?: string;
+    } = {},
+  ) {
+    testQueryClient.setQueryData(["/rest/identity/loggedInUser"], loggedInUser);
+
+    sideNav = fromPartial<MatDrawer>({
+      close: jest.fn().mockResolvedValue(undefined),
     });
+    documentCreated = jest.fn();
 
-  const mockTemplateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] =
-    [
+    const { fixture: renderedFixture } = await render(
+      InformatieObjectCreateAttendedComponent,
       {
-        id: "group-1",
-        name: "Group One",
-        templates: [
-          {
-            id: "tpl-1",
-            name: "Template One",
-            informatieObjectTypeUUID: "info-type-uuid",
-          },
+        inputs: { zaak, sideNav, ...inputs },
+        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        providers: [
+          provideRouter([]),
+          provideHttpClient(withInterceptorsFromDi()),
+          provideHttpClientTesting(),
+          provideMomentDateAdapter(),
+          provideTanStackQuery(testQueryClient),
+          provideQueryClient(testQueryClient),
+          VertrouwelijkaanduidingToTranslationKeyPipe,
         ],
-        groups: null,
       },
-    ];
-
-  const mockLoggedInUser = fromPartial<GeneratedType<"RestUser">>({
-    id: "user-1",
-    naam: "Test User",
-  });
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        InformatieObjectCreateAttendedComponent,
-        ReactiveFormsModule,
-        MaterialModule,
-        MaterialFormBuilderModule,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-        ZacAutoComplete,
-        ZacInput,
-        ZacDate,
-      ],
-      providers: [
-        provideZonelessChangeDetection(),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideTanStackQuery(testQueryClient),
-        provideQueryClient(testQueryClient),
-        provideRouter([]),
-        VertrouwelijkaanduidingToTranslationKeyPipe,
-      ],
-    }).compileComponents();
-
-    informatieObjectenService = TestBed.inject(InformatieObjectenService);
-    smartDocumentsService = TestBed.inject(SmartDocumentsService);
-    identityService = TestBed.inject(IdentityService);
-    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
-    httpTestingController = TestBed.inject(HttpTestingController);
-
-    jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
-
-    jest
-      .spyOn(informatieObjectenService, "listInformatieobjecttypes")
-      .mockReturnValue(of([]));
-
-    jest
-      .spyOn(smartDocumentsService, "getTemplatesMapping")
-      .mockReturnValue(
-        of(mockTemplateGroups) as ReturnType<
-          typeof smartDocumentsService.getTemplatesMapping
-        >,
-      );
-
-    testQueryClient.setQueryData(
-      identityService.readLoggedInUser().queryKey,
-      mockLoggedInUser,
     );
 
-    fixture = TestBed.createComponent(InformatieObjectCreateAttendedComponent);
-    component = fixture.componentInstance;
-    componentRef = fixture.componentRef;
-    loader = TestbedHarnessEnvironment.loader(fixture);
+    fixture = renderedFixture;
+    fixture.componentInstance.document.subscribe(documentCreated);
+    httpTestingController = TestBed.inject(HttpTestingController);
+    foutAfhandelen = jest
+      .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+      .mockReturnValue(EMPTY);
 
-    componentRef.setInput("sideNav", mockSideNav);
-    componentRef.setInput("zaak", makeZaak());
-
+    await sleep();
+    httpTestingController
+      .expectOne(INFORMATIEOBJECTTYPES_URL)
+      .flush([informatieobjecttype]);
+    httpTestingController
+      .expectOne(TEMPLATES_URL)
+      .flush([templateGroup, singleTemplateGroup]);
+    await sleep();
     fixture.detectChanges();
-    await fixture.whenStable();
+  }
+
+  function field(label: string) {
+    return screen.getByLabelText(label);
+  }
+
+  function submitButton() {
+    return screen.getByRole("button", { name: "actie.toevoegen" });
+  }
+
+  async function choose(label: string, option: string) {
+    await user.click(field(label));
+    await user.click(screen.getByRole("option", { name: option }));
+  }
+
+  async function fillInValidForm() {
+    await choose("sjabloonGroep", "Group One");
+    await choose("sjabloon", "Template One");
+    await user.type(field("titel"), "Aanvraag formulier");
+  }
+
+  it("announces what the drawer is for", async () => {
+    await setup();
+
+    expect(screen.getByText("actie.document.maken")).toBeVisible();
   });
 
-  describe("toolbar", () => {
-    it("should render the toolbar title", async () => {
-      const toolbar = fixture.nativeElement.querySelector("mat-toolbar span");
-      expect(toolbar.textContent.trim()).toBe("actie.document.maken");
-    });
+  it("offers the template groups configured for the zaaktype", async () => {
+    await setup();
+
+    await user.click(field("sjabloonGroep"));
+
+    expect(screen.getByRole("option", { name: "Group One" })).toBeVisible();
+    expect(screen.getByRole("option", { name: "Group Two" })).toBeVisible();
   });
 
-  describe("ngOnInit — template loading", () => {
-    it("should call getTemplatesMapping when no smartDocumentsGroupPath/TemplateName/Uuid are set", () => {
-      expect(smartDocumentsService.getTemplatesMapping).toHaveBeenCalledWith(
-        "zaaktype-uuid-001",
-      );
-    });
+  it("offers the templates of the chosen template group", async () => {
+    await setup();
 
-    it("should auto-select and disable the templateGroup when smartDocumentsGroupId matches", async () => {
-      const freshFixture = TestBed.createComponent(
-        InformatieObjectCreateAttendedComponent,
-      );
-      const freshRef = freshFixture.componentRef;
-      freshRef.setInput("sideNav", mockSideNav);
-      freshRef.setInput("zaak", makeZaak());
-      freshRef.setInput("smartDocumentsGroupId", "group-1");
+    await choose("sjabloonGroep", "Group One");
+    await user.click(field("sjabloon"));
 
-      freshFixture.detectChanges();
-      await freshFixture.whenStable();
-
-      const freshComponent = freshFixture.componentInstance;
-      expect(freshComponent["form"].controls.templateGroup.value).toEqual(
-        mockTemplateGroups[0],
-      );
-      expect(freshComponent["form"].controls.templateGroup.disabled).toBe(true);
-    });
-
-    it("should auto-select and disable both templateGroup and template when smartDocumentsGroupId and smartDocumentsTemplateId match", async () => {
-      const freshFixture = TestBed.createComponent(
-        InformatieObjectCreateAttendedComponent,
-      );
-      const freshRef = freshFixture.componentRef;
-      freshRef.setInput("sideNav", mockSideNav);
-      freshRef.setInput("zaak", makeZaak());
-      freshRef.setInput("smartDocumentsGroupId", "group-1");
-      freshRef.setInput("smartDocumentsTemplateId", "tpl-1");
-
-      freshFixture.detectChanges();
-      await freshFixture.whenStable();
-
-      const freshComponent = freshFixture.componentInstance;
-      expect(freshComponent["form"].controls.templateGroup.value).toEqual(
-        mockTemplateGroups[0],
-      );
-      expect(freshComponent["form"].controls.templateGroup.disabled).toBe(true);
-      expect(freshComponent["form"].controls.template.value).toEqual(
-        mockTemplateGroups[0].templates![0],
-      );
-      expect(freshComponent["form"].controls.template.disabled).toBe(true);
-    });
-
-    it("should set author from logged-in user", async () => {
-      await fixture.whenStable();
-      expect(component["form"].controls.author.value).toBe("Test User");
-    });
+    expect(screen.getByRole("option", { name: "Template One" })).toBeVisible();
+    expect(screen.getByRole("option", { name: "Template Two" })).toBeVisible();
   });
 
-  describe("form submit button", () => {
-    it("should be disabled when form is invalid", async () => {
-      const button = await loader.getHarness(
-        MatButtonHarness.with({ selector: "[type='submit']" }),
-      );
-      expect(await (await button.host()).getProperty<boolean>("disabled")).toBe(
-        true,
-      );
-    });
+  it("chooses the only template of a group without asking", async () => {
+    await setup();
+
+    await choose("sjabloonGroep", "Group Two");
+
+    expect(field("sjabloon")).toHaveValue("Template Three");
+    expect(field("sjabloon")).toBeDisabled();
   });
 
-  describe("onFormSubmit", () => {
-    it("should close sideNav when called without a formGroup (null)", () => {
-      component["onFormSubmit"](undefined);
-      expect(mockSideNav.close).toHaveBeenCalled();
+  it("locks the template group it was opened for", async () => {
+    await setup({ smartDocumentsGroupId: "fakeGroupId1" });
+
+    expect(field("sjabloonGroep")).toHaveValue("Group One");
+    expect(field("sjabloonGroep")).toBeDisabled();
+    expect(field("sjabloon")).toHaveValue("");
+  });
+
+  it("locks the template it was opened for", async () => {
+    await setup({
+      smartDocumentsGroupId: "fakeGroupId1",
+      smartDocumentsTemplateId: "fakeTemplateId1",
     });
 
-    it("should close sideNav when called with an invalid form", () => {
-      component["onFormSubmit"](component["form"]);
-      expect(mockSideNav.close).toHaveBeenCalled();
+    expect(field("sjabloonGroep")).toHaveValue("Group One");
+    expect(field("sjabloon")).toHaveValue("Template One");
+    expect(field("sjabloon")).toBeDisabled();
+  });
+
+  it("fills in the informatieobjecttype and vertrouwelijkheid of the template", async () => {
+    await setup();
+
+    await choose("sjabloonGroep", "Group One");
+    await choose("sjabloon", "Template One");
+
+    expect(field("informatieobjectType")).toHaveValue("Bijlage");
+    expect(field("vertrouwelijkheidaanduiding")).toHaveValue(
+      "vertrouwelijkheidaanduiding.OPENBAAR",
+    );
+  });
+
+  it("fills in the logged in user as the author", async () => {
+    await setup();
+
+    expect(field("auteur")).toHaveValue("fakeUserName1");
+  });
+
+  it("keeps the submit disabled until the form is filled in", async () => {
+    await setup();
+
+    expect(submitButton()).toBeDisabled();
+
+    await fillInValidForm();
+
+    expect(submitButton()).toBeEnabled();
+  });
+
+  it("creates the document and opens it for editing", async () => {
+    const windowOpen = jest.spyOn(window, "open").mockReturnValue(null);
+    await setup();
+    await fillInValidForm();
+
+    await user.click(submitButton());
+    await sleep();
+
+    const request = httpTestingController.expectOne(CREATE_URL);
+    expect(request.request.method).toBe("POST");
+    expect(request.request.body).toMatchObject({
+      author: "fakeUserName1",
+      smartDocumentsTemplateGroupId: "fakeGroupId1",
+      smartDocumentsTemplateId: "fakeTemplateId1",
+      title: "Aanvraag formulier",
+      zaakUuid: "fakeZaakUuid",
     });
+    request.flush({ redirectURL: "https://example.com/doc", message: null });
+    await sleep();
 
-    const fillValidForm = () => {
-      component["form"].controls.templateGroup.enable();
-      component["form"].controls.templateGroup.setValue(mockTemplateGroups[0]);
-      component["form"].controls.template.enable();
-      component["form"].controls.template.setValue(
-        mockTemplateGroups[0].templates![0],
-      );
-      component["form"].controls.title.setValue("Test Title");
-      component["form"].controls.author.setValue("Test User");
-    };
+    expect(documentCreated).toHaveBeenCalled();
+    expect(windowOpen).toHaveBeenCalledWith("https://example.com/doc");
+  });
 
-    it("should POST, emit document and open redirectURL when form is valid", async () => {
-      const windowOpenSpy = jest
-        .spyOn(window, "open")
-        .mockImplementation(() => null);
-      const emitSpy = jest.spyOn(component.document, "emit");
+  it("reports the message when there is no document to open", async () => {
+    await setup();
+    await fillInValidForm();
 
-      fillValidForm();
-      component["onFormSubmit"](component["form"]);
-      await new Promise(requestAnimationFrame);
-
-      const request = httpTestingController.expectOne(
-        "/rest/document-creation/create-document-attended",
-      );
-      expect(request.request.method).toBe("POST");
-      request.flush({ redirectURL: "https://example.com/doc", message: null });
-      await sleep();
-
-      expect(emitSpy).toHaveBeenCalled();
-      expect(windowOpenSpy).toHaveBeenCalledWith("https://example.com/doc");
+    await user.click(submitButton());
+    await sleep();
+    httpTestingController.expectOne(CREATE_URL).flush({
+      redirectURL: null,
+      message: "Document created without redirect",
     });
+    await sleep();
+    fixture.detectChanges();
 
-    it("should open NotificationDialog when the response has no redirectURL", async () => {
-      const dialog = fixture.debugElement.injector.get(MatDialog);
-      const openSpy = jest.spyOn(dialog, "open");
+    expect(screen.getByText("Document created without redirect")).toBeVisible();
+  });
 
-      fillValidForm();
-      component["onFormSubmit"](component["form"]);
-      await new Promise(requestAnimationFrame);
+  it("routes a failed creation through the error handler", async () => {
+    await setup();
+    await fillInValidForm();
 
-      const request = httpTestingController.expectOne(
-        "/rest/document-creation/create-document-attended",
-      );
-      request.flush({
-        redirectURL: null,
-        message: "Document created without redirect",
-      });
-      await sleep();
+    await user.click(submitButton());
+    await sleep();
+    httpTestingController
+      .expectOne(CREATE_URL)
+      .flush("boom", { status: 500, statusText: "Server Error" });
+    await sleep();
 
-      expect(openSpy).toHaveBeenCalled();
-    });
+    expect(foutAfhandelen).toHaveBeenCalled();
+    expect(documentCreated).not.toHaveBeenCalled();
+  });
 
-    it("should call foutAfhandelen and not emit document when the create request fails", async () => {
-      const emitSpy = jest.spyOn(component.document, "emit");
+  it("does not offer to create a second document while one is being created", async () => {
+    await setup();
+    await fillInValidForm();
 
-      fillValidForm();
-      component["onFormSubmit"](component["form"]);
-      await new Promise(requestAnimationFrame);
+    await user.click(submitButton());
+    await sleep();
+    fixture.detectChanges();
 
-      const request = httpTestingController.expectOne(
-        "/rest/document-creation/create-document-attended",
-      );
-      request.flush("boom", { status: 500, statusText: "Server Error" });
-      await sleep();
+    expect(submitButton()).toBeDisabled();
+    httpTestingController
+      .expectOne(CREATE_URL)
+      .flush({ redirectURL: null, message: "done" });
+  });
 
-      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
-      expect(emitSpy).not.toHaveBeenCalled();
-    });
+  it("closes the drawer when the creation is cancelled", async () => {
+    await setup();
 
-    it("should disable the submit button while a save is in progress", async () => {
-      fillValidForm();
-      component["form"].markAsDirty();
-      fixture.detectChanges();
-      await fixture.whenStable();
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
 
-      const submitButton = fixture.nativeElement.querySelector(
-        "button[type='submit']",
-      ) as HTMLButtonElement;
-      expect(submitButton.disabled).toBe(false);
-
-      component["onFormSubmit"](component["form"]);
-      await new Promise(requestAnimationFrame);
-      fixture.detectChanges();
-
-      // The request is left pending, keeping the mutation in-flight. expectOne
-      // also asserts a single request was fired (the double-submit guard).
-      const request = httpTestingController.expectOne(
-        "/rest/document-creation/create-document-attended",
-      );
-      expect(submitButton.disabled).toBe(true);
-
-      request.flush({ redirectURL: null, message: "done" });
-    });
+    expect(sideNav.close).toHaveBeenCalled();
   });
 });

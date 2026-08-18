@@ -5,12 +5,13 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
-import { MatDialog } from "@angular/material/dialog";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
@@ -36,63 +37,47 @@ const makeBesluit = (fields: Partial<GeneratedType<"RestBesluit">> = {}) =>
   });
 
 describe(BesluitViewComponent.name, () => {
-  let fixture: ComponentFixture<BesluitViewComponent>;
-  let component: BesluitViewComponent;
-  let dialog: MatDialog;
-  let zakenService: ZakenService;
+  const user = userEvent.setup();
 
-  const setup = (
+  let dialogOpen: jest.SpyInstance;
+
+  const setup = async (
     besluiten: GeneratedType<"RestBesluit">[] = [makeBesluit()],
     readonly = false,
   ) => {
-    fixture = TestBed.createComponent(BesluitViewComponent);
-    component = fixture.componentInstance;
-
-    dialog = fixture.debugElement.injector.get(MatDialog);
     jest
-      .spyOn(dialog, "open")
-      .mockReturnValue(fromPartial({ afterClosed: () => of(undefined) }));
+      .spyOn(ZakenService.prototype, "listBesluitHistorie")
+      .mockReturnValue(of([]));
+    dialogOpen = jest.spyOn(MatDialog.prototype, "open").mockReturnValue(
+      fromPartial<MatDialogRef<unknown>>({
+        afterClosed: () => of(undefined),
+      }),
+    );
 
-    component.besluiten = besluiten;
-    component.readonly = readonly;
-    fixture.detectChanges();
-  };
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        BesluitViewComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+    const { fixture } = await render(BesluitViewComponent, {
+      inputs: { besluiten, readonly },
+      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
         provideMomentDateAdapter(),
       ],
-    }).compileComponents();
+    });
 
-    zakenService = TestBed.inject(ZakenService);
-    jest.spyOn(zakenService, "listBesluitHistorie").mockReturnValue(of([]));
+    // the documents table creates its row views in one pass and binds the cells in the next
+    fixture.detectChanges();
+  };
+
+  it("shows the besluit fields as read-only text", async () => {
+    await setup();
+
+    expect(screen.getByText("Besluittype 1")).toBeVisible();
+    expect(screen.getByText("Een toelichting")).toBeVisible();
   });
 
-  it("builds a documents form for the first besluit on init", () => {
-    setup();
-
-    expect(component["documentenForms"]["besluit-uuid-1"]).toBeDefined();
-  });
-
-  it("shows the besluit fields as read-only static text", () => {
-    setup();
-
-    const text: string = fixture.nativeElement.textContent;
-    expect(text).toContain("Besluittype 1");
-    expect(text).toContain("Een toelichting");
-  });
-
-  it("renders the linked documents as a read-only list", () => {
-    setup([
+  it("lists the linked documents without offering to change the selection", async () => {
+    await setup([
       makeBesluit({
         informatieobjecten: [
           fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
@@ -104,46 +89,53 @@ describe(BesluitViewComponent.name, () => {
       }),
     ]);
 
-    const documents = fixture.nativeElement.querySelector("zac-documents");
-    expect(documents).not.toBeNull();
-    expect(documents.querySelector("mat-checkbox")).toBeNull();
+    expect(screen.getByRole("row", { name: /Document 1/ })).toBeVisible();
+    expect(screen.queryByRole("checkbox")).toBeNull();
   });
 
-  describe("isReadonly()", () => {
-    it("is read-only when the component is read-only", () => {
-      setup([makeBesluit()], true);
+  it("offers to edit and to withdraw an open besluit", async () => {
+    await setup();
 
-      expect(component["isReadonly"](makeBesluit())).toBe(true);
-    });
-
-    it("is read-only when the besluit is already withdrawn", () => {
-      setup();
-
-      expect(
-        component["isReadonly"](makeBesluit({ isIngetrokken: true })),
-      ).toBe(true);
-    });
-
-    it("is editable for an open besluit on an editable component", () => {
-      setup();
-
-      expect(component["isReadonly"](makeBesluit())).toBe(false);
-    });
+    expect(
+      screen.getByRole("button", { name: "actie.besluit.wijzigen" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "actie.besluit.intrekken" }),
+    ).toBeVisible();
   });
 
-  describe("intrekken()", () => {
-    it("opens the intrekken dialog with the besluit as data", () => {
-      setup();
-      const besluit = makeBesluit();
+  it("hides the edit and withdraw actions when the view is read-only", async () => {
+    await setup([makeBesluit()], true);
 
-      component["intrekken"](besluit);
+    expect(
+      screen.queryByRole("button", { name: "actie.besluit.wijzigen" }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "actie.besluit.intrekken" }),
+    ).toBeNull();
+  });
 
-      expect(dialog.open).toHaveBeenCalledWith(
-        BesluitIntrekkenDialogComponent,
-        {
-          data: besluit,
-        },
-      );
+  it("hides the edit and withdraw actions for a besluit that is already withdrawn", async () => {
+    await setup([makeBesluit({ isIngetrokken: true })]);
+
+    expect(
+      screen.queryByRole("button", { name: "actie.besluit.wijzigen" }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "actie.besluit.intrekken" }),
+    ).toBeNull();
+  });
+
+  it("opens the intrekken dialog for the besluit of the panel it was clicked on", async () => {
+    const besluit = makeBesluit();
+    await setup([besluit]);
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.besluit.intrekken" }),
+    );
+
+    expect(dialogOpen).toHaveBeenCalledWith(BesluitIntrekkenDialogComponent, {
+      data: besluit,
     });
   });
 });

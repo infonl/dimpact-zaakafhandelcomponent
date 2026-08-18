@@ -5,16 +5,16 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
@@ -22,21 +22,26 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
 
+// rendering this seven step form once per test needs more room than the default timeout
 describe("Mailgegevens form step", () => {
-  let fixture: ComponentFixture<ParametersEditCmmnComponent>;
-  let zaakafhandelParametersService: ZaakafhandelParametersService;
-  let referentieTabelService: ReferentieTabelService;
-  let identityService: IdentityService;
-  let mailtemplateBeheerService: MailtemplateBeheerService;
-  let utilService: UtilService;
-  let activatedRouteMock: Pick<ActivatedRoute, "data">;
+  const user = userEvent.setup();
+
+  const caseDefinition = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+    key: "case-1",
+    naam: "Case Definition 1",
+  });
 
   const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaaktypeConfiguration">
   >({
+    caseDefinition,
     defaultGroepId: "test-group-id",
     defaultBehandelaarId: "test-user-id",
     zaaktype: { uuid: "test-uuid" },
+    zaakNietOntvankelijkResultaattype: {
+      id: "resultaat-1",
+      naam: "Afgehandeld",
+    },
     zaakAfzenders: [
       {
         speciaal: false,
@@ -71,166 +76,140 @@ describe("Mailgegevens form step", () => {
     },
   });
 
-  beforeEach(async () => {
-    activatedRouteMock = {
-      data: of({
-        parameters: {
-          zaakafhandelParameters,
-          isSavedZaakafhandelParameters: true,
-        },
-      }),
-    };
-
-    await TestBed.configureTestingModule({
-      imports: [
-        ParametersEditCmmnComponent,
-        TranslateModule.forRoot(),
-        RouterModule,
-        NoopAnimationsModule,
-      ],
+  async function setup() {
+    const { fixture } = await render(ParametersEditCmmnComponent, {
+      imports: [TranslateModule.forRoot(), RouterModule, NoopAnimationsModule],
       providers: [
         provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: ActivatedRoute, useValue: activatedRouteMock },
-      ],
-    }).compileComponents();
-
-    zaakafhandelParametersService = TestBed.inject(
-      ZaakafhandelParametersService,
-    );
-    jest
-      .spyOn(zaakafhandelParametersService, "listCaseDefinitions")
-      .mockReturnValue(
-        of([
-          fromPartial<GeneratedType<"RESTCaseDefinition">>({
-            key: "case-1",
-            naam: "Case Definition 1",
+        {
+          provide: ActivatedRoute,
+          useValue: fromPartial<ActivatedRoute>({
+            data: of({
+              parameters: {
+                zaakafhandelParameters,
+                isSavedZaakafhandelParameters: true,
+              },
+            }),
           }),
-        ]),
-      );
-    jest
-      .spyOn(zaakafhandelParametersService, "listFormulierDefinities")
-      .mockReturnValue(of([]));
-    jest.spyOn(zaakafhandelParametersService, "listReplyTos").mockReturnValue(
-      of([
-        { mail: "reply1@example.com", speciaal: false },
-        { mail: "reply2@example.com", speciaal: false },
-      ]),
-    );
-    jest
-      .spyOn(zaakafhandelParametersService, "listZaakbeeindigRedenen")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(zaakafhandelParametersService, "listResultaattypes")
-      .mockReturnValue(of([]));
+        },
+        {
+          provide: ZaakafhandelParametersService,
+          useValue: fromPartial<ZaakafhandelParametersService>({
+            listCaseDefinitions: () => of([caseDefinition]),
+            listFormulierDefinities: () => of([]),
+            listReplyTos: () => of([{ mail: "reply1@example.com" }]),
+            listZaakbeeindigRedenen: () => of([]),
+            listResultaattypes: () => of([]),
+            updateZaakafhandelparameters: () =>
+              createMutationOptions(zaakafhandelParameters),
+          }),
+        },
+        {
+          provide: ReferentieTabelService,
+          useValue: fromPartial<ReferentieTabelService>({
+            listReferentieTabellen: () => of([]),
+            listAfzenders: () => of(["test@example.com", "other@example.com"]),
+            listBrpSearchValues: () => of([]),
+            listBrpViewValues: () => of([]),
+            listBrpProcessingValues: () => of([]),
+          }),
+        },
+        {
+          provide: IdentityService,
+          useValue: fromPartial<IdentityService>({
+            listGroups: () => of([{ id: "test-group-id", naam: "test-group" }]),
+            listUsersInGroup: () =>
+              of([{ id: "test-user-id", naam: "test-user" }]),
+          }),
+        },
+        {
+          provide: MailtemplateBeheerService,
+          useValue: fromPartial<MailtemplateBeheerService>({
+            listKoppelbareMailtemplates: () => of([]),
+          }),
+        },
+        {
+          provide: ConfiguratieService,
+          useValue: fromPartial<ConfiguratieService>({
+            readBrpDoelbindingSetupEnabled: () => of(false),
+          }),
+        },
+      ],
+    });
 
-    referentieTabelService = TestBed.inject(ReferentieTabelService);
-    jest
-      .spyOn(referentieTabelService, "listReferentieTabellen")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listAfzenders")
-      .mockReturnValue(of(["test@example.com", "other@example.com"]));
-    jest
-      .spyOn(referentieTabelService, "listBrpViewValues")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listBrpSearchValues")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listBrpProcessingValues")
-      .mockReturnValue(of([]));
-
-    identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "listGroups").mockReturnValue(
-      of([
-        { id: "test-group-id", naam: "test-group" },
-        { id: "test-group-id-2", naam: "test-group-2" },
-      ]),
-    );
-    jest
-      .spyOn(identityService, "listUsersInGroup")
-      .mockReturnValueOnce(
-        of([
-          { id: "test-user-id", naam: "test-user" },
-          { id: "test-user-id-2", naam: "test-user-2" },
-        ]),
-      )
-      .mockReturnValue(of([]));
-
-    utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "compare").mockReturnValue(true);
-
-    mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
-    jest
-      .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
-      .mockReturnValue(of([]));
-
-    const configuratieService = TestBed.inject(ConfiguratieService);
-    jest
-      .spyOn(configuratieService, "readBrpDoelbindingSetupEnabled")
-      .mockReturnValue(of(false));
-
-    fixture = TestBed.createComponent(ParametersEditCmmnComponent);
     await fixture.whenStable();
     fixture.detectChanges();
+
+    await user.click(screen.getByRole("tab", { name: /gegevens.mail/ }));
+
+    return screen.getByRole("tabpanel", { name: /gegevens.mail/ });
+  }
+
+  function afzenderRow(mail: HTMLElement, afzender: string) {
+    return within(mail).getByRole("row", { name: new RegExp(afzender) });
+  }
+
+  it("lists the afzenders of the zaaktype", async () => {
+    const mail = await setup();
+
+    expect(afzenderRow(mail, "test@example.com")).toBeVisible();
+    expect(afzenderRow(mail, "test2@example.com")).toBeVisible();
   });
 
-  it("should be invalid when no default afzender is set", () => {
-    const component = fixture.componentInstance;
-    expect(component.mailFormGroup.valid).toBe(false);
-  });
+  it("refuses to save while no afzender is marked as the default one", async () => {
+    const mail = await setup();
 
-  it("should become valid after selecting a default afzender", () => {
-    const component = fixture.componentInstance;
-
-    component["updateZaakAfzenders"]("test@example.com");
-    fixture.detectChanges();
-
-    expect(component.mailFormGroup.valid).toBe(true);
-  });
-
-  it("should mark the selected afzender as defaultMail", () => {
-    const component = fixture.componentInstance;
-
-    component["updateZaakAfzenders"]("test@example.com");
-
-    const defaultAfzender = component.parameters.zaakAfzenders?.find(
-      (afzender) => afzender.defaultMail === true,
-    );
-    expect(defaultAfzender?.mail).toBe("test@example.com");
-  });
-
-  it("should add a new afzender to the data source", () => {
-    const component = fixture.componentInstance;
-    const initialCount = component.zaakAfzendersDataSource.data.length;
-
-    component["addZaakAfzender"]("new@example.com");
-
-    expect(component.zaakAfzendersDataSource.data.length).toBe(
-      initialCount + 1,
-    );
+    expect(within(mail).getByText("validators.required")).toBeVisible();
     expect(
-      component.zaakAfzendersDataSource.data.some(
-        (a) => a.mail === "new@example.com",
-      ),
-    ).toBe(true);
+      within(mail).getByRole("button", { name: "actie.opslaan" }),
+    ).toBeDisabled();
   });
 
-  it("should remove an afzender from the data source", () => {
-    const component = fixture.componentInstance;
-    const initialCount = component.zaakAfzendersDataSource.data.length;
+  it("accepts the afzender that is marked as the default one", async () => {
+    const mail = await setup();
 
-    component["removeZaakAfzender"]("test@example.com");
-
-    expect(component.zaakAfzendersDataSource.data.length).toBe(
-      initialCount - 1,
+    await user.click(
+      within(afzenderRow(mail, "test@example.com")).getByRole("radio"),
     );
+
     expect(
-      component.zaakAfzendersDataSource.data.some(
-        (a) => a.mail === "test@example.com",
-      ),
-    ).toBe(false);
+      within(afzenderRow(mail, "test@example.com")).getByRole("radio"),
+    ).toBeChecked();
+    expect(
+      within(mail).queryByText("validators.required"),
+    ).not.toBeInTheDocument();
+    expect(
+      within(mail).getByRole("button", { name: "actie.opslaan" }),
+    ).toBeEnabled();
+  });
+
+  it("adds an afzender that is offered in the menu", async () => {
+    const mail = await setup();
+
+    await user.click(
+      within(mail).getByRole("button", { name: "Afzender toevoegen" }),
+    );
+    await user.click(
+      screen.getByRole("menuitem", { name: "other@example.com" }),
+    );
+
+    expect(afzenderRow(mail, "other@example.com")).toBeVisible();
+  });
+
+  it("removes an afzender from the list", async () => {
+    const mail = await setup();
+
+    await user.click(
+      within(afzenderRow(mail, "test2@example.com")).getByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    );
+
+    expect(
+      within(mail).queryByRole("row", { name: /test2@example.com/ }),
+    ).not.toBeInTheDocument();
+    expect(afzenderRow(mail, "test@example.com")).toBeVisible();
   });
 });

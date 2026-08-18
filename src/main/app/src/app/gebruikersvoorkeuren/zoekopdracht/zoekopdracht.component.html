@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -10,6 +10,7 @@
       mat-icon-button
       (click)="clearActief(true)"
       id="clearZoekopdrachtButton1"
+      [attr.aria-label]="'actie.zoekopdracht.wissen' | translate"
     >
       <mat-icon
         [ngClass]="actieveFilters ? 'filter-icon' : 'material-icons-outlined'"
@@ -31,6 +32,7 @@
       mat-icon-button
       [matMenuTriggerFor]="filterMenu"
       id="selecteerZoekopdrachtButton"
+      [attr.aria-label]="'actie.zoekopdracht.selecteer' | translate"
     >
       <mat-icon
         outlined
@@ -45,6 +47,7 @@
       mat-icon-button
       (click)="clearActief(true)"
       id="clearZoekopdrachtButton2"
+      [attr.aria-label]="'actie.zoekopdracht.wissen' | translate"
     >
       <mat-icon class="filter-icon"> filter_alt </mat-icon>
       <mat-icon
@@ -60,6 +63,7 @@
     mat-icon-button
     (click)="saveSearch()"
     id="saveZoekopdrachtButton"
+    [attr.aria-label]="'actie.zoekopdracht.opslaan' | translate"
   >
     <mat-icon
       [attr.outlined]="actieveZoekopdracht == null ? true : null"

@@ -1,10 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2025, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import {
   provideHttpClient,
   withInterceptorsFromDi,
@@ -13,31 +11,43 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
+import { TestBed } from "@angular/core/testing";
 import { MatSidenav } from "@angular/material/sidenav";
-import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { notifyManager } from "@tanstack/query-core";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
+import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../taken.service";
 import { TaakEditComponent } from "./taak-edit.component";
 
-const makeTask = (
-  fields: Partial<GeneratedType<"RestTask">> = {},
-): GeneratedType<"RestTask"> =>
-  ({
-    id: "task-1",
-    zaakUuid: "zaak-uuid-1",
-    zaaktypeUUID: "zaaktype-uuid-1",
-    naam: "Test Task",
+const makeGroup = (fields: Partial<GeneratedType<"RestGroup">> = {}) =>
+  fromPartial<GeneratedType<"RestGroup">>({
+    id: "fakeGroupId",
+    naam: "fakeGroupNaam",
+    ...fields,
+  });
+
+const makeUser = (fields: Partial<GeneratedType<"RestUser">> = {}) =>
+  fromPartial<GeneratedType<"RestUser">>({
+    id: "fakeUserId",
+    naam: "fakeUserNaam",
+    ...fields,
+  });
+
+const makeTask = (fields: Partial<GeneratedType<"RestTask">> = {}) =>
+  fromPartial<GeneratedType<"RestTask">>({
+    id: "fakeTaakId",
+    zaakUuid: "fakeZaakUuid",
+    zaaktypeUUID: "fakeZaaktypeUuid",
+    naam: "fakeTaakNaam",
     status: "TOEGEKEND",
-    groep: { id: "group-1", naam: "Group 1" },
+    groep: makeGroup(),
     behandelaar: undefined,
     rechten: {
       lezen: true,
@@ -45,74 +55,29 @@ const makeTask = (
       wijzigen: true,
       toevoegenDocument: true,
     },
-    taakdata: {},
-    tabellen: {},
-    taakdocumenten: [],
-    taakinformatie: {},
-    formioFormulier: {},
-    formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
-    creatiedatumTijd: new Date().toISOString(),
-    toekenningsdatumTijd: new Date().toISOString(),
-    fataledatum: new Date().toISOString(),
-    zaaktypeOmschrijving: "Test Zaaktype",
-    zaakIdentificatie: "ZAAK-001",
-    toelichting: undefined,
+    zaaktypeOmschrijving: "fakeZaaktypeOmschrijving",
+    zaakIdentificatie: "fakeZaakIdentificatie",
     ...fields,
-  }) as Partial<
-    GeneratedType<"RestTask">
-  > as unknown as GeneratedType<"RestTask">;
-
-const makeGroup = (
-  fields: Partial<GeneratedType<"RestGroup">> = {},
-): GeneratedType<"RestGroup"> =>
-  ({
-    id: "group-1",
-    naam: "Group 1",
-    ...fields,
-  }) as Partial<
-    GeneratedType<"RestGroup">
-  > as unknown as GeneratedType<"RestGroup">;
-
-const makeUser = (
-  fields: Partial<GeneratedType<"RestUser">> = {},
-): GeneratedType<"RestUser"> =>
-  ({
-    id: "user-1",
-    naam: "User 1",
-    ...fields,
-  }) as Partial<
-    GeneratedType<"RestUser">
-  > as unknown as GeneratedType<"RestUser">;
+  });
 
 describe(TaakEditComponent.name, () => {
-  let fixture: ComponentFixture<TaakEditComponent>;
-  let component: TaakEditComponent;
-  let loader: HarnessLoader;
   let httpTestingController: HttpTestingController;
-  let sideNavSpy: Pick<MatSidenav, "close">;
+  let sideNav: MatSidenav;
   let identityService: Pick<
     IdentityService,
     "listBehandelaarGroupsForZaaktype" | "listUsersInGroup"
   >;
 
-  beforeEach(() => {
-    notifyManager.setScheduler((fn) => fn());
+  const user = userEvent.setup();
 
-    sideNavSpy = { close: jest.fn().mockReturnValue(Promise.resolve(true)) };
+  async function setup(task: GeneratedType<"RestTask"> = makeTask()) {
+    sideNav = fromPartial<MatSidenav>({
+      close: jest.fn().mockResolvedValue(true),
+    });
 
-    identityService = {
-      listBehandelaarGroupsForZaaktype: jest
-        .fn()
-        .mockReturnValue(of([makeGroup()])),
-      listUsersInGroup: jest.fn().mockReturnValue(of([makeUser()])),
-    };
-
-    TestBed.configureTestingModule({
-      imports: [
-        TaakEditComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+    const { fixture } = await render(TaakEditComponent, {
+      inputs: { task, sideNav },
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         { provide: IdentityService, useValue: identityService },
         TakenService,
@@ -122,262 +87,292 @@ describe(TaakEditComponent.name, () => {
       ],
     });
 
-    httpTestingController = TestBed.inject(HttpTestingController);
-    fixture = TestBed.createComponent(TaakEditComponent);
-    component = fixture.componentInstance;
-    loader = TestbedHarnessEnvironment.loader(fixture);
-  });
-
-  afterEach(() => {
-    notifyManager.setScheduler((fn) => setTimeout(fn, 0));
-  });
-
-  const setInputsAndDetect = (task: GeneratedType<"RestTask">) => {
-    fixture.componentRef.setInput("task", task);
-    fixture.componentRef.setInput("sideNav", sideNavSpy);
+    await sleep();
     fixture.detectChanges();
-  };
 
-  describe("toolbar", () => {
-    it("renders the heading translation key", async () => {
-      setInputsAndDetect(makeTask());
-      const toolbar = await loader.getHarness(MatToolbarHarness);
-      const text = await toolbar.host().then((h) => h.text());
-      expect(text).toContain("actie.taak.wijzigen");
-    });
+    httpTestingController = TestBed.inject(HttpTestingController);
+  }
 
-    it("close button calls sideNav().close()", async () => {
-      setInputsAndDetect(makeTask());
-      const closeButton = await loader.getHarness(
-        MatButtonHarness.with({ selector: "[mat-icon-button]" }),
-      );
-      await closeButton.click();
-      expect(sideNavSpy.close).toHaveBeenCalledTimes(1);
-    });
+  const groepSelect = () => screen.getByRole("combobox", { name: /Groep/ });
+  const behandelaarSelect = () =>
+    screen.getByRole("combobox", { name: /Behandelaar/ });
+  const redenInput = () => screen.getByRole("textbox", { name: /Reden/ });
+  const wijzigenButton = () =>
+    screen.getByRole("button", { name: "actie.wijzigen" });
+
+  async function openOptionsOf(select: HTMLElement) {
+    await user.click(select);
+    const options = screen
+      .getAllByRole("option")
+      .map((option) => option.textContent?.trim());
+    await user.keyboard("{Escape}");
+    return options;
+  }
+
+  beforeEach(() => {
+    identityService = {
+      listBehandelaarGroupsForZaaktype: jest
+        .fn()
+        .mockReturnValue(of([makeGroup()])),
+      listUsersInGroup: jest.fn().mockReturnValue(of([makeUser()])),
+    };
   });
 
-  describe("form initialisation", () => {
-    it("loads groups for the task zaaktype on init", () => {
-      setInputsAndDetect(makeTask());
-      expect(
-        identityService.listBehandelaarGroupsForZaaktype,
-      ).toHaveBeenCalledWith("Test Zaaktype");
-    });
+  it("shows the edit heading", async () => {
+    await setup();
 
-    it("patches the group form control with the task groep", () => {
-      const task = makeTask({
-        groep: makeGroup({ id: "g-42", naam: "Groep 42" }),
-      });
-      setInputsAndDetect(task);
-      expect(component["form"].value.groep).toEqual(
-        expect.objectContaining({ id: "g-42" }),
-      );
-    });
-
-    it("patches the behandelaar form control with the task behandelaar", () => {
-      const behandelaar = makeUser({ id: "u-7", naam: "User Seven" });
-      const task = makeTask({ behandelaar });
-      setInputsAndDetect(task);
-      expect(component["form"].value.behandelaar).toEqual(
-        expect.objectContaining({ id: "u-7" }),
-      );
-    });
-
-    it("unshifts the task group into groups list if it is absent from the loaded groups", () => {
-      const absentGroup = makeGroup({
-        id: "absent-group",
-        naam: "Absent Group",
-      });
-      (
-        identityService.listBehandelaarGroupsForZaaktype as jest.Mock
-      ).mockReturnValue(of([makeGroup({ id: "other-group" })]));
-
-      setInputsAndDetect(makeTask({ groep: absentGroup }));
-
-      expect(component["groups"][0]).toEqual(
-        expect.objectContaining({ id: "absent-group" }),
-      );
-    });
-
-    it("does NOT unshift the task group when it is already in the loaded groups list", () => {
-      const existingGroup = makeGroup({ id: "group-1" });
-      (
-        identityService.listBehandelaarGroupsForZaaktype as jest.Mock
-      ).mockReturnValue(of([existingGroup]));
-
-      setInputsAndDetect(makeTask({ groep: existingGroup }));
-
-      const ids = component["groups"].map((g) => g.id);
-      expect(ids.filter((id) => id === "group-1")).toHaveLength(1);
-    });
+    expect(screen.getByRole("heading")).toHaveTextContent(
+      "actie.taak.wijzigen",
+    );
   });
 
-  describe("form disabling", () => {
-    it("disables the form when the task status is AFGEROND", () => {
-      setInputsAndDetect(makeTask({ status: "AFGEROND" }));
-      expect(component["form"].disabled).toBe(true);
-    });
+  it("closes the side navigation from the close button", async () => {
+    await setup();
 
-    it("disables the form when rechten.toekennen is false", () => {
-      setInputsAndDetect(
-        makeTask({
-          rechten: {
-            lezen: true,
-            toekennen: false,
-            wijzigen: true,
-            toevoegenDocument: true,
-          },
+    await user.click(screen.getByRole("button", { name: "actie.sluiten" }));
+
+    expect(sideNav.close).toHaveBeenCalledTimes(1);
+  });
+
+  it("offers the groups that may handle the zaaktype of the task", async () => {
+    await setup(makeTask({ zaaktypeOmschrijving: "fakeZaaktypeOmschrijving" }));
+
+    expect(
+      identityService.listBehandelaarGroupsForZaaktype,
+    ).toHaveBeenCalledWith("fakeZaaktypeOmschrijving");
+    expect(await openOptionsOf(groepSelect())).toEqual(["fakeGroupNaam"]);
+  });
+
+  it("preselects the groep and behandelaar of the task", async () => {
+    identityService.listBehandelaarGroupsForZaaktype = jest
+      .fn()
+      .mockReturnValue(
+        of([makeGroup({ id: "fakeGroupId42", naam: "fakeGroupNaam42" })]),
+      );
+    identityService.listUsersInGroup = jest
+      .fn()
+      .mockReturnValue(
+        of([makeUser({ id: "fakeUserId7", naam: "fakeUserNaam7" })]),
+      );
+
+    await setup(
+      makeTask({
+        groep: makeGroup({ id: "fakeGroupId42", naam: "fakeGroupNaam42" }),
+        behandelaar: makeUser({ id: "fakeUserId7", naam: "fakeUserNaam7" }),
+      }),
+    );
+
+    expect(groepSelect()).toHaveTextContent("fakeGroupNaam42");
+    expect(behandelaarSelect()).toHaveTextContent("fakeUserNaam7");
+  });
+
+  it("offers the groep of the task even when it is not among the loaded groups", async () => {
+    identityService.listBehandelaarGroupsForZaaktype = jest
+      .fn()
+      .mockReturnValue(of([makeGroup({ id: "fakeOtherGroupId" })]));
+
+    await setup(
+      makeTask({
+        groep: makeGroup({
+          id: "fakeAbsentGroupId",
+          naam: "fakeAbsentGroupNaam",
         }),
-      );
-      expect(component["form"].disabled).toBe(true);
-    });
+      }),
+    );
 
-    it("keeps the form enabled when the task is active and toekennen is true", () => {
-      setInputsAndDetect(makeTask({ status: "TOEGEKEND" }));
-      expect(component["form"].disabled).toBe(false);
-    });
+    expect(await openOptionsOf(groepSelect())).toEqual([
+      "fakeAbsentGroupNaam",
+      "fakeGroupNaam",
+    ]);
   });
 
-  describe("group selection change", () => {
-    it("resets behandelaar to null when group changes", () => {
-      setInputsAndDetect(makeTask({ behandelaar: makeUser() }));
+  it("offers the groep of the task only once when it is among the loaded groups", async () => {
+    const group = makeGroup({ id: "fakeGroupId", naam: "fakeGroupNaam" });
+    identityService.listBehandelaarGroupsForZaaktype = jest
+      .fn()
+      .mockReturnValue(of([group]));
 
-      component["form"].controls.groep.setValue(
-        makeGroup({ id: "new-group", naam: "New Group" }),
+    await setup(makeTask({ groep: group }));
+
+    expect(await openOptionsOf(groepSelect())).toEqual(["fakeGroupNaam"]);
+  });
+
+  it("marks an inactive groep as such in the options", async () => {
+    identityService.listBehandelaarGroupsForZaaktype = jest
+      .fn()
+      .mockReturnValue(
+        of([
+          makeGroup({ id: "a", naam: "fakeActiveGroup", active: true }),
+          makeGroup({ id: "b", naam: "fakeInactiveGroup", active: false }),
+          makeGroup({ id: "c", naam: "fakeUnknownGroup", active: undefined }),
+        ]),
       );
-      fixture.detectChanges();
 
-      expect(component["form"].value.behandelaar).toBeNull();
+    await setup(makeTask({ groep: makeGroup({ id: "a" }) }));
+
+    expect(await openOptionsOf(groepSelect())).toEqual([
+      "fakeActiveGroup",
+      "fakeInactiveGroup (inactief)",
+      "fakeUnknownGroup",
+    ]);
+  });
+
+  it("does not let you pick a behandelaar while the task has no groep", async () => {
+    await setup(makeTask({ groep: undefined }));
+
+    expect(behandelaarSelect()).toHaveAttribute("aria-disabled", "true");
+  });
+
+  it("cannot be edited when the task is done", async () => {
+    await setup(makeTask({ status: "AFGEROND" }));
+
+    expect(groepSelect()).toHaveAttribute("aria-disabled", "true");
+    expect(redenInput()).toBeDisabled();
+    expect(wijzigenButton()).toBeDisabled();
+  });
+
+  it("cannot be edited without the right to assign the task", async () => {
+    await setup(
+      makeTask({
+        rechten: {
+          lezen: true,
+          toekennen: false,
+          wijzigen: true,
+          toevoegenDocument: true,
+        },
+      }),
+    );
+
+    expect(groepSelect()).toHaveAttribute("aria-disabled", "true");
+    expect(redenInput()).toBeDisabled();
+  });
+
+  it("can be edited when the task is open and may be assigned", async () => {
+    await setup(makeTask({ status: "TOEGEKEND" }));
+
+    expect(groepSelect()).not.toHaveAttribute("aria-disabled", "true");
+    expect(redenInput()).toBeEnabled();
+  });
+
+  describe("picking another groep", () => {
+    async function setupWithTwoGroups(
+      task: GeneratedType<"RestTask"> = makeTask(),
+    ) {
+      identityService.listBehandelaarGroupsForZaaktype = jest
+        .fn()
+        .mockReturnValue(
+          of([
+            makeGroup(),
+            makeGroup({ id: "fakeOtherGroupId", naam: "fakeOtherGroupNaam" }),
+          ]),
+        );
+      identityService.listUsersInGroup = jest
+        .fn()
+        .mockReturnValue(
+          of([
+            makeUser(),
+            makeUser({ id: "fakeUserId99", naam: "fakeUserNaam99" }),
+          ]),
+        );
+
+      await setup(task);
+    }
+
+    async function pickOtherGroup() {
+      await user.click(groepSelect());
+      await user.click(
+        screen.getByRole("option", { name: "fakeOtherGroupNaam" }),
+      );
+      await sleep();
+    }
+
+    it("clears the behandelaar", async () => {
+      await setupWithTwoGroups(makeTask({ behandelaar: makeUser() }));
+      expect(behandelaarSelect()).toHaveTextContent("fakeUserNaam");
+
+      await pickOtherGroup();
+
+      expect(behandelaarSelect()).not.toHaveTextContent("fakeUserNaam");
     });
 
-    it("loads users for the newly selected group", () => {
-      setInputsAndDetect(makeTask());
+    it("offers the users of that groep as behandelaar", async () => {
+      await setupWithTwoGroups();
 
-      (identityService.listUsersInGroup as jest.Mock).mockReturnValue(
-        of([makeUser({ id: "u-99", naam: "User 99" })]),
+      await pickOtherGroup();
+
+      expect(identityService.listUsersInGroup).toHaveBeenCalledWith(
+        "fakeOtherGroupId",
       );
-
-      component["form"].controls.groep.setValue(
-        makeGroup({ id: "group-99", naam: "Group 99" }),
-      );
-      fixture.detectChanges();
-
-      expect(identityService.listUsersInGroup).toHaveBeenCalledWith("group-99");
-      expect(component["users"]).toEqual([
-        expect.objectContaining({ id: "u-99" }),
+      expect(behandelaarSelect()).not.toHaveAttribute("aria-disabled", "true");
+      expect(await openOptionsOf(behandelaarSelect())).toEqual([
+        "-geen.generiek-",
+        "fakeUserNaam",
+        "fakeUserNaam99",
       ]);
     });
-
-    it("enables behandelaar control after users are loaded", () => {
-      setInputsAndDetect(makeTask());
-
-      component["form"].controls.groep.setValue(
-        makeGroup({ id: "group-2", naam: "Group 2" }),
-      );
-      fixture.detectChanges();
-
-      expect(component["form"].controls.behandelaar.enabled).toBe(true);
-    });
-
-    it("disables behandelaar control when group is cleared", () => {
-      setInputsAndDetect(makeTask());
-
-      component["form"].controls.groep.setValue(null);
-      fixture.detectChanges();
-
-      expect(component["form"].controls.behandelaar.disabled).toBe(true);
-    });
   });
 
-  describe("groupDisplayValue", () => {
-    it("returns the group naam when the group is active", () => {
-      setInputsAndDetect(makeTask());
-      const group = makeGroup({ naam: "Active Group", active: true });
-      expect(component["groupDisplayValue"](group)).toBe("Active Group");
-    });
-
-    it("appends (inactief) when the group is inactive", () => {
-      setInputsAndDetect(makeTask());
-      const group = makeGroup({ naam: "Inactive Group", active: false });
-      expect(component["groupDisplayValue"](group)).toBe(
-        "Inactive Group (inactief)",
-      );
-    });
-
-    it("returns the group naam when active is undefined", () => {
-      setInputsAndDetect(makeTask());
-      const group = makeGroup({ naam: "Unknown Group", active: undefined });
-      expect(component["groupDisplayValue"](group)).toBe("Unknown Group");
-    });
-  });
-
-  describe("formSubmit", () => {
-    it("sends a PATCH request to /rest/taken/toekennen with the correct payload", async () => {
-      const task = makeTask({
-        id: "t-1",
-        zaakUuid: "z-1",
-        groep: makeGroup({ id: "g-1" }),
-        behandelaar: makeUser({ id: "u-1" }),
-      });
-      setInputsAndDetect(task);
-
-      component["form"].controls.reden.setValue("test reden");
-      component["form"].markAsDirty();
-      fixture.detectChanges();
-
-      component["formSubmit"]();
-      await new Promise(requestAnimationFrame);
-
-      const req = httpTestingController.expectOne("/rest/taken/toekennen");
-      expect(req.request.method).toBe("PATCH");
-      expect(req.request.body).toEqual(
-        expect.objectContaining({
-          taakId: "t-1",
-          zaakUuid: "z-1",
-          groepId: "g-1",
-          behandelaarId: "u-1",
-          reden: "test reden",
+  describe("submitting", () => {
+    it("assigns the task to the picked groep and behandelaar", async () => {
+      await setup(
+        makeTask({
+          id: "fakeTaakId1",
+          zaakUuid: "fakeZaakUuid1",
+          groep: makeGroup({ id: "fakeGroupId1" }),
+          behandelaar: makeUser({ id: "fakeUserId1" }),
         }),
       );
-      req.flush({});
-    });
 
-    it("sends undefined behandelaarId when no behandelaar is selected", async () => {
-      const task = makeTask({
-        id: "t-2",
-        zaakUuid: "z-2",
-        groep: makeGroup({ id: "g-2" }),
-        behandelaar: undefined,
-      });
-      setInputsAndDetect(task);
-      component["form"].controls.behandelaar.setValue(null);
-      component["form"].markAsDirty();
-
-      component["formSubmit"]();
-      await new Promise(requestAnimationFrame);
-
-      const req = httpTestingController.expectOne("/rest/taken/toekennen");
-      expect(req.request.body).toEqual(
-        expect.objectContaining({
-          behandelaarId: undefined,
-        }),
-      );
-      req.flush({});
-    });
-
-    it("closes the sidenav after a successful mutation", async () => {
-      setInputsAndDetect(makeTask());
-      component["form"].markAsDirty();
-
-      component["formSubmit"]();
-      await new Promise(requestAnimationFrame);
-
-      const req = httpTestingController.expectOne("/rest/taken/toekennen");
-      req.flush({});
-
+      await user.type(redenInput(), "fakeReden");
+      await user.click(wijzigenButton());
       await sleep();
 
-      expect(sideNavSpy.close).toHaveBeenCalledTimes(1);
+      const request = httpTestingController.expectOne("/rest/taken/toekennen");
+      expect(request.request.method).toBe("PATCH");
+      expect(request.request.body).toEqual(
+        expect.objectContaining({
+          taakId: "fakeTaakId1",
+          zaakUuid: "fakeZaakUuid1",
+          groepId: "fakeGroupId1",
+          behandelaarId: "fakeUserId1",
+          reden: "fakeReden",
+        }),
+      );
+      request.flush({});
+    });
+
+    it("assigns the task without a behandelaar when none is picked", async () => {
+      await setup(
+        makeTask({
+          id: "fakeTaakId2",
+          zaakUuid: "fakeZaakUuid2",
+          groep: makeGroup({ id: "fakeGroupId2" }),
+          behandelaar: undefined,
+        }),
+      );
+
+      await user.type(redenInput(), "fakeReden");
+      await user.click(wijzigenButton());
+      await sleep();
+
+      const request = httpTestingController.expectOne("/rest/taken/toekennen");
+      expect(request.request.body).toEqual(
+        expect.objectContaining({ behandelaarId: undefined }),
+      );
+      request.flush({});
+    });
+
+    it("closes the side navigation once the task is assigned", async () => {
+      await setup();
+
+      await user.type(redenInput(), "fakeReden");
+      await user.click(wijzigenButton());
+      await sleep();
+
+      httpTestingController.expectOne("/rest/taken/toekennen").flush({});
+      await sleep();
+
+      expect(sideNav.close).toHaveBeenCalledTimes(1);
     });
   });
 });

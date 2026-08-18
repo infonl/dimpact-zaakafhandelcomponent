@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import {
   HttpTestingController,
@@ -12,155 +10,164 @@ import {
 } from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
-import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { MatExpansionPanelHarness } from "@angular/material/expansion/testing";
-import { MatInputHarness } from "@angular/material/input/testing";
-import { MatSelectHarness } from "@angular/material/select/testing";
-import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { randomUUID } from "crypto";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import moment from "moment";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
-import { ZacDate } from "../../shared/form/date/date";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { CustomValidators } from "../../shared/validators/customValidators";
 import { ZakenService } from "../zaken.service";
 import { ZaakAfhandelenDialogComponent } from "./zaak-afhandelen-dialog.component";
 
+const zaak = fromPartial<GeneratedType<"RestZaak">>({
+  uuid: "fakeZaakUuid",
+  zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+    uuid: "fakeZaaktypeUuid",
+    omschrijving: "fakeZaaktypeOmschrijving",
+    zaakafhandelparameters: { afrondenMail: "BESCHIKBAAR_UIT" },
+  }),
+  initiatorIdentificatie: fromPartial<GeneratedType<"BetrokkeneIdentificatie">>(
+    {
+      type: "BSN",
+      temporaryPersonId: "fakeTemporaryPersonId",
+    },
+  ),
+  resultaat: null,
+  besluiten: [],
+});
+
+const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+  id: "fakePlanItemId",
+  userEventListenerActie: "ZAAK_AFHANDELEN",
+  toelichting: "fakePlanItemToelichting",
+});
+
+const resultaattypeMetBrondatum = fromPartial<
+  GeneratedType<"RestResultaattype">
+>({
+  id: "fakeResultaattypeId1",
+  naam: "fakeResultaatMetBrondatum",
+  besluitVerplicht: false,
+  datumKenmerkVerplicht: true,
+});
+
+const resultaattypeMetBesluit = fromPartial<GeneratedType<"RestResultaattype">>(
+  {
+    id: "fakeResultaattypeId2",
+    naam: "fakeResultaatMetBesluit",
+    besluitVerplicht: true,
+    datumKenmerkVerplicht: false,
+  },
+);
+
+const resultaattypeZonderVerplichtingen = fromPartial<
+  GeneratedType<"RestResultaattype">
+>({
+  id: "fakeResultaattypeId3",
+  naam: "fakeResultaatZonderVerplichtingen",
+  besluitVerplicht: false,
+  datumKenmerkVerplicht: false,
+});
+
+const resultaattypes = [
+  resultaattypeMetBrondatum,
+  resultaattypeMetBesluit,
+  resultaattypeZonderVerplichtingen,
+];
+
+const afzenders = [
+  fromPartial<GeneratedType<"RestZaakAfzender">>({
+    mail: "fakeAfzender@example.com",
+    suffix: "fakeAfzenderSuffix",
+    replyTo: "fakeReplyTo@example.com",
+  }),
+];
+
+const mailtemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
+  onderwerp: "fakeOnderwerp",
+  body: "fakeMailBody",
+});
+
+const besluit = fromPartial<GeneratedType<"RestBesluit">>({
+  uuid: "fakeBesluitUuid",
+  url: "https://example.com/besluit",
+});
+
 describe(ZaakAfhandelenDialogComponent.name, () => {
   let fixture: ComponentFixture<ZaakAfhandelenDialogComponent>;
-  let loader: HarnessLoader;
   let httpTestingController: HttpTestingController;
-  let zakenService: ZakenService;
-  let mailtemplateService: MailtemplateService;
+  let dialogRef: MatDialogRef<ZaakAfhandelenDialogComponent>;
 
-  const mockDialogRef = {
-    close: jest.fn(),
-    disableClose: false,
-  };
+  const user = userEvent.setup();
 
-  const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
-    uuid: "test-zaak-uuid",
-    zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
-      uuid: "test-zaaktype-uuid",
-      omschrijving: "Test Zaaktype",
-      zaakafhandelparameters: {
-        afrondenMail: "BESCHIKBAAR_UIT",
-      },
-    }),
-    initiatorIdentificatie: fromPartial<
-      GeneratedType<"BetrokkeneIdentificatie">
-    >({
-      type: "BSN",
-      temporaryPersonId: randomUUID(),
-    }),
-    resultaat: null,
-    besluiten: [],
-  });
+  async function setup({
+    zaakToHandle = zaak,
+    planItemToHandle = planItem,
+  }: {
+    zaakToHandle?: GeneratedType<"RestZaak">;
+    planItemToHandle?: GeneratedType<"RESTPlanItem"> | null;
+  } = {}) {
+    dialogRef = fromPartial<MatDialogRef<ZaakAfhandelenDialogComponent>>({
+      close: jest.fn(),
+      disableClose: false,
+    });
 
-  const mockPlanItem = fromPartial<GeneratedType<"RESTPlanItem">>({
-    id: "test-plan-item-id",
-    userEventListenerActie: "ZAAK_AFHANDELEN",
-    toelichting: "Test toelichting",
-  });
-
-  const mockResultaattypes = [
-    fromPartial<GeneratedType<"RestResultaattype">>({
-      id: "resultaat-1",
-      naam: "Test Resultaat 1",
-      besluitVerplicht: false,
-      datumKenmerkVerplicht: true,
-    }),
-    fromPartial<GeneratedType<"RestResultaattype">>({
-      id: "resultaat-2",
-      naam: "Test Resultaat 2",
-      besluitVerplicht: true,
-      datumKenmerkVerplicht: false,
-    }),
-    fromPartial<GeneratedType<"RestResultaattype">>({
-      id: "resultaat-3",
-      naam: "Test Resultaat 3",
-      besluitVerplicht: false,
-      datumKenmerkVerplicht: false,
-    }),
-  ];
-
-  const mockAfzenders = [
-    fromPartial<GeneratedType<"RestZaakAfzender">>({
-      mail: "test@example.com",
-      suffix: "Test Afzender",
-      replyTo: "reply@example.com",
-    }),
-  ];
-
-  const mockMailtemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
-    onderwerp: "Test Onderwerp",
-    body: "Test Body",
-  });
-
-  const createTestBed = async (
-    zaakMock: GeneratedType<"RestZaak">,
-    planItemMock?: GeneratedType<"RESTPlanItem"> | null,
-  ) => {
-    TestBed.resetTestingModule();
-
-    await TestBed.configureTestingModule({
-      imports: [
-        ZaakAfhandelenDialogComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+    const rendered = await render(ZaakAfhandelenDialogComponent, {
+      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
-        { provide: MatDialogRef, useValue: mockDialogRef },
+        { provide: MatDialogRef, useValue: dialogRef },
         {
           provide: MAT_DIALOG_DATA,
-          useValue: { zaak: zaakMock, planItem: planItemMock },
+          useValue: { zaak: zaakToHandle, planItem: planItemToHandle },
         },
         CustomValidators,
         ZakenService,
         MailtemplateService,
         KlantenService,
       ],
-    }).compileComponents();
+    });
 
+    fixture = rendered.fixture;
     httpTestingController = TestBed.inject(HttpTestingController);
-    zakenService = TestBed.inject(ZakenService);
-    mailtemplateService = TestBed.inject(MailtemplateService);
 
     jest
-      .spyOn(zakenService, "listResultaattypes")
-      .mockReturnValue(of(mockResultaattypes));
+      .spyOn(TestBed.inject(ZakenService), "listResultaattypes")
+      .mockReturnValue(of(resultaattypes));
     jest
-      .spyOn(zakenService, "listAfzendersVoorZaak")
-      .mockReturnValue(of(mockAfzenders));
+      .spyOn(TestBed.inject(ZakenService), "listAfzendersVoorZaak")
+      .mockReturnValue(of(afzenders));
     jest
-      .spyOn(mailtemplateService, "findMailtemplate")
-      .mockReturnValue(of(mockMailtemplate));
+      .spyOn(TestBed.inject(MailtemplateService), "findMailtemplate")
+      .mockReturnValue(of(mailtemplate));
 
+    return rendered;
+  }
+
+  function seedQueries(zaakToHandle: GeneratedType<"RestZaak">) {
     testQueryClient.setQueryData(
-      ["resultaattypes", zaakMock.zaaktype.uuid],
-      mockResultaattypes,
+      ["resultaattypes", zaakToHandle.zaaktype.uuid],
+      resultaattypes,
     );
-    testQueryClient.setQueryData(["afzenders", zaakMock.uuid], mockAfzenders);
+    testQueryClient.setQueryData(["afzenders", zaakToHandle.uuid], afzenders);
     testQueryClient.setQueryData(
-      ["mailtemplate", zaakMock.uuid],
-      mockMailtemplate,
+      ["mailtemplate", zaakToHandle.uuid],
+      mailtemplate,
     );
 
     const temporaryPersonId =
-      zaakMock.initiatorIdentificatie?.temporaryPersonId;
+      zaakToHandle.initiatorIdentificatie?.temporaryPersonId;
     if (temporaryPersonId) {
       testQueryClient.setQueryData(
         [
@@ -168,579 +175,422 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           { path: { temporaryPersonId } },
         ],
         fromPartial<GeneratedType<"RestContactDetails">>({
-          emailadres: "initiator@example.com",
+          emailadres: "fakeInitiator@example.com",
         }),
       );
     }
+  }
 
-    fixture = TestBed.createComponent(ZaakAfhandelenDialogComponent);
-    loader = TestbedHarnessEnvironment.loader(fixture);
-    fixture.detectChanges();
-  };
+  function submitButton() {
+    return screen.queryByRole("button", { name: "actie.zaak.afhandelen" });
+  }
 
-  beforeEach(async () => {
-    mockDialogRef.close = jest.fn();
-    await createTestBed(mockZaak, mockPlanItem);
-  });
+  function sendMailCheckbox() {
+    return screen.queryByRole("checkbox", { name: "sendMail" });
+  }
 
-  describe("sendMail checkbox", () => {
-    it("should show mail fields when sendMail is checked", async () => {
-      const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);
-      await sendMailCheckbox.check();
+  function verzenderSelect() {
+    return screen.queryByRole("combobox", { name: /Verzender/ });
+  }
 
-      const fields = await loader.getAllHarnesses(MatSelectHarness);
-      const verzenderField = fields[1];
+  function ontvangerField() {
+    return screen.queryByRole("textbox", { name: /Ontvanger/ });
+  }
 
-      expect(verzenderField).toBeTruthy();
+  function brondatumField() {
+    return screen.getByLabelText("zaak.brondatum");
+  }
+
+  async function chooseResultaattype(naam: string) {
+    await user.click(screen.getByRole("combobox", { name: /Resultaat/ }));
+    await user.click(screen.getByRole("option", { name: new RegExp(naam) }));
+  }
+
+  async function toggleSendMail() {
+    await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
+  }
+
+  async function openVerzenderOptions() {
+    await user.click(screen.getByRole("combobox", { name: /Verzender/ }));
+  }
+
+  async function submit() {
+    await user.click(
+      screen.getByRole("button", { name: "actie.zaak.afhandelen" }),
+    );
+  }
+
+  describe("the mail fields", () => {
+    it("shows the verzender and ontvanger fields once sending a mail is checked", async () => {
+      seedQueries(zaak);
+      await setup();
+
+      await toggleSendMail();
+
+      expect(verzenderSelect()).toBeVisible();
+      expect(ontvangerField()).toBeVisible();
     });
 
-    it("should hide mail fields when sendMail is unchecked", async () => {
-      const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);
-      await sendMailCheckbox.uncheck();
+    it("hides the verzender and ontvanger fields again once sending a mail is unchecked", async () => {
+      seedQueries(zaak);
+      await setup();
 
-      const fields = await loader.getAllHarnesses(MatSelectHarness);
-      const verzenderField = fields[1];
+      await toggleSendMail();
+      await toggleSendMail();
 
-      expect(verzenderField).toBeFalsy();
+      expect(verzenderSelect()).toBeNull();
+      expect(ontvangerField()).toBeNull();
     });
-  });
 
-  describe("resultaattype selection", () => {
-    it("should show besluitVastleggen button when resultaattype requires besluit", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
+    it("shows the mail body in the expandable panel", async () => {
+      seedQueries(zaak);
+      await setup();
 
-      const options = await resultaattypeSelect.getOptions();
-      await options[1]?.click();
-      fixture.detectChanges();
+      await toggleSendMail();
+      await user.click(screen.getByRole("button", { name: "body" }));
 
-      const besluitButton = await loader.getHarnessOrNull(
-        MatButtonHarness.with({ text: /actie\.besluit\.vastleggen/ }),
+      expect(screen.getByText("fakeMailBody")).toBeVisible();
+    });
+
+    it("shows the suffix of an afzender in the dropdown options", async () => {
+      seedQueries(zaak);
+      await setup();
+
+      await toggleSendMail();
+      await openVerzenderOptions();
+
+      expect(
+        screen.getByRole("option", { name: /fakeAfzenderSuffix/ }),
+      ).toHaveTextContent("fakeAfzender@example.com fakeAfzenderSuffix");
+    });
+
+    it("shows only the mail address of the afzender once it is selected", async () => {
+      seedQueries(zaak);
+      await setup();
+
+      await toggleSendMail();
+      await openVerzenderOptions();
+      await user.click(
+        screen.getByRole("option", { name: /fakeAfzenderSuffix/ }),
       );
-      const isDisabled = await besluitButton?.isDisabled();
-      expect(isDisabled).toBeFalsy();
+
+      expect(verzenderSelect()).toHaveTextContent("fakeAfzender@example.com");
+      expect(verzenderSelect()).not.toHaveTextContent("fakeAfzenderSuffix");
+    });
+  });
+
+  describe("a resultaattype that requires a besluit", () => {
+    it("offers to record a besluit instead of afhandelen the zaak", async () => {
+      seedQueries(zaak);
+      await setup();
+
+      await chooseResultaattype("fakeResultaatMetBesluit");
+
+      expect(
+        screen.getByRole("button", { name: "actie.besluit.vastleggen" }),
+      ).toBeEnabled();
+      expect(submitButton()).toBeNull();
     });
 
-    it("should open besluit vastleggen when besluit button is clicked", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
+    it("closes the dialog asking to record a besluit", async () => {
+      seedQueries(zaak);
+      await setup();
 
-      const options = await resultaattypeSelect.getOptions();
-      await options[1]?.click();
-      fixture.detectChanges();
+      await chooseResultaattype("fakeResultaatMetBesluit");
+      await user.click(
+        screen.getByRole("button", { name: "actie.besluit.vastleggen" }),
+      );
 
-      const besluitButton = await loader.getHarness(
-        MatButtonHarness.with({
-          text: /actie\.besluit\.vastleggen/,
+      expect(dialogRef.close).toHaveBeenCalledWith("openBesluitVastleggen");
+    });
+
+    it("offers to afhandelen the zaak when it already has a besluit", async () => {
+      const zaakMetBesluit = fromPartial<GeneratedType<"RestZaak">>({
+        ...zaak,
+        besluiten: [besluit],
+      });
+      seedQueries(zaakMetBesluit);
+      await setup({ zaakToHandle: zaakMetBesluit });
+
+      await chooseResultaattype("fakeResultaatMetBesluit");
+
+      expect(submitButton()).toBeVisible();
+    });
+  });
+
+  it("closes the dialog when the cancel button is clicked", async () => {
+    seedQueries(zaak);
+    await setup();
+
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
+
+    expect(dialogRef.close).toHaveBeenCalled();
+  });
+
+  describe("afhandelen a plan item", () => {
+    it("refuses to submit while no resultaattype has been chosen", async () => {
+      seedQueries(zaak);
+      await setup();
+
+      expect(submitButton()).toBeDisabled();
+    });
+
+    it("allows submitting once a resultaattype has been chosen", async () => {
+      seedQueries(zaak);
+      await setup();
+
+      await chooseResultaattype("fakeResultaatZonderVerplichtingen");
+
+      expect(submitButton()).toBeEnabled();
+    });
+
+    it("afhandelt the plan item with the chosen resultaattype", async () => {
+      seedQueries(zaak);
+      await setup();
+
+      await chooseResultaattype("fakeResultaatZonderVerplichtingen");
+      await submit();
+      await sleep();
+
+      const request = httpTestingController.expectOne(
+        "/rest/planitems/doUserEventListenerPlanItem",
+      );
+      expect(request.request.method).toBe("POST");
+      expect(request.request.body).toEqual(
+        expect.objectContaining({
+          actie: "ZAAK_AFHANDELEN",
+          planItemInstanceId: "fakePlanItemId",
+          zaakUuid: "fakeZaakUuid",
+          resultaattypeUuid: "fakeResultaattypeId3",
         }),
       );
-      await besluitButton.click();
-
-      expect(mockDialogRef.close).toHaveBeenCalledWith("openBesluitVastleggen");
-    });
-  });
-
-  describe("actions", () => {
-    it("should close dialog when close button is clicked", async () => {
-      const closeButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.annuleren/ }),
-      );
-      await closeButton.click();
-
-      expect(mockDialogRef.close).toHaveBeenCalled();
-    });
-  });
-
-  describe("form validation", () => {
-    it("should disable submit button when form is invalid", async () => {
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
-      );
-      expect(await submitButton.isDisabled()).toBe(true);
+      request.flush({});
     });
 
-    it("should enable submit button when form is valid", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
+    it("refuses another submit once the zaak has been afgehandeld", async () => {
+      seedQueries(zaak);
+      await setup();
 
-      const options = await resultaattypeSelect.getOptions();
-      await options[2]?.click();
-      fixture.detectChanges();
-
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
-      );
-      expect(await submitButton.isDisabled()).toBe(false);
-    });
-
-    it("keeps the submit button disabled after a successful afhandelen", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
-      const options = await resultaattypeSelect.getOptions();
-      await options[2]?.click();
-
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
-      );
-      await submitButton.click();
-      await new Promise(requestAnimationFrame);
+      await chooseResultaattype("fakeResultaatZonderVerplichtingen");
+      await submit();
+      await sleep();
 
       httpTestingController
         .expectOne("/rest/planitems/doUserEventListenerPlanItem")
         .flush({});
-      await new Promise(requestAnimationFrame);
+      await sleep();
       fixture.detectChanges();
 
-      expect(await submitButton.isDisabled()).toBe(true);
+      expect(submitButton()).toBeDisabled();
     });
   });
 
-  describe("form submission", () => {
-    it("should call planItem mutation on submit", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
-
-      const options = await resultaattypeSelect.getOptions();
-      await options[2]?.click();
-
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
-      );
-      await submitButton.click();
-      await new Promise(requestAnimationFrame);
-
-      const req = httpTestingController.expectOne(
-        `/rest/planitems/doUserEventListenerPlanItem`,
-      );
-      expect(req.request.method).toEqual("POST");
-      expect(req.request.body).toEqual(
-        expect.objectContaining({
-          actie: "ZAAK_AFHANDELEN",
-          planItemInstanceId: "test-plan-item-id",
-          zaakUuid: "test-zaak-uuid",
-          resultaattypeUuid: "resultaat-3",
-        }),
-      );
-      req.flush({});
-    });
-
-    it("should send over a 'brondatum' when a brondatum is required", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
-
-      const options = await resultaattypeSelect.getOptions();
-      await options[0]?.click(); // Select a type that requires brondatum
-
-      const inputs = await loader.getAllHarnesses(MatInputHarness);
-
+  describe("the brondatum of a resultaattype that requires one", () => {
+    it("sends the brondatum along on submit", async () => {
+      seedQueries(zaak);
+      await setup();
       const brondatum = moment().add(1, "day");
 
-      await inputs[0].setValue("test toelichting");
-      await inputs[1].setValue(brondatum.format("YYYY-MM-DD"));
-
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
+      await chooseResultaattype("fakeResultaatMetBrondatum");
+      await user.type(
+        screen.getByRole("textbox", { name: /Toelichting/ }),
+        "fakeToelichting",
       );
-      await submitButton.click();
-      await new Promise(requestAnimationFrame);
+      await user.type(brondatumField(), brondatum.format("YYYY-MM-DD"));
+      await submit();
+      await sleep();
 
-      const req = httpTestingController.expectOne(
-        `/rest/planitems/doUserEventListenerPlanItem`,
+      const request = httpTestingController.expectOne(
+        "/rest/planitems/doUserEventListenerPlanItem",
       );
-      expect(req.request.method).toEqual("POST");
-      expect(req.request.body).toEqual(
+      expect(request.request.body).toEqual(
         expect.objectContaining({
           actie: "ZAAK_AFHANDELEN",
-          planItemInstanceId: "test-plan-item-id",
-          zaakUuid: "test-zaak-uuid",
-          resultaattypeUuid: "resultaat-1",
-          resultaatToelichting: "test toelichting",
+          planItemInstanceId: "fakePlanItemId",
+          zaakUuid: "fakeZaakUuid",
+          resultaattypeUuid: "fakeResultaattypeId1",
+          resultaatToelichting: "fakeToelichting",
           brondatum: brondatum.startOf("day").toISOString(),
         }),
       );
-      req.flush({});
+      request.flush({});
     });
 
-    it("should not allow the form to be submitted when brondatum is before today", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
+    it("refuses a brondatum before today", async () => {
+      seedQueries(zaak);
+      await setup();
 
-      const options = await resultaattypeSelect.getOptions();
-      await options[0]?.click(); // Select a type that requires brondatum
-
-      const inputs = await loader.getAllHarnesses(MatInputHarness);
-
-      await inputs[0].setValue("test toelichting");
-      await inputs[1].setValue(
+      await chooseResultaattype("fakeResultaatMetBrondatum");
+      await user.type(
+        brondatumField(),
         moment().subtract(1, "day").format("YYYY-MM-DD"),
       );
-      fixture.detectChanges();
 
-      const submitBtn = fixture.nativeElement.querySelector(
-        'button[type="submit"]',
-      );
-      expect(submitBtn.disabled).toBe(true);
+      expect(submitButton()).toBeDisabled();
     });
 
-    it("should allow the form to be submitted when brondatum is today", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
+    it("accepts a brondatum of today", async () => {
+      seedQueries(zaak);
+      await setup();
 
-      const options = await resultaattypeSelect.getOptions();
-      await options[0]?.click(); // Select a type that requires brondatum
+      await chooseResultaattype("fakeResultaatMetBrondatum");
+      await user.type(brondatumField(), moment().format("YYYY-MM-DD"));
 
-      const inputs = await loader.getAllHarnesses(MatInputHarness);
-
-      await inputs[0].setValue("test toelichting");
-      await inputs[1].setValue(moment().format("YYYY-MM-DD"));
-      fixture.detectChanges();
-
-      const submitBtn = fixture.nativeElement.querySelector(
-        'button[type="submit"]',
-      );
-      expect(submitBtn.disabled).toBe(false);
+      expect(submitButton()).toBeEnabled();
     });
 
-    it("should allow the form to be submitted with an empty brondatum, even when brondatum is required by the resultaattype", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
+    it("accepts an empty brondatum", async () => {
+      seedQueries(zaak);
+      await setup();
 
-      const options = await resultaattypeSelect.getOptions();
-      await options[0]?.click(); // Select a type that requires brondatum
+      await chooseResultaattype("fakeResultaatMetBrondatum");
 
-      const inputs = await loader.getAllHarnesses(MatInputHarness);
-      await inputs[0].setValue("test toelichting");
-      fixture.detectChanges();
-
-      const submitBtn = fixture.nativeElement.querySelector(
-        'button[type="submit"]',
-      );
-      expect(submitBtn.disabled).toBe(false);
+      expect(submitButton()).toBeEnabled();
     });
 
-    it("should restrict the brondatum datepicker to today or later", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
+    it("offers no date before today", async () => {
+      seedQueries(zaak);
+      await setup();
 
-      const options = await resultaattypeSelect.getOptions();
-      await options[0]?.click(); // Select a type that requires brondatum
-      fixture.detectChanges();
+      await chooseResultaattype("fakeResultaatMetBrondatum");
 
-      const zacDate = fixture.debugElement.query(By.directive(ZacDate));
-      const min = zacDate.componentInstance["min"]();
-
-      expect(min?.valueOf()).toBe(moment().startOf("day").valueOf());
+      expect(brondatumField()).toHaveAttribute(
+        "min",
+        moment().startOf("day").format(),
+      );
     });
   });
 
-  describe("mail expansion panel", () => {
-    it("should show mail body in expansion panel when sendMail is checked", async () => {
-      const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);
-      await sendMailCheckbox.check();
-      fixture.detectChanges();
+  describe("the contact email address", () => {
+    it("fills the ontvanger with the initiator email address", async () => {
+      seedQueries(zaak);
+      await setup();
 
-      const expansionPanel = await loader.getHarness(MatExpansionPanelHarness);
-      expect(expansionPanel).toBeTruthy();
-
-      const panelText = await expansionPanel.getTextContent();
-      expect(panelText).toContain("Test Body");
-    });
-  });
-
-  describe("mail suffix logic", () => {
-    it("should show suffix in the dropdown options before selection", async () => {
-      const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);
-      await sendMailCheckbox.check();
-      fixture.detectChanges();
-
-      const selects = await loader.getAllHarnesses(MatSelectHarness);
-      const verzenderSelect = selects[1];
-
-      await verzenderSelect.open();
-      const options = await verzenderSelect.getOptions();
-      const optionText = await options[0].getText();
-
-      expect(optionText).toContain("test@example.com  Test Afzender");
-    });
-
-    it("should not show suffix in the select box when an afzender is selected", async () => {
-      const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);
-      await sendMailCheckbox.check();
-      fixture.detectChanges();
-
-      const selects = await loader.getAllHarnesses(MatSelectHarness);
-      const verzenderSelect = selects[1];
-
-      await verzenderSelect.open();
-      const options = await verzenderSelect.getOptions();
-      await options[0].click();
-      fixture.detectChanges();
-
-      const valueText = await verzenderSelect.getValueText();
-
-      expect(valueText).toBe("test@example.com");
-      expect(valueText).not.toContain("Test Afzender");
-    });
-  });
-
-  describe("zaak afhandelen button visibility", () => {
-    test.each([
-      [
-        {
-          resultaatType: fromPartial<GeneratedType<"RestResultaattype">>({
-            id: "test-id-1",
-            besluitVerplicht: true,
-          }),
-          besluiten: [],
-        },
-        false,
-      ],
-      [
-        {
-          resultaatType: fromPartial<GeneratedType<"RestResultaattype">>({
-            id: "test-id-2",
-            besluitVerplicht: true,
-          }),
-          besluiten: [
-            fromPartial<GeneratedType<"RestBesluit">>({
-              uuid: "mock-besluit-uuid",
-              url: "https://example.com/besluit",
-            }),
-          ],
-        },
-        true,
-      ],
-      [
-        {
-          resultaatType: fromPartial<GeneratedType<"RestResultaattype">>({
-            id: "test-id-3",
-            besluitVerplicht: false,
-          }),
-          besluiten: [
-            fromPartial<GeneratedType<"RestBesluit">>({
-              uuid: "mock-besluit-uuid",
-              url: "https://example.com/besluit",
-            }),
-          ],
-        },
-        true,
-      ],
-      [
-        {
-          resultaatType: fromPartial<GeneratedType<"RestResultaattype">>({
-            id: "test-id-4",
-            besluitVerplicht: false,
-          }),
-          besluiten: [],
-        },
-        true,
-      ],
-    ])(
-      "should show submit button correctly for besluitVerplicht=%s and besluiten=%s",
-      async (state, showSubmitButton) => {
-        const component = fixture.componentInstance;
-
-        component.data.zaak.besluiten = state.besluiten;
-
-        component.form.patchValue({ resultaattype: state.resultaatType });
-
-        fixture.detectChanges();
-
-        const submitButton = await loader.getHarnessOrNull(
-          MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
-        );
-
-        if (showSubmitButton) {
-          expect(submitButton).toBeTruthy();
-        } else {
-          expect(submitButton).toBeNull();
-        }
-      },
-    );
-  });
-
-  describe("setOntvanger", () => {
-    it("sets ontvanger to the resolved initiator email when there is no zaakSpecificContactDetails", () => {
-      fixture.componentInstance["setOntvanger"]();
-      expect(fixture.componentInstance.form.controls.ontvanger.value).toBe(
-        "initiator@example.com",
+      await toggleSendMail();
+      await user.click(
+        screen.getByRole("button", { name: "actie.contact.email.toevoegen" }),
       );
+
+      expect(ontvangerField()).toHaveValue("fakeInitiator@example.com");
     });
 
-    it("sets ontvanger to zaakSpecificContactDetails.emailAddress when available", async () => {
-      const mockZaakWithContact = fromPartial<GeneratedType<"RestZaak">>({
-        ...mockZaak,
-        uuid: "test-zaak-uuid-contact",
+    it("prefers the zaak specific contact email address over the initiator", async () => {
+      const zaakMetContactgegevens = fromPartial<GeneratedType<"RestZaak">>({
+        ...zaak,
         zaakSpecificContactDetails: fromPartial({
-          emailAddress: "contact@example.com",
+          emailAddress: "fakeContact@example.com",
         }),
       });
-      await createTestBed(mockZaakWithContact, mockPlanItem);
+      seedQueries(zaakMetContactgegevens);
+      await setup({ zaakToHandle: zaakMetContactgegevens });
 
-      fixture.componentInstance["setOntvanger"]();
-      expect(fixture.componentInstance.form.controls.ontvanger.value).toBe(
-        "contact@example.com",
+      await toggleSendMail();
+      await user.click(
+        screen.getByRole("button", { name: "actie.contact.email.toevoegen" }),
       );
+
+      expect(ontvangerField()).toHaveValue("fakeContact@example.com");
     });
 
-    it("shows the contact button and fills the contact email when there is a zaakSpecificContactDetails but no initiator", async () => {
-      const mockZaakWithContactNoInitiator = fromPartial<
-        GeneratedType<"RestZaak">
-      >({
-        ...mockZaak,
-        uuid: "test-zaak-uuid-contact-no-initiator",
+    it("fills the ontvanger with the zaak specific contact email address when there is no initiator", async () => {
+      const zaakZonderInitiator = fromPartial<GeneratedType<"RestZaak">>({
+        ...zaak,
         initiatorIdentificatie: undefined,
         zaakSpecificContactDetails: fromPartial({
-          emailAddress: "contact@example.com",
+          emailAddress: "fakeContact@example.com",
         }),
         zaaktype: {
-          ...mockZaak.zaaktype,
-          zaakafhandelparameters: {
-            afrondenMail: "BESCHIKBAAR_AAN",
-          },
+          ...zaak.zaaktype,
+          zaakafhandelparameters: { afrondenMail: "BESCHIKBAAR_AAN" },
         },
       });
-      await createTestBed(mockZaakWithContactNoInitiator, mockPlanItem);
+      seedQueries(zaakZonderInitiator);
+      await setup({ zaakToHandle: zaakZonderInitiator });
 
-      const contactButton = await loader.getHarness(
-        MatButtonHarness.with({
-          selector: '[title="actie.contact.email.toevoegen"]',
-        }),
+      await user.click(
+        screen.getByRole("button", { name: "actie.contact.email.toevoegen" }),
       );
 
-      await contactButton.click();
-      fixture.detectChanges();
-
-      expect(fixture.componentInstance.form.controls.ontvanger.value).toBe(
-        "contact@example.com",
-      );
+      expect(ontvangerField()).toHaveValue("fakeContact@example.com");
     });
   });
 
-  describe("Open dialog with zaakafhandelparameters afrondenMail BESCHIKBAAR_AAN", () => {
-    beforeEach(async () => {
-      const mockZaakWithAfrondenMailAan = fromPartial<
-        GeneratedType<"RestZaak">
-      >({
-        ...mockZaak,
-        uuid: "test-zaak-uuid-afronden-aan",
-        zaaktype: {
-          ...mockZaak.zaaktype,
-          zaakafhandelparameters: {
-            afrondenMail: "BESCHIKBAAR_AAN",
-          },
-        },
-      });
-
-      await createTestBed(mockZaakWithAfrondenMailAan, mockPlanItem);
+  describe("a zaaktype that sends a mail on afronden by default", () => {
+    const zaakMetAfrondenMailAan = fromPartial<GeneratedType<"RestZaak">>({
+      ...zaak,
+      zaaktype: {
+        ...zaak.zaaktype,
+        zaakafhandelparameters: { afrondenMail: "BESCHIKBAAR_AAN" },
+      },
     });
 
-    it("should show sendMail checkbox checked", async () => {
-      const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);
-      expect(await sendMailCheckbox.isChecked()).toBe(true);
-    });
+    it("checks sending a mail and shows the verzender field upfront", async () => {
+      seedQueries(zaakMetAfrondenMailAan);
+      await setup({ zaakToHandle: zaakMetAfrondenMailAan });
 
-    it("should show verzender field", async () => {
-      const fields = await loader.getAllHarnesses(MatSelectHarness);
-      const verzenderField = fields[1];
-      expect(verzenderField).toBeTruthy();
+      expect(sendMailCheckbox()).toBeChecked();
+      expect(verzenderSelect()).toBeVisible();
     });
   });
 
-  describe("Open dialog with zaakafhandelparameters afrondenMail NIET_BESCHIKBAAR", () => {
-    beforeEach(async () => {
-      const mockZaakWithAfrondenMailNietBeschikbaar = fromPartial<
-        GeneratedType<"RestZaak">
-      >({
-        ...mockZaak,
-        uuid: "test-zaak-uuid-afronden-niet-beschikbaar",
-        zaaktype: {
-          ...mockZaak.zaaktype,
-          zaakafhandelparameters: {
-            afrondenMail: "NIET_BESCHIKBAAR",
-          },
-        },
-      });
-
-      await createTestBed(
-        mockZaakWithAfrondenMailNietBeschikbaar,
-        mockPlanItem,
-      );
+  describe("a zaaktype that cannot send a mail on afronden", () => {
+    const zaakZonderAfrondenMail = fromPartial<GeneratedType<"RestZaak">>({
+      ...zaak,
+      zaaktype: {
+        ...zaak.zaaktype,
+        zaakafhandelparameters: { afrondenMail: "NIET_BESCHIKBAAR" },
+      },
     });
 
-    it("should not show sendMail checkbox", async () => {
-      const sendMailCheckbox =
-        await loader.getHarnessOrNull(MatCheckboxHarness);
-      expect(sendMailCheckbox).toBeNull();
-    });
+    it("offers no mail fields at all", async () => {
+      seedQueries(zaakZonderAfrondenMail);
+      await setup({ zaakToHandle: zaakZonderAfrondenMail });
 
-    it("should not show verzender field", async () => {
-      const fields = await loader.getAllHarnesses(MatSelectHarness);
-      const verzenderField = fields[1];
-      expect(verzenderField).toBeFalsy();
+      expect(sendMailCheckbox()).toBeNull();
+      expect(verzenderSelect()).toBeNull();
     });
   });
 
-  describe("Open dialog with planItem null (reopened case)", () => {
-    beforeEach(async () => {
-      const mockZaakWithNoPlanItem = fromPartial<GeneratedType<"RestZaak">>({
-        ...mockZaak,
-        uuid: "test-zaak-uuid-no-planitem",
-      });
+  describe("afsluiten a zaak without a plan item", () => {
+    it("closes the zaak with the chosen resultaattype", async () => {
+      seedQueries(zaak);
+      await setup({ planItemToHandle: null });
 
-      await createTestBed(mockZaakWithNoPlanItem, null);
-    });
+      await chooseResultaattype("fakeResultaatZonderVerplichtingen");
+      await submit();
+      await sleep();
 
-    it("should call afsluiten mutation on submit", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
-
-      const options = await resultaattypeSelect.getOptions();
-      await options[2]?.click();
-
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
+      const request = httpTestingController.expectOne(
+        "/rest/zaken/zaak/fakeZaakUuid/afsluiten",
       );
-      await submitButton.click();
-      await new Promise(requestAnimationFrame);
-
-      const req = httpTestingController.expectOne(
-        `/rest/zaken/zaak/test-zaak-uuid-no-planitem/afsluiten`,
-      );
-      expect(req.request.method).toEqual("PATCH");
-      expect(req.request.body).toEqual(
+      expect(request.request.method).toBe("PATCH");
+      expect(request.request.body).toEqual(
         expect.objectContaining({
-          resultaattypeUuid: "resultaat-3",
+          resultaattypeUuid: "fakeResultaattypeId3",
         }),
       );
-      req.flush({});
+      request.flush({});
     });
 
     it("caches the closed zaak returned by the afsluiten mutation and closes the dialog", async () => {
-      const cacheZaakSpy = jest.spyOn(zakenService, "cacheZaak");
+      seedQueries(zaak);
+      await setup({ planItemToHandle: null });
+      const cacheZaak = jest.spyOn(TestBed.inject(ZakenService), "cacheZaak");
       const fakeClosedZaak = fromPartial<GeneratedType<"RestZaak">>({
-        uuid: "test-zaak-uuid-no-planitem",
+        uuid: "fakeZaakUuid",
       });
 
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
-
-      const options = await resultaattypeSelect.getOptions();
-      await options[2]?.click();
-
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
-      );
-      await submitButton.click();
-      await new Promise(requestAnimationFrame);
+      await chooseResultaattype("fakeResultaatZonderVerplichtingen");
+      await submit();
+      await sleep();
 
       httpTestingController
-        .expectOne(`/rest/zaken/zaak/test-zaak-uuid-no-planitem/afsluiten`)
+        .expectOne("/rest/zaken/zaak/fakeZaakUuid/afsluiten")
         .flush(fakeClosedZaak);
-      await new Promise(requestAnimationFrame);
+      await sleep();
 
-      expect(cacheZaakSpy).toHaveBeenCalledWith(fakeClosedZaak);
-      expect(mockDialogRef.close).toHaveBeenCalledWith(true);
+      expect(cacheZaak).toHaveBeenCalledWith(fakeClosedZaak);
+      expect(dialogRef.close).toHaveBeenCalledWith(true);
     });
   });
 });

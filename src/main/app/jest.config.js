@@ -11,6 +11,9 @@ module.exports = {
   globalSetup: "<rootDir>/globalJest.js",
   preset: "jest-preset-angular",
   setupFilesAfterEnv: ["<rootDir>/setupJest.ts", "jest-extended/all"],
+  // driving Material components through the DOM in jsdom is slow; the default 5s
+  // is not enough for a rendered form or table once the suites run in parallel
+  testTimeout: 30_000,
   moduleNameMapper: {
     "^src/(.*)$": "<rootDir>/src/$1",
   },

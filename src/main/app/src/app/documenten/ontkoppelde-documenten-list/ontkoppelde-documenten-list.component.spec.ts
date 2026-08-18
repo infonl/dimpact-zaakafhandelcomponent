@@ -3,353 +3,366 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import { EventEmitter } from "@angular/core";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatDialogRef } from "@angular/material/dialog";
-import { MatPaginator, PageEvent } from "@angular/material/paginator";
-import { MatSidenav } from "@angular/material/sidenav";
-import { MatSort } from "@angular/material/sort";
+import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
-import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
+import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import {
-  createMutationOptions,
-  createQueryOptions,
-} from "../../../test-helpers";
-import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list.component";
 
-type DetachedDocument = GeneratedType<"RestDetachedDocument">;
+const SEARCH_PARAMETERS_KEY = "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS";
 
-const makeDetachedDocument = (
-  fields: Partial<DetachedDocument> = {},
-): DetachedDocument =>
-  ({
-    id: 1,
-    titel: "Test document",
-    documentUUID: "uuid-1",
-    creatiedatum: "2026-01-01",
-    zaakID: "ZAAK-001",
-    ontkoppeldDoor: { id: "user-1", naam: "Jan" },
-    ontkoppeldOp: "2026-01-02",
-    reden: "Test reden",
-    isVergrendeld: false,
-    ...fields,
-  }) as Partial<DetachedDocument> as unknown as DetachedDocument;
+const detachedDocument = fromPartial<GeneratedType<"RestDetachedDocument">>({
+  id: 42,
+  titel: "Aanvraag formulier",
+  documentUUID: "fakeDocumentUuid",
+  creatiedatum: "2026-01-01",
+  zaakID: "ZAAK-001",
+  ontkoppeldDoor: { id: "fakeUserId1", naam: "fakeUserName1" },
+  ontkoppeldOp: "2026-01-02",
+  reden: "Onterecht gekoppeld",
+  isVergrendeld: false,
+});
 
 describe(OntkoppeldeDocumentenListComponent.name, () => {
   let fixture: ComponentFixture<OntkoppeldeDocumentenListComponent>;
-  let component: OntkoppeldeDocumentenListComponent;
-  let ontkoppeldeDocumentenService: OntkoppeldeDocumentenService;
-  let infoService: InformatieObjectenService;
+  let httpTestingController: HttpTestingController;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-        OntkoppeldeDocumentenListComponent,
-      ],
-      providers: [
-        provideHttpClient(),
-        provideQueryClient(testQueryClient),
-        provideRouter([]),
-        {
-          provide: ActivatedRoute,
-          useValue: { data: of({ tabelGegevens: { aantalPerPagina: 10 } }) },
-        },
-      ],
-    }).compileComponents();
+  const user = userEvent.setup({ delay: null });
 
-    ontkoppeldeDocumentenService = TestBed.inject(OntkoppeldeDocumentenService);
-    infoService = TestBed.inject(InformatieObjectenService);
+  jest.setTimeout(20_000);
 
-    jest
-      .spyOn(ontkoppeldeDocumentenService, "list")
-      .mockReturnValue(
-        createQueryOptions({ totaal: 0, resultaten: [] }) as never,
-      );
-    jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
-    jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
-
-    fixture = TestBed.createComponent(OntkoppeldeDocumentenListComponent);
-    component = fixture.componentInstance;
-
-    component.sort = new MatSort();
-    component.paginator = {
-      pageSize: 10,
-      pageIndex: 0,
-      length: 0,
-      page: new EventEmitter<PageEvent>(),
-    } as Partial<MatPaginator> as unknown as MatPaginator;
-
-    component.ngAfterViewInit();
-  });
-
-  it("should remember user data in SessionStorageUtil when updating list parameters", () => {
-    const setItemSpy = jest.spyOn(SessionStorageUtil, "setItem");
-
-    component.sort.active = "titel";
-    component.sort.direction = "asc";
-    component.paginator.pageSize = 25;
-
-    component["updateListParameters"]();
-
-    expect(setItemSpy).toHaveBeenCalledWith(
-      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS",
+  async function setup(
+    werklijstRechten: GeneratedType<"RestWerklijstRechten"> = fromPartial({
+      ontkoppeldeDocumentenVerwijderen: true,
+    }),
+  ) {
+    const { fixture: renderedFixture } = await render(
+      OntkoppeldeDocumentenListComponent,
       {
-        maxResults: 25,
-        order: "asc",
-        page: 0,
-        sort: "titel",
+        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        providers: [
+          provideRouter([]),
+          {
+            provide: ActivatedRoute,
+            useValue: fromPartial<ActivatedRoute>({
+              data: of({
+                tabelGegevens: {
+                  aantalPerPagina: 10,
+                  pageSizeOptions: [10, 25, 50],
+                  werklijstRechten,
+                },
+              }),
+            }),
+          },
+          provideHttpClient(withInterceptorsFromDi()),
+          provideHttpClientTesting(),
+          provideNativeDateAdapter(),
+          provideQueryClient(testQueryClient),
+        ],
       },
     );
-  });
 
-  it("should use remembered user data when reloading (ngOnInit)", () => {
-    const rememberedParams = {
-      sort: "MockedTitle",
-      order: "MockedOrder",
-      maxResults: 99999,
-      filtersType: "DetachedDocumentListParameters",
-    };
-
+    fixture = renderedFixture;
+    httpTestingController = TestBed.inject(HttpTestingController);
     jest
-      .spyOn(SessionStorageUtil, "getItem")
-      .mockImplementation((key: string) => {
-        if (key === "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS") {
-          return rememberedParams;
-        }
-        return null;
-      });
+      .spyOn(TestBed.inject(UtilService), "openSnackbar")
+      .mockImplementation(() => undefined);
+  }
 
-    component.ngOnInit();
+  function listRequests() {
+    return httpTestingController.match("/rest/ontkoppeldedocumenten");
+  }
 
-    expect(component["listParameters"]).toEqual(rememberedParams);
+  async function showDocuments(
+    documents: GeneratedType<"RestDetachedDocument">[],
+    totaal = documents.length,
+  ) {
+    await sleep();
+    listRequests().forEach((request) =>
+      request.flush({ totaal, resultaten: documents }),
+    );
+    await sleep();
+    // the table creates the row views in one pass and binds their cells in the next
+    fixture.detectChanges();
+    fixture.detectChanges();
+  }
+
+  async function lastListRequestBody() {
+    await sleep();
+    const requests = listRequests();
+    const body = requests[requests.length - 1].request.body;
+    requests.forEach((request) => request.flush({ totaal: 0, resultaten: [] }));
+    await sleep();
+    return body;
+  }
+
+  function rememberedParameters() {
+    return JSON.parse(sessionStorage.getItem(SEARCH_PARAMETERS_KEY)!);
+  }
+
+  function documentRow() {
+    return screen.getByRole("row", { name: /Aanvraag formulier/ });
+  }
+
+  beforeEach(() => {
+    sessionStorage.clear();
   });
 
-  it("should return null from getDownloadURL when documentUUID is absent", () => {
-    const doc = makeDetachedDocument({ documentUUID: undefined });
-    expect(component["getDownloadURL"](doc)).toBeNull();
+  afterEach(() => {
+    httpTestingController
+      ?.match(() => true)
+      .forEach((request) => request.flush([]));
   });
 
-  it("should return download URL from getDownloadURL when documentUUID is present", () => {
-    jest
-      .spyOn(infoService, "getDownloadURL")
-      .mockReturnValue("/download/uuid-1");
-    const doc = makeDetachedDocument({ documentUUID: "uuid-1" });
-    expect(component["getDownloadURL"](doc)).toBe("/download/uuid-1");
-    expect(infoService.getDownloadURL).toHaveBeenCalledWith("uuid-1");
+  it("shows a row for every document in the list response", async () => {
+    await setup();
+    await showDocuments([detachedDocument]);
+
+    const row = documentRow();
+    expect(within(row).getByText("ZAAK-001")).toBeVisible();
+    expect(within(row).getByText("fakeUserName1")).toBeVisible();
+    expect(within(row).getByText("Onterecht gekoppeld")).toBeVisible();
   });
 
-  it("should return ONTKOPPELDE_DOCUMENTEN from getWerklijst", () => {
-    expect(component["getWerklijst"]()).toBe("ONTKOPPELDE_DOCUMENTEN");
+  it("reports that nothing was found when the list is empty", async () => {
+    await setup();
+    await showDocuments([]);
+
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
   });
 
-  it("should reset pageIndex and emit filterChange and clearZoekopdracht on filtersChanged", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    const clearSpy = jest.spyOn(component["clearZoekopdracht"], "emit");
-    component.paginator.pageIndex = 3;
+  it("asks for the first page sorted by ontkoppeldOp and remembers that", async () => {
+    await setup();
 
-    component["filtersChanged"]();
-
-    expect(component.paginator.pageIndex).toBe(0);
-    expect(clearSpy).toHaveBeenCalled();
-    expect(filterChangeSpy).toHaveBeenCalled();
-  });
-
-  it("should emit filterChange on retriggerSearch", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    component["retriggerSearch"]();
-    expect(filterChangeSpy).toHaveBeenCalled();
-  });
-
-  it("should reset to default parameters and emit filterChange on resetSearch", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    component["listParameters"] = { sort: "titel", order: "asc" };
-    component.sort.active = "titel";
-    component.sort.direction = "asc";
-    component.paginator.pageIndex = 5;
-
-    component["resetSearch"]();
-
-    expect(component["listParameters"]).toMatchObject({
+    const defaultParameters = {
       sort: "ontkoppeldOp",
       order: "desc",
-    });
-    expect(component.sort.active).toBe("ontkoppeldOp");
-    expect(component.sort.direction).toBe("desc");
-    expect(component.paginator.pageIndex).toBe(0);
-    expect(filterChangeSpy).toHaveBeenCalled();
+      filtersType: "DetachedDocumentListParameters",
+      page: 0,
+      maxResults: 10,
+    };
+    expect(await lastListRequestBody()).toEqual(defaultParameters);
+    expect(rememberedParameters()).toEqual(defaultParameters);
   });
 
-  it("should parse JSON and apply parameters on zoekopdrachtChanged with truthy value", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    const params = {
+  it("reuses the filters remembered from a previous visit", async () => {
+    sessionStorage.setItem(
+      SEARCH_PARAMETERS_KEY,
+      JSON.stringify({
+        titel: "Aanvraag",
+        filtersType: "DetachedDocumentListParameters",
+      }),
+    );
+
+    await setup();
+
+    expect(await lastListRequestBody()).toMatchObject({ titel: "Aanvraag" });
+  });
+
+  it("preselects the person remembered as the ontkoppeld door filter", async () => {
+    sessionStorage.setItem(
+      SEARCH_PARAMETERS_KEY,
+      JSON.stringify({
+        ontkoppeldDoor: { id: "fakeUserId1", naam: "fakeUserName1" },
+        filtersType: "DetachedDocumentListParameters",
+      }),
+    );
+    await setup();
+    await showDocuments([detachedDocument]);
+    await sleep();
+    fixture.detectChanges();
+
+    expect(
+      screen.getByRole("combobox", { name: "fakeUserName1" }),
+    ).toBeVisible();
+  });
+
+  it("goes back to the first page when a filter changes", async () => {
+    await setup();
+    await showDocuments([detachedDocument], 30);
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.pagina.volgende" }),
+    );
+    await sleep();
+    fixture.detectChanges();
+    expect(screen.getByText(/11 - 20/)).toBeVisible();
+
+    const [titelFilter] = screen.getAllByPlaceholderText("...");
+    await user.type(titelFilter, "Aanvraag{Enter}");
+    await sleep();
+    fixture.detectChanges();
+
+    expect(screen.getByText(/1 - 10/)).toBeVisible();
+  });
+
+  it("remembers the sorting column that was clicked, back on the first page", async () => {
+    await setup();
+    await showDocuments([detachedDocument], 30);
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.pagina.volgende" }),
+    );
+    await lastListRequestBody();
+
+    await user.click(screen.getByRole("columnheader", { name: "titel" }));
+
+    expect(rememberedParameters()).toMatchObject({
       sort: "titel",
       order: "asc",
-      filtersType: "DetachedDocumentListParameters",
-    };
-    component["zoekopdrachtChanged"]({
-      json: JSON.stringify(params),
-    } as Partial<
-      GeneratedType<"RESTZoekopdracht">
-    > as unknown as GeneratedType<"RESTZoekopdracht">);
-
-    expect(component["listParameters"]).toMatchObject({
-      filtersType: "DetachedDocumentListParameters",
+      page: 0,
     });
-    expect(component.paginator.pageIndex).toBe(0);
-    expect(filterChangeSpy).toHaveBeenCalled();
   });
 
-  it("should call resetSearch on zoekopdrachtChanged with null", () => {
-    const resetSpy = jest.spyOn(
-      component as unknown as { resetSearch: () => void },
-      "resetSearch",
+  it("remembers the first page for the next visit when it is destroyed", async () => {
+    await setup();
+    await showDocuments([detachedDocument], 30);
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.pagina.volgende" }),
     );
-    component["zoekopdrachtChanged"](
-      null as unknown as GeneratedType<"RESTZoekopdracht">,
+    await lastListRequestBody();
+    fixture.destroy();
+
+    expect(rememberedParameters()).toMatchObject({ page: 0 });
+  });
+
+  it("offers the search opdrachten stored for the ontkoppelde documenten werklijst", async () => {
+    await setup();
+    await showDocuments([detachedDocument]);
+
+    expect(
+      httpTestingController.expectOne(
+        "/rest/gebruikersvoorkeuren/zoekopdracht/ONTKOPPELDE_DOCUMENTEN",
+      ).request.method,
+    ).toBe("GET");
+  });
+
+  it("links to the download of the document on the row", async () => {
+    await setup();
+    await showDocuments([detachedDocument]);
+
+    expect(
+      within(documentRow()).getByRole("link", { name: "actie.downloaden" }),
+    ).toHaveAttribute(
+      "href",
+      "/rest/informatieobjecten/informatieobject/fakeDocumentUuid/download",
     );
-    expect(resetSpy).toHaveBeenCalled();
   });
 
-  it("should set selectedInformationObject and open sidenav on openDrawer", () => {
-    const openSpy = jest.fn().mockResolvedValue(undefined);
-    component.actionsSidenav = { open: openSpy } as unknown as MatSidenav;
-    const doc = makeDetachedDocument();
-
-    component["openDrawer"](doc);
-
-    expect(component["selectedInformationObject"]).toBe(doc);
-    expect(openSpy).toHaveBeenCalled();
-  });
-
-  it("should reset page to 0 and persist to storage on ngOnDestroy", () => {
-    const setItemSpy = jest.spyOn(SessionStorageUtil, "setItem");
-    component["listParameters"].page = 5;
-
-    component.ngOnDestroy();
-
-    expect(setItemSpy).toHaveBeenCalledWith(
-      "ONTKOPPELDE_DOCUMENTEN_ZOEKPARAMETERS",
-      expect.objectContaining({ page: 0 }),
-    );
-  });
-
-  it("should open confirm dialog and emit filterChange on documentVerwijderen when confirmed", async () => {
-    jest.spyOn(component["dialog"], "open").mockReturnValue({
-      afterClosed: () => of(true),
-    } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    jest
-      .spyOn(ontkoppeldeDocumentenService, "delete")
-      .mockReturnValue(createMutationOptions(undefined) as never);
-
-    const doc = makeDetachedDocument({ id: 42, titel: "My doc" });
-    component["documentVerwijderen"](doc);
-    await sleep();
-
-    expect(ontkoppeldeDocumentenService.delete).toHaveBeenCalledWith(doc);
-    expect(filterChangeSpy).toHaveBeenCalled();
-  });
-
-  it("should not emit filterChange when confirm dialog is cancelled on documentVerwijderen", () => {
-    jest.spyOn(component["dialog"], "open").mockReturnValue({
-      afterClosed: () => of(false),
-    } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    jest
-      .spyOn(ontkoppeldeDocumentenService, "delete")
-      .mockReturnValue(createMutationOptions(undefined) as never);
-
-    component["documentVerwijderen"](makeDetachedDocument());
-
-    expect(filterChangeSpy).not.toHaveBeenCalled();
-  });
-
-  it("should populate dataSource and filterOntkoppeldDoor from list response", async () => {
-    const docs = [
-      makeDetachedDocument({
-        id: 1,
-        ontkoppeldDoor: {
-          id: "u1",
-          naam: "Alice",
-        } as unknown as GeneratedType<"RestUser">,
+  it("offers no download for a document without an informatieobject", async () => {
+    await setup();
+    await showDocuments([
+      fromPartial<GeneratedType<"RestDetachedDocument">>({
+        ...detachedDocument,
+        documentUUID: undefined,
       }),
-      makeDetachedDocument({
-        id: 2,
-        ontkoppeldDoor: {
-          id: "u2",
-          naam: "Bob",
-        } as unknown as GeneratedType<"RestUser">,
-      }),
-    ];
-    jest
-      .spyOn(ontkoppeldeDocumentenService, "list")
-      .mockReturnValue(
-        createQueryOptions({ totaal: 2, resultaten: docs }) as never,
-      );
-
-    component["filterChange"].emit();
-    await sleep();
-
-    expect(component["dataSource"].data).toEqual(docs);
-    expect(component.paginator.length).toBe(2);
-    expect(component["filterOntkoppeldDoor"]).toEqual([
-      { id: "u1", naam: "Alice" },
-      { id: "u2", naam: "Bob" },
     ]);
+
+    expect(
+      within(documentRow()).queryByRole("link", { name: "actie.downloaden" }),
+    ).toBeNull();
   });
 
-  it("should fall back to empty array and zero length when list response omits resultaten and totaal", () => {
-    jest
-      .spyOn(ontkoppeldeDocumentenService, "list")
-      .mockReturnValue(
-        createQueryOptions(
-          {} as Partial<
-            GeneratedType<"RESTResultaatRestDetachedDocument">
-          > as unknown as GeneratedType<"RESTResultaatRestDetachedDocument">,
-        ) as never,
-      );
+  it("offers no delete without the right to remove ontkoppelde documenten", async () => {
+    await setup(fromPartial({ ontkoppeldeDocumentenVerwijderen: false }));
+    await showDocuments([detachedDocument]);
 
-    component["filterChange"].emit();
-
-    expect(component["dataSource"].data).toEqual([]);
-    expect(component.paginator.length).toBe(0);
-    expect(component["filterOntkoppeldDoor"]).toEqual([]);
+    expect(
+      within(documentRow()).queryByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    ).toBeNull();
   });
 
-  it("should reset pageIndex to 0 when sort changes", () => {
-    component.paginator.pageIndex = 3;
-    component.sort.sortChange.emit({ active: "titel", direction: "asc" });
-    expect(component.paginator.pageIndex).toBe(0);
+  it("marks a locked document as such instead of offering to delete it", async () => {
+    await setup();
+    await showDocuments([
+      fromPartial<GeneratedType<"RestDetachedDocument">>({
+        ...detachedDocument,
+        isVergrendeld: true,
+      }),
+    ]);
+
+    const row = documentRow();
+    expect(
+      within(row).queryByRole("button", { name: "actie.verwijderen" }),
+    ).toBeNull();
+    expect(within(row).getByTitle("indicatie.VERGRENDELD")).toBeVisible();
   });
 
-  it("should return true from compareUser when user ids match", () => {
-    const user1 = { id: "u1" } as Partial<
-      GeneratedType<"RestUser">
-    > as unknown as GeneratedType<"RestUser">;
-    const user2 = { id: "u1" } as Partial<
-      GeneratedType<"RestUser">
-    > as unknown as GeneratedType<"RestUser">;
-    expect(component["compareUser"](user1, user2)).toBe(true);
+  it("asks for confirmation before deleting the document of the row", async () => {
+    await setup();
+    await showDocuments([detachedDocument]);
+
+    await user.click(
+      within(documentRow()).getByRole("button", { name: "actie.verwijderen" }),
+    );
+
+    expect(
+      screen.getByText("msg.document.verwijderen.bevestigen"),
+    ).toBeVisible();
+    httpTestingController.expectNone("/rest/ontkoppeldedocumenten/42");
   });
 
-  it("should return false from compareUser when user ids differ", () => {
-    const user1 = { id: "u1" } as Partial<
-      GeneratedType<"RestUser">
-    > as unknown as GeneratedType<"RestUser">;
-    const user2 = { id: "u2" } as Partial<
-      GeneratedType<"RestUser">
-    > as unknown as GeneratedType<"RestUser">;
-    expect(component["compareUser"](user1, user2)).toBe(false);
+  it("deletes the document of the row once confirmed", async () => {
+    await setup();
+    await showDocuments([detachedDocument]);
+
+    await user.click(
+      within(documentRow()).getByRole("button", { name: "actie.verwijderen" }),
+    );
+    await user.click(screen.getByRole("button", { name: "actie.ja" }));
+    await sleep();
+
+    expect(
+      httpTestingController.expectOne("/rest/ontkoppeldedocumenten/42").request
+        .method,
+    ).toBe("DELETE");
+  });
+
+  it("keeps the document when the confirmation is cancelled", async () => {
+    await setup();
+    await showDocuments([detachedDocument]);
+
+    await user.click(
+      within(documentRow()).getByRole("button", { name: "actie.verwijderen" }),
+    );
+    await user.click(screen.getByRole("button", { name: "actie.nee" }));
+    await sleep();
+
+    httpTestingController.expectNone("/rest/ontkoppeldedocumenten/42");
+  });
+
+  it("opens the koppelen drawer for the document of the row", async () => {
+    await setup();
+    await showDocuments([detachedDocument]);
+
+    await user.click(
+      within(documentRow()).getByRole("button", {
+        name: "actie.document.koppelen",
+      }),
+    );
+    await sleep();
+    fixture.detectChanges();
+
+    expect(screen.getByText("informatieobject.koppelen.uitleg")).toBeVisible();
   });
 });

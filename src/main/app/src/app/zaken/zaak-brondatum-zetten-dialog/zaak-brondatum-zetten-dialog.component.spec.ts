@@ -3,229 +3,188 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
+import { TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { MatInputHarness } from "@angular/material/input/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import moment from "moment";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakBrondatumZettenDialogComponent } from "./zaak-brondatum-zetten-dialog.component";
 
+const zaak = fromPartial<GeneratedType<"RestZaak">>({
+  uuid: "fakeZaakUuid",
+  zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+    uuid: "fakeZaaktypeUuid",
+    omschrijving: "fakeZaaktypeOmschrijving",
+  }),
+  resultaat: null,
+});
+
+const planItem = fromPartial<GeneratedType<"RESTPlanItem">>({
+  id: "fakePlanItemId",
+  userEventListenerActie: "BRONDATUM_ZETTEN",
+});
+
 describe(ZaakBrondatumZettenDialogComponent.name, () => {
-  let fixture: ComponentFixture<ZaakBrondatumZettenDialogComponent>;
-  let loader: HarnessLoader;
   let httpTestingController: HttpTestingController;
+  let dialogRef: MatDialogRef<ZaakBrondatumZettenDialogComponent>;
 
-  const mockDialogRef = {
-    close: jest.fn(),
-    disableClose: false,
-  };
+  const user = userEvent.setup();
 
-  const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
-    uuid: "test-zaak-uuid",
-    zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
-      uuid: "test-zaaktype-uuid",
-      omschrijving: "Test Zaaktype",
-    }),
-    resultaat: null,
-  });
+  async function setup({
+    zaakToHandle = zaak,
+    planItemToHandle,
+  }: {
+    zaakToHandle?: GeneratedType<"RestZaak">;
+    planItemToHandle?: GeneratedType<"RESTPlanItem"> | null;
+  } = {}) {
+    dialogRef = fromPartial<MatDialogRef<ZaakBrondatumZettenDialogComponent>>({
+      close: jest.fn(),
+      disableClose: false,
+    });
 
-  const mockPlanItem = fromPartial<GeneratedType<"RESTPlanItem">>({
-    id: "test-plan-item-id",
-    userEventListenerActie: "BRONDATUM_ZETTEN",
-  });
-
-  const createTestBed = async (
-    zaakMock: GeneratedType<"RestZaak">,
-    planItemMock?: GeneratedType<"RESTPlanItem"> | null,
-  ) => {
-    TestBed.resetTestingModule();
-
-    await TestBed.configureTestingModule({
-      imports: [
-        ZaakBrondatumZettenDialogComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+    await render(ZaakBrondatumZettenDialogComponent, {
+      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
-        { provide: MatDialogRef, useValue: mockDialogRef },
+        { provide: MatDialogRef, useValue: dialogRef },
         {
           provide: MAT_DIALOG_DATA,
-          useValue: { zaak: zaakMock, planItem: planItemMock },
+          useValue: { zaak: zaakToHandle, planItem: planItemToHandle },
         },
       ],
-    }).compileComponents();
+    });
 
     httpTestingController = TestBed.inject(HttpTestingController);
+  }
 
-    fixture = TestBed.createComponent(ZaakBrondatumZettenDialogComponent);
-    loader = TestbedHarnessEnvironment.loader(fixture);
-    fixture.detectChanges();
-  };
+  function submitButton() {
+    return screen.getByRole("button", { name: "actie.zaak.brondatumZetten" });
+  }
 
-  beforeEach(async () => {
-    mockDialogRef.close = jest.fn();
-    await createTestBed(mockZaak, mockPlanItem);
+  async function fillInBrondatum(date: moment.Moment) {
+    await user.type(
+      screen.getByLabelText("zaak.brondatum"),
+      date.format("YYYY-MM-DD"),
+    );
+  }
+
+  it("keeps the submit button disabled while no brondatum has been filled in", async () => {
+    await setup({ planItemToHandle: planItem });
+
+    expect(submitButton()).toBeDisabled();
   });
 
-  describe("form validation", () => {
-    it("should disable submit button when brondatum is empty", async () => {
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.brondatumZetten/ }),
-      );
-      expect(await submitButton.isDisabled()).toBe(true);
-    });
+  it("allows submitting a brondatum of today", async () => {
+    await setup({ planItemToHandle: planItem });
 
-    it("should enable submit button when brondatum is today or later", async () => {
-      const input = await loader.getHarness(MatInputHarness);
-      await input.setValue(moment().format("YYYY-MM-DD"));
-      fixture.detectChanges();
+    await fillInBrondatum(moment());
 
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.brondatumZetten/ }),
-      );
-      expect(await submitButton.isDisabled()).toBe(false);
-    });
-
-    it("should not allow the form to be submitted when brondatum is before today", async () => {
-      const input = await loader.getHarness(MatInputHarness);
-      await input.setValue(moment().subtract(1, "day").format("YYYY-MM-DD"));
-      fixture.detectChanges();
-
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.brondatumZetten/ }),
-      );
-      expect(await submitButton.isDisabled()).toBe(true);
-    });
+    expect(submitButton()).toBeEnabled();
   });
 
-  describe("actions", () => {
-    it("should close dialog when close button is clicked", async () => {
-      const closeButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.annuleren/ }),
-      );
-      await closeButton.click();
+  it("refuses a brondatum before today", async () => {
+    await setup({ planItemToHandle: planItem });
 
-      expect(mockDialogRef.close).toHaveBeenCalled();
-    });
+    await fillInBrondatum(moment().subtract(1, "day"));
+
+    expect(submitButton()).toBeDisabled();
   });
 
-  describe("Open dialog with a planItem", () => {
-    it("should call the planItem mutation with the BRONDATUM_ZETTEN actie on submit", async () => {
-      const brondatum = moment().add(1, "day");
-      const input = await loader.getHarness(MatInputHarness);
-      await input.setValue(brondatum.format("YYYY-MM-DD"));
+  it("closes the dialog when the cancel button is clicked", async () => {
+    await setup({ planItemToHandle: planItem });
 
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.brondatumZetten/ }),
-      );
-      await submitButton.click();
-      await new Promise(requestAnimationFrame);
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
 
-      const req = httpTestingController.expectOne(
-        `/rest/planitems/doUserEventListenerPlanItem`,
-      );
-      expect(req.request.method).toEqual("POST");
-      expect(req.request.body).toEqual(
-        expect.objectContaining({
-          actie: "BRONDATUM_ZETTEN",
-          planItemInstanceId: "test-plan-item-id",
-          zaakUuid: "test-zaak-uuid",
-          brondatum: brondatum.startOf("day").toISOString(),
-        }),
-      );
-      req.flush({});
-    });
+    expect(dialogRef.close).toHaveBeenCalled();
   });
 
-  describe("Open dialog with planItem null", () => {
-    beforeEach(async () => {
-      const mockZaakWithNoPlanItem = fromPartial<GeneratedType<"RestZaak">>({
-        ...mockZaak,
-        uuid: "test-zaak-uuid-no-planitem",
-      });
+  it("afhandelt the plan item with the brondatum when the dialog has one", async () => {
+    await setup({ planItemToHandle: planItem });
+    const brondatum = moment().add(1, "day");
 
-      await createTestBed(mockZaakWithNoPlanItem, null);
-    });
+    await fillInBrondatum(brondatum);
+    await user.click(submitButton());
+    await sleep();
 
-    it("should call the brondatum mutation on submit", async () => {
-      const brondatum = moment().add(1, "day");
-      const input = await loader.getHarness(MatInputHarness);
-      await input.setValue(brondatum.format("YYYY-MM-DD"));
-
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.brondatumZetten/ }),
-      );
-      await submitButton.click();
-      await new Promise(requestAnimationFrame);
-
-      const req = httpTestingController.expectOne(
-        `/rest/zaken/zaak/test-zaak-uuid-no-planitem/brondatum`,
-      );
-      expect(req.request.method).toEqual("PUT");
-      expect(req.request.body).toEqual(
-        expect.objectContaining({
-          brondatum: brondatum.startOf("day").toISOString(),
-        }),
-      );
-      req.flush({});
-    });
-
-    it("should close the dialog with true on a successful submit", async () => {
-      const brondatum = moment().add(1, "day");
-      const input = await loader.getHarness(MatInputHarness);
-      await input.setValue(brondatum.format("YYYY-MM-DD"));
-
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.brondatumZetten/ }),
-      );
-      await submitButton.click();
-      await new Promise(requestAnimationFrame);
-
-      httpTestingController
-        .expectOne(`/rest/zaken/zaak/test-zaak-uuid-no-planitem/brondatum`)
-        .flush({});
-      await new Promise(requestAnimationFrame);
-
-      expect(mockDialogRef.close).toHaveBeenCalledWith(true);
-    });
+    const request = httpTestingController.expectOne(
+      "/rest/planitems/doUserEventListenerPlanItem",
+    );
+    expect(request.request.method).toBe("POST");
+    expect(request.request.body).toEqual(
+      expect.objectContaining({
+        actie: "BRONDATUM_ZETTEN",
+        planItemInstanceId: "fakePlanItemId",
+        zaakUuid: "fakeZaakUuid",
+        brondatum: brondatum.startOf("day").toISOString(),
+      }),
+    );
+    request.flush({});
   });
 
-  describe("brondatumLabel", () => {
-    it("should use the datumKenmerkOmschrijving of the resultaattype when datumKenmerkVerplicht is true", async () => {
-      const mockZaakWithResultaat = fromPartial<GeneratedType<"RestZaak">>({
-        ...mockZaak,
-        uuid: "test-zaak-uuid-with-resultaat",
+  it("sets the brondatum on the zaak when the dialog has no plan item", async () => {
+    await setup({ planItemToHandle: null });
+    const brondatum = moment().add(1, "day");
+
+    await fillInBrondatum(brondatum);
+    await user.click(submitButton());
+    await sleep();
+
+    const request = httpTestingController.expectOne(
+      "/rest/zaken/zaak/fakeZaakUuid/brondatum",
+    );
+    expect(request.request.method).toBe("PUT");
+    expect(request.request.body).toEqual(
+      expect.objectContaining({
+        brondatum: brondatum.startOf("day").toISOString(),
+      }),
+    );
+    request.flush({});
+  });
+
+  it("closes the dialog with true once the brondatum has been set", async () => {
+    await setup({ planItemToHandle: null });
+
+    await fillInBrondatum(moment().add(1, "day"));
+    await user.click(submitButton());
+    await sleep();
+
+    httpTestingController
+      .expectOne("/rest/zaken/zaak/fakeZaakUuid/brondatum")
+      .flush({});
+    await sleep();
+
+    expect(dialogRef.close).toHaveBeenCalledWith(true);
+  });
+
+  it("labels the date field with the datumkenmerk of the resultaattype when it is required", async () => {
+    await setup({
+      zaakToHandle: fromPartial<GeneratedType<"RestZaak">>({
+        ...zaak,
         resultaat: fromPartial({
           resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
             datumKenmerkVerplicht: true,
-            datumKenmerkOmschrijving: "Fake datumkenmerk omschrijving",
+            datumKenmerkOmschrijving: "fakeDatumKenmerkOmschrijving",
           }),
         }),
-      });
-
-      await createTestBed(mockZaakWithResultaat, mockPlanItem);
-
-      expect(fixture.componentInstance["brondatumLabel"]).toBe(
-        "Fake datumkenmerk omschrijving",
-      );
+      }),
+      planItemToHandle: planItem,
     });
+
+    expect(screen.getByLabelText("fakeDatumKenmerkOmschrijving")).toBeVisible();
   });
 });

@@ -4,185 +4,161 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatNativeDateModule } from "@angular/material/core";
+import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen } from "@testing-library/angular";
 import { of } from "rxjs";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { BagLocatieComponent } from "../bag-locatie/bag-locatie.component";
-import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.component";
+import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
+import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
+import { ZoekenService } from "../../zoeken/zoeken.service";
 import { BAGViewComponent } from "./bag-view.component";
-import { testQueryClient } from "../../../../setupJest";
-
-const makeBAGObject = (
-  fields: Partial<GeneratedType<"RESTBAGObject">> = {},
-): GeneratedType<"RESTBAGObject"> =>
-  ({
-    identificatie: "0363200000218908",
-    bagObjectType: "ADRES",
-    omschrijving: "Test omschrijving",
-    ...fields,
-  }) as Partial<
-    GeneratedType<"RESTBAGObject">
-  > as unknown as GeneratedType<"RESTBAGObject">;
 
 describe(BAGViewComponent.name, () => {
-  let fixture: ComponentFixture<BAGViewComponent>;
-  let component: BAGViewComponent;
-  let utilService: UtilService;
+  const setTitle = jest.fn();
+  const list = jest.fn();
 
-  const configureTestBed = async (
-    bagObject: GeneratedType<"RESTBAGObject">,
-  ) => {
-    await TestBed.configureTestingModule({
-      imports: [
-        BAGViewComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-        MatNativeDateModule,
-        StaticTextComponent,
-        BagZakenTabelComponent,
-        BagLocatieComponent,
-      ],
+  function zaakSearchedFor() {
+    const zoekParameters = list.mock.lastCall![0] as Parameters<
+      ZoekenService["list"]
+    >[0];
+    return zoekParameters.zoeken?.ZAAK_BAGOBJECTEN;
+  }
+
+  async function setup(bagObject: GeneratedType<"RESTBAGObject">) {
+    list.mockReturnValue(
+      createQueryOptions(
+        fromPartial<ZoekResultaat<ZaakZoekObject>>({
+          totaal: 0,
+          resultaten: [],
+          filters: {},
+        }),
+      ),
+    );
+
+    await render(BAGViewComponent, {
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideRouter([]),
+        provideNativeDateAdapter(),
+        { provide: ActivatedRoute, useValue: { data: of({ bagObject }) } },
         {
-          provide: ActivatedRoute,
-          useValue: { data: of({ bagObject }) },
+          provide: ZoekenService,
+          useValue: fromPartial<ZoekenService>({ list }),
+        },
+        {
+          provide: UtilService,
+          useValue: fromPartial<UtilService>({
+            setTitle,
+            setLoading: jest.fn(),
+          }),
         },
       ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(BAGViewComponent);
-    component = fixture.componentInstance;
-    utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "setTitle");
-    jest.spyOn(utilService, "setLoading");
-    fixture.detectChanges();
-  };
-
-  describe("when bagObjectType is ADRES", () => {
-    beforeEach(async () => {
-      await configureTestBed(
-        makeBAGObject({
-          bagObjectType: "ADRES",
-          identificatie: "0363200000218908",
-        }),
-      );
     });
 
-    it("sets the adres property and its geometry", () => {
-      expect(component["adres"]?.identificatie).toBe("0363200000218908");
-    });
+    await sleep();
+  }
 
-    it("sets bagIdentificatie from the bagObject", () => {
-      expect(component["bagIdentificatie"]).toBe("0363200000218908");
-    });
+  it("titles the page after the bag object it shows", async () => {
+    await setup(
+      fromPartial<GeneratedType<"RESTBAGObject">>({
+        bagObjectType: "WOONPLAATS",
+        identificatie: "3594",
+      }),
+    );
 
-    it("calls utilService.setTitle with bagobjectgegevens", () => {
-      expect(utilService.setTitle).toHaveBeenCalledWith("bagobjectgegevens");
-    });
+    expect(setTitle).toHaveBeenCalledWith("bagobjectgegevens");
   });
 
-  describe("when bagObjectType is WOONPLAATS", () => {
-    beforeEach(async () => {
-      await configureTestBed(
-        makeBAGObject({
-          bagObjectType: "WOONPLAATS",
-          identificatie: "3594",
-        }),
-      );
-    });
+  it("shows an adres and the zaken it is linked to", async () => {
+    await setup(
+      fromPartial<GeneratedType<"RESTBAGAdres">>({
+        bagObjectType: "ADRES",
+        identificatie: "0363200000218908",
+        omschrijving: "Teststraat 1, Amsterdam",
+      }),
+    );
 
-    it("sets the woonplaats property", () => {
-      expect(component["woonplaats"]?.identificatie).toBe("3594");
-    });
-
-    it("calls utilService.setTitle with bagobjectgegevens", () => {
-      expect(utilService.setTitle).toHaveBeenCalledWith("bagobjectgegevens");
-    });
+    expect(screen.getByText("objecttype.ADRES")).toBeVisible();
+    expect(screen.getByText("Teststraat 1, Amsterdam")).toBeVisible();
+    expect(zaakSearchedFor()).toBe("0363200000218908");
   });
 
-  describe("when bagObjectType is PAND", () => {
-    beforeEach(async () => {
-      await configureTestBed(
-        makeBAGObject({
-          bagObjectType: "PAND",
-          identificatie: "0363100012165490",
-        }),
-      );
-    });
+  it("shows a woonplaats and the zaken it is linked to", async () => {
+    await setup(
+      fromPartial<GeneratedType<"RESTWoonplaats">>({
+        bagObjectType: "WOONPLAATS",
+        identificatie: "3594",
+        omschrijving: "Amsterdam",
+      }),
+    );
 
-    it("sets the pand property and its geometry", () => {
-      expect(component["pand"]?.identificatie).toBe("0363100012165490");
-    });
-
-    it("calls utilService.setTitle with bagobjectgegevens", () => {
-      expect(utilService.setTitle).toHaveBeenCalledWith("bagobjectgegevens");
-    });
+    expect(screen.getByText("objecttype.WOONPLAATS")).toBeVisible();
+    expect(screen.getByText("3594")).toBeVisible();
+    expect(zaakSearchedFor()).toBe("3594");
   });
 
-  describe("when bagObjectType is OPENBARE_RUIMTE", () => {
-    beforeEach(async () => {
-      await configureTestBed(
-        makeBAGObject({
-          bagObjectType: "OPENBARE_RUIMTE",
-          identificatie: "0363300000002244",
-        }),
-      );
-    });
+  it("shows a pand and the zaken it is linked to", async () => {
+    await setup(
+      fromPartial<GeneratedType<"RESTPand">>({
+        bagObjectType: "PAND",
+        identificatie: "0363100012165490",
+        omschrijving: "Pand aan de Teststraat",
+      }),
+    );
 
-    it("sets the openbareRuimte property", () => {
-      expect(component["openbareRuimte"]?.identificatie).toBe(
-        "0363300000002244",
-      );
-    });
-
-    it("calls utilService.setTitle with bagobjectgegevens", () => {
-      expect(utilService.setTitle).toHaveBeenCalledWith("bagobjectgegevens");
-    });
+    expect(screen.getByText("objecttype.PAND")).toBeVisible();
+    expect(screen.getByText("0363100012165490")).toBeVisible();
+    expect(zaakSearchedFor()).toBe("0363100012165490");
   });
 
-  describe("when bagObjectType is NUMMERAANDUIDING", () => {
-    beforeEach(async () => {
-      await configureTestBed(
-        makeBAGObject({
-          bagObjectType: "NUMMERAANDUIDING",
-          identificatie: "0363200000218908",
-        }),
-      );
-    });
+  it("shows an openbare ruimte and the zaken it is linked to", async () => {
+    await setup(
+      fromPartial<GeneratedType<"RESTOpenbareRuimte">>({
+        bagObjectType: "OPENBARE_RUIMTE",
+        identificatie: "0363300000002244",
+        omschrijving: "Teststraat, Amsterdam",
+      }),
+    );
 
-    it("sets the nummeraanduiding property", () => {
-      expect(component["nummeraanduiding"]?.identificatie).toBe(
-        "0363200000218908",
-      );
-    });
-
-    it("calls utilService.setTitle with bagobjectgegevens", () => {
-      expect(utilService.setTitle).toHaveBeenCalledWith("bagobjectgegevens");
-    });
+    expect(screen.getByText("Teststraat, Amsterdam")).toBeVisible();
+    expect(screen.getByText("0363300000002244")).toBeVisible();
+    expect(zaakSearchedFor()).toBe("0363300000002244");
   });
 
-  describe("when bagObjectType is ADRESSEERBAAR_OBJECT", () => {
-    beforeEach(async () => {
-      await configureTestBed(
-        makeBAGObject({
-          bagObjectType: "ADRESSEERBAAR_OBJECT",
-          identificatie: "0363010000721374",
-        }),
-      );
-    });
+  it("shows a nummeraanduiding and the zaken it is linked to", async () => {
+    await setup(
+      fromPartial<GeneratedType<"RESTNummeraanduiding">>({
+        bagObjectType: "NUMMERAANDUIDING",
+        identificatie: "0363200000218908",
+        omschrijving: "Teststraat 1",
+        huisnummerWeergave: "1",
+      }),
+    );
 
-    it("still sets bagIdentificatie", () => {
-      expect(component["bagIdentificatie"]).toBe("0363010000721374");
-    });
+    expect(screen.getByText("objecttype.NUMMERAANDUIDING")).toBeVisible();
+    expect(screen.getByText("Teststraat 1")).toBeVisible();
+    expect(zaakSearchedFor()).toBe("0363200000218908");
+  });
+
+  it("shows the zaken of an adresseerbaar object, which has no details of its own", async () => {
+    await setup(
+      fromPartial<GeneratedType<"RESTBAGObject">>({
+        bagObjectType: "ADRESSEERBAAR_OBJECT",
+        identificatie: "0363010000721374",
+        omschrijving: "Verblijfsobject",
+      }),
+    );
+
+    expect(screen.queryByText("Verblijfsobject")).toBeNull();
+    expect(zaakSearchedFor()).toBe("0363010000721374");
   });
 });

@@ -16,42 +16,39 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { notifyManager } from "@tanstack/query-core";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
+import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
-import { IdentityService } from "../../identity/identity.service";
-import { ExpandableTableData } from "../../shared/dynamic-table/model/expandable-table-data";
 import { SessionStorageUtil } from "../../shared/storage/session-storage.util";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { TakenService } from "../../taken/taken.service";
 import { ZaakTakenComponent } from "./zaak-taken.component";
 
-const makeZaak = (
-  fields: Partial<GeneratedType<"RestZaak">> = {},
-): GeneratedType<"RestZaak"> =>
-  ({
-    uuid: "fake-zaak-uuid",
-    ...fields,
-  }) as Partial<
-    GeneratedType<"RestZaak">
-  > as unknown as GeneratedType<"RestZaak">;
+const zaak = fromPartial<GeneratedType<"RestZaak">>({ uuid: "fakeZaakUuid" });
 
-const makeTaak = (
-  fields: Partial<GeneratedType<"RestTask">> = {},
-): GeneratedType<"RestTask"> =>
-  ({
-    id: "fake-taak-id",
-    naam: "Fake Taak",
-    status: "TOEGEKEND" as GeneratedType<"TaakStatus">,
+const loggedInUser = fromPartial<GeneratedType<"RestLoggedInUser">>({
+  id: "fakeLoggedInUserId",
+  naam: "fakeLoggedInUserNaam",
+  groupIds: ["fakeGroepId"],
+});
+
+const taak = (fields: Partial<GeneratedType<"RestTask">> = {}) =>
+  fromPartial<GeneratedType<"RestTask">>({
+    id: "fakeTaakId",
+    naam: "fakeTaakNaam",
+    status: "TOEGEKEND",
     creatiedatumTijd: "2026-01-01T00:00:00Z",
     fataledatum: "2026-06-01",
-    groep: { id: "fake-groep-id", naam: "Fake Groep" },
-    behandelaar: { id: "fake-behandelaar-id", naam: "Fake Behandelaar" },
-    zaakUuid: "fake-zaak-uuid",
+    groep: { id: "fakeGroepId", naam: "fakeGroepNaam" },
+    behandelaar: { id: "fakeBehandelaarId", naam: "fakeBehandelaarNaam" },
+    zaakUuid: "fakeZaakUuid",
     rechten: {
       lezen: true,
       toekennen: true,
@@ -63,454 +60,471 @@ const makeTaak = (
     taakdocumenten: [],
     taakinformatie: {},
     ...fields,
-  }) as Partial<
-    GeneratedType<"RestTask">
-  > as unknown as GeneratedType<"RestTask">;
+  });
 
 describe(ZaakTakenComponent.name, () => {
   let fixture: ComponentFixture<ZaakTakenComponent>;
-  let component: ZaakTakenComponent;
-
-  let takenService: TakenService;
-  let websocketService: WebsocketService;
-  let utilService: UtilService;
-  let identityService: IdentityService;
   let httpTestingController: HttpTestingController;
+  let websocketService: WebsocketService;
+  let openSnackbar: jest.SpyInstance;
 
-  const fakeZaak = makeZaak({ uuid: "fake-zaak-uuid" });
+  const user = userEvent.setup();
 
-  const fakeLoggedInUser = fromPartial<GeneratedType<"RestLoggedInUser">>({
-    id: "logged-in-user-id",
-    naam: "Logged In User",
-    groupIds: ["fake-groep-id"],
+  beforeEach(() => {
+    SessionStorageUtil.clearSessionStorage();
+    notifyManager.setScheduler((fn) => fn());
   });
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        ZaakTakenComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+  afterEach(() => {
+    notifyManager.setScheduler(queueMicrotask);
+  });
+
+  async function setup(
+    taken: GeneratedType<"RestTask">[] = [taak()],
+    zaakToShow: GeneratedType<"RestZaak"> = zaak,
+  ) {
+    websocketService = fromPartial<WebsocketService>({
+      addListener: jest.fn(() => fromPartial<WebsocketListener>({})),
+      removeListener: jest.fn(),
+      suspendListener: jest.fn(),
+    });
+
+    const rendered = await render(ZaakTakenComponent, {
+      inputs: { zaak: zaakToShow },
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideRouter([]),
         provideQueryClient(testQueryClient),
+        { provide: WebsocketService, useValue: websocketService },
       ],
-    }).compileComponents();
+    });
 
-    takenService = TestBed.inject(TakenService);
-    websocketService = TestBed.inject(WebsocketService);
-    utilService = TestBed.inject(UtilService);
-    identityService = TestBed.inject(IdentityService);
+    fixture = rendered.fixture;
     httpTestingController = TestBed.inject(HttpTestingController);
+    openSnackbar = jest
+      .spyOn(TestBed.inject(UtilService), "openSnackbar")
+      .mockReturnValue(undefined as never);
 
-    jest
-      .spyOn(websocketService, "addListener")
-      .mockReturnValue(fromPartial<WebsocketListener>({}));
-    jest.spyOn(websocketService, "removeListener").mockReturnValue(undefined);
-    jest.spyOn(websocketService, "suspendListener").mockReturnValue(undefined);
+    httpTestingController
+      .expectOne("/rest/identity/loggedInUser")
+      .flush(loggedInUser);
+    await respondWithTaken(taken, zaakToShow.uuid);
 
-    testQueryClient.setQueryData(
-      identityService.readLoggedInUser().queryKey,
-      fakeLoggedInUser,
-    );
+    return rendered;
+  }
 
-    testQueryClient.setQueryData(
-      takenService.listTakenVoorZaakQuery(fakeZaak.uuid).queryKey,
-      [makeTaak()],
-    );
-
-    fixture = TestBed.createComponent(ZaakTakenComponent);
-    fixture.componentRef.setInput("zaak", fakeZaak);
+  async function respondWithTaken(
+    taken: GeneratedType<"RestTask">[],
+    uuid = zaak.uuid,
+  ) {
+    httpTestingController
+      .match(`/rest/taken/zaak/${uuid}`)
+      .forEach((request) => request.flush(taken));
+    await sleep();
+    // the table creates the row views in one pass and binds their cells in the next
     fixture.detectChanges();
-    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }
+
+  function taakRows() {
+    return screen
+      .getAllByRole("row")
+      .filter((row) => within(row).queryAllByRole("cell").length > 1);
+  }
+
+  function taaknamenInRowOrder() {
+    return taakRows().map((row) =>
+      within(row).getAllByRole("cell")[0].textContent?.trim(),
+    );
+  }
+
+  function rowOf(taaknaam: string) {
+    return screen.getByRole("row", { name: new RegExp(taaknaam) });
+  }
+
+  function assignToMeButtonIn(taaknaam: string) {
+    return within(rowOf(taaknaam)).queryByRole("button", {
+      name: "actie.mij.toekennen",
+    });
+  }
+
+  function toonAfgerondeTakenToggle() {
+    return screen.getByRole("switch", { name: "toonAfgerondeTaken" });
+  }
+
+  async function showAfgerondeTaken() {
+    await user.click(toonAfgerondeTakenToggle());
+    // the table creates the row views in one pass and binds their cells in the next
+    fixture.detectChanges();
+    fixture.detectChanges();
+  }
+
+  it("shows the taken of the zaak it is given", async () => {
+    await setup(
+      [taak({ naam: "andereTaakNaam" })],
+      fromPartial<GeneratedType<"RestZaak">>({ uuid: "andereZaakUuid" }),
+    );
+
+    expect(rowOf("andereTaakNaam")).toBeVisible();
   });
 
-  describe("init", () => {
-    it("registers websocket listener for ZAAK_TAKEN on init", () => {
-      expect(websocketService.addListener).toHaveBeenCalledWith(
-        Opcode.UPDATED,
-        ObjectType.ZAAK_TAKEN,
-        fakeZaak.uuid,
-        expect.any(Function),
-      );
-    });
+  it("shows the no-data message when the zaak has no taken", async () => {
+    await setup([]);
 
-    it("calls listTakenVoorZaakQuery with the zaak uuid", () => {
-      const listTakenVoorZaakQuerySpy = jest.spyOn(
-        takenService,
-        "listTakenVoorZaakQuery",
-      );
-      fixture.componentRef.setInput("zaak", makeZaak({ uuid: "new-uuid" }));
-      fixture.detectChanges();
-      expect(listTakenVoorZaakQuerySpy).toHaveBeenCalledWith("new-uuid");
-    });
-
-    it("restores toonAfgerondeTaken from session storage on init", () => {
-      jest.spyOn(SessionStorageUtil, "getItem").mockReturnValue(true);
-
-      const newFixture = TestBed.createComponent(ZaakTakenComponent);
-      newFixture.componentRef.setInput("zaak", fakeZaak);
-      newFixture.detectChanges();
-
-      expect(newFixture.componentInstance["toonAfgerondeTaken"].value).toBe(
-        true,
-      );
-    });
-
-    it("invalidates the query when the websocket callback fires", () => {
-      const invalidateSpy = jest.spyOn(
-        component["queryClient"],
-        "invalidateQueries",
-      );
-      const [[, , , callback]] = (websocketService.addListener as jest.Mock)
-        .mock.calls;
-      callback();
-      expect(invalidateSpy).toHaveBeenCalled();
-    });
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
   });
 
-  describe("destroy", () => {
-    it("calls websocketService.removeListener on destroy", () => {
-      component.ngOnDestroy();
-      expect(websocketService.removeListener).toHaveBeenCalled();
-    });
+  it("listens for taak updates on the zaak", async () => {
+    await setup();
+
+    expect(websocketService.addListener).toHaveBeenCalledWith(
+      Opcode.UPDATED,
+      ObjectType.ZAAK_TAKEN,
+      zaak.uuid,
+      expect.any(Function),
+    );
   });
 
-  describe("table rendering", () => {
-    it("renders the taken table when data is available", () => {
-      const table = fixture.nativeElement.querySelector("table");
-      expect(table).not.toBeNull();
-    });
+  it("stops listening when it is taken off the screen", async () => {
+    await setup();
 
-    it("shows msg.geen.gegevens.gevonden when there is no data and not loading", () => {
-      component["takenDataSource"].data = [];
-      fixture.detectChanges();
+    fixture.destroy();
 
-      const table: HTMLElement = fixture.nativeElement.querySelector("table");
-      expect(table).not.toBeNull();
-      expect(table.textContent).toContain("msg.geen.gegevens.gevonden");
-    });
+    expect(websocketService.removeListener).toHaveBeenCalled();
   });
 
-  describe("sortingDataAccessor", () => {
-    it("returns groep naam for groep property", () => {
-      const row = new ExpandableTableData(
-        makeTaak({ groep: { id: "g1", naam: "Groep A" } }),
-      );
-      const result = component["takenDataSource"].sortingDataAccessor(
-        row,
-        "groep",
-      );
-      expect(result).toBe("Groep A");
-    });
+  it("fetches the taken again when the websocket reports an update", async () => {
+    await setup();
+    const [[, , , onZaakTakenUpdated]] = jest.mocked(
+      websocketService.addListener,
+    ).mock.calls;
 
-    it("returns behandelaar naam for behandelaar property", () => {
-      const row = new ExpandableTableData(
-        makeTaak({ behandelaar: { id: "b1", naam: "Behandelaar B" } }),
-      );
-      const result = component["takenDataSource"].sortingDataAccessor(
-        row,
-        "behandelaar",
-      );
-      expect(result).toBe("Behandelaar B");
-    });
+    onZaakTakenUpdated(fromPartial<ScreenEvent>({}));
+    await sleep();
+    await respondWithTaken([taak({ naam: "bijgewerkteTaakNaam" })]);
 
-    it("returns string value for other properties", () => {
-      const row = new ExpandableTableData(makeTaak({ naam: "Taak naam" }));
-      const result = component["takenDataSource"].sortingDataAccessor(
-        row,
-        "naam",
-      );
-      expect(result).toBe("Taak naam");
-    });
+    expect(rowOf("bijgewerkteTaakNaam")).toBeVisible();
   });
 
-  describe("expandTaken", () => {
-    it("sets all rows expanded to true when expandTaken(true) is called", () => {
-      const taak = makeTaak();
-      testQueryClient.setQueryData(
-        takenService.listTakenVoorZaakQuery(fakeZaak.uuid).queryKey,
-        [taak],
-      );
-      fixture.detectChanges();
+  it("fetches the taken again when it is asked to reload", async () => {
+    await setup();
 
-      component["expandTaken"](true);
-      const allExpanded = component["takenDataSource"].data.every(
-        (row) => row.expanded,
-      );
-      expect(allExpanded).toBe(true);
-    });
+    fixture.componentInstance.reload();
+    await sleep();
+    await respondWithTaken([taak({ naam: "herladenTaakNaam" })]);
 
-    it("sets all rows expanded to false when expandTaken(false) is called", () => {
-      const taak = makeTaak();
-      testQueryClient.setQueryData(
-        takenService.listTakenVoorZaakQuery(fakeZaak.uuid).queryKey,
-        [taak],
-      );
+    expect(rowOf("herladenTaakNaam")).toBeVisible();
+  });
+
+  describe("sorting", () => {
+    const takenInDifferentOrders = [
+      taak({
+        id: "eersteTaakId",
+        naam: "aTaakNaam",
+        groep: { id: "fakeGroepId", naam: "zGroepNaam" },
+        behandelaar: { id: "fakeBehandelaarId", naam: "zBehandelaarNaam" },
+      }),
+      taak({
+        id: "tweedeTaakId",
+        naam: "zTaakNaam",
+        groep: { id: "fakeGroepId", naam: "aGroepNaam" },
+        behandelaar: { id: "fakeBehandelaarId", naam: "aBehandelaarNaam" },
+      }),
+    ];
+
+    it("sorts the taken on their groep", async () => {
+      await setup(takenInDifferentOrders);
+
+      await user.click(screen.getByRole("columnheader", { name: "groep" }));
       fixture.detectChanges();
 
-      component["expandTaken"](true);
-      component["expandTaken"](false);
-      const allCollapsed = component["takenDataSource"].data.every(
-        (row) => !row.expanded,
-      );
-      expect(allCollapsed).toBe(true);
+      expect(taaknamenInRowOrder()).toEqual(["zTaakNaam", "aTaakNaam"]);
     });
 
-    it("sets allTakenExpanded to true when all rows are expanded", () => {
-      testQueryClient.setQueryData(
-        takenService.listTakenVoorZaakQuery(fakeZaak.uuid).queryKey,
-        [makeTaak()],
+    it("sorts the taken on their behandelaar", async () => {
+      await setup(takenInDifferentOrders);
+
+      await user.click(
+        screen.getByRole("columnheader", { name: "behandelaar" }),
       );
       fixture.detectChanges();
 
-      component["expandTaken"](true);
-      expect(component["allTakenExpanded"]).toBe(true);
+      expect(taaknamenInRowOrder()).toEqual(["zTaakNaam", "aTaakNaam"]);
     });
 
-    it("sets allTakenExpanded to false when not all rows are expanded", () => {
-      testQueryClient.setQueryData(
-        takenService.listTakenVoorZaakQuery(fakeZaak.uuid).queryKey,
-        [makeTaak(), makeTaak({ id: "taak-2" })],
-      );
+    it("sorts the taken on their naam", async () => {
+      await setup(takenInDifferentOrders);
+
+      await user.click(screen.getByRole("columnheader", { name: "naam" }));
+      fixture.detectChanges();
+      expect(taaknamenInRowOrder()).toEqual(["aTaakNaam", "zTaakNaam"]);
+
+      await user.click(screen.getByRole("columnheader", { name: "naam" }));
+      fixture.detectChanges();
+      expect(taaknamenInRowOrder()).toEqual(["zTaakNaam", "aTaakNaam"]);
+    });
+  });
+
+  describe("expanding taken", () => {
+    function expandAllControl() {
+      return screen.getByLabelText("actie.alles.uitklappen");
+    }
+
+    function collapseAllControl() {
+      return screen.getByLabelText("actie.alles.inklappen");
+    }
+
+    function detailOf(taaknaam: string) {
+      const rows = screen.getAllByRole("row");
+      const detailRow = rows[rows.indexOf(rowOf(taaknaam)) + 1];
+      return within(detailRow).getByRole("cell").firstElementChild;
+    }
+
+    it("expands and collapses every taak at once", async () => {
+      await setup([taak({ id: "eersteTaakId" }), taak({ id: "tweedeTaakId" })]);
+
+      await user.click(expandAllControl());
+      fixture.detectChanges();
+      expect(collapseAllControl()).toBeVisible();
+
+      await user.click(collapseAllControl());
+      fixture.detectChanges();
+      expect(expandAllControl()).toBeVisible();
+    });
+
+    it("expands and collapses a single taak", async () => {
+      await setup();
+
+      await user.click(rowOf("fakeTaakNaam"));
+      fixture.detectChanges();
+      expect(detailOf("fakeTaakNaam")).not.toHaveStyle({ height: "0px" });
+
+      await user.click(rowOf("fakeTaakNaam"));
+      fixture.detectChanges();
+      expect(detailOf("fakeTaakNaam")).toHaveStyle({ height: "0px" });
+    });
+
+    it("counts the taak that was expanded as the only one left", async () => {
+      await setup();
+
+      await user.click(rowOf("fakeTaakNaam"));
       fixture.detectChanges();
 
-      component["expandTaken"](false);
-      expect(component["allTakenExpanded"]).toBe(false);
+      expect(collapseAllControl()).toBeVisible();
     });
 
-    it("counts AFGEROND rows when toonAfgerondeTaken is true", () => {
-      testQueryClient.setQueryData(
-        takenService.listTakenVoorZaakQuery(fakeZaak.uuid).queryKey,
-        [makeTaak(), makeTaak({ id: "taak-afgerond", status: "AFGEROND" })],
-      );
+    it("counts the afgeronde taken as well while those are shown", async () => {
+      await setup([
+        taak({ id: "eersteTaakId" }),
+        taak({ id: "afgerondeTaakId", status: "AFGEROND" }),
+      ]);
+
+      await showAfgerondeTaken();
+      await user.click(expandAllControl());
       fixture.detectChanges();
 
-      component["toonAfgerondeTaken"].setValue(true);
-      component["expandTaken"](true);
-      expect(component["allTakenExpanded"]).toBe(true);
+      expect(collapseAllControl()).toBeVisible();
     });
   });
 
-  describe("expandTaak", () => {
-    it("toggles the expanded state of a single row", () => {
-      const row = new ExpandableTableData(makeTaak());
-      expect(row.expanded).toBeFalsy();
-      component["expandTaak"](row);
-      expect(row.expanded).toBe(true);
-      component["expandTaak"](row);
-      expect(row.expanded).toBe(false);
-    });
-
-    it("updates allTakenExpanded after toggling a row", () => {
-      testQueryClient.setQueryData(
-        takenService.listTakenVoorZaakQuery(fakeZaak.uuid).queryKey,
-        [makeTaak()],
-      );
-      fixture.detectChanges();
-
-      const row = component["takenDataSource"].data[0];
-      component["expandTaak"](row);
-      expect(component["allTakenExpanded"]).toBe(true);
-    });
-  });
-
-  describe("reload", () => {
-    it("calls queryClient.invalidateQueries when reload() is invoked", () => {
-      const invalidateSpy = jest.spyOn(
-        component["queryClient"],
-        "invalidateQueries",
-      );
-      component.reload();
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: expect.any(Array),
-      });
-    });
-  });
-
-  describe("taskStatusChipColor", () => {
-    it("returns 'success' for AFGEROND status", () => {
-      expect(component["taskStatusChipColor"]("AFGEROND")).toBe("success");
-    });
-
-    it("returns 'primary' for TOEGEKEND status", () => {
-      expect(component["taskStatusChipColor"]("TOEGEKEND")).toBe("primary");
-    });
-
-    it("returns empty string for other statuses", () => {
-      expect(
-        component["taskStatusChipColor"](
-          "NIET_TOEGEKEND" as GeneratedType<"TaakStatus">,
-        ),
-      ).toBe("");
-    });
-  });
-
-  describe("showAssignTaakToMe", () => {
-    it("returns false for AFGEROND tasks", () => {
-      const taak = makeTaak({ status: "AFGEROND" });
-      expect(component["showAssignTaakToMe"](taak)).toBe(false);
-    });
-
-    it("returns false when rechten.toekennen is false", () => {
-      const taak = makeTaak({
-        rechten: fromPartial<GeneratedType<"RestTaakRechten">>({
-          toekennen: false,
-        }),
-      });
-      expect(component["showAssignTaakToMe"](taak)).toBe(false);
-    });
-
-    it("returns false when taak has no groep", () => {
-      const taak = makeTaak({ groep: undefined });
-      expect(component["showAssignTaakToMe"](taak)).toBe(false);
-    });
-
-    it("returns false when logged-in user is already the behandelaar", () => {
-      const taak = makeTaak({
-        behandelaar: { id: "logged-in-user-id", naam: "Logged In User" },
-      });
-      expect(component["showAssignTaakToMe"](taak)).toBe(false);
-    });
-
-    it("returns true when logged-in user is in the groep and is not the behandelaar", () => {
-      const taak = makeTaak({
-        groep: { id: "fake-groep-id", naam: "Fake Groep" },
-        behandelaar: { id: "other-user-id", naam: "Other User" },
-      });
-      expect(component["showAssignTaakToMe"](taak)).toBe(true);
-    });
-
-    it("returns false when logged-in user is not in the groep", () => {
-      const taak = makeTaak({
-        groep: { id: "another-groep-id", naam: "Another Groep" },
-        behandelaar: { id: "other-user-id", naam: "Other User" },
-      });
-      expect(component["showAssignTaakToMe"](taak)).toBe(false);
-    });
-  });
-
-  describe("filterTakenOpStatus / toonAfgerondeTaken", () => {
-    it("filters out AFGEROND tasks when toonAfgerondeTaken is false", () => {
-      const activeTaak = makeTaak({ id: "active-taak", status: "TOEGEKEND" });
-      const afgerondTaak = makeTaak({
-        id: "afgerond-taak",
+  describe("showing afgeronde taken", () => {
+    const takenWithAfgeronde = [
+      taak({ id: "lopendeTaakId", naam: "lopendeTaakNaam" }),
+      taak({
+        id: "afgerondeTaakId",
+        naam: "afgerondeTaakNaam",
         status: "AFGEROND",
-      });
-      testQueryClient.setQueryData(
-        takenService.listTakenVoorZaakQuery(fakeZaak.uuid).queryKey,
-        [activeTaak, afgerondTaak],
-      );
-      fixture.detectChanges();
+      }),
+    ];
 
-      component["toonAfgerondeTaken"].setValue(false);
-      component["filterTakenOpStatus"]();
-      fixture.detectChanges();
+    it("hides the afgeronde taken", async () => {
+      await setup(takenWithAfgeronde);
 
-      const visibleRows = component["takenDataSource"].filteredData;
-      const hasAfgerond = visibleRows.some(
-        (row) => row.data.status === "AFGEROND",
-      );
-      expect(hasAfgerond).toBe(false);
+      expect(rowOf("lopendeTaakNaam")).toBeVisible();
+      expect(
+        screen.queryByRole("row", { name: /afgerondeTaakNaam/ }),
+      ).toBeNull();
     });
 
-    it("clears the status filter when toonAfgerondeTaken is true", () => {
-      component["toonAfgerondeTaken"].setValue(true);
-      component["filterTakenOpStatus"]();
+    it("shows the afgeronde taken once the toggle is switched on", async () => {
+      await setup(takenWithAfgeronde);
 
-      expect(component["takenDataSource"].filter).toBe("");
+      await showAfgerondeTaken();
+
+      expect(rowOf("afgerondeTaakNaam")).toBeVisible();
+    });
+
+    it("remembers that the afgeronde taken were shown", async () => {
+      SessionStorageUtil.setItem("toonAfgerondeTaken", true);
+
+      await setup(takenWithAfgeronde);
+
+      expect(toonAfgerondeTakenToggle()).toBeChecked();
     });
   });
 
-  describe("assignTaakToMe", () => {
-    const TOEKENNEN_URL = "/rest/taken/toekennen/mij";
+  describe("the status chip", () => {
+    function chipOf(status: string) {
+      return screen.getByText(`taak.status.${status}`).closest("mat-chip");
+    }
 
-    it("assigns via the mutation and opens the snackbar on success", async () => {
-      const snackbarSpy = jest
-        .spyOn(utilService, "openSnackbar")
-        .mockReturnValue(undefined as never);
+    it("marks an afgeronde taak as a success", async () => {
+      await setup([taak({ status: "AFGEROND" })]);
 
-      const taak = makeTaak({
-        id: "fake-taak-id",
-        zaakUuid: "fake-zaak-uuid",
-        groep: { id: "fake-groep-id", naam: "Fake Groep" },
-      });
-      const mouseEvent = new MouseEvent("click");
-      jest.spyOn(mouseEvent, "stopPropagation");
+      await showAfgerondeTaken();
 
-      component["assignTaakToMe"](taak, mouseEvent);
+      expect(chipOf("AFGEROND")).toHaveClass("mat-success");
+    });
+
+    it("highlights a toegekende taak", async () => {
+      await setup([taak({ status: "TOEGEKEND" })]);
+
+      expect(chipOf("TOEGEKEND")).toHaveClass("mat-primary");
+    });
+
+    it("leaves any other status with the default styling", async () => {
+      await setup([taak({ status: "NIET_TOEGEKEND" })]);
+
+      expect(chipOf("NIET_TOEGEKEND")).toHaveClass("mat-primary");
+    });
+  });
+
+  describe("assigning a taak to yourself", () => {
+    it("does not offer an afgeronde taak", async () => {
+      await setup([taak({ status: "AFGEROND" })]);
+
+      await showAfgerondeTaken();
+
+      expect(assignToMeButtonIn("fakeTaakNaam")).toBeNull();
+    });
+
+    it("does not offer a taak you may not assign", async () => {
+      await setup([
+        taak({
+          rechten: fromPartial<GeneratedType<"RestTaakRechten">>({
+            toekennen: false,
+          }),
+        }),
+      ]);
+
+      expect(assignToMeButtonIn("fakeTaakNaam")).toBeNull();
+    });
+
+    it("does not offer a taak without a groep", async () => {
+      await setup([taak({ groep: undefined })]);
+
+      expect(assignToMeButtonIn("fakeTaakNaam")).toBeNull();
+    });
+
+    it("does not offer a taak you are already the behandelaar of", async () => {
+      await setup([
+        taak({
+          behandelaar: { id: loggedInUser.id, naam: loggedInUser.naam },
+        }),
+      ]);
+
+      expect(assignToMeButtonIn("fakeTaakNaam")).toBeNull();
+    });
+
+    it("does not offer a taak of a groep you are not a member of", async () => {
+      await setup([
+        taak({ groep: { id: "andereGroepId", naam: "andereGroepNaam" } }),
+      ]);
+
+      expect(assignToMeButtonIn("fakeTaakNaam")).toBeNull();
+    });
+
+    it("offers a taak of your groep that somebody else is handling", async () => {
+      await setup();
+
+      expect(assignToMeButtonIn("fakeTaakNaam")).toBeVisible();
+    });
+
+    it("assigns the taak of the row it was clicked on", async () => {
+      await setup();
+
+      await user.click(assignToMeButtonIn("fakeTaakNaam")!);
       await sleep();
 
-      const request = httpTestingController.expectOne(TOEKENNEN_URL);
+      const request = httpTestingController.expectOne(
+        "/rest/taken/toekennen/mij",
+      );
       expect(request.request.body).toEqual({
-        taakId: taak.id,
-        zaakUuid: taak.zaakUuid,
-        groepId: taak.groep!.id,
+        taakId: "fakeTaakId",
+        zaakUuid: "fakeZaakUuid",
+        groepId: "fakeGroepId",
       });
 
-      const returnedTaak = makeTaak({
-        behandelaar: { id: "logged-in-user-id", naam: "Logged In User" },
-        status: "TOEGEKEND",
-      });
-      request.flush(returnedTaak);
-      await sleep(100);
-
-      expect(mouseEvent.stopPropagation).toHaveBeenCalled();
-      expect(taak.behandelaar).toEqual(returnedTaak.behandelaar);
-      expect(snackbarSpy).toHaveBeenCalledWith("msg.taak.toegekend", {
-        behandelaar: returnedTaak.behandelaar?.naam,
-      });
+      request.flush(taak());
+      await sleep();
     });
 
-    it("suspends the websocket listener when assigning task to me", async () => {
-      jest
-        .spyOn(utilService, "openSnackbar")
-        .mockReturnValue(undefined as never);
+    it("shows the assigned behandelaar on the row it was clicked on", async () => {
+      await setup();
 
-      component["assignTaakToMe"](makeTaak(), new MouseEvent("click"));
+      await user.click(assignToMeButtonIn("fakeTaakNaam")!);
+      await sleep();
+      httpTestingController.expectOne("/rest/taken/toekennen/mij").flush(
+        taak({
+          behandelaar: { id: loggedInUser.id, naam: loggedInUser.naam },
+        }),
+      );
+      await sleep();
+      fixture.detectChanges();
+
+      expect(screen.getByText("fakeLoggedInUserNaam")).toBeVisible();
+      expect(openSnackbar).toHaveBeenCalledWith("msg.taak.toegekend", {
+        behandelaar: "fakeLoggedInUserNaam",
+      });
+      expect(assignToMeButtonIn("fakeTaakNaam")).toBeNull();
+    });
+
+    it("suspends the taak updates while the assignment is in flight", async () => {
+      await setup();
+
+      await user.click(assignToMeButtonIn("fakeTaakNaam")!);
+      await sleep();
 
       expect(websocketService.suspendListener).toHaveBeenCalled();
 
+      httpTestingController
+        .expectOne("/rest/taken/toekennen/mij")
+        .flush(taak());
       await sleep();
-      httpTestingController.expectOne(TOEKENNEN_URL).flush(makeTaak());
-      await sleep(100);
     });
 
-    it("ignores a second click while the first assignment is still in flight", async () => {
-      jest
-        .spyOn(utilService, "openSnackbar")
-        .mockReturnValue(undefined as never);
+    it("refuses a second click while the assignment is in flight", async () => {
+      await setup();
 
-      const taak = makeTaak();
-      component["assignTaakToMe"](taak, new MouseEvent("click"));
+      await user.click(assignToMeButtonIn("fakeTaakNaam")!);
       await sleep();
-      expect(component["isAssigningTaakToMe"](taak)).toBe(true);
+      fixture.detectChanges();
 
-      component["assignTaakToMe"](taak, new MouseEvent("click"));
+      expect(assignToMeButtonIn("fakeTaakNaam")).toBeDisabled();
 
-      const requests = httpTestingController.match(TOEKENNEN_URL);
+      const requests = httpTestingController.match("/rest/taken/toekennen/mij");
       expect(requests).toHaveLength(1);
-      requests[0].flush(makeTaak());
-      await sleep(100);
+
+      requests[0].flush(taak());
+      await sleep();
     });
 
-    it("re-enables the assignment once the request settles", async () => {
-      jest
-        .spyOn(utilService, "openSnackbar")
-        .mockReturnValue(undefined as never);
+    it("offers the taak again once the assignment settled on somebody else", async () => {
+      await setup();
 
-      const taak = makeTaak();
-      component["assignTaakToMe"](taak, new MouseEvent("click"));
+      await user.click(assignToMeButtonIn("fakeTaakNaam")!);
       await sleep();
-      expect(component["isAssigningTaakToMe"](taak)).toBe(true);
+      httpTestingController
+        .expectOne("/rest/taken/toekennen/mij")
+        .flush(
+          taak({ behandelaar: { id: "andereUserId", naam: "andereNaam" } }),
+        );
+      await sleep();
+      fixture.detectChanges();
 
-      httpTestingController.expectOne(TOEKENNEN_URL).flush(makeTaak());
-      await sleep(100);
-
-      expect(component["isAssigningTaakToMe"](taak)).toBe(false);
+      expect(assignToMeButtonIn("fakeTaakNaam")).toBeEnabled();
     });
   });
 });

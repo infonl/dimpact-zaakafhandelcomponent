@@ -3,16 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
@@ -45,144 +43,136 @@ const fakeBesluittypeWithPublication = fromPartial<
 });
 
 describe(BesluitCreateComponent.name, () => {
-  let fixture: ComponentFixture<BesluitCreateComponent>;
-  let component: BesluitCreateComponent;
-  let loader: HarnessLoader;
-  let zakenService: ZakenService;
-  let informatieObjectenService: InformatieObjectenService;
-  let sideNavSpy: jest.SpyInstance;
-  // The create mutation stays pending so onSuccess/onError never fire; we only
-  // assert that submit() forwards the built payload to the mutation.
-  let createBesluitMutationFn: jest.Mock;
+  const user = userEvent.setup();
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        BesluitCreateComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+  const setup = async (
+    besluittypes: GeneratedType<"RestBesluitType">[] = [fakeBesluittype],
+  ) => {
+    const listResultaattypes = jest
+      .spyOn(ZakenService.prototype, "listResultaattypes")
+      .mockReturnValue(of([]) as never);
+    jest
+      .spyOn(ZakenService.prototype, "listBesluittypes")
+      .mockReturnValue(of(besluittypes) as never);
+    jest
+      .spyOn(
+        InformatieObjectenService.prototype,
+        "listEnkelvoudigInformatieobjecten",
+      )
+      .mockReturnValue(createQueryOptions([]) as never);
+
+    // the mutation stays pending, so only the payload it is handed is asserted on
+    const createBesluit = jest.fn<Promise<void>, [unknown]>(
+      () => new Promise<void>(() => {}),
+    );
+    jest.spyOn(ZakenService.prototype, "createBesluit").mockReturnValue(
+      fromPartial({
+        mutationKey: ["/rest/zaken/besluit"],
+        mutationFn: createBesluit,
+      }),
+    );
+
+    const sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
+
+    await render(BesluitCreateComponent, {
+      inputs: { zaak: fakeZaak, sideNav },
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideHttpClient(),
         provideQueryClient(testQueryClient),
         provideRouter([]),
       ],
-    }).compileComponents();
+    });
 
-    zakenService = TestBed.inject(ZakenService);
-    informatieObjectenService = TestBed.inject(InformatieObjectenService);
+    return { sideNav, createBesluit, listResultaattypes };
+  };
 
-    jest
-      .spyOn(zakenService, "listResultaattypes")
-      .mockReturnValue(of([]) as never);
-    jest
-      .spyOn(zakenService, "listBesluittypes")
-      .mockReturnValue(of([fakeBesluittype]) as never);
+  const selectBesluittype = async (naam: string) => {
+    await user.click(screen.getByLabelText("Besluit"));
+    await user.click(screen.getByRole("option", { name: naam }));
+  };
 
-    createBesluitMutationFn = jest.fn(() => new Promise<void>(() => {}));
-    jest.spyOn(zakenService, "createBesluit").mockReturnValue(
-      fromPartial({
-        mutationKey: ["/rest/zaken/besluit"],
-        mutationFn: createBesluitMutationFn,
-      }),
+  it("offers the besluittypes of the zaak's zaaktype", async () => {
+    await setup([fakeBesluittype, fakeBesluittypeWithPublication]);
+
+    await user.click(screen.getByLabelText("Besluit"));
+
+    expect(
+      screen.getAllByRole("option").map((option) => option.textContent?.trim()),
+    ).toEqual(["Besluittype 1", "Besluittype 2"]);
+  });
+
+  it("loads the resultaattypes of the zaak's zaaktype", async () => {
+    const { listResultaattypes } = await setup();
+
+    expect(listResultaattypes).toHaveBeenCalledWith("zaaktype-uuid-1");
+  });
+
+  it("closes the side panel when the close button is used", async () => {
+    const { sideNav } = await setup();
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.paneel.sluiten" }),
     );
 
-    fixture = TestBed.createComponent(BesluitCreateComponent);
-    component = fixture.componentInstance;
-    loader = TestbedHarnessEnvironment.loader(fixture);
-
-    const mockDrawer = fromPartial<MatDrawer>({ close: jest.fn() });
-    sideNavSpy = jest.spyOn(mockDrawer, "close");
-    component.zaak = fakeZaak;
-    component.sideNav = mockDrawer;
-
-    fixture.detectChanges();
+    expect(sideNav.close).toHaveBeenCalled();
   });
 
-  describe("initialisation", () => {
-    it("loads resultaattypes and besluittypes for the zaak's zaaktype", () => {
-      expect(zakenService.listResultaattypes).toHaveBeenCalledWith(
-        "zaaktype-uuid-1",
-      );
-      expect(zakenService.listBesluittypes).toHaveBeenCalledWith(
-        "zaaktype-uuid-1",
-      );
-    });
+  it("closes the side panel when the cancel button is used", async () => {
+    const { sideNav } = await setup();
+
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
+
+    expect(sideNav.close).toHaveBeenCalled();
   });
 
-  describe("close button", () => {
-    it("calls sideNav.close() when close icon-button is clicked", async () => {
-      const buttons = await loader.getAllHarnesses(MatButtonHarness);
-      const closeButton = buttons[0];
-      await closeButton.click();
-      expect(sideNavSpy).toHaveBeenCalled();
-    });
+  it("cannot be submitted without a besluittype", async () => {
+    await setup();
+
+    expect(
+      screen.getByRole("button", { name: "actie.aanmaken" }),
+    ).toBeDisabled();
   });
 
-  describe("submit button", () => {
-    it("is disabled when no besluit is selected", async () => {
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie.aanmaken/ }),
-      );
-      expect(await submitButton.isDisabled()).toBe(true);
-    });
+  it("can be submitted once a besluittype is chosen", async () => {
+    await setup();
 
-    it("is enabled when required fields are set", async () => {
-      component["form"].controls.besluit.setValue(fakeBesluittype);
-      component["form"].markAsDirty();
-      fixture.detectChanges();
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie.aanmaken/ }),
-      );
-      expect(await submitButton.isDisabled()).toBe(false);
-    });
+    await selectBesluittype("Besluittype 1");
+
+    expect(
+      screen.getByRole("button", { name: "actie.aanmaken" }),
+    ).toBeEnabled();
   });
 
-  const countDateFields = () =>
-    fixture.nativeElement.querySelectorAll("zac-date").length;
+  it("hides the publication dates for a besluittype without publication", async () => {
+    await setup();
 
-  describe("publication section", () => {
-    it("is hidden when selected besluittype has publication disabled", () => {
-      component["form"].controls.besluit.setValue(fakeBesluittype);
-      fixture.detectChanges();
-      expect(countDateFields()).toBe(2);
-    });
+    await selectBesluittype("Besluittype 1");
 
-    it("is shown when selected besluittype has publication enabled", () => {
-      jest
-        .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-        .mockReturnValue(createQueryOptions([]) as never);
-      component["form"].controls.besluit.setValue(
-        fakeBesluittypeWithPublication,
-      );
-      fixture.detectChanges();
-      expect(countDateFields()).toBe(4);
-    });
+    expect(screen.queryByLabelText("Publicatiedatum")).toBeNull();
+    expect(screen.queryByLabelText("Uiterlijkereactiedatum")).toBeNull();
   });
 
-  describe("cancel button", () => {
-    it("calls sideNav.close() when cancel button is clicked", async () => {
-      const cancelButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie.annuleren/ }),
-      );
-      await cancelButton.click();
-      expect(sideNavSpy).toHaveBeenCalled();
-    });
+  it("shows the publication dates for a besluittype that requires publication", async () => {
+    await setup([fakeBesluittypeWithPublication]);
+
+    await selectBesluittype("Besluittype 2");
+
+    expect(screen.getByLabelText("Publicatiedatum")).toBeVisible();
+    expect(screen.getByLabelText("Uiterlijkereactiedatum")).toBeVisible();
   });
 
-  describe("submit()", () => {
-    it("triggers the create-besluit mutation with the form payload", async () => {
-      component["form"].controls.besluit.setValue(fakeBesluittype);
+  it("creates the besluit for the chosen besluittype", async () => {
+    const { createBesluit } = await setup();
+    await selectBesluittype("Besluittype 1");
 
-      component.submit();
-      await Promise.resolve();
+    await user.click(screen.getByRole("button", { name: "actie.aanmaken" }));
 
-      expect(createBesluitMutationFn.mock.calls[0][0]).toEqual(
-        expect.objectContaining({
-          zaakUuid: "zaak-uuid-1",
-          besluittypeUuid: "besluittype-id-1",
-        }),
-      );
-    });
+    expect(createBesluit.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        zaakUuid: "zaak-uuid-1",
+        besluittypeUuid: "besluittype-id-1",
+      }),
+    );
   });
 });

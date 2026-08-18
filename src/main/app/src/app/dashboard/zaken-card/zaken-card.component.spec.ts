@@ -4,36 +4,38 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatPaginator } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  provideQueryClient,
-  provideTanStackQuery,
-} from "@tanstack/angular-query-experimental";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import { notifyManager } from "@tanstack/query-core";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 
-import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
-import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { SignaleringenService } from "../../signaleringen.service";
 import { DashboardCard } from "../model/dashboard-card";
 import { DashboardCardId } from "../model/dashboard-card-id";
 import { DashboardCardType } from "../model/dashboard-card-type";
 import { ZakenCardComponent } from "./zaken-card.component";
 
-const buildResultaat = (totaal: number, count = totaal) =>
+const LOGGED_IN_USER_QUERY_KEY = ["/rest/identity/loggedInUser"];
+
+const makeResultaat = (totaal: number, count = totaal, prefix = "ZAAK-FOUND") =>
   fromPartial<{
     resultaten: GeneratedType<"RestZaakOverzicht">[];
     totaal: number;
   }>({
-    resultaten: Array.from({ length: count }, (_, i) =>
+    resultaten: Array.from({ length: count }, (_, index) =>
       fromPartial<GeneratedType<"RestZaakOverzicht">>({
-        identificatie: `ZAAK-${i}`,
+        identificatie: `${prefix}-${index}`,
       }),
     ),
     totaal,
@@ -47,189 +49,163 @@ const cardData = new DashboardCard(
 
 describe(ZakenCardComponent.name, () => {
   let fixture: ComponentFixture<ZakenCardComponent>;
-  let signaleringenService: SignaleringenService;
+  let httpTestingController: HttpTestingController;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        ZakenCardComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+  const user = userEvent.setup();
+
+  beforeEach(() => {
+    notifyManager.setScheduler((fn) => fn());
+  });
+
+  afterEach(() => {
+    notifyManager.setScheduler((fn) => Promise.resolve().then(fn));
+  });
+
+  async function setup() {
+    testQueryClient.setQueryData(
+      LOGGED_IN_USER_QUERY_KEY,
+      fromPartial<GeneratedType<"RestUser">>({
+        id: "fakeUserId",
+        naam: "fakeUserName",
+      }),
+    );
+
+    const rendered = await render(ZakenCardComponent, {
+      inputs: { data: cardData },
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
-        provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
         provideTanStackQuery(testQueryClient),
-        {
-          provide: WebsocketService,
-          useValue: { addListener: jest.fn() },
-        },
+        { provide: WebsocketService, useValue: { addListener: jest.fn() } },
       ],
-    }).compileComponents();
+    });
 
-    signaleringenService = TestBed.inject(SignaleringenService);
-    const identityService = TestBed.inject(IdentityService);
-    testQueryClient.setQueryData(
-      identityService.readLoggedInUser().queryKey,
-      fromPartial<GeneratedType<"RestUser">>({ id: "user", naam: "Test" }),
-    );
-  });
-
-  function getPaginator(): MatPaginator {
-    return fixture.debugElement.query(
-      (el) => el.componentInstance instanceof MatPaginator,
-    )!.componentInstance as MatPaginator;
+    fixture = rendered.fixture;
+    httpTestingController = TestBed.inject(HttpTestingController);
+    await sleep();
   }
 
-  it("renders paginator length from the query result total even when one page of rows is loaded", async () => {
-    const zakenQuery = createQueryOptions(buildResultaat(25, 5));
-    testQueryClient.setQueryData(zakenQuery.queryKey, buildResultaat(25, 5));
-    jest
-      .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(zakenQuery as never);
-
-    fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
-    fixture.detectChanges();
+  async function respondWith(resultaat: ReturnType<typeof makeResultaat>) {
+    const request = httpTestingController.expectOne(
+      "/rest/signaleringen/zaken/ZAAK_OP_NAAM",
+    );
+    request.flush(resultaat);
     await sleep();
+    // the table creates the row views in one pass and binds their cells in the next
     fixture.detectChanges();
+    fixture.detectChanges();
+    return request;
+  }
 
-    expect(getPaginator().length).toBe(25);
+  function sortHeader(name: string) {
+    return screen.getByRole("button", { name });
+  }
+
+  it("renders a row for each zaak in the signalering", async () => {
+    await setup();
+
+    await respondWith(makeResultaat(4));
+
+    expect(screen.getAllByRole("row", { name: /ZAAK-FOUND/ })).toHaveLength(4);
   });
 
-  it("does not bind the paginator to the dataSource so MatTableDataSource cannot overwrite paginator.length", () => {
-    jest
-      .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(createQueryOptions(buildResultaat(0)) as never);
+  it("renders every row the signalering returned, so the paginator never slices the page client side", async () => {
+    await setup();
 
-    fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
-    fixture.detectChanges();
+    await respondWith(makeResultaat(8));
 
-    expect(fixture.componentInstance.dataSource.paginator).toBeFalsy();
+    expect(screen.getAllByRole("row", { name: /ZAAK-FOUND/ })).toHaveLength(8);
   });
 
-  it("populates the data source with rows from the query result", async () => {
-    const zakenQuery = createQueryOptions(buildResultaat(8));
-    testQueryClient.setQueryData(zakenQuery.queryKey, buildResultaat(8));
-    jest
-      .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(zakenQuery as never);
+  it("reports the total number of zaken in the paginator instead of the number of loaded rows", async () => {
+    await setup();
 
-    fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
-    fixture.detectChanges();
-    await sleep();
-    fixture.detectChanges();
+    await respondWith(makeResultaat(25, 5));
 
-    expect(fixture.componentInstance.dataSource.data).toHaveLength(8);
+    expect(screen.getByText(/of 25/)).toBeVisible();
   });
 
-  it("updates pageNumber when onPageChange is called", () => {
-    fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
+  it("renders the columns in display order", async () => {
+    await setup();
+    await respondWith(makeResultaat(0));
 
-    fixture.componentInstance.onPageChange({ pageIndex: 4 });
+    const headers = screen.getAllByRole("columnheader");
 
-    expect(fixture.componentInstance.pageNumber()).toBe(4);
+    expect(headers).toHaveLength(5);
+    expect(headers[0]).toHaveTextContent("zaak.identificatie");
+    expect(headers[1]).toHaveTextContent("startdatum");
+    expect(headers[2]).toHaveTextContent("zaaktype");
+    expect(headers[3]).toHaveTextContent("omschrijving");
+    expect(headers[4].textContent?.trim()).toBe("");
   });
 
-  it("starts with the default tijdstip-desc sort so the request always carries an explicit ordering", () => {
-    jest
-      .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(createQueryOptions(buildResultaat(0)) as never);
+  it("asks for the first page of the most recent signaleringen", async () => {
+    await setup();
 
-    fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
-    fixture.detectChanges();
+    const request = await respondWith(makeResultaat(0));
 
-    expect(fixture.componentInstance.sortField()).toBe("SIGNALERING_TIJDSTIP");
-    expect(fixture.componentInstance.sortOrder()).toBe("DESC");
-    expect(fixture.componentInstance.parameters()).toMatchObject({
-      sortField: "SIGNALERING_TIJDSTIP",
-      sortOrder: "DESC",
-    });
-  });
-
-  it("propagates sort changes into the request and resets pagination back to the first page", () => {
-    jest
-      .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(createQueryOptions(buildResultaat(0)) as never);
-
-    fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
-    fixture.detectChanges();
-
-    fixture.componentInstance.onPageChange({ pageIndex: 3 });
-    expect(fixture.componentInstance.pageNumber()).toBe(3);
-
-    fixture.componentInstance.sort!.sortChange.emit({
-      active: "ZAAK_STARTDATUM",
-      direction: "desc",
-    });
-
-    expect(fixture.componentInstance.sortField()).toBe("ZAAK_STARTDATUM");
-    expect(fixture.componentInstance.sortOrder()).toBe("DESC");
-    expect(fixture.componentInstance.pageNumber()).toBe(0);
-    expect(fixture.componentInstance.parameters()).toMatchObject({
-      sortField: "ZAAK_STARTDATUM",
-      sortOrder: "DESC",
-      page: 0,
-    });
-  });
-
-  it("reverts to the default sort order when the user toggles back to no direction", () => {
-    jest
-      .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(createQueryOptions(buildResultaat(0)) as never);
-
-    fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
-    fixture.detectChanges();
-
-    fixture.componentInstance.sort!.sortChange.emit({
-      active: "ZAAK_IDENTIFICATIE",
-      direction: "asc",
-    });
-    expect(fixture.componentInstance.sortField()).toBe("ZAAK_IDENTIFICATIE");
-
-    fixture.componentInstance.sort!.sortChange.emit({
-      active: "ZAAK_IDENTIFICATIE",
-      direction: "",
-    });
-
-    expect(fixture.componentInstance.sortField()).toBe("SIGNALERING_TIJDSTIP");
-    expect(fixture.componentInstance.sortOrder()).toBe("DESC");
-    expect(fixture.componentInstance.parameters()).toMatchObject({
-      sortField: "SIGNALERING_TIJDSTIP",
-      sortOrder: "DESC",
-    });
-  });
-
-  it("forwards sort fields to the signaleringen service when the query runs", async () => {
-    const spy = jest
-      .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(createQueryOptions(buildResultaat(0)) as never);
-
-    fixture = TestBed.createComponent(ZakenCardComponent);
-    fixture.componentInstance.data = cardData;
-    fixture.detectChanges();
-    await sleep();
-
-    fixture.componentInstance.sort!.sortChange.emit({
-      active: "ZAAK_IDENTIFICATIE",
-      direction: "asc",
-    });
-    fixture.detectChanges();
-    await sleep();
-
-    expect(spy).toHaveBeenCalledWith("ZAAK_OP_NAAM", {
+    expect(request.request.method).toBe("PUT");
+    expect(request.request.body).toEqual({
       page: 0,
       rows: 5,
-      sortField: "ZAAK_IDENTIFICATIE",
-      sortOrder: "ASC",
+      sortField: "SIGNALERING_TIJDSTIP",
+      sortOrder: "DESC",
     });
+  });
+
+  it("loads the next page when the user pages forward", async () => {
+    await setup();
+    await respondWith(makeResultaat(25, 5));
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+    const request = await respondWith(makeResultaat(25, 5));
+
+    expect(request.request.body).toMatchObject({ page: 1 });
+    expect(screen.getByText(/10 of 25/)).toBeVisible();
+  });
+
+  it("sorts by the column the user clicks and returns to the first page", async () => {
+    await setup();
+    await respondWith(makeResultaat(25, 5));
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+    await respondWith(makeResultaat(25, 5));
+
+    await user.click(sortHeader("startdatum"));
+    await sleep();
+    const request = await respondWith(makeResultaat(25, 5));
+
+    expect(request.request.body).toMatchObject({
+      sortField: "ZAAK_STARTDATUM",
+      sortOrder: "ASC",
+      page: 0,
+    });
+  });
+
+  it("shows the signaleringen in their default order again when the user clears the sort", async () => {
+    await setup();
+    await respondWith(makeResultaat(1, 1, "ZAAK-DEFAULT"));
+
+    await user.click(sortHeader("zaak.identificatie"));
+    await sleep();
+    await respondWith(makeResultaat(1, 1, "ZAAK-ASCENDING"));
+    expect(screen.getByRole("row", { name: /ZAAK-ASCENDING/ })).toBeVisible();
+
+    await user.click(sortHeader("zaak.identificatie"));
+    await sleep();
+    await respondWith(makeResultaat(1, 1, "ZAAK-DESCENDING"));
+    expect(screen.getByRole("row", { name: /ZAAK-DESCENDING/ })).toBeVisible();
+
+    await user.click(sortHeader("zaak.identificatie"));
+    await sleep();
+    fixture.detectChanges();
+    fixture.detectChanges();
+
+    httpTestingController.expectNone(() => true);
+    expect(screen.getByRole("row", { name: /ZAAK-DEFAULT/ })).toBeVisible();
   });
 });
