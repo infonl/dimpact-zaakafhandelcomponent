@@ -40,12 +40,6 @@ describe(InboxProductaanvragenService.name, () => {
     jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
   });
 
-  afterEach(() => {
-    httpTestingController.verify();
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   describe("delete", () => {
     it("addresses the productaanvraag by its id", async () => {
       const request = service.delete().mutationFn!(
