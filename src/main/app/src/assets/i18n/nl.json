@@ -404,6 +404,7 @@
   "gerelateerdeZaken": "Gerelateerde zaken",
   "zaaktype": "Zaaktype",
   "zaaktypeOmschrijving": "Zaaktype",
+  "zaakspecifiekAutoriseerbaar": "Zaakspecifiek autoriseerbaar",
   "zaaktype.-kies-": "- Kies een zaaktype -",
   " 5 ": ">>--> OPSOMMINGEN <--<<",
   "action.entityType.DOCUMENT": "Document",

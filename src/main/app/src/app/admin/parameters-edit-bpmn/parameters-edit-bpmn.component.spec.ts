@@ -170,6 +170,23 @@ describe(ParametersEditBpmnComponent.name, () => {
     loader = TestbedHarnessEnvironment.loader(fixture);
   });
 
+  describe("Zaakspecifieke autorisatie", () => {
+    it("should show 'nee' for a zaaktype without the eigenschap", () => {
+      expect(fixture.nativeElement.textContent).toContain(
+        "zaakspecifiekAutoriseerbaar",
+      );
+      expect(fixture.nativeElement.textContent).toContain("actie.nee");
+    });
+
+    it("should show 'ja' for a zaaktype with the eigenschap", () => {
+      component["bpmnZaakafhandelParameters"].zaakspecifiekAutoriseerbaar =
+        true;
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("actie.ja");
+    });
+  });
+
   describe("Case handler", () => {
     it("should set the case handlers selected group", async () => {
       const selectFields = await loader.getAllHarnesses(MatSelectHarness);

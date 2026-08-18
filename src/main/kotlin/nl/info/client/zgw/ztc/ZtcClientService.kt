@@ -59,6 +59,14 @@ class ZtcClientService @Inject constructor(
         const val MAX_CACHE_SIZE: Long = 1_000
         const val EXPIRATION_TIME_HOURS: Long = 1
 
+        /**
+         * Marks a zaaktype as being 'zaakspecifiek autoriseerbaar'.
+         * The name is abbreviated because Open Zaak caps the length of eigenschap names.
+         */
+        const val ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM = "ZAAK_GEAUTORISEERD"
+
+        private const val ZTC_EIGENSCHAP = "ztc-eigenschap"
+
         private val CACHES = mutableMapOf<String, Cache<*, *>>()
         private val LOG = Logger.getLogger(ZtcClientService::class.java.name)
         private fun <K, V> createCache(name: String, size: Long = MAX_CACHE_SIZE): Cache<K & Any, V> {
@@ -404,8 +412,11 @@ class ZtcClientService @Inject constructor(
             response.results()
         }
 
-    fun readEigenschap(zaaktype: URI, eigenschap: String) =
+    fun findEigenschap(zaaktype: URI, eigenschap: String): Eigenschap? =
         this.readEigenschappen(zaaktype).find { it.naam == eigenschap }
+
+    fun readEigenschap(zaaktype: URI, eigenschap: String) =
+        this.findEigenschap(zaaktype, eigenschap)
             ?: throw EigenschapNotFoundException(
                 """
                 No '${EigenschapListParametersStatus.DEFINITIEF}' eigenschap with naam '$eigenschap' found for zaaktype '$zaaktype'.
@@ -445,6 +456,11 @@ class ZtcClientService @Inject constructor(
         uuidToBesluitTypeCache.invalidateAll()
         uriToBesluitTypeListCache.invalidateAll()
         return cleared(Caching.ZTC_BESLUITTYPE)
+    }
+
+    fun clearEigenschapCache(): String {
+        uriToEigenschappenCache.invalidateAll()
+        return cleared(ZTC_EIGENSCHAP)
     }
 
     fun clearRoltypeCache(): String {
