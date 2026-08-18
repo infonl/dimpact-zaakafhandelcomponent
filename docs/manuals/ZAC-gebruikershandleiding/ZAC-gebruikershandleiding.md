@@ -78,6 +78,7 @@ Versiegeschiedenis:
   - [Locatie ontkoppelen](#locatie-ontkoppelen)
   - [Zaak opschorten](#zaak-opschorten)
   - [Zaak verlengen](#zaak-verlengen)
+  - [Brondatum zetten](#brondatum-zetten)
   - [Verdere acties](#verdere-acties)
     - [Ontvangstbevestiging sturen](#ontvangstbevestiging-sturen)
     - [E-mail versturen](#e-mail-versturen)
@@ -564,14 +565,33 @@ De Zaak verlengen knop bevindt zichin het linker menu onder Actie en is herkenba
 
 **Stappen:**
 
-1 Kies in een zaak in het linker menu onder Actie kies 'Zaak verlengen'.
+1 Kies in een zaak in het linker menu onder Actie voor 'Zaak verlengen'.
 
 2 Vul de verlengingsduur in kalenderdagen in óf kies de nieuwe streef- en/of fatale datum die de zaak moet krijgen. Als een van de velden wordt ingevuld dan berekent het systeem automatisch de waarde van de andere. De maximale verlengduur is per zaaktype ingesteld en kan niet overschreden worden, deze is aangegeven onder het Verlengduur veld.
 
 3 Geef aan of de streefdatum van de openstaande taken ook verlengd moeten worden
 ![Streefdatum ook verlengen](./images/streefdatum-ook-verlengen.png)
 
-4 Kik op ‘Zaak verlengen’ om de verlenging door te voeren
+4 Klik op ‘Zaak verlengen’ om de verlenging door te voeren
+
+## Brondatum zetten
+
+Als een zaak is afgehandeld met een resultaattype waarbij de afleidingswijze brondatum is ingesteld op 'Eigenschap', kan de behandelaar de zaak afsluiten zonder de brondatum in te vullen. In dit geval is het voor de recordmanager mogelijk om alsnog bij een afgesloten zaak de brondatum te zetten.
+
+De 'Brondatum zetten' knop bevindt zich in dat geval in het linker menu onder Actie en is herkenbaar aan het kalender-icoon.
+
+![Brondatum zetten](./images/menuitem-brondatum-zetten.png)
+
+**Stappen:**
+
+1 Kies in een zaak in het linker menu onder Actie voor 'Brondatum zetten'.
+
+2 Vul de brondatum in:
+![Brondatum zetten](./images/brondatum-zetten.png)
+
+Het getoonde label voor de datum komt overeen met de waarde van het veld 'Definitie' van de gekoppelde eigenschap bij het zaaktype.
+
+3 Klik op 'Brondatum zetten'.
 
 ## Verdere acties
 
