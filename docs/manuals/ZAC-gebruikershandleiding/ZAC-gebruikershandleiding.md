@@ -25,7 +25,7 @@ Versiegeschiedenis:
 | 1.3   | Update nav sprints opgeleverd op 3-5-2023 en 31-5-2023                                                                                     |
 | 1.4   | Update format wijziging en redigeerwerk van 29-8-2023                                                                                      |
 | 1.5   | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024                                                                                   |
-| 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                 |
+| 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                |
 | 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown                                                                                          |
 | 1.6.1 | Toevoeging indicaties voor personen                                                                                                        |
 | 1.6.2 | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen                                              |
@@ -39,6 +39,7 @@ Versiegeschiedenis:
 | 1.7   | ZAC v4.10 Handleiding                                                                                                                      |
 | 1.7.1 | ZAC v5.2 Handleiding, toevoeging gerelateerde zaken                                                                                        |
 | 1.8   | ZAC v5.5 Handleiding, verwijderen impliciete applicatierol hiërarchie                                                                      |
+| 1.9   | ZAC v5.6 Handleiding, toevoeging voor brondatum zetten                                                                                     |
 
 <div style="page-break-after: always"></div>
 
