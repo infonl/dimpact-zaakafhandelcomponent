@@ -185,7 +185,7 @@ services:
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   open-object.local:
-    image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
+    image: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -217,7 +217,7 @@ services:
     profiles: [ "objecten", "itest", "openformulieren" ]
 
   open-object-celery:
-    image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
+    image: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
     platform: linux/amd64
     environment: *open-object-env
     command: sh -c "cd /app/src && celery -A objects worker -l info"
@@ -251,7 +251,7 @@ services:
     profiles: [ "objecten", "itest", "openformulieren" ]
 
   open-object-import:
-    image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
+    image: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
     platform: linux/amd64
     environment: *open-object-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
