@@ -3,101 +3,55 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { AsyncPipe, NgClass, NgFor, NgIf } from "@angular/common";
-import { Component } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatCardModule } from "@angular/material/card";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatSelectModule } from "@angular/material/select";
-import { MatSidenavModule } from "@angular/material/sidenav";
-import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { RouterModule } from "@angular/router";
+import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of, throwError } from "rxjs";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+import { of } from "rxjs";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
-import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { SignaleringenSettingsBeheerService } from "../signaleringen-settings-beheer.service";
 import { GroepSignaleringenComponent } from "./groep-signaleringen.component";
 
-@Component({
-  templateUrl: "./groep-signaleringen.component.html",
-  standalone: true,
-  imports: [
-    AsyncPipe,
-    NgClass,
-    NgFor,
-    NgIf,
-    MatSidenavModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatTableModule,
-    MatCheckboxModule,
-    SideNavComponent,
-    TranslateModule,
-  ],
-})
-class TestGroepSignaleringenComponent extends GroepSignaleringenComponent {
-  public override laadSignaleringSettings(
-    groep: GeneratedType<"RestGroup">,
-  ): void {
-    super.laadSignaleringSettings(groep);
-  }
+const groep = fromPartial<GeneratedType<"RestGroup">>({
+  id: "fakeGroupId",
+  naam: "Fake groep",
+});
 
-  public override changed(
-    row: GeneratedType<"RestSignaleringInstellingen">,
-    column: string,
-    checked: boolean,
-  ): void {
-    super.changed(row, column, checked);
-  }
-
-  get testIsLoadingResults(): boolean {
-    return this.isLoadingResults;
-  }
-
-  get testGroepId(): string | undefined {
-    return this.groepId;
-  }
-
-  get testDataSource(): MatTableDataSource<
-    GeneratedType<"RestSignaleringInstellingen">
-  > {
-    return this.dataSource;
-  }
-}
+const createInstellingen = () =>
+  fromPartial<GeneratedType<"RestSignaleringInstellingen">[]>([
+    {
+      type: "ZAAK_OP_NAAM",
+      subjecttype: "ZAAK",
+      dashboard: false,
+      mail: false,
+    },
+  ]);
 
 describe(GroepSignaleringenComponent.name, () => {
-  let fixture: ComponentFixture<TestGroepSignaleringenComponent>;
-  let component: TestGroepSignaleringenComponent;
   let utilServiceMock: Pick<UtilService, "setTitle" | "setLoading">;
   let identityServiceMock: Pick<IdentityService, "listGroups">;
   let signaleringenServiceMock: Pick<
     SignaleringenSettingsBeheerService,
     "list" | "put"
   >;
+  let putMutation: ReturnType<typeof createMutationOptions<null>>;
+  let container: HTMLElement;
 
-  beforeEach(async () => {
-    utilServiceMock = { setTitle: jest.fn(), setLoading: jest.fn() };
-    identityServiceMock = { listGroups: jest.fn().mockReturnValue(of([])) };
-    signaleringenServiceMock = {
-      list: jest.fn().mockReturnValue(of([])),
-      put: jest.fn().mockReturnValue(of(null)),
-    };
+  const user = userEvent.setup();
 
-    await TestBed.configureTestingModule({
-      imports: [
-        TestGroepSignaleringenComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-        RouterModule.forRoot([]),
-      ],
+  async function setup() {
+    const rendered = await render(GroepSignaleringenComponent, {
+      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
+        provideRouter([]),
+        provideQueryClient(testQueryClient),
         { provide: UtilService, useValue: utilServiceMock },
         {
           provide: ConfiguratieService,
@@ -109,148 +63,106 @@ describe(GroepSignaleringenComponent.name, () => {
           useValue: signaleringenServiceMock,
         },
       ],
-    }).compileComponents();
+    });
+    container = rendered.container;
+  }
 
-    fixture = TestBed.createComponent(TestGroepSignaleringenComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+  async function chooseGroup() {
+    await user.click(screen.getByRole("combobox", { name: "groep.-kies-" }));
+    await user.click(screen.getByRole("option", { name: "Fake groep" }));
+  }
+
+  beforeEach(() => {
+    utilServiceMock = { setTitle: jest.fn(), setLoading: jest.fn() };
+    identityServiceMock = {
+      listGroups: jest.fn().mockReturnValue(of([groep])),
+    };
+    putMutation = createMutationOptions(null);
+    signaleringenServiceMock = {
+      list: jest.fn().mockReturnValue(of(createInstellingen())),
+      put: jest.fn().mockReturnValue(putMutation),
+    };
   });
 
-  it("should call setTitle and listGroups on init", () => {
+  it("sets the title and offers every group to choose from", async () => {
+    await setup();
+
     expect(utilServiceMock.setTitle).toHaveBeenCalledWith(
       "title.signaleringen.settings.groep",
       undefined,
     );
-    expect(identityServiceMock.listGroups).toHaveBeenCalled();
+
+    await user.click(screen.getByRole("combobox", { name: "groep.-kies-" }));
+
+    expect(screen.getByRole("option", { name: "Fake groep" })).toBeVisible();
   });
 
-  it("should load signalering settings for a group", () => {
-    const groep = {
-      id: "groep-1",
-      naam: "Groep 1",
-    } as GeneratedType<"RestGroup">;
-    component.laadSignaleringSettings(groep);
-    expect(signaleringenServiceMock.list).toHaveBeenCalledWith("groep-1");
+  it("shows the settings of the chosen group", async () => {
+    await setup();
+
+    await chooseGroup();
+
+    expect(signaleringenServiceMock.list).toHaveBeenCalledWith("fakeGroupId");
+    expect(screen.getByText("signalering.subjecttype.ZAAK")).toBeVisible();
+    expect(
+      screen.getByText("signalering.type.ZAAK_OP_NAAM.group"),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("checkbox", { name: "actie.signalering.dashboard" }),
+    ).not.toBeChecked();
   });
 
-  it("should populate dataSource after loading settings", () => {
-    const settings = [
-      {
-        type: "ZAAK_OP_NAAM",
-        subjecttype: "ZAAK",
-        dashboard: true,
-        mail: false,
-      },
-    ] as GeneratedType<"RestSignaleringInstellingen">[];
-    (signaleringenServiceMock.list as jest.Mock).mockReturnValue(of(settings));
+  it("stops showing the loading shade once the settings have arrived", async () => {
+    await setup();
 
-    const groep = {
-      id: "groep-1",
-      naam: "Groep 1",
-    } as GeneratedType<"RestGroup">;
-    component.laadSignaleringSettings(groep);
+    await chooseGroup();
 
-    expect(component.testDataSource.data).toEqual(settings);
+    expect(container.querySelector(".table-wrapper")).not.toHaveClass(
+      "table-loading-shade",
+    );
   });
 
-  it("should set isLoadingResults false after loading settings", () => {
-    (signaleringenServiceMock.list as jest.Mock).mockReturnValue(of([]));
-    const groep = {
-      id: "groep-1",
-      naam: "Groep 1",
-    } as GeneratedType<"RestGroup">;
+  it("saves the setting of the chosen group when a checkbox is ticked", async () => {
+    await setup();
+    await chooseGroup();
 
-    component.laadSignaleringSettings(groep);
-
-    expect(component.testIsLoadingResults).toBe(false);
-  });
-
-  it("should set groepId after loading settings", () => {
-    const groep = {
-      id: "groep-1",
-      naam: "Groep 1",
-    } as GeneratedType<"RestGroup">;
-    component.laadSignaleringSettings(groep);
-    expect(component.testGroepId).toBe("groep-1");
-  });
-
-  it("should call put with updated row on changed", () => {
-    const groep = {
-      id: "groep-1",
-      naam: "Groep 1",
-    } as GeneratedType<"RestGroup">;
-    component.laadSignaleringSettings(groep);
-
-    const row = {
-      type: "ZAAK_OP_NAAM",
-      subjecttype: "ZAAK",
-      dashboard: false,
-      mail: false,
-    } as GeneratedType<"RestSignaleringInstellingen">;
-
-    component.changed(row, "dashboard", true);
-
-    expect(utilServiceMock.setLoading).toHaveBeenCalledWith(true);
-    expect(signaleringenServiceMock.put).toHaveBeenCalledWith("groep-1", row);
-  });
-
-  it("should call setLoading false after put completes", () => {
-    const groep = {
-      id: "groep-1",
-      naam: "Groep 1",
-    } as GeneratedType<"RestGroup">;
-    component.laadSignaleringSettings(groep);
-
-    const row = {
-      type: "ZAAK_OP_NAAM",
-      subjecttype: "ZAAK",
-      dashboard: false,
-      mail: false,
-    } as GeneratedType<"RestSignaleringInstellingen">;
-
-    component.changed(row, "dashboard", true);
-
-    expect(utilServiceMock.setLoading).toHaveBeenCalledWith(false);
-  });
-
-  it("should call setLoading false even when put fails", () => {
-    const groep = {
-      id: "groep-1",
-      naam: "Groep 1",
-    } as GeneratedType<"RestGroup">;
-    component.laadSignaleringSettings(groep);
-    (signaleringenServiceMock.put as jest.Mock).mockReturnValue(
-      throwError(() => new Error("put failed")),
+    await user.click(
+      screen.getByRole("checkbox", { name: "actie.signalering.dashboard" }),
     );
 
-    const row = {
-      type: "ZAAK_OP_NAAM",
-      subjecttype: "ZAAK",
-      dashboard: false,
-      mail: false,
-    } as GeneratedType<"RestSignaleringInstellingen">;
+    expect(utilServiceMock.setLoading).toHaveBeenCalledWith(true);
+    expect(signaleringenServiceMock.put).toHaveBeenCalledWith("fakeGroupId");
+    expect(putMutation.mutationFn).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "ZAAK_OP_NAAM", dashboard: true }),
+      expect.anything(),
+    );
+  });
 
-    component.changed(row, "dashboard", true);
+  it("stops the loading indicator once the save has completed", async () => {
+    await setup();
+    await chooseGroup();
+
+    await user.click(
+      screen.getByRole("checkbox", { name: "actie.signalering.mail" }),
+    );
+    await sleep();
 
     expect(utilServiceMock.setLoading).toHaveBeenCalledWith(false);
   });
 
-  it("should mutate row column value on changed", () => {
-    const groep = {
-      id: "groep-1",
-      naam: "Groep 1",
-    } as GeneratedType<"RestGroup">;
-    component.laadSignaleringSettings(groep);
+  it("stops the loading indicator even when the save fails", async () => {
+    (signaleringenServiceMock.put as jest.Mock).mockReturnValue({
+      mutationKey: ["failing-mutation"],
+      mutationFn: () => Promise.reject(new Error("put failed")),
+    });
+    await setup();
+    await chooseGroup();
 
-    const row = {
-      type: "ZAAK_OP_NAAM",
-      subjecttype: "ZAAK",
-      dashboard: false,
-      mail: false,
-    } as GeneratedType<"RestSignaleringInstellingen">;
+    await user.click(
+      screen.getByRole("checkbox", { name: "actie.signalering.mail" }),
+    );
+    await sleep();
 
-    component.changed(row, "dashboard", true);
-
-    expect((row as Record<string, unknown>)["dashboard"]).toBe(true);
+    expect(utilServiceMock.setLoading).toHaveBeenCalledWith(false);
   });
 });
