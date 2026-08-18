@@ -5,7 +5,7 @@
 @bpmn
 Feature: BPMN
 
-Scenario: Bob wants to set up the BPMN processdefinition
+  Scenario: Bob wants to set up the BPMN processdefinition
     Given "Bob" is logged in to zac
     Given "Bob" navigates to "zac" with path "/admin/bpmn-procesdefinities"
     When "Bob" uploads the E2E test processdefinition

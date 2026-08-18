@@ -18,10 +18,10 @@ import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 const E2E_PROCESS_DEFINITION_NAME = "E2E Test BPMN Process Definition";
 const E2E_PROCESS_DEFINITION_BPMN_FILE = "E2ETestProcessDefinition.bpmn";
 const E2E_PROCESS_DEFINITION_FORM_FILES = [
-    "E2EStartForm.json",
-    "E2ESelectDocumentsForm.json",
-    "E2ESignSelectedDocumentsForm.json",
-    "E2ESummaryForm.json",
+  "E2EStartForm.json",
+  "E2ESelectDocumentsForm.json",
+  "E2ESignSelectedDocumentsForm.json",
+  "E2ESummaryForm.json",
 ];
 
 function formioForm(page: Page) {
@@ -76,10 +76,6 @@ async function documentGridRow(page: Page, gridKey: string, title: string) {
   throw new Error(`No row for document "${title}" in datagrid "${gridKey}"`);
 }
 
-// UUID v4 regex pattern (replacement for deprecated uuidv4 package)
-const UUID_V4_REGEX =
-  /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
-
 const e2eTestGroupAId = "test-group-a";
 const e2eTestGroupAName = "Test groep A";
 const testUser1Id = "e2etestuser1";
@@ -93,10 +89,14 @@ const STATUS_VALUE = "Afgerond";
 When(
   "{string} opens the {string} task",
   { timeout: FORTY_SECONDS_IN_MS },
-  async function (this: CustomWorld, user: z.infer<typeof worldUsers>, taskName: string) {
-    const taskRow = this.page
-      .getByRole("row")
-      .filter({ has: this.page.getByRole("cell", { name: taskName, exact: true }) });
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    taskName: string,
+  ) {
+    const taskRow = this.page.getByRole("row").filter({
+      has: this.page.getByRole("cell", { name: taskName, exact: true }),
+    });
     const viewTaskLink = taskRow.getByRole("link", { name: "Taak bekijken" });
     await viewTaskLink.waitFor({
       state: "visible",
@@ -313,9 +313,9 @@ Then(
     await expect(
       summaryRow.getByRole("cell", { name: "Toegekend" }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
-    await expect(
-      summaryRow.getByRole("cell", { name: groupName }),
-    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+    await expect(summaryRow.getByRole("cell", { name: groupName })).toBeVisible(
+      { timeout: FORTY_SECONDS_IN_MS },
+    );
     await expect(
       summaryRow.getByRole("cell", { name: userName, exact: true }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
@@ -336,9 +336,9 @@ Then(
       testUser1Id,
       { timeout: FORTY_SECONDS_IN_MS },
     );
-    await expect(form.getByRole("option", { name: UUID_V4_REGEX })).toBeVisible(
-      { timeout: FORTY_SECONDS_IN_MS },
-    );
+    await expect(form.getByText("file A")).toBeVisible({
+      timeout: FORTY_SECONDS_IN_MS,
+    });
     await expect(
       form.getByRole("textbox", { name: "Reference table value" }),
     ).toHaveValue(COMMUNICATION_CHANNEL_VALUE, {
@@ -553,7 +553,6 @@ Then(
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
-
 
 function processDefinitionGroupRow(page: Page, name: string) {
   return page.locator("mat-nested-tree-node.group").filter({ hasText: name });

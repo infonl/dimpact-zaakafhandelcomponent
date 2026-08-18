@@ -29,22 +29,10 @@
         },
         {
           "label": "Documents",
-          "labelPosition": "left-left",
-          "type": "select",
-          "key": "ZAAK_Documents_Select",
-          "input": true,
-          "widget": "choicesjs",
-          "multiple": true,
-          "dataSrc": "custom",
-          "customOptions": {
-            "choicesOptions": {
-              "removeItemButton": true,
-              "placeholder": false,
-              "searchEnabled": true,
-              "shouldSort": false
-            }
-          },
-          "disabled": true
+          "type": "content",
+          "key": "ZAAK_Documents_Titles",
+          "html": "<p>Documents: {{ ZAC_getDocumentTitles(ZAAK_Documents_Select) }}</p>",
+          "input": false
         },
         {
           "label": "Reference table value",
