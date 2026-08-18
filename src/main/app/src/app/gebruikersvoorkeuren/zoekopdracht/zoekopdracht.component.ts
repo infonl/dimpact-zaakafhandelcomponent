@@ -19,6 +19,7 @@ import { MatMenuModule } from "@angular/material/menu";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
+import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { hasActiveSearchFilters } from "../../zoeken/model/zoek-parameters";
@@ -56,6 +57,16 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     null;
   protected actieveFilters = false;
   private filtersChangedSubscription$!: Subscription;
+  private readonly deleteZoekopdrachtMutation = injectServiceMutation(
+    (id: number) => this.gebruikersvoorkeurenService.deleteZoekOpdrachten(id),
+    {
+      onSuccess: () => this.loadZoekopdrachten(),
+    },
+  );
+  private readonly removeZoekopdrachtActiefMutation = injectServiceMutation(
+    (werklijst: GeneratedType<"Werklijst">) =>
+      this.gebruikersvoorkeurenService.removeZoekopdrachtActief(werklijst),
+  );
 
   constructor(
     private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
@@ -102,18 +113,12 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     zoekopdracht: GeneratedType<"RESTZoekopdracht">,
   ) {
     $event.stopPropagation();
-    this.gebruikersvoorkeurenService
-      .deleteZoekOpdrachten(zoekopdracht.id!)
-      .subscribe(() => {
-        this.loadZoekopdrachten();
-      });
+    this.deleteZoekopdrachtMutation.mutate(zoekopdracht.id!);
   }
 
   protected clearActief(emit?: boolean) {
     this.actieveZoekopdracht = null;
-    this.gebruikersvoorkeurenService
-      .removeZoekopdrachtActief(this.werklijst)
-      .subscribe();
+    this.removeZoekopdrachtActiefMutation.mutate(this.werklijst);
     if (emit && this.actieveZoekopdracht) {
       this.actieveFilters = false;
       this.zoekopdracht.emit(this.actieveZoekopdracht);

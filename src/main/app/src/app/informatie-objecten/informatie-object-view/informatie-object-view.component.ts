@@ -7,6 +7,7 @@ import { NgFor, NgIf, NgSwitch, NgSwitchCase } from "@angular/common";
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -28,7 +29,8 @@ import { MatTabsModule } from "@angular/material/tabs";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { Observable, of, throwError } from "rxjs";
+import { QueryClient } from "@tanstack/angular-query-experimental";
+import { from, Observable, of, throwError } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
 import { UtilService } from "../../core/service/util.service";
@@ -103,6 +105,8 @@ export class InformatieObjectViewComponent
   extends ActionsViewComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  private readonly queryClient = inject(QueryClient);
+
   readonly indicatiesLayout = IndicatiesLayout;
   infoObject!: GeneratedType<"RestEnkelvoudigInformatieobject">;
   laatsteVersieInfoObject?: GeneratedType<"RestEnkelvoudigInformatieobject">;
@@ -448,14 +452,26 @@ export class InformatieObjectViewComponent
 
   private deleteEnkelvoudigInformatieObject$(reden?: string): Observable<void> {
     if (!this.infoObject?.uuid) return of();
-    return this.informatieObjectenService
-      .deleteEnkelvoudigInformatieObject(this.infoObject.uuid, {
-        zaakUuid: this.zaak?.uuid,
-        reden,
-      })
-      .pipe(
-        tap(() => this.websocketService.suspendListener(this.documentListener)),
+    const deleteEnkelvoudigInformatieObject =
+      this.informatieObjectenService.deleteEnkelvoudigInformatieObject(
+        this.infoObject.uuid,
       );
+
+    return from(
+      deleteEnkelvoudigInformatieObject.mutationFn!(
+        {
+          zaakUuid: this.zaak?.uuid,
+          reden,
+        },
+        {
+          client: this.queryClient,
+          meta: deleteEnkelvoudigInformatieObject.meta,
+          mutationKey: deleteEnkelvoudigInformatieObject.mutationKey,
+        },
+      ),
+    ).pipe(
+      tap(() => this.websocketService.suspendListener(this.documentListener)),
+    );
   }
 
   /**

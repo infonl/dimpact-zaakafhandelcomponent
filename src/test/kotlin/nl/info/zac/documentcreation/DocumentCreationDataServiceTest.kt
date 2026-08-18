@@ -127,6 +127,9 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         behandelaar shouldBe "${rolMedewerker.betrokkeneIdentificatie!!.voorletters} " +
                             "${rolMedewerker.betrokkeneIdentificatie!!.achternaam}"
                         groep shouldBe rolOrganisatorischeEenheid.naam
+                        io.kotest.assertions.withClue("SmartDocuments templates expect vertrouwelijkheidaanduiding in lowercase") {
+                            vertrouwelijkheidaanduiding shouldBe "openbaar"
+                        }
                     }
                     startformulierData shouldBe null
                     taskData shouldBe null
@@ -178,6 +181,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         zaaktype shouldBe zaakType.omschrijving
                         behandelaar shouldBe null
                         groep shouldBe null
+                        vertrouwelijkheidaanduiding shouldBe "openbaar"
                     }
                     startformulierData shouldBe null
                     taskData shouldBe null
@@ -238,6 +242,7 @@ class DocumentCreationDataServiceTest : BehaviorSpec({
                         zaaktype shouldBe zaakType.omschrijving
                         behandelaar shouldBe null
                         groep shouldBe null
+                        vertrouwelijkheidaanduiding shouldBe "openbaar"
                     }
                     startformulierData shouldBe null
                     taskData shouldBe null

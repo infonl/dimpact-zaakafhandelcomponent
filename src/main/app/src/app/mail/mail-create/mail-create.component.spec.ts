@@ -14,10 +14,11 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { EMPTY, of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
@@ -35,6 +36,7 @@ describe(MailCreateComponent.name, () => {
   let informatieObjectenService: InformatieObjectenService;
   let mailtemplateService: MailtemplateService;
   let utilService: UtilService;
+  let foutAfhandelingService: FoutAfhandelingService;
 
   const mockSideNav = fromPartial<MatDrawer>({
     close: jest.fn(),
@@ -121,6 +123,9 @@ describe(MailCreateComponent.name, () => {
     mailtemplateService = TestBed.inject(MailtemplateService);
     utilService = TestBed.inject(UtilService);
     httpTestingController = TestBed.inject(HttpTestingController);
+    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+
+    jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
 
     jest
       .spyOn(zakenService, "listAfzendersVoorZaak")
@@ -342,7 +347,7 @@ describe(MailCreateComponent.name, () => {
       expect(emitSpy).toHaveBeenCalledWith(true);
     });
 
-    it("should emit mailVerstuurd(false) on error", async () => {
+    it("should report the failure and emit mailVerstuurd(false) on error", async () => {
       const emitSpy = jest.spyOn(component["mailVerstuurd"], "emit");
 
       component["form"].patchValue({
@@ -366,6 +371,7 @@ describe(MailCreateComponent.name, () => {
 
       await new Promise((resolve) => setTimeout(resolve, 100));
 
+      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
       expect(emitSpy).toHaveBeenCalledWith(false);
     });
   });

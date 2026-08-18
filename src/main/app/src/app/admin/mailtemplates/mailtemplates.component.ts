@@ -42,6 +42,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
+import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -89,6 +90,13 @@ export class MailtemplatesComponent
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly deleteMailtemplateMutation = injectServiceMutation(
+    (mailtemplate: GeneratedType<"RESTMailtemplate">) =>
+      this.mailtemplateBeheerService.deleteMailtemplate(mailtemplate.id ?? -1),
+    {
+      onSuccess: () => this.laadMailtemplates(),
+    },
+  );
 
   protected isLoadingResults = false;
   protected columns = [
@@ -157,18 +165,12 @@ export class MailtemplatesComponent
   ): void {
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData(
-          "msg.mailtemplate.verwijderen.bevestigen",
-          this.mailtemplateBeheerService.deleteMailtemplate(mailtemplate.id!),
-        ),
+        data: new ConfirmDialogData("msg.mailtemplate.verwijderen.bevestigen"),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.utilService.openSnackbar(
-            "msg.mailtemplate.verwijderen.uitgevoerd",
-          );
-          this.laadMailtemplates();
+          this.deleteMailtemplateMutation.mutate(mailtemplate);
         }
       });
   }

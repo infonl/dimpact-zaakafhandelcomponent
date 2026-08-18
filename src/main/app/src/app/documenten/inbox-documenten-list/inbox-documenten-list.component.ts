@@ -51,6 +51,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/http-client";
+import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import {
@@ -135,6 +136,13 @@ export class InboxDocumentenListComponent
   protected clearZoekopdracht = new EventEmitter<void>();
   protected selectedInformationObject: GeneratedType<"RestInboxDocument"> | null =
     null;
+  private readonly deleteMutation = injectServiceMutation(
+    (inboxDocument: GeneratedType<"RestInboxDocument">) =>
+      this.inboxDocumentenService.delete(inboxDocument),
+    {
+      onSuccess: () => this.filterChange.emit(),
+    },
+  );
 
   constructor(
     private readonly inboxDocumentenService: InboxDocumentenService,
@@ -203,21 +211,15 @@ export class InboxDocumentenListComponent
   documentVerwijderen(inboxDocument: GeneratedType<"RestInboxDocument">) {
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData(
-          {
-            key: "msg.document.verwijderen.bevestigen",
-            args: { document: inboxDocument.titel },
-          },
-          this.inboxDocumentenService.delete(inboxDocument.id!),
-        ),
+        data: new ConfirmDialogData({
+          key: "msg.document.verwijderen.bevestigen",
+          args: { document: inboxDocument.titel },
+        }),
       })
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
-            document: inboxDocument.titel,
-          });
-          this.filterChange.emit();
+          this.deleteMutation.mutate(inboxDocument);
         }
       });
   }

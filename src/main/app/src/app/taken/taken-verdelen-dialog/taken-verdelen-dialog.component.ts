@@ -21,8 +21,8 @@ import { MatError } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectMutation } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../../identity/identity.service";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
@@ -59,10 +59,10 @@ export class TakenVerdelenDialogComponent {
     screenEventResourceId: string;
   }>(MAT_DIALOG_DATA);
 
-  protected readonly mutation = injectMutation(() => ({
-    ...this.takenService.verdelenVanuitLijst(),
-    onSuccess: () => this.dialogRef.close(this.form.value),
-  }));
+  protected readonly mutation = injectMutation(
+    () => this.takenService.verdelenVanuitLijst(),
+    { onSuccess: () => this.dialogRef.close(this.form.value) },
+  );
 
   protected readonly form = this.formBuilder.group({
     groep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(null, [
