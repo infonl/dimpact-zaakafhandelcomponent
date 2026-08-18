@@ -114,6 +114,22 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       },
     },
   );
+  private readonly updateDashboardCardsMutation = injectMutation(
+    () => this.gebruikersvoorkeurenService.updateDashboardCards(),
+    {
+      onSuccess: (dashboardInstellingen) => {
+        this.instellingen = dashboardInstellingen;
+      },
+    },
+  );
+  private readonly addDashboardCardMutation = injectMutation(
+    () => this.gebruikersvoorkeurenService.addDashboardCard(),
+    {
+      onSuccess: (dashboardInstellingen) => {
+        this.instellingen = dashboardInstellingen;
+      },
+    },
+  );
   private static readonly TRANSITION_DURATION_MS = 200;
   // Must match the `@media (max-width: 1200px)` breakpoint in the .less file
   // where cards stack into a single column.
@@ -425,19 +441,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private saveCards() {
-    this.gebruikersvoorkeurenService
-      .updateDashboardCards(this.getInstellingen())
-      .subscribe((dashboardInstellingen) => {
-        this.instellingen = dashboardInstellingen;
-      });
+    this.updateDashboardCardsMutation.mutate(this.getInstellingen());
   }
 
   private saveCard(card: DashboardCard, column: number, row: number) {
-    this.gebruikersvoorkeurenService
-      .addDashboardCard(this.getInstellingAt(card, column, row))
-      .subscribe((dashboardInstellingen) => {
-        this.instellingen = dashboardInstellingen;
-      });
+    this.addDashboardCardMutation.mutate(
+      this.getInstellingAt(card, column, row),
+    );
   }
 
   private deleteCard(card: DashboardCard) {
