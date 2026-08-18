@@ -30,7 +30,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { from, Observable, of, throwError } from "rxjs";
+import { Observable, of, throwError } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { AsyncButtonMenuItem } from "src/app/shared/side-nav/menu-item/subscription-button-menu-item";
 import { UtilService } from "../../core/service/util.service";
@@ -45,6 +45,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { DocumentViewerComponent } from "../../shared/document-viewer/document-viewer.component";
+import { runMutation } from "../../shared/http/run-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { BestandsomvangPipe } from "../../shared/pipes/bestandsomvang.pipe";
@@ -452,23 +453,12 @@ export class InformatieObjectViewComponent
 
   private deleteEnkelvoudigInformatieObject$(reden?: string): Observable<void> {
     if (!this.infoObject?.uuid) return of();
-    const deleteEnkelvoudigInformatieObject =
+    return runMutation(
+      this.queryClient,
       this.informatieObjectenService.deleteEnkelvoudigInformatieObject(
         this.infoObject.uuid,
-      );
-
-    return from(
-      deleteEnkelvoudigInformatieObject.mutationFn!(
-        {
-          zaakUuid: this.zaak?.uuid,
-          reden,
-        },
-        {
-          client: this.queryClient,
-          meta: deleteEnkelvoudigInformatieObject.meta,
-          mutationKey: deleteEnkelvoudigInformatieObject.mutationKey,
-        },
       ),
+      { zaakUuid: this.zaak?.uuid, reden },
     ).pipe(
       tap(() => this.websocketService.suspendListener(this.documentListener)),
     );

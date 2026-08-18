@@ -43,6 +43,7 @@ import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { detailExpand } from "../../shared/animations/animations";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { runMutation } from "../../shared/http/run-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
@@ -1086,21 +1087,11 @@ export class ZaakViewComponent
   protected deleteInitiator() {
     this.zaakDialogService
       .openOntkoppelInitiator((reden) =>
-        (() => {
-          const deleteInitiator = this.zakenService.deleteInitiator(
-            this.zaak.uuid,
-          );
-          return from(
-            deleteInitiator.mutationFn!(
-              { reden },
-              {
-                client: this.queryClient,
-                meta: deleteInitiator.meta,
-                mutationKey: deleteInitiator.mutationKey,
-              },
-            ),
-          );
-        })(),
+        runMutation(
+          this.queryClient,
+          this.zakenService.deleteInitiator(this.zaak.uuid),
+          { reden },
+        ),
       )
       .afterClosed()
       .subscribe((result) => {
