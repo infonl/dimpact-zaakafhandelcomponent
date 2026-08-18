@@ -14,6 +14,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  inject,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -30,7 +31,7 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { QueryClient, injectQuery } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { Subject, takeUntil } from "rxjs";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
@@ -46,6 +47,7 @@ import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
 import { KlantenService } from "../../klanten.service";
 import { FormCommunicatieService } from "../form-communicatie-service";
+import { runQuery } from "../../../shared/http/run-query";
 
 @Component({
   selector: "zac-persoon-zoek",
@@ -127,6 +129,8 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
   protected readonly brpGemeenten = computed(
     () => this.brpGemeentenQuery.data() || [],
   );
+
+  private readonly queryClient = inject(QueryClient);
 
   constructor(
     private readonly klantenService: KlantenService,
@@ -297,8 +301,9 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
     this.utilService.setLoading(true);
     this.personen.data = [];
     const { value } = this.formGroup;
-    this.klantenService
-      .listPersonen(
+    runQuery(
+      this.queryClient,
+      this.klantenService.listPersonen(
         {
           ...value,
           geboortedatum: value.geboortedatum?.toISOString(),
@@ -308,19 +313,19 @@ export class PersoonZoekComponent implements OnInit, OnDestroy {
               : value.gemeenteVanInschrijving?.code,
         },
         this.zaaktypeUUID ?? "",
-      )
-      .subscribe({
-        next: (personen) => {
-          this.personen.data = personen.resultaten ?? [];
-          this.foutmelding = personen.foutmelding;
-          this.loading = false;
-          this.utilService.setLoading(false);
-        },
-        error: () => {
-          this.loading = false;
-          this.utilService.setLoading(false);
-        },
-      });
+      ),
+    ).subscribe({
+      next: (personen) => {
+        this.personen.data = personen.resultaten ?? [];
+        this.foutmelding = personen.foutmelding;
+        this.loading = false;
+        this.utilService.setLoading(false);
+      },
+      error: () => {
+        this.loading = false;
+        this.utilService.setLoading(false);
+      },
+    });
   }
 
   protected selectPersoon(persoon: GeneratedType<"RestPersoon">) {

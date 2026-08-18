@@ -17,7 +17,7 @@ export class BAGService {
   private readonly zacQueryClient = inject(ZacQueryClient);
 
   listAdressen(body: PutBody<"/rest/bag/adres">) {
-    return this.zacHttpClient.PUT("/rest/bag/adres", body);
+    return this.zacQueryClient.PUT_QUERY("/rest/bag/adres", body);
   }
 
   create(body: PostBody<"/rest/bag">) {

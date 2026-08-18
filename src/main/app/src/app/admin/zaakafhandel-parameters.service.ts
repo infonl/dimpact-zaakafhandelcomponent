@@ -96,7 +96,7 @@ export class ZaakafhandelParametersService {
   listSmartDocumentsGroupTemplateNames(
     body: PutBody<"/rest/zaakafhandelparameters/smartdocuments-group-template-names">,
   ) {
-    return this.zacHttpClient.PUT(
+    return this.zacQueryClient.PUT_QUERY(
       "/rest/zaakafhandelparameters/smartdocuments-group-template-names",
       body,
     );

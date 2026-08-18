@@ -39,7 +39,7 @@ import { MatOption, MatSelect } from "@angular/material/select";
 import { MatSidenav } from "@angular/material/sidenav";
 
 import { TranslatePipe } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { QueryClient, injectQuery } from "@tanstack/angular-query-experimental";
 import { merge, of, Subject, takeUntil } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
@@ -62,6 +62,7 @@ import { ZoekenService } from "../zoeken.service";
 import { DateFilterComponent } from "./filters/date-filter/date-filter.component";
 import { MultiFacetFilterComponent } from "./filters/multi-facet-filter/multi-facet-filter.component";
 import { ZaakBetrokkeneFilterComponent } from "./filters/zaak-betrokkene-filter/zaak-betrokkene-filter.component";
+import { runQuery } from "../../shared/http/run-query";
 
 @Component({
   selector: "zac-zoeken",
@@ -132,6 +133,8 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
   protected hasDocument = false;
   private huidigZoekVeld: ZoekVeld = ZoekVeld.ALLE;
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor() {
     effect(() => {
       const trefwoorden = this.zoekenService.trefwoorden();
@@ -174,7 +177,10 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
           }, 500);
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
-          return this.zoekenService.list(this.getZoekParameters());
+          return runQuery(
+            this.queryClient,
+            this.zoekenService.list(this.getZoekParameters()),
+          );
         }),
         map((data) => {
           this.isLoadingResults = false;

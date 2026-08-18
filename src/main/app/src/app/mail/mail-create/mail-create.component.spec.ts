@@ -15,7 +15,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { EMPTY, of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -135,7 +135,7 @@ describe(MailCreateComponent.name, () => {
       .mockReturnValue(of(mockDefaultAfzender));
     jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of(mockDocuments));
+      .mockReturnValue(createQueryOptions(mockDocuments) as never);
     jest
       .spyOn(mailtemplateService, "findMailtemplate")
       .mockReturnValue(of(mockMailtemplate));

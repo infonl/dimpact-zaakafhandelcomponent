@@ -4,17 +4,19 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl } from "@angular/forms";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
 import { BagZoekComponent } from "./bag-zoek.component";
+import { sleep, testQueryClient } from "../../../../setupJest";
 
 const makeBagObject = (
   fields: Partial<GeneratedType<"RESTBAGObject">> = {},
@@ -37,7 +39,11 @@ describe(BagZoekComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideQueryClient(testQueryClient),
+        provideHttpClient(),
+        provideRouter([]),
+      ],
     }).compileComponents();
 
     bagService = TestBed.inject(BAGService);
@@ -48,18 +54,17 @@ describe(BagZoekComponent.name, () => {
   });
 
   describe("zoek", () => {
-    it("should call bagService with trefwoorden and populate bagObjecten", () => {
+    it("should call bagService with trefwoorden and populate bagObjecten", async () => {
       const bagObject = makeBagObject();
-      jest
-        .spyOn(bagService, "listAdressen")
-        .mockReturnValue(
-          of({ resultaten: [bagObject] }) as unknown as ReturnType<
-            typeof bagService.listAdressen
-          >,
-        );
+      jest.spyOn(bagService, "listAdressen").mockReturnValue(
+        createQueryOptions({
+          resultaten: [bagObject],
+        }) as never,
+      );
 
       component["trefwoorden"].setValue("Teststraat 1");
       component["zoek"]();
+      await sleep();
 
       expect(bagService.listAdressen).toHaveBeenCalledWith({
         trefwoorden: "Teststraat 1",

@@ -18,7 +18,10 @@ import { InformatieObjectenService } from "src/app/informatie-objecten/informati
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { createMutationOptions } from "../../../test-helpers";
+import {
+  createMutationOptions,
+  createQueryOptions,
+} from "../../../test-helpers";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
 import { InboxProductaanvragenListComponent } from "./inbox-productaanvragen-list.component";
 
@@ -64,11 +67,13 @@ describe(InboxProductaanvragenListComponent.name, () => {
     service = TestBed.inject(InboxProductaanvragenService);
     infoService = TestBed.inject(InformatieObjectenService);
 
-    jest
-      .spyOn(service, "list")
-      .mockReturnValue(
-        of({ totaal: 0, resultaten: [], filterType: [] }) as never,
-      );
+    jest.spyOn(service, "list").mockReturnValue(
+      createQueryOptions({
+        totaal: 0,
+        resultaten: [],
+        filterType: [],
+      }) as never,
+    );
     jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
 
@@ -249,19 +254,20 @@ describe(InboxProductaanvragenListComponent.name, () => {
     expect(filterChangeSpy).not.toHaveBeenCalled();
   });
 
-  it("should populate dataSource and filterType from list response", () => {
+  it("should populate dataSource and filterType from list response", async () => {
     const rows = [
       makeProductaanvraag({ id: 1 }),
       makeProductaanvraag({ id: 2 }),
     ];
     jest.spyOn(service, "list").mockReturnValue(
-      of({
+      createQueryOptions({
         totaal: 2,
         resultaten: rows,
         filterType: ["type-A", "type-B"],
       }) as never,
     );
     component["filterChange"].emit();
+    await sleep();
     expect(component["dataSource"].data).toEqual(rows);
     expect(component.paginator.length).toBe(2);
     expect(component["filterType"]).toEqual(["type-A", "type-B"]);
@@ -271,9 +277,9 @@ describe(InboxProductaanvragenListComponent.name, () => {
     jest
       .spyOn(service, "list")
       .mockReturnValue(
-        of({ totaal: 0, filterType: [] } as Partial<
+        createQueryOptions({ totaal: 0, filterType: [] } as Partial<
           GeneratedType<"RestInboxProductaanvraagResultaat">
-        > as unknown as GeneratedType<"RestInboxProductaanvraagResultaat">),
+        > as unknown as GeneratedType<"RestInboxProductaanvraagResultaat">) as never,
       );
     component["filterChange"].emit();
     expect(component["dataSource"].data).toEqual([]);

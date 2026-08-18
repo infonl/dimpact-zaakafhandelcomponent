@@ -15,9 +15,9 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { EMPTY, of, throwError } from "rxjs";
+import { EMPTY } from "rxjs";
 import { DatumRange } from "src/app/zoeken/model/datum-range";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -125,7 +125,7 @@ describe(ZaakLinkComponent.name, () => {
   });
 
   describe("searchCases()", () => {
-    it("calls findLinkableZaken with correct parameters and sets results", () => {
+    it("calls findLinkableZaken with correct parameters and sets results", async () => {
       const { component, zoekenService, zaak } = setup();
       const resultRow = makeFakeSearchResult();
       const fakeResponse = fromPartial<
@@ -133,9 +133,7 @@ describe(ZaakLinkComponent.name, () => {
       >({ resultaten: [resultRow], totaal: 1 });
       jest
         .spyOn(zoekenService, "findLinkableZaken")
-        .mockReturnValue(
-          of(fakeResponse) as ReturnType<ZoekenService["findLinkableZaken"]>,
-        );
+        .mockReturnValue(createQueryOptions(fakeResponse) as never);
 
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"][0],
@@ -158,6 +156,7 @@ describe(ZaakLinkComponent.name, () => {
         new Date(2026, 4, 1),
       );
       component["searchCases"]();
+      await sleep();
 
       expect(zoekenService.findLinkableZaken).toHaveBeenCalledWith({
         zaakUuid: zaak.uuid,
@@ -179,21 +178,20 @@ describe(ZaakLinkComponent.name, () => {
       expect(component["loading"]).toBe(false);
     });
 
-    it("clears loading on error", () => {
+    it("clears loading on error", async () => {
       const { component, zoekenService } = setup();
-      jest
-        .spyOn(zoekenService, "findLinkableZaken")
-        .mockReturnValue(
-          throwError(() => new Error("server error")) as ReturnType<
-            ZoekenService["findLinkableZaken"]
-          >,
-        );
+      jest.spyOn(zoekenService, "findLinkableZaken").mockReturnValue({
+        queryKey: ["koppelbare zaken die falen"],
+        queryFn: () => Promise.reject(new Error("server error")),
+        retry: false,
+      } as never);
 
       component["form"].controls.caseRelationType.setValue(
         component["caseRelationOptionsList"][0],
       );
       component["form"].controls.caseNumberToSearchFor.setValue("ZAAK-2026");
       component["searchCases"]();
+      await sleep();
 
       expect(component["loading"]).toBe(false);
     });

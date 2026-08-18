@@ -14,7 +14,7 @@ import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -151,7 +151,7 @@ describe(BesluitCreateComponent.name, () => {
     it("is shown when selected besluittype has publication enabled", () => {
       jest
         .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-        .mockReturnValue(of([]) as never);
+        .mockReturnValue(createQueryOptions([]) as never);
       component["form"].controls.besluit.setValue(
         fakeBesluittypeWithPublication,
       );

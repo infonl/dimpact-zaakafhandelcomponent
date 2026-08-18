@@ -19,8 +19,8 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { EMPTY, of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { EMPTY } from "rxjs";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -80,7 +80,12 @@ describe(BesluitEditComponent.name, () => {
     componentRef.setInput("besluit", besluit);
 
     testQueryClient.setQueryData(
-      ["besluit-documenten", "zaak-uuid-1", besluit.besluittype?.id],
+      TestBed.inject(
+        InformatieObjectenService,
+      ).listEnkelvoudigInformatieobjecten({
+        zaakUUID: "zaak-uuid-1",
+        besluittypeUUID: besluit.besluittype?.id,
+      }).queryKey,
       mockDocuments,
     );
 
@@ -117,7 +122,7 @@ describe(BesluitEditComponent.name, () => {
 
     jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of(mockDocuments));
+      .mockReturnValue(createQueryOptions(mockDocuments) as never);
     jest.spyOn(utilService, "openSnackbar");
     jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
   });

@@ -13,9 +13,12 @@ import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import {
+  provideQueryClient,
+  provideTanStackQuery,
+} from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { of } from "rxjs";
+
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
@@ -54,7 +57,7 @@ function buildExpectedQueryKey() {
   params.sorteerRichting = "desc";
   params.rows = 5;
   params.page = 0;
-  return ["zaak zoeken dashboard", params];
+  return ["/rest/zoeken/list", params];
 }
 
 describe(ZaakZoekenCardComponent.name, () => {
@@ -72,6 +75,7 @@ describe(ZaakZoekenCardComponent.name, () => {
         TranslateModule.forRoot(),
       ],
       providers: [
+        provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
@@ -81,7 +85,13 @@ describe(ZaakZoekenCardComponent.name, () => {
     }).compileComponents();
 
     zoekenService = TestBed.inject(ZoekenService);
-    jest.spyOn(zoekenService, "list").mockReturnValue(of(makeResultaat(0)));
+    jest.spyOn(zoekenService, "list").mockImplementation(
+      (body) =>
+        ({
+          queryKey: ["/rest/zoeken/list", body],
+          queryFn: () => Promise.resolve(makeResultaat(0)),
+        }) as never,
+    );
   });
 
   afterEach(() => {

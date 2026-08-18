@@ -4,12 +4,14 @@
  */
 
 import { CommonModule } from "@angular/common";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   Component,
   EventEmitter,
   Input,
   Output,
   ViewChild,
+  inject,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -32,6 +34,7 @@ import { UtilService } from "../../core/service/util.service";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
+import { runQuery } from "../../shared/http/run-query";
 
 @Component({
   selector: "zac-bag-zoek",
@@ -74,6 +77,8 @@ export class BagZoekComponent {
     "acties",
   ];
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private bagService: BAGService,
     private utilService: UtilService,
@@ -85,16 +90,16 @@ export class BagZoekComponent {
     if (this.trefwoorden.value) {
       this.loading = true;
       this.utilService.setLoading(true);
-      this.bagService
-        .listAdressen({
+      runQuery(
+        this.queryClient,
+        this.bagService.listAdressen({
           trefwoorden: this.trefwoorden.value,
-        })
-
-        .subscribe((adressen) => {
-          this.bagObjecten.data = adressen.resultaten ?? [];
-          this.loading = false;
-          this.utilService.setLoading(false);
-        });
+        }),
+      ).subscribe((adressen) => {
+        this.bagObjecten.data = adressen.resultaten ?? [];
+        this.loading = false;
+        this.utilService.setLoading(false);
+      });
     }
   }
 

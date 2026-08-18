@@ -4,6 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   AfterViewInit,
   Component,
@@ -12,6 +13,7 @@ import {
   OnChanges,
   OnInit,
   ViewChild,
+  inject,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -36,6 +38,7 @@ import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { getDefaultZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekenService } from "../../zoeken/zoeken.service";
+import { runQuery } from "../../shared/http/run-query";
 
 @Component({
   selector: "zac-bag-zaken-tabel",
@@ -86,6 +89,8 @@ export class BagZakenTabelComponent
   private init = false;
   protected inclusiefAfgerondeZaken = new FormControl(false);
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly utilService: UtilService,
     private readonly zoekenService: ZoekenService,
@@ -109,9 +114,10 @@ export class BagZakenTabelComponent
     this.zoekParameters.rows = this.paginator.pageSize;
     this.zoekParameters.alleenOpenstaandeZaken =
       !this.inclusiefAfgerondeZaken.value;
-    return this.zoekenService.list(this.zoekParameters) as Observable<
-      ZoekResultaat<ZaakZoekObject>
-    >;
+    return runQuery(
+      this.queryClient,
+      this.zoekenService.list(this.zoekParameters),
+    ) as Observable<ZoekResultaat<ZaakZoekObject>>;
   }
 
   ngAfterViewInit() {

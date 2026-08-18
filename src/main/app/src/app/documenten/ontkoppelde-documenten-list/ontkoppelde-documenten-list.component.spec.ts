@@ -19,7 +19,10 @@ import { InformatieObjectenService } from "src/app/informatie-objecten/informati
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { createMutationOptions } from "../../../test-helpers";
+import {
+  createMutationOptions,
+  createQueryOptions,
+} from "../../../test-helpers";
 import { OntkoppeldeDocumentenService } from "../ontkoppelde-documenten.service";
 import { OntkoppeldeDocumentenListComponent } from "./ontkoppelde-documenten-list.component";
 
@@ -70,7 +73,9 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
 
     jest
       .spyOn(ontkoppeldeDocumentenService, "list")
-      .mockReturnValue(of({ totaal: 0, resultaten: [] }));
+      .mockReturnValue(
+        createQueryOptions({ totaal: 0, resultaten: [] }) as never,
+      );
     jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
 
@@ -270,7 +275,7 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     expect(filterChangeSpy).not.toHaveBeenCalled();
   });
 
-  it("should populate dataSource and filterOntkoppeldDoor from list response", () => {
+  it("should populate dataSource and filterOntkoppeldDoor from list response", async () => {
     const docs = [
       makeDetachedDocument({
         id: 1,
@@ -289,9 +294,12 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     ];
     jest
       .spyOn(ontkoppeldeDocumentenService, "list")
-      .mockReturnValue(of({ totaal: 2, resultaten: docs }));
+      .mockReturnValue(
+        createQueryOptions({ totaal: 2, resultaten: docs }) as never,
+      );
 
     component["filterChange"].emit();
+    await sleep();
 
     expect(component["dataSource"].data).toEqual(docs);
     expect(component.paginator.length).toBe(2);
@@ -305,11 +313,11 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     jest
       .spyOn(ontkoppeldeDocumentenService, "list")
       .mockReturnValue(
-        of(
+        createQueryOptions(
           {} as Partial<
             GeneratedType<"RESTResultaatRestDetachedDocument">
           > as unknown as GeneratedType<"RESTResultaatRestDetachedDocument">,
-        ),
+        ) as never,
       );
 
     component["filterChange"].emit();

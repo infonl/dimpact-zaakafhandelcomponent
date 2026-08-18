@@ -4,6 +4,7 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import {
   ComponentFixture,
@@ -13,12 +14,13 @@ import {
 } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { Subject } from "rxjs";
+import { firstValueFrom, Subject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ContactmomentenService } from "../contactmomenten.service";
 import { KlantContactmomentenTabelComponent } from "./klant-contactmomenten-tabel.component";
+import { sleep, testQueryClient } from "../../../../setupJest";
 
 const makeContactmoment = (
   fields: Partial<GeneratedType<"RestContactmoment">> = {},
@@ -59,15 +61,20 @@ describe(KlantContactmomentenTabelComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideQueryClient(testQueryClient),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     }).compileComponents();
 
     contactmomentenService = TestBed.inject(ContactmomentenService);
     utilService = TestBed.inject(UtilService);
 
-    jest
-      .spyOn(contactmomentenService, "listContactmomenten")
-      .mockReturnValue(listSubject.asObservable());
+    jest.spyOn(contactmomentenService, "listContactmomenten").mockReturnValue({
+      queryKey: ["contactmomenten"],
+      queryFn: () => firstValueFrom(listSubject),
+    } as never);
     jest.spyOn(utilService, "setLoading").mockImplementation(() => undefined);
 
     fixture = TestBed.createComponent(KlantContactmomentenTabelComponent);
@@ -134,11 +141,12 @@ describe(KlantContactmomentenTabelComponent.name, () => {
         }),
       ];
 
-      beforeEach(fakeAsync(() => {
+      beforeEach(async () => {
+        await sleep();
         listSubject.next(makeResultaat(contactmoments, 2));
-        tick(0);
+        await sleep();
         fixture.detectChanges();
-      }));
+      });
 
       it("populates dataSource with returned contactmomenten", () => {
         expect(component["dataSource"].data).toHaveLength(2);
@@ -160,11 +168,12 @@ describe(KlantContactmomentenTabelComponent.name, () => {
     });
 
     describe("when resultaat has no resultaten", () => {
-      beforeEach(fakeAsync(() => {
+      beforeEach(async () => {
+        await sleep();
         listSubject.next(makeResultaat([], 0));
-        tick(0);
+        await sleep();
         fixture.detectChanges();
-      }));
+      });
 
       it("sets dataSource.data to empty array", () => {
         expect(component["dataSource"].data).toHaveLength(0);
@@ -225,11 +234,13 @@ describe(KlantContactmomentenTabelComponent.name, () => {
       tick(0);
 
       const listSpy = jest.spyOn(contactmomentenService, "listContactmomenten");
-      listSpy.mockReturnValue(
-        new Subject<
-          GeneratedType<"RESTResultaatRestContactmoment">
-        >().asObservable(),
-      );
+      listSpy.mockReturnValue({
+        queryKey: ["contactmomenten opnieuw"],
+        queryFn: () =>
+          firstValueFrom(
+            new Subject<GeneratedType<"RESTResultaatRestContactmoment">>(),
+          ),
+      } as never);
 
       component.ngOnChanges();
 

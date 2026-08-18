@@ -23,7 +23,7 @@ import { of } from "rxjs";
 import { PolicyService } from "src/app/policy/policy.service";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "src/app/shared/material/material.module";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../../setupJest";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
@@ -90,7 +90,9 @@ describe(PersoonZoekComponent.name, () => {
     jest
       .spyOn(klantenService, "listPersonen")
       .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({})),
+        createQueryOptions(
+          fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({}),
+        ) as never,
       );
 
     const configuratieService = TestBed.inject(ConfiguratieService);

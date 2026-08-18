@@ -15,7 +15,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { ZoekopdrachtComponent } from "../../gebruikersvoorkeuren/zoekopdracht/zoekopdracht.component";
@@ -87,7 +87,9 @@ describe(TakenMijnComponent.name, () => {
     zoekenService = TestBed.inject(ZoekenService);
     jest
       .spyOn(zoekenService, "list")
-      .mockReturnValue(of({ resultaten: [], totaal: 0 }) as never);
+      .mockReturnValue(
+        createQueryOptions({ resultaten: [], totaal: 0 }) as never,
+      );
 
     fixture = TestBed.createComponent(TakenMijnComponent);
     component = fixture.componentInstance;

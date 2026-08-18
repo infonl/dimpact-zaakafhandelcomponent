@@ -2,16 +2,14 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 import { inject, Injectable } from "@angular/core";
-import { queryOptions } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { lastValueFrom, map, Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { PostBody, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
-import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { appendFileToFormData } from "../shared/utils/file-upload";
 import { GeneratedType } from "../shared/utils/generated-types";
 
@@ -139,34 +137,10 @@ export class InformatieObjectenService {
   listEnkelvoudigInformatieobjecten(
     body: PutBody<"/rest/informatieobjecten/informatieobjectenList">,
   ) {
-    return this.zacHttpClient.PUT(
+    return this.zacQueryClient.PUT_QUERY(
       "/rest/informatieobjecten/informatieobjectenList",
       body,
     );
-  }
-
-  /**
-   * The list endpoint is a `PUT` (search-with-body), so it cannot use {@link ZacQueryClient.GET};
-   * we wrap the existing call in `queryOptions` instead. The input is constrained to the fields
-   * this query supports so the query key provably covers every discriminating field (passing other
-   * filters of the endpoint would otherwise collide on the cache).
-   */
-  listEnkelvoudigInformatieobjectenQuery(
-    body: Pick<
-      GeneratedType<"RestInformatieobjectZoekParameters">,
-      "zaakUUID" | "gekoppeldeZaakDocumenten"
-    >,
-  ) {
-    return queryOptions({
-      queryKey: [
-        "/rest/informatieobjecten/informatieobjectenList",
-        body.zaakUUID,
-        body.gekoppeldeZaakDocumenten,
-      ],
-      queryFn: () =>
-        lastValueFrom(this.listEnkelvoudigInformatieobjecten(body)),
-      staleTime: StaleTimes.Short,
-    });
   }
 
   readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID(uuid: string) {

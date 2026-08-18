@@ -4,6 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   AfterViewInit,
   Component,
@@ -11,6 +12,7 @@ import {
   OnChanges,
   OnInit,
   ViewChild,
+  inject,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
@@ -23,6 +25,7 @@ import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ContactmomentenService } from "../contactmomenten.service";
+import { runQuery } from "../../shared/http/run-query";
 
 @Component({
   selector: "zac-klant-contactmomenten-tabel",
@@ -61,6 +64,8 @@ export class KlantContactmomentenTabelComponent
   private init = false;
   protected isLoadingResults = true;
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly contactmomentenService: ContactmomentenService,
     private readonly utilService: UtilService,
@@ -79,7 +84,7 @@ export class KlantContactmomentenTabelComponent
         switchMap(() => {
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
-          return this.loadContactmomenten();
+          return runQuery(this.queryClient, this.loadContactmomenten());
         }),
         map((resultaat) => {
           this.isLoadingResults = false;

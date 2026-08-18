@@ -19,7 +19,10 @@ import { InformatieObjectenService } from "src/app/informatie-objecten/informati
 import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { createMutationOptions } from "../../../test-helpers";
+import {
+  createMutationOptions,
+  createQueryOptions,
+} from "../../../test-helpers";
 import { InboxDocumentenService } from "../inbox-documenten.service";
 import { InboxDocumentenListComponent } from "./inbox-documenten-list.component";
 
@@ -68,7 +71,9 @@ describe(InboxDocumentenListComponent.name, () => {
 
     jest
       .spyOn(inboxDocumentenService, "list")
-      .mockReturnValue(of({ totaal: 0, resultaten: [] }));
+      .mockReturnValue(
+        createQueryOptions({ totaal: 0, resultaten: [] }) as never,
+      );
     jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
 
@@ -282,14 +287,17 @@ describe(InboxDocumentenListComponent.name, () => {
     expect(filterChangeSpy).not.toHaveBeenCalled();
   });
 
-  it("should populate dataSource from list response in ngAfterViewInit", () => {
+  it("should populate dataSource from list response in ngAfterViewInit", async () => {
     const docs = [makeInboxDocument({ id: 1 }), makeInboxDocument({ id: 2 })];
     jest
       .spyOn(inboxDocumentenService, "list")
-      .mockReturnValue(of({ totaal: 2, resultaten: docs }));
+      .mockReturnValue(
+        createQueryOptions({ totaal: 2, resultaten: docs }) as never,
+      );
 
     // Re-trigger by emitting filterChange
     component["filterChange"].emit();
+    await sleep();
 
     expect(component["dataSource"].data).toEqual(docs);
     expect(component.paginator.length).toBe(2);
@@ -299,11 +307,11 @@ describe(InboxDocumentenListComponent.name, () => {
     jest
       .spyOn(inboxDocumentenService, "list")
       .mockReturnValue(
-        of(
+        createQueryOptions(
           {} as Partial<
             GeneratedType<"RESTResultaatRestInboxDocument">
           > as unknown as GeneratedType<"RESTResultaatRestInboxDocument">,
-        ),
+        ) as never,
       );
 
     component["filterChange"].emit();

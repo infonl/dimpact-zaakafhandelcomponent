@@ -5,8 +5,10 @@
 
 import { inject, Injectable, signal } from "@angular/core";
 import { Subject } from "rxjs";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { PathParameters, PutBody } from "../shared/http/http-client";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { runQuery } from "../shared/http/run-query";
+import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 const ZOEK_KOPPELBARE_ZAKEN_PATH =
   "/rest/zaken/gekoppelde-zaken/{zaakUuid}/zoek-koppelbare-zaken" as const;
@@ -27,14 +29,23 @@ export class ZoekenService {
   public readonly hasSearched = signal(false);
   public reset$ = new Subject<void>();
 
-  private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly queryClient = inject(QueryClient);
+
+  /**
+   * For the table data sources, which are built outside an injection context and
+   * so cannot reach the query client themselves.
+   */
+  list$(body: PutBody<"/rest/zoeken/list">) {
+    return runQuery(this.queryClient, this.list(body));
+  }
 
   list(body: PutBody<"/rest/zoeken/list">) {
-    return this.zacHttpClient.PUT("/rest/zoeken/list", body);
+    return this.zacQueryClient.PUT_QUERY("/rest/zoeken/list", body);
   }
 
   listDocumentKoppelbareZaken(body: PutBody<"/rest/zoeken/zaken">) {
-    return this.zacHttpClient.PUT("/rest/zoeken/zaken", {
+    return this.zacQueryClient.PUT_QUERY("/rest/zoeken/zaken", {
       ...body,
     });
   }
@@ -48,7 +59,7 @@ export class ZoekenService {
     startdatum,
     einddatum,
   }: Omit<FindLinkableZakenParams, "page" | "rows">) {
-    return this.zacHttpClient.PUT(
+    return this.zacQueryClient.PUT_QUERY(
       ZOEK_KOPPELBARE_ZAKEN_PATH,
       {
         relationType,

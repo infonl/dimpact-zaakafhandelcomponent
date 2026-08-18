@@ -20,7 +20,7 @@ import { provideRouter } from "@angular/router";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -131,7 +131,9 @@ describe(InformatieObjectLinkComponent.name, () => {
     jest
       .spyOn(zoekenService, "listDocumentKoppelbareZaken")
       .mockReturnValue(
-        of(mockCaseLinkSearchResult as Response<"/rest/zoeken/zaken", "put">),
+        createQueryOptions(
+          mockCaseLinkSearchResult as Response<"/rest/zoeken/zaken", "put">,
+        ) as never,
       );
 
     jest.spyOn(utilService, "setLoading").mockImplementation();
@@ -205,12 +207,13 @@ describe(InformatieObjectLinkComponent.name, () => {
     });
   });
 
-  it("should populate results after search", () => {
+  it("should populate results after search", async () => {
     componentRef.setInput("infoObject", mockInfoObjectRestDetachedDocument);
     fixture.detectChanges();
     component["form"].patchValue({ caseSearch: "ZAAK-001" });
 
     component["searchCases"]();
+    await sleep();
 
     expect(component["cases"].data).toEqual(
       mockCaseLinkSearchResult.resultaten,

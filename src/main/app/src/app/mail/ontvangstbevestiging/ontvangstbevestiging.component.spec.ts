@@ -19,7 +19,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { randomUUID } from "crypto";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
@@ -153,7 +153,7 @@ describe(OntvangstbevestigingComponent.name, () => {
       .mockReturnValue(of(mockDefaultAfzender));
     jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of(mockDocuments));
+      .mockReturnValue(createQueryOptions(mockDocuments) as never);
     jest
       .spyOn(mailtemplateService, "findMailtemplate")
       .mockReturnValue(of(mockMailtemplate));

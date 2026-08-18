@@ -16,7 +16,7 @@ type DeepPartial<T> = T extends null | undefined
     ? { [P in keyof T]?: DeepPartial<T[P]> }
     : T;
 
-export const fromPartial = <T,>(partial: NoInfer<DeepPartial<T>>): T =>
+export const fromPartial = <T>(partial: NoInfer<DeepPartial<T>>): T =>
   partial as T;
 
 export function updateComponentInputs<T extends OnChanges>(
@@ -65,5 +65,14 @@ export function createMutationOptions<TData, TVariables = void>(data: TData) {
   return {
     mutationKey: ["test-mutation"],
     mutationFn,
+  };
+}
+
+export function createQueryOptions<TData>(data: TData) {
+  const queryFn = jest.fn<Promise<TData>, []>().mockResolvedValue(data);
+
+  return {
+    queryKey: ["test-query"],
+    queryFn,
   };
 }

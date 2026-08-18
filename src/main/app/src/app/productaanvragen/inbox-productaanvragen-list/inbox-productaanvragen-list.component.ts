@@ -6,6 +6,7 @@
 import { NgFor, NgIf } from "@angular/common";
 import {
   AfterViewInit,
+  inject,
   Component,
   EventEmitter,
   OnDestroy,
@@ -39,7 +40,9 @@ import {
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { merge } from "rxjs";
+import { runQuery } from "../../shared/http/run-query";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { GebruikersvoorkeurenService } from "../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
@@ -144,6 +147,8 @@ export class InboxProductaanvragenListComponent
     },
   );
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly inboxProductaanvragenService: InboxProductaanvragenService,
     private readonly infoService: InformatieObjectenService,
@@ -171,7 +176,10 @@ export class InboxProductaanvragenListComponent
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
           this.updateListParameters();
-          return this.inboxProductaanvragenService.list(this.listParameters);
+          return runQuery(
+            this.queryClient,
+            this.inboxProductaanvragenService.list(this.listParameters),
+          );
         }),
         map((data) => {
           this.isLoadingResults = false;

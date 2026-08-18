@@ -4,17 +4,20 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of } from "rxjs";
+
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { BagZakenTabelComponent } from "./bag-zaken-tabel.component";
+import { createQueryOptions } from "../../../test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 
 const makeZoekResultaat = (
   fields: Partial<ZoekResultaat<ZaakZoekObject>> = {},
@@ -53,15 +56,17 @@ describe(BagZakenTabelComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideQueryClient(testQueryClient),
+        provideHttpClient(),
+        provideRouter([]),
+      ],
     }).compileComponents();
 
     zoekenService = TestBed.inject(ZoekenService);
     jest
       .spyOn(zoekenService, "list")
-      .mockReturnValue(
-        of(makeZoekResultaat()) as ReturnType<ZoekenService["list"]>,
-      );
+      .mockReturnValue(createQueryOptions(makeZoekResultaat()) as never);
 
     fixture = TestBed.createComponent(BagZakenTabelComponent);
     component = fixture.componentInstance;

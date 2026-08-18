@@ -16,7 +16,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { randomUUID } from "crypto";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { PipesModule } from "../../shared/pipes/pipes.module";
@@ -99,13 +99,13 @@ describe(KlantZakenTabelComponent.name, () => {
 
     zoekenService = TestBed.inject(ZoekenService);
     jest.spyOn(zoekenService, "list").mockReturnValue(
-      of(
+      createQueryOptions(
         fromPartial<ZoekResultaat<ZaakZoekObject>>({
           resultaten: mockCases,
           totaal: 4,
           filters: {},
         }),
-      ),
+      ) as never,
     );
 
     jest.spyOn(TestBed.inject(KlantenService), "listRoltypen").mockReturnValue(

@@ -10,10 +10,13 @@ import { MatPaginator } from "@angular/material/paginator";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import {
+  provideQueryClient,
+  provideTanStackQuery,
+} from "@tanstack/angular-query-experimental";
+
+import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -42,14 +45,6 @@ const cardData = new DashboardCard(
   "ZAAK_OP_NAAM",
 );
 
-const defaultParameters = {
-  signaleringType: cardData.signaleringType,
-  page: 0,
-  pageSize: 5,
-  sortField: "SIGNALERING_TIJDSTIP" as GeneratedType<"SorteerVeld">,
-  sortOrder: "DESC" as GeneratedType<"SorteerRichting">,
-};
-
 describe(ZakenCardComponent.name, () => {
   let fixture: ComponentFixture<ZakenCardComponent>;
   let signaleringenService: SignaleringenService;
@@ -62,6 +57,7 @@ describe(ZakenCardComponent.name, () => {
         TranslateModule.forRoot(),
       ],
       providers: [
+        provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
@@ -87,20 +83,17 @@ describe(ZakenCardComponent.name, () => {
     )!.componentInstance as MatPaginator;
   }
 
-  it("renders paginator length from cached query data on first detect cycle, even when only one page of rows is loaded", async () => {
-    testQueryClient.setQueryData(
-      ["aan mij toegekende zaken signaleringen", defaultParameters],
-      buildResultaat(25, 5),
-    );
-
+  it("renders paginator length from the query result total even when one page of rows is loaded", async () => {
+    const zakenQuery = createQueryOptions(buildResultaat(25, 5));
+    testQueryClient.setQueryData(zakenQuery.queryKey, buildResultaat(25, 5));
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(buildResultaat(25, 5)));
+      .mockReturnValue(zakenQuery as never);
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
     fixture.detectChanges();
-    await fixture.whenStable();
+    await sleep();
     fixture.detectChanges();
 
     expect(getPaginator().length).toBe(25);
@@ -109,7 +102,7 @@ describe(ZakenCardComponent.name, () => {
   it("does not bind the paginator to the dataSource so MatTableDataSource cannot overwrite paginator.length", () => {
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(buildResultaat(0)));
+      .mockReturnValue(createQueryOptions(buildResultaat(0)) as never);
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
@@ -119,18 +112,16 @@ describe(ZakenCardComponent.name, () => {
   });
 
   it("populates the data source with rows from the query result", async () => {
-    testQueryClient.setQueryData(
-      ["aan mij toegekende zaken signaleringen", defaultParameters],
-      buildResultaat(8),
-    );
+    const zakenQuery = createQueryOptions(buildResultaat(8));
+    testQueryClient.setQueryData(zakenQuery.queryKey, buildResultaat(8));
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(buildResultaat(8)));
+      .mockReturnValue(zakenQuery as never);
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
     fixture.detectChanges();
-    await fixture.whenStable();
+    await sleep();
     fixture.detectChanges();
 
     expect(fixture.componentInstance.dataSource.data).toHaveLength(8);
@@ -148,7 +139,7 @@ describe(ZakenCardComponent.name, () => {
   it("starts with the default tijdstip-desc sort so the request always carries an explicit ordering", () => {
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(buildResultaat(0)));
+      .mockReturnValue(createQueryOptions(buildResultaat(0)) as never);
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
@@ -165,7 +156,7 @@ describe(ZakenCardComponent.name, () => {
   it("propagates sort changes into the request and resets pagination back to the first page", () => {
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(buildResultaat(0)));
+      .mockReturnValue(createQueryOptions(buildResultaat(0)) as never);
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
@@ -192,7 +183,7 @@ describe(ZakenCardComponent.name, () => {
   it("reverts to the default sort order when the user toggles back to no direction", () => {
     jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(buildResultaat(0)));
+      .mockReturnValue(createQueryOptions(buildResultaat(0)) as never);
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
@@ -220,19 +211,19 @@ describe(ZakenCardComponent.name, () => {
   it("forwards sort fields to the signaleringen service when the query runs", async () => {
     const spy = jest
       .spyOn(signaleringenService, "listZakenSignalering")
-      .mockReturnValue(of(buildResultaat(0)));
+      .mockReturnValue(createQueryOptions(buildResultaat(0)) as never);
 
     fixture = TestBed.createComponent(ZakenCardComponent);
     fixture.componentInstance.data = cardData;
     fixture.detectChanges();
-    await fixture.whenStable();
+    await sleep();
 
     fixture.componentInstance.sort!.sortChange.emit({
       active: "ZAAK_IDENTIFICATIE",
       direction: "asc",
     });
     fixture.detectChanges();
-    await fixture.whenStable();
+    await sleep();
 
     expect(spy).toHaveBeenCalledWith("ZAAK_OP_NAAM", {
       page: 0,

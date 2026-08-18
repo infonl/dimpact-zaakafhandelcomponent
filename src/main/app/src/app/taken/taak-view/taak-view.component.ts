@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 Dimpact, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 import { CommonModule } from "@angular/common";
 import {
   ChangeDetectorRef,
@@ -11,6 +10,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
+  inject,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -30,8 +30,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { ActivatedRoute } from "@angular/router";
 import { FormioForm } from "@formio/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
-import { lastValueFrom } from "rxjs";
+import { QueryClient, injectQuery } from "@tanstack/angular-query-experimental";
 import { ZaakDocumentenComponent } from "src/app/zaken/zaak-documenten/zaak-documenten.component";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
@@ -181,6 +180,8 @@ export class TaakViewComponent
       this.completeTaakMutation.isPending(),
   );
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly takenService: TakenService,
@@ -317,7 +318,7 @@ export class TaakViewComponent
         ...(taak.taakdocumenten ?? []),
         ...mapStringToDocumentenStrings(taak.taakdata?.bijlagen),
       ];
-      const attachments = await lastValueFrom(
+      const attachments = await this.queryClient.fetchQuery(
         this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
           zaakUUID: zaak.uuid,
           informatieobjectUUIDs: allAttachments,
@@ -405,8 +406,7 @@ export class TaakViewComponent
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     const taskBody:
-      | PutBody<"/rest/taken/taakdata">
-      | PatchBody<"/rest/taken/complete"> = {
+      PutBody<"/rest/taken/taakdata"> | PatchBody<"/rest/taken/complete"> = {
       ...this.taak!,
       taakdata: {
         ...this.taak!.taakdata,

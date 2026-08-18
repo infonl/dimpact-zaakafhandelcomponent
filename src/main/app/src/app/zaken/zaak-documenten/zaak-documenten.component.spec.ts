@@ -14,8 +14,9 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { NEVER, of } from "rxjs";
+import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
+import { StaleTimes } from "../../shared/http/zac-query-client";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
@@ -92,7 +93,14 @@ describe(ZaakDocumentenComponent.name, () => {
 
     jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of([]));
+      .mockImplementation(
+        (body) =>
+          ({
+            queryKey: [LIST_QUERY_KEY, body],
+            queryFn: () => Promise.resolve([]),
+            staleTime: StaleTimes.Short,
+          }) as never,
+      );
     jest
       .spyOn(websocketService, "addListener")
       .mockReturnValue(fromPartial<WebsocketListener>({}));
@@ -209,7 +217,8 @@ describe(ZaakDocumentenComponent.name, () => {
 
       expect(invalidateSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          queryKey: [LIST_QUERY_KEY, "zaak-uuid-1"],
+          queryKey: [LIST_QUERY_KEY],
+          predicate: expect.any(Function),
         }),
       );
     });
@@ -249,7 +258,10 @@ describe(ZaakDocumentenComponent.name, () => {
     it("is disabled while documents are loading", async () => {
       jest
         .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-        .mockReturnValue(NEVER);
+        .mockReturnValue({
+          queryKey: ["documenten die blijven laden"],
+          queryFn: () => new Promise(() => {}),
+        } as never);
       fixture = TestBed.createComponent(ZaakDocumentenComponent);
       loader = TestbedHarnessEnvironment.loader(fixture);
       component = fixture.componentInstance;
@@ -264,7 +276,13 @@ describe(ZaakDocumentenComponent.name, () => {
 
     it("is enabled once loading has finished", async () => {
       // Seed the cache so the query mounts with fresh data and is not fetching.
-      testQueryClient.setQueryData([LIST_QUERY_KEY, "zaak-uuid-1", true], []);
+      testQueryClient.setQueryData(
+        [
+          LIST_QUERY_KEY,
+          { zaakUUID: "zaak-uuid-1", gekoppeldeZaakDocumenten: true },
+        ],
+        [],
+      );
       await createComponent(fakeZaakMetRelaties);
       const toggle = await loader.getHarness(MatSlideToggleHarness);
       expect(await toggle.isDisabled()).toBe(false);
@@ -275,7 +293,13 @@ describe(ZaakDocumentenComponent.name, () => {
     it("shows the no-data message once loading has finished and the table is empty", async () => {
       // Seed the cache so the query mounts with fresh (empty) data and is not fetching.
       // The default zaak has no related cases, so the query key uses gekoppeldeZaakDocumenten: false.
-      testQueryClient.setQueryData([LIST_QUERY_KEY, "zaak-uuid-1", false], []);
+      testQueryClient.setQueryData(
+        [
+          LIST_QUERY_KEY,
+          { zaakUUID: "zaak-uuid-1", gekoppeldeZaakDocumenten: false },
+        ],
+        [],
+      );
       await createComponent();
       const text = fixture.nativeElement.textContent;
       expect(text).toContain("msg.geen.gegevens.gevonden");
@@ -332,7 +356,8 @@ describe(ZaakDocumentenComponent.name, () => {
 
       expect(invalidateSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          queryKey: [LIST_QUERY_KEY, "zaak-uuid-1"],
+          queryKey: [LIST_QUERY_KEY],
+          predicate: expect.any(Function),
         }),
       );
     });

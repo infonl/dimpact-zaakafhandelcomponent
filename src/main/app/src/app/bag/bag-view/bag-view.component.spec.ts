@@ -4,6 +4,7 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatNativeDateModule } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -16,6 +17,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { BagLocatieComponent } from "../bag-locatie/bag-locatie.component";
 import { BagZakenTabelComponent } from "../bag-zaken-tabel/bag-zaken-tabel.component";
 import { BAGViewComponent } from "./bag-view.component";
+import { testQueryClient } from "../../../../setupJest";
 
 const makeBAGObject = (
   fields: Partial<GeneratedType<"RESTBAGObject">> = {},
@@ -48,6 +50,7 @@ describe(BAGViewComponent.name, () => {
         BagLocatieComponent,
       ],
       providers: [
+        provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideRouter([]),
         {

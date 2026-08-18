@@ -11,6 +11,7 @@ import {
   EventEmitter,
   input,
   ViewChild,
+  inject,
 } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -24,7 +25,7 @@ import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { QueryClient, injectQuery } from "@tanstack/angular-query-experimental";
 import { lastValueFrom, merge, Observable } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -45,6 +46,7 @@ import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 import { KlantenService } from "../klanten.service";
+import { runQuery } from "../../shared/http/run-query";
 
 @Component({
   selector: "zac-klant-zaken-tabel",
@@ -119,6 +121,8 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       ),
   }));
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly utilService: UtilService,
     private readonly zoekenService: ZoekenService,
@@ -142,9 +146,10 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     this.zoekParameters.rows = this.paginator.pageSize;
     this.zoekParameters.alleenOpenstaandeZaken =
       !this.inclusiefAfgerondeZaken.value;
-    return this.zoekenService.list(this.zoekParameters) as Observable<
-      ZoekResultaat<ZaakZoekObject>
-    >;
+    return runQuery(
+      this.queryClient,
+      this.zoekenService.list(this.zoekParameters),
+    ) as Observable<ZoekResultaat<ZaakZoekObject>>;
   }
 
   private updateActieveFilters() {
