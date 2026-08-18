@@ -17,7 +17,7 @@ services:
       - POSTGRES_PASSWORD=keycloak
       - POSTGRES_DB=keycloak
     volumes:
-      - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
+      - zac-keycloak-database-data:/var/lib/postgresql/data
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.6.4@sha256:0aae0de7fca85525f727d3354df17896092de8bb26ae4c12d89c77e5df8cbce4
@@ -94,7 +94,7 @@ services:
       - BAG_API_KEY=${BAG_API_KEY:-please-request-a-bag-api-key}
     volumes:
       - ./scripts/docker-compose/imports/openzaak-database:/docker-entrypoint-initdb.d
-      - ./scripts/docker-compose/volume-data/openzaak-database-data:/var/lib/postgresql/data
+      - openzaak-database-data:/var/lib/postgresql/data
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -319,7 +319,7 @@ services:
       - POSTGRES_DB=openklant
     volumes:
       - ./scripts/docker-compose/imports/openklant-database:/docker-entrypoint-initdb.d
-      - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
+      - openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
     image: maykinmedia/open-klant:2.15.0@sha256:ce59a2c60dab1c14e62fe34a99511839390dd2d482983c27334241e0d60c693d
@@ -498,7 +498,7 @@ services:
     command: postgres -c max_connections=300 -c log_min_messages=LOG
     volumes:
       - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
-      - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
+      - opennotificaties-database-data:/var/lib/postgresql/data
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties:
@@ -603,7 +603,7 @@ services:
       - "54328:5432"
     volumes:
       - ./scripts/docker-compose/imports/openarchiefbeheer-database:/docker-entrypoint-initdb.d
-      - ./scripts/docker-compose/volume-data/openarchiefbeheer-database-data:/var/lib/postgresql/data
+      - openarchiefbeheer-database-data:/var/lib/postgresql/data
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
@@ -715,7 +715,7 @@ services:
       timeout: 10s
       retries: 10
     volumes:
-      - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
+      - pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.1.1@sha256:803596bb1f365a1296a4ef450a35fea5022798190b7b7a467a896c42675e280e
@@ -768,7 +768,7 @@ services:
       POSTGRES_DB: zac
     volumes:
       - ./scripts/docker-compose/imports/zac-database/init-zac-database.sql:/docker-entrypoint-initdb.d/init-zac-database.sql
-      - ./scripts/docker-compose/volume-data/zac-database-data:/var/lib/postgresql/data
+      - zac-database-data:/var/lib/postgresql/data
 
   zac:
     # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
@@ -885,7 +885,7 @@ services:
       - POSTGRES_PASSWORD=openformulieren
       - POSTGRES_DB=openformulieren
     volumes:
-      - ./scripts/docker-compose/volume-data/openformulieren-database-data:/var/lib/postgresql/data
+      - openformulieren-database-data:/var/lib/postgresql/data
     profiles: [ "openformulieren" ]
 
   openformulieren-init:
@@ -1098,3 +1098,11 @@ volumes:
   openformulieren-media:
   openformulieren-private-media:
   openformulieren-log:
+  zac-keycloak-database-data:
+  openzaak-database-data:
+  openklant-database-data:
+  opennotificaties-database-data:
+  openarchiefbeheer-database-data:
+  pabc-database-data:
+  zac-database-data:
+  openformulieren-database-data:
