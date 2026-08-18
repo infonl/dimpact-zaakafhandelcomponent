@@ -27,11 +27,6 @@ describe(BpmnService.name, () => {
     jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   describe("deleteProcessDefinition", () => {
     it("names the deleted process definition in the confirmation", async () => {
       await runMutationOnSuccess(
