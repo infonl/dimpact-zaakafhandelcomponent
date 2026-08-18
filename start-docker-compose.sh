@@ -46,6 +46,16 @@ localZac=false
 disableZacOpenTelemetry=true
 disableOnePassword=false
 profiles=()
+postgresVolumes=(
+  "zac-keycloak-database-data"
+  "openzaak-database-data"
+  "openklant-database-data"
+  "opennotificaties-database-data"
+  "openarchiefbeheer-database-data"
+  "pabc-database-data"
+  "zac-database-data"
+  "openformulieren-database-data"
+)
 
 [ -f fix-permissions.sh ] && ./fix-permissions.sh
 
@@ -54,6 +64,10 @@ while getopts ':dhzblmtonafe' OPTION; do
     d)
       echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
       rm -rf $volumeDataFolder
+      echo "Deleting Postgres named Docker volumes .."
+      for postgresVolume in "${postgresVolumes[@]}"; do
+        docker volume rm --force "zac_$postgresVolume" >/dev/null 2>&1 || true
+      done
       echo "Done"
       ;;
     h)
@@ -133,14 +147,7 @@ if [ "$pullZac" = "true" ]; then
 fi
 
 # Ensure that Docker Compose volume-data directories are created with current user
-mkdir -p $volumeDataFolder/openklant-database-data
-mkdir -p $volumeDataFolder/openzaak-database-data
-mkdir -p $volumeDataFolder/opennotificaties-database-data
-mkdir -p $volumeDataFolder/openformulieren-database-data
-mkdir -p $volumeDataFolder/zac-keycloak-database-data
 mkdir -p $volumeDataFolder/solr-data
-mkdir -p $volumeDataFolder/zac-database-data
-mkdir -p $volumeDataFolder/zac-keycloak-database-data
 
 # Build comma separated profile list
 profilesList=""
