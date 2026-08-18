@@ -40,7 +40,6 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import {
   FormioChangeEvent,
   FormioCustomEvent,
@@ -51,6 +50,7 @@ import {
   mapFormGroupToTaskData,
   mapTaskdataToTaskInformation,
 } from "../../formulieren/taken/taak.utils";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectAddComponent } from "../../informatie-objecten/informatie-object-add/informatie-object-add.component";
 import { InformatieObjectCreateAttendedComponent } from "../../informatie-objecten/informatie-object-create-attended/informatie-object-create-attended.component";
@@ -411,7 +411,8 @@ export class TaakViewComponent
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     const taskBody:
-      PutBody<"/rest/taken/taakdata"> | PatchBody<"/rest/taken/complete"> = {
+      | PutBody<"/rest/taken/taakdata">
+      | PatchBody<"/rest/taken/complete"> = {
       ...this.taak!,
       taakdata: {
         ...this.taak!.taakdata,
