@@ -23,7 +23,6 @@ import { Observable, of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
-import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
@@ -84,10 +83,8 @@ describe(ZaakBetrokkeneListComponent.name, () => {
       .spyOn(ZakenService.prototype, "deleteBetrokkene")
       .mockReturnValue(deleteBetrokkeneMutation as never);
 
-    const zaakRollenListener = fromPartial<WebsocketListener>({});
-
     const rendered = await render(ZaakBetrokkeneListComponent, {
-      inputs: { zaak: fakeZaak, zaakRollenListener },
+      inputs: { zaak: fakeZaak },
       imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideHttpClient(withInterceptorsFromDi()),
