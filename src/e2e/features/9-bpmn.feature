@@ -57,23 +57,21 @@ Feature: BPMN
   Scenario: Bob opens and fills in the sign documents form
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
+    And "Bob" adds a document to the zaak
     And "Bob" opens the "Select documents to sign" task
     Then "Bob" sees the select documents to sign form
-    When "Bob" selects document "file A" for signing
-    And "Bob" selects document "file B" for signing
+    When "Bob" selects document "dent" for signing
     And "Bob" submits the filled-in form
 
   Scenario: Bob verifies the documents to sign and confirms signing
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
     When "Bob" opens the "Verify documents to sign" task
-    Then "Bob" sees 2 documents in the to be signed list
-    Then "Bob" sees document "file A" in the to be signed list
-    Then "Bob" sees document "file B" in the to be signed list
+    Then "Bob" sees 1 document(s) in the to be signed list
+    Then "Bob" sees document "dent" in the to be signed list
     When "Bob" confirms the signing of the documents
     When Employee "Bob" is on the newly created zaak
-    And "Bob" sees document "file A" has been signed
-    And "Bob" sees document "file B" has been signed
+    And "Bob" sees document "dent" has been signed
 
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac

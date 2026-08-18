@@ -482,7 +482,7 @@ When(
 );
 
 Then(
-  "{string} sees {int} documents in the to be signed list",
+  "{string} sees {int} document\\(s) in the to be signed list",
   { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
@@ -606,5 +606,32 @@ Then(
         hasText: "check_circle",
       }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+  },
+);
+
+When(
+  "{string} adds a document to the zaak",
+  { timeout: FORTY_SECONDS_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await this.page.getByText("Document toevoegen").click();
+    await this.page.getByText("Bestandsnaam").click();
+    await this.page
+      .locator('input[type="file"]')
+      .setInputFiles(path.join(__dirname, "../testdata/dent.jpg"));
+    await this.page.getByRole("combobox", { name: "Documenttype" }).click();
+    await this.page
+      .locator(".mat-mdc-select-panel")
+      .getByRole("option")
+      .first()
+      .click();
+    await this.page.getByRole("combobox", { name: "Status" }).click();
+    await this.page
+      .locator(".mat-mdc-select-panel")
+      .getByRole("option")
+      .first()
+      .click();
+    await this.page
+      .getByRole("button", { name: "Toevoegen", exact: true })
+      .click();
   },
 );
