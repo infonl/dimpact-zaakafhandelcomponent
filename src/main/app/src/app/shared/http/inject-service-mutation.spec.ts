@@ -22,10 +22,6 @@ describe(injectServiceMutation.name, () => {
     });
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-  });
-
   function injectWithOverrides(
     serviceOptions: CreateMutationOptions<string, DefaultError, void, unknown>,
     overrides?: CreateMutationOptions<string, DefaultError, void, unknown>,
