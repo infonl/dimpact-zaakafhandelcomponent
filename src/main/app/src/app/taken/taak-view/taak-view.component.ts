@@ -39,6 +39,7 @@ import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { mapStringToDocumentenStrings } from "../../documenten/document-utils";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import {
   FormioChangeEvent,
   FormioCustomEvent,
@@ -181,6 +182,12 @@ export class TaakViewComponent
       this.completeTaakMutation.isPending(),
   );
 
+  protected readonly hasFailed = computed(
+    () =>
+      this.updateTaakdataMutation.isError() ||
+      this.completeTaakMutation.isError(),
+  );
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly takenService: TakenService,
@@ -194,6 +201,7 @@ export class TaakViewComponent
     private readonly changeDetectorRef: ChangeDetectorRef,
     private readonly formBuilder: FormBuilder,
     private readonly informatieObjectenService: InformatieObjectenService,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {
     super();
   }
@@ -405,8 +413,7 @@ export class TaakViewComponent
 
   onHardCodedFormSubmit(formGroup: FormGroup, partial = false) {
     const taskBody:
-      | PutBody<"/rest/taken/taakdata">
-      | PatchBody<"/rest/taken/complete"> = {
+      PutBody<"/rest/taken/taakdata"> | PatchBody<"/rest/taken/complete"> = {
       ...this.taak!,
       taakdata: {
         ...this.taak!.taakdata,
@@ -459,12 +466,17 @@ export class TaakViewComponent
     }
     if (!this.taak) return;
 
+    // Re-initialise from the response so the view reflects whatever the flow decided, without waiting
+    // for the websocket event to arrive.
+    const onSuccess = (task: GeneratedType<"RestTask">) =>
+      this.init(task, false);
+
     if (submission.state === "submitted") {
-      this.completeTaakMutation.mutate(this.taak);
+      this.completeTaakMutation.mutate(this.taak, { onSuccess });
       return;
     }
 
-    this.updateTaakdataMutation.mutate(this.taak);
+    this.updateTaakdataMutation.mutate(this.taak, { onSuccess });
   }
 
   onFormioFormChange(event: FormioChangeEvent) {
