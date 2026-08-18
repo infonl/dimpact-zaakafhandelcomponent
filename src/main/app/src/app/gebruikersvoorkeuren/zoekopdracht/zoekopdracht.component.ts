@@ -66,6 +66,9 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
   private readonly removeZoekopdrachtActiefMutation = injectMutation(() =>
     this.gebruikersvoorkeurenService.removeZoekopdrachtActief(),
   );
+  private readonly setZoekopdrachtActiefMutation = injectMutation(() =>
+    this.gebruikersvoorkeurenService.setZoekopdrachtActief(),
+  );
 
   constructor(
     private readonly gebruikersvoorkeurenService: GebruikersvoorkeurenService,
@@ -102,9 +105,7 @@ export class ZoekopdrachtComponent implements OnInit, OnDestroy {
     this.actieveZoekopdracht = zoekopdracht;
     this.actieveFilters = true;
     this.zoekopdracht.emit(this.actieveZoekopdracht);
-    this.gebruikersvoorkeurenService
-      .setZoekopdrachtActief(this.actieveZoekopdracht)
-      .subscribe();
+    this.setZoekopdrachtActiefMutation.mutate(this.actieveZoekopdracht);
   }
 
   protected deleteZoekopdracht(
