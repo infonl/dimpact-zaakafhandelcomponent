@@ -60,8 +60,8 @@ class ZtcClientService @Inject constructor(
         const val EXPIRATION_TIME_HOURS: Long = 1
 
         /**
-         * Name of the zaaktype eigenschap that marks a zaaktype as being 'zaakspecifiek autoriseerbaar'.
-         * Open Zaak limits eigenschap names to 20 characters, hence the abbreviated name.
+         * Marks a zaaktype as being 'zaakspecifiek autoriseerbaar'.
+         * The name is abbreviated because Open Zaak caps the length of eigenschap names.
          */
         const val ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM = "ZAAK_GEAUTORISEERD"
 
