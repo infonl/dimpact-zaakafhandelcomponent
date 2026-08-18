@@ -5,6 +5,7 @@
 
 import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { lastValueFrom } from "rxjs";
 import { mapStringToDocumentenStrings } from "../../../documenten/document-utils";
@@ -20,6 +21,7 @@ export class DocumentVerzendenPostTaskForm extends AbstractTaskForm {
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
+  private readonly queryClient = inject(QueryClient);
 
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
     const documenten = await lastValueFrom(
@@ -54,7 +56,7 @@ export class DocumentVerzendenPostTaskForm extends AbstractTaskForm {
     );
 
     const documenten = documentUUIDs.length
-      ? await lastValueFrom(
+      ? await this.queryClient.fetchQuery(
           this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
             zaakUUID: taak.zaakUuid,
             informatieobjectUUIDs: documentUUIDs,

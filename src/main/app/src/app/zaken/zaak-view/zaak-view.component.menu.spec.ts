@@ -29,13 +29,14 @@ import { notifyManager } from "@tanstack/query-core";
 import { of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
-import { fromPartial } from "src/test-helpers";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { InformatieObjectCreateAttendedComponent } from "../../informatie-objecten/informatie-object-create-attended/informatie-object-create-attended.component";
 import { KlantenService } from "../../klanten/klanten.service";
 import { NotitiesComponent } from "../../notities/notities.component";
@@ -1051,6 +1052,12 @@ describe(ZaakViewComponent.name, () => {
         configuratieService.readAllowedFileTypesQuery().queryKey,
         [],
       );
+      jest
+        .spyOn(
+          TestBed.inject(InformatieObjectenService),
+          "listEnkelvoudigInformatieobjecten",
+        )
+        .mockReturnValue(createQueryOptions([]) as never);
 
       mockActivatedRoute.data.next({ zaak: zaakWithEveryPanel });
       fixture.detectChanges();
