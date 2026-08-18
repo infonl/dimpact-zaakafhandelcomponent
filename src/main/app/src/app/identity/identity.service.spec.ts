@@ -35,11 +35,6 @@ describe(IdentityService.name, () => {
     zacQueryClient = TestBed.inject(ZacQueryClient);
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   describe("listGroups", () => {
     it("fetches all active groups", () => {
       jest.spyOn(zacHttpClient, "GET").mockReturnValue(of([] as never));
