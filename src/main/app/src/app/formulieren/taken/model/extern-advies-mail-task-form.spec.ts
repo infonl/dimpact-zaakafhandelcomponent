@@ -6,7 +6,9 @@
 import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { testQueryClient } from "../../../../../setupJest";
 import { fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../../klanten/klanten.service";
@@ -43,7 +45,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [provideHttpClient()],
+      providers: [provideHttpClient(), provideQueryClient(testQueryClient)],
     });
 
     zakenService = TestBed.inject(ZakenService);

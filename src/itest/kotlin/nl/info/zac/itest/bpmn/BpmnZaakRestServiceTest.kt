@@ -258,10 +258,11 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
             )
-            then("the response should be a 204 HTTP response") {
+            then("the response should contain the aborted zaak") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HttpURLConnection.HTTP_NO_CONTENT
+                response.code shouldBe HttpURLConnection.HTTP_OK
+                responseBody.shouldContainJsonKeyValue("uuid", bpmnZaakUuid.toString())
             }
         }
     }

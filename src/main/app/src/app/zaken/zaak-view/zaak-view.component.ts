@@ -7,8 +7,12 @@ import { ComponentType } from "@angular/cdk/portal";
 import {
   AfterViewInit,
   Component,
+  computed,
+  effect,
   inject,
   OnDestroy,
+  signal,
+  untracked,
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -21,7 +25,6 @@ import { TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { forkJoin, from } from "rxjs";
-import { tap } from "rxjs/operators";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { PolicyService } from "src/app/policy/policy.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
@@ -30,6 +33,7 @@ import { BAGService } from "../../bag/bag.service";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
+import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
@@ -45,6 +49,7 @@ import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { IntakeAfrondenDialogComponent } from "../intake-afronden-dialog/intake-afronden-dialog.component";
+import { isRestZaak } from "../is-rest-zaak";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZaakAfhandelenDialogComponent } from "../zaak-afhandelen-dialog/zaak-afhandelen-dialog.component";
 import { ZaakBrondatumZettenDialogComponent } from "../zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component";
@@ -79,7 +84,28 @@ export class ZaakViewComponent
   private readonly queryClient = inject(QueryClient);
 
   readonly indicatiesLayout = IndicatiesLayout;
-  zaak!: GeneratedType<"RestZaak">;
+
+  private readonly zaakUuid = signal<string | undefined>(undefined);
+
+  private readonly zaakQuery = injectQuery(() => {
+    const uuid = this.zaakUuid();
+    return {
+      ...this.zakenService.readZaakQuery(uuid ?? ""),
+      enabled: Boolean(uuid),
+    };
+  });
+
+  get zaak(): GeneratedType<"RestZaak"> {
+    return this.zaakQuery.data()!;
+  }
+
+  // Narrowed off `zaakQuery.data()` so this only changes value (and re-runs
+  // dependent effects) when `isOpgeschort` itself changes, not on every
+  // unrelated zaak content write.
+  private readonly isOpgeschort = computed(
+    () => this.zaakQuery.data()?.isOpgeschort,
+  );
+
   zaakOpschorting!: GeneratedType<"RESTZaakOpschorting">;
   menu: MenuItem[] = [];
   actiefPlanItem: GeneratedType<"RESTPlanItem"> | null = null;
@@ -155,20 +181,25 @@ export class ZaakViewComponent
     super();
     this.route.data.pipe(takeUntilDestroyed()).subscribe((data) => {
       const zaak = data["zaak"] as GeneratedType<"RestZaak">;
-      this.init(zaak);
+      this.zakenService.cacheZaak(zaak);
+      this.zaakUuid.set(zaak.uuid);
 
-      this.zaakListener = this.websocketService.addListenerWithSnackbar(
+      this.zaakListener = this.websocketService.addListener(
         Opcode.ANY,
         ObjectType.ZAAK,
         zaak.uuid,
-        () => this.updateZaak(),
+        (event) => {
+          void this.onZaakChanged(event).catch((error: unknown) =>
+            console.error("Websocket zaak listener error: ", error),
+          );
+        },
       );
 
       this.zaakRollenListener = this.websocketService.addListenerWithSnackbar(
         Opcode.UPDATED,
         ObjectType.ZAAK_ROLLEN,
         zaak.uuid,
-        () => this.updateZaak(),
+        () => this.invalidateBetrokkenen(),
       );
 
       this.zaakBesluitenListener =
@@ -185,16 +216,30 @@ export class ZaakViewComponent
 
       this.loadNotitieRechten();
     });
-  }
 
-  private init(zaak: GeneratedType<"RestZaak">) {
-    this.zaak = zaak;
-    this.invalidateZaakHistorie();
-    this.loadBagObjecten();
-    this.setupMenu();
-    this.loadOpschorting();
-    this.setDateFieldIconSet();
-    ViewResourceUtil.actieveZaak = zaak;
+    effect(() => {
+      const uuid = this.zaakUuid();
+      if (!uuid) return;
+      // loadBagObjecten reads the whole zaak getter internally (for .uuid) —
+      // untracked so that doesn't also make this effect re-run on unrelated
+      // content changes.
+      untracked(() => this.loadBagObjecten());
+    });
+
+    effect(() => {
+      const isOpgeschort = this.isOpgeschort();
+      if (isOpgeschort === undefined) return;
+      untracked(() => this.loadOpschorting());
+    });
+
+    effect(() => {
+      const zaak = this.zaakQuery.data();
+      if (!zaak) return;
+      this.invalidateZaakHistorie();
+      this.setupMenu();
+      this.setDateFieldIconSet();
+      ViewResourceUtil.actieveZaak = zaak;
+    });
   }
 
   ngAfterViewInit() {
@@ -675,7 +720,6 @@ export class ZaakViewComponent
 
   private openPlanItemStartenDialog(planItem: GeneratedType<"RESTPlanItem">) {
     this.actionsSidenav.close();
-    this.websocketService.doubleSuspendListener(this.zaakListener);
     const userEventListenerDialog =
       this.createUserEventListenerDialog(planItem);
     this.dialog
@@ -755,19 +799,19 @@ export class ZaakViewComponent
           this.zaak.zaaktype.uuid,
         ),
         (reden) =>
-          this.zakenService
-            .afbreken(this.zaak.uuid, { zaakbeeindigRedenId: reden.id! })
-            .pipe(
-              tap(() =>
-                this.websocketService.suspendListener(this.zaakListener),
-              ),
-            ),
+          this.zakenService.afbreken(this.zaak.uuid, {
+            zaakbeeindigRedenId: reden.id!,
+          }),
       )
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
         if (result) {
-          this.updateZaak();
+          if (isRestZaak(result)) {
+            this.zakenService.cacheZaak(result);
+          } else {
+            this.updateZaak();
+          }
           this.zaakTakenComponent.reload();
           this.utilService.openSnackbar("msg.zaak.afgebroken");
         }
@@ -777,17 +821,17 @@ export class ZaakViewComponent
   private openZaakHeropenenDialog() {
     this.zaakDialogService
       .openHeropenen((reden) =>
-        this.zakenService
-          .heropenen(this.zaak.uuid, { reden })
-          .pipe(
-            tap(() => this.websocketService.suspendListener(this.zaakListener)),
-          ),
+        this.zakenService.heropenen(this.zaak.uuid, { reden }),
       )
       .afterClosed()
       .subscribe((result) => {
         this.activeSideAction = null;
         if (result) {
-          this.updateZaak();
+          if (isRestZaak(result)) {
+            this.zakenService.cacheZaak(result);
+          } else {
+            this.updateZaak();
+          }
           this.zaakTakenComponent.reload();
           this.utilService.openSnackbar("msg.zaak.heropend");
         }
@@ -836,7 +880,7 @@ export class ZaakViewComponent
       .subscribe((result) => {
         this.activeSideAction = null;
         if (result) {
-          this.init(result);
+          this.zakenService.cacheZaak(result);
           this.utilService.openSnackbar("msg.zaak.opgeschort");
         }
       });
@@ -852,7 +896,7 @@ export class ZaakViewComponent
       .subscribe((result) => {
         this.activeSideAction = null;
         if (result) {
-          this.init(result);
+          this.zakenService.cacheZaak(result);
           this.utilService.openSnackbar("msg.zaak.verlengd");
         }
       });
@@ -899,8 +943,47 @@ export class ZaakViewComponent
   }
 
   public updateZaak() {
-    this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
-      this.init(zaak);
+    this.zakenService
+      .readZaak(this.zaak.uuid)
+      .subscribe((zaak) => this.zakenService.cacheZaak(zaak));
+  }
+
+  /**
+   * Refetches the zaak and only stays quiet when the refetch succeeded and
+   * its content is unchanged from what was already cached. TanStack's
+   * structural sharing keeps the same object reference when a refetch
+   * returns a deep-equal payload, so a reference comparison is enough to
+   * tell a genuine change made by someone else from the echo of our own
+   * save (which already updated the cache from the save's own response). A
+   * failed refetch is never treated as an echo, so it still announces the
+   * change rather than silently doing nothing.
+   */
+  private async onZaakChanged(event: ScreenEvent) {
+    const queryKey = this.zakenService.readZaakQuery(this.zaak.uuid).queryKey;
+    const zaakBeforeRefetch = this.queryClient.getQueryData(queryKey);
+
+    await this.queryClient.refetchQueries({ queryKey });
+
+    const refetchSucceeded =
+      this.queryClient.getQueryState(queryKey)?.status === "success";
+    const zaakAfterRefetch = this.queryClient.getQueryData(queryKey);
+    if (refetchSucceeded && zaakAfterRefetch === zaakBeforeRefetch) return;
+
+    forkJoin({
+      msgPart1: this.translate.get(
+        "msg.gewijzigd.objecttype." + event.objectType,
+      ),
+      msgPart2: this.translate.get(
+        event.objectType.indexOf("_") < 0
+          ? "msg.gewijzigd.2"
+          : "msg.gewijzigd.2.details",
+      ),
+      msgPart3: this.translate.get("msg.gewijzigd.operatie." + event.opcode),
+      msgPart4: this.translate.get("msg.gewijzigd.4"),
+    }).subscribe((result) => {
+      this.utilService.openSnackbar(
+        result.msgPart1 + result.msgPart2 + result.msgPart3 + result.msgPart4,
+      );
     });
   }
 
@@ -942,7 +1025,9 @@ export class ZaakViewComponent
   private loadBesluiten() {
     this.zakenService
       .listBesluitenForZaak(this.zaak.uuid)
-      .subscribe((besluiten) => (this.zaak.besluiten = besluiten));
+      .subscribe((besluiten) =>
+        this.zakenService.cacheZaak({ ...this.zaak, besluiten }),
+      );
   }
 
   private loadNotitieRechten() {
@@ -952,7 +1037,6 @@ export class ZaakViewComponent
   }
 
   protected initiatorGeselecteerd(initiator: GeneratedType<"RestPersoon">) {
-    this.websocketService.suspendListener(this.zaakRollenListener);
     this.actionsSidenav.close();
 
     if (this.zaak.initiatorIdentificatie) {
@@ -988,7 +1072,7 @@ export class ZaakViewComponent
   ) {
     if (!zaak) return;
 
-    this.zaak = zaak;
+    this.zakenService.cacheZaak(zaak);
     const naam = [
       zaak.initiatorIdentificatie?.kvkNummer,
       zaak.initiatorIdentificatie?.vestigingsnummer,
@@ -1000,7 +1084,6 @@ export class ZaakViewComponent
   }
 
   protected deleteInitiator() {
-    this.websocketService.suspendListener(this.zaakRollenListener);
     this.zaakDialogService
       .openOntkoppelInitiator((reden) =>
         (() => {
@@ -1025,7 +1108,7 @@ export class ZaakViewComponent
         if (result) {
           this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
           this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
-            this.zaak = zaak;
+            this.zakenService.cacheZaak(zaak);
             this.invalidateZaakHistorie();
           });
         }
@@ -1033,7 +1116,6 @@ export class ZaakViewComponent
   }
 
   protected betrokkeneGeselecteerd(klantgegevens: KlantGegevens) {
-    this.websocketService.suspendListener(this.zaakRollenListener);
     void this.actionsSidenav.close();
     this.zakenService
       .createBetrokkene({
@@ -1045,7 +1127,7 @@ export class ZaakViewComponent
         ),
       })
       .subscribe((zaak) => {
-        this.zaak = zaak;
+        this.zakenService.cacheZaak(zaak);
         this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
           roltype: klantgegevens.betrokkeneRoltype.naam,
         });
@@ -1062,7 +1144,6 @@ export class ZaakViewComponent
   }
 
   protected adresGeselecteerd(bagObject: GeneratedType<"RESTBAGObject">) {
-    this.websocketService.suspendListener(this.zaakListener);
     this.bagService
       .create({
         zaakUuid: this.zaak.uuid,
@@ -1188,9 +1269,7 @@ export class ZaakViewComponent
               },
             ),
           );
-        })().pipe(
-          tap(() => this.websocketService.suspendListener(this.zaakListener)),
-        ),
+        })(),
       )
       .afterClosed()
       .subscribe((result) => {

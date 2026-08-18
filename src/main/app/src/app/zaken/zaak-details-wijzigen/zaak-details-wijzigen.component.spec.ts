@@ -27,16 +27,14 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import {
-  provideQueryClient,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import moment from "moment";
 import { of } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
 import { UtilService } from "src/app/core/service/util.service";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { FormHelper } from "../../shared/form/helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -91,7 +89,7 @@ describe(CaseDetailsEditComponent.name, () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
-        provideQueryClient(new QueryClient()),
+        provideQueryClient(testQueryClient),
         {
           provide: DateAdapter,
           useClass: MomentDateAdapter,
@@ -785,6 +783,25 @@ describe(CaseDetailsEditComponent.name, () => {
         MatButtonHarness.with({ text: /actie.opslaan/ }),
       );
       expect(await submitButton.isDisabled()).toBe(true);
+    });
+
+    it("caches the zaak returned by the save so the view updates without a refetch", async () => {
+      const updatedZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: "zaak-123",
+        omschrijving: "fakeUpdatedOmschrijving",
+      });
+      const cacheZaak = jest.spyOn(zakenService, "cacheZaak");
+      renderComponent();
+      component["form"].controls.reden.enable();
+      component["form"].controls.reden.setValue("fakeReden");
+
+      component["onSubmit"]();
+      await new Promise(requestAnimationFrame);
+
+      expectUpdateZaakRequest().flush(updatedZaak);
+      await new Promise(requestAnimationFrame);
+
+      expect(cacheZaak).toHaveBeenCalledWith(updatedZaak);
     });
   });
 });

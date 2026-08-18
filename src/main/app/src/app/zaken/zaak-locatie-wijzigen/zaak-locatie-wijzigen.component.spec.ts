@@ -21,6 +21,7 @@ import { sleep, testQueryClient } from "../../../../setupJest";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { LocationService } from "../../shared/location/location.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZakenService } from "../zaken.service";
 import { CaseLocationEditComponent } from "./zaak-locatie-wijzigen.component";
 
 jest.mock("ol/control.js", () => ({ defaults: jest.fn(() => []) }));
@@ -132,11 +133,15 @@ const setup = (zaak?: Partial<GeneratedType<"RestZaak">>) => {
   const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
   jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
 
+  const zakenService = TestBed.inject(ZakenService);
+  jest.spyOn(zakenService, "cacheZaak");
+
   return {
     fixture,
     component,
     httpTestingController: TestBed.inject(HttpTestingController),
     foutAfhandelingService,
+    zakenService,
   };
 };
 
@@ -197,16 +202,21 @@ describe(CaseLocationEditComponent.name, () => {
   });
 
   it("emits and closes the side nav on a successful save", async () => {
-    const { component, fixture, httpTestingController } = setup();
+    const { component, fixture, httpTestingController, zakenService } = setup();
     jest.spyOn(component.locatie, "emit");
     makeSubmittable(component, point);
 
     component.save();
     await sleep();
-    httpTestingController.expectOne(ZAAK_LOCATIE_URL).flush(null);
+    const updatedZaak = fromPartial<GeneratedType<"RestZaak">>({
+      uuid: "zaak-123",
+      zaakgeometrie: point,
+    });
+    httpTestingController.expectOne(ZAAK_LOCATIE_URL).flush(updatedZaak);
     await sleep();
     fixture.detectChanges();
 
+    expect(zakenService.cacheZaak).toHaveBeenCalledWith(updatedZaak);
     expect(component.locatie.emit).toHaveBeenCalled();
     expect(mockSideNav.close).toHaveBeenCalled();
   });
