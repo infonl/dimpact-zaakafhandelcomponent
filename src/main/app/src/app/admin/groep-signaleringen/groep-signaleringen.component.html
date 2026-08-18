@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -62,6 +62,7 @@
                     [checked]="row[column]"
                     [id]="row.type + '_' + column + '_checkbox'"
                     [title]="'actie.signalering.' + column | translate"
+                    [aria-label]="'actie.signalering.' + column | translate"
                   >
                   </mat-checkbox>
                 </ng-container>

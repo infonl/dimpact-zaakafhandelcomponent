@@ -50,6 +50,7 @@
                   <button
                     mat-icon-button
                     class="tabel-toggle"
+                    [attr.aria-label]="tabel.code"
                     (click)="toggle(tabel)"
                   >
                     <mat-icon class="mat-icon-rtl-mirror">
@@ -77,6 +78,9 @@
                     <button
                       mat-icon-button
                       [matTooltip]="'actie.bewerken' | translate"
+                      attr.aria-label="{{ 'actie.bewerken' | translate }} {{
+                        tabel.code
+                      }}"
                       (click)="editReferentieTabel(tabel)"
                     >
                       <mat-icon>edit</mat-icon>
@@ -92,6 +96,9 @@
                       <button
                         mat-icon-button
                         [disabled]="tabel.systemTable"
+                        attr.aria-label="{{
+                          'actie.verwijderen' | translate
+                        }} {{ tabel.code }}"
                         (click)="verwijderReferentieTabel(tabel)"
                       >
                         <mat-icon>delete</mat-icon>

@@ -154,6 +154,7 @@
                     mat-icon-button
                     id="delete"
                     [disabled]="processDefinition().details?.inUse"
+                    [attr.aria-label]="'actie.verwijderen' | translate"
                     (click)="deleteBpmnForm(row.formKey)"
                   >
                     <mat-icon>delete</mat-icon>

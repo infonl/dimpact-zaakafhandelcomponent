@@ -24,10 +24,16 @@
       >
         <ng-container matColumnDef="collapse">
           <th mat-header-cell *matHeaderCellDef>
-            <mat-icon *ngIf="!allTakenExpanded" (click)="expandTaken(true)"
+            <mat-icon
+              *ngIf="!allTakenExpanded"
+              [attr.aria-label]="'actie.alles.uitklappen' | translate"
+              (click)="expandTaken(true)"
               >expand_more
             </mat-icon>
-            <mat-icon *ngIf="allTakenExpanded" (click)="expandTaken(false)"
+            <mat-icon
+              *ngIf="allTakenExpanded"
+              [attr.aria-label]="'actie.alles.inklappen' | translate"
+              (click)="expandTaken(false)"
               >expand_less
             </mat-icon>
           </th>
