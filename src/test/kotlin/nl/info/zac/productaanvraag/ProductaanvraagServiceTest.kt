@@ -15,6 +15,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import io.mockk.verifyOrder
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
@@ -51,6 +52,7 @@ import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
+import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
@@ -60,6 +62,7 @@ import nl.info.zac.productaanvraag.model.createBron
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
+import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
@@ -1471,6 +1474,60 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         type shouldBe productAanvraagType
                         initiatorID shouldBe null
                         aantalBijlagen shouldBe 0
+                    }
+                }
+            }
+        }
+
+        given(
+            """
+            A productaanvraag-dimpact object for which no zaaktype is configured, with an aanvraag PDF and an
+            attachment which are both still present as inbox documents
+            """
+        ) {
+            clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            val productAanvraagType = "fakeProductaanvraagTypeWithoutZaaktype"
+            val productAanvraagORObject = createORObject(
+                record = createObjectRecord(
+                    data = mapOf(
+                        "bron" to createBron(),
+                        "type" to productAanvraagType,
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
+                        "pdf" to URI("https://example.com/documenten/${UUID.randomUUID()}"),
+                        "bijlagen" to listOf(URI("https://example.com/documenten/${UUID.randomUUID()}"))
+                    ),
+                    registrationAt = LocalDate.of(2021, 1, 1)
+                ),
+                uuid = productAanvraagObjectUUID
+            )
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every {
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
+                    productAanvraagType
+                )
+            } returns emptyList()
+            every {
+                zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
+            every { inboxProductaanvraagService.create(any()) } just runs
+            every { inboxDocumentService.find(any<UUID>()) } returns createInboxDocument()
+            every { inboxDocumentService.deleteIfExists(any<Long>()) } just runs
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                then(
+                    """
+                    the inbox productaanvraag is created before its documents are removed from the inbox,
+                    so that a failure to create it never leaves those documents deleted without an inbox
+                    productaanvraag referring to them
+                    """
+                ) {
+                    verifyOrder {
+                        inboxProductaanvraagService.create(any())
+                        inboxDocumentService.deleteIfExists(any<Long>())
                     }
                 }
             }

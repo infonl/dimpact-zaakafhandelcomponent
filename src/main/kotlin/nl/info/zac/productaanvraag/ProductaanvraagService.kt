@@ -325,17 +325,13 @@ class ProductaanvraagService @Inject constructor(
             betrokkenen.first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }
                 .let { inboxProductaanvraag.initiatorID = it.inpBsn }
         }
-        productaanvraag.pdf?.let { pdfUri ->
-            val pdfUUID = pdfUri.extractUuid()
-            inboxProductaanvraag.aanvraagdocumentUUID = pdfUUID
-            deleteInboxDocument(pdfUUID)
-        }
-        productaanvraag.bijlagen?.let { bijlagen ->
-            inboxProductaanvraag.aantalBijlagen = bijlagen.size
-            bijlagen.forEach { deleteInboxDocument(it.extractUuid()) }
-        }
+        productaanvraag.pdf?.let { inboxProductaanvraag.aanvraagdocumentUUID = it.extractUuid() }
+        productaanvraag.bijlagen?.let { inboxProductaanvraag.aantalBijlagen = it.size }
 
         inboxProductaanvraagService.create(inboxProductaanvraag)
+
+        productaanvraag.pdf?.let { deleteInboxDocument(it.extractUuid()) }
+        productaanvraag.bijlagen?.forEach { deleteInboxDocument(it.extractUuid()) }
     }
 
     private fun processProductaanvraagWithBpmnZaaktype(

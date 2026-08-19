@@ -30,6 +30,9 @@
 - [x] 5.1 Add Kotest `BehaviorSpec` unit tests for the repository: a claim succeeds when the statement affects a row and is rejected when it does not, the configured staleness window is passed to the query, and `markDone` sets the status to `DONE`. Which rows the statement affects is decided by PostgreSQL and is covered by the integration test rather than by these unit tests.
 - [x] 5.2 Add a Kotest `BehaviorSpec` unit test for `ProductaanvraagService.handleProductaanvraag`: a rejected claim results in no calls to zaak-creation/CMMN/BPMN/inbox collaborators.
 - [x] 5.3 Extend `NotificationProductaanvraagCmmnTest` with a test that sends an already-handled productaanvraag notification a second time and asserts that ZAC still responds successfully and that no second acknowledgement of receipt email is sent.
+- [x] 5.4 Add `NotificationProductaanvraagIdempotencyTest`, which asserts the claim behaviour against real PostgreSQL by reading and seeding the `verwerkte_productaanvraag` table through `psql` in the `zac-database` container: simultaneous delivery of the same notification, take-over of a claim that outlived the staleness period, a claim held within that period being left untouched, and a released claim never being taken again. This task is not mentioned in the proposal.
+
+- [x] 5.5 Add a Kotest `BehaviorSpec` unit test asserting that `registreerInbox` creates the inbox productaanvraag before removing its documents from the inbox, and reorder `registreerInbox` accordingly. The documents were deleted in their own committed transactions before the inbox productaanvraag was persisted, so a failure to persist it - for example on the unique constraint over `uuid_aanvraagdocument` - deleted the aanvraag documents without anything referring to them, and the claim then kept retrying that same failure after every staleness period. This task is not mentioned in the proposal.
 
 ## 6. Verification and cleanup
 
