@@ -2953,7 +2953,7 @@
       "username": "zaakspecifiekeautorisatiebehandelaar1",
       "firstName": "Test",
       "lastName": "Zaakspecifieke Autorisatie Behandelaar 1",
-      "email": "${ZAC_ZAAKSPECIFIEKE_AUTORISATIE_BEHANDELAAR_TEST_1_EMAIL_ADDRESS}",
+      "email": "${ZAC_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_TEST_1_EMAIL_ADDRESS}",
       "emailVerified": true,
       "createdTimestamp": 1744010801635,
       "enabled": true,
