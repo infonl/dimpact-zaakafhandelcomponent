@@ -174,6 +174,12 @@ smartDocuments:
    # -- [OPTIONAL] Normal attended wizard flow started with user; when set to false no user added to the request and a special no_auth SmartDocuments URL is used
   wizardAuthEnabled: true
 
+# Productaanvraag handling configuration
+productaanvraag:
+   # -- Number of minutes after which a productaanvraag that was claimed for processing but never completed
+   # -- (for example because ZAC was restarted) may be picked up again by a redelivered notification.
+  claimTimeoutMinutes: 10
+
 # Signaleringen cronjob configuration
 signaleringen:
    # -- Delete any signaleringen older than this number of days when the corresponding admin endpoint is called.
