@@ -175,6 +175,34 @@ Only add a comment when it explains something the code cannot: a non-obvious "wh
 constraint. Never restate what the next line already says. If a comment is needed to explain *what* the code does,
 rename the variable or function instead.
 
+### Let the tests document the behaviour, not comments
+A test must state the behaviour. Do not repeat that behaviour in a comment above the code. A test is executable
+documentation. It fails when the code changes, but a wrong comment causes no failure. Therefore, write the
+explanation as a test description and not as a comment.
+
+This rule is a principle, not a language rule. It applies to all code in this repository, backend and frontend.
+Write a comment only for what no test can express. Examples: an ordering constraint between two external systems,
+or a workaround for a third-party bug.
+
+Move the sentence from the code to the spec:
+
+```
+// Before: the comment gives the explanation
+/**
+ * Adds the item to the inbox, unless it is already linked to a case,
+ * in which case nothing is added.
+ */
+function addToInbox(item)
+
+// After: the code gives no explanation ...
+function addToInbox(item)
+
+// ... because the spec gives it instead
+spec "given an item that is already linked to a case,
+      when the code adds it to the inbox,
+      then nothing is added, so that a linked item never appears in the inbox"
+```
+
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
 PR footer must include: `Solves PZ-XXX` (Jira ticket reference)
