@@ -1814,6 +1814,33 @@ describe(ZaakViewComponent.name, () => {
       expect(utilService.openSnackbar).toHaveBeenCalled();
     });
 
+    it("reloads the bag objecten, which are fetched separately from the zaak", async () => {
+      jest.mocked(bagService.list).mockClear();
+
+      const pending = zaakChangedCallback(zaakChangedEvent);
+      await flushRefetch({ ...zaak, omschrijving: "changedByOtherUser" });
+      await pending;
+
+      expect(bagService.list).toHaveBeenCalledWith(zaak.uuid);
+    });
+
+    it("reloads the opschorting of a zaak that was already opgeschort before the change", async () => {
+      mockActivatedRoute.data.next({ zaak: { ...zaak, isOpgeschort: true } });
+      fixture.detectChanges();
+      httpTestingController.match(() => true);
+      jest.mocked(zakenService.readOpschortingZaak).mockClear();
+
+      const pending = zaakChangedCallback(zaakChangedEvent);
+      await flushRefetch({
+        ...zaak,
+        isOpgeschort: true,
+        omschrijving: "changedByOtherUser",
+      });
+      await pending;
+
+      expect(zakenService.readOpschortingZaak).toHaveBeenCalledWith(zaak.uuid);
+    });
+
     it("notifies when the refetch fails, rather than silently treating it as an echo", async () => {
       const pending = zaakChangedCallback(zaakChangedEvent);
       await flushRefetchError();
@@ -1855,6 +1882,22 @@ describe(ZaakViewComponent.name, () => {
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: zakenService.listBetrokkenenVoorZaakQuery(zaak.uuid).queryKey,
       });
+    });
+
+    it("refetches the zaak, which carries the groep, behandelaar and rechten", () => {
+      const readZaakSpy = jest
+        .spyOn(zakenService, "readZaak")
+        .mockReturnValue(of(zaak));
+
+      zaakRollenCallback(
+        new ScreenEvent(
+          Opcode.UPDATED,
+          ObjectType.ZAAK_ROLLEN,
+          new ScreenEventId(zaak.uuid),
+        ),
+      );
+
+      expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
     });
   });
 
