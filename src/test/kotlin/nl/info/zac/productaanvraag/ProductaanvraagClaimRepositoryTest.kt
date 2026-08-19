@@ -28,7 +28,7 @@ class ProductaanvraagClaimRepositoryTest : BehaviorSpec({
     afterEach { checkUnnecessaryStub() }
 
     context("Claiming a productaanvraag") {
-        given("a productaanvraag that is not claimed, or whose claim has gone stale") {
+        scenario("a productaanvraag that is not claimed, or whose claim has gone stale") {
             val sqlStatement = slot<String>()
             every { entityManager.createNativeQuery(capture(sqlStatement)) } returns query
             every { query.setParameter(any<String>(), any()) } returns query
@@ -47,7 +47,7 @@ class ProductaanvraagClaimRepositoryTest : BehaviorSpec({
             }
         }
 
-        given("a productaanvraag that is already being handled or has already been handled") {
+        scenario("a productaanvraag that is already being handled or has already been handled") {
             every { entityManager.createNativeQuery(any<String>()) } returns query
             every { query.setParameter(any<String>(), any()) } returns query
             every { query.executeUpdate() } returns 0
@@ -63,7 +63,7 @@ class ProductaanvraagClaimRepositoryTest : BehaviorSpec({
     }
 
     context("Marking a productaanvraag as done") {
-        given("a claimed productaanvraag") {
+        scenario("a claimed productaanvraag") {
             val sqlStatement = slot<String>()
             every { entityManager.createNativeQuery(capture(sqlStatement)) } returns query
             every { query.setParameter(any<String>(), any()) } returns query
