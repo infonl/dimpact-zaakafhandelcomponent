@@ -132,7 +132,7 @@ val BEHANDELAAR_LONG_NAME_TEST = TestUser(
  * A behandelaar in domein test 1, additionally member of the zaakspecifiek autorisatie behandelaar
  * group and functional role for domein test 1.
  */
-val ZAAKSPECIFIEKE_AUTORISATIE_BEHANDELAAR_1 = TestUser(
+val ZAAKSPECIFIEK_GEAUTORISEERDE_BEHANDELAAR_1 = TestUser(
     username = "zaakspecifiekeautorisatiebehandelaar1",
     password = "zaakspecifiekeautorisatiebehandelaar1",
     displayName = "Test Zaakspecifieke Autorisatie Behandelaar 1",
