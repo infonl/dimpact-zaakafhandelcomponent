@@ -2950,9 +2950,9 @@
     },
     {
       "id": "8d9e0f1a-2b3c-4d5e-8f9a-0b1c2d3e4f5a",
-      "username": "zaakspecifiekeautorisatiebehandelaar1",
+      "username": "zaakspecifiekautorisatiebehandelaar1",
       "firstName": "Test",
-      "lastName": "Zaakspecifieke Autorisatie Behandelaar 1",
+      "lastName": "Zaakspecifiek Autorisatie Behandelaar 1",
       "email": "${ZAC_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_TEST_1_EMAIL_ADDRESS}",
       "emailVerified": true,
       "createdTimestamp": 1744010801635,
