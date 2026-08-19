@@ -4,6 +4,10 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
@@ -15,21 +19,48 @@ import { BpmnService } from "./bpmn.service";
 describe(BpmnService.name, () => {
   let service: BpmnService;
   let utilService: UtilService;
+  let httpTestingController: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideQueryClient(testQueryClient)],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
+      ],
     });
 
     service = TestBed.inject(BpmnService);
     utilService = TestBed.inject(UtilService);
+    httpTestingController = TestBed.inject(HttpTestingController);
     jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
   });
 
   afterEach(() => {
     testQueryClient.clear();
     jest.clearAllMocks();
+  });
+
+  describe("downloadProcessDefinition", () => {
+    it("requests the zip of the given process definition as a blob", () => {
+      const zipBlob = new Blob(["fakeZipContent"]);
+      const responses: Blob[] = [];
+
+      service
+        .downloadProcessDefinition("fakeProcessDefinitionKey")
+        .subscribe((response) => responses.push(response));
+
+      const request = httpTestingController.expectOne(
+        "/rest/bpmn-process-definitions/fakeProcessDefinitionKey/download",
+      );
+      expect(request.request.method).toBe("GET");
+      expect(request.request.responseType).toBe("blob");
+
+      request.flush(zipBlob);
+
+      expect(responses).toEqual([zipBlob]);
+    });
   });
 
   describe("deleteProcessDefinition", () => {

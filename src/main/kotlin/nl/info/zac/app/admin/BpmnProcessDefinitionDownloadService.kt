@@ -22,6 +22,7 @@ class BpmnProcessDefinitionDownloadService @Inject constructor(
 ) {
     companion object {
         private const val BPMN_FILE_EXTENSION = ".bpmn"
+        private const val FORM_FILE_EXTENSION = ".json"
         private const val UNUSED_FORMS_FOLDER = "unused-forms"
     }
 
@@ -38,10 +39,7 @@ class BpmnProcessDefinitionDownloadService @Inject constructor(
             StreamingOutput { outputStream ->
                 ZipOutputStream(BufferedOutputStream(outputStream)).use { zipOutputStream ->
                     files.forEach { (path, content) -> addToZip(path, content, zipOutputStream) }
-                    zipOutputStream.finish()
                 }
-                outputStream.flush()
-                outputStream.close()
             }
         }
 
@@ -79,29 +77,28 @@ class BpmnProcessDefinitionDownloadService @Inject constructor(
 
     private fun getProcessDefinitionPath(processDefinition: ProcessDefinition) =
         processDefinition.resourceName
-            ?.substringAfterLast('/')
+            ?.withoutDirectories()
             ?.takeIf { it.endsWith(BPMN_FILE_EXTENSION) }
             ?: "${processDefinition.key}$BPMN_FILE_EXTENSION"
 
-    /**
-     * Task form filenames are not unique per process definition version, whereas their names are.
-     * A filename that is already taken is therefore disambiguated using the form name,
-     * so that no form is silently left out of the zip.
-     */
+    private fun String.withoutDirectories() = substringAfterLast('/').substringAfterLast('\\')
+
     private fun getFormPath(
         folderPrefix: String,
         filename: String,
         name: String,
         usedPaths: MutableSet<String>
     ): String {
-        val path = "$folderPrefix$filename"
-        if (usedPaths.add(path)) return path
-        val extension = filename.substringAfterLast('.', "")
-        return if (extension.isEmpty()) {
-            "$path-$name"
-        } else {
-            "$folderPrefix${filename.dropLast(extension.length + 1)}-$name.$extension"
-        }.also(usedPaths::add)
+        val formName = name.withoutDirectories()
+        val formFilename = filename.withoutDirectories().ifBlank { "$formName$FORM_FILE_EXTENSION" }
+        val baseName = formFilename.substringBeforeLast('.')
+        val extension = formFilename.removePrefix(baseName)
+        return (
+            sequenceOf("$baseName$extension", "$baseName-$formName$extension") +
+                generateSequence(2) { it + 1 }.map { "$baseName-$formName-$it$extension" }
+            )
+            .map { "$folderPrefix$it" }
+            .first(usedPaths::add)
     }
 
     private fun addToZip(path: String, content: ByteArray, zipOutputStream: ZipOutputStream) {

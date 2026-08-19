@@ -13,7 +13,7 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { of } from "rxjs";
+import { of, throwError } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -104,6 +104,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
             setLoading: jest.fn(),
             setTitle: jest.fn(),
             openSnackbar: jest.fn(),
+            openSnackbarError: jest.fn(),
             downloadBlobResponse: jest.fn(),
           },
         },
@@ -392,7 +393,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
 
     beforeEach(() => {
       downloadButton = fixture.nativeElement.querySelector(
-        ".tree-group-row #download",
+        ".tree-group-row .download-definition",
       );
     });
 
@@ -412,6 +413,19 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       downloadButton.click();
 
       expect(component["expandedKey"]).toBeNull();
+    });
+
+    it("should show an error message and download nothing when the request fails", () => {
+      bpmnService.downloadProcessDefinition.mockReturnValue(
+        throwError(() => new Error("fakeDownloadFailure")),
+      );
+
+      downloadButton.click();
+
+      expect(utilService.openSnackbarError).toHaveBeenCalledWith(
+        "msg.error.bpmn.process.definition.download.failed",
+      );
+      expect(utilService.downloadBlobResponse).not.toHaveBeenCalled();
     });
   });
 

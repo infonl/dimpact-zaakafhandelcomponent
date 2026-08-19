@@ -163,14 +163,17 @@ export class BpmnProcessDefinitionsComponent
   }
 
   protected downloadProcessDefinition(node: BpmnProcessDefinitionGroupNode) {
-    this.bpmnService
-      .downloadProcessDefinition(node.key)
-      .subscribe((response) => {
+    this.bpmnService.downloadProcessDefinition(node.key).subscribe({
+      next: (response) =>
         this.utilService.downloadBlobResponse(
           response,
           `${node.key}-v${node.definition.version}.zip`,
-        );
-      });
+        ),
+      error: () =>
+        this.utilService.openSnackbarError(
+          "msg.error.bpmn.process.definition.download.failed",
+        ),
+    });
   }
 
   protected deleteProcessDefinition(processDefinition: {

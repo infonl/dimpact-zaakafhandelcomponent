@@ -160,6 +160,58 @@ class BpmnProcessDefinitionDownloadServiceTest : BehaviorSpec({
         }
     }
 
+    given("a task form whose filename is already taken by the disambiguated path of another form") {
+        stubProcessDefinitionModel(
+            formKeys = listOf("fakeAlphaFormName", "fakeBetaFormName", "fakeGammaFormName")
+        )
+        every { bpmnProcessDefinitionTaskFormService.listForms() } returns listOf(
+            createFormForProcessDefinition(name = "fakeAlphaFormName", filename = "fakeForm-fakeGammaFormName.json"),
+            createFormForProcessDefinition(name = "fakeBetaFormName", filename = "fakeForm.json"),
+            createFormForProcessDefinition(name = "fakeGammaFormName", filename = "fakeForm.json")
+        )
+
+        `when`("the zip is written") {
+            val zipEntries = bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+                .readZipEntries()
+
+            then("all three are included, the last one falling back to a numbered path") {
+                zipEntries.keys shouldContainExactly setOf(
+                    "fakeProcess.bpmn",
+                    "fakeForm-fakeGammaFormName.json",
+                    "fakeForm.json",
+                    "fakeForm-fakeGammaFormName-2.json"
+                )
+                zipEntries["fakeForm-fakeGammaFormName.json"] shouldBe """{ "name": "fakeAlphaFormName" }"""
+                zipEntries["fakeForm.json"] shouldBe """{ "name": "fakeBetaFormName" }"""
+                zipEntries["fakeForm-fakeGammaFormName-2.json"] shouldBe """{ "name": "fakeGammaFormName" }"""
+            }
+        }
+    }
+
+    given("a task form whose filename and name contain directories") {
+        stubProcessDefinitionModel(formKeys = listOf("../fakeTraversedFormName"))
+        every { bpmnProcessDefinitionTaskFormService.listForms() } returns listOf(
+            createBpmnProcessDefinitionTaskForm(
+                bpmnProcessDefinitionKey = PROCESS_DEFINITION_KEY,
+                bpmnProcessDefinitionVersion = PROCESS_DEFINITION_VERSION,
+                name = "../fakeTraversedFormName",
+                filename = "../../fakeTraversedForm.json"
+            )
+        )
+
+        `when`("the zip is written") {
+            val zipEntries = bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+                .readZipEntries()
+
+            then("the task form is placed in the root of the zip") {
+                zipEntries.keys shouldContainExactly setOf(
+                    "fakeProcess.bpmn",
+                    "fakeTraversedForm.json"
+                )
+            }
+        }
+    }
+
     given("a used and an unused task form that were uploaded under the same filename") {
         stubProcessDefinitionModel(formKeys = listOf("fakeUsedFormName"))
         every { bpmnProcessDefinitionTaskFormService.listForms() } returns listOf(
