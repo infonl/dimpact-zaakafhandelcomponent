@@ -43,9 +43,9 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </serviceTask>
-    <userTask id="startForm" name="Start" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="e2eStartForm" flowable:formFieldValidation="false">
+    <userTask id="multipleFormItemsForm" name="MultipleFormItems" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="e2eMultipleFormItemsForm" flowable:formFieldValidation="false">
       <extensionElements>
-        <flowable:static-form-key><![CDATA[e2eStartForm]]></flowable:static-form-key>
+        <flowable:static-form-key><![CDATA[e2eMultipleFormItemsForm]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
         <design:stencilid><![CDATA[FormTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
@@ -122,7 +122,7 @@
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
     </sequenceFlow>
-    <sequenceFlow id="SequenceFlow_380" sourceRef="startForm" targetRef="ServiceTask_374">
+    <sequenceFlow id="SequenceFlow_380" sourceRef="multipleFormItemsForm" targetRef="ServiceTask_374">
       <extensionElements>
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
@@ -147,7 +147,7 @@
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
     </sequenceFlow>
-    <sequenceFlow id="SequenceFlow_379" sourceRef="start" targetRef="startForm">
+    <sequenceFlow id="SequenceFlow_379" sourceRef="start" targetRef="multipleFormItemsForm">
       <extensionElements>
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
@@ -174,7 +174,7 @@
       <bpmndi:BPMNShape bpmnElement="ServiceTask_353" id="BPMNShape_ServiceTask_353">
         <omgdc:Bounds height="80.0" width="100.0" x="322.26836734182507" y="442.237721577535"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="startForm" id="BPMNShape_startForm">
+      <bpmndi:BPMNShape bpmnElement="multipleFormItemsForm" id="BPMNShape_multipleFormItemsForm">
         <omgdc:Bounds height="80.0" width="100.0" x="-437.1037220622187" y="292.8708996559036"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="ServiceTask_362" id="BPMNShape_ServiceTask_362">

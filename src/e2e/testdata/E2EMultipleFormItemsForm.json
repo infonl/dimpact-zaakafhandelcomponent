@@ -1,7 +1,7 @@
 {
   "display": "form",
-  "name": "e2eStartForm",
-  "title": "E2E Start Form",
+  "name": "e2eMultipleFormItemsForm",
+  "title": "E2E MultipleFormItems Form",
   "settings": {},
   "components": [
     {

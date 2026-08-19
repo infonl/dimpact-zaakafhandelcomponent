@@ -29,13 +29,13 @@ Feature: BPMN
   Scenario: Bob opens the initial task form
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
-    And "Bob" opens the "Start" task
+    And "Bob" opens the "MultipleFormItems" task
     Then "Bob" sees the form associated with the task
 
   Scenario: Bob creates two SmartDocuments Word files
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
-    And "Bob" opens the "Start" task
+    And "Bob" opens the "MultipleFormItems" task
     Given "Bob" creates a SmartDocuments Word file named "file A"
     When "Bob" reloads the page
     Then "Bob" sees document "file A" in the documents list
@@ -46,7 +46,7 @@ Feature: BPMN
   Scenario: Bob fills-in and submits the task form
     Given "Bob" is logged in to zac
     When Employee "Bob" is on the newly created zaak
-    And "Bob" opens the "Start" task
+    And "Bob" opens the "MultipleFormItems" task
     Then "Bob" sees the desired form fields values
     Given "Bob" fills all mandatory form fields
     And "Bob" submits the filled-in form
@@ -57,21 +57,26 @@ Feature: BPMN
   Scenario: Bob opens and fills in the sign documents form
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
-    And "Bob" adds a document to the zaak
+    And "Bob" adds document "File C" to the zaak
+    And "Bob" adds document "File D" to the zaak
+    And "Bob" adds document "File E" to the zaak
     And "Bob" opens the "Select documents to sign" task
     Then "Bob" sees the select documents to sign form
-    When "Bob" selects document "dent" for signing
+    When "Bob" selects document "File C" for signing
+    And "Bob" selects document "File D" for signing
     And "Bob" submits the filled-in form
 
   Scenario: Bob verifies the documents to sign and confirms signing
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
     When "Bob" opens the "Verify documents to sign" task
-    Then "Bob" sees 1 document(s) in the to be signed list
-    Then "Bob" sees document "dent" in the to be signed list
-    When "Bob" confirms the signing of the documents
+    Then "Bob" sees 2 document(s) in the to be signed list
+    Then "Bob" sees document "File C" in the to be signed list
+    Then "Bob" sees document "File D" in the to be signed list
+    When "Bob" selects document "File C" to be signed
+    And "Bob" submits the filled-in form
     When Employee "Bob" is on the newly created zaak
-    And "Bob" sees document "dent" has been signed
+    And "Bob" sees document "File C" has been signed
 
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac

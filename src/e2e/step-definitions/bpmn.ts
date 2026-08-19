@@ -8,9 +8,10 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import path from "path";
 import { z } from "zod";
 import {
-  FORTY_SECONDS_IN_MS,
-  TEN_SECONDS_IN_MS,
-  TWENTY_SECONDS_IN_MS,
+    FIVE_SECONDS_IN_MS,
+    FORTY_SECONDS_IN_MS,
+    TEN_SECONDS_IN_MS,
+    TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
@@ -18,7 +19,7 @@ import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
 const E2E_PROCESS_DEFINITION_NAME = "E2E Test BPMN Process Definition";
 const E2E_PROCESS_DEFINITION_BPMN_FILE = "E2ETestProcessDefinition.bpmn";
 const E2E_PROCESS_DEFINITION_FORM_FILES = [
-  "E2EStartForm.json",
+  "E2EMultipleFormItemsForm.json",
   "E2ESelectDocumentsForm.json",
   "E2ESignSelectedDocumentsForm.json",
   "E2ESummaryForm.json",
@@ -288,11 +289,11 @@ Then(
     });
 
     await expect(
-      this.page.getByRole("cell", { name: "Start", exact: true }),
+      this.page.getByRole("cell", { name: "MultipleFormItems", exact: true }),
     ).not.toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await completedTasksSwitch.click();
     await expect(
-      this.page.getByRole("cell", { name: "Start", exact: true }),
+      this.page.getByRole("cell", { name: "MultipleFormItems", exact: true }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
@@ -610,14 +611,18 @@ Then(
 );
 
 When(
-  "{string} adds a document to the zaak",
+  "{string} adds document {string} to the zaak",
   { timeout: FORTY_SECONDS_IN_MS },
-  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    title: string,
+  ) {
     await this.page.getByText("Document toevoegen").click();
     await this.page.getByText("Bestandsnaam").click();
     await this.page
       .locator('input[type="file"]')
-      .setInputFiles(path.join(__dirname, "../testdata/dent.jpg"));
+      .setInputFiles(path.join(__dirname, "../testdata", `${title}.docx`));
     await this.page.getByRole("combobox", { name: "Documenttype" }).click();
     await this.page
       .locator(".mat-mdc-select-panel")
@@ -633,5 +638,23 @@ When(
     await this.page
       .getByRole("button", { name: "Toevoegen", exact: true })
       .click();
+    await this.page.waitForTimeout(FIVE_SECONDS_IN_MS)
+  },
+);
+
+When(
+  "{string} selects document {string} to be signed",
+  { timeout: FORTY_SECONDS_IN_MS },
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    documentName: string,
+  ) {
+    const row = await documentGridRow(
+      this.page,
+      SIGN_DOCUMENTS_GRID_KEY,
+      documentName,
+    );
+    await row.getByRole("checkbox").check();
   },
 );
