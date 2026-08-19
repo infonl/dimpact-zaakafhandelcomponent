@@ -15,13 +15,11 @@ import {
   provideQueryClient,
 } from "@tanstack/angular-query-experimental";
 import { testQueryClient } from "../../../setupJest";
-import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
-import { UtilService } from "../core/service/util.service";
-import { InboxProductaanvragenService } from "./inbox-productaanvragen.service";
+import { fromPartial } from "../../test-helpers";
+import { GebruikersvoorkeurenService } from "./gebruikersvoorkeuren.service";
 
-describe(InboxProductaanvragenService.name, () => {
-  let service: InboxProductaanvragenService;
-  let utilService: UtilService;
+describe(GebruikersvoorkeurenService.name, () => {
+  let service: GebruikersvoorkeurenService;
   let httpTestingController: HttpTestingController;
 
   beforeEach(() => {
@@ -34,10 +32,8 @@ describe(InboxProductaanvragenService.name, () => {
       ],
     });
 
-    service = TestBed.inject(InboxProductaanvragenService);
-    utilService = TestBed.inject(UtilService);
+    service = TestBed.inject(GebruikersvoorkeurenService);
     httpTestingController = TestBed.inject(HttpTestingController);
-    jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -46,25 +42,31 @@ describe(InboxProductaanvragenService.name, () => {
     jest.clearAllMocks();
   });
 
-  describe("delete", () => {
-    it("addresses the productaanvraag by its id", async () => {
-      const request = service.delete().mutationFn!(
-        42,
+  describe("deleteZoekOpdrachten", () => {
+    it("addresses the zoekopdracht by its id", async () => {
+      const request = service.deleteZoekOpdrachten().mutationFn!(
+        7,
         fromPartial<MutationFunctionContext>({}),
       );
       httpTestingController
-        .expectOne("/rest/inbox-productaanvragen/42")
+        .expectOne("/rest/gebruikersvoorkeuren/zoekopdracht/7")
         .flush(null);
 
       await request;
     });
+  });
 
-    it("confirms the deletion to the user", async () => {
-      await runMutationOnSuccess(service.delete(), 42);
-
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.inboxProductaanvraag.verwijderen.uitgevoerd",
+  describe("removeZoekopdrachtActief", () => {
+    it("addresses the werklijst the zoekopdracht is active for", async () => {
+      const request = service.removeZoekopdrachtActief().mutationFn!(
+        "MIJN_ZAKEN",
+        fromPartial<MutationFunctionContext>({}),
       );
+      httpTestingController
+        .expectOne("/rest/gebruikersvoorkeuren/zoekopdracht/MIJN_ZAKEN/actief")
+        .flush(null);
+
+      await request;
     });
   });
 });

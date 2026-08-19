@@ -13,7 +13,9 @@ import {
 } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
+import type { MutationFunctionContext } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { fromPartial } from "../../../test-helpers";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ZacQueryClient } from "./zac-query-client";
 
@@ -48,7 +50,10 @@ describe(ZacQueryClient.name, () => {
           (id: number) => ({ parameters: { path: { id } } }),
         );
 
-        const response = options.mutationFn!(42, expect.anything());
+        const response = options.mutationFn!(
+          42,
+          fromPartial<MutationFunctionContext>({}),
+        );
         httpTestingController.expectOne("/rest/notities/42").flush(null);
 
         await response;
@@ -65,7 +70,7 @@ describe(ZacQueryClient.name, () => {
 
         const response = options.mutationFn!(
           { zaakUuid: "fakeZaakUuid", reden: "fakeReden" },
-          expect.anything(),
+          fromPartial<MutationFunctionContext>({}),
         );
         const request = httpTestingController.expectOne(
           "/rest/zaken/fakeZaakUuid/initiator",
@@ -83,7 +88,7 @@ describe(ZacQueryClient.name, () => {
 
         const response = options.mutationFn!(
           { zaakUuid: "fakeZaakUuid" },
-          expect.anything(),
+          fromPartial<MutationFunctionContext>({}),
         );
         const request = httpTestingController.expectOne("/rest/bag");
         request.flush(null);
@@ -108,7 +113,7 @@ describe(ZacQueryClient.name, () => {
         { status: 500 } as never,
         42 as never,
         undefined,
-        expect.anything(),
+        fromPartial<MutationFunctionContext>({}),
       );
 
       expect(foutAfhandelen).toHaveBeenCalled();
