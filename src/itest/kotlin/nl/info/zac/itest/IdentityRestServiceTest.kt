@@ -30,6 +30,7 @@ import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_1
 import nl.info.zac.itest.config.GROUP_RAADPLEGERS_TEST_2
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_1
 import nl.info.zac.itest.config.GROUP_RECORDMANAGERS_TEST_2
+import nl.info.zac.itest.config.GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -40,6 +41,7 @@ import nl.info.zac.itest.config.RAADPLEGER_EN_BEHANDELAAR_1
 import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.config.RECORDMANAGER_2
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
+import nl.info.zac.itest.config.ZAAKSPECIFIEKE_BEHANDELAAR_1
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -94,6 +96,11 @@ val TEST_GROUPS_ACTIVE =
                 {
                     "id": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.name}",
                     "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}",
+                    "active": true
+                },
+                {
+                    "id": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name}",
+                    "naam": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.description}",
                     "active": true
                 }
             ]
@@ -232,6 +239,10 @@ class IdentityServiceTest : BehaviorSpec({
                                 {
                                     "id": "${BEHANDELAAR_LONG_NAME_TEST.username}",
                                     "naam": "${BEHANDELAAR_LONG_NAME_TEST.displayName}"
+                                },
+                                {
+                                    "id": "${ZAAKSPECIFIEKE_BEHANDELAAR_1.username}",
+                                    "naam": "${ZAAKSPECIFIEKE_BEHANDELAAR_1.displayName}"
                                 }
                             ]
                     """.trimIndent()
@@ -251,11 +262,15 @@ class IdentityServiceTest : BehaviorSpec({
                 )
                 then("the group members are returned") {
                     response.code shouldBe HTTP_OK
-                    response.bodyAsString shouldEqualJson """
+                    response.bodyAsString shouldEqualSpecifiedJsonIgnoringOrder """
                         [
                             {
                                 "id": "${BEHANDELAAR_1.username}",
                                 "naam": "${BEHANDELAAR_1.displayName}"
+                            },
+                            {
+                                "id": "${ZAAKSPECIFIEKE_BEHANDELAAR_1.username}",
+                                "naam": "${ZAAKSPECIFIEKE_BEHANDELAAR_1.displayName}"
                             }
                         ]
                     """.trimIndent()
