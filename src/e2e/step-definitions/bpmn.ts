@@ -598,14 +598,8 @@ Then(
   "{string} sees that the processdefinition is correctly setup",
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    const processDefinitionRowHeader = processDefinitionGroupRow(
-      this.page,
-      E2E_PROCESS_DEFINITION_NAME,
-    ).locator(".tree-group-row");
     await expect(
-      processDefinitionRowHeader.locator("mat-icon.cursor-default", {
-        hasText: "check_circle",
-      }),
+      this.page.getByText(`Procesdefinitie '${E2E_PROCESS_DEFINITION_BPMN_FILE}' is geüpload`)
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
