@@ -8,10 +8,10 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import path from "path";
 import { z } from "zod";
 import {
-    FIVE_SECONDS_IN_MS,
-    FORTY_SECONDS_IN_MS,
-    TEN_SECONDS_IN_MS,
-    TWENTY_SECONDS_IN_MS,
+  FIVE_SECONDS_IN_MS,
+  FORTY_SECONDS_IN_MS,
+  TEN_SECONDS_IN_MS,
+  TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
@@ -599,7 +599,9 @@ Then(
   { timeout: FORTY_SECONDS_IN_MS },
   async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
     await expect(
-      this.page.getByText(`Procesdefinitie '${E2E_PROCESS_DEFINITION_BPMN_FILE}' is geüpload`)
+      this.page.getByText(
+        `Procesdefinitie '${E2E_PROCESS_DEFINITION_BPMN_FILE}' is geüpload`,
+      ),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
@@ -632,7 +634,7 @@ When(
     await this.page
       .getByRole("button", { name: "Toevoegen", exact: true })
       .click();
-    await this.page.waitForTimeout(FIVE_SECONDS_IN_MS)
+    await this.page.waitForTimeout(FIVE_SECONDS_IN_MS);
   },
 );
 
