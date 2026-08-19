@@ -6,6 +6,7 @@ package nl.info.zac.document.inboxdocument
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
@@ -40,7 +41,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
     }
 
     context("Creating an inbox document") {
-        given("an EnkelvoudigInformatieObject is available from the DRC service by UUID") {
+        given("an EnkelvoudigInformatieObject that is not linked to any zaak") {
             val uuid = UUID.randomUUID()
             val identificatie = "DOC-123"
             val creatiedatum = LocalDate.now()
@@ -56,6 +57,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
             }
 
             every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+            every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
             every { inboxDocumentRepository.save(capture(inboxDocumentSlot)) } just Runs
 
             `when`("the Inbox Document Service creates a Document from the EnkelvoudigInformatieObject's UUID") {
@@ -72,11 +74,38 @@ class InboxDocumentServiceTest : BehaviorSpec({
                     }
                 }
                 And("it returns the expected results") {
+                    result.shouldNotBeNull()
                     result.enkelvoudiginformatieobjectUUID shouldBe uuid
                     result.enkelvoudiginformatieobjectID shouldBe identificatie
                     result.creatiedatum shouldBe creatiedatum
                     result.titel shouldBe titel
                     result.bestandsnaam shouldBe bestandsnaam
+                }
+            }
+        }
+
+        given("an EnkelvoudigInformatieObject that is already linked to a zaak") {
+            val linkedUuid = UUID.randomUUID()
+            val linkedEnkelvoudigInformatieObject = createEnkelvoudigInformatieObject().apply {
+                setIdentificatie("DOC-456")
+                setTitel("fakeLinkedDocument")
+            }
+
+            every {
+                drcClientService.readEnkelvoudigInformatieobject(linkedUuid)
+            } returns linkedEnkelvoudigInformatieObject
+            every { zrcClientService.listZaakinformatieobjecten(linkedEnkelvoudigInformatieObject) } returns listOf(
+                createZaakInformatieobjectForReads()
+            )
+
+            `when`("the Inbox Document Service creates a Document from the EnkelvoudigInformatieObject's UUID") {
+                val result = inboxDocumentService.create(linkedUuid)
+
+                then("no inbox document is created so that a linked document never ends up in the inbox") {
+                    verify(exactly = 0) {
+                        inboxDocumentRepository.save(match { it.enkelvoudiginformatieobjectUUID == linkedUuid })
+                    }
+                    result shouldBe null
                 }
             }
         }
