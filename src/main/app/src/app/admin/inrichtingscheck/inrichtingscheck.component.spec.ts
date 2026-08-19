@@ -111,6 +111,7 @@ describe(InrichtingscheckComponent.name, () => {
   let component: TestInrichtingscheckComponent;
   let loader: HarnessLoader;
   let healthCheckService: HealthCheckService;
+  let clearZTCCachesMutation: ReturnType<typeof createMutationOptions<string>>;
   let utilServiceMock: Pick<UtilService, "setTitle" | "openSnackbar">;
 
   beforeEach(async () => {
@@ -160,6 +161,10 @@ describe(InrichtingscheckComponent.name, () => {
           typeof healthCheckService.readBuildInformatie
         >,
       );
+    clearZTCCachesMutation = createMutationOptions("2024-03-19T10:00:00");
+    jest
+      .spyOn(healthCheckService, "clearZTCCaches")
+      .mockReturnValue(clearZTCCachesMutation as never);
   });
 
   beforeEach(fakeAsync(() => {
@@ -313,12 +318,6 @@ describe(InrichtingscheckComponent.name, () => {
   });
 
   it("should reload zaaktypes and update cache time on clearZTCCache", async () => {
-    const newCacheTime = "2024-03-19T10:00:00";
-    const clearMutation = createMutationOptions(newCacheTime);
-    jest
-      .spyOn(healthCheckService, "clearZTCCaches")
-      .mockReturnValue(clearMutation as never);
-
     const listSpy =
       healthCheckService.listZaaktypeInrichtingschecks as jest.Mock;
     listSpy.mockClear();
@@ -330,8 +329,8 @@ describe(InrichtingscheckComponent.name, () => {
     await sleep();
 
     expect(event.stopPropagation).toHaveBeenCalled();
-    expect(healthCheckService.clearZTCCaches).toHaveBeenCalled();
-    expect(component["ztcCacheTime"]).toBe(newCacheTime);
+    expect(clearZTCCachesMutation.mutationFn).toHaveBeenCalled();
+    expect(component["ztcCacheTime"]).toBe("2024-03-19T10:00:00");
     expect(listSpy).toHaveBeenCalled();
   });
 });

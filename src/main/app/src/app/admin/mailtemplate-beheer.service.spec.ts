@@ -34,7 +34,7 @@ describe(MailtemplateBeheerService.name, () => {
 
   describe("deleteMailtemplate", () => {
     it("confirms the deletion to the user", async () => {
-      await runMutationOnSuccess(service.deleteMailtemplate(1));
+      await runMutationOnSuccess(service.deleteMailtemplate(), 1);
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.mailtemplate.verwijderen.uitgevoerd",

@@ -40,7 +40,7 @@ describe(InboxDocumentenService.name, () => {
         titel: "fakeDocumentTitel",
       });
 
-      await runMutationOnSuccess(service.delete(inboxDocument));
+      await runMutationOnSuccess(service.delete(), inboxDocument);
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.document.verwijderen.uitgevoerd",

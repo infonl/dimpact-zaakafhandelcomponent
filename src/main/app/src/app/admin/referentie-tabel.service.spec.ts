@@ -43,7 +43,7 @@ describe(ReferentieTabelService.name, () => {
         code: "fakeTableCode",
       });
 
-      await runMutationOnSuccess(service.deleteReferentieTabel(referenceTable));
+      await runMutationOnSuccess(service.deleteReferentieTabel(), referenceTable);
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.tabel.verwijderen.uitgevoerd",

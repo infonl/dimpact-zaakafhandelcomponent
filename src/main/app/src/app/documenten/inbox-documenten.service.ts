@@ -23,13 +23,16 @@ export class InboxDocumentenService {
     return this.zacHttpClient.PUT("/rest/inboxdocumenten", body);
   }
 
-  delete(inboxDocument: GeneratedType<"RestInboxDocument">) {
+  delete() {
     return mergeMutationOptions(
-      this.zacQueryClient.DELETE("/rest/inboxdocumenten/{id}", {
-        path: { id: inboxDocument.id ?? -1 },
-      }),
+      this.zacQueryClient.DELETE(
+        "/rest/inboxdocumenten/{id}",
+        (inboxDocument: GeneratedType<"RestInboxDocument">) => ({
+          parameters: { path: { id: inboxDocument.id ?? -1 } },
+        }),
+      ),
       {
-        onSuccess: () =>
+        onSuccess: (_data, inboxDocument) =>
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
             document: inboxDocument.titel,
           }),

@@ -197,7 +197,10 @@ describe(ReferentieTabellenComponent.name, () => {
     const dialogData = dialogOpen.mock.calls[0][1].data;
     expect(dialogData._melding.key).toBe("msg.tabel.verwijderen-bevestigen");
     expect(dialogData._melding.args).toEqual({ tabel: "TABEL_A" });
-    expect(service.deleteReferentieTabel).toHaveBeenCalledWith(tabellen[0]);
+    expect(deleteReferentieTabelMutation.mutationFn).toHaveBeenCalledWith(
+      tabellen[0],
+      expect.anything(),
+    );
   });
 
   it("loads the full table then opens the rename dialog", async () => {

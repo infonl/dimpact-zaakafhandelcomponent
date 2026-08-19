@@ -34,7 +34,7 @@ describe(InboxProductaanvragenService.name, () => {
 
   describe("delete", () => {
     it("confirms the deletion to the user", async () => {
-      await runMutationOnSuccess(service.delete(42));
+      await runMutationOnSuccess(service.delete(), 42);
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.inboxProductaanvraag.verwijderen.uitgevoerd",

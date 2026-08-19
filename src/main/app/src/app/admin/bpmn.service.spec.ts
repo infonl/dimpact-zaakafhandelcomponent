@@ -34,12 +34,10 @@ describe(BpmnService.name, () => {
 
   describe("deleteProcessDefinition", () => {
     it("names the deleted process definition in the confirmation", async () => {
-      await runMutationOnSuccess(
-        service.deleteProcessDefinition({
-          key: "fakeProcessDefinitionKey",
-          name: "fakeProcessDefinitionName",
-        }),
-      );
+      await runMutationOnSuccess(service.deleteProcessDefinition(), {
+        key: "fakeProcessDefinitionKey",
+        name: "fakeProcessDefinitionName",
+      });
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.bpmn.process-definition.deleted",
@@ -69,23 +67,19 @@ describe(BpmnService.name, () => {
     });
 
     it("invalidates every listing variant after deleting a definition", async () => {
-      await runMutationOnSuccess(
-        service.deleteProcessDefinition({
-          key: "fakeProcessDefinitionKey",
-          name: "fakeProcessDefinitionName",
-        }),
-      );
+      await runMutationOnSuccess(service.deleteProcessDefinition(), {
+        key: "fakeProcessDefinitionKey",
+        name: "fakeProcessDefinitionName",
+      });
 
       expectListingInvalidated();
     });
 
     it("invalidates every listing variant after deleting a form", async () => {
-      await runMutationOnSuccess(
-        service.deleteProcessDefinitionForm(
-          "fakeProcessDefinitionKey",
-          "fakeFormName",
-        ),
-      );
+      await runMutationOnSuccess(service.deleteProcessDefinitionForm(), {
+        processDefinitionKey: "fakeProcessDefinitionKey",
+        name: "fakeFormName",
+      });
 
       expectListingInvalidated();
     });

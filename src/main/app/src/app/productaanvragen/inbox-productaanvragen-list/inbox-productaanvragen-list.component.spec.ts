@@ -41,6 +41,7 @@ describe(InboxProductaanvragenListComponent.name, () => {
   let fixture: ComponentFixture<InboxProductaanvragenListComponent>;
   let component: InboxProductaanvragenListComponent;
   let service: InboxProductaanvragenService;
+  let deleteMutation: ReturnType<typeof createMutationOptions<undefined, number>>;
   let infoService: InformatieObjectenService;
 
   beforeEach(async () => {
@@ -69,6 +70,8 @@ describe(InboxProductaanvragenListComponent.name, () => {
       .mockReturnValue(
         of({ totaal: 0, resultaten: [], filterType: [] }) as never,
       );
+    deleteMutation = createMutationOptions<undefined, number>(undefined);
+    jest.spyOn(service, "delete").mockReturnValue(deleteMutation as never);
     jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
 
@@ -222,16 +225,16 @@ describe(InboxProductaanvragenListComponent.name, () => {
       afterClosed: () => of(true),
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    jest
-      .spyOn(service, "delete")
-      .mockReturnValue(createMutationOptions(undefined) as never);
 
     component["inboxProductaanvragenVerwijderen"](
       makeProductaanvraag({ id: 42 }),
     );
     await sleep();
 
-    expect(service.delete).toHaveBeenCalledWith(42);
+    expect(deleteMutation.mutationFn).toHaveBeenCalledWith(
+      42,
+      expect.anything(),
+    );
     expect(filterChangeSpy).toHaveBeenCalled();
   });
 

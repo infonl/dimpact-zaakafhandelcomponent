@@ -42,7 +42,7 @@ describe(OntkoppeldeDocumentenService.name, () => {
         titel: "fakeDocumentTitel",
       });
 
-      await runMutationOnSuccess(service.delete(detachedDocument));
+      await runMutationOnSuccess(service.delete(), detachedDocument);
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.document.verwijderen.uitgevoerd",
