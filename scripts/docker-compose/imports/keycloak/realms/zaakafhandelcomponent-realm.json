@@ -2964,7 +2964,7 @@
           "type": "password",
           "userLabel": "My password",
           "createdDate": 1744010820325,
-          "secretData": "{\"value\":\"lzNuqZOeX4sA4cZ1M2KiAljlIzjKorCSpM2SPrgYS0g=\",\"salt\":\"UJiFDw4ctdzGV5R5M5uUyQ==\",\"additionalParameters\":{}}",
+          "secretData": "{\"value\":\"17SszRwNoUXFo0V8qtOe2+nIkhSdPeYPOtZhR3YVO6U=\",\"salt\":\"cDujP20CD3gZVN75zjPRnw==\",\"additionalParameters\":{}}",
           "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
         }
       ],
