@@ -199,7 +199,10 @@ export class ZaakViewComponent
         Opcode.UPDATED,
         ObjectType.ZAAK_ROLLEN,
         zaak.uuid,
-        () => this.invalidateBetrokkenen(),
+        () => {
+          this.invalidateBetrokkenen();
+          this.updateZaak();
+        },
       );
 
       this.zaakBesluitenListener =
@@ -968,6 +971,9 @@ export class ZaakViewComponent
       this.queryClient.getQueryState(queryKey)?.status === "success";
     const zaakAfterRefetch = this.queryClient.getQueryData(queryKey);
     if (refetchSucceeded && zaakAfterRefetch === zaakBeforeRefetch) return;
+
+    this.loadBagObjecten();
+    this.loadOpschorting();
 
     forkJoin({
       msgPart1: this.translate.get(
