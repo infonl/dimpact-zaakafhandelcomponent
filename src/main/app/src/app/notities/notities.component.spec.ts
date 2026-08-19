@@ -14,7 +14,9 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { sleep, testQueryClient } from "../../../setupJest";
-import { createMutationOptions } from "../../test-helpers";
+import { createMutationOptions, fromPartial } from "../../test-helpers";
+import { WebsocketListener } from "../core/websocket/model/websocket-listener";
+import { WebsocketService } from "../core/websocket/websocket.service";
 import { IdentityService } from "../identity/identity.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitiesComponent } from "./notities.component";
@@ -29,6 +31,7 @@ describe(NotitiesComponent.name, () => {
   let component: NotitiesComponent;
   let fixture: ComponentFixture<NotitiesComponent>;
   let notitieService: NotitieService;
+  let notitiesChangedCallback: () => void;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -50,6 +53,15 @@ describe(NotitiesComponent.name, () => {
       currentUser,
     );
 
+    const websocketService = TestBed.inject(WebsocketService);
+    jest
+      .spyOn(websocketService, "addListener")
+      .mockImplementation((_opcode, _objectType, _objectId, callback) => {
+        notitiesChangedCallback = callback as () => void;
+        return fromPartial<WebsocketListener>({});
+      });
+    jest.spyOn(websocketService, "removeListener").mockImplementation();
+
     notitieService = TestBed.inject(NotitieService);
     jest.spyOn(notitieService, "listNotities").mockReturnValue(of([]));
     jest
@@ -64,6 +76,14 @@ describe(NotitiesComponent.name, () => {
     component.zaakUuid = "test-zaak-uuid";
     component.notitieRechten = { lezen: true, wijzigen: true };
     fixture.detectChanges();
+  });
+
+  it("should reload the notities when someone else adds one", () => {
+    jest.mocked(notitieService.listNotities).mockClear();
+
+    notitiesChangedCallback();
+
+    expect(notitieService.listNotities).toHaveBeenCalledWith("test-zaak-uuid");
   });
 
   it("should load notities on init", () => {
