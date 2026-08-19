@@ -1824,6 +1824,16 @@ describe(ZaakViewComponent.name, () => {
       expect(bagService.list).toHaveBeenCalledWith(zaak.uuid);
     });
 
+    it("reloads the bag objecten of an unchanged zaak, since they are not part of it", async () => {
+      jest.mocked(bagService.list).mockClear();
+
+      const pending = zaakChangedCallback(zaakChangedEvent);
+      await flushRefetch({ ...zaak });
+      await pending;
+
+      expect(bagService.list).toHaveBeenCalledWith(zaak.uuid);
+    });
+
     it("reloads the opschorting of a zaak that was already opgeschort before the change", async () => {
       mockActivatedRoute.data.next({ zaak: { ...zaak, isOpgeschort: true } });
       fixture.detectChanges();
@@ -1853,6 +1863,13 @@ describe(ZaakViewComponent.name, () => {
   describe("zaak rollen websocket listener", () => {
     let zaakRollenCallback: (event: ScreenEvent) => void;
 
+    const rollenEvent = (opcode: Opcode) =>
+      new ScreenEvent(
+        opcode,
+        ObjectType.ZAAK_ROLLEN,
+        new ScreenEventId(zaak.uuid),
+      );
+
     beforeEach(() => {
       jest.spyOn(utilService, "openSnackbar");
       jest
@@ -1871,13 +1888,7 @@ describe(ZaakViewComponent.name, () => {
     it("invalidates the betrokkenen query when a betrokkene changes elsewhere", () => {
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
-      zaakRollenCallback(
-        new ScreenEvent(
-          Opcode.UPDATED,
-          ObjectType.ZAAK_ROLLEN,
-          new ScreenEventId(zaak.uuid),
-        ),
-      );
+      zaakRollenCallback(rollenEvent(Opcode.UPDATED));
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: zakenService.listBetrokkenenVoorZaakQuery(zaak.uuid).queryKey,
@@ -1889,15 +1900,45 @@ describe(ZaakViewComponent.name, () => {
         .spyOn(zakenService, "readZaak")
         .mockReturnValue(of(zaak));
 
-      zaakRollenCallback(
+      zaakRollenCallback(rollenEvent(Opcode.UPDATED));
+
+      expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+    });
+  });
+
+  describe("zaak taken websocket listener", () => {
+    let zaakTakenCallback: (event: ScreenEvent) => void;
+
+    beforeEach(() => {
+      jest
+        .spyOn(websocketService, "addListener")
+        .mockImplementation((_opcode, objectType, _objectId, callback) => {
+          if (objectType === ObjectType.ZAAK_TAKEN) {
+            zaakTakenCallback = callback as (event: ScreenEvent) => void;
+          }
+          return fromPartial<WebsocketListener>({});
+        });
+
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("rebuilds the action menu, whose plan items are fetched separately from the zaak", () => {
+      const listPlanItemsSpy = jest.spyOn(
+        planItemsService,
+        "listHumanTaskPlanItems",
+      );
+      listPlanItemsSpy.mockClear();
+
+      zaakTakenCallback(
         new ScreenEvent(
           Opcode.UPDATED,
-          ObjectType.ZAAK_ROLLEN,
+          ObjectType.ZAAK_TAKEN,
           new ScreenEventId(zaak.uuid),
         ),
       );
 
-      expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+      expect(listPlanItemsSpy).toHaveBeenCalledWith(zaak.uuid);
     });
   });
 
