@@ -311,9 +311,12 @@ export class InformatieObjectenService {
       ({
         uuid,
         ...body
-      }: { uuid: string } & DeleteBody<
-        "/rest/informatieobjecten/informatieobject/{uuid}"
-      >) => ({ parameters: { path: { uuid } }, body }),
+      }: {
+        uuid: string;
+      } & DeleteBody<"/rest/informatieobjecten/informatieobject/{uuid}">) => ({
+        parameters: { path: { uuid } },
+        body,
+      }),
     );
   }
 

@@ -44,10 +44,7 @@ describe(InboxDocumentenListComponent.name, () => {
   let component: InboxDocumentenListComponent;
   let inboxDocumentenService: InboxDocumentenService;
   let deleteMutation: ReturnType<
-    typeof createMutationOptions<
-      undefined,
-      GeneratedType<"RestInboxDocument">
-    >
+    typeof createMutationOptions<undefined, GeneratedType<"RestInboxDocument">>
   >;
   let infoService: InformatieObjectenService;
 

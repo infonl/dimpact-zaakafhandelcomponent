@@ -41,7 +41,9 @@ describe(InboxProductaanvragenListComponent.name, () => {
   let fixture: ComponentFixture<InboxProductaanvragenListComponent>;
   let component: InboxProductaanvragenListComponent;
   let service: InboxProductaanvragenService;
-  let deleteMutation: ReturnType<typeof createMutationOptions<undefined, number>>;
+  let deleteMutation: ReturnType<
+    typeof createMutationOptions<undefined, number>
+  >;
   let infoService: InformatieObjectenService;
 
   beforeEach(async () => {

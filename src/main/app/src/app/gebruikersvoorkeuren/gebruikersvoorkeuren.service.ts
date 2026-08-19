@@ -101,6 +101,8 @@ export class GebruikersvoorkeurenService {
   }
 
   deleteDashboardCard() {
-    return this.zacQueryClient.DELETE("/rest/gebruikersvoorkeuren/dasboardcard");
+    return this.zacQueryClient.DELETE(
+      "/rest/gebruikersvoorkeuren/dasboardcard",
+    );
   }
 }
