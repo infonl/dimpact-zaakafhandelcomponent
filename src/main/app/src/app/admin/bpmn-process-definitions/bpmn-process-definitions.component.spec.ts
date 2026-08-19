@@ -37,6 +37,8 @@ function makeFileList(...files: File[]): FileList {
 const flushPromises = (): Promise<void> =>
   new Promise<void>((resolve) => setTimeout(resolve));
 
+const zipBlob = new Blob(["fakeZipContent"]);
+
 const baseProcessDefinition = fromPartial<
   GeneratedType<"RestBpmnProcessDefinition">
 >({
@@ -91,6 +93,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
               mutationFn: jest.fn().mockResolvedValue({}),
             }),
             deleteProcessDefinition: deleteProcessDefinitionMock,
+            downloadProcessDefinition: jest.fn().mockReturnValue(of(zipBlob)),
             uploadProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
             deleteProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
           },
@@ -101,6 +104,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
             setLoading: jest.fn(),
             setTitle: jest.fn(),
             openSnackbar: jest.fn(),
+            downloadBlobResponse: jest.fn(),
           },
         },
         {
@@ -380,6 +384,34 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       await flushPromises();
 
       expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe("downloadProcessDefinition", () => {
+    let downloadButton: HTMLElement;
+
+    beforeEach(() => {
+      downloadButton = fixture.nativeElement.querySelector(
+        ".tree-group-row #download",
+      );
+    });
+
+    it("should download the zip named after the process definition key and version", () => {
+      downloadButton.click();
+
+      expect(bpmnService.downloadProcessDefinition).toHaveBeenCalledWith(
+        "key-a",
+      );
+      expect(utilService.downloadBlobResponse).toHaveBeenCalledWith(
+        zipBlob,
+        "key-a-v1.zip",
+      );
+    });
+
+    it("should not toggle the node when the download button is clicked", () => {
+      downloadButton.click();
+
+      expect(component["expandedKey"]).toBeNull();
     });
   });
 

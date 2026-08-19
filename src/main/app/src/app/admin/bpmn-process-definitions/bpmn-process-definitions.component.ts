@@ -162,6 +162,17 @@ export class BpmnProcessDefinitionsComponent
       .catch((error) => this.foutAfhandelingService.foutAfhandelen(error));
   }
 
+  protected downloadProcessDefinition(node: BpmnProcessDefinitionGroupNode) {
+    this.bpmnService
+      .downloadProcessDefinition(node.key)
+      .subscribe((response) => {
+        this.utilService.downloadBlobResponse(
+          response,
+          `${node.key}-v${node.definition.version}.zip`,
+        );
+      });
+  }
+
   protected deleteProcessDefinition(processDefinition: {
     key: string;
     name: string;

@@ -262,6 +262,21 @@ class BpmnServiceTest : BehaviorSpec({
         }
     }
 
+    given("a deployed process definition") {
+        val processDefinitionId = "fakeProcessDefinitionId"
+        val processDefinitionModel = "<definitions id=\"fakeDefinitions\"/>"
+        every { repositoryService.getProcessModel(processDefinitionId) } returns
+            processDefinitionModel.byteInputStream()
+
+        `when`("reading the process definition model") {
+            val result = bpmnService.readProcessDefinitionModel(processDefinitionId)
+
+            then("the BPMN XML as deployed is returned") {
+                result.readBytes().decodeToString() shouldBe processDefinitionModel
+            }
+        }
+    }
+
     given("process definition key with current or historic process instances") {
         val processDefinitionKey = "fakeProcessDefinitionKey"
         every {

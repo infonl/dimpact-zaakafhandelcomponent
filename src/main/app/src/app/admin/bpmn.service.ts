@@ -5,8 +5,9 @@
 
 import { inject, Injectable } from "@angular/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
+import { Observable } from "rxjs";
 import { UtilService } from "../core/service/util.service";
-import { PostBody } from "../shared/http/http-client";
+import { PathParameters, PostBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -40,6 +41,16 @@ export class BpmnService {
       this.zacQueryClient.POST(PROCESS_DEFINITIONS_PATH),
       { onSuccess: () => void this.invalidateProcessDefinitions() },
     );
+  }
+
+  downloadProcessDefinition(key: string) {
+    return this.zacHttpClient.GET(
+      "/rest/bpmn-process-definitions/{key}/download",
+      { path: { key }, responseType: "blob" } as PathParameters<
+        "/rest/bpmn-process-definitions/{key}/download",
+        "get"
+      >,
+    ) as unknown as Observable<Blob>;
   }
 
   deleteProcessDefinition(processDefinition: { key: string; name: string }) {

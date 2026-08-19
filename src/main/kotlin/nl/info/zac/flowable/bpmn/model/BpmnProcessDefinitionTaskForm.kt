@@ -53,3 +53,8 @@ class BpmnProcessDefinitionTaskForm {
     @Column(nullable = false)
     lateinit var content: String
 }
+
+/**
+ * A task form is only used by its process definition when a user task references it by its name.
+ */
+fun BpmnProcessDefinitionTaskForm.isUsedIn(formKeys: List<String>) = name in formKeys

@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.admin
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
@@ -13,6 +14,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.ws.rs.core.Response
+import jakarta.ws.rs.core.StreamingOutput
 import nl.info.test.org.flowable.engine.repository.createProcessDefinition
 import nl.info.zac.app.admin.model.BpmnProcessDefinitionTaskFormContent
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
@@ -24,16 +26,19 @@ import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.createBpmnProcessDefinitionMetadata
 import nl.info.zac.flowable.bpmn.model.createBpmnProcessDefinitionTaskForm
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.exception.PolicyException
 import nl.info.zac.policy.output.createOverigeRechten
 
 class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
     val bpmnService = mockk<BpmnService>()
     val policyService = mockk<PolicyService>()
     val bpmnProcessDefinitionTaskFormService = mockk<BpmnProcessDefinitionTaskFormService>()
+    val bpmnProcessDefinitionDownloadService = mockk<BpmnProcessDefinitionDownloadService>()
     val restService = BpmnProcessDefinitionRestService(
         bpmnService,
         policyService,
-        bpmnProcessDefinitionTaskFormService
+        bpmnProcessDefinitionTaskFormService,
+        bpmnProcessDefinitionDownloadService
     )
 
     afterEach {
@@ -261,6 +266,50 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                 val entity = response.entity as Map<*, *>
                 entity["message"] shouldBe "BPMN process definition 'usedProcess' cannot be deleted as it is in use"
                 verify(exactly = 0) { bpmnService.deleteProcessDefinition(any()) }
+            }
+        }
+    }
+
+    given("User has beheren rights and wants to download a process definition") {
+        val processDefinitionKey = "processKey"
+        val processDefinition = createProcessDefinition(
+            id = "processId",
+            key = processDefinitionKey,
+            version = 3
+        )
+        val streamingOutput = StreamingOutput { }
+
+        every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
+        every {
+            bpmnService.readProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
+        } returns processDefinition
+        every {
+            bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+        } returns streamingOutput
+
+        `when`("downloadProcessDefinition is called") {
+            val response = restService.downloadProcessDefinition(processDefinitionKey)
+
+            then("it should return the zip stream as an attachment named after key and version") {
+                response.status shouldBe Response.Status.OK.statusCode
+                response.entity shouldBe streamingOutput
+                response.getHeaderString("Content-Type") shouldBe "application/zip"
+                response.getHeaderString("Content-Disposition") shouldBe
+                    """attachment; filename="processKey-v3.zip""""
+            }
+        }
+    }
+
+    given("User without beheren rights wants to download a process definition") {
+        every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = false)
+
+        `when`("downloadProcessDefinition is called") {
+            shouldThrow<PolicyException> {
+                restService.downloadProcessDefinition("processKey")
+            }
+
+            then("no zip is created") {
+                verify(exactly = 0) { bpmnProcessDefinitionDownloadService.getZipStreamOutput(any()) }
             }
         }
     }

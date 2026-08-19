@@ -18,6 +18,7 @@ import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.Response.Status
+import net.atos.zac.util.MediaTypes
 import nl.info.zac.app.admin.model.BpmnProcessDefinitionTaskFormContent
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionDetails
@@ -26,6 +27,7 @@ import nl.info.zac.app.admin.model.RestProcessDefinitionContent
 import nl.info.zac.flowable.bpmn.BpmnProcessDefinitionTaskFormService
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.flowable.bpmn.model.BpmnProcessDefinitionTaskForm
+import nl.info.zac.flowable.bpmn.model.isUsedIn
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.util.NoArgConstructor
@@ -38,7 +40,8 @@ import nl.info.zac.util.NoArgConstructor
 class BpmnProcessDefinitionRestService @Inject constructor(
     private val bpmnService: BpmnService,
     private val policyService: PolicyService,
-    private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService
+    private val bpmnProcessDefinitionTaskFormService: BpmnProcessDefinitionTaskFormService,
+    private val bpmnProcessDefinitionDownloadService: BpmnProcessDefinitionDownloadService
 ) {
     @GET
     fun listProcessDefinitions(
@@ -121,7 +124,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         forms.filter {
             it.bpmnProcessDefinitionKey == bpmnProcessDefinitionKey &&
                 it.bpmnProcessDefinitionVersion == bpmnProcessDefinitionVersion &&
-                !formKeys.contains(it.name)
+                !it.isUsedIn(formKeys)
         }.map {
             RestBpmnProcessDefinitionForm(
                 it.name,
@@ -148,6 +151,21 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         }
         bpmnService.deleteProcessDefinition(key)
         return Response.noContent().build()
+    }
+
+    @GET
+    @Path("{key}/download")
+    @Produces("application/zip")
+    fun downloadProcessDefinition(@PathParam("key") key: String): Response {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        val processDefinition = bpmnService.readProcessDefinitionByProcessDefinitionKey(key)
+        return Response.ok(bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition))
+            .header("Content-Type", MediaTypes.Application.ZIP.mediaType)
+            .header(
+                "Content-Disposition",
+                """attachment; filename="${processDefinition.key}-v${processDefinition.version}.zip""""
+            )
+            .build()
     }
 
     @POST
