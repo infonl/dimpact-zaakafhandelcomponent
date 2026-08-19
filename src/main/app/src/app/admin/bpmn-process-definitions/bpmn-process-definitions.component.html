@@ -94,20 +94,6 @@
                   }}</mat-icon
                 >
 
-                <button
-                  class="download-definition"
-                  mat-icon-button
-                  [matTooltip]="
-                    'bpmn.process-definition.definition-row.button.download'
-                      | translate
-                  "
-                  (click)="
-                    $event.stopPropagation(); downloadProcessDefinition(node)
-                  "
-                >
-                  <mat-icon>download</mat-icon>
-                </button>
-
                 <span
                   [class.cursor-default]="node.definition.details?.inUse"
                   [matTooltip]="

@@ -86,6 +86,21 @@ export class BpmnProcessDefinitionItemComponent {
       ),
   );
 
+  protected downloadProcessDefinition() {
+    const { key, version } = this.processDefinition();
+    this.bpmnService.downloadProcessDefinition(key).subscribe({
+      next: (response) =>
+        this.utilService.downloadBlobResponse(
+          response,
+          `${key}-v${version}.zip`,
+        ),
+      error: () =>
+        this.utilService.openSnackbarError(
+          "msg.error.bpmn.process.definition.download.failed",
+        ),
+    });
+  }
+
   protected uploadBpmnForm() {
     this.bpmnFormFileInput().nativeElement.click();
   }

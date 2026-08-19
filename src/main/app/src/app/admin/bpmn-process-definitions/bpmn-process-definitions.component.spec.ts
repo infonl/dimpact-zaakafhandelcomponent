@@ -13,7 +13,7 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { of, throwError } from "rxjs";
+import { of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -36,8 +36,6 @@ function makeFileList(...files: File[]): FileList {
 
 const flushPromises = (): Promise<void> =>
   new Promise<void>((resolve) => setTimeout(resolve));
-
-const zipBlob = new Blob(["fakeZipContent"]);
 
 const baseProcessDefinition = fromPartial<
   GeneratedType<"RestBpmnProcessDefinition">
@@ -93,7 +91,6 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
               mutationFn: jest.fn().mockResolvedValue({}),
             }),
             deleteProcessDefinition: deleteProcessDefinitionMock,
-            downloadProcessDefinition: jest.fn().mockReturnValue(of(zipBlob)),
             uploadProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
             deleteProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
           },
@@ -104,8 +101,6 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
             setLoading: jest.fn(),
             setTitle: jest.fn(),
             openSnackbar: jest.fn(),
-            openSnackbarError: jest.fn(),
-            downloadBlobResponse: jest.fn(),
           },
         },
         {
@@ -385,47 +380,6 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       await flushPromises();
 
       expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
-    });
-  });
-
-  describe("downloadProcessDefinition", () => {
-    let downloadButton: HTMLElement;
-
-    beforeEach(() => {
-      downloadButton = fixture.nativeElement.querySelector(
-        ".tree-group-row .download-definition",
-      );
-    });
-
-    it("should download the zip named after the process definition key and version", () => {
-      downloadButton.click();
-
-      expect(bpmnService.downloadProcessDefinition).toHaveBeenCalledWith(
-        "key-a",
-      );
-      expect(utilService.downloadBlobResponse).toHaveBeenCalledWith(
-        zipBlob,
-        "key-a-v1.zip",
-      );
-    });
-
-    it("should not toggle the node when the download button is clicked", () => {
-      downloadButton.click();
-
-      expect(component["expandedKey"]).toBeNull();
-    });
-
-    it("should show an error message and download nothing when the request fails", () => {
-      bpmnService.downloadProcessDefinition.mockReturnValue(
-        throwError(() => new Error("fakeDownloadFailure")),
-      );
-
-      downloadButton.click();
-
-      expect(utilService.openSnackbarError).toHaveBeenCalledWith(
-        "msg.error.bpmn.process.definition.download.failed",
-      );
-      expect(utilService.downloadBlobResponse).not.toHaveBeenCalled();
     });
   });
 

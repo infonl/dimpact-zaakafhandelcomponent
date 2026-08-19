@@ -48,6 +48,17 @@
           {{ "bpmn.process-definition.card.details.in-use" | translate }}
         </div>
       }
+      <div class="download-definition">
+        <button
+          mat-icon-button
+          [matTooltip]="
+            'bpmn.process-definition.card.details.button.download' | translate
+          "
+          (click)="downloadProcessDefinition()"
+        >
+          <mat-icon>download</mat-icon>
+        </button>
+      </div>
     </mat-card-content>
   </mat-card>
 

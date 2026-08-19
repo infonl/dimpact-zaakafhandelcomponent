@@ -13,7 +13,7 @@ import { MatRowHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { of, throwError } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
@@ -36,6 +36,8 @@ function makeFileList(...files: File[]): FileList {
 
 const flushPromises = (): Promise<void> =>
   new Promise<void>((resolve) => setTimeout(resolve));
+
+const zipBlob = new Blob(["fakeZipContent"]);
 
 const uploadedForm: GeneratedType<"RestBpmnProcessDefinitionForm"> = {
   formKey: "form-uploaded",
@@ -98,11 +100,16 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
             deleteProcessDefinitionForm: jest
               .fn()
               .mockReturnValue(createMutationOptions({})),
+            downloadProcessDefinition: jest.fn().mockReturnValue(of(zipBlob)),
           },
         },
         {
           provide: UtilService,
-          useValue: { openSnackbar: jest.fn() },
+          useValue: {
+            openSnackbar: jest.fn(),
+            openSnackbarError: jest.fn(),
+            downloadBlobResponse: jest.fn(),
+          },
         },
         {
           provide: FoutAfhandelingService,
@@ -147,6 +154,41 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
     it("should display documentation", () => {
       expect(fixture.nativeElement.textContent).toContain("Test documentation");
+    });
+  });
+
+  describe("downloadProcessDefinition", () => {
+    let downloadButton: HTMLElement;
+
+    beforeEach(() => {
+      downloadButton = fixture.nativeElement.querySelector(
+        ".download-definition button",
+      );
+    });
+
+    it("should download the zip named after the process definition key and version", () => {
+      downloadButton.click();
+
+      expect(bpmnService.downloadProcessDefinition).toHaveBeenCalledWith(
+        "test-key",
+      );
+      expect(utilService.downloadBlobResponse).toHaveBeenCalledWith(
+        zipBlob,
+        "test-key-v2.zip",
+      );
+    });
+
+    it("should show an error message and download nothing when the request fails", () => {
+      bpmnService.downloadProcessDefinition.mockReturnValue(
+        throwError(() => new Error("fakeDownloadFailure")),
+      );
+
+      downloadButton.click();
+
+      expect(utilService.openSnackbarError).toHaveBeenCalledWith(
+        "msg.error.bpmn.process.definition.download.failed",
+      );
+      expect(utilService.downloadBlobResponse).not.toHaveBeenCalled();
     });
   });
 
