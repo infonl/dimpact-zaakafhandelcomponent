@@ -153,6 +153,14 @@ export class ZaakDocumentenComponent implements AfterViewInit {
     }),
   );
 
+  // Joined so the listener effect below only re-runs when the set changes.
+  private readonly documentUuids = computed(() =>
+    (this.documentenQuery.data() ?? [])
+      .map(({ uuid }) => uuid)
+      .filter(Boolean)
+      .join(","),
+  );
+
   protected readonly isLoadingResults = computed(() =>
     this.documentenQuery.isFetching(),
   );
@@ -206,6 +214,25 @@ export class ZaakDocumentenComponent implements AfterViewInit {
           () => this.reloadDocumenten(),
         ),
       ];
+      onCleanup(() =>
+        this.websocketService.removeListeners(websocketListeners),
+      );
+    });
+
+    // Document changes are announced per informatieobject, not on the zaak.
+    effect((onCleanup) => {
+      const documentUuids = this.documentUuids();
+      if (!documentUuids) return;
+      const websocketListeners = documentUuids
+        .split(",")
+        .map((documentUuid) =>
+          this.websocketService.addListener(
+            Opcode.UPDATED,
+            ObjectType.ENKELVOUDIG_INFORMATIEOBJECT,
+            documentUuid,
+            () => this.reloadDocumenten(),
+          ),
+        );
       onCleanup(() =>
         this.websocketService.removeListeners(websocketListeners),
       );
