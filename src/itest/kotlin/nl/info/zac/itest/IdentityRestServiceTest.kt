@@ -41,7 +41,7 @@ import nl.info.zac.itest.config.RAADPLEGER_EN_BEHANDELAAR_1
 import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.config.RECORDMANAGER_2
 import nl.info.zac.itest.config.USER_WITHOUT_ANY_ROLE
-import nl.info.zac.itest.config.ZAAKSPECIFIEK_GEAUTORISEERDE_BEHANDELAAR_1
+import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 
@@ -241,8 +241,8 @@ class IdentityServiceTest : BehaviorSpec({
                                     "naam": "${BEHANDELAAR_LONG_NAME_TEST.displayName}"
                                 },
                                 {
-                                    "id": "${ZAAKSPECIFIEK_GEAUTORISEERDE_BEHANDELAAR_1.username}",
-                                    "naam": "${ZAAKSPECIFIEK_GEAUTORISEERDE_BEHANDELAAR_1.displayName}"
+                                    "id": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username}",
+                                    "naam": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.displayName}"
                                 }
                             ]
                     """.trimIndent()
@@ -269,8 +269,8 @@ class IdentityServiceTest : BehaviorSpec({
                                 "naam": "${BEHANDELAAR_1.displayName}"
                             },
                             {
-                                "id": "${ZAAKSPECIFIEK_GEAUTORISEERDE_BEHANDELAAR_1.username}",
-                                "naam": "${ZAAKSPECIFIEK_GEAUTORISEERDE_BEHANDELAAR_1.displayName}"
+                                "id": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username}",
+                                "naam": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.displayName}"
                             }
                         ]
                     """.trimIndent()
