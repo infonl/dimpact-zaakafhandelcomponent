@@ -43,7 +43,7 @@ export class BpmnService {
     );
   }
 
-  downloadProcessDefinition(key: string) {
+  downloadProcessDefinition(key: string): Observable<Blob> {
     return this.zacHttpClient.GET(
       "/rest/bpmn-process-definitions/{key}/download",
       { path: { key }, responseType: "blob" } as PathParameters<
