@@ -69,7 +69,7 @@ describe(InboxDocumentenService.name, () => {
       );
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.document.verwijderen.inbox.gekoppeldAanZaak",
+        "msg.document.verwijderen.inbox.gekoppeld-aan-zaak",
         { document: "fakeDocumentTitel" },
       );
     });

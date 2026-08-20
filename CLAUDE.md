@@ -231,6 +231,12 @@ var gekoppeldAanZaak: Boolean = false
 var isGekoppeldAanZaak: Boolean = false
 ```
 
+### Use kebab-case for the last segment of frontend i18n message keys
+In `src/main/app/src/assets/i18n/nl.json` and `en.json`, when the last segment of a message key is
+multi-word, write it in kebab-case, not camelCase — e.g. `msg.document.verwijderen.inbox.gekoppeld-aan-zaak`,
+not `msg.document.verwijderen.inbox.gekoppeldAanZaak`. This applies even when the segment is named after
+a camelCase variable (such as an `isXxx` boolean) elsewhere in the code — the i18n key still uses kebab-case.
+
 ### Prefer Kotlin data classes for simple data holders
 When you encounter a class that is primarily used to hold data (i.e., it has properties and no significant behavior), for example for classes used as arguments or responses in REST services,
 use a Kotlin `data class`.
