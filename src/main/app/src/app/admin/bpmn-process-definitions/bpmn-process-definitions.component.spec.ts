@@ -59,14 +59,17 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
   let foutAfhandelingService: jest.Mocked<FoutAfhandelingService>;
   let dialogOpenSpy: jest.SpyInstance;
   let queryClient: QueryClient;
-  let deleteProcessDefinitionMock: jest.Mock;
+  let deleteProcessDefinitionMutation: ReturnType<
+    typeof createMutationOptions<object, { key: string; name: string }>
+  >;
 
   beforeEach(async () => {
     notifyManager.setScheduler((fn) => fn());
 
-    deleteProcessDefinitionMock = jest
-      .fn()
-      .mockReturnValue(createMutationOptions({}));
+    deleteProcessDefinitionMutation = createMutationOptions<
+      object,
+      { key: string; name: string }
+    >({});
 
     await TestBed.configureTestingModule({
       imports: [
@@ -90,7 +93,9 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
             uploadProcessDefinitionQuery: jest.fn().mockReturnValue({
               mutationFn: jest.fn().mockResolvedValue({}),
             }),
-            deleteProcessDefinition: deleteProcessDefinitionMock,
+            deleteProcessDefinition: jest
+              .fn()
+              .mockReturnValue(deleteProcessDefinitionMutation),
             uploadProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
             deleteProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
           },
@@ -400,15 +405,15 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
       component["deleteProcessDefinition"]({ key: "key-a", name: "Process A" });
       await fixture.whenStable();
 
-      expect(deleteProcessDefinitionMock).toHaveBeenCalledWith({
-        key: "key-a",
-        name: "Process A",
-      });
+      expect(deleteProcessDefinitionMutation.mutationFn).toHaveBeenCalledWith(
+        { key: "key-a", name: "Process A" },
+        expect.anything(),
+      );
     });
 
     it("should not call the delete mutation when dialog is cancelled", () => {
       component["deleteProcessDefinition"]({ key: "key-a", name: "Process A" });
-      expect(deleteProcessDefinitionMock).not.toHaveBeenCalled();
+      expect(deleteProcessDefinitionMutation.mutationFn).not.toHaveBeenCalled();
     });
   });
 

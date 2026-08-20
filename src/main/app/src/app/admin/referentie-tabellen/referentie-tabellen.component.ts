@@ -32,7 +32,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
-import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
@@ -75,9 +75,8 @@ export class ReferentieTabellenComponent
   private readonly service = inject(ReferentieTabelService);
   private readonly dialog = inject(MatDialog);
   private readonly queryClient = inject(QueryClient);
-  private readonly deleteReferentieTabelMutation = injectServiceMutation(
-    (tabel: GeneratedType<"RestReferenceTable">) =>
-      this.service.deleteReferentieTabel(tabel),
+  private readonly deleteReferentieTabelMutation = injectMutation(
+    () => this.service.deleteReferentieTabel(),
     {
       onSuccess: (_data, tabel) => {
         if (this.expandedId() === tabel.id) {

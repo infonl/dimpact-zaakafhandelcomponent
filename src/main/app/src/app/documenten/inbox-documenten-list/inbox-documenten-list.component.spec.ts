@@ -43,6 +43,9 @@ describe(InboxDocumentenListComponent.name, () => {
   let fixture: ComponentFixture<InboxDocumentenListComponent>;
   let component: InboxDocumentenListComponent;
   let inboxDocumentenService: InboxDocumentenService;
+  let deleteMutation: ReturnType<
+    typeof createMutationOptions<undefined, GeneratedType<"RestInboxDocument">>
+  >;
   let infoService: InformatieObjectenService;
 
   beforeEach(async () => {
@@ -69,6 +72,13 @@ describe(InboxDocumentenListComponent.name, () => {
     jest
       .spyOn(inboxDocumentenService, "list")
       .mockReturnValue(of({ totaal: 0, resultaten: [] }));
+    deleteMutation = createMutationOptions<
+      undefined,
+      GeneratedType<"RestInboxDocument">
+    >(undefined);
+    jest
+      .spyOn(inboxDocumentenService, "delete")
+      .mockReturnValue(deleteMutation as never);
     jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
 
@@ -255,16 +265,16 @@ describe(InboxDocumentenListComponent.name, () => {
       afterClosed: () => of(true),
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    jest
-      .spyOn(inboxDocumentenService, "delete")
-      .mockReturnValue(createMutationOptions(undefined) as never);
 
     const doc = makeInboxDocument({ id: 42, titel: "My doc" });
     component["documentVerwijderen"](doc);
     await sleep();
 
     expect(dialogSpy).toHaveBeenCalled();
-    expect(inboxDocumentenService.delete).toHaveBeenCalledWith(doc);
+    expect(deleteMutation.mutationFn).toHaveBeenCalledWith(
+      doc,
+      expect.anything(),
+    );
     expect(filterChangeSpy).toHaveBeenCalled();
   });
 

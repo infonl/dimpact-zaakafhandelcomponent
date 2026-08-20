@@ -10,11 +10,11 @@ import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { from } from "rxjs";
 import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { KlantenService } from "../../klanten/klanten.service";
+import { runMutation } from "../../shared/http/run-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -124,21 +124,10 @@ export class ZaakBetrokkeneListComponent {
         betrokkene.naam);
     this.zaakDialogService
       .openOntkoppelBetrokkene(betrokkeneIdentificatie, (reden) =>
-        (() => {
-          const deleteBetrokkene = this.zakenService.deleteBetrokkene(
-            betrokkene.rolid,
-          );
-          return from(
-            deleteBetrokkene.mutationFn!(
-              { reden },
-              {
-                client: this.queryClient,
-                meta: deleteBetrokkene.meta,
-                mutationKey: deleteBetrokkene.mutationKey,
-              },
-            ),
-          );
-        })(),
+        runMutation(this.queryClient, this.zakenService.deleteBetrokkene(), {
+          rolUuid: betrokkene.rolid,
+          reden,
+        }),
       )
       .afterClosed()
       .subscribe((result) => {

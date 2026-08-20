@@ -47,9 +47,10 @@ export function runMutationOnSuccess<
 >(
   options: CreateMutationOptions<TData, TError, TVariables, TOnMutateResult>,
   variables?: TVariables,
+  data?: TData,
 ) {
   return options.onSuccess?.(
-    undefined as TData,
+    data as TData,
     variables as TVariables,
     undefined as TOnMutateResult,
     fromPartial<MutationFunctionContext>({}),

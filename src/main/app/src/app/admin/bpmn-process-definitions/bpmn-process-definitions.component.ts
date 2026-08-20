@@ -27,7 +27,6 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { FileDragAndDropDirective } from "../../shared/directives/file-drag-and-drop.directive";
 import { injectMutation } from "../../shared/http/inject-mutation";
-import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
 import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { AdminComponent } from "../admin/admin.component";
@@ -99,9 +98,8 @@ export class BpmnProcessDefinitionsComponent
     this.bpmnService.uploadProcessDefinitionQuery(),
   );
 
-  private readonly deleteMutation = injectServiceMutation(
-    (processDefinition: { key: string; name: string }) =>
-      this.bpmnService.deleteProcessDefinition(processDefinition),
+  private readonly deleteMutation = injectMutation(() =>
+    this.bpmnService.deleteProcessDefinition(),
   );
 
   constructor() {

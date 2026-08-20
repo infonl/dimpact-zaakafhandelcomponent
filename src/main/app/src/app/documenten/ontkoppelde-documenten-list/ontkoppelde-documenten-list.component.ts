@@ -53,7 +53,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/http-client";
-import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import {
@@ -149,9 +149,8 @@ export class OntkoppeldeDocumentenListComponent
   protected clearZoekopdracht = new EventEmitter<void>();
   protected selectedInformationObject: GeneratedType<"RestDetachedDocument"> | null =
     null;
-  private readonly deleteMutation = injectServiceMutation(
-    (detachedDocument: GeneratedType<"RestDetachedDocument">) =>
-      this.ontkoppeldeDocumentenService.delete(detachedDocument),
+  private readonly deleteMutation = injectMutation(
+    () => this.ontkoppeldeDocumentenService.delete(),
     {
       onSuccess: () => this.filterChange.emit(),
     },

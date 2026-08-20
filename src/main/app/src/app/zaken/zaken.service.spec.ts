@@ -7,9 +7,16 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import {
+  type MutationFunctionContext,
+  provideQueryClient,
+} from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../setupJest";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
@@ -18,6 +25,7 @@ import { ZakenService } from "./zaken.service";
 
 describe("ZaakService", () => {
   let service: ZakenService;
+  let httpTestingController: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -26,11 +34,17 @@ describe("ZaakService", () => {
         { provide: FoutAfhandelingService, useValue: {} },
         { provide: TranslateService, useValue: {} },
         provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
       ],
     });
 
     service = TestBed.inject(ZakenService);
+    httpTestingController = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpTestingController.verify();
   });
 
   it("should be created", () => {
@@ -60,6 +74,38 @@ describe("ZaakService", () => {
           service.readZaakQuery("fakeZaakUuid1").queryKey,
         ),
       ).toBe(zaak);
+    });
+  });
+
+  describe("deleteInitiator", () => {
+    it("addresses the zaak by its uuid and sends the reden as the body", async () => {
+      const request = service.deleteInitiator().mutationFn!(
+        { zaakUuid: "fakeZaakUuid", reden: "fakeReden" },
+        fromPartial<MutationFunctionContext>({}),
+      );
+      const httpRequest = httpTestingController.expectOne(
+        "/rest/zaken/fakeZaakUuid/initiator",
+      );
+      httpRequest.flush(null);
+
+      expect(httpRequest.request.body).toEqual({ reden: "fakeReden" });
+      await request;
+    });
+  });
+
+  describe("deleteBetrokkene", () => {
+    it("addresses the rol by its uuid and sends the reden as the body", async () => {
+      const request = service.deleteBetrokkene().mutationFn!(
+        { rolUuid: "fakeRolUuid", reden: "fakeReden" },
+        fromPartial<MutationFunctionContext>({}),
+      );
+      const httpRequest = httpTestingController.expectOne(
+        "/rest/zaken/betrokkene/fakeRolUuid",
+      );
+      httpRequest.flush(null);
+
+      expect(httpRequest.request.body).toEqual({ reden: "fakeReden" });
+      await request;
     });
   });
 });
