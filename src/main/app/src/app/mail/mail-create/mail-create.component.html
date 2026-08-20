@@ -38,6 +38,13 @@
         <mat-icon>person</mat-icon>
       </button>
     </zac-input>
+    <zac-select
+      key="vertrouwelijkheidaanduiding"
+      optionDisplayValue="label"
+      [form]="form"
+      [options]="confidentialityNotices"
+    >
+    </zac-select>
     <zac-html-editor
       [form]="form"
       key="onderwerp"

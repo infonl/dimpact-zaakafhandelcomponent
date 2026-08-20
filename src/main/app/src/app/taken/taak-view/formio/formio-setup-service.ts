@@ -15,6 +15,7 @@ import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wr
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { ZacQueryClient } from "../../../shared/http/zac-query-client";
 import { OrderUtil } from "../../../shared/order/order-util";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 
@@ -33,6 +34,7 @@ export enum KNOWN_ZAC_FIELDS {
   RESULTAAT = "ZAC_resultaat",
   STATUS = "ZAC_status",
   PROCESS_DATA = "ZAC_process_data",
+  VERTROUWELIJKHEIDSAANDUIDING = "ZAC_vertrouwelijkheidsaanduiding",
 }
 
 /** Hides the field's chrome; styled in `formio-wrapper.component.less`. */
@@ -169,6 +171,9 @@ export class FormioSetupService {
               break;
             case KNOWN_ZAC_FIELDS.STATUS:
               this.initializeZaakStatusField(component, taak);
+              break;
+            case KNOWN_ZAC_FIELDS.VERTROUWELIJKHEIDSAANDUIDING:
+              this.initializeVertrouwelijkheidsaanduidingField(component);
               break;
             default:
               this.markUnknownZacType(component);
@@ -660,6 +665,22 @@ export class FormioSetupService {
       custom: () =>
         this.queryClient.ensureQueryData(
           this.zakenService.listStatustypes(taak.zaaktypeUUID!),
+        ),
+    };
+  }
+
+  private initializeVertrouwelijkheidsaanduidingField(
+    component: ExtendedComponentSchema,
+  ) {
+    component.valueProperty = "value";
+    component.template = "{{ item.label }}";
+    component.data = {
+      custom: () =>
+        VertrouwelijkaanduidingToTranslationKeyPipe.selectList.map(
+          ({ value, label }) => ({
+            value,
+            label: this.translateService.instant(label),
+          }),
         ),
     };
   }
