@@ -31,7 +31,7 @@ export class InboxDocumentenService {
       {
         onSuccess: (result) =>
           this.utilService.openSnackbar(
-            result?.isGekoppeldAanZaak
+            result.isGekoppeldAanZaak
               ? "msg.document.verwijderen.inbox.gekoppeld-aan-zaak"
               : "msg.document.verwijderen.uitgevoerd",
             { document: inboxDocument.titel },
