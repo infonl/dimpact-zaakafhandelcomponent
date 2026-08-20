@@ -159,7 +159,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
     fun downloadProcessDefinition(@PathParam("key") key: String): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
         val processDefinition = bpmnService.readProcessDefinitionByProcessDefinitionKey(key)
-        return Response.ok(bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition))
+        return Response.ok(bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition))
             .header("Content-Type", MediaTypes.Application.ZIP.mediaType)
             .header(
                 "Content-Disposition",

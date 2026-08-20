@@ -89,7 +89,7 @@ class BpmnProcessDefinitionDownloadServiceTest : BehaviorSpec({
         )
 
         `when`("the zip is written") {
-            val zipEntries = bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+            val zipEntries = bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition)
                 .readZipEntries()
 
             then("the unused task form is placed in its own folder, separate from the used one") {
@@ -124,7 +124,7 @@ class BpmnProcessDefinitionDownloadServiceTest : BehaviorSpec({
         )
 
         `when`("the zip is written") {
-            val zipEntries = bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+            val zipEntries = bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition)
                 .readZipEntries()
 
             then("only the task forms of the requested key and version are included") {
@@ -144,7 +144,7 @@ class BpmnProcessDefinitionDownloadServiceTest : BehaviorSpec({
         )
 
         `when`("the zip is written") {
-            val zipEntries = bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+            val zipEntries = bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition)
                 .readZipEntries()
 
             then("both are included, the second one disambiguated by its form name") {
@@ -171,7 +171,7 @@ class BpmnProcessDefinitionDownloadServiceTest : BehaviorSpec({
         )
 
         `when`("the zip is written") {
-            val zipEntries = bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+            val zipEntries = bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition)
                 .readZipEntries()
 
             then("all three are included, the last one falling back to a numbered path") {
@@ -200,7 +200,7 @@ class BpmnProcessDefinitionDownloadServiceTest : BehaviorSpec({
         )
 
         `when`("the zip is written") {
-            val zipEntries = bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+            val zipEntries = bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition)
                 .readZipEntries()
 
             then("the task form is placed in the root of the zip") {
@@ -220,7 +220,7 @@ class BpmnProcessDefinitionDownloadServiceTest : BehaviorSpec({
         )
 
         `when`("the zip is written") {
-            val zipEntries = bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+            val zipEntries = bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition)
                 .readZipEntries()
 
             then("both keep their original filename because only the unused one is put in a folder") {
@@ -242,7 +242,7 @@ class BpmnProcessDefinitionDownloadServiceTest : BehaviorSpec({
         )
 
         `when`("the zip is written") {
-            val zipEntries = bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+            val zipEntries = bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition)
                 .readZipEntries()
 
             then("the task form is disambiguated by its form name so the BPMN model is not overwritten") {
@@ -268,7 +268,7 @@ class BpmnProcessDefinitionDownloadServiceTest : BehaviorSpec({
 
         `when`("the zip is written") {
             val zipEntries = bpmnProcessDefinitionDownloadService
-                .getZipStreamOutput(processDefinitionWithoutBpmnResourceName)
+                .getProcessDefinitionAndTaskFormsAsZipStream(processDefinitionWithoutBpmnResourceName)
                 .readZipEntries()
 
             then("the BPMN model is named after the process definition key") {
@@ -289,7 +289,7 @@ class BpmnProcessDefinitionDownloadServiceTest : BehaviorSpec({
 
         `when`("the zip is written") {
             val zipEntries = bpmnProcessDefinitionDownloadService
-                .getZipStreamOutput(processDefinitionWithFolderInResourceName)
+                .getProcessDefinitionAndTaskFormsAsZipStream(processDefinitionWithFolderInResourceName)
                 .readZipEntries()
 
             then("the BPMN model is placed in the root of the zip") {
@@ -306,7 +306,7 @@ class BpmnProcessDefinitionDownloadServiceTest : BehaviorSpec({
 
         `when`("the zip stream output is requested") {
             val bpmnProcessDefinitionDownloadException = shouldThrow<BpmnProcessDefinitionDownloadException> {
-                bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+                bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition)
             }
 
             then("a BPMN process definition download exception is thrown for the process definition") {
@@ -329,7 +329,7 @@ class BpmnProcessDefinitionDownloadServiceTest : BehaviorSpec({
 
         `when`("the zip is written to it") {
             val bpmnProcessDefinitionDownloadException = shouldThrow<BpmnProcessDefinitionDownloadException> {
-                bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+                bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition)
                     .write(failingOutputStream)
             }
 

@@ -22,7 +22,7 @@ class BpmnProcessDefinitionDownloadService @Inject constructor(
 ) {
     companion object {
         private const val BPMN_FILE_EXTENSION = ".bpmn"
-        private const val FORM_FILE_EXTENSION = ".json"
+        private const val JSON_FILE_EXTENSION = ".json"
         private const val UNUSED_FORMS_FOLDER = "unused-forms"
     }
 
@@ -31,14 +31,14 @@ class BpmnProcessDefinitionDownloadService @Inject constructor(
      * Forms that no user task references end up in a separate folder, so that whoever imports
      * the zip elsewhere can leave them out.
      *
-     * All content is resolved before streaming starts, so that the database and the Flowable
-     * repository are only read while the REST resource method is still active.
+     * All content is read before the zip is streamed, so that no database or Flowable repository
+     * access is needed anymore once writing has started.
      */
-    fun getZipStreamOutput(processDefinition: ProcessDefinition): StreamingOutput =
+    fun getProcessDefinitionAndTaskFormsAsZipStream(processDefinition: ProcessDefinition): StreamingOutput =
         collectFiles(processDefinition).let { files ->
             StreamingOutput { outputStream ->
                 ZipOutputStream(BufferedOutputStream(outputStream)).use { zipOutputStream ->
-                    files.forEach { (path, content) -> addToZip(path, content, zipOutputStream) }
+                    files.forEach { (path, content) -> addToZipOutputStream(path, content, zipOutputStream) }
                 }
             }
         }
@@ -90,7 +90,7 @@ class BpmnProcessDefinitionDownloadService @Inject constructor(
         usedPaths: MutableSet<String>
     ): String {
         val formName = name.withoutDirectories()
-        val formFilename = filename.withoutDirectories().ifBlank { "$formName$FORM_FILE_EXTENSION" }
+        val formFilename = filename.withoutDirectories().ifBlank { "$formName$JSON_FILE_EXTENSION" }
         val baseName = formFilename.substringBeforeLast('.')
         val extension = formFilename.removePrefix(baseName)
         return (
@@ -101,7 +101,7 @@ class BpmnProcessDefinitionDownloadService @Inject constructor(
             .first(usedPaths::add)
     }
 
-    private fun addToZip(path: String, content: ByteArray, zipOutputStream: ZipOutputStream) {
+    private fun addToZipOutputStream(path: String, content: ByteArray, zipOutputStream: ZipOutputStream) {
         try {
             zipOutputStream.putNextEntry(ZipEntry(path))
             zipOutputStream.write(content)

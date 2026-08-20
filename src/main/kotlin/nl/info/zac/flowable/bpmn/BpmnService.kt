@@ -200,9 +200,6 @@ class BpmnService @Inject constructor(
             .orderByProcessDefinitionName().asc()
             .list()
 
-    /**
-     * Returns the BPMN XML exactly as it was deployed, not a re-serialisation of the parsed model.
-     */
     fun readProcessDefinitionModel(processDefinitionId: String): InputStream =
         repositoryService.getProcessModel(processDefinitionId)
 

@@ -284,7 +284,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             bpmnService.readProcessDefinitionByProcessDefinitionKey(processDefinitionKey)
         } returns processDefinition
         every {
-            bpmnProcessDefinitionDownloadService.getZipStreamOutput(processDefinition)
+            bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition)
         } returns streamingOutput
 
         `when`("downloadProcessDefinition is called") {
@@ -309,7 +309,7 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             }
 
             then("no zip is created") {
-                verify(exactly = 0) { bpmnProcessDefinitionDownloadService.getZipStreamOutput(any()) }
+                verify(exactly = 0) { bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(any()) }
             }
         }
     }
