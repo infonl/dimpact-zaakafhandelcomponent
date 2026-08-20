@@ -34,7 +34,7 @@ describe(InboxDocumentenService.name, () => {
   });
 
   describe("delete", () => {
-    it("names the deleted document in the confirmation when it is not linked to a zaak", async () => {
+    it("names the deleted document in the confirmation when the informatieobject was deleted", async () => {
       const inboxDocument = fromPartial<GeneratedType<"RestInboxDocument">>({
         id: 42,
         titel: "fakeDocumentTitel",
@@ -44,7 +44,7 @@ describe(InboxDocumentenService.name, () => {
         service.delete(inboxDocument),
         undefined,
         fromPartial<GeneratedType<"RestInboxDocumentDeleteResult">>({
-          isGekoppeldAanZaak: false,
+          isInformatieobjectDeleted: true,
         }),
       );
 
@@ -54,7 +54,7 @@ describe(InboxDocumentenService.name, () => {
       );
     });
 
-    it("warns that the document itself was not deleted when it is linked to a zaak", async () => {
+    it("warns that the document itself was not deleted when the informatieobject was not deleted", async () => {
       const inboxDocument = fromPartial<GeneratedType<"RestInboxDocument">>({
         id: 42,
         titel: "fakeDocumentTitel",
@@ -64,12 +64,12 @@ describe(InboxDocumentenService.name, () => {
         service.delete(inboxDocument),
         undefined,
         fromPartial<GeneratedType<"RestInboxDocumentDeleteResult">>({
-          isGekoppeldAanZaak: true,
+          isInformatieobjectDeleted: false,
         }),
       );
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.document.verwijderen.inbox.gekoppeld-aan-zaak",
+        "msg.document.verwijderen.inbox.niet-verwijderd",
         { document: "fakeDocumentTitel" },
       );
     });

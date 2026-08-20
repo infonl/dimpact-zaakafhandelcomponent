@@ -70,7 +70,7 @@ class InboxDocumentRestService @Inject constructor(
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val inboxDocument = inboxDocumentService.find(id) ?: run {
             LOG.warning { "Inbox document with id '$id' not found. It may already have been deleted." }
-            return RestInboxDocumentDeleteResult(isGekoppeldAanZaak = false)
+            return RestInboxDocumentDeleteResult(isInformatieobjectDeleted = true)
         }
 
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
@@ -93,7 +93,7 @@ class InboxDocumentRestService @Inject constructor(
             )
         }
         inboxDocumentService.deleteIfExists(id)
-        return RestInboxDocumentDeleteResult(isGekoppeldAanZaak = isGekoppeldAanZaak)
+        return RestInboxDocumentDeleteResult(isInformatieobjectDeleted = !isGekoppeldAanZaak)
     }
 
     private fun getInformatieobjectTypeUUID(inboxDocument: InboxDocument): UUID? {

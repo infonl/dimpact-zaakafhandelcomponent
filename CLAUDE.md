@@ -218,23 +218,23 @@ When using an acronym as part of a declaration name, follow these rules:
 
 ### Name boolean properties with an `is`/`has` prefix
 Follow the [Kotlin convention for booleans](https://kotlinlang.org/docs/coding-conventions.html#names-for-test-methods):
-name boolean properties and variables with an `is`, `has`, or similar prefix, e.g. `isGekoppeldAanZaak`
-rather than `gekoppeldAanZaak`. This applies to REST model classes as well as regular code.
+name boolean properties and variables with an `is`, `has`, or similar prefix, e.g. `isInformatieobjectDeleted`
+rather than `informatieobjectDeleted`. This applies to REST model classes as well as regular code.
 For a boolean property on a class serialized with JSON-B (e.g. a `RestXxx` model), add
 `@get:JsonbProperty("isXxx")` above the property so the JSON field name matches the Kotlin property
 name exactly:
 ```kotlin
 // Before
-var gekoppeldAanZaak: Boolean = false
+var informatieobjectDeleted: Boolean = true
 // After
-@get:JsonbProperty("isGekoppeldAanZaak")
-var isGekoppeldAanZaak: Boolean = false
+@get:JsonbProperty("isInformatieobjectDeleted")
+var isInformatieobjectDeleted: Boolean = true
 ```
 
 ### Use kebab-case for the last segment of frontend i18n message keys
 In `src/main/app/src/assets/i18n/nl.json` and `en.json`, when the last segment of a message key is
-multi-word, write it in kebab-case, not camelCase — e.g. `msg.document.verwijderen.inbox.gekoppeld-aan-zaak`,
-not `msg.document.verwijderen.inbox.gekoppeldAanZaak`. This applies even when the segment is named after
+multi-word, write it in kebab-case, not camelCase — e.g. `msg.document.verwijderen.inbox.niet-verwijderd`,
+not `msg.document.verwijderen.inbox.nietVerwijderd`. This applies even when the segment is named after
 a camelCase variable (such as an `isXxx` boolean) elsewhere in the code — the i18n key still uses kebab-case.
 
 ### Prefer Kotlin data classes for simple data holders

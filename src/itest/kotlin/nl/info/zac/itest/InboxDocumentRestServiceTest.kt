@@ -110,7 +110,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
 
             then("the inbox document should no longer appear in the inbox documents list") {
                 deleteResponse.code shouldBe HTTP_OK
-                JSONObject(deleteResponse.bodyAsString).getBoolean("isGekoppeldAanZaak") shouldBe false
+                JSONObject(deleteResponse.bodyAsString).getBoolean("isInformatieobjectDeleted") shouldBe true
                 val listResponse = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/inboxdocumenten",
                     requestBodyAsString = JSONObject(

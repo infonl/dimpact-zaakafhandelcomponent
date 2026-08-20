@@ -777,7 +777,7 @@
   "msg.document.verplaatsen.uitgevoerd": "Document \"{{document}}\" is verplaatst naar zaak \"{{case}}\"",
   "msg.document.verwijderen.bevestigen": "Document \"<i>{{document}}</i>\" verwijderen?",
   "msg.document.verwijderen.uitgevoerd": "Document \"{{document}}\" is verwijderd",
-  "msg.document.verwijderen.inbox.gekoppeld-aan-zaak": "Document \"{{document}}\" is verwijderd uit de lijst van inboxdocumenten. Maar omdat het document gekoppeld is aan een zaak, is het document zelf niet verwijderd.",
+  "msg.document.verwijderen.inbox.niet-verwijderd": "Document \"{{document}}\" is verwijderd uit de lijst van inboxdocumenten. Het document zelf is niet verwijderd.",
   "msg.inboxProductaanvraag.verwijderen.bevestigen": "Productaanvraag verwijderen?",
   "msg.inboxProductaanvraag.verwijderen.uitgevoerd": "Productaanvraag is verwijderd",
   "msg.document.verzenden.post.behandelen": "Verzoek om documenten per post te verzenden",

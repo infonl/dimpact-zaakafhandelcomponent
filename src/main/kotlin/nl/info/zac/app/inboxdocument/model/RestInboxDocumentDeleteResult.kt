@@ -11,6 +11,6 @@ import nl.info.zac.util.NoArgConstructor
 @AllOpen
 @NoArgConstructor
 data class RestInboxDocumentDeleteResult(
-    @get:JsonbProperty("isGekoppeldAanZaak")
-    var isGekoppeldAanZaak: Boolean = false
+    @get:JsonbProperty("isInformatieobjectDeleted")
+    var isInformatieobjectDeleted: Boolean = true
 )
