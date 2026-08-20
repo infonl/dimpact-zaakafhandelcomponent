@@ -21,8 +21,8 @@ import nl.info.client.zgw.ztc.model.createCatalogusListParameters
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.RoltypeListGeneriekParameters
+import nl.info.client.zgw.ztc.model.ZaaktypeListParameters
 import net.atos.client.zgw.shared.model.Results
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import java.net.URI
@@ -160,6 +160,28 @@ class ZtcClientServiceTest : BehaviorSpec({
                     this?.hitCount() shouldBe 1
                     this?.missCount() shouldBe 2
                 }
+            }
+        }
+    }
+
+    given("zaaktypes for a catalogus that are spread over multiple pages") {
+        val catalogusURI = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+        val firstPageZaakType = createZaakType()
+        val secondPageZaakType = createZaakType()
+        val nextPageURI = URI("https://example.com/zaaktypen?page=2")
+
+        every {
+            ztcClient.zaaktypeList(match<ZaaktypeListParameters> { it.getPage() == 1 })
+        } returns Results(1, listOf(firstPageZaakType), nextPageURI, null)
+        every {
+            ztcClient.zaaktypeList(match<ZaaktypeListParameters> { it.getPage() == 2 })
+        } returns Results(1, listOf(secondPageZaakType), null, null)
+
+        `when`("listZaaktypen is called") {
+            val zaakTypen = ztcClientService.listZaaktypen(catalogusURI)
+
+            then("it should return the zaaktypes of all pages combined") {
+                zaakTypen shouldBe listOf(firstPageZaakType, secondPageZaakType)
             }
         }
     }

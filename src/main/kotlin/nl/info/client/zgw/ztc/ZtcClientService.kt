@@ -58,6 +58,7 @@ class ZtcClientService @Inject constructor(
     companion object {
         const val MAX_CACHE_SIZE: Long = 1_000
         const val EXPIRATION_TIME_HOURS: Long = 1
+        const val ZAAKTYPE_PAGE_SIZE: Int = 200
 
         /**
          * Marks a zaaktype as being 'zaakspecifiek autoriseerbaar'.
@@ -151,13 +152,23 @@ class ZtcClientService @Inject constructor(
     }
 
     /**
-     * List instances of [ZaakType] in [Catalogus].
+     * List instances of [ZaakType] in [Catalogus], retrieving all pages.
      *
      * @param catalogusURI URI of [Catalogus].
      * @return List of [ZaakType] instances
      */
     fun listZaaktypen(catalogusURI: URI): List<ZaakType> = uriToZaakTypeListCache.get(catalogusURI) {
-        ztcClient.zaaktypeList(ZaaktypeListParameters(catalogusURI)).results()
+        val zaaktypen = mutableListOf<ZaakType>()
+        var page = 1
+        var result: Results<ZaakType>
+        do {
+            result = ztcClient.zaaktypeList(
+                ZaaktypeListParameters(catalogusURI, page = page, pageSize = ZAAKTYPE_PAGE_SIZE)
+            )
+            zaaktypen.addAll(result.results())
+            page++
+        } while (result.next() != null)
+        zaaktypen
     }
 
     /**
