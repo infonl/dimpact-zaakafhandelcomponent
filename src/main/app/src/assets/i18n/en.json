@@ -393,6 +393,7 @@
   "zaak": "Case",
   "zaakdata": "Case data",
   "zaak.identificatie": "Case number",
+  "zaak.isZaakspecifiekGeautoriseerd": "Case is case-specifically authorized",
   "zaak.locatie.adres": "Nearest address",
   "zaakIdentificatie": "Belongs to case",
   "zaakInformatieobject": "Document",

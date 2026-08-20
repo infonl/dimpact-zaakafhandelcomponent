@@ -393,6 +393,7 @@
   "zaak": "Zaak",
   "zaakdata": "Zaakdata",
   "zaak.identificatie": "Zaaknummer",
+  "zaak.isZaakspecifiekGeautoriseerd": "Zaak is zaakspecifiek geautoriseerd",
   "zaak.locatie.adres": "Dichtsbijzijnde adres",
   "zaakIdentificatie": "Hoort bij zaak",
   "zaakInformatieobject": "Document",
