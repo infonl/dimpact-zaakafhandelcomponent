@@ -34,16 +34,42 @@ describe(InboxDocumentenService.name, () => {
   });
 
   describe("delete", () => {
-    it("names the deleted document in the confirmation", async () => {
+    it("names the deleted document in the confirmation when it is not linked to a zaak", async () => {
       const inboxDocument = fromPartial<GeneratedType<"RestInboxDocument">>({
         id: 42,
         titel: "fakeDocumentTitel",
       });
 
-      await runMutationOnSuccess(service.delete(inboxDocument));
+      await runMutationOnSuccess(
+        service.delete(inboxDocument),
+        undefined,
+        fromPartial<GeneratedType<"RestInboxDocumentDeleteResult">>({
+          gekoppeldAanZaak: false,
+        }),
+      );
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.document.verwijderen.uitgevoerd",
+        { document: "fakeDocumentTitel" },
+      );
+    });
+
+    it("warns that the document itself was not deleted when it is linked to a zaak", async () => {
+      const inboxDocument = fromPartial<GeneratedType<"RestInboxDocument">>({
+        id: 42,
+        titel: "fakeDocumentTitel",
+      });
+
+      await runMutationOnSuccess(
+        service.delete(inboxDocument),
+        undefined,
+        fromPartial<GeneratedType<"RestInboxDocumentDeleteResult">>({
+          gekoppeldAanZaak: true,
+        }),
+      );
+
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.document.verwijderen.inbox.gekoppeldAanZaak",
         { document: "fakeDocumentTitel" },
       );
     });
