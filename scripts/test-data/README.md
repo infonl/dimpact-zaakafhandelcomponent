@@ -34,24 +34,24 @@ For each zaaktype it also:
                        [--zac-url URL] [--keycloak-url URL] [--skip-config]
 ```
 
-| Option | Default | Description |
-|---|---|---|
-| `--count N` | `10` | number of zaaktypes to create |
-| `--host` | `localhost` | Open Zaak database host |
-| `--port` | `54322` | Open Zaak database port |
-| `--dbname` | `openzaak` | Open Zaak database name |
-| `--user` | `openzaak` | Open Zaak database user |
-| `--password` | `openzaak` | Open Zaak database password |
-| `--template` | `open-zaak/zaaktype-template.sql` | path to the Open Zaak SQL template |
-| `--pabc-host` | `localhost` | PABC database host |
-| `--pabc-port` | `54329` | PABC database port |
-| `--pabc-dbname` | `Pabc` | PABC database name |
-| `--pabc-user` | `pabc` | PABC database user |
-| `--pabc-password` | `pabc` | PABC database password |
-| `--pabc-template` | `pabc/add-zaaktype-template.sql` | path to the PABC SQL template |
-| `--zac-url` | `http://localhost:8080` | ZAC base URL, passed through to `configure-zaakafhandelparameters.py` |
-| `--keycloak-url` | `http://localhost:8081` | Keycloak base URL, passed through to `configure-zaakafhandelparameters.py` |
-| `--skip-config` | off | skip configuring zaakafhandelparameters in ZAC after creating each zaaktype |
+| Option            | Default                           | Description                                                                 |
+|-------------------|-----------------------------------|-----------------------------------------------------------------------------|
+| `--count N`       | `10`                              | number of zaaktypes to create                                               |
+| `--host`          | `localhost`                       | Open Zaak database host                                                     |
+| `--port`          | `54322`                           | Open Zaak database port                                                     |
+| `--dbname`        | `openzaak`                        | Open Zaak database name                                                     |
+| `--user`          | `openzaak`                        | Open Zaak database user                                                     |
+| `--password`      | `openzaak`                        | Open Zaak database password                                                 |
+| `--template`      | `open-zaak/zaaktype-template.sql` | path to the Open Zaak SQL template                                          |
+| `--pabc-host`     | `localhost`                       | PABC database host                                                          |
+| `--pabc-port`     | `54329`                           | PABC database port                                                          |
+| `--pabc-dbname`   | `Pabc`                            | PABC database name                                                          |
+| `--pabc-user`     | `pabc`                            | PABC database user                                                          |
+| `--pabc-password` | `pabc`                            | PABC database password                                                      |
+| `--pabc-template` | `pabc/add-zaaktype-template.sql`  | path to the PABC SQL template                                               |
+| `--zac-url`       | `http://localhost:8080`           | ZAC base URL, passed through to `configure-zaakafhandelparameters.py`       |
+| `--keycloak-url`  | `http://localhost:8081`           | Keycloak base URL, passed through to `configure-zaakafhandelparameters.py`  |
+| `--skip-config`   | off                               | skip configuring zaakafhandelparameters in ZAC after creating each zaaktype |
 
 The database and PABC connection options only need to be overridden when the local stack deviates from the
 defaults in `docker-compose.yaml`.
