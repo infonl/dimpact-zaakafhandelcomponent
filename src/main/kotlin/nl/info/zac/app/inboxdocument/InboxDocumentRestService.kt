@@ -83,7 +83,7 @@ class InboxDocumentRestService @Inject constructor(
         if (isGekoppeldAanZaak) {
             val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
             LOG.log(Level.WARNING) {
-                "Deleted inbox document but not the related informatieobject. " +
+                "Deleting inbox document but not the related informatieobject. " +
                     "Reason: informatieobject '${enkelvoudigInformatieobject.identificatie}' is linked " +
                     "to zaak '$zaakUuid'."
             }
