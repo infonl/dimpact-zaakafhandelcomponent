@@ -15,7 +15,7 @@ import { MatInputModule } from "@angular/material/input";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { IdentityService } from "../identity/identity.service";
-import { injectServiceMutation } from "../shared/http/inject-service-mutation";
+import { injectMutation } from "../shared/http/inject-mutation";
 import { DatumPipe } from "../shared/pipes/datum.pipe";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitieService } from "./notities.service";
@@ -51,8 +51,8 @@ export class NotitiesComponent implements OnInit {
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
   );
-  private readonly deleteNotitieMutation = injectServiceMutation(
-    (id: number) => this.notitieService.deleteNotitie(id),
+  private readonly deleteNotitieMutation = injectMutation(
+    () => this.notitieService.deleteNotitie(),
     {
       onSuccess: (_data, id) => {
         this.notities.splice(

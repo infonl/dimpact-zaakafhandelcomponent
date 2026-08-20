@@ -31,7 +31,7 @@ export class BAGService {
   }
 
   delete() {
-    return this.zacQueryClient.DELETE("/rest/bag", {});
+    return this.zacQueryClient.DELETE("/rest/bag");
   }
 
   read(type: GeneratedType<"BAGObjectType">, id: string) {

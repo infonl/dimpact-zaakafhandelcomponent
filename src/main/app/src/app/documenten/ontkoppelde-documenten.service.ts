@@ -23,13 +23,16 @@ export class OntkoppeldeDocumentenService {
     return this.zacHttpClient.PUT("/rest/ontkoppeldedocumenten", body);
   }
 
-  delete(detachedDocument: GeneratedType<"RestDetachedDocument">) {
+  delete() {
     return mergeMutationOptions(
-      this.zacQueryClient.DELETE("/rest/ontkoppeldedocumenten/{id}", {
-        path: { id: detachedDocument.id ?? -1 },
-      }),
+      this.zacQueryClient.DELETE(
+        "/rest/ontkoppeldedocumenten/{id}",
+        (detachedDocument: GeneratedType<"RestDetachedDocument">) => ({
+          parameters: { path: { id: detachedDocument.id ?? -1 } },
+        }),
+      ),
       {
-        onSuccess: () =>
+        onSuccess: (_data, detachedDocument) =>
           this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
             document: detachedDocument.titel,
           }),

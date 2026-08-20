@@ -17,7 +17,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { of } from "rxjs";
+import { Observable, of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
@@ -66,7 +66,10 @@ describe(ZaakBetrokkeneListComponent.name, () => {
   let dialogRef: MatDialogRef<unknown>;
   let openOntkoppelBetrokkeneSpy: jest.Mock;
   let deleteBetrokkeneMutation: ReturnType<
-    typeof createMutationOptions<GeneratedType<"RestZaak">, { reden: string }>
+    typeof createMutationOptions<
+      GeneratedType<"RestZaak">,
+      { rolUuid: string; reden: string }
+    >
   >;
 
   const fakeZaak = makeZaak();
@@ -111,7 +114,7 @@ describe(ZaakBetrokkeneListComponent.name, () => {
 
     deleteBetrokkeneMutation = createMutationOptions<
       GeneratedType<"RestZaak">,
-      { reden: string }
+      { rolUuid: string; reden: string }
     >(fromPartial<GeneratedType<"RestZaak">>({}));
     jest
       .spyOn(zakenService, "deleteBetrokkene")
@@ -238,19 +241,19 @@ describe(ZaakBetrokkeneListComponent.name, () => {
   });
 
   describe("deleteBetrokkene", () => {
-    it("calls zakenService.deleteBetrokkene with the betrokkene's rolid and the entered reden", () => {
+    it("calls zakenService.deleteBetrokkene with the betrokkene's rolid and the entered reden", async () => {
       const betrokkene = makeBetrokkene({ rolid: "fake-rol-id" });
 
       component["deleteBetrokkene"](betrokkene);
 
       const callback = openOntkoppelBetrokkeneSpy.mock.calls[0][1] as (
         reden: string,
-      ) => unknown;
-      callback("fake-reden");
+      ) => Observable<unknown>;
+      callback("fake-reden").subscribe();
+      await new Promise(requestAnimationFrame);
 
-      expect(zakenService.deleteBetrokkene).toHaveBeenCalledWith("fake-rol-id");
       expect(deleteBetrokkeneMutation.mutationFn).toHaveBeenCalledWith(
-        { reden: "fake-reden" },
+        { rolUuid: "fake-rol-id", reden: "fake-reden" },
         expect.objectContaining({
           client: testQueryClient,
           mutationKey: deleteBetrokkeneMutation.mutationKey,
@@ -303,6 +306,26 @@ describe(ZaakBetrokkeneListComponent.name, () => {
       component["deleteBetrokkene"](makeBetrokkene());
 
       expect(utilService.openSnackbar).not.toHaveBeenCalled();
+    });
+
+    it("reports a failing ontkoppelen through the error handling of the mutation", async () => {
+      const onError = jest.fn();
+      jest.spyOn(zakenService, "deleteBetrokkene").mockReturnValue(
+        fromPartial({
+          mutationKey: ["fake-delete-betrokkene"],
+          mutationFn: () => Promise.reject(new Error("fakeError")),
+          onError,
+        }),
+      );
+
+      component["deleteBetrokkene"](makeBetrokkene());
+      const callback = openOntkoppelBetrokkeneSpy.mock.calls.at(-1)![1] as (
+        reden: string,
+      ) => Observable<unknown>;
+      callback("fake-reden").subscribe({ error: () => undefined });
+      await new Promise(requestAnimationFrame);
+
+      expect(onError).toHaveBeenCalled();
     });
   });
 });

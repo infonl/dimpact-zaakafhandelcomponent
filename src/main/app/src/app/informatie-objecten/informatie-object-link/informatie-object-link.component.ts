@@ -29,7 +29,6 @@ import {
   LINKABLE_ZAKEN_PAGINATION_SIZE,
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -94,9 +93,8 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
     ]),
   });
 
-  protected readonly linkDocumentMutation = injectMutation(
-    () => this.informatieObjectService.linkDocumentToCaseMutation(),
-    { onError: (error) => this.foutAfhandelingService.foutAfhandelen(error) },
+  protected readonly linkDocumentMutation = injectMutation(() =>
+    this.informatieObjectService.linkDocumentToCaseMutation(),
   );
 
   constructor(
@@ -105,7 +103,6 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
     private readonly utilService: UtilService,
     private readonly translate: TranslateService,
     private readonly formBuilder: FormBuilder,
-    private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
   ngOnInit() {

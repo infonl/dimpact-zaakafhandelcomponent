@@ -29,9 +29,9 @@ export class NotitieService {
     return this.zacHttpClient.PATCH("/rest/notities", body);
   }
 
-  deleteNotitie(id: number) {
-    return this.zacQueryClient.DELETE("/rest/notities/{id}", {
-      path: { id },
-    });
+  deleteNotitie() {
+    return this.zacQueryClient.DELETE("/rest/notities/{id}", (id: number) => ({
+      parameters: { path: { id } },
+    }));
   }
 }

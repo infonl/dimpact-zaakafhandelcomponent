@@ -34,11 +34,12 @@ export class MailtemplateBeheerService {
     return this.zacHttpClient.GET("/rest/beheer/mailtemplates/koppelbaar");
   }
 
-  deleteMailtemplate(id: number) {
+  deleteMailtemplate() {
     return mergeMutationOptions(
-      this.zacQueryClient.DELETE("/rest/beheer/mailtemplates/{id}", {
-        path: { id },
-      }),
+      this.zacQueryClient.DELETE(
+        "/rest/beheer/mailtemplates/{id}",
+        (id: number) => ({ parameters: { path: { id } } }),
+      ),
       {
         onSuccess: () =>
           this.utilService.openSnackbar(
