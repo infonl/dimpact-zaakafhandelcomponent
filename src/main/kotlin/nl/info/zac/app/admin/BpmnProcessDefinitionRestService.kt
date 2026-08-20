@@ -18,6 +18,7 @@ import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.Response.Status
+import net.atos.zac.util.MediaTypes
 import nl.info.zac.app.admin.model.BpmnProcessDefinitionTaskFormContent
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionDetails
@@ -154,7 +155,7 @@ class BpmnProcessDefinitionRestService @Inject constructor(
 
     @GET
     @Path("{key}/download")
-    @Produces("application/zip")
+    @Produces(MediaTypes.MEDIA_TYPE_ZIP)
     fun downloadProcessDefinition(@PathParam("key") key: String): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
         val processDefinition = bpmnService.readProcessDefinitionByProcessDefinitionKey(key)

@@ -63,7 +63,8 @@ export class BpmnService {
       } as PathParameters<
         "/rest/bpmn-process-definitions/{key}/download",
         "get"
-      >,
+      > &
+        Record<string, unknown>,
     ) as unknown as Observable<HttpResponse<Blob>>;
   }
 

@@ -20,6 +20,8 @@ object MediaTypes {
     /** Standardized format (RFC 7807) for representing error responses in HTTP APIs */
     const val MEDIA_TYPE_PROBLEM_JSON = "application/problem+json"
 
+    const val MEDIA_TYPE_ZIP = "application/zip"
+
     enum class Application(val extensions: Array<String>, val mediaType: String) {
         /** Microsoft Excel */
         MS_EXCEL(arrayOf(".xls"), "application/vnd.ms-excel"),
