@@ -75,7 +75,7 @@ class ProductaanvraagClaimRepositoryTest : BehaviorSpec({
                 then("its claim status is set to 'done'") {
                     sqlStatement.captured shouldContain "SET status = 'DONE'"
                     verify(exactly = 1) {
-                        query.setParameter("productaanvraagObjectUUID", productaanvraagObjectUUID.toString())
+                        query.setParameter("productaanvraagObjectUUID", productaanvraagObjectUUID)
                     }
                 }
             }

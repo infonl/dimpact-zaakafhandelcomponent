@@ -18,8 +18,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.UUID
 
 /**
- * Records which productaanvraag objects ZAC has already taken on, so that a notification which
- * Open Notificaties redelivers does not result in a second zaak.
+ * Records the productaanvraag objects that ZAC processes. If Open Notificaties sends the same
+ * notification again, ZAC does not create a second zaak.
  */
 @ApplicationScoped
 @Transactional(SUPPORTS)
@@ -35,43 +35,48 @@ class ProductaanvraagClaimRepository @Inject constructor(
         private const val TABLE = "${FlywayIntegrator.SCHEMA}.verwerkte_productaanvraag"
 
         /**
-         * PostgreSQL evaluates the insert and the conflicting-row update as one atomic statement, so two
-         * concurrent callers - in the same or in a different ZAC instance - can never both claim the same
-         * productaanvraag. A row is only reclaimed when its previous claim was never completed and has since
-         * gone stale.
+         * ZAC inserts its other entities with entityManager.persist. A claim needs more: an insert or a
+         * conditional update in one atomic statement. The JPA specification has no such operation, because
+         * persist only inserts and JPQL has no INSERT clause. Hibernate adds a conflict clause to HQL as a
+         * vendor extension. That extension needs an entity mapping for a table which ZAC never reads
+         * through JPA. The interval arithmetic below stays PostgreSQL-specific in both forms.
+         *
+         * PostgreSQL runs the insert and the conflicting-row update as one atomic statement. Thus two
+         * concurrent callers, in the same ZAC instance or in a different one, never claim the same
+         * productaanvraag. ZAC reclaims a row only if the previous claim did not complete and is now stale.
          */
         private const val CLAIM_QUERY = """
             INSERT INTO $TABLE (uuid_productaanvraag_object, status, gestart_op)
-            VALUES (CAST(:productaanvraagObjectUUID AS uuid), 'IN_PROGRESS', now())
+            VALUES (:productaanvraagObjectUUID, 'IN_PROGRESS', now())
             ON CONFLICT (uuid_productaanvraag_object) DO UPDATE
             SET status = 'IN_PROGRESS', gestart_op = now()
             WHERE verwerkte_productaanvraag.status = 'IN_PROGRESS'
               AND verwerkte_productaanvraag.gestart_op <
-                  now() - make_interval(mins => CAST(:claimTimeoutMinutes AS int))
+                  now() - make_interval(mins => :claimTimeoutMinutes)
         """
 
         private const val MARK_DONE_QUERY = """
             UPDATE $TABLE
             SET status = 'DONE'
-            WHERE uuid_productaanvraag_object = CAST(:productaanvraagObjectUUID AS uuid)
+            WHERE uuid_productaanvraag_object = :productaanvraagObjectUUID
         """
     }
 
     /**
-     * Commits in its own transaction so that a concurrent notification for the same productaanvraag
-     * observes the claim immediately, independent of the caller's transaction scope.
+     * This function commits in its own transaction. Thus a concurrent notification for the same
+     * productaanvraag sees the claim immediately, independent of the transaction scope of the caller.
      */
     @Transactional(REQUIRES_NEW)
     fun claim(productaanvraagObjectUUID: UUID): Boolean =
         entityManager.createNativeQuery(CLAIM_QUERY)
-            .setParameter("productaanvraagObjectUUID", productaanvraagObjectUUID.toString())
+            .setParameter("productaanvraagObjectUUID", productaanvraagObjectUUID)
             .setParameter("claimTimeoutMinutes", claimTimeoutMinutes)
             .executeUpdate() > 0
 
     @Transactional(REQUIRED)
     fun markDone(productaanvraagObjectUUID: UUID) {
         entityManager.createNativeQuery(MARK_DONE_QUERY)
-            .setParameter("productaanvraagObjectUUID", productaanvraagObjectUUID.toString())
+            .setParameter("productaanvraagObjectUUID", productaanvraagObjectUUID)
             .executeUpdate()
     }
 }
