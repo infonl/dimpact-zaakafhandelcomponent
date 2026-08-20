@@ -18,7 +18,6 @@ import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.core.Response.Status
-import net.atos.zac.util.MediaTypes
 import nl.info.zac.app.admin.model.BpmnProcessDefinitionTaskFormContent
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinition
 import nl.info.zac.app.admin.model.RestBpmnProcessDefinitionDetails
@@ -160,7 +159,6 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         assertPolicy(policyService.readOverigeRechten().beheren)
         val processDefinition = bpmnService.readProcessDefinitionByProcessDefinitionKey(key)
         return Response.ok(bpmnProcessDefinitionDownloadService.getProcessDefinitionAndTaskFormsAsZipStream(processDefinition))
-            .header("Content-Type", MediaTypes.Application.ZIP.mediaType)
             .header(
                 "Content-Disposition",
                 """attachment; filename="${processDefinition.key}-v${processDefinition.version}.zip""""

@@ -3,11 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpResponse } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable } from "rxjs";
 import { UtilService } from "../core/service/util.service";
-import { PathParameters, PostBody } from "../shared/http/http-client";
+import {
+  HttpClient,
+  PathParameters,
+  PostBody,
+} from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -19,6 +24,7 @@ const PROCESS_DEFINITIONS_PATH = "/rest/bpmn-process-definitions";
 })
 export class BpmnService {
   private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly httpClient = inject(HttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
   private readonly queryClient = inject(QueryClient, { optional: true });
@@ -43,14 +49,22 @@ export class BpmnService {
     );
   }
 
-  downloadProcessDefinition(key: string): Observable<Blob> {
-    return this.zacHttpClient.GET(
+  /**
+   * Bypasses the {@link ZacHttpClient} so that a failure is reported by whoever
+   * calls this, instead of by the generic error dialog as well.
+   */
+  downloadProcessDefinition(key: string): Observable<HttpResponse<Blob>> {
+    return this.httpClient.GET(
       "/rest/bpmn-process-definitions/{key}/download",
-      { path: { key }, responseType: "blob" } as PathParameters<
+      {
+        path: { key },
+        responseType: "blob",
+        observe: "response",
+      } as PathParameters<
         "/rest/bpmn-process-definitions/{key}/download",
         "get"
       >,
-    ) as unknown as Observable<Blob>;
+    ) as unknown as Observable<HttpResponse<Blob>>;
   }
 
   deleteProcessDefinition(processDefinition: { key: string; name: string }) {

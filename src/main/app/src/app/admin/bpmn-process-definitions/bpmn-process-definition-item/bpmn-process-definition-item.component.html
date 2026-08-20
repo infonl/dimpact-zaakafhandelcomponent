@@ -52,15 +52,20 @@
         <button
           class="download-definition"
           mat-icon-button
+          [disabled]="downloadMutation.isPending()"
           [attr.aria-label]="
             'bpmn.process-definition.card.details.button.download' | translate
           "
           [matTooltip]="
             'bpmn.process-definition.card.details.button.download' | translate
           "
-          (click)="downloadProcessDefinition()"
+          (click)="downloadMutation.mutate()"
         >
-          <mat-icon>download</mat-icon>
+          @if (downloadMutation.isPending()) {
+            <mat-spinner diameter="24" />
+          } @else {
+            <mat-icon>download</mat-icon>
+          }
         </button>
       </div>
     </mat-card-content>

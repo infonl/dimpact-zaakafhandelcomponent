@@ -32,7 +32,9 @@ class BpmnProcessDefinitionDownloadService @Inject constructor(
      * the zip elsewhere can leave them out.
      *
      * All content is read before the zip is streamed, so that no database or Flowable repository
-     * access is needed anymore once writing has started.
+     * access is needed anymore once writing has started. This is also what keeps a failure
+     * reportable: once the first byte is written the status code is fixed at 200, so anything
+     * thrown while writing can only be logged, not turned into an error response.
      */
     fun getProcessDefinitionAndTaskFormsAsZipStream(processDefinition: ProcessDefinition): StreamingOutput =
         collectFiles(processDefinition).let { files ->
@@ -93,6 +95,8 @@ class BpmnProcessDefinitionDownloadService @Inject constructor(
         val formFilename = filename.withoutDirectories().ifBlank { "$formName$JSON_FILE_EXTENSION" }
         val baseName = formFilename.substringBeforeLast('.')
         val extension = formFilename.removePrefix(baseName)
+        // `add` both reserves the path and reports whether it was still free, so the first
+        // candidate it accepts is the one this form gets
         return (
             sequenceOf("$baseName$extension", "$baseName-$formName$extension") +
                 generateSequence(2) { it + 1 }.map { "$baseName-$formName-$it$extension" }

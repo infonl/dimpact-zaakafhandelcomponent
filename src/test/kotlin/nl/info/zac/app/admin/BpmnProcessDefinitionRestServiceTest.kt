@@ -293,7 +293,6 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
             then("it should return the zip stream as an attachment named after key and version") {
                 response.status shouldBe Response.Status.OK.statusCode
                 response.entity shouldBe streamingOutput
-                response.getHeaderString("Content-Type") shouldBe "application/zip"
                 response.getHeaderString("Content-Disposition") shouldBe
                     """attachment; filename="processKey-v3.zip""""
             }

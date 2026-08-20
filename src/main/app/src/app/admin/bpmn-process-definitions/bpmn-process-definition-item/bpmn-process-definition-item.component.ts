@@ -16,7 +16,7 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatExpansionModule } from "@angular/material/expansion";
-import { forkJoin } from "rxjs";
+import { forkJoin, lastValueFrom } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
 import {
@@ -24,11 +24,12 @@ import {
   ConfirmDialogData,
 } from "../../../shared/confirm-dialog/confirm-dialog.component";
 import { FileDragAndDropDirective } from "../../../shared/directives/file-drag-and-drop.directive";
+import { injectMutation } from "../../../shared/http/inject-mutation";
 import { injectServiceMutation } from "../../../shared/http/inject-service-mutation";
 import { SharedModule } from "../../../shared/shared.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BpmnService } from "../../bpmn.service";
-import { readFileContent } from "../file.helper";
+import { extractAttachmentFilename, readFileContent } from "../file.helper";
 
 @Component({
   standalone: true,
@@ -86,20 +87,31 @@ export class BpmnProcessDefinitionItemComponent {
       ),
   );
 
-  protected downloadProcessDefinition() {
-    const { key, version } = this.processDefinition();
-    this.bpmnService.downloadProcessDefinition(key).subscribe({
-      next: (response) =>
-        this.utilService.downloadBlobResponse(
-          response,
-          `${key}-v${version}.zip`,
+  protected readonly downloadMutation = injectMutation(
+    () => ({
+      mutationFn: () =>
+        lastValueFrom(
+          this.bpmnService.downloadProcessDefinition(
+            this.processDefinition().key,
+          ),
         ),
-      error: () =>
+    }),
+    {
+      onSuccess: (response) => {
+        if (!response.body) return;
+        this.utilService.downloadBlobResponse(
+          response.body,
+          extractAttachmentFilename(
+            response.headers.get("Content-Disposition"),
+          ) ?? `${this.processDefinition().key}.zip`,
+        );
+      },
+      onError: () =>
         this.utilService.openSnackbarError(
           "msg.error.bpmn.process.definition.download.failed",
         ),
-    });
-  }
+    },
+  );
 
   protected uploadBpmnForm() {
     this.bpmnFormFileInput().nativeElement.click();

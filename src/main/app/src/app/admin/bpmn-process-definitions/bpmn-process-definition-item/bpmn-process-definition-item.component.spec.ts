@@ -5,6 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialog } from "@angular/material/dialog";
@@ -13,7 +14,8 @@ import { MatRowHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of, throwError } from "rxjs";
+import { notifyManager } from "@tanstack/query-core";
+import { from, of, throwError } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
@@ -24,7 +26,10 @@ import { BpmnService } from "../../bpmn.service";
 import { readFileContent } from "../file.helper";
 import { BpmnProcessDefinitionItemComponent } from "./bpmn-process-definition-item.component";
 
-jest.mock("../file.helper");
+jest.mock("../file.helper", () => ({
+  ...jest.requireActual("../file.helper"),
+  readFileContent: jest.fn(),
+}));
 
 function makeFileList(...files: File[]): FileList {
   return {
@@ -38,6 +43,13 @@ const flushPromises = (): Promise<void> =>
   new Promise<void>((resolve) => setTimeout(resolve));
 
 const zipBlob = new Blob(["fakeZipContent"]);
+
+const zipResponse = new HttpResponse({
+  body: zipBlob,
+  headers: new HttpHeaders({
+    "Content-Disposition": 'attachment; filename="test-key-v2.zip"',
+  }),
+});
 
 const uploadedForm: GeneratedType<"RestBpmnProcessDefinitionForm"> = {
   formKey: "form-uploaded",
@@ -100,7 +112,9 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
             deleteProcessDefinitionForm: jest
               .fn()
               .mockReturnValue(createMutationOptions({})),
-            downloadProcessDefinition: jest.fn().mockReturnValue(of(zipBlob)),
+            downloadProcessDefinition: jest
+              .fn()
+              .mockReturnValue(of(zipResponse)),
           },
         },
         {
@@ -158,16 +172,23 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   });
 
   describe("downloadProcessDefinition", () => {
-    let downloadButton: HTMLElement;
+    let downloadButton: HTMLButtonElement;
 
     beforeEach(() => {
+      // let the mutation state reach the template without waiting for a batch
+      notifyManager.setScheduler((fn) => fn());
       downloadButton = fixture.nativeElement.querySelector(
         ".download-definition",
       );
     });
 
-    it("should download the zip named after the process definition key and version", () => {
+    afterEach(() => {
+      notifyManager.setScheduler((fn) => setTimeout(fn, 0));
+    });
+
+    it("should name the zip after the Content-Disposition of the response", async () => {
       downloadButton.click();
+      await flushPromises();
 
       expect(bpmnService.downloadProcessDefinition).toHaveBeenCalledWith(
         "test-key",
@@ -178,17 +199,55 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       );
     });
 
-    it("should show an error message and download nothing when the request fails", () => {
+    it("should fall back to the process definition key when the response has no filename", async () => {
+      bpmnService.downloadProcessDefinition.mockReturnValue(
+        of(new HttpResponse({ body: zipBlob })),
+      );
+
+      downloadButton.click();
+      await flushPromises();
+
+      expect(utilService.downloadBlobResponse).toHaveBeenCalledWith(
+        zipBlob,
+        "test-key.zip",
+      );
+    });
+
+    it("should show an error message and download nothing when the request fails", async () => {
       bpmnService.downloadProcessDefinition.mockReturnValue(
         throwError(() => new Error("fakeDownloadFailure")),
       );
 
       downloadButton.click();
+      await flushPromises();
 
       expect(utilService.openSnackbarError).toHaveBeenCalledWith(
         "msg.error.bpmn.process.definition.download.failed",
       );
       expect(utilService.downloadBlobResponse).not.toHaveBeenCalled();
+    });
+
+    it("should disable the button while the download is running", async () => {
+      let resolveDownload!: (response: HttpResponse<Blob>) => void;
+      bpmnService.downloadProcessDefinition.mockReturnValue(
+        from(
+          new Promise<HttpResponse<Blob>>((resolve) => {
+            resolveDownload = resolve;
+          }),
+        ),
+      );
+
+      downloadButton.click();
+      await flushPromises();
+      fixture.detectChanges();
+
+      expect(downloadButton.disabled).toBe(true);
+
+      resolveDownload(new HttpResponse({ body: zipBlob }));
+      await flushPromises();
+      fixture.detectChanges();
+
+      expect(downloadButton.disabled).toBe(false);
     });
   });
 
