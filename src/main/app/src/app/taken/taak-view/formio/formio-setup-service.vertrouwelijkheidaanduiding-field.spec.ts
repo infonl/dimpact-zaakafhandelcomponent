@@ -39,7 +39,9 @@ describe(FormioSetupService.name, () => {
     ].name,
     () => {
       it("should set valueProperty, template and offer all 8 confidentiality levels with translated labels", async () => {
-        const translateService = formioSetupService["translateService"] as TranslateService;
+        const translateService = formioSetupService[
+          "translateService"
+        ] as TranslateService;
         jest
           .spyOn(translateService, "instant")
           .mockImplementation((key) => `translated:${key}`);
