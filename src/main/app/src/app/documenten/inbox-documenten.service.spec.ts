@@ -44,7 +44,7 @@ describe(InboxDocumentenService.name, () => {
         service.delete(inboxDocument),
         undefined,
         fromPartial<GeneratedType<"RestInboxDocumentDeleteResult">>({
-          gekoppeldAanZaak: false,
+          isGekoppeldAanZaak: false,
         }),
       );
 
@@ -64,7 +64,7 @@ describe(InboxDocumentenService.name, () => {
         service.delete(inboxDocument),
         undefined,
         fromPartial<GeneratedType<"RestInboxDocumentDeleteResult">>({
-          gekoppeldAanZaak: true,
+          isGekoppeldAanZaak: true,
         }),
       );
 

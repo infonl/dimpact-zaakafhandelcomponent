@@ -4,11 +4,13 @@
  */
 package nl.info.zac.app.inboxdocument.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
 @AllOpen
 @NoArgConstructor
 data class RestInboxDocumentDeleteResult(
-    var gekoppeldAanZaak: Boolean = false
+    @get:JsonbProperty("isGekoppeldAanZaak")
+    var isGekoppeldAanZaak: Boolean = false
 )

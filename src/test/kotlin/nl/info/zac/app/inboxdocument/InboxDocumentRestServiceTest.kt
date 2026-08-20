@@ -218,7 +218,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         inboxDocumentService.deleteIfExists(documentId)
                     }
 
-                    result.gekoppeldAanZaak shouldBe false
+                    result.isGekoppeldAanZaak shouldBe false
                 }
             }
 
@@ -261,7 +261,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         drcClientService.deleteEnkelvoudigInformatieobject(any<UUID>())
                     }
 
-                    result.gekoppeldAanZaak shouldBe true
+                    result.isGekoppeldAanZaak shouldBe true
                 }
             }
 
@@ -287,7 +287,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         inboxDocumentService.deleteIfExists(any<Long>())
                     }
 
-                    result.gekoppeldAanZaak shouldBe false
+                    result.isGekoppeldAanZaak shouldBe false
                 }
             }
         }
