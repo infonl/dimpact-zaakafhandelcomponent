@@ -142,6 +142,7 @@ export class ZaakViewComponent
   private zaakListener!: WebsocketListener;
   protected zaakRollenListener!: WebsocketListener;
   private zaakBesluitenListener!: WebsocketListener;
+  private zaakTakenListener!: WebsocketListener;
 
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
@@ -201,6 +202,7 @@ export class ZaakViewComponent
         zaak.uuid,
         () => {
           this.invalidateBetrokkenen();
+          this.invalidateZaakHistorie();
           this.updateZaak();
         },
       );
@@ -212,6 +214,13 @@ export class ZaakViewComponent
           zaak.uuid,
           () => this.loadBesluiten(),
         );
+
+      this.zaakTakenListener = this.websocketService.addListener(
+        Opcode.UPDATED,
+        ObjectType.ZAAK_TAKEN,
+        zaak.uuid,
+        () => this.setupMenu(),
+      );
 
       this.utilService.setTitle("title.zaak", {
         zaak: zaak.identificatie,
@@ -256,6 +265,7 @@ export class ZaakViewComponent
     this.websocketService.removeListener(this.zaakListener);
     this.websocketService.removeListener(this.zaakBesluitenListener);
     this.websocketService.removeListener(this.zaakRollenListener);
+    this.websocketService.removeListener(this.zaakTakenListener);
   }
 
   protected zaakDetailFields(): ZaakDetailField[] {
@@ -967,13 +977,15 @@ export class ZaakViewComponent
 
     await this.queryClient.refetchQueries({ queryKey });
 
+    // Not part of RestZaak, so the echo check below says nothing about these.
+    this.loadBagObjecten();
+    this.loadOpschorting();
+    this.invalidateZaakHistorie();
+
     const refetchSucceeded =
       this.queryClient.getQueryState(queryKey)?.status === "success";
     const zaakAfterRefetch = this.queryClient.getQueryData(queryKey);
     if (refetchSucceeded && zaakAfterRefetch === zaakBeforeRefetch) return;
-
-    this.loadBagObjecten();
-    this.loadOpschorting();
 
     forkJoin({
       msgPart1: this.translate.get(

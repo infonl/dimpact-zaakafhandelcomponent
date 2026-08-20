@@ -49,6 +49,10 @@ val GROUP_BEHANDELAARS_LONG_NAME_TEST = TestGroup(
     name = "behandelaars-test-group-with-a-very-long-name-0001",
     description = "Test group behandelaars with a very long group name"
 )
+val GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1 = TestGroup(
+    name = "zaakspecifiek_autorisatie_behandelaars_test_1",
+    description = "Test group zaakspecifiek autorisatie behandelaars domein test 1"
+)
 
 // these BPMN test assignees and groups are also defined in the BPMN integration test process and BPMN form.io task forms
 val BPMN_TEST_BEHANDELAAR_1 = TestGroup(name = "test-behandelaar-1", description = "BPMN test behandelaar 1")

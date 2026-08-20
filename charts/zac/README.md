@@ -180,7 +180,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` |  |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.31.3@sha256:d236224175e339a75199d10f7c1dd5d58f5ed1f7e347b13f5cf343218a1408d1"` |  |
+| nginx.image.tag | string | `"1.31.4@sha256:343fac1d3d5f58078a466e70108f77f3ce3ce4a097ee91ab2c5097a776869414"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |

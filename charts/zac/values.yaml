@@ -705,7 +705,7 @@ nginx:
   image:
     repository: nginxinc/nginx-unprivileged
     pullPolicy: IfNotPresent
-    tag: 1.31.3@sha256:d236224175e339a75199d10f7c1dd5d58f5ed1f7e347b13f5cf343218a1408d1
+    tag: 1.31.4@sha256:343fac1d3d5f58078a466e70108f77f3ce3ce4a097ee91ab2c5097a776869414
   service:
     type: ClusterIP
     port: 80
