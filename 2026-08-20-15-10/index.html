@@ -1,0 +1,1290 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dimpact e2e test</title>
+<link
+  rel="icon"
+  type="image/x-icon"
+  href="./assets/images/logo.png"
+>
+<link rel="stylesheet" href="./styles.min.css">
+
+  <script src="./assets/js/apex-charts.js"></script>
+  <link rel="stylesheet" href="./assets/css/font-awesome.css">
+
+<style>
+  [v-cloak] {
+    display: none;
+  }
+</style>
+
+    <script>
+      (function () {
+        const theme =
+          localStorage.getItem('theme') ||
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen bg-background text-foreground">
+    <div class="w-full">
+      <!-- Header -->
+      <header class="border-b bg-background px-4 md:px-6 py-4 sticky top-0 z-40 backdrop-blur supports-backdrop-filter:bg-background/60">
+  <div class="mx-auto max-w-7xl flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3 truncate">
+      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 overflow-hidden">
+        
+          <i class="fa-solid fa-vial-circle-check text-xl"></i>
+        
+      </div>
+      <div class="text-balance">
+        <h1 class="text-lg md:text-2xl font-bold text-foreground text-balance tracking-tight">
+          E2E Test Report
+        </h1>
+        <p class="mt-0.5 text-[10px] md:text-xs text-muted-foreground uppercase font-bold tracking-widest opacity-70">
+          Dimpact e2e test
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="theme-toggle" class="p-2 rounded-md hover:bg-accent transition-colors shrink-0">
+        <svg id="sun-icon" class="hidden h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 5a7 7 0 100 14 7 7 0 000-14z"/>
+        </svg>
+        <svg id="moon-icon" class="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+      <!-- Main Content -->
+      <main class="space-y-6 px-6 py-8">
+        <div class="mx-auto max-w-7xl">
+          
+<div class="space-y-6">
+  <!-- Run Information Row -->
+  <div class="rounded-xl border bg-card text-card-foreground shadow p-4 md:p-6">
+  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <div class="flex flex-wrap items-center gap-6 md:gap-8 flex-1">
+      
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+      <div class="flex items-center gap-3 min-w-[200px]">
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <i class="fa-solid fa-clock text-sm"></i>
+        </div>
+        <div class="truncate text-xs">
+          <p class="text-[9px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Execution Period</p>
+          <div class="font-medium text-foreground flex items-center gap-2">
+            <span>2026/08/20 15:22:11</span>
+            <span class="opacity-40 italic font-normal ml-2">Duration:</span>
+            <span>00:09:02.876</span>
+          </div>
+        </div>
+      </div>
+
+      
+
+      
+        <div class="flex items-center gap-3 min-w-[120px]">
+          <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <i class="fa-solid fa-user text-sm"></i>
+          </div>
+          <div class="truncate">
+            <p class="text-[9px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Username</p>
+            <p class="text-sm font-bold text-foreground truncate">runner</p>
+          </div>
+        </div>
+      
+
+      
+        <div class="flex items-center gap-3 min-w-[120px]">
+          <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <i class="fa-brands fa-node-js text-sm"></i>
+          </div>
+          <div class="truncate">
+            <p class="text-[9px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Node Version</p>
+            <p class="text-sm font-bold text-foreground truncate">v24.19.0</p>
+          </div>
+        </div>
+      
+
+      
+        <div class="flex items-center gap-3 min-w-[120px]">
+          <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <i class="fa-solid fa-code-branch text-sm"></i>
+          </div>
+          <div class="truncate">
+            <p class="text-[9px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Report Version</p>
+            <p class="text-sm font-bold text-foreground truncate">4.2.0</p>
+          </div>
+        </div>
+      
+
+      
+
+      
+        <div class="flex items-center gap-3 min-w-[120px]">
+          <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <i class="fa-solid fa-microchip text-sm"></i>
+          </div>
+          <div class="truncate">
+            <p class="text-[9px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Machine Arch</p>
+            <p class="text-sm font-bold text-foreground truncate">x64</p>
+          </div>
+        </div>
+      
+
+      
+        
+          
+            <div class="flex items-center gap-3 min-w-[120px]">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <i class="fa-solid fa-circle-info text-sm"></i>
+              </div>
+              <div class="truncate">
+                <p class="text-[9px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">
+                  title
+                </p>
+                <p class="text-sm font-bold text-foreground truncate">Run info</p>
+              </div>
+            </div>
+          
+        
+          
+            <div class="flex items-center gap-3 min-w-[120px]">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <i class="fa-solid fa-circle-info text-sm"></i>
+              </div>
+              <div class="truncate">
+                <p class="text-[9px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">
+                  data
+                </p>
+                <p class="text-sm font-bold text-foreground truncate">[object Object],[object Object]</p>
+              </div>
+            </div>
+          
+        
+      
+    </div>
+  </div>
+</div>
+
+
+  <!-- Top row - Key metrics status -->
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+      <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Features Status</h3>
+      <div id="features-chart" class="h-64"></div>
+    </div>
+    <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+      <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Scenarios Status</h3>
+      <div id="scenarios-chart" class="h-64"></div>
+    </div>
+    <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+      <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Steps Status</h3>
+      <div id="steps-status-chart" class="h-64"></div>
+    </div>
+  </div>
+
+  <!-- Analytics Charts -->
+  <div class="grid gap-6 lg:grid-cols-3">
+    <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+      <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Device & OS</h3>
+      <div id="device-os-chart" class="h-64"></div>
+    </div>
+    <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+      <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Browsers</h3>
+      <div id="browser-chart" class="h-64"></div>
+    </div>
+    <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+      <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Top 10 Tags</h3>
+      <div id="tag-distribution-chart" class="h-64"></div>
+    </div>
+  </div>
+
+  <!-- Status Trend -->
+  <div class="rounded-xl border bg-card text-card-foreground shadow p-6">
+    <h3 class="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Features Status Trend</h3>
+    <div id="status-trend-chart" class="h-80 w-full"></div>
+  </div>
+
+  <!-- Features Overview Table -->
+  <div class="rounded-xl border bg-card text-card-foreground shadow overflow-hidden" id="features-table-container">
+  <div class="px-6 py-4 border-b flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <h3 class="text-lg font-semibold whitespace-nowrap">Features Overview</h3>
+    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+      <div class="relative flex-1 md:w-64">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+          <i class="fa-solid fa-magnifying-glass text-xs"></i>
+        </span>
+        <input
+          type="text"
+          id="feature-search"
+          placeholder="Search features..."
+          class="w-full h-9 pl-9 pr-4 rounded-md border border-input bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-shadow shadow-sm"
+        >
+      </div>
+      <!-- Tag Filter Dropdown -->
+      <div class="relative w-full md:w-56" id="feature-tag-filter-container">
+        <button
+          type="button"
+          id="feature-tag-filter-button"
+          class="flex items-center justify-between w-full h-9 px-3 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-shadow shadow-sm cursor-pointer"
+        >
+          <span class="truncate text-muted-foreground text-xs" id="feature-tag-filter-label">Filter by tags...</span>
+          <i class="fa-solid fa-chevron-down text-[10px] text-muted-foreground ml-2"></i>
+        </button>
+        <div
+          id="feature-tag-filter-dropdown"
+          class="hidden absolute left-0 md:left-auto md:right-0 mt-1 w-full md:w-56 rounded-md border border-border bg-card text-card-foreground shadow-md z-50 max-h-60 overflow-y-auto p-1.5 space-y-1"
+        >
+          <!-- Dynamic tag options injected via JS -->
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-medium text-muted-foreground whitespace-nowrap">Show:</span>
+        <select
+          id="records-per-page"
+          class="h-9 px-2 rounded-md border border-input bg-background text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-shadow shadow-sm min-w-[70px]"
+        >
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm text-left">
+      <thead class="bg-muted text-muted-foreground uppercase text-xs font-semibold">
+        <tr>
+          <th class="px-4 md:px-6 py-3 cursor-pointer hover:text-foreground transition-colors group">
+            <div class="flex items-center gap-1.5">
+              Feature Name
+              <i class="fa-solid fa-sort opacity-30 group-hover:opacity-100 text-[10px]"></i>
+            </div>
+          </th>
+          <th class="px-4 md:px-6 py-3">Environment</th>
+          <th class="px-4 md:px-6 py-3 cursor-pointer hover:text-foreground transition-colors group">
+            <div class="flex items-center gap-1.5">
+              Steps status
+              <i class="fa-solid fa-sort opacity-30 group-hover:opacity-100 text-[10px]"></i>
+            </div>
+          </th>
+          <th class="px-4 md:px-6 py-3 text-right cursor-pointer hover:text-foreground transition-colors group">
+            <div class="flex items-center justify-end gap-1.5">
+              Pass %
+              <i class="fa-solid fa-sort opacity-30 group-hover:opacity-100 text-[10px]"></i>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody id="features-table-body" class="divide-y divide-border">
+        
+        
+          <tr class="hover:bg-muted/50 transition-colors">
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap md:whitespace-normal min-w-[200px]">
+              <a href="features/2d544fa3-5683-4d41-af4b-6140cf182c1a-login.html" class="font-medium text-primary hover:underline">
+                Login
+              </a>
+              <div class="flex flex-wrap gap-1 mt-1">
+                
+                  <span class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                    @login
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+              
+              
+              
+              
+
+              <div class="flex items-center gap-2.5 text-muted-foreground">
+                
+                <span title="runnervm76f27">
+                  <i
+                    class="fa-solid fa-desktop text-base"
+                  ></i>
+                </span>
+                
+                
+                  <span title="Linux 6.17.0-1022-azure">
+                    <i
+                      class="fa-brands fa-linux text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="not known not known">
+                    <i
+                      class="fa-solid fa-globe text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="Local machine">
+                    <i class="fa-solid fa-computer text-base"></i>
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 min-w-[240px]">
+              <div class="flex h-2 w-full overflow-hidden rounded-full bg-secondary">
+                
+                  <div
+                    class="h-full bg-status-passed"
+                    style="width: 100%"
+                  ></div>
+                
+                
+                
+                
+                
+                
+              </div>
+              <div class="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] font-medium uppercase">
+                <span class="text-status-passed">5 Passed</span>
+                <span class="text-status-failed">0 Failed</span>
+                
+                
+                
+                <span class="text-status-skipped">0 Skipped</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              
+              
+                
+              
+              <div class="inline-flex items-center justify-end relative h-12 w-12">
+                <svg class="h-12 w-12 transform -rotate-90">
+                  <circle class="text-muted/20" stroke-width="3" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                  <circle class="text-status-passed transition-all duration-500 ease-out" stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="0"
+                    stroke-linecap="round" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                </svg>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">100%</span
+                >
+              </div>
+            </td>
+          </tr>
+        
+          <tr class="hover:bg-muted/50 transition-colors">
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap md:whitespace-normal min-w-[200px]">
+              <a href="features/c4a3079a-d438-49e2-87e6-c5cceffb0c18-zaken-toevoegen.html" class="font-medium text-primary hover:underline">
+                Zaken toevoegen
+              </a>
+              <div class="flex flex-wrap gap-1 mt-1">
+                
+                  <span class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                    @zaken-toevoegen
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+              
+              
+              
+              
+
+              <div class="flex items-center gap-2.5 text-muted-foreground">
+                
+                <span title="runnervm76f27">
+                  <i
+                    class="fa-solid fa-desktop text-base"
+                  ></i>
+                </span>
+                
+                
+                  <span title="Linux 6.17.0-1022-azure">
+                    <i
+                      class="fa-brands fa-linux text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="not known not known">
+                    <i
+                      class="fa-solid fa-globe text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="Local machine">
+                    <i class="fa-solid fa-computer text-base"></i>
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 min-w-[240px]">
+              <div class="flex h-2 w-full overflow-hidden rounded-full bg-secondary">
+                
+                  <div
+                    class="h-full bg-status-passed"
+                    style="width: 100%"
+                  ></div>
+                
+                
+                
+                
+                
+                
+              </div>
+              <div class="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] font-medium uppercase">
+                <span class="text-status-passed">1 Passed</span>
+                <span class="text-status-failed">0 Failed</span>
+                
+                
+                
+                <span class="text-status-skipped">0 Skipped</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              
+              
+                
+              
+              <div class="inline-flex items-center justify-end relative h-12 w-12">
+                <svg class="h-12 w-12 transform -rotate-90">
+                  <circle class="text-muted/20" stroke-width="3" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                  <circle class="text-status-passed transition-all duration-500 ease-out" stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="0"
+                    stroke-linecap="round" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                </svg>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">100%</span
+                >
+              </div>
+            </td>
+          </tr>
+        
+          <tr class="hover:bg-muted/50 transition-colors">
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap md:whitespace-normal min-w-[200px]">
+              <a href="features/117d73ad-4461-49a2-889c-c740249edfdc-open-formulieren.html" class="font-medium text-primary hover:underline">
+                Open Formulieren
+              </a>
+              <div class="flex flex-wrap gap-1 mt-1">
+                
+                  <span class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                    @open-formulieren
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+              
+              
+              
+              
+
+              <div class="flex items-center gap-2.5 text-muted-foreground">
+                
+                <span title="runnervm76f27">
+                  <i
+                    class="fa-solid fa-desktop text-base"
+                  ></i>
+                </span>
+                
+                
+                  <span title="Linux 6.17.0-1022-azure">
+                    <i
+                      class="fa-brands fa-linux text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="not known not known">
+                    <i
+                      class="fa-solid fa-globe text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="Local machine">
+                    <i class="fa-solid fa-computer text-base"></i>
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 min-w-[240px]">
+              <div class="flex h-2 w-full overflow-hidden rounded-full bg-secondary">
+                
+                  <div
+                    class="h-full bg-status-passed"
+                    style="width: 100%"
+                  ></div>
+                
+                
+                
+                
+                
+                
+              </div>
+              <div class="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] font-medium uppercase">
+                <span class="text-status-passed">1 Passed</span>
+                <span class="text-status-failed">0 Failed</span>
+                
+                
+                
+                <span class="text-status-skipped">0 Skipped</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              
+              
+                
+              
+              <div class="inline-flex items-center justify-end relative h-12 w-12">
+                <svg class="h-12 w-12 transform -rotate-90">
+                  <circle class="text-muted/20" stroke-width="3" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                  <circle class="text-status-passed transition-all duration-500 ease-out" stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="0"
+                    stroke-linecap="round" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                </svg>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">100%</span
+                >
+              </div>
+            </td>
+          </tr>
+        
+          <tr class="hover:bg-muted/50 transition-colors">
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap md:whitespace-normal min-w-[200px]">
+              <a href="features/47395ef5-2ef3-499f-8816-311be371368b-smartdocuments.html" class="font-medium text-primary hover:underline">
+                SmartDocuments
+              </a>
+              <div class="flex flex-wrap gap-1 mt-1">
+                
+                  <span class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                    @smart-documents
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+              
+              
+              
+              
+
+              <div class="flex items-center gap-2.5 text-muted-foreground">
+                
+                <span title="runnervm76f27">
+                  <i
+                    class="fa-solid fa-desktop text-base"
+                  ></i>
+                </span>
+                
+                
+                  <span title="Linux 6.17.0-1022-azure">
+                    <i
+                      class="fa-brands fa-linux text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="not known not known">
+                    <i
+                      class="fa-solid fa-globe text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="Local machine">
+                    <i class="fa-solid fa-computer text-base"></i>
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 min-w-[240px]">
+              <div class="flex h-2 w-full overflow-hidden rounded-full bg-secondary">
+                
+                  <div
+                    class="h-full bg-status-passed"
+                    style="width: 100%"
+                  ></div>
+                
+                
+                
+                
+                
+                
+              </div>
+              <div class="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] font-medium uppercase">
+                <span class="text-status-passed">1 Passed</span>
+                <span class="text-status-failed">0 Failed</span>
+                
+                
+                
+                <span class="text-status-skipped">0 Skipped</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              
+              
+                
+              
+              <div class="inline-flex items-center justify-end relative h-12 w-12">
+                <svg class="h-12 w-12 transform -rotate-90">
+                  <circle class="text-muted/20" stroke-width="3" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                  <circle class="text-status-passed transition-all duration-500 ease-out" stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="0"
+                    stroke-linecap="round" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                </svg>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">100%</span
+                >
+              </div>
+            </td>
+          </tr>
+        
+          <tr class="hover:bg-muted/50 transition-colors">
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap md:whitespace-normal min-w-[200px]">
+              <a href="features/ff3a8de3-bb8c-4baa-9457-848e173f3ab3-taken-toevoegen.html" class="font-medium text-primary hover:underline">
+                Taken toevoegen
+              </a>
+              <div class="flex flex-wrap gap-1 mt-1">
+                
+                  <span class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                    @taken-toevoegen
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+              
+              
+              
+              
+
+              <div class="flex items-center gap-2.5 text-muted-foreground">
+                
+                <span title="runnervm76f27">
+                  <i
+                    class="fa-solid fa-desktop text-base"
+                  ></i>
+                </span>
+                
+                
+                  <span title="Linux 6.17.0-1022-azure">
+                    <i
+                      class="fa-brands fa-linux text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="not known not known">
+                    <i
+                      class="fa-solid fa-globe text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="Local machine">
+                    <i class="fa-solid fa-computer text-base"></i>
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 min-w-[240px]">
+              <div class="flex h-2 w-full overflow-hidden rounded-full bg-secondary">
+                
+                  <div
+                    class="h-full bg-status-passed"
+                    style="width: 100%"
+                  ></div>
+                
+                
+                
+                
+                
+                
+              </div>
+              <div class="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] font-medium uppercase">
+                <span class="text-status-passed">1 Passed</span>
+                <span class="text-status-failed">0 Failed</span>
+                
+                
+                
+                <span class="text-status-skipped">0 Skipped</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              
+              
+                
+              
+              <div class="inline-flex items-center justify-end relative h-12 w-12">
+                <svg class="h-12 w-12 transform -rotate-90">
+                  <circle class="text-muted/20" stroke-width="3" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                  <circle class="text-status-passed transition-all duration-500 ease-out" stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="0"
+                    stroke-linecap="round" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                </svg>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">100%</span
+                >
+              </div>
+            </td>
+          </tr>
+        
+          <tr class="hover:bg-muted/50 transition-colors">
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap md:whitespace-normal min-w-[200px]">
+              <a href="features/584e46ba-6d27-4605-ad50-c7b024e1a740-zaken-verdelen---vrijgeven.html" class="font-medium text-primary hover:underline">
+                Zaken verdelen / vrijgeven
+              </a>
+              <div class="flex flex-wrap gap-1 mt-1">
+                
+                  <span class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                    @zaken-verdelen-vrijgeven
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+              
+              
+              
+              
+
+              <div class="flex items-center gap-2.5 text-muted-foreground">
+                
+                <span title="runnervm76f27">
+                  <i
+                    class="fa-solid fa-desktop text-base"
+                  ></i>
+                </span>
+                
+                
+                  <span title="Linux 6.17.0-1022-azure">
+                    <i
+                      class="fa-brands fa-linux text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="not known not known">
+                    <i
+                      class="fa-solid fa-globe text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="Local machine">
+                    <i class="fa-solid fa-computer text-base"></i>
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 min-w-[240px]">
+              <div class="flex h-2 w-full overflow-hidden rounded-full bg-secondary">
+                
+                  <div
+                    class="h-full bg-status-passed"
+                    style="width: 100%"
+                  ></div>
+                
+                
+                
+                
+                
+                
+              </div>
+              <div class="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] font-medium uppercase">
+                <span class="text-status-passed">2 Passed</span>
+                <span class="text-status-failed">0 Failed</span>
+                
+                
+                
+                <span class="text-status-skipped">0 Skipped</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              
+              
+                
+              
+              <div class="inline-flex items-center justify-end relative h-12 w-12">
+                <svg class="h-12 w-12 transform -rotate-90">
+                  <circle class="text-muted/20" stroke-width="3" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                  <circle class="text-status-passed transition-all duration-500 ease-out" stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="0"
+                    stroke-linecap="round" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                </svg>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">100%</span
+                >
+              </div>
+            </td>
+          </tr>
+        
+          <tr class="hover:bg-muted/50 transition-colors">
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap md:whitespace-normal min-w-[200px]">
+              <a href="features/b00301fe-357e-4031-9000-1f222dd07f64-taken-verdelen---vrijgeven.html" class="font-medium text-primary hover:underline">
+                Taken verdelen / vrijgeven
+              </a>
+              <div class="flex flex-wrap gap-1 mt-1">
+                
+                  <span class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                    @taken-verdelen-vrijgeven
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+              
+              
+              
+              
+
+              <div class="flex items-center gap-2.5 text-muted-foreground">
+                
+                <span title="runnervm76f27">
+                  <i
+                    class="fa-solid fa-desktop text-base"
+                  ></i>
+                </span>
+                
+                
+                  <span title="Linux 6.17.0-1022-azure">
+                    <i
+                      class="fa-brands fa-linux text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="not known not known">
+                    <i
+                      class="fa-solid fa-globe text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="Local machine">
+                    <i class="fa-solid fa-computer text-base"></i>
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 min-w-[240px]">
+              <div class="flex h-2 w-full overflow-hidden rounded-full bg-secondary">
+                
+                  <div
+                    class="h-full bg-status-passed"
+                    style="width: 100%"
+                  ></div>
+                
+                
+                
+                
+                
+                
+              </div>
+              <div class="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] font-medium uppercase">
+                <span class="text-status-passed">2 Passed</span>
+                <span class="text-status-failed">0 Failed</span>
+                
+                
+                
+                <span class="text-status-skipped">0 Skipped</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              
+              
+                
+              
+              <div class="inline-flex items-center justify-end relative h-12 w-12">
+                <svg class="h-12 w-12 transform -rotate-90">
+                  <circle class="text-muted/20" stroke-width="3" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                  <circle class="text-status-passed transition-all duration-500 ease-out" stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="0"
+                    stroke-linecap="round" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                </svg>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">100%</span
+                >
+              </div>
+            </td>
+          </tr>
+        
+          <tr class="hover:bg-muted/50 transition-colors">
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap md:whitespace-normal min-w-[200px]">
+              <a href="features/e91f3b20-87e7-4fbd-9be6-cd397b115da6-personen.html" class="font-medium text-primary hover:underline">
+                Personen
+              </a>
+              <div class="flex flex-wrap gap-1 mt-1">
+                
+                  <span class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                    @personen
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+              
+              
+              
+              
+
+              <div class="flex items-center gap-2.5 text-muted-foreground">
+                
+                <span title="runnervm76f27">
+                  <i
+                    class="fa-solid fa-desktop text-base"
+                  ></i>
+                </span>
+                
+                
+                  <span title="Linux 6.17.0-1022-azure">
+                    <i
+                      class="fa-brands fa-linux text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="not known not known">
+                    <i
+                      class="fa-solid fa-globe text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="Local machine">
+                    <i class="fa-solid fa-computer text-base"></i>
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 min-w-[240px]">
+              <div class="flex h-2 w-full overflow-hidden rounded-full bg-secondary">
+                
+                  <div
+                    class="h-full bg-status-passed"
+                    style="width: 100%"
+                  ></div>
+                
+                
+                
+                
+                
+                
+              </div>
+              <div class="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] font-medium uppercase">
+                <span class="text-status-passed">2 Passed</span>
+                <span class="text-status-failed">0 Failed</span>
+                
+                
+                
+                <span class="text-status-skipped">0 Skipped</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              
+              
+                
+              
+              <div class="inline-flex items-center justify-end relative h-12 w-12">
+                <svg class="h-12 w-12 transform -rotate-90">
+                  <circle class="text-muted/20" stroke-width="3" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                  <circle class="text-status-passed transition-all duration-500 ease-out" stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="0"
+                    stroke-linecap="round" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                </svg>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">100%</span
+                >
+              </div>
+            </td>
+          </tr>
+        
+          <tr class="hover:bg-muted/50 transition-colors">
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap md:whitespace-normal min-w-[200px]">
+              <a href="features/12185494-ec7a-424e-b5e0-6f53b96b2922-bpmn.html" class="font-medium text-primary hover:underline">
+                BPMN
+              </a>
+              <div class="flex flex-wrap gap-1 mt-1">
+                
+                  <span class="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground">
+                    @bpmn
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+              
+              
+              
+              
+
+              <div class="flex items-center gap-2.5 text-muted-foreground">
+                
+                <span title="runnervm76f27">
+                  <i
+                    class="fa-solid fa-desktop text-base"
+                  ></i>
+                </span>
+                
+                
+                  <span title="Linux 6.17.0-1022-azure">
+                    <i
+                      class="fa-brands fa-linux text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="not known not known">
+                    <i
+                      class="fa-solid fa-globe text-base"
+                    ></i>
+                  </span>
+                
+                
+                
+                  <span title="Local machine">
+                    <i class="fa-solid fa-computer text-base"></i>
+                  </span>
+                
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 min-w-[240px]">
+              <div class="flex h-2 w-full overflow-hidden rounded-full bg-secondary">
+                
+                  <div
+                    class="h-full bg-status-passed"
+                    style="width: 50%"
+                  ></div>
+                
+                
+                  <div
+                    class="h-full bg-status-failed"
+                    style="width: 50%"
+                  ></div>
+                
+                
+                
+                
+                
+              </div>
+              <div class="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] font-medium uppercase">
+                <span class="text-status-passed">5 Passed</span>
+                <span class="text-status-failed">5 Failed</span>
+                
+                
+                
+                <span class="text-status-skipped">0 Skipped</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              
+              
+                
+              
+              <div class="inline-flex items-center justify-end relative h-12 w-12">
+                <svg class="h-12 w-12 transform -rotate-90">
+                  <circle class="text-muted/20" stroke-width="3" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                  <circle class="text-status-passed transition-all duration-500 ease-out" stroke-width="3"
+                    stroke-dasharray="125.6"
+                    stroke-dashoffset="62.8"
+                    stroke-linecap="round" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
+                </svg>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">50%</span
+                >
+              </div>
+            </td>
+          </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div id="no-features-message" class="hidden py-12 text-center bg-muted/20 border-t border-border">
+    <div class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
+      <i class="fa-solid fa-magnifying-glass text-muted-foreground"></i>
+    </div>
+    <h4 class="text-sm font-semibold text-foreground">No feature found</h4>
+    <p class="text-xs text-muted-foreground mt-1">Try adjusting your filters or search terms.</p>
+  </div>
+
+  <!-- Pagination -->
+  <div class="px-6 py-4 border-t flex items-center justify-between text-xs text-muted-foreground bg-muted/20">
+    <div>
+      Showing <span id="showing-start" class="font-bold text-foreground">1</span> to
+      <span id="showing-end" class="font-bold text-foreground">10</span> of
+      <span id="total-records" class="font-bold text-foreground">9</span> entries
+    </div>
+    <div class="flex items-center gap-1" id="pagination-controls">
+      <button
+        id="prev-page"
+        disabled
+        class="h-8 w-8 flex items-center justify-center rounded border border-transparent text-foreground hover:bg-muted hover:border-border transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <div id="page-numbers" class="flex items-center gap-1">
+        <!-- Page buttons will be injected here -->
+      </div>
+      <button
+        id="next-page"
+        
+          disabled
+        
+        class="h-8 w-8 flex items-center justify-center rounded border border-transparent text-foreground hover:bg-muted hover:border-border transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+  // Report-wide UI config (opt-in features toggled from the reporter options)
+  window.ReportConfig = Object.assign({}, window.ReportConfig, {
+      displayChartPercentages: false,
+      modalBackdrop: true,
+      modalDraggable: false,
+      modalResizable: false,
+      modalShowContext: false
+  });
+
+  // Embedded data for charts
+  const chartData = {
+      summary: {"ambiguous":0,"failed":1,"passed":8,"notDefined":0,"pending":0,"skipped":0,"total":9,"ambiguousPercentage":"0.00","failedPercentage":"11.11","notDefinedPercentage":"0.00","pendingPercentage":"0.00","skippedPercentage":"0.00","passedPercentage":"88.89","steps":{"passed":0,"failed":0,"skipped":0,"total":0}},
+      scenarios: {"failed":5,"ambiguous":0,"notDefined":0,"pending":0,"skipped":0,"passed":20,"total":25,"ambiguousPercentage":"0.00","failedPercentage":"20.00","notDefinedPercentage":"0.00","passedPercentage":"80.00","pendingPercentage":"0.00","skippedPercentage":"0.00"},
+      features: [{"description":"","elements":[{"description":"","id":"login;bob-wants-to-login-to-zac","keyword":"Scenario","line":8,"name":"Bob wants to login to ZAC","steps":[{"result":{"status":"passed","duration":983970075},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":2308240035},"arguments":[],"keyword":"Given ","line":9,"name":"\"Bob\" navigates to \"zac\" with path \"/\"","match":{"location":"step-definitions/common.ts:36"},"time":"00:00:02.308"},{"result":{"status":"passed","duration":616939088},"arguments":[],"keyword":"When ","line":10,"name":"\"Bob\" logs in","match":{"location":"step-definitions/authentication.ts:72"},"time":"00:00:00.616"},{"result":{"status":"passed","duration":3333478146},"arguments":[],"keyword":"Then ","line":11,"name":"\"Bob\" sees the text: \"Dashboard\"","match":{"location":"step-definitions/common.ts:68"},"time":"00:00:03.333"},{"result":{"status":"passed","duration":207839828},"keyword":"After","hidden":true}],"tags":[{"name":"@login","line":5}],"type":"scenario","duration":6.258657269,"time":"00:00:06.258","passed":3,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"login;bob-wants-to-log-out-of-the-application-after-being-logged-in","keyword":"Scenario","line":13,"name":"Bob wants to log out of the application after being logged in","steps":[{"result":{"status":"passed","duration":100719756},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":2933940367},"arguments":[],"keyword":"Given ","line":14,"name":"\"Bob\" navigates to \"zac\" with path \"/\"","match":{"location":"step-definitions/common.ts:36"},"time":"00:00:02.933"},{"result":{"status":"passed","duration":349235182},"arguments":[],"keyword":"When ","line":15,"name":"\"Bob\" clicks on element with accessibility label: \"Gebruikers profiel\"","match":{"location":"step-definitions/common.ts:78"},"time":"00:00:00.349"},{"result":{"status":"passed","duration":1272184146},"arguments":[],"keyword":"When ","line":16,"name":"\"Bob\" clicks on element with text: \"Uitloggen\"","match":{"location":"step-definitions/common.ts:92"},"time":"00:00:01.272"},{"result":{"status":"passed","duration":1314967413},"arguments":[],"keyword":"Then ","line":17,"name":"\"Bob\" sees the text: \"Sign in to your account\"","match":{"location":"step-definitions/common.ts:68"},"time":"00:00:01.314"},{"result":{"status":"passed","duration":149975645},"keyword":"After","hidden":true}],"tags":[{"name":"@login","line":5}],"type":"scenario","duration":5.870327108000001,"time":"00:00:05.870","passed":4,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"login;bob-logs-back-in","keyword":"Scenario","line":19,"name":"Bob logs back in","steps":[{"result":{"status":"passed","duration":162628244},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":2286081637},"arguments":[],"keyword":"Given ","line":20,"name":"\"Bob\" navigates to \"zac\" with path \"/\"","match":{"location":"step-definitions/common.ts:36"},"time":"00:00:02.286"},{"result":{"status":"passed","duration":42400929},"arguments":[],"keyword":"Then ","line":21,"name":"\"Bob\" sees the text: \"Sign in to your account\"","match":{"location":"step-definitions/common.ts:68"},"time":"00:00:00.042"},{"result":{"status":"passed","duration":526789514},"arguments":[],"keyword":"When ","line":22,"name":"\"Bob\" logs in","match":{"location":"step-definitions/authentication.ts:72"},"time":"00:00:00.526"},{"result":{"status":"passed","duration":2908864644},"arguments":[],"keyword":"Then ","line":23,"name":"\"Bob\" sees the text: \"Dashboard\"","match":{"location":"step-definitions/common.ts:68"},"time":"00:00:02.908"},{"result":{"status":"passed","duration":205310280},"keyword":"After","hidden":true}],"tags":[{"name":"@login","line":5}],"type":"scenario","duration":5.764136724,"time":"00:00:05.764","passed":4,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"login;bob-wants-to-log-out-of-the-application-after-being-logged-in","keyword":"Scenario","line":25,"name":"Bob wants to log out of the application after being logged in","steps":[{"result":{"status":"passed","duration":97631351},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":2738258201},"arguments":[],"keyword":"Given ","line":26,"name":"\"Bob\" navigates to \"zac\" with path \"/\"","match":{"location":"step-definitions/common.ts:36"},"time":"00:00:02.738"},{"result":{"status":"passed","duration":345823398},"arguments":[],"keyword":"When ","line":27,"name":"\"Bob\" clicks on element with accessibility label: \"Gebruikers profiel\"","match":{"location":"step-definitions/common.ts:78"},"time":"00:00:00.345"},{"result":{"status":"passed","duration":1223088533},"arguments":[],"keyword":"When ","line":28,"name":"\"Bob\" clicks on element with text: \"Uitloggen\"","match":{"location":"step-definitions/common.ts:92"},"time":"00:00:01.223"},{"result":{"status":"passed","duration":1302526435},"arguments":[],"keyword":"Then ","line":29,"name":"\"Bob\" sees the text: \"Sign in to your account\"","match":{"location":"step-definitions/common.ts:68"},"time":"00:00:01.302"},{"result":{"status":"passed","duration":149230161},"keyword":"After","hidden":true}],"tags":[{"name":"@login","line":5}],"type":"scenario","duration":5.609696567,"time":"00:00:05.609","passed":4,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"login;bob-logs-back-in","keyword":"Scenario","line":31,"name":"Bob logs back in","steps":[{"result":{"status":"passed","duration":136662926},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":2185775748},"arguments":[],"keyword":"Given ","line":32,"name":"\"Bob\" navigates to \"zac\" with path \"/\"","match":{"location":"step-definitions/common.ts:36"},"time":"00:00:02.185"},{"result":{"status":"passed","duration":26239520},"arguments":[],"keyword":"Then ","line":33,"name":"\"Bob\" sees the text: \"Sign in to your account\"","match":{"location":"step-definitions/common.ts:68"},"time":"00:00:00.026"},{"result":{"status":"passed","duration":527031157},"arguments":[],"keyword":"When ","line":34,"name":"\"Bob\" logs in","match":{"location":"step-definitions/authentication.ts:72"},"time":"00:00:00.527"},{"result":{"status":"passed","duration":3323920364},"arguments":[],"keyword":"Then ","line":35,"name":"\"Bob\" sees the text: \"Dashboard\"","match":{"location":"step-definitions/common.ts:68"},"time":"00:00:03.323"},{"result":{"status":"passed","duration":208446135},"keyword":"After","hidden":true}],"tags":[{"name":"@login","line":5}],"type":"scenario","duration":6.062966789,"time":"00:00:06.062","passed":4,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0}],"id":"2d544fa3-5683-4d41-af4b-6140cf182c1a-login","line":6,"keyword":"Feature","name":"Login","tags":[{"name":"@login","line":5}],"uri":"features/1-login.feature","metadata":{"browser":{"name":"not known","version":"not known"},"executionPlatform":"local","username":"runner","device":"runnervm76f27","platform":{"name":"Linux","version":"6.17.0-1022-azure"},"nodeVersion":"v24.19.0","reportVersion":"4.2.0","hostname":"runnervm76f27","architecture":"x64"},"scenarios":{"passed":5,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"passedPercentage":"100.00","failedPercentage":"0.00","notDefinedPercentage":"0.00","skippedPercentage":"0.00","pendingPercentage":"0.00","ambiguousPercentage":"0.00","total":5},"duration":29565784457,"time":"00:00:29.565","isFailed":false,"isAmbiguous":false,"isSkipped":false,"isNotdefined":false,"isPending":false,"passed":5,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"totalTime":29565784457,"app":"","browser":"not known not known","device":"runnervm76f27","executionPlatform":"local","os":"Linux 6.17.0-1022-azure","username":"runner"},{"description":"","elements":[{"description":"","id":"zaken-toevoegen;bob-wants-to-create-a-new-zaak","keyword":"Scenario","line":8,"name":"Bob wants to create a new zaak","steps":[{"result":{"status":"passed","duration":99764365},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":3081941922},"arguments":[],"keyword":"Given ","line":9,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:03.081"},{"result":{"status":"passed","duration":10641855309},"arguments":[],"keyword":"When ","line":10,"name":"\"Bob\" wants to create a new \"CMMN\" zaak","match":{"location":"step-definitions/zaak.ts:194"},"time":"00:00:10.641"},{"result":{"status":"passed","duration":1227263138},"arguments":[],"keyword":"Then ","line":11,"name":"\"Bob\" sees the created zaak","match":{"location":"step-definitions/zaak.ts:324"},"time":"00:00:01.227"},{"result":{"status":"passed","duration":1550647691},"arguments":[],"keyword":"Then ","line":12,"name":"\"Bob\" sees the zaak initiator","match":{"location":"step-definitions/zaak.ts:360"},"time":"00:00:01.550"},{"result":{"status":"passed","duration":13233670},"arguments":[],"keyword":"Then ","line":13,"name":"\"Bob\" sees the indication that no acknowledgment has been sent","match":{"location":"step-definitions/zaak.ts:375"},"time":"00:00:00.013"},{"result":{"status":"passed","duration":322271869},"arguments":[],"keyword":"Given ","line":14,"name":"\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"","match":{"location":"step-definitions/common.ts:36"},"time":"00:00:00.322"},{"result":{"status":"passed","duration":3027312805},"arguments":[],"keyword":"Then ","line":15,"name":"\"Bob\" sees the created zaak","match":{"location":"step-definitions/zaak.ts:324"},"time":"00:00:03.027"},{"result":{"status":"passed","duration":137233842},"keyword":"After","hidden":true}],"tags":[{"name":"@zaken-toevoegen","line":5}],"type":"scenario","duration":19.864526404,"time":"00:00:19.864","passed":7,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0}],"id":"c4a3079a-d438-49e2-87e6-c5cceffb0c18-zaken-toevoegen","line":6,"keyword":"Feature","name":"Zaken toevoegen","tags":[{"name":"@zaken-toevoegen","line":5}],"uri":"features/2-zaken-toevoegen.feature","metadata":{"browser":{"name":"not known","version":"not known"},"executionPlatform":"local","username":"runner","device":"runnervm76f27","platform":{"name":"Linux","version":"6.17.0-1022-azure"},"nodeVersion":"v24.19.0","reportVersion":"4.2.0","hostname":"runnervm76f27","architecture":"x64"},"scenarios":{"passed":1,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"passedPercentage":"100.00","failedPercentage":"0.00","notDefinedPercentage":"0.00","skippedPercentage":"0.00","pendingPercentage":"0.00","ambiguousPercentage":"0.00","total":1},"duration":19864526404,"time":"00:00:19.864","isFailed":false,"isAmbiguous":false,"isSkipped":false,"isNotdefined":false,"isPending":false,"passed":1,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"totalTime":19864526404,"app":"","browser":"not known not known","device":"runnervm76f27","executionPlatform":"local","os":"Linux 6.17.0-1022-azure","username":"runner"},{"description":"","elements":[{"description":"","id":"open-formulieren;resident-fills-in-indienen-aansprakelijkheid-behandelen-open-forms-form","keyword":"Scenario","line":9,"name":"Resident fills in indienen-aansprakelijkheid-behandelen open-forms form","steps":[{"result":{"status":"passed","duration":99120110},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":12285074311},"arguments":[],"keyword":"Given ","line":10,"name":"Resident \"Alice\" fills in the indienen-aansprakelijkheid-behandelen open-forms form","match":{"location":"step-definitions/open-forms.ts:17"},"time":"00:00:12.285"},{"result":{"status":"passed","duration":4831453696},"arguments":[],"keyword":"When ","line":11,"name":"Resident \"Alice\" submits the open-forms form","match":{"location":"step-definitions/open-forms.ts:115"},"time":"00:00:04.831"},{"result":{"status":"passed","duration":3035818998},"arguments":[],"keyword":"And ","line":12,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:03.035"},{"result":{"status":"passed","duration":17910936563},"arguments":[],"keyword":"And ","line":13,"name":"Employee \"Bob\" opens the zaak that was created from the open-forms submission","match":{"location":"step-definitions/zaak.ts:385"},"time":"00:00:17.910"},{"result":{"status":"passed","duration":2649907112},"arguments":[],"keyword":"Then ","line":14,"name":"Employee \"Bob\" sees the zaak that \"Alice\" created in open-forms","match":{"location":"step-definitions/zaak.ts:419"},"time":"00:00:02.649"},{"result":{"status":"passed","duration":156423000},"keyword":"After","hidden":true}],"tags":[{"name":"@open-formulieren","line":5},{"name":"@live-env-only","line":8}],"type":"scenario","duration":40.71319068,"time":"00:00:40.713","passed":5,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0}],"id":"117d73ad-4461-49a2-889c-c740249edfdc-open-formulieren","line":6,"keyword":"Feature","name":"Open Formulieren","tags":[{"name":"@open-formulieren","line":5}],"uri":"features/3-open-formulieren.feature","metadata":{"browser":{"name":"not known","version":"not known"},"executionPlatform":"local","username":"runner","device":"runnervm76f27","platform":{"name":"Linux","version":"6.17.0-1022-azure"},"nodeVersion":"v24.19.0","reportVersion":"4.2.0","hostname":"runnervm76f27","architecture":"x64"},"scenarios":{"passed":1,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"passedPercentage":"100.00","failedPercentage":"0.00","notDefinedPercentage":"0.00","skippedPercentage":"0.00","pendingPercentage":"0.00","ambiguousPercentage":"0.00","total":1},"duration":40713190680,"time":"00:00:40.713","isFailed":false,"isAmbiguous":false,"isSkipped":false,"isNotdefined":false,"isPending":false,"passed":1,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"totalTime":40713190680,"app":"","browser":"not known not known","device":"runnervm76f27","executionPlatform":"local","os":"Linux 6.17.0-1022-azure","username":"runner"},{"description":"","elements":[{"description":"","id":"smartdocuments;employee-wants-to-create-a-new-document-for-a-zaak-using-the-smartdocuments-wizard","keyword":"Scenario","line":8,"name":"Employee wants to create a new document for a zaak Using the SmartDocuments wizard","steps":[{"result":{"status":"passed","duration":104161082},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":9557952970},"arguments":[],"keyword":"Given ","line":9,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:09.557"},{"result":{"status":"passed","duration":10953227149},"arguments":[],"keyword":"And ","line":10,"name":"\"Bob\" wants to create a new \"CMMN\" zaak","match":{"location":"step-definitions/zaak.ts:194"},"time":"00:00:10.953"},{"result":{"status":"passed","duration":222668183},"arguments":[],"keyword":"When ","line":11,"name":"Employee \"Bob\" clicks on Create Document button for the new zaak","match":{"location":"step-definitions/external-systems.ts:28"},"time":"00:00:00.222"},{"result":{"status":"passed","duration":1293944076},"arguments":[],"keyword":"And ","line":12,"name":"Employee \"Bob\" enters and submits the form to start the SmartDocuments wizard","match":{"location":"step-definitions/external-systems.ts:40"},"time":"00:00:01.293"},{"result":{"status":"passed","duration":3783411445},"arguments":[],"keyword":"And ","line":13,"name":"Employee \"Bob\" completes the SmartDocuments wizard","match":{"location":"step-definitions/external-systems.ts:91"},"time":"00:00:03.783"},{"result":{"status":"passed","duration":7435213558},"arguments":[],"keyword":"And ","line":14,"name":"Employee \"Bob\" closes the wizard result page","match":{"location":"step-definitions/external-systems.ts:109"},"time":"00:00:07.435"},{"result":{"status":"passed","duration":63633060},"arguments":[],"keyword":"And ","line":15,"name":"Employee \"Bob\" views the created document","match":{"location":"step-definitions/external-systems.ts:137"},"time":"00:00:00.063"},{"result":{"status":"passed","duration":869578265},"arguments":[],"keyword":"Then ","line":16,"name":"Employee \"Bob\" sees all added details in the created document meta data","match":{"location":"step-definitions/external-systems.ts:157"},"time":"00:00:00.869"},{"result":{"status":"passed","duration":194797805},"keyword":"After","hidden":true}],"tags":[{"name":"@smart-documents","line":5}],"type":"scenario","duration":34.179628706,"time":"00:00:34.179","passed":8,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0}],"id":"47395ef5-2ef3-499f-8816-311be371368b-smartdocuments","line":6,"keyword":"Feature","name":"SmartDocuments","tags":[{"name":"@smart-documents","line":5}],"uri":"features/4-smartdocuments.feature","metadata":{"browser":{"name":"not known","version":"not known"},"executionPlatform":"local","username":"runner","device":"runnervm76f27","platform":{"name":"Linux","version":"6.17.0-1022-azure"},"nodeVersion":"v24.19.0","reportVersion":"4.2.0","hostname":"runnervm76f27","architecture":"x64"},"scenarios":{"passed":1,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"passedPercentage":"100.00","failedPercentage":"0.00","notDefinedPercentage":"0.00","skippedPercentage":"0.00","pendingPercentage":"0.00","ambiguousPercentage":"0.00","total":1},"duration":34179628706,"time":"00:00:34.179","isFailed":false,"isAmbiguous":false,"isSkipped":false,"isNotdefined":false,"isPending":false,"passed":1,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"totalTime":34179628706,"app":"","browser":"not known not known","device":"runnervm76f27","executionPlatform":"local","os":"Linux 6.17.0-1022-azure","username":"runner"},{"description":"","elements":[{"description":"","id":"taken-toevoegen;employee-\"bob\"-does-not-have-enough-information-to-finish-intake-and-assigns-a-task-to-employee-\"oscar\"","keyword":"Scenario","line":8,"name":"Employee \"Bob\" does not have enough information to finish Intake and assigns a task to Employee \"Oscar\"","steps":[{"result":{"status":"passed","duration":102702876},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":14540849696},"arguments":[],"keyword":"Given ","line":9,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:14.540"},{"result":{"status":"passed","duration":11128916726},"arguments":[],"keyword":"And ","line":10,"name":"\"Bob\" wants to create a new \"CMMN\" zaak","match":{"location":"step-definitions/zaak.ts:194"},"time":"00:00:11.128"},{"result":{"status":"passed","duration":2154891163},"arguments":[],"keyword":"And ","line":11,"name":"Employee \"Bob\" is on the newly created zaak with status \"Intake\"","match":{"location":"step-definitions/zaak.ts:68"},"time":"00:00:02.154"},{"result":{"status":"passed","duration":8919405202},"arguments":[],"keyword":"When ","line":12,"name":"Employee \"Bob\" does not have enough information to finish Intake and assigns a task to Employee \"Oscar\"","match":{"location":"step-definitions/zaak.ts:93"},"time":"00:00:08.919"},{"result":{"status":"passed","duration":668857425},"arguments":[],"keyword":"And ","line":13,"name":"Employee \"Bob\" logs out of zac","match":{"location":"step-definitions/authentication.ts:64"},"time":"00:00:00.668"},{"result":{"status":"passed","duration":1945016323},"arguments":[],"keyword":"And ","line":14,"name":"\"Oscar\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:01.945"},{"result":{"status":"passed","duration":1181742938},"arguments":[],"keyword":"Then ","line":15,"name":"Employee \"Oscar\" sees the task assigned to them by Employee \"Bob\" in my task list","match":{"location":"step-definitions/zaak.ts:297"},"time":"00:00:01.181"},{"result":{"status":"passed","duration":1325419996},"arguments":[],"keyword":"And ","line":16,"name":"Employee \"Oscar\" is on the newly created zaak with status \"Wacht op aanvullende informatie\"","match":{"location":"step-definitions/zaak.ts:68"},"time":"00:00:01.325"},{"result":{"status":"passed","duration":947002652},"arguments":[],"keyword":"And ","line":17,"name":"Employee \"Oscar\" sees the task assigned to them by Employee \"Bob\" in the newly created zaak tasks list","match":{"location":"step-definitions/zaak.ts:285"},"time":"00:00:00.947"},{"result":{"status":"passed","duration":189329652},"keyword":"After","hidden":true}],"tags":[{"name":"@taken-toevoegen","line":5}],"type":"scenario","duration":42.812102121,"time":"00:00:42.812","passed":9,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0}],"id":"ff3a8de3-bb8c-4baa-9457-848e173f3ab3-taken-toevoegen","line":6,"keyword":"Feature","name":"Taken toevoegen","tags":[{"name":"@taken-toevoegen","line":5}],"uri":"features/5-taken-toevoegen.feature","metadata":{"browser":{"name":"not known","version":"not known"},"executionPlatform":"local","username":"runner","device":"runnervm76f27","platform":{"name":"Linux","version":"6.17.0-1022-azure"},"nodeVersion":"v24.19.0","reportVersion":"4.2.0","hostname":"runnervm76f27","architecture":"x64"},"scenarios":{"passed":1,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"passedPercentage":"100.00","failedPercentage":"0.00","notDefinedPercentage":"0.00","skippedPercentage":"0.00","pendingPercentage":"0.00","ambiguousPercentage":"0.00","total":1},"duration":42812102121,"time":"00:00:42.812","isFailed":false,"isAmbiguous":false,"isSkipped":false,"isNotdefined":false,"isPending":false,"passed":1,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"totalTime":42812102121,"app":"","browser":"not known not known","device":"runnervm76f27","executionPlatform":"local","os":"Linux 6.17.0-1022-azure","username":"runner"},{"description":"","elements":[{"description":"","id":"zaken-verdelen-/-vrijgeven;bob-assigns-zaken-to-a-group-and-user-from-the-list","keyword":"Scenario","line":8,"name":"Bob assigns zaken to a group and user from the list","steps":[{"result":{"status":"passed","duration":110636378},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":9656878301},"arguments":[],"keyword":"Given ","line":9,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:09.656"},{"result":{"status":"passed","duration":339914269},"arguments":[],"keyword":"And ","line":10,"name":"\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"","match":{"location":"step-definitions/common.ts:36"},"time":"00:00:00.339"},{"result":{"status":"passed","duration":2962180810},"arguments":[],"keyword":"And ","line":11,"name":"the page is done searching","match":{"location":"step-definitions/common.ts:47"},"time":"00:00:02.962"},{"result":{"status":"passed","duration":46080575},"arguments":[],"keyword":"And ","line":12,"name":"there are at least 3 zaken","match":{"location":"step-definitions/zaken-verdelen.ts:15"},"time":"00:00:00.046"},{"result":{"status":"passed","duration":516499557},"arguments":[],"keyword":"When ","line":13,"name":"\"Bob\" selects that number of zaken","match":{"location":"step-definitions/zaken-verdelen.ts:26"},"time":"00:00:00.516"},{"result":{"status":"passed","duration":1495001727},"arguments":[],"keyword":"And ","line":14,"name":"\"Bob\" assigns the zaken to 'Test groep A' and Bob","match":{"location":"step-definitions/zaken-verdelen.ts:38"},"time":"00:00:01.495"},{"result":{"status":"passed","duration":282387009},"arguments":[],"keyword":"Then ","line":15,"name":"\"Bob\" gets a message confirming that the assigning of zaken is starting","match":{"location":"step-definitions/zaken-verdelen.ts:68"},"time":"00:00:00.282"},{"result":{"status":"passed","duration":107701814},"arguments":[],"keyword":"And ","line":16,"name":"after a while the snackbar disappears","match":{"location":"step-definitions/common.ts:99"},"time":"00:00:00.107"},{"result":{"status":"passed","duration":234736112},"keyword":"After","hidden":true}],"tags":[{"name":"@zaken-verdelen-vrijgeven","line":5}],"type":"scenario","duration":15.406644062,"time":"00:00:15.406","passed":8,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"zaken-verdelen-/-vrijgeven;bob-releases-zaken-from-the-list","keyword":"Scenario","line":18,"name":"Bob releases zaken from the list","steps":[{"result":{"status":"passed","duration":108242077},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":3000195920},"arguments":[],"keyword":"Given ","line":19,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:03.000"},{"result":{"status":"passed","duration":294941569},"arguments":[],"keyword":"And ","line":20,"name":"\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"","match":{"location":"step-definitions/common.ts:36"},"time":"00:00:00.294"},{"result":{"status":"passed","duration":13005001438},"arguments":[],"keyword":"And ","line":21,"name":"the page is done searching and reloaded","match":{"location":"step-definitions/common.ts:56"},"time":"00:00:13.005"},{"result":{"status":"passed","duration":44530247},"arguments":[],"keyword":"And ","line":22,"name":"there are at least 3 zaken","match":{"location":"step-definitions/zaken-verdelen.ts:15"},"time":"00:00:00.044"},{"result":{"status":"passed","duration":475297275},"arguments":[],"keyword":"When ","line":23,"name":"\"Bob\" selects that number of zaken","match":{"location":"step-definitions/zaken-verdelen.ts:26"},"time":"00:00:00.475"},{"result":{"status":"passed","duration":562104698},"arguments":[],"keyword":"And ","line":24,"name":"\"Bob\" releases the zaken","match":{"location":"step-definitions/zaken-verdelen.ts:55"},"time":"00:00:00.562"},{"result":{"status":"passed","duration":210077919},"arguments":[],"keyword":"Then ","line":25,"name":"\"Bob\" gets a message confirming that the releasing of zaken is starting","match":{"location":"step-definitions/zaken-verdelen.ts:78"},"time":"00:00:00.210"},{"result":{"status":"passed","duration":37755779},"arguments":[],"keyword":"And ","line":26,"name":"after a while the snackbar disappears","match":{"location":"step-definitions/common.ts:99"},"time":"00:00:00.037"},{"result":{"status":"passed","duration":259618305},"keyword":"After","hidden":true}],"tags":[{"name":"@zaken-verdelen-vrijgeven","line":5}],"type":"scenario","duration":17.629904845000002,"time":"00:00:17.629","passed":8,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0}],"id":"584e46ba-6d27-4605-ad50-c7b024e1a740-zaken-verdelen---vrijgeven","line":6,"keyword":"Feature","name":"Zaken verdelen / vrijgeven","tags":[{"name":"@zaken-verdelen-vrijgeven","line":5}],"uri":"features/6-zaken-verdelen-vrijgeven.feature","metadata":{"browser":{"name":"not known","version":"not known"},"executionPlatform":"local","username":"runner","device":"runnervm76f27","platform":{"name":"Linux","version":"6.17.0-1022-azure"},"nodeVersion":"v24.19.0","reportVersion":"4.2.0","hostname":"runnervm76f27","architecture":"x64"},"scenarios":{"passed":2,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"passedPercentage":"100.00","failedPercentage":"0.00","notDefinedPercentage":"0.00","skippedPercentage":"0.00","pendingPercentage":"0.00","ambiguousPercentage":"0.00","total":2},"duration":33036548907,"time":"00:00:33.036","isFailed":false,"isAmbiguous":false,"isSkipped":false,"isNotdefined":false,"isPending":false,"passed":2,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"totalTime":33036548907,"app":"","browser":"not known not known","device":"runnervm76f27","executionPlatform":"local","os":"Linux 6.17.0-1022-azure","username":"runner"},{"description":"","elements":[{"description":"","id":"taken-verdelen-/-vrijgeven;bob-assigns-taken-to-a-group-and-user-from-the-list","keyword":"Scenario","line":8,"name":"Bob assigns taken to a group and user from the list","steps":[{"result":{"status":"passed","duration":112150641},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":6620988914},"arguments":[],"keyword":"Given ","line":9,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:06.620"},{"result":{"status":"passed","duration":375894570},"arguments":[],"keyword":"And ","line":10,"name":"\"Bob\" navigates to \"zac\" with path \"/taken/werkvoorraad\"","match":{"location":"step-definitions/common.ts:36"},"time":"00:00:00.375"},{"result":{"status":"passed","duration":1994310722},"arguments":[],"keyword":"And ","line":11,"name":"the page is done searching","match":{"location":"step-definitions/common.ts:47"},"time":"00:00:01.994"},{"result":{"status":"passed","duration":24676951},"arguments":[],"keyword":"And ","line":12,"name":"there are at least 3 taken","match":{"location":"step-definitions/taken-verdelen.ts:12"},"time":"00:00:00.024"},{"result":{"status":"passed","duration":184009238},"arguments":[],"keyword":"When ","line":13,"name":"\"Bob\" selects that number of taken","match":{"location":"step-definitions/taken-verdelen.ts:23"},"time":"00:00:00.184"},{"result":{"status":"passed","duration":1175644925},"arguments":[],"keyword":"And ","line":14,"name":"\"Bob\" assigns the taken to the first group and user available","match":{"location":"step-definitions/taken-verdelen.ts:35"},"time":"00:00:01.175"},{"result":{"status":"passed","duration":106758075},"arguments":[],"keyword":"Then ","line":15,"name":"\"Bob\" gets a message confirming that the assigning of taken is starting","match":{"location":"step-definitions/taken-verdelen.ts:61"},"time":"00:00:00.106"},{"result":{"status":"passed","duration":3060717},"arguments":[],"keyword":"And ","line":16,"name":"after a while the snackbar disappears","match":{"location":"step-definitions/common.ts:99"},"time":"00:00:00.003"},{"result":{"status":"passed","duration":186830463},"keyword":"After","hidden":true}],"tags":[{"name":"@taken-verdelen-vrijgeven","line":5}],"type":"scenario","duration":10.485344112,"time":"00:00:10.485","passed":8,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"taken-verdelen-/-vrijgeven;bob-releases-taken","keyword":"Scenario","line":18,"name":"Bob releases taken","steps":[{"result":{"status":"passed","duration":106280621},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":3159952725},"arguments":[],"keyword":"Given ","line":19,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:03.159"},{"result":{"status":"passed","duration":289318256},"arguments":[],"keyword":"And ","line":20,"name":"\"Bob\" navigates to \"zac\" with path \"/taken/werkvoorraad\"","match":{"location":"step-definitions/common.ts:36"},"time":"00:00:00.289"},{"result":{"status":"passed","duration":11386286634},"arguments":[],"keyword":"And ","line":21,"name":"the page is done searching and reloaded","match":{"location":"step-definitions/common.ts:56"},"time":"00:00:11.386"},{"result":{"status":"passed","duration":26277532},"arguments":[],"keyword":"And ","line":22,"name":"there are at least 3 taken","match":{"location":"step-definitions/taken-verdelen.ts:12"},"time":"00:00:00.026"},{"result":{"status":"passed","duration":178493077},"arguments":[],"keyword":"When ","line":23,"name":"\"Bob\" selects that number of taken","match":{"location":"step-definitions/taken-verdelen.ts:23"},"time":"00:00:00.178"},{"result":{"status":"passed","duration":294073867},"arguments":[],"keyword":"And ","line":24,"name":"\"Bob\" releases the taken","match":{"location":"step-definitions/taken-verdelen.ts:49"},"time":"00:00:00.294"},{"result":{"status":"passed","duration":103907163},"arguments":[],"keyword":"Then ","line":25,"name":"\"Bob\" gets a message confirming that the releasing of taken is starting","match":{"location":"step-definitions/taken-verdelen.ts:71"},"time":"00:00:00.103"},{"result":{"status":"passed","duration":3203020},"arguments":[],"keyword":"And ","line":26,"name":"after a while the snackbar disappears","match":{"location":"step-definitions/common.ts:99"},"time":"00:00:00.003"},{"result":{"status":"passed","duration":145481013},"keyword":"After","hidden":true}],"tags":[{"name":"@taken-verdelen-vrijgeven","line":5}],"type":"scenario","duration":15.441512274,"time":"00:00:15.441","passed":8,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0}],"id":"b00301fe-357e-4031-9000-1f222dd07f64-taken-verdelen---vrijgeven","line":6,"keyword":"Feature","name":"Taken verdelen / vrijgeven","tags":[{"name":"@taken-verdelen-vrijgeven","line":5}],"uri":"features/7-taken-verdelen-vrijgeven.feature","metadata":{"browser":{"name":"not known","version":"not known"},"executionPlatform":"local","username":"runner","device":"runnervm76f27","platform":{"name":"Linux","version":"6.17.0-1022-azure"},"nodeVersion":"v24.19.0","reportVersion":"4.2.0","hostname":"runnervm76f27","architecture":"x64"},"scenarios":{"passed":2,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"passedPercentage":"100.00","failedPercentage":"0.00","notDefinedPercentage":"0.00","skippedPercentage":"0.00","pendingPercentage":"0.00","ambiguousPercentage":"0.00","total":2},"duration":25926856386,"time":"00:00:25.926","isFailed":false,"isAmbiguous":false,"isSkipped":false,"isNotdefined":false,"isPending":false,"passed":2,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"totalTime":25926856386,"app":"","browser":"not known not known","device":"runnervm76f27","executionPlatform":"local","os":"Linux 6.17.0-1022-azure","username":"runner"},{"description":"","elements":[{"description":"","id":"personen;bob-wants-to-view-a-person","keyword":"Scenario","line":8,"name":"Bob wants to view a person","steps":[{"result":{"status":"passed","duration":110094519},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":3435000104},"arguments":[],"keyword":"Given ","line":9,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:03.435"},{"result":{"status":"passed","duration":10313738452},"arguments":[],"keyword":"When ","line":10,"name":"\"Bob\" wants to create a new \"CMMN\" zaak","match":{"location":"step-definitions/zaak.ts:194"},"time":"00:00:10.313"},{"result":{"status":"passed","duration":1781557327},"arguments":[],"keyword":"Then ","line":11,"name":"\"Bob\" sees the created zaak","match":{"location":"step-definitions/zaak.ts:324"},"time":"00:00:01.781"},{"result":{"status":"passed","duration":984313736},"arguments":[],"keyword":"Then ","line":12,"name":"\"Bob\" sees the zaak initiator","match":{"location":"step-definitions/zaak.ts:360"},"time":"00:00:00.984"},{"result":{"status":"passed","duration":120184425},"keyword":"After","hidden":true}],"tags":[{"name":"@personen","line":5}],"type":"scenario","duration":16.514609618999998,"time":"00:00:16.514","passed":4,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"personen;bob-inspects-person-details","keyword":"Scenario","line":14,"name":"Bob inspects person details","steps":[{"result":{"status":"passed","duration":109985911},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":3370806493},"arguments":[],"keyword":"Given ","line":15,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:03.370"},{"result":{"status":"passed","duration":304049928},"arguments":[],"keyword":"When ","line":16,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:85"},"time":"00:00:00.304"},{"result":{"status":"passed","duration":2284978767},"arguments":[],"keyword":"Then ","line":17,"name":"\"Bob\" navigates to initiator details page","match":{"location":"step-definitions/persoon.ts:19"},"time":"00:00:02.284"},{"result":{"status":"passed","duration":316961971},"arguments":[],"keyword":"Then ","line":18,"name":"\"Bob\" sees the person","match":{"location":"step-definitions/persoon.ts:27"},"time":"00:00:00.316"},{"result":{"status":"passed","duration":146483894},"keyword":"After","hidden":true}],"tags":[{"name":"@personen","line":5}],"type":"scenario","duration":6.276797159,"time":"00:00:06.276","passed":4,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0}],"id":"e91f3b20-87e7-4fbd-9be6-cd397b115da6-personen","line":6,"keyword":"Feature","name":"Personen","tags":[{"name":"@personen","line":5}],"uri":"features/8-personen.feature","metadata":{"browser":{"name":"not known","version":"not known"},"executionPlatform":"local","username":"runner","device":"runnervm76f27","platform":{"name":"Linux","version":"6.17.0-1022-azure"},"nodeVersion":"v24.19.0","reportVersion":"4.2.0","hostname":"runnervm76f27","architecture":"x64"},"scenarios":{"passed":2,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"passedPercentage":"100.00","failedPercentage":"0.00","notDefinedPercentage":"0.00","skippedPercentage":"0.00","pendingPercentage":"0.00","ambiguousPercentage":"0.00","total":2},"duration":22791406778,"time":"00:00:22.791","isFailed":false,"isAmbiguous":false,"isSkipped":false,"isNotdefined":false,"isPending":false,"passed":2,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"totalTime":22791406778,"app":"","browser":"not known not known","device":"runnervm76f27","executionPlatform":"local","os":"Linux 6.17.0-1022-azure","username":"runner"},{"description":"","elements":[{"description":"","id":"bpmn;bob-wants-to-set-up-the-bpmn-processdefinition","keyword":"Scenario","line":8,"name":"Bob wants to set up the BPMN processdefinition","steps":[{"result":{"status":"passed","duration":114788449},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":6519910364},"arguments":[],"keyword":"Given ","line":9,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:06.519"},{"result":{"status":"passed","duration":364925671},"arguments":[],"keyword":"Given ","line":10,"name":"\"Bob\" navigates to \"zac\" with path \"/admin/bpmn-procesdefinities\"","match":{"location":"step-definitions/common.ts:36"},"time":"00:00:00.364"},{"result":{"status":"passed","duration":1049959016},"arguments":[],"keyword":"When ","line":11,"name":"\"Bob\" uploads the E2E test processdefinition","match":{"location":"step-definitions/bpmn.ts:565"},"time":"00:00:01.049"},{"result":{"status":"passed","duration":336242140},"arguments":[],"keyword":"When ","line":12,"name":"\"Bob\" uploads all of the forms of the E2E test processdefinition","match":{"location":"step-definitions/bpmn.ts:581"},"time":"00:00:00.336"},{"result":{"status":"passed","duration":23012988},"arguments":[],"keyword":"Then ","line":13,"name":"\"Bob\" sees that the processdefinition is correctly setup","match":{"location":"step-definitions/bpmn.ts:600"},"time":"00:00:00.023"},{"result":{"status":"passed","duration":243579287},"keyword":"After","hidden":true}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":8.294050179,"time":"00:00:08.294","passed":5,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-wants-to-create-a-new-bpmn-zaak","keyword":"Scenario","line":15,"name":"Bob wants to create a new BPMN zaak","steps":[{"result":{"status":"passed","duration":108482011},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":3448338692},"arguments":[],"keyword":"Given ","line":16,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:03.448"},{"result":{"status":"passed","duration":9378975146},"arguments":[],"keyword":"When ","line":17,"name":"\"Bob\" wants to create a new \"BPMN\" zaak","match":{"location":"step-definitions/zaak.ts:194"},"time":"00:00:09.378"},{"result":{"status":"passed","duration":1198579391},"arguments":[],"keyword":"Then ","line":18,"name":"\"Bob\" sees the created zaak","match":{"location":"step-definitions/zaak.ts:324"},"time":"00:00:01.198"},{"result":{"status":"passed","duration":407684817},"arguments":[],"keyword":"Given ","line":19,"name":"\"Bob\" navigates to \"zac\" with path \"/zaken/werkvoorraad\"","match":{"location":"step-definitions/common.ts:36"},"time":"00:00:00.407"},{"result":{"status":"passed","duration":17987316171},"arguments":[],"keyword":"Then ","line":20,"name":"\"Bob\" sees the created zaak","match":{"location":"step-definitions/zaak.ts:324"},"time":"00:00:17.987"},{"result":{"status":"passed","duration":142047275},"keyword":"After","hidden":true}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":32.420894217000004,"time":"00:00:32.420","passed":5,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-changes-the-assigned-user-and-group","keyword":"Scenario","line":22,"name":"Bob changes the assigned user and group","steps":[{"result":{"status":"passed","duration":118302702},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":3270716243},"arguments":[],"keyword":"Given ","line":23,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:03.270"},{"result":{"status":"passed","duration":297871123},"arguments":[],"keyword":"When ","line":24,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:85"},"time":"00:00:00.297"},{"result":{"status":"passed","duration":1554259994},"arguments":[],"keyword":"Then ","line":25,"name":"\"Bob\" sees group \"test-group-a\" and user \"e2etestuser1\" in the zaak data","match":{"location":"step-definitions/bpmn.ts:403"},"time":"00:00:01.554"},{"result":{"status":"passed","duration":4008053217},"arguments":[],"keyword":"Given ","line":26,"name":"Employee \"Bob\" assigns the zaak to group \"Test groep B\" and user \"E2etest User2\"","match":{"location":"step-definitions/zaak.ts:149"},"time":"00:00:04.008"},{"result":{"status":"passed","duration":1940429588},"arguments":[],"keyword":"Then ","line":27,"name":"\"Bob\" sees group \"test-group-b\" and user \"e2etestuser2\" in the zaak data","match":{"location":"step-definitions/bpmn.ts:403"},"time":"00:00:01.940"},{"result":{"status":"passed","duration":100533197},"keyword":"After","hidden":true}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":11.071330165,"time":"00:00:11.071","passed":5,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-opens-the-initial-task-form","keyword":"Scenario","line":29,"name":"Bob opens the initial task form","steps":[{"result":{"status":"passed","duration":179023067},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":4201910900},"arguments":[],"keyword":"Given ","line":30,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:04.201"},{"result":{"status":"passed","duration":386429158},"arguments":[],"keyword":"When ","line":31,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:85"},"time":"00:00:00.386"},{"result":{"status":"passed","duration":1436568523},"arguments":[],"keyword":"And ","line":32,"name":"\"Bob\" opens the \"MultipleFormItems\" task","match":{"location":"step-definitions/bpmn.ts:90"},"time":"00:00:01.436"},{"result":{"status":"passed","duration":2145241529},"arguments":[],"keyword":"Then ","line":33,"name":"\"Bob\" sees the form associated with the task","match":{"location":"step-definitions/bpmn.ts:110"},"time":"00:00:02.145"},{"result":{"status":"passed","duration":107608550},"keyword":"After","hidden":true}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":8.17015011,"time":"00:00:08.170","passed":4,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-creates-two-smartdocuments-word-files","keyword":"Scenario","line":35,"name":"Bob creates two SmartDocuments Word files","steps":[{"result":{"status":"passed","duration":110240419},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":3020349617},"arguments":[],"keyword":"Given ","line":36,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:03.020"},{"result":{"status":"passed","duration":396988381},"arguments":[],"keyword":"When ","line":37,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:85"},"time":"00:00:00.396"},{"result":{"status":"passed","duration":1922620166},"arguments":[],"keyword":"And ","line":38,"name":"\"Bob\" opens the \"MultipleFormItems\" task","match":{"location":"step-definitions/bpmn.ts:90"},"time":"00:00:01.922"},{"result":{"status":"passed","duration":10886695539},"arguments":[],"keyword":"Given ","line":39,"name":"\"Bob\" creates a SmartDocuments Word file named \"file A\"","match":{"location":"step-definitions/bpmn.ts:132"},"time":"00:00:10.886"},{"result":{"status":"passed","duration":1283419672},"arguments":[],"keyword":"When ","line":40,"name":"\"Bob\" reloads the page","match":{"location":"step-definitions/bpmn.ts:176"},"time":"00:00:01.283"},{"result":{"status":"passed","duration":2354565755},"arguments":[],"keyword":"Then ","line":41,"name":"\"Bob\" sees document \"file A\" in the documents list","match":{"location":"step-definitions/bpmn.ts:184"},"time":"00:00:02.354"},{"result":{"status":"passed","duration":5345634166},"arguments":[],"keyword":"Given ","line":42,"name":"\"Bob\" creates a SmartDocuments Word file named \"file B\"","match":{"location":"step-definitions/bpmn.ts:132"},"time":"00:00:05.345"},{"result":{"status":"passed","duration":424440708},"arguments":[],"keyword":"When ","line":43,"name":"\"Bob\" reloads the page","match":{"location":"step-definitions/bpmn.ts:176"},"time":"00:00:00.424"},{"result":{"status":"passed","duration":2330317684},"arguments":[],"keyword":"Then ","line":44,"name":"\"Bob\" sees document \"file B\" in the documents list","match":{"location":"step-definitions/bpmn.ts:184"},"time":"00:00:02.330"},{"result":{"status":"passed","duration":200259977},"keyword":"After","hidden":true}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":27.965031688,"time":"00:00:27.965","passed":9,"failed":0,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-fills-in-and-submits-the-task-form","keyword":"Scenario","line":46,"name":"Bob fills-in and submits the task form","steps":[{"result":{"status":"passed","duration":113591921},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":3434488811},"arguments":[],"keyword":"Given ","line":47,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:03.434"},{"result":{"status":"passed","duration":295894474},"arguments":[],"keyword":"When ","line":48,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:85"},"time":"00:00:00.295"},{"result":{"status":"passed","duration":1466538071},"arguments":[],"keyword":"And ","line":49,"name":"\"Bob\" opens the \"MultipleFormItems\" task","match":{"location":"step-definitions/bpmn.ts:90"},"time":"00:00:01.466"},{"result":{"status":"passed","duration":3003548569},"arguments":[],"keyword":"Then ","line":50,"name":"\"Bob\" sees the desired form fields values","match":{"location":"step-definitions/bpmn.ts:216"},"time":"00:00:03.003"},{"result":{"status":"passed","duration":611933570},"arguments":[],"keyword":"Given ","line":51,"name":"\"Bob\" fills all mandatory form fields","match":{"location":"step-definitions/bpmn.ts:236"},"time":"00:00:00.611"},{"result":{"status":"failed","duration":30066233149,"error_message":"locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('zac-formio-wrapper').getByRole('button').filter({ hasText: /^\\s*(Indienen|Selecteren|Ondertekenen)\\s*$/ })\n    - locator resolved to <button lang=\"en\" ref=\"button\" type=\"submit\" name=\"data[submit]\" disabled=\"disabled\" class=\"btn btn-primary btn-md\">↵↵Indienen↵↵↵</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    58 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/bpmn.ts:274:35)"},"arguments":[],"keyword":"And ","line":52,"name":"\"Bob\" submits the filled-in form","match":{"location":"step-definitions/bpmn.ts:269"},"embeddings":[{}],"attachments":[],"image":["data:image/png;base64,"],"imageNames":[null],"time":"00:00:30.066"},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"When ","line":53,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:85"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"Then ","line":54,"name":"\"Bob\" sees that the initial task is completed","match":{"location":"step-definitions/bpmn.ts:278"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"Then ","line":55,"name":"\"Bob\" sees that the MultipleFormItemsSummary task is started with group \"Test groep A\" and user \"E2etest User1\"","match":{"location":"step-definitions/bpmn.ts:301"}},{"result":{"status":"passed","duration":101535558},"keyword":"After","hidden":true}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":38.878636644,"time":"00:00:38.878","passed":5,"failed":1,"notDefined":0,"skipped":3,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-opens-documents-grid-form-and-selects-two-out-of-three-documents","keyword":"Scenario","line":57,"name":"Bob opens documents grid form and selects two out of three documents","steps":[{"result":{"status":"passed","duration":111775140},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":3470395398},"arguments":[],"keyword":"Given ","line":58,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:03.470"},{"result":{"status":"passed","duration":395062467},"arguments":[],"keyword":"And ","line":59,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:85"},"time":"00:00:00.395"},{"result":{"status":"failed","duration":31664985360,"error_message":"locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByLabel('Documenttype')\n\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/bpmn.ts:625:48)"},"arguments":[],"keyword":"And ","line":60,"name":"\"Bob\" adds document \"File C\" to the zaak","match":{"location":"step-definitions/bpmn.ts:612"},"embeddings":[{}],"attachments":[],"image":["data:image/png;base64,"],"imageNames":[null],"time":"00:00:31.664"},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"And ","line":61,"name":"\"Bob\" adds document \"File D\" to the zaak","match":{"location":"step-definitions/bpmn.ts:612"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"And ","line":62,"name":"\"Bob\" adds document \"File E\" to the zaak","match":{"location":"step-definitions/bpmn.ts:612"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"And ","line":63,"name":"\"Bob\" opens the \"Select documents to sign\" task","match":{"location":"step-definitions/bpmn.ts:90"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"Then ","line":64,"name":"\"Bob\" sees the select documents to sign form","match":{"location":"step-definitions/bpmn.ts:452"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"When ","line":65,"name":"\"Bob\" selects document \"File C\" for signing","match":{"location":"step-definitions/bpmn.ts:471"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"And ","line":66,"name":"\"Bob\" selects document \"File D\" for signing","match":{"location":"step-definitions/bpmn.ts:471"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"And ","line":67,"name":"\"Bob\" submits the filled-in form","match":{"location":"step-definitions/bpmn.ts:269"}},{"result":{"status":"passed","duration":1397007425},"keyword":"After","hidden":true}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":35.530443225000006,"time":"00:00:35.530","passed":2,"failed":1,"notDefined":0,"skipped":7,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-verifies-that-there-are-two-documents-to-sign-selects-one-to-sign-and-submits","keyword":"Scenario","line":69,"name":"Bob verifies that there are two documents to sign selects one to sign and submits","steps":[{"result":{"status":"passed","duration":102754784},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":2962552155},"arguments":[],"keyword":"Given ","line":70,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:02.962"},{"result":{"status":"passed","duration":372250349},"arguments":[],"keyword":"And ","line":71,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:85"},"time":"00:00:00.372"},{"result":{"status":"failed","duration":40061889785,"error_message":"Error: function timed out, ensure the promise resolves within 40000 milliseconds\n    at Timeout.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/node_modules/@cucumber/cucumber/src/time.ts:50:14)\n    at listOnTimeout (node:internal/timers:635:17)\n    at processTimers (node:internal/timers:571:7)"},"arguments":[],"keyword":"When ","line":72,"name":"\"Bob\" opens the \"Verify documents to sign\" task","match":{"location":"step-definitions/bpmn.ts:90"},"embeddings":[{}],"attachments":[],"image":["data:image/png;base64,"],"imageNames":[null],"time":"00:00:40.061"},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"Then ","line":73,"name":"\"Bob\" sees 2 document(s) in the to be signed list","match":{"location":"step-definitions/bpmn.ts:488"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"Then ","line":74,"name":"\"Bob\" sees document \"File C\" in the to be signed list","match":{"location":"step-definitions/bpmn.ts:511"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"Then ","line":75,"name":"\"Bob\" sees document \"File D\" in the to be signed list","match":{"location":"step-definitions/bpmn.ts:511"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"When ","line":76,"name":"\"Bob\" selects document \"File C\" to be signed","match":{"location":"step-definitions/bpmn.ts:644"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"And ","line":77,"name":"\"Bob\" submits the filled-in form","match":{"location":"step-definitions/bpmn.ts:269"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"When ","line":78,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:85"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"And ","line":79,"name":"\"Bob\" sees document \"File C\" has been signed","match":{"location":"step-definitions/bpmn.ts:540"}},{"result":{"status":"passed","duration":1638233803},"keyword":"After","hidden":true}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":43.396692289,"time":"00:00:43.396","passed":2,"failed":1,"notDefined":0,"skipped":7,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-inspects-the-summary-task-form","keyword":"Scenario","line":81,"name":"Bob inspects the summary task form","steps":[{"result":{"status":"passed","duration":102213425},"keyword":"Before","hidden":true},{"result":{"status":"passed","duration":11759629584},"arguments":[],"keyword":"Given ","line":82,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"time":"00:00:11.759"},{"result":{"status":"passed","duration":342368889},"arguments":[],"keyword":"And ","line":83,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:85"},"time":"00:00:00.342"},{"result":{"status":"failed","duration":40054422881,"error_message":"Error: function timed out, ensure the promise resolves within 40000 milliseconds\n    at Timeout.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/node_modules/@cucumber/cucumber/src/time.ts:50:14)\n    at listOnTimeout (node:internal/timers:635:17)\n    at processTimers (node:internal/timers:571:7)"},"arguments":[],"keyword":"When ","line":84,"name":"\"Bob\" opens the \"MultipleFormItemsSummary\" task","match":{"location":"step-definitions/bpmn.ts:90"},"embeddings":[{}],"attachments":[],"image":["data:image/png;base64,"],"imageNames":[null],"time":"00:00:40.054"},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"Then ","line":85,"name":"\"Bob\" sees that the summary form contains all filled-in data","match":{"location":"step-definitions/bpmn.ts:329"}},{"result":{"status":"passed","duration":1681756340},"keyword":"After","hidden":true}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":52.156421353999995,"time":"00:00:52.156","passed":2,"failed":1,"notDefined":0,"skipped":1,"pending":0,"ambiguous":0},{"description":"","id":"bpmn;bob-confirms-the-data-in-the-summary-form","keyword":"Scenario","line":87,"name":"Bob confirms the data in the summary form","steps":[{"result":{"status":"passed","duration":95597166},"keyword":"Before","hidden":true},{"result":{"status":"failed","duration":36102664636,"error_message":"locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText('account_circle').or(getByText('ZAAKAFHANDELCOMPONENT')).first()\n\n    at waitForPage (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:32:49)\n    at isLoggedIn (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:43:9)\n    at CustomWorld.<anonymous> (/home/runner/work/dimpact-zaakafhandelcomponent/dimpact-zaakafhandelcomponent/src/e2e/step-definitions/authentication.ts:87:20)"},"arguments":[],"keyword":"Given ","line":88,"name":"\"Bob\" is logged in to zac","match":{"location":"step-definitions/authentication.ts:80"},"embeddings":[{}],"attachments":[],"image":["data:image/png;base64,"],"imageNames":[null],"time":"00:00:36.102"},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"And ","line":89,"name":"Employee \"Bob\" is on the newly created zaak","match":{"location":"step-definitions/zaak.ts:85"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"When ","line":90,"name":"\"Bob\" opens the \"MultipleFormItemsSummary\" task","match":{"location":"step-definitions/bpmn.ts:90"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"And ","line":91,"name":"\"Bob\" confirms the data in the form","match":{"location":"step-definitions/bpmn.ts:360"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"When ","line":92,"name":"Employee \"Bob\" is on the newly created zaak with status \"Afgerond\"","match":{"location":"step-definitions/zaak.ts:68"}},{"result":{"status":"skipped","duration":0},"arguments":[],"keyword":"Then ","line":93,"name":"\"Bob\" sees the zaak result is set to \"Verleend\"","match":{"location":"step-definitions/bpmn.ts:388"}},{"result":{"status":"passed","duration":1555491843},"keyword":"After","hidden":true}],"tags":[{"name":"@bpmn","line":5}],"type":"scenario","duration":36.102664636,"time":"00:00:36.102","passed":0,"failed":1,"notDefined":0,"skipped":5,"pending":0,"ambiguous":0}],"id":"12185494-ec7a-424e-b5e0-6f53b96b2922-bpmn","line":6,"keyword":"Feature","name":"BPMN","tags":[{"name":"@bpmn","line":5}],"uri":"features/9-bpmn.feature","metadata":{"browser":{"name":"not known","version":"not known"},"executionPlatform":"local","username":"runner","device":"runnervm76f27","platform":{"name":"Linux","version":"6.17.0-1022-azure"},"nodeVersion":"v24.19.0","reportVersion":"4.2.0","hostname":"runnervm76f27","architecture":"x64"},"scenarios":{"passed":5,"failed":5,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"passedPercentage":"50.00","failedPercentage":"50.00","notDefinedPercentage":"0.00","skippedPercentage":"0.00","pendingPercentage":"0.00","ambiguousPercentage":"0.00","total":10},"duration":293986314507,"time":"00:04:53.986","isFailed":true,"isAmbiguous":false,"isSkipped":false,"isNotdefined":false,"isPending":false,"passed":5,"failed":5,"notDefined":0,"skipped":0,"pending":0,"ambiguous":0,"totalTime":293986314507,"app":"","browser":"not known not known","device":"runnervm76f27","executionPlatform":"local","os":"Linux 6.17.0-1022-azure","username":"runner"}]
+  };
+</script>
+
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="border-t bg-background px-6 py-4 mt-8">
+  <div class="mx-auto max-w-7xl text-center">
+    
+      <p class="text-xs text-muted-foreground">
+        Generated by
+        <a
+          href="https://github.com/WasiqB/multiple-cucumber-html-reporter"
+          target="_blank"
+          class="text-primary hover:underline"
+          >Multiple Cucumber HTML Reporter</a
+        >
+      </p>
+      <p class="text-xs text-muted-foreground mt-2">
+        Built with ❤️ by
+        <a href="https://wasiqbhamla.com/" target="_blank" class="text-primary hover:underline font-semibold"
+          >Wasiq Bhamla</a
+        >
+        <span class="mx-1.5 text-muted-foreground/50">•</span>
+        <a
+          href="https://github.com/WasiqB"
+          target="_blank"
+          class="text-muted-foreground hover:text-primary transition-colors"
+          ><i class="fa-brands fa-github mr-0.5"></i
+        ></a>
+        <span class="mx-1.5 text-muted-foreground/50">•</span>
+        <a
+          href="https://x.com/WasiqBhamla"
+          target="_blank"
+          class="text-muted-foreground hover:text-primary transition-colors"
+          ><i class="fa-brands fa-x-twitter mr-0.5"></i
+        ></a>
+        <span class="mx-1.5 text-muted-foreground/50">•</span>
+        <a
+          href="https://www.linkedin.com/in/wasiqbhamla/"
+          target="_blank"
+          class="text-muted-foreground hover:text-primary transition-colors"
+          ><i class="fa-brands fa-linkedin mr-0.5"></i
+        ></a>
+      </p>
+    
+  </div>
+</footer>
+
+    </div>
+
+    <!-- Media Modal -->
+    
+
+
+
+
+  <div
+    id="media-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4"
+    onclick="closeModal()"
+  >
+    <div
+      class="relative w-full max-w-4xl max-h-[90vh] bg-background rounded-lg shadow-lg flex flex-col overflow-hidden"
+      onclick="event.stopPropagation()"
+    >
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b p-4 text-card-foreground">
+        <h2 id="modal-title" class="text-lg font-semibold truncate mr-4">Attachment</h2>
+        <button onclick="closeModal()" class="rounded-lg p-1 hover:bg-muted transition-colors">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div id="modal-content" class="overflow-auto flex-1 p-4 bg-muted/10">
+        <!-- Content will be injected here -->
+      </div>
+    </div>
+  </div>
+
+
+
+    <script src="./scripts/utils.js"></script>
+<script src="./scripts/theme.js"></script>
+<script src="./scripts/modal.js"></script>
+<script src="./scripts/charts.js"></script>
+<script src="./scripts/table.js"></script>
+<script src="./scripts/scenarios.js"></script>
+<script src="./scripts/main.js"></script>
+
+  </body>
+</html>
