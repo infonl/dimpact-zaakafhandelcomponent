@@ -622,13 +622,13 @@ When(
     await this.page
       .locator('input[type="file"]')
       .setInputFiles(path.join(__dirname, "../testdata", `${title}.docx`));
-    await this.page.getByRole("combobox", { name: "Documenttype" }).click();
+    await this.page.getByLabel("Documenttype").click();
     await this.page
       .locator(".mat-mdc-select-panel")
       .getByRole("option")
       .first()
       .click();
-    await this.page.getByRole("combobox", { name: "Status" }).click();
+    await this.page.getByLabel("Status").click();
     await this.page
       .locator(".mat-mdc-select-panel")
       .getByRole("option")
