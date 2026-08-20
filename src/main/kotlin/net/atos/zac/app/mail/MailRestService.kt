@@ -46,11 +46,11 @@ class MailRestService @Inject constructor(
     @POST
     @Path("send/{zaakUuid}")
     fun sendMail(
-        @PathParam("zaakUuid") zaakUUID: UUID,
+        @PathParam("zaakUuid") zaakUuid: UUID,
         restMailGegevens: RESTMailGegevens
     ) {
         val loggedInUser = loggedInUserInstance.get()
-        val zaak = zrcClientService.readZaak(zaakUUID)
+        val zaak = zrcClientService.readZaak(zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).versturenEmail)
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), zaak.getBronnenFromZaak())
     }
