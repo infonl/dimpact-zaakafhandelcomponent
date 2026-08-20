@@ -21,6 +21,8 @@ import jakarta.mail.MessagingException
 import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
 import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.shared.ZgwApiService
@@ -144,6 +146,72 @@ class MailServiceTest : BehaviorSpec({
                         "geen"
                     )
                 }
+            }
+        }
+    }
+
+    given("a zaak and e-mail data with a non-default vertrouwelijkheidaanduiding and 'create document from mail' set to true") {
+        val zaak = createZaak()
+        val zaakType = createZaakType(
+            informatieObjectTypen = listOf(
+                URI("fakeInformatieObjectType1")
+            )
+        )
+        val mailGegevens = createMailGegevens(
+            createDocumentFromMail = true,
+            vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.GEHEIM
+        )
+        val bronnen = Bronnen.Builder().add(zaak).build()
+        val informatieObjectType = createInformatieObjectType(
+            // omschrijving has to be exactly "e-mail"
+            omschrijving = "e-mail"
+        )
+        val zaakInformatieobject = createZaakInformatieobjectForReads()
+        val resolvedSubject = "resolvedSubject"
+        val enkelvoudigInformatieobjectSlot = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
+
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
+        every {
+            mailTemplateHelper.resolveZaakVariables(
+                "fakeResolvedString1",
+                zaak,
+                loggedInUserName
+            )
+        } returns resolvedSubject
+        every { mailTemplateHelper.resolveZaakdataVariables(resolvedSubject, emptyMap()) } returns resolvedSubject
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
+        every {
+            mailTemplateHelper.resolveZaakVariables(
+                "fakeResolvedBody2",
+                zaak,
+                loggedInUserName
+            )
+        } returns "fakeResolvedBody3"
+        every {
+            mailTemplateHelper.resolveZaakdataVariables(
+                "fakeResolvedBody3",
+                emptyMap()
+            )
+        } returns "fakeResolvedBody3"
+        every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
+        every {
+            zgwApiService.createZaakInformatieobjectForZaak(
+                zaak, capture(enkelvoudigInformatieobjectSlot), resolvedSubject, resolvedSubject, "geen"
+            )
+        } returns zaakInformatieobject
+        mockkObject(MailService.Companion)
+        every { MailService.mailSession.properties } returns Properties()
+        mockkStatic(Transport::class)
+        every { Transport.send(any<Message>()) } just runs
+        every { configurationService.readBronOrganisatie() } returns "123443210"
+
+        `when`("the send mail function is invoked") {
+            mailService.sendMail(mailGegevens, bronnen)
+
+            then("the created document uses the supplied vertrouwelijkheidaanduiding instead of a hardcoded value") {
+                enkelvoudigInformatieobjectSlot.captured.vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.GEHEIM
             }
         }
     }

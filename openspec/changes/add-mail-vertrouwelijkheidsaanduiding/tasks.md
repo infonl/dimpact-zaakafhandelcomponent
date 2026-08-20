@@ -55,6 +55,6 @@
 
 ## 9. Tests (started once the user explicitly approved, after manual verification of sections 5 and 8)
 
-- [ ] 9.1 Add/update backend unit tests for `MailService`, `RESTMailGegevensConverter`, and `SendEmailDelegate` (including the missing-parameter and invalid-value error paths).
+- [x] 9.1 Add/update backend unit tests for `MailService`, `RESTMailGegevensConverter`, and `SendEmailDelegate` (including the missing-parameter and invalid-value error paths). Also added regression coverage in `SendConfirmationEmailDelegateTest`, `ProductaanvraagEmailServiceTest`, `PlanItemsRestServiceTest`, and `MailRestServiceTest` for the `OPENBAAR` default/override at every non-selectable call site.
 - [x] 9.2 Add/update frontend unit tests for `mail-create.component`, `zaak-afhandelen-dialog.component`, `intake-afronden-dialog.component`, and `FormioSetupService`'s new `ZAC_vertrouwelijkheidaanduiding` field.
 - [ ] 9.3 Add/update integration/e2e test coverage as appropriate.

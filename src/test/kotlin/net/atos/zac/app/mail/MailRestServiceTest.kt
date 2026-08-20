@@ -18,6 +18,7 @@ import net.atos.zac.app.mail.model.RESTMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.mail.MailService
@@ -93,6 +94,7 @@ class MailRestServiceTest : BehaviorSpec({
             every { restMailGegevensConverter.convert(fakeRestMailGegevens) } returns fakeMailGegevens
             every { mailService.sendMail(fakeMailGegevens, any()) } returns null
             every { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(fakeZaak) } just runs
+            every { fakeRestMailGegevens.vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR } just runs
 
             `when`("sendAcknowledgmentReceiptMail is called") {
                 mailRestService.sendAcknowledgmentReceiptMail(fakeZaakUuid, fakeRestMailGegevens)
@@ -100,6 +102,10 @@ class MailRestServiceTest : BehaviorSpec({
                 then("MailService sends the mail and zaak is marked as ontvangstbevestiging verstuurd") {
                     verify { mailService.sendMail(fakeMailGegevens, any()) }
                     verify { zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(fakeZaak) }
+                }
+
+                And("the vertrouwelijkheidaanduiding is forced to Openbaar regardless of what was supplied") {
+                    verify { fakeRestMailGegevens.vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR }
                 }
             }
         }
