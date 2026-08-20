@@ -36,7 +36,7 @@ class SendEmailDelegate : AbstractDelegate() {
     lateinit var template: Expression
 
     // Set by Flowable. Can be either FixedValue or JuelExpression
-    var vertrouwelijkheidsaanduiding: Expression? = null
+    var vertrouwelijkheidaanduiding: Expression? = null
 
     companion object {
         private val LOG = Logger.getLogger(SendEmailDelegate::class.java.name)
@@ -59,9 +59,9 @@ class SendEmailDelegate : AbstractDelegate() {
         val fromAddress = from.resolveValueAsString(execution)
         val toAddress = to.resolveValueAsString(execution)
         val replyToAddress = replyTo?.resolveValueAsString(execution)
-        val vertrouwelijkheidsaanduidingValue = vertrouwelijkheidsaanduiding?.resolveValueAsString(execution)
+        val vertrouwelijkheidaanduidingValue = vertrouwelijkheidaanduiding?.resolveValueAsString(execution)
             ?.let { RestVertrouwelijkheidaanduiding.valueOf(it).toDrcVertrouwelijkheidaanduidingEnum() }
-            ?: throw IllegalArgumentException("Required field 'vertrouwelijkheidsaanduiding' is missing")
+            ?: throw IllegalArgumentException("Required field 'vertrouwelijkheidaanduiding' is missing")
 
         val mailTemplate = flowableHelper.mailTemplateService.findMailtemplateByName(templateName)
             ?: throw IllegalArgumentException("Mail template '$templateName' not found")
@@ -78,7 +78,7 @@ class SendEmailDelegate : AbstractDelegate() {
                 body = mailTemplate.body,
                 attachments = null,
                 isCreateDocumentFromMail = true,
-                vertrouwelijkheidaanduiding = vertrouwelijkheidsaanduidingValue
+                vertrouwelijkheidaanduiding = vertrouwelijkheidaanduidingValue
             ),
             bronnen = zaak.getBronnenFromZaak()
         )

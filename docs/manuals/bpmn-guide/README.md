@@ -395,7 +395,7 @@ To send email:
   - `from` - the sender's email address
   - `replyTo` - the replyTo's email address
   - `template` - the name of the email template you want to use
-  - `vertrouwelijkheidsaanduiding` - required; the confidentiality level (e.g. `OPENBAAR`, `INTERN`, `VERTROUWELIJK`) given to the PDF document created from the sent email. The service task fails if this field is missing or not one of the known confidentiality levels.
+  - `vertrouwelijkheidaanduiding` - required; the confidentiality level (e.g. `OPENBAAR`, `INTERN`, `VERTROUWELIJK`) given to the PDF document created from the sent email. The service task fails if this field is missing or not one of the known confidentiality levels.
 
 For example:
 
@@ -414,7 +414,7 @@ For example:
         <flowable:field name="template">
           <flowable:string><![CDATA[Algemene e-mail]]></flowable:string>
         </flowable:field>
-        <flowable:field name="vertrouwelijkheidsaanduiding">
+        <flowable:field name="vertrouwelijkheidaanduiding">
           <flowable:string><![CDATA[OPENBAAR]]></flowable:string>
         </flowable:field>
         <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>

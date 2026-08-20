@@ -32,29 +32,29 @@
 
 ## 6. BPMN: delegate
 
-- [x] 6.1 Add `var vertrouwelijkheidsaanduiding: Expression? = null` to `SendEmailDelegate` (`src/main/kotlin/net/atos/zac/flowable/delegate/SendEmailDelegate.kt`).
+- [x] 6.1 Add `var vertrouwelijkheidaanduiding: Expression? = null` to `SendEmailDelegate` (`src/main/kotlin/net/atos/zac/flowable/delegate/SendEmailDelegate.kt`). **Corrected** during manual BPMN testing: initially spelled `vertrouwelijkheidsaanduiding` (with an extra "s") per the original requirement text; the maintainer identified this as a mistake and it was renamed everywhere to match the rest of the codebase's spelling.
 - [x] 6.2 In `SendEmailDelegate.execute`, resolve the field, parse it via `RestVertrouwelijkheidaanduiding.valueOf(...)` and convert to `VertrouwelijkheidaanduidingEnum`, and pass it into the `MailGegevens(...)` construction.
 - [x] 6.3 When the field is missing or blank, throw a descriptive `IllegalArgumentException` (matching the delegate's existing `?: throw IllegalArgumentException(...)` pattern for its mail-template lookup — no separate explicit logging call). Let an invalid-but-present value fail via the default `IllegalArgumentException` thrown by the enum parsing itself.
 - [x] 6.4 Leave `SendConfirmationEmailDelegate` unchanged, still constructing `MailGegevens` without a `vertrouwelijkheidaanduiding` argument (relying on the `OPENBAAR` default) and no new field.
 
 ## 7. BPMN: documentation
 
-- [x] 7.1 Update the "Send email" section of `docs/manuals/bpmn-guide/README.md`: add `vertrouwelijkheidsaanduiding` to the "add fields" bullet list.
-- [x] 7.2 Update the XML example in that section to include a `<flowable:field name="vertrouwelijkheidsaanduiding">` entry.
+- [x] 7.1 Update the "Send email" section of `docs/manuals/bpmn-guide/README.md`: add `vertrouwelijkheidaanduiding` to the "add fields" bullet list.
+- [x] 7.2 Update the XML example in that section to include a `<flowable:field name="vertrouwelijkheidaanduiding">` entry.
 
-## 7a. Form.io: `ZAC_vertrouwelijkheidsaanduiding` custom field (added mid-implementation, not in the original plan)
+## 7a. Form.io: `ZAC_vertrouwelijkheidaanduiding` custom field (added mid-implementation, not in the original plan)
 
-- [x] 7a.1 Add `VERTROUWELIJKHEIDSAANDUIDING = "ZAC_vertrouwelijkheidsaanduiding"` to `KNOWN_ZAC_FIELDS` in `src/main/app/src/app/taken/taak-view/formio/formio-setup-service.ts`.
-- [x] 7a.2 Add a matching `case` in `initializeSpecializedFormioComponents`'s switch and a new `initializeVertrouwelijkheidsaanduidingField` handler, populating `component.data.custom` from `VertrouwelijkaanduidingToTranslationKeyPipe.selectList` with labels pre-translated via `TranslateService.instant`, `valueProperty = "value"`, `template = "{{ item.label }}"` — following the same pattern as `initializeZaakStatusField`/`initializeZaakResultField`.
+- [x] 7a.1 Add `VERTROUWELIJKHEIDAANDUIDING = "ZAC_vertrouwelijkheidaanduiding"` to `KNOWN_ZAC_FIELDS` in `src/main/app/src/app/taken/taak-view/formio/formio-setup-service.ts`. **Corrected** from an initial `VERTROUWELIJKHEIDSAANDUIDING = "ZAC_vertrouwelijkheidsaanduiding"` (with the extra "s"), for full consistency once the same spelling mistake was fixed everywhere else.
+- [x] 7a.2 Add a matching `case` in `initializeSpecializedFormioComponents`'s switch and a new `initializeVertrouwelijkheidaanduidingField` handler, populating `component.data.custom` from `VertrouwelijkaanduidingToTranslationKeyPipe.selectList` with labels pre-translated via `TranslateService.instant`, `valueProperty = "value"`, `template = "{{ item.label }}"` — following the same pattern as `initializeZaakStatusField`/`initializeZaakResultField`.
 
 ## 8. BPMN verification (manual, by user)
 
-- [ ] 8.1 Manually run the user's own test BPMN process/form-io form with `vertrouwelijkheidsaanduiding` supplied and confirm the created document carries that value.
-- [ ] 8.2 Manually run the test BPMN process without `vertrouwelijkheidsaanduiding` and confirm the service task fails with the expected error.
+- [ ] 8.1 Manually run the user's own test BPMN process/form-io form with `vertrouwelijkheidaanduiding` supplied and confirm the created document carries that value.
+- [ ] 8.2 Manually run the test BPMN process without `vertrouwelijkheidaanduiding` and confirm the service task fails with the expected error.
 - [ ] 8.3 Manually run the automatic confirmation delegate flow and confirm the created document is always `OPENBAAR`.
 
 ## 9. Tests (do not start until the user explicitly approves, after manual verification of sections 5 and 8)
 
 - [ ] 9.1 Add/update backend unit tests for `MailService`, `RESTMailGegevensConverter`, and `SendEmailDelegate` (including the missing-parameter and invalid-value error paths).
-- [ ] 9.2 Add/update frontend unit tests for `mail-create.component`, `zaak-afhandelen-dialog.component`, `intake-afronden-dialog.component`, and `FormioSetupService`'s new `ZAC_vertrouwelijkheidsaanduiding` field.
+- [ ] 9.2 Add/update frontend unit tests for `mail-create.component`, `zaak-afhandelen-dialog.component`, `intake-afronden-dialog.component`, and `FormioSetupService`'s new `ZAC_vertrouwelijkheidaanduiding` field.
 - [ ] 9.3 Add/update integration/e2e test coverage as appropriate.

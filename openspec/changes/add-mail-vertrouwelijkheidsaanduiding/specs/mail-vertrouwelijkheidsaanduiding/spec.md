@@ -30,20 +30,20 @@ The CMMN mail-create form SHALL let the user select a vertrouwelijkheidaanduidin
 - **THEN** the created zaak document SHALL have its vertrouwelijkheidaanduiding set to `GEHEIM`, not to a hardcoded default
 
 ### Requirement: BPMN mail delegate requires a confidentiality parameter
-`SendEmailDelegate` SHALL require a `vertrouwelijkheidsaanduiding` field (an `Expression`, resolved the same way as its existing `to`/`from`/`template` fields) and SHALL fail the service task, without sending the mail, when the field is missing, blank, or not a valid vertrouwelijkheidaanduiding value. Error handling SHALL be consistent with this delegate's existing pattern for a missing referenced value (the mail template lookup): a missing/blank value throws a descriptive `IllegalArgumentException`; an invalid-but-present value is left to the default `IllegalArgumentException` thrown by parsing the enum. No separate explicit logging call is added beyond what already happens for a thrown, uncaught exception in this delegate.
+`SendEmailDelegate` SHALL require a `vertrouwelijkheidaanduiding` field (an `Expression`, resolved the same way as its existing `to`/`from`/`template` fields) and SHALL fail the service task, without sending the mail, when the field is missing, blank, or not a valid vertrouwelijkheidaanduiding value. Error handling SHALL be consistent with this delegate's existing pattern for a missing referenced value (the mail template lookup): a missing/blank value throws a descriptive `IllegalArgumentException`; an invalid-but-present value is left to the default `IllegalArgumentException` thrown by parsing the enum. No separate explicit logging call is added beyond what already happens for a thrown, uncaught exception in this delegate.
 
 Enforcing this field as mandatory in whatever process-authoring form supplies it (e.g. a form-io task form upstream in a BPMN process) is outside this codebase's scope — this delegate only resolves and validates the process variable it's given.
 
-#### Scenario: BPMN process omits the vertrouwelijkheidsaanduiding field
-- **WHEN** a BPMN service task using `SendEmailDelegate` executes without a `vertrouwelijkheidsaanduiding` value resolved
+#### Scenario: BPMN process omits the vertrouwelijkheidaanduiding field
+- **WHEN** a BPMN service task using `SendEmailDelegate` executes without a `vertrouwelijkheidaanduiding` value resolved
 - **THEN** the delegate SHALL throw a descriptive `IllegalArgumentException` that fails the service task, without sending the mail
 
-#### Scenario: BPMN process supplies an invalid vertrouwelijkheidsaanduiding value
-- **WHEN** a BPMN service task using `SendEmailDelegate` executes with `vertrouwelijkheidsaanduiding` resolved to a value that is not one of the 8 known confidentiality levels
+#### Scenario: BPMN process supplies an invalid vertrouwelijkheidaanduiding value
+- **WHEN** a BPMN service task using `SendEmailDelegate` executes with `vertrouwelijkheidaanduiding` resolved to a value that is not one of the 8 known confidentiality levels
 - **THEN** the delegate SHALL fail the service task with an `IllegalArgumentException`, without sending the mail
 
-#### Scenario: BPMN process supplies the vertrouwelijkheidsaanduiding field
-- **WHEN** a BPMN service task using `SendEmailDelegate` executes with `vertrouwelijkheidsaanduiding` set to `INTERN`
+#### Scenario: BPMN process supplies the vertrouwelijkheidaanduiding field
+- **WHEN** a BPMN service task using `SendEmailDelegate` executes with `vertrouwelijkheidaanduiding` set to `INTERN`
 - **THEN** the mail-generated PDF document SHALL be stored with vertrouwelijkheidaanduiding `INTERN`
 
 ### Requirement: CMMN automatic ontvangstbevestiging always uses Openbaar
@@ -54,7 +54,7 @@ The CMMN acknowledgment ("ontvangstbevestiging") REST endpoint SHALL always crea
 - **THEN** the resulting zaak document SHALL be stored with vertrouwelijkheidaanduiding `OPENBAAR`, even if the request carried a different value
 
 ### Requirement: BPMN SendConfirmationEmailDelegate always uses Openbaar
-`SendConfirmationEmailDelegate` SHALL always create its PDF document with vertrouwelijkheidaanduiding `OPENBAAR`. It SHALL NOT expose a `vertrouwelijkheidsaanduiding` (or equivalent) process field — the value is fixed, not configurable, unlike `SendEmailDelegate`.
+`SendConfirmationEmailDelegate` SHALL always create its PDF document with vertrouwelijkheidaanduiding `OPENBAAR`. It SHALL NOT expose a `vertrouwelijkheidaanduiding` (or equivalent) process field — the value is fixed, not configurable, unlike `SendEmailDelegate`.
 
 #### Scenario: BPMN confirmation delegate executes
 - **WHEN** `SendConfirmationEmailDelegate` sends the automatic confirmation email
@@ -62,7 +62,7 @@ The CMMN acknowledgment ("ontvangstbevestiging") REST endpoint SHALL always crea
 
 #### Scenario: BPMN process definition is inspected for a confidentiality field on the confirmation delegate
 - **WHEN** a process designer inspects the service task fields available on `SendConfirmationEmailDelegate`
-- **THEN** no `vertrouwelijkheidsaanduiding` (or equivalent) field SHALL be present to override the fixed `OPENBAAR` value
+- **THEN** no `vertrouwelijkheidaanduiding` (or equivalent) field SHALL be present to override the fixed `OPENBAAR` value
 
 ### Requirement: All other mail-sending flows remain hardcoded to Openbaar
 Selectable confidentiality is scoped to exactly two flows: the CMMN mail-create form and the BPMN `SendEmailDelegate`. Every other flow that creates a zaak document from a sent email SHALL continue to use vertrouwelijkheidaanduiding `OPENBAAR` unconditionally, with no user- or process-facing way to change it. This includes at least: the CMMN productaanvraag automatic confirmation email, the CMMN human-task completion mail, and the CMMN "zaak afhandelen" / "intake afronden" completion mails (which are sent via the user-event-listener mail flow).
@@ -80,8 +80,8 @@ Selectable confidentiality is scoped to exactly two flows: the CMMN mail-create 
 - **THEN** the resulting zaak document SHALL be stored with vertrouwelijkheidaanduiding `OPENBAAR`, and neither dialog SHALL expose a confidentiality selection field
 
 ### Requirement: BPMN handleiding documents the new required field
-The BPMN handleiding (`docs/manuals/bpmn-guide/README.md`) SHALL describe the `vertrouwelijkheidsaanduiding` field as a required field of the "Send email" service task, including an example.
+The BPMN handleiding (`docs/manuals/bpmn-guide/README.md`) SHALL describe the `vertrouwelijkheidaanduiding` field as a required field of the "Send email" service task, including an example.
 
 #### Scenario: A process designer reads the handleiding for the send-email service task
 - **WHEN** a process designer reads the "Send email" section of the BPMN handleiding
-- **THEN** it SHALL list `vertrouwelijkheidsaanduiding` as a required field alongside `to`, `from`, `replyTo` and `template`, with an example `flowable:field` entry
+- **THEN** it SHALL list `vertrouwelijkheidaanduiding` as a required field alongside `to`, `from`, `replyTo` and `template`, with an example `flowable:field` entry

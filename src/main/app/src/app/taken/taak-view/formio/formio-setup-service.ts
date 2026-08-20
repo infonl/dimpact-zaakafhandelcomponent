@@ -34,7 +34,7 @@ export enum KNOWN_ZAC_FIELDS {
   RESULTAAT = "ZAC_resultaat",
   STATUS = "ZAC_status",
   PROCESS_DATA = "ZAC_process_data",
-  VERTROUWELIJKHEIDSAANDUIDING = "ZAC_vertrouwelijkheidsaanduiding",
+  VERTROUWELIJKHEIDAANDUIDING = "ZAC_vertrouwelijkheidaanduiding",
 }
 
 /** Hides the field's chrome; styled in `formio-wrapper.component.less`. */
@@ -172,8 +172,8 @@ export class FormioSetupService {
             case KNOWN_ZAC_FIELDS.STATUS:
               this.initializeZaakStatusField(component, taak);
               break;
-            case KNOWN_ZAC_FIELDS.VERTROUWELIJKHEIDSAANDUIDING:
-              this.initializeVertrouwelijkheidsaanduidingField(component);
+            case KNOWN_ZAC_FIELDS.VERTROUWELIJKHEIDAANDUIDING:
+              this.initializeVertrouwelijkheidaanduidingField(component);
               break;
             default:
               this.markUnknownZacType(component);
@@ -669,7 +669,7 @@ export class FormioSetupService {
     };
   }
 
-  private initializeVertrouwelijkheidsaanduidingField(
+  private initializeVertrouwelijkheidaanduidingField(
     component: ExtendedComponentSchema,
   ) {
     component.valueProperty = "value";
