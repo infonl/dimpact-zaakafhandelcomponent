@@ -18,7 +18,6 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_CREATED
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
-import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
@@ -110,7 +109,8 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
             )
 
             then("the inbox document should no longer appear in the inbox documents list") {
-                deleteResponse.code shouldBe HTTP_NO_CONTENT
+                deleteResponse.code shouldBe HTTP_OK
+                JSONObject(deleteResponse.bodyAsString).getBoolean("isGekoppeldAanZaak") shouldBe false
                 val listResponse = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/inboxdocumenten",
                     requestBodyAsString = JSONObject(
