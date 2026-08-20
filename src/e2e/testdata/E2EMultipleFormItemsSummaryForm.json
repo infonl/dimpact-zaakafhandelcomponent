@@ -1,7 +1,7 @@
 {
   "display": "form",
-  "name": "e2eSummaryForm",
-  "title": "E2E Summary Form",
+  "name": "e2eMultipleFormItemsSummaryForm",
+  "title": "E2E MultipleFormItemsSummary Form",
   "type": "form",
   "components": [
     {

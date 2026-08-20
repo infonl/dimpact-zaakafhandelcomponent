@@ -22,7 +22,7 @@ const E2E_PROCESS_DEFINITION_FORM_FILES = [
   "E2EMultipleFormItemsForm.json",
   "E2ESelectDocumentsForm.json",
   "E2ESignSelectedDocumentsForm.json",
-  "E2ESummaryForm.json",
+  "E2EMultipleFormItemsSummaryForm.json",
 ];
 
 function formioForm(page: Page) {
@@ -299,7 +299,7 @@ Then(
 );
 
 Then(
-  "{string} sees that the summary task is started with group {string} and user {string}",
+  "{string} sees that the MultipleFormItemsSummary task is started with group {string} and user {string}",
   { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
@@ -308,7 +308,10 @@ Then(
     userName: string,
   ) {
     const summaryRow = this.page.getByRole("row").filter({
-      has: this.page.getByRole("cell", { name: "Summary", exact: true }),
+      has: this.page.getByRole("cell", {
+        name: "MultipleFormItemsSummary",
+        exact: true,
+      }),
     });
     await expect(summaryRow).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await expect(

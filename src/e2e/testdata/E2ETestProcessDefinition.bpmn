@@ -23,9 +23,9 @@
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </serviceTask>
-    <userTask id="summary" name="Summary" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="e2eSummaryForm" flowable:formFieldValidation="false">
+    <userTask id="multipleFormItemsSummaryForm" name="MultipleFormItemsSummary" flowable:assignee="${var:get(zaakBehandelaar)}" flowable:candidateGroups="${zaakGroep}" flowable:formKey="e2eMultipleFormItemsSummaryForm" flowable:formFieldValidation="false">
       <extensionElements>
-        <flowable:static-form-key><![CDATA[e2eSummaryForm]]></flowable:static-form-key>
+        <flowable:static-form-key><![CDATA[e2eMultipleFormItemsSummaryForm]]></flowable:static-form-key>
         <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
         <design:stencilid><![CDATA[FormTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
@@ -112,7 +112,7 @@
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
     </sequenceFlow>
-    <sequenceFlow id="SequenceFlow_377" sourceRef="summary" targetRef="ParallelGateway_374">
+    <sequenceFlow id="SequenceFlow_377" sourceRef="multipleFormItemsSummaryForm" targetRef="ParallelGateway_374">
       <extensionElements>
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
@@ -127,7 +127,7 @@
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
     </sequenceFlow>
-    <sequenceFlow id="SequenceFlow_384" sourceRef="ServiceTask_362" targetRef="summary">
+    <sequenceFlow id="SequenceFlow_384" sourceRef="ServiceTask_362" targetRef="multipleFormItemsSummaryForm">
       <extensionElements>
         <design:stencilid><![CDATA[SequenceFlow]]></design:stencilid>
       </extensionElements>
@@ -168,7 +168,7 @@
       <bpmndi:BPMNShape bpmnElement="ServiceTask_374" id="BPMNShape_ServiceTask_374">
         <omgdc:Bounds height="59.0" width="146.0" x="-272.8275277580884" y="303.3708996559036"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="summary" id="BPMNShape_summary">
+      <bpmndi:BPMNShape bpmnElement="multipleFormItemsSummaryForm" id="BPMNShape_multipleFormItemsSummaryForm">
         <omgdc:Bounds height="80.0" width="100.00000000000003" x="156.27501506282394" y="292.8708996559036"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="ServiceTask_353" id="BPMNShape_ServiceTask_353">

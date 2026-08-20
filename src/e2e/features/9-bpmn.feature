@@ -52,9 +52,9 @@ Feature: BPMN
     And "Bob" submits the filled-in form
     When Employee "Bob" is on the newly created zaak
     Then "Bob" sees that the initial task is completed
-    Then "Bob" sees that the summary task is started with group "Test groep A" and user "E2etest User1"
+    Then "Bob" sees that the MultipleFormItemsSummary task is started with group "Test groep A" and user "E2etest User1"
 
-  Scenario: Bob opens and fills in the sign documents form
+  Scenario: Bob opens documents grid form and selects two out of three documents
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
     And "Bob" adds document "File C" to the zaak
@@ -66,7 +66,7 @@ Feature: BPMN
     And "Bob" selects document "File D" for signing
     And "Bob" submits the filled-in form
 
-  Scenario: Bob verifies the documents to sign and confirms signing
+  Scenario: Bob verifies that there are two documents to sign selects one to sign and submits
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
     When "Bob" opens the "Verify documents to sign" task
@@ -81,13 +81,13 @@ Feature: BPMN
   Scenario: Bob inspects the summary task form
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
-    When "Bob" opens the "Summary" task
+    When "Bob" opens the "MultipleFormItemsSummary" task
     Then "Bob" sees that the summary form contains all filled-in data
 
   Scenario: Bob confirms the data in the summary form
     Given "Bob" is logged in to zac
     And Employee "Bob" is on the newly created zaak
-    When "Bob" opens the "Summary" task
+    When "Bob" opens the "MultipleFormItemsSummary" task
     And "Bob" confirms the data in the form
     When Employee "Bob" is on the newly created zaak with status "Afgerond"
     Then "Bob" sees the zaak result is set to "Verleend"
