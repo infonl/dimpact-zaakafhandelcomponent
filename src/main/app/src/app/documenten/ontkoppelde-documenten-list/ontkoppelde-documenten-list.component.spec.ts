@@ -45,6 +45,12 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
   let fixture: ComponentFixture<OntkoppeldeDocumentenListComponent>;
   let component: OntkoppeldeDocumentenListComponent;
   let ontkoppeldeDocumentenService: OntkoppeldeDocumentenService;
+  let deleteMutation: ReturnType<
+    typeof createMutationOptions<
+      undefined,
+      GeneratedType<"RestDetachedDocument">
+    >
+  >;
   let infoService: InformatieObjectenService;
 
   beforeEach(async () => {
@@ -71,6 +77,13 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
     jest
       .spyOn(ontkoppeldeDocumentenService, "list")
       .mockReturnValue(of({ totaal: 0, resultaten: [] }));
+    deleteMutation = createMutationOptions<
+      undefined,
+      GeneratedType<"RestDetachedDocument">
+    >(undefined);
+    jest
+      .spyOn(ontkoppeldeDocumentenService, "delete")
+      .mockReturnValue(deleteMutation as never);
     jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
     jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
 
@@ -244,15 +257,15 @@ describe(OntkoppeldeDocumentenListComponent.name, () => {
       afterClosed: () => of(true),
     } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
     const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    jest
-      .spyOn(ontkoppeldeDocumentenService, "delete")
-      .mockReturnValue(createMutationOptions(undefined) as never);
 
     const doc = makeDetachedDocument({ id: 42, titel: "My doc" });
     component["documentVerwijderen"](doc);
     await sleep();
 
-    expect(ontkoppeldeDocumentenService.delete).toHaveBeenCalledWith(doc);
+    expect(deleteMutation.mutationFn).toHaveBeenCalledWith(
+      doc,
+      expect.anything(),
+    );
     expect(filterChangeSpy).toHaveBeenCalled();
   });
 

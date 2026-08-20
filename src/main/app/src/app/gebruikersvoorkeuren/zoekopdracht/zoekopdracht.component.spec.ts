@@ -58,6 +58,12 @@ describe(ZoekopdrachtComponent.name, () => {
   let loader: HarnessLoader;
   let component: ZoekopdrachtComponent;
   let service: GebruikersvoorkeurenService;
+  let deleteZoekOpdrachtenMutation: ReturnType<
+    typeof createMutationOptions<undefined, number>
+  >;
+  let removeZoekopdrachtActiefMutation: ReturnType<
+    typeof createMutationOptions<undefined, GeneratedType<"Werklijst">>
+  >;
   let dialog: MatDialog;
   let filtersChanged: EventEmitter<void>;
 
@@ -77,15 +83,22 @@ describe(ZoekopdrachtComponent.name, () => {
     dialog = TestBed.inject(MatDialog);
 
     jest.spyOn(service, "listZoekOpdrachten").mockReturnValue(of([]));
+    deleteZoekOpdrachtenMutation = createMutationOptions<undefined, number>(
+      undefined,
+    );
     jest
       .spyOn(service, "deleteZoekOpdrachten")
-      .mockReturnValue(createMutationOptions(undefined) as never);
+      .mockReturnValue(deleteZoekOpdrachtenMutation as never);
     jest
       .spyOn(service, "setZoekopdrachtActief")
       .mockReturnValue(of(undefined) as never);
+    removeZoekopdrachtActiefMutation = createMutationOptions<
+      undefined,
+      GeneratedType<"Werklijst">
+    >(undefined);
     jest
       .spyOn(service, "removeZoekopdrachtActief")
-      .mockReturnValue(createMutationOptions(undefined) as never);
+      .mockReturnValue(removeZoekopdrachtActiefMutation as never);
     jest.spyOn(dialog, "open").mockReturnValue({
       afterClosed: () => of(null),
     } satisfies Pick<
@@ -159,8 +172,9 @@ describe(ZoekopdrachtComponent.name, () => {
       await btn.click();
       await sleep();
 
-      expect(service.removeZoekopdrachtActief).toHaveBeenCalledWith(
+      expect(removeZoekopdrachtActiefMutation.mutationFn).toHaveBeenCalledWith(
         "MIJN_ZAKEN",
+        expect.anything(),
       );
     });
   });
@@ -339,7 +353,10 @@ describe(ZoekopdrachtComponent.name, () => {
       await sleep();
 
       expect(stopSpy).toHaveBeenCalled();
-      expect(service.deleteZoekOpdrachten).toHaveBeenCalledWith(7);
+      expect(deleteZoekOpdrachtenMutation.mutationFn).toHaveBeenCalledWith(
+        7,
+        expect.anything(),
+      );
     });
 
     it("reloads zoekopdrachten after deletion", async () => {
@@ -361,8 +378,9 @@ describe(ZoekopdrachtComponent.name, () => {
       component["clearActief"]();
       await sleep();
       expect(component["actieveZoekopdracht"]).toBeNull();
-      expect(service.removeZoekopdrachtActief).toHaveBeenCalledWith(
+      expect(removeZoekopdrachtActiefMutation.mutationFn).toHaveBeenCalledWith(
         "MIJN_ZAKEN",
+        expect.anything(),
       );
     });
 

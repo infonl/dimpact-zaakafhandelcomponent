@@ -26,7 +26,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import moment from "moment";
-import { EMPTY, of, ReplaySubject } from "rxjs";
+import { EMPTY, Observable, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { fromPartial } from "src/test-helpers";
@@ -39,6 +39,7 @@ import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { BedrijfsgegevensComponent } from "../../klanten/bedrijfsgegevens/bedrijfsgegevens.component";
 import { ContactgegevensComponent } from "../../klanten/contactgegevens/contactgegevens.component";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -1988,6 +1989,60 @@ describe(ZaakViewComponent.name, () => {
         "Document verzenden",
         "Goedkeuren",
       ]);
+    });
+  });
+
+  describe("ontkoppelen met een reden", () => {
+    let httpTestingController: HttpTestingController;
+    let foutAfhandelen: jest.SpyInstance;
+
+    const confirmWithReden = () => {
+      const dialog = TestBed.inject(MatDialog);
+      const { data } = jest.mocked(dialog.open).mock.calls.at(-1)![1]!;
+      (data as { callback: (reden: string) => Observable<unknown> })
+        .callback("fakeReden")
+        .subscribe({ error: () => undefined });
+    };
+
+    const flushServerError = async (url: string) => {
+      await new Promise(requestAnimationFrame);
+      httpTestingController
+        .expectOne((request) => request.url.endsWith(url))
+        .flush(null, { status: 500, statusText: "Server Error" });
+      await new Promise(requestAnimationFrame);
+    };
+
+    beforeEach(() => {
+      httpTestingController = TestBed.inject(HttpTestingController);
+      foutAfhandelen = jest
+        .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+        .mockReturnValue(of());
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+      httpTestingController.match(() => true);
+    });
+
+    it("reports a failing initiator ontkoppelen through the error handler", async () => {
+      fixture.componentInstance["deleteInitiator"]();
+      confirmWithReden();
+
+      await flushServerError(`/rest/zaken/${zaak.uuid}/initiator`);
+
+      expect(foutAfhandelen).toHaveBeenCalled();
+    });
+
+    it("reports a failing BAG-object ontkoppelen through the error handler", async () => {
+      fixture.componentInstance["bagObjectVerwijderen"](
+        fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
+          uuid: "fake-bag-object-uuid",
+          zaakobject: { omschrijving: "fake bag object" },
+        }),
+      );
+      confirmWithReden();
+
+      await flushServerError("/rest/bag");
+
+      expect(foutAfhandelen).toHaveBeenCalled();
     });
   });
 });
