@@ -29,10 +29,13 @@ export class InboxDocumentenService {
         path: { id: inboxDocument.id ?? -1 },
       }),
       {
-        onSuccess: () =>
-          this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
-            document: inboxDocument.titel,
-          }),
+        onSuccess: (result) =>
+          this.utilService.openSnackbar(
+            result?.isInformatieobjectDeleted === false
+              ? "msg.document.verwijderen.inbox.niet-verwijderd"
+              : "msg.document.verwijderen.uitgevoerd",
+            { document: inboxDocument.titel },
+          ),
       },
     );
   }

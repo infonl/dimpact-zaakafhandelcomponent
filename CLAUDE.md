@@ -216,6 +216,27 @@ When using an acronym as part of a declaration name, follow these rules:
 — For two-letter acronyms, use uppercase for both letters. For example, IOStream.
 — For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
 
+### Name boolean properties with an `is`/`has` prefix
+Follow the [Kotlin convention for booleans](https://kotlinlang.org/docs/coding-conventions.html#names-for-test-methods):
+name boolean properties and variables with an `is`, `has`, or similar prefix, e.g. `isInformatieobjectDeleted`
+rather than `informatieobjectDeleted`. This applies to REST model classes as well as regular code.
+For a boolean property on a class serialized with JSON-B (e.g. a `RestXxx` model), add
+`@get:JsonbProperty("isXxx")` above the property so the JSON field name matches the Kotlin property
+name exactly:
+```kotlin
+// Before
+var informatieobjectDeleted: Boolean = true
+// After
+@get:JsonbProperty("isInformatieobjectDeleted")
+var isInformatieobjectDeleted: Boolean = true
+```
+
+### Use kebab-case for the last segment of frontend i18n message keys
+In `src/main/app/src/assets/i18n/nl.json` and `en.json`, when the last segment of a message key is
+multi-word, write it in kebab-case, not camelCase — e.g. `msg.document.verwijderen.inbox.niet-verwijderd`,
+not `msg.document.verwijderen.inbox.nietVerwijderd`. This applies even when the segment is named after
+a camelCase variable (such as an `isXxx` boolean) elsewhere in the code — the i18n key still uses kebab-case.
+
 ### Prefer Kotlin data classes for simple data holders
 When you encounter a class that is primarily used to hold data (i.e., it has properties and no significant behavior), for example for classes used as arguments or responses in REST services,
 use a Kotlin `data class`.
