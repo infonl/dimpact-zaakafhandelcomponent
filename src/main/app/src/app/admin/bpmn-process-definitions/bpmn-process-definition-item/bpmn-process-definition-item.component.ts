@@ -27,6 +27,10 @@ import { FileDragAndDropDirective } from "../../../shared/directives/file-drag-a
 import { injectMutation } from "../../../shared/http/inject-mutation";
 import { SharedModule } from "../../../shared/shared.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import {
+  promptForSaveLocation,
+  writeFile,
+} from "../../../shared/utils/save-file";
 import { BpmnService } from "../../bpmn.service";
 import { extractAttachmentFilename, readFileContent } from "../file.helper";
 
@@ -84,16 +88,26 @@ export class BpmnProcessDefinitionItemComponent {
 
   protected readonly downloadMutation = injectMutation(
     () => ({
-      mutationFn: () =>
-        lastValueFrom(
-          this.bpmnService.downloadProcessDefinition(
-            this.processDefinition().key,
-          ),
-        ),
+      mutationFn: async () => {
+        const { key, version } = this.processDefinition();
+        const fileHandle = await promptForSaveLocation({
+          suggestedName: `${key}-v${version}.zip`,
+          types: [{ accept: { "application/zip": [".zip"] } }],
+        });
+        const response = await lastValueFrom(
+          this.bpmnService.downloadProcessDefinition(key),
+        );
+
+        return { fileHandle, response };
+      },
     }),
     {
-      onSuccess: (response) => {
+      onSuccess: async ({ fileHandle, response }) => {
         if (!response.body) return;
+        if (fileHandle) {
+          await writeFile(fileHandle, response.body);
+          return;
+        }
         this.utilService.downloadBlobResponse(
           response.body,
           extractAttachmentFilename(
@@ -101,10 +115,12 @@ export class BpmnProcessDefinitionItemComponent {
           ) ?? `${this.processDefinition().key}.zip`,
         );
       },
-      onError: () =>
+      onError: (error) => {
+        if (error.name === "AbortError") return;
         this.utilService.openSnackbarError(
           "msg.error.bpmn.process.definition.download.failed",
-        ),
+        );
+      },
     },
   );
 

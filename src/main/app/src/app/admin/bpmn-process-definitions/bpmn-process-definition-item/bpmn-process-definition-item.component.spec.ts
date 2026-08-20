@@ -197,6 +197,88 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       notifyManager.setScheduler((fn) => setTimeout(fn, 0));
     });
 
+    describe("in a browser that can ask where to save a file", () => {
+      let writableStream: { write: jest.Mock; close: jest.Mock };
+      let fileHandle: FileSystemFileHandle;
+
+      beforeEach(() => {
+        writableStream = { write: jest.fn(), close: jest.fn() };
+        fileHandle = fromPartial<FileSystemFileHandle>({
+          createWritable: jest.fn().mockResolvedValue(writableStream),
+        });
+        window.showSaveFilePicker = jest.fn().mockResolvedValue(fileHandle);
+      });
+
+      afterEach(() => {
+        delete window.showSaveFilePicker;
+      });
+
+      it("should write the zip to the file the user chose, under the suggested name of the version on screen", async () => {
+        downloadButton.click();
+        await flushPromises();
+
+        expect(window.showSaveFilePicker).toHaveBeenCalledWith({
+          suggestedName: "test-key-v2.zip",
+          types: [{ accept: { "application/zip": [".zip"] } }],
+        });
+        expect(writableStream.write).toHaveBeenCalledWith(zipBlob);
+        expect(writableStream.close).toHaveBeenCalled();
+        expect(utilService.downloadBlobResponse).not.toHaveBeenCalled();
+      });
+
+      it("should ask where to save before requesting the zip, which outlives the user activation of the click", async () => {
+        let chooseFile!: (fileHandle: FileSystemFileHandle) => void;
+        window.showSaveFilePicker = jest.fn(
+          () =>
+            new Promise<FileSystemFileHandle>((resolve) => {
+              chooseFile = resolve;
+            }),
+        );
+
+        downloadButton.click();
+        await flushPromises();
+
+        expect(bpmnService.downloadProcessDefinition).not.toHaveBeenCalled();
+
+        chooseFile(fileHandle);
+        await flushPromises();
+
+        expect(bpmnService.downloadProcessDefinition).toHaveBeenCalledWith(
+          "test-key",
+        );
+        expect(writableStream.write).toHaveBeenCalledWith(zipBlob);
+      });
+
+      it("should request nothing and report nothing when the user closes the dialog", async () => {
+        window.showSaveFilePicker = jest
+          .fn()
+          .mockRejectedValue(
+            new DOMException("fakeAbortMessage", "AbortError"),
+          );
+
+        downloadButton.click();
+        await flushPromises();
+
+        expect(bpmnService.downloadProcessDefinition).not.toHaveBeenCalled();
+        expect(utilService.openSnackbarError).not.toHaveBeenCalled();
+        expect(utilService.downloadBlobResponse).not.toHaveBeenCalled();
+      });
+
+      it("should report a failure of the request as any other", async () => {
+        bpmnService.downloadProcessDefinition.mockReturnValue(
+          throwError(() => new Error("fakeDownloadFailure")),
+        );
+
+        downloadButton.click();
+        await flushPromises();
+
+        expect(utilService.openSnackbarError).toHaveBeenCalledWith(
+          "msg.error.bpmn.process.definition.download.failed",
+        );
+        expect(writableStream.write).not.toHaveBeenCalled();
+      });
+    });
+
     it("should name the zip after the Content-Disposition of the response", async () => {
       downloadButton.click();
       await flushPromises();
