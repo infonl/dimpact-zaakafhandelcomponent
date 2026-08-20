@@ -307,6 +307,26 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       );
     });
 
+    it("omits vertrouwelijkheidaanduiding from restMailGegevens, leaving it to the backend's Openbaar default", () => {
+      jest
+        .spyOn(planItemsService, "doUserEventListenerPlanItem")
+        .mockReturnValue(of(undefined) as never);
+
+      component.formGroup.patchValue({
+        ontvankelijk: true,
+        sendMail: true,
+        verzender: mockAfzender,
+        ontvanger: "recipient@example.com",
+      });
+
+      component["afronden"]();
+
+      const [{ restMailGegevens }] = jest.mocked(
+        planItemsService.doUserEventListenerPlanItem,
+      ).mock.calls[0];
+      expect(restMailGegevens?.vertrouwelijkheidaanduiding).toBeUndefined();
+    });
+
     it("uses niet-ontvankelijk mailtemplate when ontvankelijk is false", () => {
       jest
         .spyOn(planItemsService, "doUserEventListenerPlanItem")

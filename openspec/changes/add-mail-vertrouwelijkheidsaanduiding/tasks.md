@@ -53,8 +53,8 @@
 - [ ] 8.2 Manually run the test BPMN process without `vertrouwelijkheidaanduiding` and confirm the service task fails with the expected error.
 - [ ] 8.3 Manually run the automatic confirmation delegate flow and confirm the created document is always `OPENBAAR`.
 
-## 9. Tests (do not start until the user explicitly approves, after manual verification of sections 5 and 8)
+## 9. Tests (started once the user explicitly approved, after manual verification of sections 5 and 8)
 
 - [ ] 9.1 Add/update backend unit tests for `MailService`, `RESTMailGegevensConverter`, and `SendEmailDelegate` (including the missing-parameter and invalid-value error paths).
-- [ ] 9.2 Add/update frontend unit tests for `mail-create.component`, `zaak-afhandelen-dialog.component`, `intake-afronden-dialog.component`, and `FormioSetupService`'s new `ZAC_vertrouwelijkheidaanduiding` field.
+- [x] 9.2 Add/update frontend unit tests for `mail-create.component`, `zaak-afhandelen-dialog.component`, `intake-afronden-dialog.component`, and `FormioSetupService`'s new `ZAC_vertrouwelijkheidaanduiding` field.
 - [ ] 9.3 Add/update integration/e2e test coverage as appropriate.

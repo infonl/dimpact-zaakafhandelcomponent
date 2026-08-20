@@ -184,6 +184,12 @@ describe(MailCreateComponent.name, () => {
       expect(component["documents"]).toEqual(mockDocuments);
     });
 
+    it("should not pre-select a vertrouwelijkheidaanduiding", () => {
+      expect(
+        component["form"].controls.vertrouwelijkheidaanduiding.value,
+      ).toBeNull();
+    });
+
     it("should prioritize contact details email address when initiator has temporaryPersonId", () => {
       expect(component["contactEmailAddress"]()).toEqual(
         mockContactGegevens.emailadres,
@@ -261,11 +267,46 @@ describe(MailCreateComponent.name, () => {
     });
   });
 
+  describe("vertrouwelijkheidaanduiding validation", () => {
+    const validValues = {
+      verzender: mockDefaultAfzender,
+      ontvanger: "recipient@example.com",
+      onderwerp: "<p>Test onderwerp</p>",
+      body: "<p>Test body</p>",
+      bijlagen: [],
+    };
+
+    it("should mark the form invalid when no vertrouwelijkheidaanduiding is selected", () => {
+      component["form"].patchValue(validValues);
+
+      expect(component["form"].valid).toBe(false);
+      expect(
+        component["form"].controls.vertrouwelijkheidaanduiding.errors,
+      ).toEqual({ required: true });
+    });
+
+    it("should mark the form valid once a vertrouwelijkheidaanduiding is selected", () => {
+      component["form"].patchValue({
+        ...validValues,
+        vertrouwelijkheidaanduiding: {
+          value: "OPENBAAR",
+          label: "vertrouwelijkheidaanduiding.OPENBAAR",
+        },
+      });
+
+      expect(component["form"].valid).toBe(true);
+    });
+  });
+
   describe("onFormSubmit", () => {
     it("should call sendMail mutation with correct data", async () => {
       component["form"].patchValue({
         verzender: mockDefaultAfzender,
         ontvanger: "recipient@example.com",
+        vertrouwelijkheidaanduiding: {
+          value: "VERTROUWELIJK",
+          label: "vertrouwelijkheidaanduiding.VERTROUWELIJK",
+        },
         onderwerp: "<p>Test onderwerp</p>",
         body: "<p>Test body</p>",
         bijlagen: [mockDocuments[0]],
@@ -284,6 +325,7 @@ describe(MailCreateComponent.name, () => {
         verzender: mockDefaultAfzender.mail,
         replyTo: undefined,
         ontvanger: "recipient@example.com",
+        vertrouwelijkheidaanduiding: "VERTROUWELIJK",
         onderwerp: "Test onderwerp",
         body: "<p>Test body</p>",
         bijlagen: mockDocuments[0].uuid,
