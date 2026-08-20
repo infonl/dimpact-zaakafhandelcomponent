@@ -58,7 +58,7 @@ class ZtcClientService @Inject constructor(
     companion object {
         const val MAX_CACHE_SIZE: Long = 1_000
         const val EXPIRATION_TIME_HOURS: Long = 1
-        const val ZAAKTYPE_PAGE_SIZE: Int = 200
+        const val ZAAKTYPE_PAGE_SIZE: Int = 100
 
         /**
          * Marks a zaaktype as being 'zaakspecifiek autoriseerbaar'.
