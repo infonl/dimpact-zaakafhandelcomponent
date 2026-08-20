@@ -5,8 +5,8 @@
 
 CREATE TABLE ${schema}.verwerkte_productaanvraag
 (
-    uuid_productaanvraag_object UUID        NOT NULL,
-    status                      VARCHAR(20) NOT NULL,
-    gestart_op                  TIMESTAMP   NOT NULL,
+    uuid_productaanvraag_object UUID                     NOT NULL,
+    status                      VARCHAR(20)              NOT NULL,
+    gestart_op                  TIMESTAMP WITH TIME ZONE NOT NULL,
     CONSTRAINT pk_verwerkte_productaanvraag PRIMARY KEY (uuid_productaanvraag_object)
 );

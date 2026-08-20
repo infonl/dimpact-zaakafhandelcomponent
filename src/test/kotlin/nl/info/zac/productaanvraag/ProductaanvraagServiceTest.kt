@@ -1559,6 +1559,16 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         bpmnService.startProcess(any(), any(), any())
                     }
                 }
+
+                then(
+                    """
+                the claim is not marked as done, so that the claim timeout reclaims it and the productaanvraag is retried
+                """
+                ) {
+                    verify(exactly = 0) {
+                        productaanvraagClaimRepository.markDone(any())
+                    }
+                }
             }
         }
 
