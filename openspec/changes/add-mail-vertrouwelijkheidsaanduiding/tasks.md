@@ -57,4 +57,9 @@
 
 - [x] 9.1 Add/update backend unit tests for `MailService`, `RESTMailGegevensConverter`, and `SendEmailDelegate` (including the missing-parameter and invalid-value error paths). Also added regression coverage in `SendConfirmationEmailDelegateTest`, `ProductaanvraagEmailServiceTest`, `PlanItemsRestServiceTest`, and `MailRestServiceTest` for the `OPENBAAR` default/override at every non-selectable call site.
 - [x] 9.2 Add/update frontend unit tests for `mail-create.component`, `zaak-afhandelen-dialog.component`, `intake-afronden-dialog.component`, and `FormioSetupService`'s new `ZAC_vertrouwelijkheidaanduiding` field.
-- [ ] 9.3 Add/update integration/e2e test coverage as appropriate.
+- [x] 9.3 Add/update integration test coverage:
+  - Added `MAIL_Vertrouwelijkheidaanduiding` (`ZAC_TYPE: "ZAC_vertrouwelijkheidaanduiding"`) to `src/itest/resources/bpmn/testForm.json`, and wired `itProcessDefinition.bpmn`'s "Send email" service task's new `vertrouwelijkheidaanduiding` field to `${MAIL_Vertrouwelijkheidaanduiding}`.
+  - `BpmnZaakRestServiceTest.kt`: submits `MAIL_Vertrouwelijkheidaanduiding = ZEER_GEHEIM` and asserts the mail-generated document carries it.
+  - `BpmnSendConfirmationEmailRestServiceTest.kt`: asserts the confirmation email's document is always `OPENBAAR`, regardless of what's configurable on `SendEmailDelegate`.
+  - CMMN `MailRestServiceTest.kt` (itest): asserts the default-`OPENBAAR` case explicitly, plus a new scenario proving a supplied non-default value (`ZEER_GEHEIM`) flows through `/rest/mail/send/{zaakUuid}` to the created document.
+  - Added `VERTROUWELIJKHEIDS_AANDUIDING_ZEER_GEHEIM` to `ItestConfiguration.kt`.
