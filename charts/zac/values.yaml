@@ -176,8 +176,7 @@ smartDocuments:
 
 # Productaanvraag handling configuration
 productaanvraag:
-   # -- Number of minutes after which a productaanvraag that was claimed for processing but never completed
-   # -- (for example because ZAC was restarted) may be picked up again by a redelivered notification.
+  # -- Number of minutes after which a productaanvraag claim that was never completed (for example because ZAC was restarted) may be picked up again by a redelivered notification.
   claimTimeoutMinutes: 10
 
 # Signaleringen cronjob configuration

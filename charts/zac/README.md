@@ -279,7 +279,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | pabcApi.url | string | `""` |  |
 | podAnnotations | object | `{}` | pod specific annotations |
 | podSecurityContext | object | `{"seccompProfile":{"type":"RuntimeDefault"}}` | pod specific security context |
-| productaanvraag.claimTimeoutMinutes | for example because ZAC was restarted | `10` | may be picked up again by a redelivered notification. |
+| productaanvraag.claimTimeoutMinutes | int | `10` | Number of minutes after which a productaanvraag claim that was never completed (for example because ZAC was restarted) may be picked up again by a redelivered notification. |
 | remoteDebug | bool | `false` | Enable Java remote debugging |
 | replicaCount | int | `1` | The number of replicas to run |
 | resources.requests.cpu | string | `"100m"` |  |
