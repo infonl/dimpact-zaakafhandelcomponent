@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
--- SQL script that add a zaaktype in the PABC database
+-- SQL script that adds a zaaktype in the PABC database
 
 INSERT INTO entity_type (
     id,

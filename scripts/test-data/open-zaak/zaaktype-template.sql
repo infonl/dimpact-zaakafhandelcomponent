@@ -183,7 +183,7 @@ VALUES
         'Verleend',
         'https://selectielijst.openzaak.nl/api/v1/resultaattypeomschrijvingen/f7d2dc14-1b71-4179-aed3-4e7abcfbeb0d',
         'Verleend',
-        'hhttps://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b',
+        'https://selectielijst.openzaak.nl/api/v1/resultaten/5038528b-0eb7-4502-a415-a3093987d69b',
         'vernietigen',
         'P1Y',
         'afgehandeld',
