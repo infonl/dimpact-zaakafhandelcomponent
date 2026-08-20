@@ -7,8 +7,12 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatNavListItemHarness } from "@angular/material/list/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
@@ -20,6 +24,7 @@ import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
+import { RedenDialogData } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { DocumentIconComponent } from "../../shared/document-icon/document-icon.component";
 import { InformatieObjectIndicatiesComponent } from "../../shared/indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
@@ -391,6 +396,55 @@ describe(InformatieObjectViewComponent.name, () => {
         enkelvoudigInformatieobject.uuid,
         undefined,
       );
+    });
+  });
+
+  describe("actie.verwijderen", () => {
+    const deleteUrl = `/rest/informatieobjecten/informatieobject/${enkelvoudigInformatieobject.uuid}`;
+
+    let httpTestingController: HttpTestingController;
+    let dialog: MatDialog;
+
+    beforeEach(() => {
+      httpTestingController = TestBed.inject(HttpTestingController);
+      dialog = TestBed.inject(MatDialog);
+      jest
+        .spyOn(dialog, "open")
+        .mockReturnValue(
+          fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
+        );
+    });
+
+    describe("a document without a zaak", () => {
+      it("does not delete it while the confirmation dialog is still open", () => {
+        component.zaak = undefined;
+
+        component["openDocumentVerwijderenDialog"]();
+
+        httpTestingController.expectNone(deleteUrl);
+      });
+    });
+
+    describe("a document belonging to a zaak", () => {
+      it("reports a failing delete through the error handler", async () => {
+        const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+        const foutAfhandelen = jest
+          .spyOn(foutAfhandelingService, "foutAfhandelen")
+          .mockReturnValue(of());
+        component.zaak = zaak;
+
+        component["openDocumentVerwijderenDialog"]();
+        const { callback } = jest.mocked(dialog.open).mock.calls.at(-1)![1]!
+          .data as RedenDialogData;
+        callback!("fakeReden").subscribe({ error: () => undefined });
+        await new Promise(requestAnimationFrame);
+        httpTestingController
+          .expectOne(deleteUrl)
+          .flush(null, { status: 500, statusText: "Server Error" });
+        await new Promise(requestAnimationFrame);
+
+        expect(foutAfhandelen).toHaveBeenCalled();
+      });
     });
   });
 });

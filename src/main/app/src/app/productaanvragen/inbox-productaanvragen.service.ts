@@ -23,11 +23,12 @@ export class InboxProductaanvragenService {
     return this.zacHttpClient.PUT("/rest/inbox-productaanvragen", body);
   }
 
-  delete(id: number) {
+  delete() {
     return mergeMutationOptions(
-      this.zacQueryClient.DELETE("/rest/inbox-productaanvragen/{id}", {
-        path: { id },
-      }),
+      this.zacQueryClient.DELETE(
+        "/rest/inbox-productaanvragen/{id}",
+        (id: number) => ({ parameters: { path: { id } } }),
+      ),
       {
         onSuccess: () =>
           this.utilService.openSnackbar(

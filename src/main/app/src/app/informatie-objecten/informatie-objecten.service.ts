@@ -8,7 +8,7 @@ import { queryOptions } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { lastValueFrom, map, Observable } from "rxjs";
 import { UtilService } from "../core/service/util.service";
-import { PostBody, PutBody } from "../shared/http/http-client";
+import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
@@ -305,10 +305,18 @@ export class InformatieObjectenService {
     );
   }
 
-  deleteEnkelvoudigInformatieObject(uuid: string) {
+  deleteEnkelvoudigInformatieObject() {
     return this.zacQueryClient.DELETE(
       "/rest/informatieobjecten/informatieobject/{uuid}",
-      { path: { uuid } },
+      ({
+        uuid,
+        ...body
+      }: {
+        uuid: string;
+      } & DeleteBody<"/rest/informatieobjecten/informatieobject/{uuid}">) => ({
+        parameters: { path: { uuid } },
+        body,
+      }),
     );
   }
 

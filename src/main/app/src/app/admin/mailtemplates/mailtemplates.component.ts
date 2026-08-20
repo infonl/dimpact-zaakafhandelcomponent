@@ -42,7 +42,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
-import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -90,9 +90,8 @@ export class MailtemplatesComponent
   @ViewChild("menuSidenav") protected menuSidenav!: MatSidenav;
 
   private readonly destroyRef = inject(DestroyRef);
-  private readonly deleteMailtemplateMutation = injectServiceMutation(
-    (mailtemplate: GeneratedType<"RESTMailtemplate">) =>
-      this.mailtemplateBeheerService.deleteMailtemplate(mailtemplate.id ?? -1),
+  private readonly deleteMailtemplateMutation = injectMutation(
+    () => this.mailtemplateBeheerService.deleteMailtemplate(),
     {
       onSuccess: () => this.laadMailtemplates(),
     },
@@ -170,7 +169,7 @@ export class MailtemplatesComponent
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.deleteMailtemplateMutation.mutate(mailtemplate);
+          this.deleteMailtemplateMutation.mutate(mailtemplate.id ?? -1);
         }
       });
   }
