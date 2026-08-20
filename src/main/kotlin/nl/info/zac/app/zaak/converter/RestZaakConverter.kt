@@ -67,6 +67,11 @@ class RestZaakConverter @Inject constructor(
     private val identificationService: IdentificationService,
     private val klantClientService: KlantClientService
 ) {
+    companion object {
+        private const val ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD = "ZAAK_GEAUTORISEERD"
+        private const val ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD = "true"
+    }
+
     fun toRestZaak(
         zaak: Zaak,
         zaakType: ZaakType,
@@ -106,6 +111,9 @@ class RestZaakConverter @Inject constructor(
         val zaakData = zaakVariabelenService.readZaakdata(zaak.uuid)
         val hasSentConfirmationOfReceipt = (zaakData[VAR_ONTVANGSTBEVESTIGING_VERSTUURD] as? Boolean) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
+        val isZaakspecifiekGeautoriseerd = zrcClientService.listZaakeigenschappen(zaak.uuid).any {
+            it.naam == ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD && it.waarde == ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD
+        }
         return RestZaak(
             archiefActiedatum = zaak.archiefactiedatum,
             archiefNominatie = zaak.archiefnominatie?.name,
@@ -144,6 +152,7 @@ class RestZaakConverter @Inject constructor(
             isOpgeschort = zaak.isOpgeschort(),
             isProcesGestuurd = bpmnProcessDefinition != null,
             isVerlengd = zaak.isVerlengd(),
+            isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
             kenmerken = zaak.kenmerken?.map { RestZaakKenmerk(it.kenmerk, it.bron) },
             omschrijving = zaak.omschrijving,
             publicatiedatum = zaak.publicatiedatum,

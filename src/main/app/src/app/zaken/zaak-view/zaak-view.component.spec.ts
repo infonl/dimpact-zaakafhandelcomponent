@@ -2045,4 +2045,32 @@ describe(ZaakViewComponent.name, () => {
       expect(foutAfhandelen).toHaveBeenCalled();
     });
   });
+
+  describe("zaakspecifiek geautoriseerd lock icon", () => {
+    it("shows the lock icon when the zaak is zaakspecifiek geautoriseerd", async () => {
+      mockActivatedRoute.data.next({
+        zaak: { ...zaak, isZaakspecifiekGeautoriseerd: true },
+      });
+      fixture.detectChanges();
+
+      const lockIcon = await loader.getHarnessOrNull(
+        MatIconHarness.with({ name: "lock" }),
+      );
+
+      expect(lockIcon).not.toBeNull();
+    });
+
+    it("does not show the lock icon when the zaak is not zaakspecifiek geautoriseerd", async () => {
+      mockActivatedRoute.data.next({
+        zaak: { ...zaak, isZaakspecifiekGeautoriseerd: false },
+      });
+      fixture.detectChanges();
+
+      const lockIcon = await loader.getHarnessOrNull(
+        MatIconHarness.with({ name: "lock" }),
+      );
+
+      expect(lockIcon).toBeNull();
+    });
+  });
 });
