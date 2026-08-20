@@ -659,6 +659,18 @@ class RestZaakConverterTest : BehaviorSpec({
             }
         }
 
+        `when`("the zaakeigenschappen only include one with a different naam than ZAAK_GEAUTORISEERD") {
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = "ANDERE_EIGENSCHAP", waarde = "true")
+            )
+
+            val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
+
+            then("isZaakspecifiekGeautoriseerd should be false") {
+                restZaak.isZaakspecifiekGeautoriseerd shouldBe false
+            }
+        }
+
         `when`("the zaakeigenschappen include ZAAK_GEAUTORISEERD with a value other than 'true'") {
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
                 createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "false")
