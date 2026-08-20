@@ -25,12 +25,12 @@ import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.GerelateerdeZaak
-import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.zrc.util.isEerderOpgeschort
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
@@ -639,7 +639,7 @@ class RestZaakConverterTest : BehaviorSpec({
 
         `when`("the zaakeigenschappen include ZAAK_GEAUTORISEERD with value 'true'") {
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
-                ZaakEigenschap(null, UUID.randomUUID(), "ZAAK_GEAUTORISEERD").apply { waarde = "true" }
+                createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
             )
 
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)
@@ -661,7 +661,7 @@ class RestZaakConverterTest : BehaviorSpec({
 
         `when`("the zaakeigenschappen include ZAAK_GEAUTORISEERD with a value other than 'true'") {
             every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
-                ZaakEigenschap(null, UUID.randomUUID(), "ZAAK_GEAUTORISEERD").apply { waarde = "false" }
+                createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "false")
             )
 
             val restZaak = restZaakConverter.toRestZaak(zaak, zaakType, zaakRechten, loggedInUser)

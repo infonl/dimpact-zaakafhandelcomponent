@@ -25,6 +25,7 @@ import nl.info.client.zgw.zrc.model.generated.Verlenging
 import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.VestigingIdentificatie
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObjectRequest
 import nl.info.client.zgw.zrc.model.zaakobjecten.ObjectOpenbareRuimte
@@ -323,6 +324,14 @@ fun createZaak(
     this.omschrijving = omschrijving
     this.bronorganisatie = bronOrganisatie
     this.verantwoordelijkeOrganisatie = verantwoordelijkeOrganisatie
+}
+
+fun createZaakEigenschap(
+    naam: String = "fakeEigenschapNaam",
+    waarde: String = "fakeEigenschapWaarde",
+    uuid: UUID = UUID.randomUUID()
+) = ZaakEigenschap(URI("https://example.com/zaakeigenschap/$uuid"), uuid, naam).apply {
+    this.waarde = waarde
 }
 
 fun createZaakobjectOpenbareRuimte(
