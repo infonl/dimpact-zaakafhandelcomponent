@@ -74,16 +74,17 @@ export class ReferentieTabelService {
     });
   }
 
-  deleteReferentieTabel(referenceTable: GeneratedType<"RestReferenceTable">) {
-    const id = referenceTable.id ?? -1;
-
+  deleteReferentieTabel() {
     return mergeMutationOptions(
-      this.zacQueryClient.DELETE("/rest/referentietabellen/{id}", {
-        path: { id },
-      }),
+      this.zacQueryClient.DELETE(
+        "/rest/referentietabellen/{id}",
+        (referenceTable: GeneratedType<"RestReferenceTable">) => ({
+          parameters: { path: { id: referenceTable.id ?? -1 } },
+        }),
+      ),
       {
-        onSuccess: () => {
-          void this.invalidateReferentieTabel(id);
+        onSuccess: (_data, referenceTable) => {
+          void this.invalidateReferentieTabel(referenceTable.id ?? -1);
           this.utilService.openSnackbar("msg.tabel.verwijderen.uitgevoerd", {
             tabel: referenceTable.code,
           });

@@ -26,7 +26,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import moment from "moment";
-import { EMPTY, of, ReplaySubject } from "rxjs";
+import { EMPTY, Observable, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { fromPartial } from "src/test-helpers";
@@ -39,6 +39,7 @@ import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { BedrijfsgegevensComponent } from "../../klanten/bedrijfsgegevens/bedrijfsgegevens.component";
 import { ContactgegevensComponent } from "../../klanten/contactgegevens/contactgegevens.component";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -1824,6 +1825,16 @@ describe(ZaakViewComponent.name, () => {
       expect(bagService.list).toHaveBeenCalledWith(zaak.uuid);
     });
 
+    it("reloads the bag objecten of an unchanged zaak, since they are not part of it", async () => {
+      jest.mocked(bagService.list).mockClear();
+
+      const pending = zaakChangedCallback(zaakChangedEvent);
+      await flushRefetch({ ...zaak });
+      await pending;
+
+      expect(bagService.list).toHaveBeenCalledWith(zaak.uuid);
+    });
+
     it("reloads the opschorting of a zaak that was already opgeschort before the change", async () => {
       mockActivatedRoute.data.next({ zaak: { ...zaak, isOpgeschort: true } });
       fixture.detectChanges();
@@ -1853,6 +1864,13 @@ describe(ZaakViewComponent.name, () => {
   describe("zaak rollen websocket listener", () => {
     let zaakRollenCallback: (event: ScreenEvent) => void;
 
+    const rollenEvent = (opcode: Opcode) =>
+      new ScreenEvent(
+        opcode,
+        ObjectType.ZAAK_ROLLEN,
+        new ScreenEventId(zaak.uuid),
+      );
+
     beforeEach(() => {
       jest.spyOn(utilService, "openSnackbar");
       jest
@@ -1871,13 +1889,7 @@ describe(ZaakViewComponent.name, () => {
     it("invalidates the betrokkenen query when a betrokkene changes elsewhere", () => {
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
-      zaakRollenCallback(
-        new ScreenEvent(
-          Opcode.UPDATED,
-          ObjectType.ZAAK_ROLLEN,
-          new ScreenEventId(zaak.uuid),
-        ),
-      );
+      zaakRollenCallback(rollenEvent(Opcode.UPDATED));
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: zakenService.listBetrokkenenVoorZaakQuery(zaak.uuid).queryKey,
@@ -1889,15 +1901,45 @@ describe(ZaakViewComponent.name, () => {
         .spyOn(zakenService, "readZaak")
         .mockReturnValue(of(zaak));
 
-      zaakRollenCallback(
+      zaakRollenCallback(rollenEvent(Opcode.UPDATED));
+
+      expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+    });
+  });
+
+  describe("zaak taken websocket listener", () => {
+    let zaakTakenCallback: (event: ScreenEvent) => void;
+
+    beforeEach(() => {
+      jest
+        .spyOn(websocketService, "addListener")
+        .mockImplementation((_opcode, objectType, _objectId, callback) => {
+          if (objectType === ObjectType.ZAAK_TAKEN) {
+            zaakTakenCallback = callback as (event: ScreenEvent) => void;
+          }
+          return fromPartial<WebsocketListener>({});
+        });
+
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("rebuilds the action menu, whose plan items are fetched separately from the zaak", () => {
+      const listPlanItemsSpy = jest.spyOn(
+        planItemsService,
+        "listHumanTaskPlanItems",
+      );
+      listPlanItemsSpy.mockClear();
+
+      zaakTakenCallback(
         new ScreenEvent(
           Opcode.UPDATED,
-          ObjectType.ZAAK_ROLLEN,
+          ObjectType.ZAAK_TAKEN,
           new ScreenEventId(zaak.uuid),
         ),
       );
 
-      expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+      expect(listPlanItemsSpy).toHaveBeenCalledWith(zaak.uuid);
     });
   });
 
@@ -1947,6 +1989,60 @@ describe(ZaakViewComponent.name, () => {
         "Document verzenden",
         "Goedkeuren",
       ]);
+    });
+  });
+
+  describe("ontkoppelen met een reden", () => {
+    let httpTestingController: HttpTestingController;
+    let foutAfhandelen: jest.SpyInstance;
+
+    const confirmWithReden = () => {
+      const dialog = TestBed.inject(MatDialog);
+      const { data } = jest.mocked(dialog.open).mock.calls.at(-1)![1]!;
+      (data as { callback: (reden: string) => Observable<unknown> })
+        .callback("fakeReden")
+        .subscribe({ error: () => undefined });
+    };
+
+    const flushServerError = async (url: string) => {
+      await new Promise(requestAnimationFrame);
+      httpTestingController
+        .expectOne((request) => request.url.endsWith(url))
+        .flush(null, { status: 500, statusText: "Server Error" });
+      await new Promise(requestAnimationFrame);
+    };
+
+    beforeEach(() => {
+      httpTestingController = TestBed.inject(HttpTestingController);
+      foutAfhandelen = jest
+        .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+        .mockReturnValue(of());
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+      httpTestingController.match(() => true);
+    });
+
+    it("reports a failing initiator ontkoppelen through the error handler", async () => {
+      fixture.componentInstance["deleteInitiator"]();
+      confirmWithReden();
+
+      await flushServerError(`/rest/zaken/${zaak.uuid}/initiator`);
+
+      expect(foutAfhandelen).toHaveBeenCalled();
+    });
+
+    it("reports a failing BAG-object ontkoppelen through the error handler", async () => {
+      fixture.componentInstance["bagObjectVerwijderen"](
+        fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
+          uuid: "fake-bag-object-uuid",
+          zaakobject: { omschrijving: "fake bag object" },
+        }),
+      );
+      confirmWithReden();
+
+      await flushServerError("/rest/bag");
+
+      expect(foutAfhandelen).toHaveBeenCalled();
     });
   });
 });

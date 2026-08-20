@@ -11,9 +11,12 @@ import {
 import { TestBed } from "@angular/core/testing";
 import { MatDialog } from "@angular/material/dialog";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import {
+  type MutationFunctionContext,
+  provideQueryClient,
+} from "@tanstack/angular-query-experimental";
 import { testQueryClient } from "../../../setupJest";
-import { runMutationOnSuccess } from "../../test-helpers";
+import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
 import { BpmnService } from "./bpmn.service";
 
@@ -42,6 +45,7 @@ describe(BpmnService.name, () => {
   });
 
   afterEach(() => {
+    httpTestingController.verify();
     testQueryClient.clear();
     jest.clearAllMocks();
   });
@@ -90,13 +94,40 @@ describe(BpmnService.name, () => {
   });
 
   describe("deleteProcessDefinition", () => {
-    it("names the deleted process definition in the confirmation", async () => {
-      await runMutationOnSuccess(
-        service.deleteProcessDefinition({
-          key: "fakeProcessDefinitionKey",
-          name: "fakeProcessDefinitionName",
-        }),
+    it("addresses the process definition by its key", async () => {
+      const request = service.deleteProcessDefinition().mutationFn!(
+        { key: "fakeProcessDefinitionKey", name: "fakeProcessDefinitionName" },
+        fromPartial<MutationFunctionContext>({}),
       );
+      httpTestingController
+        .expectOne("/rest/bpmn-process-definitions/fakeProcessDefinitionKey")
+        .flush(null);
+
+      await request;
+    });
+
+    it("addresses a form by its process definition key and name", async () => {
+      const request = service.deleteProcessDefinitionForm().mutationFn!(
+        {
+          processDefinitionKey: "fakeProcessDefinitionKey",
+          name: "fakeFormName",
+        },
+        fromPartial<MutationFunctionContext>({}),
+      );
+      httpTestingController
+        .expectOne(
+          "/rest/bpmn-process-definitions/fakeProcessDefinitionKey/forms/fakeFormName",
+        )
+        .flush(null);
+
+      await request;
+    });
+
+    it("names the deleted process definition in the confirmation", async () => {
+      await runMutationOnSuccess(service.deleteProcessDefinition(), {
+        key: "fakeProcessDefinitionKey",
+        name: "fakeProcessDefinitionName",
+      });
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.bpmn.process-definition.deleted",
@@ -126,23 +157,19 @@ describe(BpmnService.name, () => {
     });
 
     it("invalidates every listing variant after deleting a definition", async () => {
-      await runMutationOnSuccess(
-        service.deleteProcessDefinition({
-          key: "fakeProcessDefinitionKey",
-          name: "fakeProcessDefinitionName",
-        }),
-      );
+      await runMutationOnSuccess(service.deleteProcessDefinition(), {
+        key: "fakeProcessDefinitionKey",
+        name: "fakeProcessDefinitionName",
+      });
 
       expectListingInvalidated();
     });
 
     it("invalidates every listing variant after deleting a form", async () => {
-      await runMutationOnSuccess(
-        service.deleteProcessDefinitionForm(
-          "fakeProcessDefinitionKey",
-          "fakeFormName",
-        ),
-      );
+      await runMutationOnSuccess(service.deleteProcessDefinitionForm(), {
+        processDefinitionKey: "fakeProcessDefinitionKey",
+        name: "fakeFormName",
+      });
 
       expectListingInvalidated();
     });

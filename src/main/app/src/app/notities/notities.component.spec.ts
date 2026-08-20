@@ -29,6 +29,9 @@ describe(NotitiesComponent.name, () => {
   let component: NotitiesComponent;
   let fixture: ComponentFixture<NotitiesComponent>;
   let notitieService: NotitieService;
+  let deleteNotitieMutation: ReturnType<
+    typeof createMutationOptions<undefined, number>
+  >;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -55,9 +58,10 @@ describe(NotitiesComponent.name, () => {
     jest
       .spyOn(notitieService, "updateNotitie")
       .mockImplementation((notitie) => of(notitie));
+    deleteNotitieMutation = createMutationOptions<undefined, number>(undefined);
     jest
       .spyOn(notitieService, "deleteNotitie")
-      .mockReturnValue(createMutationOptions(undefined) as never);
+      .mockReturnValue(deleteNotitieMutation as never);
 
     fixture = TestBed.createComponent(NotitiesComponent);
     component = fixture.componentInstance;
@@ -101,7 +105,10 @@ describe(NotitiesComponent.name, () => {
     await sleep();
     fixture.detectChanges();
 
-    expect(notitieService.deleteNotitie).toHaveBeenCalledWith(2);
+    expect(deleteNotitieMutation.mutationFn).toHaveBeenCalledWith(
+      2,
+      expect.anything(),
+    );
     expect(component["notities"]).toEqual([
       { id: 1, tekst: "een" } as GeneratedType<"RestNote">,
     ]);

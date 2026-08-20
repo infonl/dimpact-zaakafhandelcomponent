@@ -51,7 +51,7 @@ import {
   ConfirmDialogData,
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
-import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import {
   SessionStorageUtil,
@@ -134,11 +134,8 @@ export class InboxProductaanvragenListComponent
   protected filterChange = new EventEmitter<void>();
   protected clearZoekopdracht = new EventEmitter<void>();
   protected previewSrc: SafeUrl | null = null;
-  private readonly deleteMutation = injectServiceMutation(
-    (inboxProductaanvraag: GeneratedType<"RestInboxProductaanvraag">) =>
-      this.inboxProductaanvragenService.delete(
-        Number(inboxProductaanvraag.id ?? -1),
-      ),
+  private readonly deleteMutation = injectMutation(
+    () => this.inboxProductaanvragenService.delete(),
     {
       onSuccess: () => this.filterChange.emit(),
     },
@@ -285,7 +282,7 @@ export class InboxProductaanvragenListComponent
       .afterClosed()
       .subscribe((result) => {
         if (result) {
-          this.deleteMutation.mutate(inboxProductaanvraag);
+          this.deleteMutation.mutate(Number(inboxProductaanvraag.id ?? -1));
         }
       });
   }

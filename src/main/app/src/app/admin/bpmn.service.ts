@@ -68,13 +68,16 @@ export class BpmnService {
     ) as unknown as Observable<HttpResponse<Blob>>;
   }
 
-  deleteProcessDefinition(processDefinition: { key: string; name: string }) {
+  deleteProcessDefinition() {
     return mergeMutationOptions(
-      this.zacQueryClient.DELETE("/rest/bpmn-process-definitions/{key}", {
-        path: { key: processDefinition.key },
-      }),
+      this.zacQueryClient.DELETE(
+        "/rest/bpmn-process-definitions/{key}",
+        (processDefinition: { key: string; name: string }) => ({
+          parameters: { path: { key: processDefinition.key } },
+        }),
+      ),
       {
-        onSuccess: () => {
+        onSuccess: (_data, processDefinition) => {
           void this.invalidateProcessDefinitions();
           this.utilService.openSnackbar("msg.bpmn.process-definition.deleted", {
             naam: processDefinition.name,
@@ -95,13 +98,21 @@ export class BpmnService {
     );
   }
 
-  deleteProcessDefinitionForm(processDefinitionKey: string, name: string) {
+  deleteProcessDefinitionForm() {
     return mergeMutationOptions(
       this.zacQueryClient.DELETE(
         "/rest/bpmn-process-definitions/{key}/forms/{name}",
-        {
-          path: { key: processDefinitionKey, name },
-        },
+        (processDefinitionForm: {
+          processDefinitionKey: string;
+          name: string;
+        }) => ({
+          parameters: {
+            path: {
+              key: processDefinitionForm.processDefinitionKey,
+              name: processDefinitionForm.name,
+            },
+          },
+        }),
       ),
       { onSuccess: () => void this.invalidateProcessDefinitions() },
     );

@@ -20,6 +20,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.inboxdocument.converter.toInboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.RestInboxDocument
+import nl.info.zac.app.inboxdocument.model.RestInboxDocumentDeleteResult
 import nl.info.zac.app.inboxdocument.model.RestInboxDocumentListParameters
 import nl.info.zac.app.inboxdocument.model.toRestInboxDocuments
 import nl.info.zac.document.inboxdocument.InboxDocumentService
@@ -65,11 +66,11 @@ class InboxDocumentRestService @Inject constructor(
 
     @DELETE
     @Path("{id}")
-    fun deleteInboxDocument(@PathParam("id") id: Long) {
+    fun deleteInboxDocument(@PathParam("id") id: Long): RestInboxDocumentDeleteResult {
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val inboxDocument = inboxDocumentService.find(id) ?: run {
             LOG.warning { "Inbox document with id '$id' not found. It may already have been deleted." }
-            return
+            return RestInboxDocumentDeleteResult(isInformatieobjectDeleted = true)
         }
 
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(
@@ -78,10 +79,11 @@ class InboxDocumentRestService @Inject constructor(
         val zaakInformatieobjecten = zrcClientService.listZaakinformatieobjecten(
             enkelvoudigInformatieobject
         )
-        if (zaakInformatieobjecten.isNotEmpty()) {
+        val isGekoppeldAanZaak = zaakInformatieobjecten.isNotEmpty()
+        if (isGekoppeldAanZaak) {
             val zaakUuid = zaakInformatieobjecten.first().zaak.extractUuid()
             LOG.log(Level.WARNING) {
-                "Deleted InboxDocument but not the informatieobject. " +
+                "Deleting inbox document but not the related informatieobject. " +
                     "Reason: informatieobject '${enkelvoudigInformatieobject.identificatie}' is linked " +
                     "to zaak '$zaakUuid'."
             }
@@ -91,6 +93,7 @@ class InboxDocumentRestService @Inject constructor(
             )
         }
         inboxDocumentService.deleteIfExists(id)
+        return RestInboxDocumentDeleteResult(isInformatieobjectDeleted = !isGekoppeldAanZaak)
     }
 
     private fun getInformatieobjectTypeUUID(inboxDocument: InboxDocument): UUID? {

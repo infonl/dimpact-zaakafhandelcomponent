@@ -175,6 +175,34 @@ Only add a comment when it explains something the code cannot: a non-obvious "wh
 constraint. Never restate what the next line already says. If a comment is needed to explain *what* the code does,
 rename the variable or function instead.
 
+### Let the tests document the behaviour, not comments
+A test must state the behaviour. Do not repeat that behaviour in a comment above the code. A test is executable
+documentation. It fails when the code changes, but a wrong comment causes no failure. Therefore, write the
+explanation as a test description and not as a comment.
+
+This rule is a principle, not a language rule. It applies to all code in this repository, backend and frontend.
+Write a comment only for what no test can express. Examples: an ordering constraint between two external systems,
+or a workaround for a third-party bug.
+
+Move the sentence from the code to the spec:
+
+```
+// Before: the comment gives the explanation
+/**
+ * Adds the item to the inbox, unless it is already linked to a case,
+ * in which case nothing is added.
+ */
+function addToInbox(item)
+
+// After: the code gives no explanation ...
+function addToInbox(item)
+
+// ... because the spec gives it instead
+spec "given an item that is already linked to a case,
+      when the code adds it to the inbox,
+      then nothing is added, so that a linked item never appears in the inbox"
+```
+
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
 PR footer must include: `Solves PZ-XXX` (Jira ticket reference)
@@ -187,6 +215,27 @@ Rename existing classes to comply with the following Kotlin code convention:
 When using an acronym as part of a declaration name, follow these rules:
 — For two-letter acronyms, use uppercase for both letters. For example, IOStream.
 — For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
+
+### Name boolean properties with an `is`/`has` prefix
+Follow the [Kotlin convention for booleans](https://kotlinlang.org/docs/coding-conventions.html#names-for-test-methods):
+name boolean properties and variables with an `is`, `has`, or similar prefix, e.g. `isInformatieobjectDeleted`
+rather than `informatieobjectDeleted`. This applies to REST model classes as well as regular code.
+For a boolean property on a class serialized with JSON-B (e.g. a `RestXxx` model), add
+`@get:JsonbProperty("isXxx")` above the property so the JSON field name matches the Kotlin property
+name exactly:
+```kotlin
+// Before
+var informatieobjectDeleted: Boolean = true
+// After
+@get:JsonbProperty("isInformatieobjectDeleted")
+var isInformatieobjectDeleted: Boolean = true
+```
+
+### Use kebab-case for the last segment of frontend i18n message keys
+In `src/main/app/src/assets/i18n/nl.json` and `en.json`, when the last segment of a message key is
+multi-word, write it in kebab-case, not camelCase — e.g. `msg.document.verwijderen.inbox.niet-verwijderd`,
+not `msg.document.verwijderen.inbox.nietVerwijderd`. This applies even when the segment is named after
+a camelCase variable (such as an `isXxx` boolean) elsewhere in the code — the i18n key still uses kebab-case.
 
 ### Prefer Kotlin data classes for simple data holders
 When you encounter a class that is primarily used to hold data (i.e., it has properties and no significant behavior), for example for classes used as arguments or responses in REST services,

@@ -51,7 +51,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/http-client";
-import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import {
@@ -136,9 +136,8 @@ export class InboxDocumentenListComponent
   protected clearZoekopdracht = new EventEmitter<void>();
   protected selectedInformationObject: GeneratedType<"RestInboxDocument"> | null =
     null;
-  private readonly deleteMutation = injectServiceMutation(
-    (inboxDocument: GeneratedType<"RestInboxDocument">) =>
-      this.inboxDocumentenService.delete(inboxDocument),
+  private readonly deleteMutation = injectMutation(
+    () => this.inboxDocumentenService.delete(),
     {
       onSuccess: () => this.filterChange.emit(),
     },

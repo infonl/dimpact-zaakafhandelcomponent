@@ -24,7 +24,7 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
-import { forkJoin, from } from "rxjs";
+import { forkJoin } from "rxjs";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { PolicyService } from "src/app/policy/policy.service";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
@@ -43,6 +43,7 @@ import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { detailExpand } from "../../shared/animations/animations";
 import { TextIcon } from "../../shared/edit/text-icon";
+import { runMutation } from "../../shared/http/run-mutation";
 import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
@@ -142,6 +143,7 @@ export class ZaakViewComponent
   private zaakListener!: WebsocketListener;
   protected zaakRollenListener!: WebsocketListener;
   private zaakBesluitenListener!: WebsocketListener;
+  private zaakTakenListener!: WebsocketListener;
 
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
@@ -201,6 +203,7 @@ export class ZaakViewComponent
         zaak.uuid,
         () => {
           this.invalidateBetrokkenen();
+          this.invalidateZaakHistorie();
           this.updateZaak();
         },
       );
@@ -212,6 +215,13 @@ export class ZaakViewComponent
           zaak.uuid,
           () => this.loadBesluiten(),
         );
+
+      this.zaakTakenListener = this.websocketService.addListener(
+        Opcode.UPDATED,
+        ObjectType.ZAAK_TAKEN,
+        zaak.uuid,
+        () => this.setupMenu(),
+      );
 
       this.utilService.setTitle("title.zaak", {
         zaak: zaak.identificatie,
@@ -256,6 +266,7 @@ export class ZaakViewComponent
     this.websocketService.removeListener(this.zaakListener);
     this.websocketService.removeListener(this.zaakBesluitenListener);
     this.websocketService.removeListener(this.zaakRollenListener);
+    this.websocketService.removeListener(this.zaakTakenListener);
   }
 
   protected zaakDetailFields(): ZaakDetailField[] {
@@ -967,13 +978,15 @@ export class ZaakViewComponent
 
     await this.queryClient.refetchQueries({ queryKey });
 
+    // Not part of RestZaak, so the echo check below says nothing about these.
+    this.loadBagObjecten();
+    this.loadOpschorting();
+    this.invalidateZaakHistorie();
+
     const refetchSucceeded =
       this.queryClient.getQueryState(queryKey)?.status === "success";
     const zaakAfterRefetch = this.queryClient.getQueryData(queryKey);
     if (refetchSucceeded && zaakAfterRefetch === zaakBeforeRefetch) return;
-
-    this.loadBagObjecten();
-    this.loadOpschorting();
 
     forkJoin({
       msgPart1: this.translate.get(
@@ -1092,21 +1105,10 @@ export class ZaakViewComponent
   protected deleteInitiator() {
     this.zaakDialogService
       .openOntkoppelInitiator((reden) =>
-        (() => {
-          const deleteInitiator = this.zakenService.deleteInitiator(
-            this.zaak.uuid,
-          );
-          return from(
-            deleteInitiator.mutationFn!(
-              { reden },
-              {
-                client: this.queryClient,
-                meta: deleteInitiator.meta,
-                mutationKey: deleteInitiator.mutationKey,
-              },
-            ),
-          );
-        })(),
+        runMutation(this.queryClient, this.zakenService.deleteInitiator(), {
+          zaakUuid: this.zaak.uuid,
+          reden,
+        }),
       )
       .afterClosed()
       .subscribe((result) => {
@@ -1258,24 +1260,12 @@ export class ZaakViewComponent
     const bagObject = bagObjectGegevens.zaakobject;
     this.zaakDialogService
       .openVerwijderBagObject(bagObject?.omschrijving, (reden) =>
-        (() => {
-          const deleteBagObject = this.bagService.delete();
-          return from(
-            deleteBagObject.mutationFn!(
-              {
-                redenWijzigen: reden,
-                bagObject,
-                uuid: bagObjectGegevens.uuid,
-                zaakUuid: this.zaak.uuid,
-              },
-              {
-                client: this.queryClient,
-                meta: deleteBagObject.meta,
-                mutationKey: deleteBagObject.mutationKey,
-              },
-            ),
-          );
-        })(),
+        runMutation(this.queryClient, this.bagService.delete(), {
+          redenWijzigen: reden,
+          bagObject,
+          uuid: bagObjectGegevens.uuid,
+          zaakUuid: this.zaak.uuid,
+        }),
       )
       .afterClosed()
       .subscribe((result) => {

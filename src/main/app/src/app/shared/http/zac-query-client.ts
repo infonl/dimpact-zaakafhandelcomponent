@@ -94,23 +94,47 @@ export class ZacQueryClient {
     });
   }
 
+  /**
+   * The variables are whatever the caller mutates with — the row of a table, an
+   * id, a form value — and `toRequest` derives the path parameters and the body
+   * from them. That keeps one set of options usable for every item the user can
+   * click, rather than one per item, and gives every callback the item it acted
+   * on. Endpoints without path parameters can leave it out: the variables are
+   * then the request body.
+   */
   public DELETE<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "delete",
-  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
-    const [parameters] = args as [PathParameters<Path, Method>];
-
+    // an endpoint without a request body has no variables of its own, so it is
+    // mutated without an argument rather than with an explicit `undefined`
+    Variables = [DeleteBody<Path, Method>] extends [undefined]
+      ? void
+      : DeleteBody<Path, Method>,
+  >(
+    url: Path,
+    toRequest: (variables: Variables) => {
+      parameters?: PathParameters<Path, Method>;
+      body?: DeleteBody<Path, Method>;
+    } = (variables) => ({ body: variables as DeleteBody<Path, Method> }),
+  ) {
     return mutationOptions<
       Response<Path, Method>,
       HttpErrorResponse,
-      DeleteBody<Path, Method>,
+      Variables,
       void
     >({
-      mutationKey: [url, ...args],
-      mutationFn: (body: DeleteBody<Path, Method>) =>
-        lastValueFrom(
-          this.httpClient.DELETE<Path, Method>(url, parameters, body),
-        ),
+      mutationKey: [url],
+      mutationFn: (variables: Variables) => {
+        const { parameters, body } = toRequest(variables);
+
+        return lastValueFrom(
+          this.httpClient.DELETE<Path, Method>(
+            url,
+            parameters as PathParameters<Path, Method>,
+            body,
+          ),
+        );
+      },
       onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
     });
   }

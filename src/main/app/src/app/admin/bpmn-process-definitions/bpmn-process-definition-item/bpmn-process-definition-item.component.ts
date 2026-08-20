@@ -25,7 +25,6 @@ import {
 } from "../../../shared/confirm-dialog/confirm-dialog.component";
 import { FileDragAndDropDirective } from "../../../shared/directives/file-drag-and-drop.directive";
 import { injectMutation } from "../../../shared/http/inject-mutation";
-import { injectServiceMutation } from "../../../shared/http/inject-service-mutation";
 import { SharedModule } from "../../../shared/shared.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { BpmnService } from "../../bpmn.service";
@@ -79,12 +78,8 @@ export class BpmnProcessDefinitionItemComponent {
   private readonly bpmnService = inject(BpmnService);
   private readonly utilService = inject(UtilService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
-  private readonly deleteProcessDefinitionFormMutation = injectServiceMutation(
-    (processDefinitionForm: { processDefinitionKey: string; name: string }) =>
-      this.bpmnService.deleteProcessDefinitionForm(
-        processDefinitionForm.processDefinitionKey,
-        processDefinitionForm.name,
-      ),
+  private readonly deleteProcessDefinitionFormMutation = injectMutation(() =>
+    this.bpmnService.deleteProcessDefinitionForm(),
   );
 
   protected readonly downloadMutation = injectMutation(

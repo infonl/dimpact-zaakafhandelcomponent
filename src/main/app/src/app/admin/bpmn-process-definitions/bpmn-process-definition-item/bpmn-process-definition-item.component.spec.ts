@@ -94,8 +94,19 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   let foutAfhandelingService: jest.Mocked<FoutAfhandelingService>;
   let dialogOpenSpy: jest.SpyInstance;
   let loader: HarnessLoader;
+  let deleteProcessDefinitionFormMutation: ReturnType<
+    typeof createMutationOptions<
+      object,
+      { processDefinitionKey: string; name: string }
+    >
+  >;
 
   beforeEach(async () => {
+    deleteProcessDefinitionFormMutation = createMutationOptions<
+      object,
+      { processDefinitionKey: string; name: string }
+    >({});
+
     await TestBed.configureTestingModule({
       imports: [
         BpmnProcessDefinitionItemComponent,
@@ -111,7 +122,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
             uploadProcessDefinitionForm: jest.fn().mockReturnValue(of(null)),
             deleteProcessDefinitionForm: jest
               .fn()
-              .mockReturnValue(createMutationOptions({})),
+              .mockReturnValue(deleteProcessDefinitionFormMutation),
             downloadProcessDefinition: jest
               .fn()
               .mockReturnValue(of(zipResponse)),
@@ -552,9 +563,11 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       component["deleteBpmnForm"]("form-uploaded");
       await sleep();
 
-      expect(bpmnService.deleteProcessDefinitionForm).toHaveBeenCalledWith(
-        "test-key",
-        "form-uploaded",
+      expect(
+        deleteProcessDefinitionFormMutation.mutationFn,
+      ).toHaveBeenCalledWith(
+        { processDefinitionKey: "test-key", name: "form-uploaded" },
+        expect.anything(),
       );
     });
 
@@ -596,9 +609,11 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       component["deleteAllOrphanedForms"]();
       await sleep();
 
-      expect(bpmnService.deleteProcessDefinitionForm).toHaveBeenCalledWith(
-        "test-key",
-        "form-orphaned",
+      expect(
+        deleteProcessDefinitionFormMutation.mutationFn,
+      ).toHaveBeenCalledWith(
+        { processDefinitionKey: "test-key", name: "form-orphaned" },
+        expect.anything(),
       );
     });
 

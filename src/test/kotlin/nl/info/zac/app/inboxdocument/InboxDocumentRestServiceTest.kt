@@ -207,7 +207,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 every { inboxDocumentService.deleteIfExists(documentId) } returns Unit
 
                 then("it should delete both the inbox document and the informatieobject") {
-                    inboxDocumentRESTService.deleteInboxDocument(documentId)
+                    val result = inboxDocumentRESTService.deleteInboxDocument(documentId)
 
                     verify(exactly = 1) {
                         policyService.readWerklijstRechten()
@@ -217,6 +217,8 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         drcClientService.deleteEnkelvoudigInformatieobject(documentUUID)
                         inboxDocumentService.deleteIfExists(documentId)
                     }
+
+                    result.isInformatieobjectDeleted shouldBe true
                 }
             }
 
@@ -245,7 +247,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 every { inboxDocumentService.deleteIfExists(documentId) } returns Unit
 
                 then("it should delete the inbox document but not the informatieobject") {
-                    inboxDocumentRESTService.deleteInboxDocument(documentId)
+                    val result = inboxDocumentRESTService.deleteInboxDocument(documentId)
 
                     verify(exactly = 1) {
                         policyService.readWerklijstRechten()
@@ -258,6 +260,8 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                     verify(exactly = 0) {
                         drcClientService.deleteEnkelvoudigInformatieobject(any<UUID>())
                     }
+
+                    result.isInformatieobjectDeleted shouldBe false
                 }
             }
 
@@ -269,7 +273,7 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                 every { inboxDocumentService.find(documentId) } returns null
 
                 then("it should return without throwing an exception") {
-                    inboxDocumentRESTService.deleteInboxDocument(documentId)
+                    val result = inboxDocumentRESTService.deleteInboxDocument(documentId)
 
                     verify(exactly = 1) {
                         policyService.readWerklijstRechten()
@@ -282,6 +286,8 @@ class InboxDocumentRestServiceTest : BehaviorSpec({
                         drcClientService.deleteEnkelvoudigInformatieobject(any<UUID>())
                         inboxDocumentService.deleteIfExists(any<Long>())
                     }
+
+                    result.isInformatieobjectDeleted shouldBe true
                 }
             }
         }
