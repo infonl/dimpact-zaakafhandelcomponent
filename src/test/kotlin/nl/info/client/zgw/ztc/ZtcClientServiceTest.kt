@@ -165,23 +165,23 @@ class ZtcClientServiceTest : BehaviorSpec({
     }
 
     given("zaaktypes for a catalogus that are spread over multiple pages") {
-        val catalogusURI = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+        val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
         val firstPageZaakType = createZaakType()
         val secondPageZaakType = createZaakType()
-        val nextPageURI = URI("https://example.com/zaaktypen?page=2")
+        val nextPageUri = URI("https://example.com/zaaktypen?page=2")
 
         every {
             ztcClient.zaaktypeList(match<ZaaktypeListParameters> { it.getPage() == 1 })
-        } returns Results(1, listOf(firstPageZaakType), nextPageURI, null)
+        } returns Results(1, listOf(firstPageZaakType), nextPageUri, null)
         every {
             ztcClient.zaaktypeList(match<ZaaktypeListParameters> { it.getPage() == 2 })
         } returns Results(1, listOf(secondPageZaakType), null, null)
 
         `when`("listZaaktypen is called") {
-            val zaakTypen = ztcClientService.listZaaktypen(catalogusURI)
+            val zaaktypen = ztcClientService.listZaaktypen(catalogusUri)
 
             then("it should return the zaaktypes of all pages combined") {
-                zaakTypen shouldBe listOf(firstPageZaakType, secondPageZaakType)
+                zaaktypen shouldBe listOf(firstPageZaakType, secondPageZaakType)
             }
         }
     }
