@@ -59,7 +59,10 @@ class SendEmailDelegate : AbstractDelegate() {
         val fromAddress = from.resolveValueAsString(execution)
         val toAddress = to.resolveValueAsString(execution)
         val replyToAddress = replyTo?.resolveValueAsString(execution)
-        val vertrouwelijkheidaanduidingValue = vertrouwelijkheidaanduiding?.resolveValueAsString(execution)
+        val vertrouwelijkheidaanduidingValue = vertrouwelijkheidaanduiding
+            ?.resolveValueAsString(execution)
+            ?.trim()
+            ?.takeUnless { it.isBlank() }
             ?.let { RestVertrouwelijkheidaanduiding.valueOf(it).toDrcVertrouwelijkheidaanduidingEnum() }
             ?: throw IllegalArgumentException("Required field 'vertrouwelijkheidaanduiding' is missing")
 
