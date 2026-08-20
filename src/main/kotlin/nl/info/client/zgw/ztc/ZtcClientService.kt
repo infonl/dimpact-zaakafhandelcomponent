@@ -158,17 +158,17 @@ class ZtcClientService @Inject constructor(
      * @return List of [ZaakType] instances
      */
     fun listZaaktypen(catalogusURI: URI): List<ZaakType> = uriToZaakTypeListCache.get(catalogusURI) {
-        val zaaktypen = mutableListOf<ZaakType>()
-        var page = 1
-        var result: Results<ZaakType>
-        do {
-            result = ztcClient.zaaktypeList(
-                ZaaktypeListParameters(catalogusURI, page = page, pageSize = ZAAKTYPE_PAGE_SIZE)
-            )
-            zaaktypen.addAll(result.results())
-            page++
-        } while (result.next() != null)
-        zaaktypen
+        buildList {
+            var page = 1
+            var result: Results<ZaakType>
+            do {
+                result = ztcClient.zaaktypeList(
+                    ZaaktypeListParameters(catalogusURI, page = page, pageSize = ZAAKTYPE_PAGE_SIZE)
+                )
+                addAll(result.results())
+                page++
+            } while (result.next() != null)
+        }
     }
 
     /**
