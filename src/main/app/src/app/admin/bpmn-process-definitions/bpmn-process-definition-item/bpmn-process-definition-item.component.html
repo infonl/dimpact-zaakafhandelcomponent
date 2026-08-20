@@ -42,14 +42,15 @@
           [value]="processDefinition().details?.documentation"
         />
       </div>
-      @if (processDefinition().details?.inUse) {
-        <div class="explanation">
-          <mat-icon outlined color="primary">info</mat-icon>
-          {{ "bpmn.process-definition.card.details.in-use" | translate }}
-        </div>
-      }
-      <div class="download-definition">
+      <div class="flex-row items-center gap-10 justify-end">
+        @if (processDefinition().details?.inUse) {
+          <div class="explanation flex-1">
+            <mat-icon outlined color="primary">info</mat-icon>
+            {{ "bpmn.process-definition.card.details.in-use" | translate }}
+          </div>
+        }
         <button
+          class="download-definition"
           mat-icon-button
           [matTooltip]="
             'bpmn.process-definition.card.details.button.download' | translate

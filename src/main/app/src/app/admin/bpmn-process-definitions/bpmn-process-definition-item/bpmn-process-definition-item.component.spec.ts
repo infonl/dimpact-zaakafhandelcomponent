@@ -162,7 +162,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
     beforeEach(() => {
       downloadButton = fixture.nativeElement.querySelector(
-        ".download-definition button",
+        ".download-definition",
       );
     });
 
