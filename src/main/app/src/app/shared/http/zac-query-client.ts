@@ -27,6 +27,12 @@ import { HttpClient, Response } from "./http-client";
 // From https://tanstack.com/query/latest/docs/framework/angular/guides/query-retries
 export const DEFAULT_RETRY_COUNT = 3;
 
+/** Retries only what could still succeed: a dropped connection or a server fault. */
+const retryOnServerError = (failureCount: number, error: HttpErrorResponse) => {
+  if (failureCount >= DEFAULT_RETRY_COUNT) return false;
+  return error.status === 0 || error.status >= 500;
+};
+
 export enum StaleTimes {
   Infinite = Infinity,
   Long = 5 * 60 * 1000,
@@ -50,10 +56,7 @@ export class ZacQueryClient {
       queryKey: [url, ...args],
       queryFn: () =>
         lastValueFrom(this.httpClient.GET<Path, Method>(url, ...args)),
-      retry: (failureCount, error) => {
-        if (failureCount >= DEFAULT_RETRY_COUNT) return false;
-        return error.status === 0 || error.status >= 500;
-      },
+      retry: retryOnServerError,
       refetchOnWindowFocus: false,
       staleTime: StaleTimes.Long,
       gcTime: StaleTimes.Long * 2,
@@ -91,6 +94,30 @@ export class ZacQueryClient {
       mutationFn: (body: PutBody<Path, Method>) =>
         lastValueFrom(this.httpClient.PUT<Path, Method>(url, body, ...args)),
       onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
+    });
+  }
+
+  /**
+   * A search endpoint takes its filters in a request body, so it reads over `PUT`.
+   * The body is part of the query key, which is what makes one set of filters
+   * cacheable and invalidatable apart from the next.
+   */
+  public PUT_QUERY<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods = "put",
+  >(
+    url: Path,
+    body: PutBody<Path, Method>,
+    ...args: ArgsTuple<PathParameters<Path, Method>>
+  ) {
+    return queryOptions<Response<Path, Method>, HttpErrorResponse>({
+      queryKey: [url, body, ...args],
+      queryFn: () =>
+        lastValueFrom(this.httpClient.PUT<Path, Method>(url, body, ...args)),
+      retry: retryOnServerError,
+      refetchOnWindowFocus: false,
+      staleTime: StaleTimes.Short,
+      gcTime: StaleTimes.Short * 2,
     });
   }
 
