@@ -32,10 +32,13 @@ export class InboxDocumentenService {
         }),
       ),
       {
-        onSuccess: (_data, inboxDocument) =>
-          this.utilService.openSnackbar("msg.document.verwijderen.uitgevoerd", {
-            document: inboxDocument.titel,
-          }),
+        onSuccess: (result, inboxDocument) =>
+          this.utilService.openSnackbar(
+            result?.isInformatieobjectDeleted === false
+              ? "msg.document.verwijderen.inbox.niet-verwijderd"
+              : "msg.document.verwijderen.uitgevoerd",
+            { document: inboxDocument.titel },
+          ),
       },
     );
   }
