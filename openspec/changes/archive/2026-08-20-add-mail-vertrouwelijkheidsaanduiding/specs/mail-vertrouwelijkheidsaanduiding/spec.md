@@ -79,9 +79,31 @@ Selectable confidentiality is scoped to exactly two flows: the CMMN mail-create 
 - **WHEN** a user completes a zaak via the "zaak afhandelen" or "intake afronden" dialog with mail sending enabled
 - **THEN** the resulting zaak document SHALL be stored with vertrouwelijkheidaanduiding `OPENBAAR`, and neither dialog SHALL expose a confidentiality selection field
 
-### Requirement: BPMN handleiding documents the new required field
-The BPMN handleiding (`docs/manuals/bpmn-guide/README.md`) SHALL describe the `vertrouwelijkheidaanduiding` field as a required field of the "Send email" service task, including an example.
+### Requirement: Form.io custom field for selecting vertrouwelijkheidaanduiding
+ZAC SHALL provide a `ZAC_vertrouwelijkheidaanduiding` Form.io custom field type (a `KNOWN_ZAC_FIELDS` entry) that a BPMN task form can use to let a human select one of the 8 confidentiality levels, so the selected value can be carried as a process variable into `SendEmailDelegate`'s `vertrouwelijkheidaanduiding` field.
+
+#### Scenario: A Form.io component declares the ZAC_vertrouwelijkheidaanduiding type
+- **WHEN** a `select` component's `ZAC_TYPE` attribute is set to `ZAC_vertrouwelijkheidaanduiding`
+- **THEN** ZAC SHALL populate that component's options with all 8 confidentiality levels, with translated labels, and store the selected value under the component's `key` as zaakdata
+
+### Requirement: BPMN handleiding documents the new required field and how to supply it
+The BPMN handleiding (`docs/manuals/bpmn-guide/README.md`) SHALL describe the `vertrouwelijkheidaanduiding` field as a required field of the "Send email" service task, including an example, SHALL document the `ZAC_vertrouwelijkheidaanduiding` Form.io field type used to supply it, SHALL clarify the difference between a fixed `flowable:string` value and a dynamic `flowable:expression` `${key}` reference for this (and any) service task field, and SHALL state that `SendConfirmationEmailDelegate` has no equivalent field and always produces `OPENBAAR`.
 
 #### Scenario: A process designer reads the handleiding for the send-email service task
 - **WHEN** a process designer reads the "Send email" section of the BPMN handleiding
-- **THEN** it SHALL list `vertrouwelijkheidaanduiding` as a required field alongside `to`, `from`, `replyTo` and `template`, with an example `flowable:field` entry
+- **THEN** it SHALL list `vertrouwelijkheidaanduiding` as a required field alongside `to`, `from`, `replyTo` and `template`, with an example `flowable:field` entry, and SHALL explain that a value sourced from a Form.io field requires `flowable:expression` rather than `flowable:string`
+
+#### Scenario: A process designer looks up how to let a user select the confidentiality level
+- **WHEN** a process designer reads the "ZAC extensions" catalog of Form.io custom field types in the BPMN handleiding
+- **THEN** `ZAC_vertrouwelijkheidaanduiding` SHALL be listed there, with a dedicated section showing an example Form.io component definition
+
+#### Scenario: A process designer reads the handleiding for the confirmation-email service task
+- **WHEN** a process designer reads the "Send confirmation email" section of the BPMN handleiding
+- **THEN** it SHALL state that the created document always has vertrouwelijkheidaanduiding `OPENBAAR` and that this delegate exposes no field to change it
+
+### Requirement: End-user manual documents the new required field
+The ZAC gebruikershandleiding (`docs/manuals/ZAC-gebruikershandleiding/ZAC-gebruikershandleiding.md`) SHALL describe the vertrouwelijkheidaanduiding step in the "E-mail versturen" walkthrough as a required step with no default value.
+
+#### Scenario: A user reads the "E-mail versturen" walkthrough
+- **WHEN** a user reads the "E-mail versturen" section of the gebruikershandleiding
+- **THEN** it SHALL include a step for selecting the vertrouwelijkheidaanduiding, positioned after the "Ontvanger" step and before the "Onderwerp" step, stating the field is required and has no default

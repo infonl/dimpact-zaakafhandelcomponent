@@ -11,7 +11,7 @@
 - [x] 2.1 Add `vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding` field to `RESTMailGegevens` (plain nullable field, no bean validation annotation, matching sibling DTOs). Converted `RESTMailGegevens.java` to Kotlin (`net.atos.zac.app.mail.model.RESTMailGegevens`) per this repo's "convert Java to Kotlin when touching" convention.
 - [x] 2.2 Update `RESTMailGegevensConverter.convert` to map it into `MailGegevens.vertrouwelijkheidaanduiding` via the existing `toDrcVertrouwelijkheidaanduidingEnum()` extension function, falling back to `VertrouwelijkheidaanduidingEnum.OPENBAAR` explicitly (not that function's own `EMPTY` result) when the REST field is null. Converted `RESTMailGegevensConverter.java` to Kotlin (with constructor injection per CLAUDE.md, replacing its original field injection) in the same pass.
 - [x] 2.3 Update `MailRestService.sendAcknowledgmentReceiptMail` to force `restMailGegevens.vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR` before conversion, so the CMMN acknowledgment/ontvangstbevestiging mail always stays `OPENBAAR` regardless of caller input. Converted `MailRestService.java` to Kotlin in the same pass.
-- [ ] 2.4 Regenerate/verify the OpenAPI spec and generated frontend types pick up the new `RESTMailGegevens.vertrouwelijkheidaanduiding` field. **Not run — requires `./gradlew generateOpenApiSpec` then `npm run generate:types:zac-openapi` in `src/main/app`, left for the user to run.**
+- [x] 2.4 Regenerate/verify the OpenAPI spec and generated frontend types pick up the new `RESTMailGegevens.vertrouwelijkheidaanduiding` field.
 
 ## 3. CMMN: frontend (mail-create)
 
@@ -26,9 +26,9 @@
 
 ## 5. CMMN verification (manual, by user)
 
-- [ ] 5.1 Manually send mail via the mail-create form and confirm the created zaak document carries the selected vertrouwelijkheidaanduiding.
-- [ ] 5.2 Manually trigger the CMMN acknowledgment/ontvangstbevestiging flow and confirm the created document is always `OPENBAAR`.
-- [ ] 5.3 Manually trigger the productaanvraag automatic confirmation flow, the human-task completion mail, and the "zaak afhandelen"/"intake afronden" completion mails, and confirm each created document is always `OPENBAAR`.
+- [x] 5.1 Manually send mail via the mail-create form and confirm the created zaak document carries the selected vertrouwelijkheidaanduiding.
+- [x] 5.2 Manually trigger the CMMN acknowledgment/ontvangstbevestiging flow and confirm the created document is always `OPENBAAR`.
+- [x] 5.3 Manually trigger the productaanvraag automatic confirmation flow, the human-task completion mail, and the "zaak afhandelen"/"intake afronden" completion mails, and confirm each created document is always `OPENBAAR`.
 
 ## 6. BPMN: delegate
 
@@ -41,6 +41,10 @@
 
 - [x] 7.1 Update the "Send email" section of `docs/manuals/bpmn-guide/README.md`: add `vertrouwelijkheidaanduiding` to the "add fields" bullet list.
 - [x] 7.2 Update the XML example in that section to include a `<flowable:field name="vertrouwelijkheidaanduiding">` entry.
+- [x] 7.3 Add `ZAC_vertrouwelijkheidaanduiding` to the "Available ZAC types" catalog list, plus a new "Selecting the vertrouwelijkheidaanduiding via a Form.io form" subsection with a Form.io JSON example (mirroring `ZAC_status`/`ZAC_resultaat`'s documentation style).
+- [x] 7.4 Add a `flowable:string` (fixed literal) vs `flowable:expression` (dynamic `${key}` reference) clarification note to the "Send email" section — this exact confusion caused a real bug while testing this change.
+- [x] 7.5 Clarify in the "Send confirmation email" section that its document is always `OPENBAAR` and the delegate has no `vertrouwelijkheidaanduiding` field, unlike `SendEmailDelegate`. Added a matching bullet to the "Supported functionality" overview list.
+- [x] 7.6 Update `docs/manuals/ZAC-gebruikershandleiding/ZAC-gebruikershandleiding.md`'s "E-mail versturen" end-user walkthrough with the new required vertrouwelijkheidaanduiding step (renumbering subsequent steps).
 
 ## 7a. Form.io: `ZAC_vertrouwelijkheidaanduiding` custom field (added mid-implementation, not in the original plan)
 
@@ -49,9 +53,9 @@
 
 ## 8. BPMN verification (manual, by user)
 
-- [ ] 8.1 Manually run the user's own test BPMN process/form-io form with `vertrouwelijkheidaanduiding` supplied and confirm the created document carries that value.
-- [ ] 8.2 Manually run the test BPMN process without `vertrouwelijkheidaanduiding` and confirm the service task fails with the expected error.
-- [ ] 8.3 Manually run the automatic confirmation delegate flow and confirm the created document is always `OPENBAAR`.
+- [x] 8.1 Manually run the user's own test BPMN process/form-io form with `vertrouwelijkheidaanduiding` supplied and confirm the created document carries that value.
+- [x] 8.2 Manually run the test BPMN process without `vertrouwelijkheidaanduiding` and confirm the service task fails with the expected error.
+- [x] 8.3 Manually run the automatic confirmation delegate flow and confirm the created document is always `OPENBAAR`.
 
 ## 9. Tests (started once the user explicitly approved, after manual verification of sections 5 and 8)
 

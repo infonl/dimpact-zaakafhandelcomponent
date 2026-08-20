@@ -87,6 +87,7 @@ Available ZAC types are:
 - `ZAC_resultaat`
 - `ZAC_status`
 - `ZAC_process_data`
+- `ZAC_vertrouwelijkheidaanduiding`
 
 #### Undefined ZAC_TYPE
 
@@ -200,6 +201,7 @@ The following functionality is supported by the BPMN process definition:
   - resuming
   - extending
 - Send email
+  - selecting the vertrouwelijkheidaanduiding of the created document
 - Send automatische ontvangstbevestiging
 - User/group
   - listing groups/users
@@ -423,6 +425,43 @@ For example:
     </serviceTask>
 ```
 
+:warning: A `flowable:string` field (as used above) is a fixed literal value, evaluated as-is — it is **not** substituted with process/zaakdata. To use a value collected earlier in the process (e.g. from a Form.io field, see below), use `flowable:expression` with a `${key}` reference instead, for example:
+
+```xml
+        <flowable:field name="vertrouwelijkheidaanduiding">
+          <flowable:expression><![CDATA[${MAIL_Vertrouwelijkheidaanduiding}]]></flowable:expression>
+        </flowable:field>
+```
+
+#### Selecting the vertrouwelijkheidaanduiding via a Form.io form
+
+To let a user pick the confidentiality level earlier in the process (e.g. on a task form, before the "Send email" service task runs), use:
+
+- A `select` component, with the attribute `ZAC_TYPE` of `ZAC_vertrouwelijkheidaanduiding`
+
+Example:
+
+```json
+{
+  "label": "Vertrouwelijkheidaanduiding",
+  "optionsLabelPosition": "right",
+  "key": "MAIL_Vertrouwelijkheidaanduiding",
+  "widget": "html5",
+  "validate": {
+    "required": true,
+    "onlyAvailableItems": true
+  },
+  "attributes": {
+    "ZAC_TYPE": "ZAC_vertrouwelijkheidaanduiding"
+  },
+  "type": "select",
+  "input": true,
+  "dataSrc": "custom"
+}
+```
+
+The selected value (one of `OPENBAAR`, `BEPERKT_OPENBAAR`, `INTERN`, `ZAAKVERTROUWELIJK`, `VERTROUWELIJK`, `CONFIDENTIEEL`, `GEHEIM`, `ZEER_GEHEIM`) is stored as zaakdata under the field's `key` and can be referenced from `SendEmailDelegate`'s `vertrouwelijkheidaanduiding` field via `${<key>}`, as shown above.
+
 #### Using zaakdata in email templates
 
 Email templates support dynamic substitution of zaakdata values. This allows you to include
@@ -476,7 +515,7 @@ Unlike `SendEmailDelegate`, the recipient address is resolved automatically from
 2. Otherwise, the default email address of the initiator of zaak is used. Or if the initiator does not have a default email address, the first email address of the initiator is used3. If no address can be found, no email is sent and the process continues.
 3. If no email address could be found, no email is sent and the process continues.
 
-The email is stored as a document attached to the zaak.
+The email is stored as a document attached to the zaak, always with vertrouwelijkheidaanduiding `OPENBAAR` — unlike `SendEmailDelegate`, this delegate has no `vertrouwelijkheidaanduiding` field and is not configurable.
 
 For example:
 

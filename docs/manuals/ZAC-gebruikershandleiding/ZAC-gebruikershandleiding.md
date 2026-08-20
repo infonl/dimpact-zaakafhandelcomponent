@@ -638,13 +638,15 @@ Met deze actie wordt een e-mail vanuit de zaak verstuurd. De mail wordt als docu
 
 3 Vul de ontvanger in, dit is het mailadres waar de mail naartoe wordt gestuurd. Hier kan één adres worden ingevuld. Als het mailadres van de initiator bekend is dan kan je deze direct toevoegen door op het poppetje icoon in het veld te klikken.
 
-4 Vul het onderwerp in, deze wordt overgenomen uit het template en kan aangepast worden
+4 Kies de vertrouwelijkheidaanduiding voor het document (PDF van de e-mail) dat aan de zaak wordt toegevoegd. Dit veld is verplicht en staat niet standaard ingevuld.
 
-5 Maak het bericht op, dit is de body van de e-mail die een standaard vulling heeft vanuit het template en kan aangepast worden
+5 Vul het onderwerp in, deze wordt overgenomen uit het template en kan aangepast worden
 
-6 Voeg eventueel een bijlage toe, alle documenten die aan de zaak zijn toegevoegd kunnen als bijlage aan de e-mail worden toegevoegd
+6 Maak het bericht op, dit is de body van de e-mail die een standaard vulling heeft vanuit het template en kan aangepast worden
 
-7 Klik op ‘Versturen’ om de actie af te ronden
+7 Voeg eventueel een bijlage toe, alle documenten die aan de zaak zijn toegevoegd kunnen als bijlage aan de e-mail worden toegevoegd
+
+8 Klik op ‘Versturen’ om de actie af te ronden
 
 ### Document maken
 
