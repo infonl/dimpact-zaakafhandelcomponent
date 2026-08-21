@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -52,6 +52,7 @@ import {
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { SharedModule } from "../../shared/shared.module";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -243,6 +244,15 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     { label: "statusmail.optie.BESCHIKBAAR_UIT", value: "BESCHIKBAAR_UIT" },
     { label: "statusmail.optie.NIET_BESCHIKBAAR", value: "NIET_BESCHIKBAAR" },
   ];
+
+  private readonly updateZaakafhandelparametersMutation = injectMutation(
+    () => this.zaakafhandelParametersService.updateZaakafhandelparameters(),
+    {
+      onSettled: () => {
+        this.isLoading = false;
+      },
+    },
+  );
 
   protected caseDefinitions =
     this.zaakafhandelParametersService.listCaseDefinitions();
@@ -616,19 +626,14 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.betrokkeneKoppelingen.controls.brpKoppelen.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
-        this.brpProtocoleringFormGroup.controls.raadpleegWaarde.setValidators(
-          value ? [Validators.required] : [],
-        );
-        this.brpProtocoleringFormGroup.controls.zoekWaarde.setValidators(
-          value ? [Validators.required] : [],
-        );
-        this.brpProtocoleringFormGroup.controls.verwerkingregisterWaarde.setValidators(
-          value ? [Validators.required] : [],
-        );
+        for (const control of Object.values(
+          this.brpProtocoleringFormGroup.controls,
+        )) {
+          control.setValidators(value ? [Validators.required] : []);
+          // revalidating the group alone leaves each field on its previous status
+          control.updateValueAndValidity({ emitEvent: false });
+        }
 
-        this.brpProtocoleringFormGroup.updateValueAndValidity({
-          emitEvent: false,
-        });
         if (value) return;
 
         this.brpProtocoleringFormGroup.reset();
@@ -665,13 +670,13 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((enabled) => {
         const validators = enabled ? [Validators.required] : [];
-        this.automatischeOntvangstbevestigingFormGroup.controls.templateName.setValidators(
-          validators,
-        );
-        this.automatischeOntvangstbevestigingFormGroup.controls.emailSender.setValidators(
-          validators,
-        );
-        this.automatischeOntvangstbevestigingFormGroup.updateValueAndValidity();
+        const { templateName, emailSender } =
+          this.automatischeOntvangstbevestigingFormGroup.controls;
+        for (const control of [templateName, emailSender]) {
+          control.setValidators(validators);
+          // revalidating the group alone leaves each field on its previous status
+          control.updateValueAndValidity({ emitEvent: false });
+        }
       });
 
     this.automatischeOntvangstbevestigingFormGroup.patchValue({
@@ -1027,34 +1032,24 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       enabled: Boolean(enabled),
     };
 
-    this.zaakafhandelParametersService
-      .updateZaakafhandelparameters(this.parameters)
-      .subscribe({
-        next: (data) => {
-          this.isLoading = false;
-          this.cmmnBpmnFormGroup.disable({ emitEvent: false }); // disable form to prevent modifications until explicitly enabled again
-
-          this.utilService.openSnackbar(
-            "msg.zaakafhandelparameters.opgeslagen",
-          );
-          this.parameters = data;
-          for (const afzender of this.parameters.zaakAfzenders!) {
-            for (let i = 0; i < index.length; i++) {
-              if (index[i] === afzender.mail) {
-                (
-                  afzender as GeneratedType<"RestZaakAfzender"> & {
-                    index: number;
-                  }
-                ).index = i;
-                break;
-              }
+    this.updateZaakafhandelparametersMutation.mutate(this.parameters, {
+      onSuccess: (savedParameters) => {
+        this.cmmnBpmnFormGroup.disable({ emitEvent: false }); // disable form to prevent modifications until explicitly enabled again
+        this.parameters = savedParameters;
+        for (const afzender of this.parameters.zaakAfzenders!) {
+          for (let i = 0; i < index.length; i++) {
+            if (index[i] === afzender.mail) {
+              (
+                afzender as GeneratedType<"RestZaakAfzender"> & {
+                  index: number;
+                }
+              ).index = i;
+              break;
             }
           }
-        },
-        error: () => {
-          this.isLoading = false;
-        },
-      });
+        }
+      },
+    });
 
     if (this.smartDocumentsFormComponent?.enabledForZaaktypeValue) {
       this.smartDocumentsFormComponent.saveSmartDocumentsMapping().subscribe();

@@ -5,15 +5,16 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatSelectChange } from "@angular/material/select";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { fireEvent, render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { fromPartial } from "src/test-helpers";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
@@ -21,14 +22,25 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
 
+// rendering this seven step form once per test needs more room than the default timeout
 describe("Human tasks form step", () => {
-  let fixture: ComponentFixture<ParametersEditCmmnComponent>;
-  let zaakafhandelParametersService: ZaakafhandelParametersService;
-  let referentieTabelService: ReferentieTabelService;
-  let identityService: IdentityService;
-  let mailtemplateBeheerService: MailtemplateBeheerService;
-  let utilService: UtilService;
-  let activatedRouteMock: Pick<ActivatedRoute, "data">;
+  const user = userEvent.setup();
+
+  const caseDefinition = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+    key: "case-1",
+    naam: "Case Definition 1",
+  });
+
+  const formulierDefinities = [
+    fromPartial<GeneratedType<"RESTTaakFormulierDefinitie">>({
+      id: "DEFAULT_TAAKFORMULIER",
+      veldDefinities: [],
+    }),
+    fromPartial<GeneratedType<"RESTTaakFormulierDefinitie">>({
+      id: "ADVIES",
+      veldDefinities: [{ naam: "ADVIES" }],
+    }),
+  ];
 
   const humanTaskParameters = [
     fromPartial<GeneratedType<"RESTHumanTaskParameters">>({
@@ -46,7 +58,7 @@ describe("Human tasks form step", () => {
       },
       actief: true,
       doorlooptijd: 5,
-      formulierDefinitieId: undefined,
+      formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
       referentieTabellen: [],
     }),
     fromPartial<GeneratedType<"RESTHumanTaskParameters">>({
@@ -57,7 +69,7 @@ describe("Human tasks form step", () => {
       },
       actief: true,
       doorlooptijd: 5,
-      formulierDefinitieId: undefined,
+      formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
       referentieTabellen: [],
     }),
   ];
@@ -65,20 +77,19 @@ describe("Human tasks form step", () => {
   const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaaktypeConfiguration">
   >({
+    caseDefinition,
     defaultGroepId: "test-group-id",
     defaultBehandelaarId: "test-user-id",
     zaaktype: { uuid: "test-uuid" },
+    zaakNietOntvankelijkResultaattype: {
+      id: "resultaat-1",
+      naam: "Afgehandeld",
+    },
     zaakAfzenders: [
       {
         speciaal: false,
-        defaultMail: false,
+        defaultMail: true,
         mail: "test@example.com",
-        replyTo: undefined,
-      },
-      {
-        speciaal: false,
-        defaultMail: false,
-        mail: "test2@example.com",
         replyTo: undefined,
       },
     ],
@@ -102,238 +113,237 @@ describe("Human tasks form step", () => {
     },
   });
 
-  beforeEach(async () => {
-    activatedRouteMock = {
-      data: of({
-        parameters: {
-          zaakafhandelParameters,
-          isSavedZaakafhandelParameters: true,
-        },
-      }),
-    };
+  async function setup() {
+    const updateZaakafhandelparameters = createMutationOptions(
+      zaakafhandelParameters,
+    );
 
-    await TestBed.configureTestingModule({
-      imports: [
-        ParametersEditCmmnComponent,
-        TranslateModule.forRoot(),
-        RouterModule,
-        NoopAnimationsModule,
-      ],
+    const { fixture } = await render(ParametersEditCmmnComponent, {
+      imports: [TranslateModule.forRoot(), RouterModule, NoopAnimationsModule],
       providers: [
+        provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: ActivatedRoute, useValue: activatedRouteMock },
-      ],
-    }).compileComponents();
-
-    zaakafhandelParametersService = TestBed.inject(
-      ZaakafhandelParametersService,
-    );
-    jest
-      .spyOn(zaakafhandelParametersService, "listCaseDefinitions")
-      .mockReturnValue(
-        of([
-          fromPartial<GeneratedType<"RESTCaseDefinition">>({
-            key: "case-1",
-            naam: "Case Definition 1",
+        {
+          provide: ActivatedRoute,
+          useValue: fromPartial<ActivatedRoute>({
+            data: of({
+              parameters: {
+                zaakafhandelParameters,
+                isSavedZaakafhandelParameters: true,
+              },
+            }),
           }),
-        ]),
-      );
-    jest
-      .spyOn(zaakafhandelParametersService, "listFormulierDefinities")
-      .mockReturnValue(of([]));
-    jest.spyOn(zaakafhandelParametersService, "listReplyTos").mockReturnValue(
-      of([
-        { mail: "reply1@example.com", speciaal: false },
-        { mail: "reply2@example.com", speciaal: false },
-      ]),
-    );
-    jest
-      .spyOn(zaakafhandelParametersService, "listZaakbeeindigRedenen")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(zaakafhandelParametersService, "listResultaattypes")
-      .mockReturnValue(of([]));
+        },
+        {
+          provide: ZaakafhandelParametersService,
+          useValue: fromPartial<ZaakafhandelParametersService>({
+            listCaseDefinitions: () => of([caseDefinition]),
+            listFormulierDefinities: () => of(formulierDefinities),
+            listReplyTos: () => of([{ mail: "reply1@example.com" }]),
+            listZaakbeeindigRedenen: () => of([]),
+            listResultaattypes: () => of([]),
+            updateZaakafhandelparameters: () => updateZaakafhandelparameters,
+          }),
+        },
+        {
+          provide: ReferentieTabelService,
+          useValue: fromPartial<ReferentieTabelService>({
+            listReferentieTabellen: () =>
+              of([{ id: 1, code: "ADVIES", name: "Advies" }]),
+            listAfzenders: () => of(["other@example.com"]),
+            listBrpSearchValues: () => of([]),
+            listBrpViewValues: () => of([]),
+            listBrpProcessingValues: () => of([]),
+          }),
+        },
+        {
+          provide: IdentityService,
+          useValue: fromPartial<IdentityService>({
+            listGroups: () => of([{ id: "test-group-id", naam: "test-group" }]),
+            listUsersInGroup: () =>
+              of([{ id: "test-user-id", naam: "test-user" }]),
+          }),
+        },
+        {
+          provide: MailtemplateBeheerService,
+          useValue: fromPartial<MailtemplateBeheerService>({
+            listKoppelbareMailtemplates: () => of([]),
+          }),
+        },
+        {
+          provide: ConfiguratieService,
+          useValue: fromPartial<ConfiguratieService>({
+            readBrpDoelbindingSetupEnabled: () => of(false),
+          }),
+        },
+      ],
+    });
 
-    referentieTabelService = TestBed.inject(ReferentieTabelService);
-    jest
-      .spyOn(referentieTabelService, "listReferentieTabellen")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listAfzenders")
-      .mockReturnValue(of(["test@example.com", "other@example.com"]));
-    jest
-      .spyOn(referentieTabelService, "listBrpViewValues")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listBrpSearchValues")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listBrpProcessingValues")
-      .mockReturnValue(of([]));
-
-    identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "listGroups").mockReturnValue(
-      of([
-        { id: "test-group-id", naam: "test-group" },
-        { id: "test-group-id-2", naam: "test-group-2" },
-      ]),
-    );
-    jest
-      .spyOn(identityService, "listUsersInGroup")
-      .mockReturnValueOnce(
-        of([
-          { id: "test-user-id", naam: "test-user" },
-          { id: "test-user-id-2", naam: "test-user-2" },
-        ]),
-      )
-      .mockReturnValue(of([]));
-
-    utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "compare").mockReturnValue(true);
-
-    mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
-    jest
-      .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
-      .mockReturnValue(of([]));
-
-    const configuratieService = TestBed.inject(ConfiguratieService);
-    jest
-      .spyOn(configuratieService, "readBrpDoelbindingSetupEnabled")
-      .mockReturnValue(of(false));
-
-    fixture = TestBed.createComponent(ParametersEditCmmnComponent);
     await fixture.whenStable();
     fixture.detectChanges();
-  });
 
-  it("should sort humanTaskParameters alphabetically by their name", () => {
-    const component = fixture.componentInstance;
-    const names = component["humanTaskParameters"].map(
-      (humanTaskParameter) => humanTaskParameter.planItemDefinition?.naam,
-    );
-    expect(names).toEqual([
-      "Taak 1",
-      "Uitstel aanvragen",
-      "Verlenging aanvragen",
-    ]);
-  });
+    await user.click(screen.getByRole("tab", { name: /gegevens.humantasks/ }));
 
-  it("should create a form group for each humanTaskParameter", () => {
-    const component = fixture.componentInstance;
-    const taskId = humanTaskParameters[0].planItemDefinition?.id ?? "";
-    const taskFormGroup = component.humanTasksFormGroup.get(taskId);
-    expect(taskFormGroup).not.toBeNull();
-  });
-
-  it("should have actief control with initial value true", () => {
-    const component = fixture.componentInstance;
-    const actief = component["getHumanTaskControl"](
-      humanTaskParameters[0],
-      "actief",
-    );
-    expect(actief.value).toBe(true);
-  });
-
-  it("should have doorlooptijd control with initial value 5", () => {
-    const component = fixture.componentInstance;
-    const doorlooptijd = component["getHumanTaskControl"](
-      humanTaskParameters[0],
-      "doorlooptijd",
-    );
-    expect(doorlooptijd.value).toBe(5);
-  });
-
-  it("should validate doorlooptijd with min(0) - set to -1, expect invalid", () => {
-    const component = fixture.componentInstance;
-    const doorlooptijd = component["getHumanTaskControl"](
-      humanTaskParameters[0],
-      "doorlooptijd",
-    );
-    doorlooptijd.setValue(-1);
-    doorlooptijd.updateValueAndValidity();
-    expect(doorlooptijd.hasError("min")).toBe(true);
-  });
-
-  it("isHumanTaskParameterValid returns false when formulierDefinitie is required but missing", () => {
-    const component = fixture.componentInstance;
-    // formulierDefinitieId is undefined → formulierDefinitie control has Validators.required and no value
-    const isValid = component["isHumanTaskParameterValid"](
-      humanTaskParameters[0],
-    );
-    expect(isValid).toBe(false);
-  });
-
-  it("getHumanTaskControl returns the correct control", () => {
-    const component = fixture.componentInstance;
-    const actief = component["getHumanTaskControl"](
-      humanTaskParameters[0],
-      "actief",
-    );
-    expect(actief).not.toBeNull();
-    expect(actief.value).toBe(true);
-  });
-
-  it("isHumanTaskParameterValid returns true when formulierDefinitie is set", () => {
-    const component = fixture.componentInstance;
-    component["getHumanTaskControl"](
-      humanTaskParameters[0],
-      "formulierDefinitie",
-    ).setValue("DEFAULT_TAAKFORMULIER");
-    expect(component["isHumanTaskParameterValid"](humanTaskParameters[0])).toBe(
-      true,
-    );
-  });
-
-  it("formulierDefinitieChanged updates formulierDefinitieId and rebuilds the task form group", () => {
-    const component = fixture.componentInstance;
-    const task = {
-      ...humanTaskParameters[0],
-      formulierDefinitieId: undefined as string | undefined,
+    return {
+      humanTasks: screen.getByRole("tabpanel", {
+        name: /gegevens.humantasks/,
+      }),
+      updateZaakafhandelparameters,
     };
+  }
 
-    component["formulierDefinitieChanged"](
-      { value: "DEFAULT_TAAKFORMULIER" } as MatSelectChange,
-      task,
+  function taskHeader(humanTasks: HTMLElement, task: string) {
+    return within(humanTasks).getByRole("button", { name: new RegExp(task) });
+  }
+
+  function taskFields(humanTasks: HTMLElement, task: string) {
+    return within(humanTasks).getByRole("region", { name: new RegExp(task) });
+  }
+
+  async function chooseFormulierDefinitie(
+    humanTasks: HTMLElement,
+    task: string,
+    formulierDefinitieId: string,
+  ) {
+    await user.click(
+      within(taskFields(humanTasks, task)).getByRole("combobox", {
+        name: "formulierDefinitie",
+      }),
     );
+    await user.click(
+      screen.getByRole("option", {
+        name: `formulierDefinitie.${formulierDefinitieId}`,
+      }),
+    );
+  }
 
-    expect(task.formulierDefinitieId).toBe("DEFAULT_TAAKFORMULIER");
+  it("lists the human tasks alphabetically by name", async () => {
+    const { humanTasks } = await setup();
+
     expect(
-      component.humanTasksFormGroup.get(task.planItemDefinition?.id ?? ""),
-    ).not.toBeNull();
+      within(humanTasks)
+        .getAllByText(/^(Taak 1|Uitstel aanvragen|Verlenging aanvragen)$/)
+        .map((title) => title.textContent?.trim()),
+    ).toEqual(["Taak 1", "Uitstel aanvragen", "Verlenging aanvragen"]);
   });
 
-  it("opslaan reads doorlooptijd and actief from form controls into humanTaskParameters", () => {
-    const component = fixture.componentInstance;
-    jest
-      .spyOn(zaakafhandelParametersService, "updateZaakafhandelparameters")
-      .mockReturnValue(of(component.parameters));
+  it("shows the settings of a human task when its panel is opened", async () => {
+    const { humanTasks } = await setup();
 
-    component["getHumanTaskControl"](
-      humanTaskParameters[0],
-      "formulierDefinitie",
-    ).setValue("DEFAULT_TAAKFORMULIER");
-    component["getHumanTaskControl"](
-      humanTaskParameters[0],
-      "doorlooptijd",
-    ).setValue(10);
-    component["getHumanTaskControl"](humanTaskParameters[0], "actief").setValue(
-      false,
+    await user.click(taskHeader(humanTasks, "Taak 1"));
+
+    const fields = within(taskFields(humanTasks, "Taak 1"));
+    expect(
+      fields.getByRole("combobox", { name: "formulierDefinitie" }),
+    ).toBeVisible();
+    expect(fields.getByRole("combobox", { name: "groep" })).toBeVisible();
+    expect(
+      fields.getByRole("spinbutton", { name: "doorlooptijd" }),
+    ).toHaveValue(5);
+  });
+
+  it("shows a human task as active by default", async () => {
+    const { humanTasks } = await setup();
+
+    expect(
+      within(taskHeader(humanTasks, "Taak 1")).getByRole("switch"),
+    ).toBeChecked();
+  });
+
+  it("marks a human task without a form definition as incomplete", async () => {
+    const { humanTasks } = await setup();
+
+    expect(
+      within(taskHeader(humanTasks, "Taak 1")).getByText("error"),
+    ).toBeVisible();
+    expect(
+      within(taskHeader(humanTasks, "Uitstel aanvragen")).getByText(
+        "check_circle",
+      ),
+    ).toBeVisible();
+  });
+
+  it("marks a human task as complete once a form definition is chosen", async () => {
+    const { humanTasks } = await setup();
+
+    await user.click(taskHeader(humanTasks, "Taak 1"));
+    await chooseFormulierDefinitie(
+      humanTasks,
+      "Taak 1",
+      "DEFAULT_TAAKFORMULIER",
     );
 
-    component.algemeenFormGroup.controls["caseDefinition"].setValue(
-      fromPartial<GeneratedType<"RESTCaseDefinition">>({ key: "case-1" }),
-      { emitEvent: false },
-    );
-    component.algemeenFormGroup.controls["defaultGroep"].setValue(
-      { id: "test-group-id", naam: "test-group" },
-      { emitEvent: false },
-    );
-    component["updateZaakAfzenders"]("test@example.com");
+    expect(
+      within(taskHeader(humanTasks, "Taak 1")).getByText("check_circle"),
+    ).toBeVisible();
+  });
 
-    component["opslaan"]();
+  it("marks a human task with a negative doorlooptijd as incomplete", async () => {
+    const { humanTasks } = await setup();
 
-    expect(component["humanTaskParameters"][0].doorlooptijd).toBe(10);
-    expect(component["humanTaskParameters"][0].actief).toBe(false);
+    await user.click(taskHeader(humanTasks, "Uitstel aanvragen"));
+    const doorlooptijd = within(
+      taskFields(humanTasks, "Uitstel aanvragen"),
+    ).getByRole("spinbutton", { name: "doorlooptijd" });
+
+    // a minus sign cannot be typed into a number input in jsdom, so the whole value is entered at once
+    fireEvent.input(doorlooptijd, { target: { value: "-1" } });
+
+    expect(
+      within(taskHeader(humanTasks, "Uitstel aanvragen")).getByText("error"),
+    ).toBeVisible();
+  });
+
+  it("asks for a reference table per field of the chosen form definition", async () => {
+    const { humanTasks } = await setup();
+
+    await user.click(taskHeader(humanTasks, "Taak 1"));
+    await chooseFormulierDefinitie(humanTasks, "Taak 1", "ADVIES");
+
+    expect(
+      within(taskFields(humanTasks, "Taak 1")).getByRole("combobox", {
+        name: "referentietabel.ADVIES",
+      }),
+    ).toBeVisible();
+  });
+
+  it("saves the doorlooptijd and the active state as they were filled in", async () => {
+    const { humanTasks, updateZaakafhandelparameters } = await setup();
+
+    await user.click(taskHeader(humanTasks, "Taak 1"));
+    await chooseFormulierDefinitie(
+      humanTasks,
+      "Taak 1",
+      "DEFAULT_TAAKFORMULIER",
+    );
+
+    const fields = within(taskFields(humanTasks, "Taak 1"));
+    await user.clear(fields.getByRole("spinbutton", { name: "doorlooptijd" }));
+    await user.type(
+      fields.getByRole("spinbutton", { name: "doorlooptijd" }),
+      "10",
+    );
+    await user.click(
+      within(taskHeader(humanTasks, "Taak 1")).getByRole("switch"),
+    );
+
+    await user.click(
+      within(humanTasks).getByRole("button", { name: "actie.opslaan" }),
+    );
+    await sleep();
+
+    expect(updateZaakafhandelparameters.mutationFn.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        humanTaskParameters: expect.arrayContaining([
+          expect.objectContaining({
+            planItemDefinition: expect.objectContaining({ naam: "Taak 1" }),
+            doorlooptijd: 10,
+            actief: false,
+            formulierDefinitieId: "DEFAULT_TAAKFORMULIER",
+          }),
+        ]),
+      }),
+    );
   });
 });
