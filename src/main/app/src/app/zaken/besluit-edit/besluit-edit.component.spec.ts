@@ -3,434 +3,400 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { ComponentRef, provideZonelessChangeDetection } from "@angular/core";
+import {
+  inputBinding,
+  outputBinding,
+  provideZonelessChangeDetection,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
-import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import moment from "moment";
-import { EMPTY, of } from "rxjs";
+import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BesluitEditComponent } from "./besluit-edit.component";
 
-describe(BesluitEditComponent.name, () => {
-  let component: BesluitEditComponent;
-  let componentRef: ComponentRef<BesluitEditComponent>;
-  let fixture: ComponentFixture<BesluitEditComponent>;
-  let loader: HarnessLoader;
-  let httpTestingController: HttpTestingController;
-  let informatieObjectenService: InformatieObjectenService;
-  let foutAfhandelingService: FoutAfhandelingService;
-  let utilService: UtilService;
+const DOCUMENTS_URL = "/rest/informatieobjecten/informatieobjectenList";
+const UPDATE_URL = "/rest/zaken/besluit";
 
-  const mockSideNav = fromPartial<MatDrawer>({
-    close: jest.fn().mockReturnValue(Promise.resolve("close")),
+const mockDocuments = [
+  fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+    uuid: "document-uuid-1",
+    titel: "Document 1",
+    bestandsnaam: "document-1.pdf",
+  }),
+  fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+    uuid: "document-uuid-2",
+    titel: "Document 2",
+    bestandsnaam: "document-2.pdf",
+  }),
+];
+
+const publicationBesluittype = fromPartial<GeneratedType<"RestBesluitType">>({
+  id: "besluittype-id-2",
+  naam: "Besluittype 2",
+  publication: { enabled: true, responseTermDays: 6 },
+});
+
+const makeBesluit = (fields: Partial<GeneratedType<"RestBesluit">> = {}) =>
+  fromPartial<GeneratedType<"RestBesluit">>({
+    uuid: "besluit-uuid-1",
+    besluittype: fromPartial<GeneratedType<"RestBesluitType">>({
+      id: "besluittype-id-1",
+      naam: "Besluittype 1",
+      publication: { enabled: false },
+    }),
+    ingangsdatum: "2026-01-01",
+    vervaldatum: "2026-12-31",
+    toelichting: "Bestaande toelichting",
+    informatieobjecten: [mockDocuments[0]],
+    ...fields,
   });
 
-  const mockDocuments = [
-    fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-      uuid: "document-uuid-1",
-      titel: "Document 1",
-      bestandsnaam: "document-1.pdf",
-    }),
-    fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-      uuid: "document-uuid-2",
-      titel: "Document 2",
-      bestandsnaam: "document-2.pdf",
-    }),
-  ];
+describe(BesluitEditComponent.name, () => {
+  let fixture: ComponentFixture<BesluitEditComponent>;
+  let httpTestingController: HttpTestingController;
 
-  const makeBesluit = (fields: Partial<GeneratedType<"RestBesluit">> = {}) =>
-    fromPartial<GeneratedType<"RestBesluit">>({
-      uuid: "besluit-uuid-1",
-      besluittype: fromPartial<GeneratedType<"RestBesluitType">>({
-        id: "besluittype-id-1",
-        naam: "Besluittype 1",
-        publication: { enabled: false },
-      }),
-      ingangsdatum: "2026-01-01",
-      vervaldatum: "2026-12-31",
-      toelichting: "Bestaande toelichting",
-      informatieobjecten: [mockDocuments[0]],
-      ...fields,
+  const setup = async (besluit = makeBesluit()) => {
+    const besluitGewijzigd = jest.fn();
+    const sideNav = fromPartial<MatDrawer>({
+      close: jest.fn().mockResolvedValue("close"),
     });
 
-  const setupComponent = async (besluit = makeBesluit()) => {
-    fixture = TestBed.createComponent(BesluitEditComponent);
-    component = fixture.componentInstance;
-    componentRef = fixture.componentRef;
-
-    componentRef.setInput("sideNav", mockSideNav);
-    componentRef.setInput("zaak", fromPartial({ uuid: "zaak-uuid-1" }));
-    componentRef.setInput("besluit", besluit);
-
-    testQueryClient.setQueryData(
-      ["besluit-documenten", "zaak-uuid-1", besluit.besluittype?.id],
-      mockDocuments,
-    );
-
-    loader = TestbedHarnessEnvironment.loader(fixture);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    await sleep();
-    fixture.detectChanges();
-    await fixture.whenStable();
-  };
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        BesluitEditComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
+    const rendered = await render(BesluitEditComponent, {
+      bindings: [
+        inputBinding("besluit", () => besluit),
+        inputBinding("zaak", () =>
+          fromPartial<GeneratedType<"RestZaak">>({ uuid: "zaak-uuid-1" }),
+        ),
+        inputBinding("sideNav", () => sideNav),
+        outputBinding<boolean>("besluitGewijzigd", besluitGewijzigd),
       ],
+      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
       providers: [
         provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideMomentDateAdapter(),
+        provideMomentDateAdapter({
+          parse: { dateInput: "yyyy-MM-DD" },
+          display: {
+            dateInput: "yyyy-MM-DD",
+            monthYearLabel: "MMMM YYYY",
+            dateA11yLabel: "LL",
+            monthYearA11yLabel: "MMMM YYYY",
+          },
+        }),
         provideQueryClient(testQueryClient),
-        InformatieObjectenService,
-        UtilService,
       ],
-    }).compileComponents();
+    });
 
-    informatieObjectenService = TestBed.inject(InformatieObjectenService);
-    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
-    utilService = TestBed.inject(UtilService);
+    fixture = rendered.fixture;
     httpTestingController = TestBed.inject(HttpTestingController);
 
-    jest
-      .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of(mockDocuments));
+    const utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "openSnackbar");
+    const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
     jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
+
+    const documentsRequest = httpTestingController.expectOne(DOCUMENTS_URL);
+    documentsRequest.flush(mockDocuments);
+    await sleep();
+    fixture.detectChanges();
+    await sleep();
+    // the documents table creates its row views in one pass and binds the cells in the next
+    fixture.detectChanges();
+    fixture.detectChanges();
+
+    return {
+      besluitGewijzigd,
+      sideNav,
+      documentsRequest,
+      utilService,
+      foutAfhandelingService,
+    };
+  };
+
+  const submitButton = () =>
+    screen.getByRole("button", { name: "actie.wijzigen" });
+
+  const fillDate = async (label: string, value: string) => {
+    const field = screen.getByLabelText(label);
+    await userEvent.clear(field);
+    await userEvent.type(field, value);
+    await userEvent.tab();
+  };
+
+  const fillText = async (label: string, value: string) => {
+    const field = screen.getByLabelText(label);
+    await userEvent.clear(field);
+    await userEvent.click(field);
+    await userEvent.paste(value);
+    await userEvent.tab();
+  };
+
+  const documentRow = (titel: string) =>
+    screen.getByRole("row", { name: new RegExp(titel) });
+
+  it("fills the form with the values of the besluit", async () => {
+    await setup();
+
+    expect(screen.getByLabelText("Besluit")).toHaveValue("Besluittype 1");
+    expect(screen.getByLabelText("Ingangsdatum")).toHaveValue("2026-01-01");
+    expect(screen.getByLabelText("Vervaldatum")).toHaveValue("2026-12-31");
+    expect(screen.getByLabelText("BesluitToelichting")).toHaveValue(
+      "Bestaande toelichting",
+    );
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    httpTestingController.verify();
-    jest.clearAllMocks();
+  it("does not allow the besluittype to be changed", async () => {
+    await setup();
+
+    expect(screen.getByLabelText("Besluit")).toBeDisabled();
   });
 
-  describe("prefill", () => {
-    it("fills the form with the current besluit values", async () => {
-      await setupComponent();
+  it("shows the documents of the besluittype for this zaak", async () => {
+    const { documentsRequest } = await setup();
 
-      const { controls } = component["form"];
-      expect(controls.besluittype.value).toBe("Besluittype 1");
-      expect(controls.ingangsdatum.value?.isSame("2026-01-01", "day")).toBe(
-        true,
-      );
-      expect(controls.vervaldatum.value?.isSame("2026-12-31", "day")).toBe(
-        true,
-      );
-      expect(controls.toelichting.value).toBe("Bestaande toelichting");
+    expect(documentsRequest.request.body).toEqual({
+      zaakUUID: "zaak-uuid-1",
+      besluittypeUUID: "besluittype-id-1",
     });
-
-    it("renders the besluittype field as read-only", async () => {
-      await setupComponent();
-
-      expect(component["form"].controls.besluittype.disabled).toBe(true);
-    });
+    expect(documentRow("Document 1")).toBeVisible();
+    expect(documentRow("Document 2")).toBeVisible();
   });
 
-  describe("documents", () => {
-    it("loads the documents linked to the besluittype for the active zaak", async () => {
-      await setupComponent();
+  it("pre-selects the documents that are already linked to the besluit", async () => {
+    await setup();
 
-      expect(
-        informatieObjectenService.listEnkelvoudigInformatieobjecten,
-      ).toHaveBeenCalledWith({
-        zaakUUID: "zaak-uuid-1",
-        besluittypeUUID: "besluittype-id-1",
-      });
-    });
-
-    it("pre-selects the documents already linked to the besluit", async () => {
-      await setupComponent();
-
-      expect(component["form"].controls.documenten.value).toEqual([
-        mockDocuments[0],
-      ]);
-    });
+    expect(
+      within(documentRow("Document 1")).getByRole("checkbox"),
+    ).toBeChecked();
+    expect(
+      within(documentRow("Document 2")).getByRole("checkbox"),
+    ).not.toBeChecked();
   });
 
-  describe("validation", () => {
-    it("is invalid without an ingangsdatum", async () => {
-      await setupComponent();
-      component["form"].controls.reden.setValue("reden");
+  it("cannot be submitted without a reden", async () => {
+    await setup();
 
-      component["form"].controls.ingangsdatum.setValue(null);
+    await fillText("BesluitToelichting", "Andere toelichting");
 
-      expect(component["form"].invalid).toBe(true);
-    });
-
-    it("is invalid when the vervaldatum is before the ingangsdatum", async () => {
-      await setupComponent();
-      component["form"].controls.ingangsdatum.setValue(moment("2026-06-10"));
-
-      component["form"].controls.vervaldatum.setValue(moment("2026-06-05"));
-
-      expect(component["form"].controls.vervaldatum.invalid).toBe(true);
-    });
-
-    it("shows a readable message when the vervaldatum is before the ingangsdatum", async () => {
-      await setupComponent();
-      component["form"].controls.ingangsdatum.setValue(moment("2026-06-10"));
-
-      component["form"].controls.vervaldatum.setValue(moment("2026-06-05"));
-
-      expect(
-        component["form"].controls.vervaldatum.errors?.custom?.message,
-      ).toBe("msg.error.date.invalid.datum.vervaldatum-voor-ingangsdatum");
-    });
-
-    it("marks the prefilled vervaldatum touched and shows the readable message when the ingangsdatum is moved past it", async () => {
-      await setupComponent();
-      expect(component["form"].controls.vervaldatum.touched).toBe(false);
-
-      component["form"].controls.ingangsdatum.setValue(moment("2027-06-10"));
-
-      expect(component["form"].controls.vervaldatum.touched).toBe(true);
-      expect(
-        component["form"].controls.vervaldatum.errors?.custom?.message,
-      ).toBe("msg.error.date.invalid.datum.vervaldatum-voor-ingangsdatum");
-    });
-
-    it("is invalid without a reden", async () => {
-      await setupComponent();
-
-      expect(component["form"].controls.reden.invalid).toBe(true);
-    });
-
-    it("accepts a toelichting of up to 1000 characters", async () => {
-      await setupComponent();
-
-      component["form"].controls.toelichting.setValue("a".repeat(1000));
-
-      expect(component["form"].controls.toelichting.valid).toBe(true);
-    });
-
-    it("is invalid when the toelichting exceeds 1000 characters", async () => {
-      await setupComponent();
-
-      component["form"].controls.toelichting.setValue("a".repeat(1001));
-
-      expect(
-        component["form"].controls.toelichting.errors?.maxlength,
-      ).toBeTruthy();
-    });
-
-    it("accepts a reden of up to 80 characters", async () => {
-      await setupComponent();
-
-      component["form"].controls.reden.setValue("a".repeat(80));
-
-      expect(component["form"].controls.reden.valid).toBe(true);
-    });
-
-    it("is invalid when the reden exceeds 80 characters", async () => {
-      await setupComponent();
-
-      component["form"].controls.reden.setValue("a".repeat(81));
-
-      expect(component["form"].controls.reden.errors?.maxlength).toBeTruthy();
-    });
+    expect(submitButton()).toBeDisabled();
   });
 
-  const countDateFields = () =>
-    fixture.nativeElement.querySelectorAll("zac-date").length;
+  it("can be submitted once a reden is given", async () => {
+    await setup();
 
-  describe("publication section", () => {
-    it("is hidden when the besluittype does not require publication", async () => {
-      await setupComponent();
+    await fillText("Wijziging.reden", "Wijziging reden");
 
-      // Only ingangsdatum and vervaldatum are rendered.
-      expect(countDateFields()).toBe(2);
-    });
-
-    it("is shown when the besluittype requires publication", async () => {
-      await setupComponent(
-        makeBesluit({
-          besluittype: fromPartial<GeneratedType<"RestBesluitType">>({
-            id: "besluittype-id-2",
-            naam: "Besluittype 2",
-            publication: { enabled: true, responseTermDays: 6 },
-          }),
-        }),
-      );
-
-      // ingangsdatum, vervaldatum + publicationDate, lastResponseDate.
-      expect(countDateFields()).toBe(4);
-    });
+    expect(submitButton()).toBeEnabled();
   });
 
-  describe("publication dates", () => {
-    const makePublicationBesluit = (
-      fields: Partial<GeneratedType<"RestBesluit">> = {},
-    ) =>
+  it("cannot be submitted without an ingangsdatum", async () => {
+    await setup();
+    await fillText("Wijziging.reden", "Wijziging reden");
+
+    await userEvent.clear(screen.getByLabelText("Ingangsdatum"));
+
+    expect(submitButton()).toBeDisabled();
+  });
+
+  it("warns when the vervaldatum is before the ingangsdatum", async () => {
+    await setup();
+
+    await fillDate("Vervaldatum", "2025-12-31");
+
+    expect(
+      screen.getByText(
+        "msg.error.date.invalid.datum.vervaldatum-voor-ingangsdatum",
+      ),
+    ).toBeVisible();
+  });
+
+  it("warns about the prefilled vervaldatum when the ingangsdatum is moved past it", async () => {
+    await setup();
+
+    await fillDate("Ingangsdatum", "2027-06-10");
+
+    expect(
+      screen.getByText(
+        "msg.error.date.invalid.datum.vervaldatum-voor-ingangsdatum",
+      ),
+    ).toBeVisible();
+  });
+
+  it("accepts a toelichting of 1000 characters and takes no more", async () => {
+    await setup();
+
+    await fillText("BesluitToelichting", "a".repeat(1001));
+
+    expect(screen.getByLabelText("BesluitToelichting")).toHaveValue(
+      "a".repeat(1000),
+    );
+  });
+
+  it("accepts a reden of 80 characters and takes no more", async () => {
+    await setup();
+
+    await fillText("Wijziging.reden", "a".repeat(81));
+
+    expect(screen.getByLabelText("Wijziging.reden")).toHaveValue(
+      "a".repeat(80),
+    );
+  });
+
+  it("hides the publication dates for a besluittype without publication", async () => {
+    await setup();
+
+    expect(screen.queryByLabelText("Publicatiedatum")).toBeNull();
+    expect(screen.queryByLabelText("Uiterlijkereactiedatum")).toBeNull();
+  });
+
+  it("shows the publication dates for a besluittype that requires publication", async () => {
+    await setup(makeBesluit({ besluittype: publicationBesluittype }));
+
+    expect(screen.getByLabelText("Publicatiedatum")).toBeVisible();
+    expect(screen.getByLabelText("Uiterlijkereactiedatum")).toBeVisible();
+  });
+
+  it("derives the uiterlijke reactiedatum from the publicatiedatum", async () => {
+    await setup(makeBesluit({ besluittype: publicationBesluittype }));
+
+    await fillDate("Publicatiedatum", "2026-03-01");
+
+    expect(screen.getByLabelText("Uiterlijkereactiedatum")).toHaveValue(
+      "2026-03-07",
+    );
+  });
+
+  it("warns when the uiterlijke reactiedatum is before the publicatiedatum", async () => {
+    await setup(makeBesluit({ besluittype: publicationBesluittype }));
+    await fillDate("Publicatiedatum", "2026-03-01");
+
+    await fillDate("Uiterlijkereactiedatum", "2026-03-01");
+
+    expect(
+      screen.getByText(
+        "msg.error.date.invalid.datum.reactiedatum-voor-publicatiedatum",
+      ),
+    ).toBeVisible();
+  });
+
+  it("warns when the uiterlijke reactiedatum is before the vervaldatum it was loaded with", async () => {
+    await setup(makeBesluit({ besluittype: publicationBesluittype }));
+
+    await fillDate("Uiterlijkereactiedatum", "2026-01-01");
+
+    expect(
+      screen.getByText(
+        "msg.error.date.invalid.datum.reactiedatum-voor-publicatiedatum",
+      ),
+    ).toBeVisible();
+  });
+
+  it("empties the uiterlijke reactiedatum when the publicatiedatum is cleared", async () => {
+    await setup(makeBesluit({ besluittype: publicationBesluittype }));
+    await fillDate("Publicatiedatum", "2026-03-01");
+
+    await userEvent.clear(screen.getByLabelText("Publicatiedatum"));
+
+    expect(screen.getByLabelText("Uiterlijkereactiedatum")).toHaveValue("");
+  });
+
+  it("updates the besluit and reports the change", async () => {
+    const { besluitGewijzigd, utilService } = await setup();
+    await fillText("Wijziging.reden", "Wijziging reden");
+
+    await userEvent.click(submitButton());
+    await sleep();
+
+    const request = httpTestingController.expectOne({
+      method: "PUT",
+      url: UPDATE_URL,
+    });
+    expect(request.request.body).toEqual(
+      expect.objectContaining({
+        besluitUuid: "besluit-uuid-1",
+        reden: "Wijziging reden",
+        informatieobjecten: ["document-uuid-1"],
+        ingangsdatum: moment("2026-01-01").toISOString(),
+        vervaldatum: moment("2026-12-31").toISOString(),
+      }),
+    );
+    request.flush(null);
+    await sleep(100);
+
+    expect(utilService.openSnackbar).toHaveBeenCalledWith(
+      "msg.besluit.gewijzigd",
+    );
+    expect(besluitGewijzigd).toHaveBeenCalledWith(true);
+  });
+
+  it("includes the publication dates when the besluittype requires publication", async () => {
+    await setup(
       makeBesluit({
-        besluittype: fromPartial<GeneratedType<"RestBesluitType">>({
-          id: "besluittype-id-2",
-          naam: "Besluittype 2",
-          publication: { enabled: true, responseTermDays: 6 },
-        }),
-        ...fields,
-      });
+        besluittype: publicationBesluittype,
+        vervaldatum: "2026-02-01",
+        publicationDate: "2026-02-01",
+        lastResponseDate: "2026-02-07",
+      }),
+    );
+    await fillText("Wijziging.reden", "Wijziging reden");
 
-    it("auto-fills lastResponseDate from publicationDate + responseTermDays", async () => {
-      await setupComponent(makePublicationBesluit());
+    await userEvent.click(submitButton());
+    await sleep();
 
-      component["form"].controls.publicationDate.setValue(moment("2026-03-01"));
-
-      expect(
-        component["form"].controls.lastResponseDate.value?.isSame(
-          moment("2026-03-07"),
-          "day",
-        ),
-      ).toBe(true);
+    const request = httpTestingController.expectOne({
+      method: "PUT",
+      url: UPDATE_URL,
     });
-
-    it("applies the lastResponseDate minimum on load when publication is required", async () => {
-      await setupComponent(
-        makePublicationBesluit({ vervaldatum: "2026-12-31" }),
-      );
-
-      expect(component["lastResponseDateMinValidator"]).not.toBeNull();
-    });
-
-    it("shows a readable message when the lastResponseDate is before its minimum", async () => {
-      await setupComponent(makePublicationBesluit());
-      component["form"].controls.publicationDate.setValue(moment("2026-03-01"));
-
-      component["form"].controls.lastResponseDate.setValue(
-        moment("2026-03-01"),
-      );
-
-      expect(
-        component["form"].controls.lastResponseDate.errors?.custom?.message,
-      ).toBe("msg.error.date.invalid.datum.reactiedatum-voor-publicatiedatum");
-    });
-
-    it("resets the lastResponseDate and its minimum when the publicationDate is cleared", async () => {
-      await setupComponent(makePublicationBesluit());
-      component["form"].controls.publicationDate.setValue(moment("2026-03-01"));
-      expect(component["form"].controls.lastResponseDate.value).not.toBeNull();
-
-      component["form"].controls.publicationDate.setValue(null);
-
-      expect(component["form"].controls.lastResponseDate.value).toBeNull();
-      expect(component["lastResponseDateMinValidator"]).toBeNull();
-    });
+    expect(request.request.body).toEqual(
+      expect.objectContaining({
+        publicationDate: moment("2026-02-01").toISOString(),
+        lastResponseDate: moment("2026-02-07").toISOString(),
+      }),
+    );
+    request.flush(null);
+    await sleep(100);
   });
 
-  describe("submit", () => {
-    it("updates the besluit and emits besluitGewijzigd on success", async () => {
-      await setupComponent();
-      const emitSpy = jest.spyOn(component["besluitGewijzigd"], "emit");
-      component["form"].controls.reden.setValue("Wijziging reden");
+  it("shows an error and keeps the panel open when updating fails", async () => {
+    const { besluitGewijzigd, sideNav, foutAfhandelingService } = await setup();
+    await fillText("Wijziging.reden", "Wijziging reden");
 
-      component["submit"]();
-      await sleep();
+    await userEvent.click(submitButton());
+    await sleep();
+    httpTestingController
+      .expectOne({ method: "PUT", url: UPDATE_URL })
+      .flush(null, { status: 500, statusText: "Internal Server Error" });
+    await sleep(100);
 
-      const request = httpTestingController.expectOne({
-        method: "PUT",
-        url: "/rest/zaken/besluit",
-      });
-      expect(request.request.body).toEqual(
-        expect.objectContaining({
-          besluitUuid: "besluit-uuid-1",
-          reden: "Wijziging reden",
-          informatieobjecten: ["document-uuid-1"],
-          ingangsdatum: moment("2026-01-01").toISOString(),
-          vervaldatum: moment("2026-12-31").toISOString(),
-        }),
-      );
-      request.flush(null);
-      await sleep(100);
-
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.besluit.gewijzigd",
-      );
-      expect(emitSpy).toHaveBeenCalledWith(true);
-    });
-
-    it("includes the publication dates in the payload when publication is required", async () => {
-      await setupComponent(
-        makeBesluit({
-          besluittype: fromPartial<GeneratedType<"RestBesluitType">>({
-            id: "besluittype-id-2",
-            naam: "Besluittype 2",
-            publication: { enabled: true, responseTermDays: 6 },
-          }),
-          publicationDate: "2026-02-01",
-          lastResponseDate: "2026-02-07",
-        }),
-      );
-      component["form"].controls.reden.setValue("Wijziging reden");
-
-      component["submit"]();
-      await sleep();
-
-      const request = httpTestingController.expectOne({
-        method: "PUT",
-        url: "/rest/zaken/besluit",
-      });
-      expect(request.request.body).toEqual(
-        expect.objectContaining({
-          publicationDate: moment("2026-02-01").toISOString(),
-          lastResponseDate: moment("2026-02-07").toISOString(),
-        }),
-      );
-      request.flush(null);
-      await sleep(100);
-    });
-
-    it("shows an error and keeps the panel open when updating fails", async () => {
-      await setupComponent();
-      const emitSpy = jest.spyOn(component["besluitGewijzigd"], "emit");
-      component["form"].controls.reden.setValue("Wijziging reden");
-
-      component["submit"]();
-      await sleep();
-
-      httpTestingController
-        .expectOne({ method: "PUT", url: "/rest/zaken/besluit" })
-        .flush(null, { status: 500, statusText: "Internal Server Error" });
-      await sleep(100);
-
-      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
-      expect(emitSpy).not.toHaveBeenCalled();
-      expect(mockSideNav.close).not.toHaveBeenCalled();
-    });
+    expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
+    expect(besluitGewijzigd).not.toHaveBeenCalled();
+    expect(sideNav.close).not.toHaveBeenCalled();
   });
 
-  describe("buttons", () => {
-    it("closes the sideNav when the cancel button is clicked", async () => {
-      await setupComponent();
+  it("closes the side panel when the cancel button is used", async () => {
+    const { sideNav } = await setup();
 
-      const cancelButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.annuleren/ }),
-      );
-      await cancelButton.click();
+    await userEvent.click(
+      screen.getByRole("button", { name: "actie.annuleren" }),
+    );
 
-      expect(mockSideNav.close).toHaveBeenCalled();
-    });
+    expect(sideNav.close).toHaveBeenCalled();
   });
 });
