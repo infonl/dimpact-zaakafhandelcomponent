@@ -10,6 +10,7 @@ import {
   computed,
   OnDestroy,
   OnInit,
+  signal,
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -49,6 +50,7 @@ import {
   mapFormGroupToTaskData,
   mapTaskdataToTaskInformation,
 } from "../../formulieren/taken/taak.utils";
+import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { IdentityService } from "../../identity/identity.service";
 import { InformatieObjectAddComponent } from "../../informatie-objecten/informatie-object-add/informatie-object-add.component";
 import { InformatieObjectCreateAttendedComponent } from "../../informatie-objecten/informatie-object-create-attended/informatie-object-create-attended.component";
@@ -181,6 +183,9 @@ export class TaakViewComponent
       this.completeTaakMutation.isPending(),
   );
 
+  private readonly lastSubmitFailed = signal(false);
+  protected readonly hasFailed = this.lastSubmitFailed.asReadonly();
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly takenService: TakenService,
@@ -194,6 +199,7 @@ export class TaakViewComponent
     private readonly changeDetectorRef: ChangeDetectorRef,
     private readonly formBuilder: FormBuilder,
     private readonly informatieObjectenService: InformatieObjectenService,
+    private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {
     super();
   }
@@ -459,12 +465,20 @@ export class TaakViewComponent
     }
     if (!this.taak) return;
 
+    // Re-initialise from the response so the view reflects whatever the flow decided, without waiting
+    // for the websocket event to arrive.
+    const onSuccess = (task: GeneratedType<"RestTask">) =>
+      this.init(task, false);
+    const onError = () => this.lastSubmitFailed.set(true);
+
+    this.lastSubmitFailed.set(false);
+
     if (submission.state === "submitted") {
-      this.completeTaakMutation.mutate(this.taak);
+      this.completeTaakMutation.mutate(this.taak, { onSuccess, onError });
       return;
     }
 
-    this.updateTaakdataMutation.mutate(this.taak);
+    this.updateTaakdataMutation.mutate(this.taak, { onSuccess, onError });
   }
 
   onFormioFormChange(event: FormioChangeEvent) {

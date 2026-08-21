@@ -1,5 +1,5 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2022 Atos
+  ~ SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
@@ -30,6 +30,7 @@
                 (change)="changed(row, column, $event.checked)"
                 [checked]="row[column]"
                 [id]="row.type + '_' + column + '_checkbox'"
+                [aria-label]="'actie.signalering.' + column | translate"
                 [title]="'actie.signalering.' + column | translate"
               >
               </mat-checkbox>

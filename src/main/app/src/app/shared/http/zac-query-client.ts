@@ -27,6 +27,12 @@ import { HttpClient, Response } from "./http-client";
 // From https://tanstack.com/query/latest/docs/framework/angular/guides/query-retries
 export const DEFAULT_RETRY_COUNT = 3;
 
+/** Retries only what could still succeed: a dropped connection or a server fault. */
+const retryOnServerError = (failureCount: number, error: HttpErrorResponse) => {
+  if (failureCount >= DEFAULT_RETRY_COUNT) return false;
+  return error.status === 0 || error.status >= 500;
+};
+
 export enum StaleTimes {
   Infinite = Infinity,
   Long = 5 * 60 * 1000,
@@ -50,10 +56,7 @@ export class ZacQueryClient {
       queryKey: [url, ...args],
       queryFn: () =>
         lastValueFrom(this.httpClient.GET<Path, Method>(url, ...args)),
-      retry: (failureCount, error) => {
-        if (failureCount >= DEFAULT_RETRY_COUNT) return false;
-        return error.status === 0 || error.status >= 500;
-      },
+      retry: retryOnServerError,
       refetchOnWindowFocus: false,
       staleTime: StaleTimes.Long,
       gcTime: StaleTimes.Long * 2,
@@ -94,23 +97,71 @@ export class ZacQueryClient {
     });
   }
 
+  /**
+   * A search endpoint takes its filters in a request body, so it reads over `PUT`.
+   * The body is part of the query key, which is what makes one set of filters
+   * cacheable and invalidatable apart from the next.
+   */
+  public PUT_QUERY<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods = "put",
+  >(
+    url: Path,
+    body: PutBody<Path, Method>,
+    ...args: ArgsTuple<PathParameters<Path, Method>>
+  ) {
+    return queryOptions<Response<Path, Method>, HttpErrorResponse>({
+      queryKey: [url, body, ...args],
+      queryFn: () =>
+        lastValueFrom(this.httpClient.PUT<Path, Method>(url, body, ...args)),
+      retry: retryOnServerError,
+      refetchOnWindowFocus: false,
+      staleTime: StaleTimes.Short,
+      gcTime: StaleTimes.Short * 2,
+    });
+  }
+
+  /**
+   * The variables are whatever the caller mutates with — the row of a table, an
+   * id, a form value — and `toRequest` derives the path parameters and the body
+   * from them. That keeps one set of options usable for every item the user can
+   * click, rather than one per item, and gives every callback the item it acted
+   * on. Endpoints without path parameters can leave it out: the variables are
+   * then the request body.
+   */
   public DELETE<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "delete",
-  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
-    const [parameters] = args as [PathParameters<Path, Method>];
-
+    // an endpoint without a request body has no variables of its own, so it is
+    // mutated without an argument rather than with an explicit `undefined`
+    Variables = [DeleteBody<Path, Method>] extends [undefined]
+      ? void
+      : DeleteBody<Path, Method>,
+  >(
+    url: Path,
+    toRequest: (variables: Variables) => {
+      parameters?: PathParameters<Path, Method>;
+      body?: DeleteBody<Path, Method>;
+    } = (variables) => ({ body: variables as DeleteBody<Path, Method> }),
+  ) {
     return mutationOptions<
       Response<Path, Method>,
       HttpErrorResponse,
-      DeleteBody<Path, Method>,
+      Variables,
       void
     >({
-      mutationKey: [url, ...args],
-      mutationFn: (body: DeleteBody<Path, Method>) =>
-        lastValueFrom(
-          this.httpClient.DELETE<Path, Method>(url, parameters, body),
-        ),
+      mutationKey: [url],
+      mutationFn: (variables: Variables) => {
+        const { parameters, body } = toRequest(variables);
+
+        return lastValueFrom(
+          this.httpClient.DELETE<Path, Method>(
+            url,
+            parameters as PathParameters<Path, Method>,
+            body,
+          ),
+        );
+      },
       onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
     });
   }

@@ -4,9 +4,16 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import {
+  type MutationFunctionContext,
+  provideQueryClient,
+} from "@tanstack/angular-query-experimental";
 import { testQueryClient } from "../../../setupJest";
 import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
@@ -16,34 +23,81 @@ import { InboxDocumentenService } from "./inbox-documenten.service";
 describe(InboxDocumentenService.name, () => {
   let service: InboxDocumentenService;
   let utilService: UtilService;
+  let httpTestingController: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideQueryClient(testQueryClient)],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
+      ],
     });
 
     service = TestBed.inject(InboxDocumentenService);
     utilService = TestBed.inject(UtilService);
+    httpTestingController = TestBed.inject(HttpTestingController);
     jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
   });
 
   afterEach(() => {
+    httpTestingController.verify();
     testQueryClient.clear();
     jest.clearAllMocks();
   });
 
   describe("delete", () => {
-    it("names the deleted document in the confirmation", async () => {
+    it("addresses the document by its id", async () => {
+      const inboxDocument = fromPartial<GeneratedType<"RestInboxDocument">>({
+        id: 42,
+      });
+
+      const request = service.delete().mutationFn!(
+        inboxDocument,
+        fromPartial<MutationFunctionContext>({}),
+      );
+      httpTestingController.expectOne("/rest/inboxdocumenten/42").flush(null);
+
+      await request;
+    });
+
+    it("names the deleted document in the confirmation when the informatieobject was deleted", async () => {
       const inboxDocument = fromPartial<GeneratedType<"RestInboxDocument">>({
         id: 42,
         titel: "fakeDocumentTitel",
       });
 
-      await runMutationOnSuccess(service.delete(inboxDocument));
+      await runMutationOnSuccess(
+        service.delete(),
+        inboxDocument,
+        fromPartial<GeneratedType<"RestInboxDocumentDeleteResult">>({
+          isInformatieobjectDeleted: true,
+        }),
+      );
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.document.verwijderen.uitgevoerd",
+        { document: "fakeDocumentTitel" },
+      );
+    });
+
+    it("warns that the document itself was not deleted when the informatieobject was not deleted", async () => {
+      const inboxDocument = fromPartial<GeneratedType<"RestInboxDocument">>({
+        id: 42,
+        titel: "fakeDocumentTitel",
+      });
+
+      await runMutationOnSuccess(
+        service.delete(),
+        inboxDocument,
+        fromPartial<GeneratedType<"RestInboxDocumentDeleteResult">>({
+          isInformatieobjectDeleted: false,
+        }),
+      );
+
+      expect(utilService.openSnackbar).toHaveBeenCalledWith(
+        "msg.document.verwijderen.inbox.niet-verwijderd",
         { document: "fakeDocumentTitel" },
       );
     });

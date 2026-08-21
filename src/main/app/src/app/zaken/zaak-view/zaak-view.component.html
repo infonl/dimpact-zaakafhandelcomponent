@@ -191,6 +191,12 @@
           <section class="flex-row space-between items-center">
             <div>
               <mat-card-title>
+                <mat-icon
+                  *ngIf="zaak.isZaakspecifiekGeautoriseerd"
+                  title="{{ 'zaak.isZaakspecifiekGeautoriseerd' | translate }}"
+                  class="zaakspecifiek-geautoriseerd-icon"
+                  >lock</mat-icon
+                >
                 {{ zaak.identificatie }}
               </mat-card-title>
               <mat-card-subtitle>{{

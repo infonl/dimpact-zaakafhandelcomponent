@@ -1,23 +1,20 @@
 /*
- * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2025, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  *
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatStepperHarness } from "@angular/material/stepper/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen } from "@testing-library/angular";
 import { of } from "rxjs";
-import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
-import { fromPartial } from "src/test-helpers";
+import { createMutationOptions, fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
-import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
@@ -25,49 +22,44 @@ import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
 import { ParametersEditCmmnComponent } from "./parameters-edit-cmmn.component";
 
+// rendering this seven step form once per test needs more room than the default timeout
 describe(ParametersEditCmmnComponent.name, () => {
-  let fixture: ComponentFixture<ParametersEditCmmnComponent>;
-  let zaakafhandelParametersService: ZaakafhandelParametersService;
-  let referentieTabelService: ReferentieTabelService;
-  let identityService: IdentityService;
-  let mailtemplateBeheerService: MailtemplateBeheerService;
-  let loader: HarnessLoader;
-  let utilService: UtilService;
+  const stepLabels = [
+    "gegevens.proces-model-methode.CMMN",
+    "gegevens.algemeen",
+    "gegevens.humantasks",
+    "gegevens.acties",
+    "gegevens.mail",
+    "gegevens.beeindiging",
+    "gegevens.koppelingen",
+  ];
+
+  const caseDefinition = fromPartial<GeneratedType<"RESTCaseDefinition">>({
+    key: "case-1",
+    naam: "Case Definition 1",
+  });
 
   const zaakafhandelParameters = fromPartial<
     GeneratedType<"RestZaaktypeConfiguration">
   >({
+    caseDefinition,
     defaultGroepId: "test-group-id",
     defaultBehandelaarId: "test-user-id",
-    zaaktype: {
-      uuid: "test-uuid",
-    },
+    zaaktype: { uuid: "test-uuid" },
     zaakAfzenders: [
       {
         speciaal: false,
-        defaultMail: false,
+        defaultMail: true,
         mail: "test@example.com",
-        replyTo: undefined,
-      },
-      {
-        speciaal: false,
-        defaultMail: false,
-        mail: "test2@example.com",
         replyTo: undefined,
       },
     ],
     humanTaskParameters: [],
     mailtemplateKoppelingen: [],
     zaakbeeindigParameters: [],
-    smartDocuments: {
-      enabledGlobally: false,
-      enabledForZaaktype: false,
-    },
+    smartDocuments: { enabledGlobally: false, enabledForZaaktype: false },
     userEventListenerParameters: [],
-    betrokkeneKoppelingen: {
-      brpKoppelen: false,
-      kvkKoppelen: false,
-    },
+    betrokkeneKoppelingen: { brpKoppelen: false, kvkKoppelen: false },
     brpDoelbindingen: {
       zoekWaarde: "",
       raadpleegWaarde: "",
@@ -82,126 +74,81 @@ describe(ParametersEditCmmnComponent.name, () => {
     },
   });
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        ParametersEditCmmnComponent,
-        StaticTextComponent,
-        TranslateModule.forRoot(),
-        RouterModule,
-        NoopAnimationsModule,
-      ],
+  async function setup() {
+    const { fixture } = await render(ParametersEditCmmnComponent, {
+      imports: [TranslateModule.forRoot(), RouterModule, NoopAnimationsModule],
       providers: [
+        provideQueryClient(testQueryClient),
         provideHttpClient(),
         provideHttpClientTesting(),
         {
           provide: ActivatedRoute,
-          useValue: {
+          useValue: fromPartial<ActivatedRoute>({
             data: of({
               parameters: {
                 zaakafhandelParameters,
                 isSavedZaakafhandelParameters: true,
               },
             }),
-          },
+          }),
+        },
+        {
+          provide: ZaakafhandelParametersService,
+          useValue: fromPartial<ZaakafhandelParametersService>({
+            listCaseDefinitions: () => of([caseDefinition]),
+            listFormulierDefinities: () => of([]),
+            listReplyTos: () => of([{ mail: "reply1@example.com" }]),
+            listZaakbeeindigRedenen: () => of([]),
+            listResultaattypes: () => of([]),
+            updateZaakafhandelparameters: () =>
+              createMutationOptions(zaakafhandelParameters),
+          }),
+        },
+        {
+          provide: ReferentieTabelService,
+          useValue: fromPartial<ReferentieTabelService>({
+            listReferentieTabellen: () => of([]),
+            listAfzenders: () => of(["other@example.com"]),
+            listBrpSearchValues: () => of([]),
+            listBrpViewValues: () => of([]),
+            listBrpProcessingValues: () => of([]),
+          }),
+        },
+        {
+          provide: IdentityService,
+          useValue: fromPartial<IdentityService>({
+            listGroups: () => of([{ id: "test-group-id", naam: "test-group" }]),
+            listUsersInGroup: () =>
+              of([{ id: "test-user-id", naam: "test-user" }]),
+          }),
+        },
+        {
+          provide: MailtemplateBeheerService,
+          useValue: fromPartial<MailtemplateBeheerService>({
+            listKoppelbareMailtemplates: () => of([]),
+          }),
+        },
+        {
+          provide: ConfiguratieService,
+          useValue: fromPartial<ConfiguratieService>({
+            readBrpDoelbindingSetupEnabled: () => of(false),
+          }),
         },
       ],
-    }).compileComponents();
+    });
 
-    zaakafhandelParametersService = TestBed.inject(
-      ZaakafhandelParametersService,
-    );
-    jest
-      .spyOn(zaakafhandelParametersService, "listCaseDefinitions")
-      .mockReturnValue(
-        of([
-          fromPartial<GeneratedType<"RESTCaseDefinition">>({
-            key: "case-1",
-            naam: "Case Definition 1",
-          }),
-        ]),
-      );
-    jest
-      .spyOn(zaakafhandelParametersService, "listFormulierDefinities")
-      .mockReturnValue(of([]));
-    jest.spyOn(zaakafhandelParametersService, "listReplyTos").mockReturnValue(
-      of([
-        {
-          mail: "reply1@example.com",
-          speciaal: false,
-        },
-        {
-          mail: "reply2@example.com",
-          speciaal: false,
-        },
-      ]),
-    );
-    jest
-      .spyOn(zaakafhandelParametersService, "listZaakbeeindigRedenen")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(zaakafhandelParametersService, "listResultaattypes")
-      .mockReturnValue(of([]));
-
-    referentieTabelService = TestBed.inject(ReferentieTabelService);
-    jest
-      .spyOn(referentieTabelService, "listReferentieTabellen")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listAfzenders")
-      .mockReturnValue(of(["test@example.com", "other@example.com"]));
-    jest
-      .spyOn(referentieTabelService, "listBrpViewValues")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listBrpSearchValues")
-      .mockReturnValue(of([]));
-    jest
-      .spyOn(referentieTabelService, "listBrpProcessingValues")
-      .mockReturnValue(of([]));
-
-    identityService = TestBed.inject(IdentityService);
-    jest.spyOn(identityService, "listGroups").mockReturnValue(
-      of([
-        { id: "test-group-id", naam: "test-group" },
-        { id: "test-group-id-2", naam: "test-group-2" },
-      ]),
-    );
-    jest
-      .spyOn(identityService, "listUsersInGroup")
-      .mockReturnValueOnce(
-        of([
-          { id: "test-user-id", naam: "test-user" },
-          { id: "test-user-id-2", naam: "test-user-2" },
-        ]),
-      )
-      .mockReturnValue(of([]));
-
-    utilService = TestBed.inject(UtilService);
-    jest.spyOn(utilService, "compare").mockReturnValue(true);
-
-    mailtemplateBeheerService = TestBed.inject(MailtemplateBeheerService);
-    jest
-      .spyOn(mailtemplateBeheerService, "listKoppelbareMailtemplates")
-      .mockReturnValue(of([]));
-
-    const configuratieService = TestBed.inject(ConfiguratieService);
-    jest
-      .spyOn(configuratieService, "readBrpDoelbindingSetupEnabled")
-      .mockReturnValue(of(false));
-
-    fixture = TestBed.createComponent(ParametersEditCmmnComponent);
     await fixture.whenStable();
     fixture.detectChanges();
+  }
 
-    loader = TestbedHarnessEnvironment.loader(fixture);
-  });
+  it("guides the configuration through all of its steps in order", async () => {
+    await setup();
 
-  describe("Stepper", () => {
-    it("should render all stepper steps", async () => {
-      const stepper = await loader.getHarness(MatStepperHarness);
-      const steps = await stepper.getSteps();
-      expect(steps.length).toBe(7);
+    const steps = screen.getAllByRole("tab");
+
+    expect(steps).toHaveLength(stepLabels.length);
+    stepLabels.forEach((label, index) => {
+      expect(steps[index]).toHaveAccessibleName(new RegExp(label));
     });
   });
 });

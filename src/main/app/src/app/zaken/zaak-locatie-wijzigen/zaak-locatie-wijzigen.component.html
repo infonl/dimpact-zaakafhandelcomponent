@@ -40,6 +40,7 @@
               mat-icon-button
               type="button"
               matSuffix
+              [attr.aria-label]="'actie.ontkoppelen' | translate"
               (click)="resetLocation()"
               [disabled]="!(markerLocatie$ | async)"
             >

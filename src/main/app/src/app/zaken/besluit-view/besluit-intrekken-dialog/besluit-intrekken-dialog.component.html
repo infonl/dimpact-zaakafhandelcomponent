@@ -8,7 +8,11 @@
   <span class="flex-grow-1">
     {{ "actie.besluit.intrekken" | translate }}
   </span>
-  <button mat-icon-button (click)="close()">
+  <button
+    mat-icon-button
+    [attr.aria-label]="'actie.paneel.sluiten' | translate"
+    (click)="close()"
+  >
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>

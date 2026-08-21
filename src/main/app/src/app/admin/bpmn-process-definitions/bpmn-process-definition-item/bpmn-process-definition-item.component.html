@@ -42,12 +42,32 @@
           [value]="processDefinition().details?.documentation"
         />
       </div>
-      @if (processDefinition().details?.inUse) {
-        <div class="explanation">
-          <mat-icon outlined color="primary">info</mat-icon>
-          {{ "bpmn.process-definition.card.details.in-use" | translate }}
-        </div>
-      }
+      <div class="flex-row items-center gap-10 justify-end">
+        @if (processDefinition().details?.inUse) {
+          <div class="explanation flex-1">
+            <mat-icon outlined color="primary">info</mat-icon>
+            {{ "bpmn.process-definition.card.details.in-use" | translate }}
+          </div>
+        }
+        <button
+          class="download-definition"
+          mat-icon-button
+          [disabled]="downloadMutation.isPending()"
+          [attr.aria-label]="
+            'bpmn.process-definition.card.details.button.download' | translate
+          "
+          [matTooltip]="
+            'bpmn.process-definition.card.details.button.download' | translate
+          "
+          (click)="downloadMutation.mutate()"
+        >
+          @if (downloadMutation.isPending()) {
+            <mat-spinner diameter="24" />
+          } @else {
+            <mat-icon>download</mat-icon>
+          }
+        </button>
+      </div>
     </mat-card-content>
   </mat-card>
 
@@ -154,6 +174,7 @@
                     mat-icon-button
                     id="delete"
                     [disabled]="processDefinition().details?.inUse"
+                    [attr.aria-label]="'actie.verwijderen' | translate"
                     (click)="deleteBpmnForm(row.formKey)"
                   >
                     <mat-icon>delete</mat-icon>

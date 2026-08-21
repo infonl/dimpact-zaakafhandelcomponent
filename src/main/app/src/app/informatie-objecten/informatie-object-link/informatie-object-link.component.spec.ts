@@ -290,7 +290,7 @@ describe(InformatieObjectLinkComponent.name, () => {
       .flush(null, { status: 500, statusText: "Server Error" });
     await sleep();
 
-    expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
+    expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledTimes(1);
     expect(utilService.openSnackbar).not.toHaveBeenCalled();
   });
 

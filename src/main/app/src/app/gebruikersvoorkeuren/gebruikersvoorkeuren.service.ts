@@ -34,12 +34,10 @@ export class GebruikersvoorkeurenService {
     );
   }
 
-  deleteZoekOpdrachten(id: number) {
+  deleteZoekOpdrachten() {
     return this.zacQueryClient.DELETE(
       "/rest/gebruikersvoorkeuren/zoekopdracht/{id}",
-      {
-        path: { id },
-      },
+      (id: number) => ({ parameters: { path: { id } } }),
     );
   }
 
@@ -52,12 +50,12 @@ export class GebruikersvoorkeurenService {
     );
   }
 
-  removeZoekopdrachtActief(werklijst: GeneratedType<"Werklijst">) {
+  removeZoekopdrachtActief() {
     return this.zacQueryClient.DELETE(
       "/rest/gebruikersvoorkeuren/zoekopdracht/{werklijst}/actief",
-      {
-        path: { werklijst },
-      },
+      (werklijst: GeneratedType<"Werklijst">) => ({
+        parameters: { path: { werklijst } },
+      }),
     );
   }
 
@@ -105,7 +103,6 @@ export class GebruikersvoorkeurenService {
   deleteDashboardCard() {
     return this.zacQueryClient.DELETE(
       "/rest/gebruikersvoorkeuren/dasboardcard",
-      {},
     );
   }
 }

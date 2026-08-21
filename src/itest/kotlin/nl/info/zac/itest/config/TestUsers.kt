@@ -127,3 +127,13 @@ val BEHANDELAAR_LONG_NAME_TEST = TestUser(
     displayName = "Test Behandelaar Long Name User 1",
     email = "behandelaar-long-name-test@example.com"
 )
+
+/**
+ * A behandelaar for all 'zaakspecifiek geautoriseerde' zaken for domein test 1.
+ */
+val ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1 = TestUser(
+    username = "zaakspecifiekautorisatiebehandelaar1",
+    password = "zaakspecifiekautorisatiebehandelaar1",
+    displayName = "Test Zaakspecifiek Autorisatie Behandelaar 1",
+    email = "zaakspecifiek-autorisatie-behandelaar-test-1@example.com"
+)

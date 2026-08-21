@@ -3,43 +3,131 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { HttpResponse, provideHttpClient } from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
+import { MatDialog } from "@angular/material/dialog";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import {
+  type MutationFunctionContext,
+  provideQueryClient,
+} from "@tanstack/angular-query-experimental";
 import { testQueryClient } from "../../../setupJest";
-import { runMutationOnSuccess } from "../../test-helpers";
+import { fromPartial, runMutationOnSuccess } from "../../test-helpers";
 import { UtilService } from "../core/service/util.service";
 import { BpmnService } from "./bpmn.service";
 
 describe(BpmnService.name, () => {
   let service: BpmnService;
   let utilService: UtilService;
+  let httpTestingController: HttpTestingController;
+  let dialog: MatDialog;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideQueryClient(testQueryClient)],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
+      ],
     });
 
     service = TestBed.inject(BpmnService);
     utilService = TestBed.inject(UtilService);
+    httpTestingController = TestBed.inject(HttpTestingController);
+    dialog = TestBed.inject(MatDialog);
     jest.spyOn(utilService, "openSnackbar").mockImplementation(() => {});
+    jest.spyOn(dialog, "open").mockImplementation(() => ({}) as never);
   });
 
   afterEach(() => {
+    httpTestingController.verify();
     testQueryClient.clear();
     jest.clearAllMocks();
   });
 
-  describe("deleteProcessDefinition", () => {
-    it("names the deleted process definition in the confirmation", async () => {
-      await runMutationOnSuccess(
-        service.deleteProcessDefinition({
-          key: "fakeProcessDefinitionKey",
-          name: "fakeProcessDefinitionName",
-        }),
+  describe("downloadProcessDefinition", () => {
+    it("requests the zip of the given process definition as a blob response", () => {
+      const zipBlob = new Blob(["fakeZipContent"]);
+      const responses: HttpResponse<Blob>[] = [];
+
+      service
+        .downloadProcessDefinition("fakeProcessDefinitionKey")
+        .subscribe((response) => responses.push(response));
+
+      const request = httpTestingController.expectOne(
+        "/rest/bpmn-process-definitions/fakeProcessDefinitionKey/download",
       );
+      expect(request.request.method).toBe("GET");
+      expect(request.request.responseType).toBe("blob");
+
+      request.flush(zipBlob, {
+        headers: { "Content-Disposition": 'attachment; filename="zaak.zip"' },
+      });
+
+      expect(responses[0].body).toBe(zipBlob);
+      expect(responses[0].headers.get("Content-Disposition")).toBe(
+        'attachment; filename="zaak.zip"',
+      );
+    });
+
+    it("reports a failure to its caller instead of to the generic error dialog", () => {
+      const errors: unknown[] = [];
+
+      service
+        .downloadProcessDefinition("fakeProcessDefinitionKey")
+        .subscribe({ error: (error) => errors.push(error) });
+
+      httpTestingController
+        .expectOne(
+          "/rest/bpmn-process-definitions/fakeProcessDefinitionKey/download",
+        )
+        .flush(null, { status: 500, statusText: "Server Error" });
+
+      expect(errors).toHaveLength(1);
+      expect(dialog.open).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("deleteProcessDefinition", () => {
+    it("addresses the process definition by its key", async () => {
+      const request = service.deleteProcessDefinition().mutationFn!(
+        { key: "fakeProcessDefinitionKey", name: "fakeProcessDefinitionName" },
+        fromPartial<MutationFunctionContext>({}),
+      );
+      httpTestingController
+        .expectOne("/rest/bpmn-process-definitions/fakeProcessDefinitionKey")
+        .flush(null);
+
+      await request;
+    });
+
+    it("addresses a form by its process definition key and name", async () => {
+      const request = service.deleteProcessDefinitionForm().mutationFn!(
+        {
+          processDefinitionKey: "fakeProcessDefinitionKey",
+          name: "fakeFormName",
+        },
+        fromPartial<MutationFunctionContext>({}),
+      );
+      httpTestingController
+        .expectOne(
+          "/rest/bpmn-process-definitions/fakeProcessDefinitionKey/forms/fakeFormName",
+        )
+        .flush(null);
+
+      await request;
+    });
+
+    it("names the deleted process definition in the confirmation", async () => {
+      await runMutationOnSuccess(service.deleteProcessDefinition(), {
+        key: "fakeProcessDefinitionKey",
+        name: "fakeProcessDefinitionName",
+      });
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.bpmn.process-definition.deleted",
@@ -69,23 +157,19 @@ describe(BpmnService.name, () => {
     });
 
     it("invalidates every listing variant after deleting a definition", async () => {
-      await runMutationOnSuccess(
-        service.deleteProcessDefinition({
-          key: "fakeProcessDefinitionKey",
-          name: "fakeProcessDefinitionName",
-        }),
-      );
+      await runMutationOnSuccess(service.deleteProcessDefinition(), {
+        key: "fakeProcessDefinitionKey",
+        name: "fakeProcessDefinitionName",
+      });
 
       expectListingInvalidated();
     });
 
     it("invalidates every listing variant after deleting a form", async () => {
-      await runMutationOnSuccess(
-        service.deleteProcessDefinitionForm(
-          "fakeProcessDefinitionKey",
-          "fakeFormName",
-        ),
-      );
+      await runMutationOnSuccess(service.deleteProcessDefinitionForm(), {
+        processDefinitionKey: "fakeProcessDefinitionKey",
+        name: "fakeFormName",
+      });
 
       expectListingInvalidated();
     });

@@ -53,3 +53,5 @@ class BpmnProcessDefinitionTaskForm {
     @Column(nullable = false)
     lateinit var content: String
 }
+
+fun BpmnProcessDefinitionTaskForm.isUsedIn(formKeys: List<String>) = name in formKeys

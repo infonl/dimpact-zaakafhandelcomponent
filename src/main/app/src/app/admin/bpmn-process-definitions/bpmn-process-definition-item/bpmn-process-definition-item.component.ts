@@ -16,7 +16,7 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatExpansionModule } from "@angular/material/expansion";
-import { forkJoin } from "rxjs";
+import { forkJoin, lastValueFrom } from "rxjs";
 import { UtilService } from "../../../core/service/util.service";
 import { FoutAfhandelingService } from "../../../fout-afhandeling/fout-afhandeling.service";
 import {
@@ -24,11 +24,15 @@ import {
   ConfirmDialogData,
 } from "../../../shared/confirm-dialog/confirm-dialog.component";
 import { FileDragAndDropDirective } from "../../../shared/directives/file-drag-and-drop.directive";
-import { injectServiceMutation } from "../../../shared/http/inject-service-mutation";
+import { injectMutation } from "../../../shared/http/inject-mutation";
 import { SharedModule } from "../../../shared/shared.module";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+import {
+  promptForSaveLocation,
+  writeFile,
+} from "../../../shared/utils/save-file";
 import { BpmnService } from "../../bpmn.service";
-import { readFileContent } from "../file.helper";
+import { extractAttachmentFilename, readFileContent } from "../file.helper";
 
 @Component({
   standalone: true,
@@ -78,12 +82,46 @@ export class BpmnProcessDefinitionItemComponent {
   private readonly bpmnService = inject(BpmnService);
   private readonly utilService = inject(UtilService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
-  private readonly deleteProcessDefinitionFormMutation = injectServiceMutation(
-    (processDefinitionForm: { processDefinitionKey: string; name: string }) =>
-      this.bpmnService.deleteProcessDefinitionForm(
-        processDefinitionForm.processDefinitionKey,
-        processDefinitionForm.name,
-      ),
+  private readonly deleteProcessDefinitionFormMutation = injectMutation(() =>
+    this.bpmnService.deleteProcessDefinitionForm(),
+  );
+
+  protected readonly downloadMutation = injectMutation(
+    () => ({
+      mutationFn: async () => {
+        const { key, version } = this.processDefinition();
+        const fileHandle = await promptForSaveLocation({
+          suggestedName: `${key}-v${version}.zip`,
+          types: [{ accept: { "application/zip": [".zip"] } }],
+        });
+        const response = await lastValueFrom(
+          this.bpmnService.downloadProcessDefinition(key),
+        );
+
+        return { fileHandle, response };
+      },
+    }),
+    {
+      onSuccess: async ({ fileHandle, response }) => {
+        if (!response.body) return;
+        if (fileHandle) {
+          await writeFile(fileHandle, response.body);
+          return;
+        }
+        this.utilService.downloadBlobResponse(
+          response.body,
+          extractAttachmentFilename(
+            response.headers.get("Content-Disposition"),
+          ) ?? `${this.processDefinition().key}.zip`,
+        );
+      },
+      onError: (error) => {
+        if (error.name === "AbortError") return;
+        this.utilService.openSnackbarError(
+          "msg.error.bpmn.process.definition.download.failed",
+        );
+      },
+    },
   );
 
   protected uploadBpmnForm() {

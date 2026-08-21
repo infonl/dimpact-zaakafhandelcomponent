@@ -81,7 +81,6 @@ describe(DocumentDialogService.name, () => {
         ConfirmDialogComponent,
         expect.anything(),
       );
-      // The delete observable is created eagerly and handed to the confirm dialog.
       expect(deleteFn).toHaveBeenCalledWith();
       expect(open.mock.calls.at(-1)![1].data.observable).toBe(deleteObservable);
     });
