@@ -7,7 +7,11 @@
   <span class="flex-grow-1">
     {{ "planitem." + data.planItem.userEventListenerActie | translate }}
   </span>
-  <button mat-icon-button (click)="close()">
+  <button
+    mat-icon-button
+    [attr.aria-label]="'actie.sluiten' | translate"
+    (click)="close()"
+  >
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>
@@ -109,6 +113,7 @@
           type="button"
           matSuffix
           title="{{ 'actie.contact.email.toevoegen' | translate }}"
+          [attr.aria-label]="'actie.contact.email.toevoegen' | translate"
           (click)="setOntvanger()"
         >
           <mat-icon>person</mat-icon>
