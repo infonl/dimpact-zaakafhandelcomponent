@@ -231,6 +231,10 @@ export class HttpClient {
       result.responseType = parameters.responseType as "json";
     }
 
+    if (parameters && "observe" in parameters && parameters.observe) {
+      result.observe = parameters.observe as "body";
+    }
+
     return result;
   }
 }

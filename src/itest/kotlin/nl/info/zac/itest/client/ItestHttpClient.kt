@@ -89,7 +89,7 @@ class ItestHttpClient {
             .build()
         val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
-            ResponseContent(it.body.string(), it.headers, it.code)
+            ResponseContent(it.body.bytes(), it.headers, it.code)
         }
         tokens?.let { logout(testUser, it.second) }
         return responseContent
@@ -132,7 +132,7 @@ class ItestHttpClient {
             .build()
         val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
-            ResponseContent(it.body.string(), it.headers, it.code)
+            ResponseContent(it.body.bytes(), it.headers, it.code)
         }
         tokens?.let { logout(testUser, it.second) }
         return responseContent
@@ -173,7 +173,7 @@ class ItestHttpClient {
             .build()
         val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
-            ResponseContent(it.body.string(), it.headers, it.code)
+            ResponseContent(it.body.bytes(), it.headers, it.code)
         }
         tokens?.let { logout(testUser, it.second) }
         return responseContent
@@ -235,7 +235,7 @@ class ItestHttpClient {
             .build()
         val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
-            ResponseContent(it.body.string(), it.headers, it.code)
+            ResponseContent(it.body.bytes(), it.headers, it.code)
         }
         tokens?.let { logout(testUser, it.second) }
         return responseContent
@@ -298,7 +298,7 @@ class ItestHttpClient {
             .build()
         val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
-            ResponseContent(it.body.string(), it.headers, it.code)
+            ResponseContent(it.body.bytes(), it.headers, it.code)
         }
         tokens?.let { logout(testUser, it.second) }
         return responseContent
@@ -336,7 +336,7 @@ class ItestHttpClient {
             .build()
         val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
-            ResponseContent(it.body.string(), it.headers, it.code)
+            ResponseContent(it.body.bytes(), it.headers, it.code)
         }
         tokens?.let { logout(testUser, it.second) }
         return responseContent
@@ -374,7 +374,7 @@ class ItestHttpClient {
             .build()
         val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
-            ResponseContent(it.body.string(), it.headers, it.code)
+            ResponseContent(it.body.bytes(), it.headers, it.code)
         }
         tokens?.let { logout(testUser, it.second) }
         return responseContent
@@ -404,7 +404,7 @@ class ItestHttpClient {
             .build()
         val responseContent = okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
-            ResponseContent(it.body.string(), it.headers, it.code)
+            ResponseContent(it.body.bytes(), it.headers, it.code)
         }
         return responseContent
     }
@@ -435,7 +435,7 @@ class ItestHttpClient {
             .build()
         return okHttpClient.newCall(request).execute().use {
             logger.info { "Received response with status code: '${it.code}'" }
-            ResponseContent(it.body.string(), it.headers, it.code)
+            ResponseContent(it.body.bytes(), it.headers, it.code)
         }
     }
 

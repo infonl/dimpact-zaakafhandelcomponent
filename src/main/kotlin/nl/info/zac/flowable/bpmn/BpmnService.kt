@@ -200,6 +200,9 @@ class BpmnService @Inject constructor(
             .orderByProcessDefinitionName().asc()
             .list()
 
+    fun readProcessDefinitionModel(processDefinitionId: String): InputStream =
+        repositoryService.getProcessModel(processDefinitionId)
+
     fun addProcessDefinition(filename: String, processDefinitionContent: String): Deployment =
         repositoryService.createDeployment()
             .addString(filename, processDefinitionContent)
