@@ -3,300 +3,347 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import { EventEmitter } from "@angular/core";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatDialogRef } from "@angular/material/dialog";
-import { MatPaginator, PageEvent } from "@angular/material/paginator";
-import { MatSort } from "@angular/material/sort";
+import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { ActivatedRoute, provideRouter, Router } from "@angular/router";
+import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
-import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
+import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { createMutationOptions } from "../../../test-helpers";
-import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
 import { InboxProductaanvragenListComponent } from "./inbox-productaanvragen-list.component";
 
-type Productaanvraag = GeneratedType<"RestInboxProductaanvraag">;
+const SEARCH_PARAMETERS_KEY = "INBOX_PRODUCTAANVRAGEN_ZOEKPARAMETERS";
 
-const makeProductaanvraag = (
-  fields: Partial<Productaanvraag> = {},
-): Productaanvraag =>
-  ({
-    id: 1,
-    type: "type-A",
-    ontvangstdatum: "2026-01-01",
-    initiatorID: "user-1",
-    aantalBijlagen: 2,
-    aanvraagdocumentUUID: "uuid-1",
-    ...fields,
-  }) as Partial<Productaanvraag> as unknown as Productaanvraag;
+const inboxProductaanvraag = fromPartial<
+  GeneratedType<"RestInboxProductaanvraag">
+>({
+  id: 42,
+  type: "type-A",
+  ontvangstdatum: "2026-01-01",
+  initiatorID: "fakeInitiatorId1",
+  aantalBijlagen: 2,
+  aanvraagdocumentUUID: "fakeDocumentUuid",
+});
 
 describe(InboxProductaanvragenListComponent.name, () => {
   let fixture: ComponentFixture<InboxProductaanvragenListComponent>;
-  let component: InboxProductaanvragenListComponent;
-  let service: InboxProductaanvragenService;
-  let deleteMutation: ReturnType<
-    typeof createMutationOptions<undefined, number>
-  >;
-  let infoService: InformatieObjectenService;
+  let httpTestingController: HttpTestingController;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-        InboxProductaanvragenListComponent,
-      ],
-      providers: [
-        provideHttpClient(),
-        provideQueryClient(testQueryClient),
-        provideRouter([]),
-        {
-          provide: ActivatedRoute,
-          useValue: { data: of({ tabelGegevens: { aantalPerPagina: 10 } }) },
-        },
-      ],
-    }).compileComponents();
+  const user = userEvent.setup({ delay: null });
 
-    service = TestBed.inject(InboxProductaanvragenService);
-    infoService = TestBed.inject(InformatieObjectenService);
+  jest.setTimeout(20_000);
 
+  async function setup(
+    werklijstRechten: GeneratedType<"RestWerklijstRechten"> = fromPartial({
+      inboxProductaanvragenVerwijderen: true,
+    }),
+  ) {
+    const { fixture: renderedFixture } = await render(
+      InboxProductaanvragenListComponent,
+      {
+        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        providers: [
+          provideRouter([]),
+          {
+            provide: ActivatedRoute,
+            useValue: fromPartial<ActivatedRoute>({
+              data: of({
+                tabelGegevens: {
+                  aantalPerPagina: 10,
+                  pageSizeOptions: [10, 25, 50],
+                  werklijstRechten,
+                },
+              }),
+            }),
+          },
+          provideHttpClient(withInterceptorsFromDi()),
+          provideHttpClientTesting(),
+          provideNativeDateAdapter(),
+          provideQueryClient(testQueryClient),
+        ],
+      },
+    );
+
+    fixture = renderedFixture;
+    httpTestingController = TestBed.inject(HttpTestingController);
     jest
-      .spyOn(service, "list")
-      .mockReturnValue(
-        of({ totaal: 0, resultaten: [], filterType: [] }) as never,
-      );
-    deleteMutation = createMutationOptions<undefined, number>(undefined);
-    jest.spyOn(service, "delete").mockReturnValue(deleteMutation as never);
-    jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
-    jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
+      .spyOn(TestBed.inject(UtilService), "openSnackbar")
+      .mockImplementation(() => undefined);
+  }
 
-    fixture = TestBed.createComponent(InboxProductaanvragenListComponent);
-    component = fixture.componentInstance;
+  function listRequests() {
+    return httpTestingController.match("/rest/inbox-productaanvragen");
+  }
 
-    component.sort = new MatSort();
-    component.paginator = {
-      pageSize: 10,
-      pageIndex: 0,
-      length: 0,
-      page: new EventEmitter<PageEvent>(),
-    } as Partial<MatPaginator> as unknown as MatPaginator;
-
-    component.ngAfterViewInit();
-  });
-
-  it("should persist list parameters to session storage on updateListParameters", () => {
-    const setItemSpy = jest.spyOn(SessionStorageUtil, "setItem");
-    component.sort.active = "type";
-    component.sort.direction = "asc";
-    component.paginator.pageSize = 25;
-
-    component["updateListParameters"]();
-
-    expect(setItemSpy).toHaveBeenCalledWith(
-      "INBOX_PRODUCTAANVRAGEN_ZOEKPARAMETERS",
-      expect.objectContaining({ sort: "type", order: "asc", maxResults: 25 }),
-    );
-  });
-
-  it("should return INBOX_PRODUCTAANVRAGEN from getWerklijst", () => {
-    expect(component["getWerklijst"]()).toBe("INBOX_PRODUCTAANVRAGEN");
-  });
-
-  it("should return download URL from getDownloadURL", () => {
-    jest
-      .spyOn(infoService, "getDownloadURL")
-      .mockReturnValue("/download/uuid-1");
-    const doc = makeProductaanvraag({ aanvraagdocumentUUID: "uuid-1" });
-    expect(component["getDownloadURL"](doc)).toBe("/download/uuid-1");
-  });
-
-  it("should reset pageIndex and emit filterChange on filtersChanged with non-select event", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    component.paginator.pageIndex = 3;
-
-    component["filtersChanged"]({ event: "some text", filter: "initiatorID" });
-
-    expect(component.paginator.pageIndex).toBe(0);
-    expect(component["listParameters"].initiatorID).toBeUndefined();
-    expect(filterChangeSpy).toHaveBeenCalled();
-  });
-
-  it("should set filter value on filtersChanged with MatSelectChange event", () => {
-    component["filtersChanged"]({
-      event: { value: "type-B" } as never,
-      filter: "type",
-    });
-    expect(component["listParameters"].type).toBe("type-B");
-  });
-
-  it("should reset to default parameters on resetSearch", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    component["listParameters"] = { sort: "type", order: "asc" };
-    component.sort.active = "type";
-    component.sort.direction = "asc";
-    component.paginator.pageIndex = 5;
-
-    component["resetSearch"]();
-
-    expect(component["listParameters"]).toMatchObject({
-      sort: "id",
-      order: "desc",
-    });
-    expect(component.sort.active).toBe("id");
-    expect(component.sort.direction).toBe("desc");
-    expect(component.paginator.pageIndex).toBe(0);
-    expect(filterChangeSpy).toHaveBeenCalled();
-  });
-
-  it("should parse JSON and emit filterChange on zoekopdrachtChanged with json", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    const params = { sort: "type", order: "asc" };
-    component["zoekopdrachtChanged"]({
-      json: JSON.stringify(params),
-    } as Partial<
-      GeneratedType<"RESTZoekopdracht">
-    > as unknown as GeneratedType<"RESTZoekopdracht">);
-    expect(component["listParameters"]).toMatchObject(params);
-    expect(filterChangeSpy).toHaveBeenCalled();
-  });
-
-  it("should call resetSearch on zoekopdrachtChanged with null", () => {
-    const resetSpy = jest.spyOn(
-      component as unknown as { resetSearch: () => void },
-      "resetSearch",
-    );
-    component["zoekopdrachtChanged"](
-      null as unknown as GeneratedType<"RESTZoekopdracht">,
-    );
-    expect(resetSpy).toHaveBeenCalled();
-  });
-
-  it("should emit filterChange on zoekopdrachtChanged with defined but no json", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    component["zoekopdrachtChanged"](
-      {} as Partial<
-        GeneratedType<"RESTZoekopdracht">
-      > as unknown as GeneratedType<"RESTZoekopdracht">,
-    );
-    expect(filterChangeSpy).toHaveBeenCalled();
-  });
-
-  it("should expand row and set previewSrc on updateActive for new row", () => {
-    jest.spyOn(service, "pdfPreview").mockReturnValue("/preview/uuid-1");
-    const row = makeProductaanvraag();
-    component["expandedRow"] = null;
-
-    component["updateActive"](row);
-
-    expect(component["expandedRow"]).toBe(row);
-    expect(component["previewSrc"]).not.toBeNull();
-  });
-
-  it("should collapse row and clear previewSrc on updateActive for same row", () => {
-    const row = makeProductaanvraag();
-    component["expandedRow"] = row;
-    component["previewSrc"] = "something" as never;
-
-    component["updateActive"](row);
-
-    expect(component["expandedRow"]).toBeNull();
-    expect(component["previewSrc"]).toBeNull();
-  });
-
-  it("should navigate to zaak create on aanmakenZaak", () => {
-    const router = TestBed.inject(Router);
-    const navSpy = jest.spyOn(router, "navigateByUrl").mockResolvedValue(true);
-    const row = makeProductaanvraag();
-
-    component["aanmakenZaak"](row);
-
-    expect(navSpy).toHaveBeenCalledWith("zaken/create", {
-      state: { inboxProductaanvraag: row },
-    });
-  });
-
-  it("should open confirm dialog and emit filterChange on inboxProductaanvragenVerwijderen when confirmed", async () => {
-    jest.spyOn(component["dialog"], "open").mockReturnValue({
-      afterClosed: () => of(true),
-    } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-
-    component["inboxProductaanvragenVerwijderen"](
-      makeProductaanvraag({ id: 42 }),
+  async function showProductaanvragen(
+    productaanvragen: GeneratedType<"RestInboxProductaanvraag">[],
+    totaal = productaanvragen.length,
+    filterType = ["type-A", "type-B"],
+  ) {
+    await sleep();
+    listRequests().forEach((request) =>
+      request.flush({
+        totaal,
+        resultaten: productaanvragen,
+        filterType,
+      }),
     );
     await sleep();
+    // the table creates the row views in one pass and binds their cells in the next
+    fixture.detectChanges();
+    fixture.detectChanges();
+  }
 
-    expect(deleteMutation.mutationFn).toHaveBeenCalledWith(
-      42,
-      expect.anything(),
+  async function lastListRequestBody() {
+    await sleep();
+    const requests = listRequests();
+    const body = requests[requests.length - 1].request.body;
+    requests.forEach((request) =>
+      request.flush({ totaal: 0, resultaten: [], filterType: [] }),
     );
-    expect(filterChangeSpy).toHaveBeenCalled();
+    await sleep();
+    return body;
+  }
+
+  function rememberedParameters() {
+    return JSON.parse(sessionStorage.getItem(SEARCH_PARAMETERS_KEY)!);
+  }
+
+  function productaanvraagRow() {
+    return screen.getByRole("row", { name: /fakeInitiatorId1/ });
+  }
+
+  beforeEach(() => {
+    sessionStorage.clear();
   });
 
-  it("should not emit filterChange on inboxProductaanvragenVerwijderen when cancelled", () => {
-    jest.spyOn(component["dialog"], "open").mockReturnValue({
-      afterClosed: () => of(false),
-    } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    jest
-      .spyOn(service, "delete")
-      .mockReturnValue(createMutationOptions(undefined) as never);
-
-    component["inboxProductaanvragenVerwijderen"](makeProductaanvraag());
-
-    expect(filterChangeSpy).not.toHaveBeenCalled();
+  afterEach(() => {
+    httpTestingController
+      ?.match(() => true)
+      .forEach((request) => request.flush([]));
   });
 
-  it("should populate dataSource and filterType from list response", () => {
-    const rows = [
-      makeProductaanvraag({ id: 1 }),
-      makeProductaanvraag({ id: 2 }),
-    ];
-    jest.spyOn(service, "list").mockReturnValue(
-      of({
-        totaal: 2,
-        resultaten: rows,
-        filterType: ["type-A", "type-B"],
-      }) as never,
+  it("shows a row for every productaanvraag in the list response", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    const row = productaanvraagRow();
+    expect(within(row).getByText("type-A")).toBeVisible();
+    expect(within(row).getByText("2")).toBeVisible();
+  });
+
+  it("reports that nothing was found when the list is empty", async () => {
+    await setup();
+    await showProductaanvragen([]);
+
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+  });
+
+  it("asks for the first page sorted by id and remembers that", async () => {
+    await setup();
+
+    const defaultParameters = {
+      sort: "id",
+      order: "desc",
+      page: 0,
+      maxResults: 10,
+    };
+    expect(await lastListRequestBody()).toEqual(defaultParameters);
+    expect(rememberedParameters()).toEqual(defaultParameters);
+  });
+
+  it("reuses the filters remembered from a previous visit", async () => {
+    sessionStorage.setItem(
+      SEARCH_PARAMETERS_KEY,
+      JSON.stringify({ sort: "id", order: "desc", type: "type-B" }),
     );
-    component["filterChange"].emit();
-    expect(component["dataSource"].data).toEqual(rows);
-    expect(component.paginator.length).toBe(2);
-    expect(component["filterType"]).toEqual(["type-A", "type-B"]);
+
+    await setup();
+
+    expect(await lastListRequestBody()).toMatchObject({ type: "type-B" });
   });
 
-  it("should fall back to empty array when list response omits resultaten", () => {
-    jest
-      .spyOn(service, "list")
-      .mockReturnValue(
-        of({ totaal: 0, filterType: [] } as Partial<
-          GeneratedType<"RestInboxProductaanvraagResultaat">
-        > as unknown as GeneratedType<"RestInboxProductaanvraagResultaat">),
-      );
-    component["filterChange"].emit();
-    expect(component["dataSource"].data).toEqual([]);
+  it("filters on the type that was chosen in the type filter", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    await user.click(screen.getByRole("combobox", { name: "filter.-alle-" }));
+    await user.click(screen.getByRole("option", { name: "type-B" }));
+
+    expect(await lastListRequestBody()).toMatchObject({
+      type: "type-B",
+      page: 0,
+    });
   });
 
-  it("should reset page to 0 and persist to storage on ngOnDestroy", () => {
-    const setItemSpy = jest.spyOn(SessionStorageUtil, "setItem");
-    component["listParameters"].page = 5;
-    component.ngOnDestroy();
-    expect(setItemSpy).toHaveBeenCalledWith(
-      "INBOX_PRODUCTAANVRAGEN_ZOEKPARAMETERS",
-      expect.objectContaining({ page: 0 }),
+  it("sorts on the column header that was clicked", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    await user.click(screen.getByRole("columnheader", { name: "type" }));
+
+    expect(await lastListRequestBody()).toMatchObject({
+      sort: "type",
+      order: "asc",
+      page: 0,
+    });
+  });
+
+  it("remembers the first page for the next visit when it is destroyed", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag], 30);
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await lastListRequestBody();
+    fixture.destroy();
+
+    expect(rememberedParameters()).toMatchObject({ page: 0 });
+  });
+
+  it("offers the search opdrachten stored for the inbox productaanvragen werklijst", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    expect(
+      httpTestingController.expectOne(
+        "/rest/gebruikersvoorkeuren/zoekopdracht/INBOX_PRODUCTAANVRAGEN",
+      ).request.method,
+    ).toBe("GET");
+  });
+
+  it("links to the download of the aanvraagdocument on the row", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    expect(
+      within(productaanvraagRow()).getByRole("link", {
+        name: "actie.aanvraagdocument.downloaden",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/rest/informatieobjecten/informatieobject/fakeDocumentUuid/download",
     );
   });
 
-  it("should reset pageIndex to 0 when sort changes", () => {
-    component.paginator.pageIndex = 3;
-    component.sort.sortChange.emit({ active: "type", direction: "asc" });
-    expect(component.paginator.pageIndex).toBe(0);
+  it("shows a preview of the aanvraagdocument when the row is expanded", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    await user.click(
+      within(productaanvraagRow()).getByRole("button", { name: "expand row" }),
+    );
+    fixture.detectChanges();
+
+    expect(screen.getByTitle("aanvraagdocument.pdf")).toHaveAttribute(
+      "data",
+      "/rest/inbox-productaanvragen/fakeDocumentUuid/pdfPreview",
+    );
+  });
+
+  it("hides the preview again when the expanded row is collapsed", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    const expandButton = within(productaanvraagRow()).getByRole("button", {
+      name: "expand row",
+    });
+    await user.click(expandButton);
+    fixture.detectChanges();
+    await user.click(expandButton);
+    fixture.detectChanges();
+
+    expect(screen.queryByTitle("aanvraagdocument.pdf")).toBeNull();
+  });
+
+  it("hands the productaanvraag of the row to the zaak that is created from it", async () => {
+    await setup();
+    const navigateByUrl = jest
+      .spyOn(TestBed.inject(Router), "navigateByUrl")
+      .mockResolvedValue(true);
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    await user.click(
+      within(productaanvraagRow()).getByRole("button", {
+        name: "actie.zaak.aanmaken",
+      }),
+    );
+
+    expect(navigateByUrl).toHaveBeenCalledWith("zaken/create", {
+      state: { inboxProductaanvraag },
+    });
+  });
+
+  it("offers no delete without the right to remove inbox productaanvragen", async () => {
+    await setup(fromPartial({ inboxProductaanvragenVerwijderen: false }));
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    expect(
+      within(productaanvraagRow()).queryByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    ).toBeNull();
+  });
+
+  it("asks for confirmation before deleting the productaanvraag of the row", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    await user.click(
+      within(productaanvraagRow()).getByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    );
+
+    expect(
+      screen.getByText("msg.inboxProductaanvraag.verwijderen.bevestigen"),
+    ).toBeVisible();
+    httpTestingController.expectNone("/rest/inbox-productaanvragen/42");
+  });
+
+  it("deletes the productaanvraag of the row once confirmed", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    await user.click(
+      within(productaanvraagRow()).getByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    );
+    await user.click(screen.getByRole("button", { name: "actie.ja" }));
+    await sleep();
+
+    expect(
+      httpTestingController.expectOne("/rest/inbox-productaanvragen/42").request
+        .method,
+    ).toBe("DELETE");
+  });
+
+  it("keeps the productaanvraag when the confirmation is cancelled", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    await user.click(
+      within(productaanvraagRow()).getByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    );
+    await user.click(screen.getByRole("button", { name: "actie.nee" }));
+    await sleep();
+
+    httpTestingController.expectNone("/rest/inbox-productaanvragen/42");
   });
 });
