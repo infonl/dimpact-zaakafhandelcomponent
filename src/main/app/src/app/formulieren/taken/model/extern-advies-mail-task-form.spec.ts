@@ -9,7 +9,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { testQueryClient } from "../../../../../setupJest";
-import { fromPartial } from "../../../../test-helpers";
+import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
@@ -64,7 +64,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
     );
     jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of([]));
+      .mockReturnValue(createQueryOptions([]) as never);
 
     formulier = TestBed.inject(ExternAdviesMailTaskForm);
   });

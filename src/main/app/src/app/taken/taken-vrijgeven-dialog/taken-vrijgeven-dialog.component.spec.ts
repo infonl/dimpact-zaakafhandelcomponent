@@ -12,167 +12,158 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { TaakZoekObject } from "../../zoeken/model/taken/taak-zoek-object";
 import { TakenVrijgevenDialogComponent } from "./taken-vrijgeven-dialog.component";
 
-const makeTaak = (fields: Partial<TaakZoekObject> = {}): TaakZoekObject =>
-  ({
-    id: "taak-1",
-    zaakUuid: "zaak-uuid-1",
-    behandelaarGebruikersnaam: "user1",
+const makeTaak = (fields: Partial<TaakZoekObject> = {}) =>
+  fromPartial<TaakZoekObject>({
+    id: "fakeTaakId",
+    zaakUuid: "fakeZaakUuid",
+    behandelaarGebruikersnaam: "fakeBehandelaar",
     ...fields,
-  }) as Partial<TaakZoekObject> as unknown as TaakZoekObject;
-
-const setup = (taken: TaakZoekObject[] = [makeTaak()]) => {
-  const dialogRefMock = { close: jest.fn(), disableClose: false };
-  TestBed.configureTestingModule({
-    imports: [
-      TakenVrijgevenDialogComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
-    providers: [
-      provideZonelessChangeDetection(),
-      provideHttpClient(withInterceptorsFromDi()),
-      provideHttpClientTesting(),
-      provideRouter([]),
-      provideTanStackQuery(testQueryClient),
-      {
-        provide: MAT_DIALOG_DATA,
-        useValue: { taken, screenEventResourceId: "screen-resource-id" },
-      },
-      { provide: MatDialogRef, useValue: dialogRefMock },
-    ],
   });
-  const fixture: ComponentFixture<TakenVrijgevenDialogComponent> =
-    TestBed.createComponent(TakenVrijgevenDialogComponent);
-  fixture.detectChanges();
-  return {
-    fixture,
-    component: fixture.componentInstance,
-    httpTestingController: TestBed.inject(HttpTestingController),
-    dialogRefMock,
-  };
-};
 
 describe(TakenVrijgevenDialogComponent.name, () => {
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
+  let httpTestingController: HttpTestingController;
+  let dialogRef: MatDialogRef<TakenVrijgevenDialogComponent>;
+
+  const user = userEvent.setup();
+
+  async function setup(taken: TaakZoekObject[] = [makeTaak()]) {
+    dialogRef = fromPartial<MatDialogRef<TakenVrijgevenDialogComponent>>({
+      close: jest.fn(),
+      disableClose: false,
+    });
+
+    await render(TakenVrijgevenDialogComponent, {
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideTanStackQuery(testQueryClient),
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: {
+            taken,
+            screenEventResourceId: "fakeScreenEventResourceId",
+          },
+        },
+        { provide: MatDialogRef, useValue: dialogRef },
+      ],
+    });
+
+    httpTestingController = TestBed.inject(HttpTestingController);
+  }
+
+  const redenInput = () => screen.getByRole("textbox", { name: /Reden/ });
+  const vrijgevenButton = () =>
+    screen.getByRole("button", { name: "actie.vrijgeven" });
+
+  async function fillInRedenAndSubmit(reden = "fakeReden") {
+    await user.type(redenInput(), reden);
+    await user.click(vrijgevenButton());
+    await sleep();
+  }
+
+  it("announces that a single taak will be released", async () => {
+    await setup([makeTaak()]);
+
+    expect(screen.getByText("msg.vrijgeven.taak")).toBeVisible();
+    expect(screen.queryByText("msg.vrijgeven.taken")).toBeNull();
   });
 
-  describe("with a single taak", () => {
-    it("shows singular message", () => {
-      const { fixture } = setup([makeTaak()]);
-      const paragraphs: NodeListOf<HTMLElement> =
-        fixture.nativeElement.querySelectorAll("p");
-      const visible = Array.from(paragraphs).filter(
-        (p) => p.offsetParent !== null || p.textContent?.trim(),
-      );
-      expect(
-        visible.some((p) => p.textContent?.includes("msg.vrijgeven.taak")),
-      ).toBe(true);
-    });
+  it("announces that multiple taken will be released", async () => {
+    await setup([makeTaak({ id: "fakeTaakId1" }), makeTaak({ id: "t2" })]);
+
+    expect(screen.getByText("msg.vrijgeven.taken")).toBeVisible();
+    expect(screen.queryByText("msg.vrijgeven.taak")).toBeNull();
   });
 
-  describe("with multiple taken", () => {
-    it("shows plural message", () => {
-      const { fixture } = setup([
-        makeTaak({ id: "t1" }),
-        makeTaak({ id: "t2" }),
-      ]);
-      const paragraphs: NodeListOf<HTMLElement> =
-        fixture.nativeElement.querySelectorAll("p");
-      expect(
-        Array.from(paragraphs).some((p) =>
-          p.textContent?.includes("msg.vrijgeven.taken"),
-        ),
-      ).toBe(true);
-    });
+  it("does not let you fill in a reden when there is nothing to release", async () => {
+    await setup([]);
+
+    expect(redenInput()).toBeDisabled();
+    expect(vrijgevenButton()).toBeDisabled();
   });
 
-  describe("with no taken", () => {
-    it("disables the form", () => {
-      const { component } = setup([]);
-      expect(component["form"].disabled).toBe(true);
-    });
+  it("cannot be submitted before a reden is filled in", async () => {
+    await setup();
+
+    expect(vrijgevenButton()).toBeDisabled();
+
+    await user.type(redenInput(), "fakeReden");
+
+    expect(vrijgevenButton()).toBeEnabled();
   });
 
-  describe("close()", () => {
-    it("closes the dialog with false", () => {
-      const { component, dialogRefMock } = setup();
-      component["close"]();
-      expect(dialogRefMock.close).toHaveBeenCalledWith(false);
-    });
+  it("closes the dialog without releasing when the close button is used", async () => {
+    await setup();
+
+    await user.click(screen.getByRole("button", { name: "actie.sluiten" }));
+
+    expect(dialogRef.close).toHaveBeenCalledWith(false);
+    httpTestingController.expectNone(() => true);
   });
 
-  describe("vrijgeven()", () => {
-    it("passes reden and filtered taken to the API", async () => {
-      const taken = [
-        makeTaak({
-          id: "t1",
-          zaakUuid: "uuid-1",
-          behandelaarGebruikersnaam: "user1",
-        }),
-        makeTaak({
-          id: "t2",
-          zaakUuid: "uuid-2",
-          behandelaarGebruikersnaam: undefined,
-        }),
-      ];
-      const { component, httpTestingController } = setup(taken);
+  it("releases only the taken that have a behandelaar", async () => {
+    await setup([
+      makeTaak({
+        id: "fakeTaakId1",
+        zaakUuid: "fakeZaakUuid1",
+        behandelaarGebruikersnaam: "fakeBehandelaar",
+      }),
+      makeTaak({
+        id: "fakeTaakId2",
+        zaakUuid: "fakeZaakUuid2",
+        behandelaarGebruikersnaam: undefined,
+      }),
+    ]);
 
-      component["form"].controls.reden.setValue("testopmerking");
-      component["vrijgeven"]();
-      await new Promise(requestAnimationFrame);
+    await fillInRedenAndSubmit("fakeReden");
 
-      const req = httpTestingController.expectOne(
-        "/rest/taken/lijst/vrijgeven",
-      );
-      expect(req.request.method).toBe("PUT");
-      expect(req.request.body).toEqual(
-        expect.objectContaining({
-          reden: "testopmerking",
-          screenEventResourceId: "screen-resource-id",
-          taken: [{ taakId: "t1", zaakUuid: "uuid-1" }],
-        }),
-      );
-      req.flush(null);
-    });
+    const request = httpTestingController.expectOne(
+      "/rest/taken/lijst/vrijgeven",
+    );
+    expect(request.request.method).toBe("PUT");
+    expect(request.request.body).toEqual(
+      expect.objectContaining({
+        reden: "fakeReden",
+        screenEventResourceId: "fakeScreenEventResourceId",
+        taken: [{ taakId: "fakeTaakId1", zaakUuid: "fakeZaakUuid1" }],
+      }),
+    );
+    request.flush(null);
+  });
 
-    it("closes the dialog with true on success", async () => {
-      const { component, httpTestingController, dialogRefMock } = setup();
+  it("locks the dialog while the release is in flight", async () => {
+    await setup();
 
-      component["form"].controls.reden.setValue("reden");
-      component["vrijgeven"]();
-      await new Promise(requestAnimationFrame);
+    await fillInRedenAndSubmit();
 
-      httpTestingController
-        .expectOne("/rest/taken/lijst/vrijgeven")
-        .flush(null);
-      await sleep();
+    expect(dialogRef.disableClose).toBe(true);
+    httpTestingController.expectOne("/rest/taken/lijst/vrijgeven").flush(null);
+  });
 
-      expect(dialogRefMock.close).toHaveBeenCalledWith(true);
-    });
+  it("closes the dialog once the taken are released", async () => {
+    await setup();
 
-    it("sets disableClose on the dialog when mutation starts", async () => {
-      const { component, httpTestingController, dialogRefMock } = setup();
+    await fillInRedenAndSubmit();
+    httpTestingController.expectOne("/rest/taken/lijst/vrijgeven").flush(null);
+    await sleep();
 
-      component["form"].controls.reden.setValue("reden");
-      component["vrijgeven"]();
-      await new Promise(requestAnimationFrame);
-
-      expect(dialogRefMock.disableClose).toBe(true);
-      httpTestingController
-        .expectOne("/rest/taken/lijst/vrijgeven")
-        .flush(null);
-    });
+    expect(dialogRef.close).toHaveBeenCalledWith(true);
+    expect(dialogRef.disableClose).toBe(false);
   });
 });

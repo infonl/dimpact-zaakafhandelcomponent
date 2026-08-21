@@ -35,11 +35,6 @@ describe(TakenService.name, () => {
     zacQueryClient = TestBed.inject(ZacQueryClient);
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   describe("readTaak", () => {
     it("fetches with the given task id", () => {
       jest.spyOn(zacHttpClient, "GET").mockReturnValue(of({} as never));
