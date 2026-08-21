@@ -753,4 +753,45 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
             }
         }
     }
+
+    context("Productaanvraag notification that Open Notificaties redelivers") {
+        given("a productaanvraag notification that ZAC has already handled successfully") {
+            `when`("the notificaties endpoint is called a second time with the exact same payload") {
+                val response = itestHttpClient.performJSONPostRequest(
+                    url = "$ZAC_API_URI/notificaties",
+                    headers = Headers.headersOf(
+                        "Content-Type",
+                        "application/json",
+                        "Authorization",
+                        OPEN_NOTIFICATIONS_API_SECRET_KEY
+                    ),
+                    requestBodyAsString = JSONObject(
+                        mapOf(
+                            "kanaal" to "objecten",
+                            "resource" to "object",
+                            "resourceUrl" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_4_UUID",
+                            "hoofdObject" to "$OBJECTS_BASE_URI/$OBJECT_PRODUCTAANVRAAG_4_UUID",
+                            "actie" to "create",
+                            "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString(),
+                            "kenmerken" to mapOf(
+                                "objectType" to "$OBJECTS_BASE_URI/$OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT"
+                            )
+                        )
+                    ).toString()
+                )
+
+                then("ZAC still responds successfully so that Open Notificaties stops redelivering") {
+                    response.code shouldBe HTTP_NO_CONTENT
+                }
+
+                And("no second zaak is created, so no second acknowledgement of receipt email is sent") {
+                    val receivedMailsResponse = itestHttpClient.performGetRequest(
+                        url = "$GREENMAIL_API_URI/user/$ZAAK_PRODUCTAANVRAAG_4_REQUEST_SPECIFIC_EMAIL/messages/"
+                    )
+                    receivedMailsResponse.code shouldBe HTTP_OK
+                    JSONArray(receivedMailsResponse.bodyAsString).length() shouldBe 1
+                }
+            }
+        }
+    }
 })
