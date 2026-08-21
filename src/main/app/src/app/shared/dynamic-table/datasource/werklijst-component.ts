@@ -3,10 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, OnInit } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
 import { PageEvent } from "@angular/material/paginator";
 import { ActivatedRoute } from "@angular/router";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { GebruikersvoorkeurenService } from "../../../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { runMutation } from "../../http/run-mutation";
 
 import { GeneratedType } from "../../utils/generated-types";
 import { TabelGegevens } from "../model/tabel-gegevens";
@@ -22,6 +24,8 @@ export abstract class WerklijstComponent implements OnInit {
   protected pageSizeOptions = [0];
   protected werklijstRechten!: GeneratedType<"RestWerklijstRechten">;
 
+  protected readonly queryClient = inject(QueryClient);
+
   protected constructor() {}
 
   ngOnInit(): void {
@@ -36,9 +40,14 @@ export abstract class WerklijstComponent implements OnInit {
   protected paginatorChanged($event: PageEvent) {
     if (this.aantalPerPagina !== $event.pageSize) {
       this.aantalPerPagina = $event.pageSize;
-      this.gebruikersvoorkeurenService
-        .updateAantalPerPagina(this.getWerklijst(), this.aantalPerPagina)
-        .subscribe();
+      runMutation(
+        this.queryClient,
+        this.gebruikersvoorkeurenService.updateAantalPerPagina(
+          this.getWerklijst(),
+          this.aantalPerPagina,
+        ),
+        undefined as never,
+      ).subscribe();
     }
   }
 

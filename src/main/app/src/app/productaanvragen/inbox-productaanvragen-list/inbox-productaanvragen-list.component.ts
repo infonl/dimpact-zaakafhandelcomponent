@@ -8,7 +8,6 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -40,7 +39,6 @@ import {
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
 import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -143,8 +141,6 @@ export class InboxProductaanvragenListComponent
       onSuccess: () => this.filterChange.emit(),
     },
   );
-
-  private readonly queryClient = inject(QueryClient);
 
   constructor(
     private readonly inboxProductaanvragenService: InboxProductaanvragenService,
