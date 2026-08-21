@@ -6,6 +6,7 @@ package nl.info.zac.itest.bpmn
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHEERDER_1
@@ -13,6 +14,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
+import java.util.zip.ZipInputStream
 
 class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
@@ -203,6 +205,35 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                   }
                 ]
                 """.trimIndent()
+            }
+        }
+    }
+
+    given(
+        """The process definition 'itProcessDefinition' with its task forms exists
+            and a beheerder is logged in"""
+    ) {
+        `when`("the process definition 'itProcessDefinition' is downloaded") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/bpmn-process-definitions/itProcessDefinition/download",
+                testUser = BEHEERDER_1
+            )
+            then("the response is a zip attachment named after the process definition and its version") {
+                response.code shouldBe HTTP_OK
+                response.headers["Content-Type"] shouldBe "application/zip"
+                response.headers["Content-Disposition"] shouldBe
+                    """attachment; filename="itProcessDefinition-v1.zip""""
+            }
+            then("the zip contains the BPMN model and the task forms, without the folders they were uploaded from") {
+                ZipInputStream(response.bodyAsBytes.inputStream()).use { zipInputStream ->
+                    generateSequence { zipInputStream.nextEntry }
+                        .map { it.name }
+                        .toList()
+                } shouldContainExactlyInAnyOrder listOf(
+                    "itProcessDefinition.bpmn",
+                    "testForm.json",
+                    "summaryForm.json"
+                )
             }
         }
     }

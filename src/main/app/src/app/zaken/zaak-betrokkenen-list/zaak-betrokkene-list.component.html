@@ -71,6 +71,7 @@
         @if (!betrokkene.gegevens) {
           <button
             mat-icon-button
+            [attr.aria-label]="'actie.betrokkene.gegevens.ophalen' | translate"
             [disabled]="
               (betrokkene.type === 'NIET_NATUURLIJK_PERSOON' &&
                 betrokkene.identificatieType === 'VN' &&

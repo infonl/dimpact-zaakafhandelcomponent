@@ -5,6 +5,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { HttpHeaders, HttpResponse } from "@angular/common/http";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDialog } from "@angular/material/dialog";
@@ -13,7 +14,8 @@ import { MatRowHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { notifyManager } from "@tanstack/query-core";
+import { from, of, throwError } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
@@ -24,7 +26,10 @@ import { BpmnService } from "../../bpmn.service";
 import { readFileContent } from "../file.helper";
 import { BpmnProcessDefinitionItemComponent } from "./bpmn-process-definition-item.component";
 
-jest.mock("../file.helper");
+jest.mock("../file.helper", () => ({
+  ...jest.requireActual("../file.helper"),
+  readFileContent: jest.fn(),
+}));
 
 function makeFileList(...files: File[]): FileList {
   return {
@@ -36,6 +41,15 @@ function makeFileList(...files: File[]): FileList {
 
 const flushPromises = (): Promise<void> =>
   new Promise<void>((resolve) => setTimeout(resolve));
+
+const zipBlob = new Blob(["fakeZipContent"]);
+
+const zipResponse = new HttpResponse({
+  body: zipBlob,
+  headers: new HttpHeaders({
+    "Content-Disposition": 'attachment; filename="test-key-v2.zip"',
+  }),
+});
 
 const uploadedForm: GeneratedType<"RestBpmnProcessDefinitionForm"> = {
   formKey: "form-uploaded",
@@ -109,11 +123,18 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
             deleteProcessDefinitionForm: jest
               .fn()
               .mockReturnValue(deleteProcessDefinitionFormMutation),
+            downloadProcessDefinition: jest
+              .fn()
+              .mockReturnValue(of(zipResponse)),
           },
         },
         {
           provide: UtilService,
-          useValue: { openSnackbar: jest.fn() },
+          useValue: {
+            openSnackbar: jest.fn(),
+            openSnackbarError: jest.fn(),
+            downloadBlobResponse: jest.fn(),
+          },
         },
         {
           provide: FoutAfhandelingService,
@@ -158,6 +179,168 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
     it("should display documentation", () => {
       expect(fixture.nativeElement.textContent).toContain("Test documentation");
+    });
+  });
+
+  describe("downloadProcessDefinition", () => {
+    let downloadButton: HTMLButtonElement;
+
+    beforeEach(() => {
+      // let the mutation state reach the template without waiting for a batch
+      notifyManager.setScheduler((fn) => fn());
+      downloadButton = fixture.nativeElement.querySelector(
+        ".download-definition",
+      );
+    });
+
+    afterEach(() => {
+      notifyManager.setScheduler((fn) => setTimeout(fn, 0));
+    });
+
+    describe("in a browser that can ask where to save a file", () => {
+      let writableStream: { write: jest.Mock; close: jest.Mock };
+      let fileHandle: FileSystemFileHandle;
+
+      beforeEach(() => {
+        writableStream = { write: jest.fn(), close: jest.fn() };
+        fileHandle = fromPartial<FileSystemFileHandle>({
+          createWritable: jest.fn().mockResolvedValue(writableStream),
+        });
+        window.showSaveFilePicker = jest.fn().mockResolvedValue(fileHandle);
+      });
+
+      afterEach(() => {
+        delete window.showSaveFilePicker;
+      });
+
+      it("should write the zip to the file the user chose, under the suggested name of the version on screen", async () => {
+        downloadButton.click();
+        await flushPromises();
+
+        expect(window.showSaveFilePicker).toHaveBeenCalledWith({
+          suggestedName: "test-key-v2.zip",
+          types: [{ accept: { "application/zip": [".zip"] } }],
+        });
+        expect(writableStream.write).toHaveBeenCalledWith(zipBlob);
+        expect(writableStream.close).toHaveBeenCalled();
+        expect(utilService.downloadBlobResponse).not.toHaveBeenCalled();
+      });
+
+      it("should ask where to save before requesting the zip, which outlives the user activation of the click", async () => {
+        let chooseFile!: (fileHandle: FileSystemFileHandle) => void;
+        window.showSaveFilePicker = jest.fn(
+          () =>
+            new Promise<FileSystemFileHandle>((resolve) => {
+              chooseFile = resolve;
+            }),
+        );
+
+        downloadButton.click();
+        await flushPromises();
+
+        expect(bpmnService.downloadProcessDefinition).not.toHaveBeenCalled();
+
+        chooseFile(fileHandle);
+        await flushPromises();
+
+        expect(bpmnService.downloadProcessDefinition).toHaveBeenCalledWith(
+          "test-key",
+        );
+        expect(writableStream.write).toHaveBeenCalledWith(zipBlob);
+      });
+
+      it("should request nothing and report nothing when the user closes the dialog", async () => {
+        window.showSaveFilePicker = jest
+          .fn()
+          .mockRejectedValue(
+            new DOMException("fakeAbortMessage", "AbortError"),
+          );
+
+        downloadButton.click();
+        await flushPromises();
+
+        expect(bpmnService.downloadProcessDefinition).not.toHaveBeenCalled();
+        expect(utilService.openSnackbarError).not.toHaveBeenCalled();
+        expect(utilService.downloadBlobResponse).not.toHaveBeenCalled();
+      });
+
+      it("should report a failure of the request as any other", async () => {
+        bpmnService.downloadProcessDefinition.mockReturnValue(
+          throwError(() => new Error("fakeDownloadFailure")),
+        );
+
+        downloadButton.click();
+        await flushPromises();
+
+        expect(utilService.openSnackbarError).toHaveBeenCalledWith(
+          "msg.error.bpmn.process.definition.download.failed",
+        );
+        expect(writableStream.write).not.toHaveBeenCalled();
+      });
+    });
+
+    it("should name the zip after the Content-Disposition of the response", async () => {
+      downloadButton.click();
+      await flushPromises();
+
+      expect(bpmnService.downloadProcessDefinition).toHaveBeenCalledWith(
+        "test-key",
+      );
+      expect(utilService.downloadBlobResponse).toHaveBeenCalledWith(
+        zipBlob,
+        "test-key-v2.zip",
+      );
+    });
+
+    it("should fall back to the process definition key when the response has no filename", async () => {
+      bpmnService.downloadProcessDefinition.mockReturnValue(
+        of(new HttpResponse({ body: zipBlob })),
+      );
+
+      downloadButton.click();
+      await flushPromises();
+
+      expect(utilService.downloadBlobResponse).toHaveBeenCalledWith(
+        zipBlob,
+        "test-key.zip",
+      );
+    });
+
+    it("should show an error message and download nothing when the request fails", async () => {
+      bpmnService.downloadProcessDefinition.mockReturnValue(
+        throwError(() => new Error("fakeDownloadFailure")),
+      );
+
+      downloadButton.click();
+      await flushPromises();
+
+      expect(utilService.openSnackbarError).toHaveBeenCalledWith(
+        "msg.error.bpmn.process.definition.download.failed",
+      );
+      expect(utilService.downloadBlobResponse).not.toHaveBeenCalled();
+    });
+
+    it("should disable the button while the download is running", async () => {
+      let resolveDownload!: (response: HttpResponse<Blob>) => void;
+      bpmnService.downloadProcessDefinition.mockReturnValue(
+        from(
+          new Promise<HttpResponse<Blob>>((resolve) => {
+            resolveDownload = resolve;
+          }),
+        ),
+      );
+
+      downloadButton.click();
+      await flushPromises();
+      fixture.detectChanges();
+
+      expect(downloadButton.disabled).toBe(true);
+
+      resolveDownload(new HttpResponse({ body: zipBlob }));
+      await flushPromises();
+      fixture.detectChanges();
+
+      expect(downloadButton.disabled).toBe(false);
     });
   });
 

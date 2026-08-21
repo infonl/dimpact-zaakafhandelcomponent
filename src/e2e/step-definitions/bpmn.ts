@@ -5,14 +5,25 @@
 
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect, type Locator, type Page } from "@playwright/test";
+import path from "path";
 import { z } from "zod";
 import {
+  FIVE_SECONDS_IN_MS,
   FORTY_SECONDS_IN_MS,
   TEN_SECONDS_IN_MS,
   TWENTY_SECONDS_IN_MS,
 } from "../support/time-constants";
 import { CustomWorld } from "../support/worlds/world";
 import { worldUsers, zaakResult, zaakStatus } from "../utils/schemes";
+
+const E2E_PROCESS_DEFINITION_NAME = "E2E Test BPMN Process Definition";
+const E2E_PROCESS_DEFINITION_BPMN_FILE = "E2ETestProcessDefinition.bpmn";
+const E2E_PROCESS_DEFINITION_FORM_FILES = [
+  "E2EMultipleFormItemsForm.json",
+  "E2ESelectDocumentsForm.json",
+  "E2ESignSelectedDocumentsForm.json",
+  "E2EMultipleFormItemsSummaryForm.json",
+];
 
 function formioForm(page: Page) {
   return page.locator("zac-formio-wrapper");
@@ -66,10 +77,6 @@ async function documentGridRow(page: Page, gridKey: string, title: string) {
   throw new Error(`No row for document "${title}" in datagrid "${gridKey}"`);
 }
 
-// UUID v4 regex pattern (replacement for deprecated uuidv4 package)
-const UUID_V4_REGEX =
-  /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
-
 const e2eTestGroupAId = "test-group-a";
 const e2eTestGroupAName = "Test groep A";
 const testUser1Id = "e2etestuser1";
@@ -81,10 +88,17 @@ const RESULT_VALUE = "Verleend";
 const STATUS_VALUE = "Afgerond";
 
 When(
-  "{string} opens the active task",
+  "{string} opens the {string} task",
   { timeout: FORTY_SECONDS_IN_MS },
-  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
-    const viewTaskLink = this.page.getByRole("link", { name: "Taak bekijken" });
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    taskName: string,
+  ) {
+    const taskRow = this.page.getByRole("row").filter({
+      has: this.page.getByRole("cell", { name: taskName, exact: true }),
+    });
+    const viewTaskLink = taskRow.getByRole("link", { name: "Taak bekijken" });
     await viewTaskLink.waitFor({
       state: "visible",
       timeout: FORTY_SECONDS_IN_MS,
@@ -275,17 +289,17 @@ Then(
     });
 
     await expect(
-      this.page.getByRole("cell", { name: "Test", exact: true }),
+      this.page.getByRole("cell", { name: "MultipleFormItems", exact: true }),
     ).not.toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await completedTasksSwitch.click();
     await expect(
-      this.page.getByRole("cell", { name: "Test", exact: true }),
+      this.page.getByRole("cell", { name: "MultipleFormItems", exact: true }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
 
 Then(
-  "{string} sees that the select documents to sign task is started with group {string} and user {string}",
+  "{string} sees that the MultipleFormItemsSummary task is started with group {string} and user {string}",
   { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
@@ -293,20 +307,21 @@ Then(
     groupName: string,
     userName: string,
   ) {
-    const taskCell = this.page.getByRole("cell", {
-      name: "Select documents to sign",
+    const summaryRow = this.page.getByRole("row").filter({
+      has: this.page.getByRole("cell", {
+        name: "MultipleFormItemsSummary",
+        exact: true,
+      }),
     });
-    await expect(taskCell).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+    await expect(summaryRow).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
     await expect(
-      this.page.getByRole("cell", { name: "Toegekend" }),
+      summaryRow.getByRole("cell", { name: "Toegekend" }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+    await expect(summaryRow.getByRole("cell", { name: groupName })).toBeVisible(
+      { timeout: FORTY_SECONDS_IN_MS },
+    );
     await expect(
-      this.page.getByRole("cell", { name: groupName }).nth(1),
-    ).toBeVisible({
-      timeout: FORTY_SECONDS_IN_MS,
-    });
-    await expect(
-      this.page.getByRole("cell", { name: userName, exact: true }).nth(1),
+      summaryRow.getByRole("cell", { name: userName, exact: true }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
   },
 );
@@ -325,9 +340,9 @@ Then(
       testUser1Id,
       { timeout: FORTY_SECONDS_IN_MS },
     );
-    await expect(form.getByRole("option", { name: UUID_V4_REGEX })).toBeVisible(
-      { timeout: FORTY_SECONDS_IN_MS },
-    );
+    await expect(form.getByText("file A")).toBeVisible({
+      timeout: FORTY_SECONDS_IN_MS,
+    });
     await expect(
       form.getByRole("textbox", { name: "Reference table value" }),
     ).toHaveValue(COMMUNICATION_CHANNEL_VALUE, {
@@ -471,7 +486,7 @@ When(
 );
 
 Then(
-  "{string} sees {int} documents in the to be signed list",
+  "{string} sees {int} document\\(s) in the to be signed list",
   { timeout: FORTY_SECONDS_IN_MS },
   async function (
     this: CustomWorld,
@@ -540,5 +555,105 @@ Then(
         has: this.page.locator("mat-icon", { hasText: "fact_check" }),
       }),
     ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+  },
+);
+
+function processDefinitionGroupRow(page: Page, name: string) {
+  return page.locator("mat-nested-tree-node.group").filter({ hasText: name });
+}
+
+When(
+  "{string} uploads the E2E test processdefinition",
+  { timeout: FORTY_SECONDS_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    const fileChooserPromise = this.page.waitForEvent("filechooser");
+    await this.page.getByText("BPMN-procesdefinitie toevoegen").click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(
+      path.join(__dirname, "../testdata", E2E_PROCESS_DEFINITION_BPMN_FILE),
+    );
+    await expect(
+      processDefinitionGroupRow(this.page, E2E_PROCESS_DEFINITION_NAME),
+    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+  },
+);
+
+When(
+  "{string} uploads all of the forms of the E2E test processdefinition",
+  { timeout: FORTY_SECONDS_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    const processDefinitionGroup = processDefinitionGroupRow(
+      this.page,
+      E2E_PROCESS_DEFINITION_NAME,
+    );
+    const fileChooserPromise = this.page.waitForEvent("filechooser");
+    await processDefinitionGroup.getByText("Formulieren uploaden").click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(
+      E2E_PROCESS_DEFINITION_FORM_FILES.map((filename) =>
+        path.join(__dirname, "../testdata", filename),
+      ),
+    );
+  },
+);
+
+Then(
+  "{string} sees that the processdefinition is correctly setup",
+  { timeout: FORTY_SECONDS_IN_MS },
+  async function (this: CustomWorld, user: z.infer<typeof worldUsers>) {
+    await expect(
+      this.page.getByText(
+        `Procesdefinitie '${E2E_PROCESS_DEFINITION_BPMN_FILE}' is geüpload`,
+      ),
+    ).toBeVisible({ timeout: FORTY_SECONDS_IN_MS });
+  },
+);
+
+When(
+  "{string} adds document {string} to the zaak",
+  { timeout: FORTY_SECONDS_IN_MS },
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    title: string,
+  ) {
+    await this.page.getByText("Document toevoegen").click();
+    await this.page.getByText("Bestandsnaam").click();
+    await this.page
+      .locator('input[type="file"]')
+      .setInputFiles(path.join(__dirname, "../testdata", `${title}.docx`));
+    await this.page.getByLabel("Documenttype").click();
+    await this.page
+      .locator(".mat-mdc-select-panel")
+      .getByRole("option")
+      .first()
+      .click();
+    await this.page.getByLabel("Status").click();
+    await this.page
+      .locator(".mat-mdc-select-panel")
+      .getByRole("option")
+      .first()
+      .click();
+    await this.page
+      .getByRole("button", { name: "Toevoegen", exact: true })
+      .click();
+    await this.page.waitForTimeout(FIVE_SECONDS_IN_MS);
+  },
+);
+
+When(
+  "{string} selects document {string} to be signed",
+  { timeout: FORTY_SECONDS_IN_MS },
+  async function (
+    this: CustomWorld,
+    user: z.infer<typeof worldUsers>,
+    documentName: string,
+  ) {
+    const row = await documentGridRow(
+      this.page,
+      SIGN_DOCUMENTS_GRID_KEY,
+      documentName,
+    );
+    await row.getByRole("checkbox").check();
   },
 );

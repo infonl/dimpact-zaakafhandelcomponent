@@ -42,7 +42,7 @@ export const Alice: DamageReport = {
   },
   witnessDetails: [robert.personalDetails],
   documents: {
-    photo: "../files/dent.jpg",
-    invoice: "../files/invoice.pdf",
+    photo: "../testdata/dent.jpg",
+    invoice: "../testdata/invoice.pdf",
   },
 };

@@ -67,3 +67,12 @@ export function createMutationOptions<TData, TVariables = void>(data: TData) {
     mutationFn,
   };
 }
+
+export function createQueryOptions<TData>(data: TData) {
+  const queryFn = jest.fn<Promise<TData>, []>().mockResolvedValue(data);
+
+  return {
+    queryKey: ["test-query"],
+    queryFn,
+  };
+}

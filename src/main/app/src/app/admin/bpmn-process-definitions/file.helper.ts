@@ -16,3 +16,9 @@ export function extractBpmnProcessKey(content: string): string | null {
   const doc = new DOMParser().parseFromString(content, "application/xml");
   return doc.querySelector("process")?.getAttribute("id") ?? null;
 }
+
+export function extractAttachmentFilename(
+  contentDisposition: string | null,
+): string | null {
+  return contentDisposition?.match(/filename="?([^";]+)"?/)?.[1] ?? null;
+}

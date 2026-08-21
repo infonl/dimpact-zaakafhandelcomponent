@@ -70,7 +70,7 @@
                 [bpmnNodeRow]="node.key"
                 (click)="toggleNode(node)"
               >
-                <button mat-icon-button>
+                <button mat-icon-button [attr.aria-label]="node.name">
                   <mat-icon class="mat-icon-rtl-mirror">
                     {{
                       expandedKey === node.key ? "expand_more" : "chevron_right"
@@ -107,6 +107,9 @@
                   <button
                     mat-icon-button
                     [disabled]="node.definition.details?.inUse"
+                    attr.aria-label="{{ 'actie.verwijderen' | translate }} {{
+                      node.name
+                    }}"
                     (click)="deleteProcessDefinition(node)"
                   >
                     <mat-icon>delete</mat-icon>

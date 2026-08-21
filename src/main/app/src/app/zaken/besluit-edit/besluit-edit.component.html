@@ -6,7 +6,11 @@
 <mat-toolbar role="heading" class="gap-16">
   <mat-icon>edit</mat-icon>
   <span class="flex-grow-1">{{ "actie.besluit.wijzigen" | translate }}</span>
-  <button mat-icon-button (click)="sideNav().close()">
+  <button
+    mat-icon-button
+    [attr.aria-label]="'actie.paneel.sluiten' | translate"
+    (click)="sideNav().close()"
+  >
     <mat-icon>close</mat-icon>
   </button>
 </mat-toolbar>

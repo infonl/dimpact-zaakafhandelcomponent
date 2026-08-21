@@ -34,6 +34,7 @@
         <ng-container matColumnDef="downloaden">
           <th mat-header-cell *matHeaderCellDef>
             <mat-checkbox
+              [aria-label]="'actie.alles.selecteren' | translate"
               (click)="$event.stopPropagation()"
               (change)="updateAll($event)"
               [checked]="selectAll"
@@ -42,6 +43,7 @@
           </th>
           <td mat-cell *matCellDef="let document">
             <mat-checkbox
+              [aria-label]="'actie.selecteren' | translate"
               (click)="$event.stopPropagation()"
               (change)="updateSelected(document)"
               [checked]="downloadAlsZipSelection.isSelected(document)"
@@ -178,7 +180,7 @@
               <button
                 mat-icon-button
                 [matMenuTriggerFor]="menu"
-                aria-label="Example icon-button with a menu"
+                [attr.aria-label]="'actie.menu.openen' | translate"
               >
                 <mat-icon>more_vert</mat-icon>
               </button>
