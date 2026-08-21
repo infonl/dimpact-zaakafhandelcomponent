@@ -3,11 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
-import { MatIconHarness } from "@angular/material/icon/testing";
+import { inputBinding } from "@angular/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -16,6 +13,7 @@ import {
   queryOptions,
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
+import { render, screen } from "@testing-library/angular";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { KlantenService } from "../../klanten/klanten.service";
@@ -57,42 +55,31 @@ const bedrijfQueryKey = ["betrokkene-link-spec-bedrijf"];
 const setup = (
   betrokkene: GeneratedType<"RestZaakBetrokkene">,
   zaaktypeUuid = "zaaktype-uuid",
-) => {
-  const fixture: ComponentFixture<BetrokkeneLinkComponent> =
-    TestBed.createComponent(BetrokkeneLinkComponent);
-  fixture.componentRef.setInput("betrokkene", betrokkene);
-  fixture.componentRef.setInput("zaaktypeUuid", zaaktypeUuid);
-  fixture.detectChanges();
-  return { fixture, component: fixture.componentInstance };
-};
+) =>
+  render(BetrokkeneLinkComponent, {
+    bindings: [
+      inputBinding("betrokkene", () => betrokkene),
+      inputBinding("zaaktypeUuid", () => zaaktypeUuid),
+    ],
+    imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+    providers: [
+      provideHttpClient(),
+      provideRouter([]),
+      provideQueryClient(testQueryClient),
+    ],
+  });
 
 describe(BetrokkeneLinkComponent.name, () => {
-  let klantenService: KlantenService;
-
-  beforeEach(async () => {
+  beforeEach(() => {
     notifyManager.setScheduler((fn) => fn());
 
-    await TestBed.configureTestingModule({
-      imports: [
-        BetrokkeneLinkComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
-      providers: [
-        provideHttpClient(),
-        provideRouter([]),
-        provideQueryClient(testQueryClient),
-      ],
-    }).compileComponents();
-
-    klantenService = TestBed.inject(KlantenService);
-    jest.spyOn(klantenService, "readPersoon").mockReturnValue(
+    jest.spyOn(KlantenService.prototype, "readPersoon").mockReturnValue(
       queryOptions({
         queryKey: persoonQueryKey,
         queryFn: async () => mockPersoon,
       }) as ReturnType<KlantenService["readPersoon"]>,
     );
-    jest.spyOn(klantenService, "readBedrijf").mockReturnValue(
+    jest.spyOn(KlantenService.prototype, "readBedrijf").mockReturnValue(
       queryOptions({
         queryKey: bedrijfQueryKey,
         queryFn: async () => mockBedrijf,
@@ -102,62 +89,40 @@ describe(BetrokkeneLinkComponent.name, () => {
 
   afterEach(() => {
     notifyManager.setScheduler((fn) => setTimeout(fn, 0));
-    testQueryClient.clear();
   });
 
-  describe("when betrokkene is BSN type with temporaryPersonId", () => {
-    it("shows persoon link anchor pointing to the persoon route", async () => {
-      testQueryClient.setQueryData(persoonQueryKey, mockPersoon);
-      const { fixture } = setup(
-        makePersoonBetrokkene({ temporaryPersonId: "temp-456" }),
-      );
-      const loader = TestbedHarnessEnvironment.loader(fixture);
-      const anchor = await loader.getHarness(
-        MatButtonHarness.with({ selector: "a[mat-icon-button]" }),
-      );
-      const host = await anchor.host();
-      expect(await host.getAttribute("href")).toContain("persoon");
-      expect(await host.getAttribute("title")).toBe("actie.persoon.bekijken");
-    });
+  it("links to the persoon of a BSN betrokkene", async () => {
+    testQueryClient.setQueryData(persoonQueryKey, mockPersoon);
+
+    await setup(makePersoonBetrokkene({ temporaryPersonId: "temp-456" }));
+
+    expect(
+      screen.getByRole("link", { name: "actie.persoon.bekijken" }),
+    ).toHaveAttribute("href", expect.stringContaining("persoon"));
   });
 
-  describe("when betrokkene is RSIN type with kvkNummer", () => {
-    it("shows bedrijf link anchor pointing to the bedrijf route", async () => {
-      testQueryClient.setQueryData(bedrijfQueryKey, mockBedrijf);
-      const { fixture } = setup(
-        makeBedrijfBetrokkene({ kvkNummer: "12345678" }),
-      );
-      const loader = TestbedHarnessEnvironment.loader(fixture);
-      const anchor = await loader.getHarness(
-        MatButtonHarness.with({ selector: "a[mat-icon-button]" }),
-      );
-      const host = await anchor.host();
-      expect(await host.getAttribute("href")).toContain("12345678");
-      expect(await host.getAttribute("title")).toBe("actie.bedrijf.bekijken");
-    });
+  it("links to the bedrijf of a betrokkene with a kvkNummer", async () => {
+    testQueryClient.setQueryData(bedrijfQueryKey, mockBedrijf);
 
-    it("shows warning icon instead of link when betrokkene has no kvkNummer", async () => {
-      testQueryClient.setQueryData(bedrijfQueryKey, mockBedrijf);
-      const { fixture } = setup(
-        makeBedrijfBetrokkene({ kvkNummer: undefined }),
-      );
-      const loader = TestbedHarnessEnvironment.loader(fixture);
-      const warningIcon = await loader.getHarness(
-        MatIconHarness.with({ name: "warning" }),
-      );
-      expect(await warningIcon.getName()).toBe("warning");
-      const anchor = fixture.nativeElement.querySelector("a[mat-icon-button]");
-      expect(anchor).toBeNull();
-    });
+    await setup(makeBedrijfBetrokkene({ kvkNummer: "12345678" }));
+
+    expect(
+      screen.getByRole("link", { name: "actie.bedrijf.bekijken" }),
+    ).toHaveAttribute("href", expect.stringContaining("12345678"));
   });
 
-  describe("when betrokkene is BSN type without temporaryPersonId", () => {
-    it("does not show any link anchor when persoon query is disabled", () => {
-      const { fixture } = setup(
-        makePersoonBetrokkene({ temporaryPersonId: undefined }),
-      );
-      const anchor = fixture.nativeElement.querySelector("a[mat-icon-button]");
-      expect(anchor).toBeNull();
-    });
+  it("warns instead of linking when the bedrijf has no kvkNummer", async () => {
+    testQueryClient.setQueryData(bedrijfQueryKey, mockBedrijf);
+
+    await setup(makeBedrijfBetrokkene({ kvkNummer: undefined }));
+
+    expect(screen.getByText("warning")).toBeVisible();
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("shows no link for a BSN betrokkene without a temporaryPersonId", async () => {
+    await setup(makePersoonBetrokkene({ temporaryPersonId: undefined }));
+
+    expect(screen.queryByRole("link")).toBeNull();
   });
 });
