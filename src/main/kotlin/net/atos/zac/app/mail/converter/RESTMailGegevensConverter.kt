@@ -20,11 +20,11 @@ class RESTMailGegevensConverter @Inject constructor(
         // Please do not move it here, because MailGegevens do not always get constructed here.
         val afzender = configurationService.readGemeenteNaam()
         return MailGegevens(
-            from = MailAdres(restMailGegevens.verzender!!, afzender),
-            to = MailAdres(restMailGegevens.ontvanger!!, null),
+            from = MailAdres(restMailGegevens.verzender, afzender),
+            to = MailAdres(restMailGegevens.ontvanger, null),
             replyTo = restMailGegevens.replyTo?.let { MailAdres(it, afzender) },
-            subject = restMailGegevens.onderwerp!!,
-            body = restMailGegevens.body!!,
+            subject = restMailGegevens.onderwerp,
+            body = restMailGegevens.body,
             attachments = restMailGegevens.bijlagen,
             isCreateDocumentFromMail = restMailGegevens.createDocumentFromMail,
             vertrouwelijkheidaanduiding = restMailGegevens.vertrouwelijkheidaanduiding

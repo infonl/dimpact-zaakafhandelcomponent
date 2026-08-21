@@ -32,8 +32,6 @@ class RESTMailGegevensConverterTest : BehaviorSpec({
             vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.GEHEIM
         ).apply {
             replyTo = "replyto@example.com"
-            onderwerp = "fakeOnderwerp"
-            body = "fakeBody"
             bijlagen = "fakeAttachmentUuid"
             createDocumentFromMail = true
         }
@@ -63,10 +61,7 @@ class RESTMailGegevensConverterTest : BehaviorSpec({
         every { configurationService.readGemeenteNaam() } returns gemeenteNaam
         val restMailGegevens = createRESTMailGegevens(
             vertrouwelijkheidaanduiding = null
-        ).apply {
-            onderwerp = "fakeOnderwerp"
-            body = "fakeBody"
-        }
+        )
 
         `when`("convert is called") {
             val mailGegevens = restMailGegevensConverter.convert(restMailGegevens)
@@ -79,11 +74,7 @@ class RESTMailGegevensConverterTest : BehaviorSpec({
 
     given("a RESTMailGegevens without a replyTo address") {
         every { configurationService.readGemeenteNaam() } returns gemeenteNaam
-        val restMailGegevens = createRESTMailGegevens().apply {
-            replyTo = null
-            onderwerp = "fakeOnderwerp"
-            body = "fakeBody"
-        }
+        val restMailGegevens = createRESTMailGegevens()
 
         `when`("convert is called") {
             val mailGegevens = restMailGegevensConverter.convert(restMailGegevens)

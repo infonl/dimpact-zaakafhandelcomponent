@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.mail.model
 
+import jakarta.validation.constraints.NotBlank
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.util.NoArgConstructor
 
@@ -12,15 +13,19 @@ import nl.info.zac.util.NoArgConstructor
  */
 @NoArgConstructor
 data class RESTMailGegevens(
-    var verzender: String? = null,
+    @field:NotBlank
+    var verzender: String,
 
-    var ontvanger: String? = null,
+    @field:NotBlank
+    var ontvanger: String,
+
+    @field:NotBlank
+    var onderwerp: String,
+
+    @field:NotBlank
+    var body: String,
 
     var replyTo: String? = null,
-
-    var onderwerp: String? = null,
-
-    var body: String? = null,
 
     var bijlagen: String? = null,
 

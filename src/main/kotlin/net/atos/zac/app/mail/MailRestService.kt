@@ -7,6 +7,7 @@ package net.atos.zac.app.mail
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
@@ -47,7 +48,7 @@ class MailRestService @Inject constructor(
     @Path("send/{zaakUuid}")
     fun sendMail(
         @PathParam("zaakUuid") zaakUuid: UUID,
-        restMailGegevens: RESTMailGegevens
+        @Valid restMailGegevens: RESTMailGegevens
     ) {
         val loggedInUser = loggedInUserInstance.get()
         val zaak = zrcClientService.readZaak(zaakUuid)
@@ -59,7 +60,7 @@ class MailRestService @Inject constructor(
     @Path("acknowledge/{zaakUuid}")
     fun sendAcknowledgmentReceiptMail(
         @PathParam("zaakUuid") zaakUuid: UUID,
-        restMailGegevens: RESTMailGegevens
+        @Valid restMailGegevens: RESTMailGegevens
     ) {
         val loggedInUser = loggedInUserInstance.get()
         val zaak = zrcClientService.readZaak(zaakUuid)
