@@ -18,6 +18,8 @@ import { NEVER, of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { ObjectType } from "../../core/websocket/model/object-type";
+import { Opcode } from "../../core/websocket/model/opcode";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { DocumentDialogService } from "../../informatie-objecten/document-dialog.service";
@@ -129,6 +131,57 @@ describe(ZaakDocumentenComponent.name, () => {
         informatieObjectenService.listEnkelvoudigInformatieobjecten,
       ).toHaveBeenCalledWith(
         expect.objectContaining({ gekoppeldeZaakDocumenten: false }),
+      );
+    });
+  });
+
+  describe("document websocket listeners", () => {
+    const documenten = [
+      { ...fakeDocument, uuid: "doc-uuid-1" },
+      { ...fakeDocument, uuid: "doc-uuid-2" },
+    ];
+
+    const createComponentWithDocumenten = async () => {
+      jest
+        .mocked(informatieObjectenService.listEnkelvoudigInformatieobjecten)
+        .mockReturnValue(of(documenten));
+      await createComponent();
+      await new Promise(requestAnimationFrame);
+      fixture.detectChanges();
+    };
+
+    it("listens to every document in the table, since document changes are not announced on the zaak", async () => {
+      await createComponentWithDocumenten();
+
+      for (const { uuid } of documenten) {
+        expect(websocketService.addListener).toHaveBeenCalledWith(
+          Opcode.UPDATED,
+          ObjectType.ENKELVOUDIG_INFORMATIEOBJECT,
+          uuid,
+          expect.any(Function),
+        );
+      }
+    });
+
+    it("reloads the document list when one of those documents changes", async () => {
+      let documentChangedCallback: (() => void) | undefined;
+      jest
+        .mocked(websocketService.addListener)
+        .mockImplementation((_opcode, objectType, _objectId, callback) => {
+          if (objectType === ObjectType.ENKELVOUDIG_INFORMATIEOBJECT) {
+            documentChangedCallback = callback as () => void;
+          }
+          return fromPartial<WebsocketListener>({});
+        });
+      await createComponentWithDocumenten();
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      documentChangedCallback?.();
+
+      expect(invalidateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: [LIST_QUERY_KEY, "zaak-uuid-1"],
+        }),
       );
     });
   });
