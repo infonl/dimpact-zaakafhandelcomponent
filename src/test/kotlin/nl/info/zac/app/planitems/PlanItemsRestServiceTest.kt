@@ -21,6 +21,7 @@ import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.zac.util.time.convertToDate
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
@@ -46,6 +47,7 @@ import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.Mail
+import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.mailtemplates.model.createMailGegevens
 import nl.info.zac.mailtemplates.model.createMailTemplate
 import nl.info.zac.policy.PolicyService
@@ -389,6 +391,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 fataledatum = null
             )
             val taskDataSlot = slot<Map<String, String>>()
+            val mailGegevensSlot = slot<MailGegevens>()
             val zaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
@@ -402,7 +405,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { mailTemplateService.readMailtemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
             every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
             every { mailService.getGemeenteMailAdres() } returns createMailAdres()
-            every { mailService.sendMail(any(), any()) } returns "body"
+            every { mailService.sendMail(capture(mailGegevensSlot), any()) } returns "body"
             every {
                 cmmnService.startHumanTaskPlanItem(
                     planItemInstanceId,
@@ -437,6 +440,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         mailService.sendMail(any(), any())
                     }
+                    mailGegevensSlot.captured.vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
 
@@ -462,6 +466,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 fataledatum = null
             )
             val taskDataSlot = slot<Map<String, String>>()
+            val mailGegevensSlot = slot<MailGegevens>()
             val zaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
@@ -475,7 +480,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { mailTemplateService.readMailtemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
             every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
             every { mailService.getGemeenteMailAdres() } returns createMailAdres()
-            every { mailService.sendMail(any(), any()) } returns "body"
+            every { mailService.sendMail(capture(mailGegevensSlot), any()) } returns "body"
             every {
                 cmmnService.startHumanTaskPlanItem(
                     planItemInstanceId,
@@ -510,6 +515,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         mailService.sendMail(any(), any())
                     }
+                    mailGegevensSlot.captured.vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
 

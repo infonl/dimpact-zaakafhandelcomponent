@@ -163,19 +163,19 @@ class PlanItemsRestService @Inject constructor(
                 taakdata,
                 mailService.sendMail(
                     MailGegevens(
-                        TaakVariabelenService.readMailFrom(taakdata)
+                        from = TaakVariabelenService.readMailFrom(taakdata)
                             .map { MailAdres(it, afzender) }
                             .orElseGet { mailService.getGemeenteMailAdres() },
-                        TaakVariabelenService.readMailTo(taakdata)
+                        to = TaakVariabelenService.readMailTo(taakdata)
                             .map { MailAdres(it, null) }
                             .get(),
-                        TaakVariabelenService.readMailReplyTo(taakdata)
+                        replyTo = TaakVariabelenService.readMailReplyTo(taakdata)
                             .map { MailAdres(it, afzender) }
                             .getOrNull(),
-                        mailTemplate.onderwerp,
-                        TaakVariabelenService.readMailBody(taakdata).orElse(null),
-                        TaakVariabelenService.readMailAttachments(taakdata).orElse(null),
-                        true
+                        subject = mailTemplate.onderwerp,
+                        body = TaakVariabelenService.readMailBody(taakdata).orElse(null),
+                        attachments = TaakVariabelenService.readMailAttachments(taakdata).orElse(null),
+                        isCreateDocumentFromMail = true
                     ),
                     zaak.getBronnenFromZaak()
                 )
@@ -216,9 +216,9 @@ class PlanItemsRestService @Inject constructor(
         userEventListenerData.planItemInstanceId?.let {
             cmmnService.startUserEventListenerPlanItem(it)
         }
-        if (userEventListenerData.restMailGegevens !== null) {
+        userEventListenerData.restMailGegevens?.let {
             mailService.sendMail(
-                restMailGegevensConverter.convert(userEventListenerData.restMailGegevens),
+                restMailGegevensConverter.convert(it),
                 zaak.getBronnenFromZaak()
             )
         }

@@ -292,9 +292,54 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       expect(submitButton()).toBeNull();
     });
 
-    it("closes the dialog asking to record a besluit", async () => {
-      seedQueries(zaak);
-      await setup();
+    it("should omit vertrouwelijkheidaanduiding from restMailGegevens when sendMail is checked, leaving it to the backend's Openbaar default", async () => {
+      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
+      await resultaattypeSelect.open();
+      const options = await resultaattypeSelect.getOptions();
+      await options[2]?.click();
+
+      const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);
+      await sendMailCheckbox.check();
+      fixture.detectChanges();
+
+      fixture.componentInstance.form.controls.verzender.setValue(
+        mockAfzenders[0],
+      );
+      fixture.componentInstance.form.controls.ontvanger.setValue(
+        "recipient@example.com",
+      );
+      fixture.detectChanges();
+
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
+      );
+      await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
+      const req = httpTestingController.expectOne(
+        `/rest/planitems/doUserEventListenerPlanItem`,
+      );
+      expect(req.request.body.restMailGegevens).toMatchObject({
+        verzender: mockAfzenders[0].mail,
+        replyTo: mockAfzenders[0].replyTo,
+        ontvanger: "recipient@example.com",
+        onderwerp: mockMailtemplate.onderwerp,
+        body: mockMailtemplate.body,
+        createDocumentFromMail: true,
+      });
+      expect(
+        req.request.body.restMailGegevens.vertrouwelijkheidaanduiding,
+      ).toBeUndefined();
+
+      req.flush({});
+    });
+
+    it("should send over a 'brondatum' when a brondatum is required", async () => {
+      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
+      await resultaattypeSelect.open();
+
+      const options = await resultaattypeSelect.getOptions();
+      await options[0]?.click(); // Select a type that requires brondatum
 
       await chooseResultaattype("fakeResultaatMetBesluit");
       await user.click(

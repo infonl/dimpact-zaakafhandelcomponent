@@ -17,6 +17,7 @@ import io.mockk.verify
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.createDigitalAddress
 import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
@@ -99,6 +100,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                     body shouldBe mailTemplate.body
                     attachments shouldBe emptyList()
                     isCreateDocumentFromMail shouldBe true
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
 
@@ -163,6 +165,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                     body shouldBe mailTemplate.body
                     attachments shouldBe emptyList()
                     isCreateDocumentFromMail shouldBe true
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
 
@@ -225,6 +228,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                     body shouldBe mailTemplate.body
                     attachments shouldBe emptyList()
                     isCreateDocumentFromMail shouldBe true
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
 

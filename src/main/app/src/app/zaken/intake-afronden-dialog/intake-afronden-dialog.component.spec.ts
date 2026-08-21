@@ -339,17 +339,38 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       request.flush(null);
     });
 
-    it("sends the niet-ontvankelijk mail when the zaak is declared niet ontvankelijk", async () => {
-      await setup(createZaak("BESCHIKBAAR_AAN"));
-      await answerOntvankelijk("actie.nee");
-      await user.type(
-        screen.getByLabelText("redenNietOntvankelijk"),
-        "fakeReden",
-      );
-      await user.type(
-        screen.getByLabelText("ontvanger"),
-        "fakeOntvanger@example.com",
-      );
+    it("omits vertrouwelijkheidaanduiding from restMailGegevens, leaving it to the backend's Openbaar default", () => {
+      jest
+        .spyOn(planItemsService, "doUserEventListenerPlanItem")
+        .mockReturnValue(of(undefined) as never);
+
+      component.formGroup.patchValue({
+        ontvankelijk: true,
+        sendMail: true,
+        verzender: mockAfzender,
+        ontvanger: "recipient@example.com",
+      });
+
+      component["afronden"]();
+
+      const [{ restMailGegevens }] = jest.mocked(
+        planItemsService.doUserEventListenerPlanItem,
+      ).mock.calls[0];
+      expect(restMailGegevens?.vertrouwelijkheidaanduiding).toBeUndefined();
+    });
+
+    it("uses niet-ontvankelijk mailtemplate when ontvankelijk is false", () => {
+      jest
+        .spyOn(planItemsService, "doUserEventListenerPlanItem")
+        .mockReturnValue(of(undefined) as never);
+
+      component.formGroup.patchValue({
+        ontvankelijk: false,
+        reden: "Onvoldoende informatie",
+        sendMail: true,
+        verzender: mockAfzender,
+        ontvanger: "recipient@example.com",
+      });
 
       const request = await afronden();
 

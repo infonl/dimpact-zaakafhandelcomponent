@@ -182,7 +182,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                         "aantalInitiatorroltypen": 1,
                         "besluittypeAanwezig": false,
                         "brpInstellingenCorrect": true,
-                        "informatieobjecttypeEmailAanwezig": false,
+                        "informatieobjecttypeEmailAanwezig": true,
                         "resultaattypeAanwezig": true,
                         "resultaattypesMetVerplichtBesluit": [],
                         "rolOverigeAanwezig": false,

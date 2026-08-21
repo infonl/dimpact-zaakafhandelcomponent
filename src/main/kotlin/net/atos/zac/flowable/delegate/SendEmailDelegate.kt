@@ -5,6 +5,8 @@
 package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.FlowableHelper
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
+import nl.info.zac.app.shared.toDrcVertrouwelijkheidaanduidingEnum
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.mailtemplates.model.MailGegevens
@@ -33,6 +35,9 @@ class SendEmailDelegate : AbstractDelegate() {
     // Set by Flowable. Can be either FixedValue or JuelExpression
     lateinit var template: Expression
 
+    // Set by Flowable. Can be either FixedValue or JuelExpression
+    var vertrouwelijkheidaanduiding: Expression? = null
+
     companion object {
         private val LOG = Logger.getLogger(SendEmailDelegate::class.java.name)
     }
@@ -54,6 +59,12 @@ class SendEmailDelegate : AbstractDelegate() {
         val fromAddress = from.resolveValueAsString(execution)
         val toAddress = to.resolveValueAsString(execution)
         val replyToAddress = replyTo?.resolveValueAsString(execution)
+        val vertrouwelijkheidaanduidingValue = vertrouwelijkheidaanduiding
+            ?.resolveValueAsString(execution)
+            ?.trim()
+            ?.takeUnless { it.isBlank() }
+            ?.let { RestVertrouwelijkheidaanduiding.valueOf(it).toDrcVertrouwelijkheidaanduidingEnum() }
+            ?: throw IllegalArgumentException("Required field 'vertrouwelijkheidaanduiding' is missing")
 
         val mailTemplate = flowableHelper.mailTemplateService.findMailtemplateByName(templateName)
             ?: throw IllegalArgumentException("Mail template '$templateName' not found")
@@ -69,7 +80,8 @@ class SendEmailDelegate : AbstractDelegate() {
                 subject = mailTemplate.onderwerp,
                 body = mailTemplate.body,
                 attachments = null,
-                isCreateDocumentFromMail = true
+                isCreateDocumentFromMail = true,
+                vertrouwelijkheidaanduiding = vertrouwelijkheidaanduidingValue
             ),
             bronnen = zaak.getBronnenFromZaak()
         )

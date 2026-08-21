@@ -21,6 +21,8 @@ import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_ZEER_GEHEIM
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -157,6 +159,7 @@ class MailRestServiceTest : BehaviorSpec({
                   "informatieobjectTypeOmschrijving" : "e-mail",
                   "informatieobjectTypeUUID" : "$TEST_INFORMATIE_OBJECT_TYPE_1_UUID",
                   "isBesluitDocument" : false,
+                  "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
                   "rechten" : {
                     "lezen" : true,
                     "ondertekenen" : true,
@@ -168,6 +171,57 @@ class MailRestServiceTest : BehaviorSpec({
                   }
                 }
                 """.trimIndent()
+            }
+        }
+    }
+
+    given("A zaak exists and the SMTP server is configured and a behandelaar is logged in") {
+        val (_, zaakUuid) = zaakHelper.createZaak(
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            testUser = BEHEERDER_1
+        )
+
+        `when`("A mail is sent with a non-default vertrouwelijkheidaanduiding and 'create document from mail' enabled") {
+            val receiverMail = "vertrouwelijkheidaanduidingReceiverTest@example.com"
+
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/mail/send/$zaakUuid",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json"
+                ),
+                requestBodyAsString = """{
+                    "verzender": "sender@example.com",
+                    "ontvanger": "$receiverMail",
+                    "onderwerp": "subject",
+                    "body": "body",
+                    "bijlagen": "",
+                    "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_ZEER_GEHEIM",
+                    "createDocumentFromMail": true
+                }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_1
+            )
+
+            then("the response should be 'no-content'") {
+                response.code shouldBe HTTP_NO_CONTENT
+            }
+
+            And("the mail-generated PDF document uses the supplied vertrouwelijkheidaanduiding instead of a hardcoded value") {
+                val informatieobjectenResponse = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/informatieobjecten/informatieobjectenList",
+                    requestBodyAsString = """
+                        {
+                            "zaakUUID": "$zaakUuid",
+                            "gekoppeldeZaakDocumenten": false
+                        }
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_1
+                )
+                informatieobjectenResponse.code shouldBe HTTP_OK
+                // the email PDF is the only document created for this zaak
+                JSONArray(informatieobjectenResponse.bodyAsString).getJSONObject(0)
+                    .getString("vertrouwelijkheidaanduiding") shouldBe VERTROUWELIJKHEIDS_AANDUIDING_ZEER_GEHEIM
             }
         }
     }

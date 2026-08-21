@@ -130,12 +130,13 @@ class MailService @Inject constructor(
             LOG.fine("Sent mail to ${mailGegevens.to} with subject '$subject'.")
             if (mailGegevens.isCreateDocumentFromMail && bronnen.zaak != null) {
                 createZaakDocumentFromMail(
-                    mailGegevens.from.email,
-                    mailGegevens.to.email,
-                    subject,
-                    body,
-                    attachments,
-                    bronnen.zaak
+                    verzender = mailGegevens.from.email,
+                    ontvanger = mailGegevens.to.email,
+                    subject = subject,
+                    body = body,
+                    attachments = attachments,
+                    zaak = bronnen.zaak,
+                    vertrouwelijkheidaanduiding = mailGegevens.vertrouwelijkheidaanduiding
                 )
             }
         } catch (messagingException: MessagingException) {
@@ -169,7 +170,8 @@ class MailService @Inject constructor(
         subject: String,
         body: String,
         attachments: List<Attachment>,
-        zaak: Zaak
+        zaak: Zaak,
+        vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum
     ) {
         val eMailObjectType = getEmailInformatieObjectType(zaak)
         val pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments)
@@ -181,11 +183,10 @@ class MailService @Inject constructor(
             taal = ConfigurationService.TAAL_NEDERLANDS
             informatieobjecttype = eMailObjectType.url
             inhoud = pdfDocument.toBase64String()
-            vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
+            this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
             formaat = MediaTypes.Application.PDF.mediaType
             bestandsnaam = "$subject.pdf"
             status = StatusEnum.DEFINITIEF
-            vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
             verzenddatum = LocalDate.now()
         }
         zgwApiService.createZaakInformatieobjectForZaak(

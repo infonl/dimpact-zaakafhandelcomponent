@@ -202,6 +202,33 @@
               "dataSrc": "custom"
             }
           ]
+        },
+        {
+          "title": "Mail",
+          "collapsible": false,
+          "key": "PL_Mail",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Vertrouwelijkheidaanduiding",
+              "optionsLabelPosition": "right",
+              "key": "MAIL_Vertrouwelijkheidaanduiding",
+              "widget": "html5",
+              "validate": {
+                "required": true,
+                "onlyAvailableItems": true
+              },
+              "attributes": {
+                "ZAC_TYPE": "ZAC_vertrouwelijkheidaanduiding"
+              },
+              "type": "select",
+              "input": true,
+              "dataSrc": "custom"
+            }
+          ]
         }
       ]
     }

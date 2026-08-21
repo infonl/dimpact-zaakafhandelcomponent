@@ -4,6 +4,7 @@
  */
 package nl.info.zac.mailtemplates.model
 
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.createMailAdres
 
@@ -15,15 +16,17 @@ fun createMailGegevens(
     subject: String = "fakeSubject",
     body: String = "fakeBody",
     attachments: String? = null,
-    createDocumentFromMail: Boolean = false
+    createDocumentFromMail: Boolean = false,
+    vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR
 ) = MailGegevens(
-    from,
-    to,
-    replyTo,
-    subject,
-    body,
-    attachments,
-    createDocumentFromMail
+    from = from,
+    to = to,
+    replyTo = replyTo,
+    subject = subject,
+    body = body,
+    attachments = attachments,
+    isCreateDocumentFromMail = createDocumentFromMail,
+    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
 )
 
 @Suppress("LongParameterList")
