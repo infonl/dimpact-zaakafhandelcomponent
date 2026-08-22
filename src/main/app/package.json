@@ -69,7 +69,7 @@
     "@angular/cli": "20.3.34",
     "@angular/compiler-cli": "20.3.28",
     "@angular/language-service": "20.3.28",
-    "@testing-library/angular": "18.1.1",
+    "@testing-library/angular": "19.4.2",
     "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/user-event": "14.6.5",
