@@ -18,8 +18,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.UUID
 
 /**
- * Records the productaanvraag objects that ZAC processes. If Open Notificaties sends the same
- * notification again, ZAC does not create a second zaak.
+ * Records the productaanvraag objects that ZAC processes. If a notification request for the same productaanvraag object is received again by ZAC, ZAC does not handle this productaanvraag again and will not create a second zaak.
  */
 @ApplicationScoped
 @Transactional(SUPPORTS)
