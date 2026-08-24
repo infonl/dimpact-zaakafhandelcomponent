@@ -478,6 +478,22 @@ describe(FormioSetupService.name, () => {
       expect(JSON.stringify(taakdata)).not.toContain("\u2014");
     });
 
+    it("should not seed a list whose elements all hold no value", async () => {
+      const component = gegevensInputComponent("kenmerken[].bron");
+      const seededTaak = { ...taak, taakdata: {} } as GeneratedType<"RestTask">;
+      await formioSetupService.createFormioForm(
+        { components: [component] },
+        seededTaak,
+        {
+          ...zaak,
+          kenmerken: [{ bron: "" }, { bron: null }],
+        } as unknown as GeneratedType<"RestZaak">,
+      );
+
+      expect(component.defaultValue).toBeUndefined();
+      expect(seededTaak.taakdata).toEqual({});
+    });
+
     it("should refuse a table format, which cannot go into an input", async () => {
       const { component } = await seed(
         gegevensInputComponent("zaakdata", { formaat: "tabel" }),

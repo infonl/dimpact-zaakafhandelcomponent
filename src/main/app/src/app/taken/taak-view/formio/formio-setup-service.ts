@@ -37,21 +37,14 @@ export enum KNOWN_ZAC_FIELDS {
   TAAK_GEGEVENS = "ZAC_taak_gegevens",
 }
 
-/** Names the property a gegevens field shows, as a dot path: `zaaktype.omschrijving`. */
 const ZAC_PATH_PROPERTY = "ZAC_VELD";
 
-/** Names an optional format function wrapped around the value: `ZAC_FORMAAT: "datum"`. */
 const ZAC_FORMAT_PROPERTY = "ZAC_FORMAAT";
 
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})/;
 
-/** Shown when a property holds no value, so an empty field reads as empty rather than as broken. */
 const NO_VALUE = "—";
 
-/**
- * Wrappers a form may put around a zaak value. Without one the value is shown as the zaak holds it,
- * so a format is a deliberate choice by the form author rather than something guessed from the type.
- */
 const VALUE_FORMATTERS: Record<
   string,
   (value: unknown, translate: TranslateService) => string
@@ -64,20 +57,11 @@ const VALUE_FORMATTERS: Record<
     translate.instant(value ? "actie.ja" : "actie.nee"),
 };
 
-/**
- * Renders every key of an object instead of a single value, so a form can show what a zaak or taak
- * actually carries without naming each key. Handled apart from [VALUE_FORMATTERS] because it emits
- * markup: a formatter returning a string would have its table escaped away.
- */
+/** Not a formatter: it emits markup, which a formatter's return value would have escaped away. */
 const TABLE_FORMAT = "tabel";
 
-/**
- * Set to `true` to seed the value into the field the author declared, leaving it editable and part
- * of the submission, instead of rendering it as read-only text.
- */
 const ZAC_INPUT_PROPERTY = "ZAC_INVOER";
 
-/** Component types that parse their own value, so they need it raw rather than formatted. */
 const VALUE_PARSING_TYPES = ["datetime", "date", "day", "time"];
 
 /** Hides the field's chrome; styled in `formio-wrapper.component.less`. */
@@ -119,12 +103,8 @@ const LIST_SEGMENT_SUFFIX = "[]";
 const LIST_SEPARATOR = ", ";
 
 /**
- * Walks a dot path into `source`, naming it `sourceLabel` in any error. A property that is absent
- * resolves to null rather than to an error: the API omits properties that hold no value, so absence
- * cannot be told apart from a typo.
- *
- * A segment may end in `[]` to read on through every element of a list, as in
- * `kenmerken[].kenmerk`, which resolves to the kenmerk of each row.
+ * An absent property resolves to null, not an error: the API omits empty properties, so absence
+ * cannot be told from a typo. A `[]` segment reads on through every element.
  */
 function resolvePath(
   source: object,
@@ -223,7 +203,7 @@ function walkSegments(
   return value;
 }
 
-/** A calendar widget can be put on other types too, so the widget is checked as well as the type. */
+/** A calendar widget can sit on other types too, so check the widget as well as the type. */
 function parsesItsOwnValue(component: ExtendedComponentSchema) {
   return (
     VALUE_PARSING_TYPES.includes(String(component.type)) ||
@@ -392,10 +372,6 @@ export class FormioSetupService {
     this.renderFieldError(component, `Undefined ZAC_TYPE: '${zacType}'`);
   }
 
-  /**
-   * Shown in place of the field rather than as a snackbar: a form authoring mistake belongs next to
-   * the field that carries it, and a transient message would leave the author staring at a blank one.
-   */
   private renderFieldError(
     component: ExtendedComponentSchema,
     message: string,
@@ -416,11 +392,7 @@ export class FormioSetupService {
     }
   }
 
-  /**
-   * A layout component holds its children under `components`, but a table nests them per cell in
-   * `rows` and a columns component in `columns`, so those need walking too or their fields are
-   * left uninitialized.
-   */
+  /** A table nests its children per cell in `rows`, and a columns component in `columns`. */
   private getChildComponents(
     fieldsetComponent: ExtendedComponentSchema,
   ): ExtendedComponentSchema[] {
@@ -464,11 +436,7 @@ export class FormioSetupService {
     component.type = "input";
   }
 
-  /**
-   * Rendered as content rather than as an input: an input lands in the submission, and completing a
-   * task writes every submitted key back as a process variable — which would overwrite the zaak
-   * variables with whatever this read-only field happened to show.
-   */
+  /** Content, not an input: completing a task writes every submitted key back as a process variable. */
   private initializeGegevensField(
     component: ExtendedComponentSchema,
     source: object,
@@ -516,10 +484,8 @@ export class FormioSetupService {
   }
 
   /**
-   * Leaves the component as the author declared it — a textfield stays an editable textfield — and
-   * puts the resolved value in as its value. The value has to go into the task data as well, because
-   * Form.io prefers submission data over `defaultValue`; a value already stored there is left alone,
-   * so reopening a saved task shows what the user answered rather than re-seeding over it.
+   * The value goes into the task data too, because Form.io prefers submission data over
+   * `defaultValue`. A value already stored there is left alone, so a saved answer survives.
    */
   private seedInputField(
     component: ExtendedComponentSchema,
@@ -564,11 +530,7 @@ export class FormioSetupService {
     }
   }
 
-  /**
-   * Keys are sorted so the same object always renders in the same order. A value that is itself an
-   * object or a list is named rather than expanded: nesting a whole zaak inside a cell reads as
-   * noise, and the form can address it with its own path.
-   */
+  /** A nested object or list is counted rather than expanded; address it with its own path. */
   private renderKeyValueTable(source: Record<string, unknown> | null) {
     const entries = Object.entries(source ?? {}).sort(([left], [right]) =>
       left.localeCompare(right),
