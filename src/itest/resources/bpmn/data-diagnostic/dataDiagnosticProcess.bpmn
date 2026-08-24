@@ -60,6 +60,17 @@
       </extensionElements>
     </userTask>
 
+    <userTask id="seededInputTask" name="Seeded inputs"
+              flowable:assignee="${var:get(zaakBehandelaar)}"
+              flowable:candidateGroups="${zaakGroep}"
+              flowable:formKey="seededInputForm"
+              flowable:formFieldValidation="false">
+      <extensionElements>
+        <flowable:static-form-key><![CDATA[seededInputForm]]></flowable:static-form-key>
+        <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+      </extensionElements>
+    </userTask>
+
     <parallelGateway id="join" name="All completed"/>
 
     <serviceTask id="closeZaak" name="Close zaak"
@@ -79,6 +90,8 @@
     <sequenceFlow id="flowStartFork" sourceRef="start" targetRef="fork"/>
     <sequenceFlow id="flowForkZaak" sourceRef="fork" targetRef="zaakDataTask"/>
     <sequenceFlow id="flowForkTaak" sourceRef="fork" targetRef="taakDataTask"/>
+    <sequenceFlow id="flowForkSeeded" sourceRef="fork" targetRef="seededInputTask"/>
+    <sequenceFlow id="flowSeededJoin" sourceRef="seededInputTask" targetRef="join"/>
     <sequenceFlow id="flowForkProcess" sourceRef="fork" targetRef="processDataTask"/>
     <sequenceFlow id="flowProcessJoin" sourceRef="processDataTask" targetRef="join"/>
     <sequenceFlow id="flowZaakJoin" sourceRef="zaakDataTask" targetRef="join"/>
@@ -103,6 +116,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="processDataTask" id="BPMNShape_processDataTask">
         <omgdc:Bounds height="80.0" width="100.0" x="280.0" y="360.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="seededInputTask" id="BPMNShape_seededInputTask">
+        <omgdc:Bounds height="80.0" width="100.0" x="280.0" y="490.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="join" id="BPMNShape_join">
         <omgdc:Bounds height="40.0" width="40.0" x="440.0" y="180.0"/>
@@ -145,6 +161,16 @@
       <bpmndi:BPMNEdge bpmnElement="flowProcessJoin" id="BPMNEdge_flowProcessJoin">
         <omgdi:waypoint x="380.0" y="400.0"/>
         <omgdi:waypoint x="460.0" y="400.0"/>
+        <omgdi:waypoint x="460.0" y="220.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowForkSeeded" id="BPMNEdge_flowForkSeeded">
+        <omgdi:waypoint x="200.0" y="220.0"/>
+        <omgdi:waypoint x="200.0" y="530.0"/>
+        <omgdi:waypoint x="280.0" y="530.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowSeededJoin" id="BPMNEdge_flowSeededJoin">
+        <omgdi:waypoint x="380.0" y="530.0"/>
+        <omgdi:waypoint x="460.0" y="530.0"/>
         <omgdi:waypoint x="460.0" y="220.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flowJoinClose" id="BPMNEdge_flowJoinClose">

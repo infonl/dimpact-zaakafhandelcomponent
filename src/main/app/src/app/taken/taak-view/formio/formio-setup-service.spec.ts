@@ -26,6 +26,7 @@ import {
   taak,
   unsignedDocumentsFieldset,
   zaak,
+  gegevensInputComponent,
   taakGegevensComponent,
   zaakGegevensComponent,
 } from "./formio-setup-service.test-fixtures";
@@ -391,6 +392,131 @@ describe(FormioSetupService.name, () => {
           ],
         }),
       );
+    });
+  });
+
+  describe(`a gegevens field with ${"ZAC_INVOER"}`, () => {
+    async function seed(
+      component: ExtendedComponentSchema,
+      taakdata: Record<string, unknown> = {},
+    ) {
+      const seededTaak = {
+        ...taak,
+        taakdata,
+        groep: { id: "fakeGroupId", naam: "fakeGroupName" },
+      } as GeneratedType<"RestTask">;
+      await formioSetupService.createFormioForm(
+        { components: [component] },
+        seededTaak,
+        zaak,
+      );
+      return { component, taakdata: seededTaak.taakdata };
+    }
+
+    it("should leave the field editable instead of rendering it as text", async () => {
+      const { component } = await seed(gegevensInputComponent("identificatie"));
+
+      expect(component.type).toBe("textfield");
+      expect(component.input).toBe(true);
+      expect(component.html).toBeUndefined();
+      expect(component.defaultValue).toBe("ZAAK-2026-0000000835");
+    });
+
+    it("should put the value in the task data, because Form.io prefers that over a default", async () => {
+      const { component, taakdata } = await seed(
+        gegevensInputComponent("identificatie"),
+      );
+
+      expect(taakdata![component.key]).toBe("ZAAK-2026-0000000835");
+    });
+
+    it("should not overwrite an answer the user already stored", async () => {
+      const { component, taakdata } = await seed(
+        gegevensInputComponent("identificatie"),
+        { IN_Seeded: "edited by the user" },
+      );
+
+      expect(taakdata![component.key]).toBe("edited by the user");
+      expect(component.defaultValue).toBe("ZAAK-2026-0000000835");
+    });
+
+    it("should apply the format function to the seeded value", async () => {
+      const { component } = await seed(
+        gegevensInputComponent("startdatum", { formaat: "datum" }),
+      );
+
+      expect(component.defaultValue).toBe("24-08-2026");
+    });
+
+    it("should seed from the taak as well as from the zaak", async () => {
+      const { component } = await seed(
+        gegevensInputComponent("groep.naam", {
+          zacType: KNOWN_ZAC_FIELDS.TAAK_GEGEVENS,
+        }),
+      );
+
+      expect(component.defaultValue).toBe("fakeGroupName");
+    });
+
+    it.each([
+      ["an absent property", "einddatum"],
+      ["a misspelled property", "eindatum"],
+      ["an empty list", "besluiten[].identificatie"],
+    ])("should leave the input untouched for %s", async (_name, veld) => {
+      const { component, taakdata } = await seed(gegevensInputComponent(veld));
+
+      expect(component.defaultValue).toBeUndefined();
+      expect(taakdata).toEqual({});
+    });
+
+    it("should never seed the no-value marker, which a date picker cannot parse", async () => {
+      const { component, taakdata } = await seed(
+        gegevensInputComponent("einddatum", { formaat: "datum" }),
+      );
+
+      expect(component.defaultValue).not.toBe("\u2014");
+      expect(JSON.stringify(taakdata)).not.toContain("\u2014");
+    });
+
+    it("should refuse a table format, which cannot go into an input", async () => {
+      const { component } = await seed(
+        gegevensInputComponent("zaakdata", { formaat: "tabel" }),
+      );
+
+      expect(component.html).toContain("cannot be put into an input");
+    });
+
+    it.each([
+      ["a datetime field", { type: "datetime" }],
+      ["a field carrying a calendar widget", { widget: { type: "calendar" } }],
+    ])(
+      "should refuse a format on %s, which parses its own value",
+      async (_name, shape) => {
+        const { component } = await seed({
+          ...gegevensInputComponent("startdatum", { formaat: "datum" }),
+          ...shape,
+        });
+
+        expect(component.html).toContain("parses its own value");
+        expect(component.defaultValue).toBeUndefined();
+      },
+    );
+
+    it("should seed a date picker with the raw value", async () => {
+      const { component } = await seed({
+        ...gegevensInputComponent("startdatum"),
+        type: "datetime",
+      });
+
+      expect(component.defaultValue).toBe("2026-08-24");
+    });
+
+    it("should report an unresolvable path in place of the field", async () => {
+      const { component } = await seed(
+        gegevensInputComponent("identificatie.jaar"),
+      );
+
+      expect(component.html).toContain("holds a single value");
     });
   });
 

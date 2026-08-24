@@ -1,0 +1,357 @@
+{
+  "display": "form",
+  "name": "seededInputForm",
+  "title": "Seeded input fields",
+  "type": "form",
+  "components": [
+    {
+      "type": "content",
+      "key": "uitleg",
+      "input": false,
+      "tableView": false,
+      "html": "<h3>Putting zaak and taak data into editable fields</h3><p>Every field below is a normal Form.io input &mdash; a textfield or a textarea &mdash; that ZAC has filled in from the zaak or the taak. Add <code>ZAC_INVOER: \"true\"</code> to a <code>ZAC_zaak_gegevens</code> or <code>ZAC_taak_gegevens</code> field and the value is seeded into the field you declared instead of being rendered as read-only text. The same <code>ZAC_VELD</code> paths and <code>ZAC_FORMAAT</code> functions apply.</p><p>Use a format only where the value is read as text. An input that parses its value &mdash; a date picker &mdash; needs the raw value, so leave <code>ZAC_FORMAAT</code> off and let the picker do the formatting. Each field's description shows the declaration that filled it. Change a value, press <em>Save</em>, then reopen the task: your answer is kept and not seeded over.</p>"
+    },
+    {
+      "type": "panel",
+      "title": "Seeded from the zaak",
+      "key": "seeded_from_zaak",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Zaaknummer (editable)",
+          "type": "textfield",
+          "key": "IN_zaakIdentificatie",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: identificatie",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "identificatie",
+            "ZAC_INVOER": "true"
+          }
+        },
+        {
+          "label": "Omschrijving",
+          "type": "textfield",
+          "key": "IN_zaakOmschrijving",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: omschrijving",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "omschrijving",
+            "ZAC_INVOER": "true"
+          }
+        },
+        {
+          "label": "Startdatum as text (datum format)",
+          "type": "textfield",
+          "key": "IN_zaakStartdatum",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: startdatum · ZAC_FORMAAT: datum — a textfield, so the formatted text is fine here",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "startdatum",
+            "ZAC_INVOER": "true",
+            "ZAC_FORMAAT": "datum"
+          }
+        },
+        {
+          "label": "Startdatum in a date picker",
+          "type": "datetime",
+          "key": "IN_zaakStartdatumPicker",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: startdatum · no ZAC_FORMAAT — a picker needs the raw ISO value and formats it itself",
+          "format": "dd-MM-yyyy",
+          "enableTime": false,
+          "datePicker": {
+            "disableWeekends": false,
+            "disableWeekdays": false
+          },
+          "widget": {
+            "type": "calendar",
+            "displayInTimezone": "viewer",
+            "locale": "nl",
+            "useLocaleSettings": false,
+            "allowInput": true,
+            "mode": "single",
+            "enableTime": false,
+            "noCalendar": false,
+            "format": "dd-MM-yyyy",
+            "hourIncrement": 1,
+            "minuteIncrement": 1,
+            "time_24hr": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "startdatum",
+            "ZAC_INVOER": "true"
+          }
+        },
+        {
+          "label": "Opgeschort as a word",
+          "type": "textfield",
+          "key": "IN_zaakOpgeschort",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: isOpgeschort · ZAC_FORMAAT: jaNee",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "isOpgeschort",
+            "ZAC_INVOER": "true",
+            "ZAC_FORMAAT": "jaNee"
+          }
+        },
+        {
+          "label": "Toelichting, multi-line",
+          "type": "textarea",
+          "key": "IN_zaakToelichting",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: toelichting",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "toelichting",
+            "ZAC_INVOER": "true"
+          },
+          "rows": 3
+        },
+        {
+          "label": "Zaaktype omschrijving",
+          "type": "textfield",
+          "key": "IN_zaakZaaktype",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: zaaktype.omschrijving",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "zaaktype.omschrijving",
+            "ZAC_INVOER": "true"
+          }
+        },
+        {
+          "label": "Indicaties, joined list",
+          "type": "textfield",
+          "key": "IN_zaakIndicaties",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: indicaties",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "indicaties",
+            "ZAC_INVOER": "true"
+          }
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Seeded from the taak",
+      "key": "seeded_from_taak",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Task name",
+          "type": "textfield",
+          "key": "IN_taakNaam",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_taak_gegevens · ZAC_VELD: naam",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_taak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "naam",
+            "ZAC_INVOER": "true"
+          }
+        },
+        {
+          "label": "Task group",
+          "type": "textfield",
+          "key": "IN_taakGroep",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_taak_gegevens · ZAC_VELD: groep.naam",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_taak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "groep.naam",
+            "ZAC_INVOER": "true"
+          }
+        },
+        {
+          "label": "Task assignee",
+          "type": "textfield",
+          "key": "IN_taakBehandelaar",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_taak_gegevens · ZAC_VELD: behandelaar.naam",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_taak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "behandelaar.naam",
+            "ZAC_INVOER": "true"
+          }
+        },
+        {
+          "label": "Deadline in a date picker",
+          "type": "datetime",
+          "key": "IN_taakFataledatumPicker",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_taak_gegevens · ZAC_VELD: fataledatum · no ZAC_FORMAAT",
+          "format": "dd-MM-yyyy",
+          "enableTime": false,
+          "datePicker": {
+            "disableWeekends": false,
+            "disableWeekdays": false
+          },
+          "widget": {
+            "type": "calendar",
+            "displayInTimezone": "viewer",
+            "locale": "nl",
+            "useLocaleSettings": false,
+            "allowInput": true,
+            "mode": "single",
+            "enableTime": false,
+            "noCalendar": false,
+            "format": "dd-MM-yyyy",
+            "hourIncrement": 1,
+            "minuteIncrement": 1,
+            "time_24hr": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_taak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "fataledatum",
+            "ZAC_INVOER": "true"
+          }
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Deliberate mistakes",
+      "key": "seeded_mistakes",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "tabel into an input",
+          "type": "textfield",
+          "key": "IN_fout_tabel",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: zaakdata · ZAC_FORMAAT: tabel",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "zaakdata",
+            "ZAC_INVOER": "true",
+            "ZAC_FORMAAT": "tabel"
+          }
+        },
+        {
+          "label": "a path that reads on through a value",
+          "type": "textfield",
+          "key": "IN_fout_pad",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: identificatie.jaar",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "identificatie.jaar",
+            "ZAC_INVOER": "true"
+          }
+        },
+        {
+          "label": "Formatted value into a picker",
+          "type": "datetime",
+          "key": "IN_fout_pickerFormaat",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: startdatum · ZAC_FORMAAT: datum — the picker cannot read 24-08-2026",
+          "format": "dd-MM-yyyy",
+          "enableTime": false,
+          "datePicker": {
+            "disableWeekends": false,
+            "disableWeekdays": false
+          },
+          "widget": {
+            "type": "calendar",
+            "displayInTimezone": "viewer",
+            "locale": "nl",
+            "useLocaleSettings": false,
+            "allowInput": true,
+            "mode": "single",
+            "enableTime": false,
+            "noCalendar": false,
+            "format": "dd-MM-yyyy",
+            "hourIncrement": 1,
+            "minuteIncrement": 1,
+            "time_24hr": true
+          },
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "startdatum",
+            "ZAC_INVOER": "true",
+            "ZAC_FORMAAT": "datum"
+          }
+        }
+      ]
+    },
+    {
+      "type": "content",
+      "key": "waarschuwing",
+      "input": false,
+      "tableView": false,
+      "html": "<p><strong>Pick keys that are not process variable names.</strong> Completing a task writes every submitted key back as a process variable, so a seeded field keyed <code>zaakGroep</code> would overwrite the process variable of that name. The keys above are prefixed <code>IN_</code> for exactly that reason.</p>"
+    },
+    {
+      "key": "save",
+      "label": "Save",
+      "type": "button",
+      "theme": "secondary",
+      "input": true,
+      "action": "saveState",
+      "state": "draft",
+      "tableView": false
+    },
+    {
+      "type": "button",
+      "label": "Complete",
+      "key": "submit",
+      "disableOnInvalid": false,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

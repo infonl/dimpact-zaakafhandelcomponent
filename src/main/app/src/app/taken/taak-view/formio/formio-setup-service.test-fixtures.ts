@@ -130,6 +130,28 @@ export const referenceTableFieldset: ExtendedComponentSchema = {
   },
 };
 
+export function gegevensInputComponent(
+  veld: string,
+  {
+    zacType = KNOWN_ZAC_FIELDS.ZAAK_GEGEVENS,
+    formaat,
+    key = "IN_Seeded",
+  }: { zacType?: KNOWN_ZAC_FIELDS; formaat?: string; key?: string } = {},
+): ExtendedComponentSchema {
+  return {
+    type: "textfield",
+    key,
+    label: "Seeded",
+    input: true,
+    properties: {
+      ZAC_VELD: veld,
+      ZAC_INVOER: "true",
+      ...(formaat ? { ZAC_FORMAAT: formaat } : {}),
+    },
+    attributes: { [ZAC_FIELD_ATTRIBUTE]: zacType },
+  };
+}
+
 export function taakGegevensComponent(
   veld: string,
   options?: { label?: string; formaat?: string },

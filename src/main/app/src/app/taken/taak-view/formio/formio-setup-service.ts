@@ -71,6 +71,15 @@ const VALUE_FORMATTERS: Record<
  */
 const TABLE_FORMAT = "tabel";
 
+/**
+ * Set to `true` to seed the value into the field the author declared, leaving it editable and part
+ * of the submission, instead of rendering it as read-only text.
+ */
+const ZAC_INPUT_PROPERTY = "ZAC_INVOER";
+
+/** Component types that parse their own value, so they need it raw rather than formatted. */
+const VALUE_PARSING_TYPES = ["datetime", "date", "day", "time"];
+
 /** Hides the field's chrome; styled in `formio-wrapper.component.less`. */
 const EMPTY_INPUT_FIELD_CLASS = "zac-empty-input-field";
 
@@ -214,6 +223,29 @@ function walkSegments(
   return value;
 }
 
+/** A calendar widget can be put on other types too, so the widget is checked as well as the type. */
+function parsesItsOwnValue(component: ExtendedComponentSchema) {
+  return (
+    VALUE_PARSING_TYPES.includes(String(component.type)) ||
+    (component.widget as { type?: string } | undefined)?.type === "calendar"
+  );
+}
+
+function isEmptyValue(value: unknown): boolean {
+  return (
+    value === null ||
+    value === undefined ||
+    value === "" ||
+    (Array.isArray(value) &&
+      !value.filter((element) => !isEmptyValue(element)).length)
+  );
+}
+
+/** Form.io stores component properties as strings, so `"true"` has to count as true. */
+function isTruthyProperty(value: unknown) {
+  return value === true || value === "true";
+}
+
 function escapeHtml(value: string) {
   return value.replace(
     /[&<>"']/g,
@@ -295,10 +327,10 @@ export class FormioSetupService {
               this.initializeProcessDataField(component);
               break;
             case KNOWN_ZAC_FIELDS.ZAAK_GEGEVENS:
-              this.initializeGegevensField(component, zaak, "Zaak");
+              this.initializeGegevensField(component, zaak, "Zaak", taak);
               break;
             case KNOWN_ZAC_FIELDS.TAAK_GEGEVENS:
-              this.initializeGegevensField(component, taak, "Taak");
+              this.initializeGegevensField(component, taak, "Taak", taak);
               break;
             case KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUPS:
               this.initializeSmartDocumentsTemplateGroupsField(component, taak);
@@ -441,11 +473,17 @@ export class FormioSetupService {
     component: ExtendedComponentSchema,
     source: object,
     sourceLabel: string,
+    taak: GeneratedType<"RestTask">,
   ) {
     const path: string = component.properties?.[ZAC_PATH_PROPERTY] ?? "";
     const format: string | undefined =
       component.properties?.[ZAC_FORMAT_PROPERTY];
     const label = component.label ?? "";
+
+    if (isTruthyProperty(component.properties?.[ZAC_INPUT_PROPERTY])) {
+      this.seedInputField(component, source, sourceLabel, taak, path, format);
+      return;
+    }
 
     let body: string;
     try {
@@ -475,6 +513,55 @@ export class FormioSetupService {
     component.input = false;
     component.html = `<div class="zac-gegevens">${heading}${body}</div>`;
     component.label = "";
+  }
+
+  /**
+   * Leaves the component as the author declared it — a textfield stays an editable textfield — and
+   * puts the resolved value in as its value. The value has to go into the task data as well, because
+   * Form.io prefers submission data over `defaultValue`; a value already stored there is left alone,
+   * so reopening a saved task shows what the user answered rather than re-seeding over it.
+   */
+  private seedInputField(
+    component: ExtendedComponentSchema,
+    source: object,
+    sourceLabel: string,
+    taak: GeneratedType<"RestTask">,
+    path: string,
+    format?: string,
+  ) {
+    try {
+      if (format === TABLE_FORMAT) {
+        throw new Error(
+          `${ZAC_FORMAT_PROPERTY} "${TABLE_FORMAT}" renders a table, which cannot be put into ` +
+            `an input. Drop ${ZAC_INPUT_PROPERTY} or drop the format.`,
+        );
+      }
+      if (format && parsesItsOwnValue(component)) {
+        throw new Error(
+          `A "${component.type}" field parses its own value and formats it for display, so a ` +
+            `formatted value cannot be read. Drop ${ZAC_FORMAT_PROPERTY} "${format}".`,
+        );
+      }
+      const resolved = resolvePath(source, path, sourceLabel);
+      // NO_VALUE is a marker for a reader; seeding it would hand a date picker the string "—"
+      if (isEmptyValue(resolved)) return;
+
+      const value = this.formatValue(resolved, format);
+      component.defaultValue = value;
+
+      const stored = taak.taakdata?.[component.key];
+      if (
+        taak.taakdata &&
+        (stored === undefined || stored === null || stored === "")
+      ) {
+        taak.taakdata[component.key] = value;
+      }
+    } catch (error) {
+      this.renderFieldError(
+        component,
+        error instanceof Error ? error.message : String(error),
+      );
+    }
   }
 
   /**
