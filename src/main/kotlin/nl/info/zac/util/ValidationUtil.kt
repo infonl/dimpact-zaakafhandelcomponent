@@ -18,8 +18,9 @@ object ValidationUtil {
 
     // Building a ValidatorFactory bootstraps the whole Bean Validation provider (classpath
     // scanning, constraint metadata parsing); it is designed to be built once and reused for
-    // the application's lifetime, not per validation call.
-    private val validatorFactory = Validation.buildDefaultValidatorFactory()
+    // the application's lifetime, not per validation call. It is lazy so that isValidEmail(),
+    // which needs no Bean Validation provider, never triggers this bootstrap.
+    private val validatorFactory by lazy { Validation.buildDefaultValidatorFactory() }
 
     /**
      * Validates an object using Jakarta Validation annotations defined in the object class.
