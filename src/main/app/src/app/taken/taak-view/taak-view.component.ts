@@ -287,6 +287,7 @@ export class TaakViewComponent
       await this.formioSetupService.createFormioForm(
         taak.formioFormulier,
         taak,
+        zaak,
       );
       this.formioFormulier = taak.formioFormulier;
     }

@@ -15,6 +15,7 @@ import {
   signedDocument,
   taak,
   unsignedDocumentsFieldset,
+  zaak,
 } from "./formio-setup-service.test-fixtures";
 
 describe(FormioSetupService.name, () => {
@@ -53,6 +54,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(
@@ -74,6 +76,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(
@@ -96,6 +99,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.validate.required).toBe(true);
@@ -114,6 +118,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.validate.custom).toBe("valid = true");
@@ -130,6 +135,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.defaultValue).toEqual([
@@ -154,6 +160,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taakWithExistingKey,
+          zaak,
         );
 
         expect(
@@ -185,6 +192,7 @@ describe(FormioSetupService.name, () => {
               ],
             },
           },
+          zaak,
         );
 
         expect(component.defaultValue).toEqual([
@@ -204,6 +212,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.defaultValue).toEqual([]);
@@ -222,6 +231,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.customClass).toBe("zac-empty-input-field");
@@ -241,6 +251,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.customClass).toBe("");
@@ -260,6 +271,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.customClass).toBe(
@@ -280,6 +292,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.customClass).toBe("author-class");
@@ -295,8 +308,8 @@ describe(FormioSetupService.name, () => {
           ...unsignedDocumentsFieldset,
         };
         const form = { components: [component] } as FormioForm;
-        await formioSetupService.createFormioForm(form, taak);
-        await formioSetupService.createFormioForm(form, taak);
+        await formioSetupService.createFormioForm(form, taak, zaak);
+        await formioSetupService.createFormioForm(form, taak, zaak);
 
         expect(component.customClass).toBe("zac-empty-input-field");
       });
@@ -312,6 +325,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.defaultValue).toEqual([
@@ -348,6 +362,7 @@ describe(FormioSetupService.name, () => {
             { selected: true, titel: document1.titel, uuid: document1.uuid },
             { selected: false, titel: document2.titel, uuid: document2.uuid },
           ]),
+          zaak,
         );
 
         expect(component.defaultValue).toEqual([
@@ -368,6 +383,7 @@ describe(FormioSetupService.name, () => {
           taakWithSelection([
             { selected: true, titel: document1.titel, uuid: document1.uuid },
           ]),
+          zaak,
         );
 
         expect(fetchQuerySpy).toHaveBeenCalledWith(
@@ -394,6 +410,7 @@ describe(FormioSetupService.name, () => {
           taakWithSelection([
             { selected: true, titel: "Stale Title", uuid: "doc-1" },
           ]),
+          zaak,
         );
 
         expect(component.defaultValue).toEqual([
@@ -418,6 +435,7 @@ describe(FormioSetupService.name, () => {
             { selected: true, titel: document1.titel, uuid: document1.uuid },
             { selected: true, titel: document2.titel, uuid: document2.uuid },
           ]),
+          zaak,
         );
 
         expect(component.defaultValue).toEqual([
@@ -440,6 +458,7 @@ describe(FormioSetupService.name, () => {
           taakWithSelection([
             { selected: true, titel: document1.titel, uuid: document1.uuid },
           ]),
+          zaak,
         );
 
         expect(component.defaultValue).toEqual([]);
@@ -458,6 +477,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.defaultValue).toEqual([]);
@@ -475,6 +495,7 @@ describe(FormioSetupService.name, () => {
           taakWithSelection([
             { selected: false, titel: document1.titel, uuid: document1.uuid },
           ]),
+          zaak,
         );
 
         expect(component.defaultValue).toEqual([]);

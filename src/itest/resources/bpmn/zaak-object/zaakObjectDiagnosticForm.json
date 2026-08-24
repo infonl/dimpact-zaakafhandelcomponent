@@ -1,0 +1,2489 @@
+{
+  "display": "form",
+  "name": "zaakObjectDiagnosticForm",
+  "title": "Zaakgegevens",
+  "type": "form",
+  "components": [
+    {
+      "type": "content",
+      "key": "uitleg",
+      "input": false,
+      "tableView": false,
+      "html": "<h3>Zaakgegevens via ZAC_zaak_gegevens</h3><p>Elke rij toont een property van het zaakobject: links het pad in <code>ZAC_VELD</code>, daarnaast de waarde. Bij datums en booleans staat eerst de waarde zoals de zaak die bevat en daarna dezelfde waarde met een <code>ZAC_FORMAAT</code> functie eromheen. Een streepje betekent dat de property geen waarde heeft: de API laat lege properties weg, dus een typefout is niet te onderscheiden van een leeg veld. Lijsten worden samengevoegd met een komma; met <code>[]</code> lees je door naar een property van elk element, zoals <code>kenmerken[].kenmerk</code>. Het laatste paneel bevat zes opzettelijke fouten die wel te herkennen zijn.</p>"
+    },
+    {
+      "type": "panel",
+      "title": "Tekstwaarden",
+      "key": "tekstwaarden",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "table",
+          "key": "tabel_tekstwaarden",
+          "input": false,
+          "tableView": false,
+          "numRows": 12,
+          "numCols": 2,
+          "header": [
+            "Property",
+            "Waarde"
+          ],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_uuid",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>uuid</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_uuid",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "uuid"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_identificatie",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>identificatie</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_identificatie",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "identificatie"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_omschrijving",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>omschrijving</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_omschrijving",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "omschrijving"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_toelichting",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>toelichting</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_toelichting",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "toelichting"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_communicatiekanaal",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>communicatiekanaal</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_communicatiekanaal",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "communicatiekanaal"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_bronorganisatie",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>bronorganisatie</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_bronorganisatie",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "bronorganisatie"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_verantwoordelijkeOrganisatie",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>verantwoordelijkeOrganisatie</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_verantwoordelijkeOrganisatie",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "verantwoordelijkeOrganisatie"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_vertrouwelijkheidaanduiding",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>vertrouwelijkheidaanduiding</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_vertrouwelijkheidaanduiding",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "vertrouwelijkheidaanduiding"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_archiefNominatie",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>archiefNominatie</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_archiefNominatie",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "archiefNominatie"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_duurVerlenging",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>duurVerlenging</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_duurVerlenging",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "duurVerlenging"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_redenOpschorting",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>redenOpschorting</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_redenOpschorting",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "redenOpschorting"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_redenVerlenging",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>redenVerlenging</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_redenVerlenging",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "redenVerlenging"
+                    }
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Geneste objecten",
+      "key": "geneste_objecten",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "table",
+          "key": "tabel_geneste_objecten",
+          "input": false,
+          "tableView": false,
+          "numRows": 13,
+          "numCols": 2,
+          "header": [
+            "Property",
+            "Waarde"
+          ],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_zaaktype_uuid",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaaktype.uuid</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_zaaktype_uuid",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "zaaktype.uuid"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_zaaktype_omschrijving",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaaktype.omschrijving</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_zaaktype_omschrijving",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "zaaktype.omschrijving"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_zaaktype_identificatie",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaaktype.identificatie</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_zaaktype_identificatie",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "zaaktype.identificatie"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_zaaktype_doel",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaaktype.doel</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_zaaktype_doel",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "zaaktype.doel"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_groep_naam",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>groep.naam</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_groep_naam",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "groep.naam"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_groep_id",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>groep.id</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_groep_id",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "groep.id"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_behandelaar_naam",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>behandelaar.naam</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_behandelaar_naam",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "behandelaar.naam"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_behandelaar_id",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>behandelaar.id</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_behandelaar_id",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "behandelaar.id"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_status_naam",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>status.naam</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_status_naam",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "status.naam"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_status_toelichting",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>status.toelichting</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_status_toelichting",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "status.toelichting"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_resultaat_toelichting",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>resultaat.toelichting</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_resultaat_toelichting",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "resultaat.toelichting"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_initiatorIdentificatie_type",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>initiatorIdentificatie.type</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_initiatorIdentificatie_type",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "initiatorIdentificatie.type"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_initiatorIdentificatie_bsn",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>initiatorIdentificatie.bsn</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_initiatorIdentificatie_bsn",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "initiatorIdentificatie.bsn"
+                    }
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Datums",
+      "key": "datums",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "table",
+          "key": "tabel_datums",
+          "input": false,
+          "tableView": false,
+          "numRows": 9,
+          "numCols": 3,
+          "header": [
+            "Property",
+            "Onopgemaakt",
+            "Opgemaakt (datum)"
+          ],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_startdatum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>startdatum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_startdatum_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "startdatum"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_startdatum_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "startdatum",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_registratiedatum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>registratiedatum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_registratiedatum_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "registratiedatum"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_registratiedatum_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "registratiedatum",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_einddatumGepland",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>einddatumGepland</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_einddatumGepland_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "einddatumGepland"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_einddatumGepland_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "einddatumGepland",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_uiterlijkeEinddatumAfdoening",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>uiterlijkeEinddatumAfdoening</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_uiterlijkeEinddatumAfdoening_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "uiterlijkeEinddatumAfdoening"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_uiterlijkeEinddatumAfdoening_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "uiterlijkeEinddatumAfdoening",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_einddatum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>einddatum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_einddatum_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "einddatum"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_einddatum_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "einddatum",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_publicatiedatum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>publicatiedatum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_publicatiedatum_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "publicatiedatum"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_publicatiedatum_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "publicatiedatum",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_archiefActiedatum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>archiefActiedatum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_archiefActiedatum_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "archiefActiedatum"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_archiefActiedatum_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "archiefActiedatum",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_startdatumBewaartermijn",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>startdatumBewaartermijn</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_startdatumBewaartermijn_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "startdatumBewaartermijn"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_startdatumBewaartermijn_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "startdatumBewaartermijn",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_zaaktype_versiedatum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaaktype.versiedatum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_zaaktype_versiedatum_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "zaaktype.versiedatum"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_zaaktype_versiedatum_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "zaaktype.versiedatum",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Booleans",
+      "key": "booleans",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "table",
+          "key": "tabel_booleans",
+          "input": false,
+          "tableView": false,
+          "numRows": 13,
+          "numCols": 3,
+          "header": [
+            "Property",
+            "Onopgemaakt",
+            "Opgemaakt (jaNee)"
+          ],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_isOpen",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>isOpen</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isOpen_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isOpen"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isOpen_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isOpen",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_isOpgeschort",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>isOpgeschort</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isOpgeschort_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isOpgeschort"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isOpgeschort_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isOpgeschort",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_isVerlengd",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>isVerlengd</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isVerlengd_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isVerlengd"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isVerlengd_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isVerlengd",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_isHeropend",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>isHeropend</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isHeropend_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isHeropend"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isHeropend_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isHeropend",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_isDeelzaak",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>isDeelzaak</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isDeelzaak_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isDeelzaak"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isDeelzaak_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isDeelzaak",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_isHoofdzaak",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>isHoofdzaak</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isHoofdzaak_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isHoofdzaak"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isHoofdzaak_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isHoofdzaak",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_isInIntakeFase",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>isInIntakeFase</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isInIntakeFase_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isInIntakeFase"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isInIntakeFase_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isInIntakeFase",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_isProcesGestuurd",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>isProcesGestuurd</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isProcesGestuurd_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isProcesGestuurd"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isProcesGestuurd_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isProcesGestuurd",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_eerdereOpschorting",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>eerdereOpschorting</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_eerdereOpschorting_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "eerdereOpschorting"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_eerdereOpschorting_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "eerdereOpschorting",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_isBesluittypeAanwezig",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>isBesluittypeAanwezig</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isBesluittypeAanwezig_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isBesluittypeAanwezig"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isBesluittypeAanwezig_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isBesluittypeAanwezig",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_heeftOntvangstbevestigingVerstuurd",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>heeftOntvangstbevestigingVerstuurd</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_heeftOntvangstbevestigingVerstuurd_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "heeftOntvangstbevestigingVerstuurd"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_heeftOntvangstbevestigingVerstuurd_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "heeftOntvangstbevestigingVerstuurd",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_isZaakspecifiekGeautoriseerd",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>isZaakspecifiekGeautoriseerd</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isZaakspecifiekGeautoriseerd_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isZaakspecifiekGeautoriseerd"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_isZaakspecifiekGeautoriseerd_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "isZaakspecifiekGeautoriseerd",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_zaaktype_servicenorm",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaaktype.servicenorm</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_zaaktype_servicenorm_ruw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "zaaktype.servicenorm"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_zaaktype_servicenorm_opgemaakt",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "zaaktype.servicenorm",
+                      "ZAC_FORMAAT": "jaNee"
+                    }
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Lijsten",
+      "key": "lijsten",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "table",
+          "key": "tabel_lijsten",
+          "input": false,
+          "tableView": false,
+          "numRows": 8,
+          "numCols": 2,
+          "header": [
+            "Property",
+            "Waarde (samengevoegd)"
+          ],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_indicaties",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>indicaties</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_indicaties",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "indicaties"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_kenmerken_lijst_kenmerk",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>kenmerken[].kenmerk</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_kenmerken_lijst_kenmerk",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "kenmerken[].kenmerk"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_kenmerken_lijst_bron",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>kenmerken[].bron</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_kenmerken_lijst_bron",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "kenmerken[].bron"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_besluiten_lijst_identificatie",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>besluiten[].identificatie</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_besluiten_lijst_identificatie",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "besluiten[].identificatie"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_besluiten_lijst_datum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>besluiten[].datum &rarr; datum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_besluiten_lijst_datum",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "besluiten[].datum",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_gerelateerdeZaken_lijst_identificatie",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>gerelateerdeZaken[].identificatie</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_gerelateerdeZaken_lijst_identificatie",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "gerelateerdeZaken[].identificatie"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_gerelateerdeZaken_lijst_relatieType",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>gerelateerdeZaken[].relatieType</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_gerelateerdeZaken_lijst_relatieType",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "gerelateerdeZaken[].relatieType"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_gerelateerdeZaken_lijst_startdatum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>gerelateerdeZaken[].startdatum &rarr; datum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_gerelateerdeZaken_lijst_startdatum",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "gerelateerdeZaken[].startdatum",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Opzettelijke fouten",
+      "key": "opzettelijke_fouten",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "table",
+          "key": "tabel_fouten",
+          "input": false,
+          "tableView": false,
+          "numRows": 6,
+          "numCols": 2,
+          "header": [
+            "Property",
+            "Resultaat"
+          ],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_identificatie_jaar",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>identificatie.jaar</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_identificatie_jaar",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "identificatie.jaar"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_zaaktype",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaaktype</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_zaaktype_object",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "zaaktype"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_kenmerken",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>kenmerken</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_kenmerken_lijst",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "kenmerken"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_onbekend_formaat",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>startdatum + ZAC_FORMAAT: dutchDate</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_startdatum_foutformaat",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "startdatum",
+                      "ZAC_FORMAAT": "dutchDate"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_kenmerken_zonder_lijst",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>kenmerken</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_kenmerken_zonder_lijst",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "kenmerken"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_identificatie_lijst_geen_lijst",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>identificatie[]</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "ZO_identificatie_lijst_geen_lijst",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_zaak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "identificatie[]"
+                    }
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Afronden",
+      "key": "submit",
+      "disableOnInvalid": false,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

@@ -17,6 +17,7 @@ import {
   signedDocument,
   taak,
   unsignedDocumentsFieldset,
+  zaak,
 } from "./formio-setup-service.test-fixtures";
 
 describe(FormioSetupService.name, () => {
@@ -69,10 +70,12 @@ describe(FormioSetupService.name, () => {
         formioSetupService.createFormioForm(
           { components: [grid] } as FormioForm,
           taak,
+          zaak,
         ),
         formioSetupService.createFormioForm(
           { components: [otherGrid] } as FormioForm,
           otherTaak,
+          zaak,
         ),
       ]);
       while (resolvers.length < 2) await Promise.resolve();
@@ -112,10 +115,12 @@ describe(FormioSetupService.name, () => {
       await formioSetupService.createFormioForm(
         { components: [component] } as FormioForm,
         taak,
+        zaak,
       );
       await formioSetupService.createFormioForm(
         { components: [{ ...documentsFieldset }] } as FormioForm,
         otherTaak,
+        zaak,
       );
 
       // Form.io calls the data source on render and refresh, long after setup
@@ -142,6 +147,7 @@ describe(FormioSetupService.name, () => {
       await formioSetupService.createFormioForm(
         { components: [component] } as FormioForm,
         taak,
+        zaak,
       );
 
       expect(fetchQuerySpy).toHaveBeenCalledWith(
@@ -177,6 +183,7 @@ describe(FormioSetupService.name, () => {
       await formioSetupService.createFormioForm(
         { components: [component] } as FormioForm,
         afgerondTaak({ ZAAK_Documenten_Ondertekenen_Selectie: storedRows }),
+        zaak,
       );
 
       expect(component.defaultValue).toEqual(storedRows);
@@ -204,6 +211,7 @@ describe(FormioSetupService.name, () => {
       await formioSetupService.createFormioForm(
         { components: [component] } as FormioForm,
         finishedTaak,
+        zaak,
       );
 
       const rows = [
@@ -239,6 +247,7 @@ describe(FormioSetupService.name, () => {
             },
           ],
         }),
+        zaak,
       );
 
       expect(component.defaultValue).toEqual([
@@ -269,6 +278,7 @@ describe(FormioSetupService.name, () => {
             },
           ],
         }),
+        zaak,
       );
 
       expect(component.defaultValue).toEqual([
@@ -293,6 +303,7 @@ describe(FormioSetupService.name, () => {
             { selected: true, titel: document1.titel, uuid: document1.uuid },
           ],
         }),
+        zaak,
       );
 
       expect(component.defaultValue).toEqual([
@@ -311,6 +322,7 @@ describe(FormioSetupService.name, () => {
       await formioSetupService.createFormioForm(
         { components: [component] } as FormioForm,
         finishedTaak,
+        zaak,
       );
 
       expect(
@@ -326,6 +338,7 @@ describe(FormioSetupService.name, () => {
       await formioSetupService.createFormioForm(
         { components: [component] } as FormioForm,
         afgerondTaak({ ZAAK_Documenten_Ondertekenen_Selectie: storedRows }),
+        zaak,
       );
 
       expect(component.validate?.custom).toBeUndefined();
@@ -339,6 +352,7 @@ describe(FormioSetupService.name, () => {
       await formioSetupService.createFormioForm(
         { components: [component] } as FormioForm,
         afgerondTaak({ ZAAK_Documenten_Ondertekenen_Selectie: [] }),
+        zaak,
       );
 
       expect(component.description).toBe("msg.geen-documenten-te-ondertekenen");

@@ -33,7 +33,35 @@ export enum KNOWN_ZAC_FIELDS {
   RESULTAAT = "ZAC_resultaat",
   STATUS = "ZAC_status",
   PROCESS_DATA = "ZAC_process_data",
+  ZAAK_GEGEVENS = "ZAC_zaak_gegevens",
 }
+
+/** Names the zaak property a `ZAC_zaak_gegevens` field shows, as a dot path: `zaaktype.omschrijving`. */
+const ZAC_PATH_PROPERTY = "ZAC_VELD";
+
+/** Names an optional format function wrapped around the value: `ZAC_FORMAAT: "datum"`. */
+const ZAC_FORMAT_PROPERTY = "ZAC_FORMAAT";
+
+const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})/;
+
+/** Shown when a zaak property holds no value, so an empty field reads as empty rather than as broken. */
+const NO_VALUE = "—";
+
+/**
+ * Wrappers a form may put around a zaak value. Without one the value is shown as the zaak holds it,
+ * so a format is a deliberate choice by the form author rather than something guessed from the type.
+ */
+const ZAAK_VALUE_FORMATTERS: Record<
+  string,
+  (value: unknown, translate: TranslateService) => string
+> = {
+  datum: (value) => {
+    const parts = ISO_DATE.exec(String(value));
+    return parts ? `${parts[3]}-${parts[2]}-${parts[1]}` : String(value);
+  },
+  jaNee: (value, translate) =>
+    translate.instant(value ? "actie.ja" : "actie.nee"),
+};
 
 /** Hides the field's chrome; styled in `formio-wrapper.component.less`. */
 const EMPTY_INPUT_FIELD_CLASS = "zac-empty-input-field";
@@ -69,6 +97,104 @@ const ROW_LINKS: Record<string, RowLink> = {
   [KNOWN_ZAC_FIELDS.GEKOZEN_DOCUMENTEN_NIET_ONDERTEKEND]: DOCUMENT_ROW_LINK,
 };
 
+const LIST_SEGMENT_SUFFIX = "[]";
+
+const LIST_SEPARATOR = ", ";
+
+/**
+ * Walks a dot path into the zaak. A property that is absent resolves to null rather than to an
+ * error: the API omits properties that hold no value, so absence cannot be told apart from a typo.
+ *
+ * A segment may end in `[]` to read on through every element of a list, as in
+ * `kenmerken[].kenmerk`, which resolves to the kenmerk of each row.
+ */
+function resolveZaakPath(
+  zaak: GeneratedType<"RestZaak">,
+  path: string,
+): unknown {
+  if (!path) {
+    throw new Error(`Missing ${ZAC_PATH_PROPERTY} property.`);
+  }
+
+  const value = walkSegments(zaak, path.split("."), []);
+
+  if (Array.isArray(value)) {
+    const objectElement = value.find(
+      (element) => typeof element === "object" && element !== null,
+    );
+    if (objectElement) {
+      throw new Error(
+        `Zaak property "${path}" holds a list of objects. Address a property of ` +
+          `each element, as in "${path}${LIST_SEGMENT_SUFFIX}.` +
+          `${Object.keys(objectElement).sort()[0]}".`,
+      );
+    }
+    return value;
+  }
+
+  if (typeof value === "object" && value !== null) {
+    throw new Error(
+      `Zaak property "${path}" holds an object, not a single value.`,
+    );
+  }
+  return value;
+}
+
+function walkSegments(
+  start: unknown,
+  segments: string[],
+  walked: string[],
+): unknown {
+  let value = start;
+  for (let index = 0; index < segments.length; index++) {
+    if (value === null || value === undefined) return null;
+
+    const segment = segments[index];
+    const isList = segment.endsWith(LIST_SEGMENT_SUFFIX);
+    const name = isList
+      ? segment.slice(0, -LIST_SEGMENT_SUFFIX.length)
+      : segment;
+
+    if (typeof value !== "object") {
+      throw new Error(
+        `Zaak property "${walked.join(".")}" holds a single value, ` +
+          `so "${name}" cannot be read from it.`,
+      );
+    }
+    value = (value as Record<string, unknown>)[name];
+    walked.push(name);
+
+    if (!isList) continue;
+
+    if (value === null || value === undefined) return null;
+    if (!Array.isArray(value)) {
+      throw new Error(
+        `Zaak property "${walked.join(".")}" is not a list, ` +
+          `so "${LIST_SEGMENT_SUFFIX}" cannot be used on it.`,
+      );
+    }
+    const rest = segments.slice(index + 1);
+    return value.map((element) =>
+      rest.length ? walkSegments(element, rest, [...walked]) : element,
+    );
+  }
+  return value;
+}
+
+function escapeHtml(value: string) {
+  return value.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[character]!,
+  );
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -94,10 +220,12 @@ export class FormioSetupService {
   async createFormioForm(
     formioFormulier: FormioForm,
     taak: GeneratedType<"RestTask">,
+    zaak: GeneratedType<"RestZaak">,
   ) {
     await this.initializeSpecializedFormioComponents(
       formioFormulier.components,
       taak,
+      zaak,
     );
     this.utilService.setTitle("title.taak", {
       taak: formioFormulier.title,
@@ -111,6 +239,7 @@ export class FormioSetupService {
   private async initializeSpecializedFormioComponents(
     components: ExtendedComponentSchema[] | undefined,
     taak: GeneratedType<"RestTask">,
+    zaak: GeneratedType<"RestZaak">,
     parentZacType?: string,
   ) {
     for (const component of components ?? []) {
@@ -131,6 +260,9 @@ export class FormioSetupService {
               break;
             case KNOWN_ZAC_FIELDS.PROCESS_DATA:
               this.initializeProcessDataField(component);
+              break;
+            case KNOWN_ZAC_FIELDS.ZAAK_GEGEVENS:
+              this.initializeZaakGegevensField(component, zaak);
               break;
             case KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUPS:
               this.initializeSmartDocumentsTemplateGroupsField(component, taak);
@@ -176,6 +308,7 @@ export class FormioSetupService {
           await this.initializeSpecializedFormioComponents(
             this.getChildComponents(component),
             taak,
+            zaak,
             zacType,
           );
         },
@@ -188,10 +321,21 @@ export class FormioSetupService {
     const zacType = component.attributes?.[ZAC_FIELD_ATTRIBUTE];
     if (!zacType) return;
 
+    this.renderFieldError(component, `Undefined ZAC_TYPE: '${zacType}'`);
+  }
+
+  /**
+   * Shown in place of the field rather than as a snackbar: a form authoring mistake belongs next to
+   * the field that carries it, and a transient message would leave the author staring at a blank one.
+   */
+  private renderFieldError(
+    component: ExtendedComponentSchema,
+    message: string,
+  ) {
     component.type = "content";
     component.label = "";
     component.input = false;
-    component.html = `<div class="zac-unknown-zac-type">Undefined ZAC_TYPE: '${zacType}'</div>`;
+    component.html = `<div class="zac-unknown-zac-type">${escapeHtml(message)}</div>`;
   }
 
   private async safeInit(context: string, fn: () => Promise<void>) {
@@ -204,11 +348,33 @@ export class FormioSetupService {
     }
   }
 
-  private getChildComponents(fieldsetComponent: ExtendedComponentSchema) {
-    return "components" in fieldsetComponent &&
-      Array.isArray(fieldsetComponent.components)
+  /**
+   * A layout component holds its children under `components`, but a table nests them per cell in
+   * `rows` and a columns component in `columns`, so those need walking too or their fields are
+   * left uninitialized.
+   */
+  private getChildComponents(
+    fieldsetComponent: ExtendedComponentSchema,
+  ): ExtendedComponentSchema[] {
+    const children = Array.isArray(fieldsetComponent.components)
       ? Array.from(fieldsetComponent.components)
       : [];
+
+    const cells: ExtendedComponentSchema[] = [
+      ...(Array.isArray(fieldsetComponent.rows)
+        ? fieldsetComponent.rows.flat()
+        : []),
+      ...(Array.isArray(fieldsetComponent.columns)
+        ? fieldsetComponent.columns
+        : []),
+    ];
+
+    return [
+      ...children,
+      ...cells.flatMap((cell) =>
+        Array.isArray(cell?.components) ? cell.components : [],
+      ),
+    ];
   }
 
   private initializeMedewerkerField(component: ExtendedComponentSchema) {
@@ -228,6 +394,65 @@ export class FormioSetupService {
 
   private initializeProcessDataField(component: ExtendedComponentSchema) {
     component.type = "input";
+  }
+
+  /**
+   * Rendered as content rather than as an input: an input lands in the submission, and completing a
+   * task writes every submitted key back as a process variable — which would overwrite the zaak
+   * variables with whatever this read-only field happened to show.
+   */
+  private initializeZaakGegevensField(
+    component: ExtendedComponentSchema,
+    zaak: GeneratedType<"RestZaak">,
+  ) {
+    const path: string = component.properties?.[ZAC_PATH_PROPERTY] ?? "";
+
+    let text: string;
+    try {
+      text = this.formatZaakValue(
+        resolveZaakPath(zaak, path),
+        component.properties?.[ZAC_FORMAT_PROPERTY],
+      );
+    } catch (error) {
+      this.renderFieldError(
+        component,
+        error instanceof Error ? error.message : String(error),
+      );
+      return;
+    }
+
+    const label = component.label ?? "";
+    component.type = "content";
+    component.input = false;
+    component.html =
+      `<div class="zac-zaak-object">` +
+      `<span class="zac-zaak-object-label">${label ? `${escapeHtml(label)}: ` : ""}</span>` +
+      `<span class="zac-zaak-object-value">${escapeHtml(text)}</span>` +
+      `</div>`;
+    component.label = "";
+  }
+
+  private formatZaakValue(value: unknown, format?: string): string {
+    if (Array.isArray(value)) {
+      const elements = value
+        .filter(
+          (element) =>
+            element !== null && element !== undefined && element !== "",
+        )
+        .map((element) => this.formatZaakValue(element, format));
+      return elements.length ? elements.join(LIST_SEPARATOR) : NO_VALUE;
+    }
+    if (value === null || value === undefined || value === "") return NO_VALUE;
+    if (!format) return String(value);
+
+    const formatter = ZAAK_VALUE_FORMATTERS[format];
+    if (!formatter) {
+      throw new Error(
+        `Unknown ${ZAC_FORMAT_PROPERTY} "${format}". Available: ` +
+          Object.keys(ZAAK_VALUE_FORMATTERS).sort().join(", "),
+      );
+    }
+    return formatter(value, this.translateService);
   }
 
   private initializeGroepField(

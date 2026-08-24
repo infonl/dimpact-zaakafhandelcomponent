@@ -130,6 +130,24 @@ export const referenceTableFieldset: ExtendedComponentSchema = {
   },
 };
 
+export function zaakGegevensComponent(
+  veld: string,
+  { label = "Zaakveld", formaat }: { label?: string; formaat?: string } = {},
+): ExtendedComponentSchema {
+  return {
+    type: "textfield",
+    key: "ZO_Zaakveld",
+    label,
+    input: true,
+    properties: formaat
+      ? { ZAC_VELD: veld, ZAC_FORMAAT: formaat }
+      : { ZAC_VELD: veld },
+    attributes: {
+      [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.ZAAK_GEGEVENS,
+    },
+  };
+}
+
 export const document1 = { uuid: "doc-1", titel: "Document One" };
 export const document2 = { uuid: "doc-2", titel: "Document Two" };
 export const signedDocument = {
@@ -137,6 +155,29 @@ export const signedDocument = {
   titel: "Document Three",
   ondertekening: { soort: "Digitaal", datum: "2026-01-01" },
 };
+
+export const zaak = {
+  uuid: "test-zaakUuid",
+  identificatie: "ZAAK-2026-0000000835",
+  omschrijving: "test-zaak-omschrijving",
+  startdatum: "2026-08-24",
+  communicatiekanaal: "Medewerkersportaal",
+  isOpgeschort: false,
+  isOpen: true,
+  kenmerken: [
+    { kenmerk: "fakeKenmerk1", bron: "fakeBron1" },
+    { kenmerk: "fakeKenmerk2", bron: "fakeBron2" },
+  ],
+  indicaties: ["OPSCHORTING", "VERLENGD"],
+  besluiten: [],
+  groep: { id: "fakeGroupId", naam: "fakeGroupName" },
+  behandelaar: { id: "fakeUserId", naam: "fakeUserName" },
+  status: { naam: "In behandeling" },
+  zaaktype: {
+    uuid: "test-zaaktype-uuid",
+    omschrijving: "test-zaaktypeOmschrijving",
+  },
+} as unknown as GeneratedType<"RestZaak">;
 
 export const taak: GeneratedType<"RestTask"> = {
   id: "test-id",

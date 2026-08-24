@@ -11,6 +11,7 @@ import {
   smartDocumentsTemplateGroupsComponent,
   smartDocumentsTemplateGroupTemplatesComponent,
   taak,
+  zaak,
 } from "./formio-setup-service.test-fixtures";
 
 describe(FormioSetupService.name, () => {
@@ -43,6 +44,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.valueProperty).toBe("id");
@@ -60,6 +62,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         await component.data.custom();
@@ -82,6 +85,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         const result = await component.data.custom();
@@ -126,6 +130,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.valueProperty).toBe("id");
@@ -143,6 +148,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
         formioSetupService.setFormioChangeData({
           [smartDocumentsTemplateGroupTemplatesComponent.refreshOn]:
@@ -187,6 +193,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
         formioSetupService.setFormioChangeData({
           [smartDocumentsTemplateGroupTemplatesComponent.refreshOn]:
@@ -212,6 +219,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
         formioSetupService.setFormioChangeData({
           [smartDocumentsTemplateGroupTemplatesComponent.refreshOn]:
@@ -232,6 +240,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         const result = await component.data.custom();

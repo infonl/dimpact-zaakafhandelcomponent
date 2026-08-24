@@ -15,6 +15,7 @@ import {
   selectedUnsignedDocumentsFieldset,
   taak,
   unsignedDocumentsFieldset,
+  zaak,
 } from "./formio-setup-service.test-fixtures";
 
 describe(FormioSetupService.name, () => {
@@ -58,6 +59,7 @@ describe(FormioSetupService.name, () => {
               ],
             },
           },
+          zaak,
         );
       };
 
@@ -177,6 +179,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [column] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(column.attrs).toBeUndefined();
@@ -198,6 +201,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [column] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(column.attrs).toBeUndefined();

@@ -13,6 +13,7 @@ import {
   documentsFieldset,
   signedDocument,
   taak,
+  zaak,
 } from "./formio-setup-service.test-fixtures";
 
 describe(FormioSetupService.name, () => {
@@ -40,6 +41,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         expect(component.valueProperty).toBe("uuid");
@@ -64,6 +66,7 @@ describe(FormioSetupService.name, () => {
         await formioSetupService.createFormioForm(
           { components: [component] } as FormioForm,
           taak,
+          zaak,
         );
 
         await expect(component.data.custom()).resolves.toEqual([
