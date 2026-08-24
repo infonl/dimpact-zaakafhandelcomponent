@@ -114,5 +114,5 @@ data class AuditTrailRegel @JsonbCreator constructor(
     /**
      * object (Wijzigingen) oud en nieuw
      */
-    @param:JsonbProperty("wijzigingen") val wijzigingen: AuditWijziging<*>
+    @param:JsonbProperty("wijzigingen") val wijzigingen: AuditWijziging<*>? = null
 )

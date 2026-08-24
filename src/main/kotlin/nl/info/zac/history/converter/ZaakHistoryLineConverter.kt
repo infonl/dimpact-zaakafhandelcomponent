@@ -37,21 +37,23 @@ class ZaakHistoryLineConverter @Inject constructor(
 
     @Suppress("UNCHECKED_CAST")
     private fun AuditTrailRegel.toRestHistorieRegelList(): List<HistoryLine> =
-        with(this.wijzigingen) {
-            when (this.objectType) {
-                BESLUIT ->
-                    AuditBesluitConverter.convert(this as AuditWijziging<Besluit>)
-                GEBRUIKSRECHTEN ->
-                    AuditGebruiksrechtenWijzigingConverter.convert(this as AuditWijziging<Gebruiksrechten>)
-                ENKELVOUDIG_INFORMATIEOBJECT ->
-                    auditEnkelvoudigInformatieobjectConverter.convert(
-                        this as AuditWijziging<EnkelvoudigInformatieObject>
-                    )
-                BESLUIT_INFORMATIEOBJECT ->
-                    auditBesluitInformatieobjectConverter.convert(this as BesluitInformatieobjectWijziging)
-                else -> emptyList()
+        this.wijzigingen?.let {
+            with(it) {
+                when (this.objectType) {
+                    BESLUIT ->
+                        AuditBesluitConverter.convert(this as AuditWijziging<Besluit>)
+                    GEBRUIKSRECHTEN ->
+                        AuditGebruiksrechtenWijzigingConverter.convert(this as AuditWijziging<Gebruiksrechten>)
+                    ENKELVOUDIG_INFORMATIEOBJECT ->
+                        auditEnkelvoudigInformatieobjectConverter.convert(
+                            this as AuditWijziging<EnkelvoudigInformatieObject>
+                        )
+                    BESLUIT_INFORMATIEOBJECT ->
+                        auditBesluitInformatieobjectConverter.convert(this as BesluitInformatieobjectWijziging)
+                    else -> emptyList()
+                }
             }
-        }.map { convertAuditTrailBasis(it, this) }
+        }.orEmpty().map { convertAuditTrailBasis(it, this) }
 
     private fun convertAuditTrailBasis(historieRegel: HistoryLine, auditTrailRegel: AuditTrailRegel) =
         historieRegel.apply {

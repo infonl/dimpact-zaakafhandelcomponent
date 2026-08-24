@@ -14,6 +14,7 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.brc.model.generated.createBesluitInformatieObject
+import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.shared.model.audit.AuditWijziging
 import nl.info.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging
 import nl.info.client.zgw.shared.model.audit.createAuditTrailRegel
@@ -22,6 +23,7 @@ import nl.info.zac.history.converter.documenten.AuditBesluitInformatieobjectConv
 import nl.info.zac.history.converter.documenten.AuditEnkelvoudigInformatieobjectConverter
 import nl.info.zac.history.model.HistoryAction
 import java.net.URI
+import java.time.ZonedDateTime
 
 class ZaakHistoryLineConverterTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
@@ -96,6 +98,28 @@ class ZaakHistoryLineConverterTest : BehaviorSpec({
                     application shouldBe "ZAC"
                     explanation shouldBe "123"
                 }
+            }
+        }
+    }
+
+    given("a legacy audit trail regel with no wijzigingen") {
+        val auditTrailRegel = AuditTrailRegel(
+            bron = Bron.DOCUMENTEN_API,
+            actie = "create",
+            resultaat = 201,
+            hoofdObject = URI("https://example.com/hoofd"),
+            resource = "enkelvoudiginformatieobject",
+            resourceUrl = URI("https://example.com/informatieobject"),
+            resourceWeergave = "123443210 - ZAAK-2024-0000000003",
+            aanmaakdatum = ZonedDateTime.now(),
+            wijzigingen = null
+        )
+
+        `when`("converted to historie regel") {
+            val restHistorieRegel = converter.convert(listOf(auditTrailRegel))
+
+            then("it is skipped instead of failing") {
+                restHistorieRegel shouldBe emptyList()
             }
         }
     }
