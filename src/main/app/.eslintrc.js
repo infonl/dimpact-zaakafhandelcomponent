@@ -79,8 +79,7 @@ module.exports = {
               "Use Testing Library instead of By.css: query by role or label, e.g. screen.getByRole('button', { name: '…' }). See https://testing-library.com/docs/queries/about/#priority",
           },
           {
-            selector:
-              "MemberExpression[property.name=/^querySelector(All)?$/]",
+            selector: "MemberExpression[property.name=/^querySelector(All)?$/]",
             message:
               "Use Testing Library instead of querySelector: query by role or label, e.g. screen.getByRole('row', { name: '…' }) with within(). See https://testing-library.com/docs/queries/about/#priority",
           },
