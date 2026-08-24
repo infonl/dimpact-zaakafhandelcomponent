@@ -1185,7 +1185,7 @@ class ZaakRestServiceTest : BehaviorSpec({
 
             `when`(
                 "the zaak is read by a behandelaar authorized for the zaaktype but without the " +
-                    "zaakspecifiek_autorisatie_behandelaar role"
+                    "zaakspecifiek_geautoriseerd application role"
             ) {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$geautoriseerdeZaakUuid",
