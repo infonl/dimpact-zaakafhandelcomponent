@@ -156,25 +156,31 @@ describe(MailCreateComponent.name, () => {
     return within(row).getByRole("checkbox");
   }
 
+  function vertrouwelijkheidaanduidingField() {
+    return screen.getByRole("combobox", {
+      name: "Vertrouwelijkheidaanduiding",
+    });
+  }
+
   function submitButton() {
     return screen.getByRole("button", { name: "actie.verstuur" });
+  }
+
+  async function selectVertrouwelijkheidaanduiding(
+    optionText = "vertrouwelijkheidaanduiding.OPENBAAR",
+  ) {
+    await user.click(vertrouwelijkheidaanduidingField());
+    await user.click(screen.getByRole("option", { name: optionText }));
   }
 
   async function fillInAMail(...attachments: string[]) {
     await user.click(ontvangerField());
     await user.paste("recipient@example.com");
+    await selectVertrouwelijkheidaanduiding();
 
-    it("should not pre-select a vertrouwelijkheidaanduiding", () => {
-      expect(
-        component["form"].controls.vertrouwelijkheidaanduiding.value,
-      ).toBeNull();
-    });
-
-    it("should prioritize contact details email address when initiator has temporaryPersonId", () => {
-      expect(component["contactEmailAddress"]()).toEqual(
-        mockContactGegevens.emailadres,
-      );
-    });
+    for (const attachment of attachments) {
+      await user.click(documentCheckbox(attachment));
+    }
 
     fixture.detectChanges();
   }
@@ -211,50 +217,9 @@ describe(MailCreateComponent.name, () => {
     ).toHaveTextContent("beheerder@example.com");
   });
 
-  describe("vertrouwelijkheidaanduiding validation", () => {
-    const validValues = {
-      verzender: mockDefaultAfzender,
-      ontvanger: "recipient@example.com",
-      onderwerp: "<p>Test onderwerp</p>",
-      body: "<p>Test body</p>",
-      bijlagen: [],
-    };
-
-    it("should mark the form invalid when no vertrouwelijkheidaanduiding is selected", () => {
-      component["form"].patchValue(validValues);
-
-      expect(component["form"].valid).toBe(false);
-      expect(
-        component["form"].controls.vertrouwelijkheidaanduiding.errors,
-      ).toEqual({ required: true });
-    });
-
-    it("should mark the form valid once a vertrouwelijkheidaanduiding is selected", () => {
-      component["form"].patchValue({
-        ...validValues,
-        vertrouwelijkheidaanduiding: {
-          value: "OPENBAAR",
-          label: "vertrouwelijkheidaanduiding.OPENBAAR",
-        },
-      });
-
-      expect(component["form"].valid).toBe(true);
-    });
-  });
-
-  describe("onFormSubmit", () => {
-    it("should call sendMail mutation with correct data", async () => {
-      component["form"].patchValue({
-        verzender: mockDefaultAfzender,
-        ontvanger: "recipient@example.com",
-        vertrouwelijkheidaanduiding: {
-          value: "VERTROUWELIJK",
-          label: "vertrouwelijkheidaanduiding.VERTROUWELIJK",
-        },
-        onderwerp: "<p>Test onderwerp</p>",
-        body: "<p>Test body</p>",
-        bijlagen: [mockDocuments[0]],
-      });
+  it("prefills the subject and the body from the mailtemplate", async () => {
+    await setup();
+    await respondToInitialRequests();
 
     expect(screen.getByText("Bevestiging ontvangst")).toBeVisible();
     expect(screen.getByText("Geachte,")).toBeVisible();
@@ -268,19 +233,41 @@ describe(MailCreateComponent.name, () => {
     expect(screen.getByText("Document 2")).toBeVisible();
   });
 
-      expect(req.request.body).toMatchObject({
-        verzender: mockDefaultAfzender.mail,
-        replyTo: undefined,
-        ontvanger: "recipient@example.com",
-        vertrouwelijkheidaanduiding: "VERTROUWELIJK",
-        onderwerp: "Test onderwerp",
-        body: "<p>Test body</p>",
-        bijlagen: mockDocuments[0].uuid,
-        createDocumentFromMail: true,
-      });
+  it("offers every vertrouwelijkheidaanduiding option without preselecting one", async () => {
+    await setup();
+    await respondToInitialRequests();
 
-      req.flush({});
-    });
+    expect(vertrouwelijkheidaanduidingField()).toHaveTextContent("");
+
+    await user.click(vertrouwelijkheidaanduidingField());
+
+    expect(screen.getAllByRole("option")).toHaveLength(8);
+  });
+
+  it("keeps the mail unsendable until a vertrouwelijkheidaanduiding is selected", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await user.click(ontvangerField());
+    await user.paste("recipient@example.com");
+
+    expect(submitButton()).toBeDisabled();
+
+    await selectVertrouwelijkheidaanduiding();
+
+    expect(submitButton()).toBeEnabled();
+  });
+
+  it("fills the recipient with the contact e-mail address of the initiator", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.contact.email.toevoegen" }),
+    );
+
+    expect(ontvangerField()).toHaveValue(contactDetails.emailadres);
+  });
 
   it("prefers the zaak specific contact e-mail address over the initiator's", async () => {
     await setup(
@@ -326,6 +313,7 @@ describe(MailCreateComponent.name, () => {
     expect(request.request.body).toMatchObject({
       verzender: afzenders[0].mail,
       ontvanger: "recipient@example.com",
+      vertrouwelijkheidaanduiding: "OPENBAAR",
       onderwerp: "Bevestiging ontvangst",
       body: mailtemplate.body,
       bijlagen: "doc-1",
