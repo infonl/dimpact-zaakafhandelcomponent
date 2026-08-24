@@ -34,8 +34,10 @@ class ResultsTest : BehaviorSpec({
         }
 
         `when`("singlePageResults is read") {
+            val exception = shouldThrow<IllegalStateException> { results.singlePageResults }
+
             then("it throws because there is more than one page") {
-                shouldThrow<IllegalStateException> { results.singlePageResults }
+                exception.message shouldBe "More than one page found (count: 2, results: 1)"
             }
         }
     }
@@ -74,8 +76,10 @@ class ResultsTest : BehaviorSpec({
         val results = Results(listOf("fakeItem1", "fakeItem2"), 2)
 
         `when`("singleResult is read") {
+            val exception = shouldThrow<IllegalStateException> { results.singleResult }
+
             then("it throws because there is more than one result") {
-                shouldThrow<IllegalStateException> { results.singleResult }
+                exception.message shouldBe "More than one result found (count: 2)"
             }
         }
     }

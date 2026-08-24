@@ -26,8 +26,10 @@ class BronTest : BehaviorSpec({
         }
 
         `when`("fromValue is called with an unknown code") {
+            val exception = shouldThrow<NoSuchElementException> { Bron.fromValue("unknown") }
+
             then("it throws a NoSuchElementException") {
-                shouldThrow<NoSuchElementException> { Bron.fromValue("unknown") }
+                exception.message shouldBe "Array contains no element matching the predicate."
             }
         }
     }
