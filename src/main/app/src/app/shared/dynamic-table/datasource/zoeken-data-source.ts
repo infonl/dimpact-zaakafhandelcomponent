@@ -104,7 +104,7 @@ export abstract class ZoekenDataSource<
     setTimeout(() => {
       this.utilService.setLoading(true);
       this.zoekenService
-        .list(this.updateZoekParameters())
+        .list$(this.updateZoekParameters())
         .pipe(finalize(() => this.utilService.setLoading(false)))
         .subscribe((zaakResponse) => {
           this.setData(zaakResponse as ZoekResultaat<OBJECT>);

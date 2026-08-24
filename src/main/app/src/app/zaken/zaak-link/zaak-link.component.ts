@@ -27,6 +27,7 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatToolbar } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subject, takeUntil } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { ZacAutoComplete } from "src/app/shared/form/auto-complete/auto-complete";
@@ -38,6 +39,7 @@ import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { ZoekenService } from "src/app/zoeken/zoeken.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { ZakenService } from "../zaken.service";
 
 const caseRelationOption = <T extends GeneratedType<"RelatieType">>(value: T) =>
@@ -126,6 +128,8 @@ export class ZaakLinkComponent implements OnDestroy {
   startdatum = new DatumRange();
   einddatum = new DatumRange();
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor() {
     this.form.controls.caseRelationType.valueChanges
       .pipe(takeUntil(this.ngDestroy))
@@ -146,8 +150,9 @@ export class ZaakLinkComponent implements OnDestroy {
 
     this.loading = true;
     this.utilService.setLoading(true);
-    this.zoekenService
-      .findLinkableZaken({
+    runQuery(
+      this.queryClient,
+      this.zoekenService.findLinkableZaken({
         zaakUuid: this.zaak.uuid,
         zoekZaakIdentifier: caseNumberToSearchFor,
         zoekZaakOmschrijving: caseDescriptionToSearchFor,
@@ -161,19 +166,19 @@ export class ZaakLinkComponent implements OnDestroy {
           van: this.einddatum?.van?.toISOString(),
           tot: this.einddatum?.tot?.toISOString(),
         },
-      })
-      .subscribe({
-        next: (result) => {
-          this.cases.data = result.resultaten ?? [];
-          this.totalCases = result.totaal ?? 0;
-          this.loading = false;
-          this.utilService.setLoading(false);
-        },
-        error: () => {
-          this.loading = false;
-          this.utilService.setLoading(false);
-        },
-      });
+      }),
+    ).subscribe({
+      next: (result) => {
+        this.cases.data = result.resultaten ?? [];
+        this.totalCases = result.totaal ?? 0;
+        this.loading = false;
+        this.utilService.setLoading(false);
+      },
+      error: () => {
+        this.loading = false;
+        this.utilService.setLoading(false);
+      },
+    });
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {
