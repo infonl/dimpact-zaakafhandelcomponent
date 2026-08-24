@@ -7,6 +7,7 @@ package net.atos.zac.taak
 import rego.v1
 
 import data.net.atos.zac.taak.zaaktype_allowed
+import data.net.atos.zac.taak.zaak_allowed
 import data.net.atos.zac.taak.lezen
 import data.net.atos.zac.taak.wijzigen
 import data.net.atos.zac.taak.toekennen
@@ -202,4 +203,77 @@ test_toevoegen_document_wrong_role_fails if {
 
 test_toevoegen_document_missing_role_fails if {
     not toevoegen_document with input.user.key as "value"
+}
+
+##################################
+# zaak_allowed / zaakspecifiek geautoriseerde zaak
+##################################
+test_zaak_allowed_not_geautoriseerd if {
+    zaak_allowed with input.taak.zaakspecifiekGeautoriseerd as false
+}
+
+test_zaak_allowed_geautoriseerd_with_zaakspecifiek_autorisatie_behandelaar_role if {
+    zaak_allowed
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+}
+
+test_zaak_allowed_geautoriseerd_without_role_fails if {
+    not zaak_allowed
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_geautoriseerd_behandelaar_fails if {
+    not lezen
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_geautoriseerd_raadpleger_fails if {
+    not lezen
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "raadpleger" ]
+}
+
+test_lezen_geautoriseerd_coordinator_fails if {
+    not lezen
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "coordinator" ]
+}
+
+test_lezen_geautoriseerd_zaakspecifiek_autorisatie_behandelaar if {
+    lezen
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+}
+
+test_lezen_geautoriseerd_recordmanager_unaffected if {
+    lezen
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager" ]
+}
+
+test_lezen_geautoriseerd_beheerder_unaffected if {
+    lezen
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "beheerder" ]
+}
+
+test_wijzigen_geautoriseerd_behandelaar_fails if {
+    not wijzigen
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_wijzigen_geautoriseerd_zaakspecifiek_autorisatie_behandelaar if {
+    wijzigen
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+}
+
+test_wijzigen_geautoriseerd_recordmanager_unaffected if {
+    wijzigen
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager" ]
 }

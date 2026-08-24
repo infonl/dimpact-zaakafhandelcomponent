@@ -7,6 +7,7 @@ package net.atos.zac.zaak
 import rego.v1
 
 import data.net.atos.zac.zaak.zaaktype_allowed
+import data.net.atos.zac.zaak.zaak_allowed
 import data.net.atos.zac.zaak.lezen
 import data.net.atos.zac.zaak.wijzigen
 import data.net.atos.zac.zaak.toekennen
@@ -1258,4 +1259,123 @@ test_brondatum_zetten_wrong_role_fails if {
 
 test_brondatum_zetten_missing_role_fails if {
     not brondatum_zetten with input.user.key as "value"
+}
+
+##################################
+# zaak_allowed / zaakspecifiek geautoriseerde zaak
+##################################
+test_zaak_allowed_not_geautoriseerd if {
+    zaak_allowed with input.zaak.zaakspecifiekGeautoriseerd as false
+}
+
+test_zaak_allowed_missing_field if {
+    zaak_allowed with input.user.key as "value"
+}
+
+test_zaak_allowed_geautoriseerd_with_zaakspecifiek_autorisatie_behandelaar_role if {
+    zaak_allowed
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+}
+
+test_zaak_allowed_geautoriseerd_without_role_fails if {
+    not zaak_allowed
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_geautoriseerd_behandelaar_fails if {
+    not lezen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_geautoriseerd_raadpleger_fails if {
+    not lezen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "raadpleger" ]
+}
+
+test_lezen_geautoriseerd_coordinator_fails if {
+    not lezen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "coordinator" ]
+}
+
+test_lezen_geautoriseerd_zaakspecifiek_autorisatie_behandelaar if {
+    lezen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+}
+
+test_lezen_geautoriseerd_recordmanager_unaffected if {
+    lezen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager" ]
+}
+
+test_lezen_geautoriseerd_beheerder_unaffected if {
+    lezen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "beheerder" ]
+}
+
+test_wijzigen_geautoriseerd_behandelaar_fails if {
+    not wijzigen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.zaak.open as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_wijzigen_geautoriseerd_zaakspecifiek_autorisatie_behandelaar if {
+    wijzigen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.zaak.open as true
+        with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+}
+
+test_wijzigen_geautoriseerd_recordmanager_unaffected if {
+    wijzigen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager" ]
+}
+
+test_behandelen_geautoriseerd_behandelaar_fails if {
+    not behandelen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_behandelen_geautoriseerd_zaakspecifiek_autorisatie_behandelaar if {
+    behandelen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+}
+
+test_afbreken_geautoriseerd_behandelaar_fails if {
+    not afbreken
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_afbreken_geautoriseerd_zaakspecifiek_autorisatie_behandelaar if {
+    afbreken
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+}
+
+# the zaakspecifiek_autorisatie_behandelaar role grants nothing beyond behandelaar's rights
+test_heropenen_zaakspecifiek_autorisatie_behandelaar_fails if {
+    not heropenen with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+}
+
+test_bekijken_zaakdata_zaakspecifiek_autorisatie_behandelaar_fails if {
+    not bekijken_zaakdata with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+}
+
+test_brondatum_zetten_zaakspecifiek_autorisatie_behandelaar_fails if {
+    not brondatum_zetten
+        with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+        with input.zaak.open as false
+        with input.zaak.brondatumBepaald as false
 }

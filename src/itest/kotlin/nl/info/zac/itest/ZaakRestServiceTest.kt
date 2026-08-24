@@ -14,6 +14,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.OpenZaakClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.createZaakAndRetrieve
@@ -77,6 +78,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_1
+import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
@@ -99,6 +101,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
     val zaakHelper = ZaakHelper(zacClient)
+    val openZaakClient = OpenZaakClient(itestHttpClient)
     val logger = KotlinLogging.logger {}
     val longitude = Random.nextFloat()
     val latitude = Random.nextFloat()
@@ -1157,6 +1160,48 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
                 then("the response should be a 403 HTTP response") {
                     response.code shouldBe HTTP_FORBIDDEN
+                }
+            }
+        }
+    }
+
+    context("Reading a zaakspecifiek geautoriseerde zaak") {
+        given(
+            """
+            A CMMN zaak of a zaaktype that supports zaakspecifieke autorisatie has been marked
+            as zaakspecifiek geautoriseerd
+            """
+        ) {
+            val (_, geautoriseerdeZaakUuid) = zaakHelper.createZaak(
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+                testUser = BEHANDELAAR_1
+            )
+            openZaakClient.createZaakeigenschap(
+                zaakUUID = geautoriseerdeZaakUuid,
+                zaaktypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+                eigenschapNaam = "ZAAK_GEAUTORISEERD",
+                waarde = "true"
+            )
+
+            `when`(
+                "the zaak is read by a behandelaar authorized for the zaaktype but without the " +
+                    "zaakspecifiek_autorisatie_behandelaar role"
+            ) {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$geautoriseerdeZaakUuid",
+                    testUser = BEHANDELAAR_1
+                )
+                then("the response should be a 403 HTTP response") {
+                    response.code shouldBe HTTP_FORBIDDEN
+                }
+            }
+            `when`("the zaak is read by a user holding the zaakspecifiek_autorisatie_behandelaar role") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$geautoriseerdeZaakUuid",
+                    testUser = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
+                )
+                then("the response should be a 200 HTTP response") {
+                    response.code shouldBe HTTP_OK
                 }
             }
         }
