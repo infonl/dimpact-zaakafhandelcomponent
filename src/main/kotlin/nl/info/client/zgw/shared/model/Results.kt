@@ -15,8 +15,8 @@ data class Results<T> @JsonbCreator constructor(
     @param:JsonbProperty("previous") private val previousValue: URI? = null
 ) {
     companion object {
-        // Number of items Open Zaak returns per page
-        const val NUM_ITEMS_PER_PAGE: Long = 100
+        // The default value for the `pageSize` in both the ZGW ZRC and ZGW ZTC APIs
+        const val DEFAULT_ZGW_PAGE_SIZE: Long = 100
     }
 
     constructor(results: List<T>, count: Int) : this(count, results, null, null)

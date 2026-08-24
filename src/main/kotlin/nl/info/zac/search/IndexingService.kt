@@ -226,7 +226,7 @@ class IndexingService @Inject constructor(
             return
         }
 
-        val numberOfPages: Int = numberOfZaken / Results.NUM_ITEMS_PER_PAGE.toInt() +
+        val numberOfPages: Int = numberOfZaken / Results.DEFAULT_ZGW_PAGE_SIZE.toInt() +
             ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
 
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
@@ -247,7 +247,7 @@ class IndexingService @Inject constructor(
             objectType = ZoekObjectType.ZAAK,
             performCommit = false
         )
-        val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size
+        val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.DEFAULT_ZGW_PAGE_SIZE + ids.size
         LOG.info("[${ZoekObjectType.ZAAK}] Reindexed: $progress / $totalCount ")
     }
 
@@ -264,7 +264,7 @@ class IndexingService @Inject constructor(
             return
         }
 
-        val numberOfPages: Int = numberOfInformatieobjecten / Results.NUM_ITEMS_PER_PAGE.toInt() +
+        val numberOfPages: Int = numberOfInformatieobjecten / Results.DEFAULT_ZGW_PAGE_SIZE.toInt() +
             ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
 
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
@@ -284,7 +284,7 @@ class IndexingService @Inject constructor(
             objectType = ZoekObjectType.DOCUMENT,
             performCommit = false
         )
-        val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size
+        val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.DEFAULT_ZGW_PAGE_SIZE + ids.size
         LOG.info("[${ZoekObjectType.DOCUMENT}] Reindexed: $progress / $totalCount")
     }
 
