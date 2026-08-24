@@ -76,7 +76,7 @@ const documentImplementation = jsdomImplementationSymbol
 if (typeof documentImplementation?._version === "number") {
   const resolveComputedStyle = window.getComputedStyle.bind(window);
 
-  // Resolving a single computed style matches all 120 rules of the jsdom user-agent
+  // Resolving a single computed style matches all rules of the jsdom user-agent
   // stylesheet against the element and, for the inherited `visibility`, against each of
   // its ancestors as well. Memoizing the selector matcher jsdom uses for that collapses
   // the repeated work; the same document version guards it.
