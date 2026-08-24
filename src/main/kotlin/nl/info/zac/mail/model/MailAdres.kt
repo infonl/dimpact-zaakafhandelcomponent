@@ -7,7 +7,7 @@ package nl.info.zac.mail.model
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.mail.Address
 import jakarta.mail.internet.InternetAddress
-import net.atos.zac.util.ValidationUtil
+import nl.info.zac.util.ValidationUtil
 
 data class MailAdres(
     @field:JsonbProperty("Email") val email: String,

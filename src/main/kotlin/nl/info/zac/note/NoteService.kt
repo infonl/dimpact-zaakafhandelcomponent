@@ -11,7 +11,7 @@ import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
 import jakarta.validation.Valid
-import net.atos.zac.util.ValidationUtil.validateObject
+import nl.info.zac.util.ValidationUtil.validateObject
 import nl.info.zac.note.model.Note
 import nl.info.zac.note.model.Note.Companion.ZAAK_UUID_FIELD
 import nl.info.zac.util.AllOpen

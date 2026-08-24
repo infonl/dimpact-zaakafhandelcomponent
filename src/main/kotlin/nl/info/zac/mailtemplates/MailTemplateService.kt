@@ -8,7 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import net.atos.zac.util.ValidationUtil
+import nl.info.zac.util.ValidationUtil
 import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.Mail.Companion.LINKABLE_MAILS

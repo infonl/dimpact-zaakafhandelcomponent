@@ -27,7 +27,7 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringVerzonden
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import net.atos.zac.util.ValidationUtil
+import nl.info.zac.util.ValidationUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.zrc.ZrcClientService

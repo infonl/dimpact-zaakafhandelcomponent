@@ -1,55 +1,38 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.util
 
-package net.atos.zac.util;
+import jakarta.validation.ConstraintViolationException
+import jakarta.validation.Validation
+import java.util.regex.Pattern
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Pattern;
+object ValidationUtil {
+    private const val ID = "A-Za-z\\d"
+    private const val LCL = "[" + ID + "!#\$%&'*+\\-/=?^_`{|}~]+"
+    private const val LBL = "[" + ID + "]([" + ID + "\\-]*[" + ID + "])?"
+    private const val EMAIL = LCL + "(\\." + LCL + ")*@" + LBL + "(\\." + LBL + ")+"
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
+    private val emailRegex = Pattern.compile("^" + EMAIL + "\$")
 
-public final class ValidationUtil {
-
-    private static final String ID = "A-Za-z\\d";
-
-    private static final String LCL = "[" + ID + "!#$%&'*+\\-/=?^_`{|}~]+";
-
-    private static final String LBL = "[" + ID + "]([" + ID + "\\-]*[" + ID + "])?";
-
-    private static final String EMAIL = LCL + "(\\." + LCL + ")*@" + LBL + "(\\." + LBL + ")+";
-
-    private static final Pattern emailRegex = Pattern.compile("^" + EMAIL + "$");
+    // Building a ValidatorFactory bootstraps the whole Bean Validation provider (classpath
+    // scanning, constraint metadata parsing); it is designed to be built once and reused for
+    // the application's lifetime, not per validation call.
+    private val validatorFactory = Validation.buildDefaultValidatorFactory()
 
     /**
      * Validates an object using Jakarta Validation annotations defined in the object class.
      * Only use this when the `@Valid` annotation cannot be used on the object.
      *
-     * @param object           the object to validatie
-     * @param validationGroups option validation groups to use
      * @throws ConstraintViolationException if the object is not valid
      */
-    public static void validateObject(final Object object, final Class<?>... validationGroups) {
-        final Set<ConstraintViolation<Object>> violations = valideer(object, validationGroups);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(new HashSet<ConstraintViolation<?>>(violations));
+    fun validateObject(target: Any, vararg validationGroups: Class<*>) {
+        val violations = validatorFactory.validator.validate(target, *validationGroups)
+        if (violations.isNotEmpty()) {
+            throw ConstraintViolationException(violations.toSet())
         }
     }
 
-    public static boolean isValidEmail(final String email) {
-        return email.matches(emailRegex.pattern());
-    }
-
-    private static Set<ConstraintViolation<Object>> valideer(final Object object, final Class<?>... validationGroups) {
-        try (final ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            final Validator validator = factory.getValidator();
-            return validator.validate(object, validationGroups);
-        }
-    }
+    fun isValidEmail(email: String): Boolean = emailRegex.matcher(email).matches()
 }
