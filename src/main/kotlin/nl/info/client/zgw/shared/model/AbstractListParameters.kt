@@ -10,6 +10,6 @@ abstract class AbstractListParameters {
     /**
      * Een pagina binnen de gepagineerde set resultaten.
      */
-    @QueryParam("page")
+    @field:QueryParam("page")
     var page: Int? = null
 }
