@@ -160,6 +160,7 @@ Java has no compile-time nullability, so every Java parameter/field/return type 
 3. **Watch for the Java-platform-type trap**: an unannotated Java field/method accessed from Kotlin is a flexible platform type (`Foo!`), so the compiler will silently accept passing it to either a nullable or non-null Kotlin parameter — it will NOT flag a mismatch even if the field is null at runtime. This means you cannot rely on "the compiler didn't complain" as proof that tightening a signature is safe. Check the actual data model (`@NotNull` annotations, the upstream API spec, existing `?.`/`!!` usage at other call sites) to decide real-world nullability, not just what compiles.
 4. Same logic applies to **return types**: a function that only returns null for a genuinely absent value (e.g. a blank/absent optional input) should return `T?`; a function that unconditionally transforms its (non-null) input should return `T`.
 5. This is worth extra care specifically because it's easy to get subtly wrong in the *unsafe* direction: tightening a parameter/return type to non-null when a real call site actually can be null does not fail to compile if the source is a Java platform type — it just turns a null into a `NullPointerException` at runtime. When in doubt, re-run `./gradlew test` and `./gradlew itest` after tightening and double check the specific converted class's callers by hand, don't rely on the compiler alone.
+6. **When the evidence is genuinely inconclusive** — call sites disagree, there's no OpenAPI spec or `@NotNull` annotation to check, and the field's real-world optionality can't be determined from the code alone — stop and ask the user rather than guessing. Don't silently default to nullable "to be safe"; that's the exact easy-way-out this section warns against.
 
 Example — a Java-era conversion utility with a real call site that already unwraps before calling, and one that doesn't:
 ```kotlin
@@ -172,6 +173,18 @@ fun convertToLocalDate(date: Date): LocalDate = LocalDate.ofInstant(date.toInsta
 // call site with a genuinely optional Date field:
 val fataledatum = taskInfo.dueDate?.let(DateTimeConverterUtil::convertToLocalDate)
 ```
+
+**o) Immutability — prefer `val` over `var`**
+
+Java fields are mutable by default, but most converted fields are only ever assigned once (in the constructor, or by JSON-B/JAX-RS deserialization via an `@JsonbCreator`/`@BeanParam`-style constructor). Default to `val`:
+
+- A field only ever assigned in the constructor, or set once via a setter that's really an initializer → `val`, moved into the primary constructor.
+- A field genuinely reassigned after construction (a JAX-RS `@BeanParam`/`@QueryParam` bean whose setters are called by the framework after construction, a builder-style accumulator, cached/lazily-computed state) → `var`, and only for that field — don't widen the whole class to mutable because one field needs it.
+- Same rule for local variables: a value computed once and never reassigned is `val`; reach for `var` only for an actual accumulator/loop counter/reassignment.
+
+This mirrors the nullability rule in (n): check real usage before defaulting to the more permissive option. If it's unclear whether a field is ever reassigned after construction (e.g. a framework calls a setter you can't easily trace), ask the user rather than guessing.
+
+Also follow the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) throughout the conversion (naming, formatting, idiomatic collection operations, etc.) — this project's own conventions in `CLAUDE.md` are a superset of them, not a replacement.
 
 ## Step 7 — Update all call sites
 
