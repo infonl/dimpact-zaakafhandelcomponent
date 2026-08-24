@@ -27,9 +27,9 @@ open class ZgwError @JsonbCreator constructor(
     // Deze kan gebruikt worden in combinatie met server logs, bijvoorbeeld.
     @param:JsonbProperty("instance") val instance: URI?
 ) : Serializable {
-    override fun toString() = "($status) Title: $title, Detail: $detail"
-
     companion object {
         private const val serialVersionUID: Long = 67354364654464L
     }
+
+    override fun toString() = "($status) Title: $title, Detail: $detail"
 }

@@ -8,12 +8,12 @@ import jakarta.json.bind.adapter.JsonbAdapter
 
 interface AbstractEnum {
 
-    fun toValue(): String
-
     companion object {
         fun <T : AbstractEnum> fromValue(enums: Array<T>, value: String): T =
             enums.first { it.toValue() == value }
     }
+
+    fun toValue(): String
 
     abstract class Adapter<T : AbstractEnum> : JsonbAdapter<T, String> {
 

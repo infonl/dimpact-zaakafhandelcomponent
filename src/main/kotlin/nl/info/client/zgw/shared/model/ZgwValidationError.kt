@@ -21,13 +21,12 @@ class ZgwValidationError @JsonbCreator constructor(
     @param:JsonbProperty("instance") instance: URI?,
     @param:JsonbProperty("invalidParams") val invalidParams: List<FieldValidationError>
 ) : ZgwError(type, code, title, status, detail, instance) {
+    companion object {
+        private const val serialVersionUID: Long = 79823432543535L
+    }
 
     override fun toString() = buildString {
         append(super.toString()).append("\n")
         invalidParams.forEach { append(it.toString()).append("\n") }
-    }
-
-    companion object {
-        private const val serialVersionUID: Long = 79823432543535L
     }
 }

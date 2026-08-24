@@ -14,6 +14,11 @@ data class Results<T> @JsonbCreator constructor(
     @param:JsonbProperty("next") private val nextValue: URI? = null,
     @param:JsonbProperty("previous") private val previousValue: URI? = null
 ) {
+    companion object {
+        // Number of items Open Zaak returns per page
+        const val NUM_ITEMS_PER_PAGE: Long = 100
+    }
+
     constructor(results: List<T>, count: Int) : this(count, results, null, null)
 
     fun count(): Int = countValue
@@ -40,9 +45,4 @@ data class Results<T> @JsonbCreator constructor(
         } else {
             throw IllegalStateException("More than one page found (count: $countValue, results: ${results().size})")
         }
-
-    companion object {
-        // Aantal items wat Open Zaak terug geeft per pagina
-        const val NUM_ITEMS_PER_PAGE: Long = 100
-    }
 }

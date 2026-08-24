@@ -85,6 +85,7 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 - No-arg CDI constructor + `@Inject` constructor pair → single `class Foo @Inject constructor(...)`
 - `private final Type field;` → constructor parameter `private val field: Type`
 - `public static final String X = "y";` → `companion object { const val X = "y" }`
+- **Companion object placement**: put `companion object { ... }` at the top of the class body — before secondary constructors, properties, and functions (this project overrides the general Kotlin style guide's "companion object last" recommendation). In an `enum class`, the enum constants must still come first (a language requirement), so place the companion object immediately after the constants, before any other member. See `nl.info.client.zgw.shared.model.Results` and `nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding` for examples.
 
 **e) Methods**:
 - Remove `public`, `final` modifiers

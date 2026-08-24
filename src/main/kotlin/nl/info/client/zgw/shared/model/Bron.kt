@@ -42,13 +42,13 @@ enum class Bron(private val value: String) : AbstractEnum {
      */
     BESLUITEN_API("BRC");
 
+    companion object {
+        fun fromValue(value: String): Bron = AbstractEnum.fromValue(entries.toTypedArray(), value)
+    }
+
     override fun toValue(): String = value
 
     internal class Adapter : AbstractEnum.Adapter<Bron>() {
         override fun getEnums(): Array<Bron> = entries.toTypedArray()
-    }
-
-    companion object {
-        fun fromValue(value: String): Bron = AbstractEnum.fromValue(entries.toTypedArray(), value)
     }
 }
