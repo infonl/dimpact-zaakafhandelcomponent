@@ -2973,7 +2973,6 @@
       "realmRoles": ["default-roles-zac"],
       "notBefore": 0,
       "groups": [
-        "/behandelaars-test-1",
         "/zaakspecifiek_autorisatie_behandelaars_test_1"
       ]
     }

@@ -12,7 +12,7 @@ import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
-import data.net.atos.zac.rol.zaakspecifiekAutorisatieBehandelaar
+import data.net.atos.zac.rol.zaakspecifiekGeautoriseerd
 import input.user
 import input.taak
 
@@ -33,22 +33,20 @@ zaaktype_allowed if {
 }
 
 # zaak_allowed guards access to a taak of a zaakspecifiek geautoriseerde zaak: unrestricted for a taak
-# whose zaak is not geautoriseerd, otherwise only for a user holding zaakspecifiekAutorisatieBehandelaar.
-# recordmanager/beheerder rule bodies below do not reference this rule - their access to such a taak is
-# out of scope for this policy and is left unaffected.
+# whose zaak is not zaakspecifiek geautoriseerd, otherwise only for a user holding the zaakspecifiek_geautoriseerd application role.
 default zaak_allowed := false
 zaak_allowed if {
     not taak.zaakspecifiekGeautoriseerd
 }
 zaak_allowed if {
-    zaakspecifiekAutorisatieBehandelaar.rol in user.rollen
+    zaakspecifiekGeautoriseerd.rol in user.rollen
 }
 
 default lezen := false
 lezen if {
     zaaktype_allowed
     zaak_allowed
-    some role in {raadpleger, behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {raadpleger, behandelaar, coordinator}
     role.rol in user.rollen
 }
 lezen if {
@@ -61,7 +59,7 @@ default wijzigen := false
 wijzigen if {
     zaaktype_allowed
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 wijzigen if {
@@ -74,7 +72,7 @@ default toekennen := false
 toekennen if {
     zaaktype_allowed
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 toekennen if {
@@ -88,7 +86,7 @@ creeren_document if {
     zaaktype_allowed
     taak.open
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 creeren_document if {
@@ -103,7 +101,7 @@ toevoegen_document if {
     zaaktype_allowed
     taak.open
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 toevoegen_document if {

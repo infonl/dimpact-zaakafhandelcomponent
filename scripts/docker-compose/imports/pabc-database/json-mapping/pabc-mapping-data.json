@@ -39,7 +39,7 @@
     },
     {
       "id": "1a2b3c4d-5e6f-4708-9a0b-c1d2e3f4a5b6",
-      "name": "zaakspecifiek_autorisatie_behandelaar",
+      "name": "zaakspecifiek_geautoriseerd",
       "applicationId": "5e2f8c81-3372-4bfa-9039-b0d498737799"
     }
   ],
@@ -298,6 +298,13 @@
       "functionalRoleId": "2b3c4d5e-6f78-4901-ab0c-d1e2f3a4b5c6",
       "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
       "applicationRoleId": "1a2b3c4d-5e6f-4708-9a0b-c1d2e3f4a5b6",
+      "isAllEntityTypes": false
+    },
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567812",
+      "functionalRoleId": "2b3c4d5e-6f78-4901-ab0c-d1e2f3a4b5c6",
+      "domainId": "d1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6",
+      "applicationRoleId": "a43e878d-a08f-4102-9d6c-9aa58299581b",
       "isAllEntityTypes": false
     }
   ],

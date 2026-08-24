@@ -1,8 +1,9 @@
 ## Context
 
 PZ-11909 introduced two pieces of groundwork with no enforcement behind them yet:
-- The `zaakspecifiek_autorisatie_behandelaar` ZAC application role (PABC/Keycloak, commit `5172e956b`
-  / `e98acd177`), granted per zaaktype, deliberately shipped with no permissions attached.
+- The `zaakspecifiek_geautoriseerd` ZAC application role (PABC/Keycloak, commit `5172e956b` / `e98acd177`,
+  originally named `zaakspecifiek_autorisatie_behandelaar`), granted per zaaktype, deliberately shipped with
+  no permissions attached.
 - The `ZAAK_GEAUTORISEERD` zaakeigenschap convention: an Open Zaak zaakeigenschap named exactly
   `ZAAK_GEAUTORISEERD` with value `"true"` marks an individual zaak as "zaakspecifiek geautoriseerd".
   `RestZaakConverter.toRestZaak` (`src/main/kotlin/nl/info/zac/app/zaak/converter/RestZaakConverter.kt:71-73,114-116`)
@@ -23,24 +24,35 @@ The three policy files each follow the same shape: a `zaaktype_allowed` gate, th
 the form `some role in {…}; role.rol in user.rollen` (optionally combined with zaak/taak/document state such
 as `zaak.open`). A companion capability, `application-role-permission-matrix`, already established the
 project's convention that every role's grants must be explicit — no role may rely on also holding a "lower"
-role — which this change follows for the new role too.
+role.
 
 None of `ZaakData`, `TaakData`, or `DocumentData` currently carry any "is this zaakspecifiek geautoriseerd"
 signal, so today OPA cannot distinguish a zaakspecifiek geautoriseerde zaak from any other zaak of the same
 zaaktype: any behandelaar/raadpleger/coordinator with zaaktype access already has full access to it, its
 taken, and its documenten.
 
+**Correction from an earlier version of this design**: an earlier iteration treated
+`zaakspecifiek_geautoriseerd` (then still named `zaakspecifiek_autorisatie_behandelaar`) as a rights-bearing
+role in its own right, granted the same explicit permissions as `behandelaar`. That is not the intended
+model. `zaakspecifiek_geautoriseerd` is a flag: it carries no permissions of its own. A medewerker's rights
+on a zaakspecifiek geautoriseerde zaak come entirely from whichever normal application role
+(`raadpleger`, `behandelaar`, `coordinator`) they separately hold for that zaaktype — the flag only decides
+whether that normal role's rights are allowed to apply to a zaakspecifiek geautoriseerde zaak at all.
+Holding the flag without also holding one of those normal roles grants nothing.
+
 ## Goals / Non-Goals
 
 **Goals:**
-- Only users holding `zaakspecifiek_autorisatie_behandelaar` for the zaak's zaaktype can read or act on a
-  zaakspecifiek geautoriseerde zaak, its taken, and its documenten, among the roles this change touches.
-- Any application role of that same zaaktype, without also holding `zaakspecifiek_autorisatie_behandelaar`,
-  is denied — the restriction is not specific to `behandelaar`, `raadpleger`, or `coordinator` individually,
-  it applies uniformly to whichever of those roles a user happens to hold — including via direct URL /
-  deep-link access to the zaak, a taak, or a document.
-- `zaakspecifiek_autorisatie_behandelaar`'s own effective rights, once unlocked, equal `behandelaar`'s rights
-  (which are a superset of `raadpleger`'s), granted explicitly per the no-hierarchy convention.
+- A medewerker who holds a normal application role (`raadpleger`, `behandelaar`, `coordinator`) for a
+  zaaktype, and who *also* holds `zaakspecifiek_geautoriseerd` for that same zaaktype, gets that normal
+  role's rights extended to also cover zaakspecifiek geautoriseerde zaken of that zaaktype — in addition to
+  the non-geautoriseerde zaken they already covered.
+- A medewerker who holds a normal application role but *not* `zaakspecifiek_geautoriseerd` for a zaaktype is
+  denied on a zaakspecifiek geautoriseerde zaak of that zaaktype — including via direct URL / deep-link
+  access to the zaak, a taak, or a document — regardless of which of those normal roles they hold.
+- A medewerker who holds only `zaakspecifiek_geautoriseerd`, without any of `raadpleger`, `behandelaar`, or
+  `coordinator`, for a zaaktype has no rights at all on zaken of that zaaktype — the flag is inert on its
+  own, exactly as if the medewerker held no application role for that zaaktype.
 - A denied user sees the same generic "onvoldoende rechten" message ZAC already shows for any other policy
   denial — no new user-facing error path.
 
@@ -55,8 +67,9 @@ taken, and its documenten.
   `zaakspecifiekGeautoriseerd` defaulting to "not zaakspecifiekGeautoriseerd", i.e. unrestricted, for now.
 - Being able to mark a zaak as zaakspecifiek geautoriseerd from within ZAC (currently only possible directly
   in Open Zaak) is a separate follow-up story, not part of this change.
-- No changes to Keycloak/PABC configuration or to how `LoggedInUser.applicationRolesPerZaaktype` is populated
-  — that plumbing already exists and already produces the role correctly.
+- No changes to Keycloak functional role/group naming, or to how `LoggedInUser.applicationRolesPerZaaktype`
+  is populated — that plumbing already exists and already produces the role correctly. The PABC
+  *application role name* does change (see Decision 3), but this requires no change to Keycloak itself.
 
 ## Decisions
 
@@ -73,19 +86,13 @@ Add `zaakspecifiekGeautoriseerd: Boolean` to `ZaakData`, `TaakData`, and `Docume
   today).
 
 The two search-object-based overloads (`readZaakRechtenForZaakZoekObject`, `readTaakRechten(taakZoekObject)`,
-`readDocumentRechten(enkelvoudigInformatieobject: DocumentZoekObject)`) leave `zaakspecifiekGeautoriseerd` at its default
-`false`, consistent with the Non-Goals above.
-
-**Alternative considered**: index "is zaakspecifiek geautoriseerd" into Solr and thread it through the
-`*ZoekObject` classes now, so all six call sites are covered symmetrically. Rejected for this change because
-it would pull werklijsten/zoekresultaten scope into this story, which the ticket explicitly defers to
-PZ-11954; doing it now also means a Solr reindex, which the ticket does not ask for.
+`readDocumentRechten(enkelvoudigInformatieobject: DocumentZoekObject)`) leave `zaakspecifiekGeautoriseerd` at
+its default `false`, consistent with the Non-Goals above.
 
 **Shared lookup helper**: extract the zaakeigenschap check duplicated between `RestZaakConverter` and
 `PolicyService` into one shared function next to the existing `ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD` /
-`ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD` constants (e.g. a small function on `ZrcClientService` or a top-level
-helper in the `nl.info.zac.policy` or `nl.info.zac.app.zaak` package), so the "what counts as zaakspecifiek
-geautoriseerd" rule is defined exactly once.
+`ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD` constants, so the "what counts as zaakspecifiek geautoriseerd" rule is
+defined exactly once.
 
 ### 2. Gate only the non-privileged rule bodies with one shared `zaak_allowed` rule; leave `recordmanager`/`beheerder` bodies untouched
 
@@ -96,13 +103,13 @@ zaak_allowed if {
     not zaak.zaakspecifiekGeautoriseerd   # or taak.zaakspecifiekGeautoriseerd / document.zaakspecifiekGeautoriseerd
 }
 zaak_allowed if {
-    zaakspecifiekAutorisatieBehandelaar.rol in user.rollen
+    zaakspecifiekGeautoriseerd.rol in user.rollen
 }
 ```
-Per the scope decision above, this gate is added only to the rule body/bodies that grant `raadpleger`,
-`behandelaar`, and/or `coordinator` a permission. The separate rule bodies that already grant
-`recordmanager`/`beheerder` a permission unconditionally are left completely untouched — no gate, no new
-role reference, no behaviour change.
+This gate is added only to the rule body/bodies that grant `raadpleger`, `behandelaar`, and/or `coordinator`
+a permission — their role sets themselves are **not** changed (see Decision 3). The separate rule bodies
+that already grant `recordmanager`/`beheerder` a permission unconditionally are left completely untouched —
+no gate, no new role reference, no behaviour change.
 
 Where a permission already has two separate `if` bodies today (e.g. `wijzigen`: one body for
 `{behandelaar, coordinator}` + `zaak.open`, a second body for `{recordmanager, beheerder}` unconditionally),
@@ -113,7 +120,7 @@ wijzigen if {
     zaaktype_allowed
     zaak.open
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 wijzigen if {
@@ -130,7 +137,7 @@ default lezen := false
 lezen if {
     zaaktype_allowed
     zaak_allowed
-    some role in {raadpleger, behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {raadpleger, behandelaar, coordinator}
     role.rol in user.rollen
 }
 lezen if {
@@ -145,9 +152,7 @@ are not touched at all.
 **Alternative considered**: gate every rule uniformly, including the `recordmanager`/`beheerder` bodies (with
 those two roles added to the gate's allow-list). Rejected per explicit scope direction: this change is not to
 specify or test `recordmanager`/`beheerder` behaviour for the zaakspecifiek geautoriseerde case at all — that
-is a follow-up story's concern. Leaving their rule bodies untouched keeps this change's diff scoped exactly to
-the `zaakspecifiek_autorisatie_behandelaar` role and avoids asserting anything (via new code or new tests)
-about the other two roles' interaction with this feature.
+is a follow-up story's concern.
 
 **Alternative considered**: only add the gate to `lezen`/`behandelen` (the two rights explicitly called out
 in the acceptance criteria). Rejected: the ticket is explicit that unauthorised employees may not see or
@@ -156,20 +161,47 @@ treat any right on such a zaak/taak/document ("mogen geen … kunnen zien of beh
 Gating every non-privileged rule body is also simpler to reason about and test than tracking which rules are
 gated.
 
-### 3. Grant `zaakspecifiek_autorisatie_behandelaar` behandelaar-equivalent rights explicitly
+### 3. `zaakspecifiek_geautoriseerd` is a flag, not a rights-bearing role — do not add it to any role set, and rename the PABC application role to match
 
-Wherever `behandelaar` appears in a role set in the three files, add `zaakspecifiekAutorisatieBehandelaar`
-alongside it (import it from `rollen.rego`, where the constant already exists but is currently unused). This
-directly implements the acceptance criterion that this role's rights equal behandelaar's (a superset of
-raadpleger's), granted explicitly rather than by relying on the user also separately holding `behandelaar` —
-consistent with the `application-role-permission-matrix` capability's existing no-hierarchy principle.
+Do **not** add `zaakspecifiekGeautoriseerd` to any `some role in {...}` set in any of the three policy files.
+The flag exists purely as the second branch of the `zaak_allowed` gate (Decision 2). A medewerker's actual
+rights on a zaakspecifiek geautoriseerde zaak come entirely from whichever normal role they separately hold
+for the zaaktype — matching the acceptance criteria: "wanneer een medewerker naast zijn normale applicatierol
+ook `zaakspecifiek_geautoriseerd` heeft, gelden de rechten van die normale rol ook voor zaakspecifiek
+geautoriseerde zaken van dat zaaktype." Combined with Decision 2, this gives exactly the intended matrix:
 
-Combined with Decision 2: a plain `behandelaar` (without the new role) fails `zaak_allowed` for
-a geautoriseerde zaak and is denied everywhere; a user who additionally holds
-`zaakspecifiek_autorisatie_behandelaar` both passes the gate and is present in every role set `behandelaar`
-is present in, so their effective rights on a geautoriseerde zaak equal a normal behandelaar's rights on a
-non-geautoriseerde zaak — matching the acceptance criteria exactly, and with no different behaviour on
-non-geautoriseerde zaken of that zaaktype (`zaak_allowed` is trivially true there).
+| Holds `zaakspecifiek_geautoriseerd`? | Holds a normal role (e.g. `behandelaar`)? | Rights on a geautoriseerde zaak |
+|---|---|---|
+| No | No | none (unchanged from today) |
+| No | Yes | none — `zaak_allowed` fails, denied |
+| Yes | No | none — the flag alone is in no role set |
+| Yes | Yes | the normal role's full rights — `zaak_allowed` passes, and the normal role is checked as usual |
+
+Rename the Rego role constant in `rollen.rego` from `zaakspecifiekAutorisatieBehandelaar` (role string
+`zaakspecifiek_autorisatie_behandelaar`) to `zaakspecifiekGeautoriseerd` (role string
+`zaakspecifiek_geautoriseerd`), and rename the corresponding PABC application role in
+`scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json` (the `applicationRoles[]`
+entry's `name` field) to match, so the role string PABC hands out to a logged-in user and the role string
+OPA checks for stay identical end-to-end. Keycloak's functional role and group names (e.g.
+`zaakspecifiek_autorisatie_behandelaar_test_1`) are left as-is: they are independent, free-text labels and do
+not need to match the ZAC application role string.
+
+Additionally, extend the PABC mapping for the "zaakspecifiek autorisatie behandelaars test 1" functional
+role (which grants `zaakspecifiek_geautoriseerd` for domain `domein_test_1`) with a second mapping entry
+that also grants it `behandelaar` for that same domain. Under the corrected flag model, a functional role
+that is meant to represent "the group of medewerkers who may treat zaakspecifiek geautoriseerde zaken of
+this domain" should be self-sufficient — granting both the normal role and the flag — rather than depending
+on the test user separately also being a member of the unrelated `/behandelaars-test-1` Keycloak group for
+its `behandelaar` grant. The itest fixture user's membership of `/behandelaars-test-1` is removed at the same time (leaving them only
+in `/zaakspecifiek_autorisatie_behandelaars_test_1`), so the itest suite genuinely exercises this new
+mapping for the `behandelaar` grant, rather than getting it "for free" from the unrelated group.
+
+**Alternative considered (the original design)**: explicitly grant `zaakspecifiek_geautoriseerd` the same
+rights as `behandelaar` by adding it to every role set `behandelaar` appears in. Superseded: the actual
+intended behaviour is that the flag extends whichever normal role the medewerker already holds, not that it
+independently grants a fixed set of behandelaar-equivalent rights of its own. Under the original design, a
+medewerker holding only the flag (no normal role) would incorrectly gain full behandelaar rights on
+geautoriseerde zaken; under the corrected design they correctly gain nothing.
 
 ### 4. No REST/frontend change for the "generic error on direct URL access" criterion
 
@@ -198,15 +230,23 @@ denied cases.
   `lezen`/`behandelen`-only change, but the Rego and Kotlin unit tests added by this change (one per
   permission per file, mirroring the existing `application-role-permission-matrix` test style) catch any rule
   that was missed, mis-split, or mis-gated.
+- [Renaming the PABC application role could desynchronise PABC and OPA if applied only on one side] →
+  mitigated by making the rename part of this same change: the Rego role string and the PABC
+  `applicationRoles[].name` value are updated together, and the itest suite (which authenticates as a real
+  Keycloak/PABC user and inspects the resulting `application roles per zaaktype` log line) exercises the
+  full round trip end to end.
 
 ## Migration Plan
 
-No data migration. Rollout is a normal backend deploy: the new Rego rules and `zaakspecifiekGeautoriseerd` input field
-ship together, are covered by `opa test` in CI, and take effect immediately since OPA policies are deployed
-fresh on ZAC startup. No existing zaken need be touched — a zaak only becomes subject to the new restriction
-if it already carries the `ZAAK_GEAUTORISEERD` zaakeigenschap, which today exists on exactly the one zaak
-created for INFO testomgeving testing (per the PZ-11909 Jira ticket) and any Docker Compose test fixture zaak
-set up the same way.
+No data migration. Rollout is a normal backend deploy: the new Rego rules, the renamed role, and the
+`zaakspecifiekGeautoriseerd` input field ship together, are covered by `opa test` in CI, and take effect
+immediately since OPA policies are deployed fresh on ZAC startup. The PABC seed data rename only affects the
+Docker Compose / INFO test environment's PABC database import; a production PABC environment would need the
+equivalent application role renamed there as a separate, environment-specific configuration step (out of
+scope for this code change). No existing zaken need be touched — a zaak only becomes subject to the new
+restriction if it already carries the `ZAAK_GEAUTORISEERD` zaakeigenschap, which today exists on exactly the
+one zaak created for INFO testomgeving testing (per the PZ-11909 Jira ticket) and any Docker Compose test
+fixture zaak set up the same way.
 
 ## Open Questions
 

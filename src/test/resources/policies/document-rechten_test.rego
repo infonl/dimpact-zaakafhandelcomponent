@@ -832,10 +832,10 @@ test_zaak_allowed_not_geautoriseerd if {
     zaak_allowed with input.document.zaakspecifiekGeautoriseerd as false
 }
 
-test_zaak_allowed_geautoriseerd_with_zaakspecifiek_autorisatie_behandelaar_role if {
+test_zaak_allowed_geautoriseerd_with_zaakspecifiek_geautoriseerd_role if {
     zaak_allowed
         with input.document.zaakspecifiekGeautoriseerd as true
-        with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+        with input.user.rollen as [ "zaakspecifiek_geautoriseerd" ]
 }
 
 test_zaak_allowed_geautoriseerd_without_role_fails if {
@@ -844,28 +844,36 @@ test_zaak_allowed_geautoriseerd_without_role_fails if {
         with input.user.rollen as [ "behandelaar" ]
 }
 
-test_lezen_geautoriseerd_behandelaar_fails if {
+test_lezen_geautoriseerd_behandelaar_without_flag_fails if {
     not lezen
         with input.document.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "behandelaar" ]
 }
 
-test_lezen_geautoriseerd_raadpleger_fails if {
+test_lezen_geautoriseerd_raadpleger_without_flag_fails if {
     not lezen
         with input.document.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "raadpleger" ]
 }
 
-test_lezen_geautoriseerd_coordinator_fails if {
+test_lezen_geautoriseerd_coordinator_without_flag_fails if {
     not lezen
         with input.document.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "coordinator" ]
 }
 
-test_lezen_geautoriseerd_zaakspecifiek_autorisatie_behandelaar if {
+# the zaakspecifiek_geautoriseerd role is a flag, not a rights-bearing role: held alone, without
+# also holding a normal application role such as behandelaar, it grants no rights at all
+test_lezen_geautoriseerd_flag_alone_fails if {
+    not lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "zaakspecifiek_geautoriseerd" ]
+}
+
+test_lezen_geautoriseerd_behandelaar_with_flag if {
     lezen
         with input.document.zaakspecifiekGeautoriseerd as true
-        with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+        with input.user.rollen as [ "behandelaar", "zaakspecifiek_geautoriseerd" ]
 }
 
 test_lezen_geautoriseerd_recordmanager_unaffected if {
@@ -880,16 +888,22 @@ test_lezen_geautoriseerd_beheerder_unaffected if {
         with input.user.rollen as [ "beheerder" ]
 }
 
-test_downloaden_geautoriseerd_behandelaar_fails if {
+test_downloaden_geautoriseerd_behandelaar_without_flag_fails if {
     not downloaden
         with input.document.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "behandelaar" ]
 }
 
-test_downloaden_geautoriseerd_zaakspecifiek_autorisatie_behandelaar if {
+test_downloaden_geautoriseerd_flag_alone_fails if {
+    not downloaden
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "zaakspecifiek_geautoriseerd" ]
+}
+
+test_downloaden_geautoriseerd_behandelaar_with_flag if {
     downloaden
         with input.document.zaakspecifiekGeautoriseerd as true
-        with input.user.rollen as [ "zaakspecifiek_autorisatie_behandelaar" ]
+        with input.user.rollen as [ "behandelaar", "zaakspecifiek_geautoriseerd" ]
 }
 
 test_downloaden_geautoriseerd_recordmanager_unaffected if {

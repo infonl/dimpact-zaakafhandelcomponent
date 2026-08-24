@@ -12,7 +12,7 @@ import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
-import data.net.atos.zac.rol.zaakspecifiekAutorisatieBehandelaar
+import data.net.atos.zac.rol.zaakspecifiekGeautoriseerd
 import input.user
 import input.document
 
@@ -42,15 +42,14 @@ zaaktype_allowed if {
 }
 
 # zaak_allowed guards access to a document of a zaakspecifiek geautoriseerde zaak: unrestricted for a
-# document whose zaak is not geautoriseerd, otherwise only for a user holding
-# zaakspecifiekAutorisatieBehandelaar. recordmanager/beheerder rule bodies below do not reference this rule -
-# their access to such a document is out of scope for this policy and is left unaffected.
+# document whose zaak is not zaakspecifiek geautoriseerd, otherwise only for a user holding the zaakspecifiek_geautoriseerd
+# application role
 default zaak_allowed := false
 zaak_allowed if {
     not document.zaakspecifiekGeautoriseerd
 }
 zaak_allowed if {
-    zaakspecifiekAutorisatieBehandelaar.rol in user.rollen
+    zaakspecifiekGeautoriseerd.rol in user.rollen
 }
 
 default onvergrendeld_of_vergrendeld_door_user := false
@@ -66,7 +65,7 @@ default lezen := false
 lezen if {
     zaaktype_allowed
     zaak_allowed
-    some role in {raadpleger, behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {raadpleger, behandelaar, coordinator}
     role.rol in user.rollen
 }
 lezen if {
@@ -82,7 +81,7 @@ wijzigen if {
     document.definitief == false
     onvergrendeld_of_vergrendeld_door_user == true
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 wijzigen if {
@@ -98,7 +97,7 @@ verwijderen if {
     document.definitief == false
     document.vergrendeld == false
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 verwijderen if {
@@ -112,7 +111,7 @@ vergrendelen if {
     zaaktype_allowed
     document.zaak_open == true
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 vergrendelen if {
@@ -127,7 +126,7 @@ ontgrendelen if {
     zaaktype_allowed
     document.vergrendeld_door == user.id
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 ontgrendelen if {
@@ -142,7 +141,7 @@ ondertekenen if {
     document.zaak_open == true
     onvergrendeld_of_vergrendeld_door_user == true
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 ondertekenen if {
@@ -160,7 +159,7 @@ toevoegen_nieuwe_versie if {
     document.definitief == false
     onvergrendeld_of_vergrendeld_door_user == true
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 toevoegen_nieuwe_versie if {
@@ -176,7 +175,7 @@ verplaatsen if {
     document.definitief == false
     onvergrendeld_of_vergrendeld_door_user == true
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 verplaatsen if {
@@ -192,7 +191,7 @@ ontkoppelen if {
     document.definitief == false
     onvergrendeld_of_vergrendeld_door_user == true
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 ontkoppelen if {
@@ -205,7 +204,7 @@ default downloaden := false
 downloaden if {
     zaaktype_allowed
     zaak_allowed
-    some role in {raadpleger, behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {raadpleger, behandelaar, coordinator}
     role.rol in user.rollen
 }
 downloaden if {
@@ -219,7 +218,7 @@ converteren if {
     document.definitief == true
     zaaktype_allowed
     zaak_allowed
-    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 converteren if {

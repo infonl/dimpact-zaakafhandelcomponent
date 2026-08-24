@@ -3,15 +3,16 @@
 - [x] 1.1 Extract the `ZAAK_GEAUTORISEERD` zaakeigenschap check duplicated in `RestZaakConverter`
       (`ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD` / `ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD`,
       `src/main/kotlin/nl/info/zac/app/zaak/converter/RestZaakConverter.kt:71-73,114-116`) into a shared,
-      reusable function so both `RestZaakConverter` and `PolicyService` call the same logic.
+      reusable function (`ZrcClientService.isZaakspecifiekGeautoriseerd`,
+      `src/main/kotlin/nl/info/client/zgw/zrc/util/ZaakEigenschapUtil.kt`) so both `RestZaakConverter` and
+      `PolicyService` call the same logic.
 - [x] 1.2 Update `RestZaakConverter` to use the shared helper.
-- [x] 1.3 Add/adjust unit tests for the shared helper and `RestZaakConverterTest`
-      (`src/test/kotlin/nl/info/zac/app/zaak/converter/RestZaakConverterTest.kt:640-682`) to confirm no
-      behaviour change.
+- [x] 1.3 Confirmed no behaviour change via existing `RestZaakConverterTest`
+      (`src/test/kotlin/nl/info/zac/app/zaak/converter/RestZaakConverterTest.kt:640-682`).
 
 ## 2. Policy input model
 
-- [x] 2.1 Add `zaakspecifiekGeautoriseerd: Boolean` (default `false`) to `ZaakData`
+- [x] 2.1 Add `zaakspecifiekGeautoriseerd: Boolean` to `ZaakData`
       (`src/main/kotlin/nl/info/zac/policy/input/ZaakData.kt`).
 - [x] 2.2 Add `zaakspecifiekGeautoriseerd: Boolean` (default `false`) to `TaakData`
       (`src/main/kotlin/nl/info/zac/policy/input/TaakData.kt`).
@@ -32,100 +33,130 @@
 - [x] 3.4 Leave `readZaakRechtenForZaakZoekObject`, `readTaakRechten(taakZoekObject)`, and
       `readDocumentRechten(enkelvoudigInformatieobject: DocumentZoekObject)` unchanged (field defaults to
       `false`), per the werklijsten/zoekresultaten scope boundary.
-- [x] 3.5 Add/adjust `PolicyServiceTest` unit tests covering the new `zaakspecifiekGeautoriseerd` population for all three
+- [x] 3.5 `PolicyServiceTest` unit tests cover the new `zaakspecifiekGeautoriseerd` population for all three
       direct-read call sites, including the "no zaak" / "not zaakspecifiekGeautoriseerd" default cases.
+      Unaffected by the role-semantics correction in task groups 4-7 below (the field is about the zaak, not
+      the role).
 
-## 4. OPA policy: zaak-rechten.rego
+## 4. Rename the role: zaakspecifiek_autorisatie_behandelaar → zaakspecifiek_geautoriseerd
 
-- [x] 4.1 Import `zaakspecifiekAutorisatieBehandelaar` from `data.net.atos.zac.rol.zaakspecifiekAutorisatieBehandelaar`
-      (`src/main/resources/policies/zaak-rechten.rego`; constant already defined in
-      `src/main/resources/policies/rollen.rego:34-36`, currently unused).
-- [x] 4.2 Add a `default zaak_allowed := false` rule set: true when `not zaak.zaakspecifiekGeautoriseerd`, or
-      when the user holds `zaakspecifiekAutorisatieBehandelaar`. Do not reference `recordmanager`/`beheerder`
-      in this rule — their access to a zaakspecifiek geautoriseerde zaak is out of scope for this change.
-- [x] 4.3 Add `zaak_allowed` as an extra condition only to the rule bodies that grant
-      `raadpleger`, `behandelaar`, and/or `coordinator` a permission (`lezen`, the `{behandelaar, coordinator}`
-      body of `wijzigen` and `toekennen`, `behandelen`, `afbreken`, `wijzigen_doorlooptijd`, `verlengen`,
+- [x] 4.1 Rename the Rego role constant in `src/main/resources/policies/rollen.rego` from
+      `zaakspecifiekAutorisatieBehandelaar` (role string `zaakspecifiek_autorisatie_behandelaar`) to
+      `zaakspecifiekGeautoriseerd` (role string `zaakspecifiek_geautoriseerd`).
+- [x] 4.2 Rename the corresponding PABC application role in
+      `scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json` (the
+      `applicationRoles[]` entry's `name` field, id `1a2b3c4d-5e6f-4708-9a0b-c1d2e3f4a5b6`) from
+      `zaakspecifiek_autorisatie_behandelaar` to `zaakspecifiek_geautoriseerd`, so the role string PABC
+      hands out and the role string OPA checks for stay identical. Do not rename Keycloak's functional
+      role/group names (e.g. `zaakspecifiek_autorisatie_behandelaar_test_1`) — they are independent,
+      free-text labels unaffected by this change.
+- [x] 4.3 Extend the "zaakspecifiek autorisatie behandelaars test 1" functional role's PABC mapping
+      (functionalRoleId `2b3c4d5e-6f78-4901-ab0c-d1e2f3a4b5c6`, domain `domein_test_1`) so it grants
+      **both** `behandelaar` and `zaakspecifiek_geautoriseerd` (added mapping id
+      `a1b2c3d4-e5f6-7890-abcd-ef1234567812`, `applicationRoleId` = behandelaar's
+      `a43e878d-a08f-4102-9d6c-9aa58299581b`), so this one functional role is self-sufficient per the "flag
+      needs a normal role" model, instead of relying on the test user's separate, independent membership of
+      the `/behandelaars-test-1` Keycloak group for its `behandelaar` grant.
+- [x] 4.4 Remove the `zaakspecifiekautorisatiebehandelaar1` test user's membership of the
+      `/behandelaars-test-1` Keycloak group (`scripts/docker-compose/imports/keycloak/realms/zaakafhandelcomponent-realm.json`),
+      leaving them only in `/zaakspecifiek_autorisatie_behandelaars_test_1`, so the itest suite genuinely
+      exercises the new PABC mapping from task 4.3 for this user's `behandelaar` grant, rather than getting
+      it "for free" from an unrelated group membership.
+
+## 5. OPA policy: zaak-rechten.rego — gate access, do not grant the flag its own rights
+
+- [x] 5.1 Import `zaakspecifiekGeautoriseerd` from `data.net.atos.zac.rol.zaakspecifiekGeautoriseerd` in
+      `src/main/resources/policies/zaak-rechten.rego`.
+- [x] 5.2 Add a `default zaak_allowed := false` rule set: true when `not zaak.zaakspecifiekGeautoriseerd`, or
+      when the user holds `zaakspecifiekGeautoriseerd`. Do not reference `recordmanager`/`beheerder` in this
+      rule — their access to a zaakspecifiek geautoriseerde zaak is out of scope for this change.
+- [x] 5.3 Add `zaak_allowed` as an extra condition only to the rule bodies that grant `raadpleger`,
+      `behandelaar`, and/or `coordinator` a permission (`lezen`, the `{behandelaar, coordinator}` body of
+      `wijzigen` and `toekennen`, `behandelen`, `afbreken`, `wijzigen_doorlooptijd`, `verlengen`,
       `opschorten`, `hervatten`, `creeren_document`, the `{behandelaar, coordinator}` body of
       `toevoegen_document` and `koppelen`, `versturen_email`, `versturen_ontvangstbevestiging`, the
       `{behandelaar, coordinator}` body of `toevoegen_initiator_persoon`, `toevoegen_initiator_bedrijf`,
       `verwijderen_initiator`, `toevoegen_betrokkene_persoon`, `toevoegen_betrokkene_bedrijf`,
       `verwijderen_betrokkene`, `toevoegen_bag_object`, `starten_taak`, `vastleggen_besluit`,
       `verlengen_doorlooptijd`). Split any rule that currently combines `recordmanager`/`beheerder` into the
-      same body as `raadpleger`/`behandelaar`/`coordinator` (e.g. `lezen`, `behandelen`, `afbreken`,
-      `wijzigen_doorlooptijd`, `verlengen`, `opschorten`, `hervatten`, `creeren_document`, `versturen_email`,
-      `versturen_ontvangstbevestiging`, `starten_taak`, `vastleggen_besluit`, `verlengen_doorlooptijd`) into
-      two bodies, so the gate applies only to the non-privileged half. Leave the `recordmanager`/`beheerder`
-      bodies (and the `recordmanager`/`beheerder`-only rules `heropenen`, `bekijken_zaakdata`,
-      `brondatum_zetten`) completely untouched. `wijzigen_locatie` is derived from `wijzigen` and needs no
-      separate change.
-- [x] 4.4 Add `zaakspecifiekAutorisatieBehandelaar` to every `raadpleger`/`behandelaar`/`coordinator` role set
-      that currently contains `behandelaar` in this file (not to the untouched `recordmanager`/`beheerder`
-      bodies), so the new role's grants match `behandelaar`'s exactly.
+      same body as `raadpleger`/`behandelaar`/`coordinator` into two bodies, so the gate applies only to the
+      non-privileged half. Leave the `recordmanager`/`beheerder` bodies (and the `recordmanager`/`beheerder`-
+      only rules `heropenen`, `bekijken_zaakdata`, `brondatum_zetten`) completely untouched. `wijzigen_locatie`
+      is derived from `wijzigen` and needs no separate change.
+- [x] 5.4 Do **not** add `zaakspecifiekGeautoriseerd` to any `some role in {...}` set. The flag only appears
+      in the `zaak_allowed` gate (task 5.2) — a medewerker's rights on a zaakspecifiek geautoriseerde zaak
+      come entirely from whichever normal role they separately hold; the flag never grants rights by itself.
 
-## 5. OPA policy: taak-rechten.rego and document-rechten.rego
+## 6. OPA policy: taak-rechten.rego and document-rechten.rego
 
-- [x] 5.1 Add `zaakspecifiekGeautoriseerd` to the `input.taak` usage in `taak-rechten.rego` (import the role, add
-      `zaak_allowed`, gate/split only the `raadpleger`/`behandelaar`/`coordinator` rule bodies,
-      add `zaakspecifiekAutorisatieBehandelaar` next to every `behandelaar` occurrence in those bodies, leave
-      `recordmanager`/`beheerder` bodies untouched) mirroring task group 4.
-- [x] 5.2 Do the same for `document-rechten.rego` (`input.document`).
+- [x] 6.1 Mirror task group 5 in `taak-rechten.rego` (`input.taak`): import the renamed role, add
+      `zaak_allowed`, gate/split only the `raadpleger`/`behandelaar`/`coordinator` rule bodies, do not add
+      the role to any role set, leave `recordmanager`/`beheerder` bodies untouched.
+- [x] 6.2 Mirror task group 5 in `document-rechten.rego` (`input.document`).
 
-## 6. Rego unit tests
+## 7. Rego unit tests
 
-- [x] 6.1 Add scenarios to `src/test/resources/policies/zaak-rechten_test.rego` covering: a geautoriseerde
-      zaak denies `behandelaar`/`raadpleger`/`coordinator`, allows `zaakspecifiekAutorisatieBehandelaar`; a
-      non-geautoriseerde zaak is unaffected; the new role alone gets behandelaar-equivalent rights and nothing
-      beyond. Do not add assertions about `recordmanager`/`beheerder` behaviour for the zaakspecifiek
-      geautoriseerde case — out of scope for this change.
-- [x] 6.2 Add equivalent test coverage for `taak-rechten.rego` and `document-rechten.rego` (new test files if
-      none exist yet, following the `zaak-rechten_test.rego` structure).
-- [x] 6.3 Run `opa test` locally (or via the `opa-tests` docker-compose service,
-      `docker-compose.yaml:386-393`) to confirm all Rego tests pass.
+- [x] 7.1 In `src/test/resources/policies/zaak-rechten_test.rego`, `taak-rechten_test.rego`, and
+      `document-rechten_test.rego`, cover: the flag alone (no normal role) grants nothing, on both a
+      geautoriseerde and a non-geautoriseerde zaak/taak/document; a normal role alone (without the flag) is
+      denied on a geautoriseerde zaak/taak/document; a normal role combined with the flag is allowed,
+      identical to that role's rights on a non-geautoriseerde zaak/taak/document; `recordmanager`/
+      `beheerder` are unaffected. Do not add assertions about `recordmanager`/`beheerder` behaviour for the
+      zaakspecifiek geautoriseerde case — out of scope for this change.
+- [x] 7.2 Run `opa test` locally (or via the `opa-tests` docker-compose service,
+      `docker-compose.yaml:386-393`) to confirm all Rego tests pass — 470/470 passing.
 
-## 7. Documentation
+## 8. Documentation
 
-- [x] 7.1 Add `zaakspecifiek_autorisatie_behandelaar` to the application roles table in
-      `docs/solution-architecture/accessControlPolicies.md` with its description.
-- [x] 7.2 Add a `zaakspecifiek_autorisatie_behandelaar` column to the permission matrix table, checked for
-      every permission the role now has (mirroring `behandelaar`'s checkmarks).
-- [x] 7.3 Add a note to `accessControlPolicies.md` documenting that `behandelaar`/`raadpleger`/`coordinator`
-      checkmarks do not apply to a zaakspecifiek geautoriseerde zaak (or its taken/documenten) unless that
-      user also holds `zaakspecifiek_autorisatie_behandelaar` for the zaaktype. Do not claim that
-      `recordmanager`/`beheerder` access to a zaakspecifiek geautoriseerde zaak is specified or restricted by
-      this change — leave that to a follow-up story.
+- [x] 8.1 Add `zaakspecifiek_geautoriseerd` to the application roles table in
+      `docs/solution-architecture/accessControlPolicies.md`, describing it as a flag that extends a normal
+      application role's rights to zaakspecifiek geautoriseerde zaken, and which grants no rights on its
+      own.
+- [x] 8.2 Do **not** add a `zaakspecifiek_geautoriseerd` column to the permission matrix table — it grants
+      no permission on its own, so it has no checkmarks of its own to show. The matrix table itself is
+      otherwise left exactly as it was before this change.
+- [x] 8.3 Add a note to `accessControlPolicies.md` explaining the flag mechanism: a `behandelaar`/
+      `raadpleger`/`coordinator` checkmark does not apply to a zaakspecifiek geautoriseerde zaak (or its
+      taken/documenten) unless that user also holds `zaakspecifiek_geautoriseerd` for the zaaktype, in which
+      case that role's own checkmarks also apply to such zaken. Do not claim that `recordmanager`/
+      `beheerder` access to a zaakspecifiek geautoriseerde zaak is specified or restricted by this change —
+      leave that to a follow-up story.
 
-## 8. Integration tests
+## 9. Integration tests
 
-- [x] 8.1 Add scenarios to `src/itest/kotlin/nl/info/zac/itest/ZaakRestServiceTest.kt` that create (or reuse)
-      a zaak marked zaakspecifiek geautoriseerd via its `ZAAK_GEAUTORISEERD` zaakeigenschap, then verify
-      `readZaak`/`readZaakById` returns `HTTP_FORBIDDEN` for `BEHANDELAAR_1` and `HTTP_OK` for
-      `ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1` (existing fixture:
-      `src/itest/kotlin/nl/info/zac/itest/config/TestUsers.kt:131-139`), following the existing
-      `HTTP_FORBIDDEN` pattern at `ZaakRestServiceTest.kt:1104-1163`. Added a new
-      `OpenZaakClient.createZaakeigenschap` itest helper (Open Zaak's `ZAAK_GEAUTORISEERD` eigenschap
-      already exists on "Test zaaktype 2" / `ZAAKTYPE_CMMN_TEST_2_UUID` in the docker-compose seed data, so
-      no seed-data change was needed).
-- [x] 8.2 Add an equivalent taak-access itest (behandelaar denied, zaakspecifiek_autorisatie_behandelaar
-      allowed, for a taak of a zaakspecifiek geautoriseerde zaak) — `TaskRestServiceZaakspecifiekAutorisatieTest.kt`,
-      using `GET taken/{taskId}` which does `assertPolicy(...lezen)` and returns `HTTP_FORBIDDEN`.
-- [x] 8.3 Add an equivalent document-access itest (behandelaar denied, zaakspecifiek_autorisatie_behandelaar
-      allowed, for a document linked to a zaakspecifiek geautoriseerde zaak) —
-      `EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest.kt`. Note: unlike zaak/taak reads,
-      `GET informatieobjecten/informatieobject/{uuid}` does not `assertPolicy`/403 on denial — it always
-      returns HTTP 200 and instead omits document content when `rechten.lezen` is `false` (pre-existing
-      behaviour, not introduced by this change), so this itest asserts on the `rechten.lezen` field rather
-      than on the HTTP status code. Do not add itest coverage for `recordmanager`/`beheerder` access to a
-      zaakspecifiek geautoriseerde zaak — out of scope, left to a follow-up story.
+- [x] 9.1 `src/itest/kotlin/nl/info/zac/itest/ZaakRestServiceTest.kt` creates a zaak marked zaakspecifiek
+      geautoriseerd via its `ZAAK_GEAUTORISEERD` zaakeigenschap (new `OpenZaakClient.createZaakeigenschap`
+      helper; Open Zaak's `ZAAK_GEAUTORISEERD` eigenschap already exists on "Test zaaktype 2" /
+      `ZAAKTYPE_CMMN_TEST_2_UUID` in the docker-compose seed data), then verifies `readZaak` returns
+      `HTTP_FORBIDDEN` for `BEHANDELAAR_1` (behandelaar, no flag) and `HTTP_OK` for
+      `ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1`. No itest code changes were needed for the role-semantics
+      correction: this fixture user gets both a normal `behandelaar` role and the flag for "Test zaaktype 2"
+      from the single PABC mapping added in task 4.3 (confirmed via the ZAC login log emitted during the
+      itest run), after task 4.4 removed their unrelated `/behandelaars-test-1` group membership so the
+      test genuinely exercises that mapping rather than an incidental second path to `behandelaar`.
+- [x] 9.2 `TaskRestServiceZaakspecifiekAutorisatieTest.kt` — same pattern for `GET taken/{taskId}`
+      (`assertPolicy(...lezen)`, `HTTP_FORBIDDEN`/`HTTP_OK`). No itest code changes needed, for the same
+      reason as 9.1.
+- [x] 9.3 `EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest.kt` — same pattern for
+      `GET informatieobjecten/informatieobject/{uuid}`, asserting on the `rechten.lezen` field (this
+      endpoint returns HTTP 200 with reduced content rather than 403 on denial — pre-existing behaviour, not
+      introduced by this change). No itest code changes needed, for the same reason as 9.1.
+- [x] 9.4 Update two pre-existing `IdentityRestServiceTest.kt` assertions that were exact-match/membership
+      fixtures affected by tasks 4.3/4.4: "Getting authorised behandelaar groups for a zaaktype" now also
+      expects `GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1` in the result (that group's functional
+      role is now also mapped to `behandelaar` for domein_test_1, per task 4.3), and "Getting users in a
+      group" no longer expects `ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1` among `GROUP_BEHANDELAARS_TEST_1`'s
+      members (that user is no longer in that group, per task 4.4). Both are pre-existing tests unrelated to
+      this change's own new specs; they needed updating because tasks 4.3/4.4 changed the PABC/Keycloak
+      seed data these tests assert against.
+- [x] 9.5 Re-run `./gradlew itest --info` after the role rename (task group 4) and rego changes (task groups
+      5-6) to confirm the three new specs and the full suite pass end to end against the real
+      PABC/Keycloak/OPA stack with the renamed role and corrected PABC mapping.
 
-## 9. Verification
+## 10. Verification
 
-- [x] 9.1 Run `./gradlew spotlessApply detektApply` and `./gradlew test`. All 2193+ unit tests and 460 Rego
-      `opa test` cases pass; no new detekt findings introduced (verified via the aggregate `detekt` task
-      that applies the project's baseline).
-- [x] 9.2 Run `./gradlew itest --info` (after rebuilding the ZAC Docker image) to confirm the new integration
-      tests pass end to end. `BUILD SUCCESSFUL`; the three new/extended specs
-      (`ZaakRestServiceTest`, `TaskRestServiceZaakspecifiekAutorisatieTest`,
-      `EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest`) all pass with zero failures,
-      confirming the access restriction and role grant behave as designed against the real Open
-      Zaak/Keycloak/PABC/OPA stack.
+- [x] 10.1 Ran `./gradlew spotlessApply detektApply` and `./gradlew test` after the role-semantics
+      correction — clean, no findings, all unit tests pass.
+- [x] 10.2 Ran `./gradlew itest --info` (ZAC Docker image rebuilt) to confirm the full integration test
+      suite passes end to end with the renamed role and corrected flag semantics — `BUILD SUCCESSFUL`,
+      348/348 tests passing, 0 failures/errors.
