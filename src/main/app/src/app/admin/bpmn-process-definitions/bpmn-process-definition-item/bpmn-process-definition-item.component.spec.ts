@@ -3,18 +3,14 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
-import { MatDialog } from "@angular/material/dialog";
-import { MatIconHarness } from "@angular/material/icon/testing";
-import { MatRowHarness } from "@angular/material/table/testing";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
+import { fireEvent, render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { from, of, throwError } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../../setupJest";
@@ -32,15 +28,12 @@ jest.mock("../file.helper", () => ({
 }));
 
 function makeFileList(...files: File[]): FileList {
-  return {
+  return fromPartial<FileList>({
     ...files,
     length: files.length,
     item: (index: number) => files[index] ?? null,
-  } as FileList;
+  });
 }
-
-const flushPromises = (): Promise<void> =>
-  new Promise<void>((resolve) => setTimeout(resolve));
 
 const zipBlob = new Blob(["fakeZipContent"]);
 
@@ -86,116 +79,127 @@ const baseProcessDefinition = fromPartial<
   },
 });
 
+type ProcessDefinitionDetails = NonNullable<
+  GeneratedType<"RestBpmnProcessDefinition">["details"]
+>;
+
+function withDetails(details: Partial<ProcessDefinitionDetails>) {
+  return fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
+    ...baseProcessDefinition,
+    details: { ...baseProcessDefinition.details, ...details },
+  });
+}
+
 describe(BpmnProcessDefinitionItemComponent.name, () => {
-  let fixture: ComponentFixture<BpmnProcessDefinitionItemComponent>;
-  let component: BpmnProcessDefinitionItemComponent;
-  let bpmnService: jest.Mocked<BpmnService>;
-  let utilService: jest.Mocked<UtilService>;
-  let foutAfhandelingService: jest.Mocked<FoutAfhandelingService>;
-  let dialogOpenSpy: jest.SpyInstance;
-  let loader: HarnessLoader;
+  let bpmnService: Pick<
+    BpmnService,
+    | "uploadProcessDefinitionForm"
+    | "deleteProcessDefinitionForm"
+    | "downloadProcessDefinition"
+  >;
+  let utilService: Pick<
+    UtilService,
+    "openSnackbar" | "openSnackbarError" | "downloadBlobResponse"
+  >;
+  let foutAfhandelingService: Pick<FoutAfhandelingService, "foutAfhandelen">;
+  let bpmnFormListChanged: jest.Mock;
   let deleteProcessDefinitionFormMutation: ReturnType<
     typeof createMutationOptions<
       object,
       { processDefinitionKey: string; name: string }
     >
   >;
+  let dialogOpen: jest.SpyInstance;
+  let container: HTMLElement;
+  let detectChanges: () => void;
 
-  beforeEach(async () => {
+  const user = userEvent.setup();
+
+  async function setup(processDefinition = baseProcessDefinition) {
+    const rendered = await render(BpmnProcessDefinitionItemComponent, {
+      inputs: { processDefinition },
+      on: { bpmnFormListChanged },
+      imports: [SharedModule, NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [
+        provideQueryClient(testQueryClient),
+        { provide: BpmnService, useValue: bpmnService },
+        { provide: UtilService, useValue: utilService },
+        { provide: FoutAfhandelingService, useValue: foutAfhandelingService },
+      ],
+    });
+    container = rendered.container;
+    detectChanges = () => rendered.detectChanges();
+    // the mat-table creates its row views in one pass and binds the cells in the next
+    rendered.detectChanges();
+  }
+
+  function fileInput() {
+    return container.querySelector<HTMLInputElement>('input[type="file"]')!;
+  }
+
+  function dropFiles(...files: File[]) {
+    fireEvent.drop(container.querySelector<HTMLElement>("[dropzone]")!, {
+      dataTransfer: { files: makeFileList(...files) },
+    });
+  }
+
+  function rowOf(formKey: string) {
+    return screen.getByRole("row", { name: new RegExp(formKey) });
+  }
+
+  function confirmNextDialog() {
+    dialogOpen.mockReturnValue(
+      fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(true) }),
+    );
+  }
+
+  beforeEach(() => {
+    // the component imports SharedModule, so it injects MatDialog from its own
+    // standalone injector rather than the one the TestBed hands out
+    dialogOpen = jest
+      .spyOn(MatDialog.prototype, "open")
+      .mockReturnValue(
+        fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
+      );
+    bpmnFormListChanged = jest.fn();
     deleteProcessDefinitionFormMutation = createMutationOptions<
       object,
       { processDefinitionKey: string; name: string }
     >({});
-
-    await TestBed.configureTestingModule({
-      imports: [
-        BpmnProcessDefinitionItemComponent,
-        SharedModule,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
-      providers: [
-        provideQueryClient(testQueryClient),
-        {
-          provide: BpmnService,
-          useValue: {
-            uploadProcessDefinitionForm: jest.fn().mockReturnValue(of(null)),
-            deleteProcessDefinitionForm: jest
-              .fn()
-              .mockReturnValue(deleteProcessDefinitionFormMutation),
-            downloadProcessDefinition: jest
-              .fn()
-              .mockReturnValue(of(zipResponse)),
-          },
-        },
-        {
-          provide: UtilService,
-          useValue: {
-            openSnackbar: jest.fn(),
-            openSnackbarError: jest.fn(),
-            downloadBlobResponse: jest.fn(),
-          },
-        },
-        {
-          provide: FoutAfhandelingService,
-          useValue: { foutAfhandelen: jest.fn() },
-        },
-      ],
-    }).compileComponents();
-
-    bpmnService = TestBed.inject(BpmnService) as jest.Mocked<BpmnService>;
-    utilService = TestBed.inject(UtilService) as jest.Mocked<UtilService>;
-    foutAfhandelingService = TestBed.inject(
-      FoutAfhandelingService,
-    ) as jest.Mocked<FoutAfhandelingService>;
-
-    fixture = TestBed.createComponent(BpmnProcessDefinitionItemComponent);
-    component = fixture.componentInstance;
-    fixture.componentRef.setInput("processDefinition", {
-      ...baseProcessDefinition,
-    });
-    fixture.detectChanges();
-    await fixture.whenStable();
-    loader = TestbedHarnessEnvironment.loader(fixture);
-
-    const internalDialog = (component as unknown as { dialog: MatDialog })
-      .dialog;
-    dialogOpenSpy = jest
-      .spyOn(internalDialog, "open")
-      .mockReturnValue({ afterClosed: () => of(false) } as never);
+    bpmnService = {
+      uploadProcessDefinitionForm: jest.fn().mockReturnValue(of(null)),
+      deleteProcessDefinitionForm: jest
+        .fn()
+        .mockReturnValue(deleteProcessDefinitionFormMutation),
+      downloadProcessDefinition: jest.fn().mockReturnValue(of(zipResponse)),
+    };
+    utilService = {
+      openSnackbar: jest.fn(),
+      openSnackbarError: jest.fn(),
+      downloadBlobResponse: jest.fn(),
+    };
+    foutAfhandelingService = { foutAfhandelen: jest.fn() };
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
     jest.useRealTimers();
   });
 
-  describe("process definition metadata", () => {
-    it("should display version and key", () => {
-      const text: string = fixture.nativeElement.textContent;
-      expect(text).toContain("2");
-      expect(text).toContain("test-key");
-    });
+  it("shows the version, key and documentation of the process definition", async () => {
+    await setup();
 
-    it("should display documentation", () => {
-      expect(fixture.nativeElement.textContent).toContain("Test documentation");
-    });
+    expect(screen.getByText("test-key")).toBeVisible();
+    expect(screen.getByText("Test documentation")).toBeVisible();
+    expect(
+      container.querySelector('zac-static-text[label="versie"]'),
+    ).toHaveTextContent("2");
   });
 
-  describe("downloadProcessDefinition", () => {
-    let downloadButton: HTMLButtonElement;
-
-    beforeEach(() => {
-      // let the mutation state reach the template without waiting for a batch
-      notifyManager.setScheduler((fn) => fn());
-      downloadButton = fixture.nativeElement.querySelector(
-        ".download-definition",
-      );
-    });
-
-    afterEach(() => {
-      notifyManager.setScheduler((fn) => setTimeout(fn, 0));
-    });
+  describe("downloading the process definition", () => {
+    const downloadButton = () =>
+      screen.getByRole("button", {
+        name: "bpmn.process-definition.card.details.button.download",
+      });
 
     describe("in a browser that can ask where to save a file", () => {
       let writableStream: { write: jest.Mock; close: jest.Mock };
@@ -213,9 +217,11 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         delete window.showSaveFilePicker;
       });
 
-      it("should write the zip to the file the user chose, under the suggested name of the version on screen", async () => {
-        downloadButton.click();
-        await flushPromises();
+      it("writes the zip to the file the user chose, under the suggested name of the version on screen", async () => {
+        await setup();
+
+        await user.click(downloadButton());
+        await sleep();
 
         expect(window.showSaveFilePicker).toHaveBeenCalledWith({
           suggestedName: "test-key-v2.zip",
@@ -226,7 +232,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         expect(utilService.downloadBlobResponse).not.toHaveBeenCalled();
       });
 
-      it("should ask where to save before requesting the zip, which outlives the user activation of the click", async () => {
+      it("asks where to save before requesting the zip, which outlives the user activation of the click", async () => {
         let chooseFile!: (fileHandle: FileSystemFileHandle) => void;
         window.showSaveFilePicker = jest.fn(
           () =>
@@ -234,14 +240,15 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
               chooseFile = resolve;
             }),
         );
+        await setup();
 
-        downloadButton.click();
-        await flushPromises();
+        await user.click(downloadButton());
+        await sleep();
 
         expect(bpmnService.downloadProcessDefinition).not.toHaveBeenCalled();
 
         chooseFile(fileHandle);
-        await flushPromises();
+        await sleep();
 
         expect(bpmnService.downloadProcessDefinition).toHaveBeenCalledWith(
           "test-key",
@@ -249,28 +256,30 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
         expect(writableStream.write).toHaveBeenCalledWith(zipBlob);
       });
 
-      it("should request nothing and report nothing when the user closes the dialog", async () => {
+      it("requests nothing and reports nothing when the user closes the dialog", async () => {
         window.showSaveFilePicker = jest
           .fn()
           .mockRejectedValue(
             new DOMException("fakeAbortMessage", "AbortError"),
           );
+        await setup();
 
-        downloadButton.click();
-        await flushPromises();
+        await user.click(downloadButton());
+        await sleep();
 
         expect(bpmnService.downloadProcessDefinition).not.toHaveBeenCalled();
         expect(utilService.openSnackbarError).not.toHaveBeenCalled();
         expect(utilService.downloadBlobResponse).not.toHaveBeenCalled();
       });
 
-      it("should report a failure of the request as any other", async () => {
-        bpmnService.downloadProcessDefinition.mockReturnValue(
+      it("reports a failure of the request as any other", async () => {
+        (bpmnService.downloadProcessDefinition as jest.Mock).mockReturnValue(
           throwError(() => new Error("fakeDownloadFailure")),
         );
+        await setup();
 
-        downloadButton.click();
-        await flushPromises();
+        await user.click(downloadButton());
+        await sleep();
 
         expect(utilService.openSnackbarError).toHaveBeenCalledWith(
           "msg.error.bpmn.process.definition.download.failed",
@@ -279,9 +288,11 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       });
     });
 
-    it("should name the zip after the Content-Disposition of the response", async () => {
-      downloadButton.click();
-      await flushPromises();
+    it("names the zip after the Content-Disposition of the response", async () => {
+      await setup();
+
+      await user.click(downloadButton());
+      await sleep();
 
       expect(bpmnService.downloadProcessDefinition).toHaveBeenCalledWith(
         "test-key",
@@ -292,13 +303,14 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       );
     });
 
-    it("should fall back to the process definition key when the response has no filename", async () => {
-      bpmnService.downloadProcessDefinition.mockReturnValue(
+    it("falls back to the process definition key when the response has no filename", async () => {
+      (bpmnService.downloadProcessDefinition as jest.Mock).mockReturnValue(
         of(new HttpResponse({ body: zipBlob })),
       );
+      await setup();
 
-      downloadButton.click();
-      await flushPromises();
+      await user.click(downloadButton());
+      await sleep();
 
       expect(utilService.downloadBlobResponse).toHaveBeenCalledWith(
         zipBlob,
@@ -306,13 +318,14 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       );
     });
 
-    it("should show an error message and download nothing when the request fails", async () => {
-      bpmnService.downloadProcessDefinition.mockReturnValue(
+    it("shows an error message and downloads nothing when the request fails", async () => {
+      (bpmnService.downloadProcessDefinition as jest.Mock).mockReturnValue(
         throwError(() => new Error("fakeDownloadFailure")),
       );
+      await setup();
 
-      downloadButton.click();
-      await flushPromises();
+      await user.click(downloadButton());
+      await sleep();
 
       expect(utilService.openSnackbarError).toHaveBeenCalledWith(
         "msg.error.bpmn.process.definition.download.failed",
@@ -320,417 +333,319 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       expect(utilService.downloadBlobResponse).not.toHaveBeenCalled();
     });
 
-    it("should disable the button while the download is running", async () => {
-      let resolveDownload!: (response: HttpResponse<Blob>) => void;
-      bpmnService.downloadProcessDefinition.mockReturnValue(
-        from(
-          new Promise<HttpResponse<Blob>>((resolve) => {
-            resolveDownload = resolve;
-          }),
-        ),
-      );
+    it("disables the button while the download is running", async () => {
+      // let the mutation state reach the template without waiting for a batch
+      notifyManager.setScheduler((fn) => fn());
+      try {
+        let resolveDownload!: (response: HttpResponse<Blob>) => void;
+        (bpmnService.downloadProcessDefinition as jest.Mock).mockReturnValue(
+          from(
+            new Promise<HttpResponse<Blob>>((resolve) => {
+              resolveDownload = resolve;
+            }),
+          ),
+        );
+        await setup();
 
-      downloadButton.click();
-      await flushPromises();
-      fixture.detectChanges();
+        await user.click(downloadButton());
+        await sleep();
+        detectChanges();
 
-      expect(downloadButton.disabled).toBe(true);
+        expect(downloadButton()).toBeDisabled();
 
-      resolveDownload(new HttpResponse({ body: zipBlob }));
-      await flushPromises();
-      fixture.detectChanges();
+        resolveDownload(new HttpResponse({ body: zipBlob }));
+        await sleep();
+        detectChanges();
 
-      expect(downloadButton.disabled).toBe(false);
+        expect(downloadButton()).toBeEnabled();
+      } finally {
+        notifyManager.setScheduler((fn) => setTimeout(fn, 0));
+      }
     });
   });
 
-  describe("inUse indicator", () => {
-    it("should not show inUse message when inUse is false", async () => {
-      const inUseSpans = await loader.getAllHarnesses(
-        MatIconHarness.with({
-          selector: "div.explanation mat-icon[color=primary]",
-        }),
-      );
-      expect(inUseSpans.length).toBe(0);
-    });
+  it("tells the user when the process definition is in use", async () => {
+    await setup(withDetails({ inUse: true }));
 
-    it("should show inUse message when inUse is true", async () => {
-      fixture.componentRef.setInput(
-        "processDefinition",
-        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-          ...baseProcessDefinition,
-          details: { ...baseProcessDefinition.details, inUse: true },
-        }),
-      );
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const inUseIcon = fixture.nativeElement.querySelector(
-        "div.explanation mat-icon[color=primary]",
-      );
-      expect(inUseIcon).not.toBeNull();
-    });
+    expect(
+      screen.getByText("bpmn.process-definition.card.details.in-use"),
+    ).toBeVisible();
   });
 
-  describe("missing forms warning", () => {
-    it("should show warning icon when there are missing forms", async () => {
-      const warnIcons = await loader.getAllHarnesses(
-        MatIconHarness.with({ selector: 'mat-icon[color="warn"]' }),
-      );
-      expect(warnIcons.length).toBeGreaterThan(0);
-    });
+  it("says nothing about being in use when it is not", async () => {
+    await setup();
 
-    it("should not show header warning when all forms are uploaded", async () => {
-      fixture.componentRef.setInput(
-        "processDefinition",
-        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-          ...baseProcessDefinition,
-          details: {
-            ...baseProcessDefinition.details,
-            forms: [uploadedForm],
-          },
-        }),
-      );
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const warnIconsInHeader = await loader.getAllHarnesses(
-        MatIconHarness.with({
-          selector: '.explanation mat-icon[color="warn"]',
-        }),
-      );
-      expect(warnIconsInHeader.length).toBe(0);
-    });
+    expect(
+      screen.queryByText("bpmn.process-definition.card.details.in-use"),
+    ).not.toBeInTheDocument();
   });
 
-  describe("forms table", () => {
-    it("should render a row for each form", async () => {
-      const rows = await loader.getAllHarnesses(MatRowHarness);
-      expect(rows.length).toBe(2);
-    });
+  it("warns when not every task form has been uploaded", async () => {
+    await setup();
 
-    it("should show check_circle icon for uploaded forms", async () => {
-      const checkIcons = await loader.getAllHarnesses(
-        MatIconHarness.with({ selector: 'mat-icon[color="primary"]' }),
-      );
-      expect(checkIcons.length).toBeGreaterThan(0);
-    });
-
-    it("should show empty-state message when there are no forms", async () => {
-      fixture.componentRef.setInput(
-        "processDefinition",
-        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-          ...baseProcessDefinition,
-          details: { ...baseProcessDefinition.details, forms: [] },
-        }),
-      );
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      expect(fixture.nativeElement.textContent).toContain(
-        "msg.geen.gegevens.gevonden",
-      );
-    });
-
-    it("should render no rows when there are no forms", async () => {
-      fixture.componentRef.setInput(
-        "processDefinition",
-        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-          ...baseProcessDefinition,
-          details: { ...baseProcessDefinition.details, forms: [] },
-        }),
-      );
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const rows = await loader.getAllHarnesses(MatRowHarness);
-      expect(rows.length).toBe(0);
-    });
-
-    it("should disable the delete button when inUse is true", async () => {
-      fixture.componentRef.setInput(
-        "processDefinition",
-        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-          ...baseProcessDefinition,
-          details: { ...baseProcessDefinition.details, inUse: true },
-        }),
-      );
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const deleteBtn: HTMLButtonElement =
-        fixture.nativeElement.querySelector("button#delete");
-      expect(deleteBtn.disabled).toBe(true);
-    });
-
-    it("should enable the delete button when inUse is false", () => {
-      const deleteBtn: HTMLButtonElement =
-        fixture.nativeElement.querySelector("button#delete");
-      expect(deleteBtn.disabled).toBe(false);
-    });
-
-    it("should only render a delete button for uploaded forms", async () => {
-      const deleteButtons = await loader.getAllHarnesses(
-        MatButtonHarness.with({ selector: "button#delete" }),
-      );
-      // Only the one uploaded form should have a delete button
-      expect(deleteButtons.length).toBe(1);
-    });
+    expect(
+      screen.getByText("bpmn.process-definition.card.task-forms.title.tooltip"),
+    ).toBeVisible();
   });
 
-  describe("uploadBpmnForm", () => {
-    it("should trigger a click on the hidden file input", () => {
-      const fileInput: HTMLInputElement =
-        fixture.nativeElement.querySelector('input[type="file"]');
-      const clickSpy = jest.spyOn(fileInput, "click");
+  it("does not warn when every task form has been uploaded", async () => {
+    await setup(withDetails({ forms: [uploadedForm] }));
 
-      component["uploadBpmnForm"]();
-
-      expect(clickSpy).toHaveBeenCalled();
-    });
+    expect(
+      screen.queryByText(
+        "bpmn.process-definition.card.task-forms.title.tooltip",
+      ),
+    ).not.toBeInTheDocument();
   });
 
-  describe("bpmnFormFileSelected", () => {
-    it("should do nothing when no file is provided", () => {
-      const event = {
-        target: { files: [] },
-      } as unknown as Event;
+  it("shows a row per task form and marks the uploaded ones", async () => {
+    await setup();
 
-      component["bpmnFormFileSelected"](event);
-
-      expect(bpmnService.uploadProcessDefinitionForm).not.toHaveBeenCalled();
-    });
-
-    it("should upload file content and emit bpmnFormListChanged on success", async () => {
-      jest.useFakeTimers();
-      const fileContent = '{"form": true}';
-      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
-
-      const file = new File([fileContent], "test-form.json", {
-        type: "application/json",
-      });
-      const event = {
-        target: { files: [file] },
-      } as unknown as Event;
-      const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
-
-      component["bpmnFormFileSelected"](event);
-      await Promise.resolve(); // readFileContent.then
-      await Promise.resolve(); // Promise.all resolves
-      await Promise.resolve(); // outer .then → forkJoin subscribes
-
-      expect(readFileContent).toHaveBeenCalledWith(file);
-      expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
-        "test-key",
-        { filename: "test-form.json", content: fileContent },
-      );
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn.task-forms.upload.success",
-        { namen: "test-form.json" },
-      );
-      jest.runAllTimers();
-      expect(emitSpy).toHaveBeenCalled();
-    });
-
-    it("should call foutAfhandelingService when readFileContent rejects", async () => {
-      const error = new Error("read error");
-      (readFileContent as jest.Mock).mockRejectedValue(error);
-
-      const file = new File(["bad"], "bad.json");
-      const event = {
-        target: { files: [file] },
-      } as unknown as Event;
-
-      component["bpmnFormFileSelected"](event);
-      await flushPromises();
-
-      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
-    });
+    expect(
+      within(rowOf("form-uploaded")).getByText("check_circle"),
+    ).toBeVisible();
+    expect(within(rowOf("form-missing")).getByText("error")).toBeVisible();
   });
 
-  describe("bpmnFormFilesDropped", () => {
-    it("should do nothing when FileList is empty", () => {
-      const fileList = makeFileList();
+  it("shows an empty message when there are no task forms", async () => {
+    await setup(withDetails({ forms: [] }));
 
-      component["bpmnFormFilesDropped"](fileList);
-
-      expect(bpmnService.uploadProcessDefinitionForm).not.toHaveBeenCalled();
-    });
-
-    it("should ignore non-json files", () => {
-      const file = new File(["<bpmn/>"], "process.bpmn");
-      const fileList = makeFileList(file);
-
-      component["bpmnFormFilesDropped"](fileList);
-
-      expect(bpmnService.uploadProcessDefinitionForm).not.toHaveBeenCalled();
-    });
-
-    it("should accept .JSON files (case-insensitive)", async () => {
-      const fileContent = '{"form": true}';
-      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
-
-      const file = new File([fileContent], "form.JSON");
-      const fileList = makeFileList(file);
-
-      jest.useFakeTimers();
-      component["bpmnFormFilesDropped"](fileList);
-      await Promise.resolve(); // readFileContent.then
-      await Promise.resolve(); // Promise.all resolves
-      await Promise.resolve(); // outer .then → forkJoin subscribes
-
-      expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
-        "test-key",
-        { filename: "form.JSON", content: fileContent },
-      );
-    });
-
-    it("should upload dropped files and emit bpmnFormListChanged on success", async () => {
-      jest.useFakeTimers();
-      const fileContent = '{"form": true}';
-      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
-
-      const file = new File([fileContent], "dropped-form.json", {
-        type: "application/json",
-      });
-      const fileList = makeFileList(file);
-      const emitSpy = jest.spyOn(component.bpmnFormListChanged, "emit");
-
-      component["bpmnFormFilesDropped"](fileList);
-      await Promise.resolve(); // readFileContent.then
-      await Promise.resolve(); // Promise.all resolves
-      await Promise.resolve(); // outer .then → forkJoin subscribes
-
-      expect(readFileContent).toHaveBeenCalledWith(file);
-      expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
-        "test-key",
-        { filename: "dropped-form.json", content: fileContent },
-      );
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn.task-forms.upload.success",
-        { namen: "dropped-form.json" },
-      );
-      jest.runAllTimers();
-      expect(emitSpy).toHaveBeenCalled();
-    });
-
-    it("should call foutAfhandelingService when readFileContent rejects", async () => {
-      const error = new Error("read error");
-      (readFileContent as jest.Mock).mockRejectedValue(error);
-
-      const file = new File(["bad"], "bad.json");
-      const fileList = makeFileList(file);
-
-      component["bpmnFormFilesDropped"](fileList);
-      await flushPromises();
-
-      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
-    });
+    expect(screen.queryAllByRole("row", { name: /form-/ })).toHaveLength(0);
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
   });
 
-  describe("deleteBpmnForm", () => {
-    it("should open a confirm dialog with the correct translation key and form name", () => {
-      component["deleteBpmnForm"]("form-uploaded");
+  it("only offers to delete task forms that have been uploaded", async () => {
+    await setup();
 
-      const dialogData = dialogOpenSpy.mock.calls[0][1].data;
-      expect(dialogData._melding.key).toBe(
-        "msg.bpmn.task-forms.delete.confirm",
-      );
-      expect(dialogData._melding.args).toEqual({ naam: "form-uploaded" });
-    });
-
-    it("should call deleteProcessDefinitionForm with the process key and form name when confirmed", async () => {
-      dialogOpenSpy.mockReturnValue({ afterClosed: () => of(true) } as never);
-
-      component["deleteBpmnForm"]("form-uploaded");
-      await sleep();
-
-      expect(
-        deleteProcessDefinitionFormMutation.mutationFn,
-      ).toHaveBeenCalledWith(
-        { processDefinitionKey: "test-key", name: "form-uploaded" },
-        expect.anything(),
-      );
-    });
-
-    it("should show snackbar when dialog is confirmed", async () => {
-      dialogOpenSpy.mockReturnValue({ afterClosed: () => of(true) } as never);
-
-      component["deleteBpmnForm"]("form-uploaded");
-      await sleep();
-
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn.task-forms.deleted",
-        { namen: "form-uploaded" },
-      );
-    });
-
-    it("should not show snackbar when dialog is cancelled", () => {
-      component["deleteBpmnForm"]("form-uploaded");
-
-      expect(utilService.openSnackbar).not.toHaveBeenCalled();
-    });
+    expect(
+      within(rowOf("form-uploaded")).getByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    ).toBeEnabled();
+    expect(
+      within(rowOf("form-missing")).queryByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    ).not.toBeInTheDocument();
   });
 
-  describe("deleteAllOrphanedForms", () => {
-    beforeEach(() => {
-      fixture.componentRef.setInput(
-        "processDefinition",
-        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-          ...baseProcessDefinition,
-          details: {
-            ...baseProcessDefinition.details,
-            orphanedForms: [orphanedForm],
-          },
-        }),
-      );
-      fixture.detectChanges();
-    });
+  it("does not allow deleting task forms of a process definition that is in use", async () => {
+    await setup(withDetails({ inUse: true }));
 
-    it("should call deleteProcessDefinitionForm for each orphaned form", async () => {
-      component["deleteAllOrphanedForms"]();
-      await sleep();
-
-      expect(
-        deleteProcessDefinitionFormMutation.mutationFn,
-      ).toHaveBeenCalledWith(
-        { processDefinitionKey: "test-key", name: "form-orphaned" },
-        expect.anything(),
-      );
-    });
-
-    it("should show one snackbar naming every deleted form", async () => {
-      component["deleteAllOrphanedForms"]();
-      await sleep();
-
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn.task-forms.deleted",
-        { namen: "form-orphaned" },
-      );
-    });
+    expect(
+      within(rowOf("form-uploaded")).getByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    ).toBeDisabled();
   });
 
-  describe("orphaned forms section", () => {
-    it("should not render the orphaned forms section when the list is empty", () => {
-      const chipSet = fixture.nativeElement.querySelector("mat-chip-set");
-      expect(chipSet).toBeNull();
+  it("opens the file picker from the upload button", async () => {
+    await setup();
+    const click = jest.spyOn(fileInput(), "click");
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "bpmn.process-definition.task-forms.button.upload.title",
+      }),
+    );
+
+    expect(click).toHaveBeenCalled();
+  });
+
+  it("uploads the chosen task form and announces it", async () => {
+    jest.useFakeTimers();
+    const fileContent = '{"form": true}';
+    (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+    await setup();
+
+    fireEvent.change(fileInput(), {
+      target: { files: [new File([fileContent], "test-form.json")] },
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
+      "test-key",
+      { filename: "test-form.json", content: fileContent },
+    );
+    expect(utilService.openSnackbar).toHaveBeenCalledWith(
+      "msg.bpmn.task-forms.upload.success",
+      { namen: "test-form.json" },
+    );
+
+    jest.runAllTimers();
+    expect(bpmnFormListChanged).toHaveBeenCalled();
+  });
+
+  it("lets the same task form be chosen again after uploading it", async () => {
+    (readFileContent as jest.Mock).mockResolvedValue("{}");
+    await setup();
+
+    fireEvent.change(fileInput(), {
+      target: { files: [new File(["{}"], "test-form.json")] },
     });
 
-    it("should render a chip for each orphaned form", async () => {
-      fixture.componentRef.setInput(
-        "processDefinition",
-        fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-          ...baseProcessDefinition,
-          details: {
-            ...baseProcessDefinition.details,
-            orphanedForms: [orphanedForm],
-          },
-        }),
-      );
-      fixture.detectChanges();
-      await fixture.whenStable();
+    expect(fileInput().value).toBe("");
+  });
 
-      expect(fixture.nativeElement.textContent).toContain("form-orphaned");
+  it("reports a task form that cannot be read", async () => {
+    const error = new Error("read error");
+    (readFileContent as jest.Mock).mockRejectedValue(error);
+    await setup();
+
+    fireEvent.change(fileInput(), {
+      target: { files: [new File(["bad"], "bad.json")] },
     });
+    await sleep();
+
+    expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
+  });
+
+  it("uploads dropped task forms and announces them", async () => {
+    jest.useFakeTimers();
+    const fileContent = '{"form": true}';
+    (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+    await setup();
+
+    dropFiles(new File([fileContent], "dropped-form.json"));
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
+      "test-key",
+      { filename: "dropped-form.json", content: fileContent },
+    );
+    expect(utilService.openSnackbar).toHaveBeenCalledWith(
+      "msg.bpmn.task-forms.upload.success",
+      { namen: "dropped-form.json" },
+    );
+
+    jest.runAllTimers();
+    expect(bpmnFormListChanged).toHaveBeenCalled();
+  });
+
+  it("accepts a dropped task form whose extension is upper case", async () => {
+    const fileContent = '{"form": true}';
+    (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+    await setup();
+
+    dropFiles(new File([fileContent], "form.JSON"));
+    await sleep();
+
+    expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
+      "test-key",
+      { filename: "form.JSON", content: fileContent },
+    );
+  });
+
+  it("ignores dropped files that are not task forms", async () => {
+    await setup();
+
+    dropFiles(new File(["<bpmn/>"], "process.bpmn"));
+    await sleep();
+
+    expect(bpmnService.uploadProcessDefinitionForm).not.toHaveBeenCalled();
+  });
+
+  it("reports a dropped task form that cannot be read", async () => {
+    const error = new Error("read error");
+    (readFileContent as jest.Mock).mockRejectedValue(error);
+    await setup();
+
+    dropFiles(new File(["bad"], "bad.json"));
+    await sleep();
+
+    expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
+  });
+
+  it("asks for confirmation naming the task form to delete", async () => {
+    await setup();
+
+    await user.click(
+      within(rowOf("form-uploaded")).getByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    );
+
+    const dialogData = dialogOpen.mock.calls[0][1].data;
+    expect(dialogData._melding.key).toBe("msg.bpmn.task-forms.delete.confirm");
+    expect(dialogData._melding.args).toEqual({ naam: "form-uploaded" });
+  });
+
+  it("deletes the task form and announces it once confirmed", async () => {
+    await setup();
+    confirmNextDialog();
+
+    await user.click(
+      within(rowOf("form-uploaded")).getByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    );
+    await sleep();
+
+    expect(deleteProcessDefinitionFormMutation.mutationFn).toHaveBeenCalledWith(
+      { processDefinitionKey: "test-key", name: "form-uploaded" },
+      expect.anything(),
+    );
+    expect(utilService.openSnackbar).toHaveBeenCalledWith(
+      "msg.bpmn.task-forms.deleted",
+      { namen: "form-uploaded" },
+    );
+  });
+
+  it("keeps the task form when the confirmation is cancelled", async () => {
+    await setup();
+
+    await user.click(
+      within(rowOf("form-uploaded")).getByRole("button", {
+        name: "actie.verwijderen",
+      }),
+    );
+    await sleep();
+
+    expect(
+      deleteProcessDefinitionFormMutation.mutationFn,
+    ).not.toHaveBeenCalled();
+    expect(utilService.openSnackbar).not.toHaveBeenCalled();
+  });
+
+  it("does not show the orphaned forms section when there are none", async () => {
+    await setup();
+
+    expect(
+      screen.queryByText(
+        "bpmn.process-definition.card.task-forms.orphaned.title",
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it("deletes every orphaned form and announces them in one message", async () => {
+    await setup(withDetails({ orphanedForms: [orphanedForm] }));
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "bpmn.process-definition.card.task-forms.orphaned.title",
+      }),
+    );
+
+    expect(screen.getByText("form-orphaned")).toBeVisible();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "bpmn.process-definition.task-forms.orphaned.button.delete.title",
+      }),
+    );
+    await sleep();
+
+    expect(deleteProcessDefinitionFormMutation.mutationFn).toHaveBeenCalledWith(
+      { processDefinitionKey: "test-key", name: "form-orphaned" },
+      expect.anything(),
+    );
+    expect(utilService.openSnackbar).toHaveBeenCalledWith(
+      "msg.bpmn.task-forms.deleted",
+      { namen: "form-orphaned" },
+    );
   });
 });

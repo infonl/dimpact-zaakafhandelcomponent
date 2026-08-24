@@ -3,246 +3,205 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatCheckboxHarness } from "@angular/material/checkbox/testing";
-import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of, Subject } from "rxjs";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+import { fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { SignaleringenSettingsService } from "../signaleringen-settings.service";
 import { SignaleringenSettingsComponent } from "./signaleringen-settings.component";
 
-const makeInstelling = (
-  fields: Partial<GeneratedType<"RestSignaleringInstellingen">> = {},
-): GeneratedType<"RestSignaleringInstellingen"> =>
-  ({
-    id: 1,
-    type: "ZAAK_OP_NAAM",
-    subjecttype: "ZAAK",
-    dashboard: false,
-    mail: false,
-    ...fields,
-  }) as Partial<
-    GeneratedType<"RestSignaleringInstellingen">
-  > as unknown as GeneratedType<"RestSignaleringInstellingen">;
+const INSTELLINGEN_URL = "/rest/signaleringen/instellingen";
+
+const zaakOpNaam = fromPartial<GeneratedType<"RestSignaleringInstellingen">>({
+  id: 1,
+  type: "ZAAK_OP_NAAM",
+  subjecttype: "ZAAK",
+  dashboard: false,
+  mail: false,
+});
 
 describe(SignaleringenSettingsComponent.name, () => {
   let fixture: ComponentFixture<SignaleringenSettingsComponent>;
-  let loader: HarnessLoader;
-  let component: SignaleringenSettingsComponent;
-  let utilService: UtilService;
-  let signaleringenService: SignaleringenSettingsService;
-  let listSubject: Subject<GeneratedType<"RestSignaleringInstellingen">[]>;
+  let httpTestingController: HttpTestingController;
 
-  beforeEach(async () => {
-    listSubject = new Subject();
-
-    await TestBed.configureTestingModule({
-      imports: [
-        SignaleringenSettingsComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
-      providers: [provideHttpClient(), provideRouter([])],
-    }).compileComponents();
-
-    utilService = TestBed.inject(UtilService);
-    signaleringenService = TestBed.inject(SignaleringenSettingsService);
-
-    jest.spyOn(utilService, "setTitle").mockImplementation(() => {});
-    jest.spyOn(utilService, "setLoading").mockImplementation(() => {});
-    jest
-      .spyOn(signaleringenService, "list")
-      .mockReturnValue(listSubject.asObservable() as never);
-    jest
-      .spyOn(signaleringenService, "put")
-      .mockReturnValue(of(makeInstelling()) as never);
-
-    fixture = TestBed.createComponent(SignaleringenSettingsComponent);
-    component = fixture.componentInstance;
-    loader = TestbedHarnessEnvironment.loader(fixture);
-    fixture.detectChanges();
+  const utilService = fromPartial<UtilService>({
+    setTitle: jest.fn(),
+    setLoading: jest.fn(),
   });
 
-  it("calls setTitle with signaleringen settings key on init", () => {
+  const user = userEvent.setup();
+
+  async function renderComponent() {
+    const rendered = await render(SignaleringenSettingsComponent, {
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
+        { provide: UtilService, useValue: utilService },
+      ],
+    });
+
+    fixture = rendered.fixture;
+    httpTestingController = TestBed.inject(HttpTestingController);
+  }
+
+  async function respondWith(
+    instellingen: GeneratedType<"RestSignaleringInstellingen">[],
+  ) {
+    httpTestingController.expectOne(INSTELLINGEN_URL).flush(instellingen);
+    await sleep();
+    fixture.detectChanges();
+  }
+
+  function tableWrapper() {
+    return fixture.nativeElement.querySelector(".table-wrapper") as HTMLElement;
+  }
+
+  function checkbox(name: string) {
+    return screen.getByRole("checkbox", { name });
+  }
+
+  it("sets the page title", async () => {
+    await renderComponent();
+    await respondWith([]);
+
     expect(utilService.setTitle).toHaveBeenCalledWith(
       "title.signaleringen.settings",
     );
   });
 
-  it("calls service.list on init", () => {
-    expect(signaleringenService.list).toHaveBeenCalled();
+  it("shades the table while the settings are still loading", async () => {
+    await renderComponent();
+
+    expect(tableWrapper()).toHaveClass("table-loading-shade");
+
+    await respondWith([]);
+
+    expect(tableWrapper()).not.toHaveClass("table-loading-shade");
   });
 
-  it("shows loading shade while data is loading", () => {
-    const wrapper = fixture.debugElement.query(By.css(".table-wrapper"))
-      .nativeElement as HTMLElement;
-    expect(wrapper.classList).toContain("table-loading-shade");
+  it("shows no settings when there are none", async () => {
+    await renderComponent();
+    await respondWith([]);
+
+    expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
+    expect(
+      screen.queryByText("signalering.type.ZAAK_OP_NAAM"),
+    ).not.toBeInTheDocument();
   });
 
-  it("removes loading shade after data arrives", () => {
-    listSubject.next([]);
-    listSubject.complete();
-    fixture.detectChanges();
-
-    const wrapper = fixture.debugElement.query(By.css(".table-wrapper"))
-      .nativeElement as HTMLElement;
-    expect(wrapper.classList).not.toContain("table-loading-shade");
-  });
-
-  it("populates dataSource after service emits", () => {
-    const instellingen = [makeInstelling()];
-    listSubject.next(instellingen);
-    listSubject.complete();
-    fixture.detectChanges();
-
-    expect(component["dataSource"].data).toEqual(instellingen);
-  });
-
-  it("renders the four column headers", () => {
-    listSubject.next([makeInstelling()]);
-    listSubject.complete();
-    fixture.detectChanges();
-
-    const headers = fixture.debugElement
-      .queryAll(By.css("th"))
-      .map((el) => (el.nativeElement as HTMLElement).textContent?.trim());
-    expect(headers).toEqual(
-      expect.arrayContaining([
-        "signalering.subjecttype",
-        "signalering.type",
-        "signalering.dashboard",
-        "signalering.mail",
-      ]),
-    );
-  });
-
-  it("renders translated text for subjecttype and type columns", () => {
-    listSubject.next([
-      makeInstelling({ type: "ZAAK_OP_NAAM", subjecttype: "ZAAK" }),
-    ]);
-    listSubject.complete();
-    fixture.detectChanges();
-
-    const cells = fixture.debugElement
-      .queryAll(By.css("td"))
-      .map((el) => (el.nativeElement as HTMLElement).textContent?.trim())
-      .filter((t) => !!t);
-
-    expect(cells).toEqual(
-      expect.arrayContaining([
-        "signalering.subjecttype.ZAAK",
-        "signalering.type.ZAAK_OP_NAAM",
-      ]),
-    );
-  });
-
-  it("renders a checkbox for the dashboard column", async () => {
-    listSubject.next([makeInstelling({ dashboard: true })]);
-    listSubject.complete();
-    fixture.detectChanges();
+  it("names every column of the settings table", async () => {
+    await renderComponent();
+    await respondWith([zaakOpNaam]);
 
     expect(
-      await loader.getHarnessOrNull(
-        MatCheckboxHarness.with({
-          selector: "#ZAAK_OP_NAAM_dashboard_checkbox",
-        }),
-      ),
-    ).not.toBeNull();
-  });
-
-  it("renders a checkbox for the mail column", async () => {
-    listSubject.next([makeInstelling({ mail: true })]);
-    listSubject.complete();
-    fixture.detectChanges();
-
+      screen.getByRole("columnheader", { name: "signalering.subjecttype" }),
+    ).toBeVisible();
     expect(
-      await loader.getHarnessOrNull(
-        MatCheckboxHarness.with({ selector: "#ZAAK_OP_NAAM_mail_checkbox" }),
-      ),
-    ).not.toBeNull();
-  });
-
-  it("does not render a checkbox when column value is null", async () => {
-    listSubject.next([makeInstelling({ dashboard: null })]);
-    listSubject.complete();
-    fixture.detectChanges();
-
+      screen.getByRole("columnheader", { name: "signalering.type" }),
+    ).toBeVisible();
     expect(
-      await loader.getHarnessOrNull(
-        MatCheckboxHarness.with({
-          selector: "#ZAAK_OP_NAAM_dashboard_checkbox",
-        }),
-      ),
-    ).toBeNull();
+      screen.getByRole("columnheader", { name: "signalering.dashboard" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("columnheader", { name: "signalering.mail" }),
+    ).toBeVisible();
   });
 
-  it("calls changed with correct args when checkbox changes", async () => {
-    const row = makeInstelling({ dashboard: false });
-    listSubject.next([row]);
-    listSubject.complete();
-    fixture.detectChanges();
+  it("shows the translated subjecttype and type of a setting", async () => {
+    await renderComponent();
+    await respondWith([zaakOpNaam]);
 
-    jest.spyOn(component as SignaleringenSettingsComponent, "changed" as never);
+    const row = screen.getByRole("row", {
+      name: /signalering.type.ZAAK_OP_NAAM/,
+    });
 
-    const checkbox = await loader.getHarness(
-      MatCheckboxHarness.with({ selector: "#ZAAK_OP_NAAM_dashboard_checkbox" }),
-    );
-    await checkbox.toggle();
-
-    expect(component["changed"]).toHaveBeenCalled();
+    expect(within(row).getByText("signalering.subjecttype.ZAAK")).toBeVisible();
+    expect(
+      within(row).getByText("signalering.type.ZAAK_OP_NAAM"),
+    ).toBeVisible();
   });
 
-  it("calls setLoading(true) and put() when changed is invoked", () => {
-    const row = makeInstelling({ dashboard: false });
-    component["changed"](row, "dashboard", true);
+  it("offers a checkbox for the dashboard and the mail notification", async () => {
+    await renderComponent();
+    await respondWith([zaakOpNaam]);
 
-    expect(utilService.setLoading).toHaveBeenCalledWith(true);
-    expect(signaleringenService.put).toHaveBeenCalledWith(row);
+    expect(checkbox("actie.signalering.dashboard")).not.toBeChecked();
+    expect(checkbox("actie.signalering.mail")).not.toBeChecked();
+    expect(screen.getAllByRole("checkbox")).toHaveLength(2);
   });
 
-  it("calls setLoading(false) after put completes", () => {
-    const row = makeInstelling({ dashboard: false });
-    component["changed"](row, "dashboard", true);
-
-    expect(utilService.setLoading).toHaveBeenCalledWith(false);
-  });
-
-  it("mutates row column value when changed is called", () => {
-    const row = makeInstelling({ dashboard: false });
-    component["changed"](row, "dashboard", true);
-
-    expect((row as Record<string, unknown>)["dashboard"]).toBe(true);
-  });
-
-  it("shows no-data message when dataSource is empty", () => {
-    listSubject.next([]);
-    listSubject.complete();
-    fixture.detectChanges();
-
-    expect(component["dataSource"].data).toHaveLength(0);
-    expect(signaleringenService.list).toHaveBeenCalled();
-  });
-
-  it("does not render checkboxes for subjecttype and type columns", async () => {
-    listSubject.next([
-      makeInstelling({
-        type: "ZAAK_OP_NAAM",
-        subjecttype: "ZAAK",
+  it("checks the checkbox of an enabled notification", async () => {
+    await renderComponent();
+    await respondWith([
+      fromPartial<GeneratedType<"RestSignaleringInstellingen">>({
+        ...zaakOpNaam,
         dashboard: true,
-        mail: true,
       }),
     ]);
-    listSubject.complete();
-    fixture.detectChanges();
 
-    const checkboxes = await loader.getAllHarnesses(MatCheckboxHarness);
-    expect(checkboxes).toHaveLength(2);
+    expect(checkbox("actie.signalering.dashboard")).toBeChecked();
+  });
+
+  it("offers no checkbox for a notification that cannot be configured", async () => {
+    await renderComponent();
+    await respondWith([
+      fromPartial<GeneratedType<"RestSignaleringInstellingen">>({
+        ...zaakOpNaam,
+        dashboard: null,
+      }),
+    ]);
+
+    expect(
+      screen.queryByRole("checkbox", { name: "actie.signalering.dashboard" }),
+    ).not.toBeInTheDocument();
+    expect(checkbox("actie.signalering.mail")).toBeInTheDocument();
+  });
+
+  it("saves the setting when a checkbox is toggled", async () => {
+    await renderComponent();
+    await respondWith([zaakOpNaam]);
+
+    await user.click(checkbox("actie.signalering.dashboard"));
+    await sleep();
+
+    const request = httpTestingController.expectOne(INSTELLINGEN_URL);
+
+    expect(request.request.method).toBe("PUT");
+    expect(request.request.body).toEqual({ ...zaakOpNaam, dashboard: true });
+
+    request.flush({ ...zaakOpNaam, dashboard: true });
+    await sleep();
+  });
+
+  it("shows the application as loading until the setting is saved", async () => {
+    await renderComponent();
+    await respondWith([zaakOpNaam]);
+
+    await user.click(checkbox("actie.signalering.mail"));
+    await sleep();
+
+    expect(utilService.setLoading).toHaveBeenCalledWith(true);
+
+    httpTestingController
+      .expectOne(INSTELLINGEN_URL)
+      .flush({ ...zaakOpNaam, mail: true });
+    await sleep();
+
+    expect(utilService.setLoading).toHaveBeenCalledWith(false);
   });
 });

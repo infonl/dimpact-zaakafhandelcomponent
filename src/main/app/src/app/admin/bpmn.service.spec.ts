@@ -44,12 +44,6 @@ describe(BpmnService.name, () => {
     jest.spyOn(dialog, "open").mockImplementation(() => ({}) as never);
   });
 
-  afterEach(() => {
-    httpTestingController.verify();
-    testQueryClient.clear();
-    jest.clearAllMocks();
-  });
-
   describe("downloadProcessDefinition", () => {
     it("requests the zip of the given process definition as a blob response", () => {
       const zipBlob = new Blob(["fakeZipContent"]);
