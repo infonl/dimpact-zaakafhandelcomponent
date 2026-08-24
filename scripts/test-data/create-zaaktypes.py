@@ -132,17 +132,28 @@ def configure_zaakafhandelparameters(zaaktype_uuid: str, zac_url: str, keycloak_
     subprocess.run(command, check=True)
 
 
+def positive_int(value: str) -> int:
+    """argparse `type` that only accepts a positive (>= 1) integer."""
+    parsed_value = int(value)
+    if parsed_value < 1:
+        raise argparse.ArgumentTypeError(f"must be a positive integer, got {parsed_value}")
+    return parsed_value
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Create test zaaktypes directly in the Open Zaak database.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--count", type=int, default=DEFAULT_ZAAKTYPE_COUNT, help="number of zaaktypes to create (default: 10)"
+        "--count",
+        type=positive_int,
+        default=DEFAULT_ZAAKTYPE_COUNT,
+        help="number of zaaktypes to create (default: 10)",
     )
     parser.add_argument(
         "--start-number",
-        type=int,
+        type=positive_int,
         default=DEFAULT_ZAAKTYPE_START_NUMBER,
         help=f"1-based ZAAKTYPE_NUMBER to start numbering from (default: {DEFAULT_ZAAKTYPE_START_NUMBER})",
     )
