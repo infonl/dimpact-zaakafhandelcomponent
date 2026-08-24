@@ -6,6 +6,7 @@ package nl.info.zac.util
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.datatest.withData
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -57,27 +58,17 @@ class ValidationUtilTest : BehaviorSpec({
         }
     }
 
-    given("a valid email address") {
-        val validEmail = "fake.user@example.com"
+    given("an email address") {
+        data class TestCase(val email: String, val expectedIsValidEmail: Boolean)
 
-        `when`("it is validated") {
-            val isValidEmail = ValidationUtil.isValidEmail(validEmail)
-
-            then("it is recognized as valid") {
-                isValidEmail shouldBe true
-            }
-        }
-    }
-
-    given("an invalid email address") {
-        val invalidEmail = "not-an-email-address"
-
-        `when`("it is validated") {
-            val isValidEmail = ValidationUtil.isValidEmail(invalidEmail)
-
-            then("it is recognized as invalid") {
-                isValidEmail shouldBe false
-            }
+        withData(
+            nameFn = { "email '${it.email}' is valid: ${it.expectedIsValidEmail}" },
+            listOf(
+                TestCase(email = "fake.user@example.com", expectedIsValidEmail = true),
+                TestCase(email = "not-an-email-address", expectedIsValidEmail = false)
+            )
+        ) { (email, expectedIsValidEmail) ->
+            ValidationUtil.isValidEmail(email) shouldBe expectedIsValidEmail
         }
     }
 })
