@@ -76,6 +76,20 @@ class ResultsJsonbDeserializerTest : BehaviorSpec({
             }
         }
 
+        `when`("results is explicitly JSON null") {
+            val jsonObject = Json.createObjectBuilder()
+                .add("count", 0)
+                .addNull("results")
+                .build()
+            every { parser.value } returns jsonObject
+
+            val result = deserializer.deserialize(parser, deserializationContext, runtimeType)
+
+            then("it does not throw and results defaults to an empty list") {
+                result?.results() shouldBe emptyList()
+            }
+        }
+
         `when`("results is absent and next/previous are real URIs") {
             val jsonObject = Json.createObjectBuilder()
                 .add("count", 0)

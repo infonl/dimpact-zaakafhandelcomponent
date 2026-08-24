@@ -22,7 +22,11 @@ class ResultsJsonbDeserializer : JsonbDeserializer<Results<*>> {
         val jsonObject = parser.value as? JsonObject ?: return null
         val itemType = (rtType as ParameterizedType).actualTypeArguments[0]
 
-        val results = jsonObject.getJsonArray("results")?.map { JSONB.fromJson<Any>(it.toString(), itemType) }
+        val results = if (jsonObject.containsKey("results") && jsonObject.isNull("results")) {
+            null
+        } else {
+            jsonObject.getJsonArray("results")?.map { JSONB.fromJson<Any>(it.toString(), itemType) }
+        }
         return Results(
             jsonObject.getInt("count"),
             results,
