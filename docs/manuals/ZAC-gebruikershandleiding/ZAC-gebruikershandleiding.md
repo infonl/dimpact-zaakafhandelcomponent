@@ -5,8 +5,8 @@
 
 > **Colofon** <br>
 > Datum :05-08-2026 <br>
-> Versie :   1.8 <br>
-> Verandering : ZAC v5.5 Handleiding <br>
+> Versie :   1.9.1 <br>
+> Verandering : ZAC v5.6 Handleiding <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -40,6 +40,7 @@ Versiegeschiedenis:
 | 1.7.1 | ZAC v5.2 Handleiding, toevoeging gerelateerde zaken                                                                                        |
 | 1.8   | ZAC v5.5 Handleiding, verwijderen impliciete applicatierol hiërarchie                                                                      |
 | 1.9   | ZAC v5.6 Handleiding, toevoeging voor brondatum zetten                                                                                     |
+| 1.9.1 | ZAC v5.6 Handleiding, toevoeging vertrouwelijkheidaanduiding bij versturen van e-mails                                                     |
 
 <div style="page-break-after: always"></div>
 
