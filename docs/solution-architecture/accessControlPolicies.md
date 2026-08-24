@@ -121,8 +121,8 @@ Notes:
   normal role also apply to zaakspecifiek geautoriseerde zaken of that zaaktype (a zaak marked as such via a
   `ZAAK_GEAUTORISEERD` zaakeigenschap), not only to non-zaakspecifiek geautoriseerde zaken. Without also
   holding one of these normal roles, `zaakspecifiek_geautoriseerd` grants no rights at all. This also
-  covers the taken and documenten of a zaakspecifiek geautoriseerde zaak). However, it does not (yet) apply to werklijsten
-  or zoekresultaten. 
+  covers the taken and documenten of a zaakspecifiek geautoriseerde zaak. However, it does not (yet) apply to werklijsten
+  or zoekresultaten.
 
 ## Technical implementation
 
