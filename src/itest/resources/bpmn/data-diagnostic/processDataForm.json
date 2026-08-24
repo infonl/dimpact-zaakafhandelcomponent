@@ -9,19 +9,26 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>Whatever the zaak and the taak actually carry</h3><p>These tables are not authored key by key. <code>ZAC_FORMAAT: \"tabel\"</code> renders every key an object holds, so these panels show what is present right now rather than what a form author knew about in advance. A nested object shows as <code>{n}</code> and a list as <code>[n]</code>, with n the number of entries; address those with their own path to see inside.</p>"
+      "html": "<h3>What each table is, and where it comes from</h3><p>Every table below is one field. Its heading is the field's own declaration, so you can read off exactly what was asked for and from which source. <code>ZAC_FORMAAT: \"tabel\"</code> renders every key the addressed object holds, so none of these keys are authored by hand.</p><p>A nested object shows as <code>{n}</code> and a list as <code>[n]</code>, n being the number of entries; address those with their own path to look inside.</p>"
     },
     {
       "type": "panel",
-      "title": "Process variables (zaak.zaakdata)",
-      "key": "process_variables",
+      "title": "Read from the zaak  —  ZAC_zaak_gegevens",
+      "key": "from_zaak",
       "input": false,
       "tableView": false,
       "components": [
         {
-          "label": "zaak.zaakdata — the Flowable process variables",
           "type": "content",
-          "key": "PD_zaakdata_tabel",
+          "key": "zaak_note",
+          "input": false,
+          "tableView": false,
+          "html": "<p>Source: the zaak as read live from Open Zaak over the ZGW API, plus its Flowable variables under <code>zaakdata</code>.</p>"
+        },
+        {
+          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: zaakdata  ·  ZAC_FORMAAT: tabel",
+          "type": "content",
+          "key": "PDzaak_zaakdata_tabel",
           "input": false,
           "tableView": false,
           "attributes": {
@@ -31,71 +38,18 @@
             "ZAC_VELD": "zaakdata",
             "ZAC_FORMAAT": "tabel"
           }
-        }
-      ]
-    },
-    {
-      "type": "panel",
-      "title": "Stored on submission (taak.taakdata)",
-      "key": "stored_taakdata",
-      "input": false,
-      "tableView": false,
-      "components": [
-        {
-          "type": "content",
-          "key": "taakdata_uitleg",
-          "input": false,
-          "tableView": false,
-          "html": "<p>Empty until this task is saved or completed. After saving it holds this task's own submitted values <em>and</em> the process variables that were merged in when the task was opened &mdash; which is why zaak data turns up under &quot;taakdata&quot;.</p>"
-        },
-        {
-          "label": "taak.taakdata — stored submission plus merged process variables",
-          "type": "content",
-          "key": "PD_taakdata_tabel",
-          "input": false,
-          "tableView": false,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_taak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "taakdata",
-            "ZAC_FORMAAT": "tabel"
-          }
         },
         {
           "type": "content",
-          "key": "divider_stored_2",
+          "key": "divider_zaak_1",
           "input": false,
           "tableView": false,
           "html": "<hr class=\"zac-gegevens-divider\">"
         },
         {
-          "label": "taak.taakinformatie",
+          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: zaaktype  ·  ZAC_FORMAAT: tabel",
           "type": "content",
-          "key": "PD_taakinformatie_tabel",
-          "input": false,
-          "tableView": false,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_taak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "taakinformatie",
-            "ZAC_FORMAAT": "tabel"
-          }
-        }
-      ]
-    },
-    {
-      "type": "panel",
-      "title": "The whole objects",
-      "key": "whole_objects",
-      "input": false,
-      "tableView": false,
-      "components": [
-        {
-          "label": "zaaktype — every property present",
-          "type": "content",
-          "key": "PD_zaaktype_tabel",
+          "key": "PDzaak_zaaktype_tabel",
           "input": false,
           "tableView": false,
           "attributes": {
@@ -108,15 +62,15 @@
         },
         {
           "type": "content",
-          "key": "divider_whole_objects_1",
+          "key": "divider_zaak_2",
           "input": false,
           "tableView": false,
           "html": "<hr class=\"zac-gegevens-divider\">"
         },
         {
-          "label": "zaak.groep",
+          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: groep  ·  ZAC_FORMAAT: tabel",
           "type": "content",
-          "key": "PD_groep_tabel",
+          "key": "PDzaak_groep_tabel",
           "input": false,
           "tableView": false,
           "attributes": {
@@ -126,18 +80,69 @@
             "ZAC_VELD": "groep",
             "ZAC_FORMAAT": "tabel"
           }
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Read from the taak  —  ZAC_taak_gegevens",
+      "key": "from_taak",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "content",
+          "key": "taak_note",
+          "input": false,
+          "tableView": false,
+          "html": "<p>Source: the Flowable task row and its task-local variables. Note that <code>taakdata</code> is not what this form submitted: ZAC merges every process variable into it on each open, which is why zaak fields appear here. <code>zaakUUID</code> and <code>zaaktypeUUID</code> are filtered out of that merge.</p>"
+        },
+        {
+          "label": "ZAC_taak_gegevens  ·  ZAC_VELD: taakdata  ·  ZAC_FORMAAT: tabel",
+          "type": "content",
+          "key": "PDtaak_taakdata_tabel",
+          "input": false,
+          "tableView": false,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_taak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "taakdata",
+            "ZAC_FORMAAT": "tabel"
+          }
         },
         {
           "type": "content",
-          "key": "divider_whole_objects_2",
+          "key": "divider_taak_1",
           "input": false,
           "tableView": false,
           "html": "<hr class=\"zac-gegevens-divider\">"
         },
         {
-          "label": "taak.rechten — the policy decisions for you",
+          "label": "ZAC_taak_gegevens  ·  ZAC_VELD: taakinformatie  ·  ZAC_FORMAAT: tabel",
           "type": "content",
-          "key": "PD_rechten_tabel",
+          "key": "PDtaak_taakinformatie_tabel",
+          "input": false,
+          "tableView": false,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_taak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "taakinformatie",
+            "ZAC_FORMAAT": "tabel"
+          }
+        },
+        {
+          "type": "content",
+          "key": "divider_taak_2",
+          "input": false,
+          "tableView": false,
+          "html": "<hr class=\"zac-gegevens-divider\">"
+        },
+        {
+          "label": "ZAC_taak_gegevens  ·  ZAC_VELD: rechten  ·  ZAC_FORMAAT: tabel",
+          "type": "content",
+          "key": "PDtaak_rechten_tabel",
           "input": false,
           "tableView": false,
           "attributes": {
@@ -152,13 +157,13 @@
     },
     {
       "type": "panel",
-      "title": "Deliberate mistakes",
+      "title": "Deliberate mistake",
       "key": "deliberate_mistakes",
       "input": false,
       "tableView": false,
       "components": [
         {
-          "label": "tabel on a single value",
+          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: identificatie  ·  ZAC_FORMAAT: tabel",
           "type": "content",
           "key": "PD_fout_scalar",
           "input": false,
@@ -172,6 +177,16 @@
           }
         }
       ]
+    },
+    {
+      "key": "save",
+      "label": "Save",
+      "type": "button",
+      "theme": "secondary",
+      "input": true,
+      "action": "saveState",
+      "state": "draft",
+      "tableView": false
     },
     {
       "type": "button",

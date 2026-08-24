@@ -13,17 +13,17 @@
     },
     {
       "type": "panel",
-      "title": "Taak data",
-      "key": "taakgegevens",
+      "title": "Values",
+      "key": "taak_waarden",
       "input": false,
       "tableView": false,
       "components": [
         {
           "type": "table",
-          "key": "tabel_taakgegevens",
+          "key": "tabel_taak_waarden",
           "input": false,
           "tableView": false,
-          "numRows": 14,
+          "numRows": 8,
           "numCols": 2,
           "header": [
             "Property",
@@ -124,195 +124,6 @@
                     },
                     "properties": {
                       "ZAC_VELD": "toelichting"
-                    }
-                  }
-                ]
-              }
-            ],
-            [
-              {
-                "components": [
-                  {
-                    "label": "",
-                    "type": "content",
-                    "key": "NAAM_TG_creatiedatumTijd",
-                    "input": false,
-                    "tableView": false,
-                    "html": "<code>creatiedatumTijd</code>"
-                  }
-                ]
-              },
-              {
-                "components": [
-                  {
-                    "label": "",
-                    "type": "content",
-                    "key": "TG_creatiedatumTijd",
-                    "input": false,
-                    "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "creatiedatumTijd"
-                    }
-                  }
-                ]
-              }
-            ],
-            [
-              {
-                "components": [
-                  {
-                    "label": "",
-                    "type": "content",
-                    "key": "NAAM_TG_creatiedatumTijd_datum",
-                    "input": false,
-                    "tableView": false,
-                    "html": "<code>creatiedatumTijd &rarr; datum</code>"
-                  }
-                ]
-              },
-              {
-                "components": [
-                  {
-                    "label": "",
-                    "type": "content",
-                    "key": "TG_creatiedatumTijd_datum",
-                    "input": false,
-                    "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "creatiedatumTijd",
-                      "ZAC_FORMAAT": "datum"
-                    }
-                  }
-                ]
-              }
-            ],
-            [
-              {
-                "components": [
-                  {
-                    "label": "",
-                    "type": "content",
-                    "key": "NAAM_TG_toekenningsdatumTijd",
-                    "input": false,
-                    "tableView": false,
-                    "html": "<code>toekenningsdatumTijd</code>"
-                  }
-                ]
-              },
-              {
-                "components": [
-                  {
-                    "label": "",
-                    "type": "content",
-                    "key": "TG_toekenningsdatumTijd",
-                    "input": false,
-                    "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "toekenningsdatumTijd"
-                    }
-                  }
-                ]
-              }
-            ],
-            [
-              {
-                "components": [
-                  {
-                    "label": "",
-                    "type": "content",
-                    "key": "NAAM_TG_toekenningsdatumTijd_datum",
-                    "input": false,
-                    "tableView": false,
-                    "html": "<code>toekenningsdatumTijd &rarr; datum</code>"
-                  }
-                ]
-              },
-              {
-                "components": [
-                  {
-                    "label": "",
-                    "type": "content",
-                    "key": "TG_toekenningsdatumTijd_datum",
-                    "input": false,
-                    "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "toekenningsdatumTijd",
-                      "ZAC_FORMAAT": "datum"
-                    }
-                  }
-                ]
-              }
-            ],
-            [
-              {
-                "components": [
-                  {
-                    "label": "",
-                    "type": "content",
-                    "key": "NAAM_TG_fataledatum",
-                    "input": false,
-                    "tableView": false,
-                    "html": "<code>fataledatum</code>"
-                  }
-                ]
-              },
-              {
-                "components": [
-                  {
-                    "label": "",
-                    "type": "content",
-                    "key": "TG_fataledatum",
-                    "input": false,
-                    "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "fataledatum"
-                    }
-                  }
-                ]
-              }
-            ],
-            [
-              {
-                "components": [
-                  {
-                    "label": "",
-                    "type": "content",
-                    "key": "NAAM_TG_fataledatum_datum",
-                    "input": false,
-                    "tableView": false,
-                    "html": "<code>fataledatum &rarr; datum</code>"
-                  }
-                ]
-              },
-              {
-                "components": [
-                  {
-                    "label": "",
-                    "type": "content",
-                    "key": "TG_fataledatum_datum",
-                    "input": false,
-                    "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "fataledatum",
-                      "ZAC_FORMAAT": "datum"
                     }
                   }
                 ]
@@ -468,6 +279,183 @@
                     },
                     "properties": {
                       "ZAC_VELD": "id"
+                    }
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Dates",
+      "key": "taak_datums",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "table",
+          "key": "tabel_taak_datums",
+          "input": false,
+          "tableView": false,
+          "numRows": 3,
+          "numCols": 3,
+          "header": [
+            "Property",
+            "Unformatted",
+            "Formatted (datum)"
+          ],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_creatiedatumTijd",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>creatiedatumTijd</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_creatiedatumTijd_raw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "creatiedatumTijd"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_creatiedatumTijd_formatted",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "creatiedatumTijd",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_toekenningsdatumTijd",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>toekenningsdatumTijd</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_toekenningsdatumTijd_raw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "toekenningsdatumTijd"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_toekenningsdatumTijd_formatted",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "toekenningsdatumTijd",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_fataledatum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>fataledatum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_fataledatum_raw",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "fataledatum"
+                    }
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_fataledatum_formatted",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "fataledatum",
+                      "ZAC_FORMAAT": "datum"
                     }
                   }
                 ]
