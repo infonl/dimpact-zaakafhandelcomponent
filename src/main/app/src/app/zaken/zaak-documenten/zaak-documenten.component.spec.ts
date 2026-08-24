@@ -21,6 +21,9 @@ import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
+import { ObjectType } from "../../core/websocket/model/object-type";
+import { Opcode } from "../../core/websocket/model/opcode";
+import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { DocumentDialogService } from "../../informatie-objecten/document-dialog.service";
@@ -168,7 +171,18 @@ describe(ZaakDocumentenComponent.name, () => {
   it("listens for document and besluit updates of the zaak", async () => {
     const { addListener } = await setup();
 
-    expect(addListener).toHaveBeenCalledTimes(2);
+    expect(addListener).toHaveBeenCalledWith(
+      Opcode.UPDATED,
+      ObjectType.ZAAK_INFORMATIEOBJECTEN,
+      fakeZaak.uuid,
+      expect.any(Function),
+    );
+    expect(addListener).toHaveBeenCalledWith(
+      Opcode.UPDATED,
+      ObjectType.ZAAK_BESLUITEN,
+      fakeZaak.uuid,
+      expect.any(Function),
+    );
   });
 
   it("stops listening when it is destroyed", async () => {
@@ -177,6 +191,35 @@ describe(ZaakDocumentenComponent.name, () => {
     fixture.destroy();
 
     expect(removeListeners).toHaveBeenCalled();
+  });
+
+  it("listens for updates of every document in the table", async () => {
+    const documents = [fakeDocument, fakeEditableDocument];
+    const { addListener } = await setup(fakeZaak, documents);
+
+    for (const { uuid } of documents) {
+      expect(addListener).toHaveBeenCalledWith(
+        Opcode.UPDATED,
+        ObjectType.ENKELVOUDIG_INFORMATIEOBJECT,
+        uuid,
+        expect.any(Function),
+      );
+    }
+  });
+
+  it("reloads the documents when one of them is updated", async () => {
+    const { addListener } = await setup();
+    const documentListener = addListener.mock.calls.find(
+      ([, objectType]) =>
+        objectType === ObjectType.ENKELVOUDIG_INFORMATIEOBJECT,
+    );
+
+    documentListener?.[3](fromPartial<ScreenEvent>({}));
+    await settle();
+
+    expect(httpTestingController.expectOne(LIST_URL).request.body).toEqual(
+      expect.objectContaining({ zaakUUID: "zaak-uuid-1" }),
+    );
   });
 
   it("asks for the documents of related cases when the zaak has any", async () => {
