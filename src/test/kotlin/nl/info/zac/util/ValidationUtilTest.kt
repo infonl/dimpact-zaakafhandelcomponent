@@ -28,7 +28,7 @@ class ValidationUtilTest : BehaviorSpec({
         val fakeValidatedObject = FakeValidatedObject(naam = "fakeNaam")
 
         `when`("it is validated") {
-            ValidationUtil.validateObject(fakeValidatedObject)
+            validateObject(fakeValidatedObject)
 
             then("no exception is thrown") {}
         }
@@ -39,7 +39,7 @@ class ValidationUtilTest : BehaviorSpec({
 
         `when`("it is validated") {
             val constraintViolationException = shouldThrow<ConstraintViolationException> {
-                ValidationUtil.validateObject(fakeValidatedObject)
+                validateObject(fakeValidatedObject)
             }
 
             then("a ConstraintViolationException is thrown listing the violation") {
@@ -52,7 +52,7 @@ class ValidationUtilTest : BehaviorSpec({
         val fakeValidatedObject = FakeValidatedObject(naam = "fakeNaam")
 
         `when`("an object is validated many times in a row") {
-            repeat(50) { ValidationUtil.validateObject(fakeValidatedObject) }
+            repeat(50) { validateObject(fakeValidatedObject) }
 
             then("no exception is thrown, since the underlying ValidatorFactory is reused") {}
         }
@@ -68,7 +68,7 @@ class ValidationUtilTest : BehaviorSpec({
                 TestCase(email = "not-an-email-address", expectedIsValidEmail = false)
             )
         ) { (email, expectedIsValidEmail) ->
-            ValidationUtil.isValidEmail(email) shouldBe expectedIsValidEmail
+            isValidEmail(email) shouldBe expectedIsValidEmail
         }
     }
 })

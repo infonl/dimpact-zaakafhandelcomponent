@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import nl.info.zac.util.ValidationUtil
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.extensions.isServicenormAvailable
@@ -30,6 +29,7 @@ import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.validateObject
 import java.time.ZonedDateTime
 import java.util.Date
 import java.util.UUID
@@ -90,13 +90,13 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
     }
 
     fun storeZaaktypeCmmnConfiguration(zaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration): ZaaktypeCmmnConfiguration {
-        ValidationUtil.validateObject(zaaktypeCmmnConfiguration)
+        validateObject(zaaktypeCmmnConfiguration)
 
         zaaktypeCmmnConfigurationService.clearListCache()
         zaaktypeCmmnConfiguration.apply {
-            getHumanTaskParametersCollection().forEach { ValidationUtil.validateObject(it) }
-            getUserEventListenerParametersCollection().forEach { ValidationUtil.validateObject(it) }
-            getMailtemplateKoppelingen().forEach { ValidationUtil.validateObject(it) }
+            getHumanTaskParametersCollection().forEach { validateObject(it) }
+            getUserEventListenerParametersCollection().forEach { validateObject(it) }
+            getMailtemplateKoppelingen().forEach { validateObject(it) }
         }
 
         return if (zaaktypeCmmnConfiguration.id == null) {

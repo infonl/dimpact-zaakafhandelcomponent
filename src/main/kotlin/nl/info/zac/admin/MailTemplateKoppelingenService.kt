@@ -10,10 +10,10 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
-import nl.info.zac.util.ValidationUtil.validateObject
 import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.validateObject
 
 @ApplicationScoped
 @Transactional(SUPPORTS)

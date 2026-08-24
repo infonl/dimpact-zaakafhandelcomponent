@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import nl.info.zac.util.ValidationUtil
 import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.Mail.Companion.LINKABLE_MAILS
@@ -16,6 +15,7 @@ import nl.info.zac.mailtemplates.model.MailTemplate
 import nl.info.zac.mailtemplates.model.MailTemplate.Companion.MAIL_TEMPLATE_NAME
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.validateObject
 
 @ApplicationScoped
 @Transactional
@@ -74,7 +74,7 @@ class MailTemplateService @Inject constructor(
     }
 
     fun createMailtemplate(mailTemplate: MailTemplate): MailTemplate {
-        ValidationUtil.validateObject(mailTemplate)
+        validateObject(mailTemplate)
         // Ensure ID is not set for new entities - let database auto-generate
         mailTemplate.id = 0
         entityManager.persist(mailTemplate)
@@ -82,7 +82,7 @@ class MailTemplateService @Inject constructor(
     }
 
     fun updateMailtemplate(id: Long, mailTemplate: MailTemplate): MailTemplate {
-        ValidationUtil.validateObject(mailTemplate)
+        validateObject(mailTemplate)
         val existingTemplate = readMailtemplate(id)
 
         existingTemplate.apply {
@@ -97,7 +97,7 @@ class MailTemplateService @Inject constructor(
     }
 
     fun storeMailtemplate(mailTemplate: MailTemplate): MailTemplate {
-        ValidationUtil.validateObject(mailTemplate)
+        validateObject(mailTemplate)
         return if (mailTemplate.id != 0L && findMailtemplate(mailTemplate.id) != null) {
             updateMailtemplate(mailTemplate.id, mailTemplate)
         } else {

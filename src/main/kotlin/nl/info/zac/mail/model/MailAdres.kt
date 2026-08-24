@@ -7,14 +7,14 @@ package nl.info.zac.mail.model
 import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.mail.Address
 import jakarta.mail.internet.InternetAddress
-import nl.info.zac.util.ValidationUtil
+import nl.info.zac.util.isValidEmail
 
 data class MailAdres(
     @field:JsonbProperty("Email") val email: String,
     @field:JsonbProperty("Name") val name: String?
 ) {
     init {
-        require(ValidationUtil.isValidEmail(email)) { "Email '$email' is not valid" }
+        require(isValidEmail(email)) { "Email '$email' is not valid" }
     }
 
     fun toAddress(): Address = InternetAddress(email, name)

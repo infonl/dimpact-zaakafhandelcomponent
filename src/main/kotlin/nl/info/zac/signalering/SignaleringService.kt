@@ -27,7 +27,6 @@ import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.signalering.model.SignaleringVerzonden
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
-import nl.info.zac.util.ValidationUtil
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -50,6 +49,7 @@ import nl.info.zac.search.model.SorteerRichting
 import nl.info.zac.search.model.SorteerVeld
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.validateObject
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -142,7 +142,7 @@ class SignaleringService @Inject constructor(
 
     @Transactional(REQUIRED)
     fun storeSignalering(signalering: Signalering): Signalering {
-        ValidationUtil.validateObject(signalering)
+        validateObject(signalering)
 
         val signaleringToStore = findSignalering(signalering)?.apply {
             LOG.info("Replacing $this timestamp $tijdstip with ${signalering.tijdstip}")
@@ -280,7 +280,7 @@ class SignaleringService @Inject constructor(
     }
 
     fun sendSignalering(signalering: Signalering) {
-        ValidationUtil.validateObject(signalering)
+        validateObject(signalering)
         signaleringenMailHelper.getTargetMail(signalering)?.let { mail ->
             val mailTemplate = signaleringenMailHelper.getMailTemplate(signalering)
             val bronnenBuilder = Bronnen.Builder()
@@ -319,7 +319,7 @@ class SignaleringService @Inject constructor(
 
     @Transactional(REQUIRED)
     fun createUpdateOrDeleteInstellingen(instellingen: SignaleringInstellingen): SignaleringInstellingen? {
-        ValidationUtil.validateObject(instellingen)
+        validateObject(instellingen)
         if (instellingen.isEmpty) {
             instellingen.id?.let {
                 entityManager.remove(entityManager.find(SignaleringInstellingen::class.java, instellingen.id))
@@ -376,7 +376,7 @@ class SignaleringService @Inject constructor(
     @Transactional(REQUIRED)
     fun createSignaleringVerzonden(signalering: Signalering): SignaleringVerzonden {
         val signaleringVerzonden = signaleringVerzondenInstance(signalering)
-        ValidationUtil.validateObject(signaleringVerzonden)
+        validateObject(signaleringVerzonden)
         return entityManager.merge(signaleringVerzonden)
     }
 
