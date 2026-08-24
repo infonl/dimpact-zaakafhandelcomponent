@@ -25,8 +25,8 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterModule } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { Observable, merge } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { Observable, merge, of } from "rxjs";
+import { catchError, map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -130,7 +130,7 @@ export class BagZakenTabelComponent
         switchMap(() => {
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
-          return this.loadZaken();
+          return this.loadZaken().pipe(catchError(() => of(null)));
         }),
         map((zoekResultaat) => {
           this.isLoadingResults = false;
@@ -139,6 +139,8 @@ export class BagZakenTabelComponent
         }),
       )
       .subscribe((zoekResultaat) => {
+        if (!zoekResultaat) return;
+
         this.zoekResultaat = zoekResultaat;
         this.paginator.length = zoekResultaat.totaal;
         this.dataSource.data = zoekResultaat.resultaten;

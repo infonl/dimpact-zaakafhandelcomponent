@@ -30,15 +30,10 @@ import { ToolbarComponent } from "./core/toolbar/toolbar.component";
 import { FoutAfhandelingRoutingModule } from "./fout-afhandeling/fout-afhandeling-routing.module";
 import { InformatieObjectenModule } from "./informatie-objecten/informatie-objecten.module";
 import { Paths } from "./shared/http/http-client";
+import { QUERY_CLIENT } from "./shared/http/query-client";
 import { SharedModule } from "./shared/shared.module";
 import { ZakenModule } from "./zaken/zaken.module";
 import { ZoekComponent } from "./zoeken/zoek/zoek.component";
-
-const queryClient = new QueryClient();
-
-// https://tanstack.com/query/latest/docs/framework/angular/devtools
-// @ts-expect-error -- window object extension
-window.__TANSTACK_QUERY_CLIENT__ = queryClient;
 
 @NgModule({
   declarations: [AppComponent],
@@ -58,7 +53,7 @@ window.__TANSTACK_QUERY_CLIENT__ = queryClient;
     { provide: APP_BASE_HREF, useValue: "/" },
     { provide: LocationStrategy, useClass: PathLocationStrategy },
     provideTanStackQuery(
-      queryClient,
+      QUERY_CLIENT,
       withDevtools(() => ({
         loadDevtools: isDevMode(),
       })),
@@ -69,9 +64,17 @@ window.__TANSTACK_QUERY_CLIENT__ = queryClient;
 export class AppModule {
   static injector: Injector;
 
-  constructor(injector: Injector, iconRegistry: MatIconRegistry) {
+  constructor(
+    injector: Injector,
+    iconRegistry: MatIconRegistry,
+    queryClient: QueryClient,
+  ) {
     AppModule.injector = injector;
     iconRegistry.setDefaultFontSetClass("material-symbols-outlined");
+
+    // https://tanstack.com/query/latest/docs/framework/angular/devtools
+    // @ts-expect-error -- window object extension
+    window.__TANSTACK_QUERY_CLIENT__ = queryClient;
 
     persistQueryClient({
       queryClient,
