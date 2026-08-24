@@ -28,10 +28,11 @@ taken, and its documenten.
 
 **Goals:**
 - Only users holding `zaakspecifiek_autorisatie_behandelaar` for the zaak's zaaktype can read or act on a
-  zaakspecifiek geautoriseerde zaak, its taken, and its documenten, among the roles this change touches
-  (`raadpleger`, `behandelaar`, `coordinator`).
-- Plain `behandelaar`, `raadpleger`, `coordinator` of that same zaaktype (without the new role) are denied —
-  including via direct URL / deep-link access to the zaak, a taak, or a document.
+  zaakspecifiek geautoriseerde zaak, its taken, and its documenten, among the roles this change touches.
+- Any application role of that same zaaktype, without also holding `zaakspecifiek_autorisatie_behandelaar`,
+  is denied — the restriction is not specific to `behandelaar`, `raadpleger`, or `coordinator` individually,
+  it applies uniformly to whichever of those roles a user happens to hold — including via direct URL /
+  deep-link access to the zaak, a taak, or a document.
 - `zaakspecifiek_autorisatie_behandelaar`'s own effective rights, once unlocked, equal `behandelaar`'s rights
   (which are a superset of `raadpleger`'s), granted explicitly per the no-hierarchy convention.
 - A denied user sees the same generic "onvoldoende rechten" message ZAC already shows for any other policy
