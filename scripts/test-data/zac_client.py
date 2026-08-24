@@ -4,9 +4,10 @@
 #
 # HTTP transport and Keycloak authentication for the local ZAC test-data scripts.
 #
-# Shared by create-load.py and create-zaak.py; contains no ZAC domain logic.
+# Shared by every test-data script that talks to ZAC over HTTP; contains no ZAC domain logic.
 
 import base64
+import http.cookiejar
 import json
 import os
 import sys
@@ -47,6 +48,13 @@ _TOKEN_REFRESH_MARGIN = 30  # seconds before expiry at which to proactively refr
 # ---------------------------------------------------------------------------
 
 
+# Shared across every http_request() call in this process, so that once ZAC's session filter
+# sets a JSESSIONID cookie on the first request, every later call reuses that same HTTP
+# session instead of the server creating a brand new one (and a new LoggedInUser) per request.
+_cookie_jar = http.cookiejar.CookieJar()
+_opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(_cookie_jar))
+
+
 def http_request(method: str, url: str, body: Any = None, headers: dict | None = None) -> tuple[int, str]:
     """Perform an HTTP request. Returns (status_code, response_body)."""
     if headers is None:
@@ -62,7 +70,7 @@ def http_request(method: str, url: str, body: Any = None, headers: dict | None =
             headers.setdefault("Content-Type", "application/json")
     request = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
-        with urllib.request.urlopen(request) as response:
+        with _opener.open(request) as response:
             return response.status, response.read().decode()
     except urllib.error.HTTPError as httpError:
         return httpError.code, httpError.read().decode()
