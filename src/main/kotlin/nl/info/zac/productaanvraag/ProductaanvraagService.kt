@@ -91,7 +91,7 @@ class ProductaanvraagService @Inject constructor(
         LOG.info { "Handling productaanvraag with object UUID: $productaanvraagObjectUUID" }
         if (!productaanvraagClaimRepository.claim(productaanvraagObjectUUID)) {
             LOG.info {
-                "Productaanvraag with object UUID: $productaanvraagObjectUUID is already being handled or has already " +
+                "Productaanvraag with object UUID: '$productaanvraagObjectUUID' is already being handled or has already " +
                     "been handled. Skipping it."
             }
             return
