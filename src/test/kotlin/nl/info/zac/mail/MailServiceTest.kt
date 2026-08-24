@@ -6,6 +6,9 @@ package nl.info.zac.mail
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldEndWith
+import io.kotest.matchers.string.shouldNotContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -20,7 +23,11 @@ import jakarta.mail.Message
 import jakarta.mail.MessagingException
 import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
+import nl.info.client.officeconverter.OfficeConverterClientService
+import nl.info.client.officeconverter.exception.MessageEntityDataCouldNotBeBufferedException
 import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.shared.ZgwApiService
@@ -34,9 +41,12 @@ import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateHelper
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
 import nl.info.zac.mailtemplates.model.createMailGegevens
+import nl.info.zac.util.toBase64String
 import org.flowable.task.api.Task
+import java.io.ByteArrayInputStream
 import java.net.URI
 import java.util.Properties
+import java.util.UUID
 
 class MailServiceTest : BehaviorSpec({
     val configurationService = mockk<ConfigurationService>()
@@ -44,6 +54,7 @@ class MailServiceTest : BehaviorSpec({
     val mailTemplateHelper = mockk<MailTemplateHelper>()
     val zgwApiService = mockk<ZgwApiService>()
     val ztcClientService = mockk<ZtcClientService>()
+    val officeConverterClientService = mockk<OfficeConverterClientService>()
     val loggedInUserName = "fakeLoggedInUserName"
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
@@ -53,6 +64,7 @@ class MailServiceTest : BehaviorSpec({
         ztcClientService,
         drcClientService,
         mailTemplateHelper,
+        officeConverterClientService,
         loggedInUserInstance
     )
 
@@ -104,9 +116,10 @@ class MailServiceTest : BehaviorSpec({
         every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
+        val createdDocument = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
         every {
             zgwApiService.createZaakInformatieobjectForZaak(
-                zaak, any(), resolvedSubject, resolvedSubject, "geen"
+                zaak, capture(createdDocument), resolvedSubject, resolvedSubject, "geen"
             )
         } returns zaakInformatieobject
         mockkObject(MailService.Companion)
@@ -115,6 +128,14 @@ class MailServiceTest : BehaviorSpec({
         val transportSendRequest = slot<Message>()
         every { Transport.send(capture(transportSendRequest)) } just runs
         every { configurationService.readBronOrganisatie() } returns "123443210"
+        var convertedHtml = ""
+        val convertedFilename = slot<String>()
+        every {
+            officeConverterClientService.convertToPDF(any(), capture(convertedFilename))
+        } answers {
+            convertedHtml = firstArg<ByteArrayInputStream>().readAllBytes().toString(Charsets.UTF_8)
+            ByteArrayInputStream("fakePdfContent".toByteArray())
+        }
 
         `when`("the send mail function is invoked") {
             val body = mailService.sendMail(mailGegevens, bronnen)
@@ -143,6 +164,147 @@ class MailServiceTest : BehaviorSpec({
                         resolvedSubject,
                         "geen"
                     )
+                }
+            }
+
+            And("the e-mail is converted to PDF from an HTML document containing the headers and the body") {
+                convertedFilename.captured shouldEndWith ".html"
+                convertedHtml shouldContain """<meta charset="utf-8">"""
+                convertedHtml shouldContain "<p>Afzender: ${mailGegevens.from.email}</p>"
+                convertedHtml shouldContain "<p>Ontvanger: ${mailGegevens.to.email}</p>"
+                convertedHtml shouldContain "<p>Onderwerp: $resolvedSubject</p>"
+                convertedHtml shouldContain "<p>Bericht</p>"
+                convertedHtml shouldContain "fakeResolvedBody3"
+            }
+
+            And("no 'Bijlage' header line is present because the e-mail has no attachments") {
+                convertedHtml shouldNotContain "Bijlage:"
+            }
+
+            And("the stored document contains the PDF returned by the office converter") {
+                createdDocument.captured.inhoud shouldBe "fakePdfContent".toByteArray().toBase64String()
+            }
+        }
+    }
+
+    given("a zaak and e-mail data with two attachments and a subject containing HTML special characters") {
+        val zaak = createZaak()
+        val zaakType = createZaakType(
+            informatieObjectTypen = listOf(
+                URI("fakeInformatieObjectType1")
+            )
+        )
+        val firstAttachmentUuid = UUID.randomUUID()
+        val secondAttachmentUuid = UUID.randomUUID()
+        val mailGegevens = createMailGegevens(
+            createDocumentFromMail = true,
+            attachments = "$firstAttachmentUuid;$secondAttachmentUuid"
+        )
+        val bronnen = Bronnen.Builder().add(zaak).build()
+        val informatieObjectType = createInformatieObjectType(
+            omschrijving = "e-mail"
+        )
+        val zaakInformatieobject = createZaakInformatieobjectForReads()
+        val resolvedSubject = "Vergunning café & terras <niet-een-tag>"
+
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
+        every {
+            mailTemplateHelper.resolveZaakVariables("fakeResolvedString1", zaak, loggedInUserName)
+        } returns resolvedSubject
+        every { mailTemplateHelper.resolveZaakdataVariables(resolvedSubject, emptyMap()) } returns resolvedSubject
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
+        every {
+            mailTemplateHelper.resolveZaakVariables("fakeResolvedBody2", zaak, loggedInUserName)
+        } returns "fakeResolvedBody3"
+        every {
+            mailTemplateHelper.resolveZaakdataVariables("fakeResolvedBody3", emptyMap())
+        } returns "fakeResolvedBody3"
+        every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
+        every { drcClientService.readEnkelvoudigInformatieobject(firstAttachmentUuid) } returns
+            createEnkelvoudigInformatieObject(bestandsnaam = "bijlage-één.pdf")
+        every { drcClientService.readEnkelvoudigInformatieobject(secondAttachmentUuid) } returns
+            createEnkelvoudigInformatieObject(bestandsnaam = "bijlage-twee.docx")
+        every { drcClientService.downloadEnkelvoudigInformatieobject(any()) } answers {
+            ByteArrayInputStream("fakeAttachmentContent".toByteArray())
+        }
+        every {
+            zgwApiService.createZaakInformatieobjectForZaak(zaak, any(), resolvedSubject, resolvedSubject, "geen")
+        } returns zaakInformatieobject
+        mockkObject(MailService.Companion)
+        every { MailService.mailSession.properties } returns Properties()
+        mockkStatic(Transport::class)
+        every { Transport.send(any<Message>()) } just runs
+        every { configurationService.readBronOrganisatie() } returns "123443210"
+        var convertedHtml = ""
+        every { officeConverterClientService.convertToPDF(any(), any()) } answers {
+            convertedHtml = firstArg<ByteArrayInputStream>().readAllBytes().toString(Charsets.UTF_8)
+            ByteArrayInputStream("fakePdfContent".toByteArray())
+        }
+
+        `when`("the send mail function is invoked") {
+            mailService.sendMail(mailGegevens, bronnen)
+
+            then("the converted HTML lists both attachment filenames on the 'Bijlage' header line") {
+                convertedHtml shouldContain "<p>Bijlage: bijlage-&eacute;&eacute;n.pdf,bijlage-twee.docx</p>"
+            }
+
+            And("the HTML special characters in the subject are escaped so they cannot break the document") {
+                convertedHtml shouldContain "<p>Onderwerp: Vergunning caf&eacute; &amp; terras &lt;niet-een-tag&gt;</p>"
+            }
+        }
+    }
+
+    given("a zaak and e-mail data where the office converter fails to convert the e-mail to PDF") {
+        val zaak = createZaak()
+        val zaakType = createZaakType(
+            informatieObjectTypen = listOf(
+                URI("fakeInformatieObjectType1")
+            )
+        )
+        val mailGegevens = createMailGegevens(
+            createDocumentFromMail = true
+        )
+        val bronnen = Bronnen.Builder().add(zaak).build()
+        val informatieObjectType = createInformatieObjectType(
+            omschrijving = "e-mail"
+        )
+        val resolvedSubject = "resolvedSubject"
+
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
+        every {
+            mailTemplateHelper.resolveZaakVariables("fakeResolvedString1", zaak, loggedInUserName)
+        } returns resolvedSubject
+        every { mailTemplateHelper.resolveZaakdataVariables(resolvedSubject, emptyMap()) } returns resolvedSubject
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
+        every {
+            mailTemplateHelper.resolveZaakVariables("fakeResolvedBody2", zaak, loggedInUserName)
+        } returns "fakeResolvedBody3"
+        every {
+            mailTemplateHelper.resolveZaakdataVariables("fakeResolvedBody3", emptyMap())
+        } returns "fakeResolvedBody3"
+        every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
+        every {
+            officeConverterClientService.convertToPDF(any(), any())
+        } throws MessageEntityDataCouldNotBeBufferedException("fakeConversionFailure")
+        mockkObject(MailService.Companion)
+        every { MailService.mailSession.properties } returns Properties()
+        mockkStatic(Transport::class)
+        every { Transport.send(any<Message>()) } just runs
+
+        `when`("the send mail function is invoked") {
+            val body = mailService.sendMail(mailGegevens, bronnen)
+
+            then("the mail is still sent but no zaak document is created") {
+                body shouldBe "fakeResolvedBody3"
+                verify(exactly = 1) {
+                    Transport.send(any())
+                }
+                verify(exactly = 0) {
+                    zgwApiService.createZaakInformatieobjectForZaak(any(), any(), any(), any(), any())
                 }
             }
         }

@@ -149,7 +149,6 @@ class MailRestServiceTest : BehaviorSpec({
                   "bestandsnaam" : "subject.pdf",
                   "auteur" : "${BEHANDELAAR_1.displayName}",
                   "beschrijving" : "",
-                  "bestandsomvang" : 1851,
                   "creatiedatum" : "$today",
                   "formaat" : "application/pdf",
                   "indicatieGebruiksrecht" : false,
@@ -168,6 +167,34 @@ class MailRestServiceTest : BehaviorSpec({
                   }
                 }
                 """.trimIndent()
+            }
+
+            And("the created e-mail document is a PDF/A-2b document") {
+                val documentsResponse = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/informatieobjecten/informatieobjectenList",
+                    requestBodyAsString = """
+                        {
+                            "zaakUUID": "$zaakUuid",
+                            "gekoppeldeZaakDocumenten": false
+                        }
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_1
+                )
+                val emailDocumentUuid = JSONArray(documentsResponse.bodyAsString)
+                    .getJSONObject(0)
+                    .getString("uuid")
+
+                val downloadResponse = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/informatieobjecten/informatieobject/$emailDocumentUuid/download",
+                    testUser = BEHANDELAAR_1
+                )
+
+                downloadResponse.code shouldBe HTTP_OK
+                with(downloadResponse.bodyAsBytes.toString(Charsets.ISO_8859_1)) {
+                    this shouldStartWith "%PDF"
+                    this shouldContain "<pdfaid:part>2</pdfaid:part>"
+                    this shouldContain "<pdfaid:conformance>B</pdfaid:conformance>"
+                }
             }
         }
     }
