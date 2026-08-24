@@ -12,10 +12,10 @@ import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 class ObjectTypeTest : BehaviorSpec({
     given("a URL for a known ZGW audit trail object type") {
         `when`("getObjectType is called") {
+            val objectType = ObjectType.getObjectType("https://example.com/besluiten/api/v1/besluiten/123")
+
             then("it returns the matching ObjectType") {
-                ObjectType.getObjectType(
-                    "https://example.com/besluiten/api/v1/besluiten/123"
-                ) shouldBe ObjectType.BESLUIT
+                objectType shouldBe ObjectType.BESLUIT
             }
         }
     }

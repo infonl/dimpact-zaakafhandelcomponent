@@ -5,6 +5,7 @@
 package nl.info.client.zgw.shared.cache
 
 import com.github.benmanes.caffeine.cache.stats.CacheStats
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 
@@ -28,7 +29,7 @@ class CachingTest : BehaviorSpec({
 
         `when`("removed is called with a cache key") {
             then("it does not throw") {
-                caching.removed("fake-cache", "fake-key")
+                shouldNotThrowAny { caching.removed("fake-cache", "fake-key") }
             }
         }
     }

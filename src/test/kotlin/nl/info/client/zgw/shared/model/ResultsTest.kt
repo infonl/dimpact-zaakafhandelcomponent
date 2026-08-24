@@ -15,11 +15,16 @@ class ResultsTest : BehaviorSpec({
         val results = Results(listOf("fakeItem"), 1)
 
         `when`("count, results, next and previous are read") {
+            val count = results.count()
+            val resultsList = results.results()
+            val next = results.next()
+            val previous = results.previous()
+
             then("count and results reflect the arguments, next and previous default to null") {
-                results.count() shouldBe 1
-                results.results() shouldBe listOf("fakeItem")
-                results.next().shouldBeNull()
-                results.previous().shouldBeNull()
+                count shouldBe 1
+                resultsList shouldBe listOf("fakeItem")
+                next.shouldBeNull()
+                previous.shouldBeNull()
             }
         }
     }
@@ -28,8 +33,10 @@ class ResultsTest : BehaviorSpec({
         val results = Results(countValue = 2, resultsValue = listOf("fakeItem"), nextValue = URI("https://example.com/next"))
 
         `when`("next is read") {
+            val next = results.next()
+
             then("it returns the configured URI") {
-                results.next() shouldBe URI("https://example.com/next")
+                next shouldBe URI("https://example.com/next")
             }
         }
 
@@ -46,8 +53,10 @@ class ResultsTest : BehaviorSpec({
         val results = Results(listOf("fakeItem"), 1)
 
         `when`("singlePageResults is read") {
+            val singlePageResults = results.singlePageResults
+
             then("it returns the results") {
-                results.singlePageResults shouldBe listOf("fakeItem")
+                singlePageResults shouldBe listOf("fakeItem")
             }
         }
     }
@@ -56,8 +65,10 @@ class ResultsTest : BehaviorSpec({
         val results = Results(emptyList<String>(), 0)
 
         `when`("singleResult is read") {
+            val singleResult = results.singleResult
+
             then("it returns null") {
-                results.singleResult.shouldBeNull()
+                singleResult.shouldBeNull()
             }
         }
     }
@@ -66,8 +77,10 @@ class ResultsTest : BehaviorSpec({
         val results = Results(listOf("fakeItem"), 1)
 
         `when`("singleResult is read") {
+            val singleResult = results.singleResult
+
             then("it returns that item") {
-                results.singleResult shouldBe "fakeItem"
+                singleResult shouldBe "fakeItem"
             }
         }
     }

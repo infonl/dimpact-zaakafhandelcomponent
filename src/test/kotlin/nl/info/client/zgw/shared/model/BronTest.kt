@@ -12,16 +12,20 @@ import io.kotest.matchers.shouldBe
 class BronTest : BehaviorSpec({
     given("a Bron enum value") {
         `when`("toValue is called") {
+            val value = Bron.ZAKEN_API.toValue()
+
             then("it returns the ZGW API code") {
-                Bron.ZAKEN_API.toValue() shouldBe "ZRC"
+                value shouldBe "ZRC"
             }
         }
     }
 
     given("a ZGW API code") {
         `when`("fromValue is called with a known code") {
+            val bron = Bron.fromValue("ZRC")
+
             then("it returns the matching Bron") {
-                Bron.fromValue("ZRC") shouldBe Bron.ZAKEN_API
+                bron shouldBe Bron.ZAKEN_API
             }
         }
 
