@@ -77,6 +77,8 @@ def _load_configure_zaakafhandelparameters_module():
     """
     script_path = pathlib.Path(__file__).parent / "configure-zaakafhandelparameters.py"
     spec = importlib.util.spec_from_file_location("configure_zaakafhandelparameters", script_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Could not load '{script_path}' as a module")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

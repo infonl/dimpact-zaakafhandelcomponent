@@ -48,11 +48,22 @@ _TOKEN_REFRESH_MARGIN = 30  # seconds before expiry at which to proactively refr
 # ---------------------------------------------------------------------------
 
 
-# Shared across every http_request() call in this process, so that once ZAC's session filter
-# sets a JSESSIONID cookie on the first request, every later call reuses that same HTTP
-# session instead of the server creating a brand new one (and a new LoggedInUser) per request.
-_cookie_jar = http.cookiejar.CookieJar()
-_opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(_cookie_jar))
+# One CookieJar/opener per thread, so that once ZAC's session filter sets a JSESSIONID
+# cookie on a thread's first request, every later request from that same thread reuses that
+# HTTP session instead of the server creating a brand new one (and a new LoggedInUser) per
+# request. Kept per-thread rather than shared process-wide so create-load.py's concurrent
+# ThreadPoolExecutor workers each get their own session instead of contending over one.
+_thread_local = threading.local()
+
+
+def _get_opener() -> urllib.request.OpenerDirector:
+    """Return this thread's cookie-aware opener, creating one on first use."""
+    opener = getattr(_thread_local, "opener", None)
+    if opener is None:
+        cookie_jar = http.cookiejar.CookieJar()
+        opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookie_jar))
+        _thread_local.opener = opener
+    return opener
 
 
 def http_request(method: str, url: str, body: Any = None, headers: dict | None = None) -> tuple[int, str]:
@@ -70,7 +81,7 @@ def http_request(method: str, url: str, body: Any = None, headers: dict | None =
             headers.setdefault("Content-Type", "application/json")
     request = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
-        with _opener.open(request) as response:
+        with _get_opener().open(request) as response:
             return response.status, response.read().decode()
     except urllib.error.HTTPError as httpError:
         return httpError.code, httpError.read().decode()
