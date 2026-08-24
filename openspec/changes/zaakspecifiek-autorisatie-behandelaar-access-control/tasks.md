@@ -11,36 +11,36 @@
 
 ## 2. Policy input model
 
-- [ ] 2.1 Add `geautoriseerd: Boolean` (default `false`) to `ZaakData`
+- [ ] 2.1 Add `zaakspecifiekGeautoriseerd: Boolean` (default `false`) to `ZaakData`
       (`src/main/kotlin/nl/info/zac/policy/input/ZaakData.kt`).
-- [ ] 2.2 Add `geautoriseerd: Boolean` (default `false`) to `TaakData`
+- [ ] 2.2 Add `zaakspecifiekGeautoriseerd: Boolean` (default `false`) to `TaakData`
       (`src/main/kotlin/nl/info/zac/policy/input/TaakData.kt`).
-- [ ] 2.3 Add `geautoriseerd: Boolean` (default `false`) to `DocumentData`
+- [ ] 2.3 Add `zaakspecifiekGeautoriseerd: Boolean` (default `false`) to `DocumentData`
       (`src/main/kotlin/nl/info/zac/policy/input/DocumentData.kt`).
 
 ## 3. Populate the new field in PolicyService
 
-- [ ] 3.1 Populate `ZaakData.geautoriseerd` in `PolicyService.readZaakRechten(zaak, zaaktype, loggedInUser)`
+- [ ] 3.1 Populate `ZaakData.zaakspecifiekGeautoriseerd` in `PolicyService.readZaakRechten(zaak, zaaktype, loggedInUser)`
       (`src/main/kotlin/nl/info/zac/policy/PolicyService.kt:87-110`) using the shared helper from task 1.1.
-- [ ] 3.2 Populate `TaakData.geautoriseerd` in `PolicyService.readTaakRechten(taskInfo, zaaktypeOmschrijving)`
+- [ ] 3.2 Populate `TaakData.zaakspecifiekGeautoriseerd` in `PolicyService.readTaakRechten(taskInfo, zaaktypeOmschrijving)`
       (`PolicyService.kt:190-206`), resolving the zaak UUID via
       `TaakVariabelenService.readZaakUUID(taskInfo)` (`src/main/java/net/atos/zac/flowable/task/TaakVariabelenService.java:110`)
       and applying the shared helper.
-- [ ] 3.3 Populate `DocumentData.geautoriseerd` in
+- [ ] 3.3 Populate `DocumentData.zaakspecifiekGeautoriseerd` in
       `PolicyService.readDocumentRechten(enkelvoudigInformatieobject, lock, zaak)` (`PolicyService.kt:143-164`)
       using the already-passed `zaak: Zaak?` parameter and the shared helper (`false` when `zaak` is `null`).
 - [ ] 3.4 Leave `readZaakRechtenForZaakZoekObject`, `readTaakRechten(taakZoekObject)`, and
       `readDocumentRechten(enkelvoudigInformatieobject: DocumentZoekObject)` unchanged (field defaults to
       `false`), per the werklijsten/zoekresultaten scope boundary.
-- [ ] 3.5 Add/adjust `PolicyServiceTest` unit tests covering the new `geautoriseerd` population for all three
-      direct-read call sites, including the "no zaak" / "not geautoriseerd" default cases.
+- [ ] 3.5 Add/adjust `PolicyServiceTest` unit tests covering the new `zaakspecifiekGeautoriseerd` population for all three
+      direct-read call sites, including the "no zaak" / "not zaakspecifiekGeautoriseerd" default cases.
 
 ## 4. OPA policy: zaak-rechten.rego
 
 - [ ] 4.1 Import `zaakspecifiekAutorisatieBehandelaar` from `data.net.atos.zac.rol.zaakspecifiekAutorisatieBehandelaar`
       (`src/main/resources/policies/zaak-rechten.rego`; constant already defined in
       `src/main/resources/policies/rollen.rego:34-36`, currently unused).
-- [ ] 4.2 Add a `default zaakspecifiek_toegankelijk := false` rule set: true when `not zaak.geautoriseerd`, or
+- [ ] 4.2 Add a `default zaakspecifiek_toegankelijk := false` rule set: true when `not zaak.zaakspecifiekGeautoriseerd`, or
       when the user holds `zaakspecifiekAutorisatieBehandelaar`. Do not reference `recordmanager`/`beheerder`
       in this rule — their access to a zaakspecifiek geautoriseerde zaak is out of scope for this change.
 - [ ] 4.3 Add `zaakspecifiek_toegankelijk` as an extra condition only to the rule bodies that grant
@@ -65,7 +65,7 @@
 
 ## 5. OPA policy: taak-rechten.rego and document-rechten.rego
 
-- [ ] 5.1 Add `geautoriseerd` to the `input.taak` usage in `taak-rechten.rego` (import the role, add
+- [ ] 5.1 Add `zaakspecifiekGeautoriseerd` to the `input.taak` usage in `taak-rechten.rego` (import the role, add
       `zaakspecifiek_toegankelijk`, gate/split only the `raadpleger`/`behandelaar`/`coordinator` rule bodies,
       add `zaakspecifiekAutorisatieBehandelaar` next to every `behandelaar` occurrence in those bodies, leave
       `recordmanager`/`beheerder` bodies untouched) mirroring task group 4.

@@ -15,7 +15,7 @@ and testing their access to a zaakspecifiek geautoriseerde zaak is left to a fol
 
 ## What Changes
 
-- Add a `geautoriseerd` boolean to the OPA input for zaak, taak, and document policy checks
+- Add a `zaakspecifiekGeautoriseerd` boolean to the OPA input for zaak, taak, and document policy checks
   (`ZaakData`/`TaakData`/`DocumentData` in `nl.info.zac.policy.input`), populated by looking up the zaak's
   `ZAAK_GEAUTORISEERD` zaakeigenschap (the same check `RestZaakConverter` already performs for the
   `isZaakspecifiekGeautoriseerd` indicator, extracted into a shared helper so both call sites stay in sync).
@@ -47,7 +47,7 @@ and testing their access to a zaakspecifiek geautoriseerde zaak is left to a fol
 
 Out of scope (explicit in the ticket, follow-up PZ-11954): werklijsten and zoekresultaten (Solr-backed search)
 are not restricted by this change. The `ZaakZoekObject`/`TaakZoekObject`/`DocumentZoekObject`-based rechten
-lookups (used for search result rights display) are intentionally left with `geautoriseerd` defaulting to
+lookups (used for search result rights display) are intentionally left with `zaakspecifiekGeautoriseerd` defaulting to
 `false`/absent, since those call sites are out of this story's scope.
 
 ## Capabilities

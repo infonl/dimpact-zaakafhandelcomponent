@@ -46,7 +46,7 @@ taken, and its documenten.
   story.
 - Werklijsten and Solr-backed zoekresultaten (`ZaakZoekObject`/`TaakZoekObject`/`DocumentZoekObject` rechten
   lookups) are explicitly out of scope — the ticket defers this to follow-up PZ-11954. Those call sites keep
-  `geautoriseerd` defaulting to "not geautoriseerd", i.e. unrestricted, for now.
+  `zaakspecifiekGeautoriseerd` defaulting to "not zaakspecifiekGeautoriseerd", i.e. unrestricted, for now.
 - Being able to mark a zaak as zaakspecifiek geautoriseerd from within ZAC (currently only possible directly
   in Open Zaak) is a separate follow-up story, not part of this change.
 - No changes to Keycloak/PABC configuration or to how `LoggedInUser.applicationRolesPerZaaktype` is populated
@@ -54,9 +54,9 @@ taken, and its documenten.
 
 ## Decisions
 
-### 1. Add one `geautoriseerd` boolean field per policy input, sourced from the existing zaakeigenschap check
+### 1. Add one `zaakspecifiekGeautoriseerd` boolean field per policy input, sourced from the existing zaakeigenschap check
 
-Add `geautoriseerd: Boolean` to `ZaakData`, `TaakData`, and `DocumentData` (`nl.info.zac.policy.input`).
+Add `zaakspecifiekGeautoriseerd: Boolean` to `ZaakData`, `TaakData`, and `DocumentData` (`nl.info.zac.policy.input`).
 `PolicyService` populates it for the three call sites that back an actual single-resource read/mutation:
 - `readZaakRechten(zaak, zaaktype, loggedInUser)` — looks up the zaak's own zaakeigenschappen.
 - `readTaakRechten(taskInfo, zaaktypeOmschrijving)` — resolves the zaak UUID via
@@ -67,7 +67,7 @@ Add `geautoriseerd: Boolean` to `ZaakData`, `TaakData`, and `DocumentData` (`nl.
   today).
 
 The two search-object-based overloads (`readZaakRechtenForZaakZoekObject`, `readTaakRechten(taakZoekObject)`,
-`readDocumentRechten(enkelvoudigInformatieobject: DocumentZoekObject)`) leave `geautoriseerd` at its default
+`readDocumentRechten(enkelvoudigInformatieobject: DocumentZoekObject)`) leave `zaakspecifiekGeautoriseerd` at its default
 `false`, consistent with the Non-Goals above.
 
 **Alternative considered**: index "is zaakspecifiek geautoriseerd" into Solr and thread it through the
@@ -87,7 +87,7 @@ In each of `zaak-rechten.rego`, `taak-rechten.rego`, `document-rechten.rego`, ad
 ```rego
 default zaakspecifiek_toegankelijk := false
 zaakspecifiek_toegankelijk if {
-    not zaak.geautoriseerd   # or taak.geautoriseerd / document.geautoriseerd
+    not zaak.zaakspecifiekGeautoriseerd   # or taak.zaakspecifiekGeautoriseerd / document.zaakspecifiekGeautoriseerd
 }
 zaakspecifiek_toegankelijk if {
     zaakspecifiekAutorisatieBehandelaar.rol in user.rollen
@@ -195,7 +195,7 @@ denied cases.
 
 ## Migration Plan
 
-No data migration. Rollout is a normal backend deploy: the new Rego rules and `geautoriseerd` input field
+No data migration. Rollout is a normal backend deploy: the new Rego rules and `zaakspecifiekGeautoriseerd` input field
 ship together, are covered by `opa test` in CI, and take effect immediately since OPA policies are deployed
 fresh on ZAC startup. No existing zaken need be touched — a zaak only becomes subject to the new restriction
 if it already carries the `ZAAK_GEAUTORISEERD` zaakeigenschap, which today exists on exactly the one zaak
