@@ -70,23 +70,64 @@ For example, the emails can be validated by specifying `validate` and `type` key
 
 ### ZAC extensions
 
-ZAC extension fields are added to the Form.io form as an `ZAC_TYPE` `attribute` to the field component.
+ZAC extension fields are added to the Form.io form as a `ZAC_TYPE` `attribute` on the field component.
 
-Available ZAC types are:
+Note where things go: `ZAC_TYPE` is an **attribute**, while the settings a field takes (`ZAC_VELD`,
+`ZAC_FORMAAT`, `ZAC_INVOER`, `ReferenceTable_Code`) are **properties**. Form.io keeps these in two
+different objects and putting one in the other silently does nothing.
 
-- `ZAC_groep`
-- `ZAC_medewerker`
-- `ZAC_smart_documents_template_groups`
-- `ZAC_smart_documents_template_group_templates`
-- `ZAC_referentie_tabel`
-- `ZAC_documenten`
-- `ZAC_documenten_niet_ondertekend`
-- `ZAC_gekozen_documenten_niet_ondertekend`
-- `ZAC_regel_link_tekstueel`
-- `ZAC_regel_link_oog_icoon`
-- `ZAC_resultaat`
-- `ZAC_status`
-- `ZAC_process_data`
+The `ZAC_` prefix means "ZAC resolves this field", not "the data belongs to ZAC" — most of it comes
+from other systems. And the names do not say what kind of field it is: `ZAC_groep` gives you a
+*list of groups to pick from*, while `ZAC_taak_gegevens` with `ZAC_VELD: groep.naam` gives you *the
+group this task already has*. They are grouped below by what they do.
+
+#### Fields that fill a list of options
+
+Each of these turns a `select` into a dropdown that ZAC fills. The stored value is the first column
+of "value / label".
+
+| `ZAC_TYPE` | Offers | Value / label | Data comes from | Also needs |
+|---|---|---|---|---|
+| `ZAC_groep` | groups authorised for the behandelaar role on the zaak's zaaktype | `id` / `naam` | PABC (authorisation mappings); inactive groups are left out | — |
+| `ZAC_medewerker` | members of the chosen group | `id` / `naam` | Keycloak | `refreshOn`: key of the `ZAC_groep` field |
+| `ZAC_status` | statustypen of the zaaktype | `naam` / `naam` | Open Zaak (ZTC) | — |
+| `ZAC_resultaat` | resultaattypen of the zaaktype | `naam` / `naam` | Open Zaak (ZTC) | — |
+| `ZAC_documenten` | documents on the zaak | `uuid` / `titel` | Open Zaak (DRC) | — |
+| `ZAC_referentie_tabel` | values of one reference table | `id` / `name` | ZAC's own database | property `ReferenceTable_Code` |
+| `ZAC_smart_documents_template_groups` | template groups for the zaaktype | `id` / `naam` | SmartDocuments | — |
+| `ZAC_smart_documents_template_group_templates` | templates in the chosen group | `id` / `naam` | SmartDocuments | `refreshOn`: key of the template-groups field |
+
+Two are datagrids rather than dropdowns:
+
+| `ZAC_TYPE` | Rows | Notes |
+|---|---|---|
+| `ZAC_documenten_niet_ondertekend` | the zaak's documents that are not signed yet | ZAC adds a validation requiring at least one ticked row |
+| `ZAC_gekozen_documenten_niet_ondertekend` | the rows ticked in another grid | `refreshOn`: key of that grid. Titles and signing state are re-read, so anything signed meanwhile drops out |
+
+#### Fields that read a single value
+
+| `ZAC_TYPE` | Reads | Which ZAC assembles from |
+|---|---|---|
+| `ZAC_zaak_gegevens` | one property of the zaak, by path | the zaak in Open Zaak over the ZGW API, with the group and behandelaar resolved from the zaak rollen via Keycloak. Its `zaakdata` property is the exception: those are Flowable variables |
+| `ZAC_taak_gegevens` | one property of the taak, by path | the Flowable task and its task-local variables, with the candidate group and assignee resolved via Keycloak. Its `zaakUuid`, `zaakIdentificatie`, `zaaktypeUUID` and `zaaktypeOmschrijving` are read from the process variables, not from the task |
+| `ZAC_process_data` | one process variable, named by the field's `key` | the task data, into which ZAC merges the process variables each time the task is opened. On a completed task this is what was stored then, not the variable's current value |
+
+None of these read a single system straight through — each one is a ZAC model built from several
+sources. That is why the same value can sometimes be reached by more than one path; prefer
+`ZAC_zaak_gegevens` for anything about the zaak, and `ZAC_process_data` only for variables the
+process itself sets.
+
+See [Reading zaak and taak data](#reading-zaak-and-taak-data) and [Process data](#process-data).
+
+#### Fields that only present something
+
+| `ZAC_TYPE` | Renders |
+|---|---|
+| `ZAC_regel_link_tekstueel` | a text link in a column of a document datagrid |
+| `ZAC_regel_link_oog_icoon` | the same as an eye icon |
+
+Both take their destination from the datagrid they sit in, so they only work inside one of the
+document grids above.
 
 #### Undefined ZAC_TYPE
 
@@ -881,6 +922,94 @@ Example:
 }
 ```
 
+### Reading zaak and taak data
+
+`ZAC_zaak_gegevens` and `ZAC_taak_gegevens` show one property of the zaak or of the taak. Both use
+the same three properties, so learning one teaches the other.
+
+| Property | Required | Meaning |
+|---|---|---|
+| `ZAC_VELD` | yes | which property to read, as a dot path |
+| `ZAC_FORMAAT` | no | a function wrapped around the value for display |
+| `ZAC_INVOER` | no | `"true"` seeds the value into the field instead of showing it as text |
+
+```json
+{
+  "label": "Zaaknummer",
+  "type": "content",
+  "key": "ZG_zaaknummer",
+  "input": false,
+  "attributes": { "ZAC_TYPE": "ZAC_zaak_gegevens" },
+  "properties": { "ZAC_VELD": "identificatie" }
+}
+```
+
+#### Paths
+
+`ZAC_VELD` is a path into the object, and it can go as deep as the data does:
+
+- `identificatie`, `omschrijving`, `startdatum` — properties of the zaak itself
+- `zaaktype.omschrijving`, `groep.naam`, `status.naam` — nested objects
+- `resultaat.resultaattype.naam` — deeper still
+- `kenmerken[].kenmerk` — `[]` reads on through every element of a list
+
+A list of plain values (`indicaties`) is joined with commas. A path that stops on a list of objects,
+or that reads on through a single value, is reported as an error in place of the field.
+
+A property that holds no value renders as a dash. **An empty property and a misspelled property look
+the same**, because the API leaves out properties that have no value — so there is no way for ZAC to
+tell a typo from an empty field. Check the spelling against the model if a field stays empty.
+
+#### Formats
+
+Without `ZAC_FORMAAT` the value is shown exactly as the zaak or taak holds it. That is deliberate:
+formatting is for reading, and a field that parses its own value needs the raw one.
+
+| `ZAC_FORMAAT` | Turns | Into |
+|---|---|---|
+| `datum` | `2026-08-24` | `24-08-2026` |
+| `jaNee` | `true` / `false` | `Ja` / `Nee` |
+| `tabel` | an object | a table of all its keys and values |
+
+`tabel` is for objects whose keys you do not know in advance, such as the process variables. Nested
+objects show as `{n}` and lists as `[n]`, with n the number of entries; address those with their own
+path to look inside.
+
+#### Putting a value into an editable field
+
+With `ZAC_INVOER: "true"` the field stays whatever you declared — a `textfield`, a `textarea`, a
+`datetime` — and ZAC fills it in. The value is part of the submission, and a value the user has
+already saved is never overwritten by a later re-seed.
+
+```json
+{
+  "label": "Startdatum",
+  "type": "datetime",
+  "key": "IN_startdatum",
+  "input": true,
+  "format": "dd-MM-yyyy",
+  "enableTime": false,
+  "attributes": { "ZAC_TYPE": "ZAC_zaak_gegevens" },
+  "properties": { "ZAC_VELD": "startdatum", "ZAC_INVOER": "true" }
+}
+```
+
+Two rules for seeded fields:
+
+1. **Do not add a format to a field that parses its own value.** A date picker reads the raw value
+   and formats it for display itself; giving it `24-08-2026` breaks it. ZAC refuses this combination
+   with a message in the field rather than letting the picker fail silently in the browser console.
+2. **Do not use a process variable name as the `key`.** Completing a task writes every submitted key
+   back as a process variable, so a seeded field keyed `zaakGroep` overwrites that variable. Prefix
+   the keys of seeded fields so they cannot collide.
+
+#### Trying it out
+
+`src/itest/resources/bpmn/data-diagnostic` holds a process with four task forms that render every
+addressable property of the zaak and the taak, the process variables as tables, seeded input fields,
+and a panel of deliberate mistakes showing what each error message looks like. Upload the process
+and its forms to see all of it against a real zaak.
+
 ### Custom functions
 
 ZAC supports custom functions in Form.io `content` components via the `{{ }}` template syntax.
@@ -920,12 +1049,27 @@ actually sign. Entries without a UUID are ignored. Titles are always read from t
 
 If a document cannot be fetched or has no title, the UUID is used as a fallback.
 
-#### Supported process data variables
+#### Zaak variables in the process
 
-- `zaakUUID` - zaak UUID
-- `zaakIdentificatie` - zaak id
-- `zaakCommunicatiekanaal` - zaak communication channel
-- `zaakGroep` - zaak group
-- `zaakBehandelaar` - zaak assigned user
-- `zaaktypeUUID` - zaaktype UUID
-- `zaaktypeOmschrijving` - zaaktype description
+When a BPMN zaak starts, ZAC copies a few zaak fields into the process variables, because the
+process engine cannot read the zaak itself. They are what makes `${zaakGroep}` and
+`${var:get(zaakBehandelaar)}` work in the process definition.
+
+| Variable | Reachable with `ZAC_process_data` |
+|---|---|
+| `zaakIdentificatie` | yes |
+| `zaakCommunicatiekanaal` | yes |
+| `zaakGroep` | yes |
+| `zaakBehandelaar` | yes, once the zaak has a behandelaar |
+| `zaaktypeOmschrijving` | yes |
+| `zaakUUID` | **no** — left out of the task data |
+| `zaaktypeUUID` | **no** — left out of the task data |
+
+`zaakUUID` and `zaaktypeUUID` exist as process variables, and the process definition can use them,
+but ZAC does not pass them into the task data — so a `ZAC_process_data` field with either of those
+keys stays empty. This is a deliberate exclusion, not a bug.
+
+**Use `ZAC_zaak_gegevens` for zaak data instead of these variables.** It reads the zaak itself, so it
+is not limited to these seven fields: `startdatum`, `status`, `resultaat`, `omschrijving`, the
+initiator and the deadlines are all reachable, and `uuid` and `zaaktype.uuid` work normally. Reserve
+`ZAC_process_data` for variables the process itself sets.
