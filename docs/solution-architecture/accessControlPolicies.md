@@ -113,11 +113,11 @@ Notes:
   E.g. in case of a closed zaak, the CMMN state of the zaak is such that no active task 'plan items' exist for the zaak
   and therefore no task can be started.
 - The policies listed above are backend policies. Whether the related functionality is available to the user in the
-  frontend (browser) is for a large part also determined by these policies but differences may apply.
+  frontend (browser) is, for a large part, also determined by these policies, but differences may apply.
 - The `zaakspecifiek_geautoriseerd` application role is not listed as a separate column in the table above
   because it does not grant any permission on its own. It is a flag: when a medewerker holds
   `zaakspecifiek_geautoriseerd` for a zaaktype *in addition to* one of the normal application roles above
-  (`raadpleger`, `behandelaar`, `coordinator`) for that same zaaktype, the rights already granted by that
+  for that same zaaktype, the rights already granted by that
   normal role also apply to zaakspecifiek geautoriseerde zaken of that zaaktype (a zaak marked as such via a
   `ZAAK_GEAUTORISEERD` zaakeigenschap), not only to non-zaakspecifiek geautoriseerde zaken. Without also
   holding one of these normal roles, `zaakspecifiek_geautoriseerd` grants no rights at all. This also
