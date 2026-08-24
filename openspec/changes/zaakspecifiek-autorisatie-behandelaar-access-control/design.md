@@ -87,15 +87,15 @@ PZ-11954; doing it now also means a Solr reindex, which the ticket does not ask 
 helper in the `nl.info.zac.policy` or `nl.info.zac.app.zaak` package), so the "what counts as zaakspecifiek
 geautoriseerd" rule is defined exactly once.
 
-### 2. Gate only the non-privileged rule bodies with one shared `zaakspecifiek_toegankelijk` rule; leave `recordmanager`/`beheerder` bodies untouched
+### 2. Gate only the non-privileged rule bodies with one shared `zaak_allowed` rule; leave `recordmanager`/`beheerder` bodies untouched
 
 In each of `zaak-rechten.rego`, `taak-rechten.rego`, `document-rechten.rego`, add:
 ```rego
-default zaakspecifiek_toegankelijk := false
-zaakspecifiek_toegankelijk if {
+default zaak_allowed := false
+zaak_allowed if {
     not zaak.zaakspecifiekGeautoriseerd   # or taak.zaakspecifiekGeautoriseerd / document.zaakspecifiekGeautoriseerd
 }
-zaakspecifiek_toegankelijk if {
+zaak_allowed if {
     zaakspecifiekAutorisatieBehandelaar.rol in user.rollen
 }
 ```
@@ -112,7 +112,7 @@ default wijzigen := false
 wijzigen if {
     zaaktype_allowed
     zaak.open
-    zaakspecifiek_toegankelijk
+    zaak_allowed
     some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
     role.rol in user.rollen
 }
@@ -129,7 +129,7 @@ can be added to the non-privileged half only:
 default lezen := false
 lezen if {
     zaaktype_allowed
-    zaakspecifiek_toegankelijk
+    zaak_allowed
     some role in {raadpleger, behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
     role.rol in user.rollen
 }
@@ -164,12 +164,12 @@ directly implements the acceptance criterion that this role's rights equal behan
 raadpleger's), granted explicitly rather than by relying on the user also separately holding `behandelaar` —
 consistent with the `application-role-permission-matrix` capability's existing no-hierarchy principle.
 
-Combined with Decision 2: a plain `behandelaar` (without the new role) fails `zaakspecifiek_toegankelijk` for
+Combined with Decision 2: a plain `behandelaar` (without the new role) fails `zaak_allowed` for
 a geautoriseerde zaak and is denied everywhere; a user who additionally holds
 `zaakspecifiek_autorisatie_behandelaar` both passes the gate and is present in every role set `behandelaar`
 is present in, so their effective rights on a geautoriseerde zaak equal a normal behandelaar's rights on a
 non-geautoriseerde zaak — matching the acceptance criteria exactly, and with no different behaviour on
-non-geautoriseerde zaken of that zaaktype (`zaakspecifiek_toegankelijk` is trivially true there).
+non-geautoriseerde zaken of that zaaktype (`zaak_allowed` is trivially true there).
 
 ### 4. No REST/frontend change for the "generic error on direct URL access" criterion
 

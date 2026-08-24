@@ -19,7 +19,7 @@ and testing their access to a zaakspecifiek geautoriseerde zaak is left to a fol
   (`ZaakData`/`TaakData`/`DocumentData` in `nl.info.zac.policy.input`), populated by looking up the zaak's
   `ZAAK_GEAUTORISEERD` zaakeigenschap (the same check `RestZaakConverter` already performs for the
   `isZaakspecifiekGeautoriseerd` indicator, extracted into a shared helper so both call sites stay in sync).
-- Add a `zaakspecifiek_toegankelijk` gating rule to `zaak-rechten.rego`, `taak-rechten.rego`, and
+- Add a `zaak_allowed` gating rule to `zaak-rechten.rego`, `taak-rechten.rego`, and
   `document-rechten.rego`: true when the zaak/taak/document is not zaakspecifiek geautoriseerd, or the user
   holds `zaakspecifiek_autorisatie_behandelaar`. This gate is added only to the rule bodies that grant
   `raadpleger`, `behandelaar`, and/or `coordinator` a permission; the separate rule bodies that already grant

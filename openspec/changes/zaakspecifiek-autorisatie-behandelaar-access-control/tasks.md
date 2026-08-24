@@ -40,10 +40,10 @@
 - [ ] 4.1 Import `zaakspecifiekAutorisatieBehandelaar` from `data.net.atos.zac.rol.zaakspecifiekAutorisatieBehandelaar`
       (`src/main/resources/policies/zaak-rechten.rego`; constant already defined in
       `src/main/resources/policies/rollen.rego:34-36`, currently unused).
-- [ ] 4.2 Add a `default zaakspecifiek_toegankelijk := false` rule set: true when `not zaak.zaakspecifiekGeautoriseerd`, or
+- [ ] 4.2 Add a `default zaak_allowed := false` rule set: true when `not zaak.zaakspecifiekGeautoriseerd`, or
       when the user holds `zaakspecifiekAutorisatieBehandelaar`. Do not reference `recordmanager`/`beheerder`
       in this rule — their access to a zaakspecifiek geautoriseerde zaak is out of scope for this change.
-- [ ] 4.3 Add `zaakspecifiek_toegankelijk` as an extra condition only to the rule bodies that grant
+- [ ] 4.3 Add `zaak_allowed` as an extra condition only to the rule bodies that grant
       `raadpleger`, `behandelaar`, and/or `coordinator` a permission (`lezen`, the `{behandelaar, coordinator}`
       body of `wijzigen` and `toekennen`, `behandelen`, `afbreken`, `wijzigen_doorlooptijd`, `verlengen`,
       `opschorten`, `hervatten`, `creeren_document`, the `{behandelaar, coordinator}` body of
@@ -66,7 +66,7 @@
 ## 5. OPA policy: taak-rechten.rego and document-rechten.rego
 
 - [ ] 5.1 Add `zaakspecifiekGeautoriseerd` to the `input.taak` usage in `taak-rechten.rego` (import the role, add
-      `zaakspecifiek_toegankelijk`, gate/split only the `raadpleger`/`behandelaar`/`coordinator` rule bodies,
+      `zaak_allowed`, gate/split only the `raadpleger`/`behandelaar`/`coordinator` rule bodies,
       add `zaakspecifiekAutorisatieBehandelaar` next to every `behandelaar` occurrence in those bodies, leave
       `recordmanager`/`beheerder` bodies untouched) mirroring task group 4.
 - [ ] 5.2 Do the same for `document-rechten.rego` (`input.document`).
