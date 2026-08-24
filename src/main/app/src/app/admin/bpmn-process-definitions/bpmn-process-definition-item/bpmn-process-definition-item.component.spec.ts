@@ -113,7 +113,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   let container: HTMLElement;
   let detectChanges: () => void;
 
-  const user = userEvent.setup();
+  const user = userEvent.setup({ delay: null });
 
   async function setup(processDefinition = baseProcessDefinition) {
     const rendered = await render(BpmnProcessDefinitionItemComponent, {
@@ -134,13 +134,17 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   }
 
   function fileInput() {
+    // eslint-disable-next-line no-restricted-syntax, testing-library/no-node-access -- the file input is `display: none` and label-less by design; the upload button opens it programmatically, so it is not in the accessibility tree
     return container.querySelector<HTMLInputElement>('input[type="file"]')!;
   }
 
   function dropFiles(...files: File[]) {
-    fireEvent.drop(container.querySelector<HTMLElement>("[dropzone]")!, {
-      dataTransfer: { files: makeFileList(...files) },
-    });
+    fireEvent.drop(
+      screen.getByRole("heading", {
+        name: "bpmn.process-definition.card.task-forms.title",
+      }),
+      { dataTransfer: { files: makeFileList(...files) } },
+    );
   }
 
   function rowOf(formKey: string) {
@@ -191,6 +195,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     expect(screen.getByText("test-key")).toBeVisible();
     expect(screen.getByText("Test documentation")).toBeVisible();
     expect(
+      // eslint-disable-next-line no-restricted-syntax, testing-library/no-node-access -- zac-static-text renders a <label> that is not associated with a form control, so its value cannot be reached by role or label query
       container.querySelector('zac-static-text[label="versie"]'),
     ).toHaveTextContent("2");
   });
@@ -458,9 +463,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     (readFileContent as jest.Mock).mockResolvedValue(fileContent);
     await setup();
 
-    fireEvent.change(fileInput(), {
-      target: { files: [new File([fileContent], "test-form.json")] },
-    });
+    await user.upload(fileInput(), new File([fileContent], "test-form.json"));
     await Promise.resolve();
     await Promise.resolve();
     await Promise.resolve();
@@ -482,9 +485,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     (readFileContent as jest.Mock).mockResolvedValue("{}");
     await setup();
 
-    fireEvent.change(fileInput(), {
-      target: { files: [new File(["{}"], "test-form.json")] },
-    });
+    await user.upload(fileInput(), new File(["{}"], "test-form.json"));
 
     expect(fileInput().value).toBe("");
   });
@@ -494,9 +495,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     (readFileContent as jest.Mock).mockRejectedValue(error);
     await setup();
 
-    fireEvent.change(fileInput(), {
-      target: { files: [new File(["bad"], "bad.json")] },
-    });
+    await user.upload(fileInput(), new File(["bad"], "bad.json"));
     await sleep();
 
     expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
