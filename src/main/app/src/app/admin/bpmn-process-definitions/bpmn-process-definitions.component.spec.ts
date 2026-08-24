@@ -130,8 +130,8 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     });
   }
 
-  function chooseFile(file: File) {
-    fireEvent.change(fileInput(), { target: { files: [file] } });
+  async function chooseFile(file: File) {
+    await user.upload(fileInput(), file);
   }
 
   beforeEach(() => {
@@ -271,7 +271,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     (readFileContent as jest.Mock).mockResolvedValue(content);
     await setup();
 
-    chooseFile(new File([content], "process.bpmn"));
+    await chooseFile(new File([content], "process.bpmn"));
     await sleep();
 
     expect(
@@ -286,7 +286,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     (readFileContent as jest.Mock).mockResolvedValue("<bpmn/>");
     await setup();
 
-    chooseFile(new File(["<bpmn/>"], "process.bpmn"));
+    await chooseFile(new File(["<bpmn/>"], "process.bpmn"));
 
     expect(fileInput().value).toBe("");
   });
@@ -296,7 +296,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     (readFileContent as jest.Mock).mockRejectedValue(error);
     await setup();
 
-    chooseFile(new File(["<bad>"], "bad.bpmn"));
+    await chooseFile(new File(["<bad>"], "bad.bpmn"));
     await sleep();
 
     expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);

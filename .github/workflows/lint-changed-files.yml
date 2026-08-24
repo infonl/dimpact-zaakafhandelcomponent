@@ -89,6 +89,20 @@ jobs:
             echo "files_to_lint=" >> $GITHUB_OUTPUT
           fi
 
+          # Spec files are linted separately, against the stricter Testing Library rules
+          SPEC_FILES=$(echo "$EXISTING_FILES" | grep '\.spec\.ts$' || true)
+
+          if [ -n "$SPEC_FILES" ]; then
+            echo "Changed spec files to lint:"
+            echo "$SPEC_FILES"
+            echo "specs_to_lint<<EOF" >> $GITHUB_OUTPUT
+            echo "$SPEC_FILES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "No spec files changed"
+            echo "specs_to_lint=" >> $GITHUB_OUTPUT
+          fi
+
       - name: Generate OpenAPI specs
         if: steps.changed-files.outputs.files_to_lint != ''
         run: |
@@ -119,6 +133,28 @@ jobs:
 
           # Use ng lint with specific file patterns
           npm run lint
+
+      - name: Lint changed spec files
+        id: lint-specs
+        if: steps.changed-files.outputs.specs_to_lint != ''
+        working-directory: src/main/app
+        run: |
+          RELATIVE_SPECS=$(echo "${{ steps.changed-files.outputs.specs_to_lint }}" | sed 's|^src/main/app/||')
+
+          echo "🔍 Linting changed spec files against the stricter Testing Library rules..."
+          echo "$RELATIVE_SPECS"
+          echo ""
+
+          if ESLINT_USE_FLAT_CONFIG=false npx eslint -c .eslintrc.strict-specs.js $RELATIVE_SPECS; then
+            echo "✅ All changed spec files passed"
+            echo "errors-found=false" >> $GITHUB_OUTPUT
+          else
+            echo ""
+            echo "❌ Changed spec files must follow the Testing Library query priority"
+            echo "💡 Prefer getByRole over DOM traversal; see https://testing-library.com/docs/queries/about/#priority"
+            echo "💡 Run './scripts/lint-changed-files.sh' locally to reproduce"
+            echo "errors-found=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Type check changed TS files
         id: type-check
@@ -199,7 +235,7 @@ jobs:
           fi
 
       - name: Comment on PR if linting failed
-        if: steps.type-check.outputs.errors-found == 'true' && steps.ignore-errors.outputs.ignore-errors == 'false'
+        if: (steps.type-check.outputs.errors-found == 'true' || steps.lint-specs.outputs.errors-found == 'true') && steps.ignore-errors.outputs.ignore-errors == 'false'
         continue-on-error: true
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
@@ -221,7 +257,7 @@ jobs:
             })
 
       - name: Fail the job if not ignoring errors
-        if: steps.type-check.outputs.errors-found == 'true' && steps.ignore-errors.outputs.ignore-errors == 'false'
+        if: (steps.type-check.outputs.errors-found == 'true' || steps.lint-specs.outputs.errors-found == 'true') && steps.ignore-errors.outputs.ignore-errors == 'false'
         run: |
           echo "❌ Failing the job due to linting errors."
           exit 1

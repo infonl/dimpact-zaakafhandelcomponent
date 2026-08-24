@@ -482,9 +482,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     (readFileContent as jest.Mock).mockResolvedValue("{}");
     await setup();
 
-    fireEvent.change(fileInput(), {
-      target: { files: [new File(["{}"], "test-form.json")] },
-    });
+    await user.upload(fileInput(), new File(["{}"], "test-form.json"));
 
     expect(fileInput().value).toBe("");
   });
@@ -494,9 +492,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     (readFileContent as jest.Mock).mockRejectedValue(error);
     await setup();
 
-    fireEvent.change(fileInput(), {
-      target: { files: [new File(["bad"], "bad.json")] },
-    });
+    await user.upload(fileInput(), new File(["bad"], "bad.json"));
     await sleep();
 
     expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);

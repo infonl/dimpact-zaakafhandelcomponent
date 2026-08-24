@@ -152,7 +152,7 @@ describe(MailCreateComponent.name, () => {
   }
 
   function documentCheckbox(titel: string) {
-    const row = screen.getByText(titel).closest("tr") as HTMLElement;
+    const row = screen.getByRole("row", { name: new RegExp(titel) });
     return within(row).getByRole("checkbox");
   }
 

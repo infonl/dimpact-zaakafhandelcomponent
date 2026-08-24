@@ -126,7 +126,7 @@ describe(ZaakLinkComponent.name, () => {
   };
 
   const dateRangeField = (label: string) =>
-    screen.getByText(label).closest("mat-form-field") as HTMLElement;
+    screen.getByRole("group", { name: label });
 
   const fillDateRange = async (label: string, van: string, tot: string) => {
     await userEvent.type(

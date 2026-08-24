@@ -187,7 +187,9 @@ describe(CaseLocationEditComponent.name, () => {
 
   async function pickAddressFromSearch() {
     await user.type(screen.getByLabelText("adres"), "fakeStraat");
-    await user.click(await screen.findByText(addressName));
+    await user.click(
+      await screen.findByRole("option", { name: new RegExp(addressName) }),
+    );
   }
 
   async function fillInReason() {
