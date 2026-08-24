@@ -7,7 +7,7 @@ package nl.info.client.zgw.shared.exception
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import jakarta.ws.rs.core.MultivaluedHashMap
-import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper
+import nl.info.client.zgw.shared.exception.ZgwErrorExceptionMapper
 
 class ZgwErrorExceptionMapperTest : BehaviorSpec({
     val zgwErrorExceptionMapper = ZgwErrorExceptionMapper()

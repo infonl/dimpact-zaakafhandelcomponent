@@ -1,51 +1,34 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.client.zgw.shared.model
 
-package net.atos.client.zgw.shared.model;
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging
+import nl.info.client.zgw.shared.model.audit.besluiten.BesluitWijziging
+import nl.info.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging
+import nl.info.client.zgw.shared.model.audit.documenten.GebruiksrechtenWijziging
+import nl.info.client.zgw.shared.model.audit.documenten.ObjectInformatieobjectWijziging
+import java.lang.reflect.Type
 
-import java.lang.reflect.Type;
+enum class ObjectType(private val url: String, val auditClass: Type) {
+    ENKELVOUDIG_INFORMATIEOBJECT(
+        "/documenten/api/v1/enkelvoudiginformatieobjecten/",
+        EnkelvoudigInformatieobjectWijziging::class.java
+    ),
 
-import org.apache.commons.lang3.StringUtils;
+    GEBRUIKSRECHTEN("/documenten/api/v1/gebruiksrechten", GebruiksrechtenWijziging::class.java),
 
-import nl.info.client.zgw.shared.model.audit.AuditWijziging;
-import nl.info.client.zgw.shared.model.audit.besluiten.BesluitInformatieobjectWijziging;
-import nl.info.client.zgw.shared.model.audit.besluiten.BesluitWijziging;
-import nl.info.client.zgw.shared.model.audit.documenten.EnkelvoudigInformatieobjectWijziging;
-import nl.info.client.zgw.shared.model.audit.documenten.GebruiksrechtenWijziging;
-import nl.info.client.zgw.shared.model.audit.documenten.ObjectInformatieobjectWijziging;
+    OBJECT_INFORMATIEOBJECT("documenten/api/v1/objectinformatieobjecten", ObjectInformatieobjectWijziging::class.java),
 
-public enum ObjectType {
-    ENKELVOUDIG_INFORMATIEOBJECT("/documenten/api/v1/enkelvoudiginformatieobjecten/", EnkelvoudigInformatieobjectWijziging.class),
+    BESLUIT("/besluiten/api/v1/besluiten", BesluitWijziging::class.java),
 
-    GEBRUIKSRECHTEN("/documenten/api/v1/gebruiksrechten", GebruiksrechtenWijziging.class),
+    BESLUIT_INFORMATIEOBJECT("/besluiten/api/v1/besluitinformatieobjecten", BesluitInformatieobjectWijziging::class.java);
 
-    OBJECT_INFORMATIEOBJECT("documenten/api/v1/objectinformatieobjecten", ObjectInformatieobjectWijziging.class),
-
-    BESLUIT("/besluiten/api/v1/besluiten", BesluitWijziging.class),
-
-    BESLUIT_INFORMATIEOBJECT("/besluiten/api/v1/besluitinformatieobjecten", BesluitInformatieobjectWijziging.class);
-
-    private final String url;
-
-    public final Type auditClass;
-
-    ObjectType(final String url, final Class<? extends AuditWijziging<?>> classType) {
-        this.url = url;
-        this.auditClass = classType;
-    }
-
-    public static ObjectType getObjectType(String url) {
-        for (ObjectType value : values()) {
-            if (StringUtils.contains(url, value.url)) {
-                return value;
-            }
-        }
-        throw new RuntimeException(String.format("URL '%s' wordt niet ondersteund", url));
-    }
-
-    public Type getAuditClass() {
-        return auditClass;
+    companion object {
+        fun getObjectType(url: String): ObjectType =
+            entries.firstOrNull { url.contains(it.url) }
+                ?: throw ZgwRuntimeException("URL '$url' wordt niet ondersteund")
     }
 }

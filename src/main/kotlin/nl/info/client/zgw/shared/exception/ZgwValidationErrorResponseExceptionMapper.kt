@@ -2,30 +2,24 @@
  * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.shared.exception;
+package nl.info.client.zgw.shared.exception
 
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
-
-import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
-
-import net.atos.client.zgw.shared.model.ZgwValidationError;
+import jakarta.ws.rs.core.MultivaluedMap
+import jakarta.ws.rs.core.Response
+import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper
+import nl.info.client.zgw.shared.model.ZgwValidationError
 
 /**
- * Maps all responses with status code 400 (Bad Request) from the ZGW APIs to {@link ZgwValidationErrorException}s.
- * <p>
+ * Maps all responses with status code 400 (Bad Request) from the ZGW APIs to [ZgwValidationErrorException]s.
+ *
  * These responses are expected to have a JSON payload according to
- * <a href="https://datatracker.ietf.org/doc/html/rfc7807">the Problem Details Standard</a>.
+ * [the Problem Details Standard](https://datatracker.ietf.org/doc/html/rfc7807).
  */
-public class ZgwValidationErrorResponseExceptionMapper implements ResponseExceptionMapper<ZgwValidationErrorException> {
+class ZgwValidationErrorResponseExceptionMapper : ResponseExceptionMapper<ZgwValidationErrorException> {
 
-    @Override
-    public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
-        return status == Response.Status.BAD_REQUEST.getStatusCode();
-    }
+    override fun handles(status: Int, headers: MultivaluedMap<String, Any>): Boolean =
+        status == Response.Status.BAD_REQUEST.statusCode
 
-    @Override
-    public ZgwValidationErrorException toThrowable(final Response response) {
-        return new ZgwValidationErrorException(response.readEntity(ZgwValidationError.class));
-    }
+    override fun toThrowable(response: Response): ZgwValidationErrorException =
+        ZgwValidationErrorException(response.readEntity(ZgwValidationError::class.java))
 }

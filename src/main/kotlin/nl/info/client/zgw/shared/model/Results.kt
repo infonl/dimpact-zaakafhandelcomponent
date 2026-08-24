@@ -1,61 +1,48 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.shared.model;
+package nl.info.client.zgw.shared.model
 
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import jakarta.json.bind.annotation.JsonbCreator
+import jakarta.json.bind.annotation.JsonbProperty
+import java.net.URI
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+data class Results<T> @JsonbCreator constructor(
+    @param:JsonbProperty("count") private val countValue: Int,
+    @param:JsonbProperty("results") private val resultsValue: List<T>?,
+    @param:JsonbProperty("next") private val nextValue: URI? = null,
+    @param:JsonbProperty("previous") private val previousValue: URI? = null
+) {
+    constructor(results: List<T>, count: Int) : this(count, results, null, null)
 
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
+    fun count(): Int = countValue
 
-public record Results<T> (int count, List<T> results, URI next, URI previous) {
+    fun results(): List<T> = resultsValue ?: emptyList()
 
-    // Aantal items wat Open Zaak terug geeft per pagina
-    public static final long NUM_ITEMS_PER_PAGE = 100;
+    fun next(): URI? = nextValue
 
-    public Results(final List<T> results, final int count) {
-        this(count, results, null, null);
-    }
+    fun previous(): URI? = previousValue
 
-    @JsonbCreator
-    public Results(
-            @JsonbProperty("count") final int count,
-            @JsonbProperty("results") final List<T> results,
-            @JsonbProperty("next") final URI next,
-            @JsonbProperty("previous") final URI previous
-    ) {
-        this.count = count;
-        this.results = results;
-        this.next = next;
-        this.previous = previous;
-    }
-
-    @Override
-    public List<T> results() {
-        return results != null ? results : Collections.emptyList();
-    }
-
-    public Optional<T> getSingleResult() {
-        if (isEmpty(results)) {
-            return Optional.empty();
-        } else if (results.size() == 1) {
-            return Optional.of(results.getFirst());
-        } else {
-            throw new IllegalStateException(String.format("More than one result found (count: %d)", count));
+    val singleResult: T?
+        get() {
+            val results = results()
+            return when {
+                results.isEmpty() -> null
+                results.size == 1 -> results.first()
+                else -> throw IllegalStateException("More than one result found (count: $countValue)")
+            }
         }
-    }
 
-    public List<T> getSinglePageResults() {
-        if (next == null) {
-            return results();
+    val singlePageResults: List<T>
+        get() = if (nextValue == null) {
+            results()
         } else {
-            throw new IllegalStateException(String.format("More than one page found (count: %d, results: %d)", count, results.size()));
+            throw IllegalStateException("More than one page found (count: $countValue, results: ${results().size})")
         }
+
+    companion object {
+        // Aantal items wat Open Zaak terug geeft per pagina
+        const val NUM_ITEMS_PER_PAGE: Long = 100
     }
 }

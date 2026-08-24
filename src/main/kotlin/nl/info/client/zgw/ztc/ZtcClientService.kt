@@ -9,8 +9,8 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.stats.CacheStats
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.cache.Caching
-import net.atos.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.cache.Caching
+import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.exception.CatalogusNotFoundException
 import nl.info.client.zgw.ztc.exception.EigenschapNotFoundException
@@ -121,13 +121,10 @@ class ZtcClientService @Inject constructor(
      * @throws CatalogusNotFoundException if no [Catalogus] could be found.
      */
     fun readCatalogus(catalogusListParameters: CatalogusListParameters): Catalogus =
-        ztcClient.catalogusList(catalogusListParameters)
-            .singleResult
-            .orElseThrow {
-                CatalogusNotFoundException(
-                    "No catalogus found for catalogus list parameters '$catalogusListParameters'."
-                )
-            }
+        ztcClient.catalogusList(catalogusListParameters).singleResult
+            ?: throw CatalogusNotFoundException(
+                "No catalogus found for catalogus list parameters '$catalogusListParameters'."
+            )
 
     fun resetCacheTimeToNow(): ZonedDateTime = ztcTimeCache.get(Caching.ZTC_CACHE_TIME) { ZonedDateTime.now() }
 

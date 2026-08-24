@@ -5,11 +5,11 @@
 package nl.info.zac.history.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.model.ObjectType.BESLUIT
-import net.atos.client.zgw.shared.model.ObjectType.BESLUIT_INFORMATIEOBJECT
-import net.atos.client.zgw.shared.model.ObjectType.ENKELVOUDIG_INFORMATIEOBJECT
-import net.atos.client.zgw.shared.model.ObjectType.GEBRUIKSRECHTEN
-import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
+import nl.info.client.zgw.shared.model.ObjectType.BESLUIT
+import nl.info.client.zgw.shared.model.ObjectType.BESLUIT_INFORMATIEOBJECT
+import nl.info.client.zgw.shared.model.ObjectType.ENKELVOUDIG_INFORMATIEOBJECT
+import nl.info.client.zgw.shared.model.ObjectType.GEBRUIKSRECHTEN
+import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten

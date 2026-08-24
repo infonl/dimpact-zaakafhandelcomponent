@@ -1,40 +1,27 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.client.zgw.shared.model
 
-package net.atos.client.zgw.shared.model;
+import jakarta.json.bind.adapter.JsonbAdapter
 
-import java.util.Arrays;
+interface AbstractEnum {
 
-import jakarta.json.bind.adapter.JsonbAdapter;
+    fun toValue(): String
 
-public interface AbstractEnum {
-
-    String toValue();
-
-    static <T extends AbstractEnum> T fromValue(final T[] enums, final String value) {
-        return Arrays.stream(enums)
-                .filter(anEnum -> anEnum.toValue().equals(value))
-                .findAny()
-                .orElseThrow();
+    companion object {
+        fun <T : AbstractEnum> fromValue(enums: Array<T>, value: String): T =
+            enums.first { it.toValue() == value }
     }
 
-    abstract class Adapter<T extends AbstractEnum> implements JsonbAdapter<T, String> {
+    abstract class Adapter<T : AbstractEnum> : JsonbAdapter<T, String> {
 
-        @Override
-        public String adaptToJson(final T anEnum) {
-            return anEnum.toValue();
-        }
+        override fun adaptToJson(anEnum: T): String = anEnum.toValue()
 
-        @Override
-        public T adaptFromJson(final String json) {
-            return Arrays.stream(getEnums())
-                    .filter(anEnum -> anEnum.toValue().equals(json))
-                    .findAny()
-                    .orElse(null);
-        }
+        override fun adaptFromJson(json: String): T? =
+            getEnums().firstOrNull { it.toValue() == json }
 
-        protected abstract T[] getEnums();
+        protected abstract fun getEnums(): Array<T>
     }
 }

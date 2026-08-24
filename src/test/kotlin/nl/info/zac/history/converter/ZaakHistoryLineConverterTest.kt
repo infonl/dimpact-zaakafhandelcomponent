@@ -8,8 +8,8 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.shared.model.Bron
-import net.atos.client.zgw.shared.model.ObjectType
+import nl.info.client.zgw.shared.model.Bron
+import nl.info.client.zgw.shared.model.ObjectType
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.brc.model.generated.Besluit

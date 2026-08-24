@@ -7,7 +7,7 @@ package nl.info.zac.search
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import net.atos.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService

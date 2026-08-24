@@ -1,49 +1,33 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.client.zgw.shared.model;
+package nl.info.client.zgw.shared.model
 
-import java.io.Serial;
-import java.net.URI;
-import java.util.List;
-
-import jakarta.json.bind.annotation.JsonbCreator;
-import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbCreator
+import jakarta.json.bind.annotation.JsonbProperty
+import java.net.URI
 
 /**
  * ZGW error indicating a validation error.
  * The structure of these errors comply to the <a href="https://datatracker.ietf.org/doc/html/rfc7807">Problem Details Standard</a>.
  */
-public class ZgwValidationError extends ZgwError {
-    @Serial
-    private static final long serialVersionUID = 79823432543535L;
+class ZgwValidationError @JsonbCreator constructor(
+    @param:JsonbProperty("type") type: URI?,
+    @param:JsonbProperty("code") code: String?,
+    @param:JsonbProperty("title") title: String?,
+    @param:JsonbProperty("status") status: Int,
+    @param:JsonbProperty("detail") detail: String?,
+    @param:JsonbProperty("instance") instance: URI?,
+    @param:JsonbProperty("invalidParams") val invalidParams: List<FieldValidationError>
+) : ZgwError(type, code, title, status, detail, instance) {
 
-    private final List<FieldValidationError> invalidParams;
-
-    @JsonbCreator
-    public ZgwValidationError(
-            @JsonbProperty("type") final URI type,
-            @JsonbProperty("code") final String code,
-            @JsonbProperty("title") final String title,
-            @JsonbProperty("status") final int status,
-            @JsonbProperty("detail") final String detail,
-            @JsonbProperty("instance") final URI instance,
-            @JsonbProperty("invalidParams") final List<FieldValidationError> invalidParams
-    ) {
-        super(type, code, title, status, detail, instance);
-        this.invalidParams = invalidParams;
+    override fun toString() = buildString {
+        append(super.toString()).append("\n")
+        invalidParams.forEach { append(it.toString()).append("\n") }
     }
 
-    public List<FieldValidationError> getInvalidParams() {
-        return invalidParams;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(super.toString()).append("\n");
-        invalidParams.forEach(fieldValidationError -> stringBuilder.append(fieldValidationError.toString()).append("\n"));
-        return stringBuilder.toString();
+    companion object {
+        private const val serialVersionUID: Long = 79823432543535L
     }
 }

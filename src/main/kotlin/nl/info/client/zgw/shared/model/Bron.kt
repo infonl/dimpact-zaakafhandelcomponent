@@ -1,17 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.client.zgw.shared.model
 
-package net.atos.client.zgw.shared.model;
-
-import jakarta.json.bind.annotation.JsonbTypeAdapter;
+import jakarta.json.bind.annotation.JsonbTypeAdapter
 
 /**
  * Bron API
  */
-@JsonbTypeAdapter(Bron.Adapter.class)
-public enum Bron implements AbstractEnum {
+@JsonbTypeAdapter(Bron.Adapter::class)
+enum class Bron(private val value: String) : AbstractEnum {
 
     /**
      * Autorisaties API.
@@ -43,26 +42,13 @@ public enum Bron implements AbstractEnum {
      */
     BESLUITEN_API("BRC");
 
-    private final String value;
+    override fun toValue(): String = value
 
-    Bron(final String value) {
-        this.value = value;
+    internal class Adapter : AbstractEnum.Adapter<Bron>() {
+        override fun getEnums(): Array<Bron> = entries.toTypedArray()
     }
 
-    @Override
-    public String toValue() {
-        return value;
-    }
-
-    public static Bron fromValue(final String value) {
-        return AbstractEnum.fromValue(values(), value);
-    }
-
-    static class Adapter extends AbstractEnum.Adapter<Bron> {
-
-        @Override
-        protected Bron[] getEnums() {
-            return values();
-        }
+    companion object {
+        fun fromValue(value: String): Bron = AbstractEnum.fromValue(entries.toTypedArray(), value)
     }
 }

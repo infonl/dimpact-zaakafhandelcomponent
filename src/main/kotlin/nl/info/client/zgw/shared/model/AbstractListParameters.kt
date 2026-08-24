@@ -1,25 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.client.zgw.shared.model
 
-package net.atos.client.zgw.shared.model;
+import jakarta.ws.rs.QueryParam
 
-import jakarta.ws.rs.QueryParam;
-
-public abstract class AbstractListParameters {
-
+abstract class AbstractListParameters {
     /**
      * Een pagina binnen de gepagineerde set resultaten.
      */
     @QueryParam("page")
-    private Integer page;
-
-    public Integer getPage() {
-        return page;
-    }
-
-    public void setPage(final Integer page) {
-        this.page = page;
-    }
+    var page: Int? = null
 }
