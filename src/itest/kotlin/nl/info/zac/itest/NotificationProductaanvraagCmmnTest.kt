@@ -754,7 +754,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
         }
     }
 
-    context("Productaanvraag notification that Open Notificaties redelivers") {
+    context("Productaanvraag notification is redelivered") {
         given("a productaanvraag notification that ZAC has already handled successfully") {
             `when`("the notificaties endpoint is called a second time with the exact same payload") {
                 val response = itestHttpClient.performJSONPostRequest(
