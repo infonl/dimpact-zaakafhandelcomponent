@@ -202,7 +202,10 @@ describe(CaseLocationEditComponent.name, () => {
   it("shows the map", async () => {
     const { container } = await setup();
 
-    expect(container.querySelector(".open-layers-map")).not.toBeNull();
+    expect(
+      // eslint-disable-next-line no-restricted-syntax, testing-library/no-node-access -- OpenLayers renders into a plain div that carries no role, label or text
+      container.querySelector(".open-layers-map"),
+    ).not.toBeNull();
   });
 
   it("asks for a reason as soon as the zaak has no location yet", async () => {

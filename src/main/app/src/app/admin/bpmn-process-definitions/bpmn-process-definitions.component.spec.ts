@@ -117,17 +117,20 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
   }
 
   function fileInput() {
+    // eslint-disable-next-line no-restricted-syntax, testing-library/no-node-access -- the file input is `display: none` and label-less by design; the upload button opens it programmatically, so it is not in the accessibility tree
     return container.querySelector<HTMLInputElement>('input[accept=".bpmn"]')!;
   }
 
   function groupRowOf(name: string) {
+    // eslint-disable-next-line testing-library/no-node-access -- Angular Material's mat-nested-tree-node wraps both the row and its collapsed details in one treeitem, so the row alone is only reachable as the parent of its expand button
     return screen.getByRole("button", { name }).parentElement!;
   }
 
   function dropFiles(...files: File[]) {
-    fireEvent.drop(container.querySelector<HTMLElement>("[dropzone]")!, {
-      dataTransfer: { files: makeFileList(...files) },
-    });
+    fireEvent.drop(
+      screen.getByRole("heading", { name: "title.bpmn-procesdefinities" }),
+      { dataTransfer: { files: makeFileList(...files) } },
+    );
   }
 
   async function chooseFile(file: File) {
