@@ -933,6 +933,15 @@ the same three properties, so learning one teaches the other.
 | `ZAC_FORMAAT` | no | a function wrapped around the value for display |
 | `ZAC_INVOER` | no | `"true"` seeds the value into the field instead of showing it as text |
 
+There are two ways to use a value, and each works with either source — four combinations in all:
+
+|  | Show it as text | Fill an editable field |
+|---|---|---|
+| **from the zaak** | `ZAC_zaak_gegevens` | `ZAC_zaak_gegevens` + `ZAC_INVOER` |
+| **from the taak** | `ZAC_taak_gegevens` | `ZAC_taak_gegevens` + `ZAC_INVOER` |
+
+##### Showing a zaak property as text
+
 ```json
 {
   "label": "Zaaknummer",
@@ -943,6 +952,52 @@ the same three properties, so learning one teaches the other.
   "properties": { "ZAC_VELD": "identificatie" }
 }
 ```
+
+##### Showing a taak property as text
+
+```json
+{
+  "label": "Behandelaar van deze taak",
+  "type": "content",
+  "key": "TG_behandelaar",
+  "input": false,
+  "attributes": { "ZAC_TYPE": "ZAC_taak_gegevens" },
+  "properties": { "ZAC_VELD": "behandelaar.naam" }
+}
+```
+
+##### Filling an editable field from the zaak
+
+```json
+{
+  "label": "Toelichting",
+  "type": "textarea",
+  "key": "IN_toelichting",
+  "input": true,
+  "rows": 3,
+  "attributes": { "ZAC_TYPE": "ZAC_zaak_gegevens" },
+  "properties": { "ZAC_VELD": "toelichting", "ZAC_INVOER": "true" }
+}
+```
+
+##### Filling an editable field from the taak
+
+```json
+{
+  "label": "Fatale datum",
+  "type": "datetime",
+  "key": "IN_fataledatum",
+  "input": true,
+  "format": "dd-MM-yyyy",
+  "enableTime": false,
+  "attributes": { "ZAC_TYPE": "ZAC_taak_gegevens" },
+  "properties": { "ZAC_VELD": "fataledatum", "ZAC_INVOER": "true" }
+}
+```
+
+Note what the four have in common: only `ZAC_TYPE` changes with the source, and only `ZAC_INVOER`
+changes with the mode. The `ZAC_VELD` path and the `ZAC_FORMAAT` functions behave the same in all
+four.
 
 #### Paths
 
@@ -979,20 +1034,7 @@ path to look inside.
 
 With `ZAC_INVOER: "true"` the field stays whatever you declared — a `textfield`, a `textarea`, a
 `datetime` — and ZAC fills it in. The value is part of the submission, and a value the user has
-already saved is never overwritten by a later re-seed.
-
-```json
-{
-  "label": "Startdatum",
-  "type": "datetime",
-  "key": "IN_startdatum",
-  "input": true,
-  "format": "dd-MM-yyyy",
-  "enableTime": false,
-  "attributes": { "ZAC_TYPE": "ZAC_zaak_gegevens" },
-  "properties": { "ZAC_VELD": "startdatum", "ZAC_INVOER": "true" }
-}
-```
+already saved is never overwritten by a later re-seed — see the two examples above.
 
 Two rules for seeded fields:
 
