@@ -1,11 +1,13 @@
 ## ADDED Requirements
 
-### Requirement: Only zaakspecifiek_autorisatie_behandelaar, recordmanager, and beheerder may access a zaakspecifiek geautoriseerde zaak
+### Requirement: Only zaakspecifiek_autorisatie_behandelaar unlocks raadpleger/behandelaar/coordinator access to a zaakspecifiek geautoriseerde zaak
 
-The `zaak-rechten` OPA policy SHALL deny every permission on a zaak whose `geautoriseerd` input is `true` to
-a user who does not hold, for that zaak's zaaktype, the `zaakspecifiek_autorisatie_behandelaar`,
-`recordmanager`, or `beheerder` application role, regardless of any other application role (such as
-`behandelaar`, `raadpleger`, or `coordinator`) that user holds for that zaaktype.
+The `zaak-rechten` OPA policy SHALL deny every `raadpleger`, `behandelaar`, and `coordinator`-granted
+permission on a zaak whose `geautoriseerd` input is `true` to a user who does not also hold, for that zaak's
+zaaktype, the `zaakspecifiek_autorisatie_behandelaar` application role. `recordmanager` and `beheerder`
+access to such a zaak is out of scope for this requirement (and this capability): their existing rule bodies
+are unaffected by this change, and their authorisation for the zaakspecifiek geautoriseerde case is left to a
+follow-up story.
 
 #### Scenario: A plain behandelaar cannot read a zaakspecifiek geautoriseerde zaak
 - **WHEN** a user who holds only the `behandelaar` application role for a zaaktype requests the `lezen`
@@ -21,17 +23,6 @@ a user who does not hold, for that zaak's zaaktype, the `zaakspecifiek_autorisat
 - **WHEN** a user who holds only the `raadpleger` application role for a zaaktype requests the `lezen`
   permission on a zaak of that zaaktype whose `geautoriseerd` input is `true`
 - **THEN** the `zaak-rechten` policy's `lezen` permission SHALL evaluate to `false`
-
-#### Scenario: A recordmanager can still read and change a zaakspecifiek geautoriseerde zaak
-- **WHEN** a user who holds only the `recordmanager` application role for a zaaktype requests the `lezen` or
-  `wijzigen` permission on a zaak of that zaaktype whose `geautoriseerd` input is `true`
-- **THEN** both permissions SHALL evaluate to `true` (subject to the same non-geautoriseerd conditions, such
-  as `zaak.open` for `wijzigen`, that already apply to `recordmanager`)
-
-#### Scenario: A beheerder can still read and change a zaakspecifiek geautoriseerde zaak
-- **WHEN** a user who holds only the `beheerder` application role for a zaaktype requests the `lezen` or
-  `wijzigen` permission on a zaak of that zaaktype whose `geautoriseerd` input is `true`
-- **THEN** both permissions SHALL evaluate to `true`
 
 #### Scenario: A zaak that is not zaakspecifiek geautoriseerd is unaffected
 - **WHEN** any user requests any permission on a zaak whose `geautoriseerd` input is `false`
@@ -64,9 +55,11 @@ holding the `behandelaar` or `raadpleger` application role.
 
 ### Requirement: Access restriction extends to taken and documenten of a zaakspecifiek geautoriseerde zaak
 
-The `taak-rechten` and `document-rechten` OPA policies SHALL apply the same access restriction and the same
-explicit `zaakspecifiek_autorisatie_behandelaar` grants as the `zaak-rechten` policy, based on whether the
-taak's or document's associated zaak is zaakspecifiek geautoriseerd.
+The `taak-rechten` and `document-rechten` OPA policies SHALL apply the same `raadpleger`/`behandelaar`/
+`coordinator` access restriction and the same explicit `zaakspecifiek_autorisatie_behandelaar` grants as the
+`zaak-rechten` policy, based on whether the taak's or document's associated zaak is zaakspecifiek
+geautoriseerd. As with `zaak-rechten`, `recordmanager`/`beheerder` access to such a taak or document is out
+of scope for this requirement.
 
 #### Scenario: A plain behandelaar cannot read a taak of a zaakspecifiek geautoriseerde zaak
 - **WHEN** a user who holds only the `behandelaar` application role for a zaaktype requests the `lezen`
@@ -97,15 +90,16 @@ taak's or document's associated zaak is zaakspecifiek geautoriseerd.
 
 ### Requirement: Direct access to a zaakspecifiek geautoriseerde zaak an employee may not see fails with the generic insufficient-rights message
 
-When a user without sufficient rights requests a zaak, taak, or document that is denied per the requirements
-above, the system SHALL respond with the same generic insufficient-rights error the system already returns
-for any other policy denial, and SHALL NOT reveal that the underlying reason is that the resource is
-zaakspecifiek geautoriseerd.
+When a `raadpleger`, `behandelaar`, or `coordinator` without the `zaakspecifiek_autorisatie_behandelaar`
+application role requests a zaak, taak, or document that is denied per the requirements above, the system
+SHALL respond with the same generic insufficient-rights error the system already returns for any other
+policy denial, and SHALL NOT reveal that the underlying reason is that the resource is zaakspecifiek
+geautoriseerd.
 
 #### Scenario: Direct URL access to a zaakspecifiek geautoriseerde zaak by an unauthorised employee
-- **WHEN** an employee without the `zaakspecifiek_autorisatie_behandelaar`, `recordmanager`, or `beheerder`
-  application role for the zaaktype requests a zaakspecifiek geautoriseerde zaak directly (for example via a
-  bookmarked URL)
+- **WHEN** an employee who holds only `raadpleger`, `behandelaar`, and/or `coordinator` for the zaaktype (and
+  not `zaakspecifiek_autorisatie_behandelaar`) requests a zaakspecifiek geautoriseerde zaak directly (for
+  example via a bookmarked URL)
 - **THEN** the request is rejected with the same HTTP 403 / generic "insufficient rights" response the system
   already returns for any other policy denial, with no indication that the zaak is zaakspecifiek
   geautoriseerd

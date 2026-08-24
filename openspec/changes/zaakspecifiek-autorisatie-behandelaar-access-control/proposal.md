@@ -7,8 +7,11 @@ does not give the user any permissions yet". Today OPA has no notion at all of a
 zaak" — any behandelaar/raadpleger/coordinator of the zaaktype can read, treat, and access the taken and
 documenten of such a zaak, which defeats the purpose of marking it as specifically authorised. This change
 implements the actual backend access control: only employees who hold `zaakspecifiek_autorisatie_behandelaar`
-for the zaak's zaaktype (or `recordmanager`/`beheerder`) may access a zaakspecifiek geautoriseerde zaak, its
-taken, and its documenten; everyone else is denied, including via direct URL access.
+for the zaak's zaaktype may access a zaakspecifiek geautoriseerde zaak, its taken, and its documenten;
+everyone else who does not already have unconditional access (i.e. `raadpleger`, `behandelaar`, and
+`coordinator`) is denied, including via direct URL access. `recordmanager` and `beheerder` already have
+unconditional access to every zaak today and this change leaves their rules untouched; formally specifying
+and testing their access to a zaakspecifiek geautoriseerde zaak is left to a follow-up story.
 
 ## What Changes
 
@@ -18,8 +21,11 @@ taken, and its documenten; everyone else is denied, including via direct URL acc
   `isZaakspecifiekGeautoriseerd` indicator, extracted into a shared helper so both call sites stay in sync).
 - Add a `zaakspecifiek_toegankelijk` gating rule to `zaak-rechten.rego`, `taak-rechten.rego`, and
   `document-rechten.rego`: true when the zaak/taak/document is not zaakspecifiek geautoriseerd, or the user
-  holds `zaakspecifiek_autorisatie_behandelaar`, `recordmanager`, or `beheerder`. Every existing permission
-  rule in these three files gets this gate added as an extra condition.
+  holds `zaakspecifiek_autorisatie_behandelaar`. This gate is added only to the rule bodies that grant
+  `raadpleger`, `behandelaar`, and/or `coordinator` a permission; the separate rule bodies that already grant
+  `recordmanager`/`beheerder` a permission unconditionally are left untouched, so their access is unaffected
+  by this change (splitting a combined rule body into a gated non-privileged branch and an untouched
+  privileged branch where the two are not already separate today).
 - Grant `zaakspecifiek_autorisatie_behandelaar` the same explicit rights as `behandelaar` everywhere
   `behandelaar` currently appears in a role set in these three policy files (per the acceptance criteria: this
   role's effective rights equal the normal behandelaar-and-raadpleger rights, granted explicitly and not via
@@ -47,9 +53,11 @@ lookups (used for search result rights display) are intentionally left with `gea
 ## Capabilities
 
 ### New Capabilities
-- `zaakspecifieke-autorisatie-toegang`: OPA-enforced access restriction on zaakspecifiek geautoriseerde zaken
-  (and their taken/documenten) to only `zaakspecifiek_autorisatie_behandelaar`, `recordmanager`, and
-  `beheerder`, and the explicit grant of behandelaar-equivalent rights to the new role.
+- `zaakspecifieke-autorisatie-toegang`: OPA-enforced access restriction that denies `raadpleger`,
+  `behandelaar`, and `coordinator` access to a zaakspecifiek geautoriseerde zaak (and its taken/documenten)
+  unless they also hold `zaakspecifiek_autorisatie_behandelaar` for that zaaktype, plus the explicit grant of
+  behandelaar-equivalent rights to the new role. `recordmanager`/`beheerder` access to such a zaak is out of
+  scope for this capability (follow-up story).
 
 ### Modified Capabilities
 - `application-role-permission-matrix`: the documented/enforced set of ZAC application roles grows from 5

@@ -27,16 +27,22 @@ taken, and its documenten.
 ## Goals / Non-Goals
 
 **Goals:**
-- Only users holding `zaakspecifiek_autorisatie_behandelaar` (for the zaak's zaaktype), `recordmanager`, or
-  `beheerder` can read or act on a zaakspecifiek geautoriseerde zaak, its taken, and its documenten.
-- Every other user (including plain `behandelaar`, `raadpleger`, `coordinator` of that same zaaktype) is
-  denied — including via direct URL / deep-link access to the zaak, a taak, or a document.
+- Only users holding `zaakspecifiek_autorisatie_behandelaar` for the zaak's zaaktype can read or act on a
+  zaakspecifiek geautoriseerde zaak, its taken, and its documenten, among the roles this change touches
+  (`raadpleger`, `behandelaar`, `coordinator`).
+- Plain `behandelaar`, `raadpleger`, `coordinator` of that same zaaktype (without the new role) are denied —
+  including via direct URL / deep-link access to the zaak, a taak, or a document.
 - `zaakspecifiek_autorisatie_behandelaar`'s own effective rights, once unlocked, equal `behandelaar`'s rights
   (which are a superset of `raadpleger`'s), granted explicitly per the no-hierarchy convention.
 - A denied user sees the same generic "onvoldoende rechten" message ZAC already shows for any other policy
   denial — no new user-facing error path.
 
 **Non-Goals:**
+- `recordmanager` and `beheerder` access to a zaakspecifiek geautoriseerde zaak is explicitly out of scope for
+  this change. Both roles already have unconditional access to every zaak/taak/document today; this change
+  does not add, remove, or formally specify/test that access for the zaakspecifiek geautoriseerde case — it is
+  left as-is, with the actual restriction/authorisation design for these two roles deferred to a follow-up
+  story.
 - Werklijsten and Solr-backed zoekresultaten (`ZaakZoekObject`/`TaakZoekObject`/`DocumentZoekObject` rechten
   lookups) are explicitly out of scope — the ticket defers this to follow-up PZ-11954. Those call sites keep
   `geautoriseerd` defaulting to "not geautoriseerd", i.e. unrestricted, for now.
@@ -74,7 +80,7 @@ PZ-11954; doing it now also means a Solr reindex, which the ticket does not ask 
 helper in the `nl.info.zac.policy` or `nl.info.zac.app.zaak` package), so the "what counts as zaakspecifiek
 geautoriseerd" rule is defined exactly once.
 
-### 2. Gate every permission in the three Rego files with one shared `zaakspecifiek_toegankelijk` rule
+### 2. Gate only the non-privileged rule bodies with one shared `zaakspecifiek_toegankelijk` rule; leave `recordmanager`/`beheerder` bodies untouched
 
 In each of `zaak-rechten.rego`, `taak-rechten.rego`, `document-rechten.rego`, add:
 ```rego
@@ -83,20 +89,65 @@ zaakspecifiek_toegankelijk if {
     not zaak.geautoriseerd   # or taak.geautoriseerd / document.geautoriseerd
 }
 zaakspecifiek_toegankelijk if {
-    some role in {zaakspecifiekAutorisatieBehandelaar, recordmanager, beheerder}
+    zaakspecifiekAutorisatieBehandelaar.rol in user.rollen
+}
+```
+Per the scope decision above, this gate is added only to the rule body/bodies that grant `raadpleger`,
+`behandelaar`, and/or `coordinator` a permission. The separate rule bodies that already grant
+`recordmanager`/`beheerder` a permission unconditionally are left completely untouched — no gate, no new
+role reference, no behaviour change.
+
+Where a permission already has two separate `if` bodies today (e.g. `wijzigen`: one body for
+`{behandelaar, coordinator}` + `zaak.open`, a second body for `{recordmanager, beheerder}` unconditionally),
+only the first body is touched:
+```rego
+default wijzigen := false
+wijzigen if {
+    zaaktype_allowed
+    zaak.open
+    zaakspecifiek_toegankelijk
+    some role in {behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    role.rol in user.rollen
+}
+wijzigen if {
+    zaaktype_allowed
+    some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
 ```
-and add `zaakspecifiek_toegankelijk` as an extra condition to **every** existing rule body in that file
-(including the `recordmanager`/`beheerder`-only rules such as `heropenen` and `bekijken_zaakdata` — harmless
-there since those roles always satisfy the gate, but keeps every rule uniformly gated rather than having some
-rules special-cased as exempt).
+Where a permission today has a single body combining every role (e.g. `lezen`:
+`{raadpleger, behandelaar, coordinator, recordmanager, beheerder}`), that body is split in two so the gate
+can be added to the non-privileged half only:
+```rego
+default lezen := false
+lezen if {
+    zaaktype_allowed
+    zaakspecifiek_toegankelijk
+    some role in {raadpleger, behandelaar, coordinator, zaakspecifiekAutorisatieBehandelaar}
+    role.rol in user.rollen
+}
+lezen if {
+    zaaktype_allowed
+    some role in {recordmanager, beheerder}
+    role.rol in user.rollen
+}
+```
+Rules whose only roles are `recordmanager`/`beheerder` (`heropenen`, `bekijken_zaakdata`, `brondatum_zetten`)
+are not touched at all.
+
+**Alternative considered**: gate every rule uniformly, including the `recordmanager`/`beheerder` bodies (with
+those two roles added to the gate's allow-list). Rejected per explicit scope direction: this change is not to
+specify or test `recordmanager`/`beheerder` behaviour for the zaakspecifiek geautoriseerde case at all — that
+is a follow-up story's concern. Leaving their rule bodies untouched keeps this change's diff scoped exactly to
+the `zaakspecifiek_autorisatie_behandelaar` role and avoids asserting anything (via new code or new tests)
+about the other two roles' interaction with this feature.
 
 **Alternative considered**: only add the gate to `lezen`/`behandelen` (the two rights explicitly called out
 in the acceptance criteria). Rejected: the ticket is explicit that unauthorised employees may not see or
 treat any right on such a zaak/taak/document ("mogen geen … kunnen zien of behandelen"), and leaving e.g.
 `wijzigen` or `toevoegen_document` ungated would let a plain behandelaar mutate a zaak they cannot even read.
-Gating every rule uniformly is also simpler to reason about and test than tracking which rules are gated.
+Gating every non-privileged rule body is also simpler to reason about and test than tracking which rules are
+gated.
 
 ### 3. Grant `zaakspecifiek_autorisatie_behandelaar` behandelaar-equivalent rights explicitly
 
@@ -132,9 +183,14 @@ denied cases.
 - [Werklijsten/zoekresultaten remain unrestricted] → explicitly accepted, tracked by follow-up PZ-11954; the
   spec deltas in this change note the boundary so a future contributor does not mistake the omission for a
   bug.
-- [Uniform gating touches every rule in three files] → larger diff than a minimal `lezen`/`behandelen`-only
-  change, but the Rego and Kotlin unit tests added by this change (one per permission per file, mirroring the
-  existing `application-role-permission-matrix` test style) catch any rule that was missed or mis-gated.
+- [`recordmanager`/`beheerder` access to a zaakspecifiek geautoriseerde zaak is left unspecified by this
+  change] → explicitly accepted per scope direction; a follow-up story is expected to formally
+  specify/restrict (or confirm) that access. Since this change does not touch their rule bodies at all, their
+  current unconditional access is preserved by construction, not by an assertion this change makes.
+- [Splitting combined-role rule bodies touches most rules in the three files] → larger diff than a minimal
+  `lezen`/`behandelen`-only change, but the Rego and Kotlin unit tests added by this change (one per
+  permission per file, mirroring the existing `application-role-permission-matrix` test style) catch any rule
+  that was missed, mis-split, or mis-gated.
 
 ## Migration Plan
 
