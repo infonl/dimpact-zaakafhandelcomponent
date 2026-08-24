@@ -256,16 +256,28 @@ test_lezen_geautoriseerd_behandelaar_with_flag if {
         with input.user.rollen as [ "behandelaar", "zaakspecifiek_geautoriseerd" ]
 }
 
-test_lezen_geautoriseerd_recordmanager_unaffected if {
-    lezen
+test_lezen_geautoriseerd_recordmanager_without_flag_fails if {
+    not lezen
         with input.taak.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "recordmanager" ]
 }
 
-test_lezen_geautoriseerd_beheerder_unaffected if {
-    lezen
+test_lezen_geautoriseerd_beheerder_without_flag_fails if {
+    not lezen
         with input.taak.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "beheerder" ]
+}
+
+test_lezen_geautoriseerd_recordmanager_with_flag if {
+    lezen
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager", "zaakspecifiek_geautoriseerd" ]
+}
+
+test_lezen_geautoriseerd_beheerder_with_flag if {
+    lezen
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "beheerder", "zaakspecifiek_geautoriseerd" ]
 }
 
 test_wijzigen_geautoriseerd_behandelaar_without_flag_fails if {
@@ -286,8 +298,14 @@ test_wijzigen_geautoriseerd_behandelaar_with_flag if {
         with input.user.rollen as [ "behandelaar", "zaakspecifiek_geautoriseerd" ]
 }
 
-test_wijzigen_geautoriseerd_recordmanager_unaffected if {
-    wijzigen
+test_wijzigen_geautoriseerd_recordmanager_without_flag_fails if {
+    not wijzigen
         with input.taak.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "recordmanager" ]
+}
+
+test_wijzigen_geautoriseerd_recordmanager_with_flag if {
+    wijzigen
+        with input.taak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager", "zaakspecifiek_geautoriseerd" ]
 }

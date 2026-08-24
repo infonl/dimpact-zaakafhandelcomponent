@@ -42,8 +42,9 @@ zaaktype_allowed if {
 }
 
 # zaak_allowed guards access to a document of a zaakspecifiek geautoriseerde zaak: unrestricted for a
-# document whose zaak is not zaakspecifiek geautoriseerd, otherwise only for a user holding the zaakspecifiek_geautoriseerd
-# application role
+# document whose zaak is not zaakspecifiek geautoriseerd, otherwise only for a user who also holds the
+# zaakspecifiek_geautoriseerd application role - regardless of which other application role(s)
+# (including recordmanager or beheerder) the user holds.
 default zaak_allowed := false
 zaak_allowed if {
     not document.zaakspecifiekGeautoriseerd
@@ -70,6 +71,7 @@ lezen if {
 }
 lezen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -86,6 +88,7 @@ wijzigen if {
 }
 wijzigen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -102,6 +105,7 @@ verwijderen if {
 }
 verwijderen if {
     document.vergrendeld == false
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -117,6 +121,7 @@ vergrendelen if {
 vergrendelen if {
     zaaktype_allowed
     document.zaak_open == true
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -131,6 +136,7 @@ ontgrendelen if {
 }
 ontgrendelen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -148,6 +154,7 @@ ondertekenen if {
     zaaktype_allowed
     document.zaak_open == true
     onvergrendeld_of_vergrendeld_door_user == true
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -164,6 +171,7 @@ toevoegen_nieuwe_versie if {
 }
 toevoegen_nieuwe_versie if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -180,6 +188,7 @@ verplaatsen if {
 }
 verplaatsen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -196,6 +205,7 @@ ontkoppelen if {
 }
 ontkoppelen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -209,6 +219,7 @@ downloaden if {
 }
 downloaden if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -224,6 +235,7 @@ converteren if {
 converteren if {
     document.definitief == true
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }

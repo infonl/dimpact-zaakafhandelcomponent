@@ -1328,16 +1328,28 @@ test_lezen_geautoriseerd_coordinator_with_flag if {
         with input.user.rollen as [ "coordinator", "zaakspecifiek_geautoriseerd" ]
 }
 
-test_lezen_geautoriseerd_recordmanager_unaffected if {
-    lezen
+test_lezen_geautoriseerd_recordmanager_without_flag_fails if {
+    not lezen
         with input.zaak.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "recordmanager" ]
 }
 
-test_lezen_geautoriseerd_beheerder_unaffected if {
-    lezen
+test_lezen_geautoriseerd_beheerder_without_flag_fails if {
+    not lezen
         with input.zaak.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "beheerder" ]
+}
+
+test_lezen_geautoriseerd_recordmanager_with_flag if {
+    lezen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager", "zaakspecifiek_geautoriseerd" ]
+}
+
+test_lezen_geautoriseerd_beheerder_with_flag if {
+    lezen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "beheerder", "zaakspecifiek_geautoriseerd" ]
 }
 
 test_wijzigen_geautoriseerd_behandelaar_without_flag_fails if {
@@ -1361,10 +1373,16 @@ test_wijzigen_geautoriseerd_behandelaar_with_flag if {
         with input.user.rollen as [ "behandelaar", "zaakspecifiek_geautoriseerd" ]
 }
 
-test_wijzigen_geautoriseerd_recordmanager_unaffected if {
-    wijzigen
+test_wijzigen_geautoriseerd_recordmanager_without_flag_fails if {
+    not wijzigen
         with input.zaak.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "recordmanager" ]
+}
+
+test_wijzigen_geautoriseerd_recordmanager_with_flag if {
+    wijzigen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager", "zaakspecifiek_geautoriseerd" ]
 }
 
 test_behandelen_geautoriseerd_behandelaar_without_flag_fails if {
@@ -1415,6 +1433,48 @@ test_bekijken_zaakdata_zaakspecifiek_geautoriseerd_flag_alone_fails if {
 test_brondatum_zetten_zaakspecifiek_geautoriseerd_flag_alone_fails if {
     not brondatum_zetten
         with input.user.rollen as [ "zaakspecifiek_geautoriseerd" ]
+        with input.zaak.open as false
+        with input.zaak.brondatumBepaald as false
+}
+
+# recordmanager/beheerder-only rules are gated exactly like every other rule: the flag is required on a
+# zaakspecifiek geautoriseerde zaak regardless of which application role the user holds
+test_heropenen_geautoriseerd_beheerder_without_flag_fails if {
+    not heropenen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "beheerder" ]
+}
+
+test_heropenen_geautoriseerd_beheerder_with_flag if {
+    heropenen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "beheerder", "zaakspecifiek_geautoriseerd" ]
+}
+
+test_bekijken_zaakdata_geautoriseerd_beheerder_without_flag_fails if {
+    not bekijken_zaakdata
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "beheerder" ]
+}
+
+test_bekijken_zaakdata_geautoriseerd_beheerder_with_flag if {
+    bekijken_zaakdata
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "beheerder", "zaakspecifiek_geautoriseerd" ]
+}
+
+test_brondatum_zetten_geautoriseerd_recordmanager_without_flag_fails if {
+    not brondatum_zetten
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager" ]
+        with input.zaak.open as false
+        with input.zaak.brondatumBepaald as false
+}
+
+test_brondatum_zetten_geautoriseerd_recordmanager_with_flag if {
+    brondatum_zetten
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager", "zaakspecifiek_geautoriseerd" ]
         with input.zaak.open as false
         with input.zaak.brondatumBepaald as false
 }

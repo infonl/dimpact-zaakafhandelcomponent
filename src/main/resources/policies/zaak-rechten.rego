@@ -56,8 +56,10 @@ zaaktype_allowed if {
     zaak.zaaktype in user.zaaktypen
 }
 
-# zaak_allowed guards access to a zaakspecifiek geautoriseerde zaak: unrestricted for a not zaakspecifiek geautoriseerde
-# zaak, otherwise only for a user holding the zaakspecifiek_geautoriseerd application role.
+# zaak_allowed guards access to a zaakspecifiek geautoriseerde zaak: unrestricted for a zaak that is not
+# zaakspecifiek geautoriseerd, otherwise only for a user who also holds the zaakspecifiek_geautoriseerd
+# application role - regardless of which other application role(s) (including recordmanager or beheerder)
+# the user holds.
 default zaak_allowed := false
 zaak_allowed if {
     not zaak.zaakspecifiekGeautoriseerd
@@ -75,6 +77,7 @@ lezen if {
 }
 lezen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -89,6 +92,7 @@ wijzigen if {
 }
 wijzigen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -103,6 +107,7 @@ toekennen if {
 }
 toekennen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -116,6 +121,7 @@ behandelen if {
 }
 behandelen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -129,6 +135,7 @@ afbreken if {
 }
 afbreken if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -136,12 +143,14 @@ afbreken if {
 default heropenen := false
 heropenen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
 
 default bekijken_zaakdata := false
 bekijken_zaakdata if {
+    zaak_allowed
     beheerder.rol in user.rollen
 }
 
@@ -156,6 +165,7 @@ wijzigen_doorlooptijd if {
 wijzigen_doorlooptijd if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -177,6 +187,7 @@ verlengen if {
     not zaak.heropend
     not zaak.opgeschort
     not zaak.verlengd
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -196,6 +207,7 @@ opschorten if {
     zaak.open
     not zaak.heropend
     not zaak.opgeschort
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -209,6 +221,7 @@ hervatten if {
 }
 hervatten if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -224,6 +237,7 @@ creeren_document if {
 creeren_document if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -238,6 +252,7 @@ toevoegen_document if {
 }
 toevoegen_document if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -252,6 +267,7 @@ koppelen if {
 }
 koppelen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -267,6 +283,7 @@ versturen_email if {
 versturen_email if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -282,6 +299,7 @@ versturen_ontvangstbevestiging if {
 versturen_ontvangstbevestiging if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -296,6 +314,7 @@ toevoegen_initiator_persoon if {
 }
 toevoegen_initiator_persoon if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -310,6 +329,7 @@ toevoegen_initiator_bedrijf if {
 }
 toevoegen_initiator_bedrijf if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -324,6 +344,7 @@ verwijderen_initiator if {
 }
 verwijderen_initiator if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -338,6 +359,7 @@ toevoegen_betrokkene_persoon if {
 }
 toevoegen_betrokkene_persoon if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -352,6 +374,7 @@ toevoegen_betrokkene_bedrijf if {
 }
 toevoegen_betrokkene_bedrijf if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -366,6 +389,7 @@ verwijderen_betrokkene if {
 }
 verwijderen_betrokkene if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -380,6 +404,7 @@ toevoegen_bag_object if {
 }
 toevoegen_bag_object if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -395,6 +420,7 @@ starten_taak if {
 starten_taak if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -414,6 +440,7 @@ vastleggen_besluit if {
     zaak.open
     not zaak.intake
     zaak.besloten
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -429,6 +456,7 @@ verlengen_doorlooptijd if {
 verlengen_doorlooptijd if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -447,5 +475,6 @@ default brondatum_zetten := false
 brondatum_zetten if {
     not zaak.open
     not zaak.brondatumBepaald
+    zaak_allowed
     recordmanager.rol in user.rollen
 }

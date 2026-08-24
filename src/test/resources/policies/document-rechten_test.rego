@@ -876,16 +876,28 @@ test_lezen_geautoriseerd_behandelaar_with_flag if {
         with input.user.rollen as [ "behandelaar", "zaakspecifiek_geautoriseerd" ]
 }
 
-test_lezen_geautoriseerd_recordmanager_unaffected if {
-    lezen
+test_lezen_geautoriseerd_recordmanager_without_flag_fails if {
+    not lezen
         with input.document.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "recordmanager" ]
 }
 
-test_lezen_geautoriseerd_beheerder_unaffected if {
-    lezen
+test_lezen_geautoriseerd_beheerder_without_flag_fails if {
+    not lezen
         with input.document.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "beheerder" ]
+}
+
+test_lezen_geautoriseerd_recordmanager_with_flag if {
+    lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager", "zaakspecifiek_geautoriseerd" ]
+}
+
+test_lezen_geautoriseerd_beheerder_with_flag if {
+    lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "beheerder", "zaakspecifiek_geautoriseerd" ]
 }
 
 test_downloaden_geautoriseerd_behandelaar_without_flag_fails if {
@@ -906,8 +918,14 @@ test_downloaden_geautoriseerd_behandelaar_with_flag if {
         with input.user.rollen as [ "behandelaar", "zaakspecifiek_geautoriseerd" ]
 }
 
-test_downloaden_geautoriseerd_recordmanager_unaffected if {
-    downloaden
+test_downloaden_geautoriseerd_recordmanager_without_flag_fails if {
+    not downloaden
         with input.document.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "recordmanager" ]
+}
+
+test_downloaden_geautoriseerd_recordmanager_with_flag if {
+    downloaden
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager", "zaakspecifiek_geautoriseerd" ]
 }

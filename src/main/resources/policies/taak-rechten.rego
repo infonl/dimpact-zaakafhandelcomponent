@@ -33,7 +33,9 @@ zaaktype_allowed if {
 }
 
 # zaak_allowed guards access to a taak of a zaakspecifiek geautoriseerde zaak: unrestricted for a taak
-# whose zaak is not zaakspecifiek geautoriseerd, otherwise only for a user holding the zaakspecifiek_geautoriseerd application role.
+# whose zaak is not zaakspecifiek geautoriseerd, otherwise only for a user who also holds the
+# zaakspecifiek_geautoriseerd application role - regardless of which other application role(s)
+# (including recordmanager or beheerder) the user holds.
 default zaak_allowed := false
 zaak_allowed if {
     not taak.zaakspecifiekGeautoriseerd
@@ -51,6 +53,7 @@ lezen if {
 }
 lezen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -64,6 +67,7 @@ wijzigen if {
 }
 wijzigen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -77,6 +81,7 @@ toekennen if {
 }
 toekennen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -92,6 +97,7 @@ creeren_document if {
 creeren_document if {
     zaaktype_allowed
     taak.open
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -107,6 +113,7 @@ toevoegen_document if {
 toevoegen_document if {
     zaaktype_allowed
     taak.open
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
