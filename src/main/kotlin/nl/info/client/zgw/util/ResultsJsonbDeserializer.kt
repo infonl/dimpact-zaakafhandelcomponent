@@ -32,5 +32,5 @@ class ResultsJsonbDeserializer : JsonbDeserializer<Results<*>> {
     }
 
     private fun JsonObject.uriOrNull(name: String): URI? =
-        if (!containsKey(name) || isNull(name)) null else URI(getString(name))
+if (!containsKey(name) || isNull(name)) null else getString(name).takeIf { it.isNotEmpty() }?.let(::URI)
 }
