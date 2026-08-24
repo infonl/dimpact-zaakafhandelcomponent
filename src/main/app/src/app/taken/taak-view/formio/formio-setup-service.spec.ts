@@ -7,8 +7,6 @@ import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-
-const NO_VALUE_MARK = "\u2014";
 import {
   FormioSetupService,
   KNOWN_ZAC_FIELDS,
@@ -17,6 +15,7 @@ import {
 import {
   configureFormioSetupServiceTestBed,
   documentsFieldset,
+  gegevensInputComponent,
   groepComponent,
   medewerkerComponent,
   referenceTableFieldset,
@@ -24,12 +23,13 @@ import {
   smartDocumentsTemplateGroupsComponent,
   smartDocumentsTemplateGroupTemplatesComponent,
   taak,
+  taakGegevensComponent,
   unsignedDocumentsFieldset,
   zaak,
-  gegevensInputComponent,
-  taakGegevensComponent,
   zaakGegevensComponent,
 } from "./formio-setup-service.test-fixtures";
+
+const NO_VALUE_MARK = "\u2014";
 
 describe(FormioSetupService.name, () => {
   let formioSetupService: FormioSetupService;
@@ -858,6 +858,40 @@ describe(FormioSetupService.name, () => {
         expect(component.html).toContain("has no keys to tabulate");
         expect(component.html).toContain("ZAC_FORMAAT");
       });
+    });
+
+    it.each([
+      ["reading a value", undefined],
+      ["rendering a table", "tabel"],
+    ])(
+      "should say which property is missing when no path is declared while %s",
+      async (_name, formaat) => {
+        const component = zaakGegevensComponent("", { formaat });
+
+        await formioSetupService.createFormioForm(
+          { components: [component] },
+          taak,
+          zaak,
+        );
+
+        expect(component.html).toContain("Missing ZAC_VELD property");
+      },
+    );
+
+    it("should treat a list holding only empty elements as holding no value", async () => {
+      const component = zaakGegevensComponent("kenmerken[].bron");
+      await formioSetupService.createFormioForm(
+        { components: [component] },
+        taak,
+        {
+          ...zaak,
+          kenmerken: [{ bron: null }, { bron: "" }],
+        } as unknown as GeneratedType<"RestZaak">,
+      );
+
+      expect(component.html).toContain(
+        '<span class="zac-gegevens-value">—</span>',
+      );
     });
 
     it("should escape a zaak value so it cannot inject markup", async () => {
