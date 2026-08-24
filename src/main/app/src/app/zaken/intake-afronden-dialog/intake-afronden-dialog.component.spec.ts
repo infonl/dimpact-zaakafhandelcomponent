@@ -339,38 +339,35 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       request.flush(null);
     });
 
-    it("omits vertrouwelijkheidaanduiding from restMailGegevens, leaving it to the backend's Openbaar default", () => {
-      jest
-        .spyOn(planItemsService, "doUserEventListenerPlanItem")
-        .mockReturnValue(of(undefined) as never);
+    it("omits vertrouwelijkheidaanduiding from restMailGegevens, leaving it to the backend's Openbaar default", async () => {
+      await setup(createZaak("BESCHIKBAAR_AAN"));
+      await answerOntvankelijk("actie.ja");
+      await user.type(
+        screen.getByLabelText("ontvanger"),
+        "fakeOntvanger@example.com",
+      );
 
-      component.formGroup.patchValue({
-        ontvankelijk: true,
-        sendMail: true,
-        verzender: mockAfzender,
-        ontvanger: "recipient@example.com",
-      });
+      const request = await afronden();
 
-      component["afronden"]();
+      expect(
+        request.request.body.restMailGegevens.vertrouwelijkheidaanduiding,
+      ).toBeUndefined();
 
-      const [{ restMailGegevens }] = jest.mocked(
-        planItemsService.doUserEventListenerPlanItem,
-      ).mock.calls[0];
-      expect(restMailGegevens?.vertrouwelijkheidaanduiding).toBeUndefined();
+      request.flush(null);
     });
 
-    it("uses niet-ontvankelijk mailtemplate when ontvankelijk is false", () => {
-      jest
-        .spyOn(planItemsService, "doUserEventListenerPlanItem")
-        .mockReturnValue(of(undefined) as never);
-
-      component.formGroup.patchValue({
-        ontvankelijk: false,
-        reden: "Onvoldoende informatie",
-        sendMail: true,
-        verzender: mockAfzender,
-        ontvanger: "recipient@example.com",
-      });
+    it("uses niet-ontvankelijk mailtemplate when ontvankelijk is false", async () => {
+      await setup(createZaak("BESCHIKBAAR_UIT"));
+      await answerOntvankelijk("actie.nee");
+      await user.type(
+        screen.getByLabelText("redenNietOntvankelijk"),
+        "fakeReden",
+      );
+      await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
+      await user.type(
+        screen.getByLabelText("ontvanger"),
+        "fakeOntvanger@example.com",
+      );
 
       const request = await afronden();
 

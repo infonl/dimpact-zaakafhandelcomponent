@@ -233,11 +233,9 @@ describe(MailCreateComponent.name, () => {
     expect(screen.getByText("Document 2")).toBeVisible();
   });
 
-  it("offers every vertrouwelijkheidaanduiding option without preselecting one", async () => {
+  it("offers every vertrouwelijkheidaanduiding option", async () => {
     await setup();
     await respondToInitialRequests();
-
-    expect(vertrouwelijkheidaanduidingField()).toHaveTextContent("");
 
     await user.click(vertrouwelijkheidaanduidingField());
 

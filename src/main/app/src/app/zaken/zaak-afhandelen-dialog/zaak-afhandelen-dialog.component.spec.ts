@@ -292,54 +292,9 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       expect(submitButton()).toBeNull();
     });
 
-    it("should omit vertrouwelijkheidaanduiding from restMailGegevens when sendMail is checked, leaving it to the backend's Openbaar default", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
-      const options = await resultaattypeSelect.getOptions();
-      await options[2]?.click();
-
-      const sendMailCheckbox = await loader.getHarness(MatCheckboxHarness);
-      await sendMailCheckbox.check();
-      fixture.detectChanges();
-
-      fixture.componentInstance.form.controls.verzender.setValue(
-        mockAfzenders[0],
-      );
-      fixture.componentInstance.form.controls.ontvanger.setValue(
-        "recipient@example.com",
-      );
-      fixture.detectChanges();
-
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.zaak\.afhandelen/ }),
-      );
-      await submitButton.click();
-      await new Promise(requestAnimationFrame);
-
-      const req = httpTestingController.expectOne(
-        `/rest/planitems/doUserEventListenerPlanItem`,
-      );
-      expect(req.request.body.restMailGegevens).toMatchObject({
-        verzender: mockAfzenders[0].mail,
-        replyTo: mockAfzenders[0].replyTo,
-        ontvanger: "recipient@example.com",
-        onderwerp: mockMailtemplate.onderwerp,
-        body: mockMailtemplate.body,
-        createDocumentFromMail: true,
-      });
-      expect(
-        req.request.body.restMailGegevens.vertrouwelijkheidaanduiding,
-      ).toBeUndefined();
-
-      req.flush({});
-    });
-
-    it("should send over a 'brondatum' when a brondatum is required", async () => {
-      const resultaattypeSelect = await loader.getHarness(MatSelectHarness);
-      await resultaattypeSelect.open();
-
-      const options = await resultaattypeSelect.getOptions();
-      await options[0]?.click(); // Select a type that requires brondatum
+    it("closes the dialog to record a besluit when the besluit-vastleggen button is clicked", async () => {
+      seedQueries(zaak);
+      await setup();
 
       await chooseResultaattype("fakeResultaatMetBesluit");
       await user.click(
@@ -409,6 +364,41 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           resultaattypeUuid: "fakeResultaattypeId3",
         }),
       );
+      request.flush({});
+    });
+
+    it("omits vertrouwelijkheidaanduiding from restMailGegevens, leaving it to the backend's Openbaar default", async () => {
+      seedQueries(zaak);
+      await setup();
+
+      await chooseResultaattype("fakeResultaatZonderVerplichtingen");
+      await toggleSendMail();
+      await openVerzenderOptions();
+      await user.click(
+        screen.getByRole("option", { name: /fakeAfzenderSuffix/ }),
+      );
+      await user.type(
+        screen.getByRole("textbox", { name: /Ontvanger/ }),
+        "recipient@example.com",
+      );
+      await submit();
+      await sleep();
+
+      const request = httpTestingController.expectOne(
+        "/rest/planitems/doUserEventListenerPlanItem",
+      );
+      expect(request.request.body.restMailGegevens).toMatchObject({
+        verzender: afzenders[0].mail,
+        replyTo: afzenders[0].replyTo,
+        ontvanger: "recipient@example.com",
+        onderwerp: mailtemplate.onderwerp,
+        body: mailtemplate.body,
+        createDocumentFromMail: true,
+      });
+      expect(
+        request.request.body.restMailGegevens.vertrouwelijkheidaanduiding,
+      ).toBeUndefined();
+
       request.flush({});
     });
 
