@@ -181,10 +181,38 @@ input.form-check-input {
   padding: 0.5rem;
 }
 
+.zac-gegevens-divider {
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  margin: 1rem 0;
+}
+
 .zac-gegevens {
   padding: 0.25rem 0;
 
   .zac-gegevens-label {
     font-weight: 500;
+  }
+
+  .zac-gegevens-heading {
+    margin: 0 0 0.25rem;
+  }
+
+  .zac-gegevens-tabel {
+    border-collapse: collapse;
+    width: 100%;
+
+    th,
+    td {
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      padding: 0.15rem 0.4rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      font-weight: 400;
+      white-space: nowrap;
+    }
   }
 }

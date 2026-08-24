@@ -1,0 +1,185 @@
+{
+  "display": "form",
+  "name": "processDataForm",
+  "title": "Process data overview",
+  "type": "form",
+  "components": [
+    {
+      "type": "content",
+      "key": "uitleg",
+      "input": false,
+      "tableView": false,
+      "html": "<h3>Whatever the zaak and the taak actually carry</h3><p>These tables are not authored key by key. <code>ZAC_FORMAAT: \"tabel\"</code> renders every key an object holds, so these panels show what is present right now rather than what a form author knew about in advance. A nested object shows as <code>{n}</code> and a list as <code>[n]</code>, with n the number of entries; address those with their own path to see inside.</p>"
+    },
+    {
+      "type": "panel",
+      "title": "Process variables (zaak.zaakdata)",
+      "key": "process_variables",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "zaak.zaakdata — the Flowable process variables",
+          "type": "content",
+          "key": "PD_zaakdata_tabel",
+          "input": false,
+          "tableView": false,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "zaakdata",
+            "ZAC_FORMAAT": "tabel"
+          }
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Stored on submission (taak.taakdata)",
+      "key": "stored_taakdata",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "content",
+          "key": "taakdata_uitleg",
+          "input": false,
+          "tableView": false,
+          "html": "<p>Empty until this task is saved or completed. After saving it holds this task's own submitted values <em>and</em> the process variables that were merged in when the task was opened &mdash; which is why zaak data turns up under &quot;taakdata&quot;.</p>"
+        },
+        {
+          "label": "taak.taakdata — stored submission plus merged process variables",
+          "type": "content",
+          "key": "PD_taakdata_tabel",
+          "input": false,
+          "tableView": false,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_taak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "taakdata",
+            "ZAC_FORMAAT": "tabel"
+          }
+        },
+        {
+          "type": "content",
+          "key": "divider_stored_2",
+          "input": false,
+          "tableView": false,
+          "html": "<hr class=\"zac-gegevens-divider\">"
+        },
+        {
+          "label": "taak.taakinformatie",
+          "type": "content",
+          "key": "PD_taakinformatie_tabel",
+          "input": false,
+          "tableView": false,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_taak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "taakinformatie",
+            "ZAC_FORMAAT": "tabel"
+          }
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "The whole objects",
+      "key": "whole_objects",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "zaaktype — every property present",
+          "type": "content",
+          "key": "PD_zaaktype_tabel",
+          "input": false,
+          "tableView": false,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "zaaktype",
+            "ZAC_FORMAAT": "tabel"
+          }
+        },
+        {
+          "type": "content",
+          "key": "divider_whole_objects_1",
+          "input": false,
+          "tableView": false,
+          "html": "<hr class=\"zac-gegevens-divider\">"
+        },
+        {
+          "label": "zaak.groep",
+          "type": "content",
+          "key": "PD_groep_tabel",
+          "input": false,
+          "tableView": false,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "groep",
+            "ZAC_FORMAAT": "tabel"
+          }
+        },
+        {
+          "type": "content",
+          "key": "divider_whole_objects_2",
+          "input": false,
+          "tableView": false,
+          "html": "<hr class=\"zac-gegevens-divider\">"
+        },
+        {
+          "label": "taak.rechten — the policy decisions for you",
+          "type": "content",
+          "key": "PD_rechten_tabel",
+          "input": false,
+          "tableView": false,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_taak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "rechten",
+            "ZAC_FORMAAT": "tabel"
+          }
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Deliberate mistakes",
+      "key": "deliberate_mistakes",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "tabel on a single value",
+          "type": "content",
+          "key": "PD_fout_scalar",
+          "input": false,
+          "tableView": false,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "identificatie",
+            "ZAC_FORMAAT": "tabel"
+          }
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Complete",
+      "key": "submit",
+      "disableOnInvalid": false,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

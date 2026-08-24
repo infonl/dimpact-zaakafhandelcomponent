@@ -64,6 +64,13 @@ const VALUE_FORMATTERS: Record<
     translate.instant(value ? "actie.ja" : "actie.nee"),
 };
 
+/**
+ * Renders every key of an object instead of a single value, so a form can show what a zaak or taak
+ * actually carries without naming each key. Handled apart from [VALUE_FORMATTERS] because it emits
+ * markup: a formatter returning a string would have its table escaped away.
+ */
+const TABLE_FORMAT = "tabel";
+
 /** Hides the field's chrome; styled in `formio-wrapper.component.less`. */
 const EMPTY_INPUT_FIELD_CLASS = "zac-empty-input-field";
 
@@ -141,6 +148,26 @@ function resolvePath(
     );
   }
   return value;
+}
+
+function resolveObjectPath(
+  source: object,
+  path: string,
+  sourceLabel: string,
+): Record<string, unknown> | null {
+  if (!path) {
+    throw new Error(`Missing ${ZAC_PATH_PROPERTY} property.`);
+  }
+
+  const value = walkSegments(source, path.split("."), [], sourceLabel);
+  if (value === null || value === undefined) return null;
+  if (typeof value !== "object") {
+    throw new Error(
+      `${sourceLabel} property "${path}" holds a single value, so it has no ` +
+        `keys to tabulate. Drop ${ZAC_FORMAT_PROPERTY} "${TABLE_FORMAT}".`,
+    );
+  }
+  return value as Record<string, unknown>;
 }
 
 function walkSegments(
@@ -416,13 +443,21 @@ export class FormioSetupService {
     sourceLabel: string,
   ) {
     const path: string = component.properties?.[ZAC_PATH_PROPERTY] ?? "";
+    const format: string | undefined =
+      component.properties?.[ZAC_FORMAT_PROPERTY];
+    const label = component.label ?? "";
 
-    let text: string;
+    let body: string;
     try {
-      text = this.formatValue(
-        resolvePath(source, path, sourceLabel),
-        component.properties?.[ZAC_FORMAT_PROPERTY],
-      );
+      body =
+        format === TABLE_FORMAT
+          ? this.renderKeyValueTable(
+              resolveObjectPath(source, path, sourceLabel),
+            )
+          : `<span class="zac-gegevens-label">${label ? `${escapeHtml(label)}: ` : ""}</span>` +
+            `<span class="zac-gegevens-value">${escapeHtml(
+              this.formatValue(resolvePath(source, path, sourceLabel), format),
+            )}</span>`;
     } catch (error) {
       this.renderFieldError(
         component,
@@ -431,15 +466,44 @@ export class FormioSetupService {
       return;
     }
 
-    const label = component.label ?? "";
+    const heading =
+      format === TABLE_FORMAT && label
+        ? `<h4 class="zac-gegevens-heading">${escapeHtml(label)}</h4>`
+        : "";
+
     component.type = "content";
     component.input = false;
-    component.html =
-      `<div class="zac-gegevens">` +
-      `<span class="zac-gegevens-label">${label ? `${escapeHtml(label)}: ` : ""}</span>` +
-      `<span class="zac-gegevens-value">${escapeHtml(text)}</span>` +
-      `</div>`;
+    component.html = `<div class="zac-gegevens">${heading}${body}</div>`;
     component.label = "";
+  }
+
+  /**
+   * Keys are sorted so the same object always renders in the same order. A value that is itself an
+   * object or a list is named rather than expanded: nesting a whole zaak inside a cell reads as
+   * noise, and the form can address it with its own path.
+   */
+  private renderKeyValueTable(source: Record<string, unknown> | null) {
+    const entries = Object.entries(source ?? {}).sort(([left], [right]) =>
+      left.localeCompare(right),
+    );
+    if (!entries.length) {
+      return `<span class="zac-gegevens-value">${NO_VALUE}</span>`;
+    }
+
+    const rows = entries
+      .map(([key, value]) => {
+        const rendered = Array.isArray(value)
+          ? `[${value.length}]`
+          : value !== null && typeof value === "object"
+            ? `{${Object.keys(value).length}}`
+            : this.formatValue(value);
+        return (
+          `<tr><th scope="row"><code>${escapeHtml(key)}</code></th>` +
+          `<td>${escapeHtml(rendered)}</td></tr>`
+        );
+      })
+      .join("");
+    return `<table class="zac-gegevens-tabel"><tbody>${rows}</tbody></table>`;
   }
 
   private formatValue(value: unknown, format?: string): string {

@@ -7,6 +7,8 @@ import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
+
+const NO_VALUE_MARK = "\u2014";
 import {
   FormioSetupService,
   KNOWN_ZAC_FIELDS,
@@ -641,6 +643,95 @@ describe(FormioSetupService.name, () => {
       const component = await render("identificatie[]");
 
       expect(component.html).toContain("is not a list");
+    });
+
+    describe("the tabel format", () => {
+      async function renderTable(veld: string, source?: object) {
+        const component = zaakGegevensComponent(veld, { formaat: "tabel" });
+        await formioSetupService.createFormioForm(
+          { components: [component] },
+          taak,
+          (source ?? zaak) as GeneratedType<"RestZaak">,
+        );
+        return component;
+      }
+
+      it("should render every key of an object as a row", async () => {
+        const component = await renderTable("zaakdata", {
+          ...zaak,
+          zaakdata: { NF_Uren: "8", TA_Toelichting: "spoed" },
+        });
+
+        expect(component.html).toContain("<td>8</td>");
+        expect(component.html).toContain("<td>spoed</td>");
+        expect(component.html).toContain("<code>NF_Uren</code>");
+      });
+
+      it("should sort the keys so the same object always reads the same way", async () => {
+        const component = await renderTable("zaakdata", {
+          ...zaak,
+          zaakdata: { zebra: "1", alpha: "2" },
+        });
+
+        expect(component.html!.indexOf("alpha")).toBeLessThan(
+          component.html!.indexOf("zebra"),
+        );
+      });
+
+      it("should count the entries of a nested object and the elements of a list", async () => {
+        const component = await renderTable("zaakdata", {
+          ...zaak,
+          zaakdata: { rows: [1, 2, 3], nested: { a: 1, b: 2 } },
+        });
+
+        expect(component.html).toContain("<td>[3]</td>");
+        expect(component.html).toContain("<td>{2}</td>");
+      });
+
+      it("should mark an object with no keys as holding no value", async () => {
+        const component = await renderTable("zaakdata", {
+          ...zaak,
+          zaakdata: {},
+        });
+
+        expect(component.html).toContain(NO_VALUE_MARK);
+        expect(component.html).not.toContain("<table");
+      });
+
+      it("should render the label as a heading above the table", async () => {
+        const component = zaakGegevensComponent("zaakdata", {
+          formaat: "tabel",
+          label: "Process data",
+        });
+        await formioSetupService.createFormioForm(
+          { components: [component] },
+          taak,
+          { ...zaak, zaakdata: { a: "1" } } as GeneratedType<"RestZaak">,
+        );
+
+        expect(component.html).toContain(
+          '<h4 class="zac-gegevens-heading">Process data</h4>',
+        );
+      });
+
+      it("should escape a key and a value so neither can inject markup", async () => {
+        const component = await renderTable("zaakdata", {
+          ...zaak,
+          zaakdata: { "<b>k</b>": "<img src=x onerror=alert(1)>" },
+        });
+
+        expect(component.html).not.toContain("<img");
+        expect(component.html).not.toContain("<b>");
+        expect(component.html).toContain("<code>&lt;b&gt;k&lt;/b&gt;</code>");
+        expect(component.html).toContain("&lt;img");
+      });
+
+      it("should refuse to tabulate a single value, and say what to drop", async () => {
+        const component = await renderTable("identificatie");
+
+        expect(component.html).toContain("has no keys to tabulate");
+        expect(component.html).toContain("ZAC_FORMAAT");
+      });
     });
 
     it("should escape a zaak value so it cannot inject markup", async () => {
