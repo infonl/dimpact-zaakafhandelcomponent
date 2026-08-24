@@ -120,11 +120,9 @@ Notes:
   (`raadpleger`, `behandelaar`, `coordinator`) for that same zaaktype, the rights already granted by that
   normal role also apply to zaakspecifiek geautoriseerde zaken of that zaaktype (a zaak marked as such via a
   `ZAAK_GEAUTORISEERD` zaakeigenschap), not only to non-zaakspecifiek geautoriseerde zaken. Without also
-  holding one of these normal roles, `zaakspecifiek_geautoriseerd` grants no rights at all. This restriction
-  is enforced only in `zaak-rechten.rego`, `taak-rechten.rego`, and `document-rechten.rego` (so it also
-  covers the taken and documenten of a zaakspecifiek geautoriseerde zaak); it does not apply to werklijsten
-  or zoekresultaten. `recordmanager` and `beheerder` access to a zaakspecifiek geautoriseerde zaak is not
-  affected or restricted by this mechanism.
+  holding one of these normal roles, `zaakspecifiek_geautoriseerd` grants no rights at all. This also
+  covers the taken and documenten of a zaakspecifiek geautoriseerde zaak). However, it does not (yet) apply to werklijsten
+  or zoekresultaten. 
 
 ## Technical implementation
 
@@ -140,13 +138,13 @@ Then during normal operation the following happens:
 1. When a user with a certain role X requests to perform a certain action on ZAC (e.g. create a new zaak), the ZAC
    backend will send a request to the OPA server to obtain the current access control rights ('rechten') for the resource
    in question (zaken in this case).
-2. With these access control rights the ZAC backend then checks if role X is allowed to perform the requested action
+2. With these access control rights, the ZAC backend then checks if role X is allowed to perform the requested action
    (create a new zaak in this case). In some cases (see above) additional logic is also performed to check access control.
    All this is done in the ZAC Java backend code, mostly in the REST Java classes.
-3. If the requested action is allowed the user may perform the action. Should this however not be allowed an error
+3. If the requested action is allowed, the user may perform the action. Should this, however, not be allowed, an error
    message will be logged and returned to the user.
 
-The ZAC frontend however will normally prevent the user from even trying to perform this requested action
+The ZAC frontend, however, will normally prevent the user from even trying to perform this requested action
 (the frontend also uses these access control rights) so the scenario above can normally only happen if a user bypasses
 the ZAC frontend and tries to perform the action directly on the ZAC backend.
 
