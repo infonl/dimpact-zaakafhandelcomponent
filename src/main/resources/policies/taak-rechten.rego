@@ -48,13 +48,7 @@ default lezen := false
 lezen if {
     zaaktype_allowed
     zaak_allowed
-    some role in {raadpleger, behandelaar, coordinator}
-    role.rol in user.rollen
-}
-lezen if {
-    zaaktype_allowed
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {raadpleger, behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -62,13 +56,7 @@ default wijzigen := false
 wijzigen if {
     zaaktype_allowed
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-wijzigen if {
-    zaaktype_allowed
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -76,13 +64,7 @@ default toekennen := false
 toekennen if {
     zaaktype_allowed
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-toekennen if {
-    zaaktype_allowed
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -91,14 +73,7 @@ creeren_document if {
     zaaktype_allowed
     taak.open
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-creeren_document if {
-    zaaktype_allowed
-    taak.open
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -107,13 +82,6 @@ toevoegen_document if {
     zaaktype_allowed
     taak.open
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-toevoegen_document if {
-    zaaktype_allowed
-    taak.open
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }

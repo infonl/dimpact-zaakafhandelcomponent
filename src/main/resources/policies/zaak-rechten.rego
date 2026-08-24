@@ -72,13 +72,7 @@ default lezen := false
 lezen if {
     zaaktype_allowed
     zaak_allowed
-    some role in {raadpleger, behandelaar, coordinator}
-    role.rol in user.rollen
-}
-lezen if {
-    zaaktype_allowed
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {raadpleger, behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -116,13 +110,7 @@ default behandelen := false
 behandelen if {
     zaaktype_allowed
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-behandelen if {
-    zaaktype_allowed
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -130,13 +118,7 @@ default afbreken := false
 afbreken if {
     zaaktype_allowed
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-afbreken if {
-    zaaktype_allowed
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -159,14 +141,7 @@ wijzigen_doorlooptijd if {
     zaaktype_allowed
     zaak.open
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-wijzigen_doorlooptijd if {
-    zaaktype_allowed
-    zaak.open
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -178,17 +153,7 @@ verlengen if {
     not zaak.opgeschort
     not zaak.verlengd
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-verlengen if {
-    zaaktype_allowed
-    zaak.open
-    not zaak.heropend
-    not zaak.opgeschort
-    not zaak.verlengd
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -199,16 +164,7 @@ opschorten if {
     not zaak.heropend
     not zaak.opgeschort
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-opschorten if {
-    zaaktype_allowed
-    zaak.open
-    not zaak.heropend
-    not zaak.opgeschort
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -216,13 +172,7 @@ default hervatten := false
 hervatten if {
     zaaktype_allowed
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-hervatten if {
-    zaaktype_allowed
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -231,14 +181,7 @@ creeren_document if {
     zaaktype_allowed
     zaak.open
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-creeren_document if {
-    zaaktype_allowed
-    zaak.open
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -277,14 +220,7 @@ versturen_email if {
     zaaktype_allowed
     zaak.open
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-versturen_email if {
-    zaaktype_allowed
-    zaak.open
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -293,14 +229,7 @@ versturen_ontvangstbevestiging if {
     zaaktype_allowed
     zaak.open
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-versturen_ontvangstbevestiging if {
-    zaaktype_allowed
-    zaak.open
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -414,14 +343,7 @@ starten_taak if {
     zaaktype_allowed
     zaak.open
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-starten_taak if {
-    zaaktype_allowed
-    zaak.open
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -432,16 +354,7 @@ vastleggen_besluit if {
     not zaak.intake
     zaak.besloten
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-vastleggen_besluit if {
-    zaaktype_allowed
-    zaak.open
-    not zaak.intake
-    zaak.besloten
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -450,14 +363,7 @@ verlengen_doorlooptijd if {
     zaaktype_allowed
     zaak.open
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-verlengen_doorlooptijd if {
-    zaaktype_allowed
-    zaak.open
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 

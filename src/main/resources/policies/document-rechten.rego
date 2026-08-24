@@ -66,13 +66,7 @@ default lezen := false
 lezen if {
     zaaktype_allowed
     zaak_allowed
-    some role in {raadpleger, behandelaar, coordinator}
-    role.rol in user.rollen
-}
-lezen if {
-    zaaktype_allowed
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {raadpleger, behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -115,14 +109,7 @@ vergrendelen if {
     zaaktype_allowed
     document.zaak_open == true
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-vergrendelen if {
-    zaaktype_allowed
-    document.zaak_open == true
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -147,15 +134,7 @@ ondertekenen if {
     document.zaak_open == true
     onvergrendeld_of_vergrendeld_door_user == true
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-ondertekenen if {
-    zaaktype_allowed
-    document.zaak_open == true
-    onvergrendeld_of_vergrendeld_door_user == true
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -214,13 +193,7 @@ default downloaden := false
 downloaden if {
     zaaktype_allowed
     zaak_allowed
-    some role in {raadpleger, behandelaar, coordinator}
-    role.rol in user.rollen
-}
-downloaden if {
-    zaaktype_allowed
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {raadpleger, behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
 
@@ -229,13 +202,6 @@ converteren if {
     document.definitief == true
     zaaktype_allowed
     zaak_allowed
-    some role in {behandelaar, coordinator}
-    role.rol in user.rollen
-}
-converteren if {
-    document.definitief == true
-    zaaktype_allowed
-    zaak_allowed
-    some role in {recordmanager, beheerder}
+    some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
