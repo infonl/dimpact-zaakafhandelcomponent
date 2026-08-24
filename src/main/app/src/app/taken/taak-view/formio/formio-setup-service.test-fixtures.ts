@@ -130,6 +130,17 @@ export const referenceTableFieldset: ExtendedComponentSchema = {
   },
 };
 
+export function taakGegevensComponent(
+  veld: string,
+  options?: { label?: string; formaat?: string },
+): ExtendedComponentSchema {
+  return {
+    ...zaakGegevensComponent(veld, options),
+    key: "TG_Taakveld",
+    attributes: { [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.TAAK_GEGEVENS },
+  };
+}
+
 export function zaakGegevensComponent(
   veld: string,
   { label = "Zaakveld", formaat }: { label?: string; formaat?: string } = {},

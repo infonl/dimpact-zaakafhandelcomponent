@@ -1,0 +1,549 @@
+{
+  "display": "form",
+  "name": "taakDataForm",
+  "title": "Taak data overview",
+  "type": "form",
+  "components": [
+    {
+      "type": "content",
+      "key": "uitleg",
+      "input": false,
+      "tableView": false,
+      "html": "<h3>Taak data via ZAC_taak_gegevens</h3><p>The same mechanism with the taak as its source: <code>ZAC_VELD</code> for the path, <code>ZAC_FORMAAT</code> for the formatting. These properties are read straight off the Flowable task, so there is no copy that can go stale. The last row is a deliberate mistake, naming the taak as the source rather than the zaak.</p>"
+    },
+    {
+      "type": "panel",
+      "title": "Taak data",
+      "key": "taakgegevens",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "table",
+          "key": "tabel_taakgegevens",
+          "input": false,
+          "tableView": false,
+          "numRows": 14,
+          "numCols": 2,
+          "header": [
+            "Property",
+            "Value"
+          ],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_naam",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>naam</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_naam",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "naam"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_status",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>status</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_status",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "status"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_toelichting",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>toelichting</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_toelichting",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "toelichting"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_creatiedatumTijd",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>creatiedatumTijd</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_creatiedatumTijd",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "creatiedatumTijd"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_creatiedatumTijd_datum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>creatiedatumTijd &rarr; datum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_creatiedatumTijd_datum",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "creatiedatumTijd",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_toekenningsdatumTijd",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>toekenningsdatumTijd</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_toekenningsdatumTijd",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "toekenningsdatumTijd"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_toekenningsdatumTijd_datum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>toekenningsdatumTijd &rarr; datum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_toekenningsdatumTijd_datum",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "toekenningsdatumTijd",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_fataledatum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>fataledatum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_fataledatum",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "fataledatum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_fataledatum_datum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>fataledatum &rarr; datum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_fataledatum_datum",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "fataledatum",
+                      "ZAC_FORMAAT": "datum"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_groep_naam",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>groep.naam</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_groep_naam",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "groep.naam"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_groep_id",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>groep.id</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_groep_id",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "groep.id"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_behandelaar_naam",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>behandelaar.naam</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_behandelaar_naam",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "behandelaar.naam"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_behandelaar_id",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>behandelaar.id</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_behandelaar_id",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "behandelaar.id"
+                    }
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_id",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>id</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_id",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "id"
+                    }
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Deliberate mistakes",
+      "key": "opzettelijke_fouten",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "table",
+          "key": "tabel_fouten",
+          "input": false,
+          "tableView": false,
+          "numRows": 1,
+          "numCols": 2,
+          "header": [
+            "Property",
+            "Result"
+          ],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TGfout_naam_eerste",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>naam.eerste</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TGfout_naam_eerste",
+                    "input": false,
+                    "tableView": false,
+                    "attributes": {
+                      "ZAC_TYPE": "ZAC_taak_gegevens"
+                    },
+                    "properties": {
+                      "ZAC_VELD": "naam.eerste"
+                    }
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Complete",
+      "key": "submit",
+      "disableOnInvalid": false,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

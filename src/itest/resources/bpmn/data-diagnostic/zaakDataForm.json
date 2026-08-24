@@ -1,7 +1,7 @@
 {
   "display": "form",
-  "name": "zaakObjectDiagnosticForm",
-  "title": "Zaakgegevens",
+  "name": "zaakDataForm",
+  "title": "Zaak data overview",
   "type": "form",
   "components": [
     {
@@ -9,11 +9,11 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>Zaakgegevens via ZAC_zaak_gegevens</h3><p>Elke rij toont een property van het zaakobject: links het pad in <code>ZAC_VELD</code>, daarnaast de waarde. Bij datums en booleans staat eerst de waarde zoals de zaak die bevat en daarna dezelfde waarde met een <code>ZAC_FORMAAT</code> functie eromheen. Een streepje betekent dat de property geen waarde heeft: de API laat lege properties weg, dus een typefout is niet te onderscheiden van een leeg veld. Lijsten worden samengevoegd met een komma; met <code>[]</code> lees je door naar een property van elk element, zoals <code>kenmerken[].kenmerk</code>. Het laatste paneel bevat zes opzettelijke fouten die wel te herkennen zijn.</p>"
+      "html": "<h3>Zaak data via ZAC_zaak_gegevens</h3><p>Every row shows one property of the zaak: on the left the path as written in <code>ZAC_VELD</code>, next to it the value. For dates and booleans the value is shown twice: first as the zaak holds it, then with a <code>ZAC_FORMAAT</code> function wrapped around it. Lists are joined with a comma; use <code>[]</code> to read on into a property of every element, as in <code>kenmerken[].kenmerk</code>. A dash means the property holds no value &mdash; the API omits empty properties, so a misspelled property cannot be told apart from an empty one. The last panel holds six deliberate mistakes, which <em>are</em> detectable.</p>"
     },
     {
       "type": "panel",
-      "title": "Tekstwaarden",
+      "title": "Text values",
       "key": "tekstwaarden",
       "input": false,
       "tableView": false,
@@ -27,7 +27,7 @@
           "numCols": 2,
           "header": [
             "Property",
-            "Waarde"
+            "Value"
           ],
           "caption": "",
           "striped": true,
@@ -414,7 +414,7 @@
     },
     {
       "type": "panel",
-      "title": "Geneste objecten",
+      "title": "Nested objects",
       "key": "geneste_objecten",
       "input": false,
       "tableView": false,
@@ -428,7 +428,7 @@
           "numCols": 2,
           "header": [
             "Property",
-            "Waarde"
+            "Value"
           ],
           "caption": "",
           "striped": true,
@@ -846,7 +846,7 @@
     },
     {
       "type": "panel",
-      "title": "Datums",
+      "title": "Dates",
       "key": "datums",
       "input": false,
       "tableView": false,
@@ -860,8 +860,8 @@
           "numCols": 3,
           "header": [
             "Property",
-            "Onopgemaakt",
-            "Opgemaakt (datum)"
+            "Unformatted",
+            "Formatted (datum)"
           ],
           "caption": "",
           "striped": true,
@@ -1331,8 +1331,8 @@
           "numCols": 3,
           "header": [
             "Property",
-            "Onopgemaakt",
-            "Opgemaakt (jaNee)"
+            "Unformatted",
+            "Formatted (jaNee)"
           ],
           "caption": "",
           "striped": true,
@@ -1984,7 +1984,7 @@
     },
     {
       "type": "panel",
-      "title": "Lijsten",
+      "title": "Lists",
       "key": "lijsten",
       "input": false,
       "tableView": false,
@@ -1998,7 +1998,7 @@
           "numCols": 2,
           "header": [
             "Property",
-            "Waarde (samengevoegd)"
+            "Value (joined)"
           ],
           "caption": "",
           "striped": true,
@@ -2263,7 +2263,7 @@
     },
     {
       "type": "panel",
-      "title": "Opzettelijke fouten",
+      "title": "Deliberate mistakes",
       "key": "opzettelijke_fouten",
       "input": false,
       "tableView": false,
@@ -2277,7 +2277,7 @@
           "numCols": 2,
           "header": [
             "Property",
-            "Resultaat"
+            "Result"
           ],
           "caption": "",
           "striped": true,
@@ -2479,7 +2479,7 @@
     },
     {
       "type": "button",
-      "label": "Afronden",
+      "label": "Next",
       "key": "submit",
       "disableOnInvalid": false,
       "input": true,

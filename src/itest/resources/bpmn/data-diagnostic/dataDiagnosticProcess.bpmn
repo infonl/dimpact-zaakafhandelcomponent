@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+<definitions
+  xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:flowable="http://flowable.org/bpmn"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+  typeLanguage="http://www.w3.org/2001/XMLSchema"
+  expressionLanguage="http://www.w3.org/1999/XPath"
+  targetNamespace="http://flowable.org/data">
+
+  <process id="dataDiagnosticProcess" name="Data Diagnostic Process" isExecutable="true"
+           flowable:candidateStarterGroups="flowableUser">
+    <documentation>Renders every property a task form can address: one task reading the zaak, one
+      reading the taak. Both open when the zaak is created and can be completed in any order. Each
+      form ends with deliberate mistakes, to show what an unresolvable property or an unknown format
+      function looks like.</documentation>
+
+    <startEvent id="start" name="Start" flowable:initiator="initiator"/>
+
+    <parallelGateway id="fork" name="Both forms open at once"/>
+
+    <userTask id="zaakDataTask" name="Zaak data"
+              flowable:assignee="${var:get(zaakBehandelaar)}"
+              flowable:candidateGroups="${zaakGroep}"
+              flowable:formKey="zaakDataForm"
+              flowable:formFieldValidation="false">
+      <extensionElements>
+        <flowable:static-form-key><![CDATA[zaakDataForm]]></flowable:static-form-key>
+        <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+      </extensionElements>
+    </userTask>
+
+    <userTask id="taakDataTask" name="Taak data"
+              flowable:assignee="${var:get(zaakBehandelaar)}"
+              flowable:candidateGroups="${zaakGroep}"
+              flowable:formKey="taakDataForm"
+              flowable:formFieldValidation="false">
+      <extensionElements>
+        <flowable:static-form-key><![CDATA[taakDataForm]]></flowable:static-form-key>
+        <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+      </extensionElements>
+    </userTask>
+
+    <parallelGateway id="join" name="Both completed"/>
+
+    <endEvent id="end" name="End"/>
+
+    <sequenceFlow id="flowStartFork" sourceRef="start" targetRef="fork"/>
+    <sequenceFlow id="flowForkZaak" sourceRef="fork" targetRef="zaakDataTask"/>
+    <sequenceFlow id="flowForkTaak" sourceRef="fork" targetRef="taakDataTask"/>
+    <sequenceFlow id="flowZaakJoin" sourceRef="zaakDataTask" targetRef="join"/>
+    <sequenceFlow id="flowTaakJoin" sourceRef="taakDataTask" targetRef="join"/>
+    <sequenceFlow id="flowJoinEnd" sourceRef="join" targetRef="end"/>
+  </process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_dataDiagnosticProcess">
+    <bpmndi:BPMNPlane bpmnElement="dataDiagnosticProcess" id="BPMNPlane_dataDiagnosticProcess">
+      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+        <omgdc:Bounds height="30.0" width="30.0" x="100.0" y="185.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="fork" id="BPMNShape_fork">
+        <omgdc:Bounds height="40.0" width="40.0" x="180.0" y="180.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="zaakDataTask" id="BPMNShape_zaakDataTask">
+        <omgdc:Bounds height="80.0" width="100.0" x="280.0" y="100.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="taakDataTask" id="BPMNShape_taakDataTask">
+        <omgdc:Bounds height="80.0" width="100.0" x="280.0" y="230.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="join" id="BPMNShape_join">
+        <omgdc:Bounds height="40.0" width="40.0" x="440.0" y="180.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+        <omgdc:Bounds height="28.0" width="28.0" x="540.0" y="186.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flowStartFork" id="BPMNEdge_flowStartFork">
+        <omgdi:waypoint x="130.0" y="200.0"/>
+        <omgdi:waypoint x="180.0" y="200.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowForkZaak" id="BPMNEdge_flowForkZaak">
+        <omgdi:waypoint x="200.0" y="180.0"/>
+        <omgdi:waypoint x="200.0" y="140.0"/>
+        <omgdi:waypoint x="280.0" y="140.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowForkTaak" id="BPMNEdge_flowForkTaak">
+        <omgdi:waypoint x="200.0" y="220.0"/>
+        <omgdi:waypoint x="200.0" y="270.0"/>
+        <omgdi:waypoint x="280.0" y="270.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowZaakJoin" id="BPMNEdge_flowZaakJoin">
+        <omgdi:waypoint x="380.0" y="140.0"/>
+        <omgdi:waypoint x="460.0" y="140.0"/>
+        <omgdi:waypoint x="460.0" y="180.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowTaakJoin" id="BPMNEdge_flowTaakJoin">
+        <omgdi:waypoint x="380.0" y="270.0"/>
+        <omgdi:waypoint x="460.0" y="270.0"/>
+        <omgdi:waypoint x="460.0" y="220.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowJoinEnd" id="BPMNEdge_flowJoinEnd">
+        <omgdi:waypoint x="480.0" y="200.0"/>
+        <omgdi:waypoint x="540.0" y="200.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

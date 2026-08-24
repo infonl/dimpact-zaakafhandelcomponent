@@ -24,6 +24,7 @@ import {
   taak,
   unsignedDocumentsFieldset,
   zaak,
+  taakGegevensComponent,
   zaakGegevensComponent,
 } from "./formio-setup-service.test-fixtures";
 
@@ -391,6 +392,52 @@ describe(FormioSetupService.name, () => {
     });
   });
 
+  describe(`a ${KNOWN_ZAC_FIELDS.TAAK_GEGEVENS} field`, () => {
+    async function render(veld: string, options?: { formaat?: string }) {
+      const component = taakGegevensComponent(veld, options);
+      await formioSetupService.createFormioForm(
+        { components: [component] },
+        {
+          ...taak,
+          groep: { id: "fakeGroupId", naam: "fakeGroupName" },
+          behandelaar: { id: "fakeUserId", naam: "fakeUserName" },
+        },
+        zaak,
+      );
+      return component;
+    }
+
+    it.each([
+      ["naam", "test-taak"],
+      ["status", "TOEGEKEND"],
+      ["groep.naam", "fakeGroupName"],
+      ["behandelaar.naam", "fakeUserName"],
+      ["behandelaar.id", "fakeUserId"],
+    ])("should render the taak property %s", async (veld, value) => {
+      const component = await render(veld);
+
+      expect(component.html).toContain(value);
+    });
+
+    it("should read the taak, not the zaak, for a property both objects have", async () => {
+      const component = await render("zaaktypeOmschrijving");
+
+      expect(component.html).toContain("test-zaaktypeOmschrijving");
+    });
+
+    it("should name the taak as the source in an error", async () => {
+      const component = await render("naam.eerste");
+
+      expect(component.html).toContain("Taak property &quot;naam&quot;");
+    });
+
+    it("should format a taak date with the shared format function", async () => {
+      const component = await render("fataledatum", { formaat: "datum" });
+
+      expect(component.html).toMatch(/\d{2}-\d{2}-\d{4}/);
+    });
+  });
+
   describe(`a ${KNOWN_ZAC_FIELDS.ZAAK_GEGEVENS} field`, () => {
     async function render(
       veld: string,
@@ -431,7 +478,7 @@ describe(FormioSetupService.name, () => {
     it("should not render a stray colon when the field has no label", async () => {
       const component = await render("identificatie", { label: "" });
 
-      expect(component.html).toContain('class="zac-zaak-object-label"></span>');
+      expect(component.html).toContain('class="zac-gegevens-label"></span>');
     });
 
     it("should render a value as the zaak holds it when no format is asked for", async () => {
@@ -475,7 +522,7 @@ describe(FormioSetupService.name, () => {
       );
 
       expect(component.html).toContain(
-        '<span class="zac-zaak-object-value">—</span>',
+        '<span class="zac-gegevens-value">—</span>',
       );
     });
 
@@ -491,7 +538,7 @@ describe(FormioSetupService.name, () => {
       const component = await render("kommunikatiekanaal");
 
       expect(component.html).toContain(
-        '<span class="zac-zaak-object-value">—</span>',
+        '<span class="zac-gegevens-value">—</span>',
       );
     });
 
@@ -501,7 +548,7 @@ describe(FormioSetupService.name, () => {
       const component = await render("identificatie.jaar");
 
       expect(component.html).toContain(
-        "&quot;identificatie&quot; holds a single value",
+        "Zaak property &quot;identificatie&quot; holds a single value",
       );
       expect(component.html).toContain("&quot;jaar&quot; cannot be read");
       expect(errorSpy).not.toHaveBeenCalled();
@@ -579,7 +626,7 @@ describe(FormioSetupService.name, () => {
       const component = await render("besluiten[].identificatie");
 
       expect(component.html).toContain(
-        '<span class="zac-zaak-object-value">—</span>',
+        '<span class="zac-gegevens-value">—</span>',
       );
     });
 

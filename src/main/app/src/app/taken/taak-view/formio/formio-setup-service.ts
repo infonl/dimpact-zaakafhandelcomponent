@@ -34,9 +34,10 @@ export enum KNOWN_ZAC_FIELDS {
   STATUS = "ZAC_status",
   PROCESS_DATA = "ZAC_process_data",
   ZAAK_GEGEVENS = "ZAC_zaak_gegevens",
+  TAAK_GEGEVENS = "ZAC_taak_gegevens",
 }
 
-/** Names the zaak property a `ZAC_zaak_gegevens` field shows, as a dot path: `zaaktype.omschrijving`. */
+/** Names the property a gegevens field shows, as a dot path: `zaaktype.omschrijving`. */
 const ZAC_PATH_PROPERTY = "ZAC_VELD";
 
 /** Names an optional format function wrapped around the value: `ZAC_FORMAAT: "datum"`. */
@@ -44,14 +45,14 @@ const ZAC_FORMAT_PROPERTY = "ZAC_FORMAAT";
 
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})/;
 
-/** Shown when a zaak property holds no value, so an empty field reads as empty rather than as broken. */
+/** Shown when a property holds no value, so an empty field reads as empty rather than as broken. */
 const NO_VALUE = "—";
 
 /**
  * Wrappers a form may put around a zaak value. Without one the value is shown as the zaak holds it,
  * so a format is a deliberate choice by the form author rather than something guessed from the type.
  */
-const ZAAK_VALUE_FORMATTERS: Record<
+const VALUE_FORMATTERS: Record<
   string,
   (value: unknown, translate: TranslateService) => string
 > = {
@@ -102,21 +103,23 @@ const LIST_SEGMENT_SUFFIX = "[]";
 const LIST_SEPARATOR = ", ";
 
 /**
- * Walks a dot path into the zaak. A property that is absent resolves to null rather than to an
- * error: the API omits properties that hold no value, so absence cannot be told apart from a typo.
+ * Walks a dot path into `source`, naming it `sourceLabel` in any error. A property that is absent
+ * resolves to null rather than to an error: the API omits properties that hold no value, so absence
+ * cannot be told apart from a typo.
  *
  * A segment may end in `[]` to read on through every element of a list, as in
  * `kenmerken[].kenmerk`, which resolves to the kenmerk of each row.
  */
-function resolveZaakPath(
-  zaak: GeneratedType<"RestZaak">,
+function resolvePath(
+  source: object,
   path: string,
+  sourceLabel: string,
 ): unknown {
   if (!path) {
     throw new Error(`Missing ${ZAC_PATH_PROPERTY} property.`);
   }
 
-  const value = walkSegments(zaak, path.split("."), []);
+  const value = walkSegments(source, path.split("."), [], sourceLabel);
 
   if (Array.isArray(value)) {
     const objectElement = value.find(
@@ -124,7 +127,7 @@ function resolveZaakPath(
     );
     if (objectElement) {
       throw new Error(
-        `Zaak property "${path}" holds a list of objects. Address a property of ` +
+        `${sourceLabel} property "${path}" holds a list of objects. Address a property of ` +
           `each element, as in "${path}${LIST_SEGMENT_SUFFIX}.` +
           `${Object.keys(objectElement).sort()[0]}".`,
       );
@@ -134,7 +137,7 @@ function resolveZaakPath(
 
   if (typeof value === "object" && value !== null) {
     throw new Error(
-      `Zaak property "${path}" holds an object, not a single value.`,
+      `${sourceLabel} property "${path}" holds an object, not a single value.`,
     );
   }
   return value;
@@ -144,6 +147,7 @@ function walkSegments(
   start: unknown,
   segments: string[],
   walked: string[],
+  sourceLabel: string,
 ): unknown {
   let value = start;
   for (let index = 0; index < segments.length; index++) {
@@ -157,7 +161,7 @@ function walkSegments(
 
     if (typeof value !== "object") {
       throw new Error(
-        `Zaak property "${walked.join(".")}" holds a single value, ` +
+        `${sourceLabel} property "${walked.join(".")}" holds a single value, ` +
           `so "${name}" cannot be read from it.`,
       );
     }
@@ -169,13 +173,15 @@ function walkSegments(
     if (value === null || value === undefined) return null;
     if (!Array.isArray(value)) {
       throw new Error(
-        `Zaak property "${walked.join(".")}" is not a list, ` +
+        `${sourceLabel} property "${walked.join(".")}" is not a list, ` +
           `so "${LIST_SEGMENT_SUFFIX}" cannot be used on it.`,
       );
     }
     const rest = segments.slice(index + 1);
     return value.map((element) =>
-      rest.length ? walkSegments(element, rest, [...walked]) : element,
+      rest.length
+        ? walkSegments(element, rest, [...walked], sourceLabel)
+        : element,
     );
   }
   return value;
@@ -262,7 +268,10 @@ export class FormioSetupService {
               this.initializeProcessDataField(component);
               break;
             case KNOWN_ZAC_FIELDS.ZAAK_GEGEVENS:
-              this.initializeZaakGegevensField(component, zaak);
+              this.initializeGegevensField(component, zaak, "Zaak");
+              break;
+            case KNOWN_ZAC_FIELDS.TAAK_GEGEVENS:
+              this.initializeGegevensField(component, taak, "Taak");
               break;
             case KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUPS:
               this.initializeSmartDocumentsTemplateGroupsField(component, taak);
@@ -401,16 +410,17 @@ export class FormioSetupService {
    * task writes every submitted key back as a process variable — which would overwrite the zaak
    * variables with whatever this read-only field happened to show.
    */
-  private initializeZaakGegevensField(
+  private initializeGegevensField(
     component: ExtendedComponentSchema,
-    zaak: GeneratedType<"RestZaak">,
+    source: object,
+    sourceLabel: string,
   ) {
     const path: string = component.properties?.[ZAC_PATH_PROPERTY] ?? "";
 
     let text: string;
     try {
-      text = this.formatZaakValue(
-        resolveZaakPath(zaak, path),
+      text = this.formatValue(
+        resolvePath(source, path, sourceLabel),
         component.properties?.[ZAC_FORMAT_PROPERTY],
       );
     } catch (error) {
@@ -425,31 +435,31 @@ export class FormioSetupService {
     component.type = "content";
     component.input = false;
     component.html =
-      `<div class="zac-zaak-object">` +
-      `<span class="zac-zaak-object-label">${label ? `${escapeHtml(label)}: ` : ""}</span>` +
-      `<span class="zac-zaak-object-value">${escapeHtml(text)}</span>` +
+      `<div class="zac-gegevens">` +
+      `<span class="zac-gegevens-label">${label ? `${escapeHtml(label)}: ` : ""}</span>` +
+      `<span class="zac-gegevens-value">${escapeHtml(text)}</span>` +
       `</div>`;
     component.label = "";
   }
 
-  private formatZaakValue(value: unknown, format?: string): string {
+  private formatValue(value: unknown, format?: string): string {
     if (Array.isArray(value)) {
       const elements = value
         .filter(
           (element) =>
             element !== null && element !== undefined && element !== "",
         )
-        .map((element) => this.formatZaakValue(element, format));
+        .map((element) => this.formatValue(element, format));
       return elements.length ? elements.join(LIST_SEPARATOR) : NO_VALUE;
     }
     if (value === null || value === undefined || value === "") return NO_VALUE;
     if (!format) return String(value);
 
-    const formatter = ZAAK_VALUE_FORMATTERS[format];
+    const formatter = VALUE_FORMATTERS[format];
     if (!formatter) {
       throw new Error(
         `Unknown ${ZAC_FORMAT_PROPERTY} "${format}". Available: ` +
-          Object.keys(ZAAK_VALUE_FORMATTERS).sort().join(", "),
+          Object.keys(VALUE_FORMATTERS).sort().join(", "),
       );
     }
     return formatter(value, this.translateService);
