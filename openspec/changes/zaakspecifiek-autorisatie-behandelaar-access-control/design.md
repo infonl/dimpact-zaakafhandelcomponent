@@ -8,6 +8,12 @@ PZ-11909 introduced two pieces of groundwork with no enforcement behind them yet
   `RestZaakConverter.toRestZaak` (`src/main/kotlin/nl/info/zac/app/zaak/converter/RestZaakConverter.kt:71-73,114-116`)
   already reads this via `zrcClientService.listZaakeigenschappen(zaak.uuid)` to compute the purely
   informational `RestZaak.isZaakspecifiekGeautoriseerd` field (lock icon in the frontend).
+  A zaak can only carry this zaakeigenschap if its zaaktype defines the corresponding eigenschap
+  definitie (reflected in `RestZaaktypeConfiguration.zaakspecifiekAutoriseerbaar`) — the ZGW API rejects
+  setting a zaakeigenschap on a zaak for an eigenschap the zaaktype does not define. This change therefore
+  does not need to separately cross-check `zaakspecifiekAutoriseerbaar`: checking the zaak's own
+  zaakeigenschap value is already sufficient, since the ZGW spec itself guards against a zaak of a
+  non-`zaakspecifiekAutoriseerbaar` zaaktype ever carrying this eigenschap.
 
 Access control in ZAC is enforced in OPA (Rego), not in Kotlin: every zaak/taak/document REST read or
 mutation builds a `ZaakInput`/`TaakInput`/`DocumentInput` (`nl.info.zac.policy.input`), sends it to OPA's
