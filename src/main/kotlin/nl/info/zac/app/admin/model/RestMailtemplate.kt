@@ -2,34 +2,61 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.app.admin.model;
+package nl.info.zac.app.admin.model
 
-import java.util.Set;
+import jakarta.json.bind.annotation.JsonbProperty
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import nl.info.zac.mailtemplates.model.Mail
+import nl.info.zac.mailtemplates.model.MailTemplate
+import nl.info.zac.mailtemplates.model.MailTemplateVariables
+import nl.info.zac.util.AllOpen
+import nl.info.zac.util.NoArgConstructor
+import nl.info.zac.util.stripHtmlParagraphTags
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
-import nl.info.zac.mailtemplates.model.Mail;
-import nl.info.zac.mailtemplates.model.MailTemplateVariables;
-
-public class RESTMailtemplate {
-
+@NoArgConstructor
+@AllOpen
+data class RestMailtemplate(
     // ID is optional for POST requests (will be ignored) and required for responses
-    public Long id;
+    var id: Long? = null,
 
-    @NotBlank(message = "Mail template name is required")
-    public String mailTemplateNaam;
+    @field:NotBlank(message = "Mail template name is required")
+    var mailTemplateNaam: String,
 
-    @NotBlank(message = "Subject is required")
-    public String onderwerp;
+    @field:NotBlank(message = "Subject is required")
+    var onderwerp: String,
 
-    @NotBlank(message = "Body is required")
-    public String body;
+    @field:NotBlank(message = "Body is required")
+    var body: String,
 
-    @NotNull(message = "Mail type is required")
-    public Mail mail;
+    @field:NotNull(message = "Mail type is required")
+    var mail: Mail,
 
-    public Set<MailTemplateVariables> variabelen;
+    var variabelen: Set<MailTemplateVariables> = emptySet(),
 
-    public boolean defaultMailtemplate;
-}
+    @get:JsonbProperty("defaultMailtemplate")
+    var isDefaultMailtemplate: Boolean = false
+)
+
+fun MailTemplate.toRestMailtemplate() = RestMailtemplate(
+    id = id,
+    mailTemplateNaam = mailTemplateNaam,
+    onderwerp = onderwerp,
+    body = body,
+    mail = mail,
+    variabelen = mail.mailTemplateVariables,
+    isDefaultMailtemplate = isDefaultMailtemplate
+)
+
+// id is copied only when present:
+// it only matters to callers that need to reference an already-persisted MailTemplate by id, e.g. to
+// populate a JPA @ManyToOne relationship.
+fun RestMailtemplate.toMailTemplate() =
+    MailTemplate().apply {
+        this@toMailTemplate.id?.let { id = it }
+        mail = this@toMailTemplate.mail
+        mailTemplateNaam = this@toMailTemplate.mailTemplateNaam.trim()
+        onderwerp = stripHtmlParagraphTags(this@toMailTemplate.onderwerp)
+        body = this@toMailTemplate.body
+        isDefaultMailtemplate = this@toMailTemplate.isDefaultMailtemplate
+    }

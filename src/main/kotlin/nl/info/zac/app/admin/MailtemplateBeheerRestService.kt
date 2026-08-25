@@ -19,9 +19,9 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.zac.app.admin.model.RESTMailtemplate
-import nl.info.zac.app.admin.converter.toMailTemplateWithoutID
-import nl.info.zac.app.admin.converter.toRestMailtemplate
+import nl.info.zac.app.admin.model.RestMailtemplate
+import nl.info.zac.app.admin.model.toMailTemplate
+import nl.info.zac.app.admin.model.toRestMailtemplate
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplate
@@ -44,13 +44,13 @@ class MailtemplateBeheerRestService @Inject constructor(
 
     @GET
     @Path("{id}")
-    fun readMailtemplate(@PathParam("id") @Positive id: Long): RESTMailtemplate {
+    fun readMailtemplate(@PathParam("id") @Positive id: Long): RestMailtemplate {
         assertPolicy(policyService.readOverigeRechten().beheren)
         return mailTemplateService.readMailtemplate(id).toRestMailtemplate()
     }
 
     @GET
-    fun listMailtemplates(): List<RESTMailtemplate> {
+    fun listMailtemplates(): List<RestMailtemplate> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         val mailTemplates = mailTemplateService.listMailtemplates()
         return mailTemplates.map(MailTemplate::toRestMailtemplate)
@@ -58,7 +58,7 @@ class MailtemplateBeheerRestService @Inject constructor(
 
     @GET
     @Path("/koppelbaar")
-    fun listkoppelbareMailtemplates(): List<RESTMailtemplate> {
+    fun listkoppelbareMailtemplates(): List<RestMailtemplate> {
         assertPolicy(policyService.readOverigeRechten().beheren)
         val mailTemplates = mailTemplateService.listKoppelbareMailtemplates()
         return mailTemplates.map(MailTemplate::toRestMailtemplate)
@@ -73,13 +73,13 @@ class MailtemplateBeheerRestService @Inject constructor(
 
     @POST
     @Path("")
-    fun createMailtemplate(@Valid mailtemplate: RESTMailtemplate): Response {
+    fun createMailtemplate(@Valid mailtemplate: RestMailtemplate): Response {
         assertPolicy(policyService.readOverigeRechten().beheren)
         if (mailtemplate.id != null) {
             mailtemplate.id = null // Ignore provided ID
         }
         val createdTemplate = mailTemplateService.createMailtemplate(
-            mailtemplate.toMailTemplateWithoutID()
+            mailtemplate.toMailTemplate()
         )
         val response = createdTemplate.toRestMailtemplate()
         return Response.status(Response.Status.CREATED).entity(response).build()
@@ -89,12 +89,12 @@ class MailtemplateBeheerRestService @Inject constructor(
     @Path("{id}")
     fun updateMailtemplate(
         @PathParam("id") @Positive id: Long,
-        @Valid mailtemplate: RESTMailtemplate
-    ): RESTMailtemplate {
+        @Valid mailtemplate: RestMailtemplate
+    ): RestMailtemplate {
         assertPolicy(policyService.readOverigeRechten().beheren)
         val updatedTemplate = mailTemplateService.updateMailtemplate(
             id,
-            mailtemplate.toMailTemplateWithoutID()
+            mailtemplate.toMailTemplate()
         )
         return updatedTemplate.toRestMailtemplate()
     }

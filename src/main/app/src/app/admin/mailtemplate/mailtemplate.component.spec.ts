@@ -24,7 +24,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { MailtemplateComponent } from "./mailtemplate.component";
 
-const bestaandTemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
+const bestaandTemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
   id: 42,
   mailTemplateNaam: "Bestaand template",
   mail: "TAAK_ONTVANGSTBEVESTIGING",
@@ -85,7 +85,7 @@ describe(MailtemplateComponent.name, () => {
   }
 
   async function setup(
-    template?: GeneratedType<"RESTMailtemplate">,
+    template?: GeneratedType<"RestMailtemplate">,
     variabelen: GeneratedType<"MailTemplateVariables">[] = [],
   ) {
     const rendered = await render(MailtemplateComponent, {

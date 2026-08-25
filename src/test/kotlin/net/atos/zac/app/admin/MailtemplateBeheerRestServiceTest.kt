@@ -60,13 +60,13 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         onderwerp shouldBe "NewTemplate" // HTML tags stripped
                         body shouldBe restMailTemplate.body
                         mail shouldBe restMailTemplate.mail
-                        isDefaultMailtemplate shouldBe restMailTemplate.defaultMailtemplate
+                        isDefaultMailtemplate shouldBe restMailTemplate.isDefaultMailtemplate
                     }
                 }
 
                 And("it should return HTTP 201 Created with the created template") {
                     response.status shouldBe Response.Status.CREATED.statusCode
-                    val createdRestTemplate = response.entity as net.atos.zac.app.admin.model.RESTMailtemplate
+                    val createdRestTemplate = response.entity as nl.info.zac.app.admin.model.RestMailtemplate
                     createdRestTemplate.id shouldBe createdMailTemplate.id
                     createdRestTemplate.mailTemplateNaam shouldBe createdMailTemplate.mailTemplateNaam
                 }
@@ -103,7 +103,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         onderwerp shouldBe "UpdatedTemplate" // HTML tags stripped
                         body shouldBe restMailTemplate.body
                         mail shouldBe restMailTemplate.mail
-                        isDefaultMailtemplate shouldBe restMailTemplate.defaultMailtemplate
+                        isDefaultMailtemplate shouldBe restMailTemplate.isDefaultMailtemplate
                     }
                 }
 
