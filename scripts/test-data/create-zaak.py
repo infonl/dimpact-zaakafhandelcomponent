@@ -18,7 +18,8 @@
 # create/upload operations in zac_testdata.py, the summary tables in zac_reporting.py.
 #
 # At the end, a link to each created zaak is printed for both the ZAC port (8080)
-# and the Angular dev server port (4200).
+# and the Angular dev server port (4200). When any value was answered at a prompt, the
+# equivalent non-interactive command line is printed too, ready to copy for a repeat run.
 #
 # Prerequisites: Python 3.10+, all Docker Compose services (including ZAC) must be running.
 #
@@ -39,6 +40,7 @@ if sys.version_info < (3, 10):
     sys.exit(1)
 
 import argparse
+import shlex
 import time
 
 import zac_client
@@ -200,6 +202,28 @@ def print_zaak_links(zaak_results: list[dict], zac_url: str) -> None:
         print(f"    {FRONTEND_DEV_URL}/zaken/{identificatie}")
 
 
+def print_equivalent_command(
+    zaaktype: dict, document_count: int, args: argparse.Namespace, defaults: argparse.Namespace
+) -> None:
+    """Print the command line that runs this same job without prompting."""
+    command = [
+        sys.argv[0],
+        "--zaaktype",
+        zaaktype["description"],
+        "--doc-count",
+        str(document_count),
+    ]
+    if args.count != defaults.count:
+        command += ["--count", str(args.count)]
+    if args.zac_url != defaults.zac_url:
+        command += ["--zac-url", args.zac_url]
+    if args.keycloak_url != defaults.keycloak_url:
+        command += ["--keycloak-url", args.keycloak_url]
+
+    print("\n=== Same run without prompts ===")
+    print(f"  {shlex.join(command)}")
+
+
 def selectable_options_help() -> str:
     """Render the selectable zaaktypes and document counts for the --help epilog."""
     zaaktype_lines = "\n".join(
@@ -254,13 +278,15 @@ def main() -> None:
         help="Keycloak base URL (default: http://localhost:8081)",
     )
     args = parser.parse_args()
+    defaults = parser.parse_args([])
 
     if args.count < 1:
         parser.error("--count must be >= 1")
     if args.doc_count is not None and args.doc_count < 0:
         parser.error("--doc-count must be >= 0")
 
-    if args.zaaktype is None or args.doc_count is None:
+    was_prompted = args.zaaktype is None or args.doc_count is None
+    if was_prompted:
         zac_reporting.print_banner()
 
     if args.zaaktype:
@@ -296,6 +322,8 @@ def main() -> None:
     zac_reporting.print_stats(zaak_results)
     print(f"Wall-clock time: {time.monotonic() - wall_start:.1f}s")
     print_zaak_links(zaak_results, args.zac_url)
+    if was_prompted:
+        print_equivalent_command(zaaktype, document_count, args, defaults)
 
 
 if __name__ == "__main__":
