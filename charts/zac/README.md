@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.302](https://img.shields.io/badge/Version-1.0.302-informational?style=flat-square) ![AppVersion: 5.5](https://img.shields.io/badge/AppVersion-5.5-informational?style=flat-square)
+![Version: 1.0.303](https://img.shields.io/badge/Version-1.0.303-informational?style=flat-square) ![AppVersion: 5.5](https://img.shields.io/badge/AppVersion-5.5-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
