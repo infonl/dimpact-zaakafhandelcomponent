@@ -18,9 +18,19 @@ type FormioFunctionFactory = (
   parameters: string[],
 ) => Promise<(uuids: unknown) => string>;
 
+// Removing a tag can splice a new one together, as in `<scr<x>ipt>`, so repeat until nothing changes.
+function stripTags(value: string) {
+  let stripped = value;
+  for (let previous = ""; stripped !== previous;) {
+    previous = stripped;
+    stripped = stripped.replace(/<[^>]*>/g, "");
+  }
+  return stripped.replace(/[<>]/g, "");
+}
+
 /** Removed rather than escaped: the same values are seeded into inputs, where `&amp;` would show. */
 function stripTagsDeep<T>(value: T): T {
-  if (typeof value === "string") return value.replace(/<[^>]*>/g, "") as T;
+  if (typeof value === "string") return stripTags(value) as T;
   if (Array.isArray(value)) return value.map(stripTagsDeep) as T;
   if (value !== null && typeof value === "object") {
     return Object.fromEntries(
