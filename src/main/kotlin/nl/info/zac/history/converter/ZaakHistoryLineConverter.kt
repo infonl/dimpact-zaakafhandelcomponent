@@ -5,11 +5,11 @@
 package nl.info.zac.history.converter
 
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.model.ObjectType.BESLUIT
-import net.atos.client.zgw.shared.model.ObjectType.BESLUIT_INFORMATIEOBJECT
-import net.atos.client.zgw.shared.model.ObjectType.ENKELVOUDIG_INFORMATIEOBJECT
-import net.atos.client.zgw.shared.model.ObjectType.GEBRUIKSRECHTEN
-import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
+import nl.info.client.zgw.shared.model.ObjectType.BESLUIT
+import nl.info.client.zgw.shared.model.ObjectType.BESLUIT_INFORMATIEOBJECT
+import nl.info.client.zgw.shared.model.ObjectType.ENKELVOUDIG_INFORMATIEOBJECT
+import nl.info.client.zgw.shared.model.ObjectType.GEBRUIKSRECHTEN
+import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
@@ -37,21 +37,23 @@ class ZaakHistoryLineConverter @Inject constructor(
 
     @Suppress("UNCHECKED_CAST")
     private fun AuditTrailRegel.toRestHistorieRegelList(): List<HistoryLine> =
-        with(this.wijzigingen) {
-            when (this.objectType) {
-                BESLUIT ->
-                    AuditBesluitConverter.convert(this as AuditWijziging<Besluit>)
-                GEBRUIKSRECHTEN ->
-                    AuditGebruiksrechtenWijzigingConverter.convert(this as AuditWijziging<Gebruiksrechten>)
-                ENKELVOUDIG_INFORMATIEOBJECT ->
-                    auditEnkelvoudigInformatieobjectConverter.convert(
-                        this as AuditWijziging<EnkelvoudigInformatieObject>
-                    )
-                BESLUIT_INFORMATIEOBJECT ->
-                    auditBesluitInformatieobjectConverter.convert(this as BesluitInformatieobjectWijziging)
-                else -> emptyList()
+        this.wijzigingen?.let {
+            with(it) {
+                when (this.objectType) {
+                    BESLUIT ->
+                        AuditBesluitConverter.convert(this as AuditWijziging<Besluit>)
+                    GEBRUIKSRECHTEN ->
+                        AuditGebruiksrechtenWijzigingConverter.convert(this as AuditWijziging<Gebruiksrechten>)
+                    ENKELVOUDIG_INFORMATIEOBJECT ->
+                        auditEnkelvoudigInformatieobjectConverter.convert(
+                            this as AuditWijziging<EnkelvoudigInformatieObject>
+                        )
+                    BESLUIT_INFORMATIEOBJECT ->
+                        auditBesluitInformatieobjectConverter.convert(this as BesluitInformatieobjectWijziging)
+                    else -> emptyList()
+                }
             }
-        }.map { convertAuditTrailBasis(it, this) }
+        }.orEmpty().map { convertAuditTrailBasis(it, this) }
 
     private fun convertAuditTrailBasis(historieRegel: HistoryLine, auditTrailRegel: AuditTrailRegel) =
         historieRegel.apply {

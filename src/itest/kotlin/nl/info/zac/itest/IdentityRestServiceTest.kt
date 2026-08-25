@@ -162,6 +162,11 @@ class IdentityServiceTest : BehaviorSpec({
                                     "active": true,
                                     "id": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.name}",
                                     "naam": "${GROUP_BEHANDELAARS_LONG_NAME_TEST.description}"
+                                },
+                                {
+                                    "active": true,
+                                    "id": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.name}",
+                                    "naam": "${GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1.description}"
                                 }
                             ]
                     """.trimIndent()
@@ -267,10 +272,6 @@ class IdentityServiceTest : BehaviorSpec({
                             {
                                 "id": "${BEHANDELAAR_1.username}",
                                 "naam": "${BEHANDELAAR_1.displayName}"
-                            },
-                            {
-                                "id": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.username}",
-                                "naam": "${ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1.displayName}"
                             }
                         ]
                     """.trimIndent()
