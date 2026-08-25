@@ -881,6 +881,82 @@ Example:
 }
 ```
 
+### Reading zaak and taak data
+
+ZAC puts the whole zaak and the whole taak into the form's template context, so reading a value
+needs no `ZAC_TYPE` and no ZAC property at all — it is Form.io's own `{{ }}` interpolation:
+
+```json
+{
+  "label": "",
+  "type": "content",
+  "key": "ZO_zaaknummer",
+  "input": false,
+  "html": "<strong>Zaaknummer:</strong> {{ zaak.identificatie }}"
+}
+```
+
+Two objects are available, `zaak` and `taak`, and any property of either is reachable by its path:
+
+```
+{{ zaak.identificatie }}                  {{ taak.naam }}
+{{ zaak.zaaktype.omschrijving }}          {{ taak.groep.naam }}
+{{ zaak.resultaat.resultaattype.naam }}   {{ taak.fataledatum }}
+```
+
+Because it is a template and not a field, several values can go in one sentence — which is the main
+thing this can do that a dedicated field type could not:
+
+```html
+Zaak {{ zaak.identificatie }} ({{ zaak.zaaktype.omschrijving }}) is behandeld
+door {{ zaak.behandelaar.naam }}.
+```
+
+`zaak` is the zaak as read from Open Zaak, with its group and behandelaar resolved from the zaak
+rollen via user identity management, and it is re-read every time the task is opened. `taak` is the
+task in the process engine, with its candidate group and assignee resolved the same way. Both have
+markup removed from their string values before the form sees them, so a value a user typed into the
+zaak cannot inject anything into the page.
+
+A value the zaak does not carry renders as the word `undefined`, and there is no field-level error
+message, so an expression over a property that is only sometimes filled needs a guard of its own:
+
+```
+{{ zaak.behandelaar ? zaak.behandelaar.naam : "" }}
+```
+
+#### Filling an editable field
+
+Interpolation only renders text. To put a value **into** an input, use Form.io's own
+`customDefaultValue`, which is JavaScript with the same context available:
+
+```json
+{
+  "label": "Toelichting",
+  "type": "textarea",
+  "key": "IN_toelichting",
+  "input": true,
+  "customDefaultValue": "value = zaak.toelichting"
+}
+```
+
+Anything else JavaScript can express works here as well.
+
+Three rules for filled fields:
+
+1. **A saved answer is never overwritten.** Form.io skips a default value once the submission
+   already carries the key, so what the user typed survives a reopen. This is Form.io's own
+   behaviour, not something ZAC adds.
+2. **Do not format the value of a field that parses its own.** A date picker reads the raw value and
+   formats it for display itself, so give it `value = zaak.startdatum` and leave it to render
+   `24-08-2026` on its own.
+3. **Do not use a process variable name as the `key`.** Completing a task writes every submitted key
+   back as a process variable, so a field keyed `zaakGroep` overwrites that variable. Prefix the keys
+   of your own fields.
+
+That third rule is the difference that matters between the two mechanisms: an interpolated value is
+only rendered and can never be written back, while a filled field becomes part of the submission.
+
 ### Custom functions
 
 ZAC supports custom functions in Form.io `content` components via the `{{ }}` template syntax.

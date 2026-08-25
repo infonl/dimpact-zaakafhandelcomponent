@@ -16,6 +16,35 @@ type FormioFunctionFactory = (
   parameters: string[],
 ) => Promise<(uuids: unknown) => string>;
 
+// Removing a tag can splice a new one together, as in `<scr<x>ipt>`, so repeat until nothing changes.
+function stripTags(value: string) {
+  let stripped = value;
+  for (let previous = ""; stripped !== previous;) {
+    previous = stripped;
+    stripped = stripped.replace(/<[^>]*>/g, "");
+  }
+  return stripped.replace(/[<>]/g, "");
+}
+
+/** Rebuilt key by key, so anything else - a `Date`, a `Map` - would lose its contents. */
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (value === null || typeof value !== "object") return false;
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+/** Removed rather than escaped: the same values are seeded into inputs, where `&amp;` would show. */
+function stripTagsDeep<T>(value: T): T {
+  if (typeof value === "string") return stripTags(value) as T;
+  if (Array.isArray(value)) return value.map(stripTagsDeep) as T;
+  if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [key, stripTagsDeep(entry)]),
+    ) as T;
+  }
+  return value;
+}
+
 @Injectable({ providedIn: "root" })
 export class FormioCustomFunctions {
   private readonly informatieObjectenService = inject(
@@ -46,6 +75,8 @@ export class FormioCustomFunctions {
   async prepareFormContext(
     form: unknown,
     taakdata: Record<string, unknown>,
+    zaak?: object,
+    taak?: object,
   ): Promise<EvalContext> {
     const foundFunctions = this.extractFormFunctions(form);
 
@@ -58,7 +89,11 @@ export class FormioCustomFunctions {
       }
     }
 
-    const context: EvalContext = { ...taakdata };
+    const context: EvalContext = {
+      ...taakdata,
+      zaak: stripTagsDeep(zaak),
+      taak: stripTagsDeep(taak),
+    };
     for (const [funcName, factory] of Object.entries(this.functionRegistry)) {
       if (foundFunctions.has(funcName)) {
         context[funcName] = await factory(

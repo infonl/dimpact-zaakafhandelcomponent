@@ -4,6 +4,7 @@
  */
 
 import { TestBed } from "@angular/core/testing";
+import { Evaluator } from "@formio/core";
 import { of, throwError } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -299,6 +300,129 @@ describe(FormioCustomFunctions.name, () => {
       expect(
         informatieObjectenService.readEnkelvoudigInformatieobject,
       ).toHaveBeenCalledWith(UUID_A);
+    });
+  });
+  describe("the zaak and the taak in the eval context", () => {
+    const zaak = {
+      identificatie: "ZAAK-2026-0000000835",
+      zaaktype: { omschrijving: "Melding klein evenement" },
+      indicaties: ["OPSCHORTING", "VERLENGD"],
+    };
+    const taak = { naam: "test-taak", groep: { naam: "fakeGroupName" } };
+
+    async function interpolate(template: string, source: object = zaak) {
+      const context = await service.prepareFormContext(
+        { components: [{ type: "content", html: template }] },
+        {},
+        source,
+        taak,
+      );
+      return Evaluator.interpolate(template, context);
+    }
+
+    it.each([
+      ["{{ zaak.identificatie }}", "ZAAK-2026-0000000835"],
+      ["{{ zaak.zaaktype.omschrijving }}", "Melding klein evenement"],
+      ["{{ taak.naam }}", "test-taak"],
+      ["{{ taak.groep.naam }}", "fakeGroupName"],
+    ])("should resolve %s to %s", async (template, expected) => {
+      expect(await interpolate(template)).toBe(expected);
+    });
+
+    it("should compose two values into one sentence", async () => {
+      expect(
+        await interpolate(
+          "Zaak {{ zaak.identificatie }} van {{ zaak.zaaktype.omschrijving }}",
+        ),
+      ).toBe("Zaak ZAAK-2026-0000000835 van Melding klein evenement");
+    });
+
+    it("should leave the taak data it already exposed reachable", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        { NF_Uren: "8" },
+        zaak,
+        taak,
+      );
+
+      expect(context.NF_Uren).toBe("8");
+    });
+
+    it("should keep a value that is not a plain object intact, rather than empty it", async () => {
+      const registratiedatum = new Date("2026-08-24T00:00:00.000Z");
+
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        { registratiedatum },
+      );
+
+      expect(
+        (context.zaak as { registratiedatum: Date }).registratiedatum,
+      ).toEqual(registratiedatum);
+    });
+
+    describe("markup in a value", () => {
+      it.each([
+        ["a plain tag", "<b>x</b>", "x"],
+        ["a script tag", "<script>alert(1)</script>", "alert(1)"],
+        ["an image with a handler", "<img src=x onerror=alert(1)>", ""],
+        [
+          "a tag spliced together by removing another",
+          "<scr<x>ipt>alert(1)</script>",
+          "iptalert(1)",
+        ],
+        [
+          "a doubled opening bracket",
+          "<<script>script>alert(1)",
+          "scriptalert(1)",
+        ],
+        ["a stray bracket", "5 < 6", "5  6"],
+      ])(
+        "should leave no markup for %s",
+        async (_description, value, expected) => {
+          const context = await service.prepareFormContext(
+            { components: [] },
+            {},
+            { omschrijving: value },
+          );
+          const stripped = (context.zaak as { omschrijving: string })
+            .omschrijving;
+
+          expect(stripped).toBe(expected);
+          expect(stripped).not.toContain("<");
+          expect(stripped).not.toContain(">");
+        },
+      );
+
+      it("should remove markup nested in a list", async () => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          { kenmerken: [{ bron: "<b>x</b>" }] },
+        );
+
+        expect(context.zaak).toEqual({ kenmerken: [{ bron: "x" }] });
+      });
+
+      it.each([
+        ["an ampersand", "Jansen & Zn"],
+        ["an apostrophe", "'s-Hertogenbosch"],
+        ["a quote", 'de "grote" zaal'],
+      ])(
+        "should leave %s untouched, so a seeded input shows it as typed",
+        async (_description, value) => {
+          const context = await service.prepareFormContext(
+            { components: [] },
+            {},
+            { omschrijving: value },
+          );
+
+          expect((context.zaak as { omschrijving: string }).omschrijving).toBe(
+            value,
+          );
+        },
+      );
     });
   });
 });

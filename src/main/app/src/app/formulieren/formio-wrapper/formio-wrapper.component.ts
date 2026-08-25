@@ -57,6 +57,8 @@ export class FormioWrapperComponent
   @Input() form: unknown;
   @Input() submission: unknown;
   @Input() taakdata?: Record<string, unknown>;
+  @Input() zaak?: object;
+  @Input() taak?: object;
   @Input() options?: FormioHookOptions;
   @Input({ required: true, transform: booleanAttribute }) readOnly = false;
   @Input({ required: true, transform: booleanAttribute }) submitPending = false;
@@ -93,7 +95,8 @@ export class FormioWrapperComponent
   protected evalContextReady = false;
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes["form"]) {
+    // Not `taak` or `taakdata`: a rebuild tears the open form down, and a taak event replaces those.
+    if (changes["form"] || changes["zaak"]) {
       this.rebuild$.next();
     }
 
@@ -130,6 +133,8 @@ export class FormioWrapperComponent
             this.customFunctions.prepareFormContext(
               this.form,
               this.taakdata ?? {},
+              this.zaak,
+              this.taak,
             ),
           );
           return source.pipe(

@@ -28,10 +28,7 @@ describe(FormioWrapperComponent.name, () => {
         { provide: ElementRef, useValue: mockElementRef },
         {
           provide: FormioCustomFunctions,
-          useValue: {
-            hasFunctionCalls: jest.fn().mockReturnValue(false),
-            buildEvalContext: jest.fn().mockResolvedValue({}),
-          },
+          useValue: { prepareFormContext: jest.fn().mockResolvedValue({}) },
         },
       ],
     }).compileComponents();
@@ -482,6 +479,63 @@ describe(FormioWrapperComponent.name, () => {
       const spy = jest.spyOn(Object, "defineProperty");
       component.ngAfterViewInit();
       expect(spy).not.toHaveBeenCalled();
+    });
+  });
+  describe("rebuilding the eval context", () => {
+    let prepareFormContext: jest.Mock;
+
+    beforeEach(async () => {
+      prepareFormContext = TestBed.inject(FormioCustomFunctions)
+        .prepareFormContext as unknown as jest.Mock;
+      await component.ngOnInit();
+      prepareFormContext.mockClear();
+    });
+
+    it.each(["form", "zaak"])(
+      "should rebuild when %s changes, because the context is built from it",
+      (input) => {
+        component.ngOnChanges({
+          [input]: new SimpleChange(undefined, {}, false),
+        });
+
+        expect(prepareFormContext).toHaveBeenCalledTimes(1);
+      },
+    );
+
+    it("should rebuild once when several of them arrive together", () => {
+      component.ngOnChanges({
+        form: new SimpleChange(undefined, {}, true),
+        zaak: new SimpleChange(undefined, {}, true),
+        taak: new SimpleChange(undefined, {}, true),
+      });
+
+      expect(prepareFormContext).toHaveBeenCalledTimes(1);
+    });
+
+    it.each(["readOnly", "taak", "taakdata"])(
+      "should not rebuild for %s, because a rebuild destroys the open form",
+      (input) => {
+        component.ngOnChanges({
+          [input]: new SimpleChange(undefined, {}, false),
+        });
+
+        expect(prepareFormContext).not.toHaveBeenCalled();
+      },
+    );
+
+    it("should pass the zaak and the taak on to the context", () => {
+      component.zaak = { identificatie: "ZAAK-1" };
+      component.taak = { naam: "test-taak" };
+      component.taakdata = { NF_Uren: "8" };
+
+      component.ngOnChanges({ zaak: new SimpleChange(undefined, {}, false) });
+
+      expect(prepareFormContext).toHaveBeenCalledWith(
+        undefined,
+        { NF_Uren: "8" },
+        { identificatie: "ZAAK-1" },
+        { naam: "test-taak" },
+      );
     });
   });
 });
