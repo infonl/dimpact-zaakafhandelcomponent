@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -15,6 +15,7 @@ export enum ObjectType {
   TAAK = "TAAK",
   ZAAK = "ZAAK",
   ZAAK_BESLUITEN = "ZAAK_BESLUITEN",
+  ZAAK_NOTITIES = "ZAAK_NOTITIES",
   ZAAK_ROLLEN = "ZAAK_ROLLEN",
   ZAAK_TAKEN = "ZAAK_TAKEN",
   ZAAK_INFORMATIEOBJECTEN = "ZAAK_INFORMATIEOBJECTEN",

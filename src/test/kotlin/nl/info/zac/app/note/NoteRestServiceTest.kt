@@ -14,6 +14,9 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import net.atos.zac.event.EventingService
+import net.atos.zac.websocket.event.ScreenEvent
+import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.app.note.converter.NoteConverter
 import nl.info.zac.note.NoteService
 import nl.info.zac.note.createNote
@@ -25,10 +28,12 @@ class NoteRestServiceTest : BehaviorSpec({
     val noteService = mockk<NoteService>()
     val noteConverter = mockk<NoteConverter>()
     val policyService = mockk<PolicyService>()
+    val eventingService = mockk<EventingService>()
     val noteRestService = NoteRestService(
         noteService = noteService,
         noteConverter = noteConverter,
-        policyService = policyService
+        policyService = policyService,
+        eventingService = eventingService
     )
 
     afterEach {
@@ -62,14 +67,16 @@ class NoteRestServiceTest : BehaviorSpec({
         every { policyService.readNotitieRechten().wijzigen } returns true
         every { noteService.createNote(any()) } returns createdNote
         every { noteConverter.toRestNote(createdNote) } returns createdRestNote
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
 
         `when`("createNote is called") {
             val result = noteRestService.createNote(restNote)
 
-            then("it should return the created RestNote") {
+            then("it should return the created RestNote and notify the zaak screens") {
                 result shouldBe createdRestNote
                 verify(exactly = 1) {
                     noteService.createNote(any())
+                    eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(createdNote.zaakUUID))
                 }
             }
         }
@@ -83,14 +90,16 @@ class NoteRestServiceTest : BehaviorSpec({
         every { policyService.readNotitieRechten().wijzigen } returns true
         every { noteService.updateNote(any()) } returns updatedNote
         every { noteConverter.toRestNote(updatedNote) } returns updatedRestNote
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
 
         `when`("updateNote is called") {
             val result = noteRestService.updateNote(restNote)
 
-            then("it should return the updated RestNote") {
+            then("it should return the updated RestNote and notify the zaak screens") {
                 result shouldBe updatedRestNote
                 verify(exactly = 1) {
                     noteService.updateNote(any())
+                    eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(updatedNote.zaakUUID))
                 }
             }
         }
@@ -98,15 +107,34 @@ class NoteRestServiceTest : BehaviorSpec({
 
     given("An existing note and a user with permissions to update notes") {
         val nodeId = 123L
+        val deletedNote = createNote()
         every { policyService.readNotitieRechten().wijzigen } returns true
-        every { noteService.deleteNote(nodeId) } just Runs
+        every { noteService.deleteNote(nodeId) } returns deletedNote
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
 
         `when`("deleteNote is called") {
             noteRestService.deleteNote(nodeId)
 
-            then("the note is deleted") {
+            then("the note is deleted and the zaak screens are notified") {
                 verify(exactly = 1) {
                     noteService.deleteNote(nodeId)
+                    eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(deletedNote.zaakUUID))
+                }
+            }
+        }
+    }
+
+    given("A note ID for a note that no longer exists") {
+        val nodeId = 456L
+        every { policyService.readNotitieRechten().wijzigen } returns true
+        every { noteService.deleteNote(nodeId) } returns null
+
+        `when`("deleteNote is called") {
+            noteRestService.deleteNote(nodeId)
+
+            then("no event is sent") {
+                verify(exactly = 0) {
+                    eventingService.send(any<ScreenEvent>())
                 }
             }
         }
