@@ -6,7 +6,6 @@
 import { ExtendedComponentSchema, FormioForm } from "@formio/angular";
 import { testQueryClient } from "../../../../../setupJest";
 import { UtilService } from "../../../core/service/util.service";
-import { GeneratedType } from "../../../shared/utils/generated-types";
 import {
   FormioSetupService,
   KNOWN_ZAC_FIELDS,
