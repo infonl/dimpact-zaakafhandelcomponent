@@ -64,7 +64,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("it should return HTTP 201 Created with the created template") {
+                and("it should return HTTP 201 Created with the created template") {
                     response.status shouldBe Response.Status.CREATED.statusCode
                     val createdRestTemplate = response.entity as nl.info.zac.app.admin.model.RestMailtemplate
                     createdRestTemplate.id shouldBe createdMailTemplate.id
@@ -107,7 +107,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("it should return the updated template") {
+                and("it should return the updated template") {
                     updatedRestTemplate.id shouldBe updatedMailTemplate.id
                     updatedRestTemplate.mailTemplateNaam shouldBe updatedMailTemplate.mailTemplateNaam
                 }
