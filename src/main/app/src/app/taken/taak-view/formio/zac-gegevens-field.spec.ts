@@ -128,12 +128,11 @@ describe(initializeGegevensField.name, () => {
       expect(taakdata).toEqual({});
     });
 
-    it("should refuse a table format, which cannot go into an input", () => {
-      const { component } = seed(
-        gegevensInputComponent("zaakdata", { formaat: "tabel" }),
-      );
+    it("should refuse a path reading every key, which cannot go into an input", () => {
+      const { component } = seed(gegevensInputComponent("zaakdata.*"));
 
       expect(component.html).toContain("cannot be put into an input");
+      expect(component.defaultValue).toBeUndefined();
     });
 
     it.each([
@@ -361,29 +360,17 @@ describe(initializeGegevensField.name, () => {
       expect(component.html).toContain("&lt;img");
     });
 
-    it.each([
-      ["reading a value", undefined],
-      ["rendering a table", "tabel"],
-    ])(
-      "should say which property is missing when no path is declared while %s",
-      (_name, formaat) => {
-        expect(render("", { formaat }).html).toContain(
-          "Missing ZAC_VELD property",
-        );
-      },
-    );
+    it("should say which property is missing when no path is declared", () => {
+      expect(render("").html).toContain("Missing ZAC_VELD property");
+    });
 
-    describe("the tabel format", () => {
+    describe(`a path ending in "*"`, () => {
       function renderTable(veld: string, zaakdata?: Record<string, unknown>) {
-        return render(
-          veld,
-          { formaat: "tabel" },
-          zaakdata ? { ...zaak, zaakdata } : zaak,
-        );
+        return render(veld, undefined, zaakdata ? { ...zaak, zaakdata } : zaak);
       }
 
       it("should render every key of an object as a row", () => {
-        const component = renderTable("zaakdata", {
+        const component = renderTable("zaakdata.*", {
           NF_Uren: "8",
           TA_Toelichting: "spoed",
         });
@@ -394,7 +381,7 @@ describe(initializeGegevensField.name, () => {
       });
 
       it("should sort the keys so the same object always reads the same way", () => {
-        const component = renderTable("zaakdata", { zebra: "1", alpha: "2" });
+        const component = renderTable("zaakdata.*", { zebra: "1", alpha: "2" });
 
         expect(component.html!.indexOf("alpha")).toBeLessThan(
           component.html!.indexOf("zebra"),
@@ -402,7 +389,7 @@ describe(initializeGegevensField.name, () => {
       });
 
       it("should count the entries of a nested object and the elements of a list", () => {
-        const component = renderTable("zaakdata", {
+        const component = renderTable("zaakdata.*", {
           rows: [1, 2, 3],
           nested: { a: 1, b: 2 },
         });
@@ -412,7 +399,7 @@ describe(initializeGegevensField.name, () => {
       });
 
       it("should mark an object with no keys as holding no value", () => {
-        const component = renderTable("zaakdata", {});
+        const component = renderTable("zaakdata.*", {});
 
         expect(component.html).toContain(NO_VALUE_MARK);
         expect(component.html).not.toContain("<table");
@@ -420,8 +407,8 @@ describe(initializeGegevensField.name, () => {
 
       it("should render the label as a heading above the table", () => {
         const component = render(
-          "zaakdata",
-          { formaat: "tabel", label: "Process data" },
+          "zaakdata.*",
+          { label: "Process data" },
           { ...zaak, zaakdata: { a: "1" } },
         );
 
@@ -429,7 +416,7 @@ describe(initializeGegevensField.name, () => {
       });
 
       it("should escape a key and a value so neither can inject markup", () => {
-        const component = renderTable("zaakdata", {
+        const component = renderTable("zaakdata.*", {
           "<b>k</b>": "<img src=x onerror=alert(1)>",
         });
 
@@ -439,11 +426,83 @@ describe(initializeGegevensField.name, () => {
         expect(component.html).toContain("&lt;img");
       });
 
-      it("should refuse to tabulate a single value, and say what to drop", () => {
-        const component = renderTable("identificatie");
+      it("should read every key of the source itself for a lone wildcard", () => {
+        const component = render("*");
 
-        expect(component.html).toContain("has no keys to tabulate");
-        expect(component.html).toContain("ZAC_FORMAAT");
+        expect(component.html).toContain("<code>identificatie</code>");
+        expect(component.html).toContain("<td>ZAAK-2026-0000000835</td>");
+      });
+
+      it("should refuse to read the keys of a single value, and say what to drop", () => {
+        const component = render("identificatie.*");
+
+        expect(component.html).toContain("has no keys to read");
+        expect(component.html).toContain(`Drop the &quot;*&quot;`);
+      });
+
+      it("should refuse a wildcard that is not the last part of the path", () => {
+        const component = render("zaakdata.*.NF_Uren");
+
+        expect(component.html).toContain("can only be the last part of a path");
+        expect(component.html).toContain(`&quot;zaakdata.*&quot;`);
+      });
+
+      it("should refuse a wildcard after a list, which would read every key of every element", () => {
+        const component = render("kenmerken[].*");
+
+        expect(component.html).toContain(`cannot follow &quot;[]&quot;`);
+      });
+
+      it("should apply a format to every value when they all fit it", () => {
+        const component = render(
+          "zaakdata.*",
+          { formaat: "datum" },
+          {
+            ...zaak,
+            zaakdata: { start: "2026-08-24", eind: "2026-01-02" },
+          },
+        );
+
+        expect(component.html).toContain("<td>24-08-2026</td>");
+        expect(component.html).toContain("<td>02-01-2026</td>");
+      });
+
+      it("should name the key whose value does not fit the format", () => {
+        const component = render(
+          "zaakdata.*",
+          { formaat: "datum" },
+          {
+            ...zaak,
+            zaakdata: { start: "2026-08-24", TA_Toelichting: "spoed" },
+          },
+        );
+
+        expect(component.html).toContain(`Key &quot;TA_Toelichting&quot;`);
+        expect(component.html).toContain("is not a date");
+      });
+    });
+
+    describe("a format that does not fit the value", () => {
+      it.each([
+        ["datum", "omschrijving", "is not a date"],
+        ["jaNee", "identificatie", "is not a yes or a no"],
+      ])(
+        "should report %s on %s instead of showing the value unformatted",
+        (formaat, veld, reason) => {
+          const component = render(veld, { formaat });
+
+          expect(component.html).toContain(
+            `ZAC_FORMAAT &quot;${formaat}&quot; cannot be applied`,
+          );
+          expect(component.html).toContain(reason);
+        },
+      );
+
+      it("should report the element of a list that does not fit the format", () => {
+        const component = render("indicaties", { formaat: "datum" });
+
+        expect(component.html).toContain("cannot be applied");
+        expect(component.html).toContain("OPSCHORTING");
       });
     });
   });

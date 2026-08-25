@@ -1007,9 +1007,22 @@ four.
 - `zaaktype.omschrijving`, `groep.naam`, `status.naam` — nested objects
 - `resultaat.resultaattype.naam` — deeper still
 - `kenmerken[].kenmerk` — `[]` reads on through every element of a list
+- `zaakdata.*` — `*` reads on through every key of an object
 
 A list of plain values (`indicaties`) is joined with commas. A path that stops on a list of objects,
 or that reads on through a single value, is reported as an error in place of the field.
+
+`*` is for objects whose keys you do not know in advance, such as the process variables: it renders
+every key the object holds as a table, so no key has to be authored by hand. Nested objects show as
+`{n}` and lists as `[n]`, with n the number of entries; address those with their own path to look
+inside. It has to be the last part of the path, it cannot follow `[]`, and it cannot be combined with
+`ZAC_INVOER` — a table does not fit in an input.
+
+**For keys you do know, do not use `*`.** Put a Form.io `table` or `columns` layout in the form with
+one `ZAC_zaak_gegevens` or `ZAC_taak_gegevens` field per cell. Each cell resolves its own `ZAC_VELD`,
+so you get your own labels, your own order and a `ZAC_FORMAAT` per field, none of which a `*` table
+can give you. This works in `table` and `columns` layouts; it does not work in a `datagrid`, which
+binds its components to rows and would repeat the same value in every row.
 
 A property that holds no value renders as a dash. **An empty property and a misspelled property look
 the same**, because the API leaves out properties that have no value — so there is no way for ZAC to
@@ -1024,11 +1037,11 @@ formatting is for reading, and a field that parses its own value needs the raw o
 |---|---|---|
 | `datum` | `2026-08-24` | `24-08-2026` |
 | `jaNee` | `true` / `false` | `Ja` / `Nee` |
-| `tabel` | an object | a table of all its keys and values |
 
-`tabel` is for objects whose keys you do not know in advance, such as the process variables. Nested
-objects show as `{n}` and lists as `[n]`, with n the number of entries; address those with their own
-path to look inside.
+**A format that does not fit the value is reported as an error in the field**, not passed through
+unformatted — `datum` on `omschrijving` says so rather than showing the description as if nothing had
+been asked for. A format applies to every value it is given: to each element of a list, and to each
+value of a `*` table, where the error names the key that did not fit.
 
 #### Putting a value into an editable field
 
@@ -1048,7 +1061,7 @@ Two rules for seeded fields:
 #### Trying it out
 
 `src/itest/resources/bpmn/data-diagnostic` holds a process with four task forms that render every
-addressable property of the zaak and the taak, the process variables as tables, seeded input fields,
+addressable property of the zaak and the taak, the process variables as `*` tables, seeded input fields,
 and a panel of deliberate mistakes showing what each error message looks like. Upload the process
 and its forms to see all of it against a real zaak.
 

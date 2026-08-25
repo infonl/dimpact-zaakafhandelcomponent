@@ -22,26 +22,41 @@ const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})/;
 
 const NO_VALUE = "—";
 
+class FormatMismatch extends Error {}
+
+/**
+ * A formatter throws when the value is not of the shape it formats, so a mismatched format is
+ * reported instead of quietly showing the value unformatted.
+ */
 const VALUE_FORMATTERS: Record<
   string,
   (value: unknown, translate: TranslateService) => string
 > = {
   datum: (value) => {
     const parts = ISO_DATE.exec(String(value));
-    return parts ? `${parts[3]}-${parts[2]}-${parts[1]}` : String(value);
+    if (!parts) {
+      throw new FormatMismatch(`"${String(value)}" is not a date`);
+    }
+    return `${parts[3]}-${parts[2]}-${parts[1]}`;
   },
-  jaNee: (value, translate) =>
-    translate.instant(value ? "actie.ja" : "actie.nee"),
+  jaNee: (value, translate) => {
+    if (typeof value !== "boolean" && value !== "true" && value !== "false") {
+      throw new FormatMismatch(`"${String(value)}" is not a yes or a no`);
+    }
+    return translate.instant(
+      value === true || value === "true" ? "actie.ja" : "actie.nee",
+    );
+  },
 };
-
-/** Not a formatter: it emits markup, which a formatter's return value would have escaped away. */
-const TABLE_FORMAT = "tabel";
 
 const VALUE_PARSING_TYPES = ["datetime", "date", "day", "time"];
 
 const LIST_SEGMENT_SUFFIX = "[]";
 
 const LIST_SEPARATOR = ", ";
+
+/** Reads on through every key of an object, the way `[]` reads on through every element of a list. */
+const EVERY_KEY_SEGMENT = "*";
 
 /** Content, not an input: completing a task writes every submitted key back as a process variable. */
 export function initializeGegevensField(
@@ -69,22 +84,24 @@ export function initializeGegevensField(
     return;
   }
 
+  const isEveryKeyPath = readsEveryKey(path);
+
   let body: string;
   try {
-    body =
-      format === TABLE_FORMAT
-        ? renderKeyValueTable(
-            resolveObjectPath(source, path, sourceLabel),
+    body = isEveryKeyPath
+      ? renderKeyValueTable(
+          resolveObjectPath(source, path, sourceLabel),
+          translateService,
+          format,
+        )
+      : `${label ? `<span class="fw-medium">${escapeHtml(label)}: </span>` : ""}` +
+        escapeHtml(
+          formatValue(
+            resolvePath(source, path, sourceLabel),
             translateService,
-          )
-        : `${label ? `<span class="fw-medium">${escapeHtml(label)}: </span>` : ""}` +
-          escapeHtml(
-            formatValue(
-              resolvePath(source, path, sourceLabel),
-              translateService,
-              format,
-            ),
-          );
+            format,
+          ),
+        );
   } catch (error) {
     renderFieldError(
       component,
@@ -94,9 +111,7 @@ export function initializeGegevensField(
   }
 
   const heading =
-    format === TABLE_FORMAT && label
-      ? `<h4 class="mb-1">${escapeHtml(label)}</h4>`
-      : "";
+    isEveryKeyPath && label ? `<h4 class="mb-1">${escapeHtml(label)}</h4>` : "";
 
   component.type = "content";
   component.input = false;
@@ -118,10 +133,10 @@ function seedInputField(
   format?: string,
 ) {
   try {
-    if (format === TABLE_FORMAT) {
+    if (readsEveryKey(path)) {
       throw new Error(
-        `${ZAC_FORMAT_PROPERTY} "${TABLE_FORMAT}" renders a table, which cannot be put into ` +
-          `an input. Drop ${ZAC_INPUT_PROPERTY} or drop the format.`,
+        `A path ending in "${EVERY_KEY_SEGMENT}" renders a table of every key, which cannot be put ` +
+          `into an input. Drop ${ZAC_INPUT_PROPERTY} or address a single key.`,
       );
     }
     if (format && parsesItsOwnValue(component)) {
@@ -156,6 +171,7 @@ function seedInputField(
 function renderKeyValueTable(
   source: Record<string, unknown> | null,
   translateService: TranslateService,
+  format?: string,
 ) {
   const entries = Object.entries(source ?? {}).sort(([left], [right]) =>
     left.localeCompare(right),
@@ -164,19 +180,29 @@ function renderKeyValueTable(
     return NO_VALUE;
   }
 
+  /** Which key resisted the format is the only thing that tells the designer what to fix. */
+  const renderCell = (key: string, value: unknown) => {
+    if (Array.isArray(value)) return `[${value.length}]`;
+    if (value !== null && typeof value === "object") {
+      return `{${Object.keys(value).length}}`;
+    }
+    try {
+      return formatValue(value, translateService, format);
+    } catch (error) {
+      if (error instanceof FormatMismatch) {
+        throw new FormatMismatch(`Key "${key}": ${error.message}`);
+      }
+      throw error;
+    }
+  };
+
   const rows = entries
-    .map(([key, value]) => {
-      const rendered = Array.isArray(value)
-        ? `[${value.length}]`
-        : value !== null && typeof value === "object"
-          ? `{${Object.keys(value).length}}`
-          : formatValue(value, translateService);
-      return (
+    .map(
+      ([key, value]) =>
         `<tr><th scope="row" class="fw-normal text-nowrap">` +
         `<code>${escapeHtml(key)}</code></th>` +
-        `<td>${escapeHtml(rendered)}</td></tr>`
-      );
-    })
+        `<td>${escapeHtml(renderCell(key, value))}</td></tr>`,
+    )
     .join("");
   return `<table class="table table-sm table-bordered mb-0"><tbody>${rows}</tbody></table>`;
 }
@@ -205,7 +231,16 @@ function formatValue(
         Object.keys(VALUE_FORMATTERS).sort().join(", "),
     );
   }
-  return formatter(value, translateService);
+  try {
+    return formatter(value, translateService);
+  } catch (error) {
+    if (error instanceof FormatMismatch) {
+      throw new FormatMismatch(
+        `${ZAC_FORMAT_PROPERTY} "${format}" cannot be applied: ${error.message}.`,
+      );
+    }
+    throw error;
+  }
 }
 
 /**
@@ -239,10 +274,16 @@ function resolvePath(
 
   if (typeof value === "object" && value !== null) {
     throw new Error(
-      `${sourceLabel} property "${path}" holds an object, not a single value.`,
+      `${sourceLabel} property "${path}" holds an object, not a single value. Address a key of ` +
+        `it, as in "${path}.${Object.keys(value).sort()[0]}", or read every key with ` +
+        `"${path}.${EVERY_KEY_SEGMENT}".`,
     );
   }
   return value;
+}
+
+function readsEveryKey(path: string) {
+  return path.split(".").includes(EVERY_KEY_SEGMENT);
 }
 
 function resolveObjectPath(
@@ -250,16 +291,31 @@ function resolveObjectPath(
   path: string,
   sourceLabel: string,
 ): Record<string, unknown> | null {
-  if (!path) {
-    throw new Error(`Missing ${ZAC_PATH_PROPERTY} property.`);
+  const segments = path.split(".");
+  if (segments.at(-1) !== EVERY_KEY_SEGMENT) {
+    throw new Error(
+      `"${EVERY_KEY_SEGMENT}" reads every key of an object, so it can only be the last part of a ` +
+        `path. Drop everything after it, as in "${segments
+          .slice(0, segments.indexOf(EVERY_KEY_SEGMENT) + 1)
+          .join(".")}".`,
+    );
+  }
+  const objectPath = segments.slice(0, -1);
+  if (objectPath.at(-1)?.endsWith(LIST_SEGMENT_SUFFIX)) {
+    throw new Error(
+      `"${EVERY_KEY_SEGMENT}" cannot follow "${LIST_SEGMENT_SUFFIX}": that would read every key of ` +
+        `every element. Address a property of each element instead.`,
+    );
   }
 
-  const value = walkSegments(source, path.split("."), [], sourceLabel);
+  const value = objectPath.length
+    ? walkSegments(source, objectPath, [], sourceLabel)
+    : source;
   if (value === null || value === undefined) return null;
   if (typeof value !== "object") {
     throw new Error(
-      `${sourceLabel} property "${path}" holds a single value, so it has no ` +
-        `keys to tabulate. Drop ${ZAC_FORMAT_PROPERTY} "${TABLE_FORMAT}".`,
+      `${sourceLabel} property "${objectPath.join(".")}" holds a single value, so it has no ` +
+        `keys to read. Drop the "${EVERY_KEY_SEGMENT}".`,
     );
   }
   return value as Record<string, unknown>;

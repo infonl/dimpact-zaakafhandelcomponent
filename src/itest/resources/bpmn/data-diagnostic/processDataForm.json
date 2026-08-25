@@ -9,7 +9,7 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>What each table is, and where it comes from</h3><p>Every table below is one field. Its heading is the field's own declaration, so you can read off exactly what was asked for and from which source. <code>ZAC_FORMAAT: \"tabel\"</code> renders every key the addressed object holds, so none of these keys are authored by hand.</p><p>A nested object shows as <code>{n}</code> and a list as <code>[n]</code>, n being the number of entries; address those with their own path to look inside.</p>"
+      "html": "<h3>What each table is, and where it comes from</h3><p>Every table below is one field. Its heading is the field's own declaration, so you can read off exactly what was asked for and from which source. A path ending in <code>*</code> renders every key the addressed object holds, so none of these keys are authored by hand.</p><p>A nested object shows as <code>{n}</code> and a list as <code>[n]</code>, n being the number of entries; address those with their own path to look inside.</p>"
     },
     {
       "type": "panel",
@@ -26,7 +26,7 @@
           "html": "<p>Source: the zaak as read live from Open Zaak over the ZGW API, plus its Flowable variables under <code>zaakdata</code>.</p>"
         },
         {
-          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: zaakdata  ·  ZAC_FORMAAT: tabel",
+          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: zaakdata.*",
           "type": "content",
           "key": "PDzaak_zaakdata_tabel",
           "input": false,
@@ -35,8 +35,7 @@
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "zaakdata",
-            "ZAC_FORMAAT": "tabel"
+            "ZAC_VELD": "zaakdata.*"
           }
         },
         {
@@ -47,7 +46,7 @@
           "html": "<hr class=\"zac-gegevens-divider\">"
         },
         {
-          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: zaaktype  ·  ZAC_FORMAAT: tabel",
+          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: zaaktype.*",
           "type": "content",
           "key": "PDzaak_zaaktype_tabel",
           "input": false,
@@ -56,8 +55,7 @@
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "zaaktype",
-            "ZAC_FORMAAT": "tabel"
+            "ZAC_VELD": "zaaktype.*"
           }
         },
         {
@@ -68,7 +66,7 @@
           "html": "<hr class=\"zac-gegevens-divider\">"
         },
         {
-          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: groep  ·  ZAC_FORMAAT: tabel",
+          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: groep.*",
           "type": "content",
           "key": "PDzaak_groep_tabel",
           "input": false,
@@ -77,8 +75,7 @@
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "groep",
-            "ZAC_FORMAAT": "tabel"
+            "ZAC_VELD": "groep.*"
           }
         }
       ]
@@ -98,7 +95,7 @@
           "html": "<p>Source: the Flowable task row and its task-local variables. Note that <code>taakdata</code> is not what this form submitted: ZAC merges every process variable into it on each open, which is why zaak fields appear here. <code>zaakUUID</code> and <code>zaaktypeUUID</code> are filtered out of that merge.</p>"
         },
         {
-          "label": "ZAC_taak_gegevens  ·  ZAC_VELD: taakdata  ·  ZAC_FORMAAT: tabel",
+          "label": "ZAC_taak_gegevens  ·  ZAC_VELD: taakdata.*",
           "type": "content",
           "key": "PDtaak_taakdata_tabel",
           "input": false,
@@ -107,8 +104,7 @@
             "ZAC_TYPE": "ZAC_taak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "taakdata",
-            "ZAC_FORMAAT": "tabel"
+            "ZAC_VELD": "taakdata.*"
           }
         },
         {
@@ -119,7 +115,7 @@
           "html": "<hr class=\"zac-gegevens-divider\">"
         },
         {
-          "label": "ZAC_taak_gegevens  ·  ZAC_VELD: taakinformatie  ·  ZAC_FORMAAT: tabel",
+          "label": "ZAC_taak_gegevens  ·  ZAC_VELD: taakinformatie.*",
           "type": "content",
           "key": "PDtaak_taakinformatie_tabel",
           "input": false,
@@ -128,8 +124,7 @@
             "ZAC_TYPE": "ZAC_taak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "taakinformatie",
-            "ZAC_FORMAAT": "tabel"
+            "ZAC_VELD": "taakinformatie.*"
           }
         },
         {
@@ -140,7 +135,7 @@
           "html": "<hr class=\"zac-gegevens-divider\">"
         },
         {
-          "label": "ZAC_taak_gegevens  ·  ZAC_VELD: rechten  ·  ZAC_FORMAAT: tabel",
+          "label": "ZAC_taak_gegevens  ·  ZAC_VELD: rechten.*",
           "type": "content",
           "key": "PDtaak_rechten_tabel",
           "input": false,
@@ -149,8 +144,7 @@
             "ZAC_TYPE": "ZAC_taak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "rechten",
-            "ZAC_FORMAAT": "tabel"
+            "ZAC_VELD": "rechten.*"
           }
         }
       ]
@@ -163,7 +157,7 @@
       "tableView": false,
       "components": [
         {
-          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: identificatie  ·  ZAC_FORMAAT: tabel",
+          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: identificatie.*",
           "type": "content",
           "key": "PD_fout_scalar",
           "input": false,
@@ -172,8 +166,46 @@
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "identificatie",
-            "ZAC_FORMAAT": "tabel"
+            "ZAC_VELD": "identificatie.*"
+          }
+        },
+        {
+          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: zaakdata.*.NF_Uren",
+          "type": "content",
+          "key": "PD_fout_wildcard_niet_laatst",
+          "input": false,
+          "tableView": false,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "zaakdata.*.NF_Uren"
+          }
+        },
+        {
+          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: kenmerken[].*",
+          "type": "content",
+          "key": "PD_fout_wildcard_na_lijst",
+          "input": false,
+          "tableView": false,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "kenmerken[].*"
+          }
+        },
+        {
+          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: zaaktype",
+          "type": "content",
+          "key": "PD_fout_object_zonder_wildcard",
+          "input": false,
+          "tableView": false,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_zaak_gegevens"
+          },
+          "properties": {
+            "ZAC_VELD": "zaaktype"
           }
         }
       ]

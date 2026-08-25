@@ -260,19 +260,18 @@
       "tableView": false,
       "components": [
         {
-          "label": "tabel into an input",
+          "label": "every key into an input",
           "type": "textfield",
           "key": "IN_fout_tabel",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: zaakdata · ZAC_FORMAAT: tabel",
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: zaakdata.*",
           "attributes": {
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "zaakdata",
-            "ZAC_INVOER": "true",
-            "ZAC_FORMAAT": "tabel"
+            "ZAC_VELD": "zaakdata.*",
+            "ZAC_INVOER": "true"
           }
         },
         {
