@@ -4,11 +4,7 @@
  */
 
 import { ExtendedComponentSchema } from "@formio/angular";
-import {
-  escapeHtml,
-  isTruthyProperty,
-  renderFieldError,
-} from "./formio-component-utils";
+import { escapeHtml, renderFieldError } from "./formio-component-utils";
 
 describe(escapeHtml.name, () => {
   it.each([
@@ -40,29 +36,6 @@ describe(escapeHtml.name, () => {
     expect(escaped).not.toContain('"');
     expect(escaped).toBe("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
   });
-});
-
-describe(isTruthyProperty.name, () => {
-  it.each([[true], ["true"]])("should accept %p", (value) => {
-    expect(isTruthyProperty(value)).toBe(true);
-  });
-
-  it.each([
-    ["the string Form.io writes for an unchecked box", "false"],
-    ["a boolean false", false],
-    ["an absent property", undefined],
-    ["a null property", null],
-    ["an empty string", ""],
-  ])("should reject %s", (_name, value) => {
-    expect(isTruthyProperty(value)).toBe(false);
-  });
-
-  it.each([["TRUE"], ["True"], [" true"], [1]])(
-    "should reject %p, which Form.io never writes",
-    (value) => {
-      expect(isTruthyProperty(value)).toBe(false);
-    },
-  );
 });
 
 describe(renderFieldError.name, () => {

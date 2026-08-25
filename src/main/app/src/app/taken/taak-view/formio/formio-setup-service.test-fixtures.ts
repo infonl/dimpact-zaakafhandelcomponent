@@ -145,7 +145,6 @@ export function gegevensInputComponent(
     input: true,
     properties: {
       ZAC_VELD: veld,
-      ZAC_INVOER: "true",
       ...(formaat ? { ZAC_FORMAAT: formaat } : {}),
     },
     attributes: { [ZAC_FIELD_ATTRIBUTE]: zacType },

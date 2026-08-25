@@ -4,6 +4,8 @@
  */
 
 import { TestBed } from "@angular/core/testing";
+import { Evaluator } from "@formio/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { of, throwError } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -37,6 +39,7 @@ describe(FormioCustomFunctions.name, () => {
     };
 
     TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
       providers: [
         {
           provide: InformatieObjectenService,
@@ -299,6 +302,91 @@ describe(FormioCustomFunctions.name, () => {
       expect(
         informatieObjectenService.readEnkelvoudigInformatieobject,
       ).toHaveBeenCalledWith(UUID_A);
+    });
+  });
+
+  describe("the zaak and the taak in the eval context", () => {
+    const zaak = {
+      identificatie: "ZAAK-2026-0000000835",
+      zaaktype: { omschrijving: "Melding klein evenement" },
+      indicaties: ["OPSCHORTING", "VERLENGD"],
+      omschrijving: "<img src=x onerror=alert(1)>",
+    };
+    const taak = { naam: "test-taak", groep: { naam: "fakeGroupName" } };
+
+    async function interpolate(template: string) {
+      const context = await service.prepareFormContext(
+        { components: [{ type: "content", html: template }] },
+        {},
+        zaak,
+        taak,
+      );
+      return Evaluator.interpolate(template, context);
+    }
+
+    it.each([
+      ["{{ zaak.identificatie }}", "ZAAK-2026-0000000835"],
+      ["{{ zaak.zaaktype.omschrijving }}", "Melding klein evenement"],
+      ["{{ taak.naam }}", "test-taak"],
+      ["{{ taak.groep.naam }}", "fakeGroupName"],
+    ])("should resolve %s to %s", async (template, expected) => {
+      expect(await interpolate(template)).toBe(expected);
+    });
+
+    it("should compose two values into one sentence", async () => {
+      expect(
+        await interpolate(
+          "Zaak {{ zaak.identificatie }} van {{ zaak.zaaktype.omschrijving }}",
+        ),
+      ).toBe("Zaak ZAAK-2026-0000000835 van Melding klein evenement");
+    });
+
+    it("should escape a value so a form cannot render markup a user entered", async () => {
+      const rendered = await interpolate("{{ zaak.omschrijving }}");
+
+      expect(rendered).not.toContain("<img");
+      expect(rendered).toBe("&lt;img src=x onerror=alert(1)&gt;");
+    });
+
+    it("should escape a value nested in a list", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        { kenmerken: [{ bron: "<b>x</b>" }] },
+      );
+
+      expect(context.zaak).toEqual({
+        kenmerken: [{ bron: "&lt;b&gt;x&lt;/b&gt;" }],
+      });
+    });
+
+    it("should leave the taak data it already exposed reachable", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        { NF_Uren: "8" },
+        zaak,
+        taak,
+      );
+
+      expect(context.NF_Uren).toBe("8");
+    });
+
+    it.each([
+      ["{{ datum(zaak.startdatum) }}", "24-08-2026"],
+      ["{{ jaNee(zaak.isOpen) }}", "actie.ja"],
+      ["{{ jaNee(zaak.isOpgeschort) }}", "actie.nee"],
+    ])("should format %s to %s", async (template, expected) => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        {
+          startdatum: "2026-08-24",
+          isOpen: true,
+          isOpgeschort: false,
+        },
+      );
+
+      expect(Evaluator.interpolate(template, context)).toBe(expected);
     });
   });
 });

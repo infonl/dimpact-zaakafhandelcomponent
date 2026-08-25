@@ -57,12 +57,7 @@
                     "key": "ZO_uuid",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "uuid"
-                    }
+                    "html": "{{ zaak.uuid }}"
                   }
                 ]
               }
@@ -88,12 +83,7 @@
                     "key": "ZO_identificatie",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "identificatie"
-                    }
+                    "html": "{{ zaak.identificatie }}"
                   }
                 ]
               }
@@ -119,12 +109,7 @@
                     "key": "ZO_omschrijving",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "omschrijving"
-                    }
+                    "html": "{{ zaak.omschrijving }}"
                   }
                 ]
               }
@@ -150,12 +135,7 @@
                     "key": "ZO_toelichting",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "toelichting"
-                    }
+                    "html": "{{ zaak.toelichting }}"
                   }
                 ]
               }
@@ -181,12 +161,7 @@
                     "key": "ZO_communicatiekanaal",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "communicatiekanaal"
-                    }
+                    "html": "{{ zaak.communicatiekanaal }}"
                   }
                 ]
               }
@@ -212,12 +187,7 @@
                     "key": "ZO_bronorganisatie",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "bronorganisatie"
-                    }
+                    "html": "{{ zaak.bronorganisatie }}"
                   }
                 ]
               }
@@ -243,12 +213,7 @@
                     "key": "ZO_verantwoordelijkeOrganisatie",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "verantwoordelijkeOrganisatie"
-                    }
+                    "html": "{{ zaak.verantwoordelijkeOrganisatie }}"
                   }
                 ]
               }
@@ -274,12 +239,7 @@
                     "key": "ZO_vertrouwelijkheidaanduiding",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "vertrouwelijkheidaanduiding"
-                    }
+                    "html": "{{ zaak.vertrouwelijkheidaanduiding }}"
                   }
                 ]
               }
@@ -305,12 +265,7 @@
                     "key": "ZO_archiefNominatie",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "archiefNominatie"
-                    }
+                    "html": "{{ zaak.archiefNominatie }}"
                   }
                 ]
               }
@@ -336,12 +291,7 @@
                     "key": "ZO_duurVerlenging",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "duurVerlenging"
-                    }
+                    "html": "{{ zaak.duurVerlenging }}"
                   }
                 ]
               }
@@ -367,12 +317,7 @@
                     "key": "ZO_redenOpschorting",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "redenOpschorting"
-                    }
+                    "html": "{{ zaak.redenOpschorting }}"
                   }
                 ]
               }
@@ -398,12 +343,7 @@
                     "key": "ZO_redenVerlenging",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "redenVerlenging"
-                    }
+                    "html": "{{ zaak.redenVerlenging }}"
                   }
                 ]
               }
@@ -458,12 +398,7 @@
                     "key": "ZO_zaaktype_uuid",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "zaaktype.uuid"
-                    }
+                    "html": "{{ zaak.zaaktype.uuid }}"
                   }
                 ]
               }
@@ -489,12 +424,7 @@
                     "key": "ZO_zaaktype_omschrijving",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "zaaktype.omschrijving"
-                    }
+                    "html": "{{ zaak.zaaktype.omschrijving }}"
                   }
                 ]
               }
@@ -520,12 +450,7 @@
                     "key": "ZO_zaaktype_identificatie",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "zaaktype.identificatie"
-                    }
+                    "html": "{{ zaak.zaaktype.identificatie }}"
                   }
                 ]
               }
@@ -551,12 +476,7 @@
                     "key": "ZO_zaaktype_doel",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "zaaktype.doel"
-                    }
+                    "html": "{{ zaak.zaaktype.doel }}"
                   }
                 ]
               }
@@ -582,12 +502,7 @@
                     "key": "ZO_groep_naam",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "groep.naam"
-                    }
+                    "html": "{{ zaak.groep.naam }}"
                   }
                 ]
               }
@@ -613,12 +528,7 @@
                     "key": "ZO_groep_id",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "groep.id"
-                    }
+                    "html": "{{ zaak.groep.id }}"
                   }
                 ]
               }
@@ -644,12 +554,7 @@
                     "key": "ZO_behandelaar_naam",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "behandelaar.naam"
-                    }
+                    "html": "{{ zaak.behandelaar.naam }}"
                   }
                 ]
               }
@@ -675,12 +580,7 @@
                     "key": "ZO_behandelaar_id",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "behandelaar.id"
-                    }
+                    "html": "{{ zaak.behandelaar.id }}"
                   }
                 ]
               }
@@ -706,12 +606,7 @@
                     "key": "ZO_status_naam",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "status.naam"
-                    }
+                    "html": "{{ zaak.status.naam }}"
                   }
                 ]
               }
@@ -737,12 +632,7 @@
                     "key": "ZO_status_toelichting",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "status.toelichting"
-                    }
+                    "html": "{{ zaak.status.toelichting }}"
                   }
                 ]
               }
@@ -768,12 +658,7 @@
                     "key": "ZO_resultaat_toelichting",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "resultaat.toelichting"
-                    }
+                    "html": "{{ zaak.resultaat.toelichting }}"
                   }
                 ]
               }
@@ -799,12 +684,7 @@
                     "key": "ZO_initiatorIdentificatie_type",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "initiatorIdentificatie.type"
-                    }
+                    "html": "{{ zaak.initiatorIdentificatie.type }}"
                   }
                 ]
               }
@@ -830,12 +710,7 @@
                     "key": "ZO_initiatorIdentificatie_bsn",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "initiatorIdentificatie.bsn"
-                    }
+                    "html": "{{ zaak.initiatorIdentificatie.bsn }}"
                   }
                 ]
               }
@@ -891,12 +766,7 @@
                     "key": "ZO_startdatum_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "startdatum"
-                    }
+                    "html": "{{ zaak.startdatum }}"
                   }
                 ]
               },
@@ -908,13 +778,7 @@
                     "key": "ZO_startdatum_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "startdatum",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "{{ datum(zaak.startdatum) }}"
                   }
                 ]
               }
@@ -940,12 +804,7 @@
                     "key": "ZO_registratiedatum_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "registratiedatum"
-                    }
+                    "html": "{{ zaak.registratiedatum }}"
                   }
                 ]
               },
@@ -957,13 +816,7 @@
                     "key": "ZO_registratiedatum_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "registratiedatum",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "{{ datum(zaak.registratiedatum) }}"
                   }
                 ]
               }
@@ -989,12 +842,7 @@
                     "key": "ZO_einddatumGepland_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "einddatumGepland"
-                    }
+                    "html": "{{ zaak.einddatumGepland }}"
                   }
                 ]
               },
@@ -1006,13 +854,7 @@
                     "key": "ZO_einddatumGepland_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "einddatumGepland",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "{{ datum(zaak.einddatumGepland) }}"
                   }
                 ]
               }
@@ -1038,12 +880,7 @@
                     "key": "ZO_uiterlijkeEinddatumAfdoening_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "uiterlijkeEinddatumAfdoening"
-                    }
+                    "html": "{{ zaak.uiterlijkeEinddatumAfdoening }}"
                   }
                 ]
               },
@@ -1055,13 +892,7 @@
                     "key": "ZO_uiterlijkeEinddatumAfdoening_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "uiterlijkeEinddatumAfdoening",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "{{ datum(zaak.uiterlijkeEinddatumAfdoening) }}"
                   }
                 ]
               }
@@ -1087,12 +918,7 @@
                     "key": "ZO_einddatum_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "einddatum"
-                    }
+                    "html": "{{ zaak.einddatum }}"
                   }
                 ]
               },
@@ -1104,13 +930,7 @@
                     "key": "ZO_einddatum_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "einddatum",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "{{ datum(zaak.einddatum) }}"
                   }
                 ]
               }
@@ -1136,12 +956,7 @@
                     "key": "ZO_publicatiedatum_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "publicatiedatum"
-                    }
+                    "html": "{{ zaak.publicatiedatum }}"
                   }
                 ]
               },
@@ -1153,13 +968,7 @@
                     "key": "ZO_publicatiedatum_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "publicatiedatum",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "{{ datum(zaak.publicatiedatum) }}"
                   }
                 ]
               }
@@ -1185,12 +994,7 @@
                     "key": "ZO_archiefActiedatum_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "archiefActiedatum"
-                    }
+                    "html": "{{ zaak.archiefActiedatum }}"
                   }
                 ]
               },
@@ -1202,13 +1006,7 @@
                     "key": "ZO_archiefActiedatum_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "archiefActiedatum",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "{{ datum(zaak.archiefActiedatum) }}"
                   }
                 ]
               }
@@ -1234,12 +1032,7 @@
                     "key": "ZO_startdatumBewaartermijn_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "startdatumBewaartermijn"
-                    }
+                    "html": "{{ zaak.startdatumBewaartermijn }}"
                   }
                 ]
               },
@@ -1251,13 +1044,7 @@
                     "key": "ZO_startdatumBewaartermijn_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "startdatumBewaartermijn",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "{{ datum(zaak.startdatumBewaartermijn) }}"
                   }
                 ]
               }
@@ -1283,12 +1070,7 @@
                     "key": "ZO_zaaktype_versiedatum_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "zaaktype.versiedatum"
-                    }
+                    "html": "{{ zaak.zaaktype.versiedatum }}"
                   }
                 ]
               },
@@ -1300,13 +1082,7 @@
                     "key": "ZO_zaaktype_versiedatum_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "zaaktype.versiedatum",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "{{ datum(zaak.zaaktype.versiedatum) }}"
                   }
                 ]
               }
@@ -1362,12 +1138,7 @@
                     "key": "ZO_isOpen_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isOpen"
-                    }
+                    "html": "{{ zaak.isOpen }}"
                   }
                 ]
               },
@@ -1379,13 +1150,7 @@
                     "key": "ZO_isOpen_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isOpen",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.isOpen) }}"
                   }
                 ]
               }
@@ -1411,12 +1176,7 @@
                     "key": "ZO_isOpgeschort_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isOpgeschort"
-                    }
+                    "html": "{{ zaak.isOpgeschort }}"
                   }
                 ]
               },
@@ -1428,13 +1188,7 @@
                     "key": "ZO_isOpgeschort_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isOpgeschort",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.isOpgeschort) }}"
                   }
                 ]
               }
@@ -1460,12 +1214,7 @@
                     "key": "ZO_isVerlengd_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isVerlengd"
-                    }
+                    "html": "{{ zaak.isVerlengd }}"
                   }
                 ]
               },
@@ -1477,13 +1226,7 @@
                     "key": "ZO_isVerlengd_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isVerlengd",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.isVerlengd) }}"
                   }
                 ]
               }
@@ -1509,12 +1252,7 @@
                     "key": "ZO_isHeropend_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isHeropend"
-                    }
+                    "html": "{{ zaak.isHeropend }}"
                   }
                 ]
               },
@@ -1526,13 +1264,7 @@
                     "key": "ZO_isHeropend_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isHeropend",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.isHeropend) }}"
                   }
                 ]
               }
@@ -1558,12 +1290,7 @@
                     "key": "ZO_isDeelzaak_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isDeelzaak"
-                    }
+                    "html": "{{ zaak.isDeelzaak }}"
                   }
                 ]
               },
@@ -1575,13 +1302,7 @@
                     "key": "ZO_isDeelzaak_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isDeelzaak",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.isDeelzaak) }}"
                   }
                 ]
               }
@@ -1607,12 +1328,7 @@
                     "key": "ZO_isHoofdzaak_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isHoofdzaak"
-                    }
+                    "html": "{{ zaak.isHoofdzaak }}"
                   }
                 ]
               },
@@ -1624,13 +1340,7 @@
                     "key": "ZO_isHoofdzaak_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isHoofdzaak",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.isHoofdzaak) }}"
                   }
                 ]
               }
@@ -1656,12 +1366,7 @@
                     "key": "ZO_isInIntakeFase_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isInIntakeFase"
-                    }
+                    "html": "{{ zaak.isInIntakeFase }}"
                   }
                 ]
               },
@@ -1673,13 +1378,7 @@
                     "key": "ZO_isInIntakeFase_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isInIntakeFase",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.isInIntakeFase) }}"
                   }
                 ]
               }
@@ -1705,12 +1404,7 @@
                     "key": "ZO_isProcesGestuurd_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isProcesGestuurd"
-                    }
+                    "html": "{{ zaak.isProcesGestuurd }}"
                   }
                 ]
               },
@@ -1722,13 +1416,7 @@
                     "key": "ZO_isProcesGestuurd_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isProcesGestuurd",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.isProcesGestuurd) }}"
                   }
                 ]
               }
@@ -1754,12 +1442,7 @@
                     "key": "ZO_eerdereOpschorting_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "eerdereOpschorting"
-                    }
+                    "html": "{{ zaak.eerdereOpschorting }}"
                   }
                 ]
               },
@@ -1771,13 +1454,7 @@
                     "key": "ZO_eerdereOpschorting_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "eerdereOpschorting",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.eerdereOpschorting) }}"
                   }
                 ]
               }
@@ -1803,12 +1480,7 @@
                     "key": "ZO_isBesluittypeAanwezig_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isBesluittypeAanwezig"
-                    }
+                    "html": "{{ zaak.isBesluittypeAanwezig }}"
                   }
                 ]
               },
@@ -1820,13 +1492,7 @@
                     "key": "ZO_isBesluittypeAanwezig_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isBesluittypeAanwezig",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.isBesluittypeAanwezig) }}"
                   }
                 ]
               }
@@ -1852,12 +1518,7 @@
                     "key": "ZO_heeftOntvangstbevestigingVerstuurd_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "heeftOntvangstbevestigingVerstuurd"
-                    }
+                    "html": "{{ zaak.heeftOntvangstbevestigingVerstuurd }}"
                   }
                 ]
               },
@@ -1869,13 +1530,7 @@
                     "key": "ZO_heeftOntvangstbevestigingVerstuurd_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "heeftOntvangstbevestigingVerstuurd",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.heeftOntvangstbevestigingVerstuurd) }}"
                   }
                 ]
               }
@@ -1901,12 +1556,7 @@
                     "key": "ZO_isZaakspecifiekGeautoriseerd_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isZaakspecifiekGeautoriseerd"
-                    }
+                    "html": "{{ zaak.isZaakspecifiekGeautoriseerd }}"
                   }
                 ]
               },
@@ -1918,13 +1568,7 @@
                     "key": "ZO_isZaakspecifiekGeautoriseerd_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "isZaakspecifiekGeautoriseerd",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.isZaakspecifiekGeautoriseerd) }}"
                   }
                 ]
               }
@@ -1950,12 +1594,7 @@
                     "key": "ZO_zaaktype_servicenorm_ruw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "zaaktype.servicenorm"
-                    }
+                    "html": "{{ zaak.zaaktype.servicenorm }}"
                   }
                 ]
               },
@@ -1967,13 +1606,7 @@
                     "key": "ZO_zaaktype_servicenorm_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "zaaktype.servicenorm",
-                      "ZAC_FORMAAT": "jaNee"
-                    }
+                    "html": "{{ jaNee(zaak.zaaktype.servicenorm) }}"
                   }
                 ]
               }
@@ -2028,12 +1661,7 @@
                     "key": "ZO_indicaties",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "indicaties"
-                    }
+                    "html": "{{ zaak.indicaties }}"
                   }
                 ]
               }
@@ -2059,12 +1687,7 @@
                     "key": "ZO_kenmerken_lijst_kenmerk",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "kenmerken[].kenmerk"
-                    }
+                    "html": "<em>kenmerken[].kenmerk &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
                   }
                 ]
               }
@@ -2090,12 +1713,7 @@
                     "key": "ZO_kenmerken_lijst_bron",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "kenmerken[].bron"
-                    }
+                    "html": "<em>kenmerken[].bron &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
                   }
                 ]
               }
@@ -2121,12 +1739,7 @@
                     "key": "ZO_besluiten_lijst_identificatie",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "besluiten[].identificatie"
-                    }
+                    "html": "<em>besluiten[].identificatie &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
                   }
                 ]
               }
@@ -2152,13 +1765,7 @@
                     "key": "ZO_besluiten_lijst_datum",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "besluiten[].datum",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "<em>besluiten[].datum &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
                   }
                 ]
               }
@@ -2184,12 +1791,7 @@
                     "key": "ZO_gerelateerdeZaken_lijst_identificatie",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "gerelateerdeZaken[].identificatie"
-                    }
+                    "html": "<em>gerelateerdeZaken[].identificatie &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
                   }
                 ]
               }
@@ -2215,12 +1817,7 @@
                     "key": "ZO_gerelateerdeZaken_lijst_relatieType",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "gerelateerdeZaken[].relatieType"
-                    }
+                    "html": "<em>gerelateerdeZaken[].relatieType &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
                   }
                 ]
               }
@@ -2246,13 +1843,7 @@
                     "key": "ZO_gerelateerdeZaken_lijst_startdatum",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "gerelateerdeZaken[].startdatum",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "<em>gerelateerdeZaken[].startdatum &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
                   }
                 ]
               }
@@ -2307,12 +1898,7 @@
                     "key": "ZO_identificatie_jaar",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "identificatie.jaar"
-                    }
+                    "html": "{{ zaak.identificatie.jaar }}"
                   }
                 ]
               }
@@ -2338,12 +1924,7 @@
                     "key": "ZO_zaaktype_object",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "zaaktype"
-                    }
+                    "html": "{{ zaak.zaaktype }}"
                   }
                 ]
               }
@@ -2369,12 +1950,7 @@
                     "key": "ZO_kenmerken_lijst",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "kenmerken"
-                    }
+                    "html": "{{ zaak.kenmerken }}"
                   }
                 ]
               }
@@ -2400,13 +1976,7 @@
                     "key": "ZO_startdatum_foutformaat",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "startdatum",
-                      "ZAC_FORMAAT": "dutchDate"
-                    }
+                    "html": "{{ dutchDate(zaak.startdatum) }}"
                   }
                 ]
               }
@@ -2432,12 +2002,7 @@
                     "key": "ZO_kenmerken_zonder_lijst",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "kenmerken"
-                    }
+                    "html": "{{ zaak.kenmerken }}"
                   }
                 ]
               }
@@ -2463,12 +2028,7 @@
                     "key": "ZO_identificatie_lijst_geen_lijst",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_zaak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "identificatie[]"
-                    }
+                    "html": "<em>identificatie[] &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
                   }
                 ]
               }

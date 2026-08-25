@@ -6,17 +6,11 @@
 import { ExtendedComponentSchema } from "@formio/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { GeneratedType } from "../../../shared/utils/generated-types";
-import {
-  escapeHtml,
-  isTruthyProperty,
-  renderFieldError,
-} from "./formio-component-utils";
+import { escapeHtml, renderFieldError } from "./formio-component-utils";
 
 const ZAC_PATH_PROPERTY = "ZAC_VELD";
 
 const ZAC_FORMAT_PROPERTY = "ZAC_FORMAAT";
-
-const ZAC_INPUT_PROPERTY = "ZAC_INVOER";
 
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})/;
 
@@ -55,10 +49,11 @@ const LIST_SEGMENT_SUFFIX = "[]";
 
 const LIST_SEPARATOR = ", ";
 
-/** Reads on through every key of an object, the way `[]` reads on through every element of a list. */
-const EVERY_KEY_SEGMENT = "*";
-
-/** Content, not an input: completing a task writes every submitted key back as a process variable. */
+/**
+ * Only seeding is left here: reading a value for display is done with `{{ zaak.x }}` in a Form.io
+ * content component, which Form.io interpolates itself. Seeding cannot move there because
+ * `customDefaultValue` is skipped once the submission already carries the key, which taakdata does.
+ */
 export function initializeGegevensField(
   component: ExtendedComponentSchema,
   source: object,
@@ -66,57 +61,25 @@ export function initializeGegevensField(
   taak: GeneratedType<"RestTask">,
   translateService: TranslateService,
 ) {
-  const path: string = component.properties?.[ZAC_PATH_PROPERTY] ?? "";
-  const format: string | undefined =
-    component.properties?.[ZAC_FORMAT_PROPERTY];
-  const label = component.label ?? "";
-
-  if (isTruthyProperty(component.properties?.[ZAC_INPUT_PROPERTY])) {
-    seedInputField(
-      component,
-      source,
-      sourceLabel,
-      taak,
-      path,
-      translateService,
-      format,
-    );
-    return;
-  }
-
-  const isEveryKeyPath = readsEveryKey(path);
-
-  let body: string;
-  try {
-    body = isEveryKeyPath
-      ? renderKeyValueTable(
-          resolveObjectPath(source, path, sourceLabel),
-          translateService,
-          format,
-        )
-      : `${label ? `<span class="fw-medium">${escapeHtml(label)}: </span>` : ""}` +
-        escapeHtml(
-          formatValue(
-            resolvePath(source, path, sourceLabel),
-            translateService,
-            format,
-          ),
-        );
-  } catch (error) {
+  if (component.input !== true) {
     renderFieldError(
       component,
-      error instanceof Error ? error.message : String(error),
+      `A "${component.type}" field holds no value, so there is nothing to fill in. Read a value ` +
+        `for display with "{{ ${sourceLabel.toLowerCase()}.` +
+        `${component.properties?.[ZAC_PATH_PROPERTY] ?? "property"} }}" in a content component.`,
     );
     return;
   }
 
-  const heading =
-    isEveryKeyPath && label ? `<h4 class="mb-1">${escapeHtml(label)}</h4>` : "";
-
-  component.type = "content";
-  component.input = false;
-  component.html = `<div class="py-1">${heading}${body}</div>`;
-  component.label = "";
+  seedInputField(
+    component,
+    source,
+    sourceLabel,
+    taak,
+    component.properties?.[ZAC_PATH_PROPERTY] ?? "",
+    translateService,
+    component.properties?.[ZAC_FORMAT_PROPERTY],
+  );
 }
 
 /**
@@ -133,12 +96,6 @@ function seedInputField(
   format?: string,
 ) {
   try {
-    if (readsEveryKey(path)) {
-      throw new Error(
-        `A path ending in "${EVERY_KEY_SEGMENT}" renders a table of every key, which cannot be put ` +
-          `into an input. Drop ${ZAC_INPUT_PROPERTY} or address a single key.`,
-      );
-    }
     if (format && parsesItsOwnValue(component)) {
       throw new Error(
         `A "${component.type}" field parses its own value and formats it for display, so a ` +
@@ -165,46 +122,6 @@ function seedInputField(
       error instanceof Error ? error.message : String(error),
     );
   }
-}
-
-/** A nested object or list is counted rather than expanded; address it with its own path. */
-function renderKeyValueTable(
-  source: Record<string, unknown> | null,
-  translateService: TranslateService,
-  format?: string,
-) {
-  const entries = Object.entries(source ?? {}).sort(([left], [right]) =>
-    left.localeCompare(right),
-  );
-  if (!entries.length) {
-    return NO_VALUE;
-  }
-
-  /** Which key resisted the format is the only thing that tells the designer what to fix. */
-  const renderCell = (key: string, value: unknown) => {
-    if (Array.isArray(value)) return `[${value.length}]`;
-    if (value !== null && typeof value === "object") {
-      return `{${Object.keys(value).length}}`;
-    }
-    try {
-      return formatValue(value, translateService, format);
-    } catch (error) {
-      if (error instanceof FormatMismatch) {
-        throw new FormatMismatch(`Key "${key}": ${error.message}`);
-      }
-      throw error;
-    }
-  };
-
-  const rows = entries
-    .map(
-      ([key, value]) =>
-        `<tr><th scope="row" class="fw-normal text-nowrap">` +
-        `<code>${escapeHtml(key)}</code></th>` +
-        `<td>${escapeHtml(renderCell(key, value))}</td></tr>`,
-    )
-    .join("");
-  return `<table class="table table-sm table-bordered mb-0"><tbody>${rows}</tbody></table>`;
 }
 
 function formatValue(
@@ -275,50 +192,10 @@ function resolvePath(
   if (typeof value === "object" && value !== null) {
     throw new Error(
       `${sourceLabel} property "${path}" holds an object, not a single value. Address a key of ` +
-        `it, as in "${path}.${Object.keys(value).sort()[0]}", or read every key with ` +
-        `"${path}.${EVERY_KEY_SEGMENT}".`,
+        `it, as in "${path}.${Object.keys(value).sort()[0]}".`,
     );
   }
   return value;
-}
-
-function readsEveryKey(path: string) {
-  return path.split(".").includes(EVERY_KEY_SEGMENT);
-}
-
-function resolveObjectPath(
-  source: object,
-  path: string,
-  sourceLabel: string,
-): Record<string, unknown> | null {
-  const segments = path.split(".");
-  if (segments.at(-1) !== EVERY_KEY_SEGMENT) {
-    throw new Error(
-      `"${EVERY_KEY_SEGMENT}" reads every key of an object, so it can only be the last part of a ` +
-        `path. Drop everything after it, as in "${segments
-          .slice(0, segments.indexOf(EVERY_KEY_SEGMENT) + 1)
-          .join(".")}".`,
-    );
-  }
-  const objectPath = segments.slice(0, -1);
-  if (objectPath.at(-1)?.endsWith(LIST_SEGMENT_SUFFIX)) {
-    throw new Error(
-      `"${EVERY_KEY_SEGMENT}" cannot follow "${LIST_SEGMENT_SUFFIX}": that would read every key of ` +
-        `every element. Address a property of each element instead.`,
-    );
-  }
-
-  const value = objectPath.length
-    ? walkSegments(source, objectPath, [], sourceLabel)
-    : source;
-  if (value === null || value === undefined) return null;
-  if (typeof value !== "object") {
-    throw new Error(
-      `${sourceLabel} property "${objectPath.join(".")}" holds a single value, so it has no ` +
-        `keys to read. Drop the "${EVERY_KEY_SEGMENT}".`,
-    );
-  }
-  return value as Record<string, unknown>;
 }
 
 function walkSegments(

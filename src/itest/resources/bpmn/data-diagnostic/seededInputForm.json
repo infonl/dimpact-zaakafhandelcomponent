@@ -9,7 +9,7 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>Putting zaak and taak data into editable fields</h3><p>Every field below is a normal Form.io input &mdash; a textfield or a textarea &mdash; that ZAC has filled in from the zaak or the taak. Add <code>ZAC_INVOER: \"true\"</code> to a <code>ZAC_zaak_gegevens</code> or <code>ZAC_taak_gegevens</code> field and the value is seeded into the field you declared instead of being rendered as read-only text. The same <code>ZAC_VELD</code> paths and <code>ZAC_FORMAAT</code> functions apply.</p><p>Use a format only where the value is read as text. An input that parses its value &mdash; a date picker &mdash; needs the raw value, so leave <code>ZAC_FORMAAT</code> off and let the picker do the formatting. Each field's description shows the declaration that filled it. Change a value, press <em>Save</em>, then reopen the task: your answer is kept and not seeded over.</p>"
+      "html": "<h3>Putting zaak and taak data into editable fields</h3><p>Every field below is a normal Form.io input &mdash; a textfield, a textarea, a date picker &mdash; that ZAC has filled in from the zaak or the taak. Give it the attribute <code>ZAC_TYPE</code> of <code>ZAC_zaak_gegevens</code> or <code>ZAC_taak_gegevens</code> and the property <code>ZAC_VELD</code> with the path to read, and the value is seeded into the field. Because the field itself holds the value, no extra property is needed to say so: put the same declaration on a <code>content</code> component and ZAC tells you to use <code>{{ }}</code> instead.</p><p>Reading a value for <em>display</em> is not done here at all &mdash; write <code>{{ zaak.identificatie }}</code> in a content component. Seeding is the one thing <code>{{ }}</code> cannot do, because Form.io skips a default value once the submission already carries the key.</p><p>Use <code>ZAC_FORMAAT</code> only where the value is read as text. An input that parses its own value &mdash; a date picker &mdash; needs the raw value, so leave the format off and let the picker do the formatting. Each field's description shows the declaration that filled it. Change a value, press <em>Save</em>, then reopen the task: your answer is kept and not seeded over.</p>"
     },
     {
       "type": "panel",
@@ -29,8 +29,7 @@
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "identificatie",
-            "ZAC_INVOER": "true"
+            "ZAC_VELD": "identificatie"
           }
         },
         {
@@ -44,8 +43,7 @@
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "omschrijving",
-            "ZAC_INVOER": "true"
+            "ZAC_VELD": "omschrijving"
           }
         },
         {
@@ -60,7 +58,6 @@
           },
           "properties": {
             "ZAC_VELD": "startdatum",
-            "ZAC_INVOER": "true",
             "ZAC_FORMAAT": "datum"
           }
         },
@@ -95,8 +92,7 @@
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "startdatum",
-            "ZAC_INVOER": "true"
+            "ZAC_VELD": "startdatum"
           }
         },
         {
@@ -111,7 +107,6 @@
           },
           "properties": {
             "ZAC_VELD": "isOpgeschort",
-            "ZAC_INVOER": "true",
             "ZAC_FORMAAT": "jaNee"
           }
         },
@@ -126,8 +121,7 @@
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "toelichting",
-            "ZAC_INVOER": "true"
+            "ZAC_VELD": "toelichting"
           },
           "rows": 3
         },
@@ -142,8 +136,7 @@
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "zaaktype.omschrijving",
-            "ZAC_INVOER": "true"
+            "ZAC_VELD": "zaaktype.omschrijving"
           }
         },
         {
@@ -157,8 +150,7 @@
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "indicaties",
-            "ZAC_INVOER": "true"
+            "ZAC_VELD": "indicaties"
           }
         }
       ]
@@ -181,8 +173,7 @@
             "ZAC_TYPE": "ZAC_taak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "naam",
-            "ZAC_INVOER": "true"
+            "ZAC_VELD": "naam"
           }
         },
         {
@@ -196,8 +187,7 @@
             "ZAC_TYPE": "ZAC_taak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "groep.naam",
-            "ZAC_INVOER": "true"
+            "ZAC_VELD": "groep.naam"
           }
         },
         {
@@ -211,8 +201,7 @@
             "ZAC_TYPE": "ZAC_taak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "behandelaar.naam",
-            "ZAC_INVOER": "true"
+            "ZAC_VELD": "behandelaar.naam"
           }
         },
         {
@@ -246,8 +235,7 @@
             "ZAC_TYPE": "ZAC_taak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "fataledatum",
-            "ZAC_INVOER": "true"
+            "ZAC_VELD": "fataledatum"
           }
         }
       ]
@@ -260,18 +248,17 @@
       "tableView": false,
       "components": [
         {
-          "label": "every key into an input",
+          "label": "an object into an input",
           "type": "textfield",
-          "key": "IN_fout_tabel",
+          "key": "IN_fout_object",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: zaakdata.*",
+          "description": "ZAC_zaak_gegevens · ZAC_VELD: zaaktype",
           "attributes": {
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "zaakdata.*",
-            "ZAC_INVOER": "true"
+            "ZAC_VELD": "zaaktype"
           }
         },
         {
@@ -285,8 +272,7 @@
             "ZAC_TYPE": "ZAC_zaak_gegevens"
           },
           "properties": {
-            "ZAC_VELD": "identificatie.jaar",
-            "ZAC_INVOER": "true"
+            "ZAC_VELD": "identificatie.jaar"
           }
         },
         {
@@ -321,7 +307,6 @@
           },
           "properties": {
             "ZAC_VELD": "startdatum",
-            "ZAC_INVOER": "true",
             "ZAC_FORMAAT": "datum"
           }
         }

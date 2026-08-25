@@ -57,12 +57,7 @@
                     "key": "TG_naam",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "naam"
-                    }
+                    "html": "{{ taak.naam }}"
                   }
                 ]
               }
@@ -88,12 +83,7 @@
                     "key": "TG_status",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "status"
-                    }
+                    "html": "{{ taak.status }}"
                   }
                 ]
               }
@@ -119,12 +109,7 @@
                     "key": "TG_toelichting",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "toelichting"
-                    }
+                    "html": "{{ taak.toelichting }}"
                   }
                 ]
               }
@@ -150,12 +135,7 @@
                     "key": "TG_groep_naam",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "groep.naam"
-                    }
+                    "html": "{{ taak.groep.naam }}"
                   }
                 ]
               }
@@ -181,12 +161,7 @@
                     "key": "TG_groep_id",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "groep.id"
-                    }
+                    "html": "{{ taak.groep.id }}"
                   }
                 ]
               }
@@ -212,12 +187,7 @@
                     "key": "TG_behandelaar_naam",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "behandelaar.naam"
-                    }
+                    "html": "{{ taak.behandelaar.naam }}"
                   }
                 ]
               }
@@ -243,12 +213,7 @@
                     "key": "TG_behandelaar_id",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "behandelaar.id"
-                    }
+                    "html": "{{ taak.behandelaar.id }}"
                   }
                 ]
               }
@@ -274,12 +239,7 @@
                     "key": "TG_id",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "id"
-                    }
+                    "html": "{{ taak.id }}"
                   }
                 ]
               }
@@ -335,12 +295,7 @@
                     "key": "TG_creatiedatumTijd_raw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "creatiedatumTijd"
-                    }
+                    "html": "{{ taak.creatiedatumTijd }}"
                   }
                 ]
               },
@@ -352,13 +307,7 @@
                     "key": "TG_creatiedatumTijd_formatted",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "creatiedatumTijd",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "{{ datum(taak.creatiedatumTijd) }}"
                   }
                 ]
               }
@@ -384,12 +333,7 @@
                     "key": "TG_toekenningsdatumTijd_raw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "toekenningsdatumTijd"
-                    }
+                    "html": "{{ taak.toekenningsdatumTijd }}"
                   }
                 ]
               },
@@ -401,13 +345,7 @@
                     "key": "TG_toekenningsdatumTijd_formatted",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "toekenningsdatumTijd",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "{{ datum(taak.toekenningsdatumTijd) }}"
                   }
                 ]
               }
@@ -433,12 +371,7 @@
                     "key": "TG_fataledatum_raw",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "fataledatum"
-                    }
+                    "html": "{{ taak.fataledatum }}"
                   }
                 ]
               },
@@ -450,13 +383,7 @@
                     "key": "TG_fataledatum_formatted",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "fataledatum",
-                      "ZAC_FORMAAT": "datum"
-                    }
+                    "html": "{{ datum(taak.fataledatum) }}"
                   }
                 ]
               }
@@ -511,12 +438,7 @@
                     "key": "TGfout_naam_eerste",
                     "input": false,
                     "tableView": false,
-                    "attributes": {
-                      "ZAC_TYPE": "ZAC_taak_gegevens"
-                    },
-                    "properties": {
-                      "ZAC_VELD": "naam.eerste"
-                    }
+                    "html": "{{ taak.naam.eerste }}"
                   }
                 ]
               }

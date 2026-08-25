@@ -26,17 +26,12 @@
           "html": "<p>Source: the zaak as read live from Open Zaak over the ZGW API, plus its Flowable variables under <code>zaakdata</code>.</p>"
         },
         {
-          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: zaakdata.*",
+          "label": "",
           "type": "content",
           "key": "PDzaak_zaakdata_tabel",
           "input": false,
           "tableView": false,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "zaakdata.*"
-          }
+          "html": "<span class=\"fw-medium\">ZAC_zaak_gegevens  ·  ZAC_VELD: zaakdata.*: </span><em>zaakdata.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
         },
         {
           "type": "content",
@@ -46,17 +41,12 @@
           "html": "<hr class=\"zac-gegevens-divider\">"
         },
         {
-          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: zaaktype.*",
+          "label": "",
           "type": "content",
           "key": "PDzaak_zaaktype_tabel",
           "input": false,
           "tableView": false,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "zaaktype.*"
-          }
+          "html": "<span class=\"fw-medium\">ZAC_zaak_gegevens  ·  ZAC_VELD: zaaktype.*: </span><em>zaaktype.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
         },
         {
           "type": "content",
@@ -66,17 +56,12 @@
           "html": "<hr class=\"zac-gegevens-divider\">"
         },
         {
-          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: groep.*",
+          "label": "",
           "type": "content",
           "key": "PDzaak_groep_tabel",
           "input": false,
           "tableView": false,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "groep.*"
-          }
+          "html": "<span class=\"fw-medium\">ZAC_zaak_gegevens  ·  ZAC_VELD: groep.*: </span><em>groep.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
         }
       ]
     },
@@ -95,17 +80,12 @@
           "html": "<p>Source: the Flowable task row and its task-local variables. Note that <code>taakdata</code> is not what this form submitted: ZAC merges every process variable into it on each open, which is why zaak fields appear here. <code>zaakUUID</code> and <code>zaaktypeUUID</code> are filtered out of that merge.</p>"
         },
         {
-          "label": "ZAC_taak_gegevens  ·  ZAC_VELD: taakdata.*",
+          "label": "",
           "type": "content",
           "key": "PDtaak_taakdata_tabel",
           "input": false,
           "tableView": false,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_taak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "taakdata.*"
-          }
+          "html": "<span class=\"fw-medium\">ZAC_taak_gegevens  ·  ZAC_VELD: taakdata.*: </span><em>taakdata.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
         },
         {
           "type": "content",
@@ -115,17 +95,12 @@
           "html": "<hr class=\"zac-gegevens-divider\">"
         },
         {
-          "label": "ZAC_taak_gegevens  ·  ZAC_VELD: taakinformatie.*",
+          "label": "",
           "type": "content",
           "key": "PDtaak_taakinformatie_tabel",
           "input": false,
           "tableView": false,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_taak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "taakinformatie.*"
-          }
+          "html": "<span class=\"fw-medium\">ZAC_taak_gegevens  ·  ZAC_VELD: taakinformatie.*: </span><em>taakinformatie.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
         },
         {
           "type": "content",
@@ -135,17 +110,12 @@
           "html": "<hr class=\"zac-gegevens-divider\">"
         },
         {
-          "label": "ZAC_taak_gegevens  ·  ZAC_VELD: rechten.*",
+          "label": "",
           "type": "content",
           "key": "PDtaak_rechten_tabel",
           "input": false,
           "tableView": false,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_taak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "rechten.*"
-          }
+          "html": "<span class=\"fw-medium\">ZAC_taak_gegevens  ·  ZAC_VELD: rechten.*: </span><em>rechten.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
         }
       ]
     },
@@ -157,56 +127,36 @@
       "tableView": false,
       "components": [
         {
-          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: identificatie.*",
+          "label": "",
           "type": "content",
           "key": "PD_fout_scalar",
           "input": false,
           "tableView": false,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "identificatie.*"
-          }
+          "html": "<span class=\"fw-medium\">ZAC_zaak_gegevens  ·  ZAC_VELD: identificatie.*: </span><em>identificatie.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
         },
         {
-          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: zaakdata.*.NF_Uren",
+          "label": "",
           "type": "content",
           "key": "PD_fout_wildcard_niet_laatst",
           "input": false,
           "tableView": false,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "zaakdata.*.NF_Uren"
-          }
+          "html": "<span class=\"fw-medium\">a key of an object reached through a wildcard: </span><em>no template equivalent</em>"
         },
         {
-          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: kenmerken[].*",
+          "label": "",
           "type": "content",
           "key": "PD_fout_wildcard_na_lijst",
           "input": false,
           "tableView": false,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "kenmerken[].*"
-          }
+          "html": "<span class=\"fw-medium\">ZAC_zaak_gegevens  ·  ZAC_VELD: kenmerken[].*: </span><em>kenmerken[].* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
         },
         {
-          "label": "ZAC_zaak_gegevens  ·  ZAC_VELD: zaaktype",
+          "label": "",
           "type": "content",
           "key": "PD_fout_object_zonder_wildcard",
           "input": false,
           "tableView": false,
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "zaaktype"
-          }
+          "html": "<span class=\"fw-medium\">ZAC_zaak_gegevens  ·  ZAC_VELD: zaaktype: </span>{{ zaak.zaaktype }}"
         }
       ]
     },

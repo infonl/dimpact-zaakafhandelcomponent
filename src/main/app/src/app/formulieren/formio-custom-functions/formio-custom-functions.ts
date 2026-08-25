@@ -4,10 +4,39 @@
  */
 
 import { inject, Injectable } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
 import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 
 type EvalContext = Record<string, unknown>;
+
+/**
+ * Form.io interpolates `{{ }}` straight into the page and its `{{{ }}}` escape delimiter does not
+ * work in this build, so a designer has no way to escape a value. Zaak and taak values are entered
+ * by users, so they are escaped here instead - once, before the form can ever reach them.
+ */
+function escapeDeep<T>(value: T): T {
+  if (typeof value === "string") {
+    return value.replace(
+      /[&<>"']/g,
+      (character) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[character]!,
+    ) as T;
+  }
+  if (Array.isArray(value)) return value.map(escapeDeep) as T;
+  if (value !== null && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [key, escapeDeep(entry)]),
+    ) as T;
+  }
+  return value;
+}
 
 // Each factory receives the taakdata and the specific parameter names found in the form,
 // pre-fetches async data, and returns a synchronous closure for form.io's {{ }} evaluator.
@@ -21,6 +50,23 @@ export class FormioCustomFunctions {
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
+  private readonly translateService = inject(TranslateService);
+
+  /**
+   * Pure display helpers, always in the context: `{{ datum(zaak.startdatum) }}`. Unlike the
+   * registry below they need no pre-fetch, and unlike it they take a path rather than a field key,
+   * which the registry's parameter scan cannot express.
+   */
+  private readonly valueFormatters = {
+    datum: (value: unknown) => {
+      const parts = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value));
+      return parts ? `${parts[3]}-${parts[2]}-${parts[1]}` : String(value);
+    },
+    jaNee: (value: unknown) =>
+      this.translateService.instant(
+        value === true || value === "true" ? "actie.ja" : "actie.nee",
+      ),
+  };
 
   private readonly functionRegistry: Record<string, FormioFunctionFactory> = {
     ZAC_getDocumentTitles: async (taakdata, parameters) => {
@@ -46,6 +92,8 @@ export class FormioCustomFunctions {
   async prepareFormContext(
     form: unknown,
     taakdata: Record<string, unknown>,
+    zaak?: object,
+    taak?: object,
   ): Promise<EvalContext> {
     const foundFunctions = this.extractFormFunctions(form);
 
@@ -58,7 +106,12 @@ export class FormioCustomFunctions {
       }
     }
 
-    const context: EvalContext = { ...taakdata };
+    const context: EvalContext = {
+      ...taakdata,
+      zaak: escapeDeep(zaak),
+      taak: escapeDeep(taak),
+      ...this.valueFormatters,
+    };
     for (const [funcName, factory] of Object.entries(this.functionRegistry)) {
       if (foundFunctions.has(funcName)) {
         context[funcName] = await factory(

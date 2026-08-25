@@ -57,6 +57,8 @@ export class FormioWrapperComponent
   @Input() form: unknown;
   @Input() submission: unknown;
   @Input() taakdata?: Record<string, unknown>;
+  @Input() zaak?: object;
+  @Input() taak?: object;
   @Input() options?: FormioHookOptions;
   @Input({ required: true, transform: booleanAttribute }) readOnly = false;
   @Input({ required: true, transform: booleanAttribute }) submitPending = false;
@@ -130,6 +132,8 @@ export class FormioWrapperComponent
             this.customFunctions.prepareFormContext(
               this.form,
               this.taakdata ?? {},
+              this.zaak,
+              this.taak,
             ),
           );
           return source.pipe(

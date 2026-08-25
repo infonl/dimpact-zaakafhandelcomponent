@@ -9,7 +9,6 @@ import { GeneratedType } from "../../../shared/utils/generated-types";
 import {
   gegevensInputComponent,
   taak,
-  taakGegevensComponent,
   zaak,
   zaakGegevensComponent,
 } from "./formio-setup-service.test-fixtures";
@@ -21,37 +20,53 @@ const translateService = {
   instant: (key: string) => key,
 } as unknown as TranslateService;
 
-const taakWithAssignees = {
-  ...taak,
-  groep: { id: "fakeGroupId", naam: "fakeGroupName" },
-  behandelaar: { id: "fakeUserId", naam: "fakeUserName" },
-} as GeneratedType<"RestTask">;
-
 describe(initializeGegevensField.name, () => {
-  describe("a gegevens field with ZAC_INVOER", () => {
-    function seed(
-      component: ExtendedComponentSchema,
-      {
-        taakdata = {},
-        source = zaak as object,
-        sourceLabel = "Zaak",
-      }: {
-        taakdata?: Record<string, unknown>;
-        source?: object;
-        sourceLabel?: string;
-      } = {},
-    ) {
-      const seededTaak = { ...taak, taakdata } as GeneratedType<"RestTask">;
-      initializeGegevensField(
-        component,
-        source,
-        sourceLabel,
-        seededTaak,
-        translateService,
-      );
-      return { component, taakdata: seededTaak.taakdata };
-    }
+  function seed(
+    component: ExtendedComponentSchema,
+    {
+      taakdata = {},
+      source = zaak as object,
+      sourceLabel = "Zaak",
+    }: {
+      taakdata?: Record<string, unknown>;
+      source?: object;
+      sourceLabel?: string;
+    } = {},
+  ) {
+    const seededTaak = { ...taak, taakdata } as GeneratedType<"RestTask">;
+    initializeGegevensField(
+      component,
+      source,
+      sourceLabel,
+      seededTaak,
+      translateService,
+    );
+    return { component, taakdata: seededTaak.taakdata };
+  }
 
+  describe("a field that holds no value", () => {
+    it("should point the designer at the template syntax instead of rendering nothing", () => {
+      const { component } = seed({
+        ...zaakGegevensComponent("identificatie"),
+        type: "content",
+        input: false,
+      });
+
+      expect(component.html).toContain("{{ zaak.identificatie }}");
+      expect(component.html).toContain("holds no value");
+    });
+
+    it("should name the taak as the source when the field reads the taak", () => {
+      const { component } = seed(
+        { ...zaakGegevensComponent("naam"), type: "content", input: false },
+        { source: taak, sourceLabel: "Taak" },
+      );
+
+      expect(component.html).toContain("{{ taak.naam }}");
+    });
+  });
+
+  describe("a field that holds a value", () => {
     it("should leave the field editable instead of rendering it as text", () => {
       const { component } = seed(gegevensInputComponent("identificatie"));
 
@@ -89,7 +104,10 @@ describe(initializeGegevensField.name, () => {
 
     it("should seed from the taak as well as from the zaak", () => {
       const { component } = seed(gegevensInputComponent("groep.naam"), {
-        source: taakWithAssignees,
+        source: {
+          ...taak,
+          groep: { id: "fakeGroupId", naam: "fakeGroupName" },
+        },
         sourceLabel: "Taak",
       });
 
@@ -119,20 +137,11 @@ describe(initializeGegevensField.name, () => {
     it("should not seed a list whose elements all hold no value", () => {
       const { component, taakdata } = seed(
         gegevensInputComponent("kenmerken[].bron"),
-        {
-          source: { ...zaak, kenmerken: [{ bron: "" }, { bron: null }] },
-        },
+        { source: { ...zaak, kenmerken: [{ bron: "" }, { bron: null }] } },
       );
 
       expect(component.defaultValue).toBeUndefined();
       expect(taakdata).toEqual({});
-    });
-
-    it("should refuse a path reading every key, which cannot go into an input", () => {
-      const { component } = seed(gegevensInputComponent("zaakdata.*"));
-
-      expect(component.html).toContain("cannot be put into an input");
-      expect(component.defaultValue).toBeUndefined();
     });
 
     it.each([
@@ -160,350 +169,85 @@ describe(initializeGegevensField.name, () => {
       expect(component.defaultValue).toBe("2026-08-24");
     });
 
-    it("should report an unresolvable path in place of the field", () => {
-      const { component } = seed(gegevensInputComponent("identificatie.jaar"));
+    it("should join a list of values", () => {
+      const { component } = seed(gegevensInputComponent("indicaties"));
 
-      expect(component.html).toContain("holds a single value");
-    });
-  });
-
-  describe("a gegevens field reading the taak", () => {
-    function render(veld: string, options?: { formaat?: string }) {
-      const component = taakGegevensComponent(veld, options);
-      initializeGegevensField(
-        component,
-        taakWithAssignees,
-        "Taak",
-        taakWithAssignees,
-        translateService,
-      );
-      return component;
-    }
-
-    it.each([
-      ["naam", "test-taak"],
-      ["status", "TOEGEKEND"],
-      ["groep.naam", "fakeGroupName"],
-      ["behandelaar.naam", "fakeUserName"],
-      ["behandelaar.id", "fakeUserId"],
-    ])("should render the taak property %s", (veld, value) => {
-      expect(render(veld).html).toContain(value);
+      expect(component.defaultValue).toBe("OPSCHORTING, VERLENGD");
     });
 
-    it("should name the taak as the source in an error", () => {
-      expect(render("naam.eerste").html).toContain(
-        "Taak property &quot;naam&quot;",
-      );
+    it("should read a property of every element of a list", () => {
+      const { component } = seed(gegevensInputComponent("kenmerken[].kenmerk"));
+
+      expect(component.defaultValue).toBe("fakeKenmerk1, fakeKenmerk2");
     });
 
-    it("should format a taak date with the shared format function", () => {
-      expect(render("fataledatum", { formaat: "datum" }).html).toMatch(
-        /\d{2}-\d{2}-\d{4}/,
-      );
-    });
-  });
+    it("should say which property is missing when no path is declared", () => {
+      const { component } = seed(gegevensInputComponent(""));
 
-  describe("a gegevens field reading the zaak", () => {
-    function render(
-      veld: string,
-      options?: { label?: string; formaat?: string },
-      source: object = zaak,
-    ) {
-      const component = zaakGegevensComponent(veld, options);
-      initializeGegevensField(
-        component,
-        source,
-        "Zaak",
-        taak,
-        translateService,
-      );
-      return component;
-    }
-
-    it.each([
-      ["uuid", "test-zaakUuid"],
-      ["identificatie", "ZAAK-2026-0000000835"],
-      ["omschrijving", "test-zaak-omschrijving"],
-      ["communicatiekanaal", "Medewerkersportaal"],
-      ["zaaktype.uuid", "test-zaaktype-uuid"],
-      ["zaaktype.omschrijving", "test-zaaktypeOmschrijving"],
-      ["groep.naam", "fakeGroupName"],
-      ["behandelaar.naam", "fakeUserName"],
-      ["status.naam", "In behandeling"],
-    ])("should render the zaak property %s", (veld, value) => {
-      expect(render(veld).html).toContain(value);
-    });
-
-    it("should separate the label from the value with a colon", () => {
-      const component = render("identificatie", { label: "Zaaknummer" });
-
-      expect(component.html).toContain("Zaaknummer: ");
-      expect(component.label).toBe("");
-    });
-
-    it("should not render a stray colon when the field has no label", () => {
-      expect(render("identificatie", { label: "" }).html).not.toContain(":");
-    });
-
-    it("should render a value as the zaak holds it when no format is asked for", () => {
-      expect(render("startdatum").html).toContain("2026-08-24");
-      expect(render("isOpgeschort").html).toContain("false");
+      expect(component.html).toContain("Missing ZAC_VELD property");
     });
 
     it.each([
-      ["datum", "startdatum", "24-08-2026"],
-      ["jaNee", "isOpgeschort", "actie.nee"],
-      ["jaNee", "isOpen", "actie.ja"],
+      [
+        "a path that reads on through a single value",
+        "identificatie.jaar",
+        "holds a single value",
+      ],
+      [
+        "a path that stops on an object",
+        "zaaktype",
+        "holds an object, not a single value",
+      ],
+      [
+        "a path that stops on a list of objects",
+        "kenmerken",
+        "holds a list of objects",
+      ],
+      [
+        "list syntax on something that is not a list",
+        "identificatie[]",
+        "is not a list",
+      ],
+    ])("should report %s in place of the field", (_name, veld, message) => {
+      const { component } = seed(gegevensInputComponent(veld));
+
+      expect(component.html).toContain(message);
+    });
+
+    it.each([
+      ["datum", "omschrijving", "is not a date"],
+      ["jaNee", "identificatie", "is not a yes or a no"],
     ])(
-      "should wrap the %s format function around %s",
-      (formaat, veld, expected) => {
-        expect(render(veld, { formaat }).html).toContain(expected);
+      "should report %s on %s instead of seeding the value unformatted",
+      (formaat, veld, reason) => {
+        const { component } = seed(gegevensInputComponent(veld, { formaat }));
+
+        expect(component.html).toContain(
+          `ZAC_FORMAAT &quot;${formaat}&quot; cannot be applied`,
+        );
+        expect(component.html).toContain(reason);
+        expect(component.defaultValue).toBeUndefined();
       },
     );
 
     it("should report the available format functions when the requested one does not exist", () => {
-      expect(render("startdatum", { formaat: "dutchDate" }).html).toContain(
+      const { component } = seed(
+        gegevensInputComponent("startdatum", { formaat: "dutchDate" }),
+      );
+
+      expect(component.html).toContain(
         "Unknown ZAC_FORMAAT &quot;dutchDate&quot;. Available: datum, jaNee",
       );
     });
 
-    it("should mark a property that holds no value, rather than leave the field blank", () => {
-      const component = render("omschrijving", undefined, {
-        ...zaak,
-        omschrijving: undefined,
-      });
-
-      expect(component.html).toContain(NO_VALUE_MARK);
-    });
-
-    it("should not become part of the submission, so completing the task cannot write it back", () => {
-      const component = render("identificatie");
-
-      expect(component.input).toBe(false);
-      expect(component.type).toBe("content");
-      expect(taak.taakdata).not.toHaveProperty(component.key);
-    });
-
-    it("should render nothing for a misspelled property, because the api omits empty ones", () => {
-      expect(render("kommunikatiekanaal").html).toContain(NO_VALUE_MARK);
-    });
-
-    it("should report a path that reads on through a single value, in place of the field", () => {
-      const component = render("identificatie.jaar");
-
-      expect(component.html).toContain(
-        "Zaak property &quot;identificatie&quot; holds a single value",
+    it("should escape a message so a form value in it cannot inject markup", () => {
+      const { component } = seed(
+        gegevensInputComponent("omschrijving", { formaat: "datum" }),
+        { source: { ...zaak, omschrijving: "<img src=x onerror=alert(1)>" } },
       );
-      expect(component.html).toContain("&quot;jaar&quot; cannot be read");
-    });
-
-    it("should say that a path stopping at an object holds no single value", () => {
-      expect(render("zaaktype").html).toContain(
-        "holds an object, not a single value.",
-      );
-    });
-
-    it("should join a list of values", () => {
-      expect(render("indicaties").html).toContain("OPSCHORTING, VERLENGD");
-    });
-
-    it("should read a property of every element of a list", () => {
-      expect(render("kenmerken[].kenmerk").html).toContain(
-        "fakeKenmerk1, fakeKenmerk2",
-      );
-    });
-
-    it("should format every element of a list", () => {
-      const component = render(
-        "kenmerken[].datum",
-        { formaat: "datum" },
-        {
-          ...zaak,
-          kenmerken: [{ datum: "2026-08-24" }, { datum: "2026-01-02" }],
-        },
-      );
-
-      expect(component.html).toContain("24-08-2026, 02-01-2026");
-    });
-
-    it("should mark an empty list as holding no value", () => {
-      expect(render("besluiten[].identificatie").html).toContain(NO_VALUE_MARK);
-    });
-
-    it("should treat a list holding only empty elements as holding no value", () => {
-      const component = render("kenmerken[].bron", undefined, {
-        ...zaak,
-        kenmerken: [{ bron: null }, { bron: "" }],
-      });
-
-      expect(component.html).toContain(NO_VALUE_MARK);
-    });
-
-    it("should suggest a property of the element for a list of objects", () => {
-      const component = render("kenmerken");
-
-      expect(component.html).toContain("holds a list of objects");
-      expect(component.html).toContain("kenmerken[].bron");
-    });
-
-    it("should report list syntax used on something that is not a list", () => {
-      expect(render("identificatie[]").html).toContain("is not a list");
-    });
-
-    it("should escape a zaak value so it cannot inject markup", () => {
-      const component = render("omschrijving", undefined, {
-        ...zaak,
-        omschrijving: "<img src=x onerror=alert(1)>",
-      });
 
       expect(component.html).not.toContain("<img");
       expect(component.html).toContain("&lt;img");
-    });
-
-    it("should say which property is missing when no path is declared", () => {
-      expect(render("").html).toContain("Missing ZAC_VELD property");
-    });
-
-    describe(`a path ending in "*"`, () => {
-      function renderTable(veld: string, zaakdata?: Record<string, unknown>) {
-        return render(veld, undefined, zaakdata ? { ...zaak, zaakdata } : zaak);
-      }
-
-      it("should render every key of an object as a row", () => {
-        const component = renderTable("zaakdata.*", {
-          NF_Uren: "8",
-          TA_Toelichting: "spoed",
-        });
-
-        expect(component.html).toContain("<td>8</td>");
-        expect(component.html).toContain("<td>spoed</td>");
-        expect(component.html).toContain("<code>NF_Uren</code>");
-      });
-
-      it("should sort the keys so the same object always reads the same way", () => {
-        const component = renderTable("zaakdata.*", { zebra: "1", alpha: "2" });
-
-        expect(component.html!.indexOf("alpha")).toBeLessThan(
-          component.html!.indexOf("zebra"),
-        );
-      });
-
-      it("should count the entries of a nested object and the elements of a list", () => {
-        const component = renderTable("zaakdata.*", {
-          rows: [1, 2, 3],
-          nested: { a: 1, b: 2 },
-        });
-
-        expect(component.html).toContain("<td>[3]</td>");
-        expect(component.html).toContain("<td>{2}</td>");
-      });
-
-      it("should mark an object with no keys as holding no value", () => {
-        const component = renderTable("zaakdata.*", {});
-
-        expect(component.html).toContain(NO_VALUE_MARK);
-        expect(component.html).not.toContain("<table");
-      });
-
-      it("should render the label as a heading above the table", () => {
-        const component = render(
-          "zaakdata.*",
-          { label: "Process data" },
-          { ...zaak, zaakdata: { a: "1" } },
-        );
-
-        expect(component.html).toContain('<h4 class="mb-1">Process data</h4>');
-      });
-
-      it("should escape a key and a value so neither can inject markup", () => {
-        const component = renderTable("zaakdata.*", {
-          "<b>k</b>": "<img src=x onerror=alert(1)>",
-        });
-
-        expect(component.html).not.toContain("<img");
-        expect(component.html).not.toContain("<b>");
-        expect(component.html).toContain("<code>&lt;b&gt;k&lt;/b&gt;</code>");
-        expect(component.html).toContain("&lt;img");
-      });
-
-      it("should read every key of the source itself for a lone wildcard", () => {
-        const component = render("*");
-
-        expect(component.html).toContain("<code>identificatie</code>");
-        expect(component.html).toContain("<td>ZAAK-2026-0000000835</td>");
-      });
-
-      it("should refuse to read the keys of a single value, and say what to drop", () => {
-        const component = render("identificatie.*");
-
-        expect(component.html).toContain("has no keys to read");
-        expect(component.html).toContain(`Drop the &quot;*&quot;`);
-      });
-
-      it("should refuse a wildcard that is not the last part of the path", () => {
-        const component = render("zaakdata.*.NF_Uren");
-
-        expect(component.html).toContain("can only be the last part of a path");
-        expect(component.html).toContain(`&quot;zaakdata.*&quot;`);
-      });
-
-      it("should refuse a wildcard after a list, which would read every key of every element", () => {
-        const component = render("kenmerken[].*");
-
-        expect(component.html).toContain(`cannot follow &quot;[]&quot;`);
-      });
-
-      it("should apply a format to every value when they all fit it", () => {
-        const component = render(
-          "zaakdata.*",
-          { formaat: "datum" },
-          {
-            ...zaak,
-            zaakdata: { start: "2026-08-24", eind: "2026-01-02" },
-          },
-        );
-
-        expect(component.html).toContain("<td>24-08-2026</td>");
-        expect(component.html).toContain("<td>02-01-2026</td>");
-      });
-
-      it("should name the key whose value does not fit the format", () => {
-        const component = render(
-          "zaakdata.*",
-          { formaat: "datum" },
-          {
-            ...zaak,
-            zaakdata: { start: "2026-08-24", TA_Toelichting: "spoed" },
-          },
-        );
-
-        expect(component.html).toContain(`Key &quot;TA_Toelichting&quot;`);
-        expect(component.html).toContain("is not a date");
-      });
-    });
-
-    describe("a format that does not fit the value", () => {
-      it.each([
-        ["datum", "omschrijving", "is not a date"],
-        ["jaNee", "identificatie", "is not a yes or a no"],
-      ])(
-        "should report %s on %s instead of showing the value unformatted",
-        (formaat, veld, reason) => {
-          const component = render(veld, { formaat });
-
-          expect(component.html).toContain(
-            `ZAC_FORMAAT &quot;${formaat}&quot; cannot be applied`,
-          );
-          expect(component.html).toContain(reason);
-        },
-      );
-
-      it("should report the element of a list that does not fit the format", () => {
-        const component = render("indicaties", { formaat: "datum" });
-
-        expect(component.html).toContain("cannot be applied");
-        expect(component.html).toContain("OPSCHORTING");
-      });
     });
   });
 });
