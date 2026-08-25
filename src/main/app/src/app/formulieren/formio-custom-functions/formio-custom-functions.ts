@@ -12,20 +12,13 @@ import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 
 type EvalContext = Record<string, unknown>;
 
-// Each factory receives the taakdata and the specific parameter names found in the form,
-// pre-fetches async data, and returns a synchronous closure for form.io's {{ }} evaluator.
+// Pre-fetches its async data, then returns a synchronous closure for form.io's {{ }} evaluator.
 type FormioFunctionFactory = (
   taakdata: Record<string, unknown>,
   parameters: string[],
 ) => Promise<(uuids: unknown) => string>;
 
-/**
- * Form.io interpolates `{{ }}` straight into the page and its `{{{ }}}` escape delimiter does not
- * work in this build, so a designer has no way to make a value safe. Escaping is not an option
- * either: the same values are seeded into inputs by `customDefaultValue`, where `&amp;` would show
- * up literally. Markup is therefore removed rather than escaped, which leaves the `&` of
- * "Jansen & Zn" and the apostrophe of "'s-Hertogenbosch" intact.
- */
+/** Removed rather than escaped: the same values are seeded into inputs, where `&amp;` would show. */
 function stripTagsDeep<T>(value: T): T {
   if (typeof value === "string") return value.replace(/<[^>]*>/g, "") as T;
   if (Array.isArray(value)) return value.map(stripTagsDeep) as T;
@@ -37,17 +30,7 @@ function stripTagsDeep<T>(value: T): T {
   return value;
 }
 
-/**
- * `{{ zaak.behandelaar.naam }}` is a correct expression on a zaak that has no behandelaar, but
- * Form.io evaluates it as JavaScript, so reading through the absent object throws and the whole
- * field fails to render. Every value handed to a form is therefore wrapped: an absent property
- * yields a stand-in that is safe to read on through and renders as nothing.
- */
-/**
- * The path a value was reached by, carried on the value itself. A table of keys is only useful if
- * the reader can copy a row straight into an expression, and that needs the path the keys hang off,
- * which the helper receiving the value would otherwise have no way of knowing.
- */
+/** Carried on the value so `sleutels` can spell its keys out in full. */
 const PATH = Symbol("path");
 
 const PRIMITIVE_HOOKS: (string | symbol)[] = [
@@ -56,11 +39,7 @@ const PRIMITIVE_HOOKS: (string | symbol)[] = [
   "valueOf",
 ];
 
-/**
- * Only a plain named property is stood in for. A symbol stays absent, or a `for...of` would loop on
- * the stand-in, and `then` stays absent, or every value would look like a promise and awaiting one
- * would hang.
- */
+/** `then` and symbols stay absent, or a value would look thenable and `for...of` would loop. */
 function standsInFor(property: string | symbol): property is string {
   return typeof property === "string" && property !== "then";
 }
@@ -78,16 +57,11 @@ const ABSENT: Record<string | symbol, unknown> = new Proxy(
 /** Form.io re-renders a form many times over, so each unknown property is reported once. */
 const reportedPaths = new Set<string>();
 
-/** The path a wrapped value was reached by, or undefined for anything not wrapped. */
 function pathOf(value: unknown) {
   return (value as Record<symbol, string> | null)?.[PATH];
 }
 
-/**
- * A property the object does not have at all is a typo, and nothing on screen says so any more. A
- * property that is present but empty is ordinary data - an unassigned zaak has no behandelaar - and
- * stays quiet.
- */
+/** Absent-but-present is ordinary data (an unassigned zaak has no behandelaar), so it stays quiet. */
 function reportUnknownProperty(target: object, property: string, path: string) {
   if (Array.isArray(target) && /^\d+$/.test(property)) return;
   const reported = `${path}.${property}`;
@@ -128,16 +102,11 @@ export class FormioCustomFunctions {
   );
   private readonly translateService = inject(TranslateService);
 
-  // The Angular pipes are reused rather than reimplemented, so a value in a task form reads exactly
-  // as the same value does elsewhere in ZAC - including the non-breaking hyphens in a date.
+  // Reused, not reimplemented, so a form renders a value exactly as the rest of ZAC does.
   private readonly datumPipe = new DatumPipe(inject(LOCALE_ID));
   private readonly emptyPipe = new EmptyPipe();
 
-  /**
-   * Pure helpers, always in the context: `{{ ZAC_formatter_datum(zaak.startdatum) }}`. Unlike the registry below
-   * they need no pre-fetch, and unlike it they take a value rather than a field key, which the
-   * registry's parameter scan cannot express.
-   */
+  // Unlike the registry below these take a value rather than a field key, and need no pre-fetch.
   private readonly templateHelpers = {
     ZAC_formatter_datum: (value: unknown) =>
       String(this.datumPipe.transform(value as string) ?? ""),
@@ -149,14 +118,6 @@ export class FormioCustomFunctions {
       this.translateService.instant(
         value === true || value === "true" ? "actie.ja" : "actie.nee",
       ),
-
-    /**
-     * `customConditional: "show = bestaat(zaak.zaakdata.PD_x)"` - whether a property is really
-     * there. A plain truthiness test cannot be used: an absent property yields a stand-in object so
-     * that reading on through it is safe, and every object is truthy. The stand-in renders as the
-     * empty string, which is what this leans on, so a present-but-empty value counts as absent too.
-     */
-    bestaat: (value: unknown) => String(value ?? "") !== "",
 
     /** `{{ ZAC_formatter_lijst(zaak.kenmerken, "kenmerk") }}` - one property of every element of a list. */
     ZAC_formatter_lijst: (values: unknown, property?: string) =>
@@ -172,12 +133,7 @@ export class FormioCustomFunctions {
         )
         .join(", "),
 
-    /**
-     * `{{ ZAC_formatter_sleutels(zaak.zaakdata, "where it comes from") }}` - every key of an object whose keys are
-     * not known in advance, boxed with a caption. A nested object or list is counted rather than
-     * expanded; address it with its own expression. The caption is optional and is the only place a
-     * reader learns which system produced these keys, so it is worth filling in.
-     */
+    /** Every key of an object whose keys are not known in advance; nested values are counted. */
     ZAC_formatter_sleutels: (source: unknown, caption?: string) => {
       const entries = Object.entries(
         source !== null && typeof source === "object" ? source : {},
