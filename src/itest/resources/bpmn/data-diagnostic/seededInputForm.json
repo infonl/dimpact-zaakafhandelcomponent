@@ -9,7 +9,7 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>Putting zaak and taak data into editable fields</h3><p>Every field below is a normal Form.io input &mdash; a textfield, a textarea, a date picker &mdash; that Form.io has filled in from the zaak or the taak. The declaration is Form.io's own <code>customDefaultValue</code>: <code>value = zaak.identificatie</code>. No ZAC attribute or property is involved, and each field's description shows the expression that filled it.</p><p>Reading a value for <em>display</em> is done differently, with <code>&#123;&#123; zaak.identificatie &#125;&#125;</code> in a content component &mdash; see the other forms. The two are not interchangeable: an interpolated value is only rendered, while a default value becomes part of the submission and is written back as a process variable when the task completes.</p><p>The same helper functions apply, so <code>value = datum(zaak.startdatum)</code> works. Use one only where the value is read as text: an input that parses its own value &mdash; a date picker &mdash; needs the raw value. Change a value, press <em>Save</em>, then reopen the task: Form.io leaves a default alone once the submission carries the key, so your answer is kept.</p>"
+      "html": "<h3>Putting zaak and taak data into editable fields</h3><p>Every field below is a normal Form.io input &mdash; a textfield, a textarea, a date picker &mdash; that Form.io has filled in from the zaak or the taak. The declaration is Form.io's own <code>customDefaultValue</code>: <code>value = zaak.identificatie</code>. No ZAC attribute or property is involved, and each field's description shows the expression that filled it.</p><p>Reading a value for <em>display</em> is done differently, with <code>&#123;&#123; zaak.identificatie &#125;&#125;</code> in a content component &mdash; see the other forms. The two are not interchangeable: an interpolated value is only rendered, while a default value becomes part of the submission and is written back as a process variable when the task completes.</p><p>The same helper functions apply, so <code>value = ZAC_formatter_datum(zaak.startdatum)</code> works. Use one only where the value is read as text: an input that parses its own value &mdash; a date picker &mdash; needs the raw value. Change a value, press <em>Save</em>, then reopen the task: Form.io leaves a default alone once the submission carries the key, so your answer is kept.</p>"
     },
     {
       "type": "panel",
@@ -42,8 +42,8 @@
           "key": "IN_zaakStartdatum",
           "input": true,
           "tableView": false,
-          "description": "customDefaultValue: \"value = datum(zaak.startdatum)\" — a textfield, so the formatted text is fine here",
-          "customDefaultValue": "value = datum(zaak.startdatum)"
+          "description": "customDefaultValue: \"value = ZAC_formatter_datum(zaak.startdatum)\" — a textfield, so the formatted text is fine here",
+          "customDefaultValue": "value = ZAC_formatter_datum(zaak.startdatum)"
         },
         {
           "label": "Startdatum in a date picker",
@@ -80,8 +80,8 @@
           "key": "IN_zaakOpgeschort",
           "input": true,
           "tableView": false,
-          "description": "customDefaultValue: \"value = jaNee(zaak.isOpgeschort)\"",
-          "customDefaultValue": "value = jaNee(zaak.isOpgeschort)"
+          "description": "customDefaultValue: \"value = ZAC_formatter_jaNee(zaak.isOpgeschort)\"",
+          "customDefaultValue": "value = ZAC_formatter_jaNee(zaak.isOpgeschort)"
         },
         {
           "label": "Toelichting, multi-line",
@@ -209,7 +209,7 @@
           "key": "IN_fout_pickerFormaat",
           "input": true,
           "tableView": false,
-          "description": "customDefaultValue: \"value = datum(zaak.startdatum)\" — the picker cannot read 24-08-2026",
+          "description": "customDefaultValue: \"value = ZAC_formatter_datum(zaak.startdatum)\" — the picker cannot read 24-08-2026",
           "format": "dd-MM-yyyy",
           "enableTime": false,
           "datePicker": {
@@ -230,7 +230,7 @@
             "minuteIncrement": 1,
             "time_24hr": true
           },
-          "customDefaultValue": "value = datum(zaak.startdatum)"
+          "customDefaultValue": "value = ZAC_formatter_datum(zaak.startdatum)"
         }
       ]
     },

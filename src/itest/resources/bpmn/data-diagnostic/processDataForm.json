@@ -25,7 +25,7 @@
           "key": "variabelen_uitleg",
           "input": false,
           "tableView": false,
-          "html": "<h4>Every variable the process holds</h4><p>Two boxes, two stages of the same data. <code>taak.taakdata</code> is what this task has stored &mdash; the process variables it was opened with, plus anything the form has saved. <code>zaak.zaakdata</code> is the process variables themselves, which only change when a task is completed. Save the field in the third panel and the difference between the two boxes is visible.</p><p>Neither box is authored by hand: <code>&#123;&#123; sleutels(zaak.zaakdata, …) &#125;&#125;</code> renders whatever keys the object has, which is the point &mdash; the variables differ per process definition and per run, so there is no list to write down. A nested object shows as <code>{n}</code> and a list as <code>[n]</code>, n being the number of entries; address those with their own expression to look inside.</p>"
+          "html": "<h4>Every variable the process holds</h4><p>Two boxes, two stages of the same data. <code>taak.taakdata</code> is what this task has stored &mdash; the process variables it was opened with, plus anything the form has saved. <code>zaak.zaakdata</code> is the process variables themselves, which only change when a task is completed. Save the field in the third panel and the difference between the two boxes is visible.</p><p>Neither box is authored by hand: <code>&#123;&#123; ZAC_formatter_sleutels(zaak.zaakdata, …) &#125;&#125;</code> renders whatever keys the object has, which is the point &mdash; the variables differ per process definition and per run, so there is no list to write down. A nested object shows as <code>{n}</code> and a list as <code>[n]</code>, n being the number of entries; address those with their own expression to look inside.</p>"
         },
         {
           "label": "",
@@ -33,7 +33,7 @@
           "key": "PDzaak_zaakdata_tabel",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\"><code>&#123;&#123; sleutels(zaak.zaakdata, …) &#125;&#125;</code></span>{{ sleutels(zaak.zaakdata, \"Flowable process variables, merged into the zaak model by ZAC each time it is read\") }}"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; ZAC_formatter_sleutels(zaak.zaakdata, …) &#125;&#125;</code></span>{{ ZAC_formatter_sleutels(zaak.zaakdata, \"the process variables, merged into the zaak by ZAC each time it is read\") }}"
         },
         {
           "type": "content",
@@ -48,7 +48,7 @@
           "key": "PDtaak_taakdata_tabel",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\"><code>&#123;&#123; sleutels(taak.taakdata, …) &#125;&#125;</code></span>{{ sleutels(taak.taakdata, \"the Flowable task variables, with the process variables merged in when the task is opened\") }}"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; ZAC_formatter_sleutels(taak.taakdata, …) &#125;&#125;</code></span>{{ ZAC_formatter_sleutels(taak.taakdata, \"this task's own stored data, with the process variables merged in when the task is opened\") }}"
         }
       ]
     },
@@ -368,7 +368,7 @@
           "key": "PD_fout_scalar",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\"><code>&#123;&#123; sleutels(zaak.zaakdata.zaakIdentificatie) &#125;&#125;</code> &mdash; a single variable has no keys, so the box says so: </span>{{ sleutels(zaak.zaakdata.zaakIdentificatie) }}"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; ZAC_formatter_sleutels(zaak.zaakdata.zaakIdentificatie) &#125;&#125;</code> &mdash; a single variable has no keys, so the box says so: </span>{{ ZAC_formatter_sleutels(zaak.zaakdata.zaakIdentificatie) }}"
         },
         {
           "label": "",

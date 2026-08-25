@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { LOCALE_ID } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Evaluator } from "@formio/core";
 import { TranslateModule } from "@ngx-translate/core";
@@ -41,6 +42,8 @@ describe(FormioCustomFunctions.name, () => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
       providers: [
+        // core.module.ts provides this in the app; the date pipe formats by it.
+        { provide: LOCALE_ID, useValue: "nl-NL" },
         {
           provide: InformatieObjectenService,
           useValue: informatieObjectenService,
@@ -389,9 +392,9 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it.each([
-      ["{{ datum(zaak.startdatum) }}", "24-08-2026"],
-      ["{{ jaNee(zaak.isOpen) }}", "actie.ja"],
-      ["{{ jaNee(zaak.isOpgeschort) }}", "actie.nee"],
+      ["{{ ZAC_formatter_datum(zaak.startdatum) }}", "24-08-2026"],
+      ["{{ ZAC_formatter_jaNee(zaak.isOpen) }}", "actie.ja"],
+      ["{{ ZAC_formatter_jaNee(zaak.isOpgeschort) }}", "actie.nee"],
     ])("should format %s to %s", async (template, expected) => {
       const context = await service.prepareFormContext(
         { components: [] },
@@ -407,9 +410,12 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it.each([
-      ['{{ lijst(zaak.kenmerken, "kenmerk") }}', "fakeKenmerk1, fakeKenmerk2"],
-      ["{{ lijst(zaak.indicaties) }}", "OPSCHORTING, VERLENGD"],
-      ["{{ lijst(zaak.besluiten) }}", ""],
+      [
+        '{{ ZAC_formatter_lijst(zaak.kenmerken, "kenmerk") }}',
+        "fakeKenmerk1, fakeKenmerk2",
+      ],
+      ["{{ ZAC_formatter_lijst(zaak.indicaties) }}", "OPSCHORTING, VERLENGD"],
+      ["{{ ZAC_formatter_lijst(zaak.besluiten) }}", ""],
     ])("should resolve %s to %s", async (template, expected) => {
       const context = await service.prepareFormContext(
         { components: [] },
@@ -433,7 +439,7 @@ describe(FormioCustomFunctions.name, () => {
         },
       );
       const rendered = Evaluator.interpolate(
-        "{{ sleutels(zaak.zaakdata) }}",
+        "{{ ZAC_formatter_sleutels(zaak.zaakdata) }}",
         context,
       );
 
@@ -452,7 +458,7 @@ describe(FormioCustomFunctions.name, () => {
         },
       );
       const rendered = Evaluator.interpolate(
-        "{{ sleutels(zaak.zaakdata) }}",
+        "{{ ZAC_formatter_sleutels(zaak.zaakdata) }}",
         context,
       );
 
@@ -468,7 +474,7 @@ describe(FormioCustomFunctions.name, () => {
         },
       );
       const rendered = Evaluator.interpolate(
-        "{{ sleutels(zaak.zaakdata) }}",
+        "{{ ZAC_formatter_sleutels(zaak.zaakdata) }}",
         context,
       );
 
@@ -485,7 +491,7 @@ describe(FormioCustomFunctions.name, () => {
         },
       );
       const rendered = Evaluator.interpolate(
-        '{{ sleutels(zaak.zaakdata, "Flowable process variables") }}',
+        '{{ ZAC_formatter_sleutels(zaak.zaakdata, "Flowable process variables") }}',
         context,
       );
 
@@ -506,7 +512,7 @@ describe(FormioCustomFunctions.name, () => {
         },
       );
       const rendered = Evaluator.interpolate(
-        "{{ sleutels(zaak.zaakdata) }}",
+        "{{ ZAC_formatter_sleutels(zaak.zaakdata) }}",
         context,
       );
 
@@ -526,7 +532,10 @@ describe(FormioCustomFunctions.name, () => {
       );
 
       expect(
-        Evaluator.interpolate("{{ sleutels(taak.taakinformatie) }}", context),
+        Evaluator.interpolate(
+          "{{ ZAC_formatter_sleutels(taak.taakinformatie) }}",
+          context,
+        ),
       ).toContain("<code>taak.taakinformatie.toelichting</code>");
     });
 
@@ -539,7 +548,7 @@ describe(FormioCustomFunctions.name, () => {
 
       expect(
         Evaluator.interpolate(
-          "{{ sleutels(lijst(zaak.indicaties)) }}",
+          "{{ ZAC_formatter_sleutels(ZAC_formatter_lijst(zaak.indicaties)) }}",
           context,
         ),
       ).toContain("no keys");
@@ -554,7 +563,7 @@ describe(FormioCustomFunctions.name, () => {
         },
       );
       const rendered = Evaluator.interpolate(
-        "{{ sleutels(zaak.zaakdata) }}",
+        "{{ ZAC_formatter_sleutels(zaak.zaakdata) }}",
         context,
       );
 
@@ -656,7 +665,9 @@ describe(FormioCustomFunctions.name, () => {
       it("should stay quiet for an index past the end of a list", async () => {
         const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
 
-        await render("{{ lijst(zaak.indicaties) }}", { indicaties: ["A"] });
+        await render("{{ ZAC_formatter_lijst(zaak.indicaties) }}", {
+          indicaties: ["A"],
+        });
 
         expect(warn).not.toHaveBeenCalled();
       });
@@ -682,24 +693,87 @@ describe(FormioCustomFunctions.name, () => {
       });
 
       it("should keep lijst working over a list that is absent", async () => {
-        expect(await render('{{ lijst(zaak.kenmerken, "kenmerk") }}', {})).toBe(
-          "",
-        );
+        expect(
+          await render(
+            '{{ ZAC_formatter_lijst(zaak.kenmerken, "kenmerk") }}',
+            {},
+          ),
+        ).toBe("");
       });
 
       it("should keep sleutels working over an object that is absent", async () => {
-        expect(await render("{{ sleutels(zaak.zaakdata) }}", {})).toContain(
-          "no keys",
-        );
+        expect(
+          await render("{{ ZAC_formatter_sleutels(zaak.zaakdata) }}", {}),
+        ).toContain("no keys");
       });
 
       it("should keep a real list enumerable, so lijst still reads it", async () => {
         expect(
-          await render('{{ lijst(zaak.kenmerken, "kenmerk") }}', {
+          await render('{{ ZAC_formatter_lijst(zaak.kenmerken, "kenmerk") }}', {
             kenmerken: [{ kenmerk: "a" }, { kenmerk: "b" }],
           }),
         ).toBe("a, b");
       });
+    });
+
+    it.each([
+      [
+        "a value",
+        "{{ ZAC_formatter_leeg(zaak.omschrijving) }}",
+        "test-omschrijving",
+      ],
+      ["an empty string", "{{ ZAC_formatter_leeg(zaak.toelichting) }}", "-"],
+      ["an absent property", "{{ ZAC_formatter_leeg(zaak.einddatum) }}", "-"],
+      ["an empty list", "{{ ZAC_formatter_leeg(zaak.besluiten) }}", "-"],
+    ])(
+      "should render %s through the app's own empty pipe",
+      async (_n, template, expected) => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          {
+            omschrijving: "test-omschrijving",
+            toelichting: "",
+            besluiten: [],
+          },
+        );
+
+        expect(Evaluator.interpolate(template, context)).toBe(expected);
+      },
+    );
+
+    it("should format a date with the app's own date pipe, hyphens included", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        {
+          startdatum: "2026-08-24",
+        },
+      );
+
+      expect(
+        Evaluator.interpolate(
+          "{{ ZAC_formatter_datum(zaak.startdatum) }}",
+          context,
+        ),
+      ).toBe("24\u201108\u20112026");
+    });
+
+    it("should leave a value the date pipe cannot read alone", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        {
+          omschrijving: "geen datum",
+        },
+      );
+
+      expect(
+        Evaluator.interpolate(
+          "{{ ZAC_formatter_datum(zaak.omschrijving) }}",
+          context,
+        ),
+      ).toBe("geen datum");
     });
   });
 });

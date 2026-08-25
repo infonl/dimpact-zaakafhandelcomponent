@@ -9,7 +9,7 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>Zaak data in a form</h3><p>Every row shows one property of the zaak: on the left the expression, next to it what it renders. ZAC puts the zaak in the form's template context, so <code>&#123;&#123; zaak.identificatie &#125;&#125;</code> in a content component is all that is needed &mdash; there is no ZAC attribute or property involved. Nested properties work as you would expect: <code>&#123;&#123; zaak.zaaktype.omschrijving &#125;&#125;</code>.</p><p>Three helper functions come with it: <code>&#123;&#123; datum(zaak.startdatum) &#125;&#125;</code> and <code>&#123;&#123; jaNee(zaak.isOpen) &#125;&#125;</code> for display, and <code>&#123;&#123; lijst(zaak.kenmerken, \"kenmerk\") &#125;&#125;</code> to read one property of every element of a list. Several values can go in one sentence, which is what a content component is for.</p><p><strong>Almost nothing reports a mistake.</strong> A misspelled property renders as empty, and so does a property read through an object the zaak does not have &mdash; <code>zaak.behandelaar.naam</code> on an unassigned zaak is a correct expression, not a mistake, and renders nothing rather than failing. An object renders <code>[object Object]</code>. Only an unknown <em>function</em> is loud, and only in the browser console. The last panel shows each of those. Markup in a zaak value is removed before the form ever sees it, so a value cannot inject anything.</p>"
+      "html": "<h3>Zaak data in a form</h3><p>Every row shows one property of the zaak: on the left the expression, next to it what it renders. ZAC puts the zaak in the form's template context, so <code>&#123;&#123; zaak.identificatie &#125;&#125;</code> in a content component is all that is needed &mdash; there is no ZAC attribute or property involved. Nested properties work as you would expect: <code>&#123;&#123; zaak.zaaktype.omschrijving &#125;&#125;</code>.</p><p>Three helper functions come with it: <code>&#123;&#123; ZAC_formatter_datum(zaak.startdatum) &#125;&#125;</code> and <code>&#123;&#123; ZAC_formatter_jaNee(zaak.isOpen) &#125;&#125;</code> for display, and <code>&#123;&#123; ZAC_formatter_lijst(zaak.kenmerken, \"kenmerk\") &#125;&#125;</code> to read one property of every element of a list. Several values can go in one sentence, which is what a content component is for.</p><p><strong>Almost nothing reports a mistake.</strong> A misspelled property renders as empty, and so does a property read through an object the zaak does not have &mdash; <code>zaak.behandelaar.naam</code> on an unassigned zaak is a correct expression, not a mistake, and renders nothing rather than failing. An object renders <code>[object Object]</code>. Only an unknown <em>function</em> is loud, and only in the browser console. The last panel shows each of those. Markup in a zaak value is removed before the form ever sees it, so a value cannot inject anything.</p>"
     },
     {
       "type": "panel",
@@ -778,7 +778,7 @@
                     "key": "ZO_startdatum_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ datum(zaak.startdatum) }}"
+                    "html": "{{ ZAC_formatter_datum(zaak.startdatum) }}"
                   }
                 ]
               }
@@ -816,7 +816,7 @@
                     "key": "ZO_registratiedatum_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ datum(zaak.registratiedatum) }}"
+                    "html": "{{ ZAC_formatter_datum(zaak.registratiedatum) }}"
                   }
                 ]
               }
@@ -854,7 +854,7 @@
                     "key": "ZO_einddatumGepland_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ datum(zaak.einddatumGepland) }}"
+                    "html": "{{ ZAC_formatter_datum(zaak.einddatumGepland) }}"
                   }
                 ]
               }
@@ -892,7 +892,7 @@
                     "key": "ZO_uiterlijkeEinddatumAfdoening_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ datum(zaak.uiterlijkeEinddatumAfdoening) }}"
+                    "html": "{{ ZAC_formatter_datum(zaak.uiterlijkeEinddatumAfdoening) }}"
                   }
                 ]
               }
@@ -930,7 +930,7 @@
                     "key": "ZO_einddatum_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ datum(zaak.einddatum) }}"
+                    "html": "{{ ZAC_formatter_datum(zaak.einddatum) }}"
                   }
                 ]
               }
@@ -968,7 +968,7 @@
                     "key": "ZO_publicatiedatum_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ datum(zaak.publicatiedatum) }}"
+                    "html": "{{ ZAC_formatter_datum(zaak.publicatiedatum) }}"
                   }
                 ]
               }
@@ -1006,7 +1006,7 @@
                     "key": "ZO_archiefActiedatum_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ datum(zaak.archiefActiedatum) }}"
+                    "html": "{{ ZAC_formatter_datum(zaak.archiefActiedatum) }}"
                   }
                 ]
               }
@@ -1044,7 +1044,7 @@
                     "key": "ZO_startdatumBewaartermijn_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ datum(zaak.startdatumBewaartermijn) }}"
+                    "html": "{{ ZAC_formatter_datum(zaak.startdatumBewaartermijn) }}"
                   }
                 ]
               }
@@ -1082,7 +1082,7 @@
                     "key": "ZO_zaaktype_versiedatum_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ datum(zaak.zaaktype.versiedatum) }}"
+                    "html": "{{ ZAC_formatter_datum(zaak.zaaktype.versiedatum) }}"
                   }
                 ]
               }
@@ -1150,7 +1150,7 @@
                     "key": "ZO_isOpen_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.isOpen) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.isOpen) }}"
                   }
                 ]
               }
@@ -1188,7 +1188,7 @@
                     "key": "ZO_isOpgeschort_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.isOpgeschort) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.isOpgeschort) }}"
                   }
                 ]
               }
@@ -1226,7 +1226,7 @@
                     "key": "ZO_isVerlengd_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.isVerlengd) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.isVerlengd) }}"
                   }
                 ]
               }
@@ -1264,7 +1264,7 @@
                     "key": "ZO_isHeropend_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.isHeropend) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.isHeropend) }}"
                   }
                 ]
               }
@@ -1302,7 +1302,7 @@
                     "key": "ZO_isDeelzaak_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.isDeelzaak) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.isDeelzaak) }}"
                   }
                 ]
               }
@@ -1340,7 +1340,7 @@
                     "key": "ZO_isHoofdzaak_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.isHoofdzaak) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.isHoofdzaak) }}"
                   }
                 ]
               }
@@ -1378,7 +1378,7 @@
                     "key": "ZO_isInIntakeFase_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.isInIntakeFase) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.isInIntakeFase) }}"
                   }
                 ]
               }
@@ -1416,7 +1416,7 @@
                     "key": "ZO_isProcesGestuurd_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.isProcesGestuurd) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.isProcesGestuurd) }}"
                   }
                 ]
               }
@@ -1454,7 +1454,7 @@
                     "key": "ZO_eerdereOpschorting_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.eerdereOpschorting) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.eerdereOpschorting) }}"
                   }
                 ]
               }
@@ -1492,7 +1492,7 @@
                     "key": "ZO_isBesluittypeAanwezig_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.isBesluittypeAanwezig) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.isBesluittypeAanwezig) }}"
                   }
                 ]
               }
@@ -1530,7 +1530,7 @@
                     "key": "ZO_heeftOntvangstbevestigingVerstuurd_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.heeftOntvangstbevestigingVerstuurd) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.heeftOntvangstbevestigingVerstuurd) }}"
                   }
                 ]
               }
@@ -1568,7 +1568,7 @@
                     "key": "ZO_isZaakspecifiekGeautoriseerd_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.isZaakspecifiekGeautoriseerd) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.isZaakspecifiekGeautoriseerd) }}"
                   }
                 ]
               }
@@ -1606,7 +1606,7 @@
                     "key": "ZO_zaaktype_servicenorm_opgemaakt",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ jaNee(zaak.zaaktype.servicenorm) }}"
+                    "html": "{{ ZAC_formatter_jaNee(zaak.zaaktype.servicenorm) }}"
                   }
                 ]
               }
@@ -1675,7 +1675,7 @@
                     "key": "NAAM_kenmerken_lijst_kenmerk",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>lijst(zaak.kenmerken, \"kenmerk\")</code>"
+                    "html": "<code>ZAC_formatter_lijst(zaak.kenmerken, \"kenmerk\")</code>"
                   }
                 ]
               },
@@ -1687,7 +1687,7 @@
                     "key": "ZO_kenmerken_lijst_kenmerk",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ lijst(zaak.kenmerken, \"kenmerk\") }}"
+                    "html": "{{ ZAC_formatter_lijst(zaak.kenmerken, \"kenmerk\") }}"
                   }
                 ]
               }
@@ -1701,7 +1701,7 @@
                     "key": "NAAM_kenmerken_lijst_bron",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>lijst(zaak.kenmerken, \"bron\")</code>"
+                    "html": "<code>ZAC_formatter_lijst(zaak.kenmerken, \"bron\")</code>"
                   }
                 ]
               },
@@ -1713,7 +1713,7 @@
                     "key": "ZO_kenmerken_lijst_bron",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ lijst(zaak.kenmerken, \"bron\") }}"
+                    "html": "{{ ZAC_formatter_lijst(zaak.kenmerken, \"bron\") }}"
                   }
                 ]
               }
@@ -1727,7 +1727,7 @@
                     "key": "NAAM_besluiten_lijst_identificatie",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>lijst(zaak.besluiten, \"identificatie\")</code>"
+                    "html": "<code>ZAC_formatter_lijst(zaak.besluiten, \"identificatie\")</code>"
                   }
                 ]
               },
@@ -1739,7 +1739,7 @@
                     "key": "ZO_besluiten_lijst_identificatie",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ lijst(zaak.besluiten, \"identificatie\") }}"
+                    "html": "{{ ZAC_formatter_lijst(zaak.besluiten, \"identificatie\") }}"
                   }
                 ]
               }
@@ -1753,7 +1753,7 @@
                     "key": "NAAM_besluiten_lijst_datum",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>lijst(zaak.besluiten, \"datum\")</code> &mdash; wrapped in <code>datum()</code</code>"
+                    "html": "<code>ZAC_formatter_lijst(zaak.besluiten, \"datum\")</code> &mdash; wrapped in <code>ZAC_formatter_datum()</code</code>"
                   }
                 ]
               },
@@ -1765,7 +1765,7 @@
                     "key": "ZO_besluiten_lijst_datum",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ lijst(zaak.besluiten, \"datum\") }}"
+                    "html": "{{ ZAC_formatter_lijst(zaak.besluiten, \"datum\") }}"
                   }
                 ]
               }
@@ -1779,7 +1779,7 @@
                     "key": "NAAM_gerelateerdeZaken_lijst_identificatie",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>lijst(zaak.gerelateerdeZaken, \"identificatie\")</code>"
+                    "html": "<code>ZAC_formatter_lijst(zaak.gerelateerdeZaken, \"identificatie\")</code>"
                   }
                 ]
               },
@@ -1791,7 +1791,7 @@
                     "key": "ZO_gerelateerdeZaken_lijst_identificatie",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ lijst(zaak.gerelateerdeZaken, \"identificatie\") }}"
+                    "html": "{{ ZAC_formatter_lijst(zaak.gerelateerdeZaken, \"identificatie\") }}"
                   }
                 ]
               }
@@ -1805,7 +1805,7 @@
                     "key": "NAAM_gerelateerdeZaken_lijst_relatieType",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>lijst(zaak.gerelateerdeZaken, \"relatieType\")</code>"
+                    "html": "<code>ZAC_formatter_lijst(zaak.gerelateerdeZaken, \"relatieType\")</code>"
                   }
                 ]
               },
@@ -1817,7 +1817,7 @@
                     "key": "ZO_gerelateerdeZaken_lijst_relatieType",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ lijst(zaak.gerelateerdeZaken, \"relatieType\") }}"
+                    "html": "{{ ZAC_formatter_lijst(zaak.gerelateerdeZaken, \"relatieType\") }}"
                   }
                 ]
               }
@@ -1831,7 +1831,7 @@
                     "key": "NAAM_gerelateerdeZaken_lijst_startdatum",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>lijst(zaak.gerelateerdeZaken, \"startdatum\")</code> &mdash; wrapped in <code>datum()</code</code>"
+                    "html": "<code>ZAC_formatter_lijst(zaak.gerelateerdeZaken, \"startdatum\")</code> &mdash; wrapped in <code>ZAC_formatter_datum()</code</code>"
                   }
                 ]
               },
@@ -1843,7 +1843,7 @@
                     "key": "ZO_gerelateerdeZaken_lijst_startdatum",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ lijst(zaak.gerelateerdeZaken, \"startdatum\") }}"
+                    "html": "{{ ZAC_formatter_lijst(zaak.gerelateerdeZaken, \"startdatum\") }}"
                   }
                 ]
               }
@@ -2016,7 +2016,7 @@
                     "key": "NAAM_identificatie_lijst_geen_lijst",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>lijst(zaak.identificatie)</code>"
+                    "html": "<code>ZAC_formatter_lijst(zaak.identificatie)</code>"
                   }
                 ]
               },
@@ -2028,7 +2028,7 @@
                     "key": "ZO_identificatie_lijst_geen_lijst",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ lijst(zaak.identificatie) }}"
+                    "html": "{{ ZAC_formatter_lijst(zaak.identificatie) }}"
                   }
                 ]
               }

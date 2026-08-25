@@ -3,10 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { inject, Injectable } from "@angular/core";
+import { inject, Injectable, LOCALE_ID } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 
 type EvalContext = Record<string, unknown>;
 
@@ -126,17 +128,24 @@ export class FormioCustomFunctions {
   );
   private readonly translateService = inject(TranslateService);
 
+  // The Angular pipes are reused rather than reimplemented, so a value in a task form reads exactly
+  // as the same value does elsewhere in ZAC - including the non-breaking hyphens in a date.
+  private readonly datumPipe = new DatumPipe(inject(LOCALE_ID));
+  private readonly emptyPipe = new EmptyPipe();
+
   /**
-   * Pure helpers, always in the context: `{{ datum(zaak.startdatum) }}`. Unlike the registry below
+   * Pure helpers, always in the context: `{{ ZAC_formatter_datum(zaak.startdatum) }}`. Unlike the registry below
    * they need no pre-fetch, and unlike it they take a value rather than a field key, which the
    * registry's parameter scan cannot express.
    */
   private readonly templateHelpers = {
-    datum: (value: unknown) => {
-      const parts = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value));
-      return parts ? `${parts[3]}-${parts[2]}-${parts[1]}` : String(value);
-    },
-    jaNee: (value: unknown) =>
+    ZAC_formatter_datum: (value: unknown) =>
+      String(this.datumPipe.transform(value as string) ?? ""),
+
+    /** `{{ ZAC_formatter_leeg(zaak.toelichting) }}` - a dash where the value is empty. */
+    ZAC_formatter_leeg: (value: unknown) => this.emptyPipe.transform(value),
+
+    ZAC_formatter_jaNee: (value: unknown) =>
       this.translateService.instant(
         value === true || value === "true" ? "actie.ja" : "actie.nee",
       ),
@@ -149,8 +158,8 @@ export class FormioCustomFunctions {
      */
     bestaat: (value: unknown) => String(value ?? "") !== "",
 
-    /** `{{ lijst(zaak.kenmerken, "kenmerk") }}` - one property of every element of a list. */
-    lijst: (values: unknown, property?: string) =>
+    /** `{{ ZAC_formatter_lijst(zaak.kenmerken, "kenmerk") }}` - one property of every element of a list. */
+    ZAC_formatter_lijst: (values: unknown, property?: string) =>
       (Array.isArray(values) ? values : [])
         .map((element) =>
           property && element !== null && typeof element === "object"
@@ -164,12 +173,12 @@ export class FormioCustomFunctions {
         .join(", "),
 
     /**
-     * `{{ sleutels(zaak.zaakdata, "where it comes from") }}` - every key of an object whose keys are
+     * `{{ ZAC_formatter_sleutels(zaak.zaakdata, "where it comes from") }}` - every key of an object whose keys are
      * not known in advance, boxed with a caption. A nested object or list is counted rather than
      * expanded; address it with its own expression. The caption is optional and is the only place a
      * reader learns which system produced these keys, so it is worth filling in.
      */
-    sleutels: (source: unknown, caption?: string) => {
+    ZAC_formatter_sleutels: (source: unknown, caption?: string) => {
       const entries = Object.entries(
         source !== null && typeof source === "object" ? source : {},
       ).sort(([left], [right]) => left.localeCompare(right));

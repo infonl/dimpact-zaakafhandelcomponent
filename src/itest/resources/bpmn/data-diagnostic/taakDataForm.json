@@ -9,7 +9,7 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>Taak data in a form</h3><p>The same mechanism with the taak as its source: <code>&#123;&#123; taak.naam &#125;&#125;</code>, <code>&#123;&#123; taak.groep.naam &#125;&#125;</code>, <code>&#123;&#123; datum(taak.fataledatum) &#125;&#125;</code>. These properties are read straight off the Flowable task, so there is no copy that can go stale.</p><p>Both <code>zaak</code> and <code>taak</code> are in the context of every form, so a property that exists on both is whichever one you name. The last row names the taak where the zaak was meant, and renders as empty without complaint.</p>"
+      "html": "<h3>Taak data in a form</h3><p>The same mechanism with the taak as its source: <code>&#123;&#123; taak.naam &#125;&#125;</code>, <code>&#123;&#123; taak.groep.naam &#125;&#125;</code>, <code>&#123;&#123; ZAC_formatter_datum(taak.fataledatum) &#125;&#125;</code>. These properties are read straight off the task itself, so there is no copy that can go stale.</p><p>Both <code>zaak</code> and <code>taak</code> are in the context of every form, so a property that exists on both is whichever one you name. The last row names the taak where the zaak was meant, and renders as empty without complaint.</p>"
     },
     {
       "type": "panel",
@@ -307,7 +307,7 @@
                     "key": "TG_creatiedatumTijd_formatted",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ datum(taak.creatiedatumTijd) }}"
+                    "html": "{{ ZAC_formatter_datum(taak.creatiedatumTijd) }}"
                   }
                 ]
               }
@@ -345,7 +345,7 @@
                     "key": "TG_toekenningsdatumTijd_formatted",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ datum(taak.toekenningsdatumTijd) }}"
+                    "html": "{{ ZAC_formatter_datum(taak.toekenningsdatumTijd) }}"
                   }
                 ]
               }
@@ -383,7 +383,7 @@
                     "key": "TG_fataledatum_formatted",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ datum(taak.fataledatum) }}"
+                    "html": "{{ ZAC_formatter_datum(taak.fataledatum) }}"
                   }
                 ]
               }
