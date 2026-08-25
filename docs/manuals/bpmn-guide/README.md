@@ -914,9 +914,13 @@ door {{ zaak.behandelaar.naam }}.
 
 `zaak` is the zaak as read from Open Zaak, with its group and behandelaar resolved from the zaak
 rollen via user identity management, and it is re-read every time the task is opened. `taak` is the
-task in the process engine, with its candidate group and assignee resolved the same way. Both have
-markup removed from their string values before the form sees them, so a value a user typed into the
-zaak cannot inject anything into the page.
+task in the process engine, with its candidate group and assignee resolved the same way.
+
+ZAC removes HTML tags (`<...>`) from every string value of both objects before the form sees them, so
+a `<script>` a user typed into the zaak cannot end up in the page. Quotes and ampersands are
+deliberately left as typed, because the same values are seeded into input fields where `&amp;` would
+show — so this is not a general escape. Interpolate these values as **text**, never into an HTML
+attribute: `<div title="{{ zaak.omschrijving }}">` can still be broken out of.
 
 A property neither object carries — a zaak without a behandelaar, a taak without a groep — renders as
 nothing rather than throwing, and reading on through it (`taak.groep.naam`) is safe. There is no
