@@ -13,6 +13,7 @@ import data.net.atos.zac.rol.behandelaar
 import data.net.atos.zac.rol.coordinator
 import data.net.atos.zac.rol.raadpleger
 import data.net.atos.zac.rol.recordmanager
+import data.net.atos.zac.rol.zaakspecifiekGeautoriseerd
 import input.zaak
 import input.user
 
@@ -55,9 +56,22 @@ zaaktype_allowed if {
     zaak.zaaktype in user.zaaktypen
 }
 
+# zaak_allowed guards access to a zaakspecifiek geautoriseerde zaak: unrestricted for a zaak that is not
+# zaakspecifiek geautoriseerd, otherwise only for a user who also holds the zaakspecifiek_geautoriseerd
+# application role - regardless of which other application role(s) (including recordmanager or beheerder)
+# the user holds.
+default zaak_allowed := false
+zaak_allowed if {
+    not zaak.zaakspecifiekGeautoriseerd
+}
+zaak_allowed if {
+    zaakspecifiekGeautoriseerd.rol in user.rollen
+}
+
 default lezen := false
 lezen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {raadpleger, behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -66,11 +80,13 @@ default wijzigen := false
 wijzigen if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 wijzigen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -79,11 +95,13 @@ default toekennen := false
 toekennen if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 toekennen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -91,6 +109,7 @@ toekennen if {
 default behandelen := false
 behandelen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -98,6 +117,7 @@ behandelen if {
 default afbreken := false
 afbreken if {
     zaaktype_allowed
+    zaak_allowed
     some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -105,12 +125,14 @@ afbreken if {
 default heropenen := false
 heropenen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
 
 default bekijken_zaakdata := false
 bekijken_zaakdata if {
+    zaak_allowed
     beheerder.rol in user.rollen
 }
 
@@ -118,6 +140,7 @@ default wijzigen_doorlooptijd := false
 wijzigen_doorlooptijd if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -129,6 +152,7 @@ verlengen if {
     not zaak.heropend
     not zaak.opgeschort
     not zaak.verlengd
+    zaak_allowed
     some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -139,6 +163,7 @@ opschorten if {
     zaak.open
     not zaak.heropend
     not zaak.opgeschort
+    zaak_allowed
     some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -146,6 +171,7 @@ opschorten if {
 default hervatten := false
 hervatten if {
     zaaktype_allowed
+    zaak_allowed
     some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -154,6 +180,7 @@ default creeren_document := false
 creeren_document if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -162,11 +189,13 @@ default toevoegen_document := false
 toevoegen_document if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 toevoegen_document if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -175,11 +204,13 @@ default koppelen := false
 koppelen if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 koppelen if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -188,6 +219,7 @@ default versturen_email := false
 versturen_email if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -196,6 +228,7 @@ default versturen_ontvangstbevestiging := false
 versturen_ontvangstbevestiging if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -204,11 +237,13 @@ default toevoegen_initiator_persoon := false
 toevoegen_initiator_persoon if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 toevoegen_initiator_persoon if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -217,11 +252,13 @@ default toevoegen_initiator_bedrijf := false
 toevoegen_initiator_bedrijf if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 toevoegen_initiator_bedrijf if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -230,11 +267,13 @@ default verwijderen_initiator := false
 verwijderen_initiator if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 verwijderen_initiator if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -243,11 +282,13 @@ default toevoegen_betrokkene_persoon := false
 toevoegen_betrokkene_persoon if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 toevoegen_betrokkene_persoon if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -256,11 +297,13 @@ default toevoegen_betrokkene_bedrijf := false
 toevoegen_betrokkene_bedrijf if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 toevoegen_betrokkene_bedrijf if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -269,11 +312,13 @@ default verwijderen_betrokkene := false
 verwijderen_betrokkene if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 verwijderen_betrokkene if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -282,11 +327,13 @@ default toevoegen_bag_object := false
 toevoegen_bag_object if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator}
     role.rol in user.rollen
 }
 toevoegen_bag_object if {
     zaaktype_allowed
+    zaak_allowed
     some role in {recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -295,6 +342,7 @@ default starten_taak := false
 starten_taak if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -305,6 +353,7 @@ vastleggen_besluit if {
     zaak.open
     not zaak.intake
     zaak.besloten
+    zaak_allowed
     some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -313,6 +362,7 @@ default verlengen_doorlooptijd := false
 verlengen_doorlooptijd if {
     zaaktype_allowed
     zaak.open
+    zaak_allowed
     some role in {behandelaar, coordinator, recordmanager, beheerder}
     role.rol in user.rollen
 }
@@ -331,5 +381,6 @@ default brondatum_zetten := false
 brondatum_zetten if {
     not zaak.open
     not zaak.brondatumBepaald
+    zaak_allowed
     recordmanager.rol in user.rollen
 }

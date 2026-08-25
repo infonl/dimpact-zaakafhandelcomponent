@@ -15,16 +15,19 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { EMPTY, of, throwError } from "rxjs";
-import { DatumRange } from "src/app/zoeken/model/datum-range";
-import { fromPartial } from "src/test-helpers";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+import { EMPTY } from "rxjs";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZoekenService } from "../../zoeken/zoeken.service";
-import { ZakenService } from "../zaken.service";
 import { ZaakLinkComponent } from "./zaak-link.component";
+
+const KOPPEL_URL = "/rest/zaken/zaak/koppel";
+const ZAAKTYPES_URL = "/rest/zaken/gekoppelde-zaken/zaaktypen";
 
 const makeFakeZaak = (
   fields: Partial<GeneratedType<"RestZaak">> = {},
@@ -45,470 +48,385 @@ const makeFakeSearchResult = (
     ...fields,
   });
 
-const makeFakeSideNav = (): MatDrawer =>
-  fromPartial<MatDrawer>({ close: jest.fn().mockResolvedValue("close") });
-
-const setup = (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
-  const zaak = makeFakeZaak(zaakFields);
-  const sideNav = makeFakeSideNav();
-
-  TestBed.configureTestingModule({
-    imports: [
-      ZaakLinkComponent,
-      NoopAnimationsModule,
-      TranslateModule.forRoot(),
-    ],
-    providers: [
-      provideHttpClient(),
-      provideHttpClientTesting(),
-      provideQueryClient(testQueryClient),
-      provideRouter([]),
-      provideMomentDateAdapter(),
-    ],
-  });
-
-  const zoekenService = TestBed.inject(ZoekenService);
-  const zakenService = TestBed.inject(ZakenService);
-  const utilService = TestBed.inject(UtilService);
-  const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
-  const httpTestingController = TestBed.inject(HttpTestingController);
-
-  jest.spyOn(utilService, "setLoading").mockReturnValue(undefined);
-  jest.spyOn(utilService, "openSnackbar").mockReturnValue(undefined);
-  jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
-
-  const fixture: ComponentFixture<ZaakLinkComponent> =
-    TestBed.createComponent(ZaakLinkComponent);
-  const component = fixture.componentInstance;
-  component.zaak = zaak;
-  component.sideNav = sideNav;
-  fixture.detectChanges();
-
-  httpTestingController
-    .expectOne("/rest/zaken/gekoppelde-zaken/zaaktypen")
-    .flush([]);
-
-  return {
-    fixture,
-    component,
-    zoekenService,
-    zakenService,
-    utilService,
-    foutAfhandelingService,
-    httpTestingController,
-    sideNav,
-    zaak,
-  };
-};
-
-const KOPPEL_URL = "/rest/zaken/zaak/koppel";
-
 describe(ZaakLinkComponent.name, () => {
-  afterEach(() => {
-    TestBed.inject(HttpTestingController).verify();
+  let fixture: ComponentFixture<ZaakLinkComponent>;
+  let httpTestingController: HttpTestingController;
+
+  const user = userEvent.setup({ delay: null });
+
+  const setup = async (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
+    const zaak = makeFakeZaak(zaakFields);
+    const sideNav = fromPartial<MatDrawer>({
+      close: jest.fn().mockResolvedValue("close"),
+    });
+    const zaakLinked = jest.fn();
+
+    const rendered = await render(ZaakLinkComponent, {
+      inputs: { zaak, sideNav },
+      on: { zaakLinked },
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
+        provideRouter([]),
+        provideMomentDateAdapter(),
+      ],
+    });
+
+    fixture = rendered.fixture;
+    httpTestingController = TestBed.inject(HttpTestingController);
+
+    const utilService = TestBed.inject(UtilService);
+    jest.spyOn(utilService, "setLoading").mockReturnValue(undefined);
+    jest.spyOn(utilService, "openSnackbar").mockReturnValue(undefined);
+    const foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
+
+    httpTestingController.expectOne(ZAAKTYPES_URL).flush([]);
+
+    return {
+      zaak,
+      sideNav,
+      zaakLinked,
+      utilService,
+      foutAfhandelingService,
+    };
+  };
+
+  const relationTypeSelect = () => screen.getByLabelText("Zaak.koppelen.label");
+
+  const chooseRelationType = async (relationType: string) => {
+    await user.click(relationTypeSelect());
+    await user.click(
+      screen.getByRole("option", {
+        name: `zaak.koppelen.link.type.${relationType}`,
+      }),
+    );
+  };
+
+  const findLinkableZaken = (
+    resultaten: GeneratedType<"RestZaakKoppelenZoekObject">[],
+    totaal = resultaten.length,
+  ) =>
+    jest
+      .spyOn(ZoekenService.prototype, "findLinkableZaken")
+      .mockReturnValue(
+        createQueryOptions(
+          fromPartial<
+            GeneratedType<"RestZoekResultaatRestZaakKoppelenZoekObject">
+          >({ resultaten, totaal }),
+        ) as never,
+      );
+
+  const clickSearch = async () => {
+    await user.click(screen.getByRole("button", { name: "actie.zoeken" }));
+    await sleep();
+    // the results table creates the row views in one pass and binds their cells in the next
+    fixture.detectChanges();
+    fixture.detectChanges();
+  };
+
+  const dateRangeField = (label: string) =>
+    screen.getByRole("group", { name: label });
+
+  const fillDateRange = async (label: string, van: string, tot: string) => {
+    await user.type(
+      within(dateRangeField(label)).getByPlaceholderText("zoeken.filter.van"),
+      van,
+    );
+    await user.type(
+      within(dateRangeField(label)).getByPlaceholderText(
+        "zoeken.filter.tot_en_met",
+      ),
+      tot,
+    );
+    await user.tab();
+  };
+
+  const linkButtonOfRow = (identificatie: string) =>
+    within(
+      screen.getByRole("row", { name: new RegExp(identificatie) }),
+    ).getByRole("button", { name: "actie.zaak.koppelen" });
+
+  it("offers every relation type a zaak can be linked with", async () => {
+    await setup();
+
+    await user.click(relationTypeSelect());
+
+    expect(
+      screen.getAllByRole("option").map((option) => option.textContent?.trim()),
+    ).toEqual([
+      "zaak.koppelen.link.type.DEELZAAK",
+      "zaak.koppelen.link.type.HOOFDZAAK",
+      "zaak.koppelen.link.type.GERELATEERD",
+    ]);
   });
-  describe("form initialisation", () => {
-    it("form is initially invalid", () => {
-      const { component } = setup();
-      expect(component["form"].valid).toBe(false);
+
+  it("cannot be searched before a relation type is chosen", async () => {
+    await setup();
+
+    expect(screen.getByRole("button", { name: "actie.zoeken" })).toBeDisabled();
+  });
+
+  it.each([
+    ["HOOFDZAAK", "zaak.koppelen.hint.hoofdzaak-aan-deelzaak"],
+    ["DEELZAAK", "zaak.koppelen.hint.deelzaak-aan-hoofdzaak"],
+  ])("explains what linking a %s means", async (relationType, hint) => {
+    await setup();
+
+    await chooseRelationType(relationType);
+
+    expect(screen.getByText(hint)).toBeVisible();
+  });
+
+  it("searches for linkable zaken with the entered criteria", async () => {
+    const { zaak } = await setup();
+    const search = findLinkableZaken([makeFakeSearchResult()]);
+
+    await chooseRelationType("DEELZAAK");
+    await user.type(screen.getByLabelText("Zaak.identificatie"), "ZAAK-2026");
+    await user.type(
+      screen.getByLabelText("ZoekVeld.ZAAK_OMSCHRIJVING"),
+      "ZAAKOMSCHR",
+    );
+    await fillDateRange("Startdatum", "01-02-2026", "01-03-2026");
+    await fillDateRange("Einddatum", "01-04-2026", "01-05-2026");
+    await clickSearch();
+
+    expect(search).toHaveBeenCalledWith({
+      zaakUuid: zaak.uuid,
+      zoekZaakIdentifier: "ZAAK-2026",
+      zoekZaakOmschrijving: "ZAAKOMSCHR",
+      zoekZaakTypeOmschrijving: undefined,
+      relationType: "DEELZAAK",
+      startdatum: {
+        van: new Date(2026, 1, 1).toISOString(),
+        tot: new Date(2026, 2, 1).toISOString(),
+      },
+      einddatum: {
+        van: new Date(2026, 3, 1).toISOString(),
+        tot: new Date(2026, 4, 1).toISOString(),
+      },
     });
   });
 
-  describe("caseRelationType valueChanges", () => {
-    it("clears search results when caseRelationType changes", () => {
-      const { component } = setup();
-      component["cases"].data = [makeFakeSearchResult()];
-      component["totalCases"] = 1;
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      expect(component["cases"].data).toHaveLength(0);
-      expect(component["totalCases"]).toBe(0);
-    });
+  it("shows the zaken that were found", async () => {
+    await setup();
+    findLinkableZaken([makeFakeSearchResult()]);
+
+    await chooseRelationType("DEELZAAK");
+    await clickSearch();
+
+    expect(screen.getByRole("row", { name: /ZAAK-2026-002/ })).toBeVisible();
   });
 
-  describe("searchCases()", () => {
-    it("calls findLinkableZaken with correct parameters and sets results", () => {
-      const { component, zoekenService, zaak } = setup();
-      const resultRow = makeFakeSearchResult();
-      const fakeResponse = fromPartial<
-        GeneratedType<"RestZoekResultaatRestZaakKoppelenZoekObject">
-      >({ resultaten: [resultRow], totaal: 1 });
-      jest
-        .spyOn(zoekenService, "findLinkableZaken")
-        .mockReturnValue(
-          of(fakeResponse) as ReturnType<ZoekenService["findLinkableZaken"]>,
-        );
+  it("stops showing the loading message when the search fails", async () => {
+    await setup();
+    jest.spyOn(ZoekenService.prototype, "findLinkableZaken").mockReturnValue(
+      fromPartial({
+        queryKey: ["koppelbare zaken die falen"],
+        queryFn: () => Promise.reject(new Error("server error")),
+        retry: false,
+      }),
+    );
 
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      component["form"].controls.caseNumberToSearchFor.setValue("ZAAK-2026");
-      component["form"].controls.caseDescriptionToSearchFor.setValue(
-        "ZAAKOMSCHR",
-      );
-      component["form"].controls.caseTypeToSearchFor.setValue(
-        fromPartial<GeneratedType<"RestZaaktype">>({
-          omschrijving: "ZAAKTYPEOMSCHR",
-        }),
-      );
-      component["startdatum"] = new DatumRange(
-        new Date(2026, 1, 1),
-        new Date(2026, 2, 1),
-      );
-      component["einddatum"] = new DatumRange(
-        new Date(2026, 3, 1),
-        new Date(2026, 4, 1),
-      );
-      component["searchCases"]();
+    await chooseRelationType("DEELZAAK");
+    await clickSearch();
 
-      expect(zoekenService.findLinkableZaken).toHaveBeenCalledWith({
-        zaakUuid: zaak.uuid,
-        zoekZaakIdentifier: "ZAAK-2026",
-        zoekZaakOmschrijving: "ZAAKOMSCHR",
-        zoekZaakTypeOmschrijving: "ZAAKTYPEOMSCHR",
-        relationType: component["caseRelationOptionsList"][0].value,
-        startdatum: {
-          van: new Date(2026, 1, 1).toISOString(),
-          tot: new Date(2026, 2, 1).toISOString(),
-        },
-        einddatum: {
-          van: new Date(2026, 3, 1).toISOString(),
-          tot: new Date(2026, 4, 1).toISOString(),
-        },
-      });
-      expect(component["cases"].data).toEqual([resultRow]);
-      expect(component["totalCases"]).toBe(1);
-      expect(component["loading"]).toBe(false);
-    });
-
-    it("clears loading on error", () => {
-      const { component, zoekenService } = setup();
-      jest
-        .spyOn(zoekenService, "findLinkableZaken")
-        .mockReturnValue(
-          throwError(() => new Error("server error")) as ReturnType<
-            ZoekenService["findLinkableZaken"]
-          >,
-        );
-
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      component["form"].controls.caseNumberToSearchFor.setValue("ZAAK-2026");
-      component["searchCases"]();
-
-      expect(component["loading"]).toBe(false);
-    });
-
-    it("does not start loading when no caseRelationType is selected", () => {
-      const { component, utilService } = setup();
-
-      component["searchCases"]();
-
-      expect(component["loading"]).toBe(false);
-      expect(utilService.setLoading).not.toHaveBeenCalledWith(true);
-    });
+    expect(screen.queryByText("msg.loading")).toBeNull();
   });
 
-  describe("selectCase()", () => {
-    it("PATCHes koppel and emits zaakLinked on success", async () => {
-      const { component, httpTestingController, utilService } = setup();
-      const zaakLinkedSpy = jest.spyOn(component.zaakLinked, "emit");
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      const row = makeFakeSearchResult({ isKoppelbaar: true });
+  it("points out that only the first ten of many results are shown", async () => {
+    await setup();
+    findLinkableZaken(
+      Array.from({ length: 11 }, (_, index) =>
+        makeFakeSearchResult({ id: `result-${index}` }),
+      ),
+      11,
+    );
 
-      component["selectCase"](row);
-      await new Promise(requestAnimationFrame);
+    await chooseRelationType("DEELZAAK");
+    await clickSearch();
 
-      const request = httpTestingController.expectOne(KOPPEL_URL);
-      expect(request.request.method).toBe("PATCH");
-      expect(request.request.body).toEqual({
-        zaakUuid: component.zaak.uuid,
-        teKoppelenZaakUuid: row.id,
-        relatieType: component["caseRelationOptionsList"][0].value,
-      });
-      request.flush(null);
-      await sleep();
+    expect(
+      screen.getByText("msg.zaak.koppelem.meer-dan-10-gevonden"),
+    ).toBeVisible();
+  });
 
-      expect(zaakLinkedSpy).toHaveBeenCalled();
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.zaak.gekoppeld",
-        { case: row.identificatie },
-      );
+  it("does not point that out when ten or fewer zaken were found", async () => {
+    await setup();
+    findLinkableZaken([makeFakeSearchResult()]);
+
+    await chooseRelationType("DEELZAAK");
+    await clickSearch();
+
+    expect(
+      screen.queryByText("msg.zaak.koppelem.meer-dan-10-gevonden"),
+    ).toBeNull();
+  });
+
+  it("drops the results when another relation type is chosen", async () => {
+    await setup();
+    findLinkableZaken([makeFakeSearchResult()]);
+
+    await chooseRelationType("DEELZAAK");
+    await clickSearch();
+    await chooseRelationType("HOOFDZAAK");
+    fixture.detectChanges();
+
+    expect(screen.queryByRole("row", { name: /ZAAK-2026-002/ })).toBeNull();
+  });
+
+  it("drops the results and the criteria when they are cleared", async () => {
+    await setup();
+    findLinkableZaken([makeFakeSearchResult()]);
+
+    await chooseRelationType("DEELZAAK");
+    await clickSearch();
+    await user.click(screen.getByRole("button", { name: "actie.wissen" }));
+    fixture.detectChanges();
+
+    expect(screen.queryByRole("row", { name: /ZAAK-2026-002/ })).toBeNull();
+    expect(screen.getByRole("button", { name: "actie.zoeken" })).toBeDisabled();
+  });
+
+  it("cannot link a zaak that is not koppelbaar", async () => {
+    await setup();
+    findLinkableZaken([
+      makeFakeSearchResult({
+        identificatie: "ZAAK-2026-003",
+        isKoppelbaar: false,
+      }),
+    ]);
+
+    await chooseRelationType("DEELZAAK");
+    await clickSearch();
+
+    expect(linkButtonOfRow("ZAAK-2026-003")).toBeDisabled();
+  });
+
+  it("cannot link the zaak to itself", async () => {
+    await setup();
+    findLinkableZaken([
+      makeFakeSearchResult({ identificatie: "ZAAK-2026-001" }),
+    ]);
+
+    await chooseRelationType("DEELZAAK");
+    await clickSearch();
+
+    expect(linkButtonOfRow("ZAAK-2026-001")).toBeDisabled();
+  });
+
+  it("links the zaak of the row the button was clicked on", async () => {
+    const { zaak, zaakLinked, utilService, sideNav } = await setup();
+    findLinkableZaken([makeFakeSearchResult()]);
+
+    await chooseRelationType("DEELZAAK");
+    await clickSearch();
+    await user.click(linkButtonOfRow("ZAAK-2026-002"));
+    await sleep();
+
+    const request = httpTestingController.expectOne(KOPPEL_URL);
+    expect(request.request.method).toBe("PATCH");
+    expect(request.request.body).toEqual({
+      zaakUuid: zaak.uuid,
+      teKoppelenZaakUuid: "fake-result-uuid",
+      relatieType: "DEELZAAK",
     });
+    request.flush(null);
+    await sleep();
 
-    it("calls foutAfhandelen and does not emit zaakLinked when the link request fails", async () => {
-      const { component, httpTestingController, foutAfhandelingService } =
-        setup();
-      const zaakLinkedSpy = jest.spyOn(component.zaakLinked, "emit");
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      const row = makeFakeSearchResult({ isKoppelbaar: true });
+    expect(utilService.openSnackbar).toHaveBeenCalledWith(
+      "msg.zaak.gekoppeld",
+      {
+        case: "ZAAK-2026-002",
+      },
+    );
+    expect(zaakLinked).toHaveBeenCalled();
+    expect(sideNav.close).toHaveBeenCalled();
+  });
 
-      component["selectCase"](row);
-      await new Promise(requestAnimationFrame);
+  it("reports an error and keeps the panel open when linking fails", async () => {
+    const { zaakLinked, foutAfhandelingService } = await setup();
+    findLinkableZaken([makeFakeSearchResult()]);
 
-      const request = httpTestingController.expectOne(KOPPEL_URL);
-      request.flush("boom", { status: 500, statusText: "Server Error" });
-      await sleep();
+    await chooseRelationType("DEELZAAK");
+    await clickSearch();
+    await user.click(linkButtonOfRow("ZAAK-2026-002"));
+    await sleep();
+    httpTestingController
+      .expectOne(KOPPEL_URL)
+      .flush("boom", { status: 500, statusText: "Server Error" });
+    await sleep();
 
-      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
-      expect(zaakLinkedSpy).not.toHaveBeenCalled();
-    });
+    expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
+    expect(zaakLinked).not.toHaveBeenCalled();
+  });
 
-    it("ignores a second selectCase while a link request is still in flight", async () => {
-      const { component, httpTestingController } = setup();
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      const row = makeFakeSearchResult({ isKoppelbaar: true });
-
-      component["selectCase"](row);
-      await new Promise(requestAnimationFrame);
-      const request = httpTestingController.expectOne(KOPPEL_URL);
-      expect(component["isLinking"](row)).toBe(true);
-
-      component["selectCase"](row);
-      await new Promise(requestAnimationFrame);
-      httpTestingController.expectNone(KOPPEL_URL);
-
-      request.flush(null);
-    });
-
-    it("disables only the clicked row's link button while linking", async () => {
-      const { component, fixture, httpTestingController } = setup();
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      const clickedRow = makeFakeSearchResult({
+  it("disables only the link button of the row that is being linked", async () => {
+    await setup();
+    findLinkableZaken([
+      makeFakeSearchResult({
         id: "clicked-uuid",
         identificatie: "ZAAK-2026-002",
-        isKoppelbaar: true,
-      });
-      const otherRow = makeFakeSearchResult({
+      }),
+      makeFakeSearchResult({
         id: "other-uuid",
         identificatie: "ZAAK-2026-003",
-        isKoppelbaar: true,
-      });
-      component["cases"].data = [clickedRow, otherRow];
-      fixture.detectChanges();
+      }),
+    ]);
 
-      component["selectCase"](clickedRow);
-      await new Promise(requestAnimationFrame);
-      fixture.detectChanges();
+    await chooseRelationType("DEELZAAK");
+    await clickSearch();
+    await user.click(linkButtonOfRow("ZAAK-2026-002"));
+    await sleep();
+    fixture.detectChanges();
 
-      const request = httpTestingController.expectOne(KOPPEL_URL);
-      const linkButtons: HTMLButtonElement[] = Array.from(
-        fixture.nativeElement.querySelectorAll("td button[mat-icon-button]"),
-      );
-      expect(linkButtons[0].disabled).toBe(true);
-      expect(linkButtons[1].disabled).toBe(false);
+    const request = httpTestingController.expectOne(KOPPEL_URL);
+    expect(linkButtonOfRow("ZAAK-2026-002")).toBeDisabled();
+    expect(linkButtonOfRow("ZAAK-2026-003")).toBeEnabled();
 
-      request.flush(null);
-    });
-
-    it("skips the link request when row has no id", async () => {
-      const { component, httpTestingController } = setup();
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      const rowWithoutId = makeFakeSearchResult({ id: undefined });
-
-      component["selectCase"](rowWithoutId);
-      await new Promise(requestAnimationFrame);
-
-      httpTestingController.expectNone(KOPPEL_URL);
-    });
-
-    it("skips the link request when caseRelationType has no value selected", async () => {
-      const { component, httpTestingController } = setup();
-      const row = makeFakeSearchResult({ isKoppelbaar: true });
-
-      component["selectCase"](row);
-      await new Promise(requestAnimationFrame);
-
-      httpTestingController.expectNone(KOPPEL_URL);
-    });
+    request.flush(null);
+    await sleep();
   });
 
-  describe("rowDisabled()", () => {
-    it("returns true when row is not koppelbaar", () => {
-      const { component } = setup();
-      const row = makeFakeSearchResult({
-        isKoppelbaar: false,
-        identificatie: "OTHER-ZAAK",
-      });
-      expect(component["rowDisabled"](row)).toBe(true);
-    });
+  it("does not link a zaak without an id", async () => {
+    await setup();
+    findLinkableZaken([makeFakeSearchResult({ id: undefined })]);
 
-    it("returns true when row identificatie matches current zaak", () => {
-      const { component, zaak } = setup();
-      const row = makeFakeSearchResult({
-        isKoppelbaar: true,
-        identificatie: zaak.identificatie,
-      });
-      expect(component["rowDisabled"](row)).toBe(true);
-    });
+    await chooseRelationType("DEELZAAK");
+    await clickSearch();
+    await user.click(linkButtonOfRow("ZAAK-2026-002"));
+    await sleep();
 
-    it("returns false when row is koppelbaar and has different identificatie", () => {
-      const { component } = setup();
-      const row = makeFakeSearchResult({
-        isKoppelbaar: true,
-        identificatie: "OTHER-ZAAK-9999",
-      });
-      expect(component["rowDisabled"](row)).toBe(false);
-    });
+    httpTestingController.expectNone(KOPPEL_URL);
   });
 
-  describe("close()", () => {
-    it("calls sideNav.close() and resets form", () => {
-      const { component, sideNav } = setup();
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
-      component["close"]();
-      expect(sideNav.close).toHaveBeenCalled();
-      expect(component["form"].controls.caseRelationType.value).toBeNull();
-    });
+  it("closes the panel and clears the criteria when cancelled", async () => {
+    const { sideNav } = await setup();
+
+    await chooseRelationType("DEELZAAK");
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
+    fixture.detectChanges();
+
+    expect(sideNav.close).toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "actie.zoeken" })).toBeDisabled();
   });
 
-  describe("reset()", () => {
-    it("resets form and clears search results", () => {
-      const { component } = setup();
-      component["cases"].data = [makeFakeSearchResult()];
-      component["totalCases"] = 5;
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"][0],
-      );
+  it("closes the panel when the close button is used", async () => {
+    const { sideNav } = await setup();
 
-      component["reset"]();
+    await user.click(
+      screen.getByRole("button", { name: "actie.paneel.sluiten" }),
+    );
 
-      expect(component["form"].controls.caseRelationType.value).toBeNull();
-      expect(component["cases"].data).toHaveLength(0);
-      expect(component["totalCases"]).toBe(0);
-    });
+    expect(sideNav.close).toHaveBeenCalled();
   });
 
-  describe("clearSearchResult()", () => {
-    it("clears data, totalCases and loading", () => {
-      const { component, utilService } = setup();
-      component["cases"].data = [makeFakeSearchResult()];
-      component["totalCases"] = 3;
-      component["loading"] = true;
+  it("can be destroyed without errors", async () => {
+    await setup();
 
-      component["clearSearchResult"]();
-
-      expect(component["cases"].data).toHaveLength(0);
-      expect(component["totalCases"]).toBe(0);
-      expect(component["loading"]).toBe(false);
-      expect(utilService.setLoading).toHaveBeenCalledWith(false);
-    });
-  });
-
-  describe("ngOnDestroy()", () => {
-    it("completes the destroy subject without errors", () => {
-      const { component } = setup();
-      expect(() => component.ngOnDestroy()).not.toThrow();
-    });
-  });
-
-  describe("caseRelationOptionsList", () => {
-    it("contains an entry with value 'GERELATEERD'", () => {
-      const { component } = setup();
-      const gerelateerdeOption = component["caseRelationOptionsList"].find(
-        (option) => option.value === "GERELATEERD",
-      );
-      expect(gerelateerdeOption).toBeDefined();
-    });
-  });
-
-  describe("DOM behaviour", () => {
-    it("search button is disabled when form is invalid", () => {
-      const { fixture } = setup();
-      const submitButton: HTMLButtonElement =
-        fixture.nativeElement.querySelector('button[type="submit"]');
-      expect(submitButton.disabled).toBe(true);
-    });
-
-    it("loading message is shown when loading is true", () => {
-      const { component, fixture } = setup();
-      component["loading"] = true;
-      fixture.detectChanges();
-      expect(fixture.nativeElement.textContent).toContain("msg.loading");
-    });
-
-    it("loading message is not shown when loading is false", () => {
-      const { component, fixture } = setup();
-      component["loading"] = false;
-      fixture.detectChanges();
-      expect(fixture.nativeElement.textContent).not.toContain("msg.loading");
-    });
-
-    it("cancel button calls close()", () => {
-      const { fixture, component } = setup();
-      const closeSpy = jest.spyOn(
-        component as unknown as { close: () => unknown },
-        "close",
-      );
-      const cancelButton = Array.from<HTMLButtonElement>(
-        fixture.nativeElement.querySelectorAll("button"),
-      ).find((button) => button.textContent?.includes("actie.annuleren"))!;
-      cancelButton.click();
-      expect(closeSpy).toHaveBeenCalled();
-    });
-
-    it("shows 'more than 10 results' message when results exceed 10", () => {
-      const { component, fixture } = setup();
-      component["loading"] = false;
-      component["cases"].data = Array.from({ length: 11 }, () =>
-        makeFakeSearchResult(),
-      );
-      component["totalCases"] = 11;
-      fixture.detectChanges();
-      expect(fixture.nativeElement.textContent).toContain(
-        "msg.zaak.koppelem.meer-dan-10-gevonden",
-      );
-    });
-
-    it("does not show 'more than 10 results' message when results are 10 or fewer", () => {
-      const { component, fixture } = setup();
-      component["loading"] = false;
-      component["cases"].data = [makeFakeSearchResult()];
-      component["totalCases"] = 1;
-      fixture.detectChanges();
-      expect(fixture.nativeElement.textContent).not.toContain(
-        "msg.zaak.koppelem.meer-dan-10-gevonden",
-      );
-    });
-
-    it("shows HOOFDZAAK label when caseRelationType is HOOFDZAAK", () => {
-      const { component, fixture } = setup();
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"].find(
-          (option) => option.value === "HOOFDZAAK",
-        )!,
-      );
-      fixture.detectChanges();
-      expect(fixture.nativeElement.textContent).toContain(
-        "zaak.koppelen.link.type.HOOFDZAAK",
-      );
-    });
-
-    it("shows DEELZAAK label when caseRelationType is DEELZAAK", () => {
-      const { component, fixture } = setup();
-      component["form"].controls.caseRelationType.setValue(
-        component["caseRelationOptionsList"].find(
-          (option) => option.value === "DEELZAAK",
-        )!,
-      );
-      fixture.detectChanges();
-      expect(fixture.nativeElement.textContent).toContain(
-        "zaak.koppelen.link.type.DEELZAAK",
-      );
-    });
+    expect(() => fixture.destroy()).not.toThrow();
   });
 });

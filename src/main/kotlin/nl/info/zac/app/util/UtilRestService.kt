@@ -10,7 +10,7 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.zgw.shared.cache.Caching
+import nl.info.client.zgw.shared.cache.Caching
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.policy.PolicyService

@@ -23,5 +23,8 @@ data class DocumentData(
     val zaaktype: String? = null,
 
     @field:JsonbProperty("zaak_open")
-    val zaakOpen: Boolean = false
+    val zaakOpen: Boolean = false,
+
+    @field:JsonbProperty("zaakspecifiekGeautoriseerd")
+    val zaakspecifiekGeautoriseerd: Boolean = false
 )

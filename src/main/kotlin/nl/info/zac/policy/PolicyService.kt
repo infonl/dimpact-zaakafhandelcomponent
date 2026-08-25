@@ -20,6 +20,7 @@ import nl.info.client.zgw.zrc.util.isIntake
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.authentication.LoggedInUser
@@ -98,6 +99,7 @@ class PolicyService @Inject constructor(
             intake = statusType?.isIntake(),
             heropend = statusType?.isHeropend(),
             brondatumBepaald = zaak.startdatumBewaartermijn != null,
+            zaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid),
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(
@@ -121,7 +123,9 @@ class PolicyService @Inject constructor(
             // not taken into account when searching for a zaak
             besloten = null,
             // not taken into account when searching for a zaak
-            brondatumBepaald = null
+            brondatumBepaald = null,
+            // werklijsten/zoekresultaten are not restricted based on zaakspecifieke autorisatie
+            zaakspecifiekGeautoriseerd = false
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(
@@ -151,7 +155,8 @@ class PolicyService @Inject constructor(
             vergrendeldDoor = lock?.userId,
             ondertekend = enkelvoudigInformatieobject.isSigned(),
             zaakOpen = zaak?.isOpen() ?: false,
-            zaaktype = zaak?.let { ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving() }
+            zaaktype = zaak?.let { ztcClientService.readZaaktype(it.getZaaktype()).getOmschrijving() },
+            zaakspecifiekGeautoriseerd = zaak?.let { zrcClientService.isZaakspecifiekGeautoriseerd(it.uuid) } ?: false
         )
         return evaluationClient.readDocumentRechten(
             RuleQuery(
@@ -193,7 +198,10 @@ class PolicyService @Inject constructor(
     ): TaakRechten {
         val taakData = TaakData(
             open = TaskUtil.isOpen(taskInfo),
-            zaaktype = zaaktypeOmschrijving
+            zaaktype = zaaktypeOmschrijving,
+            zaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(
+                TaakVariabelenService.readZaakUUID(taskInfo)
+            )
         )
         return evaluationClient.readTaakRechten(
             RuleQuery(

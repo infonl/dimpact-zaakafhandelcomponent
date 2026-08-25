@@ -16,8 +16,8 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
-import net.atos.client.zgw.shared.model.createValidationZgwError
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
+import nl.info.client.zgw.shared.model.createValidationZgwError
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
