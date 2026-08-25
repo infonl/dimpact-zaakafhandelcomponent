@@ -918,12 +918,9 @@ task in the process engine, with its candidate group and assignee resolved the s
 markup removed from their string values before the form sees them, so a value a user typed into the
 zaak cannot inject anything into the page.
 
-A value the zaak does not carry renders as the word `undefined`, and there is no field-level error
-message, so an expression over a property that is only sometimes filled needs a guard of its own:
-
-```
-{{ zaak.behandelaar ? zaak.behandelaar.naam : "" }}
-```
+A property neither object carries — a zaak without a behandelaar, a taak without a groep — renders as
+nothing rather than throwing, and reading on through it (`taak.groep.naam`) is safe. There is no
+field-level error message either way, so an empty result means either "no value" or "wrong path".
 
 #### Filling an editable field
 

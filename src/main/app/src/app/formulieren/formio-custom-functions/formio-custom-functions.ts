@@ -9,14 +9,12 @@ import { InformatieObjectenService } from "../../informatie-objecten/informatie-
 
 type EvalContext = Record<string, unknown>;
 
-// Each factory receives the taakdata and the specific parameter names found in the form,
-// pre-fetches async data, and returns a synchronous closure for form.io's {{ }} evaluator.
+// Pre-fetches its async data, then returns a synchronous closure for form.io's {{ }} evaluator.
 type FormioFunctionFactory = (
   taakdata: Record<string, unknown>,
   parameters: string[],
 ) => Promise<(uuids: unknown) => string>;
 
-// Removing a tag can splice a new one together, as in `<scr<x>ipt>`, so repeat until nothing changes.
 function stripTags(value: string) {
   let stripped = value;
   for (let previous = ""; stripped !== previous;) {
@@ -26,14 +24,12 @@ function stripTags(value: string) {
   return stripped.replace(/[<>]/g, "");
 }
 
-/** Rebuilt key by key, so anything else - a `Date`, a `Map` - would lose its contents. */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (value === null || typeof value !== "object") return false;
   const prototype = Object.getPrototypeOf(value);
   return prototype === Object.prototype || prototype === null;
 }
 
-/** Removed rather than escaped: the same values are seeded into inputs, where `&amp;` would show. */
 function stripTagsDeep<T>(value: T): T {
   if (typeof value === "string") return stripTags(value) as T;
   if (Array.isArray(value)) return value.map(stripTagsDeep) as T;
@@ -45,11 +41,74 @@ function stripTagsDeep<T>(value: T): T {
   return value;
 }
 
+const PRIMITIVE_HOOKS: (string | symbol)[] = [
+  Symbol.toPrimitive,
+  "toString",
+  "valueOf",
+];
+
+function standsInFor(property: string | symbol): property is string {
+  return typeof property === "string" && property !== "then";
+}
+
+const ABSENT: Record<string | symbol, unknown> = new Proxy(
+  {},
+  {
+    get(_target, property) {
+      if (PRIMITIVE_HOOKS.includes(property)) return () => "";
+      return standsInFor(property) ? ABSENT : undefined;
+    },
+  },
+);
+
+function reportUnknownProperty(
+  target: object,
+  property: string,
+  path: string,
+  reportedPaths: Set<string>,
+) {
+  if (Array.isArray(target) && /^\d+$/.test(property)) return;
+  const reported = `${path}.${property}`;
+  if (reportedPaths.has(reported)) return;
+  reportedPaths.add(reported);
+  console.warn(
+    `[FormioCustomFunctions] "${reported}" is not a property of the ` +
+      `${path.split(".")[0]}. It renders as empty.`,
+  );
+}
+
+function absentAsEmpty<T>(
+  value: T,
+  path: string,
+  reportedPaths: Set<string>,
+): T {
+  if (value === null || value === undefined) return ABSENT as T;
+  // A `Date` and the like carry internal state their methods read off `this`, which a proxy breaks.
+  if (!isPlainObject(value) && !Array.isArray(value)) return value;
+  return new Proxy(value as object, {
+    get(target, property, receiver) {
+      const read = Reflect.get(target, property, receiver);
+      if (read === null || read === undefined) {
+        if (!standsInFor(property)) return read;
+        if (!(property in target)) {
+          reportUnknownProperty(target, property, path, reportedPaths);
+        }
+        return ABSENT as unknown;
+      }
+      return typeof read === "object"
+        ? absentAsEmpty(read, `${path}.${String(property)}`, reportedPaths)
+        : read;
+    },
+  }) as T;
+}
+
 @Injectable({ providedIn: "root" })
 export class FormioCustomFunctions {
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
+
+  private readonly reportedPaths = new Set<string>();
 
   private readonly functionRegistry: Record<string, FormioFunctionFactory> = {
     ZAC_getDocumentTitles: async (taakdata, parameters) => {
@@ -91,8 +150,8 @@ export class FormioCustomFunctions {
 
     const context: EvalContext = {
       ...taakdata,
-      zaak: stripTagsDeep(zaak),
-      taak: stripTagsDeep(taak),
+      zaak: absentAsEmpty(stripTagsDeep(zaak), "zaak", this.reportedPaths),
+      taak: absentAsEmpty(stripTagsDeep(taak), "taak", this.reportedPaths),
     };
     for (const [funcName, factory] of Object.entries(this.functionRegistry)) {
       if (foundFunctions.has(funcName)) {
@@ -117,7 +176,6 @@ export class FormioCustomFunctions {
     return result;
   }
 
-  // Accepts a uuid, a list of uuids or datagrid rows, so both dropdown and datagrid fields work.
   private extractDocumentUuids(value: unknown): string[] {
     return (Array.isArray(value) ? value : [value]).flatMap((entry) => {
       if (typeof entry === "string") return [entry];
