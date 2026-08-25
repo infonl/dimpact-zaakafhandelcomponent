@@ -92,7 +92,7 @@ class OpenZaakClient(
      *   defaults to the "bijlage" type ([INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID])
      * @param vertrouwelijkheidaanduiding Confidentiality level as a lowercase DRC API enum value
      *   (e.g. "zaakvertrouwelijk", "openbaar"). Note: ZAC API constants like
-     *   [DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK] use uppercase and cannot be passed
+     *   [DOCUMENT_VERTROUWELIJKHEIDAANDUIDING_VERTROUWELIJK] use uppercase and cannot be passed
      *   directly here.
      * @return [ResponseContent] with the Open Zaak API response (HTTP 201 on success)
      */

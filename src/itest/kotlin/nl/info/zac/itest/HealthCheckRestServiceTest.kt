@@ -15,7 +15,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_10_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2025_07_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2026_07_23
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_IDENTIFICATIE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_1_UUID
@@ -116,7 +116,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_CMMN_TEST_4_UUID",
                           "versiedatum": "$DATE_2023_10_01",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                         }
                       },
                       {
@@ -145,7 +145,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_BPMN_TEST_5_UUID",
                           "versiedatum": "$DATE_2025_01_01",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                         }
                       },
                       {
@@ -174,7 +174,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_BPMN_TEST_4_UUID",
                           "versiedatum": "$DATE_2025_01_01",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                         }
                       },
                       {
@@ -203,7 +203,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_BPMN_TEST_3_UUID",
                           "versiedatum": "$DATE_2025_01_01",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                         }
                       },
                       {
@@ -232,7 +232,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_BPMN_TEST_2_UUID",
                           "versiedatum": "$DATE_2025_01_01",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                         }
                       },
                       {
@@ -261,7 +261,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_CMMN_TEST_1_UUID",
                           "versiedatum": "$DATE_2025_07_01",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                         }
                       },
                       {
@@ -290,7 +290,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_BPMN_TEST_1_UUID",
                           "versiedatum": "$DATE_2025_01_01",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                         }
                       },
                       {
@@ -319,7 +319,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_CMMN_TEST_2_UUID",
                           "versiedatum": "$DATE_2023_10_01",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                         }
                       },
                       {
@@ -348,7 +348,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
                           "servicenorm": false,
                           "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
                           "versiedatum": "$DATE_2023_09_21",
-                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                          "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                         }
                       }
                     ]

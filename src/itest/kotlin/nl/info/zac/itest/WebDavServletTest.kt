@@ -17,7 +17,7 @@ import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2024_01_31
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_WORD_FILE_NAME
@@ -91,7 +91,7 @@ class WebDavServletTest : BehaviorSpec({
                     .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
                     .addFormDataPart(
                         "vertrouwelijkheidaanduiding",
-                        VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+                        VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
                     )
                     .addFormDataPart("status", DOCUMENT_STATUS_IN_BEWERKING)
                     .addFormDataPart(
