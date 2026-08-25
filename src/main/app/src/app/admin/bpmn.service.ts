@@ -87,6 +87,13 @@ export class BpmnService {
     );
   }
 
+  readProcessDefinitionForm(key: string, name: string) {
+    return this.zacHttpClient.GET(
+      "/rest/bpmn-process-definitions/{key}/forms/{name}",
+      { path: { key, name } },
+    );
+  }
+
   uploadProcessDefinitionForm(
     key: string,
     body: PostBody<"/rest/bpmn-process-definitions/{key}/forms">,

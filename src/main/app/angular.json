@@ -52,6 +52,16 @@
                 "input": "node_modules/bootstrap/dist/css",
                 "output": "/assets/vendor/bootstrap"
               },
+              {
+                "glob": "formio.full.min.css",
+                "input": "node_modules/@formio/js/dist",
+                "output": "/assets/vendor/formio"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/@formio/js/dist/fonts",
+                "output": "/assets/vendor/formio/fonts"
+              },
               "src/favicon.ico",
               "src/favicon.svg",
               "src/apple-touch-icon.png",

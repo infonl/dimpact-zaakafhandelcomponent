@@ -4,8 +4,10 @@
  */
 
 import { HttpHeaders, HttpResponse } from "@angular/common/http";
+import { TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter, Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
@@ -122,6 +124,7 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
       imports: [SharedModule, NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideQueryClient(testQueryClient),
+        provideRouter([]),
         { provide: BpmnService, useValue: bpmnService },
         { provide: UtilService, useValue: utilService },
         { provide: FoutAfhandelingService, useValue: foutAfhandelingService },
@@ -459,22 +462,25 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
   it("uploads the chosen task form and announces it", async () => {
     jest.useFakeTimers();
-    const fileContent = '{"form": true}';
+    const fileContent = '{"name": "form-missing"}';
     (readFileContent as jest.Mock).mockResolvedValue(fileContent);
     await setup();
 
-    await user.upload(fileInput(), new File([fileContent], "test-form.json"));
+    await user.upload(
+      fileInput(),
+      new File([fileContent], "form-missing.json"),
+    );
     await Promise.resolve();
     await Promise.resolve();
     await Promise.resolve();
 
     expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
       "test-key",
-      { filename: "test-form.json", content: fileContent },
+      { filename: "form-missing.json", content: fileContent },
     );
     expect(utilService.openSnackbar).toHaveBeenCalledWith(
       "msg.bpmn.task-forms.upload.success",
-      { namen: "test-form.json" },
+      { namen: "form-missing.json" },
     );
 
     jest.runAllTimers();
@@ -503,22 +509,22 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
 
   it("uploads dropped task forms and announces them", async () => {
     jest.useFakeTimers();
-    const fileContent = '{"form": true}';
+    const fileContent = '{"name": "form-missing"}';
     (readFileContent as jest.Mock).mockResolvedValue(fileContent);
     await setup();
 
-    dropFiles(new File([fileContent], "dropped-form.json"));
+    dropFiles(new File([fileContent], "form-missing.json"));
     await Promise.resolve();
     await Promise.resolve();
     await Promise.resolve();
 
     expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
       "test-key",
-      { filename: "dropped-form.json", content: fileContent },
+      { filename: "form-missing.json", content: fileContent },
     );
     expect(utilService.openSnackbar).toHaveBeenCalledWith(
       "msg.bpmn.task-forms.upload.success",
-      { namen: "dropped-form.json" },
+      { namen: "form-missing.json" },
     );
 
     jest.runAllTimers();
@@ -526,16 +532,16 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
   });
 
   it("accepts a dropped task form whose extension is upper case", async () => {
-    const fileContent = '{"form": true}';
+    const fileContent = '{"name": "form-missing"}';
     (readFileContent as jest.Mock).mockResolvedValue(fileContent);
     await setup();
 
-    dropFiles(new File([fileContent], "form.JSON"));
+    dropFiles(new File([fileContent], "form-missing.JSON"));
     await sleep();
 
     expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
       "test-key",
-      { filename: "form.JSON", content: fileContent },
+      { filename: "form-missing.JSON", content: fileContent },
     );
   });
 
@@ -557,6 +563,130 @@ describe(BpmnProcessDefinitionItemComponent.name, () => {
     await sleep();
 
     expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
+  });
+
+  describe("a task form whose name matches no task of the process definition", () => {
+    const fileContent = '{"name": "typed-wrong"}';
+
+    it("asks for confirmation naming the task form instead of uploading it", async () => {
+      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+      await setup();
+
+      dropFiles(new File([fileContent], "typed-wrong.json"));
+      await sleep();
+
+      const dialogData = dialogOpen.mock.calls[0][1].data;
+      expect(dialogData._melding.key).toBe(
+        "msg.bpmn.task-forms.upload.unlinked.confirm",
+      );
+      expect(dialogData._melding.args).toEqual({ namen: "typed-wrong.json" });
+      expect(bpmnService.uploadProcessDefinitionForm).not.toHaveBeenCalled();
+    });
+
+    it("uploads it once the confirmation is accepted", async () => {
+      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+      await setup();
+      confirmNextDialog();
+
+      dropFiles(new File([fileContent], "typed-wrong.json"));
+      await sleep();
+
+      expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalledWith(
+        "test-key",
+        { filename: "typed-wrong.json", content: fileContent },
+      );
+    });
+
+    it("falls back to the file name when the task form holds no name", async () => {
+      const namelessContent = '{"components": []}';
+      (readFileContent as jest.Mock).mockResolvedValue(namelessContent);
+      await setup();
+
+      dropFiles(new File([namelessContent], "form-missing.json"));
+      await sleep();
+
+      expect(dialogOpen).not.toHaveBeenCalled();
+      expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalled();
+    });
+
+    it("leaves unparseable content to the backend rather than warning about it", async () => {
+      const unparseableContent = "not json at all";
+      (readFileContent as jest.Mock).mockResolvedValue(unparseableContent);
+      await setup();
+
+      dropFiles(new File([unparseableContent], "form-missing.json"));
+      await sleep();
+
+      expect(dialogOpen).not.toHaveBeenCalled();
+      expect(bpmnService.uploadProcessDefinitionForm).toHaveBeenCalled();
+    });
+  });
+
+  describe("opening the form builder", () => {
+    const createButtonName =
+      "bpmn.process-definition.task-forms.row.button.create";
+    const editButtonName = "bpmn.process-definition.task-forms.row.button.edit";
+
+    it("offers a builder button for every task form, uploaded or not", async () => {
+      await setup();
+
+      expect(
+        within(rowOf("form-missing")).getByRole("button", {
+          name: createButtonName,
+        }),
+      ).toBeVisible();
+      expect(
+        within(rowOf("form-uploaded")).getByRole("button", {
+          name: editButtonName,
+        }),
+      ).toBeVisible();
+    });
+
+    it("opens an empty builder for a task form that has not been uploaded yet", async () => {
+      await setup();
+      const navigate = jest
+        .spyOn(TestBed.inject(Router), "navigate")
+        .mockResolvedValue(true);
+
+      await user.click(
+        within(rowOf("form-missing")).getByRole("button", {
+          name: createButtonName,
+        }),
+      );
+
+      expect(navigate).toHaveBeenCalledWith(
+        [
+          "/admin/bpmn-procesdefinities",
+          "test-key",
+          "taakformulier",
+          "form-missing",
+        ],
+        {},
+      );
+    });
+
+    it("opens the builder on the stored task form when it was already uploaded", async () => {
+      await setup();
+      const navigate = jest
+        .spyOn(TestBed.inject(Router), "navigate")
+        .mockResolvedValue(true);
+
+      await user.click(
+        within(rowOf("form-uploaded")).getByRole("button", {
+          name: editButtonName,
+        }),
+      );
+
+      expect(navigate).toHaveBeenCalledWith(
+        [
+          "/admin/bpmn-procesdefinities",
+          "test-key",
+          "taakformulier",
+          "form-uploaded",
+        ],
+        { queryParams: { bewerken: true } },
+      );
+    });
   });
 
   it("asks for confirmation naming the task form to delete", async () => {

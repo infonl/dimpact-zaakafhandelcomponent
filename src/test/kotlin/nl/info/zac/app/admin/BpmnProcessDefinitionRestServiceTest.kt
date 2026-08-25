@@ -336,6 +336,32 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
         }
     }
 
+    given("User has beheren rights and a form exists for a process definition") {
+        val processDefinitionKey = "processKey"
+        val formName = "testForm"
+        val form = createBpmnProcessDefinitionTaskForm(
+            bpmnProcessDefinitionKey = processDefinitionKey,
+            name = formName,
+            filename = "testForm.json",
+            content = """{"name": "$formName", "title": "Test Title"}"""
+        )
+
+        every { policyService.readOverigeRechten() } returns createOverigeRechten(beheren = true)
+        every {
+            bpmnProcessDefinitionTaskFormService.readFormByProcessDefinitionKey(processDefinitionKey, formName)
+        } returns form
+
+        `when`("readForm is called") {
+            val bpmnProcessDefinitionTaskFormContent = restService.readForm(processDefinitionKey, formName)
+
+            then("it should return the stored filename and content, so that the form can be edited") {
+                bpmnProcessDefinitionTaskFormContent.filename shouldBe "testForm.json"
+                bpmnProcessDefinitionTaskFormContent.content shouldBe
+                    """{"name": "$formName", "title": "Test Title"}"""
+            }
+        }
+    }
+
     given("User has beheren rights and wants to delete a form from a process definition which is not in use") {
         val processDefinitionKey = "processKey"
         val formName = "testForm"

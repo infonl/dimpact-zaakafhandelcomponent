@@ -1,0 +1,106 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+  -->
+
+<mat-sidenav-container
+  class="inner-sidenav-container"
+  #sideNavContainer
+  [class]="sideNaveMode"
+>
+  <mat-sidenav
+    #menuSidenav
+    [mode]="sideNaveMode"
+    position="start"
+    opened="true"
+    disableClose="true"
+  >
+    <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="flex-col gap-20">
+    <mat-card>
+      <mat-card-content>
+        <div class="flex-row items-center gap-20">
+          <section class="flex-1">
+            <h2>
+              {{
+                (isEditingExistingForm
+                  ? "title.taakformulier.bewerken"
+                  : "title.taakformulier.aanmaken"
+                ) | translate: { formulier: formKey }
+              }}
+            </h2>
+          </section>
+          <button mat-button (click)="downloadFormJson()">
+            {{ "actie.downloaden" | translate }}
+          </button>
+          <button mat-button (click)="annuleren()">
+            {{ "actie.annuleren" | translate }}
+          </button>
+          <button
+            id="opslaan"
+            mat-raised-button
+            color="primary"
+            [disabled]="isSaving() || !isFormLoaded()"
+            (click)="opslaan()"
+          >
+            {{ "actie.opslaan" | translate }}
+          </button>
+        </div>
+
+        <div class="flex-row gap-20 items-center">
+          <zac-static-text
+            label="bpmn.process-definition.key.extended"
+            [value]="processDefinitionKey"
+          />
+          <zac-static-text
+            label="bpmn.process-definition.task-forms.form-key"
+            [value]="formKey"
+          />
+          <mat-form-field class="flex-1">
+            <mat-label>{{ "titel" | translate }}</mat-label>
+            <input matInput [(ngModel)]="form.title" />
+          </mat-form-field>
+        </div>
+
+        @if (issues().length) {
+          <div class="issues flex-col gap-5" id="issues">
+            @for (issue of issues(); track $index) {
+              <div class="flex-row items-center gap-10">
+                <mat-icon outlined color="warn">error</mat-icon>
+                <span>{{ issue.messageKey | translate: issue.args }}</span>
+              </div>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <mat-tab-group>
+          <mat-tab label="{{ 'actie.bouwen' | translate }}">
+            @if (isStylesheetLinked() && isFormLoaded()) {
+              <form-builder
+                [form]="form"
+                [options]="builderOptions"
+                (change)="onBuilderChange($event)"
+              ></form-builder>
+            }
+          </mat-tab>
+          <mat-tab label="{{ 'actie.voorbeeld' | translate }}">
+            <ng-template matTabContent>
+              <formio [form]="form"></formio>
+            </ng-template>
+          </mat-tab>
+          <mat-tab label="JSON">
+            <ng-template matTabContent>
+              <pre class="form-json">{{ formJson() }}</pre>
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
+  </mat-sidenav-content>
+</mat-sidenav-container>
