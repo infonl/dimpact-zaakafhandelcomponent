@@ -93,11 +93,14 @@ export class FormioWrapperComponent
   private readonly rebuild$ = new ReplaySubject<void>(1);
   protected evalContext: Record<string, unknown> = {};
   protected evalContextReady = false;
+  private redrawDeferred = false;
 
   ngOnChanges(changes: SimpleChanges) {
-    // Not `taak` or `taakdata`: a rebuild tears the open form down, and a taak event replaces those.
+    // Not `taak` or `taakdata`: a rebuild tears the open form down, losing what the user typed.
     if (changes["form"] || changes["zaak"]) {
       this.rebuild$.next();
+    } else if (changes["taak"] && !changes["taak"].firstChange) {
+      this.refreshTaakInContext();
     }
 
     if (changes["readOnly"] && !changes["readOnly"].firstChange) {
@@ -121,6 +124,12 @@ export class FormioWrapperComponent
         }
       }
       this.applySubmitPending();
+      if (!submitPendingChange.currentValue && this.redrawDeferred) {
+        this.redrawDeferred = false;
+        void (
+          this.formioComponent?.formio as FormioWebform | undefined
+        )?.redraw();
+      }
     }
   }
 
@@ -185,6 +194,25 @@ export class FormioWrapperComponent
       configurable: true,
     });
     FormioWrapperComponent.activeElementPatched = true;
+  }
+
+  private refreshTaakInContext() {
+    this.evalContext = {
+      ...this.evalContext,
+      taak: this.customFunctions.asContextValue(this.taak, "taak"),
+    };
+
+    const webform = this.formioComponent?.formio as FormioWebform | undefined;
+    if (!webform) return;
+    // Form.io captured the context when it built the form, hence the webform's own copy.
+    webform.options.evalContext = this.evalContext;
+
+    // A redraw rebuilds the submit button, which would discard the spinner of a submit in flight.
+    if (this.submitPending) {
+      this.redrawDeferred = true;
+      return;
+    }
+    void webform.redraw();
   }
 
   // Form.io reads `readOnly` while building only, and its components render from `disabled` - hence both.
@@ -267,7 +295,7 @@ export class FormioWrapperComponent
 
 /** `@formio/angular` types the live form instance as `any`. */
 interface FormioWebform {
-  options: { readOnly?: boolean };
+  options: { readOnly?: boolean; evalContext?: Record<string, unknown> };
   everyComponent(callback: (component: FormioLiveComponent) => void): void;
   redraw(): Promise<void>;
 }

@@ -131,6 +131,10 @@ export class FormioCustomFunctions {
     },
   };
 
+  asContextValue(value: object | undefined, path: string) {
+    return absentAsEmpty(stripTagsDeep(value), path, this.reportedPaths);
+  }
+
   async prepareFormContext(
     form: unknown,
     taakdata: Record<string, unknown>,
@@ -150,8 +154,8 @@ export class FormioCustomFunctions {
 
     const context: EvalContext = {
       ...taakdata,
-      zaak: absentAsEmpty(stripTagsDeep(zaak), "zaak", this.reportedPaths),
-      taak: absentAsEmpty(stripTagsDeep(taak), "taak", this.reportedPaths),
+      zaak: this.asContextValue(zaak, "zaak"),
+      taak: this.asContextValue(taak, "taak"),
     };
     for (const [funcName, factory] of Object.entries(this.functionRegistry)) {
       if (foundFunctions.has(funcName)) {

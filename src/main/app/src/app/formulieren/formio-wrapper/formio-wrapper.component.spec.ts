@@ -28,7 +28,10 @@ describe(FormioWrapperComponent.name, () => {
         { provide: ElementRef, useValue: mockElementRef },
         {
           provide: FormioCustomFunctions,
-          useValue: { prepareFormContext: jest.fn().mockResolvedValue({}) },
+          useValue: {
+            prepareFormContext: jest.fn().mockResolvedValue({}),
+            asContextValue: jest.fn((value: unknown) => value),
+          },
         },
       ],
     }).compileComponents();
@@ -536,6 +539,87 @@ describe(FormioWrapperComponent.name, () => {
         { identificatie: "ZAAK-1" },
         { naam: "test-taak" },
       );
+    });
+  });
+
+  describe("refreshing the taak in the context without a rebuild", () => {
+    let prepareFormContext: jest.Mock;
+    let webform: {
+      options: { evalContext?: Record<string, unknown> };
+      everyComponent: jest.Mock;
+      redraw: jest.Mock;
+    };
+
+    beforeEach(async () => {
+      prepareFormContext = TestBed.inject(FormioCustomFunctions)
+        .prepareFormContext as unknown as jest.Mock;
+      prepareFormContext.mockResolvedValue({ zaak: {}, taak: {} });
+      await component.ngOnInit();
+      component.ngOnChanges({ form: new SimpleChange(undefined, {}, true) });
+      prepareFormContext.mockClear();
+
+      webform = {
+        options: {},
+        everyComponent: jest.fn(),
+        redraw: jest.fn().mockResolvedValue(undefined),
+      };
+      component.formioComponent = { formio: webform } as never;
+    });
+
+    function taakArrives(taak: object) {
+      component.taak = taak;
+      component.ngOnChanges({ taak: new SimpleChange({}, taak, false) });
+    }
+
+    it("should hand the new taak to the form Form.io already built", () => {
+      taakArrives({ naam: "test-taak", groep: { naam: "fakeGroupName" } });
+
+      expect(webform.options.evalContext?.taak).toMatchObject({
+        naam: "test-taak",
+      });
+    });
+
+    it("should redraw, so an open form shows the new value", () => {
+      taakArrives({ naam: "test-taak" });
+
+      expect(webform.redraw).toHaveBeenCalledTimes(1);
+    });
+
+    it("should not rebuild, because that would discard what the user typed", () => {
+      taakArrives({ naam: "test-taak" });
+
+      expect(prepareFormContext).not.toHaveBeenCalled();
+    });
+
+    it("should not redraw for the first taak, which the form was built with", () => {
+      component.ngOnChanges({
+        taak: new SimpleChange(undefined, { naam: "test-taak" }, true),
+      });
+
+      expect(webform.redraw).not.toHaveBeenCalled();
+    });
+
+    describe("while a submit is in flight", () => {
+      beforeEach(() => {
+        component.submitPending = true;
+        taakArrives({ naam: "test-taak" });
+      });
+
+      it("should hold the redraw back, which would discard the spinner", () => {
+        expect(webform.redraw).not.toHaveBeenCalled();
+        expect(webform.options.evalContext?.taak).toMatchObject({
+          naam: "test-taak",
+        });
+      });
+
+      it("should redraw once the submit is done", () => {
+        component.submitPending = false;
+        component.ngOnChanges({
+          submitPending: new SimpleChange(true, false, false),
+        });
+
+        expect(webform.redraw).toHaveBeenCalledTimes(1);
+      });
     });
   });
 });

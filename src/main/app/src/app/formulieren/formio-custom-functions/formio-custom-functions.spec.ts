@@ -465,8 +465,8 @@ describe(FormioCustomFunctions.name, () => {
           { indicaties: ["OPSCHORTING"] },
         );
         const readableZaak = context.zaak as { indicaties: string[] };
-        [...readableZaak.indicaties];
 
+        expect([...readableZaak.indicaties]).toEqual(["OPSCHORTING"]);
         expect(consoleWarn).not.toHaveBeenCalled();
       });
 
