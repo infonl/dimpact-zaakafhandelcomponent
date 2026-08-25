@@ -16,10 +16,11 @@
 
   <process id="dataDiagnosticProcess" name="Data Diagnostic Process" isExecutable="true"
            flowable:candidateStarterGroups="flowableUser">
-    <documentation>Renders every property a task form can address: one task reading the zaak, one
-      reading the taak. Both open when the zaak is created and can be completed in any order. Each
-      form ends with deliberate mistakes, to show what an unresolvable property or an unknown format
-      function looks like. Once all three are completed the zaak is closed with resultaattype
+    <documentation>Renders every property a task form can address: one task reading the zaak,
+      one reading the taak, one reading the process variables and one seeding form inputs with
+      resolved values. All four open when the zaak is created and can be completed in any order.
+      Each form ends with deliberate mistakes, to show what an unresolvable property or an unknown
+      format function looks like. Once all four are completed the zaak is closed with resultaattype
       'Verleend', so the zaaktype linked to this process must have a resultaattype by that
       name.</documentation>
 
