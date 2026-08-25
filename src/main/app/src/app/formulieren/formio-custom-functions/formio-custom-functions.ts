@@ -111,7 +111,6 @@ export class FormioCustomFunctions {
     ZAC_formatter_datum: (value: unknown) =>
       String(this.datumPipe.transform(value as string) ?? ""),
 
-    /** `{{ ZAC_formatter_leeg(zaak.toelichting) }}` - a dash where the value is empty. */
     ZAC_formatter_leeg: (value: unknown) => this.emptyPipe.transform(value),
 
     ZAC_formatter_jaNee: (value: unknown) =>
@@ -119,7 +118,6 @@ export class FormioCustomFunctions {
         value === true || value === "true" ? "actie.ja" : "actie.nee",
       ),
 
-    /** `{{ ZAC_formatter_lijst(zaak.kenmerken, "kenmerk") }}` - one property of every element of a list. */
     ZAC_formatter_lijst: (values: unknown, property?: string) =>
       (Array.isArray(values) ? values : [])
         .map((element) =>

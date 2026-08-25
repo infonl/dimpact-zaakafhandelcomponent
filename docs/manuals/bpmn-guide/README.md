@@ -960,7 +960,7 @@ zaak cannot inject anything into the page.
 
 #### Helper functions
 
-Four functions are in the context alongside the two objects.
+Five functions are in the context alongside the two objects.
 
 | Function | Turns | Into |
 |---|---|---|
@@ -1002,6 +1002,28 @@ their own expression to look inside. Its second argument is an optional caption,
 place a reader learns which system the keys came from, so it is worth filling in.
 
 `ZAC_getDocumentTitles` lives in the same context — see [Custom functions](#custom-functions).
+
+#### Never write an expression you do not mean to run
+
+Anything between `{{ }}` in a form is **executed**, including in a heading or a paragraph. So a form
+cannot explain its own syntax by printing it:
+
+```json
+"html": "<p>Read a value with <code>{{ zaak.identificatie }}</code></p>"
+```
+
+That renders the zaak's identificatie instead of the example, and if the braces contain something
+that is not valid JavaScript — a `…` placeholder, a description in words — the **whole component
+fails to render** with `SyntaxError: Invalid or unexpected token` in the console. Not just that line:
+the entire `html`.
+
+HTML-escaping the braces (`&#123;&#123;`) does not help. Form.io sanitises the html by parsing it
+into a DOM and serialising it back, which turns `&#123;` into a literal `{` before the expression is
+evaluated.
+
+So in a form, name an expression without its delimiters — `<code>zaak.identificatie</code>`,
+`<code>ZAC_formatter_leeg</code>` — and leave the braces to the places where you actually want a
+value.
 
 #### What a mistake looks like
 
