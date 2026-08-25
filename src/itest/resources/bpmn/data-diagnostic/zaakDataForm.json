@@ -25,10 +25,7 @@
           "tableView": false,
           "numRows": 12,
           "numCols": 2,
-          "header": [
-            "Property",
-            "Value"
-          ],
+          "header": ["Property", "Value"],
           "caption": "",
           "striped": true,
           "bordered": true,
@@ -366,10 +363,7 @@
           "tableView": false,
           "numRows": 13,
           "numCols": 2,
-          "header": [
-            "Property",
-            "Value"
-          ],
+          "header": ["Property", "Value"],
           "caption": "",
           "striped": true,
           "bordered": true,
@@ -733,11 +727,7 @@
           "tableView": false,
           "numRows": 9,
           "numCols": 3,
-          "header": [
-            "Property",
-            "Unformatted",
-            "Formatted (datum)"
-          ],
+          "header": ["Property", "Unformatted", "Formatted (datum)"],
           "caption": "",
           "striped": true,
           "bordered": true,
@@ -1105,11 +1095,7 @@
           "tableView": false,
           "numRows": 13,
           "numCols": 3,
-          "header": [
-            "Property",
-            "Unformatted",
-            "Formatted (jaNee)"
-          ],
+          "header": ["Property", "Unformatted", "Formatted (jaNee)"],
           "caption": "",
           "striped": true,
           "bordered": true,
@@ -1629,10 +1615,7 @@
           "tableView": false,
           "numRows": 8,
           "numCols": 2,
-          "header": [
-            "Property",
-            "Value (joined)"
-          ],
+          "header": ["Property", "Value (joined)"],
           "caption": "",
           "striped": true,
           "bordered": true,

@@ -25,10 +25,7 @@
           "tableView": false,
           "numRows": 8,
           "numCols": 2,
-          "header": [
-            "Property",
-            "Value"
-          ],
+          "header": ["Property", "Value"],
           "caption": "",
           "striped": true,
           "bordered": true,
@@ -262,11 +259,7 @@
           "tableView": false,
           "numRows": 3,
           "numCols": 3,
-          "header": [
-            "Property",
-            "Unformatted",
-            "Formatted (datum)"
-          ],
+          "header": ["Property", "Unformatted", "Formatted (datum)"],
           "caption": "",
           "striped": true,
           "bordered": true,
@@ -406,10 +399,7 @@
           "tableView": false,
           "numRows": 1,
           "numCols": 2,
-          "header": [
-            "Property",
-            "Result"
-          ],
+          "header": ["Property", "Result"],
           "caption": "",
           "striped": true,
           "bordered": true,

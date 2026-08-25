@@ -316,10 +316,7 @@
           "tableView": false,
           "numRows": 1,
           "numCols": 2,
-          "header": [
-            "Stored on the task",
-            "Stored on the process"
-          ],
+          "header": ["Stored on the task", "Stored on the process"],
           "caption": "",
           "striped": true,
           "bordered": true,
