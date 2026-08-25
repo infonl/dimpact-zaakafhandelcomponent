@@ -14,7 +14,6 @@ import {
 } from "./formio-setup-service";
 import {
   configureFormioSetupServiceTestBed,
-  gegevensInputComponent,
   documentsFieldset,
   groepComponent,
   medewerkerComponent,
@@ -23,10 +22,8 @@ import {
   smartDocumentsTemplateGroupsComponent,
   smartDocumentsTemplateGroupTemplatesComponent,
   taak,
-  taakGegevensComponent,
   unsignedDocumentsFieldset,
   zaak,
-  zaakGegevensComponent,
 } from "./formio-setup-service.test-fixtures";
 
 describe(FormioSetupService.name, () => {
@@ -390,78 +387,6 @@ describe(FormioSetupService.name, () => {
           ],
         }),
       );
-    });
-  });
-
-  describe("a gegevens field", () => {
-    it("should read the taak, not the zaak, for a property both objects have", async () => {
-      const fromZaak = gegevensInputComponent("zaaktypeOmschrijving", {
-        key: "IN_uit_zaak",
-      });
-      const fromTaak = gegevensInputComponent("zaaktypeOmschrijving", {
-        key: "IN_uit_taak",
-        zacType: KNOWN_ZAC_FIELDS.TAAK_GEGEVENS,
-      });
-
-      await formioSetupService.createFormioForm(
-        { components: [fromZaak, fromTaak] },
-        { ...taak, taakdata: {} },
-        {
-          ...zaak,
-          zaaktypeOmschrijving: "from the zaak",
-        } as GeneratedType<"RestZaak">,
-      );
-
-      expect(fromZaak.defaultValue).toBe("from the zaak");
-      expect(fromTaak.defaultValue).toBe("test-zaaktypeOmschrijving");
-    });
-
-    it.each([
-      [
-        "a table cell",
-        {
-          type: "table",
-          key: "tabel",
-          input: false,
-          rows: [[{ components: [gegevensInputComponent("identificatie")] }]],
-        },
-      ],
-      [
-        "a column",
-        {
-          type: "columns",
-          key: "kolommen",
-          input: false,
-          columns: [{ components: [gegevensInputComponent("identificatie")] }],
-        },
-      ],
-    ])("should initialize a field nested in %s", async (_name, layout) => {
-      await formioSetupService.createFormioForm(
-        { components: [layout as ExtendedComponentSchema] },
-        { ...taak, taakdata: {} },
-        zaak,
-      );
-
-      const nested = ((
-        layout as { rows?: { components: ExtendedComponentSchema[] }[][] }
-      ).rows?.[0] ??
-        (layout as { columns: { components: ExtendedComponentSchema[] }[] })
-          .columns)[0].components[0];
-      expect(nested.defaultValue).toBe("ZAAK-2026-0000000835");
-    });
-
-    it("should render a resolution failure in the field itself, not as a form-wide error", async () => {
-      const errorSpy = jest.spyOn(utilService, "handleFormIOInitError");
-      const component = gegevensInputComponent("identificatie.jaar");
-
-      await formioSetupService.createFormioForm(
-        { components: [component] },
-        { ...taak, taakdata: {} },
-        zaak,
-      );
-
-      expect(component.html).toContain("holds a single value");
-      expect(errorSpy).not.toHaveBeenCalled();
     });
   });
 });

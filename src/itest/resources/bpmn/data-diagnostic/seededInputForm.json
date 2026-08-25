@@ -9,7 +9,7 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>Putting zaak and taak data into editable fields</h3><p>Every field below is a normal Form.io input &mdash; a textfield, a textarea, a date picker &mdash; that ZAC has filled in from the zaak or the taak. Give it the attribute <code>ZAC_TYPE</code> of <code>ZAC_zaak_gegevens</code> or <code>ZAC_taak_gegevens</code> and the property <code>ZAC_VELD</code> with the path to read, and the value is seeded into the field. Because the field itself holds the value, no extra property is needed to say so: put the same declaration on a <code>content</code> component and ZAC tells you to use <code>{{ }}</code> instead.</p><p>Reading a value for <em>display</em> is not done here at all &mdash; write <code>{{ zaak.identificatie }}</code> in a content component. Seeding is the one thing <code>{{ }}</code> cannot do, because Form.io skips a default value once the submission already carries the key.</p><p>Use <code>ZAC_FORMAAT</code> only where the value is read as text. An input that parses its own value &mdash; a date picker &mdash; needs the raw value, so leave the format off and let the picker do the formatting. Each field's description shows the declaration that filled it. Change a value, press <em>Save</em>, then reopen the task: your answer is kept and not seeded over.</p>"
+      "html": "<h3>Putting zaak and taak data into editable fields</h3><p>Every field below is a normal Form.io input &mdash; a textfield, a textarea, a date picker &mdash; that Form.io has filled in from the zaak or the taak. The declaration is Form.io's own <code>customDefaultValue</code>: <code>value = zaak.identificatie</code>. No ZAC attribute or property is involved, and each field's description shows the expression that filled it.</p><p>Reading a value for <em>display</em> is done differently, with <code>&#123;&#123; zaak.identificatie &#125;&#125;</code> in a content component &mdash; see the other forms. The two are not interchangeable: an interpolated value is only rendered, while a default value becomes part of the submission and is written back as a process variable when the task completes.</p><p>The same helper functions apply, so <code>value = datum(zaak.startdatum)</code> works. Use one only where the value is read as text: an input that parses its own value &mdash; a date picker &mdash; needs the raw value. Change a value, press <em>Save</em>, then reopen the task: Form.io leaves a default alone once the submission carries the key, so your answer is kept.</p>"
     },
     {
       "type": "panel",
@@ -24,13 +24,8 @@
           "key": "IN_zaakIdentificatie",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: identificatie",
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "identificatie"
-          }
+          "description": "customDefaultValue: \"value = zaak.identificatie\"",
+          "customDefaultValue": "value = zaak.identificatie"
         },
         {
           "label": "Omschrijving",
@@ -38,13 +33,8 @@
           "key": "IN_zaakOmschrijving",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: omschrijving",
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "omschrijving"
-          }
+          "description": "customDefaultValue: \"value = zaak.omschrijving\"",
+          "customDefaultValue": "value = zaak.omschrijving"
         },
         {
           "label": "Startdatum as text (datum format)",
@@ -52,14 +42,8 @@
           "key": "IN_zaakStartdatum",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: startdatum · ZAC_FORMAAT: datum — a textfield, so the formatted text is fine here",
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "startdatum",
-            "ZAC_FORMAAT": "datum"
-          }
+          "description": "customDefaultValue: \"value = datum(zaak.startdatum)\" — a textfield, so the formatted text is fine here",
+          "customDefaultValue": "value = datum(zaak.startdatum)"
         },
         {
           "label": "Startdatum in a date picker",
@@ -67,7 +51,7 @@
           "key": "IN_zaakStartdatumPicker",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: startdatum · no ZAC_FORMAAT — a picker needs the raw ISO value and formats it itself",
+          "description": "customDefaultValue: \"value = zaak.startdatum\" — a picker needs the raw ISO value and formats it itself",
           "format": "dd-MM-yyyy",
           "enableTime": false,
           "datePicker": {
@@ -88,12 +72,7 @@
             "minuteIncrement": 1,
             "time_24hr": true
           },
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "startdatum"
-          }
+          "customDefaultValue": "value = zaak.startdatum"
         },
         {
           "label": "Opgeschort as a word",
@@ -101,14 +80,8 @@
           "key": "IN_zaakOpgeschort",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: isOpgeschort · ZAC_FORMAAT: jaNee",
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "isOpgeschort",
-            "ZAC_FORMAAT": "jaNee"
-          }
+          "description": "customDefaultValue: \"value = jaNee(zaak.isOpgeschort)\"",
+          "customDefaultValue": "value = jaNee(zaak.isOpgeschort)"
         },
         {
           "label": "Toelichting, multi-line",
@@ -116,14 +89,9 @@
           "key": "IN_zaakToelichting",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: toelichting",
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "toelichting"
-          },
-          "rows": 3
+          "description": "customDefaultValue: \"value = zaak.toelichting\"",
+          "rows": 3,
+          "customDefaultValue": "value = zaak.toelichting"
         },
         {
           "label": "Zaaktype omschrijving",
@@ -131,13 +99,8 @@
           "key": "IN_zaakZaaktype",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: zaaktype.omschrijving",
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "zaaktype.omschrijving"
-          }
+          "description": "customDefaultValue: \"value = zaak.zaaktype.omschrijving\"",
+          "customDefaultValue": "value = zaak.zaaktype.omschrijving"
         },
         {
           "label": "Indicaties, joined list",
@@ -145,13 +108,8 @@
           "key": "IN_zaakIndicaties",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: indicaties",
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "indicaties"
-          }
+          "description": "customDefaultValue: \"value = zaak.indicaties\"",
+          "customDefaultValue": "value = zaak.indicaties"
         }
       ]
     },
@@ -168,13 +126,8 @@
           "key": "IN_taakNaam",
           "input": true,
           "tableView": false,
-          "description": "ZAC_taak_gegevens · ZAC_VELD: naam",
-          "attributes": {
-            "ZAC_TYPE": "ZAC_taak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "naam"
-          }
+          "description": "customDefaultValue: \"value = taak.naam\"",
+          "customDefaultValue": "value = taak.naam"
         },
         {
           "label": "Task group",
@@ -182,13 +135,8 @@
           "key": "IN_taakGroep",
           "input": true,
           "tableView": false,
-          "description": "ZAC_taak_gegevens · ZAC_VELD: groep.naam",
-          "attributes": {
-            "ZAC_TYPE": "ZAC_taak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "groep.naam"
-          }
+          "description": "customDefaultValue: \"value = taak.groep.naam\"",
+          "customDefaultValue": "value = taak.groep.naam"
         },
         {
           "label": "Task assignee",
@@ -196,13 +144,8 @@
           "key": "IN_taakBehandelaar",
           "input": true,
           "tableView": false,
-          "description": "ZAC_taak_gegevens · ZAC_VELD: behandelaar.naam",
-          "attributes": {
-            "ZAC_TYPE": "ZAC_taak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "behandelaar.naam"
-          }
+          "description": "customDefaultValue: \"value = taak.behandelaar.naam\"",
+          "customDefaultValue": "value = taak.behandelaar.naam"
         },
         {
           "label": "Deadline in a date picker",
@@ -210,7 +153,7 @@
           "key": "IN_taakFataledatumPicker",
           "input": true,
           "tableView": false,
-          "description": "ZAC_taak_gegevens · ZAC_VELD: fataledatum · no ZAC_FORMAAT",
+          "description": "customDefaultValue: \"value = taak.fataledatum\"",
           "format": "dd-MM-yyyy",
           "enableTime": false,
           "datePicker": {
@@ -231,12 +174,7 @@
             "minuteIncrement": 1,
             "time_24hr": true
           },
-          "attributes": {
-            "ZAC_TYPE": "ZAC_taak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "fataledatum"
-          }
+          "customDefaultValue": "value = taak.fataledatum"
         }
       ]
     },
@@ -253,13 +191,8 @@
           "key": "IN_fout_object",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: zaaktype",
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "zaaktype"
-          }
+          "description": "customDefaultValue: \"value = zaak.zaaktype\"",
+          "customDefaultValue": "value = zaak.zaaktype"
         },
         {
           "label": "a path that reads on through a value",
@@ -267,13 +200,8 @@
           "key": "IN_fout_pad",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: identificatie.jaar",
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "identificatie.jaar"
-          }
+          "description": "customDefaultValue: \"value = zaak.identificatie.jaar\"",
+          "customDefaultValue": "value = zaak.identificatie.jaar"
         },
         {
           "label": "Formatted value into a picker",
@@ -281,7 +209,7 @@
           "key": "IN_fout_pickerFormaat",
           "input": true,
           "tableView": false,
-          "description": "ZAC_zaak_gegevens · ZAC_VELD: startdatum · ZAC_FORMAAT: datum — the picker cannot read 24-08-2026",
+          "description": "customDefaultValue: \"value = datum(zaak.startdatum)\" — the picker cannot read 24-08-2026",
           "format": "dd-MM-yyyy",
           "enableTime": false,
           "datePicker": {
@@ -302,13 +230,7 @@
             "minuteIncrement": 1,
             "time_24hr": true
           },
-          "attributes": {
-            "ZAC_TYPE": "ZAC_zaak_gegevens"
-          },
-          "properties": {
-            "ZAC_VELD": "startdatum",
-            "ZAC_FORMAAT": "datum"
-          }
+          "customDefaultValue": "value = datum(zaak.startdatum)"
         }
       ]
     },

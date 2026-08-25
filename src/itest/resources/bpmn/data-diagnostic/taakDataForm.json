@@ -9,7 +9,7 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>Taak data via ZAC_taak_gegevens</h3><p>The same mechanism with the taak as its source: <code>ZAC_VELD</code> for the path, <code>ZAC_FORMAAT</code> for the formatting. These properties are read straight off the Flowable task, so there is no copy that can go stale. The last row is a deliberate mistake, naming the taak as the source rather than the zaak.</p>"
+      "html": "<h3>Taak data in a form</h3><p>The same mechanism with the taak as its source: <code>&#123;&#123; taak.naam &#125;&#125;</code>, <code>&#123;&#123; taak.groep.naam &#125;&#125;</code>, <code>&#123;&#123; datum(taak.fataledatum) &#125;&#125;</code>. These properties are read straight off the Flowable task, so there is no copy that can go stale.</p><p>Both <code>zaak</code> and <code>taak</code> are in the context of every form, so a property that exists on both is whichever one you name. The last row names the taak where the zaak was meant, and renders as empty without complaint.</p>"
     },
     {
       "type": "panel",

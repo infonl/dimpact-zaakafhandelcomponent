@@ -341,24 +341,41 @@ describe(FormioCustomFunctions.name, () => {
       ).toBe("Zaak ZAAK-2026-0000000835 van Melding klein evenement");
     });
 
-    it("should escape a value so a form cannot render markup a user entered", async () => {
+    it("should remove markup so a form cannot render what a user entered", async () => {
       const rendered = await interpolate("{{ zaak.omschrijving }}");
 
       expect(rendered).not.toContain("<img");
-      expect(rendered).toBe("&lt;img src=x onerror=alert(1)&gt;");
+      expect(rendered).toBe("");
     });
 
-    it("should escape a value nested in a list", async () => {
+    it("should remove markup nested in a list", async () => {
       const context = await service.prepareFormContext(
         { components: [] },
         {},
         { kenmerken: [{ bron: "<b>x</b>" }] },
       );
 
-      expect(context.zaak).toEqual({
-        kenmerken: [{ bron: "&lt;b&gt;x&lt;/b&gt;" }],
-      });
+      expect(context.zaak).toEqual({ kenmerken: [{ bron: "x" }] });
     });
+
+    it.each([
+      ["an ampersand", "Jansen & Zn"],
+      ["an apostrophe", "'s-Hertogenbosch"],
+      ["a quote", 'de "grote" zaal'],
+    ])(
+      "should leave %s untouched, so a seeded input shows it as typed",
+      async (_name, value) => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          { omschrijving: value },
+        );
+
+        expect((context.zaak as { omschrijving: string }).omschrijving).toBe(
+          value,
+        );
+      },
+    );
 
     it("should leave the taak data it already exposed reachable", async () => {
       const context = await service.prepareFormContext(
@@ -387,6 +404,154 @@ describe(FormioCustomFunctions.name, () => {
       );
 
       expect(Evaluator.interpolate(template, context)).toBe(expected);
+    });
+
+    it.each([
+      ['{{ lijst(zaak.kenmerken, "kenmerk") }}', "fakeKenmerk1, fakeKenmerk2"],
+      ["{{ lijst(zaak.indicaties) }}", "OPSCHORTING, VERLENGD"],
+      ["{{ lijst(zaak.besluiten) }}", ""],
+    ])("should resolve %s to %s", async (template, expected) => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        {
+          kenmerken: [{ kenmerk: "fakeKenmerk1" }, { kenmerk: "fakeKenmerk2" }],
+          indicaties: ["OPSCHORTING", "VERLENGD"],
+          besluiten: [],
+        },
+      );
+
+      expect(Evaluator.interpolate(template, context)).toBe(expected);
+    });
+
+    it("should render every key of an object with sleutels", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        {
+          zaakdata: { NF_Uren: "8", rows: [1, 2, 3], nested: { a: 1, b: 2 } },
+        },
+      );
+      const rendered = Evaluator.interpolate(
+        "{{ sleutels(zaak.zaakdata) }}",
+        context,
+      );
+
+      expect(rendered).toContain("<code>NF_Uren</code>");
+      expect(rendered).toContain("<td>8</td>");
+      expect(rendered).toContain("<td>[3]</td>");
+      expect(rendered).toContain("<td>{2}</td>");
+    });
+
+    it("should sort the keys so the same object always reads the same way", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        {
+          zaakdata: { zebra: "1", alpha: "2" },
+        },
+      );
+      const rendered = Evaluator.interpolate(
+        "{{ sleutels(zaak.zaakdata) }}",
+        context,
+      );
+
+      expect(rendered.indexOf("alpha")).toBeLessThan(rendered.indexOf("zebra"));
+    });
+
+    it("should render nothing for an object with no keys", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        {
+          zaakdata: {},
+        },
+      );
+
+      expect(
+        Evaluator.interpolate("{{ sleutels(zaak.zaakdata) }}", context),
+      ).toBe("");
+    });
+
+    describe("a property that is absent", () => {
+      async function render(template: string, source: object) {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          source,
+        );
+        return Evaluator.interpolate(template, context);
+      }
+
+      it.each([
+        ["one level", "{{ zaak.behandelaar }}"],
+        ["through an absent object", "{{ zaak.behandelaar.naam }}"],
+        ["several levels deep", "{{ zaak.resultaat.resultaattype.naam }}"],
+      ])(
+        "should render nothing for a property absent %s",
+        async (_n, template) => {
+          expect(await render(template, { identificatie: "ZAAK-1" })).toBe("");
+        },
+      );
+
+      it("should not throw where reading through an absent object used to crash", async () => {
+        await expect(
+          render("{{ zaak.behandelaar.naam }}", { behandelaar: null }),
+        ).resolves.toBe("");
+      });
+
+      it.each([
+        ["a null value", { behandelaar: null }],
+        ["an absent key", {}],
+      ])("should read on through %s without throwing", async (_n, source) => {
+        expect(await render("{{ zaak.behandelaar.naam }}", source)).toBe("");
+      });
+
+      it("should not make a value look like a promise, which would hang an await", async () => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          {},
+        );
+
+        await expect(Promise.resolve(context.zaak)).resolves.toBeDefined();
+      });
+
+      it("should leave a real list iterable, so spreading it still works", async () => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          { indicaties: ["OPSCHORTING", "VERLENGD"] },
+        );
+        const zaak = context.zaak as { indicaties: string[] };
+
+        expect([...zaak.indicaties]).toEqual(["OPSCHORTING", "VERLENGD"]);
+      });
+      it("should still read a property that is present", async () => {
+        expect(
+          await render("{{ zaak.behandelaar.naam }}", {
+            behandelaar: { naam: "fakeUserName" },
+          }),
+        ).toBe("fakeUserName");
+      });
+
+      it("should keep lijst working over a list that is absent", async () => {
+        expect(await render('{{ lijst(zaak.kenmerken, "kenmerk") }}', {})).toBe(
+          "",
+        );
+      });
+
+      it("should keep sleutels working over an object that is absent", async () => {
+        expect(await render("{{ sleutels(zaak.zaakdata) }}", {})).toBe("");
+      });
+
+      it("should keep a real list enumerable, so lijst still reads it", async () => {
+        expect(
+          await render('{{ lijst(zaak.kenmerken, "kenmerk") }}', {
+            kenmerken: [{ kenmerk: "a" }, { kenmerk: "b" }],
+          }),
+        ).toBe("a, b");
+      });
     });
   });
 });

@@ -130,56 +130,6 @@ export const referenceTableFieldset: ExtendedComponentSchema = {
   },
 };
 
-export function gegevensInputComponent(
-  veld: string,
-  {
-    zacType = KNOWN_ZAC_FIELDS.ZAAK_GEGEVENS,
-    formaat,
-    key = "IN_Seeded",
-  }: { zacType?: KNOWN_ZAC_FIELDS; formaat?: string; key?: string } = {},
-): ExtendedComponentSchema {
-  return {
-    type: "textfield",
-    key,
-    label: "Seeded",
-    input: true,
-    properties: {
-      ZAC_VELD: veld,
-      ...(formaat ? { ZAC_FORMAAT: formaat } : {}),
-    },
-    attributes: { [ZAC_FIELD_ATTRIBUTE]: zacType },
-  };
-}
-
-export function taakGegevensComponent(
-  veld: string,
-  options?: { label?: string; formaat?: string },
-): ExtendedComponentSchema {
-  return {
-    ...zaakGegevensComponent(veld, options),
-    key: "TG_Taakveld",
-    attributes: { [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.TAAK_GEGEVENS },
-  };
-}
-
-export function zaakGegevensComponent(
-  veld: string,
-  { label = "Zaakveld", formaat }: { label?: string; formaat?: string } = {},
-): ExtendedComponentSchema {
-  return {
-    type: "textfield",
-    key: "ZO_Zaakveld",
-    label,
-    input: true,
-    properties: formaat
-      ? { ZAC_VELD: veld, ZAC_FORMAAT: formaat }
-      : { ZAC_VELD: veld },
-    attributes: {
-      [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.ZAAK_GEGEVENS,
-    },
-  };
-}
-
 export const document1 = { uuid: "doc-1", titel: "Document One" };
 export const document2 = { uuid: "doc-2", titel: "Document Two" };
 export const signedDocument = {

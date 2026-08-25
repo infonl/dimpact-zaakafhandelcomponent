@@ -9,7 +9,7 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>Zaak data via ZAC_zaak_gegevens</h3><p>Every row shows one property of the zaak: on the left the path as written in <code>ZAC_VELD</code>, next to it the value. For dates and booleans the value is shown twice: first as the zaak holds it, then with a <code>ZAC_FORMAAT</code> function wrapped around it. Lists are joined with a comma; use <code>[]</code> to read on into a property of every element, as in <code>kenmerken[].kenmerk</code>. A dash means the property holds no value &mdash; the API omits empty properties, so a misspelled property cannot be told apart from an empty one. The last panel holds six deliberate mistakes, which <em>are</em> detectable.</p>"
+      "html": "<h3>Zaak data in a form</h3><p>Every row shows one property of the zaak: on the left the expression, next to it what it renders. ZAC puts the zaak in the form's template context, so <code>&#123;&#123; zaak.identificatie &#125;&#125;</code> in a content component is all that is needed &mdash; there is no ZAC attribute or property involved. Nested properties work as you would expect: <code>&#123;&#123; zaak.zaaktype.omschrijving &#125;&#125;</code>.</p><p>Three helper functions come with it: <code>&#123;&#123; datum(zaak.startdatum) &#125;&#125;</code> and <code>&#123;&#123; jaNee(zaak.isOpen) &#125;&#125;</code> for display, and <code>&#123;&#123; lijst(zaak.kenmerken, \"kenmerk\") &#125;&#125;</code> to read one property of every element of a list. Several values can go in one sentence, which is what a content component is for.</p><p><strong>Almost nothing reports a mistake.</strong> A misspelled property renders as empty, and so does a property read through an object the zaak does not have &mdash; <code>behandelaar.naam</code> on an unassigned zaak is a correct expression, not a mistake, and renders nothing rather than failing. An object renders <code>[object Object]</code>. Only an unknown <em>function</em> is loud, and only in the browser console. The last panel shows each of those. Markup in a zaak value is removed before the form ever sees it, so a value cannot inject anything.</p>"
     },
     {
       "type": "panel",
@@ -1687,7 +1687,7 @@
                     "key": "ZO_kenmerken_lijst_kenmerk",
                     "input": false,
                     "tableView": false,
-                    "html": "<em>kenmerken[].kenmerk &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
+                    "html": "{{ lijst(zaak.kenmerken, \"kenmerk\") }}"
                   }
                 ]
               }
@@ -1713,7 +1713,7 @@
                     "key": "ZO_kenmerken_lijst_bron",
                     "input": false,
                     "tableView": false,
-                    "html": "<em>kenmerken[].bron &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
+                    "html": "{{ lijst(zaak.kenmerken, \"bron\") }}"
                   }
                 ]
               }
@@ -1739,7 +1739,7 @@
                     "key": "ZO_besluiten_lijst_identificatie",
                     "input": false,
                     "tableView": false,
-                    "html": "<em>besluiten[].identificatie &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
+                    "html": "{{ lijst(zaak.besluiten, \"identificatie\") }}"
                   }
                 ]
               }
@@ -1765,7 +1765,7 @@
                     "key": "ZO_besluiten_lijst_datum",
                     "input": false,
                     "tableView": false,
-                    "html": "<em>besluiten[].datum &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
+                    "html": "{{ lijst(zaak.besluiten, \"datum\") }}"
                   }
                 ]
               }
@@ -1791,7 +1791,7 @@
                     "key": "ZO_gerelateerdeZaken_lijst_identificatie",
                     "input": false,
                     "tableView": false,
-                    "html": "<em>gerelateerdeZaken[].identificatie &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
+                    "html": "{{ lijst(zaak.gerelateerdeZaken, \"identificatie\") }}"
                   }
                 ]
               }
@@ -1817,7 +1817,7 @@
                     "key": "ZO_gerelateerdeZaken_lijst_relatieType",
                     "input": false,
                     "tableView": false,
-                    "html": "<em>gerelateerdeZaken[].relatieType &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
+                    "html": "{{ lijst(zaak.gerelateerdeZaken, \"relatieType\") }}"
                   }
                 ]
               }
@@ -1843,7 +1843,7 @@
                     "key": "ZO_gerelateerdeZaken_lijst_startdatum",
                     "input": false,
                     "tableView": false,
-                    "html": "<em>gerelateerdeZaken[].startdatum &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
+                    "html": "{{ lijst(zaak.gerelateerdeZaken, \"startdatum\") }}"
                   }
                 ]
               }
@@ -1964,7 +1964,7 @@
                     "key": "NAAM_onbekend_formaat",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>startdatum + ZAC_FORMAAT: dutchDate</code>"
+                    "html": "<code>&#123;&#123; dutchDate(zaak.startdatum) &#125;&#125;</code> &mdash; an unknown function; the only mistake that says so, in the browser console"
                   }
                 ]
               },
@@ -2028,7 +2028,7 @@
                     "key": "ZO_identificatie_lijst_geen_lijst",
                     "input": false,
                     "tableView": false,
-                    "html": "<em>identificatie[] &mdash; no template equivalent: {{ }} cannot read into every element of a list</em>"
+                    "html": "{{ lijst(zaak.identificatie) }}"
                   }
                 ]
               }

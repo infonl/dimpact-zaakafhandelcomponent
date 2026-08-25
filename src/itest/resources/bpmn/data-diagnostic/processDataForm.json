@@ -9,11 +9,11 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>What each table is, and where it comes from</h3><p>Every table below is one field. Its heading is the field's own declaration, so you can read off exactly what was asked for and from which source. A path ending in <code>*</code> renders every key the addressed object holds, so none of these keys are authored by hand.</p><p>A nested object shows as <code>{n}</code> and a list as <code>[n]</code>, n being the number of entries; address those with their own path to look inside.</p>"
+      "html": "<h3>What each table is, and where it comes from</h3><p>Every table below is one content component. Its heading is the expression that produced it, so you can read off exactly what was asked for and from which source. <code>&#123;&#123; sleutels(zaak.zaakdata) &#125;&#125;</code> renders every key the object holds, so none of these keys are authored by hand &mdash; which is the point, because the process variables differ per process and per run.</p><p>A nested object shows as <code>{n}</code> and a list as <code>[n]</code>, n being the number of entries; address those with their own expression to look inside. The last panel holds expressions that cannot work; note that none of them report anything in the form &mdash; a wrong expression renders empty or <code>[object Object]</code>, never a message.</p>"
     },
     {
       "type": "panel",
-      "title": "Read from the zaak  —  ZAC_zaak_gegevens",
+      "title": "Read from the zaak",
       "key": "from_zaak",
       "input": false,
       "tableView": false,
@@ -31,7 +31,7 @@
           "key": "PDzaak_zaakdata_tabel",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\">ZAC_zaak_gegevens  ·  ZAC_VELD: zaakdata.*: </span><em>zaakdata.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; sleutels(zaak.zaakdata) &#125;&#125;</code>: </span>{{ sleutels(zaak.zaakdata) }}"
         },
         {
           "type": "content",
@@ -46,7 +46,7 @@
           "key": "PDzaak_zaaktype_tabel",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\">ZAC_zaak_gegevens  ·  ZAC_VELD: zaaktype.*: </span><em>zaaktype.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; sleutels(zaak.zaaktype) &#125;&#125;</code>: </span>{{ sleutels(zaak.zaaktype) }}"
         },
         {
           "type": "content",
@@ -61,13 +61,13 @@
           "key": "PDzaak_groep_tabel",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\">ZAC_zaak_gegevens  ·  ZAC_VELD: groep.*: </span><em>groep.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; sleutels(zaak.groep) &#125;&#125;</code>: </span>{{ sleutels(zaak.groep) }}"
         }
       ]
     },
     {
       "type": "panel",
-      "title": "Read from the taak  —  ZAC_taak_gegevens",
+      "title": "Read from the taak",
       "key": "from_taak",
       "input": false,
       "tableView": false,
@@ -85,7 +85,7 @@
           "key": "PDtaak_taakdata_tabel",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\">ZAC_taak_gegevens  ·  ZAC_VELD: taakdata.*: </span><em>taakdata.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; sleutels(taak.taakdata) &#125;&#125;</code>: </span>{{ sleutels(taak.taakdata) }}"
         },
         {
           "type": "content",
@@ -100,7 +100,7 @@
           "key": "PDtaak_taakinformatie_tabel",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\">ZAC_taak_gegevens  ·  ZAC_VELD: taakinformatie.*: </span><em>taakinformatie.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; sleutels(taak.taakinformatie) &#125;&#125;</code>: </span>{{ sleutels(taak.taakinformatie) }}"
         },
         {
           "type": "content",
@@ -115,7 +115,7 @@
           "key": "PDtaak_rechten_tabel",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\">ZAC_taak_gegevens  ·  ZAC_VELD: rechten.*: </span><em>rechten.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; sleutels(taak.rechten) &#125;&#125;</code>: </span>{{ sleutels(taak.rechten) }}"
         }
       ]
     },
@@ -132,15 +132,15 @@
           "key": "PD_fout_scalar",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\">ZAC_zaak_gegevens  ·  ZAC_VELD: identificatie.*: </span><em>identificatie.* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; sleutels(zaak.identificatie) &#125;&#125;</code>: </span>{{ sleutels(zaak.identificatie) }}"
         },
         {
           "label": "",
           "type": "content",
-          "key": "PD_fout_wildcard_niet_laatst",
+          "key": "PD_fout_typefout",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\">a key of an object reached through a wildcard: </span><em>no template equivalent</em>"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; zaak.kommunikatiekanaal &#125;&#125;</code> (misspelled): </span>{{ zaak.kommunikatiekanaal }}"
         },
         {
           "label": "",
@@ -148,7 +148,7 @@
           "key": "PD_fout_wildcard_na_lijst",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\">ZAC_zaak_gegevens  ·  ZAC_VELD: kenmerken[].*: </span><em>kenmerken[].* &mdash; no template equivalent: {{ }} cannot list keys it does not know</em>"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; sleutels(lijst(zaak.kenmerken)) &#125;&#125;</code>: </span>{{ sleutels(lijst(zaak.kenmerken)) }}"
         },
         {
           "label": "",
@@ -156,7 +156,7 @@
           "key": "PD_fout_object_zonder_wildcard",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\">ZAC_zaak_gegevens  ·  ZAC_VELD: zaaktype: </span>{{ zaak.zaaktype }}"
+          "html": "<span class=\"fw-medium\"><code>&#123;&#123; zaak.zaaktype &#125;&#125;</code>: </span>{{ zaak.zaaktype }}"
         }
       ]
     },

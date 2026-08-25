@@ -18,7 +18,6 @@ import { OrderUtil } from "../../../shared/order/order-util";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
 import { renderFieldError } from "./formio-component-utils";
-import { initializeGegevensField } from "./zac-gegevens-field";
 
 export const ZAC_FIELD_ATTRIBUTE = "ZAC_TYPE";
 export enum KNOWN_ZAC_FIELDS {
@@ -35,8 +34,6 @@ export enum KNOWN_ZAC_FIELDS {
   RESULTAAT = "ZAC_resultaat",
   STATUS = "ZAC_status",
   PROCESS_DATA = "ZAC_process_data",
-  ZAAK_GEGEVENS = "ZAC_zaak_gegevens",
-  TAAK_GEGEVENS = "ZAC_taak_gegevens",
 }
 
 /** Hides the field's chrome; styled in `formio-wrapper.component.less`. */
@@ -138,24 +135,6 @@ export class FormioSetupService {
               break;
             case KNOWN_ZAC_FIELDS.PROCESS_DATA:
               this.initializeProcessDataField(component);
-              break;
-            case KNOWN_ZAC_FIELDS.ZAAK_GEGEVENS:
-              initializeGegevensField(
-                component,
-                zaak,
-                "Zaak",
-                taak,
-                this.translateService,
-              );
-              break;
-            case KNOWN_ZAC_FIELDS.TAAK_GEGEVENS:
-              initializeGegevensField(
-                component,
-                taak,
-                "Taak",
-                taak,
-                this.translateService,
-              );
               break;
             case KNOWN_ZAC_FIELDS.SMART_DOCUMENTS_TEMPLATE_GROUPS:
               this.initializeSmartDocumentsTemplateGroupsField(component, taak);
