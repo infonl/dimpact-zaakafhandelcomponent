@@ -7,13 +7,13 @@ package net.atos.zac.app.mail.model
 
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 
-fun createRESTMailGegevens(
+fun createRestMailGegevens(
     verzender: String = "from@example.com",
     ontvanger: String = "to@example.com",
     onderwerp: String = "fakeOnderwerp",
     body: String = "fakeBody",
     vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding? = RestVertrouwelijkheidaanduiding.OPENBAAR,
-) = RESTMailGegevens(
+) = RestMailGegevens(
     verzender = verzender,
     ontvanger = ontvanger,
     onderwerp = onderwerp,

@@ -5,17 +5,17 @@
 package net.atos.zac.app.mail.converter
 
 import jakarta.inject.Inject
-import net.atos.zac.app.mail.model.RESTMailGegevens
+import net.atos.zac.app.mail.model.RestMailGegevens
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.shared.toDrcVertrouwelijkheidaanduidingEnum
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mailtemplates.model.MailGegevens
 
-class RESTMailGegevensConverter @Inject constructor(
+class RestMailGegevensConverter @Inject constructor(
     private val configurationService: ConfigurationService
 ) {
-    fun convert(restMailGegevens: RESTMailGegevens): MailGegevens {
+    fun convert(restMailGegevens: RestMailGegevens): MailGegevens {
         // Note that most of the actual conversion happens in the constructor.
         // Please do not move it here, because MailGegevens do not always get constructed here.
         val afzender = configurationService.readGemeenteNaam()

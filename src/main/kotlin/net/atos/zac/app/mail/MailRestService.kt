@@ -13,8 +13,8 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
-import net.atos.zac.app.mail.model.RESTMailGegevens
+import net.atos.zac.app.mail.converter.RestMailGegevensConverter
+import net.atos.zac.app.mail.model.RestMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
@@ -40,14 +40,14 @@ class MailRestService @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService,
     private val policyService: PolicyService,
     private val zrcClientService: ZrcClientService,
-    private val restMailGegevensConverter: RESTMailGegevensConverter,
+    private val restMailGegevensConverter: RestMailGegevensConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     @POST
     @Path("send/{zaakUuid}")
     fun sendMail(
         @PathParam("zaakUuid") zaakUuid: UUID,
-        restMailGegevens: RESTMailGegevens
+        restMailGegevens: RestMailGegevens
     ) {
         val loggedInUser = loggedInUserInstance.get()
         val zaak = zrcClientService.readZaak(zaakUuid)
@@ -59,7 +59,7 @@ class MailRestService @Inject constructor(
     @Path("acknowledge/{zaakUuid}")
     fun sendAcknowledgmentReceiptMail(
         @PathParam("zaakUuid") zaakUuid: UUID,
-        restMailGegevens: RESTMailGegevens
+        restMailGegevens: RestMailGegevens
     ) {
         val loggedInUser = loggedInUserInstance.get()
         val zaak = zrcClientService.readZaak(zaakUuid)

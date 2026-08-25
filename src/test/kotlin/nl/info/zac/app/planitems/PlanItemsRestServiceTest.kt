@@ -16,8 +16,8 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
-import net.atos.zac.app.mail.model.createRESTMailGegevens
+import net.atos.zac.app.mail.converter.RestMailGegevensConverter
+import net.atos.zac.app.mail.model.createRestMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.zac.util.time.convertToDate
@@ -75,7 +75,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val mailTemplateService = mockk<MailTemplateService>()
     val policyService = mockk<PolicyService>()
     val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
-    val restMailGegevensConverter = mockk<RESTMailGegevensConverter>()
+    val restMailGegevensConverter = mockk<RestMailGegevensConverter>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     val planItemsRESTService = PlanItemsRestService(
@@ -537,7 +537,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 resultaat = URI("https://example.com/resultaat/${UUID.randomUUID()}"),
             )
             val mailGegevens = createMailGegevens()
-            val restMailGegevens = createRESTMailGegevens()
+            val restMailGegevens = createRestMailGegevens()
             val restUserEventListenerData = createRESTUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,

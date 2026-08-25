@@ -10,23 +10,23 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.zac.app.mail.model.createRESTMailGegevens
+import net.atos.zac.app.mail.model.createRestMailGegevens
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.configuration.ConfigurationService
 
-class RESTMailGegevensConverterTest : BehaviorSpec({
+class RestMailGegevensConverterTest : BehaviorSpec({
     val configurationService = mockk<ConfigurationService>()
-    val restMailGegevensConverter = RESTMailGegevensConverter(configurationService)
+    val restMailGegevensConverter = RestMailGegevensConverter(configurationService)
     val gemeenteNaam = "fakeGemeenteNaam"
 
     afterEach {
         checkUnnecessaryStub()
     }
 
-    given("a RESTMailGegevens with a vertrouwelijkheidaanduiding") {
+    given("a RestMailGegevens with a vertrouwelijkheidaanduiding") {
         every { configurationService.readGemeenteNaam() } returns gemeenteNaam
-        val restMailGegevens = createRESTMailGegevens(
+        val restMailGegevens = createRestMailGegevens(
             verzender = "verzender@example.com",
             ontvanger = "ontvanger@example.com",
             vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.GEHEIM
@@ -57,9 +57,9 @@ class RESTMailGegevensConverterTest : BehaviorSpec({
         }
     }
 
-    given("a RESTMailGegevens without a vertrouwelijkheidaanduiding") {
+    given("a RestMailGegevens without a vertrouwelijkheidaanduiding") {
         every { configurationService.readGemeenteNaam() } returns gemeenteNaam
-        val restMailGegevens = createRESTMailGegevens(
+        val restMailGegevens = createRestMailGegevens(
             vertrouwelijkheidaanduiding = null
         )
 
@@ -72,9 +72,9 @@ class RESTMailGegevensConverterTest : BehaviorSpec({
         }
     }
 
-    given("a RESTMailGegevens without a replyTo address") {
+    given("a RestMailGegevens without a replyTo address") {
         every { configurationService.readGemeenteNaam() } returns gemeenteNaam
-        val restMailGegevens = createRESTMailGegevens()
+        val restMailGegevens = createRestMailGegevens()
 
         `when`("convert is called") {
             val mailGegevens = restMailGegevensConverter.convert(restMailGegevens)

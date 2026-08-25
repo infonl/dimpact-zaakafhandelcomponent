@@ -11,7 +11,7 @@ import nl.info.zac.util.NoArgConstructor
  * REST gegevens voor het verzenden van mail
  */
 @NoArgConstructor
-data class RESTMailGegevens(
+data class RestMailGegevens(
     var verzender: String? = null,
 
     var ontvanger: String? = null,
