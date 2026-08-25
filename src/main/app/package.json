@@ -72,7 +72,7 @@
     "@testing-library/angular": "18.1.1",
     "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "7.0.1",
-    "@testing-library/user-event": "14.6.5",
+    "@testing-library/user-event": "14.6.6",
     "@types/jest": "29.5.14",
     "@types/node": "24.13.3",
     "@typescript-eslint/eslint-plugin": "8.67.0",
