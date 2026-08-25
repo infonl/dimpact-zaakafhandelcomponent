@@ -21,7 +21,7 @@ type FormioFunctionFactory = (
 // Removing a tag can splice a new one together, as in `<scr<x>ipt>`, so repeat until nothing changes.
 function stripTags(value: string) {
   let stripped = value;
-  for (let previous = ""; stripped !== previous;) {
+  for (let previous = ""; stripped !== previous; ) {
     previous = stripped;
     stripped = stripped.replace(/<[^>]*>/g, "");
   }

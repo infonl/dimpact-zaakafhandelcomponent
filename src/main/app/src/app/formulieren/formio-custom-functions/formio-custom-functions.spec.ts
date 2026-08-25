@@ -775,5 +775,34 @@ describe(FormioCustomFunctions.name, () => {
         ),
       ).toBe("geen datum");
     });
+
+    it.each([
+      ["a plain tag", "<b>x</b>", "x"],
+      ["a script tag", "<script>alert(1)</script>", "alert(1)"],
+      ["an image with a handler", "<img src=x onerror=alert(1)>", ""],
+      // the residue is harmless text; what matters is that no bracket survives to form a tag
+      [
+        "a tag spliced together by removing another",
+        "<scr<x>ipt>alert(1)</script>",
+        "iptalert(1)",
+      ],
+      [
+        "a doubled opening bracket",
+        "<<script>script>alert(1)",
+        "scriptalert(1)",
+      ],
+      ["a stray bracket", "5 < 6", "5  6"],
+    ])("should leave no markup for %s", async (_n, value, expected) => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        { omschrijving: value },
+      );
+      const stripped = (context.zaak as { omschrijving: string }).omschrijving;
+
+      expect(stripped).toBe(expected);
+      expect(stripped).not.toContain("<");
+      expect(stripped).not.toContain(">");
+    });
   });
 });

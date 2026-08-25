@@ -95,7 +95,8 @@ export class FormioWrapperComponent
   protected evalContextReady = false;
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes["form"]) {
+    // Not `taak` or `taakdata`: a rebuild tears the open form down, and a taak event replaces those.
+    if (changes["form"] || changes["zaak"]) {
       this.rebuild$.next();
     }
 
