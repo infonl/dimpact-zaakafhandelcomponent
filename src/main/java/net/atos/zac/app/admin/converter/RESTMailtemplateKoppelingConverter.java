@@ -9,6 +9,7 @@ import java.util.Set;
 
 import net.atos.zac.app.admin.model.RESTMailtemplateKoppeling;
 import nl.info.zac.admin.model.ZaaktypeCmmnMailtemplateParameters;
+import nl.info.zac.app.admin.converter.RestMailtemplateConverterKt;
 
 public final class RESTMailtemplateKoppelingConverter {
     // Private constructor to prevent instantiation
@@ -18,7 +19,8 @@ public final class RESTMailtemplateKoppelingConverter {
     public static RESTMailtemplateKoppeling convert(final ZaaktypeCmmnMailtemplateParameters zaaktypeCmmnMailtemplateParameters) {
         final RESTMailtemplateKoppeling restMailtemplateKoppeling = new RESTMailtemplateKoppeling();
         restMailtemplateKoppeling.id = zaaktypeCmmnMailtemplateParameters.getId();
-        restMailtemplateKoppeling.mailtemplate = RESTMailtemplateConverter.convert(zaaktypeCmmnMailtemplateParameters.getMailTemplate());
+        restMailtemplateKoppeling.mailtemplate = RestMailtemplateConverterKt.toRestMailtemplate(zaaktypeCmmnMailtemplateParameters
+                .getMailTemplate());
 
         return restMailtemplateKoppeling;
     }
@@ -26,7 +28,7 @@ public final class RESTMailtemplateKoppelingConverter {
     public static ZaaktypeCmmnMailtemplateParameters convert(final RESTMailtemplateKoppeling restMailtemplateKoppeling) {
         final ZaaktypeCmmnMailtemplateParameters zaaktypeCmmnMailtemplateParameters = new ZaaktypeCmmnMailtemplateParameters();
         zaaktypeCmmnMailtemplateParameters.setMailTemplate(
-                RESTMailtemplateConverter.convert(restMailtemplateKoppeling.mailtemplate)
+                RestMailtemplateConverterKt.toMailTemplate(restMailtemplateKoppeling.mailtemplate)
         );
         return zaaktypeCmmnMailtemplateParameters;
     }

@@ -77,6 +77,8 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 
 **b) Package declaration** — update to the target package (e.g. `nl.info.client.bag`).
 
+**b2) Acronym casing** — Java names routinely all-caps an acronym (`RESTMailtemplate`, `RESTZaakbeeindigRedenConverter`, `XMLParser`). Kotlin naming conventions only allow that for a two-letter acronym (`IOStream`); a longer one gets only its first letter capitalized (`XmlFormatter`, `HttpInputStream`, `RestMailtemplate`). Rename the class (and its file) to match while converting — `RESTMailtemplateConverter.java` → `RestMailtemplateConverter.kt`, not `RESTMailtemplateConverter.kt`. Apply this to every renamed declaration, not just the top-level class: nested types too. Update every call site accordingly (Step 7).
+
 **c) Imports** — update any `net.atos.*` imports to `nl.info.*`. Remove Java stdlib imports that have Kotlin equivalents.
 
 **d) Classes**:
@@ -86,12 +88,14 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 - `private final Type field;` → constructor parameter `private val field: Type`
 - `public static final String X = "y";` → `companion object { const val X = "y" }`
 - **Companion object placement**: put `companion object { ... }` at the top of the class body — before secondary constructors, properties, and functions (this project overrides the general Kotlin style guide's "companion object last" recommendation). In an `enum class`, the enum constants must still come first (a language requirement), so place the companion object immediately after the constants, before any other member. See `nl.info.client.zgw.shared.model.Results` and `nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding` for examples.
+- **Static-only utility/converter classes** (a `final class` with a private no-arg constructor and only `public static` methods, no instance state) → do **not** wrap the functions in a Kotlin `object`. Convert each method to a plain top-level function in the file instead, and **never use `@JvmStatic`** — that annotation only makes sense inside an `object`/`companion object`, and this project avoids that pattern entirely for stateless utility/converter classes. **Never use `@file:JvmName(...)` either** — don't try to preserve the old Java class-qualified call syntax (`Foo.bar(x)`) by forcing the file's JVM facade class to keep the class's old name. If Java callers of the old class are out of scope for this migration, just update those call sites to use the Kotlin default: a file `Foo.kt` with top-level functions compiles to a facade class `FooKt`, so update the caller's import and every call site from `Foo.bar(x)` to `FooKt.bar(x)`. See `nl.info.zac.app.admin.converter.RestMailtemplateConverter` for a worked example (note the class/file is named `RestMailtemplateConverter`, not `RESTMailtemplateConverter` — see the acronym-casing bullet under (b) below; its Java callers use `RestMailtemplateConverterKt.toRestMailtemplate(...)`).
 
 **e) Methods**:
 - Remove `public`, `final` modifiers
 - Remove `@Override` (use `override` keyword)
 - Remove semicolons
 - Use expression bodies (`=`) for single-expression methods
+- Omit the return type on an expression-body function when the right-hand side already makes it obvious (e.g. `Foo().apply { ... }`, or delegating to another function with a clear return type) — even for public API. Keep the return type only when it's a block body (required by Kotlin) or omitting it would genuinely obscure the return type.
 - `Optional<T>` → nullable `T?`; `Optional.of(x)` / `Optional.empty()` → `x` / `null`
 - `Collections.emptyList()` / `Collections.emptyMap()` → `emptyList()` / `emptyMap()`
 - Stream chains → Kotlin collection operations: `.stream().map(this::fn).toList()` → `.map(::fn)`
@@ -139,26 +143,32 @@ to this
 // Kotlin: someMethod(x = x, y = y, z = z)
 ```
 
-**m) Add extension functions** — if the original Java class had static utility methods that operate on instances of a class, consider converting them to Kotlin extension functions for better discoverability and idiomatic usage. For example:
-```javapublic class NoteConverter {
+**m) Prefer extension functions for single-argument conversions** — a Java `static` method that takes exactly one argument and converts it to another type is a converter/mapper, and should become a Kotlin extension function on that argument's type, not a top-level function taking it as a parameter. Give it a descriptive `toXxx()`/`fromXxx()` name rather than reusing the old method name (`convert`, `map`, ...) — the receiver already tells the reader what's being converted, so the name should say what it becomes. Declare it as a top-level function in the file, not inside an `object` — see the static-utility-class bullet under (d), including its ban on `@file:JvmName`: the receiver becomes the first parameter for Java, so a Java caller of `Foo.convert(note)` moves to `FooKt.toDto(note)`. For example:
+```java
+public class NoteConverter {
     public static NoteDto toDto(Note note) { ... }
     public static Note fromDto(NoteDto dto) { ... }
 }
 ```
 could be converted to:
-```kotlinobject NoteConverter {
-    fun Note.toDto(): NoteDto { ... }
-    fun NoteDto.fromDto(): Note { ... }
-}
+```kotlin
+fun Note.toDto(): NoteDto { ... }
+fun NoteDto.fromDto(): Note { ... }
 ```
 This allows callers to use the conversion methods in a more natural way:
-```kotlinval noteDto = note.toDto()
+```kotlin
+val noteDto = note.toDto()
 val note = noteDto.fromDto()
 ```
+The conversion body is configuring a freshly constructed object, so use `.apply { ... }` for it (see CLAUDE.md's ".apply for object configuration" convention) even though the extension receiver and the new object are two different values in scope at once — qualify reads of the extension receiver with `this@functionName` so every unqualified assignment inside the block unambiguously targets the new object: `RESTMailtemplate().apply { mailTemplateNaam = this@toRestMailtemplate.mailTemplateNaam }`. Don't reach for `.also` just to dodge the qualification — `.also` is for side effects on an existing value, and configuring a new object's fields isn't one. See `nl.info.zac.app.admin.converter.RestMailtemplateConverter` (`toRestMailtemplate()`, `toMailTemplate()`, `toMailTemplateWithoutID()`) for a worked example — it started out with two separate single-argument static methods (`convertForCreate`/`convertForUpdate`) that turned out to have identical bodies once converted, so they were collapsed into the one aptly-named `toMailTemplateWithoutID()` function rather than kept as two distinctly-named extension functions. Collapse duplicate-bodied conversions like this by default; only keep them separate when the names genuinely carry different intent that the call site relies on.
 
 **n) Nullability — default to non-null, widen only when a real caller needs it**
 
-Java has no compile-time nullability, so every Java parameter/field/return type is a candidate for either `T` or `T?` in Kotlin — picking `T?` everywhere is the easy way out, but it throws away most of the benefit of migrating to Kotlin. Decide per member, not per file:
+Java has no compile-time nullability, so every Java parameter/field/return type is a candidate for either `T` or `T?` in Kotlin — picking `T?` everywhere is the easy way out, but it throws away most of the benefit of migrating to Kotlin. Decide per member, not per file.
+
+**Single-parameter functions in particular must take a non-nullable argument.** A one-parameter function that guards its only input with a null check and throws (the common Java pattern: `if (x == null) throw new IllegalArgumentException(...)`) should instead declare that parameter non-null and drop the check entirely — Kotlin's type system enforces it at compile time for every caller in this codebase, which is strictly stronger than a runtime check. Do this even if it means updating or removing a test that exercised the old null-input branch (a Kotlin caller literally cannot pass `null` to a non-null parameter, so that test scenario no longer exists — the compiler is now the enforcement). If the migration in progress genuinely cannot tighten the parameter (a real external Java caller — out of scope for this migration — passes a value that is sometimes null), fall back to the general rule below instead of hardcoding nullability just for that one case.
+
+For functions taking more than one parameter, or fields, decide per member as follows:
 
 1. **Find every real call site first**, not just the ones in the file being converted. A single grep for `Foo.methodName(` misses:
    - Statically/unqualified-imported calls: `import ...Foo.methodName` then `methodName(x)` with no `Foo.` prefix.

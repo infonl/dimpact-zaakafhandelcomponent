@@ -17,12 +17,12 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
 import net.atos.zac.app.admin.model.RESTMailtemplate;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService;
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration;
+import nl.info.zac.app.admin.converter.RestMailtemplateConverterKt;
 import nl.info.zac.mailtemplates.MailTemplateService;
 import nl.info.zac.mailtemplates.model.Mail;
 import nl.info.zac.mailtemplates.model.MailTemplate;
@@ -55,11 +55,11 @@ public class MailtemplateRESTService {
 
         return zaaktypeCmmnConfiguration.getMailtemplateKoppelingen().stream()
                 .filter(koppeling -> koppeling.getMailTemplate().mail.equals(mail))
-                .map(koppeling -> RESTMailtemplateConverter.convert(koppeling.getMailTemplate()))
+                .map(koppeling -> RestMailtemplateConverterKt.toRestMailtemplate(koppeling.getMailTemplate()))
                 .findFirst()
                 .orElseGet(() -> {
                     MailTemplate mailTemplate = mailTemplateService.findDefaultMailtemplate(mail);
-                    return mailTemplate != null ? RESTMailtemplateConverter.convert(mailTemplate) : null;
+                    return mailTemplate != null ? RestMailtemplateConverterKt.toRestMailtemplate(mailTemplate) : null;
                 });
     }
 }

@@ -14,6 +14,7 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.ws.rs.core.Response
 import net.atos.zac.app.admin.model.createRestMailTemplate
+import nl.info.zac.app.admin.MailtemplateBeheerRestService
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
