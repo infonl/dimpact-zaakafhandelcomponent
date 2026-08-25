@@ -41,6 +41,13 @@ function stripTagsDeep<T>(value: T): T {
  * field fails to render. Every value handed to a form is therefore wrapped: an absent property
  * yields a stand-in that is safe to read on through and renders as nothing.
  */
+/**
+ * The path a value was reached by, carried on the value itself. A table of keys is only useful if
+ * the reader can copy a row straight into an expression, and that needs the path the keys hang off,
+ * which the helper receiving the value would otherwise have no way of knowing.
+ */
+const PATH = Symbol("path");
+
 const PRIMITIVE_HOOKS: (string | symbol)[] = [
   Symbol.toPrimitive,
   "toString",
@@ -52,7 +59,7 @@ const PRIMITIVE_HOOKS: (string | symbol)[] = [
  * the stand-in, and `then` stays absent, or every value would look like a promise and awaiting one
  * would hang.
  */
-function standsInFor(property: string | symbol) {
+function standsInFor(property: string | symbol): property is string {
   return typeof property === "string" && property !== "then";
 }
 
@@ -69,6 +76,11 @@ const ABSENT: Record<string | symbol, unknown> = new Proxy(
 /** Form.io re-renders a form many times over, so each unknown property is reported once. */
 const reportedPaths = new Set<string>();
 
+/** The path a wrapped value was reached by, or undefined for anything not wrapped. */
+function pathOf(value: unknown) {
+  return (value as Record<symbol, string> | null)?.[PATH];
+}
+
 /**
  * A property the object does not have at all is a typo, and nothing on screen says so any more. A
  * property that is present but empty is ordinary data - an unassigned zaak has no behandelaar - and
@@ -80,8 +92,8 @@ function reportUnknownProperty(target: object, property: string, path: string) {
   if (reportedPaths.has(reported)) return;
   reportedPaths.add(reported);
   console.warn(
-    `[FormioCustomFunctions] "${reported}" is not a property of the ${path.split(".")[0]}. ` +
-      `It renders as empty. Known here: ${Object.keys(target).sort().join(", ")}`,
+    `[FormioCustomFunctions] "${reported}" is not a property of the ` +
+      `${path.split(".")[0]}. It renders as empty.`,
   );
 }
 
@@ -90,6 +102,8 @@ function readableThrough<T>(value: T, path: string): T {
   if (typeof value !== "object") return value;
   return new Proxy(value as object, {
     get(target, property, receiver) {
+      if (property === PATH) return path;
+
       const read = Reflect.get(target, property, receiver);
       if (read === null || read === undefined) {
         if (!standsInFor(property)) return read;
@@ -127,6 +141,14 @@ export class FormioCustomFunctions {
         value === true || value === "true" ? "actie.ja" : "actie.nee",
       ),
 
+    /**
+     * `customConditional: "show = bestaat(zaak.zaakdata.PD_x)"` - whether a property is really
+     * there. A plain truthiness test cannot be used: an absent property yields a stand-in object so
+     * that reading on through it is safe, and every object is truthy. The stand-in renders as the
+     * empty string, which is what this leans on, so a present-but-empty value counts as absent too.
+     */
+    bestaat: (value: unknown) => String(value ?? "") !== "",
+
     /** `{{ lijst(zaak.kenmerken, "kenmerk") }}` - one property of every element of a list. */
     lijst: (values: unknown, property?: string) =>
       (Array.isArray(values) ? values : [])
@@ -142,14 +164,26 @@ export class FormioCustomFunctions {
         .join(", "),
 
     /**
-     * `{{ sleutels(zaak.zaakdata) }}` - every key of an object whose keys are not known in advance.
-     * A nested object or list is counted rather than expanded; address it with its own path.
+     * `{{ sleutels(zaak.zaakdata, "where it comes from") }}` - every key of an object whose keys are
+     * not known in advance, boxed with a caption. A nested object or list is counted rather than
+     * expanded; address it with its own expression. The caption is optional and is the only place a
+     * reader learns which system produced these keys, so it is worth filling in.
      */
-    sleutels: (source: unknown) => {
+    sleutels: (source: unknown, caption?: string) => {
       const entries = Object.entries(
         source !== null && typeof source === "object" ? source : {},
       ).sort(([left], [right]) => left.localeCompare(right));
-      if (!entries.length) return "";
+      const path = pathOf(source);
+
+      const header = caption
+        ? `<div class="card-header py-1 px-2 small text-body-secondary">${caption}</div>`
+        : "";
+      if (!entries.length) {
+        return (
+          `<div class="card mb-2">${header}<div class="card-body py-1 px-2 small ` +
+          `text-body-secondary"><em>no keys</em></div></div>`
+        );
+      }
 
       const rows = entries
         .map(([key, value]) => {
@@ -159,12 +193,16 @@ export class FormioCustomFunctions {
               ? `{${Object.keys(value).length}}`
               : String(value);
           return (
-            `<tr><th scope="row" class="fw-normal text-nowrap"><code>${key}</code></th>` +
+            `<tr><th scope="row" class="fw-normal text-nowrap">` +
+            `<code>${path ? `${path}.${key}` : key}</code></th>` +
             `<td>${rendered}</td></tr>`
           );
         })
         .join("");
-      return `<table class="table table-sm table-bordered mb-0"><tbody>${rows}</tbody></table>`;
+      return (
+        `<div class="card mb-2">${header}` +
+        `<table class="table table-sm mb-0"><tbody>${rows}</tbody></table></div>`
+      );
     },
   };
 

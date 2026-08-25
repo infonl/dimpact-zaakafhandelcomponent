@@ -437,7 +437,7 @@ describe(FormioCustomFunctions.name, () => {
         context,
       );
 
-      expect(rendered).toContain("<code>NF_Uren</code>");
+      expect(rendered).toContain("<code>zaak.zaakdata.NF_Uren</code>");
       expect(rendered).toContain("<td>8</td>");
       expect(rendered).toContain("<td>[3]</td>");
       expect(rendered).toContain("<td>{2}</td>");
@@ -459,7 +459,7 @@ describe(FormioCustomFunctions.name, () => {
       expect(rendered.indexOf("alpha")).toBeLessThan(rendered.indexOf("zebra"));
     });
 
-    it("should render nothing for an object with no keys", async () => {
+    it("should say so for an object with no keys, rather than render an empty box", async () => {
       const context = await service.prepareFormContext(
         { components: [] },
         {},
@@ -467,10 +467,99 @@ describe(FormioCustomFunctions.name, () => {
           zaakdata: {},
         },
       );
+      const rendered = Evaluator.interpolate(
+        "{{ sleutels(zaak.zaakdata) }}",
+        context,
+      );
+
+      expect(rendered).toContain("no keys");
+      expect(rendered).not.toContain("<table");
+    });
+
+    it("should box the table with a caption naming where the keys come from", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        {
+          zaakdata: { NF_Uren: "8" },
+        },
+      );
+      const rendered = Evaluator.interpolate(
+        '{{ sleutels(zaak.zaakdata, "Flowable process variables") }}',
+        context,
+      );
+
+      expect(rendered).toContain('<div class="card mb-2">');
+      expect(rendered).toContain("Flowable process variables");
+      expect(rendered).toContain("<code>zaak.zaakdata.NF_Uren</code>");
+    });
+
+    it("should spell every key out in full, so a row can be copied into an expression", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        {
+          zaakdata: {
+            zaakIdentificatie: "ZAAK-2026-0000000248",
+            zaaktypeUUID: "26076928-ce07-4d5d-8638-c2d276f6caca",
+          },
+        },
+      );
+      const rendered = Evaluator.interpolate(
+        "{{ sleutels(zaak.zaakdata) }}",
+        context,
+      );
+
+      expect(rendered).toContain(
+        "<code>zaak.zaakdata.zaakIdentificatie</code>",
+      );
+      expect(rendered).toContain("<code>zaak.zaakdata.zaaktypeUUID</code>");
+      expect(rendered).not.toContain("<code>zaakIdentificatie</code>");
+    });
+
+    it("should name the taak in the keys of a taak object", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        undefined,
+        { taakinformatie: { toelichting: "spoed" } },
+      );
 
       expect(
-        Evaluator.interpolate("{{ sleutels(zaak.zaakdata) }}", context),
-      ).toBe("");
+        Evaluator.interpolate("{{ sleutels(taak.taakinformatie) }}", context),
+      ).toContain("<code>taak.taakinformatie.toelichting</code>");
+    });
+
+    it("should leave the keys bare when the value did not come from the zaak or the taak", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        {},
+      );
+
+      expect(
+        Evaluator.interpolate(
+          "{{ sleutels(lijst(zaak.indicaties)) }}",
+          context,
+        ),
+      ).toContain("no keys");
+    });
+
+    it("should leave the caption out when none is given", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        {
+          zaakdata: { NF_Uren: "8" },
+        },
+      );
+      const rendered = Evaluator.interpolate(
+        "{{ sleutels(zaak.zaakdata) }}",
+        context,
+      );
+
+      expect(rendered).toContain('<div class="card mb-2">');
+      expect(rendered).not.toContain("card-header");
     });
 
     describe("a property that is absent", () => {
@@ -527,6 +616,63 @@ describe(FormioCustomFunctions.name, () => {
 
         expect([...zaak.indicaties]).toEqual(["OPSCHORTING", "VERLENGD"]);
       });
+
+      it("should report a property the zaak does not have, naming the full path", async () => {
+        const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+        await render("{{ zaak.kommunikatiekanaal }}", {
+          communicatiekanaal: "Medewerkersportaal",
+        });
+
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining(
+            '"zaak.kommunikatiekanaal" is not a property',
+          ),
+        );
+      });
+
+      it("should name the path through a nested object", async () => {
+        const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+        await render("{{ zaak.zaaktype.omschryving }}", {
+          zaaktype: { omschrijving: "Melding" },
+        });
+
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining('"zaak.zaaktype.omschryving"'),
+        );
+      });
+
+      it("should stay quiet for a property that is present but empty, which is ordinary data", async () => {
+        const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+        await render("{{ zaak.behandelaar.naam }}", { behandelaar: null });
+
+        expect(warn).not.toHaveBeenCalledWith(
+          expect.stringContaining("zaak.behandelaar"),
+        );
+      });
+
+      it("should stay quiet for an index past the end of a list", async () => {
+        const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+        await render("{{ lijst(zaak.indicaties) }}", { indicaties: ["A"] });
+
+        expect(warn).not.toHaveBeenCalled();
+      });
+
+      it("should report the same property once, however often the form re-renders", async () => {
+        const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+        await render("{{ zaak.eenmaligGemeld }}", {});
+        await render("{{ zaak.eenmaligGemeld }}", {});
+
+        expect(
+          warn.mock.calls.filter(([message]) =>
+            String(message).includes("zaak.eenmaligGemeld"),
+          ),
+        ).toHaveLength(1);
+      });
       it("should still read a property that is present", async () => {
         expect(
           await render("{{ zaak.behandelaar.naam }}", {
@@ -542,7 +688,9 @@ describe(FormioCustomFunctions.name, () => {
       });
 
       it("should keep sleutels working over an object that is absent", async () => {
-        expect(await render("{{ sleutels(zaak.zaakdata) }}", {})).toBe("");
+        expect(await render("{{ sleutels(zaak.zaakdata) }}", {})).toContain(
+          "no keys",
+        );
       });
 
       it("should keep a real list enumerable, so lijst still reads it", async () => {

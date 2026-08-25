@@ -45,7 +45,7 @@
                     "key": "NAAM_TG_naam",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>naam</code>"
+                    "html": "<code>taak.naam</code>"
                   }
                 ]
               },
@@ -71,7 +71,7 @@
                     "key": "NAAM_TG_status",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>status</code>"
+                    "html": "<code>taak.status</code>"
                   }
                 ]
               },
@@ -97,7 +97,7 @@
                     "key": "NAAM_TG_toelichting",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>toelichting</code>"
+                    "html": "<code>taak.toelichting</code>"
                   }
                 ]
               },
@@ -123,7 +123,7 @@
                     "key": "NAAM_TG_groep_naam",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>groep.naam</code>"
+                    "html": "<code>taak.groep.naam</code>"
                   }
                 ]
               },
@@ -149,7 +149,7 @@
                     "key": "NAAM_TG_groep_id",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>groep.id</code>"
+                    "html": "<code>taak.groep.id</code>"
                   }
                 ]
               },
@@ -175,7 +175,7 @@
                     "key": "NAAM_TG_behandelaar_naam",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>behandelaar.naam</code>"
+                    "html": "<code>taak.behandelaar.naam</code>"
                   }
                 ]
               },
@@ -201,7 +201,7 @@
                     "key": "NAAM_TG_behandelaar_id",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>behandelaar.id</code>"
+                    "html": "<code>taak.behandelaar.id</code>"
                   }
                 ]
               },
@@ -227,7 +227,7 @@
                     "key": "NAAM_TG_id",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>id</code>"
+                    "html": "<code>taak.id</code>"
                   }
                 ]
               },
@@ -283,7 +283,7 @@
                     "key": "NAAM_TG_creatiedatumTijd",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>creatiedatumTijd</code>"
+                    "html": "<code>taak.creatiedatumTijd</code>"
                   }
                 ]
               },
@@ -321,7 +321,7 @@
                     "key": "NAAM_TG_toekenningsdatumTijd",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>toekenningsdatumTijd</code>"
+                    "html": "<code>taak.toekenningsdatumTijd</code>"
                   }
                 ]
               },
@@ -359,7 +359,7 @@
                     "key": "NAAM_TG_fataledatum",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>fataledatum</code>"
+                    "html": "<code>taak.fataledatum</code>"
                   }
                 ]
               },
@@ -426,7 +426,7 @@
                     "key": "NAAM_TGfout_naam_eerste",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>naam.eerste</code>"
+                    "html": "<code>taak.naam.eerste</code>"
                   }
                 ]
               },
