@@ -11,5 +11,8 @@ data class TaakData(
     val open: Boolean = false,
 
     @field:JsonbProperty("zaaktype")
-    val zaaktype: String? = null
+    val zaaktype: String? = null,
+
+    @field:JsonbProperty("zaakspecifiekGeautoriseerd")
+    val zaakspecifiekGeautoriseerd: Boolean = false
 )

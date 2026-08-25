@@ -15,6 +15,7 @@ As also documented in the [ZAC gebruikershandleiding](../manuals) ZAC supports t
 |:--------------|:-------------------------------------------------------------------------------------------------------------------------------------------|
 | raadpleger    | Een raadpleger. Heeft rechten om zaken, taken en documenten te raadplegen, maar niet om deze te wijzigen.                                  |
 | behandelaar   | Een zaakbehandelaar. Heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken.                                       |
+| zaakspecifiek_geautoriseerd | Een vlag die, in combinatie met een andere applicatierol (behandelaar, raadpleger, coordinator, recordmanager of beheerder) van de medewerker voor een zaaktype, de rechten van die andere rol ook laat gelden voor zaakspecifiek geautoriseerde zaken van dat zaaktype. Geeft op zichzelf geen rechten; zonder deze vlag heeft geen enkele rol toegang tot zaakspecifiek geautoriseerde zaken van dat zaaktype. |
 | coordinator   | Een zaakcoördinator of ook wel werkverdeler genoemd. Heeft rechten om vanuit werklijsten werk te verdelen en zaken en taken te raadplegen. |
 | recordmanager | Mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken.                               |
 | beheerder     | De functioneel beheerder. Heeft toegang tot de beheerschermen van ZAC en kan daar diverse instellingen aanmaken en wijzingen.              |
@@ -112,7 +113,16 @@ Notes:
   E.g. in case of a closed zaak, the CMMN state of the zaak is such that no active task 'plan items' exist for the zaak
   and therefore no task can be started.
 - The policies listed above are backend policies. Whether the related functionality is available to the user in the
-  frontend (browser) is for a large part also determined by these policies but differences may apply.
+  frontend (browser) is, for a large part, also determined by these policies, but differences may apply.
+- The `zaakspecifiek_geautoriseerd` application role is not listed as a separate column in the table above
+  because it does not grant any permission on its own. It is a flag: when a medewerker holds
+  `zaakspecifiek_geautoriseerd` for a zaaktype *in addition to* one of the normal application roles above
+  for that same zaaktype, the rights already granted by that
+  normal role also apply to zaakspecifiek geautoriseerde zaken of that zaaktype (a zaak marked as such via a
+  `ZAAK_GEAUTORISEERD` zaakeigenschap), not only to non-zaakspecifiek geautoriseerde zaken. Without also
+  holding one of these normal roles, `zaakspecifiek_geautoriseerd` grants no rights at all. This also
+  covers the taken and documenten of a zaakspecifiek geautoriseerde zaak. However, it does not (yet) apply to werklijsten
+  or zoekresultaten.
 
 ## Technical implementation
 
@@ -128,13 +138,13 @@ Then during normal operation the following happens:
 1. When a user with a certain role X requests to perform a certain action on ZAC (e.g. create a new zaak), the ZAC
    backend will send a request to the OPA server to obtain the current access control rights ('rechten') for the resource
    in question (zaken in this case).
-2. With these access control rights the ZAC backend then checks if role X is allowed to perform the requested action
+2. With these access control rights, the ZAC backend then checks if role X is allowed to perform the requested action
    (create a new zaak in this case). In some cases (see above) additional logic is also performed to check access control.
    All this is done in the ZAC Java backend code, mostly in the REST Java classes.
-3. If the requested action is allowed the user may perform the action. Should this however not be allowed an error
+3. If the requested action is allowed, the user may perform the action. Should this, however, not be allowed, an error
    message will be logged and returned to the user.
 
-The ZAC frontend however will normally prevent the user from even trying to perform this requested action
+The ZAC frontend, however, will normally prevent the user from even trying to perform this requested action
 (the frontend also uses these access control rights) so the scenario above can normally only happen if a user bypasses
 the ZAC frontend and tries to perform the action directly on the ZAC backend.
 
