@@ -473,6 +473,16 @@ class MyServiceTest : BehaviorSpec({
 })
 ```
 
+Use the lowercase `and(...)` block for an additional assertion group after a `then(...)`, not the capitalized `And(...)`. Kotest's `BehaviorSpec` provides both, but mixing cases (lowercase `given`/`when`/`then` with capitalized `And`) is exactly what CodeQL's `java/confusing-method-name` query flags as confusing. This is an in-progress migration — many existing specs still use `And(...)` — but new and touched specs should use `and(...)`.
+```kotlin
+// Before
+then("expected result") { ... }
+And("an additional assertion") { ... }
+// After
+then("expected result") { ... }
+and("an additional assertion") { ... }
+```
+
 ### Use `fakeXXX` for test values where possible
 
 For example, instead of:

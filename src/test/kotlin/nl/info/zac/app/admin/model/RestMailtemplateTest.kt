@@ -59,7 +59,7 @@ class RestMailtemplateTest : BehaviorSpec({
                     domainMailTemplate.id shouldBe 0L
                 }
 
-                And("all other fields should be correctly mapped") {
+                and("all other fields should be correctly mapped") {
                     domainMailTemplate.mailTemplateNaam shouldBe "Test Template"
                     domainMailTemplate.onderwerp shouldBe "Test Subject" // HTML tags stripped
                     domainMailTemplate.body shouldBe "Test Body"
