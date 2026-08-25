@@ -12,6 +12,11 @@ import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.
  * A mutation reports its own failures through `onError`; a query has no such
  * option, so every read is reported from the cache instead. The cache reports
  * once a query has given up, not once per retry.
+ *
+ * A read that still goes through `ZacHttpClient` reports its own failure and
+ * then rethrows the message it built, so what reaches the cache is a string
+ * rather than a response. Reporting that too would close the dialog it just
+ * opened and replace it with a generic one, so only a response is reported.
  */
 export const QUERY_CLIENT = new InjectionToken<QueryClient>("QUERY_CLIENT", {
   providedIn: "root",
@@ -20,8 +25,11 @@ export const QUERY_CLIENT = new InjectionToken<QueryClient>("QUERY_CLIENT", {
 
     return new QueryClient({
       queryCache: new QueryCache({
-        onError: (error) =>
-          foutAfhandelingService.foutAfhandelen(error as HttpErrorResponse),
+        onError: (error) => {
+          if (!(error instanceof HttpErrorResponse)) return;
+
+          foutAfhandelingService.foutAfhandelen(error);
+        },
       }),
     });
   },

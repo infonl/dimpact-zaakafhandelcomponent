@@ -6,8 +6,6 @@
 import { inject, Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { DEFAULT_RETRY_COUNT } from "../../shared/http/zac-query-client";
 import { KlantenService } from "../klanten.service";
 
 @Injectable({
@@ -16,7 +14,6 @@ import { KlantenService } from "../klanten.service";
 export class PersoonResolverService {
   private readonly queryClient = inject(QueryClient);
   private readonly klantenService = inject(KlantenService);
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   async resolve(route: ActivatedRouteSnapshot) {
     const temporaryPersonId = route.paramMap.get("temporaryPersonId")!;
@@ -27,14 +24,8 @@ export class PersoonResolverService {
       );
     }
 
-    return this.queryClient.ensureQueryData({
-      ...this.klantenService.readPersoon(temporaryPersonId),
-      retry: (count, error) => {
-        if (count < DEFAULT_RETRY_COUNT) return true;
-
-        this.foutAfhandelingService.httpErrorAfhandelen(error);
-        return false;
-      },
-    });
+    return this.queryClient.ensureQueryData(
+      this.klantenService.readPersoon(temporaryPersonId),
+    );
   }
 }

@@ -25,7 +25,7 @@ import type {
 import { HttpClient, Response } from "./http-client";
 
 // From https://tanstack.com/query/latest/docs/framework/angular/guides/query-retries
-export const DEFAULT_RETRY_COUNT = 3;
+const DEFAULT_RETRY_COUNT = 3;
 
 /** Retries only what could still succeed: a dropped connection or a server fault. */
 const retryOnServerError = (failureCount: number, error: HttpErrorResponse) => {

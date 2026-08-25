@@ -39,6 +39,21 @@ describe("QUERY_CLIENT", () => {
     expect(foutAfhandelen).toHaveBeenCalledWith(error);
   });
 
+  it("reports nothing for a read that has already reported its own failure", async () => {
+    const queryClient = TestBed.inject(QUERY_CLIENT);
+    const alreadyReported = "De server heeft code 500 geretourneerd.";
+
+    await expect(
+      queryClient.fetchQuery({
+        queryKey: ["fakeEndpoint"],
+        queryFn: () => Promise.reject(alreadyReported),
+        retry: false,
+      }),
+    ).rejects.toBe(alreadyReported);
+
+    expect(foutAfhandelen).not.toHaveBeenCalled();
+  });
+
   it("reports a read that has given up once, not once per retry", async () => {
     const queryClient = TestBed.inject(QUERY_CLIENT);
 

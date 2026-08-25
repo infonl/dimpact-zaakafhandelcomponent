@@ -6,7 +6,6 @@
 import { inject, Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { MailtemplateBeheerService } from "./mailtemplate-beheer.service";
 
 @Injectable({
@@ -17,7 +16,6 @@ export class MailtemplateResolver {
     MailtemplateBeheerService,
   );
   private readonly queryClient = inject(QueryClient);
-  private readonly foutAfhandelingService = inject(FoutAfhandelingService);
 
   resolve(route: ActivatedRouteSnapshot) {
     const id = route.paramMap.get("id");
@@ -28,12 +26,8 @@ export class MailtemplateResolver {
       );
     }
 
-    return this.queryClient.fetchQuery({
-      ...this.mailtemplateBeheerService.readMailtemplateQuery(Number(id)),
-      retry: (_count, error) => {
-        this.foutAfhandelingService.httpErrorAfhandelen(error);
-        return false;
-      },
-    });
+    return this.queryClient.fetchQuery(
+      this.mailtemplateBeheerService.readMailtemplateQuery(Number(id)),
+    );
   }
 }
