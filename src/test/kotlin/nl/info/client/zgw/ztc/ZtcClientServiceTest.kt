@@ -23,11 +23,10 @@ import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
 import nl.info.client.zgw.ztc.model.RoltypeListGeneriekParameters
 import nl.info.client.zgw.ztc.model.ZaaktypeListParameters
-import net.atos.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import java.net.URI
 import java.time.ZonedDateTime
-import java.util.Optional
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -48,7 +47,7 @@ class ZtcClientServiceTest : BehaviorSpec({
     given("An existing catalogus for the given parameters") {
         val catalogusListParameters = createCatalogusListParameters()
         val expectedCatalogus = createCatalogus()
-        every { ztcClient.catalogusList(catalogusListParameters).singleResult } returns Optional.of(expectedCatalogus)
+        every { ztcClient.catalogusList(catalogusListParameters).singleResult } returns expectedCatalogus
 
         `when`("readCatalogus is called") {
             val result = ztcClientService.readCatalogus(catalogusListParameters)
@@ -61,7 +60,7 @@ class ZtcClientServiceTest : BehaviorSpec({
 
     given("No catalog for the given parameters") {
         val catalogusListParameters = createCatalogusListParameters()
-        every { ztcClient.catalogusList(catalogusListParameters).singleResult } returns Optional.empty()
+        every { ztcClient.catalogusList(catalogusListParameters).singleResult } returns null
 
         `when`("readCatalogus is called") {
             val exception = shouldThrow<CatalogusNotFoundException> {

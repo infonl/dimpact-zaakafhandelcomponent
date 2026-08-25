@@ -16,10 +16,10 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import net.atos.client.zgw.shared.exception.ZgwErrorExceptionMapper
-import net.atos.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper
-import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
+import nl.info.client.zgw.shared.exception.ZgwErrorExceptionMapper
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper
+import nl.info.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.util.JsonbConfiguration
 import nl.info.client.zgw.brc.exception.BrcResponseExceptionMapper
 import nl.info.client.zgw.brc.model.BesluitenListParameters

@@ -6,7 +6,7 @@ package nl.info.zac.app.informatieobjecten.converter
 
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.exception.ZgwErrorException
+import nl.info.client.zgw.shared.exception.ZgwErrorException
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.brc.BrcClientService

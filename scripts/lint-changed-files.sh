@@ -64,6 +64,27 @@ done
 # Filter out test files
 FILTERED_FILES=$(echo "$EXISTING_FILES" | grep -v '\.spec\.' | grep -v '\.test\.' | grep -v 'test-helpers' || true)
 
+# Spec files are linted separately, against the stricter Testing Library rules
+SPEC_FILES=$(echo "$EXISTING_FILES" | grep '\.spec\.ts$' || true)
+
+if [ -n "$SPEC_FILES" ]; then
+    RELATIVE_SPECS=$(echo "$SPEC_FILES" | sed "s|^$APP_DIR/||")
+
+    echo "🔧 Running ESLint on changed spec files (strict Testing Library rules)..."
+    echo "$RELATIVE_SPECS"
+    echo ""
+
+    if ! (cd "$APP_DIR" && ESLINT_USE_FLAT_CONFIG=false npx eslint -c .eslintrc.strict-specs.js $RELATIVE_SPECS); then
+        echo ""
+        echo "❌ Changed spec files must follow the Testing Library query priority"
+        echo "💡 Prefer getByRole over DOM traversal: https://testing-library.com/docs/queries/about/#priority"
+        exit 1
+    fi
+
+    echo "✅ Changed spec files passed"
+    echo ""
+fi
+
 if [ -z "$FILTERED_FILES" ]; then
     echo "✅ No source files changed (only test files)"
     exit 0

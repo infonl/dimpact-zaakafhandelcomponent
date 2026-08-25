@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.model.Results
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.brp.BrpClientService
 import nl.info.client.brp.model.createAdres
