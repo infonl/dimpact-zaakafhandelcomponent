@@ -1,0 +1,15 @@
+#
+# SPDX-FileCopyrightText: 2026 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+#
+name: "CodeQL config"
+
+# Exclude quality/style queries that conflict with deliberate project conventions, rather than
+# changing code to satisfy them.
+query-filters:
+  # Kotest's BehaviorSpec DSL provides both capitalized (Given/When/Then/And) and lowercase
+  # (given/when/then/and) variants by design. This project deliberately mixes lowercase
+  # given/when/then with capitalized And(...) in its Kotest specs, which this query otherwise
+  # flags as "confusing" on every spec file.
+  - exclude:
+      id: java/confusing-method-name
