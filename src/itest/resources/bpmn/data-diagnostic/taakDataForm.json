@@ -9,7 +9,7 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>Taak data in a form</h3><p>The same mechanism with the taak as its source: <code>&#123;&#123; taak.naam &#125;&#125;</code>, <code>&#123;&#123; taak.groep.naam &#125;&#125;</code>, <code>&#123;&#123; ZAC_formatter_datum(taak.fataledatum) &#125;&#125;</code>. These properties are read straight off the task itself, so there is no copy that can go stale.</p><p>Both <code>zaak</code> and <code>taak</code> are in the context of every form, so a property that exists on both is whichever one you name. The last row names the taak where the zaak was meant, and renders as empty without complaint.</p>"
+      "html": "<h3>Taak data in a form</h3><p>The same mechanism with the taak as its source: <code>taak.naam</code>, <code>taak.groep.naam</code>, <code>ZAC_formatter_datum(taak.fataledatum)</code>. These properties are read straight off the task itself, so there is no copy that can go stale.</p><p>Both <code>zaak</code> and <code>taak</code> are in the context of every form, so a property that exists on both is whichever one you name. The last row names the taak where the zaak was meant, and renders as empty without complaint.</p><p>Every other row is wrapped in <code>ZAC_formatter_leeg</code>, so both behaviours are on screen at once: without it an empty property renders as nothing, with it as a dash. It is the same <code>empty</code> pipe the rest of ZAC uses, so a dash here means the same as a dash in the zaak screen.</p>"
     },
     {
       "type": "panel",
@@ -71,7 +71,7 @@
                     "key": "NAAM_TG_status",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>taak.status</code>"
+                    "html": "<code>ZAC_formatter_leeg(taak.status)</code>"
                   }
                 ]
               },
@@ -83,7 +83,7 @@
                     "key": "TG_status",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ taak.status }}"
+                    "html": "{{ ZAC_formatter_leeg(taak.status) }}"
                   }
                 ]
               }
@@ -123,7 +123,7 @@
                     "key": "NAAM_TG_groep_naam",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>taak.groep.naam</code>"
+                    "html": "<code>ZAC_formatter_leeg(taak.groep.naam)</code>"
                   }
                 ]
               },
@@ -135,7 +135,7 @@
                     "key": "TG_groep_naam",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ taak.groep.naam }}"
+                    "html": "{{ ZAC_formatter_leeg(taak.groep.naam) }}"
                   }
                 ]
               }
@@ -175,7 +175,7 @@
                     "key": "NAAM_TG_behandelaar_naam",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>taak.behandelaar.naam</code>"
+                    "html": "<code>ZAC_formatter_leeg(taak.behandelaar.naam)</code>"
                   }
                 ]
               },
@@ -187,7 +187,7 @@
                     "key": "TG_behandelaar_naam",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ taak.behandelaar.naam }}"
+                    "html": "{{ ZAC_formatter_leeg(taak.behandelaar.naam) }}"
                   }
                 ]
               }
@@ -227,7 +227,7 @@
                     "key": "NAAM_TG_id",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>taak.id</code>"
+                    "html": "<code>ZAC_formatter_leeg(taak.id)</code>"
                   }
                 ]
               },
@@ -239,7 +239,7 @@
                     "key": "TG_id",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ taak.id }}"
+                    "html": "{{ ZAC_formatter_leeg(taak.id) }}"
                   }
                 ]
               }
@@ -321,7 +321,7 @@
                     "key": "NAAM_TG_toekenningsdatumTijd",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>taak.toekenningsdatumTijd</code>"
+                    "html": "<code>ZAC_formatter_leeg(taak.toekenningsdatumTijd)</code>"
                   }
                 ]
               },
@@ -333,7 +333,7 @@
                     "key": "TG_toekenningsdatumTijd_raw",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ taak.toekenningsdatumTijd }}"
+                    "html": "{{ ZAC_formatter_leeg(taak.toekenningsdatumTijd) }}"
                   }
                 ]
               },
@@ -426,7 +426,7 @@
                     "key": "NAAM_TGfout_naam_eerste",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>taak.naam.eerste</code>"
+                    "html": "<code>ZAC_formatter_leeg(taak.naam.eerste)</code>"
                   }
                 ]
               },
@@ -438,7 +438,7 @@
                     "key": "TGfout_naam_eerste",
                     "input": false,
                     "tableView": false,
-                    "html": "{{ taak.naam.eerste }}"
+                    "html": "{{ ZAC_formatter_leeg(taak.naam.eerste) }}"
                   }
                 ]
               }

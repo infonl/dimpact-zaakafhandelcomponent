@@ -25,7 +25,7 @@
           "key": "variabelen_uitleg",
           "input": false,
           "tableView": false,
-          "html": "<h4>Every variable the process holds</h4><p>Two boxes, two stages of the same data. <code>taak.taakdata</code> is what this task has stored &mdash; the process variables it was opened with, plus anything the form has saved. <code>zaak.zaakdata</code> is the process variables themselves, which only change when a task is completed. Save the field in the third panel and the difference between the two boxes is visible.</p><p>Neither box is authored by hand: <code>&#123;&#123; ZAC_formatter_sleutels(zaak.zaakdata, …) &#125;&#125;</code> renders whatever keys the object has, which is the point &mdash; the variables differ per process definition and per run, so there is no list to write down. A nested object shows as <code>{n}</code> and a list as <code>[n]</code>, n being the number of entries; address those with their own expression to look inside.</p>"
+          "html": "<h4>Every variable the process holds</h4><p>Two boxes, two stages of the same data. <code>taak.taakdata</code> is what this task has stored &mdash; the process variables it was opened with, plus anything the form has saved. <code>zaak.zaakdata</code> is the process variables themselves, which only change when a task is completed. Save the field in the third panel and the difference between the two boxes is visible.</p><p>Neither box is authored by hand: <code>ZAC_formatter_sleutels</code> renders whatever keys the object has, which is the point &mdash; the variables differ per process definition and per run, so there is no list to write down. A nested object shows as <code>{n}</code> and a list as <code>[n]</code>, n being the number of entries; address those with their own expression to look inside.</p>"
         },
         {
           "label": "",
@@ -33,7 +33,7 @@
           "key": "PDzaak_zaakdata_tabel",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\"><code>&#123;&#123; ZAC_formatter_sleutels(zaak.zaakdata, …) &#125;&#125;</code></span>{{ ZAC_formatter_sleutels(zaak.zaakdata, \"the process variables, merged into the zaak by ZAC each time it is read\") }}"
+          "html": "<span class=\"fw-medium\"><code>ZAC_formatter_sleutels</code></span>{{ ZAC_formatter_sleutels(zaak.zaakdata, \"the process variables, merged into the zaak by ZAC each time it is read\") }}"
         },
         {
           "type": "content",
@@ -48,7 +48,7 @@
           "key": "PDtaak_taakdata_tabel",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\"><code>&#123;&#123; ZAC_formatter_sleutels(taak.taakdata, …) &#125;&#125;</code></span>{{ ZAC_formatter_sleutels(taak.taakdata, \"this task's own stored data, with the process variables merged in when the task is opened\") }}"
+          "html": "<span class=\"fw-medium\"><code>ZAC_formatter_sleutels(taak.taakdata, …)</code></span>{{ ZAC_formatter_sleutels(taak.taakdata, \"this task's own stored data, with the process variables merged in when the task is opened\") }}"
         }
       ]
     },
@@ -94,7 +94,7 @@
                     "key": "VGL_copy_zaakUUID",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.zaakdata.zaakUUID &#125;&#125;</code><br>{{ zaak.zaakdata.zaakUUID }}<br><span class=\"text-body-secondary small\">also <code>&#123;&#123; taak.zaakUuid &#125;&#125;</code></span>"
+                    "html": "<code>zaak.zaakdata.zaakUUID</code><br>{{ zaak.zaakdata.zaakUUID }}<br><span class=\"text-body-secondary small\">also <code>taak.zaakUuid</code></span>"
                   }
                 ]
               },
@@ -105,7 +105,7 @@
                     "key": "VGL_live_zaakUUID",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.uuid &#125;&#125;</code><br>{{ zaak.uuid }}"
+                    "html": "<code>zaak.uuid</code><br>{{ zaak.uuid }}"
                   }
                 ]
               }
@@ -118,7 +118,7 @@
                     "key": "VGL_copy_zaakIdentificatie",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.zaakdata.zaakIdentificatie &#125;&#125;</code><br>{{ zaak.zaakdata.zaakIdentificatie }}<br><span class=\"text-body-secondary small\">also <code>&#123;&#123; taak.zaakIdentificatie &#125;&#125;</code></span>"
+                    "html": "<code>zaak.zaakdata.zaakIdentificatie</code><br>{{ zaak.zaakdata.zaakIdentificatie }}<br><span class=\"text-body-secondary small\">also <code>taak.zaakIdentificatie</code></span>"
                   }
                 ]
               },
@@ -129,7 +129,7 @@
                     "key": "VGL_live_zaakIdentificatie",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.identificatie &#125;&#125;</code><br>{{ zaak.identificatie }}"
+                    "html": "<code>zaak.identificatie</code><br>{{ zaak.identificatie }}"
                   }
                 ]
               }
@@ -142,7 +142,7 @@
                     "key": "VGL_copy_zaaktypeUUID",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.zaakdata.zaaktypeUUID &#125;&#125;</code><br>{{ zaak.zaakdata.zaaktypeUUID }}<br><span class=\"text-body-secondary small\">also <code>&#123;&#123; taak.zaaktypeUUID &#125;&#125;</code></span>"
+                    "html": "<code>zaak.zaakdata.zaaktypeUUID</code><br>{{ zaak.zaakdata.zaaktypeUUID }}<br><span class=\"text-body-secondary small\">also <code>taak.zaaktypeUUID</code></span>"
                   }
                 ]
               },
@@ -153,7 +153,7 @@
                     "key": "VGL_live_zaaktypeUUID",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.zaaktype.uuid &#125;&#125;</code><br>{{ zaak.zaaktype.uuid }}"
+                    "html": "<code>zaak.zaaktype.uuid</code><br>{{ zaak.zaaktype.uuid }}"
                   }
                 ]
               }
@@ -166,7 +166,7 @@
                     "key": "VGL_copy_zaaktypeOmschrijving",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.zaakdata.zaaktypeOmschrijving &#125;&#125;</code><br>{{ zaak.zaakdata.zaaktypeOmschrijving }}<br><span class=\"text-body-secondary small\">also <code>&#123;&#123; taak.zaaktypeOmschrijving &#125;&#125;</code></span>"
+                    "html": "<code>zaak.zaakdata.zaaktypeOmschrijving</code><br>{{ zaak.zaakdata.zaaktypeOmschrijving }}<br><span class=\"text-body-secondary small\">also <code>taak.zaaktypeOmschrijving</code></span>"
                   }
                 ]
               },
@@ -177,7 +177,7 @@
                     "key": "VGL_live_zaaktypeOmschrijving",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.zaaktype.omschrijving &#125;&#125;</code><br>{{ zaak.zaaktype.omschrijving }}"
+                    "html": "<code>zaak.zaaktype.omschrijving</code><br>{{ zaak.zaaktype.omschrijving }}"
                   }
                 ]
               }
@@ -190,7 +190,7 @@
                     "key": "VGL_copy_zaakGroep",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.zaakdata.zaakGroep &#125;&#125;</code><br>{{ zaak.zaakdata.zaakGroep }}<br><span class=\"text-body-secondary small\">also <code>&#123;&#123; taak.groep.naam &#125;&#125;</code></span>"
+                    "html": "<code>zaak.zaakdata.zaakGroep</code><br>{{ zaak.zaakdata.zaakGroep }}<br><span class=\"text-body-secondary small\">also <code>taak.groep.naam</code></span>"
                   }
                 ]
               },
@@ -201,7 +201,7 @@
                     "key": "VGL_live_zaakGroep",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.groep.naam &#125;&#125;</code><br>{{ zaak.groep.naam }}"
+                    "html": "<code>zaak.groep.naam</code><br>{{ zaak.groep.naam }}"
                   }
                 ]
               }
@@ -214,7 +214,7 @@
                     "key": "VGL_copy_zaakBehandelaar",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.zaakdata.zaakBehandelaar &#125;&#125;</code><br>{{ zaak.zaakdata.zaakBehandelaar }}<br><span class=\"text-body-secondary small\">also <code>&#123;&#123; taak.behandelaar.naam &#125;&#125;</code></span>"
+                    "html": "<code>zaak.zaakdata.zaakBehandelaar</code><br>{{ zaak.zaakdata.zaakBehandelaar }}<br><span class=\"text-body-secondary small\">also <code>taak.behandelaar.naam</code></span>"
                   }
                 ]
               },
@@ -225,7 +225,7 @@
                     "key": "VGL_live_zaakBehandelaar",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.behandelaar.naam &#125;&#125;</code><br>{{ zaak.behandelaar.naam }}"
+                    "html": "<code>zaak.behandelaar.naam</code><br>{{ zaak.behandelaar.naam }}"
                   }
                 ]
               }
@@ -238,7 +238,7 @@
                     "key": "VGL_copy_zaakCommunicatiekanaal",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.zaakdata.zaakCommunicatiekanaal &#125;&#125;</code><br>{{ zaak.zaakdata.zaakCommunicatiekanaal }}"
+                    "html": "<code>zaak.zaakdata.zaakCommunicatiekanaal</code><br>{{ zaak.zaakdata.zaakCommunicatiekanaal }}"
                   }
                 ]
               },
@@ -249,7 +249,7 @@
                     "key": "VGL_live_zaakCommunicatiekanaal",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.communicatiekanaal &#125;&#125;</code><br>{{ zaak.communicatiekanaal }}"
+                    "html": "<code>zaak.communicatiekanaal</code><br>{{ zaak.communicatiekanaal }}"
                   }
                 ]
               }
@@ -262,7 +262,7 @@
                     "key": "VGL_copy_initiator",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.zaakdata.initiator &#125;&#125;</code><br>{{ zaak.zaakdata.initiator }}"
+                    "html": "<code>zaak.zaakdata.initiator</code><br>{{ zaak.zaakdata.initiator }}"
                   }
                 ]
               },
@@ -273,7 +273,7 @@
                     "key": "VGL_live_initiator",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.initiatorIdentificatie.type &#125;&#125;</code><br>{{ zaak.initiatorIdentificatie.type }}"
+                    "html": "<code>zaak.initiatorIdentificatie.type</code><br>{{ zaak.initiatorIdentificatie.type }}"
                   }
                 ]
               }
@@ -335,7 +335,7 @@
                     "key": "PD_terug_taak",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; taak.taakdata.PD_proefVariabele &#125;&#125;</code><br>{{ taak.taakdata.PD_proefVariabele }}<br><span class=\"text-body-secondary small\">fills in after Save</span>"
+                    "html": "<code>taak.taakdata.PD_proefVariabele</code><br>{{ taak.taakdata.PD_proefVariabele }}<br><span class=\"text-body-secondary small\">fills in after Save</span>"
                   }
                 ]
               },
@@ -346,7 +346,7 @@
                     "key": "PD_terug_zaak",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>&#123;&#123; zaak.zaakdata.PD_proefVariabele &#125;&#125;</code><br>{{ zaak.zaakdata.PD_proefVariabele }}<br><span class=\"text-body-secondary small\">fills in after Complete</span>"
+                    "html": "<code>zaak.zaakdata.PD_proefVariabele</code><br>{{ zaak.zaakdata.PD_proefVariabele }}<br><span class=\"text-body-secondary small\">fills in after Complete</span>"
                   }
                 ]
               }
@@ -368,7 +368,7 @@
           "key": "PD_fout_scalar",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\"><code>&#123;&#123; ZAC_formatter_sleutels(zaak.zaakdata.zaakIdentificatie) &#125;&#125;</code> &mdash; a single variable has no keys, so the box says so: </span>{{ ZAC_formatter_sleutels(zaak.zaakdata.zaakIdentificatie) }}"
+          "html": "<span class=\"fw-medium\"><code>ZAC_formatter_sleutels(zaak.zaakdata.zaakIdentificatie)</code> &mdash; a single variable has no keys, so the box says so: </span>{{ ZAC_formatter_sleutels(zaak.zaakdata.zaakIdentificatie) }}"
         },
         {
           "label": "",
@@ -376,7 +376,7 @@
           "key": "PD_fout_typefout",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\"><code>&#123;&#123; zaak.zaakdata.zaakKommunicatiekanaal &#125;&#125;</code> &mdash; a misspelled variable; empty here, reported in the console: </span>{{ zaak.zaakdata.zaakKommunicatiekanaal }}"
+          "html": "<span class=\"fw-medium\"><code>zaak.zaakdata.zaakKommunicatiekanaal</code> &mdash; a misspelled variable; empty here, reported in the console: </span>{{ zaak.zaakdata.zaakKommunicatiekanaal }}"
         },
         {
           "label": "",
@@ -384,7 +384,7 @@
           "key": "PD_fout_wildcard_na_lijst",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\"><code>&#123;&#123; zaak.zaakdata.zaakIdentificatie.jaar &#125;&#125;</code> &mdash; reading on through a variable that holds a single value: </span>{{ zaak.zaakdata.zaakIdentificatie.jaar }}"
+          "html": "<span class=\"fw-medium\"><code>zaak.zaakdata.zaakIdentificatie.jaar</code> &mdash; reading on through a variable that holds a single value: </span>{{ zaak.zaakdata.zaakIdentificatie.jaar }}"
         },
         {
           "label": "",
@@ -392,7 +392,7 @@
           "key": "PD_fout_object_zonder_wildcard",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\"><code>&#123;&#123; zaak.zaakdata.initiator &#125;&#125;</code> &mdash; a variable holding an object, without sleutels: </span>{{ zaak.zaakdata.initiator }}"
+          "html": "<span class=\"fw-medium\"><code>zaak.zaakdata.initiator</code> &mdash; a variable holding an object, without sleutels: </span>{{ zaak.zaakdata.initiator }}"
         }
       ]
     },

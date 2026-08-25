@@ -392,7 +392,7 @@ describe(FormioCustomFunctions.name, () => {
     });
 
     it.each([
-      ["{{ ZAC_formatter_datum(zaak.startdatum) }}", "24-08-2026"],
+      ["{{ ZAC_formatter_datum(zaak.startdatum) }}", "24\u201108\u20112026"],
       ["{{ ZAC_formatter_jaNee(zaak.isOpen) }}", "actie.ja"],
       ["{{ ZAC_formatter_jaNee(zaak.isOpgeschort) }}", "actie.nee"],
     ])("should format %s to %s", async (template, expected) => {

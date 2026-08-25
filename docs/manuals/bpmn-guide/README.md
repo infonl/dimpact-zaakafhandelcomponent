@@ -965,12 +965,14 @@ Four functions are in the context alongside the two objects.
 | Function | Turns | Into |
 |---|---|---|
 | `ZAC_formatter_datum(value)` | `2026-08-24` | `24-08-2026` |
+| `ZAC_formatter_leeg(value)` | an empty value | `-` |
 | `ZAC_formatter_jaNee(value)` | `true` / `false` | `Ja` / `Nee` |
 | `ZAC_formatter_lijst(list, "property")` | a list of objects | one property of every element, comma-separated |
 | `ZAC_formatter_sleutels(object, "caption")` | an object | a boxed table of all its keys and values |
 
 ```
 {{ ZAC_formatter_datum(zaak.startdatum) }}                        24-08-2026
+{{ ZAC_formatter_leeg(zaak.toelichting) }}                        -
 {{ ZAC_formatter_jaNee(zaak.isOpen) }}                            Ja
 {{ ZAC_formatter_lijst(zaak.kenmerken, "kenmerk") }}              fakeKenmerk1, fakeKenmerk2
 {{ ZAC_formatter_lijst(zaak.indicaties) }}                        OPSCHORTING, VERLENGD
@@ -979,6 +981,18 @@ Four functions are in the context alongside the two objects.
 
 They all carry the `ZAC_formatter_` prefix so it is clear they come from ZAC and not from Form.io
 itself — nothing in a plain Form.io installation is called any of these.
+
+Two things about `ZAC_formatter_leeg`, both inherited from the Angular pipe:
+
+- **Never use it on a boolean.** It treats anything falsy as empty, so `false` renders as `-` rather
+  than as `false`. Use `ZAC_formatter_jaNee` for a boolean, or read it bare.
+- An **empty date renders as nothing**, not as a dash, because `ZAC_formatter_datum` passes an empty
+  value straight through and the two cannot be combined.
+
+`ZAC_formatter_datum` and `ZAC_formatter_leeg` are the Angular `datum` and `empty` pipes the rest of
+ZAC renders with, so a date and a dash mean the same in a task form as they do in the zaak screen.
+Without `ZAC_formatter_leeg` an empty property renders as nothing at all, which is indistinguishable
+from a wrong path — see [What a mistake looks like](#what-a-mistake-looks-like).
 
 `ZAC_formatter_lijst` is how you read into a list; there is no `[]` path syntax.
 `ZAC_formatter_sleutels` is for objects whose keys you do not know in advance, such as the process
