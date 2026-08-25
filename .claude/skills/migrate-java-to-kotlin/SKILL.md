@@ -85,6 +85,7 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 - No-arg CDI constructor + `@Inject` constructor pair → single `class Foo @Inject constructor(...)`
 - `private final Type field;` → constructor parameter `private val field: Type`
 - `public static final String X = "y";` → `companion object { const val X = "y" }`
+- **Companion object placement**: put `companion object { ... }` at the top of the class body — before secondary constructors, properties, and functions (this project overrides the general Kotlin style guide's "companion object last" recommendation). In an `enum class`, the enum constants must still come first (a language requirement), so place the companion object immediately after the constants, before any other member. See `nl.info.client.zgw.shared.model.Results` and `nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding` for examples.
 
 **e) Methods**:
 - Remove `public`, `final` modifiers
@@ -97,6 +98,17 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 - Logging: keep `java.util.logging.Logger` with the existing pattern, e.g. `Logger.getLogger(X.class)` → `companion object { private val LOG = Logger.getLogger(Foo::class.java.name) }`; `LOG.fine("v: " + v)` → `LOG.fine { "v: $v" }` (or the existing lambda/Supplier style used in the codebase)
 
 **f) Model/POJO classes** → `data class` with constructor parameters where all fields are conceptually immutable; plain `class` with `var` fields when mutability is needed (e.g. JAX-RS `@BeanParam` beans).
+
+**f2) Generic model classes (`class Foo<T>`) reused with many different concrete `T` via a shared `Jsonb` instance — do NOT use an automatic `@JsonbCreator` constructor**
+
+A Java `record Foo<T>(...)` with an `@JsonbCreator` canonical constructor deserializes correctly no matter how many different concrete `Foo<X>` instantiations flow through the same `Jsonb` instance — Yasson has dedicated support for resolving a record's type parameter per call site. A Kotlin class or data class annotated with `@JsonbCreator` does **not** get this treatment: Yasson resolves and caches the creator's parameter types keyed by the *raw* class, not per concrete instantiation. The first `Foo<A>` deserialized "wins", and every later `Foo<B>` deserialized through that same `Jsonb` instance silently comes back with `A`-shaped data mistyped as `B` (or throws a `ClassCastException` downstream where the caller unwraps it) — this reproduces with both an automatically-bound `@JsonbCreator` constructor and a plain no-arg-constructor-plus-setters approach; only real Java records are safe automatically. This is easy to miss because unit tests that mock the REST client never exercise real deserialization — it only surfaces in integration tests or production traffic once two different concrete instantiations are deserialized through the same client's `Jsonb` instance.
+
+This matters whenever a MicroProfile REST Client interface has multiple methods returning `Foo<X>`, `Foo<Y>`, `Foo<Z>`, ... for the same generic wrapper `Foo<T>`, since MicroProfile Rest Client interfaces backed by the same `ContextResolver<Jsonb>` share one `Jsonb` instance across all those methods. Before converting such a class, grep for the class name across REST client interfaces (`grep -rn "Foo<" src/main/kotlin`) — if more than one *distinct* concrete type argument shows up, do not convert it to a plain `@JsonbCreator` data class or a no-arg-constructor/setter class. Instead, resolve `T` manually from the call site:
+
+1. Annotate the class with `@JsonbTypeDeserializer(FooJsonbDeserializer::class)` instead of putting `@JsonbCreator` on the constructor.
+2. Write `FooJsonbDeserializer : JsonbDeserializer<Foo<*>>`, whose `deserialize(parser, ctx, rtType)` casts `rtType` to `ParameterizedType` and reads `rtType.actualTypeArguments[0]` to get the real concrete item type for *this* call, then deserializes nested values against that type explicitly (e.g. via a dedicated field-visible `Jsonb` instance, to avoid recursing back into the app's main `Jsonb` config) rather than letting Yasson infer it automatically.
+3. This is exactly the pattern this codebase already uses for `AuditWijziging<T>` / `AuditWijzigingJsonbDeserializer` — follow that as the reference implementation, and see `Results` / `ResultsJsonbDeserializer` for a second worked example (a generic ZGW pagination wrapper reused across `Catalogus`, `Eigenschap`, `ZaakType`, and others through one shared `Jsonb` instance).
+4. Verify with a real (not mocked) deserialization test that gets the actual configured `Jsonb` instance (e.g. via the project's `JsonbConfiguration().getContext(...)`, not a fresh `JsonbBuilder.create()`) and deserializes two different concrete instantiations through it in sequence, asserting the second one isn't shaped like the first.
 
 **g) Interfaces** — remove `public`; Java annotations on interface methods translate directly.
 
@@ -160,6 +172,7 @@ Java has no compile-time nullability, so every Java parameter/field/return type 
 3. **Watch for the Java-platform-type trap**: an unannotated Java field/method accessed from Kotlin is a flexible platform type (`Foo!`), so the compiler will silently accept passing it to either a nullable or non-null Kotlin parameter — it will NOT flag a mismatch even if the field is null at runtime. This means you cannot rely on "the compiler didn't complain" as proof that tightening a signature is safe. Check the actual data model (`@NotNull` annotations, the upstream API spec, existing `?.`/`!!` usage at other call sites) to decide real-world nullability, not just what compiles.
 4. Same logic applies to **return types**: a function that only returns null for a genuinely absent value (e.g. a blank/absent optional input) should return `T?`; a function that unconditionally transforms its (non-null) input should return `T`.
 5. This is worth extra care specifically because it's easy to get subtly wrong in the *unsafe* direction: tightening a parameter/return type to non-null when a real call site actually can be null does not fail to compile if the source is a Java platform type — it just turns a null into a `NullPointerException` at runtime. When in doubt, re-run `./gradlew test` and `./gradlew itest` after tightening and double check the specific converted class's callers by hand, don't rely on the compiler alone.
+6. **When the evidence is genuinely inconclusive** — call sites disagree, there's no OpenAPI spec or `@NotNull` annotation to check, and the field's real-world optionality can't be determined from the code alone — stop and ask the user rather than guessing. Don't silently default to nullable "to be safe"; that's the exact easy-way-out this section warns against.
 
 Example — a Java-era conversion utility with a real call site that already unwraps before calling, and one that doesn't:
 ```kotlin
@@ -172,6 +185,18 @@ fun convertToLocalDate(date: Date): LocalDate = LocalDate.ofInstant(date.toInsta
 // call site with a genuinely optional Date field:
 val fataledatum = taskInfo.dueDate?.let(DateTimeConverterUtil::convertToLocalDate)
 ```
+
+**o) Immutability — prefer `val` over `var`**
+
+Java fields are mutable by default, but most converted fields are only ever assigned once (in the constructor, or by JSON-B/JAX-RS deserialization via an `@JsonbCreator`/`@BeanParam`-style constructor). Default to `val`:
+
+- A field only ever assigned in the constructor, or set once via a setter that's really an initializer → `val`, moved into the primary constructor.
+- A field genuinely reassigned after construction (a JAX-RS `@BeanParam`/`@QueryParam` bean whose setters are called by the framework after construction, a builder-style accumulator, cached/lazily-computed state) → `var`, and only for that field — don't widen the whole class to mutable because one field needs it.
+- Same rule for local variables: a value computed once and never reassigned is `val`; reach for `var` only for an actual accumulator/loop counter/reassignment.
+
+This mirrors the nullability rule in (n): check real usage before defaulting to the more permissive option. If it's unclear whether a field is ever reassigned after construction (e.g. a framework calls a setter you can't easily trace), ask the user rather than guessing.
+
+Also follow the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) throughout the conversion (naming, formatting, idiomatic collection operations, etc.) — this project's own conventions in `CLAUDE.md` are a superset of them, not a replacement.
 
 ## Step 7 — Update all call sites
 
