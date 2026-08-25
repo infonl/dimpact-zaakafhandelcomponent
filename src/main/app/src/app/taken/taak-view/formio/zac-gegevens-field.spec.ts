@@ -243,9 +243,7 @@ describe(initializeGegevensField.name, () => {
     });
 
     it("should not render a stray colon when the field has no label", () => {
-      expect(render("identificatie", { label: "" }).html).toContain(
-        'class="zac-gegevens-label fw-medium"></span>',
-      );
+      expect(render("identificatie", { label: "" }).html).not.toContain(":");
     });
 
     it("should render a value as the zaak holds it when no format is asked for", () => {
@@ -276,9 +274,7 @@ describe(initializeGegevensField.name, () => {
         omschrijving: undefined,
       });
 
-      expect(component.html).toContain(
-        `<span class="zac-gegevens-value">${NO_VALUE_MARK}</span>`,
-      );
+      expect(component.html).toContain(NO_VALUE_MARK);
     });
 
     it("should not become part of the submission, so completing the task cannot write it back", () => {
@@ -290,9 +286,7 @@ describe(initializeGegevensField.name, () => {
     });
 
     it("should render nothing for a misspelled property, because the api omits empty ones", () => {
-      expect(render("kommunikatiekanaal").html).toContain(
-        `<span class="zac-gegevens-value">${NO_VALUE_MARK}</span>`,
-      );
+      expect(render("kommunikatiekanaal").html).toContain(NO_VALUE_MARK);
     });
 
     it("should report a path that reads on through a single value, in place of the field", () => {
@@ -334,9 +328,7 @@ describe(initializeGegevensField.name, () => {
     });
 
     it("should mark an empty list as holding no value", () => {
-      expect(render("besluiten[].identificatie").html).toContain(
-        `<span class="zac-gegevens-value">${NO_VALUE_MARK}</span>`,
-      );
+      expect(render("besluiten[].identificatie").html).toContain(NO_VALUE_MARK);
     });
 
     it("should treat a list holding only empty elements as holding no value", () => {
@@ -345,9 +337,7 @@ describe(initializeGegevensField.name, () => {
         kenmerken: [{ bron: null }, { bron: "" }],
       });
 
-      expect(component.html).toContain(
-        `<span class="zac-gegevens-value">${NO_VALUE_MARK}</span>`,
-      );
+      expect(component.html).toContain(NO_VALUE_MARK);
     });
 
     it("should suggest a property of the element for a list of objects", () => {

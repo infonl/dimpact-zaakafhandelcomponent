@@ -77,14 +77,14 @@ export function initializeGegevensField(
             resolveObjectPath(source, path, sourceLabel),
             translateService,
           )
-        : `<span class="zac-gegevens-label fw-medium">${label ? `${escapeHtml(label)}: ` : ""}</span>` +
-          `<span class="zac-gegevens-value">${escapeHtml(
+        : `${label ? `<span class="fw-medium">${escapeHtml(label)}: </span>` : ""}` +
+          escapeHtml(
             formatValue(
               resolvePath(source, path, sourceLabel),
               translateService,
               format,
             ),
-          )}</span>`;
+          );
   } catch (error) {
     renderFieldError(
       component,
@@ -100,7 +100,7 @@ export function initializeGegevensField(
 
   component.type = "content";
   component.input = false;
-  component.html = `<div class="zac-gegevens py-1">${heading}${body}</div>`;
+  component.html = `<div class="py-1">${heading}${body}</div>`;
   component.label = "";
 }
 
@@ -161,7 +161,7 @@ function renderKeyValueTable(
     left.localeCompare(right),
   );
   if (!entries.length) {
-    return `<span class="zac-gegevens-value">${NO_VALUE}</span>`;
+    return NO_VALUE;
   }
 
   const rows = entries
