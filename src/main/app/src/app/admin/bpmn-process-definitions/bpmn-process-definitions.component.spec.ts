@@ -6,7 +6,11 @@
 import { ComponentFixture } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
+import {
+  ActivatedRoute,
+  convertToParamMap,
+  provideRouter,
+} from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import {
   provideAngularQuery,
@@ -83,6 +87,7 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     definitions: GeneratedType<"RestBpmnProcessDefinition">[] = [
       processDefinition,
     ],
+    queryParams: Record<string, string> = {},
   ) {
     bpmnService.listProcessDefinitionsQuery = jest.fn().mockReturnValue({
       queryKey: ["/rest/bpmn-process-definitions"],
@@ -100,6 +105,14 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
         { provide: UtilService, useValue: utilService },
         { provide: ConfiguratieService, useValue: {} },
         { provide: FoutAfhandelingService, useValue: foutAfhandelingService },
+        {
+          provide: ActivatedRoute,
+          useValue: fromPartial<ActivatedRoute>({
+            snapshot: fromPartial<ActivatedRoute["snapshot"]>({
+              queryParamMap: convertToParamMap(queryParams),
+            }),
+          }),
+        },
       ],
     });
     fixture = rendered.fixture;
@@ -235,6 +248,18 @@ describe(BpmnProcessDefinitionsComponent.name, () => {
     expect(screen.getByText(detailsTitle)).not.toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "Process A" }));
+
+    expect(screen.getByText(detailsTitle)).toBeVisible();
+  });
+
+  it("collapses every process definition when the url names none", async () => {
+    await setup();
+
+    expect(screen.getByText(detailsTitle)).not.toBeVisible();
+  });
+
+  it("expands the process definition named in the url, so a form saved elsewhere lands back in view", async () => {
+    await setup([processDefinition], { key: "key-a" });
 
     expect(screen.getByText(detailsTitle)).toBeVisible();
   });

@@ -86,7 +86,10 @@
   th.mat-column-actions {
     text-align: right;
     padding: 0;
-    width: 48px;
+    /* room for two icon buttons plus the whitespace the inline layout puts between them */
+    width: 108px;
+    white-space: nowrap;
+    text-overflow: clip;
   }
 
   mat-expansion-panel p {

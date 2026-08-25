@@ -36,6 +36,18 @@ class BpmnProcessDefinitionTaskFormService @Inject constructor(
             )
     }
 
+    fun findFormByProcessDefinitionKey(processDefinitionKey: String, name: String): BpmnProcessDefinitionTaskForm? =
+        readProcessDefinitionByProcessDefinitionKey(processDefinitionKey).let { processDefinition ->
+            findForm(key = processDefinition.key, version = processDefinition.version, name = name)
+        }
+
+    fun readFormByProcessDefinitionKey(processDefinitionKey: String, name: String): BpmnProcessDefinitionTaskForm =
+        findFormByProcessDefinitionKey(processDefinitionKey, name)
+            ?: throw BpmnTaskFormNotFoundException(
+                "No BPMN task form found with name: '$name' " +
+                    "for BPMN process definition with key: '$processDefinitionKey'"
+            )
+
     fun listForms(): List<BpmnProcessDefinitionTaskForm> =
         entityManager.criteriaBuilder.let { criteriaBuilder ->
             criteriaBuilder.createQuery(BpmnProcessDefinitionTaskForm::class.java).let { query ->

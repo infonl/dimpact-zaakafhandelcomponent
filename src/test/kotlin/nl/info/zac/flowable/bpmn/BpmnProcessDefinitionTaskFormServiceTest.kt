@@ -219,6 +219,60 @@ class BpmnProcessDefinitionTaskFormServiceTest : BehaviorSpec({
         }
     }
 
+    given("A process definition key and a form name that exists") {
+        val processDefinitionKey = "processKey"
+        val formName = "testForm"
+        val processDefinitionVersion = 2
+        val form = createBpmnProcessDefinitionTaskForm(
+            bpmnProcessDefinitionKey = processDefinitionKey,
+            bpmnProcessDefinitionVersion = processDefinitionVersion,
+            name = formName
+        )
+        val processDefinition = createProcessDefinition(
+            key = processDefinitionKey,
+            version = processDefinitionVersion
+        )
+
+        setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
+        setupCriteriaQueryBase()
+        setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
+        every { typedQuery.resultList } returns listOf(form)
+
+        `when`("readFormByProcessDefinitionKey is called") {
+            val result = service.readFormByProcessDefinitionKey(processDefinitionKey, formName)
+
+            then("it should return the form of the latest version of that process definition") {
+                result shouldBe form
+            }
+        }
+    }
+
+    given("A process definition key and a form name that does not exist") {
+        val processDefinitionKey = "processKey"
+        val formName = "testForm"
+        val processDefinitionVersion = 2
+        val processDefinition = createProcessDefinition(
+            key = processDefinitionKey,
+            version = processDefinitionVersion
+        )
+
+        setupProcessDefinitionQuery(processDefinitionKey, processDefinition)
+        setupCriteriaQueryBase()
+        setupFormQueryPredicates(processDefinitionKey, processDefinitionVersion, formName)
+        every { typedQuery.resultList } returns emptyList()
+
+        `when`("readFormByProcessDefinitionKey is called") {
+            val bpmnTaskFormNotFoundException = shouldThrow<BpmnTaskFormNotFoundException> {
+                service.readFormByProcessDefinitionKey(processDefinitionKey, formName)
+            }
+
+            then("it should throw BpmnTaskFormNotFoundException") {
+                bpmnTaskFormNotFoundException.message shouldBe "No BPMN task form found with name: '$formName' " +
+                    "for BPMN process definition with key: '$processDefinitionKey'"
+            }
+        }
+    }
+
     given("Multiple forms exist") {
         val form1 = createBpmnProcessDefinitionTaskForm(
             id = 1L,

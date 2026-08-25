@@ -161,6 +161,25 @@
           <ng-container matColumnDef="actions" stickyEnd>
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
+              <button
+                mat-icon-button
+                id="bouwen"
+                [matTooltip]="
+                  (row.uploaded
+                    ? 'bpmn.process-definition.task-forms.row.button.edit'
+                    : 'bpmn.process-definition.task-forms.row.button.create'
+                  ) | translate
+                "
+                [attr.aria-label]="
+                  (row.uploaded
+                    ? 'bpmn.process-definition.task-forms.row.button.edit'
+                    : 'bpmn.process-definition.task-forms.row.button.create'
+                  ) | translate
+                "
+                (click)="openFormulierBuilder(row)"
+              >
+                <mat-icon>{{ row.uploaded ? "edit" : "add" }}</mat-icon>
+              </button>
               @if (row.uploaded) {
                 <span
                   [matTooltip]="

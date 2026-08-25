@@ -17,6 +17,7 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { ActivatedRoute } from "@angular/router";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -90,6 +91,7 @@ export class BpmnProcessDefinitionsComponent
     "definition" in node;
 
   private readonly dialog = inject(MatDialog);
+  private readonly route = inject(ActivatedRoute);
   private readonly bpmnService = inject(BpmnService);
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly injector = inject(Injector);
@@ -108,6 +110,7 @@ export class BpmnProcessDefinitionsComponent
 
   ngOnInit() {
     this.setupMenu("title.bpmn-procesdefinities");
+    this.expandedKey = this.route.snapshot.queryParamMap.get("key");
   }
 
   protected selectBpmnProcessDefinitionFile() {

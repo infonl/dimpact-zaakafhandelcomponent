@@ -8,8 +8,11 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHEERDER_1
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY
+import nl.info.zac.itest.config.ItestConfiguration.BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
@@ -234,6 +237,42 @@ class BpmnProcessDefinitionRestServiceTest : BehaviorSpec({
                     "testForm.json",
                     "summaryForm.json"
                 )
+            }
+        }
+    }
+
+    given(
+        """The task form 'userGroupSelection' has been uploaded for process definition 'userManagement'
+            and a beheerder is logged in"""
+    ) {
+        `when`("that form is retrieved by its name") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/bpmn-process-definitions/" +
+                    "$BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY/forms/userGroupSelection",
+                testUser = BEHEERDER_1
+            )
+            then("the response contains the stored form, so that it can be opened for editing") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_OK
+                responseBody shouldEqualJsonIgnoringExtraneousFields """
+                    {
+                      "filename": "$BPMN_TEST_USER_MANAGEMENT_USER_GROUP_SELECTION_FORM_RESOURCE_PATH"
+                    }
+                """.trimIndent()
+            }
+        }
+
+        `when`("a form name that was never uploaded is retrieved") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/bpmn-process-definitions/" +
+                    "$BPMN_TEST_USER_MANAGEMENT_PROCESS_DEFINITION_KEY/forms/nonExistingForm",
+                testUser = BEHEERDER_1
+            )
+            then("the response reports that no such form exists") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldNotBe HTTP_OK
             }
         }
     }

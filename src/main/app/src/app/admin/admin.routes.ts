@@ -39,6 +39,13 @@ export const ADMIN_ROUTES: Routes = [
       ).then((module) => module.BpmnProcessDefinitionsComponent),
   },
   {
+    path: "bpmn-procesdefinities/:processDefinitionKey/taakformulier/:formKey",
+    loadComponent: () =>
+      import("./formulier-builder/formulier-builder.component").then(
+        (module) => module.FormulierBuilderComponent,
+      ),
+  },
+  {
     path: "referentietabellen",
     loadComponent: () =>
       import("./referentie-tabellen/referentie-tabellen.component").then(

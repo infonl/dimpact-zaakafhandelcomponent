@@ -182,6 +182,17 @@ class BpmnProcessDefinitionRestService @Inject constructor(
         return Response.status(Status.CREATED).build()
     }
 
+    @GET
+    @Path("{key}/forms/{name}")
+    fun readForm(
+        @PathParam("key") key: String,
+        @PathParam("name") name: String
+    ): BpmnProcessDefinitionTaskFormContent {
+        assertPolicy(policyService.readOverigeRechten().beheren)
+        val taskForm = bpmnProcessDefinitionTaskFormService.readFormByProcessDefinitionKey(key, name)
+        return BpmnProcessDefinitionTaskFormContent(filename = taskForm.filename, content = taskForm.content)
+    }
+
     @DELETE
     @Path("{key}/forms/{name}")
     fun deleteForm(
