@@ -16,7 +16,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **grafana/tempo**: 3.0.3
 - **prom/prometheus**: v3.14.0
 - **grafana/grafana**: 13.2.0
-- **greenmail/standalone**: 2.1.12
+- **greenmail/standalone**: 2.1.13
 - **nginxinc/nginx-unprivileged**: 1.31.4
 
 ## Common Ground components
@@ -24,7 +24,7 @@ This document lists the Docker images and versions that the corresponding versio
 - **open-zaak**: 1.29.3
 - **open-object**: 4.1.1
 - **open-klant**: 2.15.0
-- **open-forms**: 3.5.6
+- **open-forms**: 3.5.7
 - **open-notificaties**: 1.16.2
 - **open-archiefbeheer**: 2.0.0
 - **pabc-migrations**: 1.1.1

@@ -3,376 +3,332 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { ComponentRef, provideZonelessChangeDetection } from "@angular/core";
+import { inputBinding, outputBinding } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { EMPTY, of } from "rxjs";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { KlantenService } from "../../klanten/klanten.service";
-import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenService } from "../../zaken/zaken.service";
-import { MailService } from "../mail.service";
 import { MailCreateComponent } from "./mail-create.component";
 
+const ZAAK_UUID = "test-zaak-uuid";
+const TEMPORARY_PERSON_ID = "person-123";
+
+const afzendersUrl = `/rest/zaken/zaak/${ZAAK_UUID}/afzender`;
+const defaultAfzenderUrl = `/rest/zaken/zaak/${ZAAK_UUID}/afzender/default`;
+const mailtemplateUrl = `/rest/mailtemplates/ZAAK_ALGEMEEN/${ZAAK_UUID}`;
+const documentsUrl = "/rest/informatieobjecten/informatieobjectenList";
+const contactDetailsUrl = `/rest/klanten/contactdetails/person/${TEMPORARY_PERSON_ID}`;
+const sendMailUrl = `/rest/mail/send/${ZAAK_UUID}`;
+
+const zaakMetInitiator = fromPartial<GeneratedType<"RestZaak">>({
+  uuid: ZAAK_UUID,
+  identificatie: "ZAAK-2025-001",
+  initiatorIdentificatie: {
+    type: "BSN",
+    temporaryPersonId: TEMPORARY_PERSON_ID,
+  },
+});
+
+const afzenders = [
+  fromPartial<GeneratedType<"RestZaakAfzender">>({
+    defaultMail: true,
+    id: 1,
+    mail: "beheerder@example.com",
+    speciaal: true,
+    suffix: "gegevens.mail.afzender.MEDEWERKER",
+  }),
+  fromPartial<GeneratedType<"RestZaakAfzender">>({
+    defaultMail: false,
+    mail: "gemeente@example.com",
+    speciaal: true,
+    suffix: "gegevens.mail.afzender.GEMEENTE",
+  }),
+];
+
+const mailtemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
+  onderwerp: "<p>Bevestiging ontvangst</p>",
+  body: "<p>Geachte,</p>",
+  variabelen: ["ZAAK_NUMMER", "ZAAK_TYPE"],
+});
+
+const documents = [
+  fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+    uuid: "doc-1",
+    titel: "Document 1",
+  }),
+  fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+    uuid: "doc-2",
+    titel: "Document 2",
+  }),
+];
+
+const contactDetails = fromPartial<GeneratedType<"RestContactDetails">>({
+  emailadres: "initiator@example.com",
+});
+
 describe(MailCreateComponent.name, () => {
-  let component: MailCreateComponent;
-  let componentRef: ComponentRef<MailCreateComponent>;
   let fixture: ComponentFixture<MailCreateComponent>;
   let httpTestingController: HttpTestingController;
-  let zakenService: ZakenService;
-  let informatieObjectenService: InformatieObjectenService;
-  let mailtemplateService: MailtemplateService;
-  let utilService: UtilService;
-  let foutAfhandelingService: FoutAfhandelingService;
+  let mailVerstuurd: jest.Mock;
+  let openSnackbar: jest.SpyInstance;
+  let foutAfhandelen: jest.SpyInstance;
 
-  const mockSideNav = fromPartial<MatDrawer>({
-    close: jest.fn(),
-  });
+  const sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
 
-  const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
-    uuid: "test-zaak-uuid",
-    identificatie: "ZAAK-2025-001",
-    initiatorIdentificatie: fromPartial<
-      GeneratedType<"BetrokkeneIdentificatie">
-    >({
-      type: "BSN",
-      temporaryPersonId: "person-123",
-    }),
-  });
+  const user = userEvent.setup({ delay: null });
 
-  const mockAfzenders = [
-    fromPartial<GeneratedType<"RestZaakAfzender">>({
-      defaultMail: true,
-      id: 1,
-      mail: "beheerder@example.com",
-      speciaal: true,
-      suffix: "gegevens.mail.afzender.MEDEWERKER",
-    }),
-    fromPartial<GeneratedType<"RestZaakAfzender">>({
-      defaultMail: false,
-      mail: "gemeente@example.com",
-      speciaal: true,
-      suffix: "gegevens.mail.afzender.GEMEENTE",
-    }),
-  ];
+  async function setup(zaak: GeneratedType<"RestZaak"> = zaakMetInitiator) {
+    mailVerstuurd = jest.fn();
 
-  const mockDefaultAfzender = mockAfzenders[0];
-
-  const mockMailtemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
-    onderwerp: "<p>Bevestiging ontvangst</p>",
-    body: "<p>Geachte,</p>",
-    variabelen: ["ZAAK_NUMMER", "ZAAK_TYPE"],
-  });
-
-  const mockDocuments = [
-    fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-      uuid: "doc-1",
-      titel: "Document 1",
-    }),
-    fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-      uuid: "doc-2",
-      titel: "Document 2",
-    }),
-  ];
-
-  const mockContactGegevens = fromPartial<GeneratedType<"RestContactDetails">>({
-    emailadres: "initiator@example.com",
-  });
-
-  const contactDetailsQueryKey = (temporaryPersonId: string) => [
-    "/rest/klanten/contactdetails/person/{temporaryPersonId}",
-    { path: { temporaryPersonId } },
-  ];
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        MailCreateComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
+    const rendered = await render(MailCreateComponent, {
+      bindings: [
+        inputBinding("zaak", () => zaak),
+        inputBinding("sideNav", () => sideNav),
+        outputBinding<boolean>("mailVerstuurd", (verstuurd) =>
+          mailVerstuurd(verstuurd),
+        ),
       ],
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
-        provideZonelessChangeDetection(),
-        provideHttpClient(),
+        provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
-        ZakenService,
-        InformatieObjectenService,
-        MailService,
-        MailtemplateService,
-        KlantenService,
-        UtilService,
       ],
-    }).compileComponents();
+    });
 
-    zakenService = TestBed.inject(ZakenService);
-    informatieObjectenService = TestBed.inject(InformatieObjectenService);
-    mailtemplateService = TestBed.inject(MailtemplateService);
-    utilService = TestBed.inject(UtilService);
+    fixture = rendered.fixture;
     httpTestingController = TestBed.inject(HttpTestingController);
-    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    openSnackbar = jest
+      .spyOn(TestBed.inject(UtilService), "openSnackbar")
+      .mockImplementation(() => undefined);
+    foutAfhandelen = jest
+      .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+      .mockReturnValue(EMPTY);
+  }
 
-    jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
+  async function respondToInitialRequests({
+    withContactDetails = true,
+  }: { withContactDetails?: boolean } = {}) {
+    await sleep();
 
-    jest
-      .spyOn(zakenService, "listAfzendersVoorZaak")
-      .mockReturnValue(of(mockAfzenders));
-    jest
-      .spyOn(zakenService, "readDefaultAfzenderVoorZaak")
-      .mockReturnValue(of(mockDefaultAfzender));
-    jest
-      .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of(mockDocuments));
-    jest
-      .spyOn(mailtemplateService, "findMailtemplate")
-      .mockReturnValue(of(mockMailtemplate));
+    httpTestingController.expectOne(afzendersUrl).flush(afzenders);
+    httpTestingController.expectOne(defaultAfzenderUrl).flush(afzenders[0]);
+    httpTestingController.expectOne(mailtemplateUrl).flush(mailtemplate);
+    httpTestingController.expectOne(documentsUrl).flush(documents);
 
-    testQueryClient.setQueryData(
-      contactDetailsQueryKey("person-123"),
-      mockContactGegevens,
+    if (withContactDetails) {
+      httpTestingController.expectOne(contactDetailsUrl).flush(contactDetails);
+    } else {
+      httpTestingController.expectNone((request) =>
+        request.url.includes("/rest/klanten/contactdetails/person/"),
+      );
+    }
+
+    await sleep();
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+  }
+
+  function ontvangerField() {
+    return screen.getByRole("textbox", { name: "Ontvanger" });
+  }
+
+  function documentCheckbox(titel: string) {
+    const row = screen.getByRole("row", { name: new RegExp(titel) });
+    return within(row).getByRole("checkbox");
+  }
+
+  function submitButton() {
+    return screen.getByRole("button", { name: "actie.verstuur" });
+  }
+
+  async function fillInAMail(...attachments: string[]) {
+    await user.click(ontvangerField());
+    await user.paste("recipient@example.com");
+
+    for (const attachment of attachments) {
+      await user.click(documentCheckbox(attachment));
+    }
+
+    fixture.detectChanges();
+  }
+
+  it("closes the side navigation when the close button is clicked", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await user.click(screen.getByRole("button", { name: "actie.sluiten" }));
+
+    expect(sideNav.close).toHaveBeenCalled();
+  });
+
+  it("offers every afzender of the zaak as sender", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await user.click(screen.getByRole("combobox", { name: "Verzender" }));
+
+    expect(
+      screen.getByRole("option", { name: /beheerder@example.com/ }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("option", { name: /gemeente@example.com/ }),
+    ).toBeVisible();
+  });
+
+  it("preselects the default afzender of the zaak", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    expect(
+      screen.getByRole("combobox", { name: "Verzender" }),
+    ).toHaveTextContent("beheerder@example.com");
+  });
+
+  it("prefills the subject and the body from the mailtemplate", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    expect(screen.getByText("Bevestiging ontvangst")).toBeVisible();
+    expect(screen.getByText("Geachte,")).toBeVisible();
+  });
+
+  it("offers every document of the zaak as attachment", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    expect(screen.getByText("Document 1")).toBeVisible();
+    expect(screen.getByText("Document 2")).toBeVisible();
+  });
+
+  it("fills the recipient with the contact e-mail address of the initiator", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.contact.email.toevoegen" }),
     );
 
-    fixture = TestBed.createComponent(MailCreateComponent);
-    componentRef = fixture.componentRef;
-    componentRef.setInput("sideNav", mockSideNav);
-    componentRef.setInput("zaak", mockZaak);
-
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    expect(ontvangerField()).toHaveValue(contactDetails.emailadres);
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    httpTestingController.verify();
+  it("prefers the zaak specific contact e-mail address over the initiator's", async () => {
+    await setup(
+      fromPartial<GeneratedType<"RestZaak">>({
+        uuid: ZAAK_UUID,
+        zaakSpecificContactDetails: { emailAddress: "zaak@example.com" },
+      }),
+    );
+    await respondToInitialRequests({ withContactDetails: false });
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.contact.email.toevoegen" }),
+    );
+
+    expect(ontvangerField()).toHaveValue("zaak@example.com");
   });
 
-  describe("ngOnInit", () => {
-    it("should load verzender options", () => {
-      expect(component["verzenderOptions"]).toEqual(mockAfzenders);
-    });
+  it("offers no contact e-mail address when the zaak has no initiator", async () => {
+    await setup(
+      fromPartial<GeneratedType<"RestZaak">>({
+        uuid: ZAAK_UUID,
+        initiatorIdentificatie: null,
+      }),
+    );
+    await respondToInitialRequests({ withContactDetails: false });
 
-    it("should set default afzender in form", () => {
-      expect(component["form"].controls.verzender.value).toEqual(
-        mockDefaultAfzender,
-      );
-    });
-
-    it("should load mailtemplate and patch form values", () => {
-      expect(component["form"].controls.onderwerp.value).toEqual(
-        mockMailtemplate.onderwerp,
-      );
-      expect(component["form"].controls.body.value).toEqual(
-        mockMailtemplate.body,
-      );
-      expect(component["variabelen"]).toEqual(mockMailtemplate.variabelen);
-    });
-
-    it("should load documents for the zaak", () => {
-      expect(component["documents"]).toEqual(mockDocuments);
-    });
-
-    it("should prioritize contact details email address when initiator has temporaryPersonId", () => {
-      expect(component["contactEmailAddress"]()).toEqual(
-        mockContactGegevens.emailadres,
-      );
-    });
-
-    it("should use zaakSpecificContactDetails email address when available and skip contact details lookup", () => {
-      const emailAddress = "zaak-contact@example.com";
-      const localFixture = TestBed.createComponent(MailCreateComponent);
-      localFixture.componentRef.setInput("sideNav", mockSideNav);
-      localFixture.componentRef.setInput(
-        "zaak",
-        fromPartial<GeneratedType<"RestZaak">>({
-          uuid: "test-zaak-uuid",
-          zaakSpecificContactDetails: fromPartial({ emailAddress }),
-        }),
-      );
-      localFixture.detectChanges();
-
-      expect(localFixture.componentInstance["contactEmailAddress"]()).toBe(
-        emailAddress,
-      );
-      httpTestingController.expectNone((request) =>
-        request.url.includes("/rest/klanten/contactdetails/person/"),
-      );
-    });
-
-    it("should not set contactEmailAddress when initiator has no temporaryPersonId", () => {
-      const localFixture = TestBed.createComponent(MailCreateComponent);
-      localFixture.componentRef.setInput("sideNav", mockSideNav);
-      localFixture.componentRef.setInput(
-        "zaak",
-        fromPartial<GeneratedType<"RestZaak">>({
-          uuid: "test-zaak-uuid",
-          initiatorIdentificatie: null,
-        }),
-      );
-      localFixture.detectChanges();
-
-      expect(
-        localFixture.componentInstance["contactEmailAddress"](),
-      ).toBeNull();
-      httpTestingController.expectNone((request) =>
-        request.url.includes("/rest/klanten/contactdetails/person/"),
-      );
-    });
+    expect(
+      screen.queryByRole("button", { name: "actie.contact.email.toevoegen" }),
+    ).not.toBeInTheDocument();
   });
 
-  describe("setOntvanger", () => {
-    it("should set ontvanger field with contact email address", () => {
-      component["setOntvanger"]();
+  it("sends the mail that was filled in", async () => {
+    await setup();
+    await respondToInitialRequests();
 
-      expect(component["form"].controls.ontvanger.value).toEqual(
-        mockContactGegevens.emailadres,
-      );
+    await fillInAMail("Document 1");
+    await user.click(submitButton());
+    await sleep();
+
+    const request = httpTestingController.expectOne(sendMailUrl);
+
+    expect(request.request.method).toBe("POST");
+    expect(request.request.body).toMatchObject({
+      verzender: afzenders[0].mail,
+      ontvanger: "recipient@example.com",
+      onderwerp: "Bevestiging ontvangst",
+      body: mailtemplate.body,
+      bijlagen: "doc-1",
+      createDocumentFromMail: true,
     });
 
-    it("should set ontvanger to null when contactEmailAddress is null", () => {
-      const localFixture = TestBed.createComponent(MailCreateComponent);
-      localFixture.componentRef.setInput("sideNav", mockSideNav);
-      localFixture.componentRef.setInput(
-        "zaak",
-        fromPartial<GeneratedType<"RestZaak">>({
-          uuid: "test-zaak-uuid",
-          initiatorIdentificatie: null,
-        }),
-      );
-      localFixture.detectChanges();
-
-      localFixture.componentInstance["setOntvanger"]();
-
-      expect(
-        localFixture.componentInstance["form"].controls.ontvanger.value,
-      ).toBeNull();
-    });
+    request.flush({});
+    await sleep();
   });
 
-  describe("onFormSubmit", () => {
-    it("should call sendMail mutation with correct data", async () => {
-      component["form"].patchValue({
-        verzender: mockDefaultAfzender,
-        ontvanger: "recipient@example.com",
-        onderwerp: "<p>Test onderwerp</p>",
-        body: "<p>Test body</p>",
-        bijlagen: [mockDocuments[0]],
-      });
+  it("joins the attachments of the mail with a semicolon", async () => {
+    await setup();
+    await respondToInitialRequests();
 
-      component.onFormSubmit();
+    await fillInAMail("Document 1", "Document 2");
+    await user.click(submitButton());
+    await sleep();
 
-      await new Promise((resolve) => setTimeout(resolve, 0));
+    const request = httpTestingController.expectOne(sendMailUrl);
 
-      const req = httpTestingController.expectOne(
-        (request) =>
-          request.url.includes("/rest/mail/send/") && request.method === "POST",
-      );
+    expect(request.request.body.bijlagen).toBe("doc-1;doc-2");
 
-      expect(req.request.body).toMatchObject({
-        verzender: mockDefaultAfzender.mail,
-        replyTo: undefined,
-        ontvanger: "recipient@example.com",
-        onderwerp: "Test onderwerp",
-        body: "<p>Test body</p>",
-        bijlagen: mockDocuments[0].uuid,
-        createDocumentFromMail: true,
-      });
+    request.flush({});
+    await sleep();
+  });
 
-      req.flush({});
-    });
+  it("reports the mail as sent once the request succeeds", async () => {
+    await setup();
+    await respondToInitialRequests();
 
-    it("should join multiple bijlagen UUIDs with semicolon", async () => {
-      component["form"].patchValue({
-        verzender: mockDefaultAfzender,
-        ontvanger: "recipient@example.com",
-        onderwerp: "<p>Test onderwerp</p>",
-        body: "<p>Test body</p>",
-        bijlagen: mockDocuments,
-      });
+    await fillInAMail();
+    await user.click(submitButton());
+    await sleep();
 
-      component.onFormSubmit();
+    httpTestingController.expectOne(sendMailUrl).flush({});
+    await sleep();
 
-      await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(openSnackbar).toHaveBeenCalledWith("msg.email.verstuurd");
+    expect(mailVerstuurd).toHaveBeenCalledWith(true);
+  });
 
-      const req = httpTestingController.expectOne(
-        (request) =>
-          request.url.includes("/rest/mail/send/") && request.method === "POST",
-      );
+  it("reports the failure when the mail could not be sent", async () => {
+    await setup();
+    await respondToInitialRequests();
 
-      expect(req.request.body.bijlagen).toBe("doc-1;doc-2");
+    await fillInAMail();
+    await user.click(submitButton());
+    await sleep();
 
-      req.flush({});
-    });
+    httpTestingController
+      .expectOne(sendMailUrl)
+      .flush({}, { status: 500, statusText: "Internal Server Error" });
+    await sleep();
 
-    it("should emit mailVerstuurd(true) and show snackbar on success", async () => {
-      jest.spyOn(utilService, "openSnackbar");
-      const emitSpy = jest.spyOn(component["mailVerstuurd"], "emit");
-
-      component["form"].patchValue({
-        verzender: mockDefaultAfzender,
-        ontvanger: "recipient@example.com",
-        onderwerp: "<p>Test onderwerp</p>",
-        body: "<p>Test body</p>",
-        bijlagen: [],
-      });
-
-      component.onFormSubmit();
-
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      const req = httpTestingController.expectOne(
-        (request) =>
-          request.url.includes("/rest/mail/send/") && request.method === "POST",
-      );
-
-      req.flush({});
-
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.email.verstuurd",
-      );
-      expect(emitSpy).toHaveBeenCalledWith(true);
-    });
-
-    it("should report the failure and emit mailVerstuurd(false) on error", async () => {
-      const emitSpy = jest.spyOn(component["mailVerstuurd"], "emit");
-
-      component["form"].patchValue({
-        verzender: mockDefaultAfzender,
-        ontvanger: "recipient@example.com",
-        onderwerp: "<p>Test onderwerp</p>",
-        body: "<p>Test body</p>",
-        bijlagen: [],
-      });
-
-      component.onFormSubmit();
-
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      const req = httpTestingController.expectOne(
-        (request) =>
-          request.url.includes("/rest/mail/send/") && request.method === "POST",
-      );
-
-      req.flush({}, { status: 500, statusText: "Internal Server Error" });
-
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
-      expect(emitSpy).toHaveBeenCalledWith(false);
-    });
+    expect(foutAfhandelen).toHaveBeenCalled();
+    expect(mailVerstuurd).toHaveBeenCalledWith(false);
   });
 });

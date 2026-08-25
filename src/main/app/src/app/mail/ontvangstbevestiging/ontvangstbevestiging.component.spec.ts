@@ -3,474 +3,362 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { ComponentRef, provideZonelessChangeDetection } from "@angular/core";
+import { inputBinding, outputBinding } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { randomUUID } from "crypto";
-import { of } from "rxjs";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
-import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
-import { KlantenService } from "../../klanten/klanten.service";
-import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { ZakenService } from "../../zaken/zaken.service";
-import { MailService } from "../mail.service";
 import { OntvangstbevestigingComponent } from "./ontvangstbevestiging.component";
 
+const ZAAK_UUID = "test-zaak-uuid";
+const TEMPORARY_PERSON_ID = "person-123";
+
+const afzendersUrl = `/rest/zaken/zaak/${ZAAK_UUID}/afzender`;
+const defaultAfzenderUrl = `/rest/zaken/zaak/${ZAAK_UUID}/afzender/default`;
+const mailtemplateUrl = `/rest/mailtemplates/TAAK_ONTVANGSTBEVESTIGING/${ZAAK_UUID}`;
+const documentsUrl = "/rest/informatieobjecten/informatieobjectenList";
+const contactDetailsUrl = `/rest/klanten/contactdetails/person/${TEMPORARY_PERSON_ID}`;
+const acknowledgeUrl = `/rest/mail/acknowledge/${ZAAK_UUID}`;
+
+const zaakMetInitiator = fromPartial<GeneratedType<"RestZaak">>({
+  uuid: ZAAK_UUID,
+  identificatie: "ZAAK-2025-001",
+  initiatorIdentificatie: {
+    type: "BSN",
+    temporaryPersonId: TEMPORARY_PERSON_ID,
+  },
+});
+
+const afzenders = [
+  fromPartial<GeneratedType<"RestZaakAfzender">>({
+    defaultMail: true,
+    id: 1,
+    mail: "beheerder@example.com",
+    speciaal: true,
+    suffix: "gegevens.mail.afzender.MEDEWERKER",
+  }),
+  fromPartial<GeneratedType<"RestZaakAfzender">>({
+    defaultMail: false,
+    mail: "gemeente@example.com",
+    speciaal: true,
+    suffix: "gegevens.mail.afzender.GEMEENTE",
+  }),
+];
+
+const mailtemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
+  onderwerp: "<p>Ontvangstbevestiging van uw verzoek</p>",
+  body: "<p>Wij hebben uw verzoek ontvangen.</p>",
+  defaultMailtemplate: true,
+  variabelen: ["ZAAK_NUMMER", "ZAAK_INITIATOR"],
+});
+
+const documents = [
+  fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+    uuid: "doc-1",
+    titel: "Document 1",
+    bestandsnaam: "document-1.pdf",
+  }),
+  fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+    uuid: "doc-2",
+    titel: "Document 2",
+    bestandsnaam: "document-2.pdf",
+  }),
+];
+
+const contactDetails = fromPartial<GeneratedType<"RestContactDetails">>({
+  emailadres: "initiator@example.com",
+  telefoonnummer: "0612345678",
+});
+
 describe(OntvangstbevestigingComponent.name, () => {
-  let component: OntvangstbevestigingComponent;
-  let componentRef: ComponentRef<OntvangstbevestigingComponent>;
   let fixture: ComponentFixture<OntvangstbevestigingComponent>;
-  let loader: HarnessLoader;
   let httpTestingController: HttpTestingController;
-  let zakenService: ZakenService;
-  let informatieObjectenService: InformatieObjectenService;
-  let mailtemplateService: MailtemplateService;
-  let utilService: UtilService;
+  let ontvangstBevestigd: jest.Mock;
+  let openSnackbar: jest.SpyInstance;
 
-  const mockSideNav = fromPartial<MatDrawer>({
-    close: jest.fn(),
-  });
+  const sideNav = fromPartial<MatDrawer>({ close: jest.fn() });
 
-  const mockTemporaryPersonId = randomUUID();
+  const user = userEvent.setup({ delay: null });
 
-  const mockZaak = fromPartial<GeneratedType<"RestZaak">>({
-    uuid: "test-zaak-uuid",
-    identificatie: "ZAAK-2025-001",
-    initiatorIdentificatie: fromPartial<
-      GeneratedType<"BetrokkeneIdentificatie">
-    >({
-      type: "BSN",
-      temporaryPersonId: mockTemporaryPersonId,
-    }),
-  });
+  async function setup(zaak: GeneratedType<"RestZaak"> = zaakMetInitiator) {
+    ontvangstBevestigd = jest.fn();
 
-  const mockAfzenders = [
-    fromPartial<GeneratedType<"RestZaakAfzender">>({
-      defaultMail: true,
-      id: 1,
-      mail: "beheerder-test-1@example.com",
-      speciaal: true,
-      suffix: "gegevens.mail.afzender.MEDEWERKER",
-    }),
-    fromPartial<GeneratedType<"RestZaakAfzender">>({
-      defaultMail: false,
-      mail: "gemeente-adorp-test@example.com",
-      speciaal: true,
-      suffix: "gegevens.mail.afzender.GEMEENTE",
-    }),
-  ];
-
-  const mockDefaultAfzender = mockAfzenders[0];
-
-  const mockMailtemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
-    onderwerp: "<p>Ontvangstbevestiging van zaak {ZAAK_NUMMER}</p>",
-    body: "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Wij hebben uw verzoek ontvangen en deze op {ZAAK_REGISTRATIEDATUM} geregistreerd als zaak {ZAAK_NUMMER}. U kunt dit kenmerk noemen als u contact heeft over de zaak.</p><p></p><p></p><p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>",
-    defaultMailtemplate: true,
-    variabelen: [
-      "ZAAK_NUMMER",
-      "ZAAK_TYPE",
-      "ZAAK_STATUS",
-      "ZAAK_REGISTRATIEDATUM",
-      "ZAAK_STARTDATUM",
-      "ZAAK_STREEFDATUM",
-      "ZAAK_FATALEDATUM",
-      "ZAAK_OMSCHRIJVING",
-      "ZAAK_TOELICHTING",
-      "ZAAK_INITIATOR",
-      "ZAAK_INITIATOR_ADRES",
-    ],
-  });
-
-  const mockDocuments = [
-    fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-      uuid: "doc-1",
-      titel: "Document 1",
-      bestandsnaam: "document-1.pdf",
-    }),
-    fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-      uuid: "doc-2",
-      titel: "Document 2",
-      bestandsnaam: "document-2.pdf",
-    }),
-  ];
-
-  const mockContactGegevens = fromPartial<GeneratedType<"RestContactDetails">>({
-    emailadres: "initiator@example.com",
-    telefoonnummer: "0612345678",
-  });
-
-  const contactDetailsQueryKey = (temporaryPersonId: string) => [
-    "/rest/klanten/contactdetails/person/{temporaryPersonId}",
-    { path: { temporaryPersonId } },
-  ];
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        OntvangstbevestigingComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
+    const rendered = await render(OntvangstbevestigingComponent, {
+      bindings: [
+        inputBinding("zaak", () => zaak),
+        inputBinding("sideNav", () => sideNav),
+        outputBinding<boolean>("ontvangstBevestigd", (bevestigd) =>
+          ontvangstBevestigd(bevestigd),
+        ),
       ],
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
-        provideZonelessChangeDetection(),
-        provideHttpClient(),
+        provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
-        ZakenService,
-        InformatieObjectenService,
-        MailService,
-        MailtemplateService,
-        KlantenService,
-        UtilService,
       ],
-    }).compileComponents();
+    });
 
-    zakenService = TestBed.inject(ZakenService);
-    informatieObjectenService = TestBed.inject(InformatieObjectenService);
-    mailtemplateService = TestBed.inject(MailtemplateService);
-    utilService = TestBed.inject(UtilService);
+    fixture = rendered.fixture;
     httpTestingController = TestBed.inject(HttpTestingController);
+    openSnackbar = jest
+      .spyOn(TestBed.inject(UtilService), "openSnackbar")
+      .mockImplementation(() => undefined);
+  }
 
-    jest
-      .spyOn(zakenService, "listAfzendersVoorZaak")
-      .mockReturnValue(of(mockAfzenders));
-    jest
-      .spyOn(zakenService, "readDefaultAfzenderVoorZaak")
-      .mockReturnValue(of(mockDefaultAfzender));
-    jest
-      .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of(mockDocuments));
-    jest
-      .spyOn(mailtemplateService, "findMailtemplate")
-      .mockReturnValue(of(mockMailtemplate));
+  async function respondToInitialRequests({
+    withContactDetails = true,
+  }: { withContactDetails?: boolean } = {}) {
+    await sleep();
 
-    testQueryClient.setQueryData(
-      contactDetailsQueryKey(mockTemporaryPersonId),
-      mockContactGegevens,
+    httpTestingController.expectOne(afzendersUrl).flush(afzenders);
+    httpTestingController.expectOne(defaultAfzenderUrl).flush(afzenders[0]);
+    httpTestingController.expectOne(mailtemplateUrl).flush(mailtemplate);
+    httpTestingController.expectOne(documentsUrl).flush(documents);
+
+    if (withContactDetails) {
+      httpTestingController.expectOne(contactDetailsUrl).flush(contactDetails);
+    } else {
+      httpTestingController.expectNone((request) =>
+        request.url.includes("/rest/klanten/contactdetails/person/"),
+      );
+    }
+
+    await sleep();
+    fixture.detectChanges();
+    await sleep();
+    fixture.detectChanges();
+  }
+
+  function ontvangerField() {
+    return screen.getByRole("textbox", { name: "Ontvanger" });
+  }
+
+  function documentCheckbox(titel: string) {
+    const row = screen.getByRole("row", { name: new RegExp(titel) });
+    return within(row).getByRole("checkbox");
+  }
+
+  function submitButton() {
+    return screen.getByRole("button", { name: "actie.verstuur" });
+  }
+
+  async function fillInTheRecipient(recipient: string) {
+    await user.click(ontvangerField());
+    await user.paste(recipient);
+    await user.tab();
+    fixture.detectChanges();
+  }
+
+  it("closes the side navigation when the close button is clicked", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await user.click(screen.getByRole("button", { name: "actie.sluiten" }));
+
+    expect(sideNav.close).toHaveBeenCalled();
+  });
+
+  it("offers every afzender of the zaak as sender", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await user.click(screen.getByRole("combobox", { name: "Verzender" }));
+
+    expect(
+      screen.getByRole("option", { name: /beheerder@example.com/ }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("option", { name: /gemeente@example.com/ }),
+    ).toBeVisible();
+  });
+
+  it("preselects the default afzender of the zaak", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    expect(
+      screen.getByRole("combobox", { name: "Verzender" }),
+    ).toHaveTextContent("beheerder@example.com");
+  });
+
+  it("prefills the subject and the body from the mailtemplate", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    expect(
+      screen.getByText("Ontvangstbevestiging van uw verzoek"),
+    ).toBeVisible();
+    expect(screen.getByText("Wij hebben uw verzoek ontvangen.")).toBeVisible();
+  });
+
+  it("offers the variables of the mailtemplate", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await user.click(screen.getAllByRole("button", { name: "variabelen" })[0]);
+
+    expect(
+      screen.getByRole("menuitem", { name: /^ZAAK_NUMMER:/ }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("menuitem", { name: /^ZAAK_INITIATOR:/ }),
+    ).toBeVisible();
+  });
+
+  it("offers every document of the zaak as attachment", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    expect(screen.getByText("Document 1")).toBeVisible();
+    expect(screen.getByText("Document 2")).toBeVisible();
+  });
+
+  it("fills the recipient with the contact e-mail address of the initiator", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.contact.email.toevoegen" }),
     );
 
-    fixture = TestBed.createComponent(OntvangstbevestigingComponent);
-    componentRef = fixture.componentRef;
-    componentRef.setInput("sideNav", mockSideNav);
-    componentRef.setInput("zaak", mockZaak);
-
-    loader = TestbedHarnessEnvironment.loader(fixture);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    expect(ontvangerField()).toHaveValue(contactDetails.emailadres);
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    httpTestingController.verify();
+  it("prefers the zaak specific contact e-mail address over the initiator's", async () => {
+    await setup(
+      fromPartial<GeneratedType<"RestZaak">>({
+        uuid: ZAAK_UUID,
+        zaakSpecificContactDetails: { emailAddress: "zaak@example.com" },
+      }),
+    );
+    await respondToInitialRequests({ withContactDetails: false });
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.contact.email.toevoegen" }),
+    );
+
+    expect(ontvangerField()).toHaveValue("zaak@example.com");
   });
 
-  describe("ngOnInit", () => {
-    it("should load documents for the zaak", () => {
-      expect(component["documents"]).toEqual(mockDocuments);
-    });
+  it("offers no contact e-mail address when the zaak has no initiator", async () => {
+    await setup(
+      fromPartial<GeneratedType<"RestZaak">>({
+        uuid: ZAAK_UUID,
+        initiatorIdentificatie: null,
+      }),
+    );
+    await respondToInitialRequests({ withContactDetails: false });
 
-    it("should load afzenders for the zaak", () => {
-      expect(component["afzenders"]).toEqual(mockAfzenders);
-    });
-
-    it("should set default afzender in form", () => {
-      expect(component["form"].controls.verzender.value).toEqual(
-        mockDefaultAfzender,
-      );
-    });
-
-    it("should load mailtemplate and set form values", () => {
-      expect(component["form"].controls.onderwerp.value).toEqual(
-        mockMailtemplate.onderwerp,
-      );
-      expect(component["form"].controls.body.value).toEqual(
-        mockMailtemplate.body,
-      );
-      expect(component["variables"]).toEqual(mockMailtemplate.variabelen);
-    });
-
-    it("should prioritize contact details email address when initiator has temporaryPersonId", () => {
-      expect(component["contactEmailAddress"]()).toEqual(
-        mockContactGegevens.emailadres,
-      );
-    });
-
-    it("should use zaakSpecificContactDetails email address when available and skip contact details lookup", () => {
-      const emailAddress = "zaak-contact@example.com";
-      fixture = TestBed.createComponent(OntvangstbevestigingComponent);
-      componentRef = fixture.componentRef;
-      componentRef.setInput("sideNav", mockSideNav);
-      componentRef.setInput(
-        "zaak",
-        fromPartial<GeneratedType<"RestZaak">>({
-          uuid: "test-zaak-uuid",
-          zaakSpecificContactDetails: fromPartial({
-            emailAddress,
-          }),
-        }),
-      );
-      fixture.detectChanges();
-
-      expect(fixture.componentInstance["contactEmailAddress"]()).toBe(
-        emailAddress,
-      );
-      httpTestingController.expectNone((request) =>
-        request.url.includes("/rest/klanten/contactdetails/person/"),
-      );
-    });
-
-    it("should not load contact details when initiator has no temporaryPersonId", () => {
-      fixture = TestBed.createComponent(OntvangstbevestigingComponent);
-      componentRef = fixture.componentRef;
-      componentRef.setInput("sideNav", mockSideNav);
-      componentRef.setInput(
-        "zaak",
-        fromPartial<GeneratedType<"RestZaak">>({
-          uuid: "test-zaak-uuid",
-          initiatorIdentificatie: null,
-        }),
-      );
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-
-      expect(component["contactEmailAddress"]()).toBeNull();
-      httpTestingController.expectNone((request) =>
-        request.url.includes("/rest/klanten/contactdetails/person/"),
-      );
-    });
+    expect(
+      screen.queryByRole("button", { name: "actie.contact.email.toevoegen" }),
+    ).not.toBeInTheDocument();
   });
 
-  describe("setOntvanger", () => {
-    it("should set ontvanger field with contact email address", () => {
-      component["setOntvanger"]();
+  it("cannot be sent before anything is filled in", async () => {
+    await setup();
+    await respondToInitialRequests();
 
-      expect(component["form"].controls.ontvanger.value).toEqual(
-        mockContactGegevens.emailadres,
-      );
-    });
-
-    it("should set ontvanger to null when contactEmailAddress is null", () => {
-      fixture = TestBed.createComponent(OntvangstbevestigingComponent);
-      componentRef = fixture.componentRef;
-      componentRef.setInput("sideNav", mockSideNav);
-      componentRef.setInput(
-        "zaak",
-        fromPartial<GeneratedType<"RestZaak">>({
-          uuid: "test-zaak-uuid",
-          initiatorIdentificatie: null,
-        }),
-      );
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-
-      component["setOntvanger"]();
-
-      expect(component["form"].controls.ontvanger.value).toBeNull();
-    });
+    expect(submitButton()).toBeDisabled();
   });
 
-  describe("form validation", () => {
-    it("should mark form as invalid when required fields are empty", () => {
-      component["form"].reset();
-      component["form"].markAllAsTouched();
-      expect(component["form"].valid).toBe(false);
-    });
+  it("rejects a recipient that is not an e-mail address", async () => {
+    await setup();
+    await respondToInitialRequests();
 
-    it("should reject invalid email format for ontvanger", () => {
-      component["form"].controls.ontvanger.setValue("invalid-email");
-      expect(component["form"].controls.ontvanger.errors?.["email"]).toBe(true);
-    });
+    await fillInTheRecipient("invalid-email");
 
-    it("should accept valid email format for ontvanger", () => {
-      component["form"].controls.ontvanger.setValue("valid@example.com");
-      expect(component["form"].controls.ontvanger.errors).toBeNull();
-    });
-
-    it("should validate onderwerp maxLength", () => {
-      const longSubject = "a".repeat(101);
-      component["form"].controls.onderwerp.setValue(longSubject);
-
-      expect(
-        component["form"].controls.onderwerp.errors?.["maxlength"],
-      ).toBeTruthy();
-    });
-
-    it("should mark form as valid when all required fields are filled correctly", () => {
-      component["form"].patchValue({
-        verzender: mockDefaultAfzender,
-        ontvanger: "test@example.com",
-        onderwerp: "Test onderwerp",
-        body: "Test body",
-        bijlagen: [],
-      });
-
-      expect(component["form"].valid).toBe(true);
-    });
+    expect(screen.getByText("validators.email")).toBeVisible();
+    expect(submitButton()).toBeDisabled();
   });
 
-  describe("submit", () => {
-    it("should call sendAcknowledgeReceipt mutation with correct data", async () => {
-      component["form"].patchValue({
-        verzender: mockDefaultAfzender,
-        ontvanger: "recipient@example.com",
-        onderwerp: "<p>Test onderwerp</p>",
-        body: "<p>Test body</p>",
-        bijlagen: [mockDocuments[0]],
-      });
+  it("accepts a recipient that is an e-mail address", async () => {
+    await setup();
+    await respondToInitialRequests();
 
-      component["submit"]();
+    await fillInTheRecipient("valid@example.com");
 
-      // Wait for mutation to trigger HTTP request
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      const req = httpTestingController.expectOne(
-        (request) =>
-          request.url.includes("/rest/mail/acknowledge/") &&
-          request.method === "POST",
-      );
-
-      expect(req.request.body).toMatchObject({
-        verzender: mockDefaultAfzender.mail,
-        replyTo: undefined,
-        ontvanger: "recipient@example.com",
-        onderwerp: "<p>Test onderwerp</p>",
-        body: "<p>Test body</p>",
-        bijlagen: mockDocuments[0].uuid,
-        createDocumentFromMail: true,
-      });
-
-      req.flush({});
-    });
-
-    it("should join multiple bijlagen UUIDs with semicolon", async () => {
-      component["form"].patchValue({
-        verzender: mockDefaultAfzender,
-        ontvanger: "recipient@example.com",
-        onderwerp: "<p>Test onderwerp</p>",
-        body: "<p>Test body</p>",
-        bijlagen: mockDocuments,
-      });
-
-      component["submit"]();
-
-      // Wait for mutation to trigger HTTP request
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      const req = httpTestingController.expectOne(
-        (request) =>
-          request.url.includes("/rest/mail/acknowledge/") &&
-          request.method === "POST",
-      );
-
-      expect(req.request.body.bijlagen).toBe("doc-1;doc-2");
-
-      req.flush({});
-    });
-
-    it("should emit ontvangstBevestigd on successful submission", async () => {
-      jest.spyOn(utilService, "openSnackbar");
-      const emitSpy = jest.spyOn(component["ontvangstBevestigd"], "emit");
-
-      component["form"].patchValue({
-        verzender: mockDefaultAfzender,
-        ontvanger: "recipient@example.com",
-        onderwerp: "<p>Test onderwerp</p>",
-        body: "<p>Test body</p>",
-        bijlagen: [],
-      });
-
-      component["submit"]();
-
-      // Wait for mutation to trigger HTTP request
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
-      const req = httpTestingController.expectOne(
-        (request) =>
-          request.url.includes("/rest/mail/acknowledge/") &&
-          request.method === "POST",
-      );
-
-      req.flush({});
-
-      // Wait for mutation to complete
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.email.verstuurd",
-      );
-      expect(emitSpy).toHaveBeenCalledWith(true);
-    });
+    expect(screen.queryByText("validators.email")).not.toBeInTheDocument();
+    expect(submitButton()).toBeEnabled();
   });
 
-  describe("form buttons", () => {
-    it("should have enabled submit button when form is valid", async () => {
-      component["form"].patchValue({
-        verzender: mockDefaultAfzender,
-        ontvanger: "test@example.com",
-        onderwerp: "Test onderwerp",
-        body: "Test body",
-      });
-      fixture.detectChanges();
+  it("shows how much of the maximum subject length is used", async () => {
+    await setup();
+    await respondToInitialRequests();
 
-      const buttons = await loader.getAllHarnesses(MatButtonHarness);
-      const submitButton = buttons.find(
-        async (btn) => (await btn.getText()) === "actie.versturen",
-      );
-
-      expect(await submitButton?.isDisabled()).toBe(false);
-    });
+    expect(screen.getByText(/^\d+ \/ 100$/)).toBeVisible();
   });
 
-  describe("close button", () => {
-    it("closes the sideNav when clicked", async () => {
-      const closeButton = await loader.getHarness(
-        MatButtonHarness.with({ ancestor: "mat-toolbar" }),
-      );
-      await closeButton.click();
-      expect(mockSideNav.close).toHaveBeenCalled();
+  it("sends the acknowledgement that was filled in", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await fillInTheRecipient("recipient@example.com");
+    await user.click(documentCheckbox("Document 1"));
+    await user.click(submitButton());
+    await sleep();
+
+    const request = httpTestingController.expectOne(acknowledgeUrl);
+
+    expect(request.request.method).toBe("POST");
+    expect(request.request.body).toMatchObject({
+      verzender: afzenders[0].mail,
+      ontvanger: "recipient@example.com",
+      onderwerp: mailtemplate.onderwerp,
+      body: mailtemplate.body,
+      bijlagen: "doc-1",
+      createDocumentFromMail: true,
     });
+
+    request.flush({});
+    await sleep();
   });
 
-  describe("set-ontvanger button", () => {
-    it("is shown when contactGegevens has an email address", async () => {
-      const personButtons = await loader.getAllHarnesses(
-        MatButtonHarness.with({ text: /person/ }),
-      );
-      expect(personButtons).toHaveLength(1);
-    });
+  it("joins the attachments of the acknowledgement with a semicolon", async () => {
+    await setup();
+    await respondToInitialRequests();
 
-    it("is hidden when contactEmailAddress is null", async () => {
-      fixture = TestBed.createComponent(OntvangstbevestigingComponent);
-      componentRef = fixture.componentRef;
-      componentRef.setInput("sideNav", mockSideNav);
-      componentRef.setInput(
-        "zaak",
-        fromPartial<GeneratedType<"RestZaak">>({
-          uuid: "test-zaak-uuid",
-          initiatorIdentificatie: null,
-        }),
-      );
-      loader = TestbedHarnessEnvironment.loader(fixture);
-      fixture.detectChanges();
+    await fillInTheRecipient("recipient@example.com");
+    await user.click(documentCheckbox("Document 1"));
+    await user.click(documentCheckbox("Document 2"));
+    await user.click(submitButton());
+    await sleep();
 
-      const personButtons = await loader.getAllHarnesses(
-        MatButtonHarness.with({ text: /person/ }),
-      );
-      expect(personButtons).toHaveLength(0);
-    });
+    const request = httpTestingController.expectOne(acknowledgeUrl);
+
+    expect(request.request.body.bijlagen).toBe("doc-1;doc-2");
+
+    request.flush({});
+    await sleep();
+  });
+
+  it("reports the acknowledgement as sent once the request succeeds", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await fillInTheRecipient("recipient@example.com");
+    await user.click(submitButton());
+    await sleep();
+
+    httpTestingController.expectOne(acknowledgeUrl).flush({});
+    await sleep();
+
+    expect(openSnackbar).toHaveBeenCalledWith("msg.email.verstuurd");
+    expect(ontvangstBevestigd).toHaveBeenCalledWith(true);
   });
 });

@@ -15,6 +15,8 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import net.atos.zac.event.EventingService
+import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.zac.app.note.converter.NoteConverter
 import nl.info.zac.app.note.model.RestNote
 import nl.info.zac.app.note.model.toNote
@@ -34,7 +36,8 @@ import java.util.UUID
 class NoteRestService @Inject constructor(
     private val noteService: NoteService,
     private val noteConverter: NoteConverter,
-    private val policyService: PolicyService
+    private val policyService: PolicyService,
+    private val eventingService: EventingService
 ) {
     @GET
     @Path("/zaken/{uuid}")
@@ -48,6 +51,7 @@ class NoteRestService @Inject constructor(
     fun createNote(restNote: RestNote): RestNote {
         assertPolicy(policyService.readNotitieRechten().wijzigen)
         val notitie = noteService.createNote(restNote.toNote())
+        eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(notitie.zaakUUID))
         return noteConverter.toRestNote(notitie)
     }
 
@@ -55,6 +59,7 @@ class NoteRestService @Inject constructor(
     fun updateNote(restNote: RestNote): RestNote {
         assertPolicy(policyService.readNotitieRechten().wijzigen)
         val updatedNotitie = noteService.updateNote(restNote.toNote())
+        eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(updatedNotitie.zaakUUID))
         return noteConverter.toRestNote(updatedNotitie)
     }
 
@@ -62,6 +67,8 @@ class NoteRestService @Inject constructor(
     @Path("{id}")
     fun deleteNote(@PathParam("id") id: Long) {
         assertPolicy(policyService.readNotitieRechten().wijzigen)
-        noteService.deleteNote(id)
+        noteService.deleteNote(id)?.let {
+            eventingService.send(ScreenEventType.ZAAK_NOTITIES.updated(it.zaakUUID))
+        }
     }
 }

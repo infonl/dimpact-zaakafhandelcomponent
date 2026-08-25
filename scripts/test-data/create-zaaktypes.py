@@ -7,7 +7,11 @@
 # rendering open-zaak/zaaktype-template.sql once per zaaktype and executing the result.
 # For each zaaktype it also registers a matching entity type in the local PABC PostgreSQL
 # database, by rendering pabc/add-zaaktype-template.sql and executing the result, and then
-# configures its zaakafhandelparameters in ZAC by calling configure-zaakafhandelparameters.py.
+# configures its zaakafhandelparameters in ZAC by calling configure_zaakafhandelparameters()
+# from configure-zaakafhandelparameters.py in-process, reusing one authenticated session for
+# the whole batch (see the module docstring of zac_client.py for why that matters: without
+# it, every call would make ZAC's session filter create a brand new, never-cleaned-up
+# HttpSession, which is what used to make this script run ZAC out of heap on large batches).
 #
 # Every [[XXX_UUID]] placeholder in a template is substituted with a freshly generated
 # UUID (unique per zaaktype), and [[ZAAKTYPE_NUMBER]] with a 1-based sequence number, so
@@ -15,14 +19,16 @@
 # statustypen, roltypen and zaaktype-informatieobjecttype in Open Zaak, and one matching
 # entity type in PABC.
 #
-# The rendered SQL is piped into the `psql` CLI rather than a Python driver, so this
-# script has no dependencies beyond the standard library and a local `psql` executable.
+# The rendered SQL is piped into the `psql` CLI rather than a Python driver, so creating the
+# zaaktypes themselves has no dependencies beyond the standard library and a local `psql`
+# executable; configuring zaakafhandelparameters additionally uses zac_client.py and
+# zac_testdata.py (also standard-library only).
 #
 # Prerequisites: Python 3.10+, `psql` on PATH, all Docker Compose services (including ZAC)
 # running, unless --skip-config is used.
 #
 # Usage:
-#   ./scripts/test-data/create-zaaktypes.py [--count N]
+#   ./scripts/test-data/create-zaaktypes.py [--count N] [--start-number N]
 #                                            [--host HOST] [--port PORT]
 #                                            [--dbname DBNAME] [--user USER] [--password PASSWORD]
 #                                            [--template PATH]
@@ -34,6 +40,7 @@
 # Examples:
 #   ./scripts/test-data/create-zaaktypes.py
 #   ./scripts/test-data/create-zaaktypes.py --count 25
+#   ./scripts/test-data/create-zaaktypes.py --count 10 --start-number 11
 #   ./scripts/test-data/create-zaaktypes.py --host localhost --port 54322 --dbname openzaak
 #   ./scripts/test-data/create-zaaktypes.py --pabc-host localhost --pabc-port 54329 --pabc-dbname Pabc
 #   ./scripts/test-data/create-zaaktypes.py --skip-config
@@ -45,17 +52,39 @@ if sys.version_info < (3, 10):
     sys.exit(1)
 
 import argparse
+import importlib.util
 import os
 import pathlib
 import subprocess
 import uuid
 
+import zac_client
+
 DEFAULT_TEMPLATE_PATH = pathlib.Path(__file__).parent / "open-zaak" / "zaaktype-template.sql"
 DEFAULT_PABC_TEMPLATE_PATH = pathlib.Path(__file__).parent / "pabc" / "add-zaaktype-template.sql"
 DEFAULT_ZAAKTYPE_COUNT = 10
+DEFAULT_ZAAKTYPE_START_NUMBER = 1
 
-# Configures each zaaktype's zaakafhandelparameters in ZAC once it exists in Open Zaak and PABC
-CONFIGURE_ZAAKAFHANDELPARAMETERS_SCRIPT = pathlib.Path(__file__).parent / "configure-zaakafhandelparameters.py"
+
+def _load_configure_zaakafhandelparameters_module():
+    """Load configure-zaakafhandelparameters.py as an importable module.
+
+    Its filename is hyphenated, like every other standalone CLI script in this directory, so
+    it cannot be loaded with a plain `import` statement; this lets us call its
+    configure_zaakafhandelparameters() function directly instead of spawning it as a
+    subprocess per zaaktype, which is what let us reuse one authenticated session (see the
+    module docstring above) for the whole batch instead of one per zaaktype.
+    """
+    script_path = pathlib.Path(__file__).parent / "configure-zaakafhandelparameters.py"
+    spec = importlib.util.spec_from_file_location("configure_zaakafhandelparameters", script_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Could not load '{script_path}' as a module")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+configure_zaakafhandelparameters_module = _load_configure_zaakafhandelparameters_module()
 
 # Placeholders that get one UUID shared by every occurrence within a single rendered zaaktype,
 # but a different UUID for every zaaktype in the batch.
@@ -114,20 +143,12 @@ def run_sql(sql: str, host: str, port: int, dbname: str, user: str, password: st
     subprocess.run(command, input=sql, text=True, env=environment, check=True)
 
 
-def configure_zaakafhandelparameters(zaaktype_uuid: str, zac_url: str, keycloak_url: str) -> None:
-    """Configure a single zaaktype's zaakafhandelparameters in ZAC by calling
-    configure-zaakafhandelparameters.py as a subprocess.
-    """
-    command = [
-        sys.executable,
-        str(CONFIGURE_ZAAKAFHANDELPARAMETERS_SCRIPT),
-        zaaktype_uuid,
-        "--zac-url",
-        zac_url,
-        "--keycloak-url",
-        keycloak_url,
-    ]
-    subprocess.run(command, check=True)
+def positive_int(value: str) -> int:
+    """argparse `type` that only accepts a positive (>= 1) integer."""
+    parsed_value = int(value)
+    if parsed_value < 1:
+        raise argparse.ArgumentTypeError(f"must be a positive integer, got {parsed_value}")
+    return parsed_value
 
 
 def parse_args() -> argparse.Namespace:
@@ -136,7 +157,16 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--count", type=int, default=DEFAULT_ZAAKTYPE_COUNT, help="number of zaaktypes to create (default: 10)"
+        "--count",
+        type=positive_int,
+        default=DEFAULT_ZAAKTYPE_COUNT,
+        help="number of zaaktypes to create (default: 10)",
+    )
+    parser.add_argument(
+        "--start-number",
+        type=positive_int,
+        default=DEFAULT_ZAAKTYPE_START_NUMBER,
+        help=f"1-based ZAAKTYPE_NUMBER to start numbering from (default: {DEFAULT_ZAAKTYPE_START_NUMBER})",
     )
     parser.add_argument("--host", default="localhost", help="database host (default: localhost)")
     parser.add_argument("--port", type=int, default=54322, help="database port (default: 54322)")
@@ -181,9 +211,17 @@ def main() -> None:
     template = args.template.read_text()
     pabc_template = args.pabc_template.read_text()
 
-    for zaaktype_number in range(1, args.count + 1):
+    token_manager = (
+        None
+        if args.skip_config
+        else zac_client.TokenManager(zac_client.CONFIG_USER, zac_client.CONFIG_PASSWORD, args.keycloak_url)
+    )
+
+    for batch_index, zaaktype_number in enumerate(
+        range(args.start_number, args.start_number + args.count), start=1
+    ):
         sql, placeholder_uuids = render_sql(template, zaaktype_number, UUID_PLACEHOLDERS)
-        print(f"Creating zaaktype {zaaktype_number}/{args.count} in Open Zaak...")
+        print(f"Creating zaaktype {zaaktype_number} ({batch_index}/{args.count}) in Open Zaak...")
         try:
             run_sql(sql, args.host, args.port, args.dbname, args.user, args.password)
         except subprocess.CalledProcessError as called_process_error:
@@ -191,7 +229,7 @@ def main() -> None:
             sys.exit(1)
 
         pabc_sql, _ = render_sql(pabc_template, zaaktype_number, PABC_UUID_PLACEHOLDERS)
-        print(f"Creating zaaktype {zaaktype_number}/{args.count} in PABC...")
+        print(f"Creating zaaktype {zaaktype_number} ({batch_index}/{args.count}) in PABC...")
         try:
             run_sql(pabc_sql, args.pabc_host, args.pabc_port, args.pabc_dbname, args.pabc_user, args.pabc_password)
         except subprocess.CalledProcessError as called_process_error:
@@ -201,17 +239,22 @@ def main() -> None:
         if args.skip_config:
             continue
         zaaktype_uuid = placeholder_uuids["ZAAKTYPE_UUID"]
-        print(f"Configuring zaakafhandelparameters {zaaktype_number}/{args.count} in ZAC ({zaaktype_uuid})...")
-        try:
-            configure_zaakafhandelparameters(zaaktype_uuid, args.zac_url, args.keycloak_url)
-        except subprocess.CalledProcessError as called_process_error:
+        print(
+            f"Configuring zaakafhandelparameters for zaaktype {zaaktype_number} ({batch_index}/{args.count})"
+            f" in ZAC ({zaaktype_uuid})..."
+        )
+        result = configure_zaakafhandelparameters_module.configure_zaakafhandelparameters(
+            uuid.UUID(zaaktype_uuid), token_manager, args.zac_url
+        )
+        if not result["success"]:
+            status = f"HTTP {result['status_code']}: " if result["status_code"] is not None else ""
             print(
                 f"ERROR: failed to configure zaakafhandelparameters for zaaktype {zaaktype_number}"
-                f" ({zaaktype_uuid}): {called_process_error}"
+                f" ({zaaktype_uuid}) at step '{result['step']}': {status}{result['error']}"
             )
             sys.exit(1)
 
-    print(f"\nCreated {args.count} zaaktype(s).")
+    print(f"\nCreated {args.count} zaaktype(s), numbered {args.start_number}-{args.start_number + args.count - 1}.")
 
 
 if __name__ == "__main__":

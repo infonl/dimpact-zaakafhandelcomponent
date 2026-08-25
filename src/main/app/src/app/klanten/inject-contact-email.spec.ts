@@ -62,11 +62,6 @@ describe(injectContactEmail.name, () => {
     component = fixture.componentInstance;
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    httpTestingController.verify();
-  });
-
   it("returns the zaak-specific email and performs no lookup when it is present", () => {
     component.zaak.set(
       fromPartial<GeneratedType<"RestZaak">>({

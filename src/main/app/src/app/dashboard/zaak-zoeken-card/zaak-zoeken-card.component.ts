@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 import { NgIf } from "@angular/common";
 import {
   Component,
@@ -39,7 +38,6 @@ import {
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -111,9 +109,7 @@ export class ZaakZoekenCardComponent extends DashboardCardComponent {
   });
 
   protected readonly zoekQuery = injectQuery(() => ({
-    queryKey: ["zaak zoeken dashboard", this.zoekParameters()],
-    queryFn: () =>
-      firstValueFrom(this.zoekenService.list(this.zoekParameters())),
+    ...this.zoekenService.list(this.zoekParameters()),
     refetchInterval: 60 * 1000,
   }));
 
