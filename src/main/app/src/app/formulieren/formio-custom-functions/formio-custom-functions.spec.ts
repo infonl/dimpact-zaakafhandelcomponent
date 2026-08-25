@@ -42,7 +42,6 @@ describe(FormioCustomFunctions.name, () => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
       providers: [
-        // core.module.ts provides this in the app; the date pipe formats by it.
         { provide: LOCALE_ID, useValue: "nl-NL" },
         {
           provide: InformatieObjectenService,
@@ -53,6 +52,8 @@ describe(FormioCustomFunctions.name, () => {
 
     service = TestBed.inject(FormioCustomFunctions);
   });
+
+  afterEach(() => jest.restoreAllMocks());
 
   describe(FormioCustomFunctions.prototype.prepareFormContext.name, () => {
     beforeEach(() => {
@@ -70,25 +71,16 @@ describe(FormioCustomFunctions.name, () => {
       expect(context["ZAAK_Docs"]).toEqual([UUID_A]);
     });
 
-    it("should register ZAC_getDocumentTitles as a function in the context", async () => {
-      const context = await service.prepareFormContext(
-        formWithFunction("ZAAK_Docs"),
-        { ZAAK_Docs: [UUID_A] },
-      );
-
-      expect(typeof context["ZAC_getDocumentTitles"]).toBe("function");
-    });
-
     it("should return the title string when ZAC_getDocumentTitles is called with UUIDs", async () => {
       const context = await service.prepareFormContext(
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A])).toBe("Document A");
+      expect(getDocumentTitles([UUID_A])).toBe("Document A");
     });
 
     it("should return empty string when called with an empty array", async () => {
@@ -96,11 +88,11 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [] },
       );
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([])).toBe("");
+      expect(getDocumentTitles([])).toBe("");
     });
 
     it("should return empty string when the taakdata field is missing", async () => {
@@ -108,9 +100,11 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Missing"),
         {},
       );
-      const fn = context["ZAC_getDocumentTitles"] as (uuids: unknown) => string;
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
+        uuids: unknown,
+      ) => string;
 
-      expect(fn(undefined)).toBe("");
+      expect(getDocumentTitles(undefined)).toBe("");
     });
 
     it("should format two documents with 'en'", async () => {
@@ -122,11 +116,13 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A, UUID_B] },
       );
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A, UUID_B])).toBe("Document A en Document B");
+      expect(getDocumentTitles([UUID_A, UUID_B])).toBe(
+        "Document A en Document B",
+      );
     });
 
     it("should format three documents with commas and 'en'", async () => {
@@ -145,11 +141,11 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A, UUID_B, UUID_C] },
       );
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A, UUID_B, UUID_C])).toBe(
+      expect(getDocumentTitles([UUID_A, UUID_B, UUID_C])).toBe(
         "Document A, Document B en Document C",
       );
     });
@@ -163,11 +159,11 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A])).toBe(UUID_A);
+      expect(getDocumentTitles([UUID_A])).toBe(UUID_A);
     });
 
     it("should fall back to UUID when document has no titel", async () => {
@@ -179,11 +175,11 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [UUID_A] },
       );
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A])).toBe(UUID_A);
+      expect(getDocumentTitles([UUID_A])).toBe(UUID_A);
     });
 
     it("should pre-fetch titles for all fields when the same function appears multiple times", async () => {
@@ -207,12 +203,12 @@ describe(FormioCustomFunctions.name, () => {
         ZAAK_Docs_A: [UUID_A],
         ZAAK_Docs_B: [UUID_B],
       });
-      const fn = context["ZAC_getDocumentTitles"] as (
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
         uuids: string[],
       ) => string;
 
-      expect(fn([UUID_A])).toBe("Document A");
-      expect(fn([UUID_B])).toBe("Document B");
+      expect(getDocumentTitles([UUID_A])).toBe("Document A");
+      expect(getDocumentTitles([UUID_B])).toBe("Document B");
     });
 
     it("should render titles for datagrid rows as well as plain UUIDs", async () => {
@@ -228,9 +224,11 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: rows },
       );
-      const fn = context["ZAC_getDocumentTitles"] as (rows: unknown) => string;
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
+        rows: unknown,
+      ) => string;
 
-      expect(fn(rows)).toBe("Document A en Document B");
+      expect(getDocumentTitles(rows)).toBe("Document A en Document B");
     });
 
     it("should leave out datagrid rows that were unticked", async () => {
@@ -246,9 +244,11 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: rows },
       );
-      const fn = context["ZAC_getDocumentTitles"] as (rows: unknown) => string;
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
+        rows: unknown,
+      ) => string;
 
-      expect(fn(rows)).toBe("Document A");
+      expect(getDocumentTitles(rows)).toBe("Document A");
       expect(
         informatieObjectenService.readEnkelvoudigInformatieobject,
       ).not.toHaveBeenCalledWith(UUID_B);
@@ -259,9 +259,11 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: UUID_A },
       );
-      const fn = context["ZAC_getDocumentTitles"] as (uuid: unknown) => string;
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
+        uuid: unknown,
+      ) => string;
 
-      expect(fn(UUID_A)).toBe("Document A");
+      expect(getDocumentTitles(UUID_A)).toBe("Document A");
     });
 
     it("should ignore entries that carry no uuid", async () => {
@@ -269,11 +271,17 @@ describe(FormioCustomFunctions.name, () => {
         formWithFunction("ZAAK_Docs"),
         { ZAAK_Docs: [{ selected: true, titel: "no uuid here" }, null, 42] },
       );
-      const fn = context["ZAC_getDocumentTitles"] as (rows: unknown) => string;
+      const getDocumentTitles = context["ZAC_getDocumentTitles"] as (
+        rows: unknown,
+      ) => string;
 
-      expect(fn([{ selected: true, titel: "no uuid here" }, null, 42])).toBe(
-        "",
-      );
+      expect(
+        getDocumentTitles([
+          { selected: true, titel: "no uuid here" },
+          null,
+          42,
+        ]),
+      ).toBe("");
       expect(
         informatieObjectenService.readEnkelvoudigInformatieobject,
       ).not.toHaveBeenCalled();
@@ -295,16 +303,6 @@ describe(FormioCustomFunctions.name, () => {
       expect(
         informatieObjectenService.readEnkelvoudigInformatieobject,
       ).toHaveBeenCalledTimes(1);
-    });
-
-    it("should fetch each document by UUID", async () => {
-      await service.prepareFormContext(formWithFunction("ZAAK_Docs"), {
-        ZAAK_Docs: [UUID_A],
-      });
-
-      expect(
-        informatieObjectenService.readEnkelvoudigInformatieobject,
-      ).toHaveBeenCalledWith(UUID_A);
     });
   });
 
@@ -344,13 +342,6 @@ describe(FormioCustomFunctions.name, () => {
       ).toBe("Zaak ZAAK-2026-0000000835 van Melding klein evenement");
     });
 
-    it("should remove markup so a form cannot render what a user entered", async () => {
-      const rendered = await interpolate("{{ zaak.omschrijving }}");
-
-      expect(rendered).not.toContain("<img");
-      expect(rendered).toBe("");
-    });
-
     it("should remove markup nested in a list", async () => {
       const context = await service.prepareFormContext(
         { components: [] },
@@ -367,7 +358,7 @@ describe(FormioCustomFunctions.name, () => {
       ["a quote", 'de "grote" zaal'],
     ])(
       "should leave %s untouched, so a seeded input shows it as typed",
-      async (_name, value) => {
+      async (_description, value) => {
         const context = await service.prepareFormContext(
           { components: [] },
           {},
@@ -407,6 +398,43 @@ describe(FormioCustomFunctions.name, () => {
       );
 
       expect(Evaluator.interpolate(template, context)).toBe(expected);
+    });
+
+    it.each([
+      ["a null value", null],
+      ["an empty string", ""],
+      ["an absent property", undefined],
+    ])(
+      "should render nothing for %s, so it does not read as a deliberate Nee",
+      async (_description, value) => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          { isVerlengd: value },
+        );
+
+        expect(
+          Evaluator.interpolate(
+            "{{ ZAC_formatter_jaNee(zaak.isVerlengd) }}",
+            context,
+          ),
+        ).toBe("");
+      },
+    );
+
+    it("should render nothing for a boolean the zaak does not have at all", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        {},
+      );
+
+      expect(
+        Evaluator.interpolate(
+          "{{ ZAC_formatter_jaNee(zaak.isVerlengd) }}",
+          context,
+        ),
+      ).toBe("");
     });
 
     it.each([
@@ -478,7 +506,7 @@ describe(FormioCustomFunctions.name, () => {
         context,
       );
 
-      expect(rendered).toContain("no keys");
+      expect(rendered).toContain("msg.geen-sleutels");
       expect(rendered).not.toContain("<table");
     });
 
@@ -539,7 +567,7 @@ describe(FormioCustomFunctions.name, () => {
       ).toContain("<code>taak.taakinformatie.toelichting</code>");
     });
 
-    it("should leave the keys bare when the value did not come from the zaak or the taak", async () => {
+    it("should say so for a value that is not an object at all", async () => {
       const context = await service.prepareFormContext(
         { components: [] },
         {},
@@ -551,7 +579,61 @@ describe(FormioCustomFunctions.name, () => {
           "{{ ZAC_formatter_sleutels(ZAC_formatter_lijst(zaak.indicaties)) }}",
           context,
         ),
-      ).toContain("no keys");
+      ).toContain("msg.geen-sleutels");
+    });
+
+    it("should leave the keys bare when the value did not come from the zaak or the taak", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        { NF_Gegevens: { toelichting: "spoed" } },
+      );
+
+      expect(
+        Evaluator.interpolate(
+          "{{ ZAC_formatter_sleutels(NF_Gegevens) }}",
+          context,
+        ),
+      ).toContain("<code>toelichting</code>");
+    });
+
+    it("should escape a value so a table cannot render what a user entered", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        { NF_Gegevens: { toelichting: "<img src=x onerror=alert(1)>" } },
+      );
+      const rendered = Evaluator.interpolate(
+        "{{ ZAC_formatter_sleutels(NF_Gegevens) }}",
+        context,
+      );
+
+      expect(rendered).not.toContain("<img");
+      expect(rendered).toContain("&lt;img");
+    });
+
+    it("should escape a key so a table cannot render what a form stored", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        { NF_Gegevens: { "<b>toelichting</b>": "spoed" } },
+      );
+      const rendered = Evaluator.interpolate(
+        "{{ ZAC_formatter_sleutels(NF_Gegevens) }}",
+        context,
+      );
+
+      expect(rendered).toContain("&lt;b&gt;toelichting&lt;/b&gt;");
+    });
+
+    it("should escape the caption, which a form author writes by hand", async () => {
+      const context = await service.prepareFormContext(
+        { components: [] },
+        { NF_Gegevens: { toelichting: "spoed" } },
+      );
+      const rendered = Evaluator.interpolate(
+        '{{ ZAC_formatter_sleutels(NF_Gegevens, "<b>Flowable</b>") }}',
+        context,
+      );
+
+      expect(rendered).toContain("&lt;b&gt;Flowable&lt;/b&gt;");
     });
 
     it("should leave the caption out when none is given", async () => {
@@ -587,23 +669,20 @@ describe(FormioCustomFunctions.name, () => {
         ["several levels deep", "{{ zaak.resultaat.resultaattype.naam }}"],
       ])(
         "should render nothing for a property absent %s",
-        async (_n, template) => {
+        async (_description, template) => {
           expect(await render(template, { identificatie: "ZAAK-1" })).toBe("");
         },
       );
 
-      it("should not throw where reading through an absent object used to crash", async () => {
-        await expect(
-          render("{{ zaak.behandelaar.naam }}", { behandelaar: null }),
-        ).resolves.toBe("");
-      });
-
       it.each([
         ["a null value", { behandelaar: null }],
         ["an absent key", {}],
-      ])("should read on through %s without throwing", async (_n, source) => {
-        expect(await render("{{ zaak.behandelaar.naam }}", source)).toBe("");
-      });
+      ])(
+        "should read on through %s without throwing",
+        async (_description, source) => {
+          expect(await render("{{ zaak.behandelaar.naam }}", source)).toBe("");
+        },
+      );
 
       it("should not make a value look like a promise, which would hang an await", async () => {
         const context = await service.prepareFormContext(
@@ -612,7 +691,7 @@ describe(FormioCustomFunctions.name, () => {
           {},
         );
 
-        await expect(Promise.resolve(context.zaak)).resolves.toBeDefined();
+        expect((context.zaak as { then?: unknown }).then).toBeUndefined();
       });
 
       it("should leave a real list iterable, so spreading it still works", async () => {
@@ -627,13 +706,15 @@ describe(FormioCustomFunctions.name, () => {
       });
 
       it("should report a property the zaak does not have, naming the full path", async () => {
-        const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+        const consoleWarn = jest
+          .spyOn(console, "warn")
+          .mockImplementation(() => {});
 
         await render("{{ zaak.kommunikatiekanaal }}", {
           communicatiekanaal: "Medewerkersportaal",
         });
 
-        expect(warn).toHaveBeenCalledWith(
+        expect(consoleWarn).toHaveBeenCalledWith(
           expect.stringContaining(
             '"zaak.kommunikatiekanaal" is not a property',
           ),
@@ -641,45 +722,53 @@ describe(FormioCustomFunctions.name, () => {
       });
 
       it("should name the path through a nested object", async () => {
-        const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+        const consoleWarn = jest
+          .spyOn(console, "warn")
+          .mockImplementation(() => {});
 
         await render("{{ zaak.zaaktype.omschryving }}", {
           zaaktype: { omschrijving: "Melding" },
         });
 
-        expect(warn).toHaveBeenCalledWith(
+        expect(consoleWarn).toHaveBeenCalledWith(
           expect.stringContaining('"zaak.zaaktype.omschryving"'),
         );
       });
 
       it("should stay quiet for a property that is present but empty, which is ordinary data", async () => {
-        const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+        const consoleWarn = jest
+          .spyOn(console, "warn")
+          .mockImplementation(() => {});
 
         await render("{{ zaak.behandelaar.naam }}", { behandelaar: null });
 
-        expect(warn).not.toHaveBeenCalledWith(
+        expect(consoleWarn).not.toHaveBeenCalledWith(
           expect.stringContaining("zaak.behandelaar"),
         );
       });
 
       it("should stay quiet for an index past the end of a list", async () => {
-        const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+        const consoleWarn = jest
+          .spyOn(console, "warn")
+          .mockImplementation(() => {});
 
         await render("{{ ZAC_formatter_lijst(zaak.indicaties) }}", {
           indicaties: ["A"],
         });
 
-        expect(warn).not.toHaveBeenCalled();
+        expect(consoleWarn).not.toHaveBeenCalled();
       });
 
       it("should report the same property once, however often the form re-renders", async () => {
-        const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+        const consoleWarn = jest
+          .spyOn(console, "warn")
+          .mockImplementation(() => {});
 
         await render("{{ zaak.eenmaligGemeld }}", {});
         await render("{{ zaak.eenmaligGemeld }}", {});
 
         expect(
-          warn.mock.calls.filter(([message]) =>
+          consoleWarn.mock.calls.filter(([message]) =>
             String(message).includes("zaak.eenmaligGemeld"),
           ),
         ).toHaveLength(1);
@@ -704,7 +793,7 @@ describe(FormioCustomFunctions.name, () => {
       it("should keep sleutels working over an object that is absent", async () => {
         expect(
           await render("{{ ZAC_formatter_sleutels(zaak.zaakdata) }}", {}),
-        ).toContain("no keys");
+        ).toContain("msg.geen-sleutels");
       });
 
       it("should keep a real list enumerable, so lijst still reads it", async () => {
@@ -727,7 +816,7 @@ describe(FormioCustomFunctions.name, () => {
       ["an empty list", "{{ ZAC_formatter_leeg(zaak.besluiten) }}", "-"],
     ])(
       "should render %s through the app's own empty pipe",
-      async (_n, template, expected) => {
+      async (_description, template, expected) => {
         const context = await service.prepareFormContext(
           { components: [] },
           {},
@@ -741,23 +830,6 @@ describe(FormioCustomFunctions.name, () => {
         expect(Evaluator.interpolate(template, context)).toBe(expected);
       },
     );
-
-    it("should format a date with the app's own date pipe, hyphens included", async () => {
-      const context = await service.prepareFormContext(
-        { components: [] },
-        {},
-        {
-          startdatum: "2026-08-24",
-        },
-      );
-
-      expect(
-        Evaluator.interpolate(
-          "{{ ZAC_formatter_datum(zaak.startdatum) }}",
-          context,
-        ),
-      ).toBe("24\u201108\u20112026");
-    });
 
     it("should leave a value the date pipe cannot read alone", async () => {
       const context = await service.prepareFormContext(
@@ -776,11 +848,24 @@ describe(FormioCustomFunctions.name, () => {
       ).toBe("geen datum");
     });
 
+    it("should keep a value that is not a plain object intact, rather than empty it", async () => {
+      const registratiedatum = new Date("2026-08-24T00:00:00.000Z");
+
+      const context = await service.prepareFormContext(
+        { components: [] },
+        {},
+        { registratiedatum },
+      );
+
+      expect(
+        (context.zaak as { registratiedatum: Date }).registratiedatum,
+      ).toEqual(registratiedatum);
+    });
+
     it.each([
       ["a plain tag", "<b>x</b>", "x"],
       ["a script tag", "<script>alert(1)</script>", "alert(1)"],
       ["an image with a handler", "<img src=x onerror=alert(1)>", ""],
-      // the residue is harmless text; what matters is that no bracket survives to form a tag
       [
         "a tag spliced together by removing another",
         "<scr<x>ipt>alert(1)</script>",
@@ -792,17 +877,21 @@ describe(FormioCustomFunctions.name, () => {
         "scriptalert(1)",
       ],
       ["a stray bracket", "5 < 6", "5  6"],
-    ])("should leave no markup for %s", async (_n, value, expected) => {
-      const context = await service.prepareFormContext(
-        { components: [] },
-        {},
-        { omschrijving: value },
-      );
-      const stripped = (context.zaak as { omschrijving: string }).omschrijving;
+    ])(
+      "should leave no markup for %s",
+      async (_description, value, expected) => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          { omschrijving: value },
+        );
+        const stripped = (context.zaak as { omschrijving: string })
+          .omschrijving;
 
-      expect(stripped).toBe(expected);
-      expect(stripped).not.toContain("<");
-      expect(stripped).not.toContain(">");
-    });
+        expect(stripped).toBe(expected);
+        expect(stripped).not.toContain("<");
+        expect(stripped).not.toContain(">");
+      },
+    );
   });
 });

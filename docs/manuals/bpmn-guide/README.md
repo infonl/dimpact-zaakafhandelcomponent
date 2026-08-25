@@ -982,6 +982,9 @@ Five functions are in the context alongside the two objects.
 They all carry the `ZAC_formatter_` prefix so it is clear they come from ZAC and not from Form.io
 itself — nothing in a plain Form.io installation is called any of these.
 
+An **absent boolean renders as nothing** rather than as `Nee`, so a property the zaak does not carry
+is never mistaken for a deliberate `Nee`. Wrap it in `ZAC_formatter_leeg` if a dash is wanted instead.
+
 Two things about `ZAC_formatter_leeg`, both inherited from the Angular pipe:
 
 - **Never use it on a boolean.** It treats anything falsy as empty, so `false` renders as `-` rather

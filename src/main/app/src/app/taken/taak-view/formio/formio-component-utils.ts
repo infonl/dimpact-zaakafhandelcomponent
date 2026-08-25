@@ -4,20 +4,7 @@
  */
 
 import { ExtendedComponentSchema } from "@formio/angular";
-
-export function escapeHtml(value: string) {
-  return value.replace(
-    /[&<>"']/g,
-    (character) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-      })[character]!,
-  );
-}
+import { escapeHtml } from "../../../shared/utils/escape-html";
 
 export function renderFieldError(
   component: ExtendedComponentSchema,

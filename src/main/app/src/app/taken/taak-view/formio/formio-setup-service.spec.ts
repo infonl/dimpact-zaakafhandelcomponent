@@ -241,6 +241,111 @@ describe(FormioSetupService.name, () => {
       );
 
       expect(unknownComponent.html).toContain('class="zac-unknown-zac-type"');
+      expect(unknownComponent.html).toContain("ZAC_documentn");
+    });
+
+    it("should escape an unknown ZAC_TYPE that holds markup, so the message cannot render it", async () => {
+      const unknownComponent: ExtendedComponentSchema = {
+        key: "ZAAK_Documenten_Typo",
+        type: "select",
+        attributes: {
+          [ZAC_FIELD_ATTRIBUTE]: "<img src=x onerror=alert(1)>",
+        },
+      };
+
+      await formioSetupService.createFormioForm(
+        { components: [unknownComponent] } as FormioForm,
+        taak,
+        zaak,
+      );
+
+      expect(unknownComponent.html).not.toContain("<img");
+      expect(unknownComponent.html).toContain("&lt;img");
+    });
+
+    it("should initialise a ZAC field nested in a table cell", async () => {
+      const nestedGroepComponent: ExtendedComponentSchema = {
+        ...groepComponent,
+      };
+      const tableComponent: ExtendedComponentSchema = {
+        type: "table",
+        key: "ZO_Tabel",
+        input: false,
+        rows: [[{ components: [nestedGroepComponent] }]],
+      };
+
+      await formioSetupService.createFormioForm(
+        { components: [tableComponent] } as FormioForm,
+        taak,
+        zaak,
+      );
+
+      expect(nestedGroepComponent.template).toBe("{{ item.naam }}");
+    });
+
+    it("should initialise a ZAC field nested in a columns component", async () => {
+      const nestedGroepComponent: ExtendedComponentSchema = {
+        ...groepComponent,
+      };
+      const columnsComponent: ExtendedComponentSchema = {
+        type: "columns",
+        key: "ZO_Kolommen",
+        input: false,
+        columns: [{ components: [nestedGroepComponent] }],
+      };
+
+      await formioSetupService.createFormioForm(
+        { components: [columnsComponent] } as FormioForm,
+        taak,
+        zaak,
+      );
+
+      expect(nestedGroepComponent.template).toBe("{{ item.naam }}");
+    });
+
+    it("should report an unknown ZAC_TYPE nested in a table cell", async () => {
+      const nestedUnknownComponent: ExtendedComponentSchema = {
+        key: "ZAAK_Documenten_Typo",
+        type: "select",
+        attributes: { [ZAC_FIELD_ATTRIBUTE]: "ZAC_documentn" },
+      };
+      const tableComponent: ExtendedComponentSchema = {
+        type: "table",
+        key: "ZO_Tabel",
+        input: false,
+        rows: [[{ components: [nestedUnknownComponent] }]],
+      };
+
+      await formioSetupService.createFormioForm(
+        { components: [tableComponent] } as FormioForm,
+        taak,
+        zaak,
+      );
+
+      expect(nestedUnknownComponent.html).toContain(
+        'class="zac-unknown-zac-type"',
+      );
+    });
+
+    it("should leave a table whose cells hold no components alone", async () => {
+      const handleFormIOInitError = jest.spyOn(
+        utilService,
+        "handleFormIOInitError",
+      );
+      const tableComponent: ExtendedComponentSchema = {
+        type: "table",
+        key: "ZO_Tabel",
+        input: false,
+        rows: [[{}], []],
+      };
+
+      await formioSetupService.createFormioForm(
+        { components: [tableComponent] } as FormioForm,
+        taak,
+        zaak,
+      );
+
+      expect(handleFormIOInitError).not.toHaveBeenCalled();
     });
 
     it("should leave a plain Form.io component without a ZAC_TYPE untouched", async () => {

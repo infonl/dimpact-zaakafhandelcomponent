@@ -1736,7 +1736,7 @@
                     "key": "NAAM_besluiten_lijst_datum",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>ZAC_formatter_lijst(zaak.besluiten, \"datum\")</code> &mdash; wrapped in <code>ZAC_formatter_datum()</code</code>"
+                    "html": "<code>ZAC_formatter_lijst(zaak.besluiten, \"datum\")</code> &mdash; wrapped in <code>ZAC_formatter_datum()</code>"
                   }
                 ]
               },
@@ -1814,7 +1814,7 @@
                     "key": "NAAM_gerelateerdeZaken_lijst_startdatum",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>ZAC_formatter_lijst(zaak.gerelateerdeZaken, \"startdatum\")</code> &mdash; wrapped in <code>ZAC_formatter_datum()</code</code>"
+                    "html": "<code>ZAC_formatter_lijst(zaak.gerelateerdeZaken, \"startdatum\")</code> &mdash; wrapped in <code>ZAC_formatter_datum()</code>"
                   }
                 ]
               },

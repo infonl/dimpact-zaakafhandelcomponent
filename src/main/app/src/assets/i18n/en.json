@@ -883,6 +883,7 @@
   "msg.geen.cards.hint": "Increase the usefulnes of your personal dashboard by adding one or more handy cards",
   "msg.geen.gegevens.gevonden": "No data found",
   "msg.geen-documenten-te-ondertekenen": "There are no documents available for signing.",
+  "msg.geen-sleutels": "No keys",
   "msg.selecteer-minimaal-een-document": "Select at least one document.",
   "msg.gewijzigd.objecttype.ENKELVOUDIG_INFORMATIEOBJECT": "This document",
   "msg.gewijzigd.objecttype.TAAK": "This task",

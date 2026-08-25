@@ -9,6 +9,7 @@ import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
+import { escapeHtml } from "../../shared/utils/escape-html";
 
 type EvalContext = Record<string, unknown>;
 
@@ -28,11 +29,18 @@ function stripTags(value: string) {
   return stripped.replace(/[<>]/g, "");
 }
 
+/** Rebuilt key by key, so anything else - a `Date`, a `Map` - would lose its contents. */
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (value === null || typeof value !== "object") return false;
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
 /** Removed rather than escaped: the same values are seeded into inputs, where `&amp;` would show. */
 function stripTagsDeep<T>(value: T): T {
   if (typeof value === "string") return stripTags(value) as T;
   if (Array.isArray(value)) return value.map(stripTagsDeep) as T;
-  if (value !== null && typeof value === "object") {
+  if (isPlainObject(value)) {
     return Object.fromEntries(
       Object.entries(value).map(([key, entry]) => [key, stripTagsDeep(entry)]),
     ) as T;
@@ -64,15 +72,17 @@ const ABSENT: Record<string | symbol, unknown> = new Proxy(
   },
 );
 
-/** Form.io re-renders a form many times over, so each unknown property is reported once. */
-const reportedPaths = new Set<string>();
-
 function pathOf(value: unknown) {
   return (value as Record<symbol, string> | null)?.[PATH];
 }
 
 /** Absent-but-present is ordinary data (an unassigned zaak has no behandelaar), so it stays quiet. */
-function reportUnknownProperty(target: object, property: string, path: string) {
+function reportUnknownProperty(
+  target: object,
+  property: string,
+  path: string,
+  reportedPaths: Set<string>,
+) {
   if (Array.isArray(target) && /^\d+$/.test(property)) return;
   const reported = `${path}.${property}`;
   if (reportedPaths.has(reported)) return;
@@ -83,9 +93,14 @@ function reportUnknownProperty(target: object, property: string, path: string) {
   );
 }
 
-function readableThrough<T>(value: T, path: string): T {
+function readableThrough<T>(
+  value: T,
+  path: string,
+  reportedPaths: Set<string>,
+): T {
   if (value === null || value === undefined) return ABSENT as T;
-  if (typeof value !== "object") return value;
+  // A `Date` and the like carry internal state their methods read off `this`, which a proxy breaks.
+  if (!isPlainObject(value) && !Array.isArray(value)) return value;
   return new Proxy(value as object, {
     get(target, property, receiver) {
       if (property === PATH) return path;
@@ -94,12 +109,12 @@ function readableThrough<T>(value: T, path: string): T {
       if (read === null || read === undefined) {
         if (!standsInFor(property)) return read;
         if (!(property in target)) {
-          reportUnknownProperty(target, property, path);
+          reportUnknownProperty(target, property, path, reportedPaths);
         }
         return ABSENT as unknown;
       }
       return typeof read === "object"
-        ? readableThrough(read, `${path}.${String(property)}`)
+        ? readableThrough(read, `${path}.${String(property)}`, reportedPaths)
         : read;
     },
   }) as T;
@@ -116,6 +131,9 @@ export class FormioCustomFunctions {
   private readonly datumPipe = new DatumPipe(inject(LOCALE_ID));
   private readonly emptyPipe = new EmptyPipe();
 
+  /** Form.io re-renders a form many times over, so each unknown property is reported once. */
+  private readonly reportedPaths = new Set<string>();
+
   // Unlike the registry below these take a value rather than a field key, and need no pre-fetch.
   private readonly templateHelpers = {
     ZAC_formatter_datum: (value: unknown) =>
@@ -123,10 +141,14 @@ export class FormioCustomFunctions {
 
     ZAC_formatter_leeg: (value: unknown) => this.emptyPipe.transform(value),
 
-    ZAC_formatter_jaNee: (value: unknown) =>
-      this.translateService.instant(
-        value === true || value === "true" ? "actie.ja" : "actie.nee",
-      ),
+    ZAC_formatter_jaNee: (value: unknown) => {
+      // An absent property stands in as an object that reads as empty, so compare the rendered text.
+      const read = String(value ?? "");
+      if (read === "") return "";
+      return this.translateService.instant(
+        read === "true" ? "actie.ja" : "actie.nee",
+      );
+    },
 
     ZAC_formatter_lijst: (values: unknown, property?: string) =>
       (Array.isArray(values) ? values : [])
@@ -141,7 +163,6 @@ export class FormioCustomFunctions {
         )
         .join(", "),
 
-    /** Every key of an object whose keys are not known in advance; nested values are counted. */
     ZAC_formatter_sleutels: (source: unknown, caption?: string) => {
       const entries = Object.entries(
         source !== null && typeof source === "object" ? source : {},
@@ -149,12 +170,13 @@ export class FormioCustomFunctions {
       const path = pathOf(source);
 
       const header = caption
-        ? `<div class="card-header py-1 px-2 small text-body-secondary">${caption}</div>`
+        ? `<div class="card-header py-1 px-2 small text-body-secondary">${escapeHtml(caption)}</div>`
         : "";
       if (!entries.length) {
         return (
           `<div class="card mb-2">${header}<div class="card-body py-1 px-2 small ` +
-          `text-body-secondary"><em>no keys</em></div></div>`
+          `text-body-secondary"><em>` +
+          `${this.translateService.instant("msg.geen-sleutels")}</em></div></div>`
         );
       }
 
@@ -167,8 +189,8 @@ export class FormioCustomFunctions {
               : String(value);
           return (
             `<tr><th scope="row" class="fw-normal text-nowrap">` +
-            `<code>${path ? `${path}.${key}` : key}</code></th>` +
-            `<td>${rendered}</td></tr>`
+            `<code>${escapeHtml(path ? `${path}.${key}` : key)}</code></th>` +
+            `<td>${escapeHtml(rendered)}</td></tr>`
           );
         })
         .join("");
@@ -219,8 +241,8 @@ export class FormioCustomFunctions {
 
     const context: EvalContext = {
       ...taakdata,
-      zaak: readableThrough(stripTagsDeep(zaak), "zaak"),
-      taak: readableThrough(stripTagsDeep(taak), "taak"),
+      zaak: readableThrough(stripTagsDeep(zaak), "zaak", this.reportedPaths),
+      taak: readableThrough(stripTagsDeep(taak), "taak", this.reportedPaths),
       ...this.templateHelpers,
     };
     for (const [funcName, factory] of Object.entries(this.functionRegistry)) {
@@ -246,7 +268,6 @@ export class FormioCustomFunctions {
     return result;
   }
 
-  // Accepts a uuid, a list of uuids or datagrid rows, so both dropdown and datagrid fields work.
   private extractDocumentUuids(value: unknown): string[] {
     return (Array.isArray(value) ? value : [value]).flatMap((entry) => {
       if (typeof entry === "string") return [entry];

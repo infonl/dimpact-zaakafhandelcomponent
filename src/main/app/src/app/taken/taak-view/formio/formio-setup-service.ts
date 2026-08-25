@@ -208,19 +208,15 @@ export class FormioSetupService {
 
   /** A table nests its children per cell in `rows`, and a columns component in `columns`. */
   private getChildComponents(
-    fieldsetComponent: ExtendedComponentSchema,
+    component: ExtendedComponentSchema,
   ): ExtendedComponentSchema[] {
-    const children = Array.isArray(fieldsetComponent.components)
-      ? Array.from(fieldsetComponent.components)
+    const children = Array.isArray(component.components)
+      ? Array.from(component.components)
       : [];
 
     const cells: ExtendedComponentSchema[] = [
-      ...(Array.isArray(fieldsetComponent.rows)
-        ? fieldsetComponent.rows.flat()
-        : []),
-      ...(Array.isArray(fieldsetComponent.columns)
-        ? fieldsetComponent.columns
-        : []),
+      ...(Array.isArray(component.rows) ? component.rows.flat() : []),
+      ...(Array.isArray(component.columns) ? component.columns : []),
     ];
 
     return [

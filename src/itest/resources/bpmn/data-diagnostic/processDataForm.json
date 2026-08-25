@@ -33,7 +33,7 @@
           "key": "PDzaak_zaakdata_tabel",
           "input": false,
           "tableView": false,
-          "html": "<span class=\"fw-medium\"><code>ZAC_formatter_sleutels</code></span>{{ ZAC_formatter_sleutels(zaak.zaakdata, \"the process variables, merged into the zaak by ZAC each time it is read\") }}"
+          "html": "<span class=\"fw-medium\"><code>ZAC_formatter_sleutels(zaak.zaakdata, …)</code></span>{{ ZAC_formatter_sleutels(zaak.zaakdata, \"the process variables, merged into the zaak by ZAC each time it is read\") }}"
         },
         {
           "type": "content",
