@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { inject, Injectable } from "@angular/core";
+import { inject, Injectable, LOCALE_ID } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
 import { lastValueFrom } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
+import { DatumPipe } from "../../shared/pipes/datum.pipe";
 
 type EvalContext = Record<string, unknown>;
 
@@ -17,7 +19,7 @@ type FormioFunctionFactory = (
 
 function stripTags(value: string) {
   let stripped = value;
-  for (let previous = ""; stripped !== previous; ) {
+  for (let previous = ""; stripped !== previous;) {
     previous = stripped;
     stripped = stripped.replace(/<[^>]*>/g, "");
   }
@@ -107,8 +109,49 @@ export class FormioCustomFunctions {
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
+  private readonly translateService = inject(TranslateService);
+
+  private readonly datumPipe = new DatumPipe(inject(LOCALE_ID));
 
   private readonly reportedPaths = new Set<string>();
+
+  private readonly templateHelpers = {
+    ZAC_opmaakDatum: (value: unknown) =>
+      String(this.datumPipe.transform(value as string) ?? ""),
+
+    ZAC_opmaakLegeWaarde: (value: unknown, whenEmpty?: string) => {
+      const read = String(value ?? "");
+      return read === ""
+        ? this.translateService.instant(whenEmpty ?? "-")
+        : read;
+    },
+
+    ZAC_opmaakBoolean: (
+      value: unknown,
+      whenTrue?: string,
+      whenFalse?: string,
+    ) => {
+      // An absent property stands in as an object that reads as empty, so compare the rendered text.
+      const read = String(value ?? "");
+      if (read !== "true" && read !== "false") return read;
+      return this.translateService.instant(
+        read === "true" ? (whenTrue ?? "actie.ja") : (whenFalse ?? "actie.nee"),
+      );
+    },
+
+    ZAC_opmaakLijst: (values: unknown, property?: string) =>
+      (Array.isArray(values) ? values : [])
+        .map((element) =>
+          property && element !== null && typeof element === "object"
+            ? (element as Record<string, unknown>)[property]
+            : element,
+        )
+        .filter(
+          (element) =>
+            element !== null && element !== undefined && element !== "",
+        )
+        .join(", "),
+  };
 
   private readonly functionRegistry: Record<string, FormioFunctionFactory> = {
     ZAC_getDocumentTitles: async (taakdata, parameters) => {
@@ -156,6 +199,7 @@ export class FormioCustomFunctions {
       ...taakdata,
       zaak: this.asContextValue(zaak, "zaak"),
       taak: this.asContextValue(taak, "taak"),
+      ...this.templateHelpers,
     };
     for (const [funcName, factory] of Object.entries(this.functionRegistry)) {
       if (foundFunctions.has(funcName)) {
