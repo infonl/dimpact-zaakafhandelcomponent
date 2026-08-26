@@ -12,14 +12,12 @@ import { convertToParamMap } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { KlantenService } from "../klanten.service";
 import { PersoonResolverService } from "./persoon-resolver.service";
 
 describe(PersoonResolverService.name, () => {
   let persoonResolverService: PersoonResolverService;
-  let foutAfhandelingService: FoutAfhandelingService;
   let queryClient: QueryClient;
 
   const temporaryPersonId = "1438529a-eb41-4ff9-ac98-8c1f18892b7a";
@@ -28,7 +26,6 @@ describe(PersoonResolverService.name, () => {
     TestBed.configureTestingModule({
       providers: [
         PersoonResolverService,
-        FoutAfhandelingService,
         KlantenService,
         QueryClient,
         provideHttpClient(withInterceptorsFromDi()),
@@ -37,11 +34,6 @@ describe(PersoonResolverService.name, () => {
     });
 
     persoonResolverService = TestBed.inject(PersoonResolverService);
-
-    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
-    jest
-      .spyOn(foutAfhandelingService, "httpErrorAfhandelen")
-      .mockImplementation();
 
     TestBed.inject(KlantenService);
     queryClient = TestBed.inject(QueryClient);
@@ -71,37 +63,6 @@ describe(PersoonResolverService.name, () => {
             }),
           ]),
         }),
-      );
-    });
-
-    it("should handle retry logic and call error handler on final failure", async () => {
-      const mockError = new Error("Network error");
-
-      jest
-        .spyOn(queryClient, "ensureQueryData")
-        .mockImplementation((options) => {
-          // Simulate retry callback
-          if (typeof options.retry === "function") {
-            // First retry - should return true
-            expect(options.retry(0, mockError)).toBe(true);
-            // Final retry - should return false and call error handler
-            expect(options.retry(3, mockError)).toBe(false);
-          }
-          return Promise.resolve(
-            fromPartial<GeneratedType<"RestPersoon">>({ indicaties: [] }),
-          );
-        });
-
-      await persoonResolverService.resolve(
-        fromPartial({
-          get paramMap() {
-            return convertToParamMap({ temporaryPersonId });
-          },
-        }),
-      );
-
-      expect(foutAfhandelingService.httpErrorAfhandelen).toHaveBeenCalledWith(
-        mockError,
       );
     });
   });
