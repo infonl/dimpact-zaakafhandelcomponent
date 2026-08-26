@@ -84,17 +84,17 @@
             <zac-static-text
               *ngIf="profiel?.rechtsvorm"
               label="rechtsvorm"
-              [value]="profiel.rechtsvorm"
+              [value]="profiel?.rechtsvorm"
             />
             <zac-static-text
               *ngIf="profiel?.uitgebreideRechtsvorm"
               label="uitgebreideRechtsvorm"
-              [value]="profiel.uitgebreideRechtsvorm"
+              [value]="profiel?.uitgebreideRechtsvorm"
             />
             <zac-static-text
               *ngIf="profiel?.statutaireNaam"
               label="statutaireNaam"
-              [value]="profiel.statutaireNaam"
+              [value]="profiel?.statutaireNaam"
             />
           </div>
         </mat-card-content>

@@ -54,6 +54,14 @@ export class ZoekObjectLinkComponent {
     }
   }
 
+  protected get zaakZoekObject() {
+    return this.zoekObject as ZaakZoekObject;
+  }
+
+  protected get documentZoekObject() {
+    return this.zoekObject as DocumentZoekObject;
+  }
+
   protected getLink() {
     switch (this.zoekObject.type) {
       case "ZAAK":

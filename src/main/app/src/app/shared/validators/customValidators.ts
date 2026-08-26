@@ -195,11 +195,11 @@ export class CustomValidators {
   }
 
   public static getErrorMessage(
-    formControl: AbstractControl,
+    formControl: AbstractControl | null,
     label: string,
     translate: TranslateService,
   ): string {
-    if (!formControl.errors) {
+    if (!formControl?.errors) {
       return "";
     }
 

@@ -375,7 +375,7 @@
                 {{ "gerelateerdeZaken" | translate }}</ng-template
               >
               <div class="table-wrapper">
-                <table mat-table [dataSource]="zaak.gerelateerdeZaken">
+                <table mat-table [dataSource]="zaak.gerelateerdeZaken ?? []">
                   <ng-container
                     *ngFor="let column of gerelateerdeZaakColumns"
                     [matColumnDef]="column"
@@ -537,7 +537,6 @@
         <zac-besluit-view
           *ngIf="zaak.besluiten?.length"
           [besluiten]="zaak.besluiten ?? []"
-          [result]="zaak.resultaat"
           [readonly]="!zaak.isOpen || !zaak.rechten.behandelen"
           (besluitWijzigen)="besluitWijzigen($event)"
         ></zac-besluit-view>
