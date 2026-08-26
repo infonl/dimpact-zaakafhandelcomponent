@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.303](https://img.shields.io/badge/Version-1.0.303-informational?style=flat-square) ![AppVersion: 5.5](https://img.shields.io/badge/AppVersion-5.5-informational?style=flat-square)
+![Version: 1.0.304](https://img.shields.io/badge/Version-1.0.304-informational?style=flat-square) ![AppVersion: 5.5](https://img.shields.io/badge/AppVersion-5.5-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -279,6 +279,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | pabcApi.url | string | `""` |  |
 | podAnnotations | object | `{}` | pod specific annotations |
 | podSecurityContext | object | `{"seccompProfile":{"type":"RuntimeDefault"}}` | pod specific security context |
+| productaanvraag.claimTimeoutMinutes | int | `10` | Number of minutes after which a productaanvraag claim that was never completed (for example because ZAC was restarted) may be picked up again by a redelivered notification. |
 | remoteDebug | bool | `false` | Enable Java remote debugging |
 | replicaCount | int | `1` | The number of replicas to run |
 | resources.requests.cpu | string | `"100m"` |  |
