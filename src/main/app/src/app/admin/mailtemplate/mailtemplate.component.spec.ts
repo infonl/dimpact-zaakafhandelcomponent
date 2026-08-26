@@ -24,7 +24,7 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { MailtemplateBeheerService } from "../mailtemplate-beheer.service";
 import { MailtemplateComponent } from "./mailtemplate.component";
 
-const bestaandTemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
+const bestaandTemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
   id: 42,
   mailTemplateNaam: "Bestaand template",
   mail: "TAAK_ONTVANGSTBEVESTIGING",
@@ -76,7 +76,9 @@ describe(MailtemplateComponent.name, () => {
   });
 
   function htmlEditor(label: string) {
+    // eslint-disable-next-line testing-library/no-node-access -- ngx-editor's ProseMirror editor is not associated with the field's label, so the editor container can only be reached by walking up from the label text
     const field = screen.getByText(label).closest("div");
+    // eslint-disable-next-line no-restricted-syntax, testing-library/no-node-access -- ngx-editor sets no role on its ProseMirror contenteditable element, so it is not reachable by role or label query
     return field!.querySelector<HTMLElement>("[contenteditable='true']")!;
   }
 
@@ -85,7 +87,7 @@ describe(MailtemplateComponent.name, () => {
   }
 
   async function setup(
-    template?: GeneratedType<"RESTMailtemplate">,
+    template?: GeneratedType<"RestMailtemplate">,
     variabelen: GeneratedType<"MailTemplateVariables">[] = [],
   ) {
     const rendered = await render(MailtemplateComponent, {

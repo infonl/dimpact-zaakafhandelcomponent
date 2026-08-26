@@ -42,7 +42,7 @@ describe(MailtemplatesComponent.name, () => {
     "setTitle" | "openSnackbar" | "setLoading"
   >;
 
-  const mailtemplate: GeneratedType<"RESTMailtemplate"> = {
+  const mailtemplate: GeneratedType<"RestMailtemplate"> = {
     id: 1,
     mailTemplateNaam: "Test Template",
     mail: "TAAK_ONTVANGSTBEVESTIGING",
@@ -53,7 +53,7 @@ describe(MailtemplatesComponent.name, () => {
 
   const koppeling: GeneratedType<"RESTMailtemplateKoppeling"> = {
     id: 1,
-    mailtemplate: { id: 1 } as GeneratedType<"RESTMailtemplate">,
+    mailtemplate: { id: 1 } as GeneratedType<"RestMailtemplate">,
     zaakafhandelParameters: {
       zaaktype: {
         omschrijving: "Test zaaktype",
@@ -290,7 +290,7 @@ describe(MailtemplatesComponent.name, () => {
       ...mailtemplate,
       id: 2,
       mail: "ZAAK_ALGEMEEN",
-    } as GeneratedType<"RESTMailtemplate">;
+    } as GeneratedType<"RestMailtemplate">;
     jest
       .spyOn(mailtemplateBeheerService, "listMailtemplates")
       .mockReturnValue(of([mailtemplate, template2]));
@@ -350,7 +350,7 @@ describe(MailtemplatesComponent.name, () => {
 
     it("should not touch the loading state after the component is destroyed", () => {
       const pendingMailtemplates = new Subject<
-        GeneratedType<"RESTMailtemplate">[]
+        GeneratedType<"RestMailtemplate">[]
       >();
       jest
         .spyOn(mailtemplateBeheerService, "listMailtemplates")
