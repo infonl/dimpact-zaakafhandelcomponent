@@ -15,6 +15,7 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslatePipe } from "@ngx-translate/core";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { DocumentIconComponent } from "../../document-icon/document-icon.component";
+import { IndicatiesLayout } from "../../indicaties/indicaties.component";
 import { InformatieObjectIndicatiesComponent } from "../../indicaties/informatie-object-indicaties/informatie-object-indicaties.component";
 import { BestandsomvangPipe } from "../../pipes/bestandsomvang.pipe";
 import { GeneratedType } from "../../utils/generated-types";
@@ -44,6 +45,8 @@ export class ZacDocuments<
   Key extends keyof Form,
   Option extends GeneratedType<"RestEnkelvoudigInformatieobject">,
 > extends MultiInputFormField<Form, Key, Option, () => string> {
+  protected readonly indicatiesLayout = IndicatiesLayout;
+
   protected selectLabel = input<string>();
   protected viewDocumentInNewTab = input(false, {
     transform: booleanAttribute,
@@ -75,7 +78,7 @@ export class ZacDocuments<
 
   // Documents are matched on their uuid rather than on object identity, because the
   // control's value and the options are often fetched separately
-  protected override compareWith = (a: Option, b: Option) => {
+  protected override compareWith = (a: Option, b?: Option | null) => {
     const compare = this.compare();
     if (compare) return compare.call(this, a, b);
 

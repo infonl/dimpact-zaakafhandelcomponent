@@ -120,9 +120,9 @@ export class MultiInputFormField<
   Key extends keyof Form,
   Option extends Form[Key]["value"],
   OptionDisplayValue extends keyof Option | ((option: Option) => string),
-  Compare extends (a: Option, b: Option) => boolean = (
+  Compare extends (a: Option, b?: Option | null) => boolean = (
     a: Option,
-    b: Option,
+    b?: Option | null,
   ) => boolean,
 > extends SingleInputFormField<Form, Key, Option> {
   public readonly options = input.required<
@@ -171,7 +171,7 @@ export class MultiInputFormField<
 
   // Needs to be an arrow function to de-link the reference to `this`
   // when used in the template `[compareWith]="compareWith"`
-  protected compareWith = (a: Option, b: Option) => {
+  protected compareWith = (a: Option, b?: Option | null) => {
     const compare = this.compare();
     if (compare) return compare.call(this, a, b);
 
