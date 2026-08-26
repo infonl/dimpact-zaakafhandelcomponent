@@ -1,56 +1,32 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.solr.schema
 
-package net.atos.zac.solr.schema;
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.solr.FieldType.PDATE
+import nl.info.zac.solr.SolrSchemaUpdate
+import nl.info.zac.solr.addField
+import nl.info.zac.solr.deleteCopyField
+import nl.info.zac.solr.deleteField
+import org.apache.solr.client.solrj.request.schema.SchemaRequest
 
-import static net.atos.zac.solr.FieldType.PDATE;
-import static net.atos.zac.solr.SolrSchemaUpdateHelper.addField;
-import static net.atos.zac.solr.SolrSchemaUpdateHelper.deleteCopyField;
-import static net.atos.zac.solr.SolrSchemaUpdateHelper.deleteField;
+class SolrSchemaV2 : SolrSchemaUpdate {
+    override val versie = 2
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+    override val teHerindexerenZoekObjectTypes = setOf(ZoekObjectType.TAAK)
 
-import org.apache.solr.client.solrj.request.schema.SchemaRequest;
+    override val schemaUpdates: List<SchemaRequest.Update> = updateGenericSchema() + updateTaakSchema()
 
-import net.atos.zac.solr.SolrSchemaUpdate;
-import nl.info.zac.search.model.zoekobject.ZoekObjectType;
+    private fun updateGenericSchema(): List<SchemaRequest.Update> = listOf<SchemaRequest.Update>(
+        deleteCopyField("zaak_einddatumGepland", "streefdatum"),
+        deleteCopyField("taak_streefdatum", "streefdatum"),
+        deleteField("streefdatum")
+    )
 
-class SolrSchemaV2 implements SolrSchemaUpdate {
-
-    @Override
-    public int getVersie() {
-        return 2;
-    }
-
-    @Override
-    public Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
-        return Set.of(ZoekObjectType.TAAK);
-    }
-
-    @Override
-    public List<SchemaRequest.Update> getSchemaUpdates() {
-        final List<SchemaRequest.Update> schemaUpdates = new LinkedList<>();
-        schemaUpdates.addAll(updateGenericSchema());
-        schemaUpdates.addAll(updateTaakSchema());
-        return schemaUpdates;
-    }
-
-    private List<SchemaRequest.Update> updateGenericSchema() {
-        return List.of(
-                deleteCopyField("zaak_einddatumGepland", "streefdatum"),
-                deleteCopyField("taak_streefdatum", "streefdatum"),
-                deleteField("streefdatum")
-        );
-    }
-
-    private List<SchemaRequest.Update> updateTaakSchema() {
-        return List.of(
-                deleteField("taak_streefdatum"),
-                addField("taak_fataledatum", PDATE)
-        );
-    }
+    private fun updateTaakSchema(): List<SchemaRequest.Update> = listOf<SchemaRequest.Update>(
+        deleteField("taak_streefdatum"),
+        addField("taak_fataledatum", PDATE)
+    )
 }

@@ -1,34 +1,17 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.solr.schema
 
-package net.atos.zac.solr.schema;
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.solr.SolrSchemaUpdate
+import org.apache.solr.client.solrj.request.schema.SchemaRequest
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+class SolrSchemaV6 : SolrSchemaUpdate {
+    override val versie = 6
 
-import org.apache.solr.client.solrj.request.schema.SchemaRequest;
+    override val teHerindexerenZoekObjectTypes = setOf(ZoekObjectType.ZAAK)
 
-import net.atos.zac.solr.SolrSchemaUpdate;
-import nl.info.zac.search.model.zoekobject.ZoekObjectType;
-
-
-class SolrSchemaV6 implements SolrSchemaUpdate {
-
-    @Override
-    public int getVersie() {
-        return 6;
-    }
-
-    @Override
-    public Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
-        return Set.of(ZoekObjectType.ZAAK);
-    }
-
-    @Override
-    public List<SchemaRequest.Update> getSchemaUpdates() {
-        return Collections.emptyList();
-    }
+    override val schemaUpdates: List<SchemaRequest.Update> = emptyList()
 }

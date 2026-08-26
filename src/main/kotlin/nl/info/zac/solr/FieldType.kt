@@ -1,12 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.solr
 
-package net.atos.zac.solr;
-
-public enum FieldType {
-
+enum class FieldType(val value: String) {
     STRING("string"),
     LOCATION("location"),
     PDATE("pdate"),
@@ -16,15 +14,5 @@ public enum FieldType {
     BOOLEAN("boolean"),
     TEXT_NL("text_nl"),
     TEXT_WS("text_ws"),
-    TEXT_GENERAL_REV("text_general_rev");
-
-    private final String value;
-
-    FieldType(final String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
+    TEXT_GENERAL_REV("text_general_rev")
 }

@@ -1,43 +1,25 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.solr.schema
 
-package net.atos.zac.solr.schema;
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.solr.FieldType.PDATE
+import nl.info.zac.solr.FieldType.STRING
+import nl.info.zac.solr.SolrSchemaUpdate
+import nl.info.zac.solr.addField
+import org.apache.solr.client.solrj.request.schema.SchemaRequest
 
-import static net.atos.zac.solr.FieldType.PDATE;
-import static net.atos.zac.solr.FieldType.STRING;
-import static net.atos.zac.solr.SolrSchemaUpdateHelper.addField;
+class SolrSchemaV4 : SolrSchemaUpdate {
+    override val versie = 4
 
-import java.util.List;
-import java.util.Set;
+    override val teHerindexerenZoekObjectTypes = setOf(ZoekObjectType.ZAAK)
 
-import org.apache.solr.client.solrj.request.schema.SchemaRequest;
+    override val schemaUpdates: List<SchemaRequest.Update> = updateZaakSchema()
 
-import net.atos.zac.solr.SolrSchemaUpdate;
-import nl.info.zac.search.model.zoekobject.ZoekObjectType;
-
-class SolrSchemaV4 implements SolrSchemaUpdate {
-
-    @Override
-    public int getVersie() {
-        return 4;
-    }
-
-    @Override
-    public Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
-        return Set.of(ZoekObjectType.ZAAK);
-    }
-
-    @Override
-    public List<SchemaRequest.Update> getSchemaUpdates() {
-        return updateZaakSchema();
-    }
-
-    private List<SchemaRequest.Update> updateZaakSchema() {
-        return List.of(
-                addField("zaak_archiefNominatie", STRING, true),
-                addField("zaak_archiefActiedatum", PDATE)
-        );
-    }
+    private fun updateZaakSchema(): List<SchemaRequest.Update> = listOf(
+        addField("zaak_archiefNominatie", STRING, docValues = true),
+        addField("zaak_archiefActiedatum", PDATE)
+    )
 }

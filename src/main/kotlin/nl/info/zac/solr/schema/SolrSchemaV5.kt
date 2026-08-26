@@ -1,35 +1,20 @@
 /*
- * SPDX-FileCopyrightText: 2023 Atos
+ * SPDX-FileCopyrightText: 2023 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+package nl.info.zac.solr.schema
 
-package net.atos.zac.solr.schema;
+import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.solr.FieldType.STRING
+import nl.info.zac.solr.SolrSchemaUpdate
+import nl.info.zac.solr.addFieldMultiValued
+import org.apache.solr.client.solrj.request.schema.SchemaRequest
 
-import static net.atos.zac.solr.FieldType.STRING;
-import static net.atos.zac.solr.SolrSchemaUpdateHelper.addFieldMultiValued;
+class SolrSchemaV5 : SolrSchemaUpdate {
+    override val versie = 5
 
-import java.util.List;
-import java.util.Set;
+    override val teHerindexerenZoekObjectTypes = setOf(ZoekObjectType.ZAAK)
 
-import org.apache.solr.client.solrj.request.schema.SchemaRequest;
-
-import net.atos.zac.solr.SolrSchemaUpdate;
-import nl.info.zac.search.model.zoekobject.ZoekObjectType;
-
-class SolrSchemaV5 implements SolrSchemaUpdate {
-
-    @Override
-    public int getVersie() {
-        return 5;
-    }
-
-    @Override
-    public Set<ZoekObjectType> getTeHerindexerenZoekObjectTypes() {
-        return Set.of(ZoekObjectType.ZAAK);
-    }
-
-    @Override
-    public List<SchemaRequest.Update> getSchemaUpdates() {
-        return List.of(addFieldMultiValued("zaak_bagObjecten", STRING, true, true));
-    }
+    override val schemaUpdates: List<SchemaRequest.Update> =
+        listOf(addFieldMultiValued("zaak_bagObjecten", STRING, indexed = true, stored = true))
 }

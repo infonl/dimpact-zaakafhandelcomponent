@@ -1,9 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
-package net.atos.zac.solr
+package nl.info.zac.solr
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.checkUnnecessaryStub
@@ -49,7 +48,7 @@ class SolrDeployerServiceTest : BehaviorSpec({
         val solrSchemaUpdateInstance = mockk<Instance<SolrSchemaUpdate>>()
         val solrSchemaUpdate = mockk<SolrSchemaUpdate>()
         val solrSchemaRequestUpdate = mockk<SchemaRequest.Update>()
-        every { solrSchemaUpdateInstance.stream().sorted(any()).toList() } returns listOf(solrSchemaUpdate)
+        every { solrSchemaUpdateInstance.iterator() } returns mutableListOf(solrSchemaUpdate).iterator()
         every { solrSchemaUpdate.versie } returns 1
         every { solrSchemaUpdate.schemaUpdates } returns listOf(solrSchemaRequestUpdate)
         mockkConstructor(MultiUpdate::class)

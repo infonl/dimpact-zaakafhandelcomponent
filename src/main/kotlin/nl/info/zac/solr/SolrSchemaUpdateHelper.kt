@@ -1,162 +1,63 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
+@file:Suppress("TooManyFunctions")
+package nl.info.zac.solr
 
-package net.atos.zac.solr;
+import org.apache.solr.client.solrj.request.schema.SchemaRequest
 
-import java.util.List;
-import java.util.Map;
+const val NAME = "name"
 
-import org.apache.solr.client.solrj.request.schema.SchemaRequest;
+private const val TYPE = "type"
+private const val INDEXED = "indexed"
+private const val STORED = "stored"
+private const val DEFAULT = "default"
+private const val DOC_VALUES = "docValues"
+private const val MULTI_VALUED = "multiValued"
 
-public final class SolrSchemaUpdateHelper {
+fun addField(name: String, type: FieldType) =
+    SchemaRequest.AddField(mapOf(NAME to name, TYPE to type.value))
 
-    public static final String NAME = "name";
+fun addField(name: String, type: FieldType, defaultValue: String) =
+    SchemaRequest.AddField(mapOf(NAME to name, TYPE to type.value, DEFAULT to defaultValue))
 
-    private static final String TYPE = "type";
+fun addField(name: String, type: FieldType, docValues: Boolean) =
+    SchemaRequest.AddField(mapOf(NAME to name, TYPE to type.value, DOC_VALUES to docValues))
 
-    private static final String INDEXED = "indexed";
+fun addField(name: String, type: FieldType, indexed: Boolean, stored: Boolean) =
+    SchemaRequest.AddField(mapOf(NAME to name, TYPE to type.value, INDEXED to indexed, STORED to stored))
 
-    private static final String STORED = "stored";
+fun addField(name: String, type: FieldType, indexed: Boolean, stored: Boolean, docValues: Boolean) =
+    SchemaRequest.AddField(
+        mapOf(NAME to name, TYPE to type.value, INDEXED to indexed, STORED to stored, DOC_VALUES to docValues)
+    )
 
-    private static final String DEFAULT = "default";
+fun addFieldMultiValued(name: String, type: FieldType) =
+    SchemaRequest.AddField(mapOf(NAME to name, TYPE to type.value, MULTI_VALUED to true))
 
-    private static final String DOC_VALUES = "docValues";
+fun addFieldMultiValued(name: String, type: FieldType, docValues: Boolean) =
+    SchemaRequest.AddField(
+        mapOf(NAME to name, TYPE to type.value, DOC_VALUES to docValues, MULTI_VALUED to true)
+    )
 
-    private static final String MULTI_VALUED = "multiValued";
+fun addFieldMultiValued(name: String, type: FieldType, indexed: Boolean, stored: Boolean) =
+    SchemaRequest.AddField(
+        mapOf(NAME to name, TYPE to type.value, INDEXED to indexed, STORED to stored, MULTI_VALUED to true)
+    )
 
-    private SolrSchemaUpdateHelper() {
-    }
+fun addCopyField(source: String, vararg dest: String) =
+    SchemaRequest.AddCopyField(source, dest.toList())
 
-    public static SchemaRequest.AddField addField(final String name, final FieldType type) {
-        return new SchemaRequest.AddField(
-                Map.of(NAME, name,
-                        TYPE, type.getValue()
-                ));
-    }
+fun deleteCopyField(source: String, vararg dest: String) =
+    SchemaRequest.DeleteCopyField(source, dest.toList())
 
-    public static SchemaRequest.AddField addField(final String name, final FieldType type, final String defaultValue) {
-        return new SchemaRequest.AddField(
-                Map.of(NAME, name,
-                        TYPE, type.getValue(),
-                        DEFAULT, defaultValue
-                ));
-    }
+fun addDynamicField(name: String, type: FieldType, indexed: Boolean, stored: Boolean) =
+    SchemaRequest.AddDynamicField(mapOf(NAME to name, TYPE to type.value, INDEXED to indexed, STORED to stored))
 
-    public static SchemaRequest.AddField addField(final String name, final FieldType type, final boolean docValues) {
-        return new SchemaRequest.AddField(
-                Map.of(NAME, name,
-                        TYPE, type.getValue(),
-                        DOC_VALUES, docValues
-                ));
-    }
+fun addDynamicField(name: String, type: FieldType, indexed: Boolean, stored: Boolean, multiValued: Boolean) =
+    SchemaRequest.AddDynamicField(
+        mapOf(NAME to name, TYPE to type.value, INDEXED to indexed, STORED to stored, MULTI_VALUED to multiValued)
+    )
 
-    public static SchemaRequest.AddField addField(
-            final String name,
-            final FieldType type,
-            final boolean indexed,
-            final boolean stored
-    ) {
-        return new SchemaRequest.AddField(
-                Map.of(NAME, name,
-                        TYPE, type.getValue(),
-                        INDEXED, indexed,
-                        STORED, stored
-                ));
-    }
-
-    public static SchemaRequest.AddField addField(
-            final String name,
-            final FieldType type,
-            final boolean indexed,
-            final boolean stored,
-            final boolean docValues
-    ) {
-        return new SchemaRequest.AddField(
-                Map.of(NAME, name,
-                        TYPE, type.getValue(),
-                        INDEXED, indexed,
-                        STORED, stored,
-                        DOC_VALUES, docValues
-                ));
-    }
-
-    public static SchemaRequest.AddField addFieldMultiValued(final String name, final FieldType type) {
-        return new SchemaRequest.AddField(
-                Map.of(NAME, name,
-                        TYPE, type.getValue(),
-                        MULTI_VALUED, true
-                ));
-    }
-
-    public static SchemaRequest.AddField addFieldMultiValued(
-            final String name,
-            final FieldType type,
-            final boolean docValues
-    ) {
-        return new SchemaRequest.AddField(
-                Map.of(NAME, name,
-                        TYPE, type.getValue(),
-                        DOC_VALUES, docValues,
-                        MULTI_VALUED, true
-                ));
-    }
-
-    public static SchemaRequest.AddField addFieldMultiValued(
-            final String name,
-            final FieldType type,
-            final boolean indexed,
-            final boolean stored
-    ) {
-        return new SchemaRequest.AddField(
-                Map.of(NAME, name,
-                        TYPE, type.getValue(),
-                        INDEXED, indexed,
-                        STORED, stored,
-                        MULTI_VALUED, true
-                ));
-    }
-
-    public static SchemaRequest.AddCopyField addCopyField(final String source, final String... dest) {
-        return new SchemaRequest.AddCopyField(source, List.of(dest));
-    }
-
-    public static SchemaRequest.DeleteCopyField deleteCopyField(final String source, final String... dest) {
-        return new SchemaRequest.DeleteCopyField(source, List.of(dest));
-    }
-
-    public static SchemaRequest.AddDynamicField addDynamicField(
-            final String name,
-            final FieldType type,
-            final boolean indexed,
-            final boolean stored
-    ) {
-        return new SchemaRequest.AddDynamicField(
-                Map.of(NAME, name,
-                        TYPE, type.getValue(),
-                        INDEXED, indexed,
-                        STORED, stored
-                ));
-    }
-
-    public static SchemaRequest.AddDynamicField addDynamicField(
-            final String name,
-            final FieldType type,
-            final boolean indexed,
-            final boolean stored,
-            final boolean multiValued
-    ) {
-        return new SchemaRequest.AddDynamicField(
-                Map.of(NAME, name,
-                        TYPE, type.getValue(),
-                        INDEXED, indexed,
-                        STORED, stored,
-                        MULTI_VALUED, multiValued
-                ));
-    }
-
-    public static SchemaRequest.DeleteField deleteField(final String name) {
-        return new SchemaRequest.DeleteField(name);
-    }
-}
+fun deleteField(name: String) = SchemaRequest.DeleteField(name)
