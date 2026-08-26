@@ -117,7 +117,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
         {
           provide: MailtemplateService,
           useValue: fromPartial<MailtemplateService>({
-            findMailtemplate: (key) =>
+            findMailtemplate: (key: GeneratedType<"Mail">) =>
               of(
                 key === "ZAAK_ONTVANKELIJK"
                   ? mailtemplateOntvankelijk

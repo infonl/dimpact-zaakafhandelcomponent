@@ -79,7 +79,7 @@
                 >{{ notitie.tekst }}</textarea
               >
               <mat-hint align="end">
-                {{ notitieTekst.value?.length ?? 0 }}/{{ maxLengteTextArea }}
+                {{ notitieTekst.value.length }}/{{ maxLengteTextArea }}
               </mat-hint>
             </mat-form-field>
 
@@ -148,7 +148,7 @@
         [disabled]="geselecteerdeNotitieId != null"
       ></textarea>
       <mat-hint align="end">
-        {{ notitieTekst.value?.length ?? 0 }}/{{ maxLengteTextArea }}
+        {{ notitieTekst.value.length }}/{{ maxLengteTextArea }}
       </mat-hint>
       <button
         id="notitieOpslaan_button"

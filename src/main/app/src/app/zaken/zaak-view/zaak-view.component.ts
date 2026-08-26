@@ -107,7 +107,7 @@ export class ZaakViewComponent
     () => this.zaakQuery.data()?.isOpgeschort,
   );
 
-  zaakOpschorting!: GeneratedType<"RESTZaakOpschorting">;
+  zaakOpschorting?: GeneratedType<"RESTZaakOpschorting">;
   menu: MenuItem[] = [];
   actiefPlanItem: GeneratedType<"RESTPlanItem"> | null = null;
   activeSideAction: string | null = null;
@@ -928,7 +928,7 @@ export class ZaakViewComponent
       .openHervatten(
         {
           duur: werkelijkeOpschortDuur,
-          verwachteDuur: this.zaakOpschorting.duurDagen,
+          verwachteDuur: this.zaakOpschorting?.duurDagen,
         },
         (reden) =>
           this.zakenService.resumeZaak(this.zaak.uuid, {

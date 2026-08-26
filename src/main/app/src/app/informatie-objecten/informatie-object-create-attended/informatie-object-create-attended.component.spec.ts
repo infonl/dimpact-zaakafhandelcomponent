@@ -53,11 +53,10 @@ const templateGroup = fromPartial<
       name: "Template One",
       informatieObjectTypeUUID: "fakeInformatieobjectTypeUuid",
     },
-    {
+    fromPartial<GeneratedType<"RestMappedSmartDocumentsTemplate">>({
       id: "fakeTemplateId2",
       name: "Template Two",
-      informatieObjectTypeUUID: null,
-    },
+    }),
   ],
   groups: null,
 });
