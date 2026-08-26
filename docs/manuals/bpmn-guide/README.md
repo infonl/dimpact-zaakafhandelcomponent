@@ -983,9 +983,9 @@ These functions are evaluated client-side and can be used to display dynamic dat
 
 A `{{ ... }}` placeholder in a form renders a value exactly as it is stored, which is rarely what the
 form should show: `2026-08-24` instead of `24‑08‑2026`, `true` instead of `Ja`, `[object Object]` for
-anything composite. Four functions format a value on its way to the page.
+anything composite. The following helper functions render a value to the desired format in the task form.
 
-They differ from `ZAC_getDocumentTitles` in what you hand them: a **value**, not a field key. So they
+They differ from other BPMN functions offered by ZAC in what you hand them: a **value**, not a field key. So they
 work on anything reachable in the template — a zaak property, a taak property, a process variable or a
 field of the form itself.
 
@@ -1026,7 +1026,7 @@ console fills with `Invalid date provided` from the picker and a deprecation war
 
 ##### ZAC_opmaakBoolean
 
-Puts a word of your own in place of a boolean. Give it two labels — the first for `true`, the second
+Renders a custom text instead of the raw boolean value. Give it two labels — the first for `true`, the second
 for `false` — because a form rarely wants to say "true", it wants to say what the answer means.
 
 ```
