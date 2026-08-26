@@ -30,7 +30,7 @@ The CMMN mail-create form SHALL let the user select a vertrouwelijkheidaanduidin
 - **THEN** the created zaak document SHALL have its vertrouwelijkheidaanduiding set to `GEHEIM`, not to a hardcoded default
 
 ### Requirement: BPMN mail delegate requires a confidentiality parameter
-`SendEmailDelegate` SHALL require a `vertrouwelijkheidaanduiding` field (an `Expression`, resolved the same way as its existing `to`/`from`/`template` fields) and SHALL fail the service task, without sending the mail, when the field is missing, blank, or not a valid vertrouwelijkheidaanduiding value. Error handling SHALL be consistent with this delegate's existing pattern for a missing referenced value (the mail template lookup): a missing/blank value throws a descriptive `IllegalArgumentException`; an invalid-but-present value is left to the default `IllegalArgumentException` thrown by parsing the enum. No separate explicit logging call is added beyond what already happens for a thrown, uncaught exception in this delegate.
+`SendEmailDelegate` SHALL require a `vertrouwelijkheidaanduiding` field (an `Expression`, resolved the same way as its existing `to`/`from`/`template` fields) and SHALL fail the service task, without sending the mail, when the field is missing, blank, or not a valid vertrouwelijkheidaanduiding value. Error handling SHALL be consistent with this delegate's existing pattern for a missing referenced value (the mail template lookup): both a missing/blank value and an invalid-but-present value throw a descriptive `IllegalArgumentException` naming the field and, for an invalid value, the value that was supplied. No separate explicit logging call is added beyond what already happens for a thrown, uncaught exception in this delegate.
 
 Enforcing this field as mandatory in whatever process-authoring form supplies it (e.g. a form-io task form upstream in a BPMN process) is outside this codebase's scope — this delegate only resolves and validates the process variable it's given.
 
@@ -40,7 +40,7 @@ Enforcing this field as mandatory in whatever process-authoring form supplies it
 
 #### Scenario: BPMN process supplies an invalid vertrouwelijkheidaanduiding value
 - **WHEN** a BPMN service task using `SendEmailDelegate` executes with `vertrouwelijkheidaanduiding` resolved to a value that is not one of the 8 known confidentiality levels
-- **THEN** the delegate SHALL fail the service task with an `IllegalArgumentException`, without sending the mail
+- **THEN** the delegate SHALL fail the service task, without sending the mail, with an `IllegalArgumentException` naming the field and the invalid value supplied
 
 #### Scenario: BPMN process supplies the vertrouwelijkheidaanduiding field
 - **WHEN** a BPMN service task using `SendEmailDelegate` executes with `vertrouwelijkheidaanduiding` set to `INTERN`
