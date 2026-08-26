@@ -61,9 +61,18 @@ class SendEmailDelegate : AbstractDelegate() {
         val replyToAddress = replyTo?.resolveValueAsString(execution)
         val vertrouwelijkheidaanduidingValue = vertrouwelijkheidaanduiding
             ?.resolveValueAsString(execution)
-            ?.trim()
             ?.takeUnless { it.isBlank() }
-            ?.let { RestVertrouwelijkheidaanduiding.valueOf(it).toDrcVertrouwelijkheidaanduidingEnum() }
+            ?.let { value ->
+                val restVertrouwelijkheidaanduiding = try {
+                    RestVertrouwelijkheidaanduiding.valueOf(value)
+                } catch (illegalArgumentException: IllegalArgumentException) {
+                    throw IllegalArgumentException(
+                        "'$value' is not a valid 'vertrouwelijkheidaanduiding'",
+                        illegalArgumentException
+                    )
+                }
+                restVertrouwelijkheidaanduiding.toDrcVertrouwelijkheidaanduidingEnum()
+            }
             ?: throw IllegalArgumentException("Required field 'vertrouwelijkheidaanduiding' is missing")
 
         val mailTemplate = flowableHelper.mailTemplateService.findMailtemplateByName(templateName)

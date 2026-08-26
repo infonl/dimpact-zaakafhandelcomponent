@@ -314,8 +314,8 @@ class SendEmailDelegateTest : BehaviorSpec({
                 sendEmailDelegate.execute(delegateExecution)
             }
 
-            then("an IllegalArgumentException is thrown") {
-                illegalArgumentException shouldNotBe null
+            then("an IllegalArgumentException describing the invalid value is thrown") {
+                illegalArgumentException.message shouldBe "'NIET_BESTAAND' is not a valid 'vertrouwelijkheidaanduiding'"
             }
 
             And("no mail is sent") {
