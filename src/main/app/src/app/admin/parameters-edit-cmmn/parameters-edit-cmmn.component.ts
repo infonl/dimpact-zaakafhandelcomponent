@@ -16,6 +16,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
+  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
@@ -166,7 +167,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   mailtemplateKoppelingen = getBeschikbareMailtemplateKoppelingen();
 
   protected readonly modellingMethodOptions: Array<{
-    label: string;
+    label: ProcessModelMethod;
     value: ProcessModelMethod;
   }> = [
     { label: "CMMN", value: "CMMN" },
@@ -204,7 +205,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
 
   humanTasksFormGroup = new FormGroup({});
   userEventListenersFormGroup = new FormGroup({});
-  mailFormGroup = new FormGroup({
+  mailFormGroup = new FormGroup<Record<string, AbstractControl>>({
     intakeMail: new FormControl(),
     afrondenMail: new FormControl(),
   });
@@ -214,13 +215,15 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     verwerkingregisterWaarde: new FormControl(""),
   });
 
-  protected zaakbeeindigFormGroup = new FormGroup({});
+  protected zaakbeeindigFormGroup = new FormGroup<Record<string, FormControl>>(
+    {},
+  );
   protected betrokkeneKoppelingen = new FormGroup({
     brpKoppelen: new FormControl(false),
     kvkKoppelen: new FormControl(false),
   });
   protected filteredMedewerkerMail: GeneratedType<"RESTReplyTo">[] = [];
-  protected ontvangstBevestigingsMailtemplates: GeneratedType<"RESTReplyTo">[] =
+  protected ontvangstBevestigingsMailtemplates: GeneratedType<"RestMailtemplate">[] =
     [];
 
   protected automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
@@ -416,7 +419,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     field: string,
   ) {
     const formGroup = this.mailFormGroup.get(koppeling);
-    return formGroup?.get(field);
+    return formGroup?.get(field) as FormControl;
   }
 
   async createForm() {
@@ -565,10 +568,14 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   }
 
   private createMailForm() {
-    this.mailFormGroup = this.formBuilder.group(
+    this.mailFormGroup = new FormGroup<Record<string, AbstractControl>>(
       {
-        intakeMail: [this.parameters.intakeMail, [Validators.required]],
-        afrondenMail: [this.parameters.afrondenMail, [Validators.required]],
+        intakeMail: new FormControl(this.parameters.intakeMail, [
+          Validators.required,
+        ]),
+        afrondenMail: new FormControl(this.parameters.afrondenMail, [
+          Validators.required,
+        ]),
       },
       { validators: this.afzenderValidator },
     );
@@ -580,14 +587,13 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
       const formGroup = this.formBuilder.group({
         mailtemplate: mailtemplate?.id,
       });
-      // @ts-expect-error TODO: add proper type to formGroup
       this.mailFormGroup.addControl(beschikbareKoppeling, formGroup);
     });
     this.initZaakAfzenders();
   }
 
   private createZaakbeeindigForm() {
-    this.zaakbeeindigFormGroup = this.formBuilder.group({});
+    this.zaakbeeindigFormGroup = new FormGroup<Record<string, FormControl>>({});
     this.addZaakbeeindigParameter(
       this.getZaaknietontvankelijkParameter(this.parameters),
     );
@@ -825,7 +831,6 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   private addZaakAfzenderControl(
     zaakAfzender: GeneratedType<"RestZaakAfzender">,
   ) {
-    // @ts-expect-error TODO: add proper type to `mailFormGroup`
     this.mailFormGroup.addControl(
       "afzender" + (zaakAfzender as { index: number }).index + "__replyTo",
       new FormControl(zaakAfzender.replyTo),
@@ -836,7 +841,9 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     zaakAfzender: GeneratedType<"RestZaakAfzender"> & { index?: number },
     field: string,
   ) {
-    return this.mailFormGroup.get(`afzender${zaakAfzender.index}__${field}`);
+    return this.mailFormGroup.get(
+      `afzender${zaakAfzender.index}__${field}`,
+    ) as FormControl;
   }
 
   private initAfzenders() {
@@ -871,7 +878,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   ) {
     return this.zaakbeeindigFormGroup.get(
       `${parameter.zaakbeeindigReden?.id}__${field}`,
-    );
+    ) as FormControl;
   }
 
   protected isValid(): boolean {
@@ -955,9 +962,10 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     this.parameters.userEventListenerParameters =
       this.userEventListenerParameters;
 
-    this.parameters.intakeMail = this.mailFormGroup.get("intakeMail")?.value;
-    this.parameters.afrondenMail =
-      this.mailFormGroup.get("afrondenMail")?.value;
+    this.parameters.intakeMail = this.mailFormGroup.get("intakeMail")
+      ?.value as GeneratedType<"ZaakafhandelparametersStatusMailOption">;
+    this.parameters.afrondenMail = this.mailFormGroup.get("afrondenMail")
+      ?.value as GeneratedType<"ZaakafhandelparametersStatusMailOption">;
 
     const parameterMailtemplateKoppelingen: GeneratedType<"RESTMailtemplateKoppeling">[] =
       [];
@@ -1091,7 +1099,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-  private getAvailableMailtemplates(mailtemplate: GeneratedType<"Mail">) {
+  protected getAvailableMailtemplates(mailtemplate: GeneratedType<"Mail">) {
     return this.mailtemplates.filter(
       (template) => template.mail === mailtemplate,
     );
@@ -1104,7 +1112,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected replyToDisplayValue(replyTo: GeneratedType<"RESTReplyTo">) {
     return replyTo.speciaal
       ? "gegevens.mail.afzender." + replyTo.mail
-      : replyTo.mail;
+      : (replyTo.mail ?? "");
   }
 
   confirmModellingMethodSwitch() {

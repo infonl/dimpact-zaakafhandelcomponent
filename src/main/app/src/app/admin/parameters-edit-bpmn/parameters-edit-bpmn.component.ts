@@ -174,7 +174,9 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   protected zaakbeeindigParameters: RestPristineZaakbeeindigParameterFormData[] =
     [];
 
-  protected zaakbeeindigFormGroup = new FormGroup({});
+  protected zaakbeeindigFormGroup = new FormGroup<Record<string, FormControl>>(
+    {},
+  );
 
   protected selection =
     new SelectionModel<RestPristineZaakbeeindigParameterFormData>(true);
@@ -398,11 +400,11 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   ) {
     return this.zaakbeeindigFormGroup.get(
       `${parameter.zaakbeeindigReden?.id}__${field}`,
-    );
+    ) as FormControl;
   }
 
   private createZaakbeeindigForm() {
-    this.zaakbeeindigFormGroup = this.formBuilder.group({});
+    this.zaakbeeindigFormGroup = new FormGroup<Record<string, FormControl>>({});
     this.addZaakbeeindigParameter(
       this.getZaaknietontvankelijkParameter(this.bpmnZaakafhandelParameters),
     );
