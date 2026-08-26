@@ -23,6 +23,17 @@ const zacSelectSchema = (zacFieldType: KNOWN_ZAC_FIELDS, label: string) => ({
   attributes: { [ZAC_FIELD_ATTRIBUTE]: zacFieldType },
 });
 
+/**
+ * Form.io fills each of its own groups with every component registered to it, but only for keys the
+ * options do not already hold. Naming a key `false` therefore claims it first, after which Form.io
+ * drops it again for having no schema.
+ */
+const withoutComponents = (...componentTypes: string[]) => ({
+  components: Object.fromEntries(
+    componentTypes.map((componentType) => [componentType, false]),
+  ),
+});
+
 export const ZAC_BUILDER_PALETTE = {
   zac: {
     title: "ZAC",
@@ -105,6 +116,16 @@ export const ZAC_BUILDER_PALETTE = {
       },
     },
   },
-  // Form.io merges its own groups in; naming one here replaces it, so only the unwanted one is named.
+  basic: withoutComponents("password"),
+  advanced: withoutComponents(
+    "address",
+    "currency",
+    "signature",
+    "survey",
+    "tags",
+    "url",
+  ),
+  layout: withoutComponents("well"),
+  data: withoutComponents("datamap"),
   premium: false,
 };
