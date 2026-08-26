@@ -6,7 +6,7 @@
 import { GeneratedType } from "../../shared/utils/generated-types";
 
 export type ZoekFilters = {
-  readonly filtersType:
+  readonly filtersType?:
     | "ZoekParameters"
     | "DetachedDocumentListParameters"
     | "InboxDocumentListParameters";
@@ -22,5 +22,5 @@ export type ZoekFilters = {
   reden?: string;
   ontvangstdatum?: GeneratedType<"RestDatumRange">;
   initiatorID?: string;
-  type?: string;
+  type?: string | null;
 };
