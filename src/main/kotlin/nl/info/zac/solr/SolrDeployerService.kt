@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.solr
@@ -16,6 +16,7 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.solr.FieldType.STRING
+import nl.info.zac.solr.exception.SolrDeploymentException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.apache.commons.lang3.StringUtils
@@ -59,7 +60,6 @@ class SolrDeployerService @Inject constructor(
         this.managedExecutor = managedExecutor
     }
 
-    @Suppress("TooGenericExceptionThrown")
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
         solrClient = Http2SolrClient.Builder("$solrUrl/solr/$SOLR_CORE").build()
         waitForSolrAvailability()
@@ -76,9 +76,9 @@ class SolrDeployerService @Inject constructor(
                     .forEach(::startReindexing)
             }
         } catch (solrServerException: SolrServerException) {
-            throw RuntimeException(solrServerException)
+            throw SolrDeploymentException("Failed to deploy Solr schema for core '$SOLR_CORE'", solrServerException)
         } catch (ioException: IOException) {
-            throw RuntimeException(ioException)
+            throw SolrDeploymentException("Failed to deploy Solr schema for core '$SOLR_CORE'", ioException)
         }
     }
 
@@ -111,22 +111,25 @@ class SolrDeployerService @Inject constructor(
 
     private fun getCurrentVersion(): Int =
         SchemaRequest.Fields().process(solrClient).fields
-            .map { it[NAME].toString() }
-            .filter { it.startsWith(VERSION_FIELD_PREFIX) }
-            .firstOrNull()
+            .map { it[NAME].toString() }.firstOrNull { it.startsWith(VERSION_FIELD_PREFIX) }
             ?.let { StringUtils.substringAfter(it, VERSION_FIELD_PREFIX).toInt() }
             ?: 0
 
-    @Suppress("TooGenericExceptionThrown")
     private fun apply(schemaUpdate: SolrSchemaUpdate) {
         LOG.info { "Updating Solr core '$SOLR_CORE' to version: ${schemaUpdate.versie}" }
         try {
             val schemaRequestUpdates = schemaUpdate.schemaUpdates + updateVersionField(schemaUpdate.versie)
             SchemaRequest.MultiUpdate(schemaRequestUpdates).process(solrClient)
         } catch (solrServerException: SolrServerException) {
-            throw RuntimeException(solrServerException)
+            throw SolrDeploymentException(
+                "Failed to update Solr core '$SOLR_CORE' to version: ${schemaUpdate.versie}",
+                solrServerException
+            )
         } catch (ioException: IOException) {
-            throw RuntimeException(ioException)
+            throw SolrDeploymentException(
+                "Failed to update Solr core '$SOLR_CORE' to version: ${schemaUpdate.versie}",
+                ioException
+            )
         }
     }
 
