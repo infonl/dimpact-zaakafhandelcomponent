@@ -19,6 +19,7 @@ import { UtilService } from "../../core/service/util.service";
 import { SharedModule } from "../../shared/shared.module";
 import { AdminComponent } from "../admin/admin.component";
 import { BpmnService } from "../bpmn.service";
+import { applyDefaultSelectWidget } from "./default-select-widget";
 import { FormioBuilderStylesService } from "./formio-builder-styles.service";
 import { findTaskFormIssues, TaskFormIssue } from "./task-form-issues";
 import { createTaskFormTemplate } from "./task-form-template";
@@ -108,6 +109,7 @@ export class FormulierBuilderComponent
           Object.assign(this.form, JSON.parse(content) as FormioForm, {
             name: this.formKey,
           });
+          applyDefaultSelectWidget(this.form);
           this.formJson.set(this.toJson(this.form));
           // the issues are advisory, so they are produced only once the form itself is usable
           this.isFormLoaded.set(true);
@@ -122,7 +124,7 @@ export class FormulierBuilderComponent
   }
 
   protected onBuilderChange(event: FormBuilderChangeEvent) {
-    const form = event.form ?? this.form;
+    const form = applyDefaultSelectWidget(event.form ?? this.form);
     this.formJson.set(this.toJson(form));
     this.issues.set(findTaskFormIssues(form));
   }

@@ -1,0 +1,63 @@
+{
+  "display": "form",
+  "name": "demoTypefouten",
+  "title": "Formulier met typefouten",
+  "type": "form",
+  "components": [
+    {
+      "title": "Toewijzing",
+      "label": "Toewijzing",
+      "type": "panel",
+      "key": "toewijzingPanel",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Behandelende groep",
+          "type": "select",
+          "key": "behandelendeGroep",
+          "input": true,
+          "widget": "html5",
+          "dataSrc": "custom",
+          "clearOnRefresh": true,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_groepen"
+          }
+        },
+        {
+          "label": "Behandelend medewerker",
+          "type": "select",
+          "key": "behandelendMedewerker",
+          "input": true,
+          "widget": "html5",
+          "dataSrc": "custom",
+          "clearOnRefresh": true,
+          "refreshOn": "behandelendeGroep",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_medewerker"
+          }
+        },
+        {
+          "label": "Afdeling",
+          "type": "select",
+          "key": "afdeling",
+          "input": true,
+          "widget": "html5",
+          "dataSrc": "custom",
+          "clearOnRefresh": true,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_referentie_tabel"
+          }
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Afronden",
+      "key": "submit",
+      "disableOnInvalid": false,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

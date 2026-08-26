@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions
+  xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:flowable="http://flowable.org/bpmn"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+  typeLanguage="http://www.w3.org/2001/XMLSchema"
+  expressionLanguage="http://www.w3.org/1999/XPath"
+  targetNamespace="http://flowable.org/formulierbuilderdemo">
+
+  <process id="formulierBuilderDemo" name="Formulier Builder Demo" isExecutable="true"
+           flowable:candidateStarterGroups="flowableUser">
+    <documentation>Demonstratieproces voor de Form.io-builder in ZAC. De drie taken starten tegelijk,
+      zodat elk formulier los te openen is zonder de andere taken af te ronden.</documentation>
+
+    <startEvent id="start" name="Start" flowable:initiator="initiator"/>
+
+    <parallelGateway id="split" name="Split"/>
+
+    <userTask id="goedFormulier" name="Goed formulier"
+              flowable:assignee="${var:get(zaakBehandelaar)}"
+              flowable:candidateGroups="${zaakGroep}"
+              flowable:formKey="demoGoedFormulier"
+              flowable:formFieldValidation="false">
+      <extensionElements>
+        <flowable:static-form-key><![CDATA[demoGoedFormulier]]></flowable:static-form-key>
+        <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+      </extensionElements>
+    </userTask>
+
+    <userTask id="typefouten" name="Formulier met typefouten"
+              flowable:assignee="${var:get(zaakBehandelaar)}"
+              flowable:candidateGroups="${zaakGroep}"
+              flowable:formKey="demoTypefouten"
+              flowable:formFieldValidation="false">
+      <extensionElements>
+        <flowable:static-form-key><![CDATA[demoTypefouten]]></flowable:static-form-key>
+        <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+      </extensionElements>
+    </userTask>
+
+    <userTask id="zonderKnop" name="Formulier zonder knop"
+              flowable:assignee="${var:get(zaakBehandelaar)}"
+              flowable:candidateGroups="${zaakGroep}"
+              flowable:formKey="demoZonderKnop"
+              flowable:formFieldValidation="false">
+      <extensionElements>
+        <flowable:static-form-key><![CDATA[demoZonderKnop]]></flowable:static-form-key>
+        <flowable:task-candidates-type><![CDATA[all]]></flowable:task-candidates-type>
+      </extensionElements>
+    </userTask>
+
+    <parallelGateway id="join" name="Join"/>
+
+    <endEvent id="end" name="End"/>
+
+    <sequenceFlow id="flowStartToSplit" sourceRef="start" targetRef="split"/>
+    <sequenceFlow id="flowSplitToGoedFormulier" sourceRef="split" targetRef="goedFormulier"/>
+    <sequenceFlow id="flowSplitToTypefouten" sourceRef="split" targetRef="typefouten"/>
+    <sequenceFlow id="flowSplitToZonderKnop" sourceRef="split" targetRef="zonderKnop"/>
+    <sequenceFlow id="flowGoedFormulierToJoin" sourceRef="goedFormulier" targetRef="join"/>
+    <sequenceFlow id="flowTypefoutenToJoin" sourceRef="typefouten" targetRef="join"/>
+    <sequenceFlow id="flowZonderKnopToJoin" sourceRef="zonderKnop" targetRef="join"/>
+    <sequenceFlow id="flowJoinToEnd" sourceRef="join" targetRef="end"/>
+  </process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_formulierBuilderDemo">
+    <bpmndi:BPMNPlane bpmnElement="formulierBuilderDemo" id="BPMNPlane_formulierBuilderDemo">
+      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+        <omgdc:Bounds height="30.0" width="30.0" x="100.0" y="235.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="split" id="BPMNShape_split">
+        <omgdc:Bounds height="40.0" width="40.0" x="180.0" y="230.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="goedFormulier" id="BPMNShape_goedFormulier">
+        <omgdc:Bounds height="80.0" width="140.0" x="290.0" y="110.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="typefouten" id="BPMNShape_typefouten">
+        <omgdc:Bounds height="80.0" width="140.0" x="290.0" y="210.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="zonderKnop" id="BPMNShape_zonderKnop">
+        <omgdc:Bounds height="80.0" width="140.0" x="290.0" y="310.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="join" id="BPMNShape_join">
+        <omgdc:Bounds height="40.0" width="40.0" x="500.0" y="230.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+        <omgdc:Bounds height="28.0" width="28.0" x="590.0" y="236.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flowStartToSplit" id="BPMNEdge_flowStartToSplit">
+        <omgdi:waypoint x="130.0" y="250.0"/>
+        <omgdi:waypoint x="180.0" y="250.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowSplitToGoedFormulier" id="BPMNEdge_flowSplitToGoedFormulier">
+        <omgdi:waypoint x="200.0" y="230.0"/>
+        <omgdi:waypoint x="200.0" y="150.0"/>
+        <omgdi:waypoint x="290.0" y="150.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowSplitToTypefouten" id="BPMNEdge_flowSplitToTypefouten">
+        <omgdi:waypoint x="220.0" y="250.0"/>
+        <omgdi:waypoint x="290.0" y="250.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowSplitToZonderKnop" id="BPMNEdge_flowSplitToZonderKnop">
+        <omgdi:waypoint x="200.0" y="270.0"/>
+        <omgdi:waypoint x="200.0" y="350.0"/>
+        <omgdi:waypoint x="290.0" y="350.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowGoedFormulierToJoin" id="BPMNEdge_flowGoedFormulierToJoin">
+        <omgdi:waypoint x="430.0" y="150.0"/>
+        <omgdi:waypoint x="520.0" y="150.0"/>
+        <omgdi:waypoint x="520.0" y="230.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowTypefoutenToJoin" id="BPMNEdge_flowTypefoutenToJoin">
+        <omgdi:waypoint x="430.0" y="250.0"/>
+        <omgdi:waypoint x="500.0" y="250.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowZonderKnopToJoin" id="BPMNEdge_flowZonderKnopToJoin">
+        <omgdi:waypoint x="430.0" y="350.0"/>
+        <omgdi:waypoint x="520.0" y="350.0"/>
+        <omgdi:waypoint x="520.0" y="270.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowJoinToEnd" id="BPMNEdge_flowJoinToEnd">
+        <omgdi:waypoint x="540.0" y="250.0"/>
+        <omgdi:waypoint x="590.0" y="250.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

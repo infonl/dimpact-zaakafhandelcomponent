@@ -1,0 +1,34 @@
+{
+  "display": "form",
+  "name": "demoZonderKnop",
+  "title": "Formulier zonder knop",
+  "type": "form",
+  "components": [
+    {
+      "title": "Terugkoppeling",
+      "label": "Terugkoppeling",
+      "type": "panel",
+      "key": "terugkoppelingPanel",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Toelichting",
+          "type": "textarea",
+          "key": "toelichting",
+          "input": true,
+          "rows": 4,
+          "tableView": true
+        },
+        {
+          "label": "Verzenddatum",
+          "type": "datetime",
+          "key": "verzenddatum",
+          "input": true,
+          "enableTime": false,
+          "tableView": true
+        }
+      ]
+    }
+  ]
+}

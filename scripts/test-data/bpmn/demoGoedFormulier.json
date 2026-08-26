@@ -1,0 +1,66 @@
+{
+  "display": "form",
+  "name": "demoGoedFormulier",
+  "title": "Goed formulier",
+  "type": "form",
+  "components": [
+    {
+      "title": "Advies",
+      "label": "Advies",
+      "type": "panel",
+      "key": "adviesPanel",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Behandelende groep",
+          "type": "select",
+          "key": "behandelendeGroep",
+          "input": true,
+          "widget": "html5",
+          "dataSrc": "custom",
+          "clearOnRefresh": true,
+          "attributes": {
+            "ZAC_TYPE": "ZAC_groep"
+          }
+        },
+        {
+          "label": "Behandelend medewerker",
+          "type": "select",
+          "key": "behandelendMedewerker",
+          "input": true,
+          "widget": "html5",
+          "dataSrc": "custom",
+          "clearOnRefresh": true,
+          "refreshOn": "behandelendeGroep",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_medewerker"
+          }
+        },
+        {
+          "label": "Advies",
+          "type": "textfield",
+          "key": "advies",
+          "input": true,
+          "tableView": true
+        },
+        {
+          "label": "Motivering",
+          "type": "textarea",
+          "key": "motivering",
+          "input": true,
+          "rows": 4,
+          "tableView": true
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Afronden",
+      "key": "submit",
+      "disableOnInvalid": false,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}
