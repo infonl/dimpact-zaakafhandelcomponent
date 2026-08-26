@@ -66,6 +66,7 @@ class CsvRestServiceTest : BehaviorSpec({
         "uiterlijkeEinddatumAfdoening",
         "vertrouwelijkheidaanduiding",
         "zaakIndicaties",
+        "zaakspecifiekGeautoriseerd",
         "zaaktypeOmschrijving",
         "aantalOpenstaandeTaken",
         "afgehandeld",
