@@ -37,7 +37,6 @@ import { FacetFilterComponent } from "../../shared/table-zoek-filters/facet-filt
 import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filter/tekst-filter.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
-import { DatumRange } from "../../zoeken/model/datum-range";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import {
   getDefaultZoekParameters,
@@ -160,11 +159,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
         filtersType: "ZoekParameters",
         zoeken: this.zoekParameters.zoeken ?? {},
         filters: this.zoekParameters.filters ?? {},
-        datums:
-          (this.zoekParameters.datums as unknown as Record<
-            string,
-            DatumRange
-          >) ?? null,
+        datums: this.zoekParameters.datums ?? {},
         type: this.zoekParameters.type as string,
       });
 
