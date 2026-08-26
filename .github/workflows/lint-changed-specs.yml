@@ -1,0 +1,54 @@
+# SPDX-FileCopyrightText: 2025 INFO.nl
+# SPDX-License-Identifier: EUPL-1.2+
+
+name: Lint Changed Specs
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/main/app/**/*.spec.ts"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lint-changed-specs-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-changed-specs:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # Fetch full history to compare with the base branch
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+          cache-dependency-path: src/main/app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: src/main/app
+        run: npm ci --ignore-scripts
+
+      # Runs the same command a developer runs locally; see docs/development/linting-strategy.md.
+      - name: Lint changed spec files
+        working-directory: src/main/app
+        run: |
+          SPECS=$(git diff --name-only --diff-filter=d \
+            origin/${{ github.base_ref }}...HEAD -- '*.spec.ts' \
+            | sed 's|^src/main/app/||')
+
+          if [ -z "$SPECS" ]; then
+            echo "No spec files changed"
+            exit 0
+          fi
+
+          echo "$SPECS"
+          ESLINT_USE_FLAT_CONFIG=false npx eslint -c .eslintrc.strict-specs.js $SPECS
