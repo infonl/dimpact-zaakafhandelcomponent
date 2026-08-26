@@ -84,7 +84,7 @@ class HealthCheckRestServiceTest : BehaviorSpec({
             then("the response should be a 200 OK") {
                 response.code shouldBe HTTP_OK
             }
-            And("the response body should contain all the performed checks") {
+            and("the response body should contain all the performed checks") {
                 responseBody shouldEqualJson """
                     [
                       {

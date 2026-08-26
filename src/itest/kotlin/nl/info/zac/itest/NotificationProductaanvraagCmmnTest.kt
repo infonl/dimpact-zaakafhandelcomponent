@@ -485,7 +485,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     }
                 }
 
-                And("an automated email is sent") {
+                and("an automated email is sent") {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
                         url = "$GREENMAIL_API_URI/user/$TEST_KVK_EMAIL/messages/",
                         testUser = RAADPLEGER_1
@@ -646,7 +646,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     getZaakResponse.code shouldBe HTTP_OK
                 }
 
-                And("No initiator should be set") {
+                and("No initiator should be set") {
                     val responseBody = getZaakResponse.bodyAsString
                     logger.info { "Response: $responseBody" }
                     with(JSONObject(responseBody)) {
@@ -728,7 +728,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     }
                 }
 
-                And("an automated acknowledgement of receipt email is sent to alternative email address") {
+                and("an automated acknowledgement of receipt email is sent to alternative email address") {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
                         url = "$GREENMAIL_API_URI/user/$ZAAK_PRODUCTAANVRAAG_3_REQUEST_SPECIFIC_EMAIL/messages/"
                     )

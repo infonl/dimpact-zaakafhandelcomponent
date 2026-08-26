@@ -87,7 +87,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                 }
 
-                And("all templates are returned") {
+                and("all templates are returned") {
                     responseBody shouldEqualJsonIgnoringExtraneousFields """
                   [
                     {
@@ -179,7 +179,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                 }
 
-                And("all mail template koppelingen are returned") {
+                and("all mail template koppelingen are returned") {
                     responseBody shouldEqualJsonIgnoringExtraneousFields """
                   [
                     {

@@ -79,7 +79,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
                 entries["ZAAK-2024-001/inkomend/report-DOC-001.pdf"] shouldBe fileContent
             }
 
-            And("the samenvatting.txt references the zaak, richting and bestandsnaam") {
+            and("the samenvatting.txt references the zaak, richting and bestandsnaam") {
                 val samenvatting = entries["samenvatting.txt"]!!
                 samenvatting shouldContain "ZAAK-2024-001"
                 samenvatting shouldContain "inkomend"
@@ -184,7 +184,7 @@ class EnkelvoudigInformatieObjectDownloadServiceTest : BehaviorSpec({
                 )
             }
 
-            And("the samenvatting.txt references both zaken") {
+            and("the samenvatting.txt references both zaken") {
                 val samenvatting = entries["samenvatting.txt"]!!
                 samenvatting shouldContain "ZAAK-A"
                 samenvatting shouldContain "ZAAK-B"

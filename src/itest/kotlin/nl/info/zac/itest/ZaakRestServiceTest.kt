@@ -134,7 +134,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                 }
 
-                And("the response body should contain the zaaktypes in all domains") {
+                and("the response body should contain the zaaktypes in all domains") {
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     [
                       {
@@ -206,7 +206,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                 }
-                And("the response body should contain only the zaaktypes for which the user is authorized") {
+                and("the response body should contain only the zaaktypes for which the user is authorized") {
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     [
                       {
@@ -1001,7 +1001,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         }
                     }
                 }
-                And("the zaak should be assigned to the user") {
+                and("the zaak should be assigned to the user") {
                     with(
                         zacClient.retrieveZaak(
                             zaakUUID = zaakUuid,

@@ -112,7 +112,7 @@ class PolicyServiceTest : BehaviorSpec({
                     zaakRechten shouldBe expectedZaakRechten
                 }
 
-                And("the expected evaluation data is sent to the policy evaluation client") {
+                and("the expected evaluation data is sent to the policy evaluation client") {
                     verify(exactly = 1) {
                         opaEvaluationClient.readZaakRechten(any<RuleQuery<ZaakInput>>())
                     }
@@ -352,7 +352,7 @@ class PolicyServiceTest : BehaviorSpec({
                 then("the response contains the expected taakrechten") {
                     taskPermissions shouldBe expectedTaakRechten
                 }
-                And("the correct data is sent to the OPA evaluation client") {
+                and("the correct data is sent to the OPA evaluation client") {
                     verify(exactly = 1) {
                         opaEvaluationClient.readTaakRechten(any<RuleQuery<TaakInput>>())
                     }
@@ -435,7 +435,7 @@ class PolicyServiceTest : BehaviorSpec({
                 then("the response contains the expected taakrechten") {
                     taskPermissions shouldBe expectedTaakRechten
                 }
-                And("the correct data is sent to the OPA evaluation client") {
+                and("the correct data is sent to the OPA evaluation client") {
                     verify(exactly = 1) {
                         opaEvaluationClient.readTaakRechten(any<RuleQuery<TaakInput>>())
                     }

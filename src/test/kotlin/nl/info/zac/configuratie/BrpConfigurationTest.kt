@@ -179,7 +179,7 @@ class BrpConfigurationTest : BehaviorSpec({
                         doelbindingRaadpleegMetDefault.getHeaderName()
                     }
                 }
-                And("DoelbindingRaadpleegMetDefault value returns null") {
+                and("DoelbindingRaadpleegMetDefault value returns null") {
                     doelbindingRaadpleegMetDefault.getValue().shouldBeNull()
                 }
                 And(
@@ -191,7 +191,7 @@ class BrpConfigurationTest : BehaviorSpec({
                         doelbindingZoekMetDefault.getHeaderName()
                     }
                 }
-                And("DoelbindingZoekMetDefault value returns null") {
+                and("DoelbindingZoekMetDefault value returns null") {
                     doelbindingZoekMetDefault.getValue().shouldBeNull()
                 }
                 And(
@@ -203,7 +203,7 @@ class BrpConfigurationTest : BehaviorSpec({
                         builtDoelbinding.getHeaderName()
                     }
                 }
-                And("built doelbinding value returns null") {
+                and("built doelbinding value returns null") {
                     builtDoelbinding.getValue().shouldBeNull()
                 }
             }
@@ -218,12 +218,12 @@ class BrpConfigurationTest : BehaviorSpec({
                 then("Gebruiker header should be reported as unavailable") {
                     userBrpConfiguration.isAvailable().shouldBeFalse()
                 }
-                And("Gebruiker header should throw an exception on retrieval") {
+                and("Gebruiker header should throw an exception on retrieval") {
                     shouldThrow<BrpProtocolleringConfigurationException> {
                         userBrpConfiguration.getHeaderName()
                     }
                 }
-                And("Gebruiker value should return null on retrieval") {
+                and("Gebruiker value should return null on retrieval") {
                     userBrpConfiguration.getValue().shouldBeNull()
                 }
             }

@@ -549,7 +549,7 @@ class SignaleringServiceTest : BehaviorSpec({
                     entityManager.remove(any<Signalering>())
                 }
             }
-            And("only one screen event is sent") {
+            and("only one screen event is sent") {
                 verify(exactly = 1) {
                     // we expect only one screen event since it concerns to signaleringen
                     // with the same target and type

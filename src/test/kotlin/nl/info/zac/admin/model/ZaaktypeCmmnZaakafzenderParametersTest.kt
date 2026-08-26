@@ -26,7 +26,7 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
                     comparisonResult shouldBe true
                 }
 
-                And("they should have the same hashcode") {
+                and("they should have the same hashcode") {
                     hashCode1 shouldBe hashCode2
                 }
             }
@@ -51,7 +51,7 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
                     comparisonResult shouldBe false
                 }
 
-                And("they should have different hashcodes") {
+                and("they should have different hashcodes") {
                     hashCode1 shouldNotBe hashCode2
                 }
             }
@@ -76,7 +76,7 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
                     comparisonResult shouldBe false
                 }
 
-                And("they should have different hashcodes") {
+                and("they should have different hashcodes") {
                     hashCode1 shouldNotBe hashCode2
                 }
             }
@@ -101,7 +101,7 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
                     comparisonResult shouldBe false
                 }
 
-                And("they should have different hashcodes") {
+                and("they should have different hashcodes") {
                     hashCode1 shouldNotBe hashCode2
                 }
             }
@@ -128,7 +128,7 @@ class ZaaktypeCmmnZaakafzenderParametersTest : BehaviorSpec({
                     comparisonResult shouldBe false
                 }
 
-                And("they should have different hashcodes") {
+                and("they should have different hashcodes") {
                     hashCode1 shouldNotBe hashCode2
                 }
             }

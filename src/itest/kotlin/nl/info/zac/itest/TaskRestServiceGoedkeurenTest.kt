@@ -222,7 +222,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
             }
 
-            And("the document should be signed") {
+            and("the document should be signed") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID",
                     testUser = BEHANDELAAR_1

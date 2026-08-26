@@ -65,7 +65,7 @@ class RestZaakOverzichtConverterTest : BehaviorSpec({
                 }
             }
 
-            And("none of the other fields are populated") {
+            and("none of the other fields are populated") {
                 with(result) {
                     toelichting shouldBe null
                     uuid shouldBe null

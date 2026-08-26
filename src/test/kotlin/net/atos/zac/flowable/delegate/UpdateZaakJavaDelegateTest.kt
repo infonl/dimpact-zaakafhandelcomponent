@@ -89,7 +89,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("the status was updated in the ZGW API") {
+            and("the status was updated in the ZGW API") {
                 verify(exactly = 1) {
                     zgwApiService.createStatusForZaak(zaak, zaakStatusName, "Aangepast vanuit proces")
                 }
@@ -129,7 +129,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("the status was updated in the ZGW API") {
+            and("the status was updated in the ZGW API") {
                 verify(exactly = 1) {
                     zgwApiService.createStatusForZaak(zaak, zaakStatusName, "Aangepast vanuit proces")
                 }
@@ -172,7 +172,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("the zaak was closed via the ZGW API") {
+            and("the zaak was closed via the ZGW API") {
                 verify(exactly = 1) {
                     zgwApiService.closeZaak(zaak, resultaattypeUuid, "Aangepast vanuit proces")
                 }
@@ -244,7 +244,7 @@ class UpdateZaakJavaDelegateTest : BehaviorSpec({
                 policyException shouldNotBe null
             }
 
-            And("no ZGW API calls are made") {
+            and("no ZGW API calls are made") {
                 verify(exactly = 0) {
                     zgwApiService.createStatusForZaak(any(), any(), any())
                     zgwApiService.closeZaak(any(), any(), any())

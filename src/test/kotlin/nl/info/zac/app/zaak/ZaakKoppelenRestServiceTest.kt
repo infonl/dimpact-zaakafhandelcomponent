@@ -120,7 +120,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 result.resultCount shouldBe 1
             }
 
-            And("link is allowed") {
+            and("link is allowed") {
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
@@ -132,7 +132,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should've been invoked") {
+            and("required services should've been invoked") {
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.search(any())
@@ -161,7 +161,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 result.resultCount shouldBe 1
             }
 
-            And("link is allowed") {
+            and("link is allowed") {
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
@@ -173,7 +173,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should've be invoked") {
+            and("required services should've be invoked") {
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.search(any())
@@ -202,7 +202,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 result.resultCount shouldBe 1
             }
 
-            And("link is allowed") {
+            and("link is allowed") {
                 with(result.results.first()) {
                     id shouldBe zaakZoekObject.getObjectId()
                     type shouldBe zaakZoekObject.getType()
@@ -214,7 +214,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("required services should've be invoked") {
+            and("required services should've be invoked") {
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.search(any())
