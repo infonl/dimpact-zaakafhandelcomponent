@@ -27,22 +27,6 @@
           "defaultValue": "-- not set --",
           "input": false,
           "disabled": true
-        },
-        {
-          "label": "",
-          "type": "content",
-          "key": "ZO_GroepVergelijking",
-          "input": false,
-          "html": "<p>Zaak {{ zaak.identificatie }}: groep {{ zaak.groep.naam }}, behandelaar {{ zaak.behandelaar.naam }}. Taak <em>{{ taak.naam }}</em>: groep {{ taak.groep.naam }}.</p>"
-        },
-        {
-          "label": "Group (prefilled from the zaak)",
-          "labelPosition": "left-left",
-          "key": "ZO_Groep",
-          "type": "textfield",
-          "input": true,
-          "disabled": true,
-          "customDefaultValue": "value = zaak.groep.naam"
         }
       ]
     },
