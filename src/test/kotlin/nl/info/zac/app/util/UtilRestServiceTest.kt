@@ -113,7 +113,7 @@ class UtilRestServiceTest : BehaviorSpec({
             and("sensitive data should not be cleared") {
                 verify(exactly = 0) { sensitiveDataService.clearStorage() }
             }
-            and("response should contain the all results") {
+            and("response should contain all results") {
                 clearResponse.windowed("cleared".length) { it == "cleared" }.count { it } shouldBe 11
             }
         }
