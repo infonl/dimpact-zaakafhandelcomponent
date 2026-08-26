@@ -4,13 +4,14 @@
  */
 import { ElementRef, SimpleChange } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
+import { fromPartial } from "src/test-helpers";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { FormioCustomFunctions } from "../formio-custom-functions/formio-custom-functions";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
 import { FormioWrapperComponent } from "./formio-wrapper.component";
 
 function asTaak(taak: Partial<GeneratedType<"RestTask">>) {
-  return taak as GeneratedType<"RestTask">;
+  return fromPartial<GeneratedType<"RestTask">>(taak);
 }
 
 describe(FormioWrapperComponent.name, () => {
