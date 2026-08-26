@@ -7,6 +7,7 @@ package nl.info.zac.search
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
+import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.FilterParameters
@@ -45,6 +46,7 @@ class SearchService @Inject constructor(
 
         private val NON_EXISTING_ZAAKTYPE = quoted("-NON-EXISTING-ZAAKTYPE-")
         private const val ZAAKTYPE_OMSCHRIJVING_VELD = "zaaktypeOmschrijving"
+        private const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD = "zaakspecifiekGeautoriseerd"
     }
 
     init {
@@ -57,6 +59,7 @@ class SearchService @Inject constructor(
     fun search(zoekParameters: ZoekParameters): ZoekResultaat<out ZoekObject> {
         val query = SolrQuery("*:*")
         getAllowedZaaktypenFilterQuery()?.let(query::addFilterQuery)
+        getZaakspecifiekGeautoriseerdFilterQuery()?.let(query::addFilterQuery)
         zoekParameters.type?.let { query.addFilterQuery("type:${zoekParameters.type}") }
         getFilterQueriesForZoekenParameters(zoekParameters).forEach(query::addFilterQuery)
         getFilterQueriesForDatumsParameters(zoekParameters).forEach(query::addFilterQuery)
@@ -176,6 +179,22 @@ class SearchService @Inject constructor(
                 "$ZAAKTYPE_OMSCHRIJVING_VELD:$NON_EXISTING_ZAAKTYPE"
             } else {
                 allowedZaaktypen.joinToString(" OR ") { "$ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)}" }
+            }
+        }
+
+    // Excludes zaakspecifiek geautoriseerde rows for zaaktypen the user holds a role for but not the
+    // zaakspecifiek_geautoriseerd flag; returns null when every allowed zaaktype has the flag (or none is allowed)
+    private fun getZaakspecifiekGeautoriseerdFilterQuery(): String? =
+        loggedInUserInstance.get()?.let { loggedInUser ->
+            val zaaktypenWithoutFlag = loggedInUser.applicationRolesPerZaaktype
+                .filterValues { roles -> ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD !in roles }
+                .keys
+            if (zaaktypenWithoutFlag.isEmpty()) {
+                null
+            } else {
+                "-(" + zaaktypenWithoutFlag.joinToString(" OR ") {
+                    "($ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)} AND $ZAAKSPECIFIEK_GEAUTORISEERD_FIELD:true)"
+                } + ")"
             }
         }
 }

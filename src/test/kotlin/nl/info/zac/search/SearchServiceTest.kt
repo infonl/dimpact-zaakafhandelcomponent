@@ -16,6 +16,7 @@ import io.mockk.mockkConstructor
 import io.mockk.mockkStatic
 import io.mockk.slot
 import jakarta.enterprise.inject.Instance
+import nl.info.client.pabc.ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD
 import nl.info.zac.app.search.model.createZoekParameters
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
@@ -137,6 +138,8 @@ class SearchServiceTest : BehaviorSpec({
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
                         """zaaktypeOmschrijving:"$zaakType1" OR zaaktypeOmschrijving:"$zaakType2"""",
+                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true) """ +
+                            """OR (zaaktypeOmschrijving:"$zaakType2" AND zaakspecifiekGeautoriseerd:true))""",
                         "type:ZAAK",
                         "zaak_omschrijving:($zaakDescriptionSearchField)",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
@@ -227,6 +230,7 @@ class SearchServiceTest : BehaviorSpec({
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
                         """zaaktypeOmschrijving:"$zaakType1"""",
+                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true))""",
                         "type:TAAK",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
@@ -297,6 +301,7 @@ class SearchServiceTest : BehaviorSpec({
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
                         """zaaktypeOmschrijving:"$zaakType1"""",
+                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true))""",
                         "type:DOCUMENT"
                     )
                     get("facet") shouldBe "true"
@@ -381,6 +386,7 @@ class SearchServiceTest : BehaviorSpec({
                     get("q") shouldBe "*:*"
                     getParams("fq") shouldBe arrayOf(
                         """zaaktypeOmschrijving:"$zaakType1"""",
+                        """-((zaaktypeOmschrijving:"$zaakType1" AND zaakspecifiekGeautoriseerd:true))""",
                         "type:TAAK",
                         "startdatum:[$zaakSearchStartDateString TO $zaakSearchEndDateString]",
                         """{!tag=ZAAKTYPE}zaaktypeOmschrijving:("$zaakType1")"""
@@ -475,6 +481,77 @@ class SearchServiceTest : BehaviorSpec({
             then("it should not add a sort to the query") {
                 with(solrParamsSlot.captured) {
                     get("sort") shouldNotInclude "zaak_statustypeOmschrijving"
+                }
+            }
+        }
+    }
+
+    given("A logged-in user who holds the zaakspecifiek_geautoriseerd role for one zaaktype but not another") {
+        val zaaktypeWithFlag = "fakeZaaktypeWithFlag"
+        val zaaktypeWithoutFlag = "fakeZaaktypeWithoutFlag"
+        val queryResponse = mockk<QueryResponse>()
+        val solrDocumentList = mockk<SolrDocumentList>()
+        val solrParamsSlot = slot<SolrParams>()
+        val loggedInUser = createLoggedInUser(
+            applicationRolesPerZaaktype = mapOf(
+                zaaktypeWithFlag to setOf("fakeApplicationRole1", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD),
+                zaaktypeWithoutFlag to setOf("fakeApplicationRole1")
+            )
+        )
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { queryResponse.results } returns solrDocumentList
+        every { solrDocumentList.size } returns 0
+        every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
+        every { solrDocumentList.numFound } returns 0
+        every { queryResponse.facetFields } returns emptyList()
+
+        `when`("searching for all documents of type ZAAK") {
+            zoekService.search(createZoekParameters(zoekObjectType = ZoekObjectType.ZAAK))
+
+            then("only the zaaktype without the flag is excluded from zaakspecifiek geautoriseerde results") {
+                with(solrParamsSlot.captured) {
+                    getParams("fq") shouldBe arrayOf(
+                        """zaaktypeOmschrijving:"$zaaktypeWithFlag" OR zaaktypeOmschrijving:"$zaaktypeWithoutFlag"""",
+                        """-((zaaktypeOmschrijving:"$zaaktypeWithoutFlag" AND zaakspecifiekGeautoriseerd:true))""",
+                        "type:ZAAK"
+                    )
+                }
+            }
+        }
+    }
+
+    given("A logged-in user who holds the zaakspecifiek_geautoriseerd role for every allowed zaaktype") {
+        val zaaktype1 = "fakeZaaktype1"
+        val zaaktype2 = "fakeZaaktype2"
+        val queryResponse = mockk<QueryResponse>()
+        val solrDocumentList = mockk<SolrDocumentList>()
+        val solrParamsSlot = slot<SolrParams>()
+        val loggedInUser = createLoggedInUser(
+            applicationRolesPerZaaktype = mapOf(
+                zaaktype1 to setOf("fakeApplicationRole1", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD),
+                zaaktype2 to setOf("fakeApplicationRole1", ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD)
+            )
+        )
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { queryResponse.results } returns solrDocumentList
+        every { solrDocumentList.size } returns 0
+        every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
+        every { solrDocumentList.numFound } returns 0
+        every { queryResponse.facetFields } returns emptyList()
+
+        `when`("searching for all documents of type ZAAK") {
+            zoekService.search(createZoekParameters(zoekObjectType = ZoekObjectType.ZAAK))
+
+            then("no zaakspecifiek geautoriseerd exclusion filter is added") {
+                with(solrParamsSlot.captured) {
+                    getParams("fq") shouldBe arrayOf(
+                        """zaaktypeOmschrijving:"$zaaktype1" OR zaaktypeOmschrijving:"$zaaktype2"""",
+                        "type:ZAAK"
+                    )
                 }
             }
         }

@@ -19,6 +19,7 @@ import nl.info.client.zgw.zrc.util.isHoofdzaak
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
@@ -57,6 +58,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             zaaktypeOmschrijving = zaaktype.omschrijving,
             zaaktypeUuid = zaaktype.url.extractUuid().toString()
         ).apply {
+            isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting
             registratiedatum = zaak.registratiedatum?.let(::convertToDate)

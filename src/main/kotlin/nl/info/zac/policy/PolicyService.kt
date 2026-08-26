@@ -124,8 +124,7 @@ class PolicyService @Inject constructor(
             besloten = null,
             // not taken into account when searching for a zaak
             brondatumBepaald = null,
-            // werklijsten/zoekresultaten are not restricted based on zaakspecifieke autorisatie
-            zaakspecifiekGeautoriseerd = false
+            zaakspecifiekGeautoriseerd = zaakZoekObject.isZaakspecifiekGeautoriseerd
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(
@@ -175,7 +174,8 @@ class PolicyService @Inject constructor(
             vergrendeldDoor = enkelvoudigInformatieobject.vergrendeldDoorGebruikersnaam,
             zaakOpen = !enkelvoudigInformatieobject.isZaakAfgehandeld,
             zaaktype = enkelvoudigInformatieobject.zaaktypeOmschrijving,
-            ondertekend = enkelvoudigInformatieobject.ondertekeningDatum != null
+            ondertekend = enkelvoudigInformatieobject.ondertekeningDatum != null,
+            zaakspecifiekGeautoriseerd = enkelvoudigInformatieobject.isZaakspecifiekGeautoriseerd
         )
         return evaluationClient.readDocumentRechten(
             RuleQuery(
@@ -215,7 +215,8 @@ class PolicyService @Inject constructor(
 
     fun readTaakRechten(taakZoekObject: TaakZoekObject): TaakRechten {
         val taakData = TaakData(
-            zaaktype = taakZoekObject.zaaktypeOmschrijving
+            zaaktype = taakZoekObject.zaaktypeOmschrijving,
+            zaakspecifiekGeautoriseerd = taakZoekObject.isZaakspecifiekGeautoriseerd
         )
         return evaluationClient.readTaakRechten(
             RuleQuery(
