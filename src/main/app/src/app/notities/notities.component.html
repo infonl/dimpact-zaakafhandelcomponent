@@ -63,7 +63,7 @@
 
           <div
             *ngIf="
-              notitieRechten.wijzigen && geselecteerdeNotitieId === notitie.id
+              notitieRechten?.wijzigen && geselecteerdeNotitieId === notitie.id
             "
           >
             <mat-form-field appearance="fill" class="full-width">
@@ -108,7 +108,7 @@
 
         <mat-card-actions
           *ngIf="
-            notitieRechten.wijzigen &&
+            notitieRechten?.wijzigen &&
             notitie.bewerkenToegestaan &&
             geselecteerdeNotitieId !== notitie.id
           "
@@ -135,7 +135,7 @@
     </ng-container>
   </mat-card-content>
 
-  <mat-card-actions *ngIf="notitieRechten.wijzigen">
+  <mat-card-actions *ngIf="notitieRechten?.wijzigen">
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>{{ "actie.notitie.aanmaken" | translate }}</mat-label>
       <textarea
