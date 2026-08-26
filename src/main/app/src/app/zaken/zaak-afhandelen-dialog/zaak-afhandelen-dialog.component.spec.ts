@@ -91,7 +91,7 @@ const afzenders = [
   }),
 ];
 
-const mailtemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
+const mailtemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
   onderwerp: "fakeOnderwerp",
   body: "fakeMailBody",
 });
