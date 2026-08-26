@@ -166,7 +166,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     }
                 }
 
-                And(
+                and(
                     "an automated acknowledgement of receipt email is sent to the initiator's preferred email address"
                 ) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
@@ -298,7 +298,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     }
                 }
 
-                And(
+                and(
                     "an automated acknowledgement of receipt email is sent to productaanvraag-specific email address"
                 ) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
@@ -391,7 +391,7 @@ class NotificationProductaanvraagCmmnTest : BehaviorSpec({
                     }
                 }
 
-                And(
+                and(
                     "an automated acknowledgement of receipt email is sent to the initiator's saved preferred email address"
                 ) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(

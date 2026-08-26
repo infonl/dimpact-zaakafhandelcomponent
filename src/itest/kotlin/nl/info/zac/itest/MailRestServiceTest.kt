@@ -124,7 +124,7 @@ class MailRestServiceTest : BehaviorSpec({
                 lastMail.getString("mimeMessage") shouldNotContain "{ZAAKDATA:"
             }
 
-            And(
+            and(
                 """
                 a PDF document should be added to the zaak as enkelvoudiginformatieobject containing the email details,
                 and the return permissions should be those of the logged in behandelaar

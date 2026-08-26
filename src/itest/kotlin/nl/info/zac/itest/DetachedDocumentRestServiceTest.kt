@@ -100,7 +100,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And(
+                and(
                     "the delete detached document endpoint is called by a recordmanager with the id of the detached document"
                 ) {
                     val deleteResponse = itestHttpClient.performDeleteRequest(
@@ -139,7 +139,7 @@ class DetachedDocumentRestServiceTest : BehaviorSpec({
                         }
                     }
 
-                    And(
+                    and(
                         "the get enkelvoudig informatie object endpoint is called for the deleted document"
                     ) {
                         val getResponse = itestHttpClient.performGetRequest(

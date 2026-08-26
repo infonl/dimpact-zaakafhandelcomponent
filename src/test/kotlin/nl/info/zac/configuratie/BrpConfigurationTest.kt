@@ -170,7 +170,7 @@ class BrpConfigurationTest : BehaviorSpec({
                     doelbindingZoekMetDefault.isAvailable().shouldBeFalse()
                     builtDoelbinding.isAvailable().shouldBeFalse()
                 }
-                And(
+                and(
                     """BrpProtocolleringConfigurationException is thrown on reading 
                     |DoelbindingRaadpleegMetDefault header, because blank headers should not be requested
                     """.trimMargin()
@@ -182,7 +182,7 @@ class BrpConfigurationTest : BehaviorSpec({
                 and("DoelbindingRaadpleegMetDefault value returns null") {
                     doelbindingRaadpleegMetDefault.getValue().shouldBeNull()
                 }
-                And(
+                and(
                     """BrpProtocolleringConfigurationException is thrown on reading 
                     |DoelbindingZoekMetDefault header, because blank headers should not be requested
                     """.trimMargin()
@@ -194,7 +194,7 @@ class BrpConfigurationTest : BehaviorSpec({
                 and("DoelbindingZoekMetDefault value returns null") {
                     doelbindingZoekMetDefault.getValue().shouldBeNull()
                 }
-                And(
+                and(
                     """BrpProtocolleringConfigurationException is thrown on reading
                     |built Doelbinding header, because blank headers should not be requested
                     """.trimMargin()

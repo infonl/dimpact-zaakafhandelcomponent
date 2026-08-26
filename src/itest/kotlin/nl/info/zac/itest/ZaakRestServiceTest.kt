@@ -252,7 +252,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaakIdentification shouldNotBe null
                 }
 
-                And(
+                and(
                     """
                 the retrieved zaak should contain the created zaak with the 'bekijkenZaakdata' and 'heropenen'
                 permissions set to false since these actions are not allowed for the 'behandelaar' role

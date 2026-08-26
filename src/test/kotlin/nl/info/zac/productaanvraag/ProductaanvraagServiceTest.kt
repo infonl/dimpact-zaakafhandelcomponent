@@ -1223,7 +1223,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any())
                     }
                 }
-                And(
+                and(
                     """
                     roles should be created and linked to the zaak for all supported betrokkenen types for which
                     there are role types defined in the ZTC client service, except for the behandelaar betrokkene
