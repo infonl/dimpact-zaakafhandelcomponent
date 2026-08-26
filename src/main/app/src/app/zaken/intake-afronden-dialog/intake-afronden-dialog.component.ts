@@ -151,7 +151,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
       });
   }
 
-  protected getError(fc: AbstractControl, label: string) {
+  protected getError(fc: AbstractControl | null, label: string) {
     return CustomValidators.getErrorMessage(fc, label, this.translateService);
   }
 
