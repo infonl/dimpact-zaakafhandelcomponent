@@ -19,6 +19,13 @@
 # statustypen, roltypen and zaaktype-informatieobjecttype in Open Zaak, and one matching
 # entity type in PABC.
 #
+# When --add-extra-versions is given, each zaaktype is preceded by that many additional
+# (superseded) versions: for every extra version, a zaaktype is created in Open Zaak just
+# like the current one, and then immediately marked as an older version by rendering
+# open-zaak/zaaktype-version-update-template.sql, which substitutes [[ZAAKTYPE_NUMBER]],
+# [[ZAAKTYPE_UUID]] and [[VERSION_NUMBER]]. Extra versions are not registered in PABC and
+# are not configured in ZAC, since only the current version needs to be usable there.
+#
 # The rendered SQL is piped into the `psql` CLI rather than a Python driver, so creating the
 # zaaktypes themselves has no dependencies beyond the standard library and a local `psql`
 # executable; configuring zaakafhandelparameters additionally uses zac_client.py and
@@ -31,7 +38,8 @@
 #   ./scripts/test-data/create-zaaktypes.py [--count N] [--start-number N]
 #                                            [--host HOST] [--port PORT]
 #                                            [--dbname DBNAME] [--user USER] [--password PASSWORD]
-#                                            [--template PATH]
+#                                            [--template PATH] [--add-extra-versions N]
+#                                            [--version-update-template PATH]
 #                                            [--pabc-host HOST] [--pabc-port PORT]
 #                                            [--pabc-dbname DBNAME] [--pabc-user USER]
 #                                            [--pabc-password PASSWORD] [--pabc-template PATH]
@@ -44,6 +52,7 @@
 #   ./scripts/test-data/create-zaaktypes.py --host localhost --port 54322 --dbname openzaak
 #   ./scripts/test-data/create-zaaktypes.py --pabc-host localhost --pabc-port 54329 --pabc-dbname Pabc
 #   ./scripts/test-data/create-zaaktypes.py --skip-config
+#   ./scripts/test-data/create-zaaktypes.py --add-extra-versions 3
 
 import sys
 
@@ -61,6 +70,9 @@ import uuid
 import zac_client
 
 DEFAULT_TEMPLATE_PATH = pathlib.Path(__file__).parent / "open-zaak" / "zaaktype-template.sql"
+DEFAULT_VERSION_UPDATE_TEMPLATE_PATH = (
+    pathlib.Path(__file__).parent / "open-zaak" / "zaaktype-version-update-template.sql"
+)
 DEFAULT_PABC_TEMPLATE_PATH = pathlib.Path(__file__).parent / "pabc" / "add-zaaktype-template.sql"
 DEFAULT_ZAAKTYPE_COUNT = 10
 DEFAULT_ZAAKTYPE_START_NUMBER = 1
@@ -123,6 +135,15 @@ def render_sql(template: str, zaaktype_number: int, uuid_placeholders: list[str]
     return rendered, placeholder_uuids
 
 
+def render_version_update_sql(template: str, zaaktype_number: int, zaaktype_uuid: str, version_number: int) -> str:
+    """Substitute all placeholders in the zaaktype-version-update template for a single zaaktype version."""
+    return (
+        template.replace("[[ZAAKTYPE_NUMBER]]", str(zaaktype_number))
+        .replace("[[ZAAKTYPE_UUID]]", zaaktype_uuid)
+        .replace("[[VERSION_NUMBER]]", str(version_number))
+    )
+
+
 def run_sql(sql: str, host: str, port: int, dbname: str, user: str, password: str) -> None:
     """Execute a SQL script against the Open Zaak database via the psql CLI."""
     command = [
@@ -143,11 +164,36 @@ def run_sql(sql: str, host: str, port: int, dbname: str, user: str, password: st
     subprocess.run(command, input=sql, text=True, env=environment, check=True)
 
 
+def create_zaaktype_in_open_zaak(
+    template: str, zaaktype_number: int, host: str, port: int, dbname: str, user: str, password: str
+) -> dict[str, str]:
+    """Render and execute the zaaktype template for a single zaaktype in Open Zaak.
+
+    Returns the placeholder -> generated UUID mapping, so callers can reuse a generated UUID
+    (e.g. ZAAKTYPE_UUID) after creation.
+    """
+    sql, placeholder_uuids = render_sql(template, zaaktype_number, UUID_PLACEHOLDERS)
+    try:
+        run_sql(sql, host=host, port=port, dbname=dbname, user=user, password=password)
+    except subprocess.CalledProcessError as called_process_error:
+        print(f"ERROR: failed to create zaaktype {zaaktype_number} in Open Zaak: {called_process_error}")
+        sys.exit(1)
+    return placeholder_uuids
+
+
 def positive_int(value: str) -> int:
     """argparse `type` that only accepts a positive (>= 1) integer."""
     parsed_value = int(value)
     if parsed_value < 1:
         raise argparse.ArgumentTypeError(f"must be a positive integer, got {parsed_value}")
+    return parsed_value
+
+
+def extra_versions_count(value: str) -> int:
+    """argparse `type` that only accepts an integer in the range 1-10."""
+    parsed_value = int(value)
+    if not 1 <= parsed_value <= 10:
+        raise argparse.ArgumentTypeError(f"must be between 1 and 10, got {parsed_value}")
     return parsed_value
 
 
@@ -179,6 +225,19 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_TEMPLATE_PATH,
         help=f"path to the SQL template (default: {DEFAULT_TEMPLATE_PATH})",
     )
+    parser.add_argument(
+        "--add-extra-versions",
+        type=extra_versions_count,
+        default=None,
+        help="for each zaaktype, also create this many extra superseded versions (1-10) in Open Zaak"
+        " beforehand, skipping PABC and ZAC configuration for them (default: none)",
+    )
+    parser.add_argument(
+        "--version-update-template",
+        type=pathlib.Path,
+        default=DEFAULT_VERSION_UPDATE_TEMPLATE_PATH,
+        help=f"path to the zaaktype-version-update SQL template (default: {DEFAULT_VERSION_UPDATE_TEMPLATE_PATH})",
+    )
     parser.add_argument("--pabc-host", default="localhost", help="PABC database host (default: localhost)")
     parser.add_argument("--pabc-port", type=int, default=54329, help="PABC database port (default: 54329)")
     parser.add_argument("--pabc-dbname", default="Pabc", help="PABC database name (default: Pabc)")
@@ -209,6 +268,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     template = args.template.read_text()
+    version_update_template = args.version_update_template.read_text()
     pabc_template = args.pabc_template.read_text()
 
     token_manager = (
@@ -220,13 +280,53 @@ def main() -> None:
     for batch_index, zaaktype_number in enumerate(
         range(args.start_number, args.start_number + args.count), start=1
     ):
-        sql, placeholder_uuids = render_sql(template, zaaktype_number, UUID_PLACEHOLDERS)
+        if args.add_extra_versions:
+            for version_number in range(1, args.add_extra_versions + 1):
+                print(
+                    f"Creating extra version {version_number}/{args.add_extra_versions} of zaaktype"
+                    f" {zaaktype_number} ({batch_index}/{args.count}) in Open Zaak..."
+                )
+                extra_version_placeholder_uuids = create_zaaktype_in_open_zaak(
+                    template=template,
+                    zaaktype_number=zaaktype_number,
+                    host=args.host,
+                    port=args.port,
+                    dbname=args.dbname,
+                    user=args.user,
+                    password=args.password,
+                )
+                version_update_sql = render_version_update_sql(
+                    template=version_update_template,
+                    zaaktype_number=zaaktype_number,
+                    zaaktype_uuid=extra_version_placeholder_uuids["ZAAKTYPE_UUID"],
+                    version_number=version_number,
+                )
+                try:
+                    run_sql(
+                        version_update_sql,
+                        host=args.host,
+                        port=args.port,
+                        dbname=args.dbname,
+                        user=args.user,
+                        password=args.password,
+                    )
+                except subprocess.CalledProcessError as called_process_error:
+                    print(
+                        f"ERROR: failed to set version {version_number} on zaaktype {zaaktype_number}"
+                        f" in Open Zaak: {called_process_error}"
+                    )
+                    sys.exit(1)
+
         print(f"Creating zaaktype {zaaktype_number} ({batch_index}/{args.count}) in Open Zaak...")
-        try:
-            run_sql(sql, args.host, args.port, args.dbname, args.user, args.password)
-        except subprocess.CalledProcessError as called_process_error:
-            print(f"ERROR: failed to create zaaktype {zaaktype_number} in Open Zaak: {called_process_error}")
-            sys.exit(1)
+        placeholder_uuids = create_zaaktype_in_open_zaak(
+            template=template,
+            zaaktype_number=zaaktype_number,
+            host=args.host,
+            port=args.port,
+            dbname=args.dbname,
+            user=args.user,
+            password=args.password,
+        )
 
         pabc_sql, _ = render_sql(pabc_template, zaaktype_number, PABC_UUID_PLACEHOLDERS)
         print(f"Creating zaaktype {zaaktype_number} ({batch_index}/{args.count}) in PABC...")
