@@ -42,6 +42,7 @@ class SendEmailDelegate : AbstractDelegate() {
         private val LOG = Logger.getLogger(SendEmailDelegate::class.java.name)
     }
 
+    @Suppress("ThrowsCount")
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
