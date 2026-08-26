@@ -64,6 +64,12 @@ import { DateFilterComponent } from "./filters/date-filter/date-filter.component
 import { MultiFacetFilterComponent } from "./filters/multi-facet-filter/multi-facet-filter.component";
 import { ZaakBetrokkeneFilterComponent } from "./filters/zaak-betrokkene-filter/zaak-betrokkene-filter.component";
 
+/**
+ * Tells a search that failed apart from a search that was never run, so that a
+ * failure keeps the results and the page the user is looking at.
+ */
+const ZOEK_MISLUKT = Symbol("zoek mislukt");
+
 @Component({
   selector: "zac-zoeken",
   templateUrl: "./zoek.component.html",
@@ -128,6 +134,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
   protected trefwoordenControl = new FormControl("");
   protected zoek = new EventEmitter<void>();
   protected hasSearched = false;
+  private lastLoadedPageIndex = 0;
   protected hasTaken = false;
   protected hasZaken = false;
   protected hasDocument = false;
@@ -180,7 +187,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
           return runQuery(
             this.queryClient,
             this.zoekenService.list(this.getZoekParameters()),
-          ).pipe(catchError(() => of(null)));
+          ).pipe(catchError(() => of(ZOEK_MISLUKT)));
         }),
         map((data) => {
           this.isLoadingResults = false;
@@ -189,6 +196,11 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
         }),
       )
       .subscribe((data) => {
+        if (data === ZOEK_MISLUKT) {
+          this.paginator().pageIndex = this.lastLoadedPageIndex;
+          return;
+        }
+
         this.paginator().length = data?.totaal ?? 0;
         if (!data) {
           this.zoekResultaat = {
@@ -199,6 +211,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
           };
           return;
         }
+        this.lastLoadedPageIndex = this.paginator().pageIndex;
         this.hasSearched = true;
         this.zoekenService.hasSearched.set(true);
         this.zoekResultaat = data as ZoekResultaat<
@@ -303,6 +316,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
   protected reset() {
     this.zoekenService.hasSearched.set(false);
     this.paginator().length = 0;
+    this.lastLoadedPageIndex = 0;
     this.trefwoordenControl.setValue("");
     this.zoekveldControl.setValue(ZoekVeld.ALLE);
     this.zoekResultaat = new ZoekResultaat();
