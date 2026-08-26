@@ -4,11 +4,11 @@
  */
 
 const REPLACEMENTS: Record<string, string> = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#39;",
+  "&": "&amp;", // keeps an already-escaped entity literal
+  "<": "&lt;", // opens a tag
+  ">": "&gt;", // completes one
+  '"': "&quot;", // ends a double-quoted attribute
+  "'": "&#39;", // ends a single-quoted one; &apos; is not HTML4
 };
 
 export function escapeHtml(value: string) {
