@@ -45,7 +45,7 @@ describe(MailtemplateResolver.name, () => {
     jest
       .spyOn(queryClient, "fetchQuery")
       .mockResolvedValue(
-        fromPartial<GeneratedType<"RESTMailtemplate">>({ id: 42 }),
+        fromPartial<GeneratedType<"RestMailtemplate">>({ id: 42 }),
       );
   });
 
