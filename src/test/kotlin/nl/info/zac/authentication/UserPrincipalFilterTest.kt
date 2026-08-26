@@ -265,11 +265,11 @@ class UserPrincipalFilterTest : BehaviorSpec({
                     verify { httpSession.setAttribute("logged-in-user", capture(loggedInUserSlot)) }
                 }
 
-                And("applicationRolesPerZaaktype is empty because the mapping has no entity type") {
+                and("applicationRolesPerZaaktype is empty because the mapping has no entity type") {
                     loggedInUserSlot.captured.applicationRolesPerZaaktype shouldBe emptyMap()
                 }
 
-                And("the overall roles contain the application roles without an entity type") {
+                and("the overall roles contain the application roles without an entity type") {
                     loggedInUserSlot.captured.overallRoles shouldContainAll setOf("fakeApplicationRole")
                 }
             }
@@ -328,7 +328,7 @@ class UserPrincipalFilterTest : BehaviorSpec({
                         ?.shouldContainAll(entityTypeRoleNames)
                 }
 
-                And("the overall roles contain only the roles without an entity type") {
+                and("the overall roles contain only the roles without an entity type") {
                     with(loggedInUserSlot.captured) {
                         overallRoles shouldContainAll overallRoleNames
                         overallRoles.none { it in entityTypeRoleNames } shouldBe true

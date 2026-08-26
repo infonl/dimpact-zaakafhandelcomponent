@@ -125,7 +125,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the zaak is still open and without result") {
+            and("the zaak is still open and without result") {
                 zacClient.retrieveZaak(bpmnZaakUuid, BEHANDELAAR_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -137,7 +137,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the task is removed from the task list") {
+            and("the task is removed from the task list") {
                 eventually(10.seconds) {
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
@@ -148,7 +148,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("summary form task becomes available") {
+            and("summary form task becomes available") {
                 eventually(afterThirtySeconds) {
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
@@ -189,7 +189,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the zaak is closed and with result") {
+            and("the zaak is closed and with result") {
                 zacClient.retrieveZaak(bpmnZaakUuid, BEHANDELAAR_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -201,7 +201,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the send email service task sent an email") {
+            and("the send email service task sent an email") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "${ItestConfiguration.GREENMAIL_API_URI}/user/test-2@example.com/messages/",
                     testUser = BEHANDELAAR_1

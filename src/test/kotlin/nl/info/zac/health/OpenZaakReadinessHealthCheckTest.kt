@@ -51,7 +51,7 @@ class OpenZaakReadinessHealthCheckTest : BehaviorSpec({
                     result.status shouldBe HealthCheckResponse.Status.DOWN
                 }
 
-                And("the error data contains the exception message") {
+                and("the error data contains the exception message") {
                     result.data.get()["error"] shouldBe "fakeConnectionError"
                 }
             }

@@ -67,7 +67,7 @@ class EnkelvoudigInformatieObjectConvertServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the update is called with a PDF request containing the correct fields") {
+            and("the update is called with a PDF request containing the correct fields") {
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
                         uuid,

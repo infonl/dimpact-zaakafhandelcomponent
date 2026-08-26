@@ -2,7 +2,7 @@
 
 This document describes the [Open Policy Agent (OPA)](https://www.openpolicyagent.org/) access control policies that are used in ZAC.
 These policies are used to enforce access control rules (=authorisation) for the different resources (e.g. zaken, taken, documents) in the ZAC application per user role.
-For example these policies may define that role X is allowed to create a new zaak, but role Y is not.
+For example, these policies may define that role X is allowed to create a new zaak, but role Y is not.
 Since every user in ZAC has a role, these policies are used to enforce the access control rules for every user.
 
 ## ZAC roles
@@ -11,16 +11,15 @@ Since every user in ZAC has a role, these policies are used to enforce the acces
 
 As also documented in the [ZAC gebruikershandleiding](../manuals) ZAC supports the following application user roles (in Dutch):
 
-| Role          | Description                                                                                                                                |
-|:--------------|:-------------------------------------------------------------------------------------------------------------------------------------------|
-| raadpleger    | Een raadpleger. Heeft rechten om zaken, taken en documenten te raadplegen, maar niet om deze te wijzigen.                                  |
-| behandelaar   | Een zaakbehandelaar. Heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken.                                       |
-| zaakspecifiek_geautoriseerd | Een vlag die, in combinatie met een andere applicatierol (behandelaar, raadpleger, coordinator, recordmanager of beheerder) van de medewerker voor een zaaktype, de rechten van die andere rol ook laat gelden voor zaakspecifiek geautoriseerde zaken van dat zaaktype. Geeft op zichzelf geen rechten; zonder deze vlag heeft geen enkele rol toegang tot zaakspecifiek geautoriseerde zaken van dat zaaktype. |
-| coordinator   | Een zaakcoördinator of ook wel werkverdeler genoemd. Heeft rechten om vanuit werklijsten werk te verdelen en zaken en taken te raadplegen. |
-| recordmanager | Mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken.                               |
-| beheerder     | De functioneel beheerder. Heeft toegang tot de beheerschermen van ZAC en kan daar diverse instellingen aanmaken en wijzingen.              |
-| brp_zoeken    | Heeft het recht om personen op te zoeken in de BRP (Basisregistratie Personen).                                                            |
-
+| Role          | Description                                                                                                                                                                                                                                                                                                                                                                                                          |
+|:--------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| raadpleger    | Een raadpleger. Heeft rechten om zaken, taken en documenten te raadplegen, maar niet om deze te wijzigen.                                                                                                                                                                                                                                                                                                            |
+| behandelaar   | Een zaakbehandelaar. Heeft alle rechten om met de werklijsten, zaken, taken en documenten te werken.                                                                                                                                                                                                                                                                                                                 |
+| coordinator   | Een zaakcoördinator of ook wel werkverdeler genoemd. Heeft rechten om vanuit werklijsten werk te verdelen en zaken en taken te raadplegen.                                                                                                                                                                                                                                                                           |
+| recordmanager | Mag zaken en taken raadplegen en heeft aanvullende rechten op het gebied van documenten en beëindigde zaken.                                                                                                                                                                                                                                                                                                         |
+| beheerder     | De functioneel beheerder. Heeft toegang tot de beheerschermen van ZAC en kan daar diverse instellingen aanmaken en wijzigen.                                                                                                                                                                                                                                                                                       |
+| zaakspecifiek_geautoriseerd | Een vlag die, in combinatie met een andere basis applicatierol (raadpleger, behandelaar, coordinator, recordmanager of beheerder) van de medewerker voor een zaaktype, de rechten van die basisrol ook laat gelden voor zaakspecifiek geautoriseerde zaken van dat zaaktype. Geeft op zichzelf geen rechten; zonder deze vlag heeft geen enkele rol toegang tot zaakspecifiek geautoriseerde zaken van dat zaaktype. |
+| brp_zoeken    | Heeft het recht om personen op te zoeken in de BRP (Basisregistratie Personen).                                                                                                                                                                                                                                                                                                                                      |
 
 Typically, these roles are assigned to individual users through groups. Each application role is granted its
 permissions explicitly and independently in the OPA policies below: a user's effective rights are determined

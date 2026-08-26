@@ -104,7 +104,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 }
             }
 
-            And("sent email flag is set") {
+            and("sent email flag is set") {
                 verify(exactly = 1) {
                     zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
                 }
@@ -169,7 +169,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 }
             }
 
-            And("sent email flag is set") {
+            and("sent email flag is set") {
                 verify(exactly = 1) {
                     zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
                 }
@@ -232,7 +232,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 }
             }
 
-            And("sent email flag is set") {
+            and("sent email flag is set") {
                 verify(exactly = 1) {
                     zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
                 }
@@ -368,7 +368,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 mailGegevens.captured.to.email shouldBe specificEmail
             }
 
-            And("sent email flag is set") {
+            and("sent email flag is set") {
                 verify(exactly = 1) {
                     zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
                 }
@@ -405,7 +405,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 mailGegevens.captured.to.email shouldBe specificEmail
             }
 
-            And("sent email flag is set") {
+            and("sent email flag is set") {
                 verify(exactly = 1) {
                     zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
                 }

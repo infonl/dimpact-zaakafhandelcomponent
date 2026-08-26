@@ -87,7 +87,7 @@ class MailRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_NO_CONTENT
             }
 
-            And("the received mail should contain the right details") {
+            and("the received mail should contain the right details") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
                     testUser = BEHANDELAAR_1
@@ -114,7 +114,7 @@ class MailRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the received mail body should not contain unresolved '{ZAAKDATA:' placeholders") {
+            and("the received mail body should not contain unresolved '{ZAAKDATA:' placeholders") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
                     testUser = BEHANDELAAR_1
@@ -126,7 +126,7 @@ class MailRestServiceTest : BehaviorSpec({
                 lastMail.getString("mimeMessage") shouldNotContain "{ZAAKDATA:"
             }
 
-            And(
+            and(
                 """
                 a PDF document should be added to the zaak as enkelvoudiginformatieobject containing the email details,
                 and the return permissions should be those of the logged in behandelaar

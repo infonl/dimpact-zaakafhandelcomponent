@@ -381,7 +381,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the productaanvraag email service should be called to send a confirmation of receipt email") {
+                and("the productaanvraag email service should be called to send a confirmation of receipt email") {
                     verify(exactly = 1) {
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             createdZaak,
@@ -392,7 +392,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("no BPMN case process should be started") {
+                and("no BPMN case process should be started") {
                     verify(exactly = 0) {
                         bpmnService.startProcess(any(), any(), any())
                     }
@@ -859,12 +859,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'."
                     }
                 }
-                And("a CMMN process should be started for the zaak") {
+                and("a CMMN process should be started for the zaak") {
                     verify(exactly = 1) {
                         cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any())
                     }
                 }
-                And("no role should be created") {
+                and("no role should be created") {
                     verify(exactly = 0) {
                         zrcClientService.createRol(any())
                     }
@@ -1231,12 +1231,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'."
                     }
                 }
-                And("and a CMMN process should be started for the zaak") {
+                and("and a CMMN process should be started for the zaak") {
                     verify(exactly = 1) {
                         cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any())
                     }
                 }
-                And(
+                and(
                     """
                     roles should be created and linked to the zaak for all supported betrokkenen types for which
                     there are role types defined in the ZTC client service, except for the behandelaar betrokkene
@@ -1342,17 +1342,17 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         zgwApiService.createZaak(any())
                     }
                 }
-                And("a CMMN process should be started for the zaak") {
+                and("a CMMN process should be started for the zaak") {
                     verify(exactly = 1) {
                         cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any())
                     }
                 }
-                And("a zaak object should be created") {
+                and("a zaak object should be created") {
                     verify(exactly = 1) {
                         zrcClientService.createZaakobject(any())
                     }
                 }
-                And("automatic reply email should not be sent") {
+                and("automatic reply email should not be sent") {
                     verify(exactly = 0) {
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             any(),
@@ -1362,7 +1362,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         )
                     }
                 }
-                And("BPMN process should not be started") {
+                and("BPMN process should not be started") {
                     verify(exactly = 0) { bpmnService.startProcess(any(), any(), any()) }
                 }
             }
@@ -1667,18 +1667,18 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         values.last() shouldBe groupName
                     }
                 }
-                And("and the productaanvraag and documents should be paired") {
+                and("and the productaanvraag and documents should be paired") {
                     verify(exactly = 1) {
                         zrcClientService.createZaakobject(any())
                         zrcClientService.createZaakInformatieobject(any(), any())
                     }
                 }
-                And("the group role should be created for the assigned group") {
+                and("the group role should be created for the assigned group") {
                     verify(exactly = 1) {
                         zrcClientService.createRol(any<RolOrganisatorischeEenheid>())
                     }
                 }
-                And("the initiator betrokkene role should be added to the zaak") {
+                and("the initiator betrokkene role should be added to the zaak") {
                     verify(exactly = 1) {
                         zrcClientService.createRol(any<RolNatuurlijkPersoon>())
                     }
@@ -1689,12 +1689,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         zaak shouldBe createdZaak.url
                     }
                 }
-                And("no CMMN process be started") {
+                and("no CMMN process should be started") {
                     verify(exactly = 0) {
                         cmmnService.startCase(any(), any(), any(), any())
                     }
                 }
-                And("no email notification should be sent") {
+                and("no email notification should be sent") {
                     verify(exactly = 0) {
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             any(),
@@ -1847,7 +1847,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         )
                     }
                 }
-                And("the confirmation email is sent using the application-specific email address") {
+                and("the confirmation email is sent using the application-specific email address") {
                     verify(exactly = 1) {
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             createdZaak,
@@ -1938,12 +1938,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         )
                     }
                 }
-                And("no CMMN process is started") {
+                and("no CMMN process is started") {
                     verify(exactly = 0) {
                         cmmnService.startCase(any(), any(), any(), any())
                     }
                 }
-                And("a BPMN process is started") {
+                and("a BPMN process is started") {
                     verify(exactly = 1) {
                         bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
                     }

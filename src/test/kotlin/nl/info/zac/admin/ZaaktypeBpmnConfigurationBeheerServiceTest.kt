@@ -184,7 +184,7 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the ID was reset") {
+                and("the ID was reset") {
                     zaaktypeBpmnConfigurationSlot.captured.id shouldBe null
                 }
             }
