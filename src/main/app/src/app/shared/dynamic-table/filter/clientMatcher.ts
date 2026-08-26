@@ -4,10 +4,13 @@
  */
 
 import moment from "moment";
-import { DatumRange } from "../../../zoeken/model/datum-range";
+import { GeneratedType } from "../../utils/generated-types";
 
 export class ClientMatcher {
-  static matchDatum(dataField: string, filterField: DatumRange) {
+  static matchDatum(
+    dataField: string,
+    filterField: GeneratedType<"RestDatumRange">,
+  ) {
     if (!dataField) {
       return false;
     }
