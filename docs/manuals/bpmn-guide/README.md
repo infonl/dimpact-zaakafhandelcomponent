@@ -981,9 +981,9 @@ These functions are evaluated client-side and can be used to display dynamic dat
 
 #### Formatting a value for display
 
-Interpolation renders a value exactly as it is stored, which is rarely what a form should show:
-`2026-08-24` instead of `24‑08‑2026`, `true` instead of `Ja`, `[object Object]` for anything
-composite. Four functions format a value on its way to the page.
+A `{{ ... }}` placeholder in a form renders a value exactly as it is stored, which is rarely what the
+form should show: `2026-08-24` instead of `24‑08‑2026`, `true` instead of `Ja`, `[object Object]` for
+anything composite. Four functions format a value on its way to the page.
 
 They differ from `ZAC_getDocumentTitles` in what you hand them: a **value**, not a field key. So they
 work on anything reachable in the template — a zaak property, a taak property, a process variable or a
@@ -991,7 +991,7 @@ field of the form itself.
 
 | Function                         | Argument(s)                         | Renders                                  | When the value is empty or absent |
 | -------------------------------- | ----------------------------------- | ---------------------------------------- | --------------------------------- |
-| `ZAC_opmaakDatum(value)`         | a date                              | the date in Dutch notation: `24‑08‑2026` | nothing                           |
+| `ZAC_opmaakDatum(value)`         | a date                              | the date as `dd-MM-yyyy`: `24‑08‑2026`   | nothing                           |
 | `ZAC_opmaakBoolean(value, …)`    | a boolean, optionally two labels    | the labels you give, else `true`/`false` | nothing                           |
 | `ZAC_opmaakLijst(value, …)`      | a list, optionally a property name  | the entries joined with commas           | nothing                           |
 | `ZAC_opmaakLegeWaarde(value, …)` | any value, optionally a placeholder | the value itself                         | `-`, or a placeholder of your own |
@@ -1009,8 +1009,8 @@ Interpolate the property itself there: `{{ zaak.startdatum }}`, not `{{ ZAC_opma
 
 ##### ZAC_opmaakDatum
 
-Renders a date the same way the rest of ZAC does, including the non-breaking hyphens that keep a date
-on one line. It reads the stored ISO value, so it does not matter how the value was written.
+Renders a date the same way the rest of ZAC does: `dd-MM-yyyy`, with the non-breaking hyphens that
+keep a date on one line.
 
 ```
 {{ ZAC_opmaakDatum(zaak.startdatum) }}     →  24‑08‑2026
@@ -1023,8 +1023,6 @@ A value that is not a date is passed through untouched rather than replaced by s
 Do **not** use this function to fill a date field. Its output is Dutch notation with non-breaking
 hyphens (`24‑08‑2026`), which no date picker can read back: the field stays empty and the browser
 console fills with `Invalid date provided` from the picker and a deprecation warning from moment.
-A date field wants the stored ISO value, so write `{{ zaak.startdatum }}` there and keep
-`ZAC_opmaakDatum` for the text the behandelaar reads.
 
 ##### ZAC_opmaakBoolean
 
