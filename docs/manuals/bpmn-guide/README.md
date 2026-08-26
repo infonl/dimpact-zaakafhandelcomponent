@@ -985,7 +985,7 @@ Interpolation renders a value exactly as it is stored, which is rarely what a fo
 `2026-08-24` instead of `24‑08‑2026`, `true` instead of `Ja`, `[object Object]` for anything
 composite. The following helper functions render a value to the desired format in the task form.
 
-They differ from `ZAC_getDocumentTitles` in what you hand them: a **value**, not a field key. So they
+They differ from other BPMN functions offered by ZAC in what you hand them: a **value**, not a field key. So they
 work on anything reachable in the template — a zaak property, a taak property, a process variable or a
 field of the form itself.
 
