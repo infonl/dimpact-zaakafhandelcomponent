@@ -1,0 +1,37 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+package net.atos.zac.app.mail.converter;
+
+import jakarta.inject.Inject;
+
+import net.atos.zac.app.mail.model.RESTMailGegevens;
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduidingKt;
+import nl.info.zac.configuration.ConfigurationService;
+import nl.info.zac.mail.model.MailAdres;
+import nl.info.zac.mailtemplates.model.MailGegevens;
+
+public class RESTMailGegevensConverter {
+
+    @Inject
+    private ConfigurationService configurationService;
+
+    public MailGegevens convert(final RESTMailGegevens restMailGegevens) {
+        // Note that most of the actual conversion happens in the constructor.
+        // Please do not move it here, because MailGegevens do not always get constructed here.
+        final String afzender = configurationService.readGemeenteNaam();
+        return new MailGegevens(
+                new MailAdres(restMailGegevens.verzender, afzender),
+                new MailAdres(restMailGegevens.ontvanger, null),
+                restMailGegevens.replyTo == null ? null : new MailAdres(restMailGegevens.replyTo, afzender),
+                restMailGegevens.onderwerp,
+                restMailGegevens.body,
+                restMailGegevens.bijlagen,
+                restMailGegevens.createDocumentFromMail,
+                restMailGegevens.getVertrouwelijkheidaanduiding() == null ? VertrouwelijkheidaanduidingEnum.OPENBAAR :
+                        RestVertrouwelijkheidaanduidingKt.toDrcVertrouwelijkheidaanduidingEnum(
+                                restMailGegevens.getVertrouwelijkheidaanduiding()));
+    }
+}

@@ -260,7 +260,7 @@ export class ZaakAfhandelenDialogComponent {
             onderwerp: mailtemplate.onderwerp,
             body: mailtemplate.body,
             createDocumentFromMail: true,
-          } satisfies GeneratedType<"RestMailGegevens">)
+          } satisfies GeneratedType<"RESTMailGegevens">)
         : undefined;
 
     this.planItemAfhandelenMutation.mutate({
