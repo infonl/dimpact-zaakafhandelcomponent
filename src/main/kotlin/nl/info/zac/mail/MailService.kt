@@ -5,6 +5,7 @@
 package nl.info.zac.mail
 
 import com.fasterxml.uuid.impl.UUIDUtil
+import com.google.common.html.HtmlEscapers.htmlEscaper
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.Resource
 import jakarta.enterprise.context.ApplicationScoped
@@ -39,7 +40,6 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
 import org.apache.commons.lang3.StringUtils
-import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.htmlcleaner.HtmlCleaner
 import org.htmlcleaner.PrettyXmlSerializer
@@ -232,7 +232,7 @@ class MailService @Inject constructor(
             }
             add("$MAIL_ONDERWERP: $subject")
             add(MAIL_BERICHT)
-        }.joinToString("\n") { "<p>${escapeHtml4(it)}</p>" }
+        }.joinToString("\n") { "<p>${htmlEscaper().escape(it)}</p>" }
         val cleaner = HtmlCleaner()
         val rootTagNode = cleaner.clean(body)
         val cleanerProperties = cleaner.properties.apply {
@@ -247,12 +247,13 @@ class MailService @Inject constructor(
             <html lang="nl">
             <head>
             <meta charset="utf-8">
+            <title>${htmlEscaper().escape(subject)}</title>
             <style>
             body { font-family: sans-serif; }
             .header { font-family: monospace; }
             </style>
             </head>
-            <body>
+            <body lang="nl">
             <div class="header">
             $headerHtml
             </div>

@@ -179,6 +179,11 @@ class MailServiceTest : BehaviorSpec({
                 convertedHtml shouldContain "fakeResolvedBody3"
             }
 
+            And("the document declares Dutch as its language and carries the subject as its title") {
+                convertedHtml shouldContain """<body lang="nl">"""
+                convertedHtml shouldContain "<title>$resolvedSubject</title>"
+            }
+
             And("no 'Bijlage' header line is present because the e-mail has no attachments") {
                 convertedHtml shouldNotContain "Bijlage:"
             }
@@ -249,11 +254,11 @@ class MailServiceTest : BehaviorSpec({
             mailService.sendMail(mailGegevens, bronnen)
 
             then("the converted HTML lists both attachment filenames on the 'Bijlage' header line") {
-                convertedHtml shouldContain "<p>Bijlage: bijlage-&eacute;&eacute;n.pdf,bijlage-twee.docx</p>"
+                convertedHtml shouldContain "<p>Bijlage: bijlage-één.pdf,bijlage-twee.docx</p>"
             }
 
             And("the HTML special characters in the subject are escaped so they cannot break the document") {
-                convertedHtml shouldContain "<p>Onderwerp: Vergunning caf&eacute; &amp; terras &lt;niet-een-tag&gt;</p>"
+                convertedHtml shouldContain "<p>Onderwerp: Vergunning café &amp; terras &lt;niet-een-tag&gt;</p>"
             }
         }
     }

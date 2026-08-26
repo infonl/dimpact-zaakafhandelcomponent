@@ -169,7 +169,7 @@ class MailRestServiceTest : BehaviorSpec({
                 """.trimIndent()
             }
 
-            And("the created e-mail document is a PDF/A-2b document") {
+            And("the created e-mail document is a tagged PDF/A-2b and PDF/UA-1 document") {
                 val documentsResponse = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobjectenList",
                     requestBodyAsString = """
@@ -194,6 +194,9 @@ class MailRestServiceTest : BehaviorSpec({
                     this shouldStartWith "%PDF"
                     this shouldContain "<pdfaid:part>2</pdfaid:part>"
                     this shouldContain "<pdfaid:conformance>B</pdfaid:conformance>"
+                    this shouldContain "<pdfuaid:part>1</pdfuaid:part>"
+                    this shouldContain "/StructTreeRoot"
+                    this shouldContain "/DisplayDocTitle true"
                 }
             }
         }
