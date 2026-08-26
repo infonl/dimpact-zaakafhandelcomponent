@@ -1607,7 +1607,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         zaak shouldBe createdZaak.url
                     }
                 }
-                and("no CMMN process be started") {
+                and("no CMMN process should be started") {
                     verify(exactly = 0) {
                         cmmnService.startCase(any(), any(), any(), any())
                     }
