@@ -10,8 +10,8 @@ import { MatSelectChange } from "@angular/material/select";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { screen } from "@testing-library/angular";
 import { of } from "rxjs";
-import { DatumRange } from "src/app/zoeken/model/datum-range";
 import { fromPartial } from "src/test-helpers";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -87,8 +87,8 @@ describe(`${ParametersComponent.name} applyFilter`, () => {
         geldig: ToggleSwitchOptions.INDETERMINATE,
         zaaktype: null,
         caseDefinition: null,
-        beginGeldigheid: new DatumRange(),
-        eindeGeldigheid: new DatumRange(),
+        beginGeldigheid: { van: null, tot: null },
+        eindeGeldigheid: { van: null, tot: null },
         sort: "",
         order: "",
         page: 0,
@@ -229,24 +229,13 @@ describe(ParametersComponent.name, () => {
   });
 
   it("should show no-data message when data is empty and not loading", () => {
-    const paragraphs = Array.from(
-      fixture.nativeElement.querySelectorAll("p"),
-    ) as HTMLElement[];
-    expect(
-      paragraphs.some((p) =>
-        p.textContent?.includes("msg.geen.gegevens.gevonden"),
-      ),
-    ).toBe(true);
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
   });
 
   it("should show loading message when loading is true", () => {
     component["loading"] = true;
     fixture.detectChanges();
-    const paragraphs = Array.from(
-      fixture.nativeElement.querySelectorAll("p"),
-    ) as HTMLElement[];
-    expect(paragraphs.some((p) => p.textContent?.includes("msg.loading"))).toBe(
-      true,
-    );
+
+    expect(screen.getByText("msg.loading")).toBeVisible();
   });
 });

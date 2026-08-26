@@ -4,21 +4,15 @@
  */
 
 import { NgIf } from "@angular/common";
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-} from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { MAT_DATE_FORMATS } from "@angular/material/core";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { TranslateModule } from "@ngx-translate/core";
-import { DatumRange } from "../../../zoeken/model/datum-range";
 import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pipe";
+import { GeneratedType } from "../../utils/generated-types";
 
 @Component({
   selector: "zac-date-range-filter",
@@ -51,44 +45,52 @@ import { CapitalizeFirstLetterPipe } from "../../pipes/capitalizeFirstLetter.pip
     },
   ],
 })
-export class DateRangeFilterComponent implements OnChanges {
-  @Input({ required: true }) range!: DatumRange;
+export class DateRangeFilterComponent {
+  @Input({ required: true })
+  set range(value: GeneratedType<"RestDatumRange"> | null | undefined) {
+    this.currentRange = value ?? { van: null, tot: null };
+    this.dateVan.setValue(this.toDate(this.currentRange.van));
+    this.dateTM.setValue(this.toDate(this.currentRange.tot));
+  }
+
+  get range() {
+    return this.currentRange;
+  }
+
   @Input() label!: string;
   @Input() showLabel?: boolean;
-  @Output() changed = new EventEmitter<DatumRange>();
+  @Output() changed = new EventEmitter<GeneratedType<"RestDatumRange">>();
 
   protected dateVan = new FormControl<Date | null>(null);
   protected dateTM = new FormControl<Date | null>(null);
 
-  ngOnChanges(): void {
-    if (!this.range) {
-      this.range = new DatumRange();
-    }
-    this.dateVan.setValue(this.range.van);
-    this.dateTM.setValue(this.range.tot);
-  }
+  private currentRange: GeneratedType<"RestDatumRange"> = {
+    van: null,
+    tot: null,
+  };
 
   protected clearDate($event: MouseEvent): void {
     $event.stopPropagation();
     this.dateVan.setValue(null);
     this.dateTM.setValue(null);
-    this.range.van = null;
-    this.range.tot = null;
-    this.changed.emit(this.range);
+    this.currentRange.van = null;
+    this.currentRange.tot = null;
+    this.changed.emit(this.currentRange);
   }
 
   protected change(): void {
-    this.range.van = this.dateVan.value;
-    this.range.tot = this.dateTM.value;
+    this.currentRange.van = this.dateVan.value?.toISOString() ?? null;
+    this.currentRange.tot = this.dateTM.value?.toISOString() ?? null;
     if (this.hasRange()) {
-      this.changed.emit(this.range);
+      this.changed.emit(this.currentRange);
     }
   }
 
   protected hasRange(): boolean {
-    if (this.range) {
-      return this.range.van != null && this.range.tot != null;
-    }
-    return false;
+    return this.currentRange.van != null && this.currentRange.tot != null;
+  }
+
+  private toDate(value?: string | null) {
+    return value ? new Date(value) : null;
   }
 }

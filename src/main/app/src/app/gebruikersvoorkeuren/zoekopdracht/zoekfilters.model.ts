@@ -4,7 +4,6 @@
  */
 
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { DatumRange } from "../../zoeken/model/datum-range";
 
 export type ZoekFilters = {
   readonly filtersType:
@@ -13,15 +12,15 @@ export type ZoekFilters = {
     | "InboxDocumentListParameters";
   zoeken?: Record<string, unknown>;
   filters?: Record<string, undefined | { values: Array<unknown> }>;
-  datums?: Record<string, DatumRange>;
+  datums?: Record<string, GeneratedType<"RestDatumRange">>;
   identificatie?: string;
-  creatiedatum?: DatumRange;
+  creatiedatum?: GeneratedType<"RestDatumRange">;
   titel?: string;
   zaakID?: string;
   ontkoppeldDoor?: GeneratedType<"RestUser"> | string;
-  ontkoppeldOp?: DatumRange;
+  ontkoppeldOp?: GeneratedType<"RestDatumRange">;
   reden?: string;
-  ontvangstdatum?: DatumRange;
+  ontvangstdatum?: GeneratedType<"RestDatumRange">;
   initiatorID?: string;
   type?: string;
 };

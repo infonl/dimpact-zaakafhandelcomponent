@@ -7,15 +7,14 @@ import { SortDirection } from "@angular/material/sort";
 import { ListParameters } from "../../shared/model/list-parameters";
 import { ToggleSwitchOptions } from "../../shared/table-zoek-filters/toggle-filter/toggle-switch-options";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { DatumRange } from "../../zoeken/model/datum-range";
 
 export class ZaakafhandelParametersListParameters extends ListParameters {
   valide: ToggleSwitchOptions = ToggleSwitchOptions.CHECKED;
   geldig: ToggleSwitchOptions = ToggleSwitchOptions.CHECKED;
   zaaktype: Partial<GeneratedType<"RestZaaktype">> | null = null;
   caseDefinition: Partial<GeneratedType<"RESTCaseDefinition">> | null = null;
-  beginGeldigheid = new DatumRange();
-  eindeGeldigheid = new DatumRange();
+  beginGeldigheid: GeneratedType<"RestDatumRange"> = { van: null, tot: null };
+  eindeGeldigheid: GeneratedType<"RestDatumRange"> = { van: null, tot: null };
 
   constructor(sort: string, order: SortDirection) {
     super(sort, order);
