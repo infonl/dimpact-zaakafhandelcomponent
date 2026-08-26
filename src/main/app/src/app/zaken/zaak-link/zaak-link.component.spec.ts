@@ -52,6 +52,8 @@ describe(ZaakLinkComponent.name, () => {
   let fixture: ComponentFixture<ZaakLinkComponent>;
   let httpTestingController: HttpTestingController;
 
+  const user = userEvent.setup({ delay: null });
+
   const setup = async (zaakFields: Partial<GeneratedType<"RestZaak">> = {}) => {
     const zaak = makeFakeZaak(zaakFields);
     const sideNav = fromPartial<MatDrawer>({
@@ -95,8 +97,8 @@ describe(ZaakLinkComponent.name, () => {
   const relationTypeSelect = () => screen.getByLabelText("Zaak.koppelen.label");
 
   const chooseRelationType = async (relationType: string) => {
-    await userEvent.click(relationTypeSelect());
-    await userEvent.click(
+    await user.click(relationTypeSelect());
+    await user.click(
       screen.getByRole("option", {
         name: `zaak.koppelen.link.type.${relationType}`,
       }),
@@ -118,7 +120,7 @@ describe(ZaakLinkComponent.name, () => {
       );
 
   const clickSearch = async () => {
-    await userEvent.click(screen.getByRole("button", { name: "actie.zoeken" }));
+    await user.click(screen.getByRole("button", { name: "actie.zoeken" }));
     await sleep();
     // the results table creates the row views in one pass and binds their cells in the next
     fixture.detectChanges();
@@ -126,20 +128,20 @@ describe(ZaakLinkComponent.name, () => {
   };
 
   const dateRangeField = (label: string) =>
-    screen.getByText(label).closest("mat-form-field") as HTMLElement;
+    screen.getByRole("group", { name: label });
 
   const fillDateRange = async (label: string, van: string, tot: string) => {
-    await userEvent.type(
+    await user.type(
       within(dateRangeField(label)).getByPlaceholderText("zoeken.filter.van"),
       van,
     );
-    await userEvent.type(
+    await user.type(
       within(dateRangeField(label)).getByPlaceholderText(
         "zoeken.filter.tot_en_met",
       ),
       tot,
     );
-    await userEvent.tab();
+    await user.tab();
   };
 
   const linkButtonOfRow = (identificatie: string) =>
@@ -150,7 +152,7 @@ describe(ZaakLinkComponent.name, () => {
   it("offers every relation type a zaak can be linked with", async () => {
     await setup();
 
-    await userEvent.click(relationTypeSelect());
+    await user.click(relationTypeSelect());
 
     expect(
       screen.getAllByRole("option").map((option) => option.textContent?.trim()),
@@ -183,11 +185,8 @@ describe(ZaakLinkComponent.name, () => {
     const search = findLinkableZaken([makeFakeSearchResult()]);
 
     await chooseRelationType("DEELZAAK");
-    await userEvent.type(
-      screen.getByLabelText("Zaak.identificatie"),
-      "ZAAK-2026",
-    );
-    await userEvent.type(
+    await user.type(screen.getByLabelText("Zaak.identificatie"), "ZAAK-2026");
+    await user.type(
       screen.getByLabelText("ZoekVeld.ZAAK_OMSCHRIJVING"),
       "ZAAKOMSCHR",
     );
@@ -285,7 +284,7 @@ describe(ZaakLinkComponent.name, () => {
 
     await chooseRelationType("DEELZAAK");
     await clickSearch();
-    await userEvent.click(screen.getByRole("button", { name: "actie.wissen" }));
+    await user.click(screen.getByRole("button", { name: "actie.wissen" }));
     fixture.detectChanges();
 
     expect(screen.queryByRole("row", { name: /ZAAK-2026-002/ })).toBeNull();
@@ -325,7 +324,7 @@ describe(ZaakLinkComponent.name, () => {
 
     await chooseRelationType("DEELZAAK");
     await clickSearch();
-    await userEvent.click(linkButtonOfRow("ZAAK-2026-002"));
+    await user.click(linkButtonOfRow("ZAAK-2026-002"));
     await sleep();
 
     const request = httpTestingController.expectOne(KOPPEL_URL);
@@ -354,7 +353,7 @@ describe(ZaakLinkComponent.name, () => {
 
     await chooseRelationType("DEELZAAK");
     await clickSearch();
-    await userEvent.click(linkButtonOfRow("ZAAK-2026-002"));
+    await user.click(linkButtonOfRow("ZAAK-2026-002"));
     await sleep();
     httpTestingController
       .expectOne(KOPPEL_URL)
@@ -380,7 +379,7 @@ describe(ZaakLinkComponent.name, () => {
 
     await chooseRelationType("DEELZAAK");
     await clickSearch();
-    await userEvent.click(linkButtonOfRow("ZAAK-2026-002"));
+    await user.click(linkButtonOfRow("ZAAK-2026-002"));
     await sleep();
     fixture.detectChanges();
 
@@ -398,7 +397,7 @@ describe(ZaakLinkComponent.name, () => {
 
     await chooseRelationType("DEELZAAK");
     await clickSearch();
-    await userEvent.click(linkButtonOfRow("ZAAK-2026-002"));
+    await user.click(linkButtonOfRow("ZAAK-2026-002"));
     await sleep();
 
     httpTestingController.expectNone(KOPPEL_URL);
@@ -408,9 +407,7 @@ describe(ZaakLinkComponent.name, () => {
     const { sideNav } = await setup();
 
     await chooseRelationType("DEELZAAK");
-    await userEvent.click(
-      screen.getByRole("button", { name: "actie.annuleren" }),
-    );
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
     fixture.detectChanges();
 
     expect(sideNav.close).toHaveBeenCalled();
@@ -420,7 +417,7 @@ describe(ZaakLinkComponent.name, () => {
   it("closes the panel when the close button is used", async () => {
     const { sideNav } = await setup();
 
-    await userEvent.click(
+    await user.click(
       screen.getByRole("button", { name: "actie.paneel.sluiten" }),
     );
 

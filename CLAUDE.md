@@ -109,6 +109,30 @@ Please follow our coding conventions described in [CONTRIBUTING.md](CONTRIBUTING
 - Standalone components declare all template dependencies in their `imports` array — import the component under test directly, no `NO_ERRORS_SCHEMA` needed
 - Use `fromPartial` from `@total-typescript/shoehorn` to create partial mocks of generated types
 
+#### Query the DOM through Testing Library, not through Angular
+New and modified specs use [Testing Library](https://testing-library.com/docs/queries/about/#priority)
+to reach the DOM. Prefer `getByRole` with an accessible name; fall back to `getByLabelText`
+and `getByText` only when no role fits. A spec that queries by role fails when the markup
+stops being accessible, which is behaviour worth testing on its own.
+
+Do not use `fixture.debugElement.query(By.css(...))` or `nativeElement.querySelector(...)`.
+Both are flagged by `no-restricted-syntax`, and by Testing Library's own `no-node-access`.
+
+```ts
+// Before
+const row = fixture.nativeElement.querySelector("tr.zaak-row");
+// After
+const row = screen.getByRole("row", { name: /ZAAK-001/ });
+```
+
+Around 70 older specs still use the Angular style. They are warnings project-wide, but
+**errors on any spec file a pull request touches** — so a spec you edit has to be migrated
+before it merges. `./scripts/lint-changed-files.sh` reproduces that check locally.
+
+Where a third-party widget renders nothing queryable — `ngx-editor` sets no role on its
+ProseMirror element, OpenLayers draws to a canvas, a file input is `display: none` —
+disable the rule on that line with a comment saying which widget forces it.
+
 ### SPDX License Headers
 All source files require an SPDX header. For `.kt`, `.ts`, `.java`, `.js` files:
 ```

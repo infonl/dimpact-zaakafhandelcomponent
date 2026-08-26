@@ -15,8 +15,8 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import net.atos.client.zgw.shared.exception.ZgwErrorException
-import net.atos.client.zgw.shared.model.ZgwError
+import nl.info.client.zgw.shared.exception.ZgwErrorException
+import nl.info.client.zgw.shared.model.ZgwError
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject

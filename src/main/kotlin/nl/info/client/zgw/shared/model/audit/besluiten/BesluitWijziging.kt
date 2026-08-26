@@ -5,7 +5,7 @@
 
 package nl.info.client.zgw.shared.model.audit.besluiten
 
-import net.atos.client.zgw.shared.model.ObjectType
+import nl.info.client.zgw.shared.model.ObjectType
 import nl.info.client.zgw.brc.model.generated.Besluit
 import nl.info.client.zgw.shared.model.audit.AuditWijziging
 
