@@ -102,7 +102,7 @@ class SendEmailDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("the mail was sent") {
+            and("the mail was sent") {
                 verify(exactly = 1) {
                     mailTemplateService.findMailtemplateByName(templateName)
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
@@ -166,7 +166,7 @@ class SendEmailDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("the mail was sent") {
+            and("the mail was sent") {
                 verify(exactly = 1) {
                     mailTemplateService.findMailtemplateByName(templateName)
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
@@ -212,7 +212,7 @@ class SendEmailDelegateTest : BehaviorSpec({
                 policyException shouldNotBe null
             }
 
-            And("no mail is sent") {
+            and("no mail is sent") {
                 verify(exactly = 0) {
                     mailService.sendMail(any(), any())
                 }

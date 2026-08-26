@@ -1066,11 +1066,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 verify(exactly = 1) { detachedDocumentService.deleteIfExists(enkelvoudigInformatieobjectUUID) }
             }
 
-            And("the related inbox document is deleted if it exists") {
+            and("the related inbox document is deleted if it exists") {
                 verify(exactly = 1) { inboxDocumentService.deleteIfExists(enkelvoudigInformatieobjectUUID) }
             }
 
-            And("the enkelvoudig informatieobject is deleted") {
+            and("the enkelvoudig informatieobject is deleted") {
                 verify(exactly = 1) {
                     drcClientService.deleteEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
                 }
@@ -1352,7 +1352,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 passedOnDetachedDocumentNotFoundException shouldBe detachedDocumentNotFoundException
             }
 
-            And("the document should not be moved") {
+            and("the document should not be moved") {
                 verify(exactly = 0) {
                     zrcClientService.koppelInformatieobject(informatieobject, targetZaak, expectedToelichting)
                     detachedDocumentService.deleteIfExists(any<Long>())

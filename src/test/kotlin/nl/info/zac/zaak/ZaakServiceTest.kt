@@ -140,7 +140,7 @@ class ZaakServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the group role is updated") {
+                and("the group role is updated") {
                     verify(exactly = 1) {
                         zrcClientService.updateRol(zaak, any(), reason)
                     }
@@ -154,13 +154,13 @@ class ZaakServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the zaken search index is updated") {
+                and("the zaken search index is updated") {
                     verify(exactly = 1) {
                         indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                     }
                 }
 
-                And("the zaak data is updated accordingly") {
+                and("the zaak data is updated accordingly") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setGroup(zaak.uuid, group.name)
                         zaakVariabelenService.setUser(zaak.uuid, user.id)
@@ -223,19 +223,19 @@ class ZaakServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the group role is updated") {
+                and("the group role is updated") {
                     verify(exactly = 1) {
                         zrcClientService.updateRol(zaak, any(), reason)
                     }
                 }
 
-                And("the zaken search index is updated") {
+                and("the zaken search index is updated") {
                     verify(exactly = 1) {
                         indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                     }
                 }
 
-                And("the zaak data is updated accordingly") {
+                and("the zaak data is updated accordingly") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setGroup(zaak.uuid, group.name)
                         zaakVariabelenService.setUser(zaak.uuid, user.id)
@@ -329,13 +329,13 @@ class ZaakServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the zaken search index is updated") {
+                and("the zaken search index is updated") {
                     verify(exactly = 1) {
                         indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                     }
                 }
 
-                And("the zaak data is updated accordingly") {
+                and("the zaak data is updated accordingly") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setGroup(zaak.uuid, group.name)
                         zaakVariabelenService.removeUser(zaak.uuid)
@@ -393,13 +393,13 @@ class ZaakServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the zaken search index is updated") {
+                and("the zaken search index is updated") {
                     verify(exactly = 1) {
                         indexingService.indexeerDirect(zaak.uuid.toString(), ZoekObjectType.ZAAK, false)
                     }
                 }
 
-                And("the zaak data is updated accordingly") {
+                and("the zaak data is updated accordingly") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setGroup(zaak.uuid, group.name)
                     }
@@ -450,7 +450,7 @@ class ZaakServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the duplicate roles are purged and a single new role is created") {
+                and("the duplicate roles are purged and a single new role is created") {
                     verify(exactly = 2) {
                         zrcClientService.deleteRol(any<Rol<*>>(), reason)
                     }
@@ -835,7 +835,7 @@ class ZaakServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("a final screen event of type 'zaken verdelen' should be skipped") {
+                and("a final screen event of type 'zaken verdelen' should be skipped") {
                     with(screenEventSlot.captured) {
                         opcode shouldBe Opcode.SKIPPED
                         objectType shouldBe ScreenEventType.ZAKEN_VERDELEN

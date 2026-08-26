@@ -143,7 +143,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_NO_CONTENT
             }
 
-            And("zaak fatal date is moved forward to correspond to the task fatal date") {
+            and("zaak fatal date is moved forward to correspond to the task fatal date") {
                 val zacResponse = zacClient.retrieveZaak(zaakUuid, BEHANDELAAR_1)
                 val responseBody = zacResponse.bodyAsString
                 logger.info { "Response: $responseBody" }

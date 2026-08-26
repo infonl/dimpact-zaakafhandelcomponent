@@ -299,7 +299,7 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     exception.message shouldContain dayBeforeYesterday.toString()
                 }
 
-                And("zaak is not patched") {
+                and("zaak is not patched") {
                     verify(exactly = 0) {
                         zrcClientService.patchZaak(zaak.uuid, any(), any())
                     }
@@ -378,11 +378,11 @@ class SuspensionZaakHelperTest : BehaviorSpec({
                     updatedZaak shouldBe zaak
                 }
 
-                And("uses the extend description") {
+                and("uses the extend description") {
                     descriptionSlot.captured shouldBe "Verlenging: $description"
                 }
 
-                And("zaak update is triggered") {
+                and("zaak update is triggered") {
                     with(zaakSlot.captured) {
                         einddatumGepland shouldBe today
                         uiterlijkeEinddatumAfdoening shouldBe tomorrow

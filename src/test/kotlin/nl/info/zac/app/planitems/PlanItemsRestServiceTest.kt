@@ -368,7 +368,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("zaak extend fatal date was performed") {
+                and("zaak extend fatal date was performed") {
                     verify(exactly = 1) {
                         suspensionZaakHelper.extendZaakFatalDate(any(), any(), any())
                     }
@@ -429,11 +429,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the task data is set correctly") {
+                and("the task data is set correctly") {
                     taskDataSlot.captured shouldBe restHumanTaskData.taakdata
                 }
 
-                And("email was sent for the task") {
+                and("email was sent for the task") {
                     verify(exactly = 1) {
                         mailService.sendMail(any(), any())
                     }
@@ -502,11 +502,11 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the task data is set correctly") {
+                and("the task data is set correctly") {
                     taskDataSlot.captured shouldBe restHumanTaskData.taakdata
                 }
 
-                And("email was sent for the task") {
+                and("email was sent for the task") {
                     verify(exactly = 1) {
                         mailService.sendMail(any(), any())
                     }
@@ -715,7 +715,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     exception.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
                 }
 
-                And("closeZaak should not be called") {
+                and("closeZaak should not be called") {
                     verify(exactly = 0) {
                         zgwApiService.closeZaak(any(), any(), any())
                     }
@@ -764,7 +764,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("setOntvankelijk should be called") {
+                and("setOntvankelijk should be called") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setOntvankelijk(planItemInstance, false)
                     }
@@ -800,7 +800,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("setOntvankelijk should be called") {
+                and("setOntvankelijk should be called") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setOntvankelijk(planItemInstance, true)
                     }
@@ -900,7 +900,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     exception.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
                 }
 
-                And("processBrondatumProcedure should not be called") {
+                and("processBrondatumProcedure should not be called") {
                     verify(exactly = 0) {
                         zgwApiService.setBrondatum(any(), any())
                     }
@@ -930,7 +930,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("it throws exception with no message") { exception.message shouldBe null }
 
-                And("setBrondatum should not be called") {
+                and("setBrondatum should not be called") {
                     verify(exactly = 0) {
                         zgwApiService.setBrondatum(any(), any())
                     }

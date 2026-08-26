@@ -100,7 +100,7 @@ class BpmnSendConfirmationEmailRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("a confirmation email is sent to the initiator Hendrika Janse") {
+            and("a confirmation email is sent to the initiator Hendrika Janse") {
                 eventually(30.seconds) {
                     val receivedMailsResponse = itestHttpClient.performGetRequest(
                         url = "$GREENMAIL_API_URI/user/$TEST_PERSON_HENDRIKA_JANSE_EMAIL/messages/"
