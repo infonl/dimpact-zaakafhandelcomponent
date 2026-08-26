@@ -5,16 +5,7 @@
 package nl.info.zac.mail
 
 import com.fasterxml.uuid.impl.UUIDUtil
-import com.itextpdf.html2pdf.HtmlConverter
-import com.itextpdf.io.font.constants.StandardFonts
-import com.itextpdf.kernel.colors.ColorConstants
-import com.itextpdf.kernel.exceptions.PdfException
-import com.itextpdf.kernel.font.PdfFontFactory
-import com.itextpdf.kernel.pdf.PdfDocument
-import com.itextpdf.kernel.pdf.PdfWriter
-import com.itextpdf.layout.Document
-import com.itextpdf.layout.element.IBlockElement
-import com.itextpdf.layout.element.Paragraph
+import com.google.common.html.HtmlEscapers.htmlEscaper
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.Resource
 import jakarta.enterprise.context.ApplicationScoped
@@ -23,7 +14,11 @@ import jakarta.inject.Inject
 import jakarta.mail.MessagingException
 import jakarta.mail.Session
 import jakarta.mail.Transport
+import jakarta.ws.rs.ProcessingException
+import jakarta.ws.rs.WebApplicationException
 import net.atos.zac.util.MediaTypes
+import nl.info.client.officeconverter.OfficeConverterClientService
+import nl.info.client.officeconverter.exception.MessageEntityDataCouldNotBeBufferedException
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -48,8 +43,7 @@ import org.apache.commons.lang3.StringUtils
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.htmlcleaner.HtmlCleaner
 import org.htmlcleaner.PrettyXmlSerializer
-import java.io.ByteArrayOutputStream
-import java.io.IOException
+import java.io.ByteArrayInputStream
 import java.time.LocalDate
 import java.util.Base64
 import java.util.Optional
@@ -72,6 +66,7 @@ class MailService @Inject constructor(
     private var ztcClientService: ZtcClientService,
     private var drcClientService: DrcClientService,
     private var mailTemplateHelper: MailTemplateHelper,
+    private var officeConverterClientService: OfficeConverterClientService,
     private var loggedInUserInstance: Instance<LoggedInUser>,
 
     @ConfigProperty(name = "SMTP_USERNAME")
@@ -86,7 +81,7 @@ class MailService @Inject constructor(
         // http://www.faqs.org/rfcs/rfc2822.html
         private const val SUBJECT_MAX_WIDTH = 78
 
-        private const val FONT_SIZE = 16f
+        private const val EMAIL_HTML_FILENAME = "email.html"
         private const val MAIL_VERZENDER = "Afzender"
         private const val MAIL_ONTVANGER = "Ontvanger"
         private const val MAIL_BIJLAGE = "Bijlage"
@@ -172,7 +167,8 @@ class MailService @Inject constructor(
         zaak: Zaak
     ) {
         val eMailObjectType = getEmailInformatieObjectType(zaak)
-        val pdfDocument = createPdfDocument(verzender, ontvanger, subject, body, attachments)
+        val html = buildEmailHtml(verzender, ontvanger, subject, body, attachments)
+        val pdfDocument = convertEmailToPdf(html, subject) ?: return
         val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectCreateLockRequest().apply {
             bronorganisatie = configurationService.readBronOrganisatie()
             creatiedatum = LocalDate.now()
@@ -197,56 +193,74 @@ class MailService @Inject constructor(
         )
     }
 
-    @Suppress("NestedBlockDepth")
-    private fun createPdfDocument(
+    private fun convertEmailToPdf(html: String, subject: String): ByteArray? =
+        try {
+            officeConverterClientService.convertToPDF(
+                ByteArrayInputStream(html.toByteArray(Charsets.UTF_8)),
+                EMAIL_HTML_FILENAME
+            ).use { it.readAllBytes() }
+        } catch (processingException: ProcessingException) {
+            logPdfConversionFailure(subject, processingException)
+            null
+        } catch (webApplicationException: WebApplicationException) {
+            logPdfConversionFailure(subject, webApplicationException)
+            null
+        } catch (exception: MessageEntityDataCouldNotBeBufferedException) {
+            logPdfConversionFailure(subject, exception)
+            null
+        }
+
+    private fun logPdfConversionFailure(subject: String, exception: Exception) =
+        LOG.log(
+            Level.SEVERE,
+            "Failed to convert the sent e-mail with subject '$subject' to PDF. No zaak document was created.",
+            exception
+        )
+
+    private fun buildEmailHtml(
         verzender: String,
         ontvanger: String,
         subject: String,
         body: String,
         attachments: List<Attachment>
-    ): ByteArray {
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        try {
-            PdfWriter(byteArrayOutputStream).use { pdfWriter ->
-                PdfDocument(pdfWriter).use { pdfDoc ->
-                    Document(pdfDoc).use { document ->
-                        val font = PdfFontFactory.createFont(StandardFonts.COURIER)
-                        document.add(
-                            Paragraph().apply {
-                                setFont(font).setFontSize(FONT_SIZE).setFontColor(ColorConstants.BLACK)
-                                add("$MAIL_VERZENDER: $verzender \n\n")
-                                add("$MAIL_ONTVANGER: $ontvanger \n\n")
-                                if (attachments.isNotEmpty()) {
-                                    val content = attachments.joinToString(",") { it.filename }
-                                    add("$MAIL_BIJLAGE: $content \n\n")
-                                }
-                                add("$MAIL_ONDERWERP: $subject \n\n")
-                                add("$MAIL_BERICHT \n")
-                            }
-                        )
-                        val cleaner = HtmlCleaner()
-                        val rootTagNode = cleaner.clean(body)
-                        val cleanerProperties = cleaner.properties.apply {
-                            isOmitXmlDeclaration = true
-                        }
-                        val html = PrettyXmlSerializer(cleanerProperties).getAsString(rootTagNode)
-                        val emailBodyParagraph = Paragraph()
-                        HtmlConverter.convertToElements(html).forEach {
-                            emailBodyParagraph.add(it as IBlockElement)
-                            // the individual (HTML paragraph) block elements are not separated
-                            // with new lines, so we add them explicitly here
-                            emailBodyParagraph.add("\n")
-                        }
-                        document.add(emailBodyParagraph)
-                    }
-                }
+    ): String {
+        val headerHtml = buildList {
+            add("$MAIL_VERZENDER: $verzender")
+            add("$MAIL_ONTVANGER: $ontvanger")
+            if (attachments.isNotEmpty()) {
+                add("$MAIL_BIJLAGE: ${attachments.joinToString(",") { it.filename }}")
             }
-        } catch (pdfException: PdfException) {
-            LOG.log(Level.SEVERE, "Failed to create PDF document", pdfException)
-        } catch (ioException: IOException) {
-            LOG.log(Level.SEVERE, "Failed to create PDF document", ioException)
+            add("$MAIL_ONDERWERP: $subject")
+            add(MAIL_BERICHT)
+        }.joinToString("\n") { "<p>${htmlEscaper().escape(it)}</p>" }
+        val cleaner = HtmlCleaner()
+        val rootTagNode = cleaner.clean(body)
+        val cleanerProperties = cleaner.properties.apply {
+            isOmitXmlDeclaration = true
         }
-        return byteArrayOutputStream.toByteArray()
+        // HtmlCleaner wraps the body in an html/head/body envelope of its own, which LibreOffice ignores.
+        // Its omit-envelope serializer option throws on the resulting nameless root node, so we leave it in.
+        val sanitisedBody = PrettyXmlSerializer(cleanerProperties).getAsString(rootTagNode)
+        // without the charset meta tag LibreOffice mangles diacritics
+        return """
+            <!DOCTYPE html>
+            <html lang="nl">
+            <head>
+            <meta charset="utf-8">
+            <title>${htmlEscaper().escape(subject)}</title>
+            <style>
+            body { font-family: sans-serif; }
+            .header { font-family: monospace; }
+            </style>
+            </head>
+            <body lang="nl">
+            <div class="header">
+            $headerHtml
+            </div>
+            $sanitisedBody
+            </body>
+            </html>
+        """.trimIndent()
     }
 
     private fun getEmailInformatieObjectType(zaak: Zaak): InformatieObjectType =
