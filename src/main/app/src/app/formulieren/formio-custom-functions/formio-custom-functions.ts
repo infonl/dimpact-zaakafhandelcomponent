@@ -134,8 +134,11 @@ export class FormioCustomFunctions {
       // An absent property stands in as an object that reads as empty, so compare the rendered text.
       const read = String(value ?? "");
       if (read !== "true" && read !== "false") return read;
+
+      const isTrue = read === "true";
+      if (whenTrue === undefined && whenFalse === undefined) return isTrue;
       return this.translateService.instant(
-        read === "true" ? (whenTrue ?? "actie.ja") : (whenFalse ?? "actie.nee"),
+        isTrue ? (whenTrue ?? "actie.ja") : (whenFalse ?? "actie.nee"),
       );
     },
 

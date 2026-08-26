@@ -979,6 +979,96 @@ only rendered and can never be written back, while a filled field becomes part o
 ZAC supports custom functions in Form.io `content` components via the `{{ }}` template syntax.
 These functions are evaluated client-side and can be used to display dynamic data in read-only content blocks.
 
+#### Formatting a value for display
+
+Interpolation renders a value exactly as it is stored, which is rarely what a form should show:
+`2026-08-24` instead of `24‑08‑2026`, `true` instead of `Ja`, `[object Object]` for anything
+composite. Four functions format a value on its way to the page.
+
+They differ from `ZAC_getDocumentTitles` in what you hand them: a **value**, not a field key. So they
+work on anything reachable in the template — a zaak property, a taak property, a process variable or a
+field of the form itself.
+
+| Function                         | Argument(s)                         | Renders                                  | When the value is empty or absent |
+| -------------------------------- | ----------------------------------- | ---------------------------------------- | --------------------------------- |
+| `ZAC_opmaakDatum(value)`         | a date                              | the date in Dutch notation: `24‑08‑2026` | nothing                           |
+| `ZAC_opmaakBoolean(value, …)`    | a boolean, optionally two labels    | the labels you give, else `true`/`false` | nothing                           |
+| `ZAC_opmaakLijst(value, …)`      | a list, optionally a property name  | the entries joined with commas           | nothing                           |
+| `ZAC_opmaakLegeWaarde(value, …)` | any value, optionally a placeholder | the value itself                         | `-`, or a placeholder of your own |
+
+```
+Zaak {{ zaak.identificatie }} is gestart op {{ ZAC_opmaakDatum(zaak.startdatum) }}
+en {{ ZAC_opmaakBoolean(zaak.isOpen, "loopt nog", "is afgerond") }}.
+```
+
+##### ZAC_opmaakDatum
+
+Renders a date the same way the rest of ZAC does, including the non-breaking hyphens that keep a date
+on one line. It reads the stored ISO value, so it does not matter how the value was written.
+
+```
+{{ ZAC_opmaakDatum(zaak.startdatum) }}     →  24‑08‑2026
+{{ ZAC_opmaakDatum(taak.fataledatum) }}    →  31‑12‑2026
+{{ ZAC_opmaakDatum(zaak.omschrijving) }}   →  the text itself, unchanged
+```
+
+A value that is not a date is passed through untouched rather than replaced by something wrong.
+
+##### ZAC_opmaakBoolean
+
+Puts a word of your own in place of a boolean. Give it two labels — the first for `true`, the second
+for `false` — because a form rarely wants to say "true", it wants to say what the answer means.
+
+```
+{{ ZAC_opmaakBoolean(zaak.isOpen, "Open", "Gesloten") }}                →  Open
+{{ ZAC_opmaakBoolean(zaak.isProcesGestuurd, "Procesgestuurd", "Zaakgestuurd") }}
+                                                                        →  Procesgestuurd
+{{ ZAC_opmaakBoolean(zaak.isHeropend, "Heropend") }}                    →  Nee
+{{ ZAC_opmaakBoolean(zaak.isOpen, "actie.ja", "actie.nee") }}           →  Ja
+{{ ZAC_opmaakBoolean(zaak.isOpen) }}                                    →  true
+```
+
+Give only the first label and `false` still renders `Nee`. A label may also be a translation key, as
+the fourth line shows, so `actie.ja` and `actie.nee` give you Ja and Nee.
+
+Called **without labels** the function hands the boolean back as it is, so Form.io renders it the way
+it renders any other value: `true` or `false`. Use that where the raw value is what you want to show —
+for anything a behandelaar reads, give it labels.
+
+A value that is neither `true` nor `false` is passed through as it is. That matters: pointed at a text
+field, the function shows that text instead of confidently answering "Nee" about something that was
+never a yes-or-no question.
+
+##### ZAC_opmaakLijst
+
+Joins the entries of a list with commas. A second argument names the property to read from each entry,
+for a list of objects.
+
+```
+{{ ZAC_opmaakLijst(zaak.indicaties) }}                    →  OPSCHORTING, VERLENGD
+{{ ZAC_opmaakLijst(zaak.kenmerken, "kenmerk") }}          →  kenmerk-1, kenmerk-2
+{{ ZAC_opmaakLijst(zaak.besluiten, "identificatie") }}    →  BESLUIT-01, BESLUIT-02
+```
+
+Entries that are empty are left out, so a partly filled list does not render stray commas. An empty
+list, or a property the zaak does not have, renders nothing. Without this function a list renders as
+`[object Object],[object Object]`.
+
+##### ZAC_opmaakLegeWaarde
+
+Renders the value, or `-` when there is nothing to show — the same dash the zaak screens use, so it
+means the same thing to the reader. An optional second argument replaces the dash.
+
+```
+{{ ZAC_opmaakLegeWaarde(zaak.omschrijving) }}                        →  the omschrijving
+{{ ZAC_opmaakLegeWaarde(zaak.toelichting) }}                         →  -
+{{ ZAC_opmaakLegeWaarde(zaak.einddatum, "Nog niet bekend") }}        →  Nog niet bekend
+{{ ZAC_opmaakLegeWaarde(zaak.besluiten, "actie.nee") }}              →  Nee
+```
+
+Empty means an empty string, an empty list, a property that holds nothing, and a property the zaak
+does not have at all. Like the labels above, the placeholder may be a translation key.
+
 #### ZAC_getDocumentTitles
 
 Resolves a list of document UUIDs stored in a taakdata field to their human-readable document titles.

@@ -580,8 +580,8 @@ describe(FormioCustomFunctions.name, () => {
     describe("the formatters", () => {
       it.each([
         ["{{ ZAC_opmaakDatum(zaak.startdatum) }}", "24\u201108\u20112026"],
-        ["{{ ZAC_opmaakBoolean(zaak.isOpen) }}", "actie.ja"],
-        ["{{ ZAC_opmaakBoolean(zaak.isOpgeschort) }}", "actie.nee"],
+        ["{{ ZAC_opmaakBoolean(zaak.isOpen) }}", "true"],
+        ["{{ ZAC_opmaakBoolean(zaak.isOpgeschort) }}", "false"],
       ])("should format %s to %s", async (template, expected) => {
         const context = await service.prepareFormContext(
           { components: [] },
@@ -651,6 +651,26 @@ describe(FormioCustomFunctions.name, () => {
               context,
             ),
           ).toBe(expected);
+        },
+      );
+
+      it.each([
+        ["a boolean that is true", "isOpen", true],
+        ["a boolean that is false", "isOpgeschort", false],
+      ])(
+        "should hand %s to the form as the JavaScript value when no labels are given",
+        async (_description, property, expected) => {
+          const context = await service.prepareFormContext(
+            { components: [] },
+            {},
+            { isOpen: true, isOpgeschort: false },
+          );
+          const opmaakBoolean = context.ZAC_opmaakBoolean as (
+            value: unknown,
+          ) => unknown;
+          const zaak = context.zaak as Record<string, unknown>;
+
+          expect(opmaakBoolean(zaak[property])).toBe(expected);
         },
       );
 
