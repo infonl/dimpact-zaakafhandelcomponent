@@ -7,7 +7,6 @@ package net.atos.zac.app.mail.converter;
 import jakarta.inject.Inject;
 
 import net.atos.zac.app.mail.model.RESTMailGegevens;
-import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum;
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduidingKt;
 import nl.info.zac.configuration.ConfigurationService;
 import nl.info.zac.mail.model.MailAdres;
@@ -30,8 +29,7 @@ public class RESTMailGegevensConverter {
                 restMailGegevens.body,
                 restMailGegevens.bijlagen,
                 restMailGegevens.createDocumentFromMail,
-                restMailGegevens.getVertrouwelijkheidaanduiding() == null ? VertrouwelijkheidaanduidingEnum.OPENBAAR :
-                        RestVertrouwelijkheidaanduidingKt.toDrcVertrouwelijkheidaanduidingEnum(
-                                restMailGegevens.getVertrouwelijkheidaanduiding()));
+                RestVertrouwelijkheidaanduidingKt.toDrcVertrouwelijkheidaanduidingEnum(
+                        restMailGegevens.getVertrouwelijkheidaanduiding()));
     }
 }

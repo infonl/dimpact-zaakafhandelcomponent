@@ -17,7 +17,7 @@ class MailGegevens(
     val body: String,
     attachments: String?,
     val isCreateDocumentFromMail: Boolean,
-    val vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum = VertrouwelijkheidaanduidingEnum.OPENBAAR
+    val vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum
 ) {
     val subject: String = stripHtmlParagraphTags(subject)
 
@@ -35,6 +35,7 @@ class MailGegevens(
         subject = subject,
         body = body,
         attachments = null,
-        isCreateDocumentFromMail = false
+        isCreateDocumentFromMail = false,
+        vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
     )
 }

@@ -38,6 +38,7 @@ import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRESTHumanTaskData
 import nl.info.zac.app.planitems.model.createRESTTaakStuurGegevens
 import nl.info.zac.app.planitems.model.createRESTUserEventListenerData
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
@@ -537,7 +538,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 resultaat = URI("https://example.com/resultaat/${UUID.randomUUID()}"),
             )
             val mailGegevens = createMailGegevens()
-            val restMailGegevens = createRESTMailGegevens()
+            val restMailGegevens = createRESTMailGegevens(
+                vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.GEHEIM
+            )
             val restUserEventListenerData = createRESTUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
@@ -565,6 +568,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         mailService.sendMail(mailGegevens, any())
                     }
+                }
+
+                and("the vertrouwelijkheidaanduiding is forced to Openbaar regardless of what was supplied") {
+                    restMailGegevens.vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
                 }
             }
         }

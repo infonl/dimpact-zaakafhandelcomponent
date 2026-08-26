@@ -71,8 +71,8 @@ class RESTMailGegevensConverterTest : BehaviorSpec({
         `when`("convert is called") {
             val mailGegevens = restMailGegevensConverter.convert(restMailGegevens)
 
-            then("the domain MailGegevens defaults to Openbaar instead of the ZGW 'empty' placeholder") {
-                mailGegevens.vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
+            then("the domain MailGegevens carries the ZGW 'empty' placeholder; every caller is expected to set Openbaar explicitly") {
+                mailGegevens.vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.EMPTY
             }
         }
     }
