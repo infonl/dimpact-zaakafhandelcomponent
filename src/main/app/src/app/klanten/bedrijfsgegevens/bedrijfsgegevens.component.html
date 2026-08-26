@@ -76,20 +76,20 @@
   >
     <zac-static-text label="bedrijfsnaam" [value]="bedrijfQuery.data()?.naam" />
     <zac-static-text
-      *ngIf="initiatorIdentificatie()?.kvkNummer"
+      *ngIf="initiatorIdentificatie().kvkNummer"
       label="kvknummer"
-      [value]="initiatorIdentificatie()?.kvkNummer"
+      [value]="initiatorIdentificatie().kvkNummer"
     />
     <zac-static-text
-      *ngIf="!initiatorIdentificatie()?.kvkNummer"
+      *ngIf="!initiatorIdentificatie().kvkNummer"
       label="kvknummer"
       [icon]="warningIcon"
       [value]="'msg.error.kvk.unknown' | translate"
     />
     <zac-static-text
-      *ngIf="initiatorIdentificatie()?.vestigingsnummer"
+      *ngIf="initiatorIdentificatie().vestigingsnummer"
       label="vestigingsnummer"
-      [value]="initiatorIdentificatie()?.vestigingsnummer"
+      [value]="initiatorIdentificatie().vestigingsnummer"
     />
     <zac-static-text
       label="type"
