@@ -1015,10 +1015,14 @@ If a document cannot be fetched or has no title, the UUID is used as a fallback.
 
 #### Supported process data variables
 
-- `zaakUUID` - zaak UUID
 - `zaakIdentificatie` - zaak id
 - `zaakCommunicatiekanaal` - zaak communication channel
 - `zaakGroep` - zaak group
-- `zaakBehandelaar` - zaak assigned user
-- `zaaktypeUUID` - zaaktype UUID
+- `zaakBehandelaar` - zaak assigned user, once the zaak has one
 - `zaaktypeOmschrijving` - zaaktype description
+
+`zaakUUID` and `zaaktypeUUID` exist as process variables and a process definition can use them, but
+ZAC deliberately keeps them out of the task data, so a `ZAC_process_data` field with either key stays
+empty. Read `{{ zaak.uuid }}` and `{{ zaak.zaaktype.uuid }}` instead — see
+[Reading zaak and taak data](#reading-zaak-and-taak-data), which also covers every zaak field that is
+not a process variable at all.
