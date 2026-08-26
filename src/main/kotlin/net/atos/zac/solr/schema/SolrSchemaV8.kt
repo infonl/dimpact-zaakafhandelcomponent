@@ -20,7 +20,7 @@ import org.apache.solr.client.solrj.request.schema.SchemaRequest
 class SolrSchemaV8 : SolrSchemaUpdate {
     override fun getVersie() = 8
 
-    // Reindexing zaken, taken and documenten at startup is too heavy for this field; run it manually instead.
+    // Reindexing zaken, taken and documenten at startup is not done automatically; run it manually instead.
     override fun getTeHerindexerenZoekObjectTypes() = emptySet<ZoekObjectType>()
 
     override fun getSchemaUpdates(): List<SchemaRequest.Update> = listOf<SchemaRequest.Update>(
