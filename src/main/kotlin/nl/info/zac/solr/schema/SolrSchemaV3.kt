@@ -23,7 +23,6 @@ class SolrSchemaV3 : SolrSchemaUpdate {
         addDynamicField("zaak_betrokkene_*", STRING, indexed = true, stored = true, multiValued = true),
         addFieldMultiValued("zaak_betrokkenen", STRING, indexed = true, stored = true),
         addCopyField("zaak_betrokkene_*", "zaak_betrokkenen"),
-        addCopyField("zaak_betrokkene_*", "zaak_betrokkenen"),
         addCopyField("zaak_initiatorIdentificatie", "zaak_betrokkenen")
     )
 }
