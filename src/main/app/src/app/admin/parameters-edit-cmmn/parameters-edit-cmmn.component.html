@@ -327,7 +327,7 @@
                   <mat-option
                     *ngFor="let tabel of referentieTabellen"
                     [value]="tabel"
-                    >{{ tabel.naam }}</mat-option
+                    >{{ tabel.name }}</mat-option
                   >
                 </mat-select>
               </mat-form-field>
@@ -776,7 +776,7 @@
     </ng-template>
   </mat-step>
   <mat-step
-    [stepControl]="smartDocumentsEnabledForm"
+    [stepControl]="brpProtocoleringFormGroup"
     [hasError]="!brpProtocoleringFormGroup.valid"
   >
     <ng-template matStepLabel>{{
