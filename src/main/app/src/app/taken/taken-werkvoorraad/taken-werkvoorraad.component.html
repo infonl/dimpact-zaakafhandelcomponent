@@ -11,7 +11,7 @@
     mat-table
     matSort
     [matSortDirection]="dataSource.zoekParameters.sorteerRichting"
-    [matSortActive]="dataSource.zoekParameters.sorteerVeld"
+    [matSortActive]="dataSource.zoekParameters.sorteerVeld ?? ''"
     multiTemplateDataRows
     cdkDropList
     cdkDropListLockAxis="x"

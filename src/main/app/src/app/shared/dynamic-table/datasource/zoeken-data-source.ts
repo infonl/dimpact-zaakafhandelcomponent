@@ -7,12 +7,15 @@ import { DataSource } from "@angular/cdk/collections";
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { EventEmitter } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
-import { MatSort, SortDirection } from "@angular/material/sort";
+import { MatSort } from "@angular/material/sort";
 import { BehaviorSubject, EMPTY, Observable, Subscription, merge } from "rxjs";
 import { catchError, finalize, tap } from "rxjs/operators";
 import { UtilService } from "../../../core/service/util.service";
 import { FilterVeld } from "../../../zoeken/model/filter-veld";
-import { getDefaultZoekParameters } from "../../../zoeken/model/zoek-parameters";
+import {
+  ZoekParameters,
+  getDefaultZoekParameters,
+} from "../../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../../zoeken/model/zoek-resultaat";
 import { ZoekenService } from "../../../zoeken/zoeken.service";
 import {
@@ -27,7 +30,7 @@ export abstract class ZoekenDataSource<
   OBJECT extends
     GeneratedType<"AbstractRestZoekObjectExtendsAbstractRestZoekObject">,
 > extends DataSource<OBJECT> {
-  zoekParameters: GeneratedType<"RestZoekParameters">;
+  zoekParameters: ZoekParameters;
   beschikbareFilters: Partial<
     Record<FilterVeld, GeneratedType<"FilterResultaat">[]>
   > = {};
@@ -60,8 +63,8 @@ export abstract class ZoekenDataSource<
   }
 
   protected abstract initZoekparameters(
-    zoekParameters: GeneratedType<"RestZoekParameters">,
-  ): GeneratedType<"RestZoekParameters">;
+    zoekParameters: ZoekParameters,
+  ): ZoekParameters;
 
   private updateZoekParameters() {
     this.zoekParameters = this.initZoekparameters(this.zoekParameters);
@@ -204,8 +207,7 @@ export abstract class ZoekenDataSource<
     if (this.zoekParameters.sorteerVeld)
       this.sort.active = this.zoekParameters.sorteerVeld;
     if (this.zoekParameters.sorteerRichting)
-      this.sort.direction = this.zoekParameters
-        .sorteerRichting as SortDirection;
+      this.sort.direction = this.zoekParameters.sorteerRichting;
     this.paginator.pageIndex = 0;
     this.paginator.pageSize = this.zoekParameters.rows ?? 0;
     this.load();
@@ -251,8 +253,7 @@ export abstract class ZoekenDataSource<
         if (this.zoekParameters.sorteerVeld)
           this.sort.active = this.zoekParameters.sorteerVeld;
         if (this.zoekParameters.sorteerRichting)
-          this.sort.direction = this.zoekParameters
-            .sorteerRichting as SortDirection;
+          this.sort.direction = this.zoekParameters.sorteerRichting;
         this.load();
       } else if (actieveZoekopdracht === null) {
         this.reset();
