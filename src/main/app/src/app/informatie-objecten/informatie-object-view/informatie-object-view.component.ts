@@ -133,7 +133,7 @@ export class InformatieObjectViewComponent
   @ViewChild("actionsSidenav") actionsSidenav!: MatSidenav;
   @ViewChild("menuSidenav") menuSidenav!: MatSidenav;
   @ViewChild("sideNavContainer") sideNavContainer!: MatSidenavContainer;
-  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatSort) sort?: MatSort;
   private documentListener?: WebsocketListener;
 
   constructor(

@@ -173,20 +173,26 @@ describe(InformatieObjectViewComponent.name, () => {
   describe("de leesrechten op het document", () => {
     const gegevensTab = /gegevens.algemeen/;
 
+    function renderDocumentWithLeesrecht(lezen: boolean) {
+      fixture.destroy();
+      mockActivatedRoute.data.next({
+        informatieObject: {
+          ...enkelvoudigInformatieobject,
+          rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({ lezen }),
+        },
+      });
+      fixture = TestBed.createComponent(InformatieObjectViewComponent);
+      fixture.detectChanges();
+    }
+
     it("should show the document details when the user is allowed to read the document", () => {
+      renderDocumentWithLeesrecht(true);
+
       expect(screen.getByRole("tab", { name: gegevensTab })).toBeVisible();
     });
 
     it("should show no document details when the user is not allowed to read the document", () => {
-      mockActivatedRoute.data.next({
-        informatieObject: {
-          ...enkelvoudigInformatieobject,
-          rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({
-            lezen: false,
-          }),
-        },
-      });
-      fixture.detectChanges();
+      renderDocumentWithLeesrecht(false);
 
       expect(screen.queryByRole("tab", { name: gegevensTab })).toBeNull();
     });
