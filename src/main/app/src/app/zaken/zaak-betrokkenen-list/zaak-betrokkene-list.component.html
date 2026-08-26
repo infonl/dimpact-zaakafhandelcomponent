@@ -110,7 +110,7 @@
       <td mat-cell *matCellDef="let betrokkene">
         <betrokkene-link
           [betrokkene]="betrokkene"
-          [zaaktypeUuid]="zaak().zaaktype?.uuid"
+          [zaaktypeUuid]="zaak().zaaktype.uuid"
         />
         @if (zaak().rechten.verwijderenBetrokkene) {
           <button
