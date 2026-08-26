@@ -881,6 +881,99 @@ Example:
 }
 ```
 
+### Reading zaak and taak data
+
+ZAC puts the whole zaak and the whole taak into the form's template context, so reading a value
+needs no `ZAC_TYPE` and no ZAC property at all — it is Form.io's own `{{ }}` interpolation:
+
+```json
+{
+  "label": "",
+  "type": "content",
+  "key": "ZO_zaaknummer",
+  "input": false,
+  "html": "<strong>Zaaknummer:</strong> {{ zaak.identificatie }}"
+}
+```
+
+Two objects are available, `zaak` and `taak`, and any property of either is reachable by its path:
+
+```
+{{ zaak.identificatie }}                  {{ taak.naam }}
+{{ zaak.zaaktype.omschrijving }}          {{ taak.groep.naam }}
+{{ zaak.resultaat.resultaattype.naam }}   {{ taak.fataledatum }}
+```
+
+Because it is a template and not a field, several values can go in one sentence — which is the main
+thing this can do that a dedicated field type could not:
+
+```html
+Zaak {{ zaak.identificatie }} ({{ zaak.zaaktype.omschrijving }}) is behandeld
+door {{ zaak.behandelaar.naam }}.
+```
+
+`zaak` is the zaak as read from Open Zaak, with its group and behandelaar resolved from the zaak
+rollen via user identity management, and it is re-read every time the task is opened. `taak` is the
+task in the process engine, with its candidate group and assignee resolved the same way.
+
+ZAC removes HTML tags (`<...>`) from every string value of both objects before the form sees them, so
+a `<script>` a user typed into the zaak cannot end up in the page. Quotes and ampersands are
+deliberately left as typed, because the same values are seeded into input fields where `&amp;` would
+show — so this is not a general escape. Interpolate these values as **text**, never into an HTML
+attribute: `<div title="{{ zaak.omschrijving }}">` can still be broken out of.
+
+A property neither object carries — a zaak without a behandelaar, a taak without a groep — renders as
+nothing rather than throwing, and reading on through it (`taak.groep.naam`) is safe. There is no
+field-level error message either way, so an empty result means either "no value" or "wrong path".
+
+#### Where a value is stored
+
+Two stores hold the values a form works with. They differ in scope, not in order — both exist for the
+whole life of the zaak.
+
+| Store                                         | Scope                                | Written when                                                                              | Read in a form by                                            |
+| --------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| **this task's answers** (`taakdata`)          | one task                             | every save of that task, partial or final; it stays as the task's record after completion | the field key, bare: `{{ NF_Uren }}`                         |
+| **the zaak's process variables** (`zaakdata`) | the whole zaak, shared by every task | at process start, and again when a task completes                                         | `{{ zaak.zaakdata.NF_Uren }}`, or a `ZAC_process_data` field |
+
+Completing a task copies **all** of its answers into the process variables, which is why a field key
+needs a prefix of its own — see [Filling an editable field](#filling-an-editable-field).
+
+Neither store holds the zaak itself. `startdatum`, `status`, `resultaat` and the rest are read from
+`zaak` directly, which is what the previous section describes.
+
+#### Filling an editable field
+
+Interpolation only renders text. To put a value **into** an input, use Form.io's own
+`customDefaultValue`, which is JavaScript with the same context available:
+
+```json
+{
+  "label": "Toelichting",
+  "type": "textarea",
+  "key": "IN_toelichting",
+  "input": true,
+  "customDefaultValue": "value = zaak.toelichting"
+}
+```
+
+Anything else JavaScript can express works here as well.
+
+Three rules for filled fields:
+
+1. **A saved answer is never overwritten.** Form.io skips a default value once the submission
+   already carries the key, so what the user typed survives a reopen. This is Form.io's own
+   behaviour, not something ZAC adds.
+2. **Do not format the value of a field that parses its own.** A date picker reads the raw value and
+   formats it for display itself, so give it `value = zaak.startdatum` and leave it to render
+   `24-08-2026` on its own.
+3. **Do not use a process variable name as the `key`.** Completing a task writes every submitted key
+   back as a process variable, so a field keyed `zaakGroep` overwrites that variable. Prefix the keys
+   of your own fields.
+
+That third rule is the difference that matters between the two mechanisms: an interpolated value is
+only rendered and can never be written back, while a filled field becomes part of the submission.
+
 ### Custom functions
 
 ZAC supports custom functions in Form.io `content` components via the `{{ }}` template syntax.
@@ -922,10 +1015,14 @@ If a document cannot be fetched or has no title, the UUID is used as a fallback.
 
 #### Supported process data variables
 
-- `zaakUUID` - zaak UUID
 - `zaakIdentificatie` - zaak id
 - `zaakCommunicatiekanaal` - zaak communication channel
 - `zaakGroep` - zaak group
-- `zaakBehandelaar` - zaak assigned user
-- `zaaktypeUUID` - zaaktype UUID
+- `zaakBehandelaar` - zaak assigned user, once the zaak has one
 - `zaaktypeOmschrijving` - zaaktype description
+
+`zaakUUID` and `zaaktypeUUID` exist as process variables and a process definition can use them, but
+ZAC deliberately keeps them out of the task data, so a `ZAC_process_data` field with either key stays
+empty. Read `{{ zaak.uuid }}` and `{{ zaak.zaaktype.uuid }}` instead — see
+[Reading zaak and taak data](#reading-zaak-and-taak-data), which also covers every zaak field that is
+not a process variable at all.
