@@ -380,6 +380,9 @@ class MailServiceTest : BehaviorSpec({
         mockkStatic(Transport::class)
         every { Transport.send(any<Message>()) } just runs
         every { configurationService.readBronOrganisatie() } returns "123443210"
+        every { officeConverterClientService.convertToPDF(any(), any()) } answers {
+            ByteArrayInputStream("fakePdfContent".toByteArray())
+        }
 
         `when`("the send mail function is invoked") {
             mailService.sendMail(mailGegevens, bronnen)
