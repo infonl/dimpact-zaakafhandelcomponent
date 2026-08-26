@@ -23,6 +23,8 @@ import jakarta.mail.Message
 import jakarta.mail.MessagingException
 import jakarta.mail.Transport
 import jakarta.mail.internet.MimeMultipart
+import jakarta.ws.rs.ProcessingException
+import jakarta.ws.rs.WebApplicationException
 import nl.info.client.officeconverter.OfficeConverterClientService
 import nl.info.client.officeconverter.exception.MessageEntityDataCouldNotBeBufferedException
 import nl.info.client.zgw.drc.DrcClientService
@@ -256,55 +258,61 @@ class MailServiceTest : BehaviorSpec({
         }
     }
 
-    given("a zaak and e-mail data where the office converter fails to convert the e-mail to PDF") {
-        val zaak = createZaak()
-        val zaakType = createZaakType(
-            informatieObjectTypen = listOf(
-                URI("fakeInformatieObjectType1")
+    listOf(
+        ProcessingException("fakeConnectionFailure"),
+        WebApplicationException("fakeConverterErrorResponse"),
+        MessageEntityDataCouldNotBeBufferedException("fakeConversionFailure")
+    ).forEach { conversionException ->
+        given("a zaak and e-mail data where the office converter fails with a ${conversionException::class.simpleName}") {
+            val zaak = createZaak()
+            val zaakType = createZaakType(
+                informatieObjectTypen = listOf(
+                    URI("fakeInformatieObjectType1")
+                )
             )
-        )
-        val mailGegevens = createMailGegevens(
-            createDocumentFromMail = true
-        )
-        val bronnen = Bronnen.Builder().add(zaak).build()
-        val informatieObjectType = createInformatieObjectType(
-            omschrijving = "e-mail"
-        )
-        val resolvedSubject = "resolvedSubject"
+            val mailGegevens = createMailGegevens(
+                createDocumentFromMail = true
+            )
+            val bronnen = Bronnen.Builder().add(zaak).build()
+            val informatieObjectType = createInformatieObjectType(
+                omschrijving = "e-mail"
+            )
+            val resolvedSubject = "resolvedSubject"
 
-        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
-        every {
-            mailTemplateHelper.resolveZaakVariables("fakeResolvedString1", zaak, loggedInUserName)
-        } returns resolvedSubject
-        every { mailTemplateHelper.resolveZaakdataVariables(resolvedSubject, emptyMap()) } returns resolvedSubject
-        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
-        every {
-            mailTemplateHelper.resolveZaakVariables("fakeResolvedBody2", zaak, loggedInUserName)
-        } returns "fakeResolvedBody3"
-        every {
-            mailTemplateHelper.resolveZaakdataVariables("fakeResolvedBody3", emptyMap())
-        } returns "fakeResolvedBody3"
-        every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
-        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
-        every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
-        every {
-            officeConverterClientService.convertToPDF(any(), any())
-        } throws MessageEntityDataCouldNotBeBufferedException("fakeConversionFailure")
-        mockkObject(MailService.Companion)
-        every { MailService.mailSession.properties } returns Properties()
-        mockkStatic(Transport::class)
-        every { Transport.send(any<Message>()) } just runs
+            every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedString1"
+            every {
+                mailTemplateHelper.resolveZaakVariables("fakeResolvedString1", zaak, loggedInUserName)
+            } returns resolvedSubject
+            every { mailTemplateHelper.resolveZaakdataVariables(resolvedSubject, emptyMap()) } returns resolvedSubject
+            every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody2"
+            every {
+                mailTemplateHelper.resolveZaakVariables("fakeResolvedBody2", zaak, loggedInUserName)
+            } returns "fakeResolvedBody3"
+            every {
+                mailTemplateHelper.resolveZaakdataVariables("fakeResolvedBody3", emptyMap())
+            } returns "fakeResolvedBody3"
+            every { loggedInUserInstance.get() } returns createLoggedInUser(id = loggedInUserName)
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { ztcClientService.readInformatieobjecttype(URI("fakeInformatieObjectType1")) } returns informatieObjectType
+            every {
+                officeConverterClientService.convertToPDF(any(), any())
+            } throws conversionException
+            mockkObject(MailService.Companion)
+            every { MailService.mailSession.properties } returns Properties()
+            mockkStatic(Transport::class)
+            every { Transport.send(any<Message>()) } just runs
 
-        `when`("the send mail function is invoked") {
-            val body = mailService.sendMail(mailGegevens, bronnen)
+            `when`("the send mail function is invoked") {
+                val body = mailService.sendMail(mailGegevens, bronnen)
 
-            then("the mail is still sent but no zaak document is created") {
-                body shouldBe "fakeResolvedBody3"
-                verify(exactly = 1) {
-                    Transport.send(any())
-                }
-                verify(exactly = 0) {
-                    zgwApiService.createZaakInformatieobjectForZaak(any(), any(), any(), any(), any())
+                then("the mail is still sent but no zaak document is created") {
+                    body shouldBe "fakeResolvedBody3"
+                    verify(exactly = 1) {
+                        Transport.send(any())
+                    }
+                    verify(exactly = 0) {
+                        zgwApiService.createZaakInformatieobjectForZaak(any(), any(), any(), any(), any())
+                    }
                 }
             }
         }

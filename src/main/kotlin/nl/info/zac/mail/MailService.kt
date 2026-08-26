@@ -13,8 +13,11 @@ import jakarta.inject.Inject
 import jakarta.mail.MessagingException
 import jakarta.mail.Session
 import jakarta.mail.Transport
+import jakarta.ws.rs.ProcessingException
+import jakarta.ws.rs.WebApplicationException
 import net.atos.zac.util.MediaTypes
 import nl.info.client.officeconverter.OfficeConverterClientService
+import nl.info.client.officeconverter.exception.MessageEntityDataCouldNotBeBufferedException
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -165,19 +168,7 @@ class MailService @Inject constructor(
     ) {
         val eMailObjectType = getEmailInformatieObjectType(zaak)
         val html = buildEmailHtml(verzender, ontvanger, subject, body, attachments)
-        val pdfDocument = try {
-            officeConverterClientService.convertToPDF(
-                ByteArrayInputStream(html.toByteArray(Charsets.UTF_8)),
-                EMAIL_HTML_FILENAME
-            ).use { it.readAllBytes() }
-        } catch (@Suppress("TooGenericExceptionCaught") exception: RuntimeException) {
-            LOG.log(
-                Level.SEVERE,
-                "Failed to convert the sent e-mail with subject '$subject' to PDF. No zaak document was created.",
-                exception
-            )
-            return
-        }
+        val pdfDocument = convertEmailToPdf(html, subject) ?: return
         val enkelvoudigInformatieobjectWithInhoud = EnkelvoudigInformatieObjectCreateLockRequest().apply {
             bronorganisatie = configurationService.readBronOrganisatie()
             creatiedatum = LocalDate.now()
@@ -201,6 +192,30 @@ class MailService @Inject constructor(
             ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
         )
     }
+
+    private fun convertEmailToPdf(html: String, subject: String): ByteArray? =
+        try {
+            officeConverterClientService.convertToPDF(
+                ByteArrayInputStream(html.toByteArray(Charsets.UTF_8)),
+                EMAIL_HTML_FILENAME
+            ).use { it.readAllBytes() }
+        } catch (processingException: ProcessingException) {
+            logPdfConversionFailure(subject, processingException)
+            null
+        } catch (webApplicationException: WebApplicationException) {
+            logPdfConversionFailure(subject, webApplicationException)
+            null
+        } catch (exception: MessageEntityDataCouldNotBeBufferedException) {
+            logPdfConversionFailure(subject, exception)
+            null
+        }
+
+    private fun logPdfConversionFailure(subject: String, exception: Exception) =
+        LOG.log(
+            Level.SEVERE,
+            "Failed to convert the sent e-mail with subject '$subject' to PDF. No zaak document was created.",
+            exception
+        )
 
     private fun buildEmailHtml(
         verzender: String,
