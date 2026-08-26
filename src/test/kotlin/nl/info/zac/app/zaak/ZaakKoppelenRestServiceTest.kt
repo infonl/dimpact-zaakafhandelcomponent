@@ -173,7 +173,7 @@ class ZaakKoppelenRestServiceTest : BehaviorSpec({
                 }
             }
 
-            and("required services should've be invoked") {
+            and("required services should've been invoked") {
                 verify(exactly = 1) {
                     zrcClientService.readZaak(sourceZaak.uuid)
                     searchService.search(any())
