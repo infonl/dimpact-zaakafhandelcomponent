@@ -124,7 +124,7 @@ class ZaakSuspendRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the resumed zaak is returned") {
+                and("the resumed zaak is returned") {
                     result shouldBe restZaak
                 }
             }

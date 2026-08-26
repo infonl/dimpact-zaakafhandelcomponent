@@ -49,7 +49,7 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
                     outgoingHeaders.containsKey("X-Audit-Toelichting") shouldBe false
                 }
 
-                And("the incoming headers should remain unchanged") {
+                and("the incoming headers should remain unchanged") {
                     incomingHeaders.isEmpty() shouldBe true
                 }
             }
@@ -65,11 +65,11 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
                     outgoingHeadersFirst.getFirst("X-Audit-Toelichting") shouldBe auditExplanation
                 }
 
-                And("the incoming headers should remain unchanged") {
+                and("the incoming headers should remain unchanged") {
                     incomingHeaders.isEmpty() shouldBe true
                 }
 
-                And("update is called again after the first call") {
+                and("update is called again after the first call") {
                     val incomingHeaders = MultivaluedHashMap<String, String>()
                     val outgoingHeadersSecond = MultivaluedHashMap<String, String>()
                     zgwClientHeadersFactory.update(incomingHeaders, outgoingHeadersSecond)

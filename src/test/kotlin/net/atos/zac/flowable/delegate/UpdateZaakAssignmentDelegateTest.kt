@@ -156,7 +156,7 @@ class UpdateZaakAssignmentDelegateTest : BehaviorSpec({
                 policyException shouldNotBe null
             }
 
-            And("the zaak is not assigned") {
+            and("the zaak is not assigned") {
                 verify(exactly = 0) {
                     zaakService.assignZaak(any(), any(), any(), any())
                 }

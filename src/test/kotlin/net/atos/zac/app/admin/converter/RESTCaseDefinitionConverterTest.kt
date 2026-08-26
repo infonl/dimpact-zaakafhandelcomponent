@@ -37,7 +37,7 @@ class RESTCaseDefinitionConverterTest : BehaviorSpec({
                     result.key shouldBe "fakeCaseKey"
                 }
 
-                And("humanTaskDefinitions and userEventListenerDefinitions are null") {
+                and("humanTaskDefinitions and userEventListenerDefinitions are null") {
                     result.humanTaskDefinitions.shouldBeNull()
                     result.userEventListenerDefinitions.shouldBeNull()
                 }
@@ -74,7 +74,7 @@ class RESTCaseDefinitionConverterTest : BehaviorSpec({
                     result.humanTaskDefinitions!![0].type shouldBe PlanItemType.HUMAN_TASK
                 }
 
-                And("userEventListenerDefinitions contains one entry with type USER_EVENT_LISTENER") {
+                and("userEventListenerDefinitions contains one entry with type USER_EVENT_LISTENER") {
                     result.userEventListenerDefinitions!!.size shouldBe 1
                     result.userEventListenerDefinitions!![0].id shouldBe "fakeUserEventListenerId"
                     result.userEventListenerDefinitions!![0].type shouldBe PlanItemType.USER_EVENT_LISTENER

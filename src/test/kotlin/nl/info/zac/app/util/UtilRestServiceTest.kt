@@ -110,10 +110,10 @@ class UtilRestServiceTest : BehaviorSpec({
                     zaaktypeCmmnConfigurationService.clearManagedCache()
                 }
             }
-            And("sensitive data should not be cleared") {
+            and("sensitive data should not be cleared") {
                 verify(exactly = 0) { sensitiveDataService.clearStorage() }
             }
-            And("response should contain the all results") {
+            and("response should contain all results") {
                 clearResponse.windowed("cleared".length) { it == "cleared" }.count { it } shouldBe 11
             }
         }

@@ -157,7 +157,7 @@ class MailServiceTest : BehaviorSpec({
                 }
             }
 
-            And("PDF document is created from the e-mail data and is attached to the zaak using the ZGW APIs") {
+            and("PDF document is created from the e-mail data and is attached to the zaak using the ZGW APIs") {
                 verify(exactly = 1) {
                     zgwApiService.createZaakInformatieobjectForZaak(
                         zaak,

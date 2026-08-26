@@ -100,7 +100,7 @@ class TaskRestServiceCompleteTest : BehaviorSpec({
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
             }
 
-            And("the zaak status remains in `aanvullende informatie`") {
+            and("the zaak status remains in `aanvullende informatie`") {
                 val response = zacClient.retrieveZaak(zaakIdentification, BEHANDELAAR_1)
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }

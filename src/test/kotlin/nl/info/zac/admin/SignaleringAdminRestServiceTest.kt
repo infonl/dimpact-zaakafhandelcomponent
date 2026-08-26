@@ -59,11 +59,11 @@ class SignaleringAdminRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("it should send the signaleringen job event") {
+            and("it should send the signaleringen job event") {
                 verify { eventingService.send(JobEvent(JobId.SIGNALERINGEN_JOB)) }
             }
 
-            And("it should return a success message with the job name") {
+            and("it should return a success message with the job name") {
                 result shouldBe "Started sending signaleringen using job: 'Signaleringen verzenden'"
             }
         }
