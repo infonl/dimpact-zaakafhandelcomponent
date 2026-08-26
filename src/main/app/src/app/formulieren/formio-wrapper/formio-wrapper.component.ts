@@ -30,6 +30,7 @@ import {
   FormioModule,
 } from "@formio/angular";
 import { catchError, from, of, ReplaySubject, switchMap } from "rxjs";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { FormioCustomFunctions } from "../formio-custom-functions/formio-custom-functions";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
 import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
@@ -55,10 +56,8 @@ export class FormioWrapperComponent
   implements OnInit, OnChanges, AfterViewInit
 {
   @Input() form: unknown;
-  @Input() submission: unknown;
-  @Input() taakdata?: Record<string, unknown>;
-  @Input() zaak?: object;
-  @Input() taak?: object;
+  @Input() zaak?: GeneratedType<"RestZaak">;
+  @Input() taak?: GeneratedType<"RestTask">;
   @Input() options?: FormioHookOptions;
   @Input({ required: true, transform: booleanAttribute }) readOnly = false;
   @Input({ required: true, transform: booleanAttribute }) submitPending = false;
@@ -93,10 +92,15 @@ export class FormioWrapperComponent
   private readonly rebuild$ = new ReplaySubject<void>(1);
   protected evalContext: Record<string, unknown> = {};
   protected evalContextReady = false;
+  protected submission?: { data: Record<string, unknown> };
   private redrawDeferred = false;
 
   ngOnChanges(changes: SimpleChanges) {
-    // Not `taak` or `taakdata`: a rebuild tears the open form down, losing what the user typed.
+    if (changes["taak"]) {
+      this.submission = { data: this.taak?.taakdata ?? {} };
+    }
+
+    // Not `taak`: a rebuild tears the open form down, losing what the user typed.
     if (changes["form"] || changes["zaak"]) {
       this.rebuild$.next();
     } else if (changes["taak"] && !changes["taak"].firstChange) {
@@ -141,7 +145,7 @@ export class FormioWrapperComponent
           const source = from(
             this.customFunctions.prepareFormContext(
               this.form,
-              this.taakdata ?? {},
+              this.taak?.taakdata ?? {},
               this.zaak,
               this.taak,
             ),

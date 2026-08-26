@@ -926,6 +926,22 @@ A property neither object carries — a zaak without a behandelaar, a taak witho
 nothing rather than throwing, and reading on through it (`taak.groep.naam`) is safe. There is no
 field-level error message either way, so an empty result means either "no value" or "wrong path".
 
+#### Where a value is stored
+
+Two stores hold the values a form works with. They differ in scope, not in order — both exist for the
+whole life of the zaak.
+
+| Store                                         | Scope                                | Written when                                                                              | Read in a form by                                            |
+| --------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| **this task's answers** (`taakdata`)          | one task                             | every save of that task, partial or final; it stays as the task's record after completion | the field key, bare: `{{ NF_Uren }}`                         |
+| **the zaak's process variables** (`zaakdata`) | the whole zaak, shared by every task | at process start, and again when a task completes                                         | `{{ zaak.zaakdata.NF_Uren }}`, or a `ZAC_process_data` field |
+
+Completing a task copies **all** of its answers into the process variables, which is why a field key
+needs a prefix of its own — see [Filling an editable field](#filling-an-editable-field).
+
+Neither store holds the zaak itself. `startdatum`, `status`, `resultaat` and the rest are read from
+`zaak` directly, which is what the previous section describes.
+
 #### Filling an editable field
 
 Interpolation only renders text. To put a value **into** an input, use Form.io's own

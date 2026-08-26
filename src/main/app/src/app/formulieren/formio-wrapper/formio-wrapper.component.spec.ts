@@ -4,9 +4,14 @@
  */
 import { ElementRef, SimpleChange } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { FormioCustomFunctions } from "../formio-custom-functions/formio-custom-functions";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
 import { FormioWrapperComponent } from "./formio-wrapper.component";
+
+function asTaak(taak: Partial<GeneratedType<"RestTask">>) {
+  return taak as GeneratedType<"RestTask">;
+}
 
 describe(FormioWrapperComponent.name, () => {
   let component: FormioWrapperComponent;
@@ -515,7 +520,7 @@ describe(FormioWrapperComponent.name, () => {
       expect(prepareFormContext).toHaveBeenCalledTimes(1);
     });
 
-    it.each(["readOnly", "taak", "taakdata"])(
+    it.each(["readOnly", "taak"])(
       "should not rebuild for %s, because a rebuild destroys the open form",
       (input) => {
         component.ngOnChanges({
@@ -527,9 +532,13 @@ describe(FormioWrapperComponent.name, () => {
     );
 
     it("should pass the zaak and the taak on to the context", () => {
-      component.zaak = { identificatie: "ZAAK-1" };
-      component.taak = { naam: "test-taak" };
-      component.taakdata = { NF_Uren: "8" };
+      component.zaak = { identificatie: "ZAAK-1" } satisfies Partial<
+        GeneratedType<"RestZaak">
+      > as GeneratedType<"RestZaak">;
+      component.taak = asTaak({
+        naam: "test-taak",
+        taakdata: { NF_Uren: "8" },
+      });
 
       component.ngOnChanges({ zaak: new SimpleChange(undefined, {}, false) });
 
@@ -537,7 +546,7 @@ describe(FormioWrapperComponent.name, () => {
         undefined,
         { NF_Uren: "8" },
         { identificatie: "ZAAK-1" },
-        { naam: "test-taak" },
+        { naam: "test-taak", taakdata: { NF_Uren: "8" } },
       );
     });
   });
@@ -566,13 +575,16 @@ describe(FormioWrapperComponent.name, () => {
       component.formioComponent = { formio: webform } as never;
     });
 
-    function taakArrives(taak: object) {
-      component.taak = taak;
+    function taakArrives(taak: Partial<GeneratedType<"RestTask">>) {
+      component.taak = asTaak(taak);
       component.ngOnChanges({ taak: new SimpleChange({}, taak, false) });
     }
 
     it("should hand the new taak to the form Form.io already built", () => {
-      taakArrives({ naam: "test-taak", groep: { naam: "fakeGroupName" } });
+      taakArrives({
+        naam: "test-taak",
+        groep: { id: "fakeGroupId", naam: "fakeGroupName" },
+      });
 
       expect(webform.options.evalContext?.taak).toMatchObject({
         naam: "test-taak",
@@ -620,6 +632,50 @@ describe(FormioWrapperComponent.name, () => {
 
         expect(webform.redraw).toHaveBeenCalledTimes(1);
       });
+    });
+  });
+
+  describe("deriving the form data from the taak", () => {
+    let prepareFormContext: jest.Mock;
+
+    beforeEach(async () => {
+      prepareFormContext = TestBed.inject(FormioCustomFunctions)
+        .prepareFormContext as unknown as jest.Mock;
+      await component.ngOnInit();
+      prepareFormContext.mockClear();
+    });
+
+    it("should hand Form.io the taakdata as its submission, so a saved answer is shown again", () => {
+      component.taak = asTaak({ taakdata: { NF_Uren: "8" } });
+
+      component.ngOnChanges({
+        taak: new SimpleChange(undefined, component.taak, true),
+      });
+
+      expect(component["submission"]).toEqual({ data: { NF_Uren: "8" } });
+    });
+
+    it("should submit an empty form when the taak carries no data", () => {
+      component.taak = asTaak({ taakdata: null });
+
+      component.ngOnChanges({
+        taak: new SimpleChange(undefined, component.taak, true),
+      });
+
+      expect(component["submission"]).toEqual({ data: {} });
+    });
+
+    it("should spread the taakdata into the context, so a bare field key still resolves", () => {
+      component.taak = asTaak({ taakdata: { NF_Uren: "8" } });
+
+      component.ngOnChanges({ form: new SimpleChange(undefined, {}, true) });
+
+      expect(prepareFormContext).toHaveBeenCalledWith(
+        undefined,
+        { NF_Uren: "8" },
+        undefined,
+        component.taak,
+      );
     });
   });
 });
