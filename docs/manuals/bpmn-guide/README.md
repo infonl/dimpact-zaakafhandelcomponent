@@ -1001,6 +1001,12 @@ Zaak {{ zaak.identificatie }} is gestart op {{ ZAC_opmaakDatum(zaak.startdatum) 
 en {{ ZAC_opmaakBoolean(zaak.isOpen, "loopt nog", "is afgerond") }}.
 ```
 
+These four functions are **display-only**. Put them in a `content` component, a label or a description
+— never in the value of an input field. Form.io interpolates the value properties of a component too
+(`defaultValue`, `customDefaultValue`, `calculateValue`), so a formatted value will silently be written
+into the field and end up in the submission, where it is no longer the value the rest of ZAC expects.
+Interpolate the property itself there: `{{ zaak.startdatum }}`, not `{{ ZAC_opmaakDatum(zaak.startdatum) }}`.
+
 ##### ZAC_opmaakDatum
 
 Renders a date the same way the rest of ZAC does, including the non-breaking hyphens that keep a date
@@ -1013,6 +1019,12 @@ on one line. It reads the stored ISO value, so it does not matter how the value 
 ```
 
 A value that is not a date is passed through untouched rather than replaced by something wrong.
+
+Do **not** use this function to fill a date field. Its output is Dutch notation with non-breaking
+hyphens (`24‑08‑2026`), which no date picker can read back: the field stays empty and the browser
+console fills with `Invalid date provided` from the picker and a deprecation warning from moment.
+A date field wants the stored ISO value, so write `{{ zaak.startdatum }}` there and keep
+`ZAC_opmaakDatum` for the text the behandelaar reads.
 
 ##### ZAC_opmaakBoolean
 
