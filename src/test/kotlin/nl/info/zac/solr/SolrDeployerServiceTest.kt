@@ -5,6 +5,8 @@
 package nl.info.zac.solr
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
@@ -13,7 +15,10 @@ import io.mockk.verify
 import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.inject.Instance
 import nl.info.zac.search.IndexingService
+import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.solr.exception.SolrDeploymentException
+import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.request.SolrPing
 import org.apache.solr.client.solrj.request.schema.SchemaRequest
 import org.apache.solr.client.solrj.request.schema.SchemaRequest.Fields
@@ -68,6 +73,36 @@ class SolrDeployerServiceTest : BehaviorSpec({
                     anyConstructed<MultiUpdate>().process(any())
                     managedExecutorService.submit(any())
                 }
+            }
+        }
+    }
+
+    given("Solr is not available yet and the thread waiting for it becomes interrupted") {
+        mockkConstructor(SolrPing::class)
+        every { anyConstructed<SolrPing>().setActionPing().process(any()) } throws
+            SolrServerException("Solr core is not available")
+
+        `when`("the ZAC Solr deployer service is started and gets interrupted while waiting for Solr") {
+            var caughtException: Throwable? = null
+            val startupThread = Thread {
+                try {
+                    solrDeployerService.onStartup(Any())
+                } catch (throwable: Throwable) {
+                    caughtException = throwable
+                }
+            }
+            startupThread.start()
+            while (startupThread.state != Thread.State.TIMED_WAITING) {
+                Thread.sleep(10)
+            }
+            startupThread.interrupt()
+            startupThread.join(5_000)
+
+            then("a SolrDeploymentException is thrown, propagating the interruption as a deployment failure") {
+                caughtException.shouldBeInstanceOf<SolrDeploymentException>()
+                caughtException?.message shouldBe
+                    "Thread was interrupted while waiting for Solr core '$SOLR_CORE' to become available"
+                caughtException?.cause.shouldBeInstanceOf<InterruptedException>()
             }
         }
     }

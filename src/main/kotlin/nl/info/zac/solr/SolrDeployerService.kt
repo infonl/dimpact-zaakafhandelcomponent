@@ -29,7 +29,6 @@ import org.apache.solr.common.SolrException
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.io.IOException
 import java.time.Duration
-import java.util.logging.Level
 import java.util.logging.Logger
 
 @Singleton
@@ -99,12 +98,11 @@ class SolrDeployerService @Inject constructor(
             try {
                 Thread.sleep(Duration.ofSeconds(WAIT_FOR_SOLR_SECONDS).toMillis())
             } catch (interruptedException: InterruptedException) {
-                LOG.log(
-                    Level.WARNING,
-                    "Thread was interrupted while waiting for Solr core to become available. Re-interrupting thread.",
+                Thread.currentThread().interrupt()
+                throw SolrDeploymentException(
+                    "Thread was interrupted while waiting for Solr core '$SOLR_CORE' to become available",
                     interruptedException
                 )
-                Thread.currentThread().interrupt()
             }
         }
     }
