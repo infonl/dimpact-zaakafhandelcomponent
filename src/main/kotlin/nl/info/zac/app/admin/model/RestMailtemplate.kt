@@ -48,11 +48,11 @@ fun MailTemplate.toRestMailtemplate() = RestMailtemplate(
     isDefaultMailtemplate = isDefaultMailtemplate
 )
 
-// id is copied only when present:
-// it only matters to callers that need to reference an already-persisted MailTemplate by id, e.g. to
-// populate a JPA @ManyToOne relationship.
 fun RestMailtemplate.toMailTemplate() =
     MailTemplate().apply {
+        // id is copied only when present:
+        // it only matters to callers that need to reference an already-persisted MailTemplate by id, e.g. to
+        // populate a JPA @ManyToOne relationship.
         this@toMailTemplate.id?.let { id = it }
         mail = this@toMailTemplate.mail
         mailTemplateNaam = this@toMailTemplate.mailTemplateNaam.trim()
