@@ -23,12 +23,14 @@ class OfficeConverterClientService @Inject constructor(
 ) {
     companion object {
         private const val PDFA_FORMAT = "PDF/A-2b"
+        private const val PDFUA_ENABLED = "true"
     }
 
     fun convertToPDF(document: ByteArrayInputStream, filename: String): ByteArrayInputStream {
         val multipartFormDataOutput = MultipartFormDataOutput().apply {
             addFormData("files", document, APPLICATION_OCTET_STREAM_TYPE, filename)
             addFormData("pdfa", PDFA_FORMAT, TEXT_PLAIN_TYPE)
+            addFormData("pdfua", PDFUA_ENABLED, TEXT_PLAIN_TYPE)
         }
         val response = officeConverterClient.convert(multipartFormDataOutput)
         if (!response.bufferEntity()) {

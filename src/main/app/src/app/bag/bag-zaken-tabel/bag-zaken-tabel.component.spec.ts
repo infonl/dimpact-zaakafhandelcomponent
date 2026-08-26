@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
+import { HttpErrorResponse, provideHttpClient } from "@angular/common/http";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -116,6 +116,26 @@ describe(BagZakenTabelComponent.name, () => {
     await user.click(
       screen.getByRole("switch", { name: "toonAfgerondeZaken" }),
     );
+    await settle();
+
+    expect(lastSearch().page).toBe(0);
+  });
+
+  it("keeps searching after a search has failed", async () => {
+    await setup(makeZoekResultaat({ totaal: 25 }));
+    list.mockReturnValue({
+      queryKey: ["failing-query"],
+      queryFn: jest
+        .fn()
+        .mockRejectedValue(new HttpErrorResponse({ status: 500 })),
+    });
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await settle();
+    expect(lastSearch().page).toBe(1);
+
+    list.mockReturnValue(createQueryOptions(makeZoekResultaat({ totaal: 25 })));
+    await user.click(screen.getByRole("button", { name: "Previous page" }));
     await settle();
 
     expect(lastSearch().page).toBe(0);

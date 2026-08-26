@@ -62,7 +62,7 @@ const afzenders = [
   }),
 ];
 
-const mailtemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
+const mailtemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
   onderwerp: "<p>Bevestiging ontvangst</p>",
   body: "<p>Geachte,</p>",
   variabelen: ["ZAAK_NUMMER", "ZAAK_TYPE"],

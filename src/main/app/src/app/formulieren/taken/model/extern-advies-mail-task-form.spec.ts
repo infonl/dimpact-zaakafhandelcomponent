@@ -56,7 +56,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
     jest.spyOn(zakenService, "listAfzendersVoorZaak").mockReturnValue(of([]));
     jest.spyOn(mailtemplateService, "findMailtemplate").mockReturnValue(
       of(
-        fromPartial<GeneratedType<"RESTMailtemplate">>({
+        fromPartial<GeneratedType<"RestMailtemplate">>({
           body: "mail-template-body",
           variabelen: [],
         }),

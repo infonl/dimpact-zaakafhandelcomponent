@@ -41,7 +41,7 @@ const contactDetails = fromPartial<GeneratedType<"RestContactDetails">>({
   emailadres: "fakeInitiator@example.com",
 });
 
-const mailtemplateOntvankelijk = fromPartial<GeneratedType<"RESTMailtemplate">>(
+const mailtemplateOntvankelijk = fromPartial<GeneratedType<"RestMailtemplate">>(
   {
     onderwerp: "fakeOnderwerpOntvankelijk",
     body: "<p>fakeBodyOntvankelijk</p>",
@@ -49,7 +49,7 @@ const mailtemplateOntvankelijk = fromPartial<GeneratedType<"RESTMailtemplate">>(
 );
 
 const mailtemplateNietOntvankelijk = fromPartial<
-  GeneratedType<"RESTMailtemplate">
+  GeneratedType<"RestMailtemplate">
 >({
   onderwerp: "fakeOnderwerpNietOntvankelijk",
   body: "<p>fakeBodyNietOntvankelijk</p>",

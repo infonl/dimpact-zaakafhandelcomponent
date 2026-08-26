@@ -14,6 +14,7 @@ import io.mockk.slot
 import io.mockk.verify
 import jakarta.ws.rs.core.Response
 import net.atos.zac.app.admin.model.createRestMailTemplate
+import nl.info.zac.app.admin.MailtemplateBeheerRestService
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.exception.MailTemplateNotFoundException
 import nl.info.zac.mailtemplates.model.Mail
@@ -59,13 +60,13 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         onderwerp shouldBe "NewTemplate" // HTML tags stripped
                         body shouldBe restMailTemplate.body
                         mail shouldBe restMailTemplate.mail
-                        isDefaultMailtemplate shouldBe restMailTemplate.defaultMailtemplate
+                        isDefaultMailtemplate shouldBe restMailTemplate.isDefaultMailtemplate
                     }
                 }
 
-                And("it should return HTTP 201 Created with the created template") {
+                and("it should return HTTP 201 Created with the created template") {
                     response.status shouldBe Response.Status.CREATED.statusCode
-                    val createdRestTemplate = response.entity as net.atos.zac.app.admin.model.RESTMailtemplate
+                    val createdRestTemplate = response.entity as nl.info.zac.app.admin.model.RestMailtemplate
                     createdRestTemplate.id shouldBe createdMailTemplate.id
                     createdRestTemplate.mailTemplateNaam shouldBe createdMailTemplate.mailTemplateNaam
                 }
@@ -102,11 +103,11 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         onderwerp shouldBe "UpdatedTemplate" // HTML tags stripped
                         body shouldBe restMailTemplate.body
                         mail shouldBe restMailTemplate.mail
-                        isDefaultMailtemplate shouldBe restMailTemplate.defaultMailtemplate
+                        isDefaultMailtemplate shouldBe restMailTemplate.isDefaultMailtemplate
                     }
                 }
 
-                And("it should return the updated template") {
+                and("it should return the updated template") {
                     updatedRestTemplate.id shouldBe updatedMailTemplate.id
                     updatedRestTemplate.mailTemplateNaam shouldBe updatedMailTemplate.mailTemplateNaam
                 }

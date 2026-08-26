@@ -5,6 +5,7 @@
 
 package net.atos.zac.app.admin.model;
 
+import nl.info.zac.app.admin.model.RestMailtemplate;
 import nl.info.zac.app.admin.model.RestZaaktypeConfiguration;
 
 public class RESTMailtemplateKoppeling {
@@ -13,5 +14,5 @@ public class RESTMailtemplateKoppeling {
 
     public RestZaaktypeConfiguration zaakafhandelParameters;
 
-    public RESTMailtemplate mailtemplate;
+    public RestMailtemplate mailtemplate;
 }

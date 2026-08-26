@@ -52,6 +52,11 @@ class OfficeConverterClientServiceTest : BehaviorSpec({
                     val formDataMap = multipartSlot.captured.formDataMap
                     formDataMap shouldContainKey "pdfa"
                 }
+
+                then("the multipart form data requests a tagged PDF/UA document") {
+                    val formDataMap = multipartSlot.captured.formDataMap
+                    formDataMap shouldContainKey "pdfua"
+                }
             }
         }
 

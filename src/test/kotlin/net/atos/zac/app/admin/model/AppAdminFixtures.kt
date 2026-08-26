@@ -4,6 +4,7 @@
  */
 package net.atos.zac.app.admin.model
 
+import nl.info.zac.app.admin.model.RestMailtemplate
 import nl.info.zac.app.planitems.model.PlanItemType
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
@@ -23,12 +24,12 @@ fun createRestMailTemplate(
     mail: Mail = Mail.ZAAK_ALGEMEEN,
     mailTemplateVariables: Set<MailTemplateVariables> = emptySet(),
     defaultTemplate: Boolean = false
-) = RESTMailtemplate().apply {
-    this.id = id
-    this.mailTemplateNaam = mailTemplateName
-    this.onderwerp = subject
-    this.body = body
-    this.mail = mail
-    this.variabelen = mailTemplateVariables
-    this.defaultMailtemplate = defaultTemplate
-}
+) = RestMailtemplate(
+    id = id,
+    mailTemplateNaam = mailTemplateName,
+    onderwerp = subject,
+    body = body,
+    mail = mail,
+    variabelen = mailTemplateVariables,
+    isDefaultMailtemplate = defaultTemplate
+)
