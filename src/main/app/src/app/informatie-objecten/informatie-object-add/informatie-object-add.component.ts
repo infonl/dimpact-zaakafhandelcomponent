@@ -69,7 +69,7 @@ export class InformatieObjectAddComponent {
     input<GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">>();
   protected readonly sideNav = input.required<MatDrawer>();
   protected readonly zaakUuid = input.required<string>();
-  protected readonly taakId = input<string>();
+  protected readonly taakId = input<string | null>();
 
   protected readonly document =
     output<GeneratedType<"RestEnkelvoudigInformatieobject">>();

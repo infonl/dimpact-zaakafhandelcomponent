@@ -106,8 +106,8 @@ export class NotitiesComponent implements OnInit, OnDestroy {
     this.showNotes = !this.showNotes;
   }
 
-  protected pasNotitieAan(id: number) {
-    this.geselecteerdeNotitieId = id;
+  protected pasNotitieAan(id: GeneratedType<"RestNote">["id"]) {
+    this.geselecteerdeNotitieId = id ?? null;
   }
 
   private haalNotitiesOp() {
@@ -170,7 +170,9 @@ export class NotitiesComponent implements OnInit, OnDestroy {
     this.geselecteerdeNotitieId = null;
   }
 
-  protected verwijderNotitie(id: number) {
+  protected verwijderNotitie(id: GeneratedType<"RestNote">["id"]) {
+    if (id == null) return;
+
     this.deleteNotitieMutation.mutate(id);
   }
 }
