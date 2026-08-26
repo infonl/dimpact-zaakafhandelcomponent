@@ -1,0 +1,53 @@
+## 1. Solr schema and indexed fields
+
+- [ ] 1.1 Add a Kotlin constant for the `zaakspecifiek_geautoriseerd` role name (mirroring the existing
+      `ROLE_NAME_BRP_ZOEKEN`-style constants) and verify `rollen.rego`'s `"zaakspecifiek_geautoriseerd"`
+      literal and the new Kotlin constant have the same value (unit test or code comment cross-reference).
+- [ ] 1.2 Add `isZaakspecifiekGeautoriseerd: Boolean` (`@Field`-annotated) to `ZaakZoekObject`,
+      `TaakZoekObject`, and `DocumentZoekObject`, and populate it in `ZaakZoekObjectConverter`,
+      `TaakZoekObjectConverter`, and `DocumentZoekObjectConverter` via
+      `zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)`; verify with converter unit tests asserting
+      the field is `true`/`false` for a flagged/unflagged zaak.
+- [ ] 1.3 Add a new `SolrSchemaVx` (next version after the current highest) that adds the three prefixed
+      boolean fields, a `copyField` from each into a shared `zaakspecifiekGeautoriseerd` field (mirroring
+      the existing `zaaktypeOmschrijving` copyField pattern), and lists `ZAAK`, `TAAK`, and `DOCUMENT` in
+      `getTeHerindexerenZoekObjectTypes()`; verify with a `SolrSchemaVx` unit test matching the existing
+      `SolrSchemaV*` test pattern.
+
+## 2. Search-time filtering
+
+- [ ] 2.1 Add a filter-query builder in `SearchService` (alongside `getAllowedZaaktypenFilterQuery()`) that
+      excludes zaakspecifiek geautoriseerde rows for zaaktypen in `applicationRolesPerZaaktype` whose role
+      set lacks `zaakspecifiek_geautoriseerd`, and wire it into `search()`; verify with a `SearchServiceTest`
+      asserting the built `SolrQuery` contains the expected exclusion filter query for a mixed
+      flagged/unflagged zaaktype role set, and no such filter when every allowed zaaktype has the flag.
+- [ ] 2.2 Verify via an integration test (extending the existing Solr-backed itest setup) that a
+      zaakspecifiek geautoriseerde zaak, its taak, and its document are absent from `search()` results for a
+      user without the flag for that zaaktype, and present for a user who holds it.
+
+## 3. Rechten computed for werklijst/zoekresultaat rows
+
+- [ ] 3.1 Update `PolicyService.readZaakRechtenForZaakZoekObject`, `readDocumentRechten(DocumentZoekObject)`,
+      and `readTaakRechten(TaakZoekObject)` to set `zaakspecifiekGeautoriseerd` from the zoekobject's new
+      `isZaakspecifiekGeautoriseerd` field instead of hardcoding/defaulting to `false`; verify with
+      `PolicyServiceTest` cases asserting the computed rechten for a flagged `ZaakZoekObject`/
+      `TaakZoekObject`/`DocumentZoekObject` match the rechten for the equivalent single-resource lookup,
+      for both a user with and without `zaakspecifiek_geautoriseerd`.
+
+## 4. Integration test coverage
+
+- [ ] 4.1 Extend `TaskRestServiceZaakspecifiekAutorisatieTest.kt` and
+      `EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest.kt` (or add a sibling test) to
+      cover the werklijst/zoekresultaat visibility and rechten behaviour end to end via the REST search
+      endpoint, and verify `./gradlew itest --info` passes.
+
+## 5. Documentation
+
+- [ ] 5.1 Update `docs/solution-architecture/accessControlPolicies.md` if its description of
+      `zaakspecifiek_geautoriseerd` still states werklijsten/zoekresultaten are unaffected, and verify the
+      wording matches the new behaviour.
+
+## 6. OpenSpec
+
+- [ ] 6.1 Run `openspec validate zaakspecifieke-autorisatie-werklijsten-zoekresultaten --strict` and confirm
+      it passes before archiving.
