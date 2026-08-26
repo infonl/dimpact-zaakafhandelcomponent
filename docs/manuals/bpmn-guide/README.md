@@ -1028,7 +1028,7 @@ A date field wants the stored ISO value, so write `{{ zaak.startdatum }}` there 
 
 ##### ZAC_opmaakBoolean
 
-Puts a word of your own in place of a boolean. Give it two labels — the first for `true`, the second
+Renders a custom text instead of the raw boolean value. Give it two labels — the first for `true`, the second
 for `false` — because a form rarely wants to say "true", it wants to say what the answer means.
 
 ```
