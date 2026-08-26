@@ -62,6 +62,16 @@ import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filt
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
 
+/**
+ * The list parameters as this screen keeps them: it always fills in a sort field
+ * and direction, where the wire format leaves both optional.
+ */
+type InboxProductaanvraagListParameters =
+  GeneratedType<"RestInboxProductaanvraagListParameters"> & {
+    sort: string;
+    order: SortDirection;
+  };
+
 @Component({
   templateUrl: "./inbox-productaanvragen-list.component.html",
   styleUrls: ["./inbox-productaanvragen-list.component.less"],
@@ -215,8 +225,8 @@ export class InboxProductaanvragenListComponent
       `${this.getWerklijst()}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       this.createDefaultParameters(),
     );
-    this.sort.active = this.listParameters.sort ?? "id";
-    this.sort.direction = this.listParameters.order as SortDirection;
+    this.sort.active = this.listParameters.sort;
+    this.sort.direction = this.listParameters.order;
     this.paginator.pageIndex = 0;
     this.filterChange.emit();
   }
@@ -226,8 +236,8 @@ export class InboxProductaanvragenListComponent
   ) {
     if (actieveZoekopdracht?.json) {
       this.listParameters = JSON.parse(actieveZoekopdracht.json);
-      this.sort.active = this.listParameters.sort ?? "id";
-      this.sort.direction = this.listParameters.order as SortDirection;
+      this.sort.active = this.listParameters.sort;
+      this.sort.direction = this.listParameters.order;
       this.paginator.pageIndex = 0;
       this.filterChange.emit();
     } else if (actieveZoekopdracht === null) {
@@ -237,7 +247,7 @@ export class InboxProductaanvragenListComponent
     }
   }
 
-  protected createDefaultParameters(): GeneratedType<"RestInboxProductaanvraagListParameters"> {
+  protected createDefaultParameters(): InboxProductaanvraagListParameters {
     return { sort: "id", order: "desc" };
   }
 
