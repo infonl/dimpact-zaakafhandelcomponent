@@ -21,7 +21,7 @@
     [maxlength]="maxlength()"
     [min]="min()"
     [max]="max()"
-    [readonly]="readonly() || displayValue()"
+    [readonly]="readonly() || !!displayValue()"
     [type]="computedType()"
   />
   <button
