@@ -20,8 +20,8 @@ import org.apache.solr.client.solrj.request.schema.SchemaRequest
 class SolrSchemaV8 : SolrSchemaUpdate {
     override fun getVersie() = 8
 
-    override fun getTeHerindexerenZoekObjectTypes() =
-        setOf(ZoekObjectType.ZAAK, ZoekObjectType.TAAK, ZoekObjectType.DOCUMENT)
+    // Reindexing zaken, taken and documenten at startup is too heavy for this field; run it manually instead.
+    override fun getTeHerindexerenZoekObjectTypes() = emptySet<ZoekObjectType>()
 
     override fun getSchemaUpdates(): List<SchemaRequest.Update> = listOf<SchemaRequest.Update>(
         addField("zaakspecifiekGeautoriseerd", BOOLEAN, true),

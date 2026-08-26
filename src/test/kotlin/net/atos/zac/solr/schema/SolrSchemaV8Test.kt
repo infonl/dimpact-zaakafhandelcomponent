@@ -6,20 +6,15 @@ package net.atos.zac.solr.schema
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import nl.info.zac.search.model.zoekobject.ZoekObjectType
 
 class SolrSchemaV8Test : BehaviorSpec({
     given("Solr schema version 8") {
         val solrSchemaV8 = SolrSchemaV8()
 
         `when`("its version and reindex targets are read") {
-            then("the version is 8 and zaken, taken and documenten are marked for reindexing") {
+            then("the version is 8 and no zoekobject types are marked for reindexing at startup") {
                 solrSchemaV8.getVersie() shouldBe 8
-                solrSchemaV8.getTeHerindexerenZoekObjectTypes() shouldBe setOf(
-                    ZoekObjectType.ZAAK,
-                    ZoekObjectType.TAAK,
-                    ZoekObjectType.DOCUMENT
-                )
+                solrSchemaV8.getTeHerindexerenZoekObjectTypes() shouldBe emptySet()
             }
         }
 
