@@ -125,9 +125,10 @@ const row = fixture.nativeElement.querySelector("tr.zaak-row");
 const row = screen.getByRole("row", { name: /ZAAK-001/ });
 ```
 
-Around 70 older specs still use the Angular style. They are warnings project-wide, but
+Around 60 older specs still use the Angular style. They are warnings project-wide, but
 **errors on any spec file a pull request touches** — so a spec you edit has to be migrated
-before it merges. `./scripts/lint-changed-files.sh` reproduces that check locally.
+before it merges. See [linting-strategy.md](docs/development/linting-strategy.md) for the
+command that reproduces that check locally.
 
 Where a third-party widget renders nothing queryable — `ngx-editor` sets no role on its
 ProseMirror element, OpenLayers draws to a canvas, a file input is `display: none` —

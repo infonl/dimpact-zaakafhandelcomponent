@@ -6,9 +6,6 @@
     "allowSyntheticDefaultImports": true,
     "strict": true
   },
-  "angularCompilerOptions": {
-    "strictTemplates": false
-  },
   "files": ["src/main.ts", "src/polyfills.ts"],
   "include": ["src/**/*.d.ts"],
   "exclude": ["src/test-helpers.ts", "src/**/*.spec.ts"]
