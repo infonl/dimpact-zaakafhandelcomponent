@@ -6,6 +6,7 @@
 package nl.info.zac.search
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearMocks
 import io.mockk.every
@@ -43,6 +44,7 @@ import org.eclipse.microprofile.config.ConfigProvider
 import java.io.IOException
 import java.net.URI
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
 
 private data class TestContext(
     val solrClient: Http2SolrClient,
@@ -131,6 +133,89 @@ class IndexingServiceTest : BehaviorSpec({
             ) {
                 verify(exactly = 1) {
                     ctx.solrClient.addBeans(any<Collection<*>>())
+                }
+            }
+        }
+    }
+
+    given("Three zaken where one fails to convert") {
+        val ctx = setupContext()
+        val zaakType = createZaakType()
+        val zaaktypeURI = URI("https://example.com/${zaakType.url}")
+        val zaken = listOf(
+            createZaak(zaaktypeUri = zaaktypeURI),
+            createZaak(zaaktypeUri = zaaktypeURI),
+            createZaak(zaaktypeUri = zaaktypeURI)
+        )
+        val zaakZoekObjecten = listOf(
+            createZaakZoekObject(),
+            createZaakZoekObject()
+        )
+        every { ctx.zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
+        every { ctx.zaakZoekObjectConverter.convert(zaken[0].uuid.toString()) } returns zaakZoekObjecten[0]
+        every { ctx.zaakZoekObjectConverter.convert(zaken[1].uuid.toString()) } throws
+            RuntimeException("fake conversion failure")
+        every { ctx.zaakZoekObjectConverter.convert(zaken[2].uuid.toString()) } returns zaakZoekObjecten[1]
+        every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
+
+        `when`(
+            """The indexeer direct method is called to index the three zaken"""
+        ) {
+            ctx.indexingService.indexeerDirect(zaken.map { it.uuid.toString() }, ZoekObjectType.ZAAK, false)
+
+            then(
+                """
+                the two successfully converted zaak zoek objecten are still added to the Solr client,
+                even though one zaak failed to convert
+                """
+            ) {
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(zaakZoekObjecten)
+                }
+            }
+        }
+    }
+
+    given("A page with more zaken than the configured conversion concurrency limit") {
+        val ctx = setupContext()
+        val zaakType = createZaakType()
+        val zaaktypeURI = URI("https://example.com/${zaakType.url}")
+        val pageSize = 20
+        // must stay in sync with IndexingService.PAGE_CONVERSION_PARALLELISM
+        val expectedConcurrencyLimit = 8
+        val zaken = List(pageSize) { createZaak(zaaktypeUri = zaaktypeURI) }
+        val zaakZoekObjecten = List(pageSize) { createZaakZoekObject() }
+        val activeConversions = AtomicInteger(0)
+        val maxObservedConcurrency = AtomicInteger(0)
+
+        every { ctx.zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
+        zaken.forEachIndexed { index, zaak ->
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } answers {
+                val current = activeConversions.incrementAndGet()
+                maxObservedConcurrency.updateAndGet { previousMax -> maxOf(previousMax, current) }
+                Thread.sleep(50)
+                activeConversions.decrementAndGet()
+                zaakZoekObjecten[index]
+            }
+        }
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        `when`("indexeerDirect is called for the page") {
+            ctx.indexingService.indexeerDirect(zaken.map { it.uuid.toString() }, ZoekObjectType.ZAAK, false)
+
+            then("no more conversions than the configured limit run concurrently") {
+                (maxObservedConcurrency.get() <= expectedConcurrencyLimit) shouldBe true
+            }
+
+            then("all zaken in the page are still converted and added to the Solr index") {
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(match<Collection<*>> { it.size == pageSize })
                 }
             }
         }
