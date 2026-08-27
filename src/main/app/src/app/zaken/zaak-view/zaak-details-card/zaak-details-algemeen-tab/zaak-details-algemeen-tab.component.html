@@ -64,29 +64,31 @@
       [icon]="dateFieldIconMap().get('uiterlijkeEinddatumAfdoening')"
     >
     </zac-static-text>
-    <div
-      *ngIf="zaak().duurVerlenging || zaakOpschorting()?.duurDagen"
-      class="full-width remark"
-    >
-      <div class="flex-col gap-5">
-        <div
-          class="flex-row items-center gap-5"
-          *ngIf="zaakOpschorting()?.duurDagen"
-        >
-          <mat-icon>pause</mat-icon>
-          {{
-            (zaakOpschorting()?.duurDagen === 1
-              ? "duurDagenOpschorting.enkelvoud"
-              : "duurDagenOpschorting"
-            ) | translate: { duur: zaakOpschorting()?.duurDagen }
-          }}
-        </div>
-        <div class="flex-row items-center gap-5" *ngIf="zaak().duurVerlenging">
-          <mat-icon>update</mat-icon>
-          {{ "duurVerlenging" | translate: { duur: zaak().duurVerlenging } }}
+    @if (zaak().duurVerlenging || zaakOpschorting()?.duurDagen) {
+      <div class="full-width remark">
+        <div class="flex-col gap-5">
+          @if (zaakOpschorting()?.duurDagen) {
+            <div class="flex-row items-center gap-5">
+              <mat-icon>pause</mat-icon>
+              {{
+                (zaakOpschorting()?.duurDagen === 1
+                  ? "duurDagenOpschorting.enkelvoud"
+                  : "duurDagenOpschorting"
+                ) | translate: { duur: zaakOpschorting()?.duurDagen }
+              }}
+            </div>
+          }
+          @if (zaak().duurVerlenging) {
+            <div class="flex-row items-center gap-5">
+              <mat-icon>update</mat-icon>
+              {{
+                "duurVerlenging" | translate: { duur: zaak().duurVerlenging }
+              }}
+            </div>
+          }
         </div>
       </div>
-    </div>
+    }
     <zac-static-text
       class="full-width"
       label="vertrouwelijkheidaanduiding"

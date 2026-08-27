@@ -117,6 +117,14 @@ describe(ZaakDetailsCardComponent.name, () => {
       expect(lockIcon).not.toBeNull();
     });
 
+    it("labels the lock icon with the zaakspecifiek geautoriseerd translation", () => {
+      renderCard({ zaak: { ...zaak, isZaakspecifiekGeautoriseerd: true } });
+
+      expect(
+        screen().getByTitle("zaak.isZaakspecifiekGeautoriseerd"),
+      ).toBeInTheDocument();
+    });
+
     it("does not show the lock icon when the zaak is not zaakspecifiek geautoriseerd", async () => {
       renderCard({ zaak: { ...zaak, isZaakspecifiekGeautoriseerd: false } });
 

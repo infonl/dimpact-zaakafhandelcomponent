@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgIf } from "@angular/common";
 import { Component, input, output } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import {
@@ -40,7 +39,6 @@ import { ZaakDetailsGerelateerdeZakenTabComponent } from "./zaak-details-gerelat
   styleUrls: ["./zaak-details-card.component.less"],
   standalone: true,
   imports: [
-    NgIf,
     MatCard,
     MatCardContent,
     MatCardHeader,

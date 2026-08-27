@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { NgForOf, NgIf } from "@angular/common";
 import { Component, input, output } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
@@ -32,8 +31,6 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   styles: [":host { display: block; }"],
   standalone: true,
   imports: [
-    NgIf,
-    NgForOf,
     RouterLink,
     MatIcon,
     MatIconAnchor,

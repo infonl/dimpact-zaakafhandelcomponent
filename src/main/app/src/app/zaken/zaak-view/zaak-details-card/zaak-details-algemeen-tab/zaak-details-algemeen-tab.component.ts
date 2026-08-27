@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { LowerCasePipe, NgIf } from "@angular/common";
+import { LowerCasePipe } from "@angular/common";
 import { Component, computed, inject, input, output } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatIconButton } from "@angular/material/button";
@@ -33,7 +33,6 @@ type ZaakDetailField = {
   styles: [":host { display: block; }"],
   standalone: true,
   imports: [
-    NgIf,
     LowerCasePipe,
     MatDivider,
     MatIcon,
