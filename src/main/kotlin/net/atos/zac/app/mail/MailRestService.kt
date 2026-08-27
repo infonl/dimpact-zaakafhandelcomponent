@@ -18,7 +18,6 @@ import net.atos.zac.app.mail.converter.RestMailGegevensConverter
 import net.atos.zac.app.mail.model.RestMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.getBronnenFromZaak
@@ -69,8 +68,6 @@ class MailRestService @Inject constructor(
             !ontvangstbevestigingVerstuurd &&
                 policyService.readZaakRechten(zaak, loggedInUser).versturenOntvangstbevestiging
         )
-        // an ontvangstbevestiging is always Openbaar, regardless of what the caller supplied
-        restMailGegevens.vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), zaak.getBronnenFromZaak())
         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
     }

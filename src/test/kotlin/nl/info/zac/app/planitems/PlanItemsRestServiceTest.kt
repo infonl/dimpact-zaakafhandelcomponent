@@ -570,8 +570,8 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                and("the vertrouwelijkheidaanduiding is forced to Openbaar regardless of what was supplied") {
-                    restMailGegevens.vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
+                and("the supplied vertrouwelijkheidaanduiding is passed through unchanged") {
+                    restMailGegevens.vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.GEHEIM
                 }
             }
         }

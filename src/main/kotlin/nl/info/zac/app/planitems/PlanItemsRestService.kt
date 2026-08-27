@@ -47,7 +47,6 @@ import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
-import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.util.AllOpen
@@ -220,7 +219,6 @@ class PlanItemsRestService @Inject constructor(
             cmmnService.startUserEventListenerPlanItem(it)
         }
         userEventListenerData.restMailGegevens?.let {
-            it.vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR
             mailService.sendMail(
                 restMailGegevensConverter.convert(it),
                 zaak.getBronnenFromZaak()
