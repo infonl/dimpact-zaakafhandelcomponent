@@ -14,15 +14,15 @@ class SolrSchemaV8Test : BehaviorSpec({
 
         `when`("its version and reindex targets are read") {
             then("the version is 8 and no zoekobject types are marked for reindexing at startup") {
-                solrSchemaV8.getVersie() shouldBe 8
-                solrSchemaV8.getTeHerindexerenZoekObjectTypes() shouldBe emptySet()
+                solrSchemaV8.versie shouldBe 8
+                solrSchemaV8.teHerindexerenZoekObjectTypes shouldBe emptySet()
             }
         }
 
         `when`("its schema updates are read") {
             then("a shared field and a per-type field plus copy field are defined for each zoekobject type") {
                 // shared field + (per-type field, copy field) for ZAAK, TAAK and DOCUMENT
-                solrSchemaV8.getSchemaUpdates().size shouldBe 1 + 3 * 2
+                solrSchemaV8.schemaUpdates.size shouldBe 1 + 3 * 2
             }
         }
     }
