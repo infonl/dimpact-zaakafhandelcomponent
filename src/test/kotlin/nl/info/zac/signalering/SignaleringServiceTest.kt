@@ -35,6 +35,7 @@ import net.atos.zac.signalering.model.SignaleringTarget
 import net.atos.zac.signalering.model.SignaleringType
 import net.atos.zac.websocket.event.ScreenEvent
 import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.test.org.flowable.task.api.createTestTask
@@ -167,6 +168,7 @@ class SignaleringServiceTest : BehaviorSpec({
                     replyTo shouldBe null
                     subject shouldBe mailTemplate.onderwerp
                     body shouldBe mailTemplate.body
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
         }

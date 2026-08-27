@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.mail.converter;
@@ -7,6 +7,7 @@ package net.atos.zac.app.mail.converter;
 import jakarta.inject.Inject;
 
 import net.atos.zac.app.mail.model.RESTMailGegevens;
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduidingKt;
 import nl.info.zac.configuration.ConfigurationService;
 import nl.info.zac.mail.model.MailAdres;
 import nl.info.zac.mailtemplates.model.MailGegevens;
@@ -27,6 +28,8 @@ public class RESTMailGegevensConverter {
                 restMailGegevens.onderwerp,
                 restMailGegevens.body,
                 restMailGegevens.bijlagen,
-                restMailGegevens.createDocumentFromMail);
+                restMailGegevens.createDocumentFromMail,
+                RestVertrouwelijkheidaanduidingKt.toDrcVertrouwelijkheidaanduidingEnum(
+                        restMailGegevens.getVertrouwelijkheidaanduiding()));
     }
 }
