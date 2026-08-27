@@ -269,7 +269,7 @@ class SendEmailDelegateTest : BehaviorSpec({
                 illegalArgumentException.message shouldBe "Required field 'vertrouwelijkheidaanduiding' is missing"
             }
 
-            And("no mail is sent") {
+            and("no mail is sent") {
                 verify(exactly = 0) {
                     mailService.sendMail(any(), any())
                 }
@@ -318,7 +318,7 @@ class SendEmailDelegateTest : BehaviorSpec({
                 illegalArgumentException.message shouldBe "'NIET_BESTAAND' is not a valid 'vertrouwelijkheidaanduiding'"
             }
 
-            And("no mail is sent") {
+            and("no mail is sent") {
                 verify(exactly = 0) {
                     mailService.sendMail(any(), any())
                 }

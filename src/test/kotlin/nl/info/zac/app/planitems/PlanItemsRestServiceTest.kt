@@ -572,6 +572,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 and("the supplied vertrouwelijkheidaanduiding is passed through unchanged") {
                     restMailGegevens.vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.GEHEIM
+                    verify(exactly = 1) { restMailGegevensConverter.convert(restMailGegevens) }
                 }
             }
         }

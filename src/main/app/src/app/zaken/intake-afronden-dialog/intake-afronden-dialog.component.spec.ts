@@ -339,7 +339,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       request.flush(null);
     });
 
-    it("sends a fixed Openbaar vertrouwelijkheidaanduiding in restMailGegevens, since the dialog exposes no way to choose one", async () => {
+    it("sends a fixed Openbaar vertrouwelijkheidaanduiding in restMailGegevens, since this flow does not expose a confidentiality choice", async () => {
       await setup(createZaak("BESCHIKBAAR_AAN"));
       await answerOntvankelijk("actie.ja");
       await user.type(

@@ -121,7 +121,7 @@ class BpmnSendConfirmationEmailRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the confirmation email's PDF document is always Openbaar, regardless of what's configurable on Send email") {
+            and("the confirmation email's PDF document is always Openbaar, regardless of what's configurable on Send email") {
                 eventually(30.seconds) {
                     val informatieobjectenResponse = itestHttpClient.performPutRequest(
                         url = "$ZAC_API_URI/informatieobjecten/informatieobjectenList",
