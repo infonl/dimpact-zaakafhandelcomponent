@@ -367,7 +367,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       request.flush({});
     });
 
-    it("sends a fixed Openbaar vertrouwelijkheidaanduiding in restMailGegevens, since the backend forces it regardless", async () => {
+    it("sends a fixed Openbaar vertrouwelijkheidaanduiding in restMailGegevens, since the dialog exposes no way to choose one", async () => {
       seedQueries(zaak);
       await setup();
 

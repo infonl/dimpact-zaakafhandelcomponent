@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.0.3",
   "engines": {
-    "node": "24.19.0",
+    "node": "24.20.0",
     "npm": "11.19.0"
   },
   "scripts": {
@@ -39,9 +39,9 @@
     "@formio/angular": "10.0.1",
     "@ngx-translate/core": "17.0.0",
     "@ngx-translate/http-loader": "17.0.0",
-    "@tanstack/angular-query-experimental": "5.102.0",
-    "@tanstack/query-async-storage-persister": "5.102.0",
-    "@tanstack/query-persist-client-core": "5.102.0",
+    "@tanstack/angular-query-experimental": "5.102.2",
+    "@tanstack/query-async-storage-persister": "5.102.2",
+    "@tanstack/query-persist-client-core": "5.102.2",
     "bootstrap": "5.3.8",
     "moment": "2.30.1",
     "ngx-editor": "18.0.0",
@@ -69,6 +69,7 @@
     "@angular/cli": "20.3.34",
     "@angular/compiler-cli": "20.3.29",
     "@angular/language-service": "20.3.29",
+    "@formio/core": "2.8.1",
     "@testing-library/angular": "18.1.1",
     "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "7.0.1",

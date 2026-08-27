@@ -18,6 +18,7 @@ import { OrderUtil } from "../../../shared/order/order-util";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
+import { renderFieldError } from "./formio-component-utils";
 
 export const ZAC_FIELD_ATTRIBUTE = "ZAC_TYPE";
 export enum KNOWN_ZAC_FIELDS {
@@ -193,10 +194,7 @@ export class FormioSetupService {
     const zacType = component.attributes?.[ZAC_FIELD_ATTRIBUTE];
     if (!zacType) return;
 
-    component.type = "content";
-    component.label = "";
-    component.input = false;
-    component.html = `<div class="zac-unknown-zac-type">Undefined ZAC_TYPE: '${zacType}'</div>`;
+    renderFieldError(component, `Undefined ZAC_TYPE: '${zacType}'`);
   }
 
   private async safeInit(context: string, fn: () => Promise<void>) {
