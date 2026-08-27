@@ -137,7 +137,7 @@ class PolicyService @Inject constructor(
         ).result
     }
 
-    fun readDocumentRechten(enkelvoudigInformatieobject: EnkelvoudigInformatieObject, zaak: Zaak? = null) =
+    fun readDocumentRechten(enkelvoudigInformatieobject: EnkelvoudigInformatieObject, zaak: Zaak?) =
         readDocumentRechten(
             enkelvoudigInformatieobject = enkelvoudigInformatieobject,
             lock = lockService.findLock(enkelvoudigInformatieobject.getUrl().extractUuid()),

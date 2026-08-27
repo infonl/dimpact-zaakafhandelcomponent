@@ -542,7 +542,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID)
         } returns enkelvoudiginformatieobject
-        every { policyService.readDocumentRechten(enkelvoudiginformatieobject) } returns createDocumentRechten()
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudiginformatieobject) } returns emptyList()
+        every { policyService.readDocumentRechten(enkelvoudiginformatieobject, null) } returns createDocumentRechten()
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { policyService.readDocumentRechten(enkelvoudiginformatieobject, zaak) } returns createDocumentRechten()
         every {
@@ -738,7 +739,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
-        every { policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden } returns true
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null).downloaden } returns true
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns byteArrayInputStream
 
         `when`("readFile is called") {
@@ -760,7 +762,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
-        every { policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden } returns false
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null).downloaden } returns false
 
         `when`("readFile is called") {
             val exception = shouldThrow<PolicyException> {
@@ -773,12 +776,72 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
+    given("An enkelvoudig informatieobject linked to a zaak that the user may not download from") {
+        val uuid = UUID.randomUUID()
+        val zaak = createZaak()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val zaakInformatieobject = createZaakInformatieobjectForReads(
+            informatieobject = enkelvoudigInformatieObject.url,
+            zaak = zaak.url
+        )
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every {
+            zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
+        } returns listOf(zaakInformatieobject)
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every {
+            policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+        } returns createDocumentRechtenAllDeny()
+
+        `when`("readFile is called") {
+            shouldThrow<PolicyException> {
+                enkelvoudigInformatieObjectRestService.readFile(uuid)
+            }
+
+            then("the document content is not retrieved") {
+                verify(exactly = 0) { drcClientService.downloadEnkelvoudigInformatieobject(any()) }
+            }
+        }
+
+        `when`("readFileWithVersion is called") {
+            shouldThrow<PolicyException> {
+                enkelvoudigInformatieObjectRestService.readFileWithVersion(uuid, 1)
+            }
+
+            then("the requested version is not retrieved") {
+                verify(exactly = 0) { drcClientService.downloadEnkelvoudigInformatieobjectVersie(any(), any()) }
+            }
+        }
+
+        `when`("preview is called") {
+            shouldThrow<PolicyException> {
+                enkelvoudigInformatieObjectRestService.preview(uuid, null)
+            }
+
+            then("the document content is not retrieved") {
+                verify(exactly = 0) { drcClientService.downloadEnkelvoudigInformatieobject(any()) }
+            }
+        }
+
+        `when`("readFilesAsZip is called") {
+            shouldThrow<PolicyException> {
+                enkelvoudigInformatieObjectRestService.readFilesAsZip(listOf(uuid.toString()))
+            }
+
+            then("no zip stream is produced") {
+                verify(exactly = 0) { enkelvoudigInformatieObjectDownloadService.getZipStreamOutput(any()) }
+            }
+        }
+    }
+
     given("An IOException occurs while retrieving the document content") {
         val uuid = UUID.randomUUID()
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
-        every { policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden } returns true
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null).downloaden } returns true
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } throws IOException("Failed to retrieve content")
 
         `when`("readFile is called") {
@@ -915,7 +978,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             }
 
             then("no REST representation of the document is built") {
-                verify(exactly = 0) { restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak) }
+                verify(exactly = 0) {
+                    restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak, any())
+                }
             }
         }
 
@@ -926,7 +991,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             then("neither the requested version nor its REST representation is fetched") {
                 verify(exactly = 0) { drcClientService.readEnkelvoudigInformatieobjectVersie(any(), any()) }
-                verify(exactly = 0) { restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak) }
+                verify(exactly = 0) {
+                    restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak, any())
+                }
             }
         }
     }
@@ -1151,7 +1218,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
-        every { policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden } returns true
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null).downloaden } returns true
         every { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) } returns byteArrayInputStream
 
         `when`("readFileWithVersion is called") {
@@ -1173,7 +1241,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
-        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null) } returns createDocumentRechten()
         every { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) } returns byteArrayInputStream
 
         `when`("preview is called with a version") {
@@ -1195,7 +1264,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
-        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null) } returns createDocumentRechten()
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns byteArrayInputStream
 
         `when`("preview is called without a version") {
@@ -1223,8 +1293,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             drcClientService.readEnkelvoudigInformatieobject(secondEnkelvoudigInformatieObjectUuid)
         } returns secondEnkelvoudigInformatieObject
-        every { policyService.readDocumentRechten(firstEnkelvoudigInformatieObject) } returns createDocumentRechten()
-        every { policyService.readDocumentRechten(secondEnkelvoudigInformatieObject) } returns createDocumentRechten()
+        every { zrcClientService.listZaakinformatieobjecten(firstEnkelvoudigInformatieObject) } returns emptyList()
+        every { zrcClientService.listZaakinformatieobjecten(secondEnkelvoudigInformatieObject) } returns emptyList()
+        every { policyService.readDocumentRechten(firstEnkelvoudigInformatieObject, null) } returns createDocumentRechten()
+        every { policyService.readDocumentRechten(secondEnkelvoudigInformatieObject, null) } returns createDocumentRechten()
         every {
             enkelvoudigInformatieObjectDownloadService.getZipStreamOutput(
                 listOf(firstEnkelvoudigInformatieObject, secondEnkelvoudigInformatieObject)
@@ -1302,7 +1374,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val historyLines = listOf<HistoryLine>()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
-        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null) } returns createDocumentRechten()
         every { drcClientService.listAuditTrail(uuid) } returns emptyList()
         every { zaakHistoryLineConverter.convert(any()) } returns historyLines
 
@@ -1318,15 +1391,15 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
     given("An enkelvoudig informatieobject linked to a zaak") {
         val informatieobjectUuid = UUID.randomUUID()
-        val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
-        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-        val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaakUri)
         val zaak = createZaak(identificatie = "ZAAK-2024-999")
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaak.url)
 
         every { drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid) } returns enkelvoudigInformatieObject
-        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
         every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
-        every { zrcClientService.readZaak(zaakUri) } returns zaak
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { zrcClientService.readZaak(zaak.url) } returns zaak
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns createDocumentRechten()
 
         `when`("listZaakIdentificatiesForInformatieobject is called") {
             val result = enkelvoudigInformatieObjectRestService.listZaakIdentificatiesForInformatieobject(
@@ -1508,10 +1581,8 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
     given("An enkelvoudig informatieobject linked to a zaak where the user has read access") {
         val uuid = UUID.randomUUID()
-        val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-        val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaakUri)
         val startDate = LocalDate.of(2024, 1, 1)
         val plannedEndDate = LocalDate.of(2024, 12, 31)
         val zaak = createZaak(
@@ -1520,13 +1591,15 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             einddatumGepland = plannedEndDate,
             identificatie = "faakZaakID"
         )
+        val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaak.url)
         val zaakType = createZaakType()
         val loggedInUser = createLoggedInUser()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
-        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
         every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
-        every { zrcClientService.readZaak(zaakUri) } returns zaak
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { zrcClientService.readZaak(zaak.url) } returns zaak
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns createDocumentRechten()
         every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechten(lezen = true)
@@ -1550,22 +1623,22 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
     given("An enkelvoudig informatieobject linked to a zaak where the user does not have read access") {
         val uuid = UUID.randomUUID()
-        val zaakUri = URI("https://example.com/zaak/${UUID.randomUUID()}")
         val zaakTypeUri = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
-        val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaakUri)
         val zaak = createZaak(
             zaaktypeUri = zaakTypeUri,
             startDate = LocalDate.of(2024, 6, 1),
             identificatie = "ZAAK-2024-NOACCESS"
         )
+        val zaakInformatieobject = createZaakInformatieobjectForReads(zaak = zaak.url)
         val zaakType = createZaakType()
         val loggedInUser = createLoggedInUser()
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
-        every { policyService.readDocumentRechten(enkelvoudigInformatieObject) } returns createDocumentRechten()
         every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
-        every { zrcClientService.readZaak(zaakUri) } returns zaak
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { zrcClientService.readZaak(zaak.url) } returns zaak
+        every { policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak) } returns createDocumentRechten()
         every { ztcClientService.readZaaktype(zaakTypeUri) } returns zaakType
         every { loggedInUserInstance.get() } returns loggedInUser
         every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny()
