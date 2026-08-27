@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Component, input, output } from "@angular/core";
+import { Component, effect, input, output, viewChild } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatSort, MatSortHeader } from "@angular/material/sort";
@@ -68,4 +68,21 @@ export class ZaakDetailsBagObjectenTabComponent {
     "omschrijving",
     "actions",
   ] as const;
+
+  private readonly sort = viewChild.required(MatSort);
+
+  constructor() {
+    effect(() => {
+      const bagObjectenDataSource = this.bagObjectenDataSource();
+      bagObjectenDataSource.sort = this.sort();
+      bagObjectenDataSource.sortingDataAccessor = (
+        { bagObject },
+        sortHeaderId,
+      ) =>
+        String(
+          bagObject?.[sortHeaderId as keyof GeneratedType<"RESTBAGObject">] ??
+            "",
+        );
+    });
+  }
 }

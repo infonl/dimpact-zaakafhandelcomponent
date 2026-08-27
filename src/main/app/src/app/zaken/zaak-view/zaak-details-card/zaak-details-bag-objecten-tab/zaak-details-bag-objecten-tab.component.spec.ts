@@ -58,6 +58,37 @@ describe(ZaakDetailsBagObjectenTabComponent.name, () => {
     fixture = TestBed.createComponent(ZaakDetailsBagObjectenTabComponent);
   });
 
+  it("sorts the rows by omschrijving when the user clicks that column header", () => {
+    renderBagObjecten([
+      bagObjectGegevens({ omschrijving: "zeeweg" }),
+      bagObjectGegevens({ omschrijving: "akkerlaan" }),
+      bagObjectGegevens({ omschrijving: "molenpad" }),
+    ]);
+
+    screen().getByText("omschrijving").click();
+    fixture.detectChanges();
+
+    const [, ...dataRows] = screen().getAllByRole("row");
+    expect(within(dataRows[0]).getByText("akkerlaan")).toBeInTheDocument();
+    expect(within(dataRows[1]).getByText("molenpad")).toBeInTheDocument();
+    expect(within(dataRows[2]).getByText("zeeweg")).toBeInTheDocument();
+  });
+
+  it("reverses the omschrijving order when the user clicks that column header twice", () => {
+    renderBagObjecten([
+      bagObjectGegevens({ omschrijving: "akkerlaan" }),
+      bagObjectGegevens({ omschrijving: "zeeweg" }),
+    ]);
+
+    screen().getByText("omschrijving").click();
+    screen().getByText("omschrijving").click();
+    fixture.detectChanges();
+
+    const [, ...dataRows] = screen().getAllByRole("row");
+    expect(within(dataRows[0]).getByText("zeeweg")).toBeInTheDocument();
+    expect(within(dataRows[1]).getByText("akkerlaan")).toBeInTheDocument();
+  });
+
   it("renders a row per gekoppeld bag object", () => {
     renderBagObjecten([bagObjectGegevens()]);
 
