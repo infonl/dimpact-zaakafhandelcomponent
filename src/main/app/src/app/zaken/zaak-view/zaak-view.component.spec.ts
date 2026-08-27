@@ -50,6 +50,7 @@ import { PersoonsgegevensComponent } from "../../klanten/persoonsgegevens/persoo
 import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
+import { RedenDialogFormComponent } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { MaterialModule } from "../../shared/material/material.module";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -1778,7 +1779,6 @@ describe(ZaakViewComponent.name, () => {
         },
       });
       fixture.detectChanges();
-      // the ViewChild resolves to the real drawer once the template renders
       openSideNav = jest
         .spyOn(fixture.componentInstance.actionsSidenav, "open")
         .mockResolvedValue("open");
@@ -1826,7 +1826,11 @@ describe(ZaakViewComponent.name, () => {
       const zaakDialogService = TestBed.inject(ZaakDialogService);
       const openVerwijderBagObject = jest
         .spyOn(zaakDialogService, "openVerwijderBagObject")
-        .mockReturnValue(dialogRef as MatDialogRef<unknown, boolean>);
+        .mockReturnValue(
+          fromPartial<MatDialogRef<RedenDialogFormComponent>>({
+            afterClosed: () => of(undefined),
+          }),
+        );
 
       detailsCard().bagObjectVerwijderen.emit(
         fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({

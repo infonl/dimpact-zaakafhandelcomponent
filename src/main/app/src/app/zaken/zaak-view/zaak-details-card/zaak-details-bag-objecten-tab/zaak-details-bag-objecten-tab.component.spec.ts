@@ -4,7 +4,6 @@
  */
 
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatTableDataSource } from "@angular/material/table";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -34,10 +33,7 @@ describe(ZaakDetailsBagObjectenTabComponent.name, () => {
     bagObjecten: GeneratedType<"RESTBAGObjectGegevens">[],
     isOntkoppelenToegestaan = true,
   ) => {
-    fixture.componentRef.setInput(
-      "bagObjectenDataSource",
-      new MatTableDataSource(bagObjecten),
-    );
+    fixture.componentRef.setInput("bagObjecten", bagObjecten);
     fixture.componentRef.setInput(
       "isOntkoppelenToegestaan",
       isOntkoppelenToegestaan,

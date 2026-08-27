@@ -18,7 +18,6 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
-import { MatTableDataSource } from "@angular/material/table";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
@@ -99,9 +98,7 @@ export class ZaakViewComponent
   teWijzigenBesluit!: GeneratedType<"RestBesluit">;
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
-  bagObjectenDataSource = new MatTableDataSource<
-    GeneratedType<"RESTBAGObjectGegevens">
-  >();
+  bagObjecten: GeneratedType<"RESTBAGObjectGegevens">[] = [];
   gekoppeldeBagObjecten: GeneratedType<"RESTBAGObject">[] = [];
 
   notitieRechten!: GeneratedType<"RestNotitieRechten">;
@@ -869,7 +866,7 @@ export class ZaakViewComponent
       this.gekoppeldeBagObjecten = bagObjecten
         .map((bg) => bg.zaakobject!)
         .filter(Boolean);
-      this.bagObjectenDataSource.data = bagObjecten;
+      this.bagObjecten = bagObjecten;
     });
   }
 

@@ -103,14 +103,14 @@
         </mat-tab>
       }
 
-      @if (bagObjectenDataSource().data.length > 0) {
+      @if (bagObjecten().length > 0) {
         <mat-tab>
           <ng-template mat-tab-label>
             <mat-icon>gps_fixed</mat-icon>
             {{ "bagObjecten" | translate }}
           </ng-template>
           <zac-zaak-details-bag-objecten-tab
-            [bagObjectenDataSource]="bagObjectenDataSource()"
+            [bagObjecten]="bagObjecten()"
             [isOntkoppelenToegestaan]="!!zaak().rechten.behandelen"
             (bagObjectVerwijderen)="bagObjectVerwijderen.emit($event)"
           ></zac-zaak-details-bag-objecten-tab>

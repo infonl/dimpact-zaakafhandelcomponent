@@ -53,10 +53,8 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   ],
 })
 export class ZaakDetailsBagObjectenTabComponent {
-  readonly bagObjectenDataSource =
-    input.required<
-      MatTableDataSource<GeneratedType<"RESTBAGObjectGegevens">>
-    >();
+  readonly bagObjecten =
+    input.required<GeneratedType<"RESTBAGObjectGegevens">[]>();
   readonly isOntkoppelenToegestaan = input(false);
 
   readonly bagObjectVerwijderen =
@@ -69,20 +67,21 @@ export class ZaakDetailsBagObjectenTabComponent {
     "actions",
   ] as const;
 
+  protected readonly dataSource = new MatTableDataSource<
+    GeneratedType<"RESTBAGObjectGegevens">
+  >([]);
+
   private readonly sort = viewChild.required(MatSort);
 
   constructor() {
+    this.dataSource.sortingDataAccessor = ({ bagObject }, sortHeaderId) =>
+      String(
+        bagObject?.[sortHeaderId as keyof GeneratedType<"RESTBAGObject">] ?? "",
+      );
+
     effect(() => {
-      const bagObjectenDataSource = this.bagObjectenDataSource();
-      bagObjectenDataSource.sort = this.sort();
-      bagObjectenDataSource.sortingDataAccessor = (
-        { bagObject },
-        sortHeaderId,
-      ) =>
-        String(
-          bagObject?.[sortHeaderId as keyof GeneratedType<"RESTBAGObject">] ??
-            "",
-        );
+      this.dataSource.sort = this.sort();
+      this.dataSource.data = this.bagObjecten();
     });
   }
 }

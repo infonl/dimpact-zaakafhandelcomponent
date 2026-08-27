@@ -13,7 +13,6 @@ import { TranslateModule } from "@ngx-translate/core";
 import { within } from "@testing-library/angular";
 import moment from "moment";
 import { fromPartial } from "src/test-helpers";
-import { StaticTextComponent } from "../../../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZaakDetailsAlgemeenTabComponent } from "./zaak-details-algemeen-tab.component";
 
@@ -39,19 +38,10 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
     fixture.detectChanges();
   };
 
-  const detailFields = () =>
-    fixture.debugElement
-      .queryAll((debugElement) => debugElement.name === "zac-static-text")
-      .map(
-        (debugElement) => debugElement.componentInstance as StaticTextComponent,
-      );
-
-  const detailFieldLabels = () => detailFields().map(({ label }) => label);
-
-  const findDetailField = (label: string) =>
-    detailFields().find((staticText) => staticText.label === label);
-
   const screen = () => within(fixture.nativeElement as HTMLElement);
+
+  const hasDetailField = (label: string) =>
+    screen().queryByText(label) !== null;
 
   // the grid placeholders are decorative aria-hidden fillers with no role,
   // accessible name or text, so no Testing Library query can reach them
@@ -68,10 +58,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [
-        // matches the locale the app provides, so dates format as they do in production
-        { provide: LOCALE_ID, useValue: "nl-NL" },
-      ],
+      providers: [{ provide: LOCALE_ID, useValue: "nl-NL" }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ZaakDetailsAlgemeenTabComponent);
@@ -85,6 +72,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
 
     it.each([
       [
+        "warns on the fataledatum alone when only that date has passed",
         {
           einddatum: null,
           einddatumGepland: null,
@@ -93,6 +81,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         1,
       ],
       [
+        "warns on both the streefdatum and the fataledatum when both have passed",
         {
           einddatum: null,
           einddatumGepland: yesterdayDate,
@@ -101,6 +90,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         2,
       ],
       [
+        "warns on neither date when the zaak has no streefdatum nor fataledatum",
         {
           einddatum: null,
           einddatumGepland: null,
@@ -109,6 +99,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         0,
       ],
       [
+        "warns on neither date when both are still in the future",
         {
           einddatum: null,
           einddatumGepland: tomorrowDate,
@@ -117,6 +108,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         0,
       ],
       [
+        "warns on neither date when the zaak was afgehandeld before both",
         {
           einddatum: today,
           einddatumGepland: tomorrowDate,
@@ -124,18 +116,15 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         },
         0,
       ],
-    ])(
-      "shows the correct warning icons for overdue data",
-      async (zaakData, expectedIcons) => {
-        renderZaak({ ...zaak, ...zaakData });
+    ])("%s", async (_scenario, zaakData, expectedIcons) => {
+      renderZaak({ ...zaak, ...zaakData });
 
-        const icons = await loader.getAllHarnesses(
-          MatIconHarness.with({ name: "report_problem" }),
-        );
+      const icons = await loader.getAllHarnesses(
+        MatIconHarness.with({ name: "report_problem" }),
+      );
 
-        expect(icons.length).toBe(expectedIcons);
-      },
-    );
+      expect(icons.length).toBe(expectedIcons);
+    });
   });
 
   describe("inactive group indicator", () => {
@@ -165,8 +154,11 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
   });
 
   describe("opschorting en verlenging remark", () => {
-    const hasRemark = (translationKey: string) =>
-      screen().queryAllByText(translationKey, { exact: false }).length > 0;
+    // the remark renders its mat-icon ligature before the translation key, so the
+    // key is anchored at the end to tell the plural key from the singular one
+    const hasRemarkKey = (key: string) =>
+      screen().queryAllByText(new RegExp(`${key.replace(/\./g, "\\.")}$`))
+        .length > 0;
 
     const renderOpschorting = (duurDagen: number) => {
       fixture.componentRef.setInput("zaak", zaak);
@@ -180,26 +172,27 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
     it("uses the plural translation key when the zaak is opgeschort for several days", () => {
       renderOpschorting(5);
 
-      expect(hasRemark("duurDagenOpschorting")).toBe(true);
+      expect(hasRemarkKey("duurDagenOpschorting")).toBe(true);
+      expect(hasRemarkKey("duurDagenOpschorting.enkelvoud")).toBe(false);
     });
 
     it("uses the singular translation key when the zaak is opgeschort for one day", () => {
       renderOpschorting(1);
 
-      expect(hasRemark("duurDagenOpschorting.enkelvoud")).toBe(true);
+      expect(hasRemarkKey("duurDagenOpschorting.enkelvoud")).toBe(true);
     });
 
     it("shows the verlenging duur when the zaak has been verlengd", () => {
       renderZaak({ ...zaak, duurVerlenging: "3" });
 
-      expect(hasRemark("duurVerlenging")).toBe(true);
+      expect(hasRemarkKey("duurVerlenging")).toBe(true);
     });
 
     it("shows no remark when the zaak is neither opgeschort nor verlengd", () => {
       renderZaak(zaak);
 
-      expect(hasRemark("duurDagenOpschorting")).toBe(false);
-      expect(hasRemark("duurVerlenging")).toBe(false);
+      expect(hasRemarkKey("duurDagenOpschorting")).toBe(false);
+      expect(hasRemarkKey("duurVerlenging")).toBe(false);
     });
   });
 
@@ -227,52 +220,45 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
   });
 
   describe("afleidingswijzeBrondatum", () => {
-    const findAfleidingswijzeField = () =>
-      findDetailField("afleidingswijzeBrondatum");
-
-    it("should show the field when afleidingswijze is set", () => {
-      renderZaak({
-        ...zaak,
-        resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
-          resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
-            bronArchiefprocedure: fromPartial<
-              GeneratedType<"BrondatumArchiefprocedure">
-            >({
-              afleidingswijze: "TERMIJN",
-            }),
+    const zaakWithAfleidingswijze = (
+      afleidingswijze: GeneratedType<"AfleidingswijzeEnum">,
+      datumKenmerkOmschrijving?: string,
+    ) => ({
+      ...zaak,
+      resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
+        resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
+          datumKenmerkOmschrijving,
+          bronArchiefprocedure: fromPartial<
+            GeneratedType<"BrondatumArchiefprocedure">
+          >({
+            afleidingswijze,
           }),
         }),
-      });
+      }),
+    });
 
-      expect(findAfleidingswijzeField()?.value).toBe(
-        "afleidingswijzeBrondatum.TERMIJN",
-      );
+    it("should show the field when afleidingswijze is set", () => {
+      renderZaak(zaakWithAfleidingswijze("TERMIJN"));
+
+      expect(
+        screen().getByText("afleidingswijzeBrondatum.TERMIJN"),
+      ).toBeInTheDocument();
     });
 
     it("should show the datumKenmerkOmschrijving when afleidingswijze is EIGENSCHAP", () => {
-      renderZaak({
-        ...zaak,
-        resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
-          resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
-            datumKenmerkOmschrijving: "fakeDatumKenmerkOmschrijving",
-            bronArchiefprocedure: fromPartial<
-              GeneratedType<"BrondatumArchiefprocedure">
-            >({
-              afleidingswijze: "EIGENSCHAP",
-            }),
-          }),
-        }),
-      });
-
-      expect(findAfleidingswijzeField()?.value).toBe(
-        "fakeDatumKenmerkOmschrijving",
+      renderZaak(
+        zaakWithAfleidingswijze("EIGENSCHAP", "fakeDatumKenmerkOmschrijving"),
       );
+
+      expect(
+        screen().getByText("fakeDatumKenmerkOmschrijving"),
+      ).toBeInTheDocument();
     });
 
     it("should not show the field when resultaat is absent", () => {
       renderZaak({ ...zaak, resultaat: null });
 
-      expect(findAfleidingswijzeField()).toBeUndefined();
+      expect(hasDetailField("afleidingswijzeBrondatum")).toBe(false);
     });
 
     it("should not show the field when resultaattype is absent", () => {
@@ -283,7 +269,7 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         }),
       });
 
-      expect(findAfleidingswijzeField()).toBeUndefined();
+      expect(hasDetailField("afleidingswijzeBrondatum")).toBe(false);
     });
 
     it("should not show the field when bronArchiefprocedure is absent", () => {
@@ -296,13 +282,11 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         }),
       });
 
-      expect(findAfleidingswijzeField()).toBeUndefined();
+      expect(hasDetailField("afleidingswijzeBrondatum")).toBe(false);
     });
   });
 
   describe("zaak detail grid", () => {
-    // the edit button occupies the action column, so grant the right that renders
-    // it — otherwise its @else placeholder is counted along with the row closers
     const zaakWithAllDetailFields = {
       ...zaak,
       rechten: { ...zaak.rechten, wijzigen: true },
@@ -321,37 +305,35 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
       }),
     } satisfies GeneratedType<"RestZaak">;
 
-    it("should format date fields with the datum pipe", () => {
+    it("should render date fields with the non-breaking hyphens of the datum pipe", () => {
       renderZaak({
         ...zaak,
         registratiedatum: "2026-01-15",
         einddatum: "2026-03-31",
       });
 
-      // the datum pipe renders non-breaking hyphens so a date never wraps
-      expect(findDetailField("registratiedatum")?.value).toBe("15‑01‑2026");
-      expect(findDetailField("einddatum")?.value).toBe("31‑03‑2026");
+      expect(screen().getByText("15‑01‑2026")).toBeInTheDocument();
+      expect(screen().getByText("31‑03‑2026")).toBeInTheDocument();
     });
 
-    it("should close every row of three fields when all fields are shown", () => {
+    it("should close rows three and six when all seven fields are shown", () => {
       renderZaak(zaakWithAllDetailFields);
 
-      expect(detailFieldLabels()).toEqual(
-        expect.arrayContaining([
-          "status",
-          "registratiedatum",
-          "resultaat",
-          "einddatum",
-          "startdatumBewaartermijn",
-          "afleidingswijzeBrondatum",
-          "archiefNominatie",
-        ]),
-      );
-      // seven visible fields, so rows three and six need closing
+      for (const label of [
+        "status",
+        "registratiedatum",
+        "resultaat",
+        "einddatum",
+        "startdatumBewaartermijn",
+        "afleidingswijzeBrondatum",
+        "archiefNominatie",
+      ]) {
+        expect(hasDetailField(label)).toBe(true);
+      }
       expect(gridPlaceholderCount()).toBe(2);
     });
 
-    it("should keep the rows aligned when conditional fields are hidden", () => {
+    it("should close only row three when the four remaining fields are shown", () => {
       renderZaak({
         ...zaak,
         rechten: { ...zaak.rechten, wijzigen: true },
@@ -361,24 +343,21 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
         resultaat: null,
       });
 
-      const labels = detailFieldLabels();
-
-      expect(labels).toEqual(
-        expect.arrayContaining([
-          "status",
-          "registratiedatum",
-          "resultaat",
-          "archiefNominatie.datum.VERNIETIGEN",
-        ]),
-      );
-      expect(labels).not.toContain("einddatum");
-      expect(labels).not.toContain("startdatumBewaartermijn");
-      expect(labels).not.toContain("afleidingswijzeBrondatum");
-      // four visible fields, so only row three needs closing
+      for (const label of [
+        "status",
+        "registratiedatum",
+        "resultaat",
+        "archiefNominatie.datum.VERNIETIGEN",
+      ]) {
+        expect(hasDetailField(label)).toBe(true);
+      }
+      expect(hasDetailField("einddatum")).toBe(false);
+      expect(hasDetailField("startdatumBewaartermijn")).toBe(false);
+      expect(hasDetailField("afleidingswijzeBrondatum")).toBe(false);
       expect(gridPlaceholderCount()).toBe(1);
     });
 
-    it("should fill the action column when the user may not edit the zaak", async () => {
+    it("should fill the action column on top of the row closers when the user may not edit the zaak", async () => {
       renderZaak({
         ...zaakWithAllDetailFields,
         rechten: { ...zaak.rechten, wijzigen: false, toekennen: false },
@@ -389,7 +368,6 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
       );
 
       expect(editIcon).toBeNull();
-      // the two row closers plus one standing in for the missing edit button
       expect(gridPlaceholderCount()).toBe(3);
     });
   });

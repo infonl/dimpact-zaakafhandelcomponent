@@ -13,7 +13,6 @@ import {
   MatCardTitle,
 } from "@angular/material/card";
 import { MatIcon } from "@angular/material/icon";
-import { MatTableDataSource } from "@angular/material/table";
 import {
   MatTab,
   MatTabContent,
@@ -65,10 +64,8 @@ import { ZaakDetailsGerelateerdeZakenTabComponent } from "./zaak-details-gerelat
 export class ZaakDetailsCardComponent {
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
   readonly zaakOpschorting = input<GeneratedType<"RESTZaakOpschorting">>();
-  readonly bagObjectenDataSource =
-    input.required<
-      MatTableDataSource<GeneratedType<"RESTBAGObjectGegevens">>
-    >();
+  readonly bagObjecten =
+    input.required<GeneratedType<"RESTBAGObjectGegevens">[]>();
   readonly showBetrokkeneKoppelingen = input(false);
 
   readonly editCaseDetails = output<void>();

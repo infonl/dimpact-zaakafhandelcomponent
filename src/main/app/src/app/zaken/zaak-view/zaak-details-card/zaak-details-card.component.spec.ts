@@ -8,8 +8,8 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatIconHarness } from "@angular/material/icon/testing";
-import { MatTableDataSource } from "@angular/material/table";
 import { MatTabGroupHarness } from "@angular/material/tabs/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
@@ -43,17 +43,12 @@ describe(ZaakDetailsCardComponent.name, () => {
   const renderCard = (
     inputs: Partial<{
       zaak: GeneratedType<"RestZaak">;
-      bagObjectenDataSource: MatTableDataSource<
-        GeneratedType<"RESTBAGObjectGegevens">
-      >;
+      bagObjecten: GeneratedType<"RESTBAGObjectGegevens">[];
       showBetrokkeneKoppelingen: boolean;
     }> = {},
   ) => {
     fixture.componentRef.setInput("zaak", inputs.zaak ?? zaak);
-    fixture.componentRef.setInput(
-      "bagObjectenDataSource",
-      inputs.bagObjectenDataSource ?? new MatTableDataSource([]),
-    );
+    fixture.componentRef.setInput("bagObjecten", inputs.bagObjecten ?? []);
     fixture.componentRef.setInput(
       "showBetrokkeneKoppelingen",
       inputs.showBetrokkeneKoppelingen ?? false,
@@ -69,13 +64,31 @@ describe(ZaakDetailsCardComponent.name, () => {
     return labels.map((label) => label.split(/\s+/).pop());
   };
 
+  // the edit buttons carry no accessible name, so they are reached by the
+  // ligature of the icon they render
+  const editButton = () =>
+    loader.getHarnessOrNull(MatButtonHarness.with({ text: "edit" }));
+
+  const openTab = async (label: RegExp) => {
+    const tabGroup = await loader.getHarness(MatTabGroupHarness);
+    await tabGroup.selectTab({ label });
+    fixture.detectChanges();
+  };
+
+  let originalResizeObserver: typeof global.ResizeObserver;
+
   beforeEach(() => {
     // the locatie tab renders an OpenLayers map, which observes its container
+    originalResizeObserver = global.ResizeObserver;
     global.ResizeObserver = class {
       observe() {}
       unobserve() {}
       disconnect() {}
     };
+  });
+
+  afterEach(() => {
+    global.ResizeObserver = originalResizeObserver;
   });
 
   beforeEach(async () => {
@@ -180,7 +193,7 @@ describe(ZaakDetailsCardComponent.name, () => {
 
     it("adds the bagObjecten tab when bag objecten are linked", async () => {
       renderCard({
-        bagObjectenDataSource: new MatTableDataSource([
+        bagObjecten: [
           fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
             bagObject: fromPartial<GeneratedType<"RESTBAGObject">>({
               identificatie: "fakeBagIdentificatie",
@@ -188,10 +201,103 @@ describe(ZaakDetailsCardComponent.name, () => {
               omschrijving: "fakeBagOmschrijving",
             }),
           }),
-        ]),
+        ],
       });
 
       expect(await tabLabels()).toContain("bagObjecten");
+    });
+  });
+  describe("locatie tab", () => {
+    const zaakOpLocatie = (wijzigenLocatie: boolean) => ({
+      ...zaak,
+      zaakgeometrie: fromPartial<GeneratedType<"RestGeometry">>({
+        type: "POINT",
+        point: { latitude: 52.1, longitude: 5.2 },
+      }),
+      rechten: { ...zaak.rechten, wijzigenLocatie },
+    });
+
+    it("shows the coordinates of the zaakgeometrie", async () => {
+      renderCard({ zaak: zaakOpLocatie(false) });
+      await openTab(/locatie/);
+
+      expect(screen().getByText("52.1, 5.2")).toBeInTheDocument();
+    });
+
+    it("emits editLocationDetails when the user may edit the locatie", async () => {
+      renderCard({ zaak: zaakOpLocatie(true) });
+      await openTab(/locatie/);
+      const editLocationDetails = jest.fn();
+      fixture.componentInstance.editLocationDetails.subscribe(
+        editLocationDetails,
+      );
+
+      await (await editButton())!.click();
+
+      expect(editLocationDetails).toHaveBeenCalled();
+    });
+
+    it("offers no edit button when the user may not edit the locatie", async () => {
+      renderCard({ zaak: zaakOpLocatie(false) });
+      await openTab(/locatie/);
+
+      expect(await editButton()).toBeNull();
+    });
+  });
+
+  describe("wiring to the tab components", () => {
+    it("re-emits editCaseDetails from the algemeen tab", async () => {
+      const editCaseDetails = jest.fn();
+      renderCard({
+        zaak: { ...zaak, rechten: { ...zaak.rechten, wijzigen: true } },
+      });
+      fixture.componentInstance.editCaseDetails.subscribe(editCaseDetails);
+
+      await (await editButton())!.click();
+
+      expect(editCaseDetails).toHaveBeenCalled();
+    });
+
+    it("re-emits zaakOntkoppelen from the gerelateerde zaken tab", async () => {
+      const zaakOntkoppelen = jest.fn();
+      const gerelateerdeZaak = fromPartial<
+        GeneratedType<"RestGerelateerdeZaak">
+      >({
+        identificatie: "ZAAK-2026-0002",
+        rechten: { lezen: true },
+        ontkoppelen: true,
+      });
+      renderCard({ zaak: { ...zaak, gerelateerdeZaken: [gerelateerdeZaak] } });
+      await openTab(/gerelateerdeZaken/);
+      fixture.componentInstance.zaakOntkoppelen.subscribe(zaakOntkoppelen);
+
+      screen().getByRole("button", { name: "actie.zaak.ontkoppelen" }).click();
+
+      expect(zaakOntkoppelen).toHaveBeenCalledWith(gerelateerdeZaak);
+    });
+
+    it("re-emits bagObjectVerwijderen from the bag objecten tab", async () => {
+      const bagObjectVerwijderen = jest.fn();
+      const gekoppeldBagObject = fromPartial<
+        GeneratedType<"RESTBAGObjectGegevens">
+      >({
+        bagObject: fromPartial<GeneratedType<"RESTBAGObject">>({
+          identificatie: "fakeBagIdentificatie",
+          bagObjectType: "ADRES",
+          omschrijving: "fakeBagOmschrijving",
+        }),
+      });
+      renderCard({ bagObjecten: [gekoppeldBagObject] });
+      await openTab(/bagObjecten/);
+      fixture.componentInstance.bagObjectVerwijderen.subscribe(
+        bagObjectVerwijderen,
+      );
+
+      screen()
+        .getByRole("button", { name: "actie.bagObject.ontkoppelen" })
+        .click();
+
+      expect(bagObjectVerwijderen).toHaveBeenCalledWith(gekoppeldBagObject);
     });
   });
 });
