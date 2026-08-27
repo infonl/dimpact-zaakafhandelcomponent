@@ -6,6 +6,7 @@ package net.atos.zac.solr.schema
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import nl.info.zac.solr.schema.SolrSchemaV8
 
 class SolrSchemaV8Test : BehaviorSpec({
     given("Solr schema version 8") {

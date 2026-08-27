@@ -2,13 +2,13 @@
  * SPDX-FileCopyrightText: 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-package net.atos.zac.solr.schema
+package nl.info.zac.solr.schema
 
-import net.atos.zac.solr.FieldType.BOOLEAN
-import net.atos.zac.solr.SolrSchemaUpdate
-import net.atos.zac.solr.SolrSchemaUpdateHelper.addCopyField
-import net.atos.zac.solr.SolrSchemaUpdateHelper.addField
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.solr.FieldType.BOOLEAN
+import nl.info.zac.solr.SolrSchemaUpdate
+import nl.info.zac.solr.addCopyField
+import nl.info.zac.solr.addField
 import org.apache.solr.client.solrj.request.schema.SchemaRequest
 
 /**
@@ -18,12 +18,12 @@ import org.apache.solr.client.solrj.request.schema.SchemaRequest
  * werklijsten and zoekresultaten can filter on it.
  */
 class SolrSchemaV8 : SolrSchemaUpdate {
-    override fun getVersie() = 8
+    override val versie = 8
 
     // Reindexing zaken, taken and documenten at startup is not done automatically; run it manually instead.
-    override fun getTeHerindexerenZoekObjectTypes() = emptySet<ZoekObjectType>()
+    override val teHerindexerenZoekObjectTypes = emptySet<ZoekObjectType>()
 
-    override fun getSchemaUpdates(): List<SchemaRequest.Update> = listOf<SchemaRequest.Update>(
+    override val schemaUpdates: List<SchemaRequest.Update> = listOf<SchemaRequest.Update>(
         addField("zaakspecifiekGeautoriseerd", BOOLEAN, true),
         addField("zaak_zaakspecifiekGeautoriseerd", BOOLEAN, true),
         addCopyField("zaak_zaakspecifiekGeautoriseerd", "zaakspecifiekGeautoriseerd"),
