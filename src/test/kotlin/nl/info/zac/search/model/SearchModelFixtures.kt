@@ -6,6 +6,7 @@
 package nl.info.zac.search.model
 
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -62,4 +63,26 @@ fun createTaakZoekObject(
     this.zaakIdentificatie = zaakIdentificatie
     this.zaakOmschrijving = zaakOmschrijving
     this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
+}
+
+@Suppress("LongParameterList")
+fun createDocumentZoekObject(
+    uuidAsString: String = UUID.randomUUID().toString(),
+    type: ZoekObjectType = ZoekObjectType.DOCUMENT,
+    zaaktypeIdentificatie: String = "fakeZaaktypeIdentificatie",
+    zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
+    zaaktypeUuid: String = UUID.randomUUID().toString(),
+    zaakIdentificatie: String = "identificatie",
+    zaakUuid: String = UUID.randomUUID().toString(),
+    isZaakAfgehandeld: Boolean = false
+) = DocumentZoekObject(
+    id = uuidAsString,
+    type = type.name
+).apply {
+    this.zaaktypeIdentificatie = zaaktypeIdentificatie
+    this.zaaktypeUuid = zaaktypeUuid
+    this.zaaktypeOmschrijving = zaaktypeOmschrijving
+    this.zaakIdentificatie = zaakIdentificatie
+    this.zaakUuid = zaakUuid
+    this.isZaakAfgehandeld = isZaakAfgehandeld
 }
