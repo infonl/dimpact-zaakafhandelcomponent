@@ -12,11 +12,11 @@ fun createRestMailGegevens(
     ontvanger: String = "to@example.com",
     onderwerp: String = "fakeOnderwerp",
     body: String = "fakeBody",
-    vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding? = RestVertrouwelijkheidaanduiding.OPENBAAR,
-) = RestMailGegevens().apply {
-    this.verzender = verzender
-    this.ontvanger = ontvanger
-    this.onderwerp = onderwerp
-    this.body = body
-    this.vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
-}
+    vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR,
+) = RestMailGegevens(
+    verzender = verzender,
+    ontvanger = ontvanger,
+    onderwerp = onderwerp,
+    body = body,
+    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
+)

@@ -280,7 +280,8 @@ class MailRestServiceTest : BehaviorSpec({
                     "onderwerp": "Zaakdata test",
                     "body": "<p>Zaaktype: {ZAAKDATA:zaaktypeOmschrijving}</p>",
                     "bijlagen": "",
-                    "createDocumentFromMail": false
+                    "createDocumentFromMail": false,
+                    "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                 }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1

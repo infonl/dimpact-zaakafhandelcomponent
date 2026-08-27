@@ -17,12 +17,7 @@ import nl.info.zac.configuration.ConfigurationService
 
 class RestMailGegevensConverterTest : BehaviorSpec({
     val configurationService = mockk<ConfigurationService>()
-    val restMailGegevensConverter = RestMailGegevensConverter().also { instance ->
-        instance.javaClass.getDeclaredField("configurationService").also {
-            it.isAccessible = true
-            it.set(instance, configurationService)
-        }
-    }
+    val restMailGegevensConverter = RestMailGegevensConverter(configurationService)
     val gemeenteNaam = "fakeGemeenteNaam"
 
     afterEach {
@@ -58,21 +53,6 @@ class RestMailGegevensConverterTest : BehaviorSpec({
                 mailGegevens.body shouldBe "fakeBody"
                 mailGegevens.attachments shouldBe listOf("fakeAttachmentUuid")
                 mailGegevens.isCreateDocumentFromMail shouldBe true
-            }
-        }
-    }
-
-    given("a RestMailGegevens without a vertrouwelijkheidaanduiding") {
-        every { configurationService.readGemeenteNaam() } returns gemeenteNaam
-        val restMailGegevens = createRestMailGegevens(
-            vertrouwelijkheidaanduiding = null
-        )
-
-        `when`("convert is called") {
-            val mailGegevens = restMailGegevensConverter.convert(restMailGegevens)
-
-            then("the domain MailGegevens carries the ZGW 'empty' placeholder; every caller is expected to set Openbaar explicitly") {
-                mailGegevens.vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.EMPTY
             }
         }
     }
