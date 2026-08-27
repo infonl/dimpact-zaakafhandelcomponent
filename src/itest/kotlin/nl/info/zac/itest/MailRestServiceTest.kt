@@ -75,7 +75,8 @@ class MailRestServiceTest : BehaviorSpec({
                     "onderwerp": "subject",
                     "body": "$body",
                     "bijlagen": "$informatieobjectUuid",
-                    "createDocumentFromMail": true
+                    "createDocumentFromMail": true,
+                    "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
                 }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
