@@ -15,7 +15,6 @@ import nl.info.zac.util.NoArgConstructor
  */
 @NoArgConstructor
 @AllOpen
-@Suppress("LongParameterList")
 data class RestMailGegevens(
     @field:NotBlank
     var verzender: String,
