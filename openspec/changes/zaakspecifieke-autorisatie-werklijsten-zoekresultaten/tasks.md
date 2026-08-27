@@ -9,9 +9,12 @@
       `zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)`; verify with converter unit tests asserting
       the field is `true`/`false` for a flagged/unflagged zaak.
 - [x] 1.3 Add a new `SolrSchemaVx` (next version after the current highest) that adds the three prefixed
-      boolean fields, a `copyField` from each into a shared `zaakspecifiekGeautoriseerd` field (mirroring
-      the existing `zaaktypeOmschrijving` copyField pattern), and lists `ZAAK`, `TAAK`, and `DOCUMENT` in
-      `getTeHerindexerenZoekObjectTypes()`; verify with a `SolrSchemaVx` unit test matching the existing
+      boolean fields and a `copyField` from each into a shared `zaakspecifiekGeautoriseerd` field (mirroring
+      the existing `zaaktypeOmschrijving` copyField pattern). Leave `getTeHerindexerenZoekObjectTypes()`
+      empty for this version — no zaak in production is zaakspecifiek geautoriseerd yet, so there is
+      nothing to backfill, and reindexing all zaken/taken/documenten upfront could take a long time on
+      large environments; a later story in this epic lists `ZAAK`, `TAAK`, and `DOCUMENT` there once the
+      flag starts being set for real zaken. Verify with a `SolrSchemaVx` unit test matching the existing
       `SolrSchemaV*` test pattern.
 
 ## 2. Search-time filtering

@@ -20,7 +20,9 @@ import org.apache.solr.client.solrj.request.schema.SchemaRequest
 class SolrSchemaV8 : SolrSchemaUpdate {
     override val versie = 8
 
-    // Reindexing zaken, taken and documenten at startup is not done automatically; run it manually instead.
+    // No zaken are zaakspecifiek geautoriseerd in production yet. Automatic reindexing of existing
+    // zaken, taken and documenten is deferred to a later phase of this epic, to avoid a possibly very long
+    // reindex on environments with a lot of data; run it manually instead until then.
     override val teHerindexerenZoekObjectTypes = emptySet<ZoekObjectType>()
 
     override val schemaUpdates: List<SchemaRequest.Update> = listOf<SchemaRequest.Update>(

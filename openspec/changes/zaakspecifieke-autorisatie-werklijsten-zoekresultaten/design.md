@@ -53,12 +53,17 @@ into one shared `zaakspecifiekGeautoriseerd` Solr field — the same pattern alr
 `TAAK`, and `DOCUMENT` result rows, consistent with how the existing allowed-zaaktypen filter already
 works across all three.
 
-### New Solr schema version, reindexing all three zoekobject types
+### New Solr schema version; automatic reindex deferred to a later phase
 
-Add a new `SolrSchemaVx` (next after the current highest version) that adds the three fields, the
-copyField, and lists `ZAAK`, `TAAK`, and `DOCUMENT` in `getTeHerindexerenZoekObjectTypes()` — following the
-existing versioning/reindex mechanism in `SolrDeployerService`/`SolrSchemaUpdate`. Every previously-indexed
-document is reindexed once on deploy so the new field reflects each zaak's actual eigenschap value.
+Add a new `SolrSchemaVx` (next after the current highest version) that adds the three fields and the
+copyField, following the existing versioning mechanism in `SolrDeployerService`/`SolrSchemaUpdate`. It
+lists no zoekobject types in `getTeHerindexerenZoekObjectTypes()` yet: no zaak in production is
+zaakspecifiek geautoriseerd at this point in the epic's rollout, so there is nothing yet for the new
+field to correct, and triggering an automatic reindex of every zaak/taak/document would take a long time
+(potentially days) on environments with a lot of data, for no observable benefit today. A later story in
+this epic lists `ZAAK`, `TAAK`, and `DOCUMENT` in a subsequent schema version once the flag starts being
+set, so previously-indexed documents get reindexed at that point. Until then, the field can be backfilled
+manually on any environment where it is needed sooner.
 
 ### Filter construction: exclude flagged rows per zaaktype the user lacks the flag for
 
@@ -85,14 +90,15 @@ to describe.
 
 ## Risks / Trade-offs
 
-- [Reindex is asynchronous and takes time proportional to the number of zaken/taken/documenten] → Same
-  trade-off every prior `SolrSchemaUpdate` already accepts (e.g. `SolrSchemaV7`); until reindexing
-  completes, the new field is absent/default on not-yet-reindexed documents.
-- [A document not yet reindexed defaults the new field to unset/false, which the filter treats as "not
-  flagged" — briefly under-restrictive rather than over-restrictive during the reindex window] → Accepted:
-  identical in kind to the existing single-resource path being eventually consistent with ZGW; the reindex
-  is triggered automatically and immediately on deploy, and this is a short, one-time transitional window,
-  not steady-state behavior. No mitigation beyond what `SolrDeployerService` already provides.
+- [No automatic reindex means every zaak/taak/document indexed before this deploy keeps the new field
+  unset/false until it is next reindexed by its normal event-driven trigger or a later schema version] →
+  Accepted: no zaak in production is zaakspecifiek geautoriseerd yet, so "not flagged" is also the correct
+  value for all pre-existing data — there is nothing to backfill. A later story in this epic adds the
+  reindex once the flag starts being set for real zaken.
+- [A future automatic reindex (once triggered) is asynchronous and takes time proportional to the number
+  of zaken/taken/documenten] → Same trade-off every prior `SolrSchemaUpdate` already accepts (e.g.
+  `SolrSchemaV7`); deferring it here also avoids imposing a multi-day reindex on large environments before
+  it is actually needed.
 - [Denormalizing the flag means a zaakeigenschap change made directly in Open Zaak/ZGW after indexing is
   stale in Solr until the zaak is reindexed] → Existing, accepted behavior of the search index in general
   (every other zaak field already has this property); the zaak's own event-driven reindex triggers
@@ -101,12 +107,10 @@ to describe.
 ## Migration Plan
 
 Deploy-time only, no manual steps: the new `SolrSchemaVx` is picked up by `SolrDeployerService` on next
-startup, applies the schema changes, and triggers a full reindex of `ZAAK`, `TAAK`, and `DOCUMENT`. No
-rollback concerns beyond the existing schema-version mechanism (a later deploy would need its own schema
-version to revert, same as any other `SolrSchemaUpdate`).
-
-`SolrDeployerService.onStartup` submits the reindex to a `ManagedExecutorService` and returns without
-waiting for it, and `IndexingService.reindex()` pages through zaken/taken/documenten on that background
-thread — so this schema bump does not delay WildFly readiness and causes no deploy-time downtime, on an
-environment with any number of zaken, taken, or documenten; existing (pre-flag) behaviour simply continues
-for each row until its turn in the reindex is reached.
+startup and applies the schema changes. It does not trigger a reindex — `getTeHerindexerenZoekObjectTypes()`
+is empty for this version — so this deploy causes no reindex load and no deploy-time downtime on any
+environment, regardless of the number of zaken, taken, or documenten. A later story in this epic adds the
+reindex, once zaken actually start being flagged zaakspecifiek geautoriseerd, following the same
+`SolrDeployerService`/`ManagedExecutorService` background-reindex mechanism used by prior schema versions
+(e.g. `SolrSchemaV7`). No rollback concerns beyond the existing schema-version mechanism (a later deploy
+would need its own schema version to revert, same as any other `SolrSchemaUpdate`).

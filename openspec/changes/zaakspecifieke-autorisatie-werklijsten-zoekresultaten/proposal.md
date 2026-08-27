@@ -22,8 +22,10 @@ exactly as they would see any other zaak of that zaaktype. No visual indicator i
 - Index the zaak's `ZAAK_GEAUTORISEERD` eigenschap into Solr as a new boolean field on the `ZaakZoekObject`,
   `TaakZoekObject`, and `DocumentZoekObject` documents (denormalized at index time from
   `ZrcClientService.isZaakspecifiekGeautoriseerd`, mirroring how `PolicyService` already reads it for
-  single-resource rechten), via a new Solr schema version that triggers a one-time reindex of all three
-  zoekobject types.
+  single-resource rechten), via a new Solr schema version. This version does not trigger a reindex of
+  existing data: no zaak in production is zaakspecifiek geautoriseerd yet, so there is nothing to backfill,
+  and reindexing all zaken/taken/documenten upfront could take a long time on large environments. A later
+  story in this epic adds the reindex once the flag starts being set for real zaken.
 - Extend `SearchService.search()`'s existing allowed-zaaktypen filter query so that, for a zaaktype where
   the logged-in user holds an application role but not `zaakspecifiek_geautoriseerd`, zaakspecifiek
   geautoriseerde zaken (and their taken/documenten) of that zaaktype are excluded from the Solr result set
@@ -55,8 +57,8 @@ exactly as they would see any other zaak of that zaaktype. No visual indicator i
   — new indexed boolean field.
 - `src/main/kotlin/nl/info/zac/search/converter/{ZaakZoekObjectConverter,TaakZoekObjectConverter,DocumentZoekObjectConverter}.kt`
   — populate the new field at index time.
-- `src/main/java/net/atos/zac/solr/schema/` — new `SolrSchemaVx` adding the field and triggering reindex
-  of `ZAAK`, `TAAK`, and `DOCUMENT`.
+- `src/main/kotlin/nl/info/zac/solr/schema/` — new `SolrSchemaVx` adding the field, without triggering a
+  reindex (deferred to a later phase of this epic).
 - `src/main/kotlin/nl/info/zac/search/SearchService.kt` — new filter query alongside
   `getAllowedZaaktypenFilterQuery()`.
 - `src/main/kotlin/nl/info/zac/policy/PolicyService.kt` — the three zoekobject-based `readXxxRechten`
