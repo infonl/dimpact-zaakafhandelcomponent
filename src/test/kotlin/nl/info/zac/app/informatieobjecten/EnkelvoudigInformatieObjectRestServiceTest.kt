@@ -907,23 +907,21 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns createDocumentRechtenAllDeny()
 
         `when`("readEnkelvoudigInformatieobject is called") {
-            val policyException = shouldThrow<PolicyException> {
+            shouldThrow<PolicyException> {
                 enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid)
             }
 
             then("no REST representation of the document is built") {
-                policyException shouldNotBe null
                 verify(exactly = 0) { restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak) }
             }
         }
 
         `when`("readEnkelvoudigInformatieobjectVersion is called") {
-            val policyException = shouldThrow<PolicyException> {
+            shouldThrow<PolicyException> {
                 enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobjectVersion(uuid, 1)
             }
 
             then("neither the requested version nor its REST representation is fetched") {
-                policyException shouldNotBe null
                 verify(exactly = 0) { drcClientService.readEnkelvoudigInformatieobjectVersie(any(), any()) }
                 verify(exactly = 0) { restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak) }
             }

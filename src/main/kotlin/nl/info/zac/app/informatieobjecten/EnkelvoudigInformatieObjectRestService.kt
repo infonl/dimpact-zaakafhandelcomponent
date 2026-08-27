@@ -136,7 +136,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     /**
      * A document can be linked to more than one zaak, while the document rights are determined by a single zaak.
-     * The first linked zaak is used, matching the order in which the document registry returns them.
+     * The first linked zaak is used, in the order in which the Zaken API returns them.
      */
     private fun findZaakForDocument(enkelvoudigInformatieObject: EnkelvoudigInformatieObject): Zaak? =
         zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
