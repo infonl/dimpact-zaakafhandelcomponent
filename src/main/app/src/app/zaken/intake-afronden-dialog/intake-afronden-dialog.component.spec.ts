@@ -41,7 +41,7 @@ const contactDetails = fromPartial<GeneratedType<"RestContactDetails">>({
   emailadres: "fakeInitiator@example.com",
 });
 
-const mailtemplateOntvankelijk = fromPartial<GeneratedType<"RESTMailtemplate">>(
+const mailtemplateOntvankelijk = fromPartial<GeneratedType<"RestMailtemplate">>(
   {
     onderwerp: "fakeOnderwerpOntvankelijk",
     body: "<p>fakeBodyOntvankelijk</p>",
@@ -49,7 +49,7 @@ const mailtemplateOntvankelijk = fromPartial<GeneratedType<"RESTMailtemplate">>(
 );
 
 const mailtemplateNietOntvankelijk = fromPartial<
-  GeneratedType<"RESTMailtemplate">
+  GeneratedType<"RestMailtemplate">
 >({
   onderwerp: "fakeOnderwerpNietOntvankelijk",
   body: "<p>fakeBodyNietOntvankelijk</p>",
@@ -339,13 +339,31 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       request.flush(null);
     });
 
-    it("sends the niet-ontvankelijk mail when the zaak is declared niet ontvankelijk", async () => {
+    it("omits vertrouwelijkheidaanduiding from restMailGegevens, leaving it to the backend's Openbaar default", async () => {
       await setup(createZaak("BESCHIKBAAR_AAN"));
+      await answerOntvankelijk("actie.ja");
+      await user.type(
+        screen.getByLabelText("ontvanger"),
+        "fakeOntvanger@example.com",
+      );
+
+      const request = await afronden();
+
+      expect(
+        request.request.body.restMailGegevens.vertrouwelijkheidaanduiding,
+      ).toBeUndefined();
+
+      request.flush(null);
+    });
+
+    it("uses niet-ontvankelijk mailtemplate when ontvankelijk is false", async () => {
+      await setup(createZaak("BESCHIKBAAR_UIT"));
       await answerOntvankelijk("actie.nee");
       await user.type(
         screen.getByLabelText("redenNietOntvankelijk"),
         "fakeReden",
       );
+      await user.click(screen.getByRole("checkbox", { name: "sendMail" }));
       await user.type(
         screen.getByLabelText("ontvanger"),
         "fakeOntvanger@example.com",

@@ -18,6 +18,7 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.admin.model.createMailTemplate
@@ -77,6 +78,8 @@ class SendEmailDelegateTest : BehaviorSpec({
         every { toExpression.getValue(delegateExecution) } returns toEmail
         val templateExpression = mockk<JuelExpression>()
         every { templateExpression.getValue(delegateExecution) } returns templateName
+        val vertrouwelijkheidaanduidingExpression = mockk<JuelExpression>()
+        every { vertrouwelijkheidaanduidingExpression.getValue(delegateExecution) } returns "OPENBAAR"
 
         every { mailTemplateService.findMailtemplateByName(templateName) } returns mailTemplate
 
@@ -89,6 +92,7 @@ class SendEmailDelegateTest : BehaviorSpec({
             from = fromExpression
             to = toExpression
             template = templateExpression
+            vertrouwelijkheidaanduiding = vertrouwelijkheidaanduidingExpression
         }
 
         `when`("the delegate is called") {
@@ -99,10 +103,11 @@ class SendEmailDelegateTest : BehaviorSpec({
                     fromExpression.getValue(delegateExecution)
                     toExpression.getValue(delegateExecution)
                     templateExpression.getValue(delegateExecution)
+                    vertrouwelijkheidaanduidingExpression.getValue(delegateExecution)
                 }
             }
 
-            And("the mail was sent") {
+            and("the mail was sent") {
                 verify(exactly = 1) {
                     mailTemplateService.findMailtemplateByName(templateName)
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
@@ -112,6 +117,7 @@ class SendEmailDelegateTest : BehaviorSpec({
                     to.email shouldBeEqual toEmail
                     from.email shouldBeEqual fromEmail
                     isCreateDocumentFromMail shouldBe true
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
         }
@@ -141,6 +147,8 @@ class SendEmailDelegateTest : BehaviorSpec({
         every { toExpression.getValue(delegateExecution) } returns toEmail
         val templateExpression = mockk<FixedValue>()
         every { templateExpression.getValue(delegateExecution) } returns templateName
+        val vertrouwelijkheidaanduidingExpression = mockk<FixedValue>()
+        every { vertrouwelijkheidaanduidingExpression.getValue(delegateExecution) } returns "OPENBAAR"
 
         every { mailTemplateService.findMailtemplateByName(templateName) } returns mailTemplate
 
@@ -153,6 +161,7 @@ class SendEmailDelegateTest : BehaviorSpec({
             from = fromExpression
             to = toExpression
             template = templateExpression
+            vertrouwelijkheidaanduiding = vertrouwelijkheidaanduidingExpression
         }
 
         `when`("the delegate is called") {
@@ -163,10 +172,11 @@ class SendEmailDelegateTest : BehaviorSpec({
                     fromExpression.getValue(delegateExecution)
                     toExpression.getValue(delegateExecution)
                     templateExpression.getValue(delegateExecution)
+                    vertrouwelijkheidaanduidingExpression.getValue(delegateExecution)
                 }
             }
 
-            And("the mail was sent") {
+            and("the mail was sent") {
                 verify(exactly = 1) {
                     mailTemplateService.findMailtemplateByName(templateName)
                     mailService.sendMail(any<MailGegevens>(), any<Bronnen>())
@@ -176,6 +186,7 @@ class SendEmailDelegateTest : BehaviorSpec({
                     to.email shouldBeEqual toEmail
                     from.email shouldBeEqual fromEmail
                     isCreateDocumentFromMail shouldBe true
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
         }
@@ -210,6 +221,101 @@ class SendEmailDelegateTest : BehaviorSpec({
 
             then("a PolicyException is thrown") {
                 policyException shouldNotBe null
+            }
+
+            and("no mail is sent") {
+                verify(exactly = 0) {
+                    mailService.sendMail(any(), any())
+                }
+            }
+        }
+    }
+
+    given("vertrouwelijkheidaanduiding field is missing on a BPMN service task") {
+        mockkObject(FlowableHelper)
+        val flowableHelper = mockk<FlowableHelper>()
+        every { FlowableHelper.getInstance() } returns flowableHelper
+        every { flowableHelper.zrcClientService } returns zrcClientService
+        every { flowableHelper.policyService } returns policyService
+        every { flowableHelper.loggedInUserInstance } returns loggedInUserInstance
+
+        every { delegateExecution.parent } returns parentDelegateExecution
+        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
+
+        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(versturenEmail = true)
+
+        val fromExpression = mockk<JuelExpression>()
+        every { fromExpression.getValue(delegateExecution) } returns fromEmail
+        val toExpression = mockk<JuelExpression>()
+        every { toExpression.getValue(delegateExecution) } returns toEmail
+        val templateExpression = mockk<JuelExpression>()
+        every { templateExpression.getValue(delegateExecution) } returns templateName
+
+        val sendEmailDelegate = SendEmailDelegate().apply {
+            from = fromExpression
+            to = toExpression
+            template = templateExpression
+        }
+
+        `when`("the delegate is called") {
+            val illegalArgumentException = shouldThrow<IllegalArgumentException> {
+                sendEmailDelegate.execute(delegateExecution)
+            }
+
+            then("an IllegalArgumentException describing the missing field is thrown") {
+                illegalArgumentException.message shouldBe "Required field 'vertrouwelijkheidaanduiding' is missing"
+            }
+
+            And("no mail is sent") {
+                verify(exactly = 0) {
+                    mailService.sendMail(any(), any())
+                }
+            }
+        }
+    }
+
+    given("vertrouwelijkheidaanduiding field resolves to an unknown confidentiality level") {
+        mockkObject(FlowableHelper)
+        val flowableHelper = mockk<FlowableHelper>()
+        every { FlowableHelper.getInstance() } returns flowableHelper
+        every { flowableHelper.zrcClientService } returns zrcClientService
+        every { flowableHelper.policyService } returns policyService
+        every { flowableHelper.loggedInUserInstance } returns loggedInUserInstance
+
+        every { delegateExecution.parent } returns parentDelegateExecution
+        every { parentDelegateExecution.getVariable(ZaakVariabelenService.VAR_ZAAK_IDENTIFICATIE) } returns zaak.identificatie
+
+        every { zrcClientService.readZaakByID(zaak.identificatie) } returns zaak
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(versturenEmail = true)
+
+        val fromExpression = mockk<JuelExpression>()
+        every { fromExpression.getValue(delegateExecution) } returns fromEmail
+        val toExpression = mockk<JuelExpression>()
+        every { toExpression.getValue(delegateExecution) } returns toEmail
+        val templateExpression = mockk<JuelExpression>()
+        every { templateExpression.getValue(delegateExecution) } returns templateName
+        val vertrouwelijkheidaanduidingExpression = mockk<JuelExpression>()
+        every { vertrouwelijkheidaanduidingExpression.getValue(delegateExecution) } returns "NIET_BESTAAND"
+
+        val sendEmailDelegate = SendEmailDelegate().apply {
+            from = fromExpression
+            to = toExpression
+            template = templateExpression
+            vertrouwelijkheidaanduiding = vertrouwelijkheidaanduidingExpression
+        }
+
+        `when`("the delegate is called") {
+            val illegalArgumentException = shouldThrow<IllegalArgumentException> {
+                sendEmailDelegate.execute(delegateExecution)
+            }
+
+            then("an IllegalArgumentException describing the invalid value is thrown") {
+                illegalArgumentException.message shouldBe "'NIET_BESTAAND' is not a valid 'vertrouwelijkheidaanduiding'"
             }
 
             And("no mail is sent") {

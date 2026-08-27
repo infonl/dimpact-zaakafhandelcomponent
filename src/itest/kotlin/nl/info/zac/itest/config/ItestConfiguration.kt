@@ -74,6 +74,8 @@ object ItestConfiguration {
     const val OBJECT_PRODUCTAANVRAAG_INBOX_ONLY_1_UUID = "b2f6c1d4-a5e7-4890-bcde-f01234567890"
     const val OBJECT_PRODUCTAANVRAAG_INBOX_ONLY_2_UUID = "c3d7e2f5-b6f8-5901-cdef-012345678901"
     const val PRODUCTAANVRAAG_TYPE_INBOX_ONLY = "inbox-only-productaanvraag-type"
+    const val OBJECT_PRODUCTAANVRAAG_CONCURRENT_UUID = "d4e8f3a6-c7a9-6012-def0-123456789012"
+    const val PRODUCTAANVRAAG_TYPE_CONCURRENT_NOTIFICATIONS = "concurrent-notifications-productaanvraag-type"
     const val OBJECTS_BASE_URI = "http://open-object.local:8000"
     const val OBJECTTYPE_UUID_PRODUCTAANVRAAG_DIMPACT = "021f685e-9482-4620-b157-34cd4003da6b"
     const val OFFICE_CONVERTER_BASE_URI = "http://office-converter:3000"
@@ -121,6 +123,7 @@ object ItestConfiguration {
     const val STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE = "Wacht op aanvullende informatie"
     const val VERTROUWELIJKHEIDAANDUIDING_ZAAKVERTROUWELIJK = "ZAAKVERTROUWELIJK"
     const val VERTROUWELIJKHEIDAANDUIDING_OPENBAAR = "OPENBAAR"
+    const val VERTROUWELIJKHEIDAANDUIDING_ZEER_GEHEIM = "ZEER_GEHEIM"
 
     const val TEST_GEMEENTE_EMAIL_ADDRESS = "gemeente-zac-test@example.com"
     const val TEST_GEMEENTE_CODE_LEIDSCHENDAM_VOORBURG = "1916"

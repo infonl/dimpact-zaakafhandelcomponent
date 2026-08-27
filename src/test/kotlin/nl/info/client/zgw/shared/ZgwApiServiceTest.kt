@@ -577,11 +577,11 @@ class ZgwApiServiceTest : BehaviorSpec({
                     verify { zrcClientService.updateZaakeigenschap(zaak.uuid, existingZaakEigenschapUUID, any()) }
                 }
 
-                And("it should not create a new zaakeigenschap") {
+                and("it should not create a new zaakeigenschap") {
                     verify(exactly = 0) { zrcClientService.createEigenschap(zaak.uuid, any()) }
                 }
 
-                And("the zaak is closed") {
+                and("the zaak is closed") {
                     verify(exactly = 1) {
                         zrcClientService.closeCase(zaak.uuid, any())
                     }
@@ -632,11 +632,11 @@ class ZgwApiServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("it should not update any existing zaakeigenschap") {
+                and("it should not update any existing zaakeigenschap") {
                     verify(exactly = 0) { zrcClientService.updateZaakeigenschap(zaak.uuid, any(), any()) }
                 }
 
-                And("the zaak is closed") {
+                and("the zaak is closed") {
                     verify(exactly = 1) {
                         zrcClientService.closeCase(zaak.uuid, any())
                     }
@@ -712,7 +712,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                     verify(exactly = 0) { zrcClientService.updateZaakeigenschap(zaak.uuid, any(), any()) }
                 }
 
-                And("the zaak is closed") {
+                and("the zaak is closed") {
                     verify(exactly = 1) {
                         zrcClientService.closeCase(zaak.uuid, any())
                     }
@@ -1108,7 +1108,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                     returnedZaakInformatieobjectForZaak shouldBe createdZaakInformatieobject
                 }
 
-                And("the DRC and ZRC clients are called with correct parameters") {
+                and("the DRC and ZRC clients are called with correct parameters") {
                     verify(exactly = 1) {
                         drcClientService.createEnkelvoudigInformatieobject(enkelvoudigInformatieObjectCreateLockRequest)
                         drcClientService.createGebruiksrechten(any())
@@ -1116,7 +1116,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the created Gebruiksrechten has expected values") {
+                and("the created Gebruiksrechten has expected values") {
                     with(gebruiksrechtenSlot.captured) {
                         this.informatieobject shouldBe enkelvoudigInformatieObject.url
                         this.startdatum shouldBe todayAtStartOfDay
@@ -1124,7 +1124,7 @@ class ZgwApiServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the created ZaakInformatieobject has expected values") {
+                and("the created ZaakInformatieobject has expected values") {
                     with(zaakInformatieObjectRequestSlot.captured) {
                         this.zaak shouldBe zaak.url
                         this.informatieobject shouldBe enkelvoudigInformatieObject.url

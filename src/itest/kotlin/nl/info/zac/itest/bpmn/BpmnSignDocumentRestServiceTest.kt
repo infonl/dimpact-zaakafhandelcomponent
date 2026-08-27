@@ -94,7 +94,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
                 JSONObject(takenPatchResponse).getString("status") shouldBe "AFGEROND"
             }
 
-            And("the select documents task is removed from the task list") {
+            and("the select documents task is removed from the task list") {
                 eventually(10.seconds) {
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
@@ -105,7 +105,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the summary task becomes available") {
+            and("the summary task becomes available") {
                 eventually(afterThirtySeconds) {
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
@@ -132,7 +132,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
                 JSONObject(takenPatchResponse).getString("status") shouldBe "AFGEROND"
             }
 
-            And("the document should be signed") {
+            and("the document should be signed") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid",
                     testUser = BEHANDELAAR_1

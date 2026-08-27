@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2025, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package net.atos.zac.app.mail;
@@ -23,6 +23,7 @@ import net.atos.zac.app.mail.model.RESTMailGegevens;
 import net.atos.zac.flowable.ZaakVariabelenService;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding;
 import nl.info.zac.authentication.LoggedInUser;
 import nl.info.zac.mail.MailService;
 import nl.info.zac.mail.model.BronnenKt;
@@ -90,6 +91,8 @@ public class MailRestService {
         var ontvangstbevestigingVerstuurd = Boolean.TRUE.equals(zaakVariabelenService.findOntvangstbevestigingVerstuurd(zaak.getUuid()));
         assertPolicy(!ontvangstbevestigingVerstuurd && policyService.readZaakRechten(zaak, loggedInUser)
                 .getVersturenOntvangstbevestiging());
+        // an ontvangstbevestiging is always Openbaar, regardless of what the caller supplied
+        restMailGegevens.setVertrouwelijkheidaanduiding(RestVertrouwelijkheidaanduiding.OPENBAAR);
         mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), BronnenKt.getBronnenFromZaak(zaak));
         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak);
     }

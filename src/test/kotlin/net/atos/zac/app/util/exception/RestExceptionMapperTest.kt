@@ -80,7 +80,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     checkResponse(response, "msg.error.invalid.argument", exceptionMessage, HttpStatus.SC_BAD_REQUEST)
                 }
 
-                And("it should not log the exception") {
+                and("it should not log the exception") {
                     verify(exactly = 0) { log(any(), any(), any<String>(), any()) }
                 }
             }
@@ -208,7 +208,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
                 }
-                And("it should log the exception at the level FINE with the expected exception message") {
+                and("it should log the exception at the level FINE with the expected exception message") {
                     verify(exactly = 1) {
                         log(
                             logger = any(),
@@ -255,7 +255,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                         expectedStatus = HttpStatus.SC_BAD_REQUEST
                     )
                 }
-                And("it should log the exception at the level FINE with the expected root cause exception message") {
+                and("it should log the exception at the level FINE with the expected root cause exception message") {
                     verify(exactly = 1) {
                         log(
                             logger = any(),
@@ -575,7 +575,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     )
                 }
 
-                And("it should log the exception") {
+                and("it should log the exception") {
                     verify(exactly = 1) { log(any(), Level.SEVERE, exception.message!!, exception) }
                 }
             }
@@ -596,7 +596,7 @@ class RestExceptionMapperTest : BehaviorSpec({
                     )
                 }
 
-                And("it should log the exception") {
+                and("it should log the exception") {
                     verify(exactly = 1) { log(any(), Level.WARNING, exception.message, exception) }
                 }
             }

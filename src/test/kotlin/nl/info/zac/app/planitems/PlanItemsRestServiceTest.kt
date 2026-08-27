@@ -21,6 +21,7 @@ import net.atos.zac.app.mail.model.createRESTMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import nl.info.zac.util.time.convertToDate
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
@@ -37,6 +38,7 @@ import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRESTHumanTaskData
 import nl.info.zac.app.planitems.model.createRESTTaakStuurGegevens
 import nl.info.zac.app.planitems.model.createRESTUserEventListenerData
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
@@ -46,6 +48,7 @@ import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.createMailAdres
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.Mail
+import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.mailtemplates.model.createMailGegevens
 import nl.info.zac.mailtemplates.model.createMailTemplate
 import nl.info.zac.policy.PolicyService
@@ -368,7 +371,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("zaak extend fatal date was performed") {
+                and("zaak extend fatal date was performed") {
                     verify(exactly = 1) {
                         suspensionZaakHelper.extendZaakFatalDate(any(), any(), any())
                     }
@@ -389,6 +392,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 fataledatum = null
             )
             val taskDataSlot = slot<Map<String, String>>()
+            val mailGegevensSlot = slot<MailGegevens>()
             val zaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
@@ -402,7 +406,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { mailTemplateService.readMailtemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
             every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
             every { mailService.getGemeenteMailAdres() } returns createMailAdres()
-            every { mailService.sendMail(any(), any()) } returns "body"
+            every { mailService.sendMail(capture(mailGegevensSlot), any()) } returns "body"
             every {
                 cmmnService.startHumanTaskPlanItem(
                     planItemInstanceId,
@@ -429,14 +433,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the task data is set correctly") {
+                and("the task data is set correctly") {
                     taskDataSlot.captured shouldBe restHumanTaskData.taakdata
                 }
 
-                And("email was sent for the task") {
+                and("email was sent for the task") {
                     verify(exactly = 1) {
                         mailService.sendMail(any(), any())
                     }
+                    mailGegevensSlot.captured.vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
 
@@ -462,6 +467,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 fataledatum = null
             )
             val taskDataSlot = slot<Map<String, String>>()
+            val mailGegevensSlot = slot<MailGegevens>()
             val zaak = createZaak(
                 zaaktypeUri = URI("https://example.com/$zaakTypeUUID"),
                 uiterlijkeEinddatumAfdoening = LocalDate.now().plusDays(2)
@@ -475,7 +481,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { mailTemplateService.readMailtemplate(Mail.TAAK_AANVULLENDE_INFORMATIE) } returns createMailTemplate()
             every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
             every { mailService.getGemeenteMailAdres() } returns createMailAdres()
-            every { mailService.sendMail(any(), any()) } returns "body"
+            every { mailService.sendMail(capture(mailGegevensSlot), any()) } returns "body"
             every {
                 cmmnService.startHumanTaskPlanItem(
                     planItemInstanceId,
@@ -502,14 +508,15 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the task data is set correctly") {
+                and("the task data is set correctly") {
                     taskDataSlot.captured shouldBe restHumanTaskData.taakdata
                 }
 
-                And("email was sent for the task") {
+                and("email was sent for the task") {
                     verify(exactly = 1) {
                         mailService.sendMail(any(), any())
                     }
+                    mailGegevensSlot.captured.vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
 
@@ -531,7 +538,9 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 resultaat = URI("https://example.com/resultaat/${UUID.randomUUID()}"),
             )
             val mailGegevens = createMailGegevens()
-            val restMailGegevens = createRESTMailGegevens()
+            val restMailGegevens = createRESTMailGegevens(
+                vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.GEHEIM
+            )
             val restUserEventListenerData = createRESTUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
@@ -559,6 +568,10 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     verify(exactly = 1) {
                         mailService.sendMail(mailGegevens, any())
                     }
+                }
+
+                and("the vertrouwelijkheidaanduiding is forced to Openbaar regardless of what was supplied") {
+                    restMailGegevens.vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.OPENBAAR
                 }
             }
         }
@@ -715,7 +728,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     exception.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
                 }
 
-                And("closeZaak should not be called") {
+                and("closeZaak should not be called") {
                     verify(exactly = 0) {
                         zgwApiService.closeZaak(any(), any(), any())
                     }
@@ -764,7 +777,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("setOntvankelijk should be called") {
+                and("setOntvankelijk should be called") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setOntvankelijk(planItemInstance, false)
                     }
@@ -800,7 +813,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("setOntvankelijk should be called") {
+                and("setOntvankelijk should be called") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setOntvankelijk(planItemInstance, true)
                     }
@@ -900,7 +913,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     exception.errorCode shouldBe ErrorCode.ERROR_CODE_VALIDATION_GENERIC
                 }
 
-                And("processBrondatumProcedure should not be called") {
+                and("processBrondatumProcedure should not be called") {
                     verify(exactly = 0) {
                         zgwApiService.setBrondatum(any(), any())
                     }
@@ -930,7 +943,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("it throws exception with no message") { exception.message shouldBe null }
 
-                And("setBrondatum should not be called") {
+                and("setBrondatum should not be called") {
                     verify(exactly = 0) {
                         zgwApiService.setBrondatum(any(), any())
                     }

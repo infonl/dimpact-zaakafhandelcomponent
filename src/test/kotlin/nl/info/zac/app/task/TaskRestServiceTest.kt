@@ -260,7 +260,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         flowableTaskService.completeTask(task)
                     }
                 }
-                And("the completed task is returned") {
+                and("the completed task is returned") {
                     restTaakReturned shouldBe restTaakConverted
                 }
             }
@@ -338,14 +338,14 @@ class TaskRestServiceTest : BehaviorSpec({
                 then("the completed task is returned") {
                     restTaakReturned shouldBe restTaakConverted
                 }
-                And("the document is signed") {
+                and("the document is signed") {
                     verify(exactly = 1) {
                         enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(
                             enkelvoudigInformatieObjectUUID
                         )
                     }
                 }
-                And("the task is completed in Flowable") {
+                and("the task is completed in Flowable") {
                     verify(exactly = 1) {
                         flowableTaskService.completeTask(task)
                     }
@@ -410,7 +410,7 @@ class TaskRestServiceTest : BehaviorSpec({
                         flowableTaskService.completeTask(assignedTask)
                     }
                 }
-                And("the completed task is returned") {
+                and("the completed task is returned") {
                     restTaskReturned shouldBe restTaskConverted
                 }
             }

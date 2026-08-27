@@ -135,10 +135,6 @@ dependencies {
     implementation(libs.auth0.java.jwt)
     implementation(libs.javax.cache.api)
     implementation(libs.google.guava)
-    implementation(libs.itextpdf.kernel)
-    implementation(libs.itextpdf.layout)
-    implementation(libs.itextpdf.io)
-    implementation(libs.itextpdf.html2pdf)
     implementation(libs.flyway.core)
     implementation(libs.flyway.postgresql)
     implementation(libs.apache.solr) {

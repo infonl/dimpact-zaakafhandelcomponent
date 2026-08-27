@@ -125,7 +125,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the zaak is still open and without result") {
+            and("the zaak is still open and without result") {
                 zacClient.retrieveZaak(bpmnZaakUuid, BEHANDELAAR_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -137,7 +137,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the task is removed from the task list") {
+            and("the task is removed from the task list") {
                 eventually(10.seconds) {
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
@@ -148,7 +148,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("summary form task becomes available") {
+            and("summary form task becomes available") {
                 eventually(afterThirtySeconds) {
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
@@ -176,7 +176,8 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                         "RT_ReferenceTable_Values": "Post",
                         "ZK_Result": "Verleend",
                         "ZK_Status": "Afgerond",
-                        "TF_EMAIL_TO": "test-2@example.com"
+                        "TF_EMAIL_TO": "test-2@example.com",
+                        "MAIL_Vertrouwelijkheidaanduiding": "${ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZEER_GEHEIM}"
                     }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
@@ -188,7 +189,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the zaak is closed and with result") {
+            and("the zaak is closed and with result") {
                 zacClient.retrieveZaak(bpmnZaakUuid, BEHANDELAAR_1).let { response ->
                     val responseBody = response.bodyAsString
                     logger.info { "Response: $responseBody" }
@@ -200,7 +201,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the send email service task sent an email") {
+            and("the send email service task sent an email") {
                 val receivedMailsResponse = itestHttpClient.performGetRequest(
                     url = "${ItestConfiguration.GREENMAIL_API_URI}/user/test-2@example.com/messages/",
                     testUser = BEHANDELAAR_1
@@ -214,6 +215,24 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                         getString("subject") shouldContain "Informatie over zaak ZAAK-"
                     }
                 }
+            }
+
+            And("the mail-generated PDF document uses the vertrouwelijkheidaanduiding supplied via zaakdata") {
+                val informatieobjectenResponse = itestHttpClient.performPutRequest(
+                    url = "$ZAC_API_URI/informatieobjecten/informatieobjectenList",
+                    requestBodyAsString = """
+                        {
+                            "zaakUUID": "$bpmnZaakUuid",
+                            "gekoppeldeZaakDocumenten": false
+                        }
+                    """.trimIndent(),
+                    testUser = BEHANDELAAR_1
+                )
+                informatieobjectenResponse.code shouldBe HttpURLConnection.HTTP_OK
+                // the email PDF is the only document created for this zaak
+                JSONArray(informatieobjectenResponse.bodyAsString).getJSONObject(0)
+                    .getString("vertrouwelijkheidaanduiding") shouldBe
+                    ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZEER_GEHEIM
             }
 
             And("the task is removed from the task list") {

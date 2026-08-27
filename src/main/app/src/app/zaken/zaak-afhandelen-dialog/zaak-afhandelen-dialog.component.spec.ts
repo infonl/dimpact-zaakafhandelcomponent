@@ -91,7 +91,7 @@ const afzenders = [
   }),
 ];
 
-const mailtemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
+const mailtemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
   onderwerp: "fakeOnderwerp",
   body: "fakeMailBody",
 });
@@ -292,7 +292,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       expect(submitButton()).toBeNull();
     });
 
-    it("closes the dialog asking to record a besluit", async () => {
+    it("closes the dialog to record a besluit when the besluit-vastleggen button is clicked", async () => {
       seedQueries(zaak);
       await setup();
 
@@ -364,6 +364,41 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
           resultaattypeUuid: "fakeResultaattypeId3",
         }),
       );
+      request.flush({});
+    });
+
+    it("omits vertrouwelijkheidaanduiding from restMailGegevens, leaving it to the backend's Openbaar default", async () => {
+      seedQueries(zaak);
+      await setup();
+
+      await chooseResultaattype("fakeResultaatZonderVerplichtingen");
+      await toggleSendMail();
+      await openVerzenderOptions();
+      await user.click(
+        screen.getByRole("option", { name: /fakeAfzenderSuffix/ }),
+      );
+      await user.type(
+        screen.getByRole("textbox", { name: /Ontvanger/ }),
+        "recipient@example.com",
+      );
+      await submit();
+      await sleep();
+
+      const request = httpTestingController.expectOne(
+        "/rest/planitems/doUserEventListenerPlanItem",
+      );
+      expect(request.request.body.restMailGegevens).toMatchObject({
+        verzender: afzenders[0].mail,
+        replyTo: afzenders[0].replyTo,
+        ontvanger: "recipient@example.com",
+        onderwerp: mailtemplate.onderwerp,
+        body: mailtemplate.body,
+        createDocumentFromMail: true,
+      });
+      expect(
+        request.request.body.restMailGegevens.vertrouwelijkheidaanduiding,
+      ).toBeUndefined();
+
       request.flush({});
     });
 

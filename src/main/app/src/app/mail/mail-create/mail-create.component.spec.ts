@@ -62,7 +62,7 @@ const afzenders = [
   }),
 ];
 
-const mailtemplate = fromPartial<GeneratedType<"RESTMailtemplate">>({
+const mailtemplate = fromPartial<GeneratedType<"RestMailtemplate">>({
   onderwerp: "<p>Bevestiging ontvangst</p>",
   body: "<p>Geachte,</p>",
   variabelen: ["ZAAK_NUMMER", "ZAAK_TYPE"],
@@ -156,13 +156,27 @@ describe(MailCreateComponent.name, () => {
     return within(row).getByRole("checkbox");
   }
 
+  function vertrouwelijkheidaanduidingField() {
+    return screen.getByRole("combobox", {
+      name: "Vertrouwelijkheidaanduiding",
+    });
+  }
+
   function submitButton() {
     return screen.getByRole("button", { name: "actie.verstuur" });
+  }
+
+  async function selectVertrouwelijkheidaanduiding(
+    optionText = "vertrouwelijkheidaanduiding.OPENBAAR",
+  ) {
+    await user.click(vertrouwelijkheidaanduidingField());
+    await user.click(screen.getByRole("option", { name: optionText }));
   }
 
   async function fillInAMail(...attachments: string[]) {
     await user.click(ontvangerField());
     await user.paste("recipient@example.com");
+    await selectVertrouwelijkheidaanduiding();
 
     for (const attachment of attachments) {
       await user.click(documentCheckbox(attachment));
@@ -217,6 +231,29 @@ describe(MailCreateComponent.name, () => {
 
     expect(screen.getByText("Document 1")).toBeVisible();
     expect(screen.getByText("Document 2")).toBeVisible();
+  });
+
+  it("offers every vertrouwelijkheidaanduiding option", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await user.click(vertrouwelijkheidaanduidingField());
+
+    expect(screen.getAllByRole("option")).toHaveLength(8);
+  });
+
+  it("keeps the mail unsendable until a vertrouwelijkheidaanduiding is selected", async () => {
+    await setup();
+    await respondToInitialRequests();
+
+    await user.click(ontvangerField());
+    await user.paste("recipient@example.com");
+
+    expect(submitButton()).toBeDisabled();
+
+    await selectVertrouwelijkheidaanduiding();
+
+    expect(submitButton()).toBeEnabled();
   });
 
   it("fills the recipient with the contact e-mail address of the initiator", async () => {
@@ -274,6 +311,7 @@ describe(MailCreateComponent.name, () => {
     expect(request.request.body).toMatchObject({
       verzender: afzenders[0].mail,
       ontvanger: "recipient@example.com",
+      vertrouwelijkheidaanduiding: "OPENBAAR",
       onderwerp: "Bevestiging ontvangst",
       body: mailtemplate.body,
       bijlagen: "doc-1",

@@ -54,7 +54,7 @@ class DrcRuntimeResponseExceptionMapperTest : BehaviorSpec({
                 exception.shouldBeInstanceOf<DrcRuntimeException>()
             }
 
-            And("the message should contain the status code") {
+            and("the message should contain the status code") {
                 exception.message shouldContain "503"
             }
         }
