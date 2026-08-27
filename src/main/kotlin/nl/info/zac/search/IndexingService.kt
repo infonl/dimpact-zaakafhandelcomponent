@@ -276,7 +276,7 @@ class IndexingService @Inject constructor(
 
     private fun reindexInformatieobjectenPage(pageNumber: Int, totalCount: Int) {
         val informationObjectsResults = drcClientService.listEnkelvoudigInformatieObjecten(
-            EnkelvoudigInformatieobjectListParameters().apply { page = ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS }
+            EnkelvoudigInformatieobjectListParameters().apply { page = pageNumber }
         )
         val ids = informationObjectsResults.results().map { it.url.extractUuid().toString() }
         indexeerDirect(
