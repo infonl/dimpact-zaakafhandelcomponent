@@ -3,8 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { LOCALE_ID } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Evaluator } from "@formio/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { of, throwError } from "rxjs";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -38,7 +40,9 @@ describe(FormioCustomFunctions.name, () => {
     };
 
     TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot()],
       providers: [
+        { provide: LOCALE_ID, useValue: "nl-NL" },
         {
           provide: InformatieObjectenService,
           useValue: informatieObjectenService,
@@ -571,6 +575,246 @@ describe(FormioCustomFunctions.name, () => {
           );
         },
       );
+    });
+
+    describe("the formatters", () => {
+      it.each([
+        ["{{ ZAC_opmaakDatum(zaak.startdatum) }}", "24\u201108\u20112026"],
+        ["{{ ZAC_opmaakBoolean(zaak.isOpen) }}", "true"],
+        ["{{ ZAC_opmaakBoolean(zaak.isOpgeschort) }}", "false"],
+      ])("should format %s to %s", async (template, expected) => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          {
+            startdatum: "2026-08-24",
+            isOpen: true,
+            isOpgeschort: false,
+          },
+        );
+
+        expect(Evaluator.interpolate(template, context)).toBe(expected);
+      });
+
+      it.each([
+        ["a null value", null],
+        ["an empty string", ""],
+        ["an absent property", undefined],
+      ])(
+        "should render nothing for %s, so it does not read as a deliberate Nee",
+        async (_description, value) => {
+          const context = await service.prepareFormContext(
+            { components: [] },
+            {},
+            { isVerlengd: value },
+          );
+
+          expect(
+            Evaluator.interpolate(
+              "{{ ZAC_opmaakBoolean(zaak.isVerlengd) }}",
+              context,
+            ),
+          ).toBe("");
+        },
+      );
+
+      it("should render nothing for a boolean the zaak does not have at all", async () => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          {},
+        );
+
+        expect(
+          Evaluator.interpolate(
+            "{{ ZAC_opmaakBoolean(zaak.isVerlengd) }}",
+            context,
+          ),
+        ).toBe("");
+      });
+
+      it.each([
+        ["a string", "misschien", "misschien"],
+        ["a number", 1, "1"],
+      ])(
+        "should render %s unchanged, because it is not a boolean to answer",
+        async (_description, value, expected) => {
+          const context = await service.prepareFormContext(
+            { components: [] },
+            {},
+            { isVerlengd: value },
+          );
+
+          expect(
+            Evaluator.interpolate(
+              "{{ ZAC_opmaakBoolean(zaak.isVerlengd) }}",
+              context,
+            ),
+          ).toBe(expected);
+        },
+      );
+
+      it.each([
+        ["a boolean that is true", "isOpen", true],
+        ["a boolean that is false", "isOpgeschort", false],
+      ])(
+        "should hand %s to the form as the JavaScript value when no labels are given",
+        async (_description, property, expected) => {
+          const context = await service.prepareFormContext(
+            { components: [] },
+            {},
+            { isOpen: true, isOpgeschort: false },
+          );
+          const opmaakBoolean = context.ZAC_opmaakBoolean as (
+            value: unknown,
+          ) => unknown;
+          const zaak = context.zaak as Record<string, unknown>;
+
+          expect(opmaakBoolean(zaak[property])).toBe(expected);
+        },
+      );
+
+      it.each([
+        ['{{ ZAC_opmaakBoolean(zaak.isOpen, "Open", "Gesloten") }}', "Open"],
+        [
+          '{{ ZAC_opmaakBoolean(zaak.isOpgeschort, "Opgeschort", "Loopt") }}',
+          "Loopt",
+        ],
+        ['{{ ZAC_opmaakBoolean(zaak.isOpen, "Open") }}', "Open"],
+        [
+          '{{ ZAC_opmaakBoolean(zaak.isOpgeschort, "Opgeschort") }}',
+          "actie.nee",
+        ],
+        ['{{ ZAC_opmaakBoolean(zaak.isOpen, "actie.ja") }}', "actie.ja"],
+      ])("should resolve %s to %s", async (template, expected) => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          { isOpen: true, isOpgeschort: false },
+        );
+
+        expect(Evaluator.interpolate(template, context)).toBe(expected);
+      });
+
+      it("should render nothing for an absent property even when labels are given", async () => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          {},
+        );
+
+        expect(
+          Evaluator.interpolate(
+            '{{ ZAC_opmaakBoolean(zaak.isVerlengd, "Verlengd", "Niet verlengd") }}',
+            context,
+          ),
+        ).toBe("");
+      });
+
+      it.each([
+        [
+          '{{ ZAC_opmaakLijst(zaak.kenmerken, "kenmerk") }}',
+          "fakeKenmerk1, fakeKenmerk2",
+        ],
+        ["{{ ZAC_opmaakLijst(zaak.indicaties) }}", "OPSCHORTING, VERLENGD"],
+        ["{{ ZAC_opmaakLijst(zaak.besluiten) }}", ""],
+      ])("should resolve %s to %s", async (template, expected) => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          {
+            kenmerken: [
+              { kenmerk: "fakeKenmerk1" },
+              { kenmerk: "fakeKenmerk2" },
+            ],
+            indicaties: ["OPSCHORTING", "VERLENGD"],
+            besluiten: [],
+          },
+        );
+
+        expect(Evaluator.interpolate(template, context)).toBe(expected);
+      });
+
+      it("should keep lijst working over a list that is absent", async () => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          {},
+        );
+
+        expect(
+          Evaluator.interpolate(
+            '{{ ZAC_opmaakLijst(zaak.kenmerken, "kenmerk") }}',
+            context,
+          ),
+        ).toBe("");
+      });
+
+      it.each([
+        [
+          "a value",
+          "{{ ZAC_opmaakLegeWaarde(zaak.omschrijving) }}",
+          "test-omschrijving",
+        ],
+        [
+          "an empty string",
+          "{{ ZAC_opmaakLegeWaarde(zaak.toelichting) }}",
+          "-",
+        ],
+        [
+          "an absent property",
+          "{{ ZAC_opmaakLegeWaarde(zaak.einddatum) }}",
+          "-",
+        ],
+        ["an empty list", "{{ ZAC_opmaakLegeWaarde(zaak.besluiten) }}", "-"],
+        [
+          "a value, which leaves a given placeholder unused",
+          '{{ ZAC_opmaakLegeWaarde(zaak.omschrijving, "Onbekend") }}',
+          "test-omschrijving",
+        ],
+        [
+          "an empty string with a placeholder of its own",
+          '{{ ZAC_opmaakLegeWaarde(zaak.toelichting, "Onbekend") }}',
+          "Onbekend",
+        ],
+        [
+          "an absent property with a placeholder of its own",
+          '{{ ZAC_opmaakLegeWaarde(zaak.einddatum, "Nog niet bekend") }}',
+          "Nog niet bekend",
+        ],
+        [
+          "an empty list with a placeholder given as a translation key",
+          '{{ ZAC_opmaakLegeWaarde(zaak.besluiten, "actie.nee") }}',
+          "actie.nee",
+        ],
+      ])("should render %s", async (_description, template, expected) => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          {
+            omschrijving: "test-omschrijving",
+            toelichting: "",
+            besluiten: [],
+          },
+        );
+
+        expect(Evaluator.interpolate(template, context)).toBe(expected);
+      });
+
+      it("should leave a value the date pipe cannot read alone", async () => {
+        const context = await service.prepareFormContext(
+          { components: [] },
+          {},
+          { omschrijving: "geen datum" },
+        );
+
+        expect(
+          Evaluator.interpolate(
+            "{{ ZAC_opmaakDatum(zaak.omschrijving) }}",
+            context,
+          ),
+        ).toBe("geen datum");
+      });
     });
   });
 });
