@@ -22,7 +22,6 @@ import {
   MatTabLabel,
 } from "@angular/material/tabs";
 import { TranslatePipe } from "@ngx-translate/core";
-import { WebsocketListener } from "../../../core/websocket/model/websocket-listener";
 import { IndicatiesLayout } from "../../../shared/indicaties/indicaties.component";
 import { ZaakIndicatiesComponent } from "../../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { LocationPipe } from "../../../shared/pipes/location.pipe";
@@ -71,7 +70,6 @@ export class ZaakDetailsCardComponent {
   @Input({ required: true }) bagObjectenDataSource!: MatTableDataSource<
     GeneratedType<"RESTBAGObjectGegevens">
   >;
-  @Input() zaakRollenListener?: WebsocketListener;
   @Input() showBetrokkeneKoppelingen = false;
 
   @Output() editCaseDetails = new EventEmitter<void>();

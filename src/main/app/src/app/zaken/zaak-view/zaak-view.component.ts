@@ -109,7 +109,7 @@ export class ZaakViewComponent
   viewInitialized = false;
 
   private zaakListener!: WebsocketListener;
-  protected zaakRollenListener!: WebsocketListener;
+  private zaakRollenListener!: WebsocketListener;
   private zaakBesluitenListener!: WebsocketListener;
   private zaakTakenListener!: WebsocketListener;
 

@@ -90,10 +90,7 @@
           {{ "betrokkenen" | translate }}
         </ng-template>
 
-        <zac-zaak-betrokkene-list
-          [zaak]="zaak"
-          [zaakRollenListener]="zaakRollenListener"
-        ></zac-zaak-betrokkene-list>
+        <zac-zaak-betrokkene-list [zaak]="zaak"></zac-zaak-betrokkene-list>
       </mat-tab>
 
       <mat-tab *ngIf="bagObjectenDataSource.data.length > 0">
