@@ -18,12 +18,17 @@ import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
+import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
+import nl.info.zac.search.model.createDocumentZoekObject
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -283,6 +288,73 @@ class IndexingServiceTest : BehaviorSpec({
             then("continues without exception") {
                 verify(exactly = 3) {
                     ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
+                }
+            }
+        }
+    }
+
+    given("Solr indexing exists and informatieobjecten count is available") {
+        val ctx = setupContext()
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList().apply {
+            addAll(
+                listOf(
+                    SolrDocument(mapOf("id" to 1)),
+                    SolrDocument(mapOf("id" to 2))
+                )
+            )
+        }
+        val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
+        val informatieobjectenPage1 = listOf(
+            createEnkelvoudigInformatieObject(),
+            createEnkelvoudigInformatieObject()
+        )
+        val informatieobjectPage2 = createEnkelvoudigInformatieObject()
+        val documentZoekObjectenPage1 = listOf(
+            createDocumentZoekObject(),
+            createDocumentZoekObject()
+        )
+        val documentZoekObjectPage2 = createDocumentZoekObject()
+
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(
+                match<EnkelvoudigInformatieobjectListParameters> { it.page == 1 }
+            )
+        } returns Results(informatieobjectenPage1, 102)
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(
+                match<EnkelvoudigInformatieobjectListParameters> { it.page == 2 }
+            )
+        } returns Results(listOf(informatieobjectPage2), 102)
+
+        every { documentZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true
+        every { ctx.converterInstancesIterator.next() } returns documentZoekObjectConverter
+        informatieobjectenPage1.forEachIndexed { index, informatieobject ->
+            every {
+                documentZoekObjectConverter.convert(informatieobject.url.extractUuid().toString())
+            } returns documentZoekObjectenPage1[index]
+        }
+        every {
+            documentZoekObjectConverter.convert(informatieobjectPage2.url.extractUuid().toString())
+        } returns documentZoekObjectPage2
+
+        `when`("reindexing of informatieobjecten is called") {
+            ctx.indexingService.reindex(ZoekObjectType.DOCUMENT)
+
+            then("the second page is fetched using its own page number instead of always page one") {
+                verify(exactly = 1) {
+                    ctx.drcClientService.listEnkelvoudigInformatieObjecten(
+                        match<EnkelvoudigInformatieobjectListParameters> { it.page == 2 }
+                    )
+                    documentZoekObjectConverter.convert(informatieobjectPage2.url.extractUuid().toString())
                 }
             }
         }
