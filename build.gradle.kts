@@ -41,7 +41,14 @@ repositories {
     mavenCentral()
     // Add the Public JBoss Maven repository.
     // This is the best practice when provisioning a WildFly server, as some WildFly components may not be available in Maven Central.
-    maven("https://repository.jboss.org/nexus/content/groups/public-jboss")
+    maven("https://repository.jboss.org/nexus/content/groups/public-jboss") {
+        // The Gradle Node plugin resolves the Node.js distribution as a Maven-style dependency
+        // ('org.nodejs:node'), which Gradle searches for in every declared repository, including
+        // this one. This repository has occasionally been unavailable, breaking Node.js resolution
+        // even though the Node plugin is configured to download from https://nodejs.org/dist
+        // (see distBaseUrl below). Exclude this group so this repository can never be the cause.
+        content { excludeGroup("org.nodejs") }
+    }
 }
 
 buildscript {
