@@ -1105,6 +1105,7 @@ class ZaakServiceTest : BehaviorSpec({
             every {
                 zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, true)
             } just runs
+            every { eventingService.send(any<ScreenEvent>()) } just Runs
 
             `when`("setOntvangstbevestigingVerstuurdIfNotHeropend is called") {
                 zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
@@ -1112,6 +1113,12 @@ class ZaakServiceTest : BehaviorSpec({
                 then("ontvangstbevestiging is true") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, true)
+                    }
+                }
+
+                and("a zaak screen event is sent so that all open screens of this zaak are refreshed") {
+                    verify(exactly = 1) {
+                        eventingService.send(ScreenEventType.ZAAK.updated(zaakUuid))
                     }
                 }
             }
@@ -1141,9 +1148,15 @@ class ZaakServiceTest : BehaviorSpec({
             `when`("setOntvangstbevestigingVerstuurdIfNotHeropend is called") {
                 zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
 
-                then("ontvangstbevestiging is false") {
+                then("ontvangstbevestiging is not set") {
                     verify(exactly = 0) {
-                        zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, false)
+                        zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, any())
+                    }
+                }
+
+                and("no zaak screen event is sent") {
+                    verify(exactly = 0) {
+                        eventingService.send(any<ScreenEvent>())
                     }
                 }
             }
