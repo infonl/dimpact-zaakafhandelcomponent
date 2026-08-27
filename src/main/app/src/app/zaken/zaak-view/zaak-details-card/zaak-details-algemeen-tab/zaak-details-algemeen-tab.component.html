@@ -4,9 +4,7 @@
       <zac-static-text
         [label]="field.label"
         [value]="
-          field.format === 'date'
-            ? (field.value | datum | empty)
-            : field.value
+          field.format === 'date' ? (field.value | datum | empty) : field.value
         "
       ></zac-static-text>
       <!-- fills the trailing action column so the next field
@@ -16,14 +14,9 @@
       }
     }
 
-    <mat-divider
-      class="mat-divider-wrapper full-width"
-    ></mat-divider>
+    <mat-divider class="mat-divider-wrapper full-width"></mat-divider>
 
-    <zac-static-text
-      label="groep"
-      [value]="zaak.groep?.naam | empty"
-    >
+    <zac-static-text label="groep" [value]="zaak.groep?.naam | empty">
       @if (zaak.groep?.active === false) {
         <em position="content-after"
           >&nbsp;({{ "inactief" | translate | lowercase }})</em
@@ -68,9 +61,7 @@
     <zac-static-text
       label="fataledatum"
       [value]="zaak.uiterlijkeEinddatumAfdoening | datum | empty"
-      [icon]="
-        dateFieldIconMap.get('uiterlijkeEinddatumAfdoening')
-      "
+      [icon]="dateFieldIconMap.get('uiterlijkeEinddatumAfdoening')"
     >
     </zac-static-text>
     <div
@@ -90,15 +81,9 @@
             ) | translate: { duur: zaakOpschorting?.duurDagen }
           }}
         </div>
-        <div
-          class="flex-row items-center gap-5"
-          *ngIf="zaak.duurVerlenging"
-        >
+        <div class="flex-row items-center gap-5" *ngIf="zaak.duurVerlenging">
           <mat-icon>update</mat-icon>
-          {{
-            "duurVerlenging"
-              | translate: { duur: zaak.duurVerlenging }
-          }}
+          {{ "duurVerlenging" | translate: { duur: zaak.duurVerlenging } }}
         </div>
       </div>
     </div>

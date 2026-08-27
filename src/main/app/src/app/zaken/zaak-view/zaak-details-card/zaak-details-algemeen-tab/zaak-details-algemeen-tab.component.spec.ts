@@ -13,8 +13,8 @@ import { TranslateModule } from "@ngx-translate/core";
 import { within } from "@testing-library/angular";
 import moment from "moment";
 import { fromPartial } from "src/test-helpers";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
-import { GeneratedType } from "../../shared/utils/generated-types";
+import { StaticTextComponent } from "../../../../shared/static-text/static-text.component";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 import { ZaakDetailsAlgemeenTabComponent } from "./zaak-details-algemeen-tab.component";
 
 describe(ZaakDetailsAlgemeenTabComponent.name, () => {

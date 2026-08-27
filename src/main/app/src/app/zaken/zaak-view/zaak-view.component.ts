@@ -26,7 +26,6 @@ import moment from "moment";
 import { forkJoin } from "rxjs";
 import { ActieOnmogelijkDialogComponent } from "src/app/fout-afhandeling/dialog/actie-onmogelijk-dialog.component";
 import { PolicyService } from "src/app/policy/policy.service";
-import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { UtilService } from "../../core/service/util.service";
@@ -42,7 +41,6 @@ import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { detailExpand } from "../../shared/animations/animations";
 import { runMutation } from "../../shared/http/run-mutation";
-import { IndicatiesLayout } from "../../shared/indicaties/indicaties.component";
 import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
 import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
 import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
@@ -64,7 +62,6 @@ type InitiatorViewType = "PERSON" | "COMPANY" | "CONTACT_DETAILS" | "ADD";
 
 @Component({
   templateUrl: "./zaak-view.component.html",
-  styleUrls: ["./zaak-view.component.less"],
   animations: [detailExpand],
   standalone: false,
 })
@@ -74,7 +71,6 @@ export class ZaakViewComponent
 {
   private readonly queryClient = inject(QueryClient);
 
-  readonly indicatiesLayout = IndicatiesLayout;
 
   private readonly zaakUuid = signal<string | undefined>(undefined);
 
@@ -108,23 +104,6 @@ export class ZaakViewComponent
     GeneratedType<"RESTBAGObjectGegevens">
   >();
   gekoppeldeBagObjecten: GeneratedType<"RESTBAGObject">[] = [];
-  bagObjectenColumns = [
-    "identificatie",
-    "type",
-    "omschrijving",
-    "actions",
-  ] as const;
-  gerelateerdeZaakColumns = [
-    "identificatie",
-    "zaaktypeOmschrijving",
-    "statustypeOmschrijving",
-    "startdatum",
-    "relatieType",
-  ] as const;
-  gerelateerdeZaakColumnsWithAction = [
-    ...this.gerelateerdeZaakColumns,
-    "actions",
-  ];
 
   notitieRechten!: GeneratedType<"RestNotitieRechten">;
   viewInitialized = false;
@@ -1240,9 +1219,5 @@ export class ZaakViewComponent
       Boolean(brpAllowed || kvkAllowed) &&
       !!this.betrokkenenQuery.data()?.length
     );
-  }
-
-  protected isAfterDate(datum: Date | moment.Moment | string) {
-    return DateConditionals.isExceeded(datum);
   }
 }

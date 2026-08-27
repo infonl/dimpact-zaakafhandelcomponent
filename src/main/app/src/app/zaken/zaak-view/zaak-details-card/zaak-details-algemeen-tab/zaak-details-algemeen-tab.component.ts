@@ -18,12 +18,12 @@ import { MatDivider } from "@angular/material/divider";
 import { MatIcon } from "@angular/material/icon";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { DateConditionals } from "src/app/shared/utils/date-conditionals";
-import { TextIcon } from "../../shared/edit/text-icon";
-import { DatumPipe } from "../../shared/pipes/datum.pipe";
-import { EmptyPipe } from "../../shared/pipes/empty.pipe";
-import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
-import { StaticTextComponent } from "../../shared/static-text/static-text.component";
-import { GeneratedType } from "../../shared/utils/generated-types";
+import { TextIcon } from "../../../../shared/edit/text-icon";
+import { DatumPipe } from "../../../../shared/pipes/datum.pipe";
+import { EmptyPipe } from "../../../../shared/pipes/empty.pipe";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
+import { StaticTextComponent } from "../../../../shared/static-text/static-text.component";
+import { GeneratedType } from "../../../../shared/utils/generated-types";
 
 type ZaakDetailField = {
   /** omitting this renders the field; only an explicit `false` hides it */
@@ -37,6 +37,7 @@ type ZaakDetailField = {
   selector: "zac-zaak-details-algemeen-tab",
   templateUrl: "./zaak-details-algemeen-tab.component.html",
   styleUrls: ["./zaak-details-algemeen-tab.component.less"],
+  styles: [":host { display: block; }"],
   standalone: true,
   imports: [
     NgIf,
