@@ -22,7 +22,11 @@ import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import {
+  provideQueryClient,
+  queryOptions,
+} from "@tanstack/angular-query-experimental";
+import { within } from "@testing-library/angular";
 import { notifyManager } from "@tanstack/query-core";
 import { EMPTY, Observable, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
@@ -66,6 +70,8 @@ import { ZaakViewComponent } from "./zaak-view.component";
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
   let loader: HarnessLoader;
+
+  const screen = () => within(fixture.nativeElement as HTMLElement);
 
   let utilService: UtilService;
   let zakenService: ZakenService;
@@ -185,6 +191,29 @@ describe(ZaakViewComponent.name, () => {
 
     takenService = TestBed.inject(TakenService);
     jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));
+
+    jest.spyOn(KlantenService.prototype, "readPersoon").mockReturnValue(
+      queryOptions({
+        queryKey: ["fakePersoon"],
+        queryFn: async () =>
+          fromPartial<GeneratedType<"RestPersoon">>({
+            naam: "fakePersoonNaam",
+            indicaties: [],
+          }),
+      }) as ReturnType<KlantenService["readPersoon"]>,
+    );
+    jest.spyOn(KlantenService.prototype, "readBedrijf").mockReturnValue(
+      queryOptions({
+        queryKey: ["fakeBedrijf"],
+        queryFn: async () =>
+          fromPartial<GeneratedType<"RestBedrijf">>({
+            naam: "fakeBedrijfNaam",
+            identificatieType: "VN",
+            vestigingsnummer: "fakeVestigingsnummer",
+            kvkNummer: "fakeKvkNummer",
+          }),
+      }) as ReturnType<KlantenService["readBedrijf"]>,
+    );
 
     TestBed.inject(KlantenService);
 
@@ -798,7 +827,9 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector("zac-notities")).toBeTruthy();
+      expect(
+        screen().getByRole("button", { name: "Notities" }),
+      ).toBeInTheDocument();
     });
 
     it("should render <zac-notities> when notitieRechten.wijzigen is true", () => {
@@ -808,7 +839,9 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector("zac-notities")).toBeTruthy();
+      expect(
+        screen().getByRole("button", { name: "Notities" }),
+      ).toBeInTheDocument();
     });
 
     it("should not render <zac-notities> when both notitieRechten.lezen and wijzigen are false", () => {
@@ -818,7 +851,7 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector("zac-notities")).toBeNull();
+      expect(screen().queryByRole("button", { name: "Notities" })).toBeNull();
     });
 
     it("should not render <zac-notities> when notitieRechten is absent", () => {
@@ -826,7 +859,7 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector("zac-notities")).toBeNull();
+      expect(screen().queryByRole("button", { name: "Notities" })).toBeNull();
     });
   });
 
@@ -857,11 +890,11 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        fixture.nativeElement.querySelector("zac-zaak-initiator-toevoegen"),
-      ).toBeTruthy();
+        screen().getByRole("button", { name: /msg.zaak.geen.initiator/ }),
+      ).toBeInTheDocument();
     });
 
-    it("should show zac-persoongegevens when initiator type is BSN", () => {
+    it("should show zac-persoongegevens when initiator type is BSN", async () => {
       mockActivatedRoute.data.next({
         zaak: {
           ...zaak,
@@ -882,12 +915,15 @@ describe(ZaakViewComponent.name, () => {
       });
       fixture.detectChanges();
 
+      await fixture.whenStable();
+      fixture.detectChanges();
+
       expect(
-        fixture.nativeElement.querySelector("zac-persoongegevens"),
-      ).toBeTruthy();
+        screen().getByRole("button", { name: /fakePersoonNaam/ }),
+      ).toBeInTheDocument();
     });
 
-    it("should show zac-bedrijfsgegevens when initiator type is VN", () => {
+    it("should show zac-bedrijfsgegevens when initiator type is VN", async () => {
       mockActivatedRoute.data.next({
         zaak: {
           ...zaak,
@@ -909,9 +945,12 @@ describe(ZaakViewComponent.name, () => {
       });
       fixture.detectChanges();
 
+      await fixture.whenStable();
+      fixture.detectChanges();
+
       expect(
-        fixture.nativeElement.querySelector("zac-bedrijfsgegevens"),
-      ).toBeTruthy();
+        screen().getByRole("button", { name: /fakeBedrijfNaam/ }),
+      ).toBeInTheDocument();
     });
 
     it("should show zac-contactgegevens when zaakSpecificContactDetails is present", () => {
@@ -930,8 +969,10 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        fixture.nativeElement.querySelector("zac-contactgegevens"),
-      ).toBeTruthy();
+        screen().getByRole("button", {
+          name: /initiator.aanvraagspecifieke-contactgegevens/,
+        }),
+      ).toBeInTheDocument();
     });
 
     it("should not show zac-contactgegevens when zaakSpecificContactDetails has only empty fields", () => {
@@ -958,11 +999,13 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        fixture.nativeElement.querySelector("zac-contactgegevens"),
+        screen().queryByRole("button", {
+          name: /initiator.aanvraagspecifieke-contactgegevens/,
+        }),
       ).toBeNull();
       expect(
-        fixture.nativeElement.querySelector("zac-zaak-initiator-toevoegen"),
-      ).toBeTruthy();
+        screen().getByRole("button", { name: /msg.zaak.geen.initiator/ }),
+      ).toBeInTheDocument();
     });
 
     it("should hide the initiator section when no koppelingen are configured and zaakSpecificContactDetails has only empty fields", () => {
@@ -991,10 +1034,12 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        fixture.nativeElement.querySelector("zac-contactgegevens"),
+        screen().queryByRole("button", {
+          name: /initiator.aanvraagspecifieke-contactgegevens/,
+        }),
       ).toBeNull();
       expect(
-        fixture.nativeElement.querySelector("zac-zaak-initiator-toevoegen"),
+        screen().queryByRole("button", { name: /msg.zaak.geen.initiator/ }),
       ).toBeNull();
     });
   });
