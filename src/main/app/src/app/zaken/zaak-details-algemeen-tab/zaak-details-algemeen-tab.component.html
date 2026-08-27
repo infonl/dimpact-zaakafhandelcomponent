@@ -1,0 +1,127 @@
+<div class="content grid">
+  <div class="zaak-grid">
+    @for (field of zaakDetailFields(); track field.label) {
+      <zac-static-text
+        [label]="field.label"
+        [value]="
+          field.format === 'date'
+            ? (field.value | datum | empty)
+            : field.value
+        "
+      ></zac-static-text>
+      <!-- fills the trailing action column so the next field
+           starts in the first column again -->
+      @if ($index % 3 === 2) {
+        <div class="grid-placeholder" aria-hidden="true"></div>
+      }
+    }
+
+    <mat-divider
+      class="mat-divider-wrapper full-width"
+    ></mat-divider>
+
+    <zac-static-text
+      label="groep"
+      [value]="zaak.groep?.naam | empty"
+    >
+      @if (zaak.groep?.active === false) {
+        <em position="content-after"
+          >&nbsp;({{ "inactief" | translate | lowercase }})</em
+        >
+      }
+    </zac-static-text>
+    <zac-static-text
+      label="behandelaar"
+      [value]="zaak.behandelaar?.naam | empty"
+    >
+    </zac-static-text>
+    <zac-static-text
+      label="communicatiekanaal"
+      [value]="zaak.communicatiekanaal | empty"
+    >
+    </zac-static-text>
+
+    @if (zaak.rechten.wijzigen || zaak.rechten.toekennen) {
+      <button
+        mat-icon-button
+        mat-small-icon-button
+        (click)="editCaseDetails.emit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    } @else {
+      <div class="grid-placeholder" aria-hidden="true"></div>
+    }
+
+    <zac-static-text
+      label="startdatum"
+      [value]="zaak.startdatum | datum | empty"
+    >
+    </zac-static-text>
+    <zac-static-text
+      label="streefdatum"
+      [value]="zaak.einddatumGepland | datum | empty"
+      [icon]="dateFieldIconMap.get('einddatumGepland')"
+    >
+      <mat-icon>label-icon</mat-icon>
+    </zac-static-text>
+    <zac-static-text
+      label="fataledatum"
+      [value]="zaak.uiterlijkeEinddatumAfdoening | datum | empty"
+      [icon]="
+        dateFieldIconMap.get('uiterlijkeEinddatumAfdoening')
+      "
+    >
+    </zac-static-text>
+    <div
+      *ngIf="zaak.duurVerlenging || zaakOpschorting?.duurDagen"
+      class="full-width remark"
+    >
+      <div class="flex-col gap-5">
+        <div
+          class="flex-row items-center gap-5"
+          *ngIf="zaakOpschorting?.duurDagen"
+        >
+          <mat-icon>pause</mat-icon>
+          {{
+            (zaakOpschorting?.duurDagen === 1
+              ? "duurDagenOpschorting.enkelvoud"
+              : "duurDagenOpschorting"
+            ) | translate: { duur: zaakOpschorting?.duurDagen }
+          }}
+        </div>
+        <div
+          class="flex-row items-center gap-5"
+          *ngIf="zaak.duurVerlenging"
+        >
+          <mat-icon>update</mat-icon>
+          {{
+            "duurVerlenging"
+              | translate: { duur: zaak.duurVerlenging }
+          }}
+        </div>
+      </div>
+    </div>
+    <zac-static-text
+      class="full-width"
+      label="vertrouwelijkheidaanduiding"
+      [value]="
+        zaak.vertrouwelijkheidaanduiding
+          | vertrouwelijkaanduidingToTranslationKey
+          | translate
+          | empty
+      "
+    >
+    </zac-static-text>
+    <zac-static-text
+      class="full-width"
+      label="omschrijving"
+      [value]="zaak.omschrijving | empty"
+    ></zac-static-text>
+    <zac-static-text
+      class="full-width"
+      label="toelichting"
+      [value]="zaak.toelichting | empty"
+    ></zac-static-text>
+  </div>
+</div>

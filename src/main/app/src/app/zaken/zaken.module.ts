@@ -22,6 +22,7 @@ import { BesluitCreateComponent } from "./besluit-create/besluit-create.componen
 import { BesluitEditComponent } from "./besluit-edit/besluit-edit.component";
 import { BesluitViewComponent } from "./besluit-view/besluit-view.component";
 import { BetrokkeneLinkComponent } from "./zaak-betrokkenen/betrokkene-link.component";
+import { ZaakDetailsAlgemeenTabComponent } from "./zaak-details-algemeen-tab/zaak-details-algemeen-tab.component";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
 
 import { ZaakBetrokkeneListComponent } from "./zaak-betrokkenen-list/zaak-betrokkene-list.component";
@@ -70,6 +71,7 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
     ZaakLinkComponent,
     ZaakHistorieComponent,
     ZaakBetrokkeneListComponent,
+    ZaakDetailsAlgemeenTabComponent,
   ],
 })
 export class ZakenModule {}
