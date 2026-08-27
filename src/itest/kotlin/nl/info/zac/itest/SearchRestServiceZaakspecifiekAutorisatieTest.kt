@@ -138,12 +138,14 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
             eigenschapNaam = "ZAAK_GEAUTORISEERD",
             waarde = "true"
         )
-        // the zaakeigenschap notificatie triggered by createZaakeigenschap() above is handled
-        // asynchronously and reindexes the zaak, its (open) taken and its documenten; wait for that to
-        // complete by polling for the actual effect of the newly set flag: the zaak, its task and its
+        // createZaakeigenschap() above bypasses ZAC, so it triggers no real notificatie; simulate the
+        // zaakeigenschap notificatie that Open Notificaties would otherwise send, which is handled
+        // asynchronously and reindexes the zaak, its (open) taken and its documenten. Then wait for that
+        // to complete by polling for the actual effect of the newly set flag: the zaak, its task and its
         // document becoming invisible to a behandelaar who lacks the zaakspecifiek_geautoriseerd role.
         // Polling the flagged user's view is not a valid signal here, since that user can see the zaak
         // regardless of whether reindexing has finished.
+        openZaakClient.sendZaakeigenschapCreateNotification(zaakUuid)
         eventually(30.seconds) {
             JSONObject(searchZaak(zaakIdentificatie, BEHANDELAAR_1).bodyAsString).getInt("totaal") shouldBe 0
             JSONObject(searchTaak(zaakIdentificatie, BEHANDELAAR_1).bodyAsString).getInt("totaal") shouldBe 0

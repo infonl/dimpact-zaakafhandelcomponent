@@ -6,18 +6,26 @@ package nl.info.zac.itest.client
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm.HMAC256
+import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.config.ItestConfiguration.BRON_ORGANISATIE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
+import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_CLIENT_ID
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_CLIENT_SECRET
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import okhttp3.Headers
 import org.json.JSONObject
 import java.io.File
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.URLDecoder
 import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.Base64
 import java.util.Date
 import java.util.UUID
@@ -56,6 +64,37 @@ class OpenZaakClient(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID/zaakeigenschappen",
             requestBodyAsString = requestBody
         )
+    }
+
+    /**
+     * Sends a request to the ZAC notification endpoint to notify ZAC about the creation of a
+     * zaakeigenschap, so that ZAC will reindex the zaak (and its taken and documenten) in Solr.
+     * Use this after [createZaakeigenschap], which bypasses ZAC and therefore triggers no real
+     * notification.
+     */
+    fun sendZaakeigenschapCreateNotification(zaakUUID: UUID) {
+        val zaakUrl = "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUUID"
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/notificaties",
+            headers = Headers.headersOf(
+                "Content-Type",
+                "application/json",
+                "Authorization",
+                OPEN_NOTIFICATIONS_API_SECRET_KEY
+            ),
+            requestBodyAsString = JSONObject(
+                mapOf(
+                    "kanaal" to "zaken",
+                    "resource" to "zaakeigenschap",
+                    "hoofdObject" to zaakUrl,
+                    "resourceUrl" to "$zaakUrl/zaakeigenschappen/${UUID.randomUUID()}",
+                    "actie" to "create",
+                    "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                )
+            ).toString()
+        ).run {
+            code shouldBe HTTP_NO_CONTENT
+        }
     }
 
     /**
