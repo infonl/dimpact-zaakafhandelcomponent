@@ -235,6 +235,11 @@ class NotificationReceiver @Inject constructor(
                         Resource.STATUS, Resource.RESULTAAT, Resource.ROL, Resource.ZAAKOBJECT -> {
                             indexingService.addOrUpdateZaak(notification.mainResourceUrl.extractUuid(), false)
                         }
+                        Resource.ZAAKEIGENSCHAP -> {
+                            val zaakUUID = notification.mainResourceUrl.extractUuid()
+                            indexingService.addOrUpdateZaak(zaakUUID, true)
+                            indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
+                        }
                         Resource.ZAAKINFORMATIEOBJECT -> {
                             if (notification.action == Action.CREATE) {
                                 indexingService.addOrUpdateInformatieobjectByZaakinformatieobject(

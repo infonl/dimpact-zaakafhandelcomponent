@@ -249,6 +249,11 @@ class IndexingService @Inject constructor(
             zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject.extractUuid()
         )
 
+    fun addOrUpdateInformatieobjectenForZaak(zaakUUID: UUID) =
+        zrcClientService.listZaakinformatieobjecten(zrcClientService.readZaak(zaakUUID)).forEach {
+            addOrUpdateInformatieobject(it.informatieobject.extractUuid())
+        }
+
     fun addOrUpdateTaak(taskID: String) = indexeerDirect(taskID, ZoekObjectType.TAAK, false)
 
     fun removeZaak(zaakUUID: UUID) = removeFromSolrIndex(zaakUUID.toString())

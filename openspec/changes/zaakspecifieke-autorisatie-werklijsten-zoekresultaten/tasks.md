@@ -16,6 +16,13 @@
       large environments; a later story in this epic lists `ZAAK`, `TAAK`, and `DOCUMENT` there once the
       flag starts being set for real zaken. Verify with a `SolrSchemaVx` unit test matching the existing
       `SolrSchemaV*` test pattern.
+- [x] 1.4 Handle the `zaakeigenschap` notificatie in `NotificationReceiver` (previously unhandled, falling
+      through to `else -> {}`): on a `zaakeigenschap` change, reindex the zaak (including its open taken via
+      `addOrUpdateZaak(zaakUUID, inclusiefTaken = true)`) and the zaak's documenten (new
+      `IndexingService.addOrUpdateInformatieobjectenForZaak`), so a `ZAAK_GEAUTORISEERD` change is reflected
+      on all three row types, not only whichever row a later, unrelated reindex happens to touch; verify with
+      `NotificationReceiverTest`/`IndexingServiceTest` cases and an itest relying on the notificatie alone
+      (no manual `/internal/indexeren/herindexeren/{type}` call).
 
 ## 2. Search-time filtering
 

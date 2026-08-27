@@ -63,6 +63,9 @@ exactly as they would see any other zaak of that zaaktype. No visual indicator i
   `getAllowedZaaktypenFilterQuery()`.
 - `src/main/kotlin/nl/info/zac/policy/PolicyService.kt` — the three zoekobject-based `readXxxRechten`
   overloads.
+- `src/main/kotlin/nl/info/zac/notification/NotificationReceiver.kt` — handle the `zaakeigenschap`
+  notificatie, previously not handled at all, so a `ZAAK_GEAUTORISEERD` change reindexes the zaak, its
+  open taken, and its documenten instead of only becoming visible on their next unrelated reindex.
 - `src/itest/kotlin/nl/info/zac/itest/` — extended integration tests (likely alongside the existing
   `TaskRestServiceZaakspecifiekAutorisatieTest.kt` / `EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest.kt`
   pattern, plus a search/werklijst-focused test).

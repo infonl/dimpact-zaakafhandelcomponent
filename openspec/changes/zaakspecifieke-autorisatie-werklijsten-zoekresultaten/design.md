@@ -100,9 +100,12 @@ to describe.
   `SolrSchemaV7`); deferring it here also avoids imposing a multi-day reindex on large environments before
   it is actually needed.
 - [Denormalizing the flag means a zaakeigenschap change made directly in Open Zaak/ZGW after indexing is
-  stale in Solr until the zaak is reindexed] → Existing, accepted behavior of the search index in general
-  (every other zaak field already has this property); the zaak's own event-driven reindex triggers
-  (`notificaties`) already keep it acceptably fresh, same as any other indexed zaak attribute.
+  stale in Solr until the zaak is reindexed] → `NotificationReceiver` did not handle `Resource.ZAAKEIGENSCHAP`
+  notificaties at all before this story, so this window would otherwise have been unbounded rather than
+  short. Fixed as part of this story: a `zaakeigenschap` notificatie now reindexes the zaak (including its
+  open taken, via the existing `addOrUpdateZaak(zaakUUID, inclusiefTaken = true)` path) and the zaak's
+  documenten, so the flag is refreshed on all three row types within the same short, event-driven window as
+  any other indexed zaak attribute.
 
 ## Migration Plan
 

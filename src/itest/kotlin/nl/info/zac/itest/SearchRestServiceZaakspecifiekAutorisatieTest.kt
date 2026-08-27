@@ -21,11 +21,8 @@ import nl.info.zac.itest.config.TestUser
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
-import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONObject
-import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import kotlin.time.Duration.Companion.seconds
@@ -45,10 +42,6 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
     val taskHelper = TaskHelper(zacClient)
     val documentHelper = DocumentHelper(zacClient)
     val openZaakClient = OpenZaakClient(itestHttpClient)
-    val internalEndpointHeaders = mapOf(
-        "Content-Type" to "application/json",
-        "X-API-KEY" to ZAC_INTERNAL_ENDPOINTS_API_KEY
-    ).toHeaders()
 
     fun searchZaak(zaakIdentificatie: String, testUser: TestUser) =
         itestHttpClient.performPutRequest(
@@ -145,18 +138,12 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
             eigenschapNaam = "ZAAK_GEAUTORISEERD",
             waarde = "true"
         )
-        // the zaak, its task and its document were indexed before the zaakeigenschap was set,
-        // so a full reindex is needed for the search index to reflect the new flag value
-        listOf("ZAAK", "TAAK", "DOCUMENT").forEach { zoekObjectType ->
-            itestHttpClient.performGetRequest(
-                url = "$ZAC_API_URI/internal/indexeren/herindexeren/$zoekObjectType",
-                headers = internalEndpointHeaders
-            ).code shouldBe HTTP_NO_CONTENT
-        }
-        // wait for the (asynchronous) reindexing to complete by polling for the actual effect of the
-        // newly set flag: the zaak, its task and its document becoming invisible to a behandelaar who
-        // lacks the zaakspecifiek_geautoriseerd role. Polling the flagged user's view is not a valid
-        // signal here, since that user can see the zaak regardless of whether reindexing has finished.
+        // the zaakeigenschap notificatie triggered by createZaakeigenschap() above is handled
+        // asynchronously and reindexes the zaak, its (open) taken and its documenten; wait for that to
+        // complete by polling for the actual effect of the newly set flag: the zaak, its task and its
+        // document becoming invisible to a behandelaar who lacks the zaakspecifiek_geautoriseerd role.
+        // Polling the flagged user's view is not a valid signal here, since that user can see the zaak
+        // regardless of whether reindexing has finished.
         eventually(30.seconds) {
             JSONObject(searchZaak(zaakIdentificatie, BEHANDELAAR_1).bodyAsString).getInt("totaal") shouldBe 0
             JSONObject(searchTaak(zaakIdentificatie, BEHANDELAAR_1).bodyAsString).getInt("totaal") shouldBe 0

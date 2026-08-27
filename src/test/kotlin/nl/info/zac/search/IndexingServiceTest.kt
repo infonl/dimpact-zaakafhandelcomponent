@@ -26,6 +26,7 @@ import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.ZaakUuid
@@ -255,6 +256,45 @@ class IndexingServiceTest : BehaviorSpec({
             then("all zaken in the page are still converted and added to the Solr index") {
                 verify(exactly = 1) {
                     ctx.solrClient.addBeans(match<Collection<*>> { it.size == pageSize })
+                }
+            }
+        }
+    }
+
+    given("A zaak with two documenten attached") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
+        val zaakInformatieobjecten = listOf(
+            createZaakInformatieobjectForReads(zaak = zaak.url),
+            createZaakInformatieobjectForReads(zaak = zaak.url)
+        )
+        val documentZoekObjecten = listOf(createDocumentZoekObject(), createDocumentZoekObject())
+
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
+        every { documentZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true
+        every { ctx.converterInstancesIterator.next() } returns documentZoekObjectConverter
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+        zaakInformatieobjecten.forEachIndexed { index, zaakInformatieobject ->
+            every {
+                documentZoekObjectConverter.convert(zaakInformatieobject.informatieobject.extractUuid().toString())
+            } returns documentZoekObjecten[index]
+        }
+
+        `when`("addOrUpdateInformatieobjectenForZaak is called for the zaak's UUID") {
+            ctx.indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+
+            then("both of the zaak's documenten are (re)indexed in Solr") {
+                verify(exactly = 1) {
+                    documentZoekObjectConverter.convert(
+                        zaakInformatieobjecten[0].informatieobject.extractUuid().toString()
+                    )
+                    documentZoekObjectConverter.convert(
+                        zaakInformatieobjecten[1].informatieobject.extractUuid().toString()
+                    )
                 }
             }
         }

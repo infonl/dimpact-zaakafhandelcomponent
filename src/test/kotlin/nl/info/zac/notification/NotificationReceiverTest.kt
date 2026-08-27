@@ -249,6 +249,37 @@ class NotificationReceiverTest : BehaviorSpec({
             }
         }
     }
+    given("a request containing a authorization header and a zaakeigenschap update notificatie") {
+        val zaakUUID = UUID.randomUUID()
+        val zaakUri = URI("https://example.com/fakezaak/$zaakUUID")
+        val zaakeigenschapUri = URI("https://example.com/fakezaakeigenschap/${UUID.randomUUID()}")
+        val notificatie = createNotificatie(
+            channel = Channel.ZAKEN,
+            resource = Resource.ZAAKEIGENSCHAP,
+            resourceUrl = zaakeigenschapUri,
+            mainResourceUrl = zaakUri,
+            action = Action.UPDATE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { indexingService.addOrUpdateZaak(zaakUUID, true) } just Runs
+        every { indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID) } just Runs
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        `when`("notificatieReceive is called with the zaakeigenschap update notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then(
+                "the zaak, including its taken, and the zaak's documenten are all reindexed in Solr"
+            ) {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    indexingService.addOrUpdateZaak(zaakUUID, true)
+                    indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
+                }
+            }
+        }
+    }
     given("A 'create informatieobject' notification") {
         val informatieobjectUUID = UUID.randomUUID()
         val informatieobjectURI = URI("https://example.com/fakezaak/$informatieobjectUUID")
