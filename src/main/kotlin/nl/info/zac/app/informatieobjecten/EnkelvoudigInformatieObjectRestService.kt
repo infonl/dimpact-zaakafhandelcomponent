@@ -109,8 +109,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .let(drcClientService::readEnkelvoudigInformatieobject)
             .let { enkelvoudigInformatieObject ->
                 findZaakForDocument(enkelvoudigInformatieObject).let { zaak ->
-                    assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak).lezen)
-                    restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak)
+                    val documentRechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+                    assertPolicy(documentRechten.lezen)
+                    restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak, documentRechten)
                 }
             }
 
@@ -124,13 +125,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .let(drcClientService::readEnkelvoudigInformatieobject)
             .let { currentVersion ->
                 val zaak = findZaakForDocument(currentVersion)
-                assertPolicy(policyService.readDocumentRechten(currentVersion, zaak).lezen)
+                val documentRechten = policyService.readDocumentRechten(currentVersion, zaak)
+                assertPolicy(documentRechten.lezen)
                 when {
                     version < currentVersion.versie -> restInformatieobjectConverter.convertToREST(
                         drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, version),
                         zaak
                     )
-                    else -> restInformatieobjectConverter.convertToREST(currentVersion, zaak)
+                    else -> restInformatieobjectConverter.convertToREST(currentVersion, zaak, documentRechten)
                 }
             }
 

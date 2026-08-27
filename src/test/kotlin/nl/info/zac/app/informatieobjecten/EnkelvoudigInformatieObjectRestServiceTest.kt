@@ -809,11 +809,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
         } returns listOf(zaakInformatieobject)
         every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        val documentRechten = createDocumentRechten()
         every {
             policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
-        } returns createDocumentRechten()
+        } returns documentRechten
         every {
-            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak)
+            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak, documentRechten)
         } returns restEnkelvoudigInformatieobject
 
         `when`("readEnkelvoudigInformatieobject is called") {
@@ -834,11 +835,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
         } returns emptyList()
+        val documentRechten = createDocumentRechten()
         every {
             policyService.readDocumentRechten(enkelvoudigInformatieObject, null)
-        } returns createDocumentRechten()
+        } returns documentRechten
         every {
-            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
+            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null, documentRechten)
         } returns restEnkelvoudigInformatieobject
 
         `when`("readEnkelvoudigInformatieobject is called") {
@@ -871,11 +873,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
         } returns listOf(firstZaakInformatieobject, secondZaakInformatieobject)
         every { zrcClientService.readZaak(firstZaakUUID) } returns firstZaak
+        val documentRechten = createDocumentRechten()
         every {
             policyService.readDocumentRechten(enkelvoudigInformatieObject, firstZaak)
-        } returns createDocumentRechten()
+        } returns documentRechten
         every {
-            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, firstZaak)
+            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, firstZaak, documentRechten)
         } returns restEnkelvoudigInformatieobject
 
         `when`("readEnkelvoudigInformatieobject is called") {
@@ -967,11 +970,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             zrcClientService.listZaakinformatieobjecten(currentVersionEnkelvoudigInformatieObject)
         } returns emptyList()
+        val documentRechten = createDocumentRechten()
         every {
             policyService.readDocumentRechten(currentVersionEnkelvoudigInformatieObject, null)
-        } returns createDocumentRechten()
+        } returns documentRechten
         every {
-            restInformatieobjectConverter.convertToREST(currentVersionEnkelvoudigInformatieObject, null)
+            restInformatieobjectConverter.convertToREST(currentVersionEnkelvoudigInformatieObject, null, documentRechten)
         } returns restEnkelvoudigInformatieobject
 
         `when`("readEnkelvoudigInformatieobjectVersion is called with the current version") {
@@ -1674,9 +1678,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
         } returns emptyList()
+        val documentRechten = createDocumentRechten()
         every {
             policyService.readDocumentRechten(enkelvoudigInformatieObject, null)
-        } returns createDocumentRechten()
+        } returns documentRechten
 
         withData(
             nameFn = { "expected indicaties: ${it.expectedIndicaties}" },
@@ -1730,7 +1735,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 verzenddatum = testCase.verzenddatum
             )
             every {
-                restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
+                restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null, documentRechten)
             } returns restEnkelvoudigInformatieobject
 
             `when`("readEnkelvoudigInformatieobject is called") {
