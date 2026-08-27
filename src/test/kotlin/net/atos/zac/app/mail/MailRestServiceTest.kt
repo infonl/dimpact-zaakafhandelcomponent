@@ -13,8 +13,8 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
-import net.atos.zac.app.mail.model.RESTMailGegevens
+import net.atos.zac.app.mail.converter.RestMailGegevensConverter
+import net.atos.zac.app.mail.model.RestMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -35,7 +35,7 @@ class MailRestServiceTest : BehaviorSpec({
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val policyService = mockk<PolicyService>()
     val zrcClientService = mockk<ZrcClientService>()
-    val restMailGegevensConverter = mockk<RESTMailGegevensConverter>()
+    val restMailGegevensConverter = mockk<RestMailGegevensConverter>()
 
     @Suppress("UNCHECKED_CAST")
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
@@ -55,7 +55,7 @@ class MailRestServiceTest : BehaviorSpec({
         given("A zaak UUID, mail gegevens, and policy permits versturenEmail") {
             val fakeZaakUuid = UUID.randomUUID()
             val fakeZaak = createZaak(uuid = fakeZaakUuid)
-            val fakeRestMailGegevens = mockk<RESTMailGegevens>()
+            val fakeRestMailGegevens = mockk<RestMailGegevens>()
             val fakeMailGegevens = mockk<MailGegevens>()
             val fakeLoggedInUser = createLoggedInUser()
 
@@ -81,7 +81,7 @@ class MailRestServiceTest : BehaviorSpec({
         given("Policy permits and ontvangstbevestiging not yet sent") {
             val fakeZaakUuid = UUID.randomUUID()
             val fakeZaak = createZaak(uuid = fakeZaakUuid)
-            val fakeRestMailGegevens = mockk<RESTMailGegevens>()
+            val fakeRestMailGegevens = mockk<RestMailGegevens>()
             val fakeMailGegevens = mockk<MailGegevens>()
             val fakeLoggedInUser = createLoggedInUser()
 
@@ -115,7 +115,7 @@ class MailRestServiceTest : BehaviorSpec({
         given("Policy denies versturenOntvangstbevestiging") {
             val fakeZaakUuid = UUID.randomUUID()
             val fakeZaak = createZaak(uuid = fakeZaakUuid)
-            val fakeRestMailGegevens = mockk<RESTMailGegevens>()
+            val fakeRestMailGegevens = mockk<RestMailGegevens>()
             val fakeLoggedInUser = createLoggedInUser()
 
             every { loggedInUserInstance.get() } returns fakeLoggedInUser

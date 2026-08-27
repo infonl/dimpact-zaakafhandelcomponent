@@ -4,7 +4,7 @@
  */
 package nl.info.zac.app.planitems.model
 
-import net.atos.zac.app.mail.model.RESTMailGegevens
+import net.atos.zac.app.mail.model.RestMailGegevens
 import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 
@@ -22,7 +22,7 @@ data class RESTUserEventListenerData(
 
     var resultaattypeUuid: UUID? = null,
 
-    var restMailGegevens: RESTMailGegevens? = null,
+    var restMailGegevens: RestMailGegevens? = null,
 
     /**
      * De einddatum van de procestermijn voor de zaak.

@@ -9,7 +9,7 @@ import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding;
 /**
  * REST gegevens voor het verzenden van mail
  */
-public class RESTMailGegevens {
+public class RestMailGegevens {
 
     public String verzender;
 

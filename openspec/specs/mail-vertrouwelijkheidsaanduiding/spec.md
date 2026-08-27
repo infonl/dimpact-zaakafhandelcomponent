@@ -15,11 +15,11 @@ The CMMN mail-create form SHALL let the user select a vertrouwelijkheidaanduidin
 - **WHEN** a user selects a vertrouwelijkheidaanduiding (e.g. `VERTROUWELIJK`) and submits the mail-create form
 - **THEN** the request sent to the backend SHALL include that vertrouwelijkheidaanduiding value
 
-### Requirement: RESTMailGegevens carries the confidentiality value
-`RESTMailGegevens` SHALL include a `vertrouwelijkheidaanduiding` field, and converting it to the domain `MailGegevens` SHALL preserve the selected value as the equivalent ZGW confidentiality enum value.
+### Requirement: RestMailGegevens carries the confidentiality value
+`RestMailGegevens` SHALL include a `vertrouwelijkheidaanduiding` field, and converting it to the domain `MailGegevens` SHALL preserve the selected value as the equivalent ZGW confidentiality enum value.
 
-#### Scenario: Converting a RESTMailGegevens payload with a confidentiality value
-- **WHEN** `RESTMailGegevensConverter.convert` is called with a `RESTMailGegevens` instance whose `vertrouwelijkheidaanduiding` is `GEHEIM`
+#### Scenario: Converting a RestMailGegevens payload with a confidentiality value
+- **WHEN** `RestMailGegevensConverter.convert` is called with a `RestMailGegevens` instance whose `vertrouwelijkheidaanduiding` is `GEHEIM`
 - **THEN** the resulting `MailGegevens` SHALL carry the equivalent `VertrouwelijkheidaanduidingEnum.GEHEIM` value
 
 ### Requirement: Mail-generated PDF document uses the supplied confidentiality

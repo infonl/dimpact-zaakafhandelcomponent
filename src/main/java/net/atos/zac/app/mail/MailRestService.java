@@ -18,8 +18,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.zac.app.mail.converter.RESTMailGegevensConverter;
-import net.atos.zac.app.mail.model.RESTMailGegevens;
+import net.atos.zac.app.mail.converter.RestMailGegevensConverter;
+import net.atos.zac.app.mail.model.RestMailGegevens;
 import net.atos.zac.flowable.ZaakVariabelenService;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
@@ -40,7 +40,7 @@ public class MailRestService {
     private ZaakVariabelenService zaakVariabelenService;
     private PolicyService policyService;
     private ZrcClientService zrcClientService;
-    private RESTMailGegevensConverter restMailGegevensConverter;
+    private RestMailGegevensConverter restMailGegevensConverter;
     private Instance<LoggedInUser> loggedInUserInstance;
 
     /**
@@ -56,7 +56,7 @@ public class MailRestService {
             final ZaakVariabelenService zaakVariabelenService,
             final PolicyService policyService,
             final ZrcClientService zrcClientService,
-            final RESTMailGegevensConverter restMailGegevensConverter,
+            final RestMailGegevensConverter restMailGegevensConverter,
             final Instance<LoggedInUser> loggedInUserInstance
     ) {
         this.zaakService = zaakService;
@@ -72,7 +72,7 @@ public class MailRestService {
     @Path("send/{zaakUuid}")
     public void sendMail(
             @PathParam("zaakUuid") final UUID zaakUUID,
-            final RESTMailGegevens restMailGegevens
+            final RestMailGegevens restMailGegevens
     ) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         final Zaak zaak = zrcClientService.readZaak(zaakUUID);
@@ -84,7 +84,7 @@ public class MailRestService {
     @Path("acknowledge/{zaakUuid}")
     public void sendAcknowledgmentReceiptMail(
             @PathParam("zaakUuid") final UUID zaakUuid,
-            final RESTMailGegevens restMailGegevens
+            final RestMailGegevens restMailGegevens
     ) {
         final LoggedInUser loggedInUser = loggedInUserInstance.get();
         final Zaak zaak = zrcClientService.readZaak(zaakUuid);
