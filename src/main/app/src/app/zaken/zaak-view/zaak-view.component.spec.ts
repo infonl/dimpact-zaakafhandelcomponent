@@ -19,6 +19,7 @@ import {
   MatSubheaderHarness,
 } from "@angular/material/list/testing";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -64,7 +65,9 @@ import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.comp
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
 import { ZaakTakenComponent } from "../zaak-taken/zaak-taken.component";
+import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
+import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
 describe(ZaakViewComponent.name, () => {
@@ -127,6 +130,7 @@ describe(ZaakViewComponent.name, () => {
       imports: [
         ZaakDocumentenComponent,
         ZaakBetrokkeneListComponent,
+        ZaakDetailsCardComponent,
         ZaakInitiatorToevoegenComponent,
         BedrijfsgegevensComponent,
         ContactgegevensComponent,
@@ -1379,7 +1383,6 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
-
   describe("zaak from cache", () => {
     beforeEach(() => {
       mockActivatedRoute.data.next({ zaak });
@@ -1760,4 +1763,84 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
+  describe("wiring between the zaak view and the details card", () => {
+    const detailsCard = () =>
+      fixture.debugElement.query(By.directive(ZaakDetailsCardComponent))
+        .componentInstance as ZaakDetailsCardComponent;
+
+    let openSideNav: jest.SpyInstance;
+
+    beforeEach(() => {
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...zaak,
+          rechten: { ...zaak.rechten, wijzigen: true, wijzigenLocatie: true },
+        },
+      });
+      fixture.detectChanges();
+      // the ViewChild resolves to the real drawer once the template renders
+      openSideNav = jest
+        .spyOn(fixture.componentInstance.actionsSidenav, "open")
+        .mockResolvedValue("open");
+    });
+
+    it("opens the wijzigen side action when the card asks to edit the zaak", () => {
+      detailsCard().editCaseDetails.emit();
+
+      expect(openSideNav).toHaveBeenCalled();
+      expect(fixture.componentInstance["activeSideAction"]).toBe(
+        "actie.zaak.wijzigen",
+      );
+    });
+
+    it("opens the locatie side action when the card asks to edit the locatie", () => {
+      detailsCard().editLocationDetails.emit();
+
+      expect(openSideNav).toHaveBeenCalled();
+      expect(fixture.componentInstance["activeSideAction"]).toBe(
+        "actie.zaak.locatie.koppelen",
+      );
+    });
+
+    it("opens the ontkoppelen dialog for the gerelateerde zaak the card reports", () => {
+      const dialog = TestBed.inject(MatDialog);
+      jest.mocked(dialog.open).mockClear();
+
+      detailsCard().zaakOntkoppelen.emit(
+        fromPartial<GeneratedType<"RestGerelateerdeZaak">>({
+          identificatie: "fakeGerelateerdeZaakIdentificatie",
+          relatieType: "VERVOLG",
+        }),
+      );
+
+      expect(jest.mocked(dialog.open).mock.calls.at(-1)![1]).toMatchObject({
+        data: {
+          zaakUuid: zaak.uuid,
+          gekoppeldeZaakIdentificatie: "fakeGerelateerdeZaakIdentificatie",
+          relatieType: "VERVOLG",
+        },
+      });
+    });
+
+    it("opens the verwijder dialog for the bag object the card reports", () => {
+      const zaakDialogService = TestBed.inject(ZaakDialogService);
+      const openVerwijderBagObject = jest
+        .spyOn(zaakDialogService, "openVerwijderBagObject")
+        .mockReturnValue(dialogRef as MatDialogRef<unknown, boolean>);
+
+      detailsCard().bagObjectVerwijderen.emit(
+        fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
+          uuid: "fakeBagObjectGegevensUuid",
+          zaakobject: fromPartial<GeneratedType<"RESTBAGObject">>({
+            omschrijving: "fakeBagObjectOmschrijving",
+          }),
+        }),
+      );
+
+      expect(openVerwijderBagObject).toHaveBeenCalledWith(
+        "fakeBagObjectOmschrijving",
+        expect.any(Function),
+      );
+    });
+  });
 });

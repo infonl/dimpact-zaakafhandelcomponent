@@ -1,5 +1,5 @@
 <div class="table-wrapper">
-  <table mat-table [dataSource]="bagObjectenDataSource" matSort>
+  <table mat-table [dataSource]="bagObjectenDataSource()" matSort>
     <ng-container matColumnDef="identificatie">
       <th mat-header-cell *matHeaderCellDef>
         {{ "identificatie" | translate }}
@@ -48,7 +48,7 @@
           <mat-icon>visibility</mat-icon>
         </a>
         <button
-          *ngIf="isOntkoppelenToegestaan"
+          *ngIf="isOntkoppelenToegestaan()"
           mat-icon-button
           (click)="bagObjectVerwijderen.emit(bagObjectGegevens)"
           title="{{ 'actie.bagObject.ontkoppelen' | translate }}"

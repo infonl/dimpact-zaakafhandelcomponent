@@ -49,9 +49,7 @@ describe(ZaakDetailsGerelateerdeZakenTabComponent.name, () => {
       providers: [provideRouter([])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(
-      ZaakDetailsGerelateerdeZakenTabComponent,
-    );
+    fixture = TestBed.createComponent(ZaakDetailsGerelateerdeZakenTabComponent);
   });
 
   it("renders a row per gerelateerde zaak", () => {
@@ -73,11 +71,13 @@ describe(ZaakDetailsGerelateerdeZakenTabComponent.name, () => {
   });
 
   it("hides the link to a gerelateerde zaak the user may not read", () => {
-    renderZaken([gerelateerdeZaak({
+    renderZaken([
+      gerelateerdeZaak({
         rechten: fromPartial<GeneratedType<"RestGerelateerdeZaak">["rechten"]>({
           lezen: false,
         }),
-      })]);
+      }),
+    ]);
 
     expect(
       screen().queryByRole("link", { name: "actie.zaak.bekijken" }),
@@ -90,9 +90,7 @@ describe(ZaakDetailsGerelateerdeZakenTabComponent.name, () => {
     renderZaken([ontkoppelbareZaak]);
     fixture.componentInstance.zaakOntkoppelen.subscribe(zaakOntkoppelen);
 
-    screen()
-      .getByRole("button", { name: "actie.zaak.ontkoppelen" })
-      .click();
+    screen().getByRole("button", { name: "actie.zaak.ontkoppelen" }).click();
 
     expect(zaakOntkoppelen).toHaveBeenCalledWith(ontkoppelbareZaak);
   });

@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { MatSort, MatSortHeader } from "@angular/material/sort";
@@ -55,14 +55,14 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   ],
 })
 export class ZaakDetailsBagObjectenTabComponent {
-  @Input({ required: true }) bagObjectenDataSource!: MatTableDataSource<
-    GeneratedType<"RESTBAGObjectGegevens">
-  >;
-  @Input() isOntkoppelenToegestaan = false;
+  readonly bagObjectenDataSource =
+    input.required<
+      MatTableDataSource<GeneratedType<"RESTBAGObjectGegevens">>
+    >();
+  readonly isOntkoppelenToegestaan = input(false);
 
-  @Output() bagObjectVerwijderen = new EventEmitter<
-    GeneratedType<"RESTBAGObjectGegevens">
-  >();
+  readonly bagObjectVerwijderen =
+    output<GeneratedType<"RESTBAGObjectGegevens">>();
 
   protected bagObjectenColumns = [
     "identificatie",

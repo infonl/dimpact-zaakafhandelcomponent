@@ -1,5 +1,5 @@
 <div class="table-wrapper">
-  <table mat-table [dataSource]="gerelateerdeZaken">
+  <table mat-table [dataSource]="gerelateerdeZaken()">
     <ng-container
       *ngFor="let column of gerelateerdeZaakColumns"
       [matColumnDef]="column"

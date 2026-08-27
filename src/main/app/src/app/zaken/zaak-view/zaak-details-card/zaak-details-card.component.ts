@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { MatIconButton } from "@angular/material/button";
 import {
   MatCard,
@@ -65,21 +65,19 @@ import { ZaakHistorieComponent } from "../../zaken-historie/zaak-historie.compon
   ],
 })
 export class ZaakDetailsCardComponent {
-  @Input({ required: true }) zaak!: GeneratedType<"RestZaak">;
-  @Input() zaakOpschorting?: GeneratedType<"RESTZaakOpschorting">;
-  @Input({ required: true }) bagObjectenDataSource!: MatTableDataSource<
-    GeneratedType<"RESTBAGObjectGegevens">
-  >;
-  @Input() showBetrokkeneKoppelingen = false;
+  readonly zaak = input.required<GeneratedType<"RestZaak">>();
+  readonly zaakOpschorting = input<GeneratedType<"RESTZaakOpschorting">>();
+  readonly bagObjectenDataSource =
+    input.required<
+      MatTableDataSource<GeneratedType<"RESTBAGObjectGegevens">>
+    >();
+  readonly showBetrokkeneKoppelingen = input(false);
 
-  @Output() editCaseDetails = new EventEmitter<void>();
-  @Output() editLocationDetails = new EventEmitter<void>();
-  @Output() zaakOntkoppelen = new EventEmitter<
-    GeneratedType<"RestGerelateerdeZaak">
-  >();
-  @Output() bagObjectVerwijderen = new EventEmitter<
-    GeneratedType<"RESTBAGObjectGegevens">
-  >();
+  readonly editCaseDetails = output<void>();
+  readonly editLocationDetails = output<void>();
+  readonly zaakOntkoppelen = output<GeneratedType<"RestGerelateerdeZaak">>();
+  readonly bagObjectVerwijderen =
+    output<GeneratedType<"RESTBAGObjectGegevens">>();
 
   protected readonly indicatiesLayout = IndicatiesLayout;
 }

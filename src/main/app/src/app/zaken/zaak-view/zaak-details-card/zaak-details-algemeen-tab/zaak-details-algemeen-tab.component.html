@@ -16,8 +16,8 @@
 
     <mat-divider class="mat-divider-wrapper full-width"></mat-divider>
 
-    <zac-static-text label="groep" [value]="zaak.groep?.naam | empty">
-      @if (zaak.groep?.active === false) {
+    <zac-static-text label="groep" [value]="zaak().groep?.naam | empty">
+      @if (zaak().groep?.active === false) {
         <em position="content-after"
           >&nbsp;({{ "inactief" | translate | lowercase }})</em
         >
@@ -25,16 +25,16 @@
     </zac-static-text>
     <zac-static-text
       label="behandelaar"
-      [value]="zaak.behandelaar?.naam | empty"
+      [value]="zaak().behandelaar?.naam | empty"
     >
     </zac-static-text>
     <zac-static-text
       label="communicatiekanaal"
-      [value]="zaak.communicatiekanaal | empty"
+      [value]="zaak().communicatiekanaal | empty"
     >
     </zac-static-text>
 
-    @if (zaak.rechten.wijzigen || zaak.rechten.toekennen) {
+    @if (zaak().rechten.wijzigen || zaak().rechten.toekennen) {
       <button
         mat-icon-button
         mat-small-icon-button
@@ -48,42 +48,42 @@
 
     <zac-static-text
       label="startdatum"
-      [value]="zaak.startdatum | datum | empty"
+      [value]="zaak().startdatum | datum | empty"
     >
     </zac-static-text>
     <zac-static-text
       label="streefdatum"
-      [value]="zaak.einddatumGepland | datum | empty"
-      [icon]="dateFieldIconMap.get('einddatumGepland')"
+      [value]="zaak().einddatumGepland | datum | empty"
+      [icon]="dateFieldIconMap().get('einddatumGepland')"
     >
       <mat-icon>label-icon</mat-icon>
     </zac-static-text>
     <zac-static-text
       label="fataledatum"
-      [value]="zaak.uiterlijkeEinddatumAfdoening | datum | empty"
-      [icon]="dateFieldIconMap.get('uiterlijkeEinddatumAfdoening')"
+      [value]="zaak().uiterlijkeEinddatumAfdoening | datum | empty"
+      [icon]="dateFieldIconMap().get('uiterlijkeEinddatumAfdoening')"
     >
     </zac-static-text>
     <div
-      *ngIf="zaak.duurVerlenging || zaakOpschorting?.duurDagen"
+      *ngIf="zaak().duurVerlenging || zaakOpschorting()?.duurDagen"
       class="full-width remark"
     >
       <div class="flex-col gap-5">
         <div
           class="flex-row items-center gap-5"
-          *ngIf="zaakOpschorting?.duurDagen"
+          *ngIf="zaakOpschorting()?.duurDagen"
         >
           <mat-icon>pause</mat-icon>
           {{
-            (zaakOpschorting?.duurDagen === 1
+            (zaakOpschorting()?.duurDagen === 1
               ? "duurDagenOpschorting.enkelvoud"
               : "duurDagenOpschorting"
-            ) | translate: { duur: zaakOpschorting?.duurDagen }
+            ) | translate: { duur: zaakOpschorting()?.duurDagen }
           }}
         </div>
-        <div class="flex-row items-center gap-5" *ngIf="zaak.duurVerlenging">
+        <div class="flex-row items-center gap-5" *ngIf="zaak().duurVerlenging">
           <mat-icon>update</mat-icon>
-          {{ "duurVerlenging" | translate: { duur: zaak.duurVerlenging } }}
+          {{ "duurVerlenging" | translate: { duur: zaak().duurVerlenging } }}
         </div>
       </div>
     </div>
@@ -91,7 +91,7 @@
       class="full-width"
       label="vertrouwelijkheidaanduiding"
       [value]="
-        zaak.vertrouwelijkheidaanduiding
+        zaak().vertrouwelijkheidaanduiding
           | vertrouwelijkaanduidingToTranslationKey
           | translate
           | empty
@@ -101,12 +101,12 @@
     <zac-static-text
       class="full-width"
       label="omschrijving"
-      [value]="zaak.omschrijving | empty"
+      [value]="zaak().omschrijving | empty"
     ></zac-static-text>
     <zac-static-text
       class="full-width"
       label="toelichting"
-      [value]="zaak.toelichting | empty"
+      [value]="zaak().toelichting | empty"
     ></zac-static-text>
   </div>
 </div>

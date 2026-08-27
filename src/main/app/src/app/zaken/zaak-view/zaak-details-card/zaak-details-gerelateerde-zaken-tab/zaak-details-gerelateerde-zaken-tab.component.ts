@@ -4,7 +4,7 @@
  */
 
 import { NgForOf, NgIf } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, input, output } from "@angular/core";
 import { MatIconAnchor, MatIconButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import {
@@ -54,12 +54,10 @@ import { GeneratedType } from "../../../../shared/utils/generated-types";
   ],
 })
 export class ZaakDetailsGerelateerdeZakenTabComponent {
-  @Input({ required: true })
-  gerelateerdeZaken!: GeneratedType<"RestGerelateerdeZaak">[];
+  readonly gerelateerdeZaken =
+    input.required<GeneratedType<"RestGerelateerdeZaak">[]>();
 
-  @Output() zaakOntkoppelen = new EventEmitter<
-    GeneratedType<"RestGerelateerdeZaak">
-  >();
+  readonly zaakOntkoppelen = output<GeneratedType<"RestGerelateerdeZaak">>();
 
   protected gerelateerdeZaakColumns = [
     "identificatie",
