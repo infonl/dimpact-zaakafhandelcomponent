@@ -143,4 +143,41 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
             }
         }
     }
+
+    given(
+        """
+            An enkelvoudig informatieobject with no 'inhoud' uploaded and therefore a null 'bestandsomvang'
+            and a related zaakinformatieobject for a zaak
+        """
+    ) {
+        val documentUUID = UUID.randomUUID()
+        val zaaktypeUUID = UUID.randomUUID()
+        val informatieObjectType = createInformatieObjectType()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            uuid = documentUUID,
+            indicatieGebruiksrecht = null,
+            bestandsomvang = null
+        )
+        val zaakInformatieobject = createZaakInformatieobjectForReads(informatieobject = URI("https://example.com/$documentUUID"))
+        val zaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$zaaktypeUUID"))
+        val zaak = createZaak(
+            zaaktypeUri = zaakType.url,
+            archiefnominatie = null
+        )
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
+        every { zrcClientService.readZaak(any<UUID>()) } returns zaak
+        every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
+        every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
+        every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
+
+        `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
+            val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
+
+            then("it should return the expected DocumentZoekObject with a 'bestandsomvang' of 0") {
+                documentZoekObject!!.bestandsomvang shouldBe 0
+            }
+        }
+    }
 })
