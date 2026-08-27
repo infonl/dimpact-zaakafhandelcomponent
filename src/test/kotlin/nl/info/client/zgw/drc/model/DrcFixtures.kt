@@ -34,7 +34,7 @@ fun createEnkelvoudigInformatieObject(
     ontvangstdatum: LocalDate? = null,
     formaat: String = "fakeformaat",
     informatieObjectType: URI = URI("https://example.com/informatieobjecttype/${UUID.randomUUID()}"),
-    bestandsomvang: Int = 1234,
+    bestandsomvang: Int? = 1234,
     title: String = "fakeTitle",
     ondertekening: Ondertekening? = null,
     creatiedatum: LocalDate = LocalDate.now(),
