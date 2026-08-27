@@ -4,6 +4,7 @@
  */
 package nl.info.zac.notification
 
+import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -25,6 +26,8 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
@@ -39,6 +42,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
+import jakarta.annotation.Resource as ManagedResource
 
 /**
  * Provides REST endpoints for receiving notifications about events that ZAC needs to know about
@@ -61,6 +65,7 @@ class NotificationReceiver @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService,
     private val signaleringService: SignaleringService,
     private val taskService: TaskService,
+    private val zrcClientService: ZrcClientService,
 
     @ConfigProperty(name = "OPEN_NOTIFICATIONS_API_SECRET_KEY")
     private val secret: String,
@@ -71,6 +76,13 @@ class NotificationReceiver @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(NotificationReceiver::class.java.getName())
         private const val OBJECTTYPE_KENMERK = "objectType"
+    }
+
+    private lateinit var managedExecutor: ManagedExecutorService
+
+    @ManagedResource
+    fun setManagedExecutorService(managedExecutor: ManagedExecutorService) {
+        this.managedExecutor = managedExecutor
     }
 
     @POST
@@ -235,11 +247,7 @@ class NotificationReceiver @Inject constructor(
                         Resource.STATUS, Resource.RESULTAAT, Resource.ROL, Resource.ZAAKOBJECT -> {
                             indexingService.addOrUpdateZaak(notification.mainResourceUrl.extractUuid(), false)
                         }
-                        Resource.ZAAKEIGENSCHAP -> {
-                            val zaakUUID = notification.mainResourceUrl.extractUuid()
-                            indexingService.addOrUpdateZaak(zaakUUID, true)
-                            indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
-                        }
+                        Resource.ZAAKEIGENSCHAP -> handleZaakeigenschapIndexing(notification)
                         Resource.ZAAKINFORMATIEOBJECT -> {
                             if (notification.action == Action.CREATE) {
                                 indexingService.addOrUpdateInformatieobjectByZaakinformatieobject(
@@ -267,6 +275,26 @@ class NotificationReceiver @Inject constructor(
         } catch (exception: RuntimeException) {
             warning("indexing", notification, exception)
         }
+    }
+
+    /**
+     * Reindexes the zaak (including its open taken) and, asynchronously, its documenten, but only
+     * when the changed zaakeigenschap is ZAAK_GEAUTORISEERD: a zaak can have many eigenschappen that
+     * change far more often than its zaakspecifiek geautoriseerd status, and reindexing the zaak's
+     * documenten requires a ZGW call per document, so reindexing on every zaakeigenschap notificatie
+     * would be expensive on a path that Open Notificaties retries on timeout. A 'destroy' notificatie
+     * cannot be read back to check its naam, so it always triggers a reindex.
+     */
+    private fun handleZaakeigenschapIndexing(notification: Notification) {
+        val zaakUUID = notification.mainResourceUrl.extractUuid()
+        if (notification.action != Action.DELETE &&
+            zrcClientService.readZaakeigenschap(zaakUUID, notification.resourceUrl.extractUuid()).naam !=
+            ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
+        ) {
+            return
+        }
+        indexingService.addOrUpdateZaak(zaakUUID, true)
+        managedExecutor.submit { indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID) }
     }
 
     @Suppress("TooGenericExceptionCaught")

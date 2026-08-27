@@ -13,6 +13,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
 import jakarta.ws.rs.core.HttpHeaders
@@ -24,6 +25,9 @@ import net.atos.zac.signalering.model.SignaleringSubject
 import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEvent
+import nl.info.client.zgw.model.createZaakEigenschap
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
@@ -34,6 +38,7 @@ import nl.info.zac.signalering.SignaleringService
 import nl.info.zac.task.TaskService
 import java.net.URI
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 
 const val SECRET = "fakeSecret"
 
@@ -47,6 +52,8 @@ class NotificationReceiverTest : BehaviorSpec({
     val cmmnService = mockk<CMMNService>()
     val zaakVariabelenService = mockk<ZaakVariabelenService>()
     val taskService = mockk<TaskService>()
+    val zrcClientService = mockk<ZrcClientService>()
+    val managedExecutorService = mockk<ManagedExecutorService>()
     val httpHeaders = mockk<HttpHeaders>()
     val httpSession = mockk<HttpSession>(relaxed = true)
     val httpSessionInstance = mockk<Instance<HttpSession>>()
@@ -60,9 +67,10 @@ class NotificationReceiverTest : BehaviorSpec({
         zaakVariabelenService = zaakVariabelenService,
         signaleringService = signaleringService,
         taskService = taskService,
+        zrcClientService = zrcClientService,
         secret = SECRET,
         httpSession = httpSessionInstance
-    )
+    ).apply { setManagedExecutorService(managedExecutorService) }
 
     afterEach {
         checkUnnecessaryStub()
@@ -249,10 +257,11 @@ class NotificationReceiverTest : BehaviorSpec({
             }
         }
     }
-    given("a request containing a authorization header and a zaakeigenschap update notificatie") {
+    given("a request containing an authorization header and a notificatie for a ZAAK_GEAUTORISEERD zaakeigenschap update") {
         val zaakUUID = UUID.randomUUID()
+        val zaakeigenschapUUID = UUID.randomUUID()
         val zaakUri = URI("https://example.com/fakezaak/$zaakUUID")
-        val zaakeigenschapUri = URI("https://example.com/fakezaakeigenschap/${UUID.randomUUID()}")
+        val zaakeigenschapUri = URI("https://example.com/fakezaak/$zaakUUID/zaakeigenschappen/$zaakeigenschapUUID")
         val notificatie = createNotificatie(
             channel = Channel.ZAKEN,
             resource = Resource.ZAAKEIGENSCHAP,
@@ -262,8 +271,15 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
+        every {
+            zrcClientService.readZaakeigenschap(zaakUUID, zaakeigenschapUUID)
+        } returns createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, uuid = zaakeigenschapUUID)
         every { indexingService.addOrUpdateZaak(zaakUUID, true) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID) } just Runs
+        every { managedExecutorService.submit(any()) } answers {
+            firstArg<Runnable>().run()
+            CompletableFuture.completedFuture(null)
+        }
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
         `when`("notificatieReceive is called with the zaakeigenschap update notificatie") {
@@ -276,6 +292,77 @@ class NotificationReceiverTest : BehaviorSpec({
                 verify(exactly = 1) {
                     indexingService.addOrUpdateZaak(zaakUUID, true)
                     indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
+                }
+            }
+        }
+    }
+    given("a request containing an authorization header and a notificatie for a non-ZAAK_GEAUTORISEERD zaakeigenschap update") {
+        val zaakUUID = UUID.randomUUID()
+        val zaakeigenschapUUID = UUID.randomUUID()
+        val zaakUri = URI("https://example.com/fakezaak/$zaakUUID")
+        val zaakeigenschapUri = URI("https://example.com/fakezaak/$zaakUUID/zaakeigenschappen/$zaakeigenschapUUID")
+        val notificatie = createNotificatie(
+            channel = Channel.ZAKEN,
+            resource = Resource.ZAAKEIGENSCHAP,
+            resourceUrl = zaakeigenschapUri,
+            mainResourceUrl = zaakUri,
+            action = Action.UPDATE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every {
+            zrcClientService.readZaakeigenschap(zaakUUID, zaakeigenschapUUID)
+        } returns createZaakEigenschap(naam = "SOME_OTHER_EIGENSCHAP", uuid = zaakeigenschapUUID)
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        `when`("notificatieReceive is called with the zaakeigenschap update notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then("neither the zaak nor its documenten are reindexed in Solr") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 0) {
+                    indexingService.addOrUpdateZaak(any(), any())
+                    indexingService.addOrUpdateInformatieobjectenForZaak(any())
+                }
+            }
+        }
+    }
+    given("a request containing an authorization header and a zaakeigenschap destroy notificatie") {
+        val zaakUUID = UUID.randomUUID()
+        val zaakeigenschapUUID = UUID.randomUUID()
+        val zaakUri = URI("https://example.com/fakezaak/$zaakUUID")
+        val zaakeigenschapUri = URI("https://example.com/fakezaak/$zaakUUID/zaakeigenschappen/$zaakeigenschapUUID")
+        val notificatie = createNotificatie(
+            channel = Channel.ZAKEN,
+            resource = Resource.ZAAKEIGENSCHAP,
+            resourceUrl = zaakeigenschapUri,
+            mainResourceUrl = zaakUri,
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { indexingService.addOrUpdateZaak(zaakUUID, true) } just Runs
+        every { indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID) } just Runs
+        every { managedExecutorService.submit(any()) } answers {
+            firstArg<Runnable>().run()
+            CompletableFuture.completedFuture(null)
+        }
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        `when`("notificatieReceive is called with the zaakeigenschap destroy notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then(
+                "the zaak, including its taken, and the zaak's documenten are reindexed in Solr " +
+                    "without reading the (now deleted) zaakeigenschap"
+            ) {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    indexingService.addOrUpdateZaak(zaakUUID, true)
+                    indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
+                }
+                verify(exactly = 0) {
+                    zrcClientService.readZaakeigenschap(any(), any())
                 }
             }
         }
