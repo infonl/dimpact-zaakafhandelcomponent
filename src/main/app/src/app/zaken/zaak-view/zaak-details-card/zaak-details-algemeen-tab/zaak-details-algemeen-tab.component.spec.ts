@@ -155,9 +155,9 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
 
   describe("opschorting en verlenging remark", () => {
     // the remark renders its mat-icon ligature before the translation key, so the
-    // key is anchored at the end to tell the plural key from the singular one
+    // key has to match the end of the text to tell the plural key from the singular one
     const hasRemarkKey = (key: string) =>
-      screen().queryAllByText(new RegExp(`${key.replace(/\./g, "\\.")}$`))
+      screen().queryAllByText((content) => content.trim().endsWith(key))
         .length > 0;
 
     const renderOpschorting = (duurDagen: number) => {
