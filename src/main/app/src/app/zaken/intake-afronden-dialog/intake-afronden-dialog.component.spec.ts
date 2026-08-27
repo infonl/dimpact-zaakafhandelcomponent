@@ -339,7 +339,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
       request.flush(null);
     });
 
-    it("omits vertrouwelijkheidaanduiding from restMailGegevens, leaving it to the backend's Openbaar default", async () => {
+    it("sends a fixed Openbaar vertrouwelijkheidaanduiding in restMailGegevens, since the backend forces it regardless", async () => {
       await setup(createZaak("BESCHIKBAAR_AAN"));
       await answerOntvankelijk("actie.ja");
       await user.type(
@@ -351,7 +351,7 @@ describe(IntakeAfrondenDialogComponent.name, () => {
 
       expect(
         request.request.body.restMailGegevens.vertrouwelijkheidaanduiding,
-      ).toBeUndefined();
+      ).toBe("OPENBAAR");
 
       request.flush(null);
     });

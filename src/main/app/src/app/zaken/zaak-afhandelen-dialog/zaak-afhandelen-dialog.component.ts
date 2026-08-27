@@ -254,12 +254,13 @@ export class ZaakAfhandelenDialogComponent {
     const restMailGegevens =
       value.sendMail && mailtemplate
         ? ({
-            verzender: value.verzender?.mail,
+            verzender: value.verzender!.mail!,
             replyTo: value.verzender?.replyTo,
-            ontvanger: value.ontvanger,
+            ontvanger: value.ontvanger!,
             onderwerp: mailtemplate.onderwerp,
             body: mailtemplate.body,
             createDocumentFromMail: true,
+            vertrouwelijkheidaanduiding: "OPENBAAR",
           } satisfies GeneratedType<"RestMailGegevens">)
         : undefined;
 

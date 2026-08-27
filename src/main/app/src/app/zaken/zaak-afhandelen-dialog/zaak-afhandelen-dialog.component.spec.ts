@@ -367,7 +367,7 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
       request.flush({});
     });
 
-    it("omits vertrouwelijkheidaanduiding from restMailGegevens, leaving it to the backend's Openbaar default", async () => {
+    it("sends a fixed Openbaar vertrouwelijkheidaanduiding in restMailGegevens, since the backend forces it regardless", async () => {
       seedQueries(zaak);
       await setup();
 
@@ -394,10 +394,8 @@ describe(ZaakAfhandelenDialogComponent.name, () => {
         onderwerp: mailtemplate.onderwerp,
         body: mailtemplate.body,
         createDocumentFromMail: true,
+        vertrouwelijkheidaanduiding: "OPENBAAR",
       });
-      expect(
-        request.request.body.restMailGegevens.vertrouwelijkheidaanduiding,
-      ).toBeUndefined();
 
       request.flush({});
     });
