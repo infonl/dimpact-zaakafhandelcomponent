@@ -20,6 +20,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OBJECT_PRODUCTAANVRAAG_SEND_C
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_FORMULIEREN_FORMULIER_BRON_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PERSON_HENDRIKA_JANSE_EMAIL
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_IDENTIFICATION
@@ -53,6 +54,7 @@ class BpmnSendConfirmationEmailRestServiceTest : BehaviorSpec({
         """.trimIndent()
     ) {
         `when`("the notificaties endpoint is called with a 'create productaanvraag' payload") {
+            var zaakUuid = ""
             val response = itestHttpClient.performJSONPostRequest(
                 url = "$ZAC_API_URI/notificaties",
                 headers = Headers.headersOf(
@@ -96,6 +98,7 @@ class BpmnSendConfirmationEmailRestServiceTest : BehaviorSpec({
                             ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_UITERLIJKE_EINDDATUM_AFDOENING
                         getString("toelichting") shouldBe "Aangemaakt vanuit $OPEN_FORMULIEREN_FORMULIER_BRON_NAAM " +
                             "met kenmerk '$OBJECT_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_BRON_KENMERK'."
+                        zaakUuid = getString("uuid")
                     }
                 }
             }
@@ -115,6 +118,27 @@ class BpmnSendConfirmationEmailRestServiceTest : BehaviorSpec({
                             mail.getString("subject") shouldContain
                                 "Informatie over zaak $ZAAK_PRODUCTAANVRAAG_SEND_CONFIRMATION_EMAIL_IDENTIFICATION"
                         }
+                }
+            }
+
+            And("the confirmation email's PDF document is always Openbaar, regardless of what's configurable on Send email") {
+                eventually(30.seconds) {
+                    val informatieobjectenResponse = itestHttpClient.performPutRequest(
+                        url = "$ZAC_API_URI/informatieobjecten/informatieobjectenList",
+                        requestBodyAsString = """
+                            {
+                                "zaakUUID": "$zaakUuid",
+                                "gekoppeldeZaakDocumenten": false
+                            }
+                        """.trimIndent(),
+                        testUser = RAADPLEGER_1
+                    )
+                    informatieobjectenResponse.code shouldBe HTTP_OK
+                    val informatieobjecten = JSONArray(informatieobjectenResponse.bodyAsString)
+                    informatieobjecten.length() shouldBeGreaterThan 0
+                    // the confirmation email PDF is the only document created for this zaak
+                    informatieobjecten.getJSONObject(0)
+                        .getString("vertrouwelijkheidaanduiding") shouldBe VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
                 }
             }
         }

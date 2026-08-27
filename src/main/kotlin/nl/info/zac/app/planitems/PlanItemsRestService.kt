@@ -20,6 +20,7 @@ import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.util.time.convertToDate
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -46,6 +47,7 @@ import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.search.IndexingService
 import nl.info.zac.shared.helper.SuspensionZaakHelper
 import nl.info.zac.util.AllOpen
@@ -163,19 +165,20 @@ class PlanItemsRestService @Inject constructor(
                 taakdata,
                 mailService.sendMail(
                     MailGegevens(
-                        TaakVariabelenService.readMailFrom(taakdata)
+                        from = TaakVariabelenService.readMailFrom(taakdata)
                             .map { MailAdres(it, afzender) }
                             .orElseGet { mailService.getGemeenteMailAdres() },
-                        TaakVariabelenService.readMailTo(taakdata)
+                        to = TaakVariabelenService.readMailTo(taakdata)
                             .map { MailAdres(it, null) }
                             .get(),
-                        TaakVariabelenService.readMailReplyTo(taakdata)
+                        replyTo = TaakVariabelenService.readMailReplyTo(taakdata)
                             .map { MailAdres(it, afzender) }
                             .getOrNull(),
-                        mailTemplate.onderwerp,
-                        TaakVariabelenService.readMailBody(taakdata).orElse(null),
-                        TaakVariabelenService.readMailAttachments(taakdata).orElse(null),
-                        true
+                        subject = mailTemplate.onderwerp,
+                        body = TaakVariabelenService.readMailBody(taakdata).orElse(null),
+                        attachments = TaakVariabelenService.readMailAttachments(taakdata).orElse(null),
+                        isCreateDocumentFromMail = true,
+                        vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
                     ),
                     zaak.getBronnenFromZaak()
                 )
@@ -216,9 +219,10 @@ class PlanItemsRestService @Inject constructor(
         userEventListenerData.planItemInstanceId?.let {
             cmmnService.startUserEventListenerPlanItem(it)
         }
-        if (userEventListenerData.restMailGegevens !== null) {
+        userEventListenerData.restMailGegevens?.let {
+            it.vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR
             mailService.sendMail(
-                restMailGegevensConverter.convert(userEventListenerData.restMailGegevens),
+                restMailGegevensConverter.convert(it),
                 zaak.getBronnenFromZaak()
             )
         }

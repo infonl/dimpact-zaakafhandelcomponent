@@ -4,6 +4,7 @@
  */
 package nl.info.zac.mailtemplates.model
 
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.util.stripHtmlParagraphTags
 
@@ -15,7 +16,8 @@ class MailGegevens(
     subject: String,
     val body: String,
     attachments: String?,
-    val isCreateDocumentFromMail: Boolean
+    val isCreateDocumentFromMail: Boolean,
+    val vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum
 ) {
     val subject: String = stripHtmlParagraphTags(subject)
 
@@ -25,6 +27,16 @@ class MailGegevens(
         from: MailAdres,
         to: MailAdres,
         subject: String,
-        body: String
-    ) : this(from, to, null, subject, body, null, false)
+        body: String,
+        vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum
+    ) : this(
+        from = from,
+        to = to,
+        replyTo = null,
+        subject = subject,
+        body = body,
+        attachments = null,
+        isCreateDocumentFromMail = false,
+        vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
+    )
 }

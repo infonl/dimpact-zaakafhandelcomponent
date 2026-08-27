@@ -29,6 +29,7 @@ import net.atos.zac.signalering.model.SignaleringVerzondenZoekParameters
 import net.atos.zac.signalering.model.SignaleringZoekParameters
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.DrcClientService
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
@@ -307,10 +308,11 @@ class SignaleringService @Inject constructor(
             }
             mailService.sendMail(
                 MailGegevens(
-                    mailService.getGemeenteMailAdres(),
-                    formatTo(mail),
-                    mailTemplate.onderwerp,
-                    mailTemplate.body
+                    from = mailService.getGemeenteMailAdres(),
+                    to = formatTo(mail),
+                    subject = mailTemplate.onderwerp,
+                    body = mailTemplate.body,
+                    vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
                 ),
                 bronnenBuilder.build()
             )
