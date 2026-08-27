@@ -27,8 +27,8 @@ import {
   provideQueryClient,
   queryOptions,
 } from "@tanstack/angular-query-experimental";
-import { within } from "@testing-library/angular";
 import { notifyManager } from "@tanstack/query-core";
+import { within } from "@testing-library/angular";
 import { EMPTY, Observable, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
@@ -61,11 +61,11 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { ZaakBetrokkeneListComponent } from "../zaak-betrokkenen-list/zaak-betrokkene-list.component";
 import { ZaakBrondatumZettenDialogComponent } from "../zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component";
+import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
 import { ZaakTakenComponent } from "../zaak-taken/zaak-taken.component";
-import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZakenService } from "../zaken.service";
 import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
 import { ZaakViewComponent } from "./zaak-view.component";

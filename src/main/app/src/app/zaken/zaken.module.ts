@@ -18,8 +18,8 @@ import { SharedModule } from "../shared/shared.module";
 import { BesluitCreateComponent } from "./besluit-create/besluit-create.component";
 import { BesluitEditComponent } from "./besluit-edit/besluit-edit.component";
 import { BesluitViewComponent } from "./besluit-view/besluit-view.component";
-import { ZaakDetailsCardComponent } from "./zaak-view/zaak-details-card/zaak-details-card.component";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
+import { ZaakDetailsCardComponent } from "./zaak-view/zaak-details-card/zaak-details-card.component";
 
 import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";

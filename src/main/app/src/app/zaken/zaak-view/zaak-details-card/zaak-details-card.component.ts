@@ -28,11 +28,11 @@ import { LocationPipe } from "../../../shared/pipes/location.pipe";
 import { StaticTextComponent } from "../../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZaakBetrokkeneListComponent } from "../../zaak-betrokkenen-list/zaak-betrokkene-list.component";
+import { LocatieTonenComponent } from "../../zaak-locatie-tonen/zaak-locatie-tonen.component";
+import { ZaakHistorieComponent } from "../../zaken-historie/zaak-historie.component";
 import { ZaakDetailsAlgemeenTabComponent } from "./zaak-details-algemeen-tab/zaak-details-algemeen-tab.component";
 import { ZaakDetailsBagObjectenTabComponent } from "./zaak-details-bag-objecten-tab/zaak-details-bag-objecten-tab.component";
 import { ZaakDetailsGerelateerdeZakenTabComponent } from "./zaak-details-gerelateerde-zaken-tab/zaak-details-gerelateerde-zaken-tab.component";
-import { LocatieTonenComponent } from "../../zaak-locatie-tonen/zaak-locatie-tonen.component";
-import { ZaakHistorieComponent } from "../../zaken-historie/zaak-historie.component";
 
 @Component({
   selector: "zac-zaak-details-card",

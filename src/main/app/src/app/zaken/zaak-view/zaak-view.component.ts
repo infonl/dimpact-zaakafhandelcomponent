@@ -71,7 +71,6 @@ export class ZaakViewComponent
 {
   private readonly queryClient = inject(QueryClient);
 
-
   private readonly zaakUuid = signal<string | undefined>(undefined);
 
   private readonly zaakQuery = injectQuery(() => {
