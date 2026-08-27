@@ -146,7 +146,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
 
     given(
         """
-            An enkelvoudig informatieobject with no 'inhoud' uploaded and therefore a null 'bestandsomvang'
+            An enkelvoudig informatieobject with a null 'bestandsomvang'
             and a related zaakinformatieobject for a zaak
         """
     ) {
