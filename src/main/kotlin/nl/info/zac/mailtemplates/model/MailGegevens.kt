@@ -27,7 +27,8 @@ class MailGegevens(
         from: MailAdres,
         to: MailAdres,
         subject: String,
-        body: String
+        body: String,
+        vertrouwelijkheidaanduiding: VertrouwelijkheidaanduidingEnum
     ) : this(
         from = from,
         to = to,
@@ -36,6 +37,6 @@ class MailGegevens(
         body = body,
         attachments = null,
         isCreateDocumentFromMail = false,
-        vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
+        vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
     )
 }
