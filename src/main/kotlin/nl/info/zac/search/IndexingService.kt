@@ -59,7 +59,6 @@ class IndexingService @Inject constructor(
         private lateinit var solrClient: SolrClient
     }
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private val pageConversionDispatcher = Dispatchers.IO.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
 
     init {
