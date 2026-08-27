@@ -108,18 +108,10 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         uuid
             .let(drcClientService::readEnkelvoudigInformatieobject)
             .let { enkelvoudigInformatieObject ->
-                zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
-                    .also { zaakInformatieobjecten ->
-                        if (zaakInformatieobjecten.size > 1) {
-                            LOG.log(Level.WARNING) {
-                                "Document with UUID '$uuid' is linked to ${zaakInformatieobjecten.size} zaken; " +
-                                    "using ${zaakInformatieobjecten[0].zaakUUID} to determine document rights."
-                            }
-                        }
-                    }
-                    .firstOrNull()
-                    ?.let { zrcClientService.readZaak(it.zaakUUID) }
-                    .let { zaak -> restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak) }
+                findZaakForDocument(enkelvoudigInformatieObject).let { zaak ->
+                    assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak).lezen)
+                    restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak)
+                }
             }
 
     @GET
@@ -131,13 +123,34 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         uuid
             .let(drcClientService::readEnkelvoudigInformatieobject)
             .let { currentVersion ->
-                return when {
+                val zaak = findZaakForDocument(currentVersion)
+                assertPolicy(policyService.readDocumentRechten(currentVersion, zaak).lezen)
+                when {
                     version < currentVersion.versie -> restInformatieobjectConverter.convertToREST(
-                        drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, version)
+                        drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, version),
+                        zaak
                     )
-                    else -> restInformatieobjectConverter.convertToREST(currentVersion)
+                    else -> restInformatieobjectConverter.convertToREST(currentVersion, zaak)
                 }
             }
+
+    /**
+     * A document can be linked to more than one zaak, while the document rights are determined by a single zaak.
+     * The first linked zaak is used, matching the order in which the document registry returns them.
+     */
+    private fun findZaakForDocument(enkelvoudigInformatieObject: EnkelvoudigInformatieObject): Zaak? =
+        zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
+            .also { zaakInformatieobjecten ->
+                if (zaakInformatieobjecten.size > 1) {
+                    LOG.log(Level.WARNING) {
+                        "Document with UUID '${enkelvoudigInformatieObject.url.extractUuid()}' is linked to " +
+                            "${zaakInformatieobjecten.size} zaken; using ${zaakInformatieobjecten[0].zaakUUID} " +
+                            "to determine document rights."
+                    }
+                }
+            }
+            .firstOrNull()
+            ?.let { zrcClientService.readZaak(it.zaakUUID) }
 
     @PUT
     @Path("informatieobjectenList")

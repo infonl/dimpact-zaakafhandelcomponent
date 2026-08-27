@@ -39,10 +39,7 @@
     </zac-informatie-object-edit>
   </mat-drawer>
   <mat-drawer-content>
-    <div
-      class="flex-row flex-wrap flex-col-xl gap-10"
-      *ngIf="infoObject.rechten?.lezen"
-    >
+    <div class="flex-row flex-wrap flex-col-xl gap-10">
       <mat-card class="w50 documenten-card flex-1" appearance="outlined">
         <mat-card-header class="flex-row space-between">
           <mat-card-title>{{ "informatieobject" | translate }}</mat-card-title>
@@ -286,7 +283,7 @@
                     *matRowDef="let row; columns: historieColumns"
                   ></tr>
                 </table>
-                <p *ngIf="historie.data.length === 0">
+                <p *ngIf="historie.data.length == 0">
                   {{ "msg.geen.gegevens.gevonden" | translate }}
                 </p>
               </div>

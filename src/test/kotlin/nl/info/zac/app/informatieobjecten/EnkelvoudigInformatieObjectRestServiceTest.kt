@@ -810,6 +810,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns listOf(zaakInformatieobject)
         every { zrcClientService.readZaak(zaakUUID) } returns zaak
         every {
+            policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+        } returns createDocumentRechten()
+        every {
             restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak)
         } returns restEnkelvoudigInformatieobject
 
@@ -831,6 +834,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
         } returns emptyList()
+        every {
+            policyService.readDocumentRechten(enkelvoudigInformatieObject, null)
+        } returns createDocumentRechten()
         every {
             restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, null)
         } returns restEnkelvoudigInformatieobject
@@ -866,6 +872,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns listOf(firstZaakInformatieobject, secondZaakInformatieobject)
         every { zrcClientService.readZaak(firstZaakUUID) } returns firstZaak
         every {
+            policyService.readDocumentRechten(enkelvoudigInformatieObject, firstZaak)
+        } returns createDocumentRechten()
+        every {
             restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, firstZaak)
         } returns restEnkelvoudigInformatieobject
 
@@ -874,6 +883,49 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             then("the REST representation is returned using the first linked zaak's context") {
                 result shouldBe restEnkelvoudigInformatieobject
+            }
+        }
+    }
+
+    given("An enkelvoudig informatieobject on which the user does not have the lezen right") {
+        val uuid = UUID.randomUUID()
+        val zaakUUID = UUID.randomUUID()
+        val zaak = createZaak(uuid = zaakUUID)
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = uuid)
+        val zaakInformatieobject = createZaakInformatieobjectForReads(
+            informatieobject = enkelvoudigInformatieObject.url,
+            zaak = zaak.url
+        )
+
+        every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every {
+            zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
+        } returns listOf(zaakInformatieobject)
+        every { zrcClientService.readZaak(zaakUUID) } returns zaak
+        every {
+            policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+        } returns createDocumentRechtenAllDeny()
+
+        `when`("readEnkelvoudigInformatieobject is called") {
+            val policyException = shouldThrow<PolicyException> {
+                enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobject(uuid)
+            }
+
+            then("no REST representation of the document is built") {
+                policyException shouldNotBe null
+                verify(exactly = 0) { restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak) }
+            }
+        }
+
+        `when`("readEnkelvoudigInformatieobjectVersion is called") {
+            val policyException = shouldThrow<PolicyException> {
+                enkelvoudigInformatieObjectRestService.readEnkelvoudigInformatieobjectVersion(uuid, 1)
+            }
+
+            then("neither the requested version nor its REST representation is fetched") {
+                policyException shouldNotBe null
+                verify(exactly = 0) { drcClientService.readEnkelvoudigInformatieobjectVersie(any(), any()) }
+                verify(exactly = 0) { restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak) }
             }
         }
     }
@@ -889,7 +941,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, 1)
         } returns olderVersionEnkelvoudigInformatieObject
         every {
-            restInformatieobjectConverter.convertToREST(olderVersionEnkelvoudigInformatieObject)
+            zrcClientService.listZaakinformatieobjecten(currentVersionEnkelvoudigInformatieObject)
+        } returns emptyList()
+        every {
+            policyService.readDocumentRechten(currentVersionEnkelvoudigInformatieObject, null)
+        } returns createDocumentRechten()
+        every {
+            restInformatieobjectConverter.convertToREST(olderVersionEnkelvoudigInformatieObject, null)
         } returns restOlderEnkelvoudigInformatieobject
 
         `when`("readEnkelvoudigInformatieobjectVersion is called with an older version") {
@@ -909,7 +967,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns currentVersionEnkelvoudigInformatieObject
         every {
-            restInformatieobjectConverter.convertToREST(currentVersionEnkelvoudigInformatieObject)
+            zrcClientService.listZaakinformatieobjecten(currentVersionEnkelvoudigInformatieObject)
+        } returns emptyList()
+        every {
+            policyService.readDocumentRechten(currentVersionEnkelvoudigInformatieObject, null)
+        } returns createDocumentRechten()
+        every {
+            restInformatieobjectConverter.convertToREST(currentVersionEnkelvoudigInformatieObject, null)
         } returns restEnkelvoudigInformatieobject
 
         `when`("readEnkelvoudigInformatieobjectVersion is called with the current version") {
@@ -1612,6 +1676,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every {
             zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
         } returns emptyList()
+        every {
+            policyService.readDocumentRechten(enkelvoudigInformatieObject, null)
+        } returns createDocumentRechten()
 
         withData(
             nameFn = { "expected indicaties: ${it.expectedIndicaties}" },

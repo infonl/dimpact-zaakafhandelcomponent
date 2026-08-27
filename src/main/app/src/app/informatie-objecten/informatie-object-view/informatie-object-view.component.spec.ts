@@ -18,7 +18,6 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import { screen } from "@testing-library/angular";
 import { of, ReplaySubject } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
@@ -81,7 +80,7 @@ describe(InformatieObjectViewComponent.name, () => {
     indicaties: [],
     titel: "test informatieobject",
     vertrouwelijkheidaanduiding: "OPENBAAR",
-    rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({ lezen: true }),
+    rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({}),
     formaat: FileFormat.DOCX,
   });
 
@@ -168,34 +167,6 @@ describe(InformatieObjectViewComponent.name, () => {
     });
 
     fixture.detectChanges();
-  });
-
-  describe("de leesrechten op het document", () => {
-    const gegevensTab = /gegevens.algemeen/;
-
-    function renderDocumentWithLeesrecht(lezen: boolean) {
-      fixture.destroy();
-      mockActivatedRoute.data.next({
-        informatieObject: {
-          ...enkelvoudigInformatieobject,
-          rechten: fromPartial<GeneratedType<"RestDocumentRechten">>({ lezen }),
-        },
-      });
-      fixture = TestBed.createComponent(InformatieObjectViewComponent);
-      fixture.detectChanges();
-    }
-
-    it("should show the document details when the user is allowed to read the document", () => {
-      renderDocumentWithLeesrecht(true);
-
-      expect(screen.getByRole("tab", { name: gegevensTab })).toBeVisible();
-    });
-
-    it("should show no document details when the user is not allowed to read the document", () => {
-      renderDocumentWithLeesrecht(false);
-
-      expect(screen.queryByRole("tab", { name: gegevensTab })).toBeNull();
-    });
   });
 
   describe("actie.nieuwe.versie.toevoegen", () => {
