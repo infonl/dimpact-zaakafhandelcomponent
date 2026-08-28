@@ -28,7 +28,7 @@ export function createTaskFormTemplate(
         type: "button",
         label: "Afronden",
         key: "submit",
-        disableOnInvalid: true,
+        disableOnInvalid: false,
         input: true,
         tableView: false,
       },
