@@ -73,6 +73,8 @@ const fakeEditableDocument = fromPartial<
 });
 
 describe(ZaakDocumentenComponent.name, () => {
+  const user = userEvent.setup();
+
   let rendered: RenderResult<ZaakDocumentenComponent>;
   let fixture: ComponentFixture<ZaakDocumentenComponent>;
   let httpTestingController: HttpTestingController;
@@ -166,7 +168,7 @@ describe(ZaakDocumentenComponent.name, () => {
     screen.queryByRole("switch", { name: "toonGekoppeldeZaakDocumenten" });
 
   const openRowMenu = async (titel: string) => {
-    await userEvent.click(
+    await user.click(
       within(documentRow(titel)).getByRole("button", {
         name: "actie.menu.openen",
       }),
@@ -414,7 +416,7 @@ describe(ZaakDocumentenComponent.name, () => {
   it("drops the related case columns and reloads when the toggle is switched off", async () => {
     await setup(fakeZaakMetRelaties);
 
-    await userEvent.click(linkedDocumentsToggle()!);
+    await user.click(linkedDocumentsToggle()!);
     await flushList([fakeDocument]);
 
     expect(
@@ -456,7 +458,7 @@ describe(ZaakDocumentenComponent.name, () => {
     it("allows a zip download once a document is selected", async () => {
       await setup(fakeZaak, [fakeDocument, fakeEditableDocument]);
 
-      await userEvent.click(
+      await user.click(
         within(documentRow("Test document")).getByRole("checkbox"),
       );
 
@@ -475,8 +477,8 @@ describe(ZaakDocumentenComponent.name, () => {
       const checkbox = within(documentRow("Test document")).getByRole(
         "checkbox",
       );
-      await userEvent.click(checkbox);
-      await userEvent.click(checkbox);
+      await user.click(checkbox);
+      await user.click(checkbox);
 
       expect(zipButton()).toBeDisabled();
     });
@@ -487,7 +489,7 @@ describe(ZaakDocumentenComponent.name, () => {
       const selectAll = screen.getByRole("checkbox", {
         name: "actie.alles.selecteren",
       });
-      await userEvent.click(selectAll);
+      await user.click(selectAll);
 
       expect(
         within(documentRow("Test document")).getByRole("checkbox"),
@@ -496,7 +498,7 @@ describe(ZaakDocumentenComponent.name, () => {
         within(documentRow("Bewerkbaar document")).getByRole("checkbox"),
       ).toBeChecked();
 
-      await userEvent.click(selectAll);
+      await user.click(selectAll);
 
       expect(zipButton()).toBeDisabled();
     });
@@ -507,10 +509,10 @@ describe(ZaakDocumentenComponent.name, () => {
         .spyOn(InformatieObjectenService.prototype, "getZIPDownload")
         .mockReturnValue(of({}) as never);
 
-      await userEvent.click(
+      await user.click(
         within(documentRow("Test document")).getByRole("checkbox"),
       );
-      await userEvent.click(zipButton());
+      await user.click(zipButton());
 
       expect(getZIPDownload).toHaveBeenCalledWith(["doc-uuid-1"]);
       expect(utilService.downloadBlobResponse).toHaveBeenCalledWith(
@@ -582,7 +584,7 @@ describe(ZaakDocumentenComponent.name, () => {
         .mockReturnValue(of("https://edit-url") as never);
       const windowOpen = jest.spyOn(window, "open").mockImplementation();
 
-      await userEvent.click(
+      await user.click(
         within(documentRow("Bewerkbaar document")).getByRole("button", {
           name: "actie.document.bewerken",
         }),
@@ -611,7 +613,7 @@ describe(ZaakDocumentenComponent.name, () => {
       ]);
 
       await openRowMenu("Bewerkbaar document");
-      await userEvent.click(
+      await user.click(
         screen.getByRole("menuitem", { name: "actie.document.verplaatsen" }),
       );
 
@@ -635,7 +637,7 @@ describe(ZaakDocumentenComponent.name, () => {
         );
 
       await openRowMenu("Bewerkbaar document");
-      await userEvent.click(
+      await user.click(
         screen.getByRole("menuitem", { name: "actie.document.ontkoppelen" }),
       );
 
@@ -647,12 +649,12 @@ describe(ZaakDocumentenComponent.name, () => {
     it("shows and hides the preview of a previewable document", async () => {
       await setup();
 
-      await userEvent.click(screen.getByText("Test document"));
+      await user.click(screen.getByText("Test document"));
       fixture.detectChanges();
 
       expect(screen.getByTitle("Test document")).toBeVisible();
 
-      await userEvent.click(screen.getByText("Test document"));
+      await user.click(screen.getByText("Test document"));
       fixture.detectChanges();
 
       expect(screen.queryByTitle("Test document")).toBeNull();
@@ -668,7 +670,7 @@ describe(ZaakDocumentenComponent.name, () => {
         }),
       ]);
 
-      await userEvent.click(screen.getByText("Archief"));
+      await user.click(screen.getByText("Archief"));
       fixture.detectChanges();
 
       expect(screen.queryByTitle("Archief")).toBeNull();
