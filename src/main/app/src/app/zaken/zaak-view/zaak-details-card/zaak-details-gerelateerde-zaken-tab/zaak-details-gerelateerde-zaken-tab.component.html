@@ -25,6 +25,7 @@
             (click)="$event.stopPropagation()"
             [id]="'zaakBekijken_' + row.identificatie + '_button'"
             title="{{ 'actie.zaak.bekijken' | translate }}"
+            aria-label="{{ 'actie.zaak.bekijken' | translate }}"
           >
             <mat-icon>visibility</mat-icon>
           </a>
