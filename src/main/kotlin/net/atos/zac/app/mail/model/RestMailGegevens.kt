@@ -7,6 +7,9 @@ package net.atos.zac.app.mail.model
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
+import nl.info.zac.app.shared.toDrcVertrouwelijkheidaanduidingEnum
+import nl.info.zac.mail.model.MailAdres
+import nl.info.zac.mailtemplates.model.MailGegevens
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -36,4 +39,15 @@ data class RestMailGegevens(
 
     @field:NotNull
     var vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding
+)
+
+fun RestMailGegevens.toMailGegevens(afzender: String) = MailGegevens(
+    from = MailAdres(verzender, afzender),
+    to = MailAdres(ontvanger, null),
+    replyTo = replyTo?.let { MailAdres(it, afzender) },
+    subject = onderwerp,
+    body = body,
+    attachments = bijlagen,
+    isCreateDocumentFromMail = createDocumentFromMail,
+    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding.toDrcVertrouwelijkheidaanduidingEnum()
 )

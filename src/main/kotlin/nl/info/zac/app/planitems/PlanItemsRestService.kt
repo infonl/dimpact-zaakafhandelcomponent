@@ -15,7 +15,7 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.mail.converter.RestMailGegevensConverter
+import net.atos.zac.app.mail.model.toMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.TaakVariabelenService
@@ -83,7 +83,6 @@ class PlanItemsRestService @Inject constructor(
     private val mailTemplateService: MailTemplateService,
     private val policyService: PolicyService,
     private val suspensionZaakHelper: SuspensionZaakHelper,
-    private val restMailGegevensConverter: RestMailGegevensConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
@@ -220,7 +219,7 @@ class PlanItemsRestService @Inject constructor(
         }
         userEventListenerData.restMailGegevens?.let {
             mailService.sendMail(
-                restMailGegevensConverter.convert(it),
+                it.toMailGegevens(configurationService.readGemeenteNaam()),
                 zaak.getBronnenFromZaak()
             )
         }

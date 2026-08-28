@@ -14,11 +14,12 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.mail.converter.RestMailGegevensConverter
 import net.atos.zac.app.mail.model.RestMailGegevens
+import net.atos.zac.app.mail.model.toMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.mail.MailService
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.policy.PolicyService
@@ -40,7 +41,7 @@ class MailRestService @Inject constructor(
     private val zaakVariabelenService: ZaakVariabelenService,
     private val policyService: PolicyService,
     private val zrcClientService: ZrcClientService,
-    private val restMailGegevensConverter: RestMailGegevensConverter,
+    private val configurationService: ConfigurationService,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     @POST
@@ -52,7 +53,10 @@ class MailRestService @Inject constructor(
         val loggedInUser = loggedInUserInstance.get()
         val zaak = zrcClientService.readZaak(zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUser).versturenEmail)
-        mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), zaak.getBronnenFromZaak())
+        mailService.sendMail(
+            restMailGegevens.toMailGegevens(configurationService.readGemeenteNaam()),
+            zaak.getBronnenFromZaak()
+        )
     }
 
     @POST
@@ -68,7 +72,10 @@ class MailRestService @Inject constructor(
             !ontvangstbevestigingVerstuurd &&
                 policyService.readZaakRechten(zaak, loggedInUser).versturenOntvangstbevestiging
         )
-        mailService.sendMail(restMailGegevensConverter.convert(restMailGegevens), zaak.getBronnenFromZaak())
+        mailService.sendMail(
+            restMailGegevens.toMailGegevens(configurationService.readGemeenteNaam()),
+            zaak.getBronnenFromZaak()
+        )
         zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
     }
 }

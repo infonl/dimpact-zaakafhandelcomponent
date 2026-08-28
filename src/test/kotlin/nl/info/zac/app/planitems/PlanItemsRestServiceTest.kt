@@ -16,7 +16,6 @@ import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import net.atos.zac.app.mail.converter.RestMailGegevensConverter
 import net.atos.zac.app.mail.model.createRestMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -49,7 +48,6 @@ import nl.info.zac.mail.model.createMailAdres
 import nl.info.zac.mailtemplates.MailTemplateService
 import nl.info.zac.mailtemplates.model.Mail
 import nl.info.zac.mailtemplates.model.MailGegevens
-import nl.info.zac.mailtemplates.model.createMailGegevens
 import nl.info.zac.mailtemplates.model.createMailTemplate
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.exception.PolicyException
@@ -76,7 +74,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
     val mailTemplateService = mockk<MailTemplateService>()
     val policyService = mockk<PolicyService>()
     val suspensionZaakHelper = mockk<SuspensionZaakHelper>()
-    val restMailGegevensConverter = mockk<RestMailGegevensConverter>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
 
     val planItemsRESTService = PlanItemsRestService(
@@ -92,7 +89,6 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         mailTemplateService,
         policyService,
         suspensionZaakHelper,
-        restMailGegevensConverter,
         loggedInUserInstance
     )
 
@@ -537,7 +533,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             val zaak = createZaak(
                 resultaat = URI("https://example.com/resultaat/${UUID.randomUUID()}"),
             )
-            val mailGegevens = createMailGegevens()
+            val mailGegevensSlot = slot<MailGegevens>()
             val restMailGegevens = createRestMailGegevens(
                 vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.GEHEIM
             )
@@ -557,8 +553,8 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             )
             every { cmmnService.startUserEventListenerPlanItem(any()) } just runs
             every { zgwApiService.closeZaak(zaak, restUserEventListenerData.resultaattypeUuid!!, null) } just runs
-            every { restMailGegevensConverter.convert(restMailGegevens) } returns mailGegevens
-            every { mailService.sendMail(mailGegevens, any()) } returns ""
+            every { configurationService.readGemeenteNaam() } returns "gemeenteNaam"
+            every { mailService.sendMail(capture(mailGegevensSlot), any()) } returns ""
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("A user event to settle the zaak and send a corresponding email is planned") {
@@ -566,13 +562,12 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
                 then("the zaak is settled and the email is sent") {
                     verify(exactly = 1) {
-                        mailService.sendMail(mailGegevens, any())
+                        mailService.sendMail(any(), any())
                     }
                 }
 
                 and("the supplied vertrouwelijkheidaanduiding is passed through unchanged") {
-                    restMailGegevens.vertrouwelijkheidaanduiding shouldBe RestVertrouwelijkheidaanduiding.GEHEIM
-                    verify(exactly = 1) { restMailGegevensConverter.convert(restMailGegevens) }
+                    mailGegevensSlot.captured.vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.GEHEIM
                 }
             }
         }
