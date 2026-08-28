@@ -199,8 +199,11 @@ class IndexingServiceTest : BehaviorSpec({
             every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } answers {
                 val current = activeConversions.incrementAndGet()
                 maxObservedConcurrency.updateAndGet { previousMax -> maxOf(previousMax, current) }
-                Thread.sleep(50)
-                activeConversions.decrementAndGet()
+                try {
+                    Thread.sleep(50)
+                } finally {
+                    activeConversions.decrementAndGet()
+                }
                 zaakZoekObjecten[index]
             }
         }
