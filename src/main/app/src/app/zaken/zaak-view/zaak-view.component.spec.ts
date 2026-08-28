@@ -1533,6 +1533,20 @@ describe(ZaakViewComponent.name, () => {
       expect(utilService.openSnackbar).toHaveBeenCalled();
     });
 
+    it("renders the changed zaak in the details card", async () => {
+      const pending = zaakChangedCallback(zaakChangedEvent);
+      await flushRefetch({
+        ...zaak,
+        status: fromPartial<GeneratedType<"RestZaakStatus">>({
+          naam: "fakeChangedStatusNaam",
+        }),
+      });
+      await pending;
+      fixture.detectChanges();
+
+      expect(screen().getByText("fakeChangedStatusNaam")).toBeInTheDocument();
+    });
+
     it("reloads the bag objecten, which are fetched separately from the zaak", async () => {
       jest.mocked(bagService.list).mockClear();
 
@@ -1622,6 +1636,59 @@ describe(ZaakViewComponent.name, () => {
       zaakRollenCallback(rollenEvent(Opcode.UPDATED));
 
       expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+    });
+
+    it("invalidates the historie query, which lists the rol changes", () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      zaakRollenCallback(rollenEvent(Opcode.UPDATED));
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
+      });
+    });
+  });
+
+  describe("zaak besluiten websocket listener", () => {
+    let zaakBesluitenCallback: (event: ScreenEvent) => void;
+
+    beforeEach(() => {
+      // The documenten list subscribes to the same object type through the
+      // plain `addListener`, so only the snackbar variant is the zaak view's.
+      jest
+        .spyOn(websocketService, "addListenerWithSnackbar")
+        .mockImplementation((_opcode, objectType, _objectId, callback) => {
+          if (objectType === ObjectType.ZAAK_BESLUITEN) {
+            zaakBesluitenCallback = callback as (event: ScreenEvent) => void;
+          }
+          return fromPartial<WebsocketListener>({});
+        });
+
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("puts the reloaded besluiten on the cached zaak", () => {
+      const besluit = fromPartial<GeneratedType<"RestBesluit">>({
+        toelichting: "fakeBesluitToelichting",
+      });
+      jest
+        .spyOn(zakenService, "listBesluitenForZaak")
+        .mockReturnValue(of([besluit]));
+
+      zaakBesluitenCallback(
+        new ScreenEvent(
+          Opcode.UPDATED,
+          ObjectType.ZAAK_BESLUITEN,
+          new ScreenEventId(zaak.uuid),
+        ),
+      );
+
+      expect(
+        testQueryClient.getQueryData(
+          zakenService.readZaakQuery(zaak.uuid).queryKey,
+        ),
+      ).toEqual(expect.objectContaining({ besluiten: [besluit] }));
     });
   });
 
