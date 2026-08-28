@@ -9,7 +9,7 @@ import nl.info.zac.util.NoArgConstructor
 import java.util.UUID
 
 @NoArgConstructor
-data class RESTUserEventListenerData(
+data class RestUserEventListenerData(
     var zaakUuid: UUID,
 
     var planItemInstanceId: String? = null,

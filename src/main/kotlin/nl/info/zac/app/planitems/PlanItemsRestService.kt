@@ -32,7 +32,7 @@ import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.RESTHumanTaskData
 import nl.info.zac.app.planitems.model.RESTPlanItem
-import nl.info.zac.app.planitems.model.RESTUserEventListenerData
+import nl.info.zac.app.planitems.model.RestUserEventListenerData
 import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.util.toLocalDate
 import nl.info.zac.authentication.LoggedInUser
@@ -198,7 +198,7 @@ class PlanItemsRestService @Inject constructor(
 
     @POST
     @Path("doUserEventListenerPlanItem")
-    fun doUserEventListenerPlanItem(userEventListenerData: RESTUserEventListenerData) {
+    fun doUserEventListenerPlanItem(userEventListenerData: RestUserEventListenerData) {
         val zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid)
         val zaakRechten = policyService.readZaakRechten(zaak, loggedInUserInstance.get())
         when (userEventListenerData.actie) {
@@ -228,7 +228,7 @@ class PlanItemsRestService @Inject constructor(
 
     private fun handleIntakeAfronden(
         zaak: Zaak,
-        userEventListenerData: RESTUserEventListenerData
+        userEventListenerData: RestUserEventListenerData
     ) {
         userEventListenerData.planItemInstanceId?.let {
             val planItemInstance = cmmnService.readOpenPlanItem(it)
@@ -249,7 +249,7 @@ class PlanItemsRestService @Inject constructor(
         }
     }
 
-    private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
+    private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RestUserEventListenerData) {
         userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
             zgwApiService.closeZaak(
                 zaak = zaak,
@@ -263,7 +263,7 @@ class PlanItemsRestService @Inject constructor(
         )
     }
 
-    private fun handleBrondatumZetten(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
+    private fun handleBrondatumZetten(zaak: Zaak, userEventListenerData: RestUserEventListenerData) {
         userEventListenerData.brondatum?.let {
             val brondatum = it.let(String::toLocalDate)
             LOG.info { "Set brondatum to $brondatum for ${zaak.identificatie}" }

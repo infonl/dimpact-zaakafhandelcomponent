@@ -37,7 +37,7 @@ import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.app.planitems.model.createRESTHumanTaskData
 import nl.info.zac.app.planitems.model.createRESTTaakStuurGegevens
-import nl.info.zac.app.planitems.model.createRESTUserEventListenerData
+import nl.info.zac.app.planitems.model.createRestUserEventListenerData
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
@@ -541,7 +541,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             val restMailGegevens = createRestMailGegevens(
                 vertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.GEHEIM
             )
-            val restUserEventListenerData = createRESTUserEventListenerData(
+            val restUserEventListenerData = createRestUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
                 restMailGegevens = restMailGegevens,
@@ -590,7 +590,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             brondatumArchiefprocedure.datumkenmerk = datumkenmerk
             val loggedInUser = createLoggedInUser()
 
-            val restUserEventListenerData = createRESTUserEventListenerData(
+            val restUserEventListenerData = createRestUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
                 restMailGegevens = null,
@@ -621,7 +621,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             val resultaattypeUuid = UUID.randomUUID()
             val loggedInUser = createLoggedInUser()
 
-            val restUserEventListenerData = createRESTUserEventListenerData(
+            val restUserEventListenerData = createRestUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
                 restMailGegevens = null,
@@ -650,7 +650,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         given("Zaak without resultaat, when the zaak is closed") {
             val zaak = createZaak(resultaat = null)
             val resultaattypeUuid = UUID.randomUUID()
-            val restUserEventListenerData = createRESTUserEventListenerData(
+            val restUserEventListenerData = createRestUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
                 resultaattypeUuid = resultaattypeUuid,
@@ -678,7 +678,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             val zaak = createZaak(resultaat = null)
             val resultaattypeUuid = UUID.randomUUID()
             val resultaatToelichting = "Zaak is afgehandeld"
-            val restUserEventListenerData = createRESTUserEventListenerData(
+            val restUserEventListenerData = createRestUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
                 resultaattypeUuid = resultaattypeUuid,
@@ -706,7 +706,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
         given("Zaak without resultaattypeUuid when handling zaak afhandelen") {
             val zaak = createZaak(resultaat = null)
-            val restUserEventListenerData = createRESTUserEventListenerData(
+            val restUserEventListenerData = createRestUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.ZAAK_AFHANDELEN,
                 restMailGegevens = null
@@ -741,7 +741,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             val zaak = createZaak(resultaat = null)
             val nietOntvankelijkResultaattypeUuid = UUID.randomUUID()
             val resultaatToelichting = "Zaak is niet ontvankelijk"
-            val restUserEventListenerData = createRESTUserEventListenerData(
+            val restUserEventListenerData = createRestUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.INTAKE_AFRONDEN,
                 restMailGegevens = null
@@ -788,7 +788,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
         given("Zaak that is ontvankelijk during intake afronden") {
             val zaak = createZaak(resultaat = null)
-            val restUserEventListenerData = createRESTUserEventListenerData(
+            val restUserEventListenerData = createRestUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.INTAKE_AFRONDEN,
                 restMailGegevens = null
@@ -824,7 +824,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
         given("Zaak that is not ontvankelijk but no nietOntvankelijkResultaattype configured") {
             val zaak = createZaak(resultaat = null)
-            val restUserEventListenerData = createRESTUserEventListenerData(
+            val restUserEventListenerData = createRestUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.INTAKE_AFRONDEN,
                 restMailGegevens = null
@@ -865,7 +865,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         given("Zaak with a valid brondatum when setting the brondatum") {
             val zaak = createZaak(resultaat = null)
             val brondatum = "2023-12-01T00:00:00.000+01:00"
-            val restUserEventListenerData = createRESTUserEventListenerData(
+            val restUserEventListenerData = createRestUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.BRONDATUM_ZETTEN,
                 restMailGegevens = null,
@@ -893,7 +893,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
 
         given("Zaak without a brondatum when setting the brondatum") {
             val zaak = createZaak(resultaat = null)
-            val restUserEventListenerData = createRESTUserEventListenerData(
+            val restUserEventListenerData = createRestUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.BRONDATUM_ZETTEN,
                 restMailGegevens = null
@@ -925,7 +925,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
         given("Zaak with a valid brondatum when setting the brondatum by a user without the brondatumZetten right") {
             val zaak = createZaak(resultaat = null)
             val brondatum = "2023-12-01T00:00:00.000+01:00"
-            val restUserEventListenerData = createRESTUserEventListenerData(
+            val restUserEventListenerData = createRestUserEventListenerData(
                 zaakUuid = zaak.uuid,
                 actie = UserEventListenerActie.BRONDATUM_ZETTEN,
                 restMailGegevens = null,

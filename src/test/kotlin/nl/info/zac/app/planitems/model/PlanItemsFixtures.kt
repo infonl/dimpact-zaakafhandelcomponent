@@ -39,13 +39,13 @@ fun createRESTTaakStuurGegevens(
     mail = mail
 )
 
-fun createRESTUserEventListenerData(
+fun createRestUserEventListenerData(
     zaakUuid: UUID,
     actie: UserEventListenerActie,
     restMailGegevens: RestMailGegevens? = null,
     resultaattypeUuid: UUID = UUID.randomUUID(),
     brondatum: String? = null
-) = RESTUserEventListenerData(
+) = RestUserEventListenerData(
     zaakUuid = zaakUuid,
     actie = actie,
     restMailGegevens = restMailGegevens,
