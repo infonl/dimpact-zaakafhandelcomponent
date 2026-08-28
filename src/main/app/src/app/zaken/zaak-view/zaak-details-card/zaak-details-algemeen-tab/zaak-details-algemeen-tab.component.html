@@ -42,7 +42,6 @@
     @if (zaak().rechten.wijzigen || zaak().rechten.toekennen) {
       <button
         mat-icon-button
-        mat-small-icon-button
         (click)="editCaseDetails.emit()"
         [attr.aria-label]="'actie.zaak.wijzigen' | translate"
         title="{{ 'actie.zaak.wijzigen' | translate }}"
@@ -63,7 +62,6 @@
       [value]="zaak().einddatumGepland | datum | empty"
       [icon]="dateFieldIconMap().get('einddatumGepland')"
     >
-      <mat-icon>label-icon</mat-icon>
     </zac-static-text>
     <zac-static-text
       label="fataledatum"
