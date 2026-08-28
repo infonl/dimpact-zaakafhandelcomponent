@@ -44,6 +44,8 @@
         mat-icon-button
         mat-small-icon-button
         (click)="editCaseDetails.emit()"
+        [attr.aria-label]="'actie.zaak.wijzigen' | translate"
+        title="{{ 'actie.zaak.wijzigen' | translate }}"
       >
         <mat-icon>edit</mat-icon>
       </button>
