@@ -17,13 +17,14 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { render, RenderResult, screen, within } from "@testing-library/angular";
 import userEvent from "@testing-library/user-event";
-import { of } from "rxjs";
+import { EMPTY, of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
+import { ScreenEventId } from "../../core/websocket/model/screen-event-id";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { DocumentDialogService } from "../../informatie-objecten/document-dialog.service";
@@ -148,6 +149,19 @@ describe(ZaakDocumentenComponent.name, () => {
   const documentRow = (titel: string) =>
     screen.getByRole("row", { name: new RegExp(titel) });
 
+  const notifyListener = (
+    addListener: jest.SpyInstance,
+    objectType: ObjectType,
+    event = fromPartial<ScreenEvent>({
+      objectId: fromPartial<ScreenEventId>({}),
+    }),
+  ) => {
+    const listener = addListener.mock.calls.find(
+      ([, registeredType]) => registeredType === objectType,
+    );
+    listener?.[3](event);
+  };
+
   const linkedDocumentsToggle = () =>
     screen.queryByRole("switch", { name: "toonGekoppeldeZaakDocumenten" });
 
@@ -220,6 +234,77 @@ describe(ZaakDocumentenComponent.name, () => {
     expect(httpTestingController.expectOne(LIST_URL).request.body).toEqual(
       expect.objectContaining({ zaakUUID: "zaak-uuid-1" }),
     );
+  });
+
+  it("shows the document that another user linked to the zaak", async () => {
+    const { addListener } = await setup();
+
+    notifyListener(addListener, ObjectType.ZAAK_INFORMATIEOBJECTEN);
+    await settle();
+    httpTestingController
+      .expectOne(LIST_URL)
+      .flush([
+        fakeDocument,
+        { ...fakeEditableDocument, titel: "Nieuw document" },
+      ]);
+    await settle();
+
+    expect(documentRow("Nieuw document")).toBeVisible();
+  });
+
+  it("announces the document that another user linked, by name", async () => {
+    const { addListener, utilService } = await setup();
+    const openSnackbarAction = jest
+      .spyOn(utilService, "openSnackbarAction")
+      // an empty observable models the snackbar closing without its action being used
+      .mockReturnValue(EMPTY);
+    jest
+      .spyOn(
+        TestBed.inject(InformatieObjectenService),
+        "readEnkelvoudigInformatieobjectByZaakInformatieobjectUUID",
+      )
+      .mockReturnValue(
+        of(
+          fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+            titel: "Aangekoppeld document",
+          }),
+        ),
+      );
+
+    notifyListener(
+      addListener,
+      ObjectType.ZAAK_INFORMATIEOBJECTEN,
+      fromPartial<ScreenEvent>({
+        objectId: fromPartial<ScreenEventId>({
+          detail: "fakeZaakInformatieobjectUuid",
+        }),
+      }),
+    );
+    await settle();
+    await flushList([fakeDocument]);
+
+    expect(openSnackbarAction).toHaveBeenCalledWith(
+      "msg.document.toegevoegd.aan.zaak",
+      "actie.document.bekijken",
+      { document: "Aangekoppeld document" },
+      7,
+    );
+  });
+
+  it("shows the document that was added to the zaak along with a besluit", async () => {
+    const { addListener } = await setup();
+
+    notifyListener(addListener, ObjectType.ZAAK_BESLUITEN);
+    await settle();
+    httpTestingController
+      .expectOne(LIST_URL)
+      .flush([
+        fakeDocument,
+        { ...fakeEditableDocument, titel: "Besluitdocument" },
+      ]);
+    await settle();
+
+    expect(documentRow("Besluitdocument")).toBeVisible();
   });
 
   it("asks for the documents of related cases when the zaak has any", async () => {
