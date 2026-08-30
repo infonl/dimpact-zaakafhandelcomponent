@@ -124,12 +124,12 @@ class IndexingService @Inject constructor(
             systemUser.set(true)
             LOG.info("[$objectType] Reindexing started")
             removeEntitiesFromSolrIndex(objectType)
-            when (objectType) {
+            val summary = when (objectType) {
                 ZoekObjectType.ZAAK -> reindexAllZaken()
                 ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
                 ZoekObjectType.TAAK -> reindexAllTaken()
             }
-            LOG.info("[$objectType] Reindexing finished")
+            LOG.info(reindexFinishedMessage(objectType, summary))
         } finally {
             reindexingViewfinder.remove(objectType)
             systemUser.remove()
@@ -209,9 +209,16 @@ class IndexingService @Inject constructor(
         }
     }
 
-    private fun logReindexSummary(objectType: ZoekObjectType, successCount: Int, totalCount: Int) {
-        val errorCount = totalCount - successCount
-        LOG.info("[$objectType] Reindexed: $successCount / $totalCount, not reindexed because of errors: $errorCount")
+    /**
+     * Builds the "Reindexing finished" log message for [objectType], including the reindexed/total/error
+     * totals from [summary] when reindexing was actually attempted (i.e. [summary] is not `null`).
+     */
+    private fun reindexFinishedMessage(objectType: ZoekObjectType, summary: Pair<Int, Int>?): String {
+        val message = "[$objectType] Reindexing finished"
+        return summary?.let { (successCount, totalCount) ->
+            val errorCount = totalCount - successCount
+            "$message. Reindexed: $successCount / $totalCount, not reindexed because of errors: $errorCount"
+        } ?: message
     }
 
     private fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {
@@ -271,7 +278,7 @@ class IndexingService @Inject constructor(
         }
     }
 
-    private fun reindexAllZaken() {
+    private fun reindexAllZaken(): Pair<Int, Int>? {
         val numberOfZaken = continueOnExceptions(ZoekObjectType.ZAAK) {
             zrcClientService.listZakenUuids(
                 ZaakListParameters().apply {
@@ -282,7 +289,7 @@ class IndexingService @Inject constructor(
         }
         if (numberOfZaken == null) {
             LOG.warning("[${ZoekObjectType.ZAAK}] Cannot find zaken count! Aborting reindexing")
-            return
+            return null
         }
 
         val numberOfPages: Int = numberOfZaken / Results.DEFAULT_ZGW_PAGE_SIZE.toInt() +
@@ -294,7 +301,7 @@ class IndexingService @Inject constructor(
                 reindexZakenPage(pageNumber, numberOfZaken)
             } ?: 0
         }
-        logReindexSummary(ZoekObjectType.ZAAK, successCount, numberOfZaken)
+        return successCount to numberOfZaken
     }
 
     private fun reindexZakenPage(pageNumber: Int, totalCount: Int): Int {
@@ -311,7 +318,7 @@ class IndexingService @Inject constructor(
         return successCount
     }
 
-    private fun reindexAllInformatieobjecten() {
+    private fun reindexAllInformatieobjecten(): Pair<Int, Int>? {
         val numberOfInformatieobjecten = continueOnExceptions(ZoekObjectType.DOCUMENT) {
             drcClientService.listEnkelvoudigInformatieObjecten(
                 EnkelvoudigInformatieobjectListParameters().apply {
@@ -321,7 +328,7 @@ class IndexingService @Inject constructor(
         }
         if (numberOfInformatieobjecten == null) {
             LOG.warning("[${ZoekObjectType.DOCUMENT}] Cannot find information objects count! Aborting reindexing")
-            return
+            return null
         }
 
         val numberOfPages: Int = numberOfInformatieobjecten / Results.DEFAULT_ZGW_PAGE_SIZE.toInt() +
@@ -333,7 +340,7 @@ class IndexingService @Inject constructor(
                 reindexInformatieobjectenPage(pageNumber, numberOfInformatieobjecten)
             } ?: 0
         }
-        logReindexSummary(ZoekObjectType.DOCUMENT, successCount, numberOfInformatieobjecten)
+        return successCount to numberOfInformatieobjecten
     }
 
     private fun reindexInformatieobjectenPage(pageNumber: Int, totalCount: Int): Int {
@@ -347,11 +354,11 @@ class IndexingService @Inject constructor(
         return successCount
     }
 
-    private fun reindexAllTaken() {
+    private fun reindexAllTaken(): Pair<Int, Int>? {
         val numberOfTasks = continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.countOpenTasks() }
         if (numberOfTasks == null) {
             LOG.warning("[${ZoekObjectType.TAAK}] Cannot find tasks count. Aborting reindexing")
-            return
+            return null
         }
         val numberOfPages: Int = numberOfTasks.toInt() / TAKEN_MAX_RESULTS
 
@@ -361,7 +368,7 @@ class IndexingService @Inject constructor(
                 reindexTakenPage(pageNumber, numberOfTasks.toInt())
             } ?: 0
         }
-        logReindexSummary(ZoekObjectType.TAAK, successCount, numberOfTasks.toInt())
+        return successCount to numberOfTasks.toInt()
     }
 
     private fun reindexTakenPage(pageNumber: Int, totalCount: Int): Int {

@@ -509,9 +509,9 @@ class IndexingServiceTest : BehaviorSpec({
                 ctx.indexingService.reindex(ZoekObjectType.ZAAK)
             }
 
-            then("a summary is logged reporting 2 out of 3 zaken reindexed with 1 error") {
+            then("the finished log includes a summary reporting 2 out of 3 zaken reindexed with 1 error") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexed: 2 / 3, not reindexed because of errors: 1"
+                    "[ZAAK] Reindexing finished. Reindexed: 2 / 3, not reindexed because of errors: 1"
             }
         }
     }
@@ -548,9 +548,9 @@ class IndexingServiceTest : BehaviorSpec({
                 ctx.indexingService.reindex(ZoekObjectType.ZAAK)
             }
 
-            then("a summary is logged reporting all zaken reindexed with 0 errors") {
+            then("the finished log includes a summary reporting all zaken reindexed with 0 errors") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexed: 2 / 2, not reindexed because of errors: 0"
+                    "[ZAAK] Reindexing finished. Reindexed: 2 / 2, not reindexed because of errors: 0"
             }
         }
     }
@@ -574,8 +574,9 @@ class IndexingServiceTest : BehaviorSpec({
                 ctx.indexingService.reindex(ZoekObjectType.ZAAK)
             }
 
-            then("no reindexed/error summary is logged since no reindexing was attempted") {
-                logRecords.any { it.message.startsWith("[ZAAK] Reindexed:") } shouldBe false
+            then("the finished log has no reindexed/error summary since no reindexing was attempted") {
+                logRecords.map { it.message } shouldContain "[ZAAK] Reindexing finished"
+                logRecords.any { it.message.contains("Reindexed:") } shouldBe false
             }
         }
     }

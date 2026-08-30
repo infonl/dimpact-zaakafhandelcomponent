@@ -3,11 +3,13 @@
 - [x] 1.1 In `reindexAllZaken`, `reindexAllInformatieobjecten`, and `reindexAllTaken`, track a
       run-scoped error count for objects whose page-level `continueOnExceptions` call returned
       `null`.
-- [x] 1.2 At the end of each of the three functions above, log a summary line with the reindexed
-      count, the total count, and the error count, e.g.
-      `[ZAAK] Reindexed: 10900 / 10945, not reindexed because of errors: 45`.
-- [x] 1.3 Confirm no summary line is logged when a run aborts early because the total count could
-      not be determined (existing "Cannot find ... count! Aborting reindexing" path).
+- [x] 1.2 Have each of the three functions above return the reindexed/total counts (or `null` if
+      aborted), and fold them into the existing `"[$objectType] Reindexing finished"` log line in
+      `reindex()`, e.g.
+      `[ZAAK] Reindexing finished. Reindexed: 10900 / 10945, not reindexed because of errors: 45`.
+- [x] 1.3 Confirm no reindexed/error summary is appended to the "Reindexing finished" line when a
+      run aborts early because the total count could not be determined (existing "Cannot find ...
+      count! Aborting reindexing" path).
 
 ## 2. Solr document count helper
 

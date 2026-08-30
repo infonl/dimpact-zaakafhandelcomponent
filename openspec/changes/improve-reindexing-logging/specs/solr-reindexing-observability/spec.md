@@ -1,28 +1,28 @@
 ## ADDED Requirements
 
 ### Requirement: Per-object-type reindex error totals logged at completion
-When a per-object-type reindex (`ZAAK`, `TAAK`, or `DOCUMENT`) finishes, the system SHALL log a
-summary line stating how many objects were successfully reindexed out of the total found, and how
-many were not reindexed because of an error, in addition to the existing per-page progress log
-lines.
+When a per-object-type reindex (`ZAAK`, `TAAK`, or `DOCUMENT`) finishes, the system SHALL include in
+its "Reindexing finished" log line how many objects were successfully reindexed out of the total
+found, and how many were not reindexed because of an error, in addition to the existing per-page
+progress log lines.
 
 #### Scenario: All objects of a type reindex successfully
 - **WHEN** a `ZAAK` reindex completes and all 10945 zaken found at the start were successfully
   converted and added to the Solr index
-- **THEN** the system logs a summary line for `ZAAK` stating 10945 reindexed out of 10945, with 0
+- **THEN** the "Reindexing finished" log line for `ZAAK` states 10945 reindexed out of 10945, with 0
   not reindexed because of errors
 
 #### Scenario: Some objects fail to reindex due to errors
 - **WHEN** a `ZAAK` reindex completes, 10945 zaken were found at the start, and 45 of them raised an
   error during conversion or Solr indexing that was caught and logged individually
-- **THEN** the system logs a summary line for `ZAAK` stating 10900 reindexed out of 10945, with 45
+- **THEN** the "Reindexing finished" log line for `ZAAK` states 10900 reindexed out of 10945, with 45
   not reindexed because of errors
 
 #### Scenario: Reindex is aborted before completion because the total count cannot be determined
 - **WHEN** a per-object-type reindex cannot determine the total object count and aborts before
   processing any page
-- **THEN** the system does not log a reindexed/error summary line for that run, since no reindexing
-  was attempted
+- **THEN** the "Reindexing finished" log line for that run contains no reindexed/error summary,
+  since no reindexing was attempted
 
 ### Requirement: Complete reindexing process spanning all object types
 The system SHALL provide a way to reindex `ZAAK`, `TAAK`, and `DOCUMENT` together as one complete

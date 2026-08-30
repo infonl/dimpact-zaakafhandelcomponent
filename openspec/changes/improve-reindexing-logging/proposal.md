@@ -9,9 +9,9 @@ no independent check that the Solr index actually ends up with the expected docu
 ## What Changes
 
 - Track, per object type, the number of objects that failed to reindex due to errors (conversion
-  or Solr indexing exceptions caught by `continueOnExceptions`), and log a final summary line per
-  object type at the end of its reindex run, e.g.
-  `[ZAAK] Reindexed: 10900 / 10945, not reindexed because of errors: 45`.
+  or Solr indexing exceptions caught by `continueOnExceptions`), and include the reindexed/total/
+  error totals in the existing `"Reindexing finished"` log line for that object type, e.g.
+  `[ZAAK] Reindexing finished. Reindexed: 10900 / 10945, not reindexed because of errors: 45`.
 - Add a new `reindexAll()` orchestration entry point on `IndexingService` that reindexes all three
   object types (`ZAAK`, `TAAK`, `DOCUMENT`) as one logical "complete reindexing process": it logs
   when that complete process starts and when it finishes, in addition to (not instead of) the

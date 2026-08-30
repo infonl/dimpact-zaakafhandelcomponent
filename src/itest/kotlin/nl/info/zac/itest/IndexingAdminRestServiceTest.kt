@@ -111,8 +111,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 eventually(10.seconds) {
                     val logs = zacContainerLogs()
                     logs shouldContain "[ZAAK] Reindexing started"
-                    logs shouldContain "[ZAAK] Reindexing finished"
-                    logs shouldContain "[ZAAK] Reindexed:"
+                    logs shouldContain "[ZAAK] Reindexing finished. Reindexed:"
                     logs shouldContain "not reindexed because of errors:"
                 }
             }
@@ -157,8 +156,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 eventually(10.seconds) {
                     val logs = zacContainerLogs()
                     logs shouldContain "[TAAK] Reindexing started"
-                    logs shouldContain "[TAAK] Reindexing finished"
-                    logs shouldContain "[TAAK] Reindexed:"
+                    logs shouldContain "[TAAK] Reindexing finished. Reindexed:"
                     logs shouldContain "not reindexed because of errors:"
                 }
             }
@@ -203,8 +201,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 eventually(10.seconds) {
                     val logs = zacContainerLogs()
                     logs shouldContain "[DOCUMENT] Reindexing started"
-                    logs shouldContain "[DOCUMENT] Reindexing finished"
-                    logs shouldContain "[DOCUMENT] Reindexed:"
+                    logs shouldContain "[DOCUMENT] Reindexing finished. Reindexed:"
                     logs shouldContain "not reindexed because of errors:"
                 }
             }
