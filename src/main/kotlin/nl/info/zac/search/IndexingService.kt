@@ -222,7 +222,7 @@ class IndexingService @Inject constructor(
             val errorCount = totalCount - successCount
             "$message. Reindexed: $successCount / $totalCount, not reindexed because of errors: $errorCount"
         } ?: message
-        return "$withSummary. Solr index contains ${countInSolrIndex(objectType)} documents"
+        return "$withSummary. Solr index contains ${countInSolrIndex(objectType)} documents of type '$objectType'."
     }
 
     private fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {

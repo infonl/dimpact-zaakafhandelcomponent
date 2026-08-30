@@ -518,7 +518,7 @@ class IndexingServiceTest : BehaviorSpec({
             then("the finished log includes a summary reporting 2 out of 3 zaken reindexed with 1 error") {
                 logRecords.map { it.message } shouldContain
                     "[ZAAK] Reindexing finished. Reindexed: 2 / 3, not reindexed because of errors: 1. " +
-                    "Solr index contains 0 documents"
+                    "Solr index contains 0 documents of type 'ZAAK'."
             }
         }
     }
@@ -559,7 +559,7 @@ class IndexingServiceTest : BehaviorSpec({
             then("the finished log includes a summary reporting all zaken reindexed with 0 errors") {
                 logRecords.map { it.message } shouldContain
                     "[ZAAK] Reindexing finished. Reindexed: 2 / 2, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents"
+                    "Solr index contains 0 documents of type 'ZAAK'."
             }
 
             then("Solr is committed before the finished Solr document count is queried") {
@@ -594,7 +594,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the finished log has no reindexed/error summary since no reindexing was attempted") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Solr index contains 0 documents"
+                    "[ZAAK] Reindexing finished. Solr index contains 0 documents of type 'ZAAK'."
                 logRecords.any { it.message.contains("Reindexed:") } shouldBe false
             }
         }
