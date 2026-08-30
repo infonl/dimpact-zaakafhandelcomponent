@@ -628,10 +628,15 @@ class IndexingServiceTest : BehaviorSpec({
                     "Complete reindexing process started for object types: [TAAK, ZAAK, DOCUMENT]"
                 logRecords.last().message shouldBe
                     "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
-                logRecords.map { it.message } shouldContain "[ZAAK] Reindexing started. Solr index contains 0 documents"
-                logRecords.map { it.message } shouldContain "[TAAK] Reindexing started. Solr index contains 0 documents"
                 logRecords.map { it.message } shouldContain
-                    "[DOCUMENT] Reindexing started. Solr index contains 0 documents"
+                    "[ZAAK] Reindexing started. Solr index currently contains 0 documents of type 'ZAAK'. " +
+                    "First deleting all documents of type 'ZAAK'."
+                logRecords.map { it.message } shouldContain
+                    "[TAAK] Reindexing started. Solr index currently contains 0 documents of type 'TAAK'. " +
+                    "First deleting all documents of type 'TAAK'."
+                logRecords.map { it.message } shouldContain
+                    "[DOCUMENT] Reindexing started. Solr index currently contains 0 documents of type " +
+                    "'DOCUMENT'. First deleting all documents of type 'DOCUMENT'."
             }
 
             then("Solr document counts are queried before and after reindexing, for every object type") {

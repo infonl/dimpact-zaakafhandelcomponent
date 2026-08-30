@@ -208,7 +208,8 @@ class IndexingService @Inject constructor(
      * document count for that type (i.e. before any entities are removed or reindexed).
      */
     private fun reindexStartedMessage(objectType: ZoekObjectType): String =
-        "[$objectType] Reindexing started. Solr index contains ${countInSolrIndex(objectType)} documents"
+        "[$objectType] Reindexing started. Solr index currently contains ${countInSolrIndex(objectType)} " +
+            "documents of type '$objectType'. First deleting all documents of type '$objectType'."
 
     /**
      * Builds the "Reindexing finished" log message for [objectType], including the reindexed/total/error

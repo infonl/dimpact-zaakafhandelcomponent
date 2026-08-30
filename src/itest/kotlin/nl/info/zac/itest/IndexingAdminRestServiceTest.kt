@@ -110,7 +110,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             and("the ZAC log reports that zaken reindexing started, finished and its reindex summary") {
                 eventually(10.seconds) {
                     val logs = zacContainerLogs()
-                    logs shouldContain "[ZAAK] Reindexing started. Solr index contains"
+                    logs shouldContain "[ZAAK] Reindexing started. Solr index currently contains"
                     logs shouldContain "[ZAAK] Reindexing finished. Reindexed:"
                     logs shouldContain "not reindexed because of errors:"
                 }
@@ -155,7 +155,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             and("the ZAC log reports that taken reindexing started, finished and its reindex summary") {
                 eventually(10.seconds) {
                     val logs = zacContainerLogs()
-                    logs shouldContain "[TAAK] Reindexing started. Solr index contains"
+                    logs shouldContain "[TAAK] Reindexing started. Solr index currently contains"
                     logs shouldContain "[TAAK] Reindexing finished. Reindexed:"
                     logs shouldContain "not reindexed because of errors:"
                 }
@@ -200,7 +200,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             and("the ZAC log reports that documenten reindexing started, finished and its reindex summary") {
                 eventually(10.seconds) {
                     val logs = zacContainerLogs()
-                    logs shouldContain "[DOCUMENT] Reindexing started. Solr index contains"
+                    logs shouldContain "[DOCUMENT] Reindexing started. Solr index currently contains"
                     logs shouldContain "[DOCUMENT] Reindexing finished. Reindexed:"
                     logs shouldContain "not reindexed because of errors:"
                 }
@@ -249,7 +249,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                     logs shouldContain "Complete reindexing process started for object types:"
                     logs shouldContain "Complete reindexing process finished for object types:"
                     listOf("ZAAK", "TAAK", "DOCUMENT").forEach { zoekObjectType ->
-                        logs shouldContain "[$zoekObjectType] Reindexing started. Solr index contains"
+                        logs shouldContain "[$zoekObjectType] Reindexing started. Solr index currently contains"
                         logs shouldContain "[$zoekObjectType] Reindexing finished"
                     }
                 }
