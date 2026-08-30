@@ -15,19 +15,19 @@
 
 - [x] 2.1 Add a private function to `IndexingService` that queries Solr with `rows = 0` and a
       `type:<objectType>` filter query, returning `numFound` for a given `ZoekObjectType`.
-- [x] 2.2 Add a function that logs the current Solr document count for `ZAAK`, `TAAK`, and
-      `DOCUMENT` using the helper above.
+- [x] 2.2 Fold the Solr document count for an object type into that type's `"Reindexing started"`
+      log line (queried before `removeEntitiesFromSolrIndex` runs) and `"Reindexing finished"` log
+      line (queried after reindexing completes) in `reindex()`, using the helper above.
 
 ## 3. `reindexAll()` orchestration entry point
 
 - [x] 3.1 Add `reindexAll(objectTypes: Set<ZoekObjectType> = ZoekObjectType.entries.toSet())` to
       `IndexingService`.
-- [x] 3.2 Log that the complete reindexing process has started, then log the Solr document counts
-      (task 2.2) for the given object types.
+- [x] 3.2 Log that the complete reindexing process has started.
 - [x] 3.3 Sequentially call the existing per-type `reindex(objectType)` for each type in
-      `objectTypes`.
-- [x] 3.4 After all types have been processed, log the Solr document counts again, then log that
-      the complete reindexing process has finished.
+      `objectTypes` (each producing its own started/finished log lines, including Solr counts).
+- [x] 3.4 After all types have been processed, log that the complete reindexing process has
+      finished.
 
 ## 4. Wire up callers
 

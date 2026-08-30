@@ -511,7 +511,8 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the finished log includes a summary reporting 2 out of 3 zaken reindexed with 1 error") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 2 / 3, not reindexed because of errors: 1"
+                    "[ZAAK] Reindexing finished. Reindexed: 2 / 3, not reindexed because of errors: 1. " +
+                    "Solr index contains 0 documents"
             }
         }
     }
@@ -550,7 +551,8 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the finished log includes a summary reporting all zaken reindexed with 0 errors") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 2 / 2, not reindexed because of errors: 0"
+                    "[ZAAK] Reindexing finished. Reindexed: 2 / 2, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents"
             }
         }
     }
@@ -575,7 +577,8 @@ class IndexingServiceTest : BehaviorSpec({
             }
 
             then("the finished log has no reindexed/error summary since no reindexing was attempted") {
-                logRecords.map { it.message } shouldContain "[ZAAK] Reindexing finished"
+                logRecords.map { it.message } shouldContain
+                    "[ZAAK] Reindexing finished. Solr index contains 0 documents"
                 logRecords.any { it.message.contains("Reindexed:") } shouldBe false
             }
         }
@@ -608,9 +611,10 @@ class IndexingServiceTest : BehaviorSpec({
                     "Complete reindexing process started for object types: [TAAK, ZAAK, DOCUMENT]"
                 logRecords.last().message shouldBe
                     "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
-                logRecords.map { it.message } shouldContain "[ZAAK] Reindexing started"
-                logRecords.map { it.message } shouldContain "[TAAK] Reindexing started"
-                logRecords.map { it.message } shouldContain "[DOCUMENT] Reindexing started"
+                logRecords.map { it.message } shouldContain "[ZAAK] Reindexing started. Solr index contains 0 documents"
+                logRecords.map { it.message } shouldContain "[TAAK] Reindexing started. Solr index contains 0 documents"
+                logRecords.map { it.message } shouldContain
+                    "[DOCUMENT] Reindexing started. Solr index contains 0 documents"
             }
 
             then("Solr document counts are queried before and after reindexing, for every object type") {

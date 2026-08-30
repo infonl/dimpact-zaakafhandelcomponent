@@ -21,16 +21,17 @@ no independent check that the Solr index actually ends up with the expected docu
   once per type needing reindexing after a schema migration — it now triggers the new complete
   process instead of independent per-type calls, and expose an equivalent "reindex everything"
   internal REST endpoint on `IndexingAdminRestService` alongside the existing per-type one.
-- At the start and end of the complete reindexing process, query Solr for the current document
-  count per object type (`ZAAK`, `TAAK`, `DOCUMENT`) and log those counts, so operators can compare
-  Solr's own counts against the reindex totals reported above.
+- For each per-object-type reindex, query Solr for that type's current document count and include it
+  in both the `"Reindexing started"` and `"Reindexing finished"` log lines, so operators can compare
+  Solr's own counts (before and after) against the reindex totals reported above. This applies
+  whether the type is reindexed directly or as part of the complete reindexing process.
 
 ## Capabilities
 
 ### New Capabilities
 - `solr-reindexing-observability`: Logging and reporting behavior for the reindexing process —
-  per-object-type error totals, overall process start/finish logging, and Solr document count
-  checks at the start and end of a full reindex.
+  per-object-type error totals and Solr document counts folded into the existing started/finished
+  log lines, plus overall process start/finish logging for a full reindex.
 
 ### Modified Capabilities
 (none — no existing requirements in `solr-reindexing-performance` change; this change only adds

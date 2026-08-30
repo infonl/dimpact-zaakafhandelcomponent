@@ -21,8 +21,9 @@ logging plus one new orchestrating function.
 - A new `reindexAll()` function on `IndexingService` reindexes `ZAAK`, `TAAK`, and `DOCUMENT`
   sequentially as one logical process, with its own start/finish log lines around the existing
   per-type ones.
-- `reindexAll()` logs Solr's own per-type document counts before it starts reindexing and again
-  after it finishes.
+- Each per-object-type reindex (whether triggered directly or via `reindexAll()`) logs Solr's own
+  document count for that type as part of its `"Reindexing started"` line and again as part of its
+  `"Reindexing finished"` line.
 - `SolrDeployerService` and a new REST endpoint both go through `reindexAll()` when the intent is
   "reindex everything (that needs it)".
 
@@ -56,11 +57,10 @@ between runs; class-level counters would need explicit reset/cleanup.
 ### `reindexAll()` runs the three types sequentially, not concurrently
 `SolrDeployerService` already submits per-type reindexing to a `ManagedExecutorService` for
 non-blocking startup behavior. `reindexAll()` itself runs `ZAAK`, `TAAK`, `DOCUMENT` sequentially
-(in-thread) so that its own start/finish log lines and the before/after Solr count check bracket the
-whole run predictably, and so that one type's reindex failing to determine its count (existing
-"abort" behavior) does not affect the others. The caller (`SolrDeployerService`'s executor, or the
-new REST endpoint) remains responsible for whether `reindexAll()` itself runs on a background
-thread.
+(in-thread) so that its own start/finish log lines bracket the whole run predictably, and so that
+one type's reindex failing to determine its count (existing "abort" behavior) does not affect the
+others. The caller (`SolrDeployerService`'s executor, or the new REST endpoint) remains responsible
+for whether `reindexAll()` itself runs on a background thread.
 
 **Alternative considered**: reindex the three types concurrently inside `reindexAll()` (mirroring
 the existing per-page conversion concurrency). Rejected for this change — added concurrency-control
@@ -72,7 +72,11 @@ a concern.
 To "perform simple Solr queries to check how many zaken/taken/documents exist," issue one
 `SolrQuery("*:*")` per object type with `addFilterQuery("type:$objectType")` and `rows = 0`, and read
 `numFound` from the response — the same filter query pattern `removeEntitiesFromSolrIndex` already
-uses, but without paging since only the count is needed.
+uses, but without paging since only the count is needed. This query runs twice per per-object-type
+reindex — once to build the `"Reindexing started"` message (before `removeEntitiesFromSolrIndex`
+runs) and once to build the `"Reindexing finished"` message (after reindexing completes) — rather
+than once per batch in `reindexAll()`, so that the counts are also reported for a directly triggered
+single-type reindex, not only when reindexing through `reindexAll()`.
 
 ### `reindexAll()` reuses `reindexingViewfinder` per type, not a new process-level guard
 `reindexAll()` calls into the same `reindex(objectType)` path per type (or the logic it wraps),
@@ -80,14 +84,14 @@ so the existing `reindexingViewfinder` re-entrancy guard per type still applies 
 guard is added to prevent overlapping `reindexAll()` calls — if two are triggered concurrently, each
 per-type `reindex(objectType)` call still individually refuses to start a duplicate run of that
 type and logs the existing "still in progress" warning; the outer `reindexAll()` process-level log
-lines and Solr count checks may then interleave between the two calls. This is judged an acceptable
-edge case: `reindexAll()` triggers are rare, operator-initiated, or a one-time post-migration action,
-not routine concurrent traffic.
+lines may then interleave between the two calls. This is judged an acceptable edge case:
+`reindexAll()` triggers are rare, operator-initiated, or a one-time post-migration action, not
+routine concurrent traffic.
 
 ## Risks / Trade-offs
 
-- **Solr count queries add load at start/end of a full reindex** → mitigated by using `rows=0`
-  (count-only, no document retrieval) and only 3 queries per call to `reindexAll()`, not per page.
+- **Solr count queries add load at start/end of each per-object-type reindex** → mitigated by using
+  `rows=0` (count-only, no document retrieval) and only 2 queries per per-type reindex, not per page.
 - **Overlapping `reindexAll()` calls interleave their process-level logs** (see decision above) →
   accepted; per-type re-entrancy protection still prevents duplicate reindexing of the same data.
 - **Sequential per-type reindexing inside `reindexAll()` increases total wall-clock time** versus
@@ -107,6 +111,6 @@ migration involved.
 - Should `reindexAll()` accept an explicit `Set<ZoekObjectType>` (so `SolrDeployerService` can pass
   only the types a migration flagged) or always reindex all three unconditionally, with
   `SolrDeployerService` filtering before/after? Leaning toward accepting a `Set<ZoekObjectType>`
-  parameter (defaulting to all types for the REST "reindex everything" call) so the Solr count
-  check and start/finish logs still cover exactly the types actually being reindexed. To be finalized
-  during implementation.
+  parameter (defaulting to all types for the REST "reindex everything" call) so the per-type
+  started/finished logs (including their Solr counts) still cover exactly the types actually being
+  reindexed. To be finalized during implementation.

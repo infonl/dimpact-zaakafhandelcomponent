@@ -101,16 +101,13 @@ class IndexingService @Inject constructor(
     /**
      * Reindexes all object types (`ZAAK`, `TAAK`, `DOCUMENT`) as a single, complete reindexing
      * process: logs when the complete process starts and finishes, in addition to the existing
-     * per-object-type logging performed by [reindex], and logs the current Solr document counts
-     * for [objectTypes] both before and after reindexing.
+     * per-object-type logging (including Solr document counts) performed by [reindex].
      *
      * @param objectTypes the object types to reindex; defaults to all object types
      */
     fun reindexAll(objectTypes: Set<ZoekObjectType> = ZoekObjectType.entries.toSet()) {
         LOG.info("Complete reindexing process started for object types: $objectTypes")
-        logSolrIndexCounts(objectTypes)
         objectTypes.forEach(::reindex)
-        logSolrIndexCounts(objectTypes)
         LOG.info("Complete reindexing process finished for object types: $objectTypes")
     }
 
@@ -122,7 +119,7 @@ class IndexingService @Inject constructor(
         reindexingViewfinder.add(objectType)
         try {
             systemUser.set(true)
-            LOG.info("[$objectType] Reindexing started")
+            LOG.info(reindexStartedMessage(objectType))
             removeEntitiesFromSolrIndex(objectType)
             val summary = when (objectType) {
                 ZoekObjectType.ZAAK -> reindexAllZaken()
@@ -203,22 +200,25 @@ class IndexingService @Inject constructor(
             ).results.numFound
         }
 
-    private fun logSolrIndexCounts(objectTypes: Set<ZoekObjectType>) {
-        objectTypes.forEach { objectType ->
-            LOG.info("[$objectType] Solr index contains ${countInSolrIndex(objectType)} documents")
-        }
-    }
+    /**
+     * Builds the "Reindexing started" log message for [objectType], including the current Solr
+     * document count for that type (i.e. before any entities are removed or reindexed).
+     */
+    private fun reindexStartedMessage(objectType: ZoekObjectType): String =
+        "[$objectType] Reindexing started. Solr index contains ${countInSolrIndex(objectType)} documents"
 
     /**
      * Builds the "Reindexing finished" log message for [objectType], including the reindexed/total/error
-     * totals from [summary] when reindexing was actually attempted (i.e. [summary] is not `null`).
+     * totals from [summary] when reindexing was actually attempted (i.e. [summary] is not `null`), and
+     * the current Solr document count for that type (i.e. after reindexing has completed).
      */
     private fun reindexFinishedMessage(objectType: ZoekObjectType, summary: Pair<Int, Int>?): String {
         val message = "[$objectType] Reindexing finished"
-        return summary?.let { (successCount, totalCount) ->
+        val withSummary = summary?.let { (successCount, totalCount) ->
             val errorCount = totalCount - successCount
             "$message. Reindexed: $successCount / $totalCount, not reindexed because of errors: $errorCount"
         } ?: message
+        return "$withSummary. Solr index contains ${countInSolrIndex(objectType)} documents"
     }
 
     private fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {
