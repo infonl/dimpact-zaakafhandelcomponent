@@ -7,6 +7,10 @@ package nl.info.zac.search
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -46,13 +50,16 @@ class IndexingService @Inject constructor(
         const val SOLR_INDEXING_ERROR_MESSAGE = "Error occurred during Solr indexing"
 
         private const val SOLR_MAX_RESULTS = 100
-        private const val TAKEN_MAX_RESULTS = 50
+        private const val TAKEN_MAX_RESULTS = 100
+        private const val PAGE_CONVERSION_PARALLELISM = 8
 
         private val LOG = Logger.getLogger(IndexingService::class.java.name)
         private val reindexingViewfinder = ConcurrentHashMap.newKeySet<ZoekObjectType>()
 
         private lateinit var solrClient: SolrClient
     }
+
+    private val pageConversionDispatcher = Dispatchers.IO.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
 
     init {
         solrClient = Http2SolrClient.Builder(
@@ -91,7 +98,11 @@ class IndexingService @Inject constructor(
     fun indexeerDirect(objectIds: List<String>, objectType: ZoekObjectType, performCommit: Boolean) =
         addToSolrIndex(
             getConverter(objectType).let { converter ->
-                objectIds.map { continueOnExceptions(objectType) { converter.convert(it) } }
+                runBlocking(pageConversionDispatcher) {
+                    objectIds.map { objectId ->
+                        async { continueOnExceptions(objectType) { converter.convert(objectId) } }
+                    }.awaitAll()
+                }
             },
             performCommit
         )
