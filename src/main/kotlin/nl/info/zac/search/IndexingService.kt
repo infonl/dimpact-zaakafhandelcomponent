@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.search
@@ -96,16 +96,23 @@ class IndexingService @Inject constructor(
      * @param performCommit whether to perform a hard Solr commit
      */
     fun indexeerDirect(objectIds: List<String>, objectType: ZoekObjectType, performCommit: Boolean) =
-        addToSolrIndex(
-            getConverter(objectType).let { converter ->
-                runBlocking(pageConversionDispatcher) {
-                    objectIds.map { objectId ->
-                        async { continueOnExceptions(objectType) { converter.convert(objectId) } }
-                    }.awaitAll()
-                }
-            },
-            performCommit
-        )
+        addToSolrIndex(convertObjects(objectIds, objectType), performCommit)
+
+    /**
+     * Reindexes all object types (`ZAAK`, `TAAK`, `DOCUMENT`) as a single, complete reindexing
+     * process: logs when the complete process starts and finishes, in addition to the existing
+     * per-object-type logging performed by [reindex], and logs the current Solr document counts
+     * for [objectTypes] both before and after reindexing.
+     *
+     * @param objectTypes the object types to reindex; defaults to all object types
+     */
+    fun reindexAll(objectTypes: Set<ZoekObjectType> = ZoekObjectType.entries.toSet()) {
+        LOG.info("Complete reindexing process started for object types: $objectTypes")
+        logSolrIndexCounts(objectTypes)
+        objectTypes.forEach(::reindex)
+        logSolrIndexCounts(objectTypes)
+        LOG.info("Complete reindexing process finished for object types: $objectTypes")
+    }
 
     fun reindex(objectType: ZoekObjectType) {
         if (reindexingViewfinder.contains(objectType)) {
@@ -165,6 +172,47 @@ class IndexingService @Inject constructor(
         converterInstances
             .firstOrNull { it.supports(objectType) }
             ?: throw IndexingException("[$objectType] No converter found")
+
+    private fun convertObjects(objectIds: List<String>, objectType: ZoekObjectType): List<ZoekObject?> =
+        getConverter(objectType).let { converter ->
+            runBlocking(pageConversionDispatcher) {
+                objectIds.map { objectId ->
+                    async { continueOnExceptions(objectType) { converter.convert(objectId) } }
+                }.awaitAll()
+            }
+        }
+
+    /**
+     * Converts and adds [objectIds] to the Solr index, returning the number of objects that were
+     * successfully converted and added (as opposed to the number of [objectIds] passed in), so
+     * that callers can track how many objects failed to reindex due to errors.
+     */
+    private fun indexeerDirectCountingSuccesses(objectIds: List<String>, objectType: ZoekObjectType): Int {
+        val zoekObjecten = convertObjects(objectIds, objectType)
+        addToSolrIndex(zoekObjecten, performCommit = false)
+        return zoekObjecten.count { it != null }
+    }
+
+    private fun countInSolrIndex(objectType: ZoekObjectType): Long =
+        runTranslatingToIndexingException {
+            solrClient.query(
+                SolrQuery("*:*").apply {
+                    addFilterQuery("type:$objectType")
+                    rows = 0
+                }
+            ).results.numFound
+        }
+
+    private fun logSolrIndexCounts(objectTypes: Set<ZoekObjectType>) {
+        objectTypes.forEach { objectType ->
+            LOG.info("[$objectType] Solr index contains ${countInSolrIndex(objectType)} documents")
+        }
+    }
+
+    private fun logReindexSummary(objectType: ZoekObjectType, successCount: Int, totalCount: Int) {
+        val errorCount = totalCount - successCount
+        LOG.info("[$objectType] Reindexed: $successCount / $totalCount, not reindexed because of errors: $errorCount")
+    }
 
     private fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {
         val beansToBeAdded = zoekObjecten.filterNotNull()
@@ -240,12 +288,16 @@ class IndexingService @Inject constructor(
         val numberOfPages: Int = numberOfZaken / Results.DEFAULT_ZGW_PAGE_SIZE.toInt() +
             ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
 
+        var successCount = 0
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
-            continueOnExceptions(ZoekObjectType.ZAAK) { reindexZakenPage(pageNumber, numberOfZaken) }
+            successCount += continueOnExceptions(ZoekObjectType.ZAAK) {
+                reindexZakenPage(pageNumber, numberOfZaken)
+            } ?: 0
         }
+        logReindexSummary(ZoekObjectType.ZAAK, successCount, numberOfZaken)
     }
 
-    private fun reindexZakenPage(pageNumber: Int, totalCount: Int) {
+    private fun reindexZakenPage(pageNumber: Int, totalCount: Int): Int {
         val zaakResults = zrcClientService.listZakenUuids(
             ZaakListParameters().apply {
                 ordering = "-identificatie"
@@ -253,13 +305,10 @@ class IndexingService @Inject constructor(
             }
         )
         val ids = zaakResults.results().map { it.uuid.toString() }
-        indexeerDirect(
-            objectIds = ids,
-            objectType = ZoekObjectType.ZAAK,
-            performCommit = false
-        )
+        val successCount = indexeerDirectCountingSuccesses(ids, ZoekObjectType.ZAAK)
         val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.DEFAULT_ZGW_PAGE_SIZE + ids.size
         LOG.info("[${ZoekObjectType.ZAAK}] Reindexed: $progress / $totalCount ")
+        return successCount
     }
 
     private fun reindexAllInformatieobjecten() {
@@ -278,25 +327,24 @@ class IndexingService @Inject constructor(
         val numberOfPages: Int = numberOfInformatieobjecten / Results.DEFAULT_ZGW_PAGE_SIZE.toInt() +
             ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
 
+        var successCount = 0
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
-            continueOnExceptions(ZoekObjectType.DOCUMENT) {
+            successCount += continueOnExceptions(ZoekObjectType.DOCUMENT) {
                 reindexInformatieobjectenPage(pageNumber, numberOfInformatieobjecten)
-            }
+            } ?: 0
         }
+        logReindexSummary(ZoekObjectType.DOCUMENT, successCount, numberOfInformatieobjecten)
     }
 
-    private fun reindexInformatieobjectenPage(pageNumber: Int, totalCount: Int) {
+    private fun reindexInformatieobjectenPage(pageNumber: Int, totalCount: Int): Int {
         val informationObjectsResults = drcClientService.listEnkelvoudigInformatieObjecten(
             EnkelvoudigInformatieobjectListParameters().apply { page = pageNumber }
         )
         val ids = informationObjectsResults.results().map { it.url.extractUuid().toString() }
-        indexeerDirect(
-            objectIds = ids,
-            objectType = ZoekObjectType.DOCUMENT,
-            performCommit = false
-        )
+        val successCount = indexeerDirectCountingSuccesses(ids, ZoekObjectType.DOCUMENT)
         val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.DEFAULT_ZGW_PAGE_SIZE + ids.size
         LOG.info("[${ZoekObjectType.DOCUMENT}] Reindexed: $progress / $totalCount")
+        return successCount
     }
 
     private fun reindexAllTaken() {
@@ -307,12 +355,16 @@ class IndexingService @Inject constructor(
         }
         val numberOfPages: Int = numberOfTasks.toInt() / TAKEN_MAX_RESULTS
 
+        var successCount = 0
         for (pageNumber in 0..numberOfPages) {
-            continueOnExceptions(ZoekObjectType.TAAK) { reindexTakenPage(pageNumber, numberOfTasks.toInt()) }
+            successCount += continueOnExceptions(ZoekObjectType.TAAK) {
+                reindexTakenPage(pageNumber, numberOfTasks.toInt())
+            } ?: 0
         }
+        logReindexSummary(ZoekObjectType.TAAK, successCount, numberOfTasks.toInt())
     }
 
-    private fun reindexTakenPage(pageNumber: Int, totalCount: Int): Boolean {
+    private fun reindexTakenPage(pageNumber: Int, totalCount: Int): Int {
         val firstResult = pageNumber * TAKEN_MAX_RESULTS
         val tasks = flowableTaskService.listOpenTasks(
             TaakSortering.CREATIEDATUM,
@@ -321,16 +373,12 @@ class IndexingService @Inject constructor(
             TAKEN_MAX_RESULTS
         )
         if (tasks.isEmpty()) {
-            return false
+            return 0
         }
-        indexeerDirect(
-            objectIds = tasks.map { it.id },
-            objectType = ZoekObjectType.TAAK,
-            performCommit = false
-        )
+        val successCount = indexeerDirectCountingSuccesses(tasks.map { it.id }, ZoekObjectType.TAAK)
         val progress = firstResult + tasks.size
         LOG.info("[${ZoekObjectType.TAAK}] Reindexed: $progress / $totalCount")
-        return tasks.size == TAKEN_MAX_RESULTS
+        return successCount
     }
 
     @Suppress("TooGenericExceptionCaught")

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2025, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.app.search
@@ -35,4 +35,8 @@ class IndexingAdminRestService @Inject constructor(
     @GET
     @Path("herindexeren/{type}")
     fun reindex(@PathParam("type") type: ZoekObjectType) = indexingService.reindex(type)
+
+    @GET
+    @Path("herindexeren")
+    fun reindexAll() = indexingService.reindexAll()
 }

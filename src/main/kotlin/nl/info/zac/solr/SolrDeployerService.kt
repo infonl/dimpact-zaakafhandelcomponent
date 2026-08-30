@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2022 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.solr
@@ -72,7 +72,8 @@ class SolrDeployerService @Inject constructor(
                 schemaUpdates.drop(currentVersion)
                     .flatMap { it.teHerindexerenZoekObjectTypes }
                     .toSet()
-                    .forEach(::startReindexing)
+                    .takeIf { it.isNotEmpty() }
+                    ?.let(::startReindexing)
             }
         } catch (solrServerException: SolrServerException) {
             throw SolrDeploymentException("Failed to deploy Solr schema for core '$SOLR_CORE'", solrServerException)
@@ -138,7 +139,7 @@ class SolrDeployerService @Inject constructor(
         add(addField(name = VERSION_FIELD_PREFIX + version, type = STRING, indexed = false, stored = false))
     }
 
-    private fun startReindexing(type: ZoekObjectType) {
-        managedExecutor.submit { indexingService.reindex(type) }
+    private fun startReindexing(types: Set<ZoekObjectType>) {
+        managedExecutor.submit { indexingService.reindexAll(types) }
     }
 }

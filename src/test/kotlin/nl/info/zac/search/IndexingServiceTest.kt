@@ -1,11 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 package nl.info.zac.search
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearMocks
@@ -33,6 +34,7 @@ import nl.info.zac.search.model.createDocumentZoekObject
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse
@@ -45,6 +47,9 @@ import java.io.IOException
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.logging.Handler
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 
 private data class TestContext(
     val solrClient: Http2SolrClient,
@@ -56,6 +61,25 @@ private data class TestContext(
     val zrcClientService: ZrcClientService,
     val indexingService: IndexingService
 )
+
+private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
+    val logger = Logger.getLogger(IndexingService::class.java.name)
+    val records = mutableListOf<LogRecord>()
+    val handler = object : Handler() {
+        override fun publish(record: LogRecord) {
+            records.add(record)
+        }
+        override fun flush() = Unit
+        override fun close() = Unit
+    }
+    logger.addHandler(handler)
+    try {
+        block()
+    } finally {
+        logger.removeHandler(handler)
+    }
+    return records
+}
 
 private fun setupContext(): TestContext {
     val solrUrl = "http://localhost/fakeSolrUrl"
@@ -443,6 +467,185 @@ class IndexingServiceTest : BehaviorSpec({
                         match<EnkelvoudigInformatieobjectListParameters> { it.page == 2 }
                     )
                     documentZoekObjectConverter.convert(informatieobjectPage2.url.extractUuid().toString())
+                }
+            }
+        }
+    }
+
+    given("Reindexing zaken through reindex() where one of three conversions fails") {
+        val ctx = setupContext()
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList().apply {
+            addAll(listOf(SolrDocument(mapOf("id" to 1)), SolrDocument(mapOf("id" to 2))))
+        }
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+
+        val zakenUuid = listOf(
+            ZaakUuid(UUID.randomUUID()),
+            ZaakUuid(UUID.randomUUID()),
+            ZaakUuid(UUID.randomUUID())
+        )
+        val zaakZoekObjecten = listOf(createZaakZoekObject(), createZaakZoekObject())
+
+        every {
+            ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
+        } returns Results(zakenUuid, 3)
+
+        every { ctx.zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
+        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[0].uuid.toString()) } returns zaakZoekObjecten[0]
+        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[1].uuid.toString()) } throws
+            RuntimeException("fake conversion failure")
+        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[2].uuid.toString()) } returns zaakZoekObjecten[1]
+        every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
+
+        `when`("reindexing of zaken is called") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindex(ZoekObjectType.ZAAK)
+            }
+
+            then("a summary is logged reporting 2 out of 3 zaken reindexed with 1 error") {
+                logRecords.map { it.message } shouldContain
+                    "[ZAAK] Reindexed: 2 / 3, not reindexed because of errors: 1"
+            }
+        }
+    }
+
+    given("Reindexing zaken through reindex() where all conversions succeed") {
+        val ctx = setupContext()
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList().apply {
+            addAll(listOf(SolrDocument(mapOf("id" to 1)), SolrDocument(mapOf("id" to 2))))
+        }
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+
+        val zakenUuid = listOf(ZaakUuid(UUID.randomUUID()), ZaakUuid(UUID.randomUUID()))
+        val zaakZoekObjecten = listOf(createZaakZoekObject(), createZaakZoekObject())
+
+        every {
+            ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
+        } returns Results(zakenUuid, 2)
+
+        every { ctx.zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
+        zakenUuid.forEachIndexed { index, zaak ->
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+        }
+        every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
+
+        `when`("reindexing of zaken is called") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindex(ZoekObjectType.ZAAK)
+            }
+
+            then("a summary is logged reporting all zaken reindexed with 0 errors") {
+                logRecords.map { it.message } shouldContain
+                    "[ZAAK] Reindexed: 2 / 2, not reindexed because of errors: 0"
+            }
+        }
+    }
+
+    given("Reindexing zaken through reindex() where the zaak count cannot be determined") {
+        val ctx = setupContext()
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList().apply {
+            addAll(listOf(SolrDocument(mapOf("id" to 1)), SolrDocument(mapOf("id" to 2))))
+        }
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+        every {
+            ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
+        } throws IOException("exception")
+
+        `when`("reindexing of zaken is called") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindex(ZoekObjectType.ZAAK)
+            }
+
+            then("no reindexed/error summary is logged since no reindexing was attempted") {
+                logRecords.any { it.message.startsWith("[ZAAK] Reindexed:") } shouldBe false
+            }
+        }
+    }
+
+    given("reindexAll() reindexes every object type as one complete process") {
+        val ctx = setupContext()
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+
+        every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returns Results(emptyList(), 0)
+        every { ctx.flowableTaskService.countOpenTasks() } returns 0
+        every {
+            ctx.flowableTaskService.listOpenTasks(any(), any(), any(), any())
+        } returns emptyList()
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
+        } returns Results(emptyList(), 0)
+
+        `when`("reindexAll is called with the default set of all object types") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindexAll()
+            }
+
+            then("the complete reindexing process logs its own start and finish, in addition to the per-type ones") {
+                logRecords.first().message shouldBe
+                    "Complete reindexing process started for object types: [TAAK, ZAAK, DOCUMENT]"
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
+                logRecords.map { it.message } shouldContain "[ZAAK] Reindexing started"
+                logRecords.map { it.message } shouldContain "[TAAK] Reindexing started"
+                logRecords.map { it.message } shouldContain "[DOCUMENT] Reindexing started"
+            }
+
+            then("Solr document counts are queried before and after reindexing, for every object type") {
+                verify(exactly = 6) {
+                    ctx.solrClient.query(match<SolrQuery> { it.rows == 0 })
+                }
+            }
+        }
+    }
+
+    given("reindexAll() where the zaak count cannot be determined and its reindex aborts early") {
+        val ctx = setupContext()
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+
+        every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } throws IOException("exception")
+        every { ctx.flowableTaskService.countOpenTasks() } returns 0
+        every {
+            ctx.flowableTaskService.listOpenTasks(any(), any(), any(), any())
+        } returns emptyList()
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
+        } returns Results(emptyList(), 0)
+
+        `when`("reindexAll is called with the default set of all object types") {
+            ctx.indexingService.reindexAll()
+
+            then("the remaining object types are still reindexed") {
+                verify(exactly = 1) {
+                    ctx.flowableTaskService.countOpenTasks()
+                }
+                verify(exactly = 2) {
+                    ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
                 }
             }
         }
