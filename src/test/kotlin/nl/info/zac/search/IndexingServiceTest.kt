@@ -15,6 +15,7 @@ import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.mockkStatic
 import io.mockk.verify
+import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.zrc.model.ZaakListParameters
@@ -278,6 +279,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             every { ctx.solrClient.query(any()) } returns queryResponse
             every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+            every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
 
             every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returnsMany listOf(
                 Results(zakenUuid, 2),
@@ -337,6 +339,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
         every { ctx.solrClient.query(any()) } returns queryResponse
         every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
 
         val ioException = IOException("IO exception")
         every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } throws ioException
@@ -377,6 +380,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.query(any()) } returns queryResponse
         every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
 
         every {
             ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
@@ -433,6 +437,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.query(any()) } returns queryResponse
         every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
         every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
 
         every {
             ctx.drcClientService.listEnkelvoudigInformatieObjecten(
@@ -482,6 +487,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
         every { ctx.solrClient.query(any()) } returns queryResponse
         every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
 
         val zakenUuid = listOf(
             ZaakUuid(UUID.randomUUID()),
@@ -527,6 +533,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
         every { ctx.solrClient.query(any()) } returns queryResponse
         every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
 
         val zakenUuid = listOf(ZaakUuid(UUID.randomUUID()), ZaakUuid(UUID.randomUUID()))
         val zaakZoekObjecten = listOf(createZaakZoekObject(), createZaakZoekObject())
@@ -554,6 +561,14 @@ class IndexingServiceTest : BehaviorSpec({
                     "[ZAAK] Reindexing finished. Reindexed: 2 / 2, not reindexed because of errors: 0. " +
                     "Solr index contains 0 documents"
             }
+
+            then("Solr is committed before the finished Solr document count is queried") {
+                verifyOrder {
+                    ctx.solrClient.addBeans(zaakZoekObjecten)
+                    ctx.solrClient.commit(null, true, true)
+                    ctx.solrClient.query(match<SolrQuery> { it.rows == 0 })
+                }
+            }
         }
     }
 
@@ -567,6 +582,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
         every { ctx.solrClient.query(any()) } returns queryResponse
         every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
         every {
             ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
         } throws IOException("exception")
@@ -591,6 +607,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { queryResponse.results } returns emptyDocumentList
         every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
         every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
 
         every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returns Results(emptyList(), 0)
         every { ctx.flowableTaskService.countOpenTasks() } returns 0
@@ -632,6 +649,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { queryResponse.results } returns emptyDocumentList
         every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
         every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
 
         every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } throws IOException("exception")
         every { ctx.flowableTaskService.countOpenTasks() } returns 0

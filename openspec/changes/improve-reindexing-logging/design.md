@@ -78,6 +78,28 @@ runs) and once to build the `"Reindexing finished"` message (after reindexing co
 than once per batch in `reindexAll()`, so that the counts are also reported for a directly triggered
 single-type reindex, not only when reindexing through `reindexAll()`.
 
+### Hard-commit before querying the "finished" Solr count
+Bulk reindexing never explicitly commits: `removeEntitiesFromSolrIndex` deletes without committing,
+and every bulk-path call into `addToSolrIndex` passes `performCommit = false`. Solr's own
+`autoSoftCommit` (`maxTime` 3000ms in `solrconfig.xml`) eventually makes changes visible, and
+`autoCommit` (`maxTime` 15000ms, `openSearcher=false`) only flushes to disk without opening a new
+searcher. Querying the "finished" count immediately after a bulk reindex therefore races Solr's
+background commit cycle — observed in practice as a per-object-type count of `0` right after a
+reindex that had just added ~200 documents, because the delete phase had already been soft-committed
+while the subsequent adds had not yet been picked up by the next automatic soft commit. To make the
+reported "finished" count trustworthy, `reindex()` now calls the existing `commit()` function (a hard
+commit with `waitSearcher=true`) once, after the per-type reindex completes and before building the
+"Reindexing finished" message. This also means the object type's data is guaranteed searchable by the
+time `reindex()`/`reindexAll()` returns, not just eventually consistent within Solr's autoSoftCommit
+window.
+
+**Alternative considered**: leave commit behavior unchanged and only address the log-accuracy
+symptom (e.g. by not logging a count when it looks implausible, or documenting the count as "may lag
+briefly"). Rejected — the whole point of adding the count is to let operators trust it as a
+verification signal; a value that can silently read `0` right after a successful reindex undermines
+that purpose, and a single hard commit per object type per reindex run is cheap relative to reindexing
+potentially tens of thousands of objects.
+
 ### `reindexAll()` reuses `reindexingViewfinder` per type, not a new process-level guard
 `reindexAll()` calls into the same `reindex(objectType)` path per type (or the logic it wraps),
 so the existing `reindexingViewfinder` re-entrancy guard per type still applies unchanged. No new
@@ -97,6 +119,9 @@ routine concurrent traffic.
 - **Sequential per-type reindexing inside `reindexAll()` increases total wall-clock time** versus
   fully concurrent reindexing of all three types → accepted as a correctness-first trade-off; each
   type's own internal paging/conversion concurrency is unchanged.
+- **The hard commit added before the "finished" count adds one expensive, blocking Solr operation per
+  object type per reindex run** → accepted; it replaces an unreliable count with a trustworthy one,
+  and is a single commit regardless of how many objects were reindexed, not a per-page cost.
 
 ## Migration Plan
 

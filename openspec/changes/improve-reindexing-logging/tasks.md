@@ -18,6 +18,9 @@
 - [x] 2.2 Fold the Solr document count for an object type into that type's `"Reindexing started"`
       log line (queried before `removeEntitiesFromSolrIndex` runs) and `"Reindexing finished"` log
       line (queried after reindexing completes) in `reindex()`, using the helper above.
+- [x] 2.3 Call `commit()` after the per-type reindex completes and before querying the "finished"
+      Solr count, so the reported count reflects the just-completed reindex instead of racing Solr's
+      background `autoSoftCommit`/`autoCommit` cycle.
 
 ## 3. `reindexAll()` orchestration entry point
 
@@ -52,6 +55,8 @@
 - [x] 5.5 Unit test: `SolrDeployerService` triggers `reindexAll()` with the correct set of types
       after a schema migration.
 - [x] 5.6 Integration/REST test for the new "reindex everything" endpoint.
+- [x] 5.7 Unit test: per-type reindex commits to Solr (via `commit()`) after reindexing completes,
+      before the "finished" Solr count is queried.
 
 ## 6. Documentation
 

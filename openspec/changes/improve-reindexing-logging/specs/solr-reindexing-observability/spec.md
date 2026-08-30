@@ -58,7 +58,9 @@ current number of indexed documents for that object type and include the count i
 "Reindexing finished" log line (the count after reindexing has completed), so that operators can
 compare Solr's own document counts against the reindex totals reported for that type. This applies
 whether the per-object-type reindex is triggered directly or as part of the complete reindexing
-process.
+process. Before querying the count for the "Reindexing finished" log line, the system SHALL commit
+the removed and reindexed entities to Solr so that the reported count reflects the just-completed
+reindex rather than a stale, not-yet-committed state.
 
 #### Scenario: Solr count logged when a per-object-type reindex starts
 - **WHEN** a `ZAAK` reindex starts
@@ -67,8 +69,9 @@ process.
 
 #### Scenario: Solr count logged again when a per-object-type reindex finishes
 - **WHEN** a `ZAAK` reindex finishes
-- **THEN** the "Reindexing finished" log line for `ZAAK` includes the Solr document count for `ZAAK`
-  again, reflecting the index state after reindexing
+- **THEN** the system commits the removed and reindexed `ZAAK` entities to Solr, and the "Reindexing
+  finished" log line for `ZAAK` includes the Solr document count for `ZAAK` again, reflecting the
+  index state after reindexing
 
 #### Scenario: Solr counts logged for every object type in the complete reindexing process
 - **WHEN** the complete reindexing process reindexes `ZAAK`, `TAAK`, and `DOCUMENT`

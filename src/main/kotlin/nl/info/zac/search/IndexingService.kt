@@ -126,6 +126,9 @@ class IndexingService @Inject constructor(
                 ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
                 ZoekObjectType.TAAK -> reindexAllTaken()
             }
+            // ensure the removed/reindexed entities are visible to the searcher before reporting
+            // the finished Solr document count, since bulk (re)indexing never commits per page
+            commit()
             LOG.info(reindexFinishedMessage(objectType, summary))
         } finally {
             reindexingViewfinder.remove(objectType)
