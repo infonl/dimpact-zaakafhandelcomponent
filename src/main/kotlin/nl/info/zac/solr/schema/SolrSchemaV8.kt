@@ -26,12 +26,12 @@ class SolrSchemaV8 : SolrSchemaUpdate {
     override val teHerindexerenZoekObjectTypes = emptySet<ZoekObjectType>()
 
     override val schemaUpdates: List<SchemaRequest.Update> = listOf<SchemaRequest.Update>(
-        addField("zaakspecifiekGeautoriseerd", BOOLEAN, true),
-        addField("zaak_zaakspecifiekGeautoriseerd", BOOLEAN, true),
+        addField("zaakspecifiekGeautoriseerd", BOOLEAN, docValues = true),
+        addField("zaak_zaakspecifiekGeautoriseerd", BOOLEAN, docValues = true),
         addCopyField("zaak_zaakspecifiekGeautoriseerd", "zaakspecifiekGeautoriseerd"),
-        addField("taak_zaakspecifiekGeautoriseerd", BOOLEAN, true),
+        addField("taak_zaakspecifiekGeautoriseerd", BOOLEAN, docValues = true),
         addCopyField("taak_zaakspecifiekGeautoriseerd", "zaakspecifiekGeautoriseerd"),
-        addField("informatieobject_zaakspecifiekGeautoriseerd", BOOLEAN, true),
+        addField("informatieobject_zaakspecifiekGeautoriseerd", BOOLEAN, docValues = true),
         addCopyField("informatieobject_zaakspecifiekGeautoriseerd", "zaakspecifiekGeautoriseerd")
     )
 }
