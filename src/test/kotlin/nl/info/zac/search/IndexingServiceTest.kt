@@ -337,10 +337,7 @@ class IndexingServiceTest : BehaviorSpec({
             )
         }
         every { queryResponse.results } returns documentList
-        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
         every { ctx.solrClient.query(any()) } returns queryResponse
-        every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
-        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
 
         val ioException = IOException("IO exception")
         every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } throws ioException
@@ -351,6 +348,13 @@ class IndexingServiceTest : BehaviorSpec({
             then("aborts and does not try to list zaken") {
                 verify(exactly = 1) {
                     ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
+                }
+            }
+
+            then("existing Solr documents of that type are left untouched") {
+                verify(exactly = 0) {
+                    ctx.solrClient.deleteById(any<List<String>>())
+                    ctx.solrClient.commit(null, true, true)
                 }
             }
         }
@@ -636,10 +640,7 @@ class IndexingServiceTest : BehaviorSpec({
             addAll(listOf(SolrDocument(mapOf("id" to 1)), SolrDocument(mapOf("id" to 2))))
         }
         every { queryResponse.results } returns documentList
-        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
         every { ctx.solrClient.query(any()) } returns queryResponse
-        every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
-        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
         every {
             ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
         } throws IOException("exception")
@@ -686,14 +687,11 @@ class IndexingServiceTest : BehaviorSpec({
                 logRecords.last().message shouldBe
                     "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing started. Solr index currently contains 0 documents of type 'ZAAK'. " +
-                    "First deleting all documents of type 'ZAAK'."
+                    "[ZAAK] Reindexing started. Solr index currently contains 0 documents of type 'ZAAK'."
                 logRecords.map { it.message } shouldContain
-                    "[TAAK] Reindexing started. Solr index currently contains 0 documents of type 'TAAK'. " +
-                    "First deleting all documents of type 'TAAK'."
+                    "[TAAK] Reindexing started. Solr index currently contains 0 documents of type 'TAAK'."
                 logRecords.map { it.message } shouldContain
-                    "[DOCUMENT] Reindexing started. Solr index currently contains 0 documents of type " +
-                    "'DOCUMENT'. First deleting all documents of type 'DOCUMENT'."
+                    "[DOCUMENT] Reindexing started. Solr index currently contains 0 documents of type 'DOCUMENT'."
             }
 
             then("Solr document counts are queried before and after reindexing, for every object type") {

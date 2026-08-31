@@ -130,15 +130,19 @@ class IndexingService @Inject constructor(
         try {
             systemUser.set(true)
             LOG.info(reindexStartedMessage(objectType))
-            removeEntitiesFromSolrIndex(objectType)
             val summary = when (objectType) {
                 ZoekObjectType.ZAAK -> reindexAllZaken()
                 ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
                 ZoekObjectType.TAAK -> reindexAllTaken()
             }
-            // ensure the removed/reindexed entities are visible to the searcher before reporting
-            // the finished Solr document count, since bulk (re)indexing never commits per page
-            commit()
+            // only commit when reindexing was actually attempted: existing entities are only
+            // deleted once the total count is known (see e.g. reindexAllZaken), so a null summary
+            // means nothing was deleted either, and there is nothing to make visible
+            if (summary != null) {
+                // ensure the removed/reindexed entities are visible to the searcher before reporting
+                // the finished Solr document count, since bulk (re)indexing never commits per page
+                commit()
+            }
             LOG.info(reindexFinishedMessage(objectType, summary))
         } finally {
             reindexingViewfinder.remove(objectType)
@@ -253,7 +257,17 @@ class IndexingService @Inject constructor(
      */
     private fun reindexStartedMessage(objectType: ZoekObjectType): String =
         "[$objectType] Reindexing started. Solr index currently contains ${countInSolrIndex(objectType)} " +
-            "documents of type '$objectType'. First deleting all documents of type '$objectType'."
+            "documents of type '$objectType'."
+
+    /**
+     * Deletes the existing Solr documents of [objectType]. Only called once the total count for
+     * that type is known, so that an early abort (e.g. the count could not be determined) never
+     * deletes entities that reindexing will not get a chance to replace.
+     */
+    private fun deleteExistingEntities(objectType: ZoekObjectType) {
+        LOG.info("[$objectType] Deleting existing documents of type '$objectType' before reindexing.")
+        removeEntitiesFromSolrIndex(objectType)
+    }
 
     /**
      * Builds the "Reindexing finished" log message for [objectType], including the reindexed/skipped/error
@@ -342,6 +356,7 @@ class IndexingService @Inject constructor(
             LOG.warning("[${ZoekObjectType.ZAAK}] Cannot find zaken count! Aborting reindexing")
             return null
         }
+        deleteExistingEntities(ZoekObjectType.ZAAK)
 
         val numberOfPages: Int = (numberOfZaken + Results.DEFAULT_ZGW_PAGE_SIZE.toInt() - 1) /
             Results.DEFAULT_ZGW_PAGE_SIZE.toInt()
@@ -381,6 +396,7 @@ class IndexingService @Inject constructor(
             LOG.warning("[${ZoekObjectType.DOCUMENT}] Cannot find information objects count! Aborting reindexing")
             return null
         }
+        deleteExistingEntities(ZoekObjectType.DOCUMENT)
 
         val numberOfPages: Int = (numberOfInformatieobjecten + Results.DEFAULT_ZGW_PAGE_SIZE.toInt() - 1) /
             Results.DEFAULT_ZGW_PAGE_SIZE.toInt()
@@ -411,6 +427,8 @@ class IndexingService @Inject constructor(
             LOG.warning("[${ZoekObjectType.TAAK}] Cannot find tasks count. Aborting reindexing")
             return null
         }
+        deleteExistingEntities(ZoekObjectType.TAAK)
+
         val numberOfPages: Int = numberOfTasks.toInt() / TAKEN_MAX_RESULTS
 
         var counts = ReindexCounts()
