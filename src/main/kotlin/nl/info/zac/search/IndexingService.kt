@@ -448,10 +448,10 @@ class IndexingService @Inject constructor(
         }
         deleteExistingEntities(ZoekObjectType.TAAK)
 
-        val numberOfPages: Int = numberOfTasks.toInt() / TAKEN_MAX_RESULTS
+        val numberOfPages: Int = (numberOfTasks.toInt() + TAKEN_MAX_RESULTS - 1) / TAKEN_MAX_RESULTS
 
         var counts = ReindexCounts()
-        for (pageNumber in 0..numberOfPages) {
+        for (pageNumber in 0 until numberOfPages) {
             continueOnExceptions(ZoekObjectType.TAAK) {
                 reindexTakenPage(pageNumber, numberOfTasks.toInt())
             }?.let { counts += it }

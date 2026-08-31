@@ -28,13 +28,16 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
+import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
 import nl.info.zac.search.model.createDocumentZoekObject
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
+import nl.info.zac.shared.model.SorteerRichting
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.Http2SolrClient
@@ -44,6 +47,7 @@ import org.apache.solr.common.SolrDocument
 import org.apache.solr.common.SolrDocumentList
 import org.apache.solr.common.params.CursorMarkParams
 import org.eclipse.microprofile.config.ConfigProvider
+import org.flowable.task.api.Task
 import java.io.IOException
 import java.net.URI
 import java.util.UUID
@@ -482,6 +486,48 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
+    given("Reindexing exactly one page's worth of taken through reindex()") {
+        val ctx = setupContext()
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList()
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+
+        val takenMaxResults = 100
+        val taakZoekObjectConverter = mockk<TaakZoekObjectConverter>()
+        val tasks = List(takenMaxResults) { index ->
+            mockk<Task>().apply { every { id } returns "fakeTaskId$index" }
+        }
+
+        every { ctx.flowableTaskService.countOpenTasks() } returns takenMaxResults.toLong()
+        every {
+            ctx.flowableTaskService.listOpenTasks(
+                TaakSortering.CREATIEDATUM,
+                SorteerRichting.DESCENDING,
+                0,
+                takenMaxResults
+            )
+        } returns tasks
+
+        every { taakZoekObjectConverter.supports(ZoekObjectType.TAAK) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns taakZoekObjectConverter
+        every { taakZoekObjectConverter.convert(any()) } throws RuntimeException("fake conversion failure")
+
+        `when`("reindexing of taken is called") {
+            ctx.indexingService.reindex(ZoekObjectType.TAAK)
+
+            then("only one page is fetched, since the task count exactly fills one page") {
+                verify(exactly = 1) {
+                    ctx.flowableTaskService.listOpenTasks(any(), any(), any(), any())
+                }
+            }
+        }
+    }
+
     given("Reindexing informatieobjecten where one converts, one is skipped and one errors") {
         val ctx = setupContext()
         val queryResponse = mockk<QueryResponse>()
@@ -670,9 +716,6 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returns Results(emptyList(), 0)
         every { ctx.flowableTaskService.countOpenTasks() } returns 0
         every {
-            ctx.flowableTaskService.listOpenTasks(any(), any(), any(), any())
-        } returns emptyList()
-        every {
             ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
         } returns Results(emptyList(), 0)
 
@@ -727,9 +770,6 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } throws IOException("exception")
         every { ctx.flowableTaskService.countOpenTasks() } returns 0
         every {
-            ctx.flowableTaskService.listOpenTasks(any(), any(), any(), any())
-        } returns emptyList()
-        every {
             ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
         } returns Results(emptyList(), 0)
 
@@ -760,9 +800,6 @@ class IndexingServiceTest : BehaviorSpec({
 
         every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returns Results(emptyList(), 0)
         every { ctx.flowableTaskService.countOpenTasks() } returns 0
-        every {
-            ctx.flowableTaskService.listOpenTasks(any(), any(), any(), any())
-        } returns emptyList()
         every {
             ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
         } returns Results(emptyList(), 0)
@@ -813,9 +850,6 @@ class IndexingServiceTest : BehaviorSpec({
 
         every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returns Results(emptyList(), 0)
         every { ctx.flowableTaskService.countOpenTasks() } returns 0
-        every {
-            ctx.flowableTaskService.listOpenTasks(any(), any(), any(), any())
-        } returns emptyList()
         every {
             ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
         } returns Results(emptyList(), 0)
