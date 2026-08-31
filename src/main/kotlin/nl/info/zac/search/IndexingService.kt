@@ -235,7 +235,7 @@ class IndexingService @Inject constructor(
     fun addOrUpdateZaak(zaakUUID: UUID, inclusiefTaken: Boolean) {
         indexeerDirect(zaakUUID.toString(), ZoekObjectType.ZAAK, false)
         if (inclusiefTaken) {
-            flowableTaskService.listOpenTasksForZaak(zaakUUID)
+            flowableTaskService.listTasksForZaak(zaakUUID)
                 .map { it.id }
                 .forEach(this::addOrUpdateTaak)
         }
