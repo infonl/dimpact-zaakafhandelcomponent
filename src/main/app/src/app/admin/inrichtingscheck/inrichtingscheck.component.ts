@@ -28,7 +28,7 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
-import { injectServiceMutation } from "../../shared/http/inject-service-mutation";
+import { injectMutation } from "../../shared/http/inject-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
@@ -103,7 +103,7 @@ export class InrichtingscheckComponent
   private filterValue = "";
   protected bestaatCommunicatiekanaalEformulier = false;
   protected ztcCacheTime = "";
-  private readonly clearZTCCachesMutation = injectServiceMutation(
+  private readonly clearZTCCachesMutation = injectMutation(
     () => this.healtCheckService.clearZTCCaches(),
     {
       onSuccess: (value) => {

@@ -30,6 +30,7 @@ import {
   FormioModule,
 } from "@formio/angular";
 import { catchError, from, of, ReplaySubject, switchMap } from "rxjs";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { FormioCustomFunctions } from "../formio-custom-functions/formio-custom-functions";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
 import { FORMIO_NL_TRANSLATIONS } from "./formio-wrapper.i18n-translations.nl";
@@ -55,15 +56,17 @@ export class FormioWrapperComponent
   implements OnInit, OnChanges, AfterViewInit
 {
   @Input() form: unknown;
-  @Input() submission: unknown;
-  @Input() taakdata?: Record<string, unknown>;
+  @Input() zaak?: GeneratedType<"RestZaak">;
+  @Input() taak?: GeneratedType<"RestTask">;
   @Input() options?: FormioHookOptions;
   @Input({ required: true, transform: booleanAttribute }) readOnly = false;
   @Input({ required: true, transform: booleanAttribute }) submitPending = false;
+  @Input({ transform: booleanAttribute }) submitFailed = false;
   @Output() formSubmit = new EventEmitter<FormioSubmitEvent>();
   @Output() formChange = new EventEmitter<FormioChangeEvent>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();
   @Output() submissionDone = new EventEmitter<boolean>();
+  @Output() submissionError = new EventEmitter<FormioSubmitError>();
 
   @HostListener("click", ["$event"])
   onClickInside(event: MouseEvent) {
@@ -89,25 +92,48 @@ export class FormioWrapperComponent
   private readonly rebuild$ = new ReplaySubject<void>(1);
   protected evalContext: Record<string, unknown> = {};
   protected evalContextReady = false;
+  protected submission?: { data: Record<string, unknown> };
+  private redrawDeferred = false;
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes["form"]) {
+    if (changes["taak"]) {
+      this.submission = { data: this.taak?.taakdata ?? {} };
+    }
+
+    // Not `taak`: a rebuild tears the open form down, losing what the user typed.
+    if (changes["form"] || changes["zaak"]) {
       this.rebuild$.next();
+    } else if (changes["taak"] && !changes["taak"].firstChange) {
+      this.refreshTaakInContext();
     }
 
     if (changes["readOnly"] && !changes["readOnly"].firstChange) {
       this.applyReadOnly();
     }
 
-    // Form.io keeps the submit button spinning until it sees `submitDone`.
     const submitPendingChange = changes["submitPending"];
-    if (
-      submitPendingChange &&
-      !submitPendingChange.firstChange &&
-      submitPendingChange.previousValue &&
-      !submitPendingChange.currentValue
-    ) {
-      this.submissionDone.emit(true);
+    if (submitPendingChange && !submitPendingChange.firstChange) {
+      // Form.io keeps the submit button spinning until it hears the outcome, and paints it green on
+      // `submitDone` - so a failed submit has to be reported as an error instead.
+      if (
+        submitPendingChange.previousValue &&
+        !submitPendingChange.currentValue
+      ) {
+        if (this.submitFailed) {
+          // Form.io renders its own translated `submitError` text, so this message is not displayed -
+          // it only has to be a non-empty error for Form.io to mark the button as failed.
+          this.submissionError.emit({ message: "submit failed" });
+        } else {
+          this.submissionDone.emit(true);
+        }
+      }
+      this.applySubmitPending();
+      if (!submitPendingChange.currentValue && this.redrawDeferred) {
+        this.redrawDeferred = false;
+        void (
+          this.formioComponent?.formio as FormioWebform | undefined
+        )?.redraw();
+      }
     }
   }
 
@@ -119,7 +145,9 @@ export class FormioWrapperComponent
           const source = from(
             this.customFunctions.prepareFormContext(
               this.form,
-              this.taakdata ?? {},
+              this.taak?.taakdata ?? {},
+              this.zaak,
+              this.taak,
             ),
           );
           return source.pipe(
@@ -172,6 +200,25 @@ export class FormioWrapperComponent
     FormioWrapperComponent.activeElementPatched = true;
   }
 
+  private refreshTaakInContext() {
+    this.evalContext = {
+      ...this.evalContext,
+      taak: this.customFunctions.asContextValue(this.taak, "taak"),
+    };
+
+    const webform = this.formioComponent?.formio as FormioWebform | undefined;
+    if (!webform) return;
+    // Form.io captured the context when it built the form, hence the webform's own copy.
+    webform.options.evalContext = this.evalContext;
+
+    // A redraw rebuilds the submit button, which would discard the spinner of a submit in flight.
+    if (this.submitPending) {
+      this.redrawDeferred = true;
+      return;
+    }
+    void webform.redraw();
+  }
+
   // Form.io reads `readOnly` while building only, and its components render from `disabled` - hence both.
   private applyReadOnly() {
     const webform = this.formioComponent?.formio as FormioWebform | undefined;
@@ -183,6 +230,25 @@ export class FormioWrapperComponent
       component.disabled = this.readOnly;
     });
     void webform.redraw();
+  }
+
+  /**
+   * Locks the fields while a submit is in flight. Deliberately does not redraw: a redraw rebuilds the
+   * submit button and throws away the spinner Form.io is showing for this very submit.
+   */
+  private applySubmitPending() {
+    const webform = this.formioComponent?.formio as FormioWebform | undefined;
+    if (!webform) return;
+
+    const disabled = this.readOnly || this.submitPending;
+    webform.everyComponent((component) => {
+      // Select and Tags override this setter to disable their Choices widget too.
+      component.disabled = disabled;
+      // Other components only stamp `disabled` onto the DOM while rendering, so push it onto the inputs.
+      component.refs?.input?.forEach((input) =>
+        component.setDisabled(input, disabled),
+      );
+    });
   }
 
   private async loadBootstrapStyles(): Promise<void> {
@@ -233,14 +299,16 @@ export class FormioWrapperComponent
 
 /** `@formio/angular` types the live form instance as `any`. */
 interface FormioWebform {
-  options: { readOnly?: boolean };
-  everyComponent(
-    callback: (component: {
-      options: { readOnly?: boolean };
-      disabled: boolean;
-    }) => void,
-  ): void;
+  options: { readOnly?: boolean; evalContext?: Record<string, unknown> };
+  everyComponent(callback: (component: FormioLiveComponent) => void): void;
   redraw(): Promise<void>;
+}
+
+interface FormioLiveComponent {
+  options: { readOnly?: boolean };
+  disabled: boolean;
+  refs?: { input?: HTMLElement[] };
+  setDisabled(element: HTMLElement, disabled: boolean): void;
 }
 
 export interface FormioCustomEvent {
@@ -248,6 +316,10 @@ export interface FormioCustomEvent {
   component: ExtendedComponentSchema;
   data: Record<string, string>;
   event?: Event;
+}
+
+export interface FormioSubmitError {
+  message: string;
 }
 
 export interface FormioSubmitEvent {

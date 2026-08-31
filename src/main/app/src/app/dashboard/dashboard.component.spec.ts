@@ -3,37 +3,50 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ElementRef, QueryList } from "@angular/core";
-import { TestBed } from "@angular/core/testing";
+import { provideHttpClient } from "@angular/common/http";
 import {
-  provideAngularQuery,
-  QueryClient,
-} from "@tanstack/angular-query-experimental";
-import { Subject } from "rxjs";
-import { sleep } from "../../../setupJest";
-import { createMutationOptions } from "../../test-helpers";
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
+import { TranslateModule } from "@ngx-translate/core";
+import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import { notifyManager } from "@tanstack/query-core";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
+
+import { fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../setupJest";
 import { UtilService } from "../core/service/util.service";
-import { GebruikersvoorkeurenService } from "../gebruikersvoorkeuren/gebruikersvoorkeuren.service";
+import { WebsocketService } from "../core/websocket/websocket.service";
 import { GeneratedType } from "../shared/utils/generated-types";
-import { SignaleringenService } from "../signaleringen.service";
 import { DashboardComponent } from "./dashboard.component";
-import { DashboardCard } from "./model/dashboard-card";
 import { DashboardCardId } from "./model/dashboard-card-id";
-import { DashboardCardType } from "./model/dashboard-card-type";
 
 type RequestAnimationFrameCallback = (time: number) => void;
 
-const instellingenNaVerwijderen: GeneratedType<"RESTDashboardCardInstelling">[] =
-  [{ cardId: "MIJN_TAKEN", column: 0, row: 0 }];
+const LOGGED_IN_USER_QUERY_KEY = ["/rest/identity/loggedInUser"];
+const DASHBOARD_CARDS_URL = "/rest/gebruikersvoorkeuren/dasboardcard/actief";
+const DASHBOARD_CARD_URL = "/rest/gebruikersvoorkeuren/dasboardcard";
+const SIGNALERING_TYPEN_URL = "/rest/signaleringen/typen/dashboard";
+
+const instellingen: GeneratedType<"RESTDashboardCardInstelling">[] = [
+  { cardId: "MIJN_TAKEN", column: 0, row: 0 },
+  { cardId: "MIJN_ZAKEN_NIEUW", column: 0, row: 1 },
+  { cardId: "MIJN_ZAKEN", column: 1, row: 0 },
+  { cardId: "MIJN_DOCUMENTEN_NIEUW", column: 1, row: 1 },
+];
 
 class FakeResizeObserver {
-  static lastInstance: FakeResizeObserver | null = null;
+  static instances: FakeResizeObserver[] = [];
   callback: ResizeObserverCallback;
   observed = new Set<Element>();
 
   constructor(callback: ResizeObserverCallback) {
     this.callback = callback;
-    FakeResizeObserver.lastInstance = this;
+    FakeResizeObserver.instances.push(this);
   }
 
   observe(target: Element) {
@@ -48,7 +61,6 @@ class FakeResizeObserver {
     this.observed.delete(target);
   }
 
-  // helper to fire the callback as if the browser detected a resize
   fire() {
     const entries = Array.from(this.observed).map(
       (target) =>
@@ -61,36 +73,20 @@ class FakeResizeObserver {
   }
 }
 
-function makeCardElement(naturalHeight: number): HTMLElement {
-  const element = document.createElement("mat-card");
-  element.classList.add("dashboard-card");
-  element.getBoundingClientRect = jest.fn(() => {
-    const minHeightPx = parseFloat(element.style.minHeight) || 0;
-    return { height: Math.max(naturalHeight, minHeightPx) } as DOMRect;
-  });
-  return element;
-}
-
-function makeQueryList<T>(items: T[]): QueryList<T> {
-  const list = new QueryList<T>();
-  list.reset(items);
-  return list;
-}
-
-describe("DashboardComponent row-height sync", () => {
-  let component: DashboardComponent;
+describe(DashboardComponent.name, () => {
+  let fixture: ComponentFixture<DashboardComponent>;
+  let httpTestingController: HttpTestingController;
   let originalResizeObserver: typeof ResizeObserver;
   let originalRequestAnimationFrame: typeof requestAnimationFrame;
   let pendingRequestAnimationFrames: RequestAnimationFrameCallback[];
   let stacked: boolean;
-  let deleteDashboardCardMutation: ReturnType<
-    typeof createMutationOptions<
-      GeneratedType<"RESTDashboardCardInstelling">[],
-      GeneratedType<"RESTDashboardCardInstelling">
-    >
-  >;
+
+  const user = userEvent.setup();
 
   beforeEach(() => {
+    notifyManager.setScheduler((fn) => fn());
+
+    FakeResizeObserver.instances = [];
     originalResizeObserver = globalThis.ResizeObserver;
     (globalThis as { ResizeObserver: unknown }).ResizeObserver =
       FakeResizeObserver;
@@ -103,11 +99,6 @@ describe("DashboardComponent row-height sync", () => {
       pendingRequestAnimationFrames.push(callback);
       return pendingRequestAnimationFrames.length;
     }) as typeof requestAnimationFrame;
-
-    deleteDashboardCardMutation = createMutationOptions<
-      GeneratedType<"RESTDashboardCardInstelling">[],
-      GeneratedType<"RESTDashboardCardInstelling">
-    >(instellingenNaVerwijderen);
 
     stacked = false;
     jest.spyOn(window, "matchMedia").mockImplementation(
@@ -123,240 +114,275 @@ describe("DashboardComponent row-height sync", () => {
           onchange: null,
         }) as unknown as MediaQueryList,
     );
-
-    TestBed.configureTestingModule({
-      providers: [
-        provideAngularQuery(new QueryClient()),
-        { provide: UtilService, useValue: { setTitle: jest.fn() } },
-        { provide: SignaleringenService, useValue: {} },
-        {
-          provide: GebruikersvoorkeurenService,
-          useValue: {
-            deleteDashboardCard: () => deleteDashboardCardMutation,
-          },
-        },
-      ],
-    });
-
-    component = TestBed.runInInjectionContext(
-      () =>
-        new DashboardComponent(
-          TestBed.inject(UtilService),
-          TestBed.inject(SignaleringenService),
-          TestBed.inject(GebruikersvoorkeurenService),
-        ),
-    );
   });
 
   afterEach(() => {
-    component.ngOnDestroy();
+    notifyManager.setScheduler((fn) => Promise.resolve().then(fn));
     globalThis.ResizeObserver = originalResizeObserver;
     globalThis.requestAnimationFrame = originalRequestAnimationFrame;
     jest.restoreAllMocks();
   });
 
-  function setupCards(grid: number[][], runRequestAnimationFrames = true) {
-    // grid[col][row] = natural height of that card in px
-    const elementsByPosition = grid.map((column) =>
-      column.map((h) => makeCardElement(h)),
-    );
-    const flatElements = elementsByPosition.flat();
-
-    component.grid = grid.map((column, columnIndex) =>
-      column.map(
-        (_, rowIndex) =>
-          new DashboardCard(
-            `card-${columnIndex}-${rowIndex}` as unknown as DashboardCardId,
-            DashboardCardType.TAKEN,
-          ),
-      ),
+  async function setup() {
+    testQueryClient.setQueryData(
+      LOGGED_IN_USER_QUERY_KEY,
+      fromPartial<GeneratedType<"RestUser">>({
+        id: "fakeUserId",
+        naam: "fakeUserName",
+      }),
     );
 
-    const cardElements = makeQueryList(
-      flatElements.map((element) => new ElementRef(element)),
-    );
-    Object.defineProperty(component, "cardElements", {
-      configurable: true,
-      value: cardElements,
+    const rendered = await render(DashboardComponent, {
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideTanStackQuery(testQueryClient),
+        { provide: UtilService, useValue: { setTitle: jest.fn() } },
+        { provide: WebsocketService, useValue: { addListener: jest.fn() } },
+      ],
     });
 
-    component.ngAfterViewInit();
-    if (runRequestAnimationFrames) flushRequestAnimationFrames();
-    return { elementsByPosition, flatElements };
+    fixture = rendered.fixture;
+    httpTestingController = TestBed.inject(HttpTestingController);
+
+    httpTestingController.expectOne(DASHBOARD_CARDS_URL).flush(instellingen);
+    httpTestingController
+      .expectOne(SIGNALERING_TYPEN_URL)
+      .flush(["ZAAK_OP_NAAM", "ZAAK_DOCUMENT_TOEGEVOEGD"]);
+    await settle();
+
+    giveNaturalHeight(DashboardCardId.MIJN_TAKEN, 200);
+    giveNaturalHeight(DashboardCardId.MIJN_ZAKEN, 350);
+    giveNaturalHeight(DashboardCardId.MIJN_ZAKEN_NIEUW, 400);
+    giveNaturalHeight(DashboardCardId.MIJN_DOCUMENTEN_NIEUW, 250);
   }
 
-  function flushRequestAnimationFrames() {
+  async function settle() {
+    await sleep();
+    fixture.detectChanges();
+    httpTestingController
+      .match(() => true)
+      .forEach((request) => request.flush({ resultaten: [], totaal: 0 }));
+    await sleep();
+    fixture.detectChanges();
+    flushAnimationFrames();
+  }
+
+  function flushAnimationFrames() {
     while (pendingRequestAnimationFrames.length > 0) {
       const callback = pendingRequestAnimationFrames.shift()!;
       callback(performance.now());
     }
   }
 
-  it("sets each card's min-height to the tallest card's natural height in its row", () => {
-    // 2 columns, 2 rows — row 0 has heights [200, 350], row 1 has [400, 250]
-    const { elementsByPosition } = setupCards([
-      [200, 400],
-      [350, 250],
-    ]);
+  function cardOf(cardId: DashboardCardId) {
+    return screen
+      .getByText(`dashboard.card.${cardId}`)
+      .closest<HTMLElement>("mat-card")!;
+  }
 
-    expect(elementsByPosition[0][0].style.minHeight).toBe("350px");
-    expect(elementsByPosition[1][0].style.minHeight).toBe("350px");
-    expect(elementsByPosition[0][1].style.minHeight).toBe("400px");
-    expect(elementsByPosition[1][1].style.minHeight).toBe("400px");
-  });
+  function minHeightOf(cardId: DashboardCardId) {
+    return cardOf(cardId).style.minHeight;
+  }
 
-  it("recomputes natural heights when a previously-applied min-height is no longer valid", () => {
-    const { elementsByPosition, flatElements } = setupCards([[200], [500]]);
-    expect(elementsByPosition[0][0].style.minHeight).toBe("500px");
-
-    component.grid = [component.grid[0], []];
-    const reducedQueryList = makeQueryList([new ElementRef(flatElements[0])]);
-    Object.defineProperty(component, "cardElements", {
-      configurable: true,
-      value: reducedQueryList,
+  function giveNaturalHeight(cardId: DashboardCardId, naturalHeight: number) {
+    const card = cardOf(cardId);
+    card.getBoundingClientRect = jest.fn(() => {
+      const appliedMinHeight = parseFloat(card.style.minHeight) || 0;
+      return { height: Math.max(naturalHeight, appliedMinHeight) } as DOMRect;
     });
-    (component as unknown as { syncRowHeights: () => void }).syncRowHeights();
+  }
 
-    expect(elementsByPosition[0][0].style.minHeight).toBe("200px");
-  });
+  function dashboardObserver() {
+    return FakeResizeObserver.instances.find((observer) =>
+      Array.from(observer.observed).some((element) =>
+        element.classList.contains("dashboard-card"),
+      ),
+    )!;
+  }
 
-  it("clears inline min-heights and skips equalization when stacked", () => {
-    stacked = true;
-
-    const { elementsByPosition } = setupCards([
-      [200, 400],
-      [350, 250],
-    ]);
-
-    elementsByPosition.flat().forEach((element) => {
-      expect(element.style.minHeight).toBe("");
-    });
-  });
-
-  it("clears previously equalized heights when transitioning to stacked layout", () => {
-    // Start in desktop layout — heights get equalized.
-    const { elementsByPosition } = setupCards([
-      [200, 400],
-      [350, 250],
-    ]);
-    expect(elementsByPosition[0][0].style.minHeight).not.toBe("");
-
-    // Switch to stacked layout and re-sync; inline min-heights should clear.
-    stacked = true;
-    (component as unknown as { syncRowHeights: () => void }).syncRowHeights();
-
-    elementsByPosition.flat().forEach((element) => {
-      expect(element.style.minHeight).toBe("");
-    });
-  });
-
-  it("suppresses ResizeObserver-driven re-syncs during the transition window", () => {
-    setupCards([[200], [500]]);
-    const observer = FakeResizeObserver.lastInstance!;
-
-    const spy = jest.spyOn(
-      component as unknown as { scheduleRowSync: () => void },
-      "scheduleRowSync",
-    );
-
-    observer.fire();
-    expect(spy).not.toHaveBeenCalled();
-  });
-
-  it("queues a deferred re-sync when a resize fires during the suppression window", () => {
-    setupCards([[200], [500]]);
-    const observer = FakeResizeObserver.lastInstance!;
-    jest.spyOn(performance, "now").mockReturnValue(0);
-    const setTimeoutSpy = jest.spyOn(globalThis, "setTimeout");
-    const scheduleSpy = jest.spyOn(
-      component as unknown as { scheduleRowSync: () => void },
-      "scheduleRowSync",
-    );
-
-    observer.fire();
-    expect(scheduleSpy).not.toHaveBeenCalled();
-    expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
-
-    observer.fire();
-    expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
-
-    const deferred = setTimeoutSpy.mock.calls[0][0] as () => void;
-    deferred();
-    expect(scheduleSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it("re-syncs after the transition window has elapsed", () => {
-    setupCards([[200], [500]]);
-    const observer = FakeResizeObserver.lastInstance!;
-
-    // Move past the suppression window (200 ms transition).
-    jest.spyOn(performance, "now").mockReturnValue(Date.now() + 1000);
-
-    const spy = jest.spyOn(
-      component as unknown as { scheduleRowSync: () => void },
-      "scheduleRowSync",
-    );
-    observer.fire();
-    expect(spy).toHaveBeenCalled();
-  });
-
-  it("re-runs sync when the cardElements QueryList emits changes", () => {
-    setupCards([[200], [500]]);
-
-    const spy = jest.spyOn(
-      component as unknown as { observeCards: () => void },
-      "observeCards",
-    );
-
-    // Simulate Angular emitting a change on the QueryList.
-    const changes = component.cardElements.changes as Subject<unknown>;
-    changes.next(component.cardElements);
-    expect(spy).toHaveBeenCalled();
-  });
-
-  it("re-runs sync on window resize", () => {
-    setupCards([[200], [500]]);
-
-    const spy = jest.spyOn(
-      component as unknown as { scheduleRowSync: () => void },
-      "scheduleRowSync",
-    );
+  function resizeWindow() {
     window.dispatchEvent(new Event("resize"));
-    expect(spy).toHaveBeenCalled();
-  });
+    flushAnimationFrames();
+  }
 
-  it("schedules a row sync when updateWidth is called", () => {
-    setupCards([[200], [500]]);
-    const spy = jest.spyOn(
-      component as unknown as { scheduleRowSync: () => void },
-      "scheduleRowSync",
+  async function switchToEditMode() {
+    await user.click(
+      screen.getByRole("switch", { name: "Dashboard aanpassen" }),
     );
+    await sleep();
+    fixture.detectChanges();
+    flushAnimationFrames();
+  }
 
-    (component as unknown as { updateWidth: () => void }).updateWidth();
-    expect(spy).toHaveBeenCalled();
+  async function deleteCard(cardId: DashboardCardId) {
+    await user.click(
+      within(cardOf(cardId)).getByRole("button", {
+        name: "actie.card.verwijderen",
+      }),
+    );
+    await sleep();
+    const request = httpTestingController.expectOne(DASHBOARD_CARD_URL);
+    request.flush([]);
+    await sleep();
+    fixture.detectChanges();
+    flushAnimationFrames();
+    return request;
+  }
+
+  it("gives every card in a row the height of the tallest card in that row", async () => {
+    await setup();
+
+    resizeWindow();
+
+    expect(minHeightOf(DashboardCardId.MIJN_TAKEN)).toBe("350px");
+    expect(minHeightOf(DashboardCardId.MIJN_ZAKEN)).toBe("350px");
+    expect(minHeightOf(DashboardCardId.MIJN_ZAKEN_NIEUW)).toBe("400px");
+    expect(minHeightOf(DashboardCardId.MIJN_DOCUMENTEN_NIEUW)).toBe("400px");
   });
 
-  it("disconnects the ResizeObserver on destroy", () => {
-    setupCards([[200]]);
-    const observer = FakeResizeObserver.lastInstance!;
+  it("measures natural heights again instead of reusing the height a card borrowed earlier", async () => {
+    await setup();
+    resizeWindow();
+    expect(minHeightOf(DashboardCardId.MIJN_TAKEN)).toBe("350px");
+
+    await switchToEditMode();
+    await deleteCard(DashboardCardId.MIJN_ZAKEN);
+
+    expect(minHeightOf(DashboardCardId.MIJN_TAKEN)).toBe("250px");
+  });
+
+  it("leaves the cards their own height when they stack into a single column", async () => {
+    stacked = true;
+    await setup();
+
+    resizeWindow();
+
+    expect(minHeightOf(DashboardCardId.MIJN_TAKEN)).toBe("");
+    expect(minHeightOf(DashboardCardId.MIJN_ZAKEN)).toBe("");
+    expect(minHeightOf(DashboardCardId.MIJN_ZAKEN_NIEUW)).toBe("");
+    expect(minHeightOf(DashboardCardId.MIJN_DOCUMENTEN_NIEUW)).toBe("");
+  });
+
+  it("drops the equalized heights when the window shrinks to a stacked layout", async () => {
+    await setup();
+    resizeWindow();
+    expect(minHeightOf(DashboardCardId.MIJN_TAKEN)).not.toBe("");
+
+    stacked = true;
+    resizeWindow();
+
+    expect(minHeightOf(DashboardCardId.MIJN_TAKEN)).toBe("");
+    expect(minHeightOf(DashboardCardId.MIJN_ZAKEN)).toBe("");
+    expect(minHeightOf(DashboardCardId.MIJN_ZAKEN_NIEUW)).toBe("");
+    expect(minHeightOf(DashboardCardId.MIJN_DOCUMENTEN_NIEUW)).toBe("");
+  });
+
+  it("ignores card resizes it caused itself while the height transition is still running", async () => {
+    await setup();
+    jest.spyOn(performance, "now").mockReturnValue(0);
+    resizeWindow();
+
+    giveNaturalHeight(DashboardCardId.MIJN_TAKEN, 500);
+    dashboardObserver().fire();
+    flushAnimationFrames();
+
+    expect(minHeightOf(DashboardCardId.MIJN_TAKEN)).toBe("350px");
+  });
+
+  it("catches up with a card that resized during the transition once it has ended", async () => {
+    await setup();
+    jest.spyOn(performance, "now").mockReturnValue(0);
+    resizeWindow();
+    const setTimeoutSpy = jest.spyOn(globalThis, "setTimeout");
+
+    giveNaturalHeight(DashboardCardId.MIJN_TAKEN, 500);
+    dashboardObserver().fire();
+    dashboardObserver().fire();
+
+    expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
+    const deferredSync = setTimeoutSpy.mock.calls[0][0] as () => void;
+    deferredSync();
+    flushAnimationFrames();
+
+    expect(minHeightOf(DashboardCardId.MIJN_TAKEN)).toBe("500px");
+    expect(minHeightOf(DashboardCardId.MIJN_ZAKEN)).toBe("500px");
+  });
+
+  it("equalizes again once the transition window has elapsed", async () => {
+    await setup();
+    resizeWindow();
+
+    giveNaturalHeight(DashboardCardId.MIJN_TAKEN, 500);
+    jest.spyOn(performance, "now").mockReturnValue(Date.now() + 1000);
+    dashboardObserver().fire();
+    flushAnimationFrames();
+
+    expect(minHeightOf(DashboardCardId.MIJN_TAKEN)).toBe("500px");
+    expect(minHeightOf(DashboardCardId.MIJN_ZAKEN)).toBe("500px");
+  });
+
+  it("stops watching a card that the user removed from the dashboard", async () => {
+    await setup();
+    const removedCard = cardOf(DashboardCardId.MIJN_ZAKEN);
+    expect(dashboardObserver().observed).toContain(removedCard);
+
+    await switchToEditMode();
+    await deleteCard(DashboardCardId.MIJN_ZAKEN);
+
+    expect(dashboardObserver().observed).not.toContain(removedCard);
+    expect(
+      screen.queryByText(`dashboard.card.${DashboardCardId.MIJN_ZAKEN}`),
+    ).toBeNull();
+  });
+
+  it("stops watching every card when the dashboard is destroyed", async () => {
+    await setup();
+    const observer = dashboardObserver();
     expect(observer.observed.size).toBeGreaterThan(0);
 
-    component.ngOnDestroy();
+    fixture.destroy();
+
     expect(observer.observed.size).toBe(0);
   });
 
-  describe("deleteCard", () => {
-    it("deletes the instelling of the card and stores the returned instellingen", async () => {
-      const card = component["cards"][0];
+  it("removes the instelling of the card the user deleted", async () => {
+    await setup();
+    await switchToEditMode();
 
-      component["deleteCard"](card);
-      await sleep();
+    const request = await deleteCard(DashboardCardId.MIJN_ZAKEN);
 
-      expect(deleteDashboardCardMutation.mutationFn).toHaveBeenCalledWith(
-        expect.objectContaining({ cardId: card.id }),
-        expect.anything(),
-      );
-      expect(component["instellingen"]).toBe(instellingenNaVerwijderen);
+    expect(request.request.method).toBe("DELETE");
+    expect(request.request.body).toMatchObject({ cardId: "MIJN_ZAKEN" });
+  });
+
+  it("deletes the next card with the instellingen the server returned", async () => {
+    await setup();
+    await switchToEditMode();
+
+    await user.click(
+      within(cardOf(DashboardCardId.MIJN_ZAKEN)).getByRole("button", {
+        name: "actie.card.verwijderen",
+      }),
+    );
+    await sleep();
+    httpTestingController
+      .expectOne(DASHBOARD_CARD_URL)
+      .flush([
+        { cardId: "MIJN_TAKEN", column: 2, row: 7 },
+      ] satisfies GeneratedType<"RESTDashboardCardInstelling">[]);
+    await sleep();
+    fixture.detectChanges();
+    flushAnimationFrames();
+
+    const request = await deleteCard(DashboardCardId.MIJN_TAKEN);
+
+    expect(request.request.body).toMatchObject({
+      cardId: "MIJN_TAKEN",
+      column: 2,
+      row: 7,
     });
   });
 });

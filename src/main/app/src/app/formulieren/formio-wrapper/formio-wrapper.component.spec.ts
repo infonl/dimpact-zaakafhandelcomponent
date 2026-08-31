@@ -4,9 +4,15 @@
  */
 import { ElementRef, SimpleChange } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
+import { fromPartial } from "src/test-helpers";
+import { GeneratedType } from "../../shared/utils/generated-types";
 import { FormioCustomFunctions } from "../formio-custom-functions/formio-custom-functions";
 import { FormioBootstrapLoaderService } from "./formio-bootstrap-loader.service";
 import { FormioWrapperComponent } from "./formio-wrapper.component";
+
+function asTaak(taak: Partial<GeneratedType<"RestTask">>) {
+  return fromPartial<GeneratedType<"RestTask">>(taak);
+}
 
 describe(FormioWrapperComponent.name, () => {
   let component: FormioWrapperComponent;
@@ -29,8 +35,8 @@ describe(FormioWrapperComponent.name, () => {
         {
           provide: FormioCustomFunctions,
           useValue: {
-            hasFunctionCalls: jest.fn().mockReturnValue(false),
-            buildEvalContext: jest.fn().mockResolvedValue({}),
+            prepareFormContext: jest.fn().mockResolvedValue({}),
+            asContextValue: jest.fn((value: unknown) => value),
           },
         },
       ],
@@ -96,6 +102,25 @@ describe(FormioWrapperComponent.name, () => {
       expect(listener).not.toHaveBeenCalled();
     });
 
+    it("should report a failed submit as an error, not as a success", () => {
+      const doneListener = jest.spyOn(component.submissionDone, "emit");
+      const errorListener = jest.spyOn(component.submissionError, "emit");
+      component.submitFailed = true;
+
+      component.ngOnChanges(submitPendingChange(true, false));
+
+      expect(doneListener).not.toHaveBeenCalled();
+      expect(errorListener).toHaveBeenCalledWith({ message: "submit failed" });
+    });
+
+    it("should not report an error for a submit that succeeded", () => {
+      const errorListener = jest.spyOn(component.submissionError, "emit");
+
+      component.ngOnChanges(submitPendingChange(true, false));
+
+      expect(errorListener).not.toHaveBeenCalled();
+    });
+
     it("should not report a submission the form never made", () => {
       const listener = jest.spyOn(component.submissionDone, "emit");
 
@@ -104,6 +129,97 @@ describe(FormioWrapperComponent.name, () => {
       });
 
       expect(listener).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("a form whose submit is in flight", () => {
+    let input: HTMLInputElement;
+    let formioComponent: {
+      options: { readOnly?: boolean };
+      disabled: boolean;
+      refs: { input: HTMLElement[] };
+      setDisabled: jest.Mock;
+    };
+    let webform: {
+      options: { readOnly?: boolean };
+      everyComponent: jest.Mock;
+      redraw: jest.Mock;
+    };
+
+    beforeEach(() => {
+      input = document.createElement("input");
+      formioComponent = {
+        options: {},
+        disabled: false,
+        refs: { input: [input] },
+        setDisabled: jest.fn((element: HTMLInputElement, disabled: boolean) => {
+          element.disabled = disabled;
+        }),
+      };
+      webform = {
+        options: {},
+        everyComponent: jest.fn((callback: (component: unknown) => void) =>
+          callback(formioComponent),
+        ),
+        redraw: jest.fn().mockResolvedValue(undefined),
+      };
+      component.formioComponent = { formio: webform } as never;
+    });
+
+    it("should lock the fields so the answers cannot be changed mid-submit", () => {
+      component.submitPending = true;
+
+      component.ngOnChanges({
+        submitPending: new SimpleChange(false, true, false),
+      });
+
+      expect(formioComponent.disabled).toBe(true);
+      expect(input.disabled).toBe(true);
+    });
+
+    it("should not redraw, which would discard the spinner on the submit button", () => {
+      component.submitPending = true;
+
+      component.ngOnChanges({
+        submitPending: new SimpleChange(false, true, false),
+      });
+
+      expect(webform.redraw).not.toHaveBeenCalled();
+    });
+
+    it("should unlock the fields once the submit fails and the form is editable again", () => {
+      component.submitPending = false;
+      formioComponent.disabled = true;
+      input.disabled = true;
+
+      component.ngOnChanges({
+        submitPending: new SimpleChange(true, false, false),
+      });
+
+      expect(formioComponent.disabled).toBe(false);
+      expect(input.disabled).toBe(false);
+    });
+
+    it("should keep a read-only form locked after the submit settles", () => {
+      component.readOnly = true;
+      component.submitPending = false;
+
+      component.ngOnChanges({
+        submitPending: new SimpleChange(true, false, false),
+      });
+
+      expect(formioComponent.disabled).toBe(true);
+      expect(input.disabled).toBe(true);
+    });
+
+    it("should not throw before Form.io has handed over its form", () => {
+      component.formioComponent = undefined as never;
+
+      expect(() =>
+        component.ngOnChanges({
+          submitPending: new SimpleChange(false, true, false),
+        }),
+      ).not.toThrow();
     });
   });
 
@@ -372,6 +488,195 @@ describe(FormioWrapperComponent.name, () => {
       const spy = jest.spyOn(Object, "defineProperty");
       component.ngAfterViewInit();
       expect(spy).not.toHaveBeenCalled();
+    });
+  });
+  describe("rebuilding the eval context", () => {
+    let prepareFormContext: jest.Mock;
+
+    beforeEach(async () => {
+      prepareFormContext = TestBed.inject(FormioCustomFunctions)
+        .prepareFormContext as unknown as jest.Mock;
+      await component.ngOnInit();
+      prepareFormContext.mockClear();
+    });
+
+    it.each(["form", "zaak"])(
+      "should rebuild when %s changes, because the context is built from it",
+      (input) => {
+        component.ngOnChanges({
+          [input]: new SimpleChange(undefined, {}, false),
+        });
+
+        expect(prepareFormContext).toHaveBeenCalledTimes(1);
+      },
+    );
+
+    it("should rebuild once when several of them arrive together", () => {
+      component.ngOnChanges({
+        form: new SimpleChange(undefined, {}, true),
+        zaak: new SimpleChange(undefined, {}, true),
+        taak: new SimpleChange(undefined, {}, true),
+      });
+
+      expect(prepareFormContext).toHaveBeenCalledTimes(1);
+    });
+
+    it.each(["readOnly", "taak"])(
+      "should not rebuild for %s, because a rebuild destroys the open form",
+      (input) => {
+        component.ngOnChanges({
+          [input]: new SimpleChange(undefined, {}, false),
+        });
+
+        expect(prepareFormContext).not.toHaveBeenCalled();
+      },
+    );
+
+    it("should pass the zaak and the taak on to the context", () => {
+      component.zaak = { identificatie: "ZAAK-1" } satisfies Partial<
+        GeneratedType<"RestZaak">
+      > as GeneratedType<"RestZaak">;
+      component.taak = asTaak({
+        naam: "test-taak",
+        taakdata: { NF_Uren: "8" },
+      });
+
+      component.ngOnChanges({ zaak: new SimpleChange(undefined, {}, false) });
+
+      expect(prepareFormContext).toHaveBeenCalledWith(
+        undefined,
+        { NF_Uren: "8" },
+        { identificatie: "ZAAK-1" },
+        { naam: "test-taak", taakdata: { NF_Uren: "8" } },
+      );
+    });
+  });
+
+  describe("refreshing the taak in the context without a rebuild", () => {
+    let prepareFormContext: jest.Mock;
+    let webform: {
+      options: { evalContext?: Record<string, unknown> };
+      everyComponent: jest.Mock;
+      redraw: jest.Mock;
+    };
+
+    beforeEach(async () => {
+      prepareFormContext = TestBed.inject(FormioCustomFunctions)
+        .prepareFormContext as unknown as jest.Mock;
+      prepareFormContext.mockResolvedValue({ zaak: {}, taak: {} });
+      await component.ngOnInit();
+      component.ngOnChanges({ form: new SimpleChange(undefined, {}, true) });
+      prepareFormContext.mockClear();
+
+      webform = {
+        options: {},
+        everyComponent: jest.fn(),
+        redraw: jest.fn().mockResolvedValue(undefined),
+      };
+      component.formioComponent = { formio: webform } as never;
+    });
+
+    function taakArrives(taak: Partial<GeneratedType<"RestTask">>) {
+      component.taak = asTaak(taak);
+      component.ngOnChanges({ taak: new SimpleChange({}, taak, false) });
+    }
+
+    it("should hand the new taak to the form Form.io already built", () => {
+      taakArrives({
+        naam: "test-taak",
+        groep: { id: "fakeGroupId", naam: "fakeGroupName" },
+      });
+
+      expect(webform.options.evalContext?.taak).toMatchObject({
+        naam: "test-taak",
+      });
+    });
+
+    it("should redraw, so an open form shows the new value", () => {
+      taakArrives({ naam: "test-taak" });
+
+      expect(webform.redraw).toHaveBeenCalledTimes(1);
+    });
+
+    it("should not rebuild, because that would discard what the user typed", () => {
+      taakArrives({ naam: "test-taak" });
+
+      expect(prepareFormContext).not.toHaveBeenCalled();
+    });
+
+    it("should not redraw for the first taak, which the form was built with", () => {
+      component.ngOnChanges({
+        taak: new SimpleChange(undefined, { naam: "test-taak" }, true),
+      });
+
+      expect(webform.redraw).not.toHaveBeenCalled();
+    });
+
+    describe("while a submit is in flight", () => {
+      beforeEach(() => {
+        component.submitPending = true;
+        taakArrives({ naam: "test-taak" });
+      });
+
+      it("should hold the redraw back, which would discard the spinner", () => {
+        expect(webform.redraw).not.toHaveBeenCalled();
+        expect(webform.options.evalContext?.taak).toMatchObject({
+          naam: "test-taak",
+        });
+      });
+
+      it("should redraw once the submit is done", () => {
+        component.submitPending = false;
+        component.ngOnChanges({
+          submitPending: new SimpleChange(true, false, false),
+        });
+
+        expect(webform.redraw).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
+  describe("deriving the form data from the taak", () => {
+    let prepareFormContext: jest.Mock;
+
+    beforeEach(async () => {
+      prepareFormContext = TestBed.inject(FormioCustomFunctions)
+        .prepareFormContext as unknown as jest.Mock;
+      await component.ngOnInit();
+      prepareFormContext.mockClear();
+    });
+
+    it("should hand Form.io the taakdata as its submission, so a saved answer is shown again", () => {
+      component.taak = asTaak({ taakdata: { NF_Uren: "8" } });
+
+      component.ngOnChanges({
+        taak: new SimpleChange(undefined, component.taak, true),
+      });
+
+      expect(component["submission"]).toEqual({ data: { NF_Uren: "8" } });
+    });
+
+    it("should submit an empty form when the taak carries no data", () => {
+      component.taak = asTaak({ taakdata: null });
+
+      component.ngOnChanges({
+        taak: new SimpleChange(undefined, component.taak, true),
+      });
+
+      expect(component["submission"]).toEqual({ data: {} });
+    });
+
+    it("should spread the taakdata into the context, so a bare field key still resolves", () => {
+      component.taak = asTaak({ taakdata: { NF_Uren: "8" } });
+
+      component.ngOnChanges({ form: new SimpleChange(undefined, {}, true) });
+
+      expect(prepareFormContext).toHaveBeenCalledWith(
+        undefined,
+        { NF_Uren: "8" },
+        undefined,
+        component.taak,
+      );
     });
   });
 });

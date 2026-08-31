@@ -8,7 +8,7 @@ set -e
 
 help()
 {
-   echo "Sends request(s) to ZAC to reindex zaak, taak and/or document data in Solr. By default all zaak, taak and document data is re-indexed. Note that the ZAC endpoint used requires API key authentication."
+   echo "Sends request(s) to ZAC to reindex zaak, taak and/or document data in Solr. By default all zaak, taak and document data is re-indexed in one call to the 'reindex everything' endpoint. Note that the ZAC endpoint(s) used require API key authentication."
    echo
    echo "Syntax: $0 [-u|k|d|t|z|h]"
    echo "options:"
@@ -32,8 +32,9 @@ zacInternalEndpointsApiKey="fakeZacInternalEndpointsApiKey"
 reindexDocuments=true
 reindexTasks=true
 reindexZaken=true
+typeSpecified=false
 
-while getopts 'u:k:dzh' OPTION; do
+while getopts 'u:k:dtzh' OPTION; do
   case $OPTION in
     u)
       zacBaseURL=$OPTARG
@@ -42,16 +43,19 @@ while getopts 'u:k:dzh' OPTION; do
       zacInternalEndpointsApiKey=$OPTARG
       ;;
     d)
+      typeSpecified=true
       reindexDocuments=true
       reindexTasks=false
       reindexZaken=false
       ;;
     t)
+      typeSpecified=true
       reindexDocuments=false
       reindexTasks=true
       reindexZaken=false
       ;;
     z)
+      typeSpecified=true
       reindexDocuments=false
       reindexTasks=false
       reindexZaken=true
@@ -66,17 +70,22 @@ while getopts 'u:k:dzh' OPTION; do
   esac
 done
 
-if [ "$reindexDocuments" = true ] ; then
-    echo "Sending request to ZAC to reindex document data in Solr using ZAC base URL: '$zacBaseURL'."
-    curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" ${zacBaseURL}/rest/internal/indexeren/herindexeren/DOCUMENT
-fi
-if [ "$reindexTasks" = true ] ; then
-    echo "Sending request to ZAC to reindex task data in Solr using ZAC base URL: '$zacBaseURL'."
-    curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" ${zacBaseURL}/rest/internal/indexeren/herindexeren/TAAK
-fi
-if [ "$reindexZaken" = true ] ; then
-    echo "Sending request to ZAC to reindex zaak data in Solr using ZAC base URL: '$zacBaseURL'."
-    curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" ${zacBaseURL}/rest/internal/indexeren/herindexeren/ZAAK
+if [ "$typeSpecified" = false ] ; then
+    echo "Sending request to ZAC to reindex all zaak, taak and document data in Solr using ZAC base URL: '$zacBaseURL'."
+    curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" ${zacBaseURL}/rest/internal/indexeren/herindexeren
+else
+    if [ "$reindexDocuments" = true ] ; then
+        echo "Sending request to ZAC to reindex document data in Solr using ZAC base URL: '$zacBaseURL'."
+        curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" ${zacBaseURL}/rest/internal/indexeren/herindexeren/DOCUMENT
+    fi
+    if [ "$reindexTasks" = true ] ; then
+        echo "Sending request to ZAC to reindex task data in Solr using ZAC base URL: '$zacBaseURL'."
+        curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" ${zacBaseURL}/rest/internal/indexeren/herindexeren/TAAK
+    fi
+    if [ "$reindexZaken" = true ] ; then
+        echo "Sending request to ZAC to reindex zaak data in Solr using ZAC base URL: '$zacBaseURL'."
+        curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" ${zacBaseURL}/rest/internal/indexeren/herindexeren/ZAAK
+    fi
 fi
 echo "Finished reindexing data."
 

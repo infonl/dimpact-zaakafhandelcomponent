@@ -24,6 +24,7 @@ import { notifyManager } from "@tanstack/query-core";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { ZakenService } from "../zaken.service";
 import { ZaakVerlengenDialogComponent } from "./zaak-verlengen-dialog.component";
 
 describe("ZaakVerlengenDialogComponent", () => {
@@ -142,6 +143,37 @@ describe("ZaakVerlengenDialogComponent", () => {
         MatButtonHarness.with({ selector: 'button[type="submit"]' }),
       );
       expect(await submitButton.isDisabled()).toBe(true);
+    });
+
+    it("caches the zaak returned by verlenging and closes the dialog", async () => {
+      const zakenService = TestBed.inject(ZakenService);
+      const cacheZaakSpy = jest.spyOn(zakenService, "cacheZaak");
+      const dialogRefSpy = jest.spyOn(dialogRef, "close");
+      component["form"].patchValue(
+        { duurDagen: 5, redenVerlenging: "Reden verlenging" },
+        { emitEvent: false },
+      );
+
+      component["verlengen"]();
+      await new Promise(requestAnimationFrame);
+
+      const updatedZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: mockZaak.uuid,
+        uiterlijkeEinddatumAfdoening: new Date().toISOString(),
+      });
+      httpTestingController
+        .expectOne(
+          (request) =>
+            request.method === "PATCH" &&
+            request.url.includes(
+              `/rest/zaken/zaak/${mockZaak.uuid}/verlenging`,
+            ),
+        )
+        .flush(updatedZaak);
+      await new Promise(requestAnimationFrame);
+
+      expect(cacheZaakSpy).toHaveBeenCalledWith(updatedZaak);
+      expect(dialogRefSpy).toHaveBeenCalledWith(updatedZaak);
     });
   });
 

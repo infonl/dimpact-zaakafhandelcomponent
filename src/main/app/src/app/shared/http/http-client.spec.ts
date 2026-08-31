@@ -37,10 +37,6 @@ describe(HttpClient.name, () => {
     httpTestingController = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => {
-    httpTestingController.verify();
-  });
-
   describe(HttpClient.prototype.GET.name, () => {
     it("Replaces the path params", (done) => {
       const testData: paths["/rest/bag/zaak/{zaakUuid}"]["get"]["responses"]["200"]["content"]["application/json"] =

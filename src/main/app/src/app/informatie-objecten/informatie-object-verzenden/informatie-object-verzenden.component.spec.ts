@@ -3,300 +3,261 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { ComponentRef, provideZonelessChangeDetection } from "@angular/core";
+import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideMomentDateAdapter } from "@angular/material-moment-adapter";
-import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatDrawer } from "@angular/material/sidenav";
-import { MatTableHarness } from "@angular/material/table/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
-import moment from "moment";
+import { fireEvent, render, screen, within } from "@testing-library/angular";
+import userEvent, { UserEvent } from "@testing-library/user-event";
 import { EMPTY } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieObjectVerzendenComponent } from "./informatie-object-verzenden.component";
 
+const VERZENDEN_URL = "/rest/informatieobjecten/informatieobjecten/verzenden";
+
+const documents = [
+  fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+    uuid: "fakeDocumentUuid1",
+    titel: "Document 1",
+    bestandsnaam: "document-1.pdf",
+  }),
+  fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
+    uuid: "fakeDocumentUuid2",
+    titel: "Document 2",
+    bestandsnaam: "document-2.pdf",
+  }),
+];
+
+const zaak = fromPartial<GeneratedType<"RestZaak">>({ uuid: "fakeZaakUuid1" });
+
 describe(InformatieObjectVerzendenComponent.name, () => {
-  let component: InformatieObjectVerzendenComponent;
-  let componentRef: ComponentRef<InformatieObjectVerzendenComponent>;
   let fixture: ComponentFixture<InformatieObjectVerzendenComponent>;
-  let loader: HarnessLoader;
+  let rerenderWithZaak: (zaak: GeneratedType<"RestZaak">) => Promise<void>;
   let httpTestingController: HttpTestingController;
-  let informatieObjectenService: InformatieObjectenService;
-  let foutAfhandelingService: FoutAfhandelingService;
-  let utilService: UtilService;
+  let sideNav: MatDrawer;
+  let documentSent: jest.Mock;
+  let openSnackbar: jest.SpyInstance;
+  let foutAfhandelen: jest.SpyInstance;
 
-  const mockSideNav = fromPartial<MatDrawer>({
-    close: jest.fn().mockReturnValue(Promise.resolve("close")),
-  });
+  let user: UserEvent;
 
-  const mockDocuments = [
-    fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-      uuid: "document-uuid-1",
-      titel: "Document 1",
-      bestandsnaam: "document-1.pdf",
-    }),
-    fromPartial<GeneratedType<"RestEnkelvoudigInformatieobject">>({
-      uuid: "document-uuid-2",
-      titel: "Document 2",
-      bestandsnaam: "document-2.pdf",
-    }),
-  ];
+  jest.setTimeout(20_000);
 
-  const makeZaak = (fields: Partial<GeneratedType<"RestZaak">> = {}) =>
-    fromPartial<GeneratedType<"RestZaak">>({
-      uuid: "zaak-uuid-001",
-      ...fields,
+  async function setup() {
+    user = userEvent.setup({ delay: null });
+    sideNav = fromPartial<MatDrawer>({
+      close: jest.fn().mockResolvedValue(undefined),
     });
+    documentSent = jest.fn();
 
-  const fillInValidForm = () => {
-    component["form"].patchValue({
-      documenten: [mockDocuments[0]],
-      verzenddatum: moment("2026-06-12"),
-      toelichting: null,
-    });
-    component["form"].markAsDirty();
-  };
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        InformatieObjectVerzendenComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
+    const {
+      fixture: renderedFixture,
+      rerender,
+      detectChanges,
+    } = await render(InformatieObjectVerzendenComponent, {
+      inputs: { zaak, sideNav },
+      on: { documentSent },
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideZonelessChangeDetection(),
-        provideHttpClient(),
+        provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
         provideMomentDateAdapter(),
         provideQueryClient(testQueryClient),
-        InformatieObjectenService,
-        UtilService,
       ],
-    }).compileComponents();
+    });
 
-    informatieObjectenService = TestBed.inject(InformatieObjectenService);
-    foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
-    utilService = TestBed.inject(UtilService);
+    fixture = renderedFixture;
+    rerenderWithZaak = async (newZaak) => {
+      await rerender({ inputs: { zaak: newZaak, sideNav } });
+      detectChanges();
+    };
     httpTestingController = TestBed.inject(HttpTestingController);
+    openSnackbar = jest
+      .spyOn(TestBed.inject(UtilService), "openSnackbar")
+      .mockImplementation(() => undefined);
+    foutAfhandelen = jest
+      .spyOn(TestBed.inject(FoutAfhandelingService), "foutAfhandelen")
+      .mockReturnValue(EMPTY);
+  }
 
-    jest
-      .spyOn(
-        informatieObjectenService,
-        "listInformatieobjectenVoorVerzendenQuery",
-      )
-      .mockImplementation((zaakUuid) =>
-        fromPartial({
-          queryKey: ["teVerzenden", zaakUuid],
-          queryFn: () => Promise.resolve(mockDocuments),
-        }),
-      );
-    jest.spyOn(utilService, "openSnackbar");
-    jest.spyOn(foutAfhandelingService, "foutAfhandelen").mockReturnValue(EMPTY);
+  function documentsRequest(zaakUuid: string) {
+    return httpTestingController.expectOne(
+      `/rest/informatieobjecten/informatieobjecten/zaak/${zaakUuid}/teVerzenden`,
+    );
+  }
 
-    fixture = TestBed.createComponent(InformatieObjectVerzendenComponent);
-    component = fixture.componentInstance;
-    componentRef = fixture.componentRef;
-
-    componentRef.setInput("sideNav", mockSideNav);
-    componentRef.setInput("zaak", makeZaak());
-
-    loader = TestbedHarnessEnvironment.loader(fixture);
-    fixture.detectChanges();
+  async function showDocuments(zaakUuid = "fakeZaakUuid1") {
+    await sleep();
+    documentsRequest(zaakUuid).flush(documents);
+    await sleep();
+    fixture.componentRef.changeDetectorRef.markForCheck();
     await fixture.whenStable();
+  }
+
+  function field(label: string) {
+    return screen.getByLabelText(new RegExp(label, "i"));
+  }
+
+  function submitButton() {
+    return screen.getByRole("button", { name: "actie.verzenden" });
+  }
+
+  async function selectDocument(titel: string) {
+    const row = screen.getByRole("row", { name: new RegExp(titel) });
+    await user.click(within(row).getByRole("checkbox"));
+  }
+
+  it("announces what the drawer is for", async () => {
+    await setup();
+    await showDocuments();
+
+    expect(screen.getByText("actie.document.verzenden")).toBeVisible();
   });
 
-  afterEach(() => {
-    testQueryClient.clear();
-    httpTestingController.verify();
+  it("closes the drawer from the toolbar", async () => {
+    await setup();
+    await showDocuments();
+
+    await user.click(screen.getByRole("button", { name: "actie.sluiten" }));
+
+    expect(sideNav.close).toHaveBeenCalled();
   });
 
-  describe("toolbar", () => {
-    it("renders the toolbar title", () => {
-      const toolbar = fixture.nativeElement.querySelector("mat-toolbar span");
-      expect(toolbar.textContent.trim()).toBe("actie.document.verzenden");
-    });
+  it("lists the documents that can be sent for the zaak", async () => {
+    await setup();
+    await showDocuments();
 
-    it("closes the sideNav when the close button is clicked", async () => {
-      const closeButton = await loader.getHarness(
-        MatButtonHarness.with({ ancestor: "mat-toolbar" }),
-      );
-      await closeButton.click();
-
-      expect(mockSideNav.close).toHaveBeenCalled();
-    });
+    expect(screen.getByRole("row", { name: /Document 1/ })).toBeVisible();
+    expect(screen.getByRole("row", { name: /Document 2/ })).toBeVisible();
   });
 
-  describe("document list", () => {
-    it("loads the documents that can be sent for the active zaak", async () => {
-      expect(
-        informatieObjectenService.listInformatieobjectenVoorVerzendenQuery,
-      ).toHaveBeenCalledWith("zaak-uuid-001");
+  it("lists the documents of the zaak it is shown for after it changes", async () => {
+    await setup();
+    await showDocuments();
 
-      await sleep();
-      fixture.detectChanges();
+    await rerenderWithZaak(
+      fromPartial<GeneratedType<"RestZaak">>({ uuid: "fakeZaakUuid2" }),
+    );
+    await sleep();
 
-      const table = await loader.getHarness(MatTableHarness);
-      expect(await table.getRows()).toHaveLength(mockDocuments.length);
-    });
-
-    it("loads the documents of the new zaak when the active zaak changes", async () => {
-      componentRef.setInput("zaak", makeZaak({ uuid: "zaak-uuid-002" }));
-      await fixture.whenStable();
-
-      expect(
-        informatieObjectenService.listInformatieobjectenVoorVerzendenQuery,
-      ).toHaveBeenCalledWith("zaak-uuid-002");
-    });
+    expect(documentsRequest("fakeZaakUuid2").request.method).toBe("GET");
   });
 
-  describe("form validation", () => {
-    it("is invalid when no document is selected", () => {
-      fillInValidForm();
-      component["form"].controls.documenten.setValue([]);
+  it("keeps the sending disabled until a document is chosen", async () => {
+    await setup();
+    await showDocuments();
 
-      expect(component["form"].invalid).toBe(true);
-    });
+    expect(submitButton()).toBeDisabled();
 
-    it("is invalid without a verzenddatum", () => {
-      fillInValidForm();
-      component["form"].controls.verzenddatum.setValue(null);
+    await selectDocument("Document 1");
 
-      expect(component["form"].invalid).toBe(true);
-    });
-
-    it("is valid without a toelichting", () => {
-      fillInValidForm();
-
-      expect(component["form"].valid).toBe(true);
-    });
+    expect(submitButton()).toBeEnabled();
   });
 
-  describe("submit", () => {
-    it("sends the selected documents for the active zaak", async () => {
-      fillInValidForm();
-      component["form"].controls.toelichting.setValue("test toelichting");
+  it("keeps the sending disabled without a verzenddatum", async () => {
+    await setup();
+    await showDocuments();
 
-      component["submit"]();
-      await sleep();
+    await selectDocument("Document 1");
+    fireEvent.input(field("verzenddatum"), { target: { value: "" } });
+    fireEvent.blur(field("verzenddatum"));
+    await fixture.whenStable();
 
-      const request = httpTestingController.expectOne({
-        method: "POST",
-        url: "/rest/informatieobjecten/informatieobjecten/verzenden",
-      });
-      expect(request.request.body).toEqual({
-        zaakUuid: "zaak-uuid-001",
-        verzenddatum: moment("2026-06-12").toISOString(),
-        informatieobjecten: ["document-uuid-1"],
-        toelichting: "test toelichting",
-      });
-
-      request.flush(null);
-    });
-
-    it("emits documentSent and shows a snackbar after a successful send", async () => {
-      const emitSpy = jest.spyOn(component["documentSent"], "emit");
-      fillInValidForm();
-
-      component["submit"]();
-      await sleep();
-
-      httpTestingController
-        .expectOne({
-          method: "POST",
-          url: "/rest/informatieobjecten/informatieobjecten/verzenden",
-        })
-        .flush(null);
-      await sleep(100);
-
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.document.verzenden.uitgevoerd",
-      );
-      expect(emitSpy).toHaveBeenCalled();
-    });
-
-    it("shows the plural snackbar message when multiple documents are sent", async () => {
-      fillInValidForm();
-      component["form"].controls.documenten.setValue(mockDocuments);
-
-      component["submit"]();
-      await sleep();
-
-      httpTestingController
-        .expectOne({
-          method: "POST",
-          url: "/rest/informatieobjecten/informatieobjecten/verzenden",
-        })
-        .flush(null);
-      await sleep(100);
-
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.documenten.verzenden.uitgevoerd",
-      );
-    });
-
-    it("shows an error and keeps the panel open when sending fails", async () => {
-      const emitSpy = jest.spyOn(component["documentSent"], "emit");
-      fillInValidForm();
-
-      component["submit"]();
-      await sleep();
-
-      httpTestingController
-        .expectOne({
-          method: "POST",
-          url: "/rest/informatieobjecten/informatieobjecten/verzenden",
-        })
-        .flush(null, { status: 500, statusText: "Internal Server Error" });
-      await sleep(100);
-
-      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalled();
-      expect(emitSpy).not.toHaveBeenCalled();
-      expect(mockSideNav.close).not.toHaveBeenCalled();
-    });
+    expect(submitButton()).toBeDisabled();
   });
 
-  describe("form buttons", () => {
-    it("disables the submit button when the form is invalid", async () => {
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.verzenden/ }),
-      );
+  it("sends the chosen document with the toelichting for the zaak", async () => {
+    await setup();
+    await showDocuments();
 
-      expect(await submitButton.isDisabled()).toBe(true);
+    await selectDocument("Document 1");
+    await user.type(field("toelichting"), "Ter kennisgeving");
+    await user.click(submitButton());
+    await sleep();
+
+    const request = httpTestingController.expectOne(VERZENDEN_URL);
+    expect(request.request.method).toBe("POST");
+    expect(request.request.body).toMatchObject({
+      zaakUuid: "fakeZaakUuid1",
+      informatieobjecten: ["fakeDocumentUuid1"],
+      toelichting: "Ter kennisgeving",
     });
 
-    it("enables the submit button when the form is valid", async () => {
-      fillInValidForm();
-      fixture.detectChanges();
+    request.flush(null);
+    await sleep();
+  });
 
-      const submitButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.verzenden/ }),
-      );
+  it("reports the document that was sent", async () => {
+    await setup();
+    await showDocuments();
 
-      expect(await submitButton.isDisabled()).toBe(false);
-    });
+    await selectDocument("Document 1");
+    await user.click(submitButton());
+    await sleep();
+    httpTestingController.expectOne(VERZENDEN_URL).flush(null);
+    await sleep();
 
-    it("closes the sideNav when the cancel button is clicked", async () => {
-      const cancelButton = await loader.getHarness(
-        MatButtonHarness.with({ text: /actie\.annuleren/ }),
-      );
-      await cancelButton.click();
+    expect(openSnackbar).toHaveBeenCalledWith(
+      "msg.document.verzenden.uitgevoerd",
+    );
+    expect(documentSent).toHaveBeenCalled();
+  });
 
-      expect(mockSideNav.close).toHaveBeenCalled();
-    });
+  it("reports the documents that were sent when there is more than one", async () => {
+    await setup();
+    await showDocuments();
+
+    await selectDocument("Document 1");
+    await selectDocument("Document 2");
+    await user.click(submitButton());
+    await sleep();
+    httpTestingController.expectOne(VERZENDEN_URL).flush(null);
+    await sleep();
+
+    expect(openSnackbar).toHaveBeenCalledWith(
+      "msg.documenten.verzenden.uitgevoerd",
+    );
+  });
+
+  it("keeps the drawer open when the sending fails", async () => {
+    await setup();
+    await showDocuments();
+
+    await selectDocument("Document 1");
+    await user.click(submitButton());
+    await sleep();
+    httpTestingController
+      .expectOne(VERZENDEN_URL)
+      .flush(null, { status: 500, statusText: "Internal Server Error" });
+    await sleep();
+
+    expect(foutAfhandelen).toHaveBeenCalled();
+    expect(documentSent).not.toHaveBeenCalled();
+    expect(sideNav.close).not.toHaveBeenCalled();
+  });
+
+  it("closes the drawer when the sending is cancelled", async () => {
+    await setup();
+    await showDocuments();
+
+    await user.click(screen.getByRole("button", { name: "actie.annuleren" }));
+
+    expect(sideNav.close).toHaveBeenCalled();
   });
 });

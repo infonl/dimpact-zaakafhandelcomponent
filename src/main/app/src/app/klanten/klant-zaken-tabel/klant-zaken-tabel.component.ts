@@ -9,6 +9,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  inject,
   input,
   ViewChild,
 } from "@angular/core";
@@ -24,10 +25,11 @@ import { MatSort, MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
-import { lastValueFrom, merge, Observable } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
+import { lastValueFrom, merge, Observable, of } from "rxjs";
+import { catchError, map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { DateRangeFilterComponent } from "../../shared/table-zoek-filters/date-range-filter/date-range-filter.component";
@@ -119,6 +121,8 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       ),
   }));
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly utilService: UtilService,
     private readonly zoekenService: ZoekenService,
@@ -142,9 +146,10 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     this.zoekParameters.rows = this.paginator.pageSize;
     this.zoekParameters.alleenOpenstaandeZaken =
       !this.inclusiefAfgerondeZaken.value;
-    return this.zoekenService.list(this.zoekParameters) as Observable<
-      ZoekResultaat<ZaakZoekObject>
-    >;
+    return runQuery(
+      this.queryClient,
+      this.zoekenService.list(this.zoekParameters),
+    ) as Observable<ZoekResultaat<ZaakZoekObject>>;
   }
 
   private updateActieveFilters() {
@@ -193,7 +198,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
         switchMap(() => {
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
-          return this.loadZaken();
+          return this.loadZaken().pipe(catchError(() => of(null)));
         }),
         map((zoekResultaat) => {
           this.isLoadingResults = false;
@@ -202,6 +207,8 @@ export class KlantZakenTabelComponent implements AfterViewInit {
         }),
       )
       .subscribe((zoekResultaat) => {
+        if (!zoekResultaat) return;
+
         this.zoekResultaat = zoekResultaat;
         this.paginator.length = zoekResultaat.totaal;
         this.dataSource.data = zoekResultaat.resultaten;

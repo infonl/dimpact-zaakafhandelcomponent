@@ -15,11 +15,12 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.zac.app.mail.converter.RESTMailGegevensConverter
+import net.atos.zac.app.mail.model.toMailGegevens
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import nl.info.zac.util.time.convertToDate
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
@@ -31,7 +32,7 @@ import nl.info.zac.admin.model.ZaaktypeCmmnHumantaskParameters
 import nl.info.zac.app.planitems.converter.RestPlanItemConverter
 import nl.info.zac.app.planitems.model.RESTHumanTaskData
 import nl.info.zac.app.planitems.model.RESTPlanItem
-import nl.info.zac.app.planitems.model.RESTUserEventListenerData
+import nl.info.zac.app.planitems.model.RestUserEventListenerData
 import nl.info.zac.app.planitems.model.UserEventListenerActie
 import nl.info.zac.util.toLocalDate
 import nl.info.zac.authentication.LoggedInUser
@@ -82,7 +83,6 @@ class PlanItemsRestService @Inject constructor(
     private val mailTemplateService: MailTemplateService,
     private val policyService: PolicyService,
     private val suspensionZaakHelper: SuspensionZaakHelper,
-    private val restMailGegevensConverter: RESTMailGegevensConverter,
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
@@ -163,19 +163,20 @@ class PlanItemsRestService @Inject constructor(
                 taakdata,
                 mailService.sendMail(
                     MailGegevens(
-                        TaakVariabelenService.readMailFrom(taakdata)
+                        from = TaakVariabelenService.readMailFrom(taakdata)
                             .map { MailAdres(it, afzender) }
                             .orElseGet { mailService.getGemeenteMailAdres() },
-                        TaakVariabelenService.readMailTo(taakdata)
+                        to = TaakVariabelenService.readMailTo(taakdata)
                             .map { MailAdres(it, null) }
                             .get(),
-                        TaakVariabelenService.readMailReplyTo(taakdata)
+                        replyTo = TaakVariabelenService.readMailReplyTo(taakdata)
                             .map { MailAdres(it, afzender) }
                             .getOrNull(),
-                        mailTemplate.onderwerp,
-                        TaakVariabelenService.readMailBody(taakdata).orElse(null),
-                        TaakVariabelenService.readMailAttachments(taakdata).orElse(null),
-                        true
+                        subject = mailTemplate.onderwerp,
+                        body = TaakVariabelenService.readMailBody(taakdata).orElse(null),
+                        attachments = TaakVariabelenService.readMailAttachments(taakdata).orElse(null),
+                        isCreateDocumentFromMail = true,
+                        vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
                     ),
                     zaak.getBronnenFromZaak()
                 )
@@ -196,7 +197,7 @@ class PlanItemsRestService @Inject constructor(
 
     @POST
     @Path("doUserEventListenerPlanItem")
-    fun doUserEventListenerPlanItem(userEventListenerData: RESTUserEventListenerData) {
+    fun doUserEventListenerPlanItem(userEventListenerData: RestUserEventListenerData) {
         val zaak = zrcClientService.readZaak(userEventListenerData.zaakUuid)
         val zaakRechten = policyService.readZaakRechten(zaak, loggedInUserInstance.get())
         when (userEventListenerData.actie) {
@@ -216,9 +217,9 @@ class PlanItemsRestService @Inject constructor(
         userEventListenerData.planItemInstanceId?.let {
             cmmnService.startUserEventListenerPlanItem(it)
         }
-        if (userEventListenerData.restMailGegevens !== null) {
+        userEventListenerData.restMailGegevens?.let {
             mailService.sendMail(
-                restMailGegevensConverter.convert(userEventListenerData.restMailGegevens),
+                it.toMailGegevens(configurationService.readGemeenteNaam()),
                 zaak.getBronnenFromZaak()
             )
         }
@@ -226,7 +227,7 @@ class PlanItemsRestService @Inject constructor(
 
     private fun handleIntakeAfronden(
         zaak: Zaak,
-        userEventListenerData: RESTUserEventListenerData
+        userEventListenerData: RestUserEventListenerData
     ) {
         userEventListenerData.planItemInstanceId?.let {
             val planItemInstance = cmmnService.readOpenPlanItem(it)
@@ -247,7 +248,7 @@ class PlanItemsRestService @Inject constructor(
         }
     }
 
-    private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
+    private fun handleZaakAfhandelen(zaak: Zaak, userEventListenerData: RestUserEventListenerData) {
         userEventListenerData.resultaattypeUuid?.let { resultaattypeUUID ->
             zgwApiService.closeZaak(
                 zaak = zaak,
@@ -261,7 +262,7 @@ class PlanItemsRestService @Inject constructor(
         )
     }
 
-    private fun handleBrondatumZetten(zaak: Zaak, userEventListenerData: RESTUserEventListenerData) {
+    private fun handleBrondatumZetten(zaak: Zaak, userEventListenerData: RestUserEventListenerData) {
         userEventListenerData.brondatum?.let {
             val brondatum = it.let(String::toLocalDate)
             LOG.info { "Set brondatum to $brondatum for ${zaak.identificatie}" }

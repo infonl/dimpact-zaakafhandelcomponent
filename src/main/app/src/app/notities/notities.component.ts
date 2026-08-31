@@ -1,11 +1,18 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos, 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2021 Atos, 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { CdkTextareaAutosize } from "@angular/cdk/text-field";
 import { NgFor, NgIf } from "@angular/common";
-import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import { MatBadgeModule } from "@angular/material/badge";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -14,8 +21,12 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
+import { ObjectType } from "../core/websocket/model/object-type";
+import { Opcode } from "../core/websocket/model/opcode";
+import { WebsocketListener } from "../core/websocket/model/websocket-listener";
+import { WebsocketService } from "../core/websocket/websocket.service";
 import { IdentityService } from "../identity/identity.service";
-import { injectServiceMutation } from "../shared/http/inject-service-mutation";
+import { injectMutation } from "../shared/http/inject-mutation";
 import { DatumPipe } from "../shared/pipes/datum.pipe";
 import { GeneratedType } from "../shared/utils/generated-types";
 import { NotitieService } from "./notities.service";
@@ -39,7 +50,7 @@ import { NotitieService } from "./notities.service";
     DatumPipe,
   ],
 })
-export class NotitiesComponent implements OnInit {
+export class NotitiesComponent implements OnInit, OnDestroy {
   @Input({ required: true }) zaakUuid!: string;
   @Input() notitieRechten?: GeneratedType<"RestNotitieRechten">;
 
@@ -51,8 +62,8 @@ export class NotitiesComponent implements OnInit {
   private readonly loggedInUserQuery = injectQuery(() =>
     this.identityService.readLoggedInUser(),
   );
-  private readonly deleteNotitieMutation = injectServiceMutation(
-    (id: number) => this.notitieService.deleteNotitie(id),
+  private readonly deleteNotitieMutation = injectMutation(
+    () => this.notitieService.deleteNotitie(),
     {
       onSuccess: (_data, id) => {
         this.notities.splice(
@@ -68,13 +79,27 @@ export class NotitiesComponent implements OnInit {
   protected geselecteerdeNotitieId: number | null = null;
   protected maxLengteTextArea = 1000;
 
+  private notitiesListener!: WebsocketListener;
+
   constructor(
     private identityService: IdentityService,
     private notitieService: NotitieService,
+    private websocketService: WebsocketService,
   ) {}
 
   ngOnInit() {
     this.haalNotitiesOp();
+
+    this.notitiesListener = this.websocketService.addListener(
+      Opcode.UPDATED,
+      ObjectType.ZAAK_NOTITIES,
+      this.zaakUuid,
+      () => this.haalNotitiesOp(),
+    );
+  }
+
+  ngOnDestroy() {
+    this.websocketService.removeListener(this.notitiesListener);
   }
 
   protected toggleNotitieContainer() {

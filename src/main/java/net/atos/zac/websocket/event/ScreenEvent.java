@@ -17,6 +17,13 @@ public class ScreenEvent extends AbstractEvent<ScreenEventType, ScreenEventId> {
 
     private ScreenEventType objectType;
 
+    /**
+     * Identifies the user whose action caused this event, so that a screen can tell a change it made
+     * itself from one made by somebody else. Holds the functionele gebruiker for changes that
+     * originate outside a user session, such as notifications and cron jobs.
+     */
+    private String actorUserId;
+
     public ScreenEvent() {
         super();
     }
@@ -29,5 +36,13 @@ public class ScreenEvent extends AbstractEvent<ScreenEventType, ScreenEventId> {
     @Override
     public ScreenEventType getObjectType() {
         return objectType;
+    }
+
+    public String getActorUserId() {
+        return actorUserId;
+    }
+
+    public void setActorUserId(final String actorUserId) {
+        this.actorUserId = actorUserId;
     }
 }

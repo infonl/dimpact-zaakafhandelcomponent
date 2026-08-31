@@ -4,11 +4,11 @@
 #
 services:
   open-object.local:
-    image: ghcr.io/infonl/open-object:4.0.2@sha256:34200c7d7a99b8efc28caeb88268e63d3fb7f16954e676225062b68562a6a388
+    image: ghcr.io/infonl/open-object:4.1.1@sha256:8bda80d7de276ddd381ff45ac2c5e0b52b43787bf4c02f42d1b069b5e823ebdf
     platform: linux/arm64
 
   open-object-celery:
-    image: ghcr.io/infonl/open-object:4.0.2@sha256:34200c7d7a99b8efc28caeb88268e63d3fb7f16954e676225062b68562a6a388
+    image: ghcr.io/infonl/open-object:4.1.1@sha256:8bda80d7de276ddd381ff45ac2c5e0b52b43787bf4c02f42d1b069b5e823ebdf
     platform: linux/arm64
 
   open-object-database:
@@ -16,7 +16,7 @@ services:
     platform: linux/arm64
 
   open-object-import:
-    image: ghcr.io/infonl/open-object:4.0.2@sha256:34200c7d7a99b8efc28caeb88268e63d3fb7f16954e676225062b68562a6a388
+    image: ghcr.io/infonl/open-object:4.1.1@sha256:8bda80d7de276ddd381ff45ac2c5e0b52b43787bf4c02f42d1b069b5e823ebdf
     platform: linux/arm64
 
   openarchiefbeheer-database:
@@ -48,19 +48,19 @@ services:
     platform: linux/arm64
 
   opennotificaties:
-    image: ghcr.io/infonl/open-notificaties:1.16.1@sha256:a4bc6fdfd0d960f960139be5647d12692c10d00c99a19a901c16d7987bc64d3b
+    image: ghcr.io/infonl/open-notificaties:1.16.2@sha256:21182c7359123fcaaae321235b3b98f5f27d52f0bbff350f21e9cf13765ae8db
     platform: linux/arm64
 
   opennotificaties-init:
-    image: ghcr.io/infonl/open-notificaties:1.16.1@sha256:a4bc6fdfd0d960f960139be5647d12692c10d00c99a19a901c16d7987bc64d3b
+    image: ghcr.io/infonl/open-notificaties:1.16.2@sha256:21182c7359123fcaaae321235b3b98f5f27d52f0bbff350f21e9cf13765ae8db
     platform: linux/arm64
 
   opennotificaties-celery:
-    image: ghcr.io/infonl/open-notificaties:1.16.1@sha256:a4bc6fdfd0d960f960139be5647d12692c10d00c99a19a901c16d7987bc64d3b
+    image: ghcr.io/infonl/open-notificaties:1.16.2@sha256:21182c7359123fcaaae321235b3b98f5f27d52f0bbff350f21e9cf13765ae8db
     platform: linux/arm64
 
   opennotificaties-celery-beat:
-    image: ghcr.io/infonl/open-notificaties:1.16.1@sha256:a4bc6fdfd0d960f960139be5647d12692c10d00c99a19a901c16d7987bc64d3b
+    image: ghcr.io/infonl/open-notificaties:1.16.2@sha256:21182c7359123fcaaae321235b3b98f5f27d52f0bbff350f21e9cf13765ae8db
     platform: linux/arm64
 
   openzaak-database:

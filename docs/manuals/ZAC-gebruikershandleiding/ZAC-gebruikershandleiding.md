@@ -5,8 +5,8 @@
 
 > **Colofon** <br>
 > Datum :05-08-2026 <br>
-> Versie :   1.8 <br>
-> Verandering : ZAC v5.5 Handleiding <br>
+> Versie :   1.9.1 <br>
+> Verandering : ZAC v5.6 Handleiding <br>
 > Project referentie : ZAC <br>
 > Toegangsrechten : Alleen lezen <br>
 > Status : Definitief <br>
@@ -25,7 +25,7 @@ Versiegeschiedenis:
 | 1.3   | Update nav sprints opgeleverd op 3-5-2023 en 31-5-2023                                                                                     |
 | 1.4   | Update format wijziging en redigeerwerk van 29-8-2023                                                                                      |
 | 1.5   | Update nav sprints opgeleverd van 10-2023 tot 27-05-2024                                                                                   |
-| 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                 |
+| 1.5.1 | Update zoekfunctie bedrijf en rechtspersoon                                                                                                |
 | 1.6.0 | Gebruikershandleiding geconverteerd naar Markdown                                                                                          |
 | 1.6.1 | Toevoeging indicaties voor personen                                                                                                        |
 | 1.6.2 | Laatste veranderingen tekstueel verwerkt; opschorten, verlengen en andere kleine aanpassingen                                              |
@@ -39,6 +39,8 @@ Versiegeschiedenis:
 | 1.7   | ZAC v4.10 Handleiding                                                                                                                      |
 | 1.7.1 | ZAC v5.2 Handleiding, toevoeging gerelateerde zaken                                                                                        |
 | 1.8   | ZAC v5.5 Handleiding, verwijderen impliciete applicatierol hiërarchie                                                                      |
+| 1.9   | ZAC v5.6 Handleiding, toevoeging voor brondatum zetten                                                                                     |
+| 1.9.1 | ZAC v5.6 Handleiding, toevoeging vertrouwelijkheidaanduiding bij versturen van e-mails                                                     |
 
 <div style="page-break-after: always"></div>
 
@@ -78,6 +80,7 @@ Versiegeschiedenis:
   - [Locatie ontkoppelen](#locatie-ontkoppelen)
   - [Zaak opschorten](#zaak-opschorten)
   - [Zaak verlengen](#zaak-verlengen)
+  - [Brondatum zetten](#brondatum-zetten)
   - [Verdere acties](#verdere-acties)
     - [Ontvangstbevestiging sturen](#ontvangstbevestiging-sturen)
     - [E-mail versturen](#e-mail-versturen)
@@ -564,14 +567,34 @@ De Zaak verlengen knop bevindt zichin het linker menu onder Actie en is herkenba
 
 **Stappen:**
 
-1 Kies in een zaak in het linker menu onder Actie kies 'Zaak verlengen'.
+1 Kies in een zaak in het linker menu onder Actie voor 'Zaak verlengen'.
 
 2 Vul de verlengingsduur in kalenderdagen in óf kies de nieuwe streef- en/of fatale datum die de zaak moet krijgen. Als een van de velden wordt ingevuld dan berekent het systeem automatisch de waarde van de andere. De maximale verlengduur is per zaaktype ingesteld en kan niet overschreden worden, deze is aangegeven onder het Verlengduur veld.
 
 3 Geef aan of de streefdatum van de openstaande taken ook verlengd moeten worden
 ![Streefdatum ook verlengen](./images/streefdatum-ook-verlengen.png)
 
-4 Kik op ‘Zaak verlengen’ om de verlenging door te voeren
+4 Klik op ‘Zaak verlengen’ om de verlenging door te voeren
+
+## Brondatum zetten
+
+Als een zaak is afgehandeld met een resultaattype waarbij de afleidingswijze brondatum is ingesteld op 'Eigenschap', kan de behandelaar de zaak afsluiten zonder de brondatum in te vullen.
+In dat geval kan de recordmanager bij een afgesloten zaak alsnog de brondatum zetten.
+
+De 'Brondatum zetten' knop bevindt zich in dat geval in het linker menu onder Actie en is herkenbaar aan het kalender-icoon.
+
+![Brondatum zetten](./images/menuitem-brondatum-zetten.png)
+
+**Stappen:**
+
+1 Kies in een zaak in het linker menu onder Actie voor 'Brondatum zetten'.
+
+2 Vul de brondatum in:
+![Brondatum zetten](./images/brondatum-zetten.png)
+
+Het getoonde label voor de datum komt overeen met de waarde van het veld 'Definitie' van de gekoppelde eigenschap bij het zaaktype.
+
+3 Klik op 'Brondatum zetten'.
 
 ## Verdere acties
 
@@ -616,13 +639,15 @@ Met deze actie wordt een e-mail vanuit de zaak verstuurd. De mail wordt als docu
 
 3 Vul de ontvanger in, dit is het mailadres waar de mail naartoe wordt gestuurd. Hier kan één adres worden ingevuld. Als het mailadres van de initiator bekend is dan kan je deze direct toevoegen door op het poppetje icoon in het veld te klikken.
 
-4 Vul het onderwerp in, deze wordt overgenomen uit het template en kan aangepast worden
+4 Kies de vertrouwelijkheidaanduiding voor het document (PDF van de e-mail) dat aan de zaak wordt toegevoegd. Dit veld is verplicht en staat niet standaard ingevuld.
 
-5 Maak het bericht op, dit is de body van de e-mail die een standaard vulling heeft vanuit het template en kan aangepast worden
+5 Vul het onderwerp in, deze wordt overgenomen uit het template en kan aangepast worden
 
-6 Voeg eventueel een bijlage toe, alle documenten die aan de zaak zijn toegevoegd kunnen als bijlage aan de e-mail worden toegevoegd
+6 Maak het bericht op, dit is de body van de e-mail die een standaard vulling heeft vanuit het template en kan aangepast worden
 
-7 Klik op ‘Versturen’ om de actie af te ronden
+7 Voeg eventueel een bijlage toe, alle documenten die aan de zaak zijn toegevoegd kunnen als bijlage aan de e-mail worden toegevoegd
+
+8 Klik op ‘Versturen’ om de actie af te ronden
 
 ### Document maken
 

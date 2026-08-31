@@ -338,6 +338,7 @@ class ZaakService @Inject constructor(
         }
         if (!statusType.isHeropend()) {
             zaakVariabelenService.setOntvangstbevestigingVerstuurd(zaak.uuid, true)
+            eventingService.send(ScreenEventType.ZAAK.updated(zaak.uuid))
         }
     }
 

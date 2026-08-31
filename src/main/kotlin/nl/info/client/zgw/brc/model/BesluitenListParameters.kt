@@ -5,7 +5,7 @@
 package nl.info.client.zgw.brc.model
 
 import jakarta.ws.rs.QueryParam
-import net.atos.client.zgw.shared.model.AbstractListParameters
+import nl.info.client.zgw.shared.model.AbstractListParameters
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.net.URI

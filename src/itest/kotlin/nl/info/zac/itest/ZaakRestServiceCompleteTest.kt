@@ -154,7 +154,11 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = RECORDMANAGER_1
             ).run {
-                code shouldBe HTTP_NO_CONTENT
+                code shouldBe HTTP_OK
+                bodyAsString.run {
+                    shouldContainJsonKeyValue("isOpen", true)
+                    shouldNotContainJsonKey("resultaat")
+                }
             }
 
             then("the zaak should be open and should no longer have a result") {
@@ -186,7 +190,11 @@ class ZaakRestServiceCompleteTest : BehaviorSpec({
                 """.trimIndent(),
                 testUser = RECORDMANAGER_1
             ).run {
-                code shouldBe HTTP_NO_CONTENT
+                code shouldBe HTTP_OK
+                bodyAsString.run {
+                    shouldContainJsonKeyValue("isOpen", false)
+                    shouldContainJsonKey("resultaat")
+                }
             }
 
             then("the zaak should be closed and have a result") {

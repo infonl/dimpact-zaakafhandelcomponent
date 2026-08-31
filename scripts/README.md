@@ -32,6 +32,10 @@ Useful when:
 * OpenNotifications is not started
 * Zaak does not show in dashboard lists
 
+## [test-data](test-data)
+Scripts to create test zaaktypes, zaakafhandelparameters, zaken and documents in a local ZAC stack, for manual
+and load/performance testing.
+
 ## [wildfly](wildfly)
 Install WildFly locally, to enable IntelliJ run configuration with ZAC
 

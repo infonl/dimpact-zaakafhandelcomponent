@@ -13,7 +13,9 @@ import { MatToolbarHarness } from "@angular/material/toolbar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
+import { testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../zaken.service";
 import { ZaakOntkoppelenDialogComponent } from "./zaak-ontkoppelen-dialog.component";
@@ -35,6 +37,7 @@ const setup = () => {
     providers: [
       provideHttpClient(),
       provideRouter([]),
+      provideQueryClient(testQueryClient),
       { provide: MAT_DIALOG_DATA, useValue: dialogData },
       { provide: MatDialogRef, useValue: dialogRefMock },
     ],

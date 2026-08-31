@@ -4,9 +4,10 @@
 #
 # HTTP transport and Keycloak authentication for the local ZAC test-data scripts.
 #
-# Shared by create-load.py and create-zaak.py; contains no ZAC domain logic.
+# Shared by every test-data script that talks to ZAC over HTTP; contains no ZAC domain logic.
 
 import base64
+import http.cookiejar
 import json
 import os
 import sys
@@ -30,12 +31,12 @@ KEYCLOAK_CLIENT_SECRET = os.environ.get(
     "ZAC_TESTDATA_KEYCLOAK_CLIENT_SECRET", "keycloakZaakafhandelcomponentClientSecret"
 )
 
-# beheerder1newiam = BEHEERDER_ELK_ZAAKTYPE
-CONFIG_USER = os.environ.get("ZAC_TESTDATA_USER", "beheerder1newiam")
-CONFIG_PASSWORD = os.environ.get("ZAC_TESTDATA_PASSWORD", "beheerder1newiam")
+# beheerder1 = BEHEERDER_ELK_ZAAKTYPE
+CONFIG_USER = os.environ.get("ZAC_TESTDATA_USER", "beheerder1")
+CONFIG_PASSWORD = os.environ.get("ZAC_TESTDATA_PASSWORD", "beheerder1")
 
 # Use the same beheerder user for zaak creation: they have access to all zaaktypes
-# (behandelaar1newiam is restricted to domein_test_1 only)
+# (behandelaar1 is restricted to domein_test_1 only)
 ZAAK_USER = CONFIG_USER
 ZAAK_PASSWORD = CONFIG_PASSWORD
 
@@ -45,6 +46,24 @@ _TOKEN_REFRESH_MARGIN = 30  # seconds before expiry at which to proactively refr
 # ---------------------------------------------------------------------------
 # HTTP helpers
 # ---------------------------------------------------------------------------
+
+
+# One CookieJar/opener per thread, so that once ZAC's session filter sets a JSESSIONID
+# cookie on a thread's first request, every later request from that same thread reuses that
+# HTTP session instead of the server creating a brand new one (and a new LoggedInUser) per
+# request. Kept per-thread rather than shared process-wide so create-load.py's concurrent
+# ThreadPoolExecutor workers each get their own session instead of contending over one.
+_thread_local = threading.local()
+
+
+def _get_opener() -> urllib.request.OpenerDirector:
+    """Return this thread's cookie-aware opener, creating one on first use."""
+    opener = getattr(_thread_local, "opener", None)
+    if opener is None:
+        cookie_jar = http.cookiejar.CookieJar()
+        opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookie_jar))
+        _thread_local.opener = opener
+    return opener
 
 
 def http_request(method: str, url: str, body: Any = None, headers: dict | None = None) -> tuple[int, str]:
@@ -62,7 +81,7 @@ def http_request(method: str, url: str, body: Any = None, headers: dict | None =
             headers.setdefault("Content-Type", "application/json")
     request = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
-        with urllib.request.urlopen(request) as response:
+        with _get_opener().open(request) as response:
             return response.status, response.read().decode()
     except urllib.error.HTTPError as httpError:
         return httpError.code, httpError.read().decode()

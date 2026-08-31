@@ -14,6 +14,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import nl.info.zac.itest.client.ItestHttpClient
+import nl.info.zac.itest.client.OpenZaakClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
 import nl.info.zac.itest.client.createZaakAndRetrieve
@@ -36,7 +37,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2021_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BELANGHEBBENDE
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_MEDEAANVRAGER
@@ -77,6 +78,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAK_DESCRIPTION_2
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_EXPLANATION_1
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_1
+import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
 import nl.info.zac.itest.util.WebSocketTestListener
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrderAndExtraneousFields
 import org.json.JSONArray
@@ -99,6 +101,7 @@ class ZaakRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
     val zacClient = ZacClient(itestHttpClient)
     val zaakHelper = ZaakHelper(zacClient)
+    val openZaakClient = OpenZaakClient(itestHttpClient)
     val logger = KotlinLogging.logger {}
     val longitude = Random.nextFloat()
     val latitude = Random.nextFloat()
@@ -131,7 +134,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                 }
 
-                And("the response body should contain the zaaktypes in all domains") {
+                and("the response body should contain the zaaktypes in all domains") {
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     [
                       {
@@ -203,7 +206,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     logger.info { "Response: $responseBody" }
                     response.code shouldBe HTTP_OK
                 }
-                And("the response body should contain only the zaaktypes for which the user is authorized") {
+                and("the response body should contain only the zaaktypes for which the user is authorized") {
                     responseBody shouldEqualJsonIgnoringOrderAndExtraneousFields """
                     [
                       {
@@ -235,7 +238,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     groupName = GROUP_BEHANDELAARS_TEST_1.description,
                     startDate = DATE_TIME_2020_01_01,
                     communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
-                    vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                    vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
                     description = ZAAK_DESCRIPTION_2,
                     toelichting = ZAAK_EXPLANATION_1,
                     testUser = BEHANDELAAR_1
@@ -249,7 +252,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     zaakIdentification shouldNotBe null
                 }
 
-                And(
+                and(
                     """
                 the retrieved zaak should contain the created zaak with the 'bekijkenZaakdata' and 'heropenen'
                 permissions set to false since these actions are not allowed for the 'behandelaar' role
@@ -314,7 +317,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "toelichting": "$ZAAK_EXPLANATION_1",
                       "uiterlijkeEinddatumAfdoening": "$DATE_2021_01_01",
                       "verantwoordelijkeOrganisatie": "$VERANTWOORDELIJKE_ORGANISATIE",
-                      "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
+                      "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR",
                       "zaakdata": {
                         "initiator": null,
                         "zaaktypeUUID": "$ZAAKTYPE_CMMN_TEST_3_UUID",
@@ -336,7 +339,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
                         "verlengingMogelijk": false,
                         "versiedatum": "$DATE_2023_09_21",
-                        "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
+                        "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR",
                         "zaaktypeRelaties": []
                       }
                     }
@@ -444,7 +447,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 groupName = GROUP_BEHANDELAARS_TEST_1.description,
                 startDate = DATE_TIME_2020_01_01,
                 communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
-                vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
                 description = ZAAK_DESCRIPTION_2,
                 toelichting = ZAAK_EXPLANATION_1,
                 testUser = BEHANDELAAR_1
@@ -700,7 +703,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "uiterlijkeEinddatumAfdoening": "$fatalDateNew",
                       "uuid" : "$zaak2UUID",
                       "verantwoordelijkeOrganisatie" : "$VERANTWOORDELIJKE_ORGANISATIE",
-                      "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
+                      "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR",
                       "zaakgeometrie" : {
                         "point" : {
                             "latitude" : $latitude,
@@ -998,7 +1001,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         }
                     }
                 }
-                And("the zaak should be assigned to the user") {
+                and("the zaak should be assigned to the user") {
                     with(
                         zacClient.retrieveZaak(
                             zaakUUID = zaakUuid,
@@ -1157,6 +1160,48 @@ class ZaakRestServiceTest : BehaviorSpec({
                 )
                 then("the response should be a 403 HTTP response") {
                     response.code shouldBe HTTP_FORBIDDEN
+                }
+            }
+        }
+    }
+
+    context("Reading a zaakspecifiek geautoriseerde zaak") {
+        given(
+            """
+            A CMMN zaak of a zaaktype that supports zaakspecifieke autorisatie has been marked
+            as zaakspecifiek geautoriseerd
+            """
+        ) {
+            val (_, geautoriseerdeZaakUuid) = zaakHelper.createZaak(
+                zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+                testUser = BEHANDELAAR_1
+            )
+            openZaakClient.createZaakeigenschap(
+                zaakUUID = geautoriseerdeZaakUuid,
+                zaaktypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
+                eigenschapNaam = "ZAAK_GEAUTORISEERD",
+                waarde = "true"
+            )
+
+            `when`(
+                "the zaak is read by a behandelaar authorized for the zaaktype but without the " +
+                    "zaakspecifiek_geautoriseerd application role"
+            ) {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$geautoriseerdeZaakUuid",
+                    testUser = BEHANDELAAR_1
+                )
+                then("the response should be a 403 HTTP response") {
+                    response.code shouldBe HTTP_FORBIDDEN
+                }
+            }
+            `when`("the zaak is read by a user holding the zaakspecifiek_autorisatie_behandelaar role") {
+                val response = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/zaken/zaak/$geautoriseerdeZaakUuid",
+                    testUser = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
+                )
+                then("the response should be a 200 HTTP response") {
+                    response.code shouldBe HTTP_OK
                 }
             }
         }

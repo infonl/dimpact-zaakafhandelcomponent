@@ -30,3 +30,7 @@ raadpleger := {
 brpZoeken := {
     "rol": "brp_zoeken"
 }
+
+zaakspecifiekGeautoriseerd := {
+    "rol": "zaakspecifiek_geautoriseerd"
+}

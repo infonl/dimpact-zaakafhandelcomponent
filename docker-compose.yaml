@@ -17,10 +17,10 @@ services:
       - POSTGRES_PASSWORD=keycloak
       - POSTGRES_DB=keycloak
     volumes:
-      - ./scripts/docker-compose/volume-data/zac-keycloak-database-data:/var/lib/postgresql/data
+      - zac-keycloak-database-data:/var/lib/postgresql/data
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.6.4@sha256:0aae0de7fca85525f727d3354df17896092de8bb26ae4c12d89c77e5df8cbce4
+    image: quay.io/keycloak/keycloak:26.7.3@sha256:ff4257d0d64efbe99ed1ddfaf07765cc3c36dc7518bf8324d41961327f441c54
     depends_on:
       keycloak-database:
         condition: service_healthy
@@ -60,6 +60,7 @@ services:
       - ZAC_RECORDMANAGER_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_RECORDMANAGER_TEST_2_EMAIL_ADDRESS:-recordmanager-test-2@example.com}
       - ZAC_BEHEERDER_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_BEHEERDER_TEST_1_EMAIL_ADDRESS:-beheerder-test-1@example.com}
       - ZAC_RAADPLEGER_EN_BEHANDELAAR_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_RAADPLEGER_EN_BEHANDELAAR_TEST_1_EMAIL_ADDRESS:-raadpleger-en-behandelaar-test-1@example.com}
+      - ZAC_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_TEST_1_EMAIL_ADDRESS:-zaakspecifiek-autorisatie-behandelaar-test-1@example.com}
       - ZAC_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_TEST_1_EMAIL_ADDRESS:-test-group-raadplegers-test-1@example.com}
       - ZAC_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RAADPLEGERS_TEST_2_EMAIL_ADDRESS:-test-group-raadplegers-test-2@example.com}
       - ZAC_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_TEST_1_EMAIL_ADDRESS:-test-group-behandelaars-test-1@example.com}
@@ -70,6 +71,7 @@ services:
       - ZAC_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_RECORDMANAGERS_TEST_2_EMAIL_ADDRESS:-test-group-recordmanagers-test-2@example.com}
       - ZAC_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHEERDERS_ELK_DOMEIN_EMAIL_ADDRESS:-test-group-beheerders-elk-domein@example.com}
       - ZAC_GROUP_BEHANDELAARS_LONG_NAME_TEST_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_BEHANDELAARS_LONG_NAME_TEST_EMAIL_ADDRESS:-test-group-behandelaars-long-name-test@example.com}
+      - ZAC_GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1_EMAIL_ADDRESS=${DOCKER_COMPOSE_GROUP_ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAARS_TEST_1_EMAIL_ADDRESS:-test-group-zaakspecifiek-autorisatie-behandelaars-test-1@example.com}
     volumes:
       - ./scripts/docker-compose/imports/keycloak/realms:/opt/keycloak/data/import
     command:
@@ -94,7 +96,7 @@ services:
       - BAG_API_KEY=${BAG_API_KEY:-please-request-a-bag-api-key}
     volumes:
       - ./scripts/docker-compose/imports/openzaak-database:/docker-entrypoint-initdb.d
-      - ./scripts/docker-compose/volume-data/openzaak-database-data:/var/lib/postgresql/data
+      - openzaak-database-data:/var/lib/postgresql/data
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
@@ -170,7 +172,7 @@ services:
   # them to Django. nginx buffers the full request before forwarding it with Content-Length,
   # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
   openzaak-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.3@sha256:d236224175e339a75199d10f7c1dd5d58f5ed1f7e347b13f5cf343218a1408d1
+    image: nginxinc/nginx-unprivileged:1.31.4@sha256:343fac1d3d5f58078a466e70108f77f3ce3ce4a097ee91ab2c5097a776869414
     ports:
       - "8001:8000"
     volumes:
@@ -180,12 +182,12 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:8.6.5@sha256:aefcda4d4388a70e628ad5ebbf162ae65509b20ea3dd6eeac7dcbbb675d94dba
+    image: redis:8.6.6@sha256:ca06f464eec50217353220d2b1297e83a008881b26f51f30470c6620c240193d
 
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
   open-object.local:
-    image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
+    image: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
     platform: linux/amd64
     ports:
       - "8010:8000"
@@ -217,7 +219,7 @@ services:
     profiles: [ "objecten", "itest", "openformulieren" ]
 
   open-object-celery:
-    image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
+    image: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
     platform: linux/amd64
     environment: *open-object-env
     command: sh -c "cd /app/src && celery -A objects worker -l info"
@@ -251,7 +253,7 @@ services:
     profiles: [ "objecten", "itest", "openformulieren" ]
 
   open-object-import:
-    image: maykinmedia/open-object:4.0.2@sha256:9c73f5fbeb9d6d18ce7a6ea18c5b461d741f393e2040cde5f92a9c8ffaae593c
+    image: maykinmedia/open-object:4.1.1@sha256:593571842b4af655383964fb3fa869b62313e7cd1e56a02f173afa8e4713c4b6
     platform: linux/amd64
     environment: *open-object-env
     # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -280,7 +282,7 @@ services:
   # Open Policy Agent (OPA)
   opa:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.19.1-static@sha256:32bf41d914b1505fea13303f60587cc57bdd2902262177585fb208f5dde76d32
+    image: openpolicyagent/opa:1.20.1-static@sha256:efbca2ec7decf2cf23fd93ae171280a736c17d83d9d2e21c66a8f717e8fc7f20
     command: run --server --addr=0.0.0.0:8181 --log-level debug
     ports:
       - "8181:8181"
@@ -319,7 +321,7 @@ services:
       - POSTGRES_DB=openklant
     volumes:
       - ./scripts/docker-compose/imports/openklant-database:/docker-entrypoint-initdb.d
-      - ./scripts/docker-compose/volume-data/openklant-database-data:/var/lib/postgresql/data
+      - openklant-database-data:/var/lib/postgresql/data
 
   openklant.local:
     image: maykinmedia/open-klant:2.15.0@sha256:ce59a2c60dab1c14e62fe34a99511839390dd2d482983c27334241e0d60c693d
@@ -383,7 +385,7 @@ services:
 
   opa-tests:
     # Keep this OPA binary version in sync with the one used in the ZAC Helm chart (values.yaml file)
-    image: openpolicyagent/opa:1.19.1@sha256:378b7db7218985444b7bc14f0b0f5b05c864b9481fe470e133654a7fc084072c
+    image: openpolicyagent/opa:1.20.1@sha256:39daf255ae7f25d81103f03a0c18308a50b7b5bb67907bed6166f70e24a970ff
     volumes:
       - ./src/test/resources/policies:/home/tests
       - ./src/main/resources/policies:/home/policies
@@ -402,7 +404,7 @@ services:
 
   # Open Telemetry Collector which can receive OTLP observability data sent by ZAC
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.158.0@sha256:c5918f78992ee73b0d6f0e599423ac5ec52dd5d9726733114d6eca53d5a32ed5
+    image: otel/opentelemetry-collector-contrib:0.159.0@sha256:1f2c54a30e713fac6b3ae77a1ec84010c2007e29ced8ec666214fc2f6739c1cc
     command: [ --config=/etc/otel-collector.yaml ]
     volumes:
       - ./scripts/docker-compose/imports/otel-collector/otel-collector.yaml:/etc/otel-collector.yaml:Z
@@ -432,7 +434,7 @@ services:
 
   # Observability metrics data store
   prometheus:
-    image: prom/prometheus:v3.13.2@sha256:508729e0e2d18e11fd742a5a5ca70e557b940a93948c3c95fd0123a6fd538b69
+    image: prom/prometheus:v3.14.0@sha256:5ce7540c3c00ef4ab0c9d2c995c6a5b9c421f44b4a115d97a2c7af3b1c21cbb0
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -445,7 +447,7 @@ services:
 
   # Visualizes metrics and traces data
   grafana:
-    image: grafana/grafana:13.1.3@sha256:ab5cb380e3ff3172d6c8bd2e7cfd31cce977d2881b260e1f5bc089bf0b759b43
+    image: grafana/grafana:13.2.0@sha256:3fd54ae1214669f8355f065ec9f6445d5279a3d77095ab048ca045685272429b
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
@@ -467,7 +469,7 @@ services:
     profiles: [ "metrics" ]
 
   greenmail:
-    image: greenmail/standalone:2.1.12@sha256:9f32971b4f25d32b4de6fa2e297423768441c65e4541f6aecd7631c890a229a7
+    image: greenmail/standalone:2.1.13@sha256:3df66b7edd01c8a301343ca5e3601d8674760d4708655573560c24745e624fb2
     environment:
       GREENMAIL_OPTS: >-
         -Dgreenmail.smtp.hostname=0.0.0.0
@@ -498,11 +500,11 @@ services:
     command: postgres -c max_connections=300 -c log_min_messages=LOG
     volumes:
       - ./scripts/docker-compose/imports/opennotificaties-database:/docker-entrypoint-initdb.d
-      - ./scripts/docker-compose/volume-data/opennotificaties-database-data:/var/lib/postgresql/data
+      - opennotificaties-database-data:/var/lib/postgresql/data
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties:
-    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
+    image: openzaak/open-notificaties:1.16.2@sha256:2988d538b30db30487ed89873877e1d22e12f80dfa42d80ec1a5c97265c7e4cd
     platform: linux/amd64
     environment: &opennotificaties-env
       ALLOWED_HOSTS: "*"
@@ -545,7 +547,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-init:
-    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
+    image: openzaak/open-notificaties:1.16.2@sha256:2988d538b30db30487ed89873877e1d22e12f80dfa42d80ec1a5c97265c7e4cd
     platform: linux/amd64
     environment:
       <<: *opennotificaties-env
@@ -561,7 +563,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-celery:
-    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
+    image: openzaak/open-notificaties:1.16.2@sha256:2988d538b30db30487ed89873877e1d22e12f80dfa42d80ec1a5c97265c7e4cd
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_worker.sh
@@ -577,7 +579,7 @@ services:
     profiles: [ "opennotificaties", "openformulieren" ]
 
   opennotificaties-celery-beat:
-    image: openzaak/open-notificaties:1.16.1@sha256:ee940d036bb2f8325f9a5153316f657fceeb24db59a23c5109d6e659daae7ac3
+    image: openzaak/open-notificaties:1.16.2@sha256:2988d538b30db30487ed89873877e1d22e12f80dfa42d80ec1a5c97265c7e4cd
     platform: linux/amd64
     environment: *opennotificaties-env
     command: /celery_beat.sh
@@ -603,7 +605,7 @@ services:
       - "54328:5432"
     volumes:
       - ./scripts/docker-compose/imports/openarchiefbeheer-database:/docker-entrypoint-initdb.d
-      - ./scripts/docker-compose/volume-data/openarchiefbeheer-database-data:/var/lib/postgresql/data
+      - openarchiefbeheer-database-data:/var/lib/postgresql/data
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-web:
@@ -691,7 +693,7 @@ services:
     profiles: [ "openarchiefbeheer" ]
 
   openarchiefbeheer-ui:
-    image: nginxinc/nginx-unprivileged:1.31.3@sha256:d236224175e339a75199d10f7c1dd5d58f5ed1f7e347b13f5cf343218a1408d1
+    image: nginxinc/nginx-unprivileged:1.31.4@sha256:343fac1d3d5f58078a466e70108f77f3ce3ce4a097ee91ab2c5097a776869414
     ports:
       - "8005:8080"
     volumes:
@@ -715,7 +717,7 @@ services:
       timeout: 10s
       retries: 10
     volumes:
-      - ./scripts/docker-compose/volume-data/pabc-database-data:/var/lib/postgresql/data
+      - pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
     image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.1.1@sha256:803596bb1f365a1296a4ef450a35fea5022798190b7b7a467a896c42675e280e
@@ -768,7 +770,7 @@ services:
       POSTGRES_DB: zac
     volumes:
       - ./scripts/docker-compose/imports/zac-database/init-zac-database.sql:/docker-entrypoint-initdb.d/init-zac-database.sql
-      - ./scripts/docker-compose/volume-data/zac-database-data:/var/lib/postgresql/data
+      - zac-database-data:/var/lib/postgresql/data
 
   zac:
     # By default, we use the most recent ZAC Docker Image. Change this if you wish to use a specific version.
@@ -885,11 +887,11 @@ services:
       - POSTGRES_PASSWORD=openformulieren
       - POSTGRES_DB=openformulieren
     volumes:
-      - ./scripts/docker-compose/volume-data/openformulieren-database-data:/var/lib/postgresql/data
+      - openformulieren-database-data:/var/lib/postgresql/data
     profiles: [ "openformulieren" ]
 
   openformulieren-init:
-    image: openformulieren/open-forms:3.5.6@sha256:f5a5d51a44f39edcfb2143ae5d2ed9525b22ea377faa35fd2cce26b678f7fe83
+    image: openformulieren/open-forms:3.5.7@sha256:8b22f4f2ae91ee3d54ed72e6702d91860511d1a461bdb5aef8849a95a01279d4
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1006,7 +1008,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-web:
-    image: openformulieren/open-forms:3.5.6@sha256:f5a5d51a44f39edcfb2143ae5d2ed9525b22ea377faa35fd2cce26b678f7fe83
+    image: openformulieren/open-forms:3.5.7@sha256:8b22f4f2ae91ee3d54ed72e6702d91860511d1a461bdb5aef8849a95a01279d4
     # For now, we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1033,7 +1035,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery:
-    image: openformulieren/open-forms:3.5.6@sha256:f5a5d51a44f39edcfb2143ae5d2ed9525b22ea377faa35fd2cce26b678f7fe83
+    image: openformulieren/open-forms:3.5.7@sha256:8b22f4f2ae91ee3d54ed72e6702d91860511d1a461bdb5aef8849a95a01279d4
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1061,7 +1063,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-celery-beat:
-    image: openformulieren/open-forms:3.5.6@sha256:f5a5d51a44f39edcfb2143ae5d2ed9525b22ea377faa35fd2cce26b678f7fe83
+    image: openformulieren/open-forms:3.5.7@sha256:8b22f4f2ae91ee3d54ed72e6702d91860511d1a461bdb5aef8849a95a01279d4
     # For now we do not override the platform from AMD to ARM for this Docker Image, because this results in a non-working Open Formulieren instance.
     # Using the INFO.nl Open Formulieren ARM image, when you create a new form and attempt to open it, you will see an error in the browser:
     # "Er ging helaas iets fout. Neem a.u.b. contact op met de helpdesk en informeer hen van dit probleem."
@@ -1083,7 +1085,7 @@ services:
     profiles: [ "openformulieren" ]
 
   openformulieren-nginx:
-    image: nginxinc/nginx-unprivileged:1.31.3@sha256:d236224175e339a75199d10f7c1dd5d58f5ed1f7e347b13f5cf343218a1408d1
+    image: nginxinc/nginx-unprivileged:1.31.4@sha256:343fac1d3d5f58078a466e70108f77f3ce3ce4a097ee91ab2c5097a776869414
     ports:
       - "8007:8080"
     volumes:
@@ -1098,3 +1100,11 @@ volumes:
   openformulieren-media:
   openformulieren-private-media:
   openformulieren-log:
+  zac-keycloak-database-data:
+  openzaak-database-data:
+  openklant-database-data:
+  opennotificaties-database-data:
+  openarchiefbeheer-database-data:
+  pabc-database-data:
+  zac-database-data:
+  openformulieren-database-data:

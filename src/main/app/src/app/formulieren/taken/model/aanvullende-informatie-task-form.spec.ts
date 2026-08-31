@@ -7,9 +7,11 @@ import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { of } from "rxjs";
-import { fromPartial } from "../../../../test-helpers";
+import { testQueryClient } from "../../../../../setupJest";
+import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
@@ -49,7 +51,11 @@ describe(AanvullendeInformatieTaskForm.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        provideQueryClient(testQueryClient),
+      ],
     });
 
     listAfzendersVoorZaakSpy = jest
@@ -59,7 +65,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       .spyOn(TestBed.inject(MailtemplateService), "findMailtemplate")
       .mockReturnValue(
         of(
-          fromPartial<GeneratedType<"RESTMailtemplate">>({
+          fromPartial<GeneratedType<"RestMailtemplate">>({
             body: "template body",
             variabelen: [],
           }),
@@ -70,7 +76,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
         TestBed.inject(InformatieObjectenService),
         "listEnkelvoudigInformatieobjecten",
       )
-      .mockReturnValue(of([]));
+      .mockReturnValue(createQueryOptions([]) as never);
     getContactDetailsForPersonSpy = jest
       .spyOn(TestBed.inject(KlantenService), "getContactDetailsForPerson")
       .mockReturnValue(of({}));
@@ -178,7 +184,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       it("should use empty array for body variables when mailtemplate variabelen is null", async () => {
         findMailtemplateSpy.mockReturnValue(
           of(
-            fromPartial<GeneratedType<"RESTMailtemplate">>({
+            fromPartial<GeneratedType<"RestMailtemplate">>({
               body: "template body",
               variabelen: null,
             }),

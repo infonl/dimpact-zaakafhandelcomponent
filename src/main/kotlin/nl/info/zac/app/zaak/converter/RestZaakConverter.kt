@@ -22,6 +22,7 @@ import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.zrc.util.isWachtOpAanvullendeInformatie
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.StatusType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
@@ -106,6 +107,7 @@ class RestZaakConverter @Inject constructor(
         val zaakData = zaakVariabelenService.readZaakdata(zaak.uuid)
         val hasSentConfirmationOfReceipt = (zaakData[VAR_ONTVANGSTBEVESTIGING_VERSTUURD] as? Boolean) ?: false
         val bpmnProcessDefinition = bpmnService.findProcessDefinitionByZaak(zaak.uuid)
+        val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
         return RestZaak(
             archiefActiedatum = zaak.archiefactiedatum,
             archiefNominatie = zaak.archiefnominatie?.name,
@@ -144,6 +146,7 @@ class RestZaakConverter @Inject constructor(
             isOpgeschort = zaak.isOpgeschort(),
             isProcesGestuurd = bpmnProcessDefinition != null,
             isVerlengd = zaak.isVerlengd(),
+            isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd,
             kenmerken = zaak.kenmerken?.map { RestZaakKenmerk(it.kenmerk, it.bron) },
             omschrijving = zaak.omschrijving,
             publicatiedatum = zaak.publicatiedatum,

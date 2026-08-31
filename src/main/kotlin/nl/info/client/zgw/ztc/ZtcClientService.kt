@@ -9,8 +9,8 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.stats.CacheStats
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.cache.Caching
-import net.atos.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.cache.Caching
+import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.exception.CatalogusNotFoundException
 import nl.info.client.zgw.ztc.exception.EigenschapNotFoundException
@@ -58,6 +58,15 @@ class ZtcClientService @Inject constructor(
     companion object {
         const val MAX_CACHE_SIZE: Long = 1_000
         const val EXPIRATION_TIME_HOURS: Long = 1
+        const val ZAAKTYPE_PAGE_SIZE: Int = 100
+
+        /**
+         * Marks a zaaktype as being 'zaakspecifiek autoriseerbaar'.
+         * The name is abbreviated because Open Zaak caps the length of eigenschap names.
+         */
+        const val ZAAK_GEAUTORISEERD_EIGENSCHAP_NAAM = "ZAAK_GEAUTORISEERD"
+
+        private const val ZTC_EIGENSCHAP = "ztc-eigenschap"
 
         private val CACHES = mutableMapOf<String, Cache<*, *>>()
         private val LOG = Logger.getLogger(ZtcClientService::class.java.name)
@@ -112,13 +121,10 @@ class ZtcClientService @Inject constructor(
      * @throws CatalogusNotFoundException if no [Catalogus] could be found.
      */
     fun readCatalogus(catalogusListParameters: CatalogusListParameters): Catalogus =
-        ztcClient.catalogusList(catalogusListParameters)
-            .singleResult
-            .orElseThrow {
-                CatalogusNotFoundException(
-                    "No catalogus found for catalogus list parameters '$catalogusListParameters'."
-                )
-            }
+        ztcClient.catalogusList(catalogusListParameters).singleResult
+            ?: throw CatalogusNotFoundException(
+                "No catalogus found for catalogus list parameters '$catalogusListParameters'."
+            )
 
     fun resetCacheTimeToNow(): ZonedDateTime = ztcTimeCache.get(Caching.ZTC_CACHE_TIME) { ZonedDateTime.now() }
 
@@ -143,13 +149,23 @@ class ZtcClientService @Inject constructor(
     }
 
     /**
-     * List instances of [ZaakType] in [Catalogus].
+     * List instances of [ZaakType] in [Catalogus], retrieving all pages.
      *
      * @param catalogusURI URI of [Catalogus].
      * @return List of [ZaakType] instances
      */
     fun listZaaktypen(catalogusURI: URI): List<ZaakType> = uriToZaakTypeListCache.get(catalogusURI) {
-        ztcClient.zaaktypeList(ZaaktypeListParameters(catalogusURI)).results()
+        buildList {
+            var page = 1
+            var result: Results<ZaakType>
+            do {
+                result = ztcClient.zaaktypeList(
+                    ZaaktypeListParameters(catalogusURI, page = page, pageSize = ZAAKTYPE_PAGE_SIZE)
+                )
+                addAll(result.results())
+                page++
+            } while (result.next() != null)
+        }
     }
 
     /**
@@ -404,8 +420,11 @@ class ZtcClientService @Inject constructor(
             response.results()
         }
 
-    fun readEigenschap(zaaktype: URI, eigenschap: String) =
+    fun findEigenschap(zaaktype: URI, eigenschap: String): Eigenschap? =
         this.readEigenschappen(zaaktype).find { it.naam == eigenschap }
+
+    fun readEigenschap(zaaktype: URI, eigenschap: String) =
+        this.findEigenschap(zaaktype, eigenschap)
             ?: throw EigenschapNotFoundException(
                 """
                 No '${EigenschapListParametersStatus.DEFINITIEF}' eigenschap with naam '$eigenschap' found for zaaktype '$zaaktype'.
@@ -445,6 +464,11 @@ class ZtcClientService @Inject constructor(
         uuidToBesluitTypeCache.invalidateAll()
         uriToBesluitTypeListCache.invalidateAll()
         return cleared(Caching.ZTC_BESLUITTYPE)
+    }
+
+    fun clearEigenschapCache(): String {
+        uriToEigenschappenCache.invalidateAll()
+        return cleared(ZTC_EIGENSCHAP)
     }
 
     fun clearRoltypeCache(): String {

@@ -6,8 +6,10 @@
 import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
-import { fromPartial } from "../../../../test-helpers";
+import { testQueryClient } from "../../../../../setupJest";
+import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { KlantenService } from "../../../klanten/klanten.service";
 import { MailtemplateService } from "../../../mailtemplate/mailtemplate.service";
@@ -43,7 +45,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [provideHttpClient()],
+      providers: [provideHttpClient(), provideQueryClient(testQueryClient)],
     });
 
     zakenService = TestBed.inject(ZakenService);
@@ -54,7 +56,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
     jest.spyOn(zakenService, "listAfzendersVoorZaak").mockReturnValue(of([]));
     jest.spyOn(mailtemplateService, "findMailtemplate").mockReturnValue(
       of(
-        fromPartial<GeneratedType<"RESTMailtemplate">>({
+        fromPartial<GeneratedType<"RestMailtemplate">>({
           body: "mail-template-body",
           variabelen: [],
         }),
@@ -62,7 +64,7 @@ describe(ExternAdviesMailTaskForm.name, () => {
     );
     jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of([]));
+      .mockReturnValue(createQueryOptions([]) as never);
 
     formulier = TestBed.inject(ExternAdviesMailTaskForm);
   });

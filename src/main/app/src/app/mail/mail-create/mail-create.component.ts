@@ -20,6 +20,7 @@ import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZakenService } from "../../zaken/zaken.service";
 import { MailService } from "../mail.service";
@@ -58,6 +59,9 @@ export class MailCreateComponent implements OnInit {
     },
   );
 
+  protected confidentialityNotices =
+    VertrouwelijkaanduidingToTranslationKeyPipe.selectList;
+
   protected form = this.formBuilder.group({
     verzender:
       this.formBuilder.control<GeneratedType<"RestZaakAfzender"> | null>(null, [
@@ -68,6 +72,9 @@ export class MailCreateComponent implements OnInit {
       Validators.email,
       Validators.maxLength(200),
     ]),
+    vertrouwelijkheidaanduiding: this.formBuilder.control<
+      (typeof this.confidentialityNotices)[number] | null | undefined
+    >(null, [Validators.required]),
     onderwerp: this.formBuilder.control("", [
       Validators.required,
       Validators.maxLength(100),
@@ -129,10 +136,12 @@ export class MailCreateComponent implements OnInit {
 
     this.sendMailMutation.mutate({
       ...value,
-      verzender: value.verzender?.mail,
+      verzender: value.verzender!.mail!,
       replyTo: value.verzender?.replyTo,
-      onderwerp: value.onderwerp ?? "",
-      body: value.body ?? "",
+      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding!.value,
+      ontvanger: value.ontvanger!,
+      onderwerp: value.onderwerp!,
+      body: value.body!,
       bijlagen: value.bijlagen?.map(({ uuid }) => uuid).join(";"),
       createDocumentFromMail: true,
     });

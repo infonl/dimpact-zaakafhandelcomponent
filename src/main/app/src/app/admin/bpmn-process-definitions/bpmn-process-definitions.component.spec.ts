@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatDialog } from "@angular/material/dialog";
+import { ComponentFixture } from "@angular/core/testing";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -13,8 +13,11 @@ import {
   QueryClient,
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
+import { fireEvent, render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
+import { sleep } from "../../../../setupJest";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
@@ -27,17 +30,14 @@ import { extractBpmnProcessKey, readFileContent } from "./file.helper";
 jest.mock("./file.helper");
 
 function makeFileList(...files: File[]): FileList {
-  return {
+  return fromPartial<FileList>({
     ...files,
     length: files.length,
     item: (index: number) => files[index] ?? null,
-  } as FileList;
+  });
 }
 
-const flushPromises = (): Promise<void> =>
-  new Promise<void>((resolve) => setTimeout(resolve));
-
-const baseProcessDefinition = fromPartial<
+const processDefinition = fromPartial<
   GeneratedType<"RestBpmnProcessDefinition">
 >({
   id: "pd-1",
@@ -51,414 +51,377 @@ const baseProcessDefinition = fromPartial<
   },
 });
 
+const detailsTitle = "bpmn.process-definition.card.details.title";
+
 describe(BpmnProcessDefinitionsComponent.name, () => {
   let fixture: ComponentFixture<BpmnProcessDefinitionsComponent>;
-  let component: BpmnProcessDefinitionsComponent;
-  let bpmnService: jest.Mocked<BpmnService>;
-  let utilService: jest.Mocked<UtilService>;
-  let foutAfhandelingService: jest.Mocked<FoutAfhandelingService>;
-  let dialogOpenSpy: jest.SpyInstance;
-  let queryClient: QueryClient;
-  let deleteProcessDefinitionMock: jest.Mock;
+  let bpmnService: Pick<
+    BpmnService,
+    | "listProcessDefinitionsQuery"
+    | "uploadProcessDefinitionQuery"
+    | "deleteProcessDefinition"
+    | "uploadProcessDefinitionForm"
+    | "deleteProcessDefinitionForm"
+  >;
+  let utilService: Pick<
+    UtilService,
+    "setLoading" | "setTitle" | "openSnackbar"
+  >;
+  let foutAfhandelingService: Pick<FoutAfhandelingService, "foutAfhandelen">;
+  let deleteProcessDefinitionMutation: ReturnType<
+    typeof createMutationOptions<object, { key: string; name: string }>
+  >;
+  let dialogOpen: jest.SpyInstance;
+  let container: HTMLElement;
 
-  beforeEach(async () => {
-    notifyManager.setScheduler((fn) => fn());
+  const user = userEvent.setup();
 
-    deleteProcessDefinitionMock = jest
-      .fn()
-      .mockReturnValue(createMutationOptions({}));
+  // jsdom has no scrollIntoView; stub it per test and restore to avoid leaking.
+  const originalScrollIntoView = Element.prototype.scrollIntoView;
 
-    await TestBed.configureTestingModule({
-      imports: [
-        BpmnProcessDefinitionsComponent,
-        SharedModule,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+  async function setup(
+    definitions: GeneratedType<"RestBpmnProcessDefinition">[] = [
+      processDefinition,
+    ],
+  ) {
+    bpmnService.listProcessDefinitionsQuery = jest.fn().mockReturnValue({
+      queryKey: ["/rest/bpmn-process-definitions"],
+      queryFn: () => Promise.resolve(definitions),
+    });
+
+    const rendered = await render(BpmnProcessDefinitionsComponent, {
+      imports: [SharedModule, NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
         provideAngularQuery(
           new QueryClient({ defaultOptions: { queries: { retry: false } } }),
         ),
-        {
-          provide: BpmnService,
-          useValue: {
-            listProcessDefinitionsQuery: jest.fn().mockReturnValue({
-              queryKey: ["/rest/bpmn-process-definitions"],
-              queryFn: () => Promise.resolve([baseProcessDefinition]),
-            }),
-            uploadProcessDefinitionQuery: jest.fn().mockReturnValue({
-              mutationFn: jest.fn().mockResolvedValue({}),
-            }),
-            deleteProcessDefinition: deleteProcessDefinitionMock,
-            uploadProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
-            deleteProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
-          },
-        },
-        {
-          provide: UtilService,
-          useValue: {
-            setLoading: jest.fn(),
-            setTitle: jest.fn(),
-            openSnackbar: jest.fn(),
-          },
-        },
-        {
-          provide: ConfiguratieService,
-          useValue: {},
-        },
-        {
-          provide: FoutAfhandelingService,
-          useValue: { foutAfhandelen: jest.fn() },
-        },
+        { provide: BpmnService, useValue: bpmnService },
+        { provide: UtilService, useValue: utilService },
+        { provide: ConfiguratieService, useValue: {} },
+        { provide: FoutAfhandelingService, useValue: foutAfhandelingService },
       ],
-    }).compileComponents();
+    });
+    fixture = rendered.fixture;
+    container = rendered.container;
 
-    queryClient = TestBed.inject(QueryClient);
-    bpmnService = TestBed.inject(BpmnService) as jest.Mocked<BpmnService>;
-    utilService = TestBed.inject(UtilService) as jest.Mocked<UtilService>;
-    foutAfhandelingService = TestBed.inject(
-      FoutAfhandelingService,
-    ) as jest.Mocked<FoutAfhandelingService>;
+    await flushRendering();
+  }
 
-    fixture = TestBed.createComponent(BpmnProcessDefinitionsComponent);
-    component = fixture.componentInstance;
+  async function flushRendering() {
+    await fixture.whenStable();
+    await sleep();
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
+  }
 
-    dialogOpenSpy = jest
-      .spyOn((component as unknown as { dialog: MatDialog }).dialog, "open")
-      .mockReturnValue({ afterClosed: () => of(false) } as never);
+  function fileInput() {
+    // eslint-disable-next-line no-restricted-syntax, testing-library/no-node-access -- the file input is `display: none` and label-less by design; the upload button opens it programmatically, so it is not in the accessibility tree
+    return container.querySelector<HTMLInputElement>('input[accept=".bpmn"]')!;
+  }
+
+  function groupRowOf(name: string) {
+    // eslint-disable-next-line testing-library/no-node-access -- Angular Material's mat-nested-tree-node wraps both the row and its collapsed details in one treeitem, so the row alone is only reachable as the parent of its expand button
+    return screen.getByRole("button", { name }).parentElement!;
+  }
+
+  function dropFiles(...files: File[]) {
+    fireEvent.drop(
+      screen.getByRole("heading", { name: "title.bpmn-procesdefinities" }),
+      { dataTransfer: { files: makeFileList(...files) } },
+    );
+  }
+
+  async function chooseFile(file: File) {
+    await user.upload(fileInput(), file);
+  }
+
+  beforeEach(() => {
+    Element.prototype.scrollIntoView = jest.fn();
+    notifyManager.setScheduler((fn) => fn());
+
+    // the component imports SharedModule, so it injects MatDialog from its own
+    // standalone injector rather than the one the TestBed hands out
+    dialogOpen = jest
+      .spyOn(MatDialog.prototype, "open")
+      .mockReturnValue(
+        fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(false) }),
+      );
+
+    deleteProcessDefinitionMutation = createMutationOptions<
+      object,
+      { key: string; name: string }
+    >({});
+    bpmnService = {
+      listProcessDefinitionsQuery: jest.fn(),
+      uploadProcessDefinitionQuery: jest
+        .fn()
+        .mockReturnValue(createMutationOptions({})),
+      deleteProcessDefinition: jest
+        .fn()
+        .mockReturnValue(deleteProcessDefinitionMutation),
+      uploadProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
+      deleteProcessDefinitionForm: jest.fn().mockReturnValue(of({})),
+    };
+    utilService = {
+      setLoading: jest.fn(),
+      setTitle: jest.fn(),
+      openSnackbar: jest.fn(),
+    };
+    foutAfhandelingService = { foutAfhandelen: jest.fn() };
   });
 
   afterEach(() => {
+    Element.prototype.scrollIntoView = originalScrollIntoView;
     notifyManager.setScheduler((fn) => setTimeout(fn, 0));
-    jest.clearAllMocks();
   });
 
-  describe("on init", () => {
-    it("should call listProcessDefinitionsQuery", () => {
-      expect(bpmnService.listProcessDefinitionsQuery).toHaveBeenCalled();
-    });
+  it("sets the title and shows a row per process definition", async () => {
+    await setup();
 
-    it("should render a group row per process definition", () => {
-      const rows: NodeList =
-        fixture.nativeElement.querySelectorAll(".tree-group-row");
-      expect(rows.length).toBe(1);
-    });
-
-    it("should show the process definition name", () => {
-      expect(fixture.nativeElement.textContent).toContain("Process A");
-    });
-
-    it("should show empty-state message when there are no definitions", () => {
-      queryClient.setQueryData(["/rest/bpmn-process-definitions"], []);
-      fixture.detectChanges();
-
-      expect(fixture.nativeElement.textContent).toContain(
-        "msg.geen.gegevens.gevonden",
-      );
-    });
+    expect(utilService.setTitle).toHaveBeenCalledWith(
+      "title.bpmn-procesdefinities",
+      undefined,
+    );
+    expect(screen.getByRole("button", { name: "Process A" })).toBeVisible();
   });
 
-  describe("status icon", () => {
-    it("should not toggle the node when the status icon is clicked", () => {
-      const icon: HTMLElement = fixture.nativeElement.querySelector(
-        ".tree-group-row mat-icon.cursor-default",
-      );
-      icon.click();
-      expect(component["expandedKey"]).toBeNull();
-    });
+  it("shows an empty message when there are no process definitions", async () => {
+    await setup([]);
+
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: "Process A" }),
+    ).not.toBeInTheDocument();
   });
 
-  describe("toggleNode", () => {
-    it("should expand a node on first click", () => {
-      fixture.nativeElement.querySelector(".tree-group-row").click();
-      expect(component["expandedKey"]).toBe("key-a");
-    });
+  it("marks a process definition whose forms have all been uploaded", async () => {
+    await setup();
 
-    it("should collapse an already-expanded node on second click", () => {
-      const row: HTMLElement =
-        fixture.nativeElement.querySelector(".tree-group-row");
-      row.click();
-      row.click();
-      expect(component["expandedKey"]).toBeNull();
-    });
+    expect(
+      within(groupRowOf("Process A")).getByText("check_circle"),
+    ).toBeVisible();
   });
 
-  describe("hasAllFormsUploaded", () => {
-    it("should return true when all forms are uploaded", () => {
-      expect(
-        component["hasAllFormsUploaded"]({
-          name: "",
-          key: "",
-          definition: baseProcessDefinition,
-        }),
-      ).toBe(true);
-    });
+  it("marks a process definition that is still missing a form", async () => {
+    await setup([
+      fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
+        ...processDefinition,
+        details: {
+          ...processDefinition.details,
+          forms: [{ formKey: "f1", title: "Form 1", uploaded: false }],
+        },
+      }),
+    ]);
 
-    it("should return false when a form is not uploaded", () => {
-      expect(
-        component["hasAllFormsUploaded"]({
-          name: "",
-          key: "",
-          definition: fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-            ...baseProcessDefinition,
-            details: {
-              ...baseProcessDefinition.details,
-              forms: [{ formKey: "f1", title: "Form 1", uploaded: false }],
-            },
-          }),
-        }),
-      ).toBe(false);
-    });
-
-    it("should return false when there are no forms", () => {
-      expect(
-        component["hasAllFormsUploaded"]({
-          name: "",
-          key: "",
-          definition: fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
-            ...baseProcessDefinition,
-            details: { ...baseProcessDefinition.details, forms: [] },
-          }),
-        }),
-      ).toBe(false);
-    });
+    expect(within(groupRowOf("Process A")).getByText("error")).toBeVisible();
   });
 
-  describe("selectBpmnProcessDefinitionFile", () => {
-    it("should trigger a click on the hidden file input", () => {
-      const clickSpy = jest.spyOn(
-        component["bpmnProcessDefinitionFileInput"].nativeElement,
-        "click",
-      );
+  it("marks a process definition without forms as incomplete", async () => {
+    await setup([
+      fromPartial<GeneratedType<"RestBpmnProcessDefinition">>({
+        ...processDefinition,
+        details: { ...processDefinition.details, forms: [] },
+      }),
+    ]);
 
-      component["selectBpmnProcessDefinitionFile"]();
-
-      expect(clickSpy).toHaveBeenCalled();
-    });
+    expect(within(groupRowOf("Process A")).getByText("error")).toBeVisible();
   });
 
-  describe("bpmnProcessDefinitionFileSelected", () => {
-    it("should do nothing when target is not an HTMLInputElement", () => {
-      component["bpmnProcessDefinitionFileSelected"]({
-        target: {},
-      } as unknown as Event);
-      expect(readFileContent).not.toHaveBeenCalled();
-    });
+  it("shows the details of a process definition when its row is expanded", async () => {
+    await setup();
 
-    it("should upload file content on success", async () => {
-      const fileContent = "<bpmn/>";
-      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+    expect(screen.getByText(detailsTitle)).not.toBeVisible();
 
-      const file = new File([fileContent], "process.bpmn");
-      const input = document.createElement("input");
-      Object.defineProperty(input, "files", { value: [file] });
+    await user.click(screen.getByRole("button", { name: "Process A" }));
 
-      const mutateMock = jest.fn();
-      Object.defineProperty(component, "uploadMutation", {
-        value: { mutate: mutateMock },
-        writable: true,
-      });
-
-      component["bpmnProcessDefinitionFileSelected"]({
-        target: input,
-      } as unknown as Event);
-      await flushPromises();
-
-      expect(readFileContent).toHaveBeenCalledWith(file);
-      expect(mutateMock).toHaveBeenCalledWith(
-        { filename: "process.bpmn", content: fileContent },
-        expect.objectContaining({ onSuccess: expect.any(Function) }),
-      );
-    });
-
-    it("should reset input value after file selection so re-uploading the same file works", () => {
-      const input = document.createElement("input");
-      Object.defineProperty(input, "files", {
-        value: [new File(["<bpmn/>"], "process.bpmn")],
-      });
-
-      component["bpmnProcessDefinitionFileSelected"]({
-        target: input,
-      } as unknown as Event);
-
-      expect(input.value).toBe("");
-    });
-
-    it("should call foutAfhandelingService when readFileContent rejects", async () => {
-      const error = new Error("read error");
-      (readFileContent as jest.Mock).mockRejectedValue(error);
-
-      const input = document.createElement("input");
-      Object.defineProperty(input, "files", {
-        value: [new File(["<bad>"], "bad.bpmn")],
-      });
-
-      component["bpmnProcessDefinitionFileSelected"]({
-        target: input,
-      } as unknown as Event);
-      await flushPromises();
-
-      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
-    });
+    expect(screen.getByText(detailsTitle)).toBeVisible();
   });
 
-  describe("bpmnProcessDefinitionFileDropped", () => {
-    it("should upload the first dropped file", async () => {
-      const fileContent = "<bpmn/>";
-      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
+  it("collapses an expanded process definition when its row is clicked again", async () => {
+    await setup();
 
-      const file = new File([fileContent], "dropped.bpmn");
-      const fileList = makeFileList(file);
+    await user.click(screen.getByRole("button", { name: "Process A" }));
+    await user.click(screen.getByRole("button", { name: "Process A" }));
 
-      const mutateMock = jest.fn();
-      Object.defineProperty(component, "uploadMutation", {
-        value: { mutate: mutateMock },
-        writable: true,
-      });
-
-      component["bpmnProcessDefinitionFileDropped"](fileList);
-      await flushPromises();
-
-      expect(readFileContent).toHaveBeenCalledWith(file);
-      expect(mutateMock).toHaveBeenCalledWith(
-        { filename: "dropped.bpmn", content: fileContent },
-        expect.objectContaining({ onSuccess: expect.any(Function) }),
-      );
-    });
-
-    it("should do nothing when FileList is empty", () => {
-      const fileList = makeFileList();
-
-      component["bpmnProcessDefinitionFileDropped"](fileList);
-
-      expect(readFileContent).not.toHaveBeenCalled();
-    });
-
-    it("should ignore non-bpmn files", () => {
-      const file = new File(["{}"], "form.json");
-      const fileList = makeFileList(file);
-
-      component["bpmnProcessDefinitionFileDropped"](fileList);
-
-      expect(readFileContent).not.toHaveBeenCalled();
-    });
-
-    it("should accept .BPMN files (case-insensitive)", async () => {
-      const fileContent = "<bpmn/>";
-      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
-
-      const file = new File([fileContent], "process.BPMN");
-      const fileList = makeFileList(file);
-
-      const mutateMock = jest.fn();
-      Object.defineProperty(component, "uploadMutation", {
-        value: { mutate: mutateMock },
-        writable: true,
-      });
-
-      component["bpmnProcessDefinitionFileDropped"](fileList);
-      await flushPromises();
-
-      expect(mutateMock).toHaveBeenCalledWith(
-        { filename: "process.BPMN", content: fileContent },
-        expect.objectContaining({ onSuccess: expect.any(Function) }),
-      );
-    });
-
-    it("should call foutAfhandelingService when readFileContent rejects", async () => {
-      const error = new Error("read error");
-      (readFileContent as jest.Mock).mockRejectedValue(error);
-
-      const file = new File(["<bad>"], "bad.bpmn");
-      const fileList = makeFileList(file);
-
-      component["bpmnProcessDefinitionFileDropped"](fileList);
-      await flushPromises();
-
-      expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
-    });
+    expect(screen.getByText(detailsTitle)).not.toBeVisible();
   });
 
-  describe("deleteProcessDefinition", () => {
-    it("should open a confirm dialog with the correct translation key and name", () => {
-      component["deleteProcessDefinition"]({ key: "key-a", name: "Process A" });
+  it("does not expand a process definition when its status icon is clicked", async () => {
+    await setup();
 
-      const dialogData = dialogOpenSpy.mock.calls[0][1].data;
-      expect(dialogData._melding.key).toBe(
-        "msg.bpmn.process-definition.delete.confirm",
-      );
-      expect(dialogData._melding.args).toEqual({ naam: "Process A" });
-    });
+    await user.click(within(groupRowOf("Process A")).getByText("check_circle"));
 
-    it("should call delete mutation when dialog is confirmed", async () => {
-      dialogOpenSpy.mockReturnValue({ afterClosed: () => of(true) } as never);
-
-      component["deleteProcessDefinition"]({ key: "key-a", name: "Process A" });
-      await fixture.whenStable();
-
-      expect(deleteProcessDefinitionMock).toHaveBeenCalledWith({
-        key: "key-a",
-        name: "Process A",
-      });
-    });
-
-    it("should not call the delete mutation when dialog is cancelled", () => {
-      component["deleteProcessDefinition"]({ key: "key-a", name: "Process A" });
-      expect(deleteProcessDefinitionMock).not.toHaveBeenCalled();
-    });
+    expect(screen.getByText(detailsTitle)).not.toBeVisible();
   });
 
-  describe("refreshDefinitions", () => {
-    it("should not throw when called", () => {
-      expect(() => component["refreshDefinitions"]()).not.toThrow();
-    });
+  it("opens the file picker from the upload button", async () => {
+    await setup();
+    const click = jest.spyOn(fileInput(), "click");
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "bpmn.process-definition.button.upload.definition",
+      }),
+    );
+
+    expect(click).toHaveBeenCalled();
   });
 
-  describe("asProcessDefinition", () => {
-    it("should return the node cast as a process definition", () => {
-      const result = component["asProcessDefinition"](baseProcessDefinition);
-      expect(result).toBe(baseProcessDefinition);
-    });
+  it("uploads the chosen process definition file", async () => {
+    const content = "<bpmn/>";
+    (readFileContent as jest.Mock).mockResolvedValue(content);
+    await setup();
+
+    await chooseFile(new File([content], "process.bpmn"));
+    await sleep();
+
+    expect(
+      bpmnService.uploadProcessDefinitionQuery().mutationFn,
+    ).toHaveBeenCalledWith(
+      { filename: "process.bpmn", content },
+      expect.anything(),
+    );
   });
 
-  describe("uploadBpmnFile onSuccess", () => {
-    async function triggerOnSuccess(processKey: string, filename: string) {
-      const fileContent = `<definitions><process id="${processKey}"></process></definitions>`;
-      (readFileContent as jest.Mock).mockResolvedValue(fileContent);
-      (extractBpmnProcessKey as jest.Mock).mockReturnValue(processKey);
+  it("lets the same process definition file be chosen again after uploading it", async () => {
+    (readFileContent as jest.Mock).mockResolvedValue("<bpmn/>");
+    await setup();
 
-      const mutateMock = jest.fn();
-      Object.defineProperty(component, "uploadMutation", {
-        value: { mutate: mutateMock },
-        writable: true,
-      });
+    await chooseFile(new File(["<bpmn/>"], "process.bpmn"));
 
-      component["bpmnProcessDefinitionFileDropped"](
-        makeFileList(new File([fileContent], filename)),
-      );
-      await flushPromises();
+    expect(fileInput().value).toBe("");
+  });
 
-      const { onSuccess } = mutateMock.mock.calls[0][1] as {
-        onSuccess: () => void;
-      };
-      onSuccess();
-    }
+  it("reports a chosen process definition file that cannot be read", async () => {
+    const error = new Error("read error");
+    (readFileContent as jest.Mock).mockRejectedValue(error);
+    await setup();
 
-    it("should show a snackbar with the filename after successful upload", async () => {
-      await triggerOnSuccess("key-a", "key-a.bpmn");
-      expect(utilService.openSnackbar).toHaveBeenCalledWith(
-        "msg.bpmn.process-definition.upload.success",
-        { naam: "key-a.bpmn" },
-      );
-    });
+    await chooseFile(new File(["<bad>"], "bad.bpmn"));
+    await sleep();
 
-    it("should expand the uploaded definition using the process key from the BPMN content", async () => {
-      await triggerOnSuccess("my-process-key", "different-filename.bpmn");
-      expect(component["expandedKey"]).toBe("my-process-key");
-    });
+    expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
+  });
+
+  it("uploads a dropped process definition file", async () => {
+    const content = "<bpmn/>";
+    (readFileContent as jest.Mock).mockResolvedValue(content);
+    await setup();
+
+    dropFiles(new File([content], "dropped.bpmn"));
+    await sleep();
+
+    expect(
+      bpmnService.uploadProcessDefinitionQuery().mutationFn,
+    ).toHaveBeenCalledWith(
+      { filename: "dropped.bpmn", content },
+      expect.anything(),
+    );
+  });
+
+  it("accepts a dropped process definition file whose extension is upper case", async () => {
+    const content = "<bpmn/>";
+    (readFileContent as jest.Mock).mockResolvedValue(content);
+    await setup();
+
+    dropFiles(new File([content], "process.BPMN"));
+    await sleep();
+
+    expect(
+      bpmnService.uploadProcessDefinitionQuery().mutationFn,
+    ).toHaveBeenCalledWith(
+      { filename: "process.BPMN", content },
+      expect.anything(),
+    );
+  });
+
+  it("ignores dropped files that are not process definitions", async () => {
+    await setup();
+
+    dropFiles(new File(["{}"], "form.json"));
+    await sleep();
+
+    expect(readFileContent).not.toHaveBeenCalled();
+  });
+
+  it("ignores an empty drop", async () => {
+    await setup();
+
+    dropFiles();
+    await sleep();
+
+    expect(readFileContent).not.toHaveBeenCalled();
+  });
+
+  it("reports a dropped process definition file that cannot be read", async () => {
+    const error = new Error("read error");
+    (readFileContent as jest.Mock).mockRejectedValue(error);
+    await setup();
+
+    dropFiles(new File(["<bad>"], "bad.bpmn"));
+    await sleep();
+
+    expect(foutAfhandelingService.foutAfhandelen).toHaveBeenCalledWith(error);
+  });
+
+  it("announces the upload and expands the definition named in the uploaded file", async () => {
+    const content = '<definitions><process id="key-a"></process></definitions>';
+    (readFileContent as jest.Mock).mockResolvedValue(content);
+    (extractBpmnProcessKey as jest.Mock).mockReturnValue("key-a");
+    await setup();
+
+    dropFiles(new File([content], "different-filename.bpmn"));
+    await sleep();
+    await flushRendering();
+
+    expect(utilService.openSnackbar).toHaveBeenCalledWith(
+      "msg.bpmn.process-definition.upload.success",
+      { naam: "different-filename.bpmn" },
+    );
+    expect(screen.getByText(detailsTitle)).toBeVisible();
+  });
+
+  it("asks for confirmation naming the process definition to delete", async () => {
+    await setup();
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.verwijderen Process A" }),
+    );
+
+    const dialogData = dialogOpen.mock.calls[0][1].data;
+    expect(dialogData._melding.key).toBe(
+      "msg.bpmn.process-definition.delete.confirm",
+    );
+    expect(dialogData._melding.args).toEqual({ naam: "Process A" });
+  });
+
+  it("deletes the process definition once confirmed", async () => {
+    await setup();
+    dialogOpen.mockReturnValue(
+      fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(true) }),
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.verwijderen Process A" }),
+    );
+    await sleep();
+
+    expect(deleteProcessDefinitionMutation.mutationFn).toHaveBeenCalledWith(
+      expect.objectContaining({ key: "key-a", name: "Process A" }),
+      expect.anything(),
+    );
+  });
+
+  it("keeps the process definition when the confirmation is cancelled", async () => {
+    await setup();
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.verwijderen Process A" }),
+    );
+    await sleep();
+
+    expect(deleteProcessDefinitionMutation.mutationFn).not.toHaveBeenCalled();
   });
 });

@@ -103,6 +103,18 @@
             [value]="parameters.zaaktype.uuid"
           />
         </section>
+        <section class="row">
+          <zac-static-text
+            class="col-12 col-lg-6"
+            label="zaakspecifiekAutoriseerbaar"
+            [value]="
+              (parameters.zaakspecifiekAutoriseerbaar
+                ? 'actie.ja'
+                : 'actie.nee'
+              ) | translate
+            "
+          />
+        </section>
       </fieldset>
       <fieldset class="my-5">
         <section class="row">
@@ -231,6 +243,7 @@
               </mat-panel-title>
               <mat-slide-toggle
                 formControlName="actief"
+                [aria-label]="'actief' | translate"
                 (click)="$event.stopPropagation()"
                 color="primary"
               ></mat-slide-toggle>
@@ -782,6 +795,7 @@
             <div class="flex-row items-center gap-8">
               <mat-slide-toggle
                 formControlName="brpKoppelen"
+                [aria-label]="'gegevens.koppelen.brp' | translate"
                 (click)="$event.stopPropagation()"
                 color="primary"
               ></mat-slide-toggle>
@@ -865,6 +879,7 @@
             <div class="flex-row items-center gap-8">
               <mat-slide-toggle
                 formControlName="kvkKoppelen"
+                [aria-label]="'gegevens.koppelen.kvk' | translate"
                 (click)="$event.stopPropagation()"
                 color="primary"
               ></mat-slide-toggle>

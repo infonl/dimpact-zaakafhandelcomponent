@@ -89,7 +89,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("the zaak suspend is called") {
+            and("the zaak suspend is called") {
                 verify(exactly = 1) {
                     suspensionZaakHelper.suspendZaak(zaak, numberOfDays, reason)
                 }
@@ -116,7 +116,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("the zaak suspend is called") {
+            and("the zaak suspend is called") {
                 verify(exactly = 1) {
                     suspensionZaakHelper.suspendZaak(zaak, numberOfDays, reason)
                 }
@@ -157,7 +157,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
                 policyException shouldNotBe null
             }
 
-            And("the zaak is not suspended") {
+            and("the zaak is not suspended") {
                 verify(exactly = 0) {
                     suspensionZaakHelper.suspendZaak(any(), any(), any())
                 }
@@ -198,7 +198,7 @@ class SuspendZaakDelegateTest : BehaviorSpec({
                 policyException shouldNotBe null
             }
 
-            And("the zaak is not suspended") {
+            and("the zaak is not suspended") {
                 verify(exactly = 0) {
                     suspensionZaakHelper.suspendZaak(any(), any(), any())
                 }

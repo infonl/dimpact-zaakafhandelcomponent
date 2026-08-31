@@ -21,13 +21,12 @@ import nl.info.client.zgw.ztc.model.createCatalogusListParameters
 import nl.info.client.zgw.ztc.model.createRolType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
-import nl.info.client.zgw.ztc.model.generated.RolType
 import nl.info.client.zgw.ztc.model.RoltypeListGeneriekParameters
-import net.atos.client.zgw.shared.model.Results
+import nl.info.client.zgw.ztc.model.ZaaktypeListParameters
+import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import java.net.URI
 import java.time.ZonedDateTime
-import java.util.Optional
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -48,7 +47,7 @@ class ZtcClientServiceTest : BehaviorSpec({
     given("An existing catalogus for the given parameters") {
         val catalogusListParameters = createCatalogusListParameters()
         val expectedCatalogus = createCatalogus()
-        every { ztcClient.catalogusList(catalogusListParameters).singleResult } returns Optional.of(expectedCatalogus)
+        every { ztcClient.catalogusList(catalogusListParameters).singleResult } returns expectedCatalogus
 
         `when`("readCatalogus is called") {
             val result = ztcClientService.readCatalogus(catalogusListParameters)
@@ -61,7 +60,7 @@ class ZtcClientServiceTest : BehaviorSpec({
 
     given("No catalog for the given parameters") {
         val catalogusListParameters = createCatalogusListParameters()
-        every { ztcClient.catalogusList(catalogusListParameters).singleResult } returns Optional.empty()
+        every { ztcClient.catalogusList(catalogusListParameters).singleResult } returns null
 
         `when`("readCatalogus is called") {
             val exception = shouldThrow<CatalogusNotFoundException> {
@@ -160,6 +159,28 @@ class ZtcClientServiceTest : BehaviorSpec({
                     this?.hitCount() shouldBe 1
                     this?.missCount() shouldBe 2
                 }
+            }
+        }
+    }
+
+    given("zaaktypes for a catalogus that are spread over multiple pages") {
+        val catalogusUri = URI("https://example.com/catalogussen/${UUID.randomUUID()}")
+        val firstPageZaakType = createZaakType()
+        val secondPageZaakType = createZaakType()
+        val nextPageUri = URI("https://example.com/zaaktypen?page=2")
+
+        every {
+            ztcClient.zaaktypeList(match<ZaaktypeListParameters> { it.getPage() == 1 })
+        } returns Results(1, listOf(firstPageZaakType), nextPageUri, null)
+        every {
+            ztcClient.zaaktypeList(match<ZaaktypeListParameters> { it.getPage() == 2 })
+        } returns Results(1, listOf(secondPageZaakType), null, null)
+
+        `when`("listZaaktypen is called") {
+            val zaaktypen = ztcClientService.listZaaktypen(catalogusUri)
+
+            then("it should return the zaaktypes of all pages combined") {
+                zaaktypen shouldBe listOf(firstPageZaakType, secondPageZaakType)
             }
         }
     }

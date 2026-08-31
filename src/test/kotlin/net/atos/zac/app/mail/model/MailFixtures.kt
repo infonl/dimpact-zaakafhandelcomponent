@@ -5,10 +5,18 @@
 
 package net.atos.zac.app.mail.model
 
-fun createRESTMailGegevens(
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
+
+fun createRestMailGegevens(
     verzender: String = "from@example.com",
     ontvanger: String = "to@example.com",
-) = RESTMailGegevens().apply {
-    this.verzender = verzender
-    this.ontvanger = ontvanger
-}
+    onderwerp: String = "fakeOnderwerp",
+    body: String = "fakeBody",
+    vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding = RestVertrouwelijkheidaanduiding.OPENBAAR,
+) = RestMailGegevens(
+    verzender = verzender,
+    ontvanger = ontvanger,
+    onderwerp = onderwerp,
+    body = body,
+    vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
+)

@@ -32,6 +32,9 @@ describe(MailtemplatesComponent.name, () => {
   let loader: HarnessLoader;
   let component: MailtemplatesComponent;
   let mailtemplateBeheerService: MailtemplateBeheerService;
+  let deleteMailtemplateMutation: ReturnType<
+    typeof createMutationOptions<undefined, number>
+  >;
   let mailtemplateKoppelingService: MailtemplateKoppelingService;
   let dialog: MatDialog;
   let utilServiceMock: Pick<
@@ -39,7 +42,7 @@ describe(MailtemplatesComponent.name, () => {
     "setTitle" | "openSnackbar" | "setLoading"
   >;
 
-  const mailtemplate: GeneratedType<"RESTMailtemplate"> = {
+  const mailtemplate: GeneratedType<"RestMailtemplate"> = {
     id: 1,
     mailTemplateNaam: "Test Template",
     mail: "TAAK_ONTVANGSTBEVESTIGING",
@@ -50,7 +53,7 @@ describe(MailtemplatesComponent.name, () => {
 
   const koppeling: GeneratedType<"RESTMailtemplateKoppeling"> = {
     id: 1,
-    mailtemplate: { id: 1 } as GeneratedType<"RESTMailtemplate">,
+    mailtemplate: { id: 1 } as GeneratedType<"RestMailtemplate">,
     zaakafhandelParameters: {
       zaaktype: {
         omschrijving: "Test zaaktype",
@@ -96,9 +99,12 @@ describe(MailtemplatesComponent.name, () => {
     jest
       .spyOn(mailtemplateBeheerService, "listMailtemplates")
       .mockReturnValue(of([mailtemplate]));
+    deleteMailtemplateMutation = createMutationOptions<undefined, number>(
+      undefined,
+    );
     jest
       .spyOn(mailtemplateBeheerService, "deleteMailtemplate")
-      .mockReturnValue(createMutationOptions(undefined) as never);
+      .mockReturnValue(deleteMailtemplateMutation as never);
     jest
       .spyOn(mailtemplateKoppelingService, "listMailtemplateKoppelingen")
       .mockReturnValue(of([]));
@@ -153,8 +159,9 @@ describe(MailtemplatesComponent.name, () => {
     component["verwijderMailtemplate"](mailtemplate);
     await fixture.whenStable();
 
-    expect(mailtemplateBeheerService.deleteMailtemplate).toHaveBeenCalledWith(
+    expect(deleteMailtemplateMutation.mutationFn).toHaveBeenCalledWith(
       1,
+      expect.anything(),
     );
     expect(mailtemplateBeheerService.listMailtemplates).toHaveBeenCalledTimes(
       2,
@@ -283,7 +290,7 @@ describe(MailtemplatesComponent.name, () => {
       ...mailtemplate,
       id: 2,
       mail: "ZAAK_ALGEMEEN",
-    } as GeneratedType<"RESTMailtemplate">;
+    } as GeneratedType<"RestMailtemplate">;
     jest
       .spyOn(mailtemplateBeheerService, "listMailtemplates")
       .mockReturnValue(of([mailtemplate, template2]));
@@ -343,7 +350,7 @@ describe(MailtemplatesComponent.name, () => {
 
     it("should not touch the loading state after the component is destroyed", () => {
       const pendingMailtemplates = new Subject<
-        GeneratedType<"RESTMailtemplate">[]
+        GeneratedType<"RestMailtemplate">[]
       >();
       jest
         .spyOn(mailtemplateBeheerService, "listMailtemplates")

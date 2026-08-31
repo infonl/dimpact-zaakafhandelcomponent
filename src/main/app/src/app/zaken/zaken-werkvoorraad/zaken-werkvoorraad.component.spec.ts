@@ -7,16 +7,21 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Data, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../setupJest";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { IdentityService } from "../../identity/identity.service";
 import { TabelGegevens } from "../../shared/dynamic-table/model/tabel-gegevens";
 import { ZoekenColumn } from "../../shared/dynamic-table/model/zoeken-column";
@@ -28,6 +33,7 @@ describe(ZakenWerkvoorraadComponent.name, () => {
   let component: ZakenWerkvoorraadComponent;
   let fixture: ComponentFixture<ZakenWerkvoorraadComponent>;
   let identityService: IdentityService;
+  let httpTestingController: HttpTestingController;
 
   const mockTabelGegevens: TabelGegevens = {
     aantalPerPagina: 10,
@@ -47,29 +53,29 @@ describe(ZakenWerkvoorraadComponent.name, () => {
   });
 
   beforeEach(async () => {
-    TestBed.configureTestingModule({
-      imports: [
-        ZakenWerkvoorraadComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
-      providers: [
-        provideRouter([]),
-        {
-          provide: ActivatedRoute,
-          useValue: mockActivatedRoute,
-        },
-        provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting(),
-        provideNativeDateAdapter(),
-        provideQueryClient(testQueryClient),
-      ],
-    });
+    const { fixture: renderedFixture } = await render(
+      ZakenWerkvoorraadComponent,
+      {
+        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        providers: [
+          provideRouter([]),
+          {
+            provide: ActivatedRoute,
+            useValue: mockActivatedRoute,
+          },
+          provideHttpClient(withInterceptorsFromDi()),
+          provideHttpClientTesting(),
+          provideNativeDateAdapter(),
+          provideQueryClient(testQueryClient),
+        ],
+      },
+    );
 
-    fixture = TestBed.createComponent(ZakenWerkvoorraadComponent);
+    fixture = renderedFixture;
     component = fixture.componentInstance;
 
     identityService = TestBed.inject(IdentityService);
+    httpTestingController = TestBed.inject(HttpTestingController);
 
     testQueryClient.setQueryData(identityService.readLoggedInUser().queryKey, {
       id: "user1",
@@ -129,6 +135,87 @@ describe(ZakenWerkvoorraadComponent.name, () => {
         behandelaarGebruikersnaam: "user2",
       });
       expect(component["showAssignToMe"](zaakZoekObject)).toBe(false);
+    });
+  });
+
+  describe("assigning a zaak to yourself", () => {
+    const zaakZoekObject = () =>
+      fromPartial<ZaakZoekObject>({
+        id: "fakeZaakUuid",
+        identificatie: "ZAAK-1",
+        groepId: "groupA",
+        behandelaarNaam: "",
+        behandelaarGebruikersnaam: "",
+        rechten: { toekennen: true },
+      });
+
+    async function showZaak(zaak: ZaakZoekObject) {
+      await sleep();
+      httpTestingController
+        .match("/rest/zoeken/list")
+        .forEach((request) =>
+          request.flush({ totaal: 1, resultaten: [zaak], filters: {} }),
+        );
+      await sleep();
+      // the table creates the row views in one pass and binds their cells in the next
+      fixture.detectChanges();
+      fixture.detectChanges();
+    }
+
+    function assignToMeButton() {
+      return screen.queryByRole("button", { name: "actie.mij.toekennen" });
+    }
+
+    async function clickAssignToMe() {
+      await userEvent.click(
+        screen.getByRole("button", { name: "actie.mij.toekennen" }),
+      );
+      await sleep();
+    }
+
+    it("assigns the zaak of the row it was clicked on", async () => {
+      await showZaak(zaakZoekObject());
+
+      await clickAssignToMe();
+
+      const request = httpTestingController.expectOne(
+        "/rest/zaken/lijst/toekennen/mij",
+      );
+      expect(request.request.method).toBe("PUT");
+      expect(request.request.body).toEqual({
+        zaakUUID: "fakeZaakUuid",
+        groepId: "groupA",
+      });
+    });
+
+    it("shows the assigned behandelaar on the row it was clicked on", async () => {
+      await showZaak(zaakZoekObject());
+
+      await clickAssignToMe();
+      httpTestingController.expectOne("/rest/zaken/lijst/toekennen/mij").flush(
+        fromPartial<GeneratedType<"RestZaakOverzicht">>({
+          behandelaar: { id: "user1", naam: "testuser-1" },
+        }),
+      );
+      await sleep();
+      fixture.detectChanges();
+
+      expect(screen.getByText("testuser-1")).toBeVisible();
+      expect(assignToMeButton()).toBeNull();
+    });
+
+    it("leaves the row alone when the response names no behandelaar", async () => {
+      await showZaak(zaakZoekObject());
+
+      await clickAssignToMe();
+      httpTestingController
+        .expectOne("/rest/zaken/lijst/toekennen/mij")
+        .flush(fromPartial<GeneratedType<"RestZaakOverzicht">>({}));
+      await sleep();
+      fixture.detectChanges();
+
+      expect(screen.queryByText("testuser-1")).toBeNull();
+      expect(assignToMeButton()).toBeVisible();
     });
   });
 

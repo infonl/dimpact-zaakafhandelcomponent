@@ -3,10 +3,16 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { HttpResponse } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
+import { Observable } from "rxjs";
 import { UtilService } from "../core/service/util.service";
-import { PostBody } from "../shared/http/http-client";
+import {
+  HttpClient,
+  PathParameters,
+  PostBody,
+} from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -18,6 +24,7 @@ const PROCESS_DEFINITIONS_PATH = "/rest/bpmn-process-definitions";
 })
 export class BpmnService {
   private readonly zacHttpClient = inject(ZacHttpClient);
+  private readonly httpClient = inject(HttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
   private readonly queryClient = inject(QueryClient, { optional: true });
@@ -42,13 +49,35 @@ export class BpmnService {
     );
   }
 
-  deleteProcessDefinition(processDefinition: { key: string; name: string }) {
-    return mergeMutationOptions(
-      this.zacQueryClient.DELETE("/rest/bpmn-process-definitions/{key}", {
-        path: { key: processDefinition.key },
-      }),
+  /**
+   * Bypasses the {@link ZacHttpClient} so that a failure is reported by whoever
+   * calls this, instead of by the generic error dialog as well.
+   */
+  downloadProcessDefinition(key: string): Observable<HttpResponse<Blob>> {
+    return this.httpClient.GET(
+      "/rest/bpmn-process-definitions/{key}/download",
       {
-        onSuccess: () => {
+        path: { key },
+        responseType: "blob",
+        observe: "response",
+      } as PathParameters<
+        "/rest/bpmn-process-definitions/{key}/download",
+        "get"
+      > &
+        Record<string, unknown>,
+    ) as unknown as Observable<HttpResponse<Blob>>;
+  }
+
+  deleteProcessDefinition() {
+    return mergeMutationOptions(
+      this.zacQueryClient.DELETE(
+        "/rest/bpmn-process-definitions/{key}",
+        (processDefinition: { key: string; name: string }) => ({
+          parameters: { path: { key: processDefinition.key } },
+        }),
+      ),
+      {
+        onSuccess: (_data, processDefinition) => {
           void this.invalidateProcessDefinitions();
           this.utilService.openSnackbar("msg.bpmn.process-definition.deleted", {
             naam: processDefinition.name,
@@ -69,13 +98,21 @@ export class BpmnService {
     );
   }
 
-  deleteProcessDefinitionForm(processDefinitionKey: string, name: string) {
+  deleteProcessDefinitionForm() {
     return mergeMutationOptions(
       this.zacQueryClient.DELETE(
         "/rest/bpmn-process-definitions/{key}/forms/{name}",
-        {
-          path: { key: processDefinitionKey, name },
-        },
+        (processDefinitionForm: {
+          processDefinitionKey: string;
+          name: string;
+        }) => ({
+          parameters: {
+            path: {
+              key: processDefinitionForm.processDefinitionKey,
+              name: processDefinitionForm.name,
+            },
+          },
+        }),
       ),
       { onSuccess: () => void this.invalidateProcessDefinitions() },
     );

@@ -12,6 +12,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
+  inject,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -23,15 +24,16 @@ import { MatSortModule } from "@angular/material/sort";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import {
   LINKABLE_ZAKEN_PAGINATION_SIZE,
   ZoekenService,
 } from "src/app/zoeken/zoeken.service";
-import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ZacInput } from "../../shared/form/input/input";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 
@@ -94,10 +96,11 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
     ]),
   });
 
-  protected readonly linkDocumentMutation = injectMutation(
-    () => this.informatieObjectService.linkDocumentToCaseMutation(),
-    { onError: (error) => this.foutAfhandelingService.foutAfhandelen(error) },
+  protected readonly linkDocumentMutation = injectMutation(() =>
+    this.informatieObjectService.linkDocumentToCaseMutation(),
   );
+
+  private readonly queryClient = inject(QueryClient);
 
   constructor(
     private readonly zoekenService: ZoekenService,
@@ -105,7 +108,6 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
     private readonly utilService: UtilService,
     private readonly translate: TranslateService,
     private readonly formBuilder: FormBuilder,
-    private readonly foutAfhandelingService: FoutAfhandelingService,
   ) {}
 
   ngOnInit() {
@@ -131,26 +133,27 @@ export class InformatieObjectLinkComponent implements OnInit, OnChanges {
     this.loading = true;
     this.utilService.setLoading(true);
     const { caseSearch } = this.form.value;
-    this.zoekenService
-      .listDocumentKoppelbareZaken({
+    runQuery(
+      this.queryClient,
+      this.zoekenService.listDocumentKoppelbareZaken({
         zaakIdentificator: caseSearch!,
         informationObjectTypeUuid: this.infoObject.informatieobjectTypeUUID,
         page: 0,
         rows: LINKABLE_ZAKEN_PAGINATION_SIZE,
-      })
-      .subscribe({
-        next: (result) => {
-          this.cases.data =
-            result.resultaten as GeneratedType<"RestZaakKoppelenZoekObject">[];
-          this.totalCases = result.totaal ?? 0;
-          this.loading = false;
-          this.utilService.setLoading(false);
-        },
-        error: () => {
-          this.loading = false;
-          this.utilService.setLoading(false);
-        },
-      });
+      }),
+    ).subscribe({
+      next: (result) => {
+        this.cases.data =
+          result.resultaten as GeneratedType<"RestZaakKoppelenZoekObject">[];
+        this.totalCases = result.totaal ?? 0;
+        this.loading = false;
+        this.utilService.setLoading(false);
+      },
+      error: () => {
+        this.loading = false;
+        this.utilService.setLoading(false);
+      },
+    });
   }
 
   protected selectCase(row: GeneratedType<"RestZaakKoppelenZoekObject">) {

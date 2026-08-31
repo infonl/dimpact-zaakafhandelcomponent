@@ -7,10 +7,7 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from "@angular/common/http/testing";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { provideZonelessChangeDetection } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -18,6 +15,8 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
@@ -59,14 +58,14 @@ const geladenTabelA = fromPartial<GeneratedType<"RestReferenceTable">>({
 
 describe(ReferentieTabellenComponent.name, () => {
   let fixture: ComponentFixture<ReferentieTabellenComponent>;
-  let component: ReferentieTabellenComponent;
   let service: ReferentieTabelService;
-  let httpTestingController: HttpTestingController;
   let setTitle: jest.SpyInstance;
   let dialogOpen: jest.SpyInstance;
   let deleteReferentieTabelMutation: ReturnType<
     typeof createMutationOptions<undefined>
   >;
+
+  const user = userEvent.setup();
 
   // jsdom has no scrollIntoView; stub it per test and restore to avoid leaking.
   const originalScrollIntoView = Element.prototype.scrollIntoView;
@@ -80,8 +79,32 @@ describe(ReferentieTabellenComponent.name, () => {
   }
 
   async function setup({ seedDetail = false } = {}) {
-    fixture = TestBed.createComponent(ReferentieTabellenComponent);
-    component = fixture.componentInstance;
+    const rendered = await render(ReferentieTabellenComponent, {
+      detectChangesOnRender: false,
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+        provideTanStackQuery(testQueryClient),
+        provideRouter([]),
+        { provide: ConfiguratieService, useValue: {} },
+      ],
+    });
+    fixture = rendered.fixture;
+
+    service = TestBed.inject(ReferentieTabelService);
+    deleteReferentieTabelMutation = createMutationOptions(undefined);
+    jest
+      .spyOn(service, "deleteReferentieTabel")
+      .mockReturnValue(deleteReferentieTabelMutation as never);
+
+    const utilService = TestBed.inject(UtilService);
+    setTitle = jest
+      .spyOn(utilService, "setTitle")
+      .mockImplementation(() => undefined);
+    jest.spyOn(utilService, "openSnackbar").mockImplementation(() => undefined);
+
     dialogOpen = jest
       .spyOn(TestBed.inject(MatDialog), "open")
       .mockReturnValue(
@@ -102,70 +125,45 @@ describe(ReferentieTabellenComponent.name, () => {
     await flushRendering();
   }
 
-  beforeEach(async () => {
+  beforeEach(() => {
     Element.prototype.scrollIntoView = jest.fn();
-
-    await TestBed.configureTestingModule({
-      imports: [
-        ReferentieTabellenComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
-      providers: [
-        provideZonelessChangeDetection(),
-        provideHttpClient(withInterceptorsFromDi()),
-        provideHttpClientTesting(),
-        provideTanStackQuery(testQueryClient),
-        provideRouter([]),
-        { provide: ConfiguratieService, useValue: {} },
-      ],
-    }).compileComponents();
-
-    service = TestBed.inject(ReferentieTabelService);
-    deleteReferentieTabelMutation = createMutationOptions(undefined);
-    jest
-      .spyOn(service, "deleteReferentieTabel")
-      .mockReturnValue(deleteReferentieTabelMutation as never);
-    httpTestingController = TestBed.inject(HttpTestingController);
-    const utilService = TestBed.inject(UtilService);
-    setTitle = jest
-      .spyOn(utilService, "setTitle")
-      .mockImplementation(() => undefined);
-    jest.spyOn(utilService, "openSnackbar").mockImplementation(() => undefined);
   });
 
   afterEach(() => {
     Element.prototype.scrollIntoView = originalScrollIntoView;
-    testQueryClient.clear();
-    httpTestingController.verify();
   });
 
-  it("sets the title and renders a row per table on init", async () => {
+  it("sets the title and shows a row per reference table", async () => {
     await setup();
+
     expect(setTitle).toHaveBeenCalledWith(
       "title.referentietabellen",
       undefined,
     );
-    expect(fixture.nativeElement.querySelectorAll(".tabel-row")).toHaveLength(
-      2,
-    );
-    expect(fixture.nativeElement.textContent).toContain("TABEL_A");
-    expect(fixture.nativeElement.textContent).toContain("TABEL_B");
+    expect(screen.getByRole("button", { name: "TABEL_A" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "TABEL_B" })).toBeVisible();
+    expect(screen.getByText("Tabel A")).toBeVisible();
+    expect(screen.getByText("Tabel B")).toBeVisible();
   });
 
-  it("lazily loads and renders the values when a row is expanded", async () => {
+  it("shows the values of a table once its row is expanded", async () => {
     await setup({ seedDetail: true });
 
-    component["toggle"](tabellen[0]);
+    expect(screen.queryByText("Waarde A1")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "TABEL_A" }));
     await flushRendering();
 
-    expect(component["expandedId"]()).toBe(1);
-    expect(fixture.nativeElement.textContent).toContain("Waarde A1");
+    expect(screen.getByText("Waarde A1")).toBeVisible();
   });
 
-  it("opens the create dialog", async () => {
+  it("opens the create dialog from the add button", async () => {
     await setup();
-    component["openCreateDialog"]();
+
+    await user.click(
+      screen.getByRole("button", { name: "referentietabel.toevoegen" }),
+    );
+
     expect(dialogOpen).toHaveBeenCalledWith(
       ReferentieTabelCreateDialogComponent,
       expect.objectContaining({ width: "500px" }),
@@ -178,32 +176,49 @@ describe(ReferentieTabellenComponent.name, () => {
       fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(1) }),
     );
 
-    component["openCreateDialog"]();
+    await user.click(
+      screen.getByRole("button", { name: "referentietabel.toevoegen" }),
+    );
     await flushRendering();
 
-    expect(component["expandedId"]()).toBe(1);
+    expect(screen.getByText("Waarde A1")).toBeVisible();
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
   });
 
-  it("opens the delete confirmation and deletes the table when confirmed", async () => {
+  it("asks for confirmation naming the table and deletes it once confirmed", async () => {
     await setup();
     dialogOpen.mockReturnValue(
       fromPartial<MatDialogRef<unknown>>({ afterClosed: () => of(true) }),
     );
 
-    component["verwijderReferentieTabel"](tabellen[0]);
+    await user.click(
+      screen.getByRole("button", { name: "actie.verwijderen TABEL_A" }),
+    );
     await sleep();
 
     const dialogData = dialogOpen.mock.calls[0][1].data;
     expect(dialogData._melding.key).toBe("msg.tabel.verwijderen-bevestigen");
     expect(dialogData._melding.args).toEqual({ tabel: "TABEL_A" });
-    expect(service.deleteReferentieTabel).toHaveBeenCalledWith(tabellen[0]);
+    expect(deleteReferentieTabelMutation.mutationFn).toHaveBeenCalledWith(
+      tabellen[0],
+      expect.anything(),
+    );
   });
 
-  it("loads the full table then opens the rename dialog", async () => {
+  it("does not offer deletion of a system table", async () => {
+    await setup();
+
+    expect(
+      screen.getByRole("button", { name: "actie.verwijderen TABEL_B" }),
+    ).toBeDisabled();
+  });
+
+  it("loads the full table before opening the rename dialog", async () => {
     await setup({ seedDetail: true });
 
-    component["editReferentieTabel"](tabellen[0]);
+    await user.click(
+      screen.getByRole("button", { name: "actie.bewerken TABEL_A" }),
+    );
     await sleep();
 
     expect(dialogOpen).toHaveBeenCalledWith(

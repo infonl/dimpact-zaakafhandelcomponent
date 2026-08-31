@@ -109,6 +109,30 @@ Please follow our coding conventions described in [CONTRIBUTING.md](CONTRIBUTING
 - Standalone components declare all template dependencies in their `imports` array — import the component under test directly, no `NO_ERRORS_SCHEMA` needed
 - Use `fromPartial` from `@total-typescript/shoehorn` to create partial mocks of generated types
 
+#### Query the DOM through Testing Library, not through Angular
+New and modified specs use [Testing Library](https://testing-library.com/docs/queries/about/#priority)
+to reach the DOM. Prefer `getByRole` with an accessible name; fall back to `getByLabelText`
+and `getByText` only when no role fits. A spec that queries by role fails when the markup
+stops being accessible, which is behaviour worth testing on its own.
+
+Do not use `fixture.debugElement.query(By.css(...))` or `nativeElement.querySelector(...)`.
+Both are flagged by `no-restricted-syntax`, and by Testing Library's own `no-node-access`.
+
+```ts
+// Before
+const row = fixture.nativeElement.querySelector("tr.zaak-row");
+// After
+const row = screen.getByRole("row", { name: /ZAAK-001/ });
+```
+
+Around 70 older specs still use the Angular style. They are warnings project-wide, but
+**errors on any spec file a pull request touches** — so a spec you edit has to be migrated
+before it merges. `./scripts/lint-changed-files.sh` reproduces that check locally.
+
+Where a third-party widget renders nothing queryable — `ngx-editor` sets no role on its
+ProseMirror element, OpenLayers draws to a canvas, a file input is `display: none` —
+disable the rule on that line with a comment saying which widget forces it.
+
 ### SPDX License Headers
 All source files require an SPDX header. For `.kt`, `.ts`, `.java`, `.js` files:
 ```
@@ -144,6 +168,23 @@ fun add(a: Int, b: Int): Int = a + b
 ```
 This makes the code more concise and easier to read.
 
+### Omit return types when they are obvious
+When a Kotlin function has an expression body (`=`) and its right-hand side already makes the return type
+unambiguous — constructing a specific type via `Foo().apply { ... }`, or delegating to another function whose
+own return type is already clear — omit the explicit return type declaration. This applies even to public API
+functions; this project deliberately diverges from the general Kotlin style guide's recommendation to always
+declare return types on public declarations.
+```kotlin
+// Before
+fun convert(mailTemplate: MailTemplate): RESTMailtemplate =
+    RESTMailtemplate().apply { ... }
+// After
+fun convert(mailTemplate: MailTemplate) =
+    RESTMailtemplate().apply { ... }
+```
+Keep the explicit return type when the body is a block (`{ ... return ... }`, where Kotlin requires it anyway)
+or when omitting it would genuinely obscure what the function returns.
+
 ### Use `https` for dummy URLs
 When you encounter placeholder or test URLs in code or documentation, use `https://` instead of `http://` to follow best practices for secure URLs.
 
@@ -175,6 +216,34 @@ Only add a comment when it explains something the code cannot: a non-obvious "wh
 constraint. Never restate what the next line already says. If a comment is needed to explain *what* the code does,
 rename the variable or function instead.
 
+### Let the tests document the behaviour, not comments
+A test must state the behaviour. Do not repeat that behaviour in a comment above the code. A test is executable
+documentation. It fails when the code changes, but a wrong comment causes no failure. Therefore, write the
+explanation as a test description and not as a comment.
+
+This rule is a principle, not a language rule. It applies to all code in this repository, backend and frontend.
+Write a comment only for what no test can express. Examples: an ordering constraint between two external systems,
+or a workaround for a third-party bug.
+
+Move the sentence from the code to the spec:
+
+```
+// Before: the comment gives the explanation
+/**
+ * Adds the item to the inbox, unless it is already linked to a case,
+ * in which case nothing is added.
+ */
+function addToInbox(item)
+
+// After: the code gives no explanation ...
+function addToInbox(item)
+
+// ... because the spec gives it instead
+spec "given an item that is already linked to a case,
+      when the code adds it to the inbox,
+      then nothing is added, so that a linked item never appears in the inbox"
+```
+
 ### Conventional Commits
 PR titles and commit messages follow: `<type>[optional scope]: <description>`
 PR footer must include: `Solves PZ-XXX` (Jira ticket reference)
@@ -187,6 +256,27 @@ Rename existing classes to comply with the following Kotlin code convention:
 When using an acronym as part of a declaration name, follow these rules:
 — For two-letter acronyms, use uppercase for both letters. For example, IOStream.
 — For acronyms longer than two letters, capitalize only the first letter. For example, XmlFormatter or HttpInputStream.
+
+### Name boolean properties with an `is`/`has` prefix
+Follow the [Kotlin convention for booleans](https://kotlinlang.org/docs/coding-conventions.html#names-for-test-methods):
+name boolean properties and variables with an `is`, `has`, or similar prefix, e.g. `isInformatieobjectDeleted`
+rather than `informatieobjectDeleted`. This applies to REST model classes as well as regular code.
+For a boolean property on a class serialized with JSON-B (e.g. a `RestXxx` model), add
+`@get:JsonbProperty("isXxx")` above the property so the JSON field name matches the Kotlin property
+name exactly:
+```kotlin
+// Before
+var informatieobjectDeleted: Boolean = true
+// After
+@get:JsonbProperty("isInformatieobjectDeleted")
+var isInformatieobjectDeleted: Boolean = true
+```
+
+### Use kebab-case for the last segment of frontend i18n message keys
+In `src/main/app/src/assets/i18n/nl.json` and `en.json`, when the last segment of a message key is
+multi-word, write it in kebab-case, not camelCase — e.g. `msg.document.verwijderen.inbox.niet-verwijderd`,
+not `msg.document.verwijderen.inbox.nietVerwijderd`. This applies even when the segment is named after
+a camelCase variable (such as an `isXxx` boolean) elsewhere in the code — the i18n key still uses kebab-case.
 
 ### Prefer Kotlin data classes for simple data holders
 When you encounter a class that is primarily used to hold data (i.e., it has properties and no significant behavior), for example for classes used as arguments or responses in REST services,
@@ -247,6 +337,23 @@ val user = User().apply {
 }
 ```
 This allows you to initialize the object in a more fluent way.
+
+Prefer `.apply` over `.also` for this even inside an extension function, where the extension receiver and the
+object being configured are two different values in scope at once. Qualify references to the extension receiver
+with `this@functionName` so every unqualified assignment inside the `apply` block unambiguously targets the new
+object:
+```kotlin
+// Before (.also, only needed because of the two receivers)
+fun MailTemplate.toRestMailtemplate() = RESTMailtemplate().also {
+    it.mailTemplateNaam = mailTemplateNaam
+}
+// After (.apply, receiver disambiguated explicitly)
+fun MailTemplate.toRestMailtemplate() = RESTMailtemplate().apply {
+    mailTemplateNaam = this@toRestMailtemplate.mailTemplateNaam
+}
+```
+`.also`'s `it`/named parameter is for side effects on an existing value; configuring a freshly constructed object's
+fields is not a side effect, so reach for `.apply` regardless of how many receivers are in scope.
 
 ### Distinguish between `findXxx` and `readXxx` functions in low-level Kotlin CRUD services
 Use the following convention:
@@ -364,6 +471,16 @@ class MyServiceTest : BehaviorSpec({
         }
     }
 })
+```
+
+Use the lowercase `and(...)` block for an additional assertion group after a `then(...)`, not the capitalized `And(...)`. Kotest's `BehaviorSpec` provides both, but mixing cases (lowercase `given`/`when`/`then` with capitalized `And`) is exactly what CodeQL's `java/confusing-method-name` query flags as confusing. This is an in-progress migration — many existing specs still use `And(...)` — but new and touched specs should use `and(...)`.
+```kotlin
+// Before
+then("expected result") { ... }
+And("an additional assertion") { ... }
+// After
+then("expected result") { ... }
+and("an additional assertion") { ... }
 ```
 
 ### Use `fakeXXX` for test values where possible

@@ -42,35 +42,35 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
                     result.identificatie shouldBe "fakeIdentificatie"
                 }
 
-                And("it should map the postcode") {
+                and("it should map the postcode") {
                     result.postcode shouldBe "1234AB"
                 }
 
-                And("it should map the huisnummer") {
+                and("it should map the huisnummer") {
                     result.huisnummer shouldBe 10
                 }
 
-                And("it should map the huisletter as null") {
+                and("it should map the huisletter as null") {
                     result.huisletter shouldBe null
                 }
 
-                And("it should map the huisnummertoevoeging as null") {
+                and("it should map the huisnummertoevoeging as null") {
                     result.huisnummertoevoeging shouldBe null
                 }
 
-                And("it should produce huisnummerWeergave as '10' when huisletter and toevoeging are null") {
+                and("it should produce huisnummerWeergave as '10' when huisletter and toevoeging are null") {
                     result.huisnummerWeergave shouldBe "10"
                 }
 
-                And("it should map the status") {
+                and("it should map the status") {
                     result.status shouldBe StatusNaamgeving.NAAMGEVING_UITGEGEVEN
                 }
 
-                And("it should map the typeAdresseerbaarObject") {
+                and("it should map the typeAdresseerbaarObject") {
                     result.typeAdresseerbaarObject shouldBe TypeAdresseerbaarObject.VERBLIJFSOBJECT
                 }
 
-                And("it should map geconstateerd as true when Indicatie is J") {
+                and("it should map geconstateerd as true when Indicatie is J") {
                     result.geconstateerd shouldBe true
                 }
             }
@@ -95,7 +95,7 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
                     result.huisnummerWeergave shouldBe "42A-bis"
                 }
 
-                And("it should map geconstateerd as false when Indicatie is N") {
+                and("it should map geconstateerd as false when Indicatie is N") {
                     result.geconstateerd shouldBe false
                 }
             }
@@ -142,31 +142,31 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
                     result!!.url shouldBe fakeObjectUri
                 }
 
-                And("it should map the identificatie") {
+                and("it should map the identificatie") {
                     result.identificatie shouldBe "fakeIdentificatie"
                 }
 
-                And("it should map the postcode") {
+                and("it should map the postcode") {
                     result.postcode shouldBe "9876ZZ"
                 }
 
-                And("it should map the huisnummer") {
+                and("it should map the huisnummer") {
                     result.huisnummer shouldBe 15
                 }
 
-                And("it should map the huisletter") {
+                and("it should map the huisletter") {
                     result.huisletter shouldBe "B"
                 }
 
-                And("it should map the huisnummertoevoeging") {
+                and("it should map the huisnummertoevoeging") {
                     result.huisnummertoevoeging shouldBe "fakeToevoeging"
                 }
 
-                And("it should map the status from the string value") {
+                and("it should map the status from the string value") {
                     result.status shouldBe StatusNaamgeving.NAAMGEVING_UITGEGEVEN
                 }
 
-                And("it should map the typeAdresseerbaarObject from the string value") {
+                and("it should map the typeAdresseerbaarObject from the string value") {
                     result.typeAdresseerbaarObject shouldBe TypeAdresseerbaarObject.LIGPLAATS
                 }
             }
@@ -195,28 +195,28 @@ class RestNummeraanduidingConverterTest : BehaviorSpec({
                     result.zaak shouldBe zaak.url
                 }
 
-                And("it should set the object URI from the nummeraanduiding url") {
+                and("it should set the object URI from the nummeraanduiding url") {
                     result.`object` shouldBe fakeNummeraanduidingUrl
                 }
 
-                And("it should populate ObjectNummeraanduiding with the correct identificatie") {
+                and("it should populate ObjectNummeraanduiding with the correct identificatie") {
                     result.objectIdentificatie!!.overigeData!!.identificatie shouldBe "fakeIdentificatie"
                 }
 
-                And("it should populate ObjectNummeraanduiding with the correct postcode") {
+                and("it should populate ObjectNummeraanduiding with the correct postcode") {
                     result.objectIdentificatie!!.overigeData!!.postcode shouldBe "1111AA"
                 }
 
-                And("it should populate ObjectNummeraanduiding with the correct huisnummer") {
+                and("it should populate ObjectNummeraanduiding with the correct huisnummer") {
                     result.objectIdentificatie!!.overigeData!!.huisnummer shouldBe 7
                 }
 
-                And("it should populate ObjectNummeraanduiding with the correct typeAdresseerbaarObject string") {
+                and("it should populate ObjectNummeraanduiding with the correct typeAdresseerbaarObject string") {
                     result.objectIdentificatie!!.overigeData!!.typeAdresseerbaarObject shouldBe
                         TypeAdresseerbaarObject.VERBLIJFSOBJECT.toString()
                 }
 
-                And("it should populate ObjectNummeraanduiding with the correct status string") {
+                and("it should populate ObjectNummeraanduiding with the correct status string") {
                     result.objectIdentificatie!!.overigeData!!.status shouldBe
                         StatusNaamgeving.NAAMGEVING_UITGEGEVEN.toString()
                 }

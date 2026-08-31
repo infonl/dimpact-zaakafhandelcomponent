@@ -9,7 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
-import net.atos.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.CatalogusListParameters
 import nl.info.client.zgw.ztc.model.generated.Catalogus
@@ -51,7 +51,7 @@ class OpenZaakReadinessHealthCheckTest : BehaviorSpec({
                     result.status shouldBe HealthCheckResponse.Status.DOWN
                 }
 
-                And("the error data contains the exception message") {
+                and("the error data contains the exception message") {
                     result.data.get()["error"] shouldBe "fakeConnectionError"
                 }
             }

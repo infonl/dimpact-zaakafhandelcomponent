@@ -1,322 +1,305 @@
 /*
- * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2025, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { provideHttpClient } from "@angular/common/http";
-import { EventEmitter } from "@angular/core";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatDialogRef } from "@angular/material/dialog";
-import { MatPaginator, PageEvent } from "@angular/material/paginator";
-import { MatSidenav } from "@angular/material/sidenav";
-import { MatSort } from "@angular/material/sort";
+import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
-import { SessionStorageUtil } from "src/app/shared/storage/session-storage.util";
+import { UtilService } from "src/app/core/service/util.service";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
+import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
-import { createMutationOptions } from "../../../test-helpers";
-import { InboxDocumentenService } from "../inbox-documenten.service";
 import { InboxDocumentenListComponent } from "./inbox-documenten-list.component";
 
-type InboxDocument = Parameters<
-  (typeof InboxDocumentenListComponent.prototype)["openDrawer"]
->[0];
+const SEARCH_PARAMETERS_KEY = "INBOX_DOCUMENTEN_ZOEKPARAMETERS";
 
-const makeInboxDocument = (
-  fields: Partial<InboxDocument> = {},
-): InboxDocument =>
-  ({
-    id: 1,
-    titel: "Test document",
-    enkelvoudiginformatieobjectUUID: "uuid-1",
-    enkelvoudiginformatieobjectID: "ID-001",
-    creatiedatum: "2026-01-01",
-    ...fields,
-  }) as Partial<InboxDocument> as unknown as InboxDocument;
+const inboxDocument = fromPartial<GeneratedType<"RestInboxDocument">>({
+  id: 42,
+  titel: "Aanvraag formulier",
+  enkelvoudiginformatieobjectUUID: "fakeDocumentUuid",
+  enkelvoudiginformatieobjectID: "DOCUMENT-001",
+  creatiedatum: "2026-01-01",
+});
 
 describe(InboxDocumentenListComponent.name, () => {
   let fixture: ComponentFixture<InboxDocumentenListComponent>;
-  let component: InboxDocumentenListComponent;
-  let inboxDocumentenService: InboxDocumentenService;
-  let infoService: InformatieObjectenService;
+  let httpTestingController: HttpTestingController;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-        InboxDocumentenListComponent,
-      ],
-      providers: [
-        provideHttpClient(),
-        provideQueryClient(testQueryClient),
-        provideRouter([]),
-        {
-          provide: ActivatedRoute,
-          useValue: { data: of({ tabelGegevens: { aantalPerPagina: 10 } }) },
-        },
-      ],
-    }).compileComponents();
+  const user = userEvent.setup({ delay: null });
 
-    inboxDocumentenService = TestBed.inject(InboxDocumentenService);
-    infoService = TestBed.inject(InformatieObjectenService);
+  jest.setTimeout(20_000);
 
+  async function setup() {
+    const { fixture: renderedFixture } = await render(
+      InboxDocumentenListComponent,
+      {
+        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        providers: [
+          provideRouter([]),
+          {
+            provide: ActivatedRoute,
+            useValue: fromPartial<ActivatedRoute>({
+              data: of({
+                tabelGegevens: {
+                  aantalPerPagina: 10,
+                  pageSizeOptions: [10, 25, 50],
+                },
+              }),
+            }),
+          },
+          provideHttpClient(withInterceptorsFromDi()),
+          provideHttpClientTesting(),
+          provideNativeDateAdapter(),
+          provideQueryClient(testQueryClient),
+        ],
+      },
+    );
+
+    fixture = renderedFixture;
+    httpTestingController = TestBed.inject(HttpTestingController);
     jest
-      .spyOn(inboxDocumentenService, "list")
-      .mockReturnValue(of({ totaal: 0, resultaten: [] }));
-    jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {});
-    jest.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
+      .spyOn(TestBed.inject(UtilService), "openSnackbar")
+      .mockImplementation(() => undefined);
+  }
 
-    fixture = TestBed.createComponent(InboxDocumentenListComponent);
-    component = fixture.componentInstance;
+  function listRequests() {
+    return httpTestingController.match("/rest/inboxdocumenten");
+  }
 
-    component.sort = new MatSort();
-    component.paginator = {
-      pageSize: 10,
-      pageIndex: 0,
-      length: 0,
-      page: new EventEmitter<PageEvent>(),
-    } as Partial<MatPaginator> as unknown as MatPaginator;
+  async function showDocuments(
+    documents: GeneratedType<"RestInboxDocument">[],
+    totaal = documents.length,
+  ) {
+    await sleep();
+    listRequests().forEach((request) =>
+      request.flush({ totaal, resultaten: documents }),
+    );
+    await sleep();
+    // the table creates the row views in one pass and binds their cells in the next
+    fixture.detectChanges();
+    fixture.detectChanges();
+  }
 
-    component.ngAfterViewInit();
+  async function lastListRequestBody() {
+    await sleep();
+    const requests = listRequests();
+    const body = requests[requests.length - 1].request.body;
+    requests.forEach((request) => request.flush({ totaal: 0, resultaten: [] }));
+    await sleep();
+    return body;
+  }
+
+  function documentRow() {
+    return screen.getByRole("row", { name: /DOCUMENT-001/ });
+  }
+
+  beforeEach(() => {
+    sessionStorage.clear();
   });
 
-  it("should remember user data in SessionStorageUtil when updating list parameters", () => {
-    const setItemSpy = jest.spyOn(SessionStorageUtil, "setItem");
-
-    component.sort.active = "titel";
-    component.sort.direction = "asc";
-    component.paginator.pageSize = 25;
-
-    component["updateListParameters"]();
-
-    expect(setItemSpy).toHaveBeenCalledWith("INBOX_DOCUMENTEN_ZOEKPARAMETERS", {
-      maxResults: 25,
-      order: "asc",
-      page: 0,
-      sort: "titel",
-    });
+  afterEach(() => {
+    httpTestingController
+      ?.match(() => true)
+      .forEach((request) => request.flush([]));
   });
 
-  it("should use remembered user data when reloading (ngOnInit)", () => {
-    const rememberedParams = {
-      sort: "MockedTitle",
-      order: "MockedOrder",
-      maxResults: 99999,
-      filtersType: "MockedInboxDocumentListParameters",
-    };
+  it("shows a row for every document in the list response", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
 
-    jest
-      .spyOn(SessionStorageUtil, "getItem")
-      .mockImplementation((key: string) => {
-        if (key === "INBOX_DOCUMENTEN_ZOEKPARAMETERS") {
-          return rememberedParams;
-        }
-        return null;
-      });
-
-    component.ngOnInit();
-
-    expect(component["listParameters"]).toEqual(rememberedParams);
+    expect(within(documentRow()).getByText("Aanvraag formulier")).toBeVisible();
   });
 
-  it("should return null from getDownloadURL when UUID is absent", () => {
-    const doc = makeInboxDocument({
-      enkelvoudiginformatieobjectUUID: undefined,
-    });
-    expect(component["getDownloadURL"](doc)).toBeNull();
+  it("reports that nothing was found when the list is empty", async () => {
+    await setup();
+    await showDocuments([]);
+
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
   });
 
-  it("should return download URL from getDownloadURL when UUID is present", () => {
-    jest
-      .spyOn(infoService, "getDownloadURL")
-      .mockReturnValue("/download/uuid-1");
-    const doc = makeInboxDocument({
-      enkelvoudiginformatieobjectUUID: "uuid-1",
-    });
-    const url = component["getDownloadURL"](doc);
-    expect(url).toBe("/download/uuid-1");
-    expect(infoService.getDownloadURL).toHaveBeenCalledWith("uuid-1");
-  });
+  it("asks for the first page sorted by creation date and remembers that", async () => {
+    await setup();
 
-  it("should return INBOX_DOCUMENTEN from getWerklijst", () => {
-    expect(component["getWerklijst"]()).toBe("INBOX_DOCUMENTEN");
-  });
-
-  it("should reset pageIndex and emit filterChange and clearZoekopdracht on filtersChanged", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    const clearSpy = jest.spyOn(component["clearZoekopdracht"], "emit");
-    component.paginator.pageIndex = 3;
-
-    component["filtersChanged"]();
-
-    expect(component.paginator.pageIndex).toBe(0);
-    expect(clearSpy).toHaveBeenCalled();
-    expect(filterChangeSpy).toHaveBeenCalled();
-  });
-
-  it("should emit filterChange on retriggerSearch", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    component["retriggerSearch"]();
-    expect(filterChangeSpy).toHaveBeenCalled();
-  });
-
-  it("should reset to default parameters and emit filterChange on resetSearch", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    component["listParameters"] = { sort: "titel", order: "asc" };
-    component.sort.active = "titel";
-    component.sort.direction = "asc";
-    component.paginator.pageIndex = 5;
-
-    component["resetSearch"]();
-
-    expect(component["listParameters"]).toMatchObject({
+    const defaultParameters = {
       sort: "creatiedatum",
       order: "desc",
-    });
-    expect(component.sort.active).toBe("creatiedatum");
-    expect(component.sort.direction).toBe("desc");
-    expect(component.paginator.pageIndex).toBe(0);
-    expect(filterChangeSpy).toHaveBeenCalled();
+      filtersType: "InboxDocumentListParameters",
+      page: 0,
+      maxResults: 10,
+    };
+    expect(await lastListRequestBody()).toEqual(defaultParameters);
+    expect(JSON.parse(sessionStorage.getItem(SEARCH_PARAMETERS_KEY)!)).toEqual(
+      defaultParameters,
+    );
   });
 
-  it("should parse JSON and apply parameters on zoekopdrachtChanged with json", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    const params = {
+  it("reuses the filters remembered from a previous visit", async () => {
+    sessionStorage.setItem(
+      SEARCH_PARAMETERS_KEY,
+      JSON.stringify({
+        titel: "Aanvraag",
+        filtersType: "InboxDocumentListParameters",
+      }),
+    );
+
+    await setup();
+
+    expect(await lastListRequestBody()).toMatchObject({ titel: "Aanvraag" });
+  });
+
+  it("searches on the title that was typed in the title filter", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    const [, titelFilter] = screen.getAllByPlaceholderText("...");
+    await user.type(titelFilter, "Aanvraag{Enter}");
+
+    expect(await lastListRequestBody()).toMatchObject({
+      titel: "Aanvraag",
+      page: 0,
+    });
+  });
+
+  it("goes back to the first page when the sorting column changes", async () => {
+    await setup();
+    await showDocuments([inboxDocument], 30);
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.pagina.volgende" }),
+    );
+    expect(await lastListRequestBody()).toMatchObject({ page: 1 });
+
+    await user.click(screen.getByRole("columnheader", { name: "titel" }));
+
+    expect(await lastListRequestBody()).toMatchObject({
       sort: "titel",
       order: "asc",
-      filtersType: "InboxDocumentListParameters",
-    };
-    component["zoekopdrachtChanged"]({
-      json: JSON.stringify(params),
-    } as Partial<
-      GeneratedType<"RESTZoekopdracht">
-    > as unknown as GeneratedType<"RESTZoekopdracht">);
-
-    // updateListParameters() fires synchronously via filterChange → only check fields from JSON
-    expect(component["listParameters"]).toMatchObject({
-      filtersType: "InboxDocumentListParameters",
+      page: 0,
     });
-    expect(component.paginator.pageIndex).toBe(0);
-    expect(filterChangeSpy).toHaveBeenCalled();
   });
 
-  it("should call resetSearch on zoekopdrachtChanged with null", () => {
-    const resetSpy = jest.spyOn(
-      component as unknown as { resetSearch: () => void },
-      "resetSearch",
+  it("remembers the first page for the next visit when it is destroyed", async () => {
+    await setup();
+    await showDocuments([inboxDocument], 30);
+
+    await user.click(
+      screen.getByRole("button", { name: "actie.pagina.volgende" }),
     );
-    component["zoekopdrachtChanged"](
-      null as unknown as GeneratedType<"RESTZoekopdracht">,
-    );
-    expect(resetSpy).toHaveBeenCalled();
+    await lastListRequestBody();
+    fixture.destroy();
+
+    expect(
+      JSON.parse(sessionStorage.getItem(SEARCH_PARAMETERS_KEY)!),
+    ).toMatchObject({ page: 0 });
   });
 
-  it("should only emit filterChange on zoekopdrachtChanged with defined but no json", () => {
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    component["zoekopdrachtChanged"](
-      {} as Partial<
-        GeneratedType<"RESTZoekopdracht">
-      > as unknown as GeneratedType<"RESTZoekopdracht">,
-    );
-    expect(filterChangeSpy).toHaveBeenCalled();
+  it("offers the search opdrachten stored for the inbox documenten werklijst", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    expect(
+      httpTestingController.expectOne(
+        "/rest/gebruikersvoorkeuren/zoekopdracht/INBOX_DOCUMENTEN",
+      ).request.method,
+    ).toBe("GET");
   });
 
-  it("should set selectedInformationObject and open sidenav on openDrawer", () => {
-    const openSpy = jest.fn().mockResolvedValue(undefined);
-    component.actionsSidenav = { open: openSpy } as unknown as MatSidenav;
-    const doc = makeInboxDocument();
+  it("links to the download of the document on the row", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
 
-    component["openDrawer"](doc);
-
-    expect(component["selectedInformationObject"]).toBe(doc);
-    expect(openSpy).toHaveBeenCalled();
-  });
-
-  it("should reset page to 0 and persist to storage on ngOnDestroy", () => {
-    const setItemSpy = jest.spyOn(SessionStorageUtil, "setItem");
-    component["listParameters"].page = 5;
-
-    component.ngOnDestroy();
-
-    expect(setItemSpy).toHaveBeenCalledWith(
-      "INBOX_DOCUMENTEN_ZOEKPARAMETERS",
-      expect.objectContaining({ page: 0 }),
+    expect(
+      within(documentRow()).getByRole("link", { name: "actie.downloaden" }),
+    ).toHaveAttribute(
+      "href",
+      "/rest/informatieobjecten/informatieobject/fakeDocumentUuid/download",
     );
   });
 
-  it("should open confirm dialog and emit filterChange on documentVerwijderen when confirmed", async () => {
-    const dialogSpy = jest.spyOn(component["dialog"], "open").mockReturnValue({
-      afterClosed: () => of(true),
-    } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    jest
-      .spyOn(inboxDocumentenService, "delete")
-      .mockReturnValue(createMutationOptions(undefined) as never);
+  it("offers no download for a document without an informatieobject", async () => {
+    await setup();
+    await showDocuments([
+      fromPartial<GeneratedType<"RestInboxDocument">>({
+        ...inboxDocument,
+        enkelvoudiginformatieobjectUUID: undefined,
+      }),
+    ]);
 
-    const doc = makeInboxDocument({ id: 42, titel: "My doc" });
-    component["documentVerwijderen"](doc);
+    expect(
+      within(documentRow()).queryByRole("link", { name: "actie.downloaden" }),
+    ).toBeNull();
+  });
+
+  it("asks for confirmation before deleting the document of the row", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    await user.click(
+      within(documentRow()).getByRole("button", { name: "actie.verwijderen" }),
+    );
+
+    expect(
+      screen.getByText("msg.document.verwijderen.bevestigen"),
+    ).toBeVisible();
+    httpTestingController.expectNone("/rest/inboxdocumenten/42");
+  });
+
+  it("deletes the document of the row once confirmed", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
+
+    await user.click(
+      within(documentRow()).getByRole("button", { name: "actie.verwijderen" }),
+    );
+    await user.click(screen.getByRole("button", { name: "actie.ja" }));
     await sleep();
 
-    expect(dialogSpy).toHaveBeenCalled();
-    expect(inboxDocumentenService.delete).toHaveBeenCalledWith(doc);
-    expect(filterChangeSpy).toHaveBeenCalled();
+    expect(
+      httpTestingController.expectOne("/rest/inboxdocumenten/42").request
+        .method,
+    ).toBe("DELETE");
   });
 
-  it("should not emit filterChange when confirm dialog is cancelled on documentVerwijderen", () => {
-    jest.spyOn(component["dialog"], "open").mockReturnValue({
-      afterClosed: () => of(false),
-    } as Partial<MatDialogRef<unknown>> as unknown as MatDialogRef<unknown>);
-    const filterChangeSpy = jest.spyOn(component["filterChange"], "emit");
-    jest
-      .spyOn(inboxDocumentenService, "delete")
-      .mockReturnValue(createMutationOptions(undefined) as never);
+  it("keeps the document when the confirmation is cancelled", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
 
-    component["documentVerwijderen"](makeInboxDocument());
+    await user.click(
+      within(documentRow()).getByRole("button", { name: "actie.verwijderen" }),
+    );
+    await user.click(screen.getByRole("button", { name: "actie.nee" }));
+    await sleep();
 
-    expect(filterChangeSpy).not.toHaveBeenCalled();
+    httpTestingController.expectNone("/rest/inboxdocumenten/42");
   });
 
-  it("should populate dataSource from list response in ngAfterViewInit", () => {
-    const docs = [makeInboxDocument({ id: 1 }), makeInboxDocument({ id: 2 })];
-    jest
-      .spyOn(inboxDocumentenService, "list")
-      .mockReturnValue(of({ totaal: 2, resultaten: docs }));
+  it("opens the koppelen drawer for the document of the row", async () => {
+    await setup();
+    await showDocuments([inboxDocument]);
 
-    // Re-trigger by emitting filterChange
-    component["filterChange"].emit();
+    await user.click(
+      within(documentRow()).getByRole("button", {
+        name: "actie.document.koppelen",
+      }),
+    );
+    await sleep();
+    fixture.detectChanges();
 
-    expect(component["dataSource"].data).toEqual(docs);
-    expect(component.paginator.length).toBe(2);
-  });
-
-  it("should fall back to empty array and zero length when list response omits resultaten and totaal", () => {
-    jest
-      .spyOn(inboxDocumentenService, "list")
-      .mockReturnValue(
-        of(
-          {} as Partial<
-            GeneratedType<"RESTResultaatRestInboxDocument">
-          > as unknown as GeneratedType<"RESTResultaatRestInboxDocument">,
-        ),
-      );
-
-    component["filterChange"].emit();
-
-    expect(component["dataSource"].data).toEqual([]);
-    expect(component.paginator.length).toBe(0);
-  });
-
-  it("should reset pageIndex to 0 when sort changes", () => {
-    component.paginator.pageIndex = 3;
-
-    component.sort.sortChange.emit({ active: "titel", direction: "asc" });
-
-    expect(component.paginator.pageIndex).toBe(0);
+    expect(screen.getByText("informatieobject.koppelen.uitleg")).toBeVisible();
   });
 });

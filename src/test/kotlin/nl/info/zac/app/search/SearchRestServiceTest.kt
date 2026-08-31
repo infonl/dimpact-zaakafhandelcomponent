@@ -81,7 +81,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 result shouldBe restZoekResultaat
             }
 
-            And("the correct services should be invoked") {
+            and("the correct services should be invoked") {
                 verify(exactly = 1) {
                     policyService.readWerklijstRechten()
                     restZoekParametersConverter.convert(restZoekParameters)
@@ -130,7 +130,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 result shouldBe restZoekResultaat
             }
 
-            And("the overigeRechten should be checked") {
+            and("the overigeRechten should be checked") {
                 verify(exactly = 1) {
                     policyService.readOverigeRechten()
                 }
@@ -204,7 +204,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 result shouldBe restZoekResultaat
             }
 
-            And("the correct services should be invoked") {
+            and("the correct services should be invoked") {
                 verify(exactly = 1) {
                     policyService.readWerklijstRechten()
                     searchService.search(any<ZoekParameters>())
@@ -257,7 +257,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 result shouldBe restZoekResultaat
             }
 
-            And("the converter should be called with false for linkability") {
+            and("the converter should be called with false for linkability") {
                 verify(exactly = 1) {
                     restZoekResultaatConverter.convert(zoekResultaat, listOf(false))
                 }
@@ -303,7 +303,7 @@ class SearchRestServiceTest : BehaviorSpec({
                 result shouldBe restZoekResultaat
             }
 
-            And("no zaak or zaaktype services should be invoked") {
+            and("no zaak or zaaktype services should be invoked") {
                 verify(exactly = 0) {
                     zrcClientService.readZaakByID(any())
                     ztcClientService.readZaaktype(any<UUID>())

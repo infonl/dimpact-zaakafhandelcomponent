@@ -17,12 +17,11 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { of } from "rxjs";
+import { Observable, of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
-import { WebsocketService } from "../../core/websocket/websocket.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
@@ -63,12 +62,14 @@ describe(ZaakBetrokkeneListComponent.name, () => {
   let loader: HarnessLoader;
   let zakenService: ZakenService;
   let klantenService: KlantenService;
-  let websocketService: WebsocketService;
   let utilService: UtilService;
   let dialogRef: MatDialogRef<unknown>;
   let openOntkoppelBetrokkeneSpy: jest.Mock;
   let deleteBetrokkeneMutation: ReturnType<
-    typeof createMutationOptions<GeneratedType<"RestZaak">, { reden: string }>
+    typeof createMutationOptions<
+      GeneratedType<"RestZaak">,
+      { rolUuid: string; reden: string }
+    >
   >;
 
   const fakeZaak = makeZaak();
@@ -111,12 +112,9 @@ describe(ZaakBetrokkeneListComponent.name, () => {
     utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "openSnackbar").mockImplementation();
 
-    websocketService = TestBed.inject(WebsocketService);
-    jest.spyOn(websocketService, "suspendListener").mockImplementation();
-
     deleteBetrokkeneMutation = createMutationOptions<
       GeneratedType<"RestZaak">,
-      { reden: string }
+      { rolUuid: string; reden: string }
     >(fromPartial<GeneratedType<"RestZaak">>({}));
     jest
       .spyOn(zakenService, "deleteBetrokkene")
@@ -243,27 +241,19 @@ describe(ZaakBetrokkeneListComponent.name, () => {
   });
 
   describe("deleteBetrokkene", () => {
-    it("suspends the zaakRollenListener before opening the confirmation dialog", () => {
-      component["deleteBetrokkene"](makeBetrokkene());
-
-      expect(websocketService.suspendListener).toHaveBeenCalledWith(
-        component.zaakRollenListener(),
-      );
-    });
-
-    it("calls zakenService.deleteBetrokkene with the betrokkene's rolid and the entered reden", () => {
+    it("calls zakenService.deleteBetrokkene with the betrokkene's rolid and the entered reden", async () => {
       const betrokkene = makeBetrokkene({ rolid: "fake-rol-id" });
 
       component["deleteBetrokkene"](betrokkene);
 
       const callback = openOntkoppelBetrokkeneSpy.mock.calls[0][1] as (
         reden: string,
-      ) => unknown;
-      callback("fake-reden");
+      ) => Observable<unknown>;
+      callback("fake-reden").subscribe();
+      await new Promise(requestAnimationFrame);
 
-      expect(zakenService.deleteBetrokkene).toHaveBeenCalledWith("fake-rol-id");
       expect(deleteBetrokkeneMutation.mutationFn).toHaveBeenCalledWith(
-        { reden: "fake-reden" },
+        { rolUuid: "fake-rol-id", reden: "fake-reden" },
         expect.objectContaining({
           client: testQueryClient,
           mutationKey: deleteBetrokkeneMutation.mutationKey,
@@ -287,12 +277,55 @@ describe(ZaakBetrokkeneListComponent.name, () => {
       });
     });
 
+    it("writes the returned zaak into the cache when the dialog closes with one", () => {
+      const cacheZaakSpy = jest.spyOn(zakenService, "cacheZaak");
+      const fakeReturnedZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: fakeZaak.uuid,
+      });
+      jest
+        .spyOn(dialogRef, "afterClosed")
+        .mockReturnValue(of(fakeReturnedZaak));
+
+      component["deleteBetrokkene"](makeBetrokkene());
+
+      expect(cacheZaakSpy).toHaveBeenCalledWith(fakeReturnedZaak);
+    });
+
+    it("does not write to the cache when the dialog closes with a confirmation-only result", () => {
+      const cacheZaakSpy = jest.spyOn(zakenService, "cacheZaak");
+      jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
+
+      component["deleteBetrokkene"](makeBetrokkene());
+
+      expect(cacheZaakSpy).not.toHaveBeenCalled();
+    });
+
     it("does nothing when the dialog is cancelled", () => {
       jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(undefined));
 
       component["deleteBetrokkene"](makeBetrokkene());
 
       expect(utilService.openSnackbar).not.toHaveBeenCalled();
+    });
+
+    it("reports a failing ontkoppelen through the error handling of the mutation", async () => {
+      const onError = jest.fn();
+      jest.spyOn(zakenService, "deleteBetrokkene").mockReturnValue(
+        fromPartial({
+          mutationKey: ["fake-delete-betrokkene"],
+          mutationFn: () => Promise.reject(new Error("fakeError")),
+          onError,
+        }),
+      );
+
+      component["deleteBetrokkene"](makeBetrokkene());
+      const callback = openOntkoppelBetrokkeneSpy.mock.calls.at(-1)![1] as (
+        reden: string,
+      ) => Observable<unknown>;
+      callback("fake-reden").subscribe({ error: () => undefined });
+      await new Promise(requestAnimationFrame);
+
+      expect(onError).toHaveBeenCalled();
     });
   });
 });

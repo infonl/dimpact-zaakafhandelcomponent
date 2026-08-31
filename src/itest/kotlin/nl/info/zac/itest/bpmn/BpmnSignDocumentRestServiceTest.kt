@@ -17,7 +17,7 @@ import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SELECT_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.BPMN_DOCUMENT_SIGN_SUMMARY_TASK_NAME
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_PDF_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_BPMN_TEST_3_UUID
@@ -70,7 +70,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
             zaakUUID = zaakUuid,
             fileName = TEST_PDF_FILE_NAME,
             fileMediaType = PDF_MIME_TYPE,
-            vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+            vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
             testUser = BEHANDELAAR_1
         ).run {
             val responseBody = bodyAsString
@@ -94,7 +94,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
                 JSONObject(takenPatchResponse).getString("status") shouldBe "AFGEROND"
             }
 
-            And("the select documents task is removed from the task list") {
+            and("the select documents task is removed from the task list") {
                 eventually(10.seconds) {
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
@@ -105,7 +105,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the summary task becomes available") {
+            and("the summary task becomes available") {
                 eventually(afterThirtySeconds) {
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
@@ -132,7 +132,7 @@ class BpmnSignDocumentRestServiceTest : BehaviorSpec({
                 JSONObject(takenPatchResponse).getString("status") shouldBe "AFGEROND"
             }
 
-            And("the document should be signed") {
+            and("the document should be signed") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid",
                     testUser = BEHANDELAAR_1

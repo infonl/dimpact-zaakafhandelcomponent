@@ -127,10 +127,7 @@ export class ZaakAfhandelenDialogComponent {
   }));
 
   protected readonly afsluitenMutation = injectMutation(
-    () =>
-      this.zacQueryClient.PATCH("/rest/zaken/zaak/{uuid}/afsluiten", {
-        path: { uuid: this.data.zaak.uuid },
-      }),
+    () => this.zakenService.afsluitenMutation(this.data.zaak.uuid),
     {
       onSuccess: () => this.dialogRef.close(true),
       onError: () => this.dialogRef.close(false),
@@ -257,13 +254,14 @@ export class ZaakAfhandelenDialogComponent {
     const restMailGegevens =
       value.sendMail && mailtemplate
         ? ({
-            verzender: value.verzender?.mail,
+            verzender: value.verzender!.mail!,
             replyTo: value.verzender?.replyTo,
-            ontvanger: value.ontvanger,
+            ontvanger: value.ontvanger!,
             onderwerp: mailtemplate.onderwerp,
             body: mailtemplate.body,
             createDocumentFromMail: true,
-          } satisfies GeneratedType<"RESTMailGegevens">)
+            vertrouwelijkheidaanduiding: "OPENBAAR",
+          } satisfies GeneratedType<"RestMailGegevens">)
         : undefined;
 
     this.planItemAfhandelenMutation.mutate({

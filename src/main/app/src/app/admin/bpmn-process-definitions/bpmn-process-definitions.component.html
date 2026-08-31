@@ -18,15 +18,15 @@
     <zac-side-nav (mode)="menuModeChanged($event)" [menu]="menu"></zac-side-nav>
   </mat-sidenav>
 
-  <input
-    #bpmnProcessDefinitionFileInput
-    type="file"
-    accept=".bpmn"
-    style="display: none"
-    (change)="bpmnProcessDefinitionFileSelected($event)"
-  />
-
   <mat-sidenav-content class="flex-col gap-20">
+    <input
+      #bpmnProcessDefinitionFileInput
+      type="file"
+      accept=".bpmn"
+      style="display: none"
+      (change)="bpmnProcessDefinitionFileSelected($event)"
+    />
+
     <mat-card>
       <mat-card-content class="table-container">
         <div
@@ -70,7 +70,7 @@
                 [bpmnNodeRow]="node.key"
                 (click)="toggleNode(node)"
               >
-                <button mat-icon-button>
+                <button mat-icon-button [attr.aria-label]="node.name">
                   <mat-icon class="mat-icon-rtl-mirror">
                     {{
                       expandedKey === node.key ? "expand_more" : "chevron_right"
@@ -107,6 +107,9 @@
                   <button
                     mat-icon-button
                     [disabled]="node.definition.details?.inUse"
+                    attr.aria-label="{{ 'actie.verwijderen' | translate }} {{
+                      node.name
+                    }}"
                     (click)="deleteProcessDefinition(node)"
                   >
                     <mat-icon>delete</mat-icon>

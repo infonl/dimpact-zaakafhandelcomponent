@@ -35,4 +35,8 @@ class IndexingAdminRestService @Inject constructor(
     @GET
     @Path("herindexeren/{type}")
     fun reindex(@PathParam("type") type: ZoekObjectType) = indexingService.reindex(type)
+
+    @GET
+    @Path("herindexeren")
+    fun reindexAll() = indexingService.reindexAll()
 }
