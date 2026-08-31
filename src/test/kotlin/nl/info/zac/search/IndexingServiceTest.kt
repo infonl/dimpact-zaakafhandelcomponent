@@ -700,6 +700,19 @@ class IndexingServiceTest : BehaviorSpec({
                 }
             }
         }
+
+        `when`("reindexAll is called with an unordered Set of object types") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindexAll(hashSetOf(ZoekObjectType.DOCUMENT, ZoekObjectType.ZAAK, ZoekObjectType.TAAK))
+            }
+
+            then("the reindex order and logged object type list are still TAAK, ZAAK, DOCUMENT") {
+                logRecords.first().message shouldBe
+                    "Complete reindexing process started for object types: [TAAK, ZAAK, DOCUMENT]"
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
+            }
+        }
     }
 
     given("reindexAll() where the zaak count cannot be determined and its reindex aborts early") {

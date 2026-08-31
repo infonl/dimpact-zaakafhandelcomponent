@@ -106,8 +106,9 @@ class IndexingService @Inject constructor(
      * @param objectTypes the object types to reindex; defaults to all object types
      */
     fun reindexAll(objectTypes: Set<ZoekObjectType> = ZoekObjectType.entries.toSet()) {
-        LOG.info("Complete reindexing process started for object types: $objectTypes")
-        objectTypes.forEach { objectType ->
+        val orderedObjectTypes = objectTypes.sorted()
+        LOG.info("Complete reindexing process started for object types: $orderedObjectTypes")
+        orderedObjectTypes.forEach { objectType ->
             try {
                 reindex(objectType)
             } catch (indexingException: IndexingException) {
@@ -118,7 +119,7 @@ class IndexingService @Inject constructor(
                 )
             }
         }
-        LOG.info("Complete reindexing process finished for object types: $objectTypes")
+        LOG.info("Complete reindexing process finished for object types: $orderedObjectTypes")
     }
 
     fun reindex(objectType: ZoekObjectType) {
