@@ -21,6 +21,8 @@ import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.util.logging.Level
+import java.util.logging.Logger
 
 /**
  * Internal REST service to reindex data in ZAC's Solr search engine on demand.
@@ -42,14 +44,26 @@ class IndexingAdminRestService @Inject constructor(
      */
     private val dispatcher: CoroutineDispatcher
 ) {
+    companion object {
+        private val LOG = Logger.getLogger(IndexingAdminRestService::class.java.name)
+    }
+
     /**
      * Reindexing can be a long-running operation, so it is run asynchronously.
+     * Unlike [reindexAll], [IndexingService.reindex] does not catch every exception itself,
+     * so any unexpected failure must be caught and logged here to remain observable now that
+     * it no longer surfaces as a failed HTTP response.
      */
     @GET
     @Path("herindexeren/{type}")
+    @Suppress("TooGenericExceptionCaught")
     fun reindex(@PathParam("type") type: ZoekObjectType): Response {
         CoroutineScope(dispatcher).launch {
-            indexingService.reindex(type)
+            try {
+                indexingService.reindex(type)
+            } catch (exception: Exception) {
+                LOG.log(Level.SEVERE, "[$type] Reindexing failed", exception)
+            }
         }
         return Response.accepted().build()
     }
