@@ -119,6 +119,7 @@ private fun setupContext(): TestContext {
     )
 }
 
+@Suppress("LargeClass")
 class IndexingServiceTest : BehaviorSpec({
     afterEach {
         checkUnnecessaryStub()
@@ -477,6 +478,62 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
+    given("Reindexing informatieobjecten where one converts, one is skipped and one errors") {
+        val ctx = setupContext()
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList().apply {
+            addAll(listOf(SolrDocument(mapOf("id" to 1)), SolrDocument(mapOf("id" to 2))))
+        }
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+
+        val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
+        val informatieobjecten = listOf(
+            createEnkelvoudigInformatieObject(),
+            createEnkelvoudigInformatieObject(),
+            createEnkelvoudigInformatieObject()
+        )
+        val convertedDocumentZoekObject = createDocumentZoekObject()
+
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(
+                match<EnkelvoudigInformatieobjectListParameters> { it.page == 1 }
+            )
+        } returns Results(informatieobjecten, 3)
+
+        every { documentZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns documentZoekObjectConverter
+        every {
+            documentZoekObjectConverter.convert(informatieobjecten[0].url.extractUuid().toString())
+        } returns convertedDocumentZoekObject
+        every {
+            documentZoekObjectConverter.convert(informatieobjecten[1].url.extractUuid().toString())
+        } returns null
+        every {
+            documentZoekObjectConverter.convert(informatieobjecten[2].url.extractUuid().toString())
+        } throws RuntimeException("fake conversion failure")
+        every { ctx.solrClient.addBeans(listOf(convertedDocumentZoekObject)) } returns UpdateResponse()
+
+        `when`("reindexing of informatieobjecten is called") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindex(ZoekObjectType.DOCUMENT)
+            }
+
+            then(
+                "the finished log reports the skipped informatieobject separately from the errored one"
+            ) {
+                logRecords.map { it.message } shouldContain
+                    "[DOCUMENT] Reindexing finished. Reindexed: 1 / 3, skipped: 1, not reindexed because of errors: 1. " +
+                    "Solr index contains 0 documents of type 'DOCUMENT'."
+            }
+        }
+    }
+
     given("Reindexing zaken through reindex() where one of three conversions fails") {
         val ctx = setupContext()
         val queryResponse = mockk<QueryResponse>()
@@ -517,7 +574,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the finished log includes a summary reporting 2 out of 3 zaken reindexed with 1 error") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 2 / 3, not reindexed because of errors: 1. " +
+                    "[ZAAK] Reindexing finished. Reindexed: 2 / 3, skipped: 0, not reindexed because of errors: 1. " +
                     "Solr index contains 0 documents of type 'ZAAK'."
             }
         }
@@ -558,7 +615,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the finished log includes a summary reporting all zaken reindexed with 0 errors") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Reindexed: 2 / 2, not reindexed because of errors: 0. " +
+                    "[ZAAK] Reindexing finished. Reindexed: 2 / 2, skipped: 0, not reindexed because of errors: 0. " +
                     "Solr index contains 0 documents of type 'ZAAK'."
             }
 
