@@ -22,6 +22,8 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KEY
 import nl.info.zac.itest.util.sleepForOpenZaakUniqueConstraint
+import nl.info.zac.itest.util.waitForReindexToFinish
+import nl.info.zac.itest.util.zacContainerLogs
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
@@ -107,6 +109,7 @@ class NotificationZaakDestroyTest : BehaviorSpec({
             aanvullendeInformatieTaskID = JSONArray(responseBody).getJSONObject(0).getString("id")
         }
         // reindex so that the new zaak gets added to the Solr index
+        val logsBeforeReindex = zacContainerLogs()
         itestHttpClient.performGetRequest(
             url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
             headers = mapOf(
@@ -118,6 +121,10 @@ class NotificationZaakDestroyTest : BehaviorSpec({
             logger.info { "Response: $bodyAsString" }
             this.code shouldBe HTTP_ACCEPTED
         }
+        // reindexing now runs asynchronously in the background, so wait for it to fully finish before
+        // proceeding: otherwise a still-running reindex could re-add the zaak this test later removes
+        // from the Solr index, since the zaak is deliberately never actually deleted from OpenZaak
+        waitForReindexToFinish("ZAAK", logsBeforeReindex)
         // wait for the indexing to complete
         eventually(10.seconds) {
             val searchResponseBody = itestHttpClient.performPutRequest(
