@@ -26,6 +26,7 @@ import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_ACCEPTED
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.HttpURLConnection.HTTP_OK
@@ -115,7 +116,7 @@ class NotificationZaakDestroyTest : BehaviorSpec({
             testUser = BEHANDELAAR_1
         ).run {
             logger.info { "Response: $bodyAsString" }
-            this.code shouldBe HTTP_NO_CONTENT
+            this.code shouldBe HTTP_ACCEPTED
         }
         // wait for the indexing to complete
         eventually(10.seconds) {

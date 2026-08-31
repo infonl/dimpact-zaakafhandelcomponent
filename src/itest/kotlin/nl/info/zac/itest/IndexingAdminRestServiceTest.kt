@@ -27,7 +27,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAC_INTERNAL_ENDPOINTS_API_KE
 import nl.info.zac.itest.config.dockerComposeContainer
 import okhttp3.Headers.Companion.toHeaders
 import org.json.JSONObject
-import java.net.HttpURLConnection.HTTP_NO_CONTENT
+import java.net.HttpURLConnection.HTTP_ACCEPTED
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
 import java.util.UUID
@@ -123,7 +123,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             then(
                 """the response is successful and at least one zaak is indexed"""
             ) {
-                response.code shouldBe HTTP_NO_CONTENT
+                response.code shouldBe HTTP_ACCEPTED
                 // wait for the indexing to complete
                 eventually(10.seconds) {
                     val response = itestHttpClient.performPutRequest(
@@ -168,7 +168,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             then(
                 """the response is successful and at least one task is indexed"""
             ) {
-                response.code shouldBe HTTP_NO_CONTENT
+                response.code shouldBe HTTP_ACCEPTED
                 // wait for the indexing to complete
                 eventually(10.seconds) {
                     val response = itestHttpClient.performPutRequest(
@@ -213,7 +213,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             then(
                 """the response is successful and at least one document is indexed"""
             ) {
-                response.code shouldBe HTTP_NO_CONTENT
+                response.code shouldBe HTTP_ACCEPTED
                 // wait for the indexing to complete
                 eventually(10.seconds) {
                     val response = itestHttpClient.performPutRequest(
@@ -258,7 +258,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             then(
                 """the response is successful and zaken, taken and documenten are all reindexed"""
             ) {
-                response.code shouldBe HTTP_NO_CONTENT
+                response.code shouldBe HTTP_ACCEPTED
                 listOf("ZAAK", "TAAK", "DOCUMENT").forEach { zoekObjectType ->
                     eventually(10.seconds) {
                         val searchResponse = itestHttpClient.performPutRequest(
