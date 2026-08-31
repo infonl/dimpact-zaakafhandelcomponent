@@ -42,11 +42,13 @@ describe(ZaakDetailsCardComponent.name, () => {
   const renderCard = (
     inputs: Partial<{
       zaak: GeneratedType<"RestZaak">;
+      zaakOpschorting: GeneratedType<"RESTZaakOpschorting">;
       bagObjecten: GeneratedType<"RESTBAGObjectGegevens">[];
       showBetrokkeneKoppelingen: boolean;
     }> = {},
   ) => {
     fixture.componentRef.setInput("zaak", inputs.zaak ?? zaak);
+    fixture.componentRef.setInput("zaakOpschorting", inputs.zaakOpschorting);
     fixture.componentRef.setInput("bagObjecten", inputs.bagObjecten ?? []);
     fixture.componentRef.setInput(
       "showBetrokkeneKoppelingen",
@@ -246,6 +248,20 @@ describe(ZaakDetailsCardComponent.name, () => {
   });
 
   describe("wiring to the tab components", () => {
+    it("passes the zaakOpschorting through to the algemeen tab", () => {
+      renderCard({
+        zaakOpschorting: fromPartial<GeneratedType<"RESTZaakOpschorting">>({
+          duurDagen: 5,
+        }),
+      });
+
+      expect(
+        screen().queryAllByText((content) =>
+          content.trim().endsWith("duurDagenOpschorting"),
+        ).length,
+      ).toBeGreaterThan(0);
+    });
+
     it("re-emits editCaseDetails from the algemeen tab", async () => {
       const editCaseDetails = jest.fn();
       renderCard({
@@ -298,6 +314,26 @@ describe(ZaakDetailsCardComponent.name, () => {
         .click();
 
       expect(bagObjectVerwijderen).toHaveBeenCalledWith(gekoppeldBagObject);
+    });
+
+    it("offers no bag object ontkoppelen button when the user may not behandelen", async () => {
+      renderCard({
+        zaak: { ...zaak, rechten: { ...zaak.rechten, behandelen: false } },
+        bagObjecten: [
+          fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
+            bagObject: fromPartial<GeneratedType<"RESTBAGObject">>({
+              identificatie: "fakeBagIdentificatie",
+              bagObjectType: "ADRES",
+              omschrijving: "fakeBagOmschrijving",
+            }),
+          }),
+        ],
+      });
+      await openTab(/bagObjecten/);
+
+      expect(
+        screen().queryByRole("button", { name: "actie.bagObject.ontkoppelen" }),
+      ).toBeNull();
     });
   });
 });

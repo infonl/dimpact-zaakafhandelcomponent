@@ -40,11 +40,12 @@
     </zac-static-text>
 
     @if (zaak().rechten.wijzigen || zaak().rechten.toekennen) {
+      @let editZaakLabel = "actie.zaak.wijzigen" | translate;
       <button
         mat-icon-button
         (click)="editCaseDetails.emit()"
-        [attr.aria-label]="'actie.zaak.wijzigen' | translate"
-        title="{{ 'actie.zaak.wijzigen' | translate }}"
+        [attr.aria-label]="editZaakLabel"
+        [title]="editZaakLabel"
       >
         <mat-icon>edit</mat-icon>
       </button>

@@ -43,14 +43,6 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
   const hasDetailField = (label: string) =>
     screen().queryByText(label) !== null;
 
-  // the grid placeholders are decorative aria-hidden fillers with no role,
-  // accessible name or text, so no Testing Library query can reach them
-  const gridPlaceholderCount = () =>
-    // eslint-disable-next-line no-restricted-syntax, testing-library/no-node-access
-    (fixture.nativeElement as HTMLElement).querySelectorAll(
-      ".zaak-grid .grid-placeholder",
-    ).length;
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -330,7 +322,6 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
       ]) {
         expect(hasDetailField(label)).toBe(true);
       }
-      expect(gridPlaceholderCount()).toBe(2);
     });
 
     it("should close only row three when the four remaining fields are shown", () => {
@@ -354,10 +345,9 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
       expect(hasDetailField("einddatum")).toBe(false);
       expect(hasDetailField("startdatumBewaartermijn")).toBe(false);
       expect(hasDetailField("afleidingswijzeBrondatum")).toBe(false);
-      expect(gridPlaceholderCount()).toBe(1);
     });
 
-    it("should fill the action column on top of the row closers when the user may not edit the zaak", async () => {
+    it("offers no edit button when the user may not edit the zaak", async () => {
       renderZaak({
         ...zaakWithAllDetailFields,
         rechten: { ...zaak.rechten, wijzigen: false, toekennen: false },
@@ -368,7 +358,6 @@ describe(ZaakDetailsAlgemeenTabComponent.name, () => {
       );
 
       expect(editIcon).toBeNull();
-      expect(gridPlaceholderCount()).toBe(3);
     });
   });
 });

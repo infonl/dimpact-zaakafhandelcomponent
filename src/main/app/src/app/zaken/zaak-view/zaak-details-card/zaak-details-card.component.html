@@ -57,13 +57,13 @@
                   class="flex-item"
                 />
                 @if (zaak().rechten.wijzigenLocatie) {
+                  @let editLocatieLabel =
+                    "actie.zaak.locatie.wijzigen" | translate;
                   <button
                     mat-icon-button
                     (click)="editLocationDetails.emit()"
-                    [attr.aria-label]="
-                      'actie.zaak.locatie.wijzigen' | translate
-                    "
-                    title="{{ 'actie.zaak.locatie.wijzigen' | translate }}"
+                    [attr.aria-label]="editLocatieLabel"
+                    [title]="editLocatieLabel"
                   >
                     <mat-icon>edit</mat-icon>
                   </button>

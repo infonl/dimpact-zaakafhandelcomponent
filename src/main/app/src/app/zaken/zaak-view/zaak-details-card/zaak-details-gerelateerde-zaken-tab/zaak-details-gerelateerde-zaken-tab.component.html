@@ -3,6 +3,9 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
 -->
 
+@let bekijkenLabel = "actie.zaak.bekijken" | translate;
+@let ontkoppelenLabel = "actie.zaak.ontkoppelen" | translate;
+
 <div class="table-wrapper">
   <table mat-table [dataSource]="gerelateerdeZaken()">
     @for (column of gerelateerdeZaakColumns; track column) {
@@ -24,8 +27,8 @@
             [routerLink]="['/zaken', row.identificatie]"
             (click)="$event.stopPropagation()"
             [id]="'zaakBekijken_' + row.identificatie + '_button'"
-            title="{{ 'actie.zaak.bekijken' | translate }}"
-            aria-label="{{ 'actie.zaak.bekijken' | translate }}"
+            [title]="bekijkenLabel"
+            [attr.aria-label]="bekijkenLabel"
           >
             <mat-icon>visibility</mat-icon>
           </a>
@@ -35,8 +38,8 @@
             mat-icon-button
             (click)="zaakOntkoppelen.emit(row)"
             [id]="'zaakOntkoppelen_' + row.identificatie + '_button'"
-            title="{{ 'actie.zaak.ontkoppelen' | translate }}"
-            aria-label="{{ 'actie.zaak.ontkoppelen' | translate }}"
+            [title]="ontkoppelenLabel"
+            [attr.aria-label]="ontkoppelenLabel"
           >
             <mat-icon>link_off</mat-icon>
           </button>
