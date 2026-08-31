@@ -21,8 +21,8 @@ import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_ZEER_GEHEIM
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZEER_GEHEIM
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -76,7 +76,7 @@ class MailRestServiceTest : BehaviorSpec({
                     "body": "$body",
                     "bijlagen": "$informatieobjectUuid",
                     "createDocumentFromMail": true,
-                    "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                    "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                 }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
@@ -159,7 +159,7 @@ class MailRestServiceTest : BehaviorSpec({
                   "informatieobjectTypeOmschrijving" : "e-mail",
                   "informatieobjectTypeUUID" : "$TEST_INFORMATIE_OBJECT_TYPE_1_UUID",
                   "isBesluitDocument" : false,
-                  "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
+                  "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR",
                   "rechten" : {
                     "lezen" : true,
                     "ondertekenen" : true,
@@ -227,7 +227,7 @@ class MailRestServiceTest : BehaviorSpec({
                     "onderwerp": "subject",
                     "body": "body",
                     "bijlagen": "",
-                    "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_ZEER_GEHEIM",
+                    "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_ZEER_GEHEIM",
                     "createDocumentFromMail": true
                 }
                 """.trimIndent(),
@@ -252,7 +252,7 @@ class MailRestServiceTest : BehaviorSpec({
                 informatieobjectenResponse.code shouldBe HTTP_OK
                 // the email PDF is the only document created for this zaak
                 JSONArray(informatieobjectenResponse.bodyAsString).getJSONObject(0)
-                    .getString("vertrouwelijkheidaanduiding") shouldBe VERTROUWELIJKHEIDS_AANDUIDING_ZEER_GEHEIM
+                    .getString("vertrouwelijkheidaanduiding") shouldBe VERTROUWELIJKHEIDAANDUIDING_ZEER_GEHEIM
             }
         }
     }
@@ -280,7 +280,8 @@ class MailRestServiceTest : BehaviorSpec({
                     "onderwerp": "Zaakdata test",
                     "body": "<p>Zaaktype: {ZAAKDATA:zaaktypeOmschrijving}</p>",
                     "bijlagen": "",
-                    "createDocumentFromMail": false
+                    "createDocumentFromMail": false,
+                    "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                 }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1

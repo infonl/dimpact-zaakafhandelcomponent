@@ -136,11 +136,12 @@ export class MailCreateComponent implements OnInit {
 
     this.sendMailMutation.mutate({
       ...value,
-      verzender: value.verzender?.mail,
+      verzender: value.verzender!.mail!,
       replyTo: value.verzender?.replyTo,
-      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
-      onderwerp: value.onderwerp ?? "",
-      body: value.body ?? "",
+      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding!.value,
+      ontvanger: value.ontvanger!,
+      onderwerp: value.onderwerp!,
+      body: value.body!,
       bijlagen: value.bijlagen?.map(({ uuid }) => uuid).join(";"),
       createDocumentFromMail: true,
     });

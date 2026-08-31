@@ -5,7 +5,7 @@
 
 package nl.info.zac.app.planitems.model
 
-import net.atos.zac.app.mail.model.RESTMailGegevens
+import net.atos.zac.app.mail.model.RestMailGegevens
 import nl.info.zac.app.identity.model.RestGroup
 import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.zaak.model.createRestGroup
@@ -39,13 +39,13 @@ fun createRESTTaakStuurGegevens(
     mail = mail
 )
 
-fun createRESTUserEventListenerData(
+fun createRestUserEventListenerData(
     zaakUuid: UUID,
     actie: UserEventListenerActie,
-    restMailGegevens: RESTMailGegevens? = null,
+    restMailGegevens: RestMailGegevens? = null,
     resultaattypeUuid: UUID = UUID.randomUUID(),
     brondatum: String? = null
-) = RESTUserEventListenerData(
+) = RestUserEventListenerData(
     zaakUuid = zaakUuid,
     actie = actie,
     restMailGegevens = restMailGegevens,

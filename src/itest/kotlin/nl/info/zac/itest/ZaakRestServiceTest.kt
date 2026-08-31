@@ -37,7 +37,7 @@ import nl.info.zac.itest.config.ItestConfiguration.DATE_2020_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2021_01_01
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2023_09_21
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2020_01_01
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_BELANGHEBBENDE
 import nl.info.zac.itest.config.ItestConfiguration.ROLTYPE_NAME_MEDEAANVRAGER
@@ -238,7 +238,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     groupName = GROUP_BEHANDELAARS_TEST_1.description,
                     startDate = DATE_TIME_2020_01_01,
                     communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
-                    vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                    vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
                     description = ZAAK_DESCRIPTION_2,
                     toelichting = ZAAK_EXPLANATION_1,
                     testUser = BEHANDELAAR_1
@@ -317,7 +317,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "toelichting": "$ZAAK_EXPLANATION_1",
                       "uiterlijkeEinddatumAfdoening": "$DATE_2021_01_01",
                       "verantwoordelijkeOrganisatie": "$VERANTWOORDELIJKE_ORGANISATIE",
-                      "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
+                      "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR",
                       "zaakdata": {
                         "initiator": null,
                         "zaaktypeUUID": "$ZAAKTYPE_CMMN_TEST_3_UUID",
@@ -339,7 +339,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         "uuid": "$ZAAKTYPE_CMMN_TEST_3_UUID",
                         "verlengingMogelijk": false,
                         "versiedatum": "$DATE_2023_09_21",
-                        "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
+                        "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR",
                         "zaaktypeRelaties": []
                       }
                     }
@@ -447,7 +447,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 groupName = GROUP_BEHANDELAARS_TEST_1.description,
                 startDate = DATE_TIME_2020_01_01,
                 communicatiekanaal = COMMUNICATIEKANAAL_TEST_1,
-                vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
                 description = ZAAK_DESCRIPTION_2,
                 toelichting = ZAAK_EXPLANATION_1,
                 testUser = BEHANDELAAR_1
@@ -703,7 +703,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                       "uiterlijkeEinddatumAfdoening": "$fatalDateNew",
                       "uuid" : "$zaak2UUID",
                       "verantwoordelijkeOrganisatie" : "$VERANTWOORDELIJKE_ORGANISATIE",
-                      "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR",
+                      "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR",
                       "zaakgeometrie" : {
                         "point" : {
                             "latitude" : $latitude,
