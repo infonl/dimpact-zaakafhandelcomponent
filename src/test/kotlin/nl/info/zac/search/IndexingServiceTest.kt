@@ -784,6 +784,13 @@ class IndexingServiceTest : BehaviorSpec({
                 }
             }
 
+            then("TAAK itself is still reported as finished, not as a failed type") {
+                logRecords.map { it.message } shouldContain
+                    "[TAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'TAAK'."
+                logRecords.any { it.message.contains("[TAAK] Reindexing failed") } shouldBe false
+            }
+
             then("the complete reindexing process still reports it finished") {
                 logRecords.last().message shouldBe
                     "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
@@ -791,20 +798,24 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
-    given("reindexAll() where the Solr document count cannot be determined for one object type") {
+    given("reindexAll() where a Solr document count query fails once for one object type") {
         val ctx = setupContext()
         val emptyDocumentList = SolrDocumentList()
         val queryResponse = mockk<QueryResponse>()
         every { queryResponse.results } returns emptyDocumentList
         every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
-        // TAAK is reindexed first; its Solr document count query fails immediately, before
-        // reindexAllTaken() is ever reached
+        // TAAK is reindexed first; its "Reindexing started" Solr document count query fails once,
+        // but that count is purely informational, so TAAK is still reindexed despite it
         every { ctx.solrClient.query(any()) } throws
             SolrServerException("fake count failure") andThen queryResponse andThen queryResponse andThen
             queryResponse andThen queryResponse andThen queryResponse andThen queryResponse
         every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
 
         every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returns Results(emptyList(), 0)
+        every { ctx.flowableTaskService.countOpenTasks() } returns 0
+        every {
+            ctx.flowableTaskService.listOpenTasks(any(), any(), any(), any())
+        } returns emptyList()
         every {
             ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
         } returns Results(emptyList(), 0)
@@ -812,6 +823,17 @@ class IndexingServiceTest : BehaviorSpec({
         `when`("reindexAll is called with the default set of all object types") {
             val logRecords = captureLogRecords {
                 ctx.indexingService.reindexAll()
+            }
+
+            then("TAAK is still reindexed despite its started-message document count failing") {
+                verify(exactly = 1) {
+                    ctx.flowableTaskService.countOpenTasks()
+                }
+                logRecords.map { it.message } shouldContain
+                    "[TAAK] Reindexing started. Solr index currently contains unknown documents of type 'TAAK'."
+                logRecords.map { it.message } shouldContain
+                    "[TAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'TAAK'."
             }
 
             then("the remaining object types are still reindexed") {

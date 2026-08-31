@@ -141,8 +141,11 @@ class IndexingService @Inject constructor(
             // means nothing was deleted either, and there is nothing to make visible
             if (summary != null) {
                 // ensure the removed/reindexed entities are visible to the searcher before reporting
-                // the finished Solr document count, since bulk (re)indexing never commits per page
-                commit()
+                // the finished Solr document count, since bulk (re)indexing never commits per page.
+                // Best-effort: a commit failure here must not discard the reindexing work already
+                // done, nor abort the remaining object types in reindexAll() - the new/removed
+                // entities simply become visible whenever Solr's own autoCommit next fires instead.
+                continueOnExceptions(objectType) { commit() }
             }
             LOG.info(reindexFinishedMessage(objectType, summary))
         } finally {
@@ -242,8 +245,13 @@ class IndexingService @Inject constructor(
         )
     }
 
-    private fun countInSolrIndex(objectType: ZoekObjectType): Long =
-        runTranslatingToIndexingException {
+    /**
+     * Best-effort: this count is purely informational, so a Solr hiccup here must not abort
+     * reindexing itself (nor, via [continueOnExceptions], the remaining object types in
+     * [reindexAll]).
+     */
+    private fun countInSolrIndex(objectType: ZoekObjectType): Long? =
+        continueOnExceptions(objectType) {
             solrClient.query(
                 SolrQuery("*:*").apply {
                     addFilterQuery("type:$objectType")
@@ -257,8 +265,8 @@ class IndexingService @Inject constructor(
      * document count for that type (i.e. before any entities are removed or reindexed).
      */
     private fun reindexStartedMessage(objectType: ZoekObjectType): String =
-        "[$objectType] Reindexing started. Solr index currently contains ${countInSolrIndex(objectType)} " +
-            "documents of type '$objectType'."
+        "[$objectType] Reindexing started. Solr index currently contains " +
+            "${countInSolrIndex(objectType) ?: "unknown"} documents of type '$objectType'."
 
     /**
      * Deletes the existing Solr documents of [objectType]. Only called once the total count for
@@ -284,7 +292,8 @@ class IndexingService @Inject constructor(
             "$message. Reindexed: $successCount / $totalCount, skipped: $skippedCount, " +
                 "not reindexed because of errors: $errorCount"
         } ?: message
-        return "$withSummary. Solr index contains ${countInSolrIndex(objectType)} documents of type '$objectType'."
+        return "$withSummary. Solr index contains ${countInSolrIndex(objectType) ?: "unknown"} " +
+            "documents of type '$objectType'."
     }
 
     private fun addToSolrIndex(zoekObjecten: List<ZoekObject?>, performCommit: Boolean) {
