@@ -105,17 +105,22 @@ class IndexingService @Inject constructor(
      *
      * @param objectTypes the object types to reindex; defaults to all object types
      */
+    @Suppress("TooGenericExceptionCaught")
     fun reindexAll(objectTypes: Set<ZoekObjectType> = ZoekObjectType.entries.toSet()) {
         val orderedObjectTypes = objectTypes.sorted()
         LOG.info("Complete reindexing process started for object types: $orderedObjectTypes")
         orderedObjectTypes.forEach { objectType ->
             try {
                 reindex(objectType)
-            } catch (indexingException: IndexingException) {
+            } catch (exception: Exception) {
+                // catches more than IndexingException on purpose: SolrDeployerService now runs every
+                // object type through this one function on a single executor task (rather than one
+                // task per type), so an unguarded exception anywhere in reindex() must not abort the
+                // remaining object types either
                 LOG.log(
                     Level.SEVERE,
                     "[$objectType] Reindexing failed, continuing with remaining object types",
-                    indexingException
+                    exception
                 )
             }
         }
