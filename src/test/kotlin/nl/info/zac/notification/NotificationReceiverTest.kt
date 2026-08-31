@@ -298,6 +298,51 @@ class NotificationReceiverTest : BehaviorSpec({
             }
         }
     }
+    given(
+        "a ZAAK_GEAUTORISEERD zaakeigenschap update notificatie whose asynchronous documenten reindex fails"
+    ) {
+        val zaakUUID = UUID.randomUUID()
+        val zaakeigenschapUUID = UUID.randomUUID()
+        val zaakUri = URI("https://example.com/fakezaak/$zaakUUID")
+        val zaakeigenschapUri = URI("https://example.com/fakezaak/$zaakUUID/zaakeigenschappen/$zaakeigenschapUUID")
+        val notificatie = createNotificatie(
+            channel = Channel.ZAKEN,
+            resource = Resource.ZAAKEIGENSCHAP,
+            resourceUrl = zaakeigenschapUri,
+            mainResourceUrl = zaakUri,
+            action = Action.UPDATE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every {
+            zrcClientService.readZaakeigenschap(zaakUUID, zaakeigenschapUUID)
+        } returns createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, uuid = zaakeigenschapUUID)
+        every { indexingService.addOrUpdateZaak(zaakUUID, false) } just Runs
+        every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
+        every { indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID) } throws
+            RuntimeException("fake Solr failure")
+        every { managedExecutorService.submit(any()) } answers {
+            firstArg<Runnable>().run()
+            CompletableFuture.completedFuture(null)
+        }
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        `when`("notificatieReceive is called with the zaakeigenschap update notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then(
+                "the request still succeeds, the zaak and its taken are still reindexed, and the " +
+                    "failure to reindex the documenten does not propagate and abandon them silently"
+            ) {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    indexingService.addOrUpdateZaak(zaakUUID, false)
+                    indexingService.addOrUpdateTakenForZaak(zaakUUID)
+                    indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
+                }
+            }
+        }
+    }
     given("a request containing an authorization header and a notificatie for a non-ZAAK_GEAUTORISEERD zaakeigenschap update") {
         val zaakUUID = UUID.randomUUID()
         val zaakeigenschapUUID = UUID.randomUUID()

@@ -285,8 +285,11 @@ class NotificationReceiver @Inject constructor(
      * reindexing the zaak's documenten requires a ZGW call per document, so reindexing on every
      * zaakeigenschap notificatie would be expensive on a path that Open Notificaties retries on
      * timeout. A 'destroy' notificatie cannot be read back to check its naam, so it always triggers
-     * a reindex.
+     * a reindex. Because the documenten are reindexed asynchronously, there is a short window where
+     * the zaak (and its taken) already reflect the new zaakspecifiek geautoriseerd status but its
+     * documenten do not yet.
      */
+    @Suppress("TooGenericExceptionCaught")
     private fun handleZaakeigenschapIndexing(notification: Notification) {
         val zaakUUID = notification.mainResourceUrl.extractUuid()
         if (notification.action != Action.DELETE &&
@@ -297,7 +300,13 @@ class NotificationReceiver @Inject constructor(
         }
         indexingService.addOrUpdateZaak(zaakUUID, false)
         indexingService.addOrUpdateTakenForZaak(zaakUUID)
-        managedExecutor.submit { indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID) }
+        managedExecutor.submit {
+            try {
+                indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
+            } catch (exception: RuntimeException) {
+                warning("indexing", notification, exception)
+            }
+        }
     }
 
     @Suppress("TooGenericExceptionCaught")
