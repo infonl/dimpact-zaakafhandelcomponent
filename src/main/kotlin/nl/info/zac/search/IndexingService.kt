@@ -107,7 +107,17 @@ class IndexingService @Inject constructor(
      */
     fun reindexAll(objectTypes: Set<ZoekObjectType> = ZoekObjectType.entries.toSet()) {
         LOG.info("Complete reindexing process started for object types: $objectTypes")
-        objectTypes.forEach(::reindex)
+        objectTypes.forEach { objectType ->
+            try {
+                reindex(objectType)
+            } catch (indexingException: IndexingException) {
+                LOG.log(
+                    Level.SEVERE,
+                    "[$objectType] Reindexing failed, continuing with remaining object types",
+                    indexingException
+                )
+            }
+        }
         LOG.info("Complete reindexing process finished for object types: $objectTypes")
     }
 

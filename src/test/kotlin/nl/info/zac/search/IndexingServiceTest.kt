@@ -678,4 +678,87 @@ class IndexingServiceTest : BehaviorSpec({
             }
         }
     }
+
+    given("reindexAll() where the Solr commit fails for one object type") {
+        val ctx = setupContext()
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        // TAAK is reindexed first; only its commit fails, so ZAAK and DOCUMENT commits still succeed
+        every { ctx.solrClient.commit(null, true, true) } throws
+            SolrServerException("fake commit failure") andThen UpdateResponse() andThen UpdateResponse()
+
+        every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returns Results(emptyList(), 0)
+        every { ctx.flowableTaskService.countOpenTasks() } returns 0
+        every {
+            ctx.flowableTaskService.listOpenTasks(any(), any(), any(), any())
+        } returns emptyList()
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
+        } returns Results(emptyList(), 0)
+
+        `when`("reindexAll is called with the default set of all object types") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindexAll()
+            }
+
+            then("the remaining object types are still reindexed") {
+                verify(exactly = 1) {
+                    ctx.flowableTaskService.countOpenTasks()
+                }
+                verify(exactly = 2) {
+                    ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
+                }
+                verify(exactly = 2) {
+                    ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
+                }
+            }
+
+            then("the complete reindexing process still reports it finished") {
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
+            }
+        }
+    }
+
+    given("reindexAll() where the Solr document count cannot be determined for one object type") {
+        val ctx = setupContext()
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        // TAAK is reindexed first; its Solr document count query fails immediately, before
+        // reindexAllTaken() is ever reached
+        every { ctx.solrClient.query(any()) } throws
+            SolrServerException("fake count failure") andThen queryResponse andThen queryResponse andThen
+            queryResponse andThen queryResponse andThen queryResponse andThen queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+
+        every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returns Results(emptyList(), 0)
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
+        } returns Results(emptyList(), 0)
+
+        `when`("reindexAll is called with the default set of all object types") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindexAll()
+            }
+
+            then("the remaining object types are still reindexed") {
+                verify(exactly = 2) {
+                    ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
+                }
+                verify(exactly = 2) {
+                    ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
+                }
+            }
+
+            then("the complete reindexing process still reports it finished") {
+                logRecords.last().message shouldBe
+                    "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
+            }
+        }
+    }
 })
