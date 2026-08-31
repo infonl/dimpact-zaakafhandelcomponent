@@ -13,7 +13,7 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import net.atos.client.zgw.shared.exception.ZgwErrorException
+import nl.info.client.zgw.shared.exception.ZgwErrorException
 import net.atos.zac.app.shared.RESTResultaat
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject

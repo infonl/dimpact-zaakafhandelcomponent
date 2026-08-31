@@ -12,7 +12,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.PRODUCTAANVRAAG_TYPE_2
 import nl.info.zac.itest.config.ItestConfiguration.RESULTAAT_TYPE_GEWEIGERD_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
@@ -277,7 +277,7 @@ class ZaaktypeConfigurationRestServiceTest : BehaviorSpec({
                         "servicenorm" : false,
                         "uuid" : "$ZAAKTYPE_CMMN_TEST_2_UUID",
                         "versiedatum" : "2023-10-01",
-                        "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR"
+                        "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                       }
                     }
                 """.trimIndent()

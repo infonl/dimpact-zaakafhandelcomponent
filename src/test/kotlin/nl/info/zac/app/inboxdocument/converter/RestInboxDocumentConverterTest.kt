@@ -91,7 +91,7 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
                     result2.informatieobjectTypeUUID shouldBe uuid2
                 }
 
-                And("other fields should remain identical") {
+                and("other fields should remain identical") {
                     result1.id shouldBe result2.id
                     result1.enkelvoudiginformatieobjectUUID shouldBe result2.enkelvoudiginformatieobjectUUID
                     result1.titel shouldBe result2.titel
@@ -148,7 +148,7 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
                     results shouldHaveSize 3
                 }
 
-                And("each result should have the correct mapping") {
+                and("each result should have the correct mapping") {
                     results[0].id shouldBe 1L
                     results[0].informatieobjectTypeUUID shouldBe uuid1
 
@@ -222,7 +222,7 @@ class RestInboxDocumentConverterTest : BehaviorSpec({
                     results shouldHaveSize 2
                 }
 
-                And("the correct documents should be converted") {
+                and("the correct documents should be converted") {
                     results.map { it.id } shouldContainExactly listOf(1L, 3L)
                     results.map { it.titel } shouldContainExactly listOf("Doc1", "Doc3")
                     results[0].informatieobjectTypeUUID shouldBe uuid1

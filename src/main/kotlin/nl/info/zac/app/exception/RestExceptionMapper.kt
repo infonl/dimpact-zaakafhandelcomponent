@@ -12,7 +12,7 @@ import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.ext.ExceptionMapper
 import jakarta.ws.rs.ext.Provider
-import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.bag.BagClientService
 import nl.info.client.brp.BrpClientService

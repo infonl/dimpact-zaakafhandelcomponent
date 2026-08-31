@@ -47,9 +47,8 @@ class NoteService @Inject constructor(
     }
 
     @Transactional(REQUIRED)
-    fun deleteNote(notitieId: Long) {
-        entityManager.find(Note::class.java, notitieId)?.run {
-            entityManager.remove(this)
+    fun deleteNote(notitieId: Long): Note? =
+        entityManager.find(Note::class.java, notitieId)?.also {
+            entityManager.remove(it)
         }
-    }
 }

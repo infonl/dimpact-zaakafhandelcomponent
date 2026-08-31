@@ -66,9 +66,9 @@ class AppContainerTest : BehaviorSpec({
             }
             then("the response should be ok with UP status") { response.code shouldBe HTTP_OK }
             val healthResponse = JSONObject(response.bodyAsString)
-            And("the response should report status UP") { healthResponse.getString("status") shouldBe "UP" }
+            and("the response should report status UP") { healthResponse.getString("status") shouldBe "UP" }
 
-            And("the response should report all checks status UP") {
+            and("the response should report all checks status UP") {
                 val checks = healthResponse.getJSONArray("checks")
 
                 checks.length() shouldBeGreaterThan 0
@@ -79,7 +79,7 @@ class AppContainerTest : BehaviorSpec({
                 }
             }
 
-            And("it should include OpenZaak readiness check") {
+            and("it should include OpenZaak readiness check") {
                 val checks = healthResponse.getJSONArray("checks")
 
                 var foundOpenZaakCheck = false
@@ -94,7 +94,7 @@ class AppContainerTest : BehaviorSpec({
                 foundOpenZaakCheck shouldBe true
             }
 
-            And("it should include Solr readiness check") {
+            and("it should include Solr readiness check") {
                 val checks = healthResponse.getJSONArray("checks")
 
                 var foundSolrCheck = false
@@ -116,7 +116,7 @@ class AppContainerTest : BehaviorSpec({
                 foundSolrCheck shouldBe true
             }
 
-            And("it should include PABC readiness check") {
+            and("it should include PABC readiness check") {
                 val checks = healthResponse.getJSONArray("checks")
 
                 var foundOpenZaakCheck = false
@@ -147,9 +147,9 @@ class AppContainerTest : BehaviorSpec({
             then("the response should be ok with UP status") { response.code shouldBe HTTP_OK }
 
             val healthResponse = JSONObject(response.bodyAsString)
-            And("the response should report status UP") { healthResponse.getString("status") shouldBe "UP" }
+            and("the response should report status UP") { healthResponse.getString("status") shouldBe "UP" }
 
-            And("the response should contain all health checks information") {
+            and("the response should contain all health checks information") {
                 val checks = healthResponse.getJSONArray("checks")
 
                 checks.length() shouldBeGreaterThan 0
@@ -159,7 +159,7 @@ class AppContainerTest : BehaviorSpec({
                     check.getString("status") shouldBe "UP"
                 }
             }
-            And("it should include all expected health check classes") {
+            and("it should include all expected health check classes") {
                 val checks = healthResponse.getJSONArray("checks")
 
                 val checkNames = mutableSetOf<String>()

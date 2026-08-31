@@ -11,6 +11,7 @@ import nl.info.zac.util.time.convertToDate
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isDeelzaak
 import nl.info.client.zgw.zrc.util.isHeropend
@@ -46,6 +47,7 @@ class ZaakZoekObjectConverter @Inject constructor(
 
     @Suppress("LongMethod")
     private fun convert(zaak: Zaak): ZaakZoekObject {
+        val roles = zrcClientService.listRollen(zaak)
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakZoekObject = ZaakZoekObject(
             id = zaak.uuid.toString(),
@@ -66,7 +68,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             // we use the name of this enum in the search index
             vertrouwelijkheidaanduiding = zaak.vertrouwelijkheidaanduiding.name
             isAfgehandeld = !zaak.isOpen()
-            zgwApiService.findInitiatorRoleForZaak(zaak)?.also(::setInitiator)
+            zgwApiService.findInitiatorRoleForZaak(zaak, roles)?.also(::setInitiator)
             // locatie is not yet supported
             locatie = null
             communicatiekanaal = zaak.communicatiekanaalNaam
@@ -85,12 +87,12 @@ class ZaakZoekObjectConverter @Inject constructor(
             setIndicatie(ZaakIndicatie.DEELZAAK, zaak.isDeelzaak())
             setIndicatie(ZaakIndicatie.HOOFDZAAK, zaak.isHoofdzaak())
         }
-        addBetrokkenen(zaak, zaakZoekObject)
-        findGroup(zaak)?.let {
+        addBetrokkenen(roles, zaakZoekObject)
+        findGroup(zaak, roles)?.let {
             zaakZoekObject.groepID = it.name
             zaakZoekObject.groepNaam = it.description
         }
-        findBehandelaar(zaak)?.let {
+        findBehandelaar(zaak, roles)?.let {
             zaakZoekObject.behandelaarNaam = it.getFullName()
             zaakZoekObject.behandelaarGebruikersnaam = it.id
             zaakZoekObject.isToegekend = true
@@ -117,8 +119,8 @@ class ZaakZoekObjectConverter @Inject constructor(
         return zaakZoekObject
     }
 
-    private fun addBetrokkenen(zaak: Zaak, zaakZoekObject: ZaakZoekObject) {
-        for (role in zrcClientService.listRollen(zaak)) {
+    private fun addBetrokkenen(roles: List<Rol<*>>, zaakZoekObject: ZaakZoekObject) {
+        for (role in roles) {
             // It is possible for a role in the ZGW zaakregister to not have an identification number.
             // This can happen when a rol for some reason no longer has an underlying 'identity' object (like a Natuurlijk Persoon etc.).
             // In this case, we treat the rol as an empty 'orphaned' role and ignore it here.
@@ -131,14 +133,14 @@ class ZaakZoekObjectConverter @Inject constructor(
         }
     }
 
-    private fun findBehandelaar(zaak: Zaak): User? =
-        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+    private fun findBehandelaar(zaak: Zaak, roles: List<Rol<*>>): User? =
+        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, roles)
             ?.betrokkeneIdentificatie
             ?.identificatie
             ?.let(identityService::readUser)
 
-    private fun findGroup(zaak: Zaak): Group? =
-        zgwApiService.findGroepForZaak(zaak)
+    private fun findGroup(zaak: Zaak, roles: List<Rol<*>>): Group? =
+        zgwApiService.findGroepForZaak(zaak, roles)
             ?.betrokkeneIdentificatie
             ?.identificatie
             ?.let(identityService::readGroup)

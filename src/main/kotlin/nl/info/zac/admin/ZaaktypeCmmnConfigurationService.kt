@@ -9,7 +9,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.stats.CacheStats
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.cache.Caching
+import nl.info.client.zgw.shared.cache.Caching
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor

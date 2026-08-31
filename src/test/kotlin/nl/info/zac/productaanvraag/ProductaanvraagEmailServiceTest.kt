@@ -17,6 +17,7 @@ import io.mockk.verify
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.createDigitalAddress
 import nl.info.client.klanten.model.generated.SoortDigitaalAdresEnum
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createZaak
 import nl.info.zac.admin.model.createAutomaticEmailConfirmation
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
@@ -99,10 +100,11 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                     body shouldBe mailTemplate.body
                     attachments shouldBe emptyList()
                     isCreateDocumentFromMail shouldBe true
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
 
-            And("sent email flag is set") {
+            and("sent email flag is set") {
                 verify(exactly = 1) {
                     zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
                 }
@@ -163,10 +165,11 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                     body shouldBe mailTemplate.body
                     attachments shouldBe emptyList()
                     isCreateDocumentFromMail shouldBe true
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
 
-            And("sent email flag is set") {
+            and("sent email flag is set") {
                 verify(exactly = 1) {
                     zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
                 }
@@ -225,10 +228,11 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                     body shouldBe mailTemplate.body
                     attachments shouldBe emptyList()
                     isCreateDocumentFromMail shouldBe true
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
             }
 
-            And("sent email flag is set") {
+            and("sent email flag is set") {
                 verify(exactly = 1) {
                     zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
                 }
@@ -364,7 +368,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 mailGegevens.captured.to.email shouldBe specificEmail
             }
 
-            And("sent email flag is set") {
+            and("sent email flag is set") {
                 verify(exactly = 1) {
                     zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
                 }
@@ -401,7 +405,7 @@ class ProductaanvraagEmailServiceTest : BehaviorSpec({
                 mailGegevens.captured.to.email shouldBe specificEmail
             }
 
-            And("sent email flag is set") {
+            and("sent email flag is set") {
                 verify(exactly = 1) {
                     zaakService.setOntvangstbevestigingVerstuurdIfNotHeropend(zaak)
                 }

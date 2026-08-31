@@ -73,7 +73,7 @@ class InboxDocumentServiceTest : BehaviorSpec({
                         this.bestandsnaam shouldBe bestandsnaam
                     }
                 }
-                And("it returns the expected results") {
+                and("it returns the expected results") {
                     result.shouldNotBeNull()
                     result.enkelvoudiginformatieobjectUUID shouldBe uuid
                     result.enkelvoudiginformatieobjectID shouldBe identificatie

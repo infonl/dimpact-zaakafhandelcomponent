@@ -124,10 +124,14 @@ export class OntvangstbevestigingComponent implements OnInit {
     const { value } = this.form;
     this.sendAcknowledgeReceiptMutation.mutate({
       ...value,
-      verzender: value.verzender?.mail,
+      verzender: value.verzender!.mail!,
       replyTo: value.verzender?.replyTo,
+      ontvanger: value.ontvanger!,
+      onderwerp: value.onderwerp!,
+      body: value.body!,
       bijlagen: value.bijlagen?.map(({ uuid }) => uuid).join(";"),
       createDocumentFromMail: true,
+      vertrouwelijkheidaanduiding: "OPENBAAR",
     });
   }
 }

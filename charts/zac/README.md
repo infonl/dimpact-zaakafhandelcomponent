@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.301](https://img.shields.io/badge/Version-1.0.301-informational?style=flat-square) ![AppVersion: 5.5](https://img.shields.io/badge/AppVersion-5.5-informational?style=flat-square)
+![Version: 1.0.307](https://img.shields.io/badge/Version-1.0.307-informational?style=flat-square) ![AppVersion: 5.5](https://img.shields.io/badge/AppVersion-5.5-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.170.0 |
+| @opentelemetry | opentelemetry-collector | 0.172.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -235,7 +235,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opa.enabled | bool | `true` |  |
 | opa.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opa.image.repository | string | `"openpolicyagent/opa"` |  |
-| opa.image.tag | string | `"1.19.1-static@sha256:32bf41d914b1505fea13303f60587cc57bdd2902262177585fb208f5dde76d32"` |  |
+| opa.image.tag | string | `"1.20.1-static@sha256:efbca2ec7decf2cf23fd93ae171280a736c17d83d9d2e21c66a8f717e8fc7f20"` |  |
 | opa.imagePullSecrets | list | `[]` |  |
 | opa.name | string | `"opa"` |  |
 | opa.nodeSelector | object | `{}` |  |
@@ -279,6 +279,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | pabcApi.url | string | `""` |  |
 | podAnnotations | object | `{}` | pod specific annotations |
 | podSecurityContext | object | `{"seccompProfile":{"type":"RuntimeDefault"}}` | pod specific security context |
+| productaanvraag.claimTimeoutMinutes | int | `10` | Number of minutes after which a productaanvraag claim that was never completed (for example because ZAC was restarted) may be picked up again by a redelivered notification. |
 | remoteDebug | bool | `false` | Enable Java remote debugging |
 | replicaCount | int | `1` | The number of replicas to run |
 | resources.requests.cpu | string | `"100m"` |  |

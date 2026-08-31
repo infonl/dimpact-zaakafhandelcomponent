@@ -11,7 +11,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.atos.client.zgw.shared.cache.Caching
+import nl.info.client.zgw.shared.cache.Caching
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationBeheerService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration

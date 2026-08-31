@@ -4,7 +4,7 @@
  */
 package net.atos.zac.flowable.delegate
 
-import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.cmmn.exception.FlowableZgwValidationErrorException
 import nl.info.client.zgw.util.extractUuid

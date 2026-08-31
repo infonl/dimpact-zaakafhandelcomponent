@@ -9,7 +9,7 @@ package nl.info.zac.search.model
  *
  * The order of the enum values determines the sort priority of the indicators (the highest priority indicator first)
  * Nota bene: When the order of the enum values changes, the Solr index for zaken MUST be rebuilt.
- * To automatically rebuild the Solr index, please add a new ZAC Solr schema version to [net.atos.zac.solr.schema]
+ * To automatically rebuild the Solr index, please add a new ZAC Solr schema version to [nl.info.zac.solr.schema]
  * and configure it accordingly.
  * See the 'Managing Solr' developer documentation for more information.
  *

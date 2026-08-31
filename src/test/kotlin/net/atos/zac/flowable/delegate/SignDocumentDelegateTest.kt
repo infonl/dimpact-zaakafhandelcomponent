@@ -251,7 +251,7 @@ class SignDocumentDelegateTest : BehaviorSpec({
                 policyException shouldNotBe null
             }
 
-            And("the document is not signed") {
+            and("the document is not signed") {
                 verify(exactly = 0) {
                     enkelvoudigInformatieObjectUpdateService.ondertekenEnkelvoudigInformatieObject(any())
                 }

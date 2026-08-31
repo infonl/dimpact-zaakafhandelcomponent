@@ -4,7 +4,7 @@
  */
 package nl.info.client.zgw.ztc.model
 
-import net.atos.client.zgw.shared.model.AbstractEnum
+import nl.info.client.zgw.shared.model.AbstractEnum
 
 enum class ObjectStatusFilter(private val value: String) : AbstractEnum {
     /**

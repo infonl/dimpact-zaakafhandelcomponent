@@ -75,6 +75,7 @@ data:
   {{- end }}
   OPEN_FORMS_URL: {{ required "Valid .Values.openForms.url entry required!" .Values.openForms.url }}
   PABC_API_CLIENT_MP_REST_URL: {{ .Values.pabcApi.url }}
+  PRODUCTAANVRAAG_CLAIM_TIMEOUT_MINUTES: {{ .Values.productaanvraag.claimTimeoutMinutes | default 10 | quote }}
   SIGNALERINGEN_DELETE_OLDER_THAN_DAYS: {{ required "Valid .Values.signaleringen.deleteOlderThanDays entry required!" .Values.signaleringen.deleteOlderThanDays | quote }}
   SMTP_PORT: {{ .Values.mail.smtp.port | quote }}
   SMTP_SERVER: {{ .Values.mail.smtp.server }}

@@ -274,7 +274,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 }
             }
 
-            And("The zaaktype values have been copied into the zaakparameters") {
+            and("The zaaktype values have been copied into the zaakparameters") {
                 with(slotPersistZaaktypeCmmnConfiguration.captured) {
                     id shouldBe zaakafhandelParamentersId
                     zaaktypeUuid shouldBe zaakType.url.extractUuid()
@@ -314,7 +314,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 }
             }
 
-            And("The human task parameters should have been cloned") {
+            and("The human task parameters should have been cloned") {
                 slotPersistZaaktypeCmmnConfiguration.captured.getHumanTaskParametersCollection().let {
                     it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.getHumanTaskParametersCollection()
                     it zip originalZaaktypeCmmnConfiguration.getHumanTaskParametersCollection()
@@ -331,7 +331,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 }
             }
 
-            And("The user event listener parameters should get copied") {
+            and("The user event listener parameters should get copied") {
                 slotPersistZaaktypeCmmnConfiguration.captured.getUserEventListenerParametersCollection().let {
                     it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.getUserEventListenerParametersCollection()
                     it zip originalZaaktypeCmmnConfiguration.getUserEventListenerParametersCollection()
@@ -344,7 +344,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 }
             }
 
-            And("The zaakbeindiggegevens should get copied") {
+            and("The zaakbeindiggegevens should get copied") {
                 slotPersistZaaktypeCmmnConfiguration.captured.getZaakbeeindigParameters().let {
                     it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.getZaakbeeindigParameters()
                     it zip originalZaaktypeCmmnConfiguration.getZaakbeeindigParameters()
@@ -357,7 +357,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 }
             }
 
-            And("The mailtemplate koppelingen should get copied") {
+            and("The mailtemplate koppelingen should get copied") {
                 slotPersistZaaktypeCmmnConfiguration.captured.getMailtemplateKoppelingen().let {
                     it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
                     it zip originalZaaktypeCmmnConfiguration.getMailtemplateKoppelingen()
@@ -369,7 +369,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 }
             }
 
-            And("The afzenders should get copied") {
+            and("The afzenders should get copied") {
                 slotPersistZaaktypeCmmnConfiguration.captured.getZaakAfzenders().let {
                     it shouldBeSameSizeAs originalZaaktypeCmmnConfiguration.getZaakAfzenders()
                     it zip originalZaaktypeCmmnConfiguration.getZaakAfzenders()
@@ -383,14 +383,14 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 }
             }
 
-            And("The betrokkene koppelingen should get copied") {
+            and("The betrokkene koppelingen should get copied") {
                 slotPersistZaaktypeCmmnConfiguration.captured.getBetrokkeneParameters().let {
                     it.brpKoppelen shouldBe originalZaaktypeCmmnConfiguration.getBetrokkeneParameters().brpKoppelen
                     it.kvkKoppelen shouldBe originalZaaktypeCmmnConfiguration.getBetrokkeneParameters().kvkKoppelen
                 }
             }
 
-            And("The BRP doeleinden should get copied") {
+            and("The BRP doeleinden should get copied") {
                 slotPersistZaaktypeCmmnConfiguration.captured.getBrpParameters().let {
                     it.zoekWaarde shouldBe originalZaaktypeCmmnConfiguration.getBrpParameters().zoekWaarde
                     it.raadpleegWaarde shouldBe originalZaaktypeCmmnConfiguration.getBrpParameters().raadpleegWaarde
@@ -398,19 +398,19 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 }
             }
 
-            And("The new zaak type is stored") {
+            and("The new zaak type is stored") {
                 verify {
                     entityManager.persist(any<ZaaktypeCmmnConfiguration>())
                 }
             }
 
-            And("Then updated with SmartDocuments mappings") {
+            and("Then updated with SmartDocuments mappings") {
                 verify {
                     entityManager.merge(any<ZaaktypeCmmnConfiguration>())
                 }
             }
 
-            And("The smart documents template mappings are copied to the new zaaktype") {
+            and("The smart documents template mappings are copied to the new zaaktype") {
                 verify(exactly = 1) {
                     smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(
                         originalZaaktypeCmmnConfiguration.zaaktypeUuid,
@@ -419,7 +419,7 @@ class ZaaktypeCmmnConfigurationBeheerServiceTest : BehaviorSpec({
                 }
             }
 
-            And("The automatic email confirmation should be copied") {
+            and("The automatic email confirmation should be copied") {
                 slotPersistZaaktypeCmmnConfiguration.captured.zaaktypeCmmnEmailParameters.let {
                     it?.enabled shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.enabled
                     it?.templateName shouldBe originalZaaktypeCmmnConfiguration.zaaktypeCmmnEmailParameters?.templateName

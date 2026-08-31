@@ -75,7 +75,7 @@ class DocumentZoekObjectConverter @Inject constructor(
             formaat = informatieobject.formaat
             versie = informatieobject.versie.toLong()
             bestandsnaam = informatieobject.bestandsnaam
-            bestandsomvang = informatieobject.bestandsomvang.toLong()
+            bestandsomvang = informatieobject.bestandsomvang?.toLong() ?: 0
             documentType = informatieobjecttype.omschrijving
             informatieobject.ondertekening?.let { ondertekening ->
                 ondertekening.soort?.let {

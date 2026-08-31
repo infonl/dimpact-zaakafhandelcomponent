@@ -31,6 +31,7 @@ import { DateConditionals } from "src/app/shared/utils/date-conditionals";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
 import { BAGService } from "../../bag/bag.service";
 import { UtilService } from "../../core/service/util.service";
+import { isCausedByCurrentUser } from "../../core/websocket/is-caused-by-current-user";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
 import { ScreenEvent } from "../../core/websocket/model/screen-event";
@@ -987,6 +988,7 @@ export class ZaakViewComponent
       this.queryClient.getQueryState(queryKey)?.status === "success";
     const zaakAfterRefetch = this.queryClient.getQueryData(queryKey);
     if (refetchSucceeded && zaakAfterRefetch === zaakBeforeRefetch) return;
+    if (isCausedByCurrentUser(event, this.loggedInUser.data()?.id)) return;
 
     forkJoin({
       msgPart1: this.translate.get(

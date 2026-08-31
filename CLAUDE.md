@@ -168,6 +168,23 @@ fun add(a: Int, b: Int): Int = a + b
 ```
 This makes the code more concise and easier to read.
 
+### Omit return types when they are obvious
+When a Kotlin function has an expression body (`=`) and its right-hand side already makes the return type
+unambiguous — constructing a specific type via `Foo().apply { ... }`, or delegating to another function whose
+own return type is already clear — omit the explicit return type declaration. This applies even to public API
+functions; this project deliberately diverges from the general Kotlin style guide's recommendation to always
+declare return types on public declarations.
+```kotlin
+// Before
+fun convert(mailTemplate: MailTemplate): RESTMailtemplate =
+    RESTMailtemplate().apply { ... }
+// After
+fun convert(mailTemplate: MailTemplate) =
+    RESTMailtemplate().apply { ... }
+```
+Keep the explicit return type when the body is a block (`{ ... return ... }`, where Kotlin requires it anyway)
+or when omitting it would genuinely obscure what the function returns.
+
 ### Use `https` for dummy URLs
 When you encounter placeholder or test URLs in code or documentation, use `https://` instead of `http://` to follow best practices for secure URLs.
 
@@ -321,6 +338,23 @@ val user = User().apply {
 ```
 This allows you to initialize the object in a more fluent way.
 
+Prefer `.apply` over `.also` for this even inside an extension function, where the extension receiver and the
+object being configured are two different values in scope at once. Qualify references to the extension receiver
+with `this@functionName` so every unqualified assignment inside the `apply` block unambiguously targets the new
+object:
+```kotlin
+// Before (.also, only needed because of the two receivers)
+fun MailTemplate.toRestMailtemplate() = RESTMailtemplate().also {
+    it.mailTemplateNaam = mailTemplateNaam
+}
+// After (.apply, receiver disambiguated explicitly)
+fun MailTemplate.toRestMailtemplate() = RESTMailtemplate().apply {
+    mailTemplateNaam = this@toRestMailtemplate.mailTemplateNaam
+}
+```
+`.also`'s `it`/named parameter is for side effects on an existing value; configuring a freshly constructed object's
+fields is not a side effect, so reach for `.apply` regardless of how many receivers are in scope.
+
 ### Distinguish between `findXxx` and `readXxx` functions in low-level Kotlin CRUD services
 Use the following convention:
 
@@ -437,6 +471,16 @@ class MyServiceTest : BehaviorSpec({
         }
     }
 })
+```
+
+Use the lowercase `and(...)` block for an additional assertion group after a `then(...)`, not the capitalized `And(...)`. Kotest's `BehaviorSpec` provides both, but mixing cases (lowercase `given`/`when`/`then` with capitalized `And`) is exactly what CodeQL's `java/confusing-method-name` query flags as confusing. This is an in-progress migration — many existing specs still use `And(...)` — but new and touched specs should use `and(...)`.
+```kotlin
+// Before
+then("expected result") { ... }
+And("an additional assertion") { ... }
+// After
+then("expected result") { ... }
+and("an additional assertion") { ... }
 ```
 
 ### Use `fakeXXX` for test values where possible

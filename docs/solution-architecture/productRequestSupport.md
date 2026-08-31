@@ -25,15 +25,17 @@ On submitting this form Open Formulieren creates a product request using the fol
    Note that Open Formulieren does not make a request to Objecttypes in this scenario.
 2. ZAC has a subscription to these Product Request notifications, which means that Open Notifications forwards the notification to ZAC.
 After receiving the notification of creating a new Product Request, the following happens in ZAC:
-   1. The Product Request is retrieved from Objecten.
-   2. Based on the type of Product Request, the zaaktype is determined, and a zaak is created in Open Zaak.
+   1. ZAC claims the Product Request (see [Handling redelivered notifications](#handling-redelivered-notifications) below).
+      If the claim is rejected, handling stops here and ZAC responds successfully without creating a zaak.
+   2. The Product Request is retrieved from Objecten.
+   3. Based on the type of Product Request, the zaaktype is determined, and a zaak is created in Open Zaak.
       Note that this entails multiple requests to Open Zaak to create the related zaak data like zaakrollen and such.
       For simplicity, this is not shown in the diagram.
-   3. The Product Request is linked to the zaak.
-   4. The existing PDF document of the completed form is linked to the zaak in Open Zaak.
-   5. Any attachments uploaded with the form are also linked as documents to the zaak in Open Zaak.
-   6. The BSN or Chamber of Commerce number from the Product Request is used to link a Role of the type Applicant to the zaak. The BSN or establishment number is stored with the Role.
-   7. A CMMN Case or BPMN process is started for the zaak.
+   4. The Product Request is linked to the zaak.
+   5. The existing PDF document of the completed form is linked to the zaak in Open Zaak.
+   6. Any attachments uploaded with the form are also linked as documents to the zaak in Open Zaak.
+   7. The BSN or Chamber of Commerce number from the Product Request is used to link a Role of the type Applicant to the zaak. The BSN or establishment number is stored with the Role.
+   8. A CMMN Case or BPMN process is started for the zaak.
       1. If a CMMN mapping for the Product Request type exists (via zaak handling parameters), a CMMN Case is started for the zaak.
       2. If a BPMN mapping for the Product Request type exists (via a configured BPMN process for the zaak type), a BPMN process is started for the zaak.
       3. If both CMMN and BPMN are defined for the same Product Request type, CMMN takes precedence: the CMMN Case is started, and the BPMN mapping is ignored (a warning is logged).
@@ -83,4 +85,25 @@ sequenceDiagram
         ZAC->>+ZAC: Register inbox product request (no case started)
     end
 ```
+
+## Handling redelivered notifications
+
+Open Notifications guarantees at-least-once delivery: when ZAC does not acknowledge a notification before the delivery
+timeout elapses, the exact same notification is sent again. Without a guard, that second delivery would create a second
+zaak, a second CMMN case or BPMN process and a second confirmation email for the same Product Request.
+
+To prevent this, ZAC keeps a claim per Product Request object in its own database, in the
+`verwerkte_productaanvraag` table:
+
+1. Before doing any work, ZAC claims the Product Request object UUID. The claim is a single atomic upsert, so of two
+   notifications arriving at the same time - whether on the same ZAC instance or on two different ones - only one can
+   win the claim. The loser stops immediately and ZAC still responds successfully, so Open Notifications stops
+   redelivering.
+2. The claim is set to `DONE` as soon as the zaak has been created and its CMMN case or BPMN process has been started,
+   and for Product Requests without a zaaktype mapping as soon as the inbox product request has been registered.
+   The remaining steps - role assignment, document pairing, linking contact details and the confirmation email - run
+   after that point and do not affect the claim.
+3. A claim that was taken but never set to `DONE`, for example because ZAC was restarted halfway through, is reclaimed
+   by a later notification once it is older than `PRODUCTAANVRAAG_CLAIM_TIMEOUT_MINUTES` (10 minutes by default,
+   configurable through the ZAC Helm chart). Handling then simply starts over, without manual intervention.
 

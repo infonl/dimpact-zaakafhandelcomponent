@@ -15,8 +15,10 @@ import { FormioCustomEvent } from "../../../formulieren/formio-wrapper/formio-wr
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { ZacQueryClient } from "../../../shared/http/zac-query-client";
 import { OrderUtil } from "../../../shared/order/order-util";
+import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZakenService } from "../../../zaken/zaken.service";
+import { renderFieldError } from "./formio-component-utils";
 
 export const ZAC_FIELD_ATTRIBUTE = "ZAC_TYPE";
 export enum KNOWN_ZAC_FIELDS {
@@ -33,6 +35,7 @@ export enum KNOWN_ZAC_FIELDS {
   RESULTAAT = "ZAC_resultaat",
   STATUS = "ZAC_status",
   PROCESS_DATA = "ZAC_process_data",
+  VERTROUWELIJKHEIDAANDUIDING = "ZAC_vertrouwelijkheidaanduiding",
 }
 
 /** Hides the field's chrome; styled in `formio-wrapper.component.less`. */
@@ -170,6 +173,9 @@ export class FormioSetupService {
             case KNOWN_ZAC_FIELDS.STATUS:
               this.initializeZaakStatusField(component, taak);
               break;
+            case KNOWN_ZAC_FIELDS.VERTROUWELIJKHEIDAANDUIDING:
+              this.initializeVertrouwelijkheidaanduidingField(component);
+              break;
             default:
               this.markUnknownZacType(component);
           }
@@ -188,10 +194,7 @@ export class FormioSetupService {
     const zacType = component.attributes?.[ZAC_FIELD_ATTRIBUTE];
     if (!zacType) return;
 
-    component.type = "content";
-    component.label = "";
-    component.input = false;
-    component.html = `<div class="zac-unknown-zac-type">Undefined ZAC_TYPE: '${zacType}'</div>`;
+    renderFieldError(component, `Undefined ZAC_TYPE: '${zacType}'`);
   }
 
   private async safeInit(context: string, fn: () => Promise<void>) {
@@ -660,6 +663,22 @@ export class FormioSetupService {
       custom: () =>
         this.queryClient.ensureQueryData(
           this.zakenService.listStatustypes(taak.zaaktypeUUID!),
+        ),
+    };
+  }
+
+  private initializeVertrouwelijkheidaanduidingField(
+    component: ExtendedComponentSchema,
+  ) {
+    component.valueProperty = "value";
+    component.template = "{{ item.label }}";
+    component.data = {
+      custom: () =>
+        VertrouwelijkaanduidingToTranslationKeyPipe.selectList.map(
+          ({ value, label }) => ({
+            value,
+            label: this.translateService.instant(label),
+          }),
         ),
     };
   }

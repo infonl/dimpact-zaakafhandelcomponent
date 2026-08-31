@@ -58,11 +58,11 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
                     result!!.url shouldBe fakeObjectUri
                 }
 
-                And("it should map the identificatie from the object identificatie") {
+                and("it should map the identificatie from the object identificatie") {
                     result.identificatie shouldBe "fakeIdentificatie"
                 }
 
-                And("it should map the naam from the woonplaatsNaam") {
+                and("it should map the naam from the woonplaatsNaam") {
                     result.naam shouldBe "fakeWoonplaatsNaam"
                 }
             }
@@ -86,11 +86,11 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
                     result.zaak shouldBe zaak.url
                 }
 
-                And("it should set the object URI from the woonplaats url") {
+                and("it should set the object URI from the woonplaats url") {
                     result.`object` shouldBe fakeWoonplaatsUrl
                 }
 
-                And("it should populate the ObjectWoonplaats with identificatie and naam") {
+                and("it should populate the ObjectWoonplaats with identificatie and naam") {
                     result.objectIdentificatie!!.identificatie shouldBe "fakeIdentificatie"
                     result.objectIdentificatie!!.woonplaatsNaam shouldBe "fakeWoonplaatsNaam"
                 }
@@ -133,19 +133,19 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
                     result!!.url shouldBe URI.create(fakeSelfHref)
                 }
 
-                And("it should map the identificatie from the woonplaats") {
+                and("it should map the identificatie from the woonplaats") {
                     result.identificatie shouldBe "fakeIdentificatie"
                 }
 
-                And("it should map the naam from the woonplaats") {
+                and("it should map the naam from the woonplaats") {
                     result.naam shouldBe "fakeWoonplaatsNaam"
                 }
 
-                And("it should map the status from the woonplaats") {
+                and("it should map the status from the woonplaats") {
                     result.status shouldBe StatusWoonplaats.WOONPLAATS_AANGEWEZEN
                 }
 
-                And("it should map geconstateerd as true when Indicatie is J") {
+                and("it should map geconstateerd as true when Indicatie is J") {
                     result.geconstateerd shouldBe true
                 }
             }
@@ -173,7 +173,7 @@ class RestWoonplaatsConverterTest : BehaviorSpec({
                     result!!.geconstateerd shouldBe false
                 }
 
-                And("it should map the status from the woonplaats") {
+                and("it should map the status from the woonplaats") {
                     result.status shouldBe StatusWoonplaats.WOONPLAATS_INGETROKKEN
                 }
             }

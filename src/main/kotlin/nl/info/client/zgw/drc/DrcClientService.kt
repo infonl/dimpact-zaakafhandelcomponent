@@ -6,8 +6,8 @@ package nl.info.client.zgw.drc
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import net.atos.client.zgw.shared.model.Results
-import net.atos.client.zgw.shared.model.audit.AuditTrailRegel
+import nl.info.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject

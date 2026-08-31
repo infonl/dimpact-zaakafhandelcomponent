@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable, OnDestroy } from "@angular/core";
+import { Injectable, OnDestroy, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, Subject, forkJoin, of, throwError } from "rxjs";
 import {
   catchError,
@@ -15,7 +16,9 @@ import {
   timeout,
 } from "rxjs/operators";
 import { WebSocketSubject, webSocket } from "rxjs/webSocket";
+import { IdentityService } from "../../identity/identity.service";
 import { UtilService } from "../service/util.service";
+import { isCausedByCurrentUser } from "./is-caused-by-current-user";
 import { EventCallback } from "./model/event-callback";
 import { EventSuspension } from "./model/event-suspension";
 import { ObjectType } from "./model/object-type";
@@ -31,6 +34,7 @@ type SocketMessage = {
   objectType: ObjectType;
   objectId: ScreenEventId;
   timestamp?: number;
+  actorUserId?: string;
 };
 
 @Injectable({
@@ -62,6 +66,9 @@ export class WebsocketService implements OnDestroy {
   private listeners: Record<string, Record<string, EventCallback>> = {};
 
   private suspended: Record<string, EventSuspension> = {};
+
+  private readonly queryClient = inject(QueryClient);
+  private readonly identityService = inject(IdentityService);
 
   constructor(
     private translate: TranslateService,
@@ -121,6 +128,7 @@ export class WebsocketService implements OnDestroy {
       message.objectType,
       message.objectId,
       message.timestamp,
+      message.actorUserId,
     );
     this.dispatch(event, event.key);
     this.dispatch(event, event.keyAnyOpcode);
@@ -172,6 +180,12 @@ export class WebsocketService implements OnDestroy {
     callback: EventCallback,
   ) {
     return this.addListener(opcode, objectType, objectId, (event) => {
+      // a screen refreshes on its own change as well, it just does not announce it as somebody else's
+      if (isCausedByCurrentUser(event, this.currentUserId())) {
+        callback(event);
+        return;
+      }
+
       forkJoin({
         msgPart1: this.translate.get(
           "msg.gewijzigd.objecttype." + event.objectType,
@@ -190,6 +204,12 @@ export class WebsocketService implements OnDestroy {
         );
       });
     });
+  }
+
+  private currentUserId() {
+    return this.queryClient.getQueryData(
+      this.identityService.readLoggedInUser().queryKey,
+    )?.id;
   }
 
   public suspendListener(

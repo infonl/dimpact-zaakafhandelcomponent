@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -8,8 +8,8 @@ import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { EventEmitter } from "@angular/core";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSort, SortDirection } from "@angular/material/sort";
-import { BehaviorSubject, Observable, Subscription, merge } from "rxjs";
-import { finalize, tap } from "rxjs/operators";
+import { BehaviorSubject, EMPTY, Observable, Subscription, merge } from "rxjs";
+import { catchError, finalize, tap } from "rxjs/operators";
 import { UtilService } from "../../../core/service/util.service";
 import { FilterVeld } from "../../../zoeken/model/filter-veld";
 import { getDefaultZoekParameters } from "../../../zoeken/model/zoek-parameters";
@@ -105,7 +105,10 @@ export abstract class ZoekenDataSource<
       this.utilService.setLoading(true);
       this.zoekenService
         .list$(this.updateZoekParameters())
-        .pipe(finalize(() => this.utilService.setLoading(false)))
+        .pipe(
+          finalize(() => this.utilService.setLoading(false)),
+          catchError(() => EMPTY),
+        )
         .subscribe((zaakResponse) => {
           this.setData(zaakResponse as ZoekResultaat<OBJECT>);
         });

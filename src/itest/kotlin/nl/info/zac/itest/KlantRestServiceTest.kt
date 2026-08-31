@@ -248,7 +248,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     response.code shouldBe HTTP_OK
                     responseBody shouldEqualJson expectedResponse
                 }
-                And("BRP search request with zaaktype settings should be made") {
+                and("BRP search request with zaaktype settings should be made") {
                     val response = itestHttpClient.performJSONPostRequest(
                         url = "$BRP_WIREMOCK_API/requests/count",
                         requestBodyAsString = """
@@ -292,7 +292,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJson expectedResponse
                 }
 
-                And("BRP request with defaults should be made") {
+                and("BRP request with defaults should be made") {
                     val response = itestHttpClient.performJSONPostRequest(
                         url = "$BRP_WIREMOCK_API/requests/count",
                         requestBodyAsString = """
@@ -361,7 +361,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJson expectedResponse
                 }
 
-                And("BRP search request with zaaktype settings should be made") {
+                and("BRP search request with zaaktype settings should be made") {
                     val response = itestHttpClient.performJSONPostRequest(
                         url = "$BRP_WIREMOCK_API/requests/count",
                         requestBodyAsString = """
@@ -406,7 +406,7 @@ class KlantRestServiceTest : BehaviorSpec({
                     responseBody shouldEqualJson expectedResponse
                 }
 
-                And("BRP request with defaults should be made") {
+                and("BRP request with defaults should be made") {
                     val response = itestHttpClient.performJSONPostRequest(
                         url = "$BRP_WIREMOCK_API/requests/count",
                         requestBodyAsString = """

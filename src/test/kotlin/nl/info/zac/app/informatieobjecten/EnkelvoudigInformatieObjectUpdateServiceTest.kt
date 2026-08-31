@@ -92,7 +92,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                     zaakInfo shouldBe zaakInformatieObject
                 }
 
-                And("task document is set") {
+                and("task document is set") {
                     verify(exactly = 1) {
                         taakVariabelenService.setTaakdocumenten(task, any<List<UUID>>())
                     }
@@ -197,7 +197,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                         )
                     }
                 }
-                And("a temporary lock is created and deleted") {
+                and("a temporary lock is created and deleted") {
                     verify(exactly = 1) {
                         enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, userId)
                         enkelvoudigInformatieObjectLockService.deleteLock(enkelvoudigInformatieObjectUUID)
@@ -239,7 +239,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                         )
                     }
                 }
-                And("no temporary lock is created nor deleted") {
+                and("no temporary lock is created nor deleted") {
                     verify(exactly = 0) {
                         enkelvoudigInformatieObjectLockService.createLock(any(), any())
                         enkelvoudigInformatieObjectLockService.deleteLock(any())
@@ -277,7 +277,7 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                 then("the verzenddatum is set in the request") {
                     requestSlot.captured.verzenddatum shouldBe verzenddatum
                 }
-                And("the toelichting is prefixed with 'Per post'") {
+                and("the toelichting is prefixed with 'Per post'") {
                     verify(exactly = 1) {
                         drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), "Per post: $toelichting")
                     }
@@ -330,10 +330,10 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                     requestSlot.captured.ondertekening!!.soort shouldBe SoortEnum.DIGITAAL
                     requestSlot.captured.ondertekening!!.datum shouldBe today
                 }
-                And("the status is set to DEFINITIEF") {
+                and("the status is set to DEFINITIEF") {
                     requestSlot.captured.status shouldBe StatusEnum.DEFINITIEF
                 }
-                And("the toelichting is 'Door ondertekenen'") {
+                and("the toelichting is 'Door ondertekenen'") {
                     verify(exactly = 1) {
                         drcClientService.updateEnkelvoudigInformatieobject(uuid, any(), "Door ondertekenen")
                     }

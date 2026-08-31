@@ -213,12 +213,12 @@ public class SignaleringEventObserver extends AbstractEventObserver<SignaleringE
     }
 
     private Optional<Rol<?>> getRolBehandelaarMedewerker(final Zaak zaak) {
-        return zrcClientService.listRollen(
+        return Optional.ofNullable(zrcClientService.listRollen(
                 new RolListParameters(
                         zaak.getUrl(),
                         getRoltypeBehandelaar(zaak).getUrl(),
                         BetrokkeneTypeEnum.MEDEWERKER)
-        ).getSingleResult();
+        ).getSingleResult());
     }
 
     private @Nullable Signalering addTarget(final Signalering signalering, final Rol<?> rol) {

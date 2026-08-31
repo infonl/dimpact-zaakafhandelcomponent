@@ -30,4 +30,7 @@ data class ZaakData(
 
     @field:JsonbProperty("brondatumBepaald")
     val brondatumBepaald: Boolean?,
+
+    @field:JsonbProperty("zaakspecifiekGeautoriseerd")
+    val zaakspecifiekGeautoriseerd: Boolean,
 )

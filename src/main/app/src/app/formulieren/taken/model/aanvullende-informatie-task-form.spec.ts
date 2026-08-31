@@ -65,7 +65,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       .spyOn(TestBed.inject(MailtemplateService), "findMailtemplate")
       .mockReturnValue(
         of(
-          fromPartial<GeneratedType<"RESTMailtemplate">>({
+          fromPartial<GeneratedType<"RestMailtemplate">>({
             body: "template body",
             variabelen: [],
           }),
@@ -184,7 +184,7 @@ describe(AanvullendeInformatieTaskForm.name, () => {
       it("should use empty array for body variables when mailtemplate variabelen is null", async () => {
         findMailtemplateSpy.mockReturnValue(
           of(
-            fromPartial<GeneratedType<"RESTMailtemplate">>({
+            fromPartial<GeneratedType<"RestMailtemplate">>({
               body: "template body",
               variabelen: null,
             }),

@@ -5,7 +5,7 @@
 
 package nl.info.client.zgw.shared.model.audit.documenten
 
-import net.atos.client.zgw.shared.model.ObjectType
+import nl.info.client.zgw.shared.model.ObjectType
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.shared.model.audit.AuditWijziging
 

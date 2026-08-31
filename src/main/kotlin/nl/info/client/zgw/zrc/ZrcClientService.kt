@@ -7,7 +7,7 @@ package nl.info.client.zgw.zrc
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.NotFoundException
-import net.atos.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.RolListParameters
 import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters

@@ -71,7 +71,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                 JSONObject(takenPatchResponse).getString("status") shouldBe "AFGEROND"
             }
 
-            And("the suspend task is removed from the task list") {
+            and("the suspend task is removed from the task list") {
                 eventually(10.seconds) {
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
@@ -82,7 +82,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the resume task becomes available after the SuspendZaakDelegate executes") {
+            and("the resume task becomes available after the SuspendZaakDelegate executes") {
                 eventually(afterThirtySeconds) {
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,
@@ -93,7 +93,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the zaak is suspended") {
+            and("the zaak is suspended") {
                 itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/zaken/zaak/$zaakUuid",
                     testUser = BEHANDELAAR_1
@@ -105,7 +105,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the resume form is submitted with a resume date set to now") {
+            and("the resume form is submitted with a resume date set to now") {
                 val resumeDate = ZonedDateTime.now()
                 val resumeTaskPatchResponse = zacClient.submitFormData(
                     bpmnZaakUuid = zaakUuid,
@@ -117,7 +117,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                     JSONObject(resumeTaskPatchResponse).getString("status") shouldBe "AFGEROND"
                 }
 
-                And("the extend task becomes available after the ResumeZaakDelegate executes") {
+                and("the extend task becomes available after the ResumeZaakDelegate executes") {
                     eventually(afterThirtySeconds) {
                         val searchResponseBody = zacClient.searchForTasks(
                             zaakIdentificatie = zaakIdentificatie,
@@ -128,7 +128,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the zaak is resumed") {
+                and("the zaak is resumed") {
                     itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/zaken/zaak/$zaakUuid",
                         testUser = BEHANDELAAR_1
@@ -140,7 +140,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the extend form is submitted with 5 extend days") {
+                and("the extend form is submitted with 5 extend days") {
                     val extendTaskPatchResponse = zacClient.submitFormData(
                         bpmnZaakUuid = zaakUuid,
                         taakData = """{ "extendDays": 5, "extendTasks": false }""",
@@ -151,7 +151,7 @@ class BpmnSuspendResumeExtendRestServiceTest : BehaviorSpec({
                         JSONObject(extendTaskPatchResponse).getString("status") shouldBe "AFGEROND"
                     }
 
-                    And("the extend task is removed from the task list") {
+                    and("the extend task is removed from the task list") {
                         eventually(afterThirtySeconds) {
                             val searchResponseBody = zacClient.searchForTasks(
                                 zaakIdentificatie = zaakIdentificatie,

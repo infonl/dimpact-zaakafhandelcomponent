@@ -30,7 +30,7 @@ class DataSourceConnectionValidationTest : BehaviorSpec({
             testUser = BEHEERDER_1,
         ).code shouldBe HTTP_OK
 
-        And("all connections to the zac database are lost") {
+        and("all connections to the zac database are lost") {
             val databaseContainer = dockerComposeContainer
                 .getContainerByServiceName(ZAC_DATABASE_CONTAINER_SERVICE_NAME)
                 .get()

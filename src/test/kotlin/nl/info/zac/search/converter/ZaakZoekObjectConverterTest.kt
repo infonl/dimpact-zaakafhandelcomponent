@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
@@ -98,9 +99,9 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             count = zaakObjectenList.size
         )
         every { zrcClientService.readResultaat(zaak.resultaat) } returns resultaat
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolInitiator
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerkerBehandelaar
+        every { zgwApiService.findInitiatorRoleForZaak(zaak, rollenZaak) } returns rolInitiator
+        every { zgwApiService.findGroepForZaak(zaak, rollenZaak) } returns null
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, rollenZaak) } returns rolMedewerkerBehandelaar
         every {
             identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie!!.identificatie)
         } returns userBehandelaar
@@ -110,6 +111,10 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
 
         `when`("the zaak is converted to a zaak zoek object") {
             val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak.uuid.toString())
+
+            then("the roles for the zaak are retrieved from the ZRC API exactly once") {
+                verify(exactly = 1) { zrcClientService.listRollen(zaak) }
+            }
 
             then("the zaak zoek object should contain expected data that is converted from the zaak") {
                 with(zaakZoekObject) {
@@ -173,10 +178,10 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             omschrijving = ConfigurationService.STATUSTYPE_OMSCHRIJVING_HEROPEND
         }
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
-        every { zgwApiService.findInitiatorRoleForZaak(zaak) } returns rolInitiator
+        every { zgwApiService.findInitiatorRoleForZaak(zaak, rollenZaak) } returns rolInitiator
         every { zrcClientService.listRollen(zaak) } returns rollenZaak
-        every { zgwApiService.findGroepForZaak(zaak) } returns null
-        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns rolMedewerkerBehandelaar
+        every { zgwApiService.findGroepForZaak(zaak, rollenZaak) } returns null
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, rollenZaak) } returns rolMedewerkerBehandelaar
         every {
             identityService.readUser(rolMedewerkerBehandelaar.betrokkeneIdentificatie!!.identificatie)
         } returns userBehandelaar
@@ -191,6 +196,10 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
 
         `when`("the zaak is converted to a zaak zoek object") {
             val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak.uuid.toString())
+
+            then("the roles for the zaak are retrieved from the ZRC API exactly once") {
+                verify(exactly = 1) { zrcClientService.listRollen(zaak) }
+            }
 
             then("the zaak zoek object should contain expected data that is converted from the zaak") {
                 with(zaakZoekObject) {
@@ -218,6 +227,42 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                         )
                     }
                     getZaakIndicaties() shouldContain ZaakIndicatie.HEROPEND
+                }
+            }
+        }
+    }
+
+    given("a zaak with no roles at all") {
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val zaakObjectenList = emptyList<Zaakobject>()
+
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { zrcClientService.listRollen(zaak) } returns emptyList()
+        every { zgwApiService.findInitiatorRoleForZaak(zaak, emptyList()) } returns null
+        every { zgwApiService.findGroepForZaak(zaak, emptyList()) } returns null
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, emptyList()) } returns null
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { flowableTaskService.countOpenTasksForZaak(zaak.uuid) } returns 0
+        every { zrcClientService.listZaakobjecten(any()) } returns createResultsOfZaakObjecten(
+            list = zaakObjectenList,
+            count = zaakObjectenList.size
+        )
+
+        `when`("the zaak is converted to a zaak zoek object") {
+            val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak.uuid.toString())
+
+            then("the roles for the zaak are retrieved from the ZRC API exactly once") {
+                verify(exactly = 1) { zrcClientService.listRollen(zaak) }
+            }
+
+            then("the zaak zoek object has no initiator, group or behandelaar set") {
+                with(zaakZoekObject) {
+                    initiatorIdentificatie shouldBe null
+                    groepID shouldBe null
+                    behandelaarGebruikersnaam shouldBe null
+                    isToegekend shouldBe false
+                    betrokkenen shouldBe null
                 }
             }
         }

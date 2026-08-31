@@ -4,9 +4,16 @@
  *
  */
 
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
+import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, of } from "rxjs";
+import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
 import { ObjectType } from "../../core/websocket/model/object-type";
 import { Opcode } from "../../core/websocket/model/opcode";
@@ -25,6 +32,9 @@ describe(BatchProcessService.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
         WebsocketService,
         UtilService,
         {

@@ -77,6 +77,8 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 
 **b) Package declaration** — update to the target package (e.g. `nl.info.client.bag`).
 
+**b2) Acronym casing** — Java names routinely all-caps an acronym (`RESTMailtemplate`, `RESTZaakbeeindigRedenConverter`, `XMLParser`). Kotlin naming conventions only allow that for a two-letter acronym (`IOStream`); a longer one gets only its first letter capitalized (`XmlFormatter`, `HttpInputStream`, `RestMailtemplate`). Rename the class (and its file) to match while converting — `RESTMailtemplateConverter.java` → `RestMailtemplateConverter.kt`, not `RESTMailtemplateConverter.kt`. Apply this to every renamed declaration, not just the top-level class: nested types too. Update every call site accordingly (Step 7).
+
 **c) Imports** — update any `net.atos.*` imports to `nl.info.*`. Remove Java stdlib imports that have Kotlin equivalents.
 
 **d) Classes**:
@@ -85,18 +87,32 @@ Edit every `.kt` file in the target directory. Apply these transformations:
 - No-arg CDI constructor + `@Inject` constructor pair → single `class Foo @Inject constructor(...)`
 - `private final Type field;` → constructor parameter `private val field: Type`
 - `public static final String X = "y";` → `companion object { const val X = "y" }`
+- **Companion object placement**: put `companion object { ... }` at the top of the class body — before secondary constructors, properties, and functions (this project overrides the general Kotlin style guide's "companion object last" recommendation). In an `enum class`, the enum constants must still come first (a language requirement), so place the companion object immediately after the constants, before any other member. See `nl.info.client.zgw.shared.model.Results` and `nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectNummeraanduiding` for examples.
+- **Static-only utility/converter classes** (a `final class` with a private no-arg constructor and only `public static` methods, no instance state) → do **not** wrap the functions in a Kotlin `object`. Convert each method to a plain top-level function in the file instead, and **never use `@JvmStatic`** — that annotation only makes sense inside an `object`/`companion object`, and this project avoids that pattern entirely for stateless utility/converter classes. **Never use `@file:JvmName(...)` either** — don't try to preserve the old Java class-qualified call syntax (`Foo.bar(x)`) by forcing the file's JVM facade class to keep the class's old name. If Java callers of the old class are out of scope for this migration, just update those call sites to use the Kotlin default: a file `Foo.kt` with top-level functions compiles to a facade class `FooKt`, so update the caller's import and every call site from `Foo.bar(x)` to `FooKt.bar(x)`. See `nl.info.zac.app.admin.converter.RestMailtemplateConverter` for a worked example (note the class/file is named `RestMailtemplateConverter`, not `RESTMailtemplateConverter` — see the acronym-casing bullet under (b) below; its Java callers use `RestMailtemplateConverterKt.toRestMailtemplate(...)`).
 
 **e) Methods**:
 - Remove `public`, `final` modifiers
 - Remove `@Override` (use `override` keyword)
 - Remove semicolons
 - Use expression bodies (`=`) for single-expression methods
+- Omit the return type on an expression-body function when the right-hand side already makes it obvious (e.g. `Foo().apply { ... }`, or delegating to another function with a clear return type) — even for public API. Keep the return type only when it's a block body (required by Kotlin) or omitting it would genuinely obscure the return type.
 - `Optional<T>` → nullable `T?`; `Optional.of(x)` / `Optional.empty()` → `x` / `null`
 - `Collections.emptyList()` / `Collections.emptyMap()` → `emptyList()` / `emptyMap()`
 - Stream chains → Kotlin collection operations: `.stream().map(this::fn).toList()` → `.map(::fn)`
 - Logging: keep `java.util.logging.Logger` with the existing pattern, e.g. `Logger.getLogger(X.class)` → `companion object { private val LOG = Logger.getLogger(Foo::class.java.name) }`; `LOG.fine("v: " + v)` → `LOG.fine { "v: $v" }` (or the existing lambda/Supplier style used in the codebase)
 
 **f) Model/POJO classes** → `data class` with constructor parameters where all fields are conceptually immutable; plain `class` with `var` fields when mutability is needed (e.g. JAX-RS `@BeanParam` beans).
+
+**f2) Generic model classes (`class Foo<T>`) reused with many different concrete `T` via a shared `Jsonb` instance — do NOT use an automatic `@JsonbCreator` constructor**
+
+A Java `record Foo<T>(...)` with an `@JsonbCreator` canonical constructor deserializes correctly no matter how many different concrete `Foo<X>` instantiations flow through the same `Jsonb` instance — Yasson has dedicated support for resolving a record's type parameter per call site. A Kotlin class or data class annotated with `@JsonbCreator` does **not** get this treatment: Yasson resolves and caches the creator's parameter types keyed by the *raw* class, not per concrete instantiation. The first `Foo<A>` deserialized "wins", and every later `Foo<B>` deserialized through that same `Jsonb` instance silently comes back with `A`-shaped data mistyped as `B` (or throws a `ClassCastException` downstream where the caller unwraps it) — this reproduces with both an automatically-bound `@JsonbCreator` constructor and a plain no-arg-constructor-plus-setters approach; only real Java records are safe automatically. This is easy to miss because unit tests that mock the REST client never exercise real deserialization — it only surfaces in integration tests or production traffic once two different concrete instantiations are deserialized through the same client's `Jsonb` instance.
+
+This matters whenever a MicroProfile REST Client interface has multiple methods returning `Foo<X>`, `Foo<Y>`, `Foo<Z>`, ... for the same generic wrapper `Foo<T>`, since MicroProfile Rest Client interfaces backed by the same `ContextResolver<Jsonb>` share one `Jsonb` instance across all those methods. Before converting such a class, grep for the class name across REST client interfaces (`grep -rn "Foo<" src/main/kotlin`) — if more than one *distinct* concrete type argument shows up, do not convert it to a plain `@JsonbCreator` data class or a no-arg-constructor/setter class. Instead, resolve `T` manually from the call site:
+
+1. Annotate the class with `@JsonbTypeDeserializer(FooJsonbDeserializer::class)` instead of putting `@JsonbCreator` on the constructor.
+2. Write `FooJsonbDeserializer : JsonbDeserializer<Foo<*>>`, whose `deserialize(parser, ctx, rtType)` casts `rtType` to `ParameterizedType` and reads `rtType.actualTypeArguments[0]` to get the real concrete item type for *this* call, then deserializes nested values against that type explicitly (e.g. via a dedicated field-visible `Jsonb` instance, to avoid recursing back into the app's main `Jsonb` config) rather than letting Yasson infer it automatically.
+3. This is exactly the pattern this codebase already uses for `AuditWijziging<T>` / `AuditWijzigingJsonbDeserializer` — follow that as the reference implementation, and see `Results` / `ResultsJsonbDeserializer` for a second worked example (a generic ZGW pagination wrapper reused across `Catalogus`, `Eigenschap`, `ZaakType`, and others through one shared `Jsonb` instance).
+4. Verify with a real (not mocked) deserialization test that gets the actual configured `Jsonb` instance (e.g. via the project's `JsonbConfiguration().getContext(...)`, not a fresh `JsonbBuilder.create()`) and deserializes two different concrete instantiations through it in sequence, asserting the second one isn't shaped like the first.
 
 **g) Interfaces** — remove `public`; Java annotations on interface methods translate directly.
 
@@ -127,26 +143,34 @@ to this
 // Kotlin: someMethod(x = x, y = y, z = z)
 ```
 
-**m) Add extension functions** — if the original Java class had static utility methods that operate on instances of a class, consider converting them to Kotlin extension functions for better discoverability and idiomatic usage. For example:
-```javapublic class NoteConverter {
+**m) Prefer extension functions for single-argument conversions** — a Java `static` method that takes exactly one argument and converts it to another type is a converter/mapper, and should become a Kotlin extension function on that argument's type, not a top-level function taking it as a parameter. Give it a descriptive `toXxx()`/`fromXxx()` name rather than reusing the old method name (`convert`, `map`, ...) — the receiver already tells the reader what's being converted, so the name should say what it becomes. Declare it as a top-level function, not inside an `object` — see the static-utility-class bullet under (d), including its ban on `@file:JvmName`: the receiver becomes the first parameter for Java, so a Java caller of `Foo.convert(note)` moves to `FooKt.toDto(note)`.
+
+Don't put it in a standalone `XxxConverter.kt` file/package by default. This project's layers only depend downward (`app`/REST-facing model classes depend on domain/persistence model classes, never the reverse), so when a conversion function's two types sit in different layers, put the function in the file of whichever type is in the *higher* layer — that file already legitimately imports the lower-layer type, so colocating there adds no new dependency, whereas a separate `converter` package is just indirection. Both directions of a to/from pair go in the same (higher-layer) file, since both directions need only the "higher depends on lower" relationship. See `nl.info.zac.app.admin.model.RestMailtemplate` — it has `toRestMailtemplate()` (`MailTemplate` → `RestMailtemplate`) and `toMailTemplate()` (`RestMailtemplate` → `MailTemplate`) both living next to the `RestMailtemplate` class itself, because `nl.info.zac.app.admin.model` (REST layer) already depends on `nl.info.zac.mailtemplates.model` (domain layer) — not the other way around. `nl.info.zac.app.admin.model.RestZaakbeeindigParameter` and `nl.info.zac.app.admin.model.RestReferenceTable` follow the same pattern. Only fall back to a separate converter file when neither type's layer can see the other (e.g. converting between two peer REST models in unrelated packages) — and even then, prefer adding a dependency from one to the other over a converter package if the layering allows it. For example:
+```java
+public class NoteConverter {
     public static NoteDto toDto(Note note) { ... }
     public static Note fromDto(NoteDto dto) { ... }
 }
 ```
 could be converted to:
-```kotlinobject NoteConverter {
-    fun Note.toDto(): NoteDto { ... }
-    fun NoteDto.fromDto(): Note { ... }
-}
+```kotlin
+fun Note.toDto(): NoteDto { ... }
+fun NoteDto.fromDto(): Note { ... }
 ```
 This allows callers to use the conversion methods in a more natural way:
-```kotlinval noteDto = note.toDto()
+```kotlin
+val noteDto = note.toDto()
 val note = noteDto.fromDto()
 ```
+The conversion body is configuring a freshly constructed object, so use `.apply { ... }` for it (see CLAUDE.md's ".apply for object configuration" convention) even though the extension receiver and the new object are two different values in scope at once — qualify reads of the extension receiver with `this@functionName` so every unqualified assignment inside the block unambiguously targets the new object: `RESTMailtemplate().apply { mailTemplateNaam = this@toRestMailtemplate.mailTemplateNaam }`. Don't reach for `.also` just to dodge the qualification — `.also` is for side effects on an existing value, and configuring a new object's fields isn't one. See `nl.info.zac.app.admin.model.RestMailtemplate` (`toRestMailtemplate()`, `toMailTemplate()`) for a worked example. It started out with two separate single-argument static methods (`convertForCreate`/`convertForUpdate`) that turned out to have identical bodies once converted, so they were first collapsed into one function (`toMailTemplateWithoutID()`) — but that was still one function too many: the *only* difference between it and the id-preserving `toMailTemplate()` was whether a nullable field (`RestMailtemplate.id: Long?`) got copied, and every real call site either already held a null id (so leaving the domain object's id at its default was correct) or a real, non-null id (so copying it was correct). Once traced against actual callers — `MailTemplateService.createMailtemplate`/`updateMailtemplate` ignore the passed-in id entirely, and the one caller that needs it preserved (`RESTMailtemplateKoppelingConverter`, to populate a JPA `@ManyToOne`) always has a real one — a single `id?.let { id = it }` handled both cases correctly, so the two functions collapsed into `toMailTemplate()` alone. Collapse duplicate-bodied conversions like this by default, and when the only difference is "copy a nullable field or don't", prefer branching on the nullability itself (`?.let`) over keeping separate named variants; only keep functions separate when the names genuinely carry different intent that the call site relies on.
 
 **n) Nullability — default to non-null, widen only when a real caller needs it**
 
-Java has no compile-time nullability, so every Java parameter/field/return type is a candidate for either `T` or `T?` in Kotlin — picking `T?` everywhere is the easy way out, but it throws away most of the benefit of migrating to Kotlin. Decide per member, not per file:
+Java has no compile-time nullability, so every Java parameter/field/return type is a candidate for either `T` or `T?` in Kotlin — picking `T?` everywhere is the easy way out, but it throws away most of the benefit of migrating to Kotlin. Decide per member, not per file.
+
+**Single-parameter functions in particular must take a non-nullable argument.** A one-parameter function that guards its only input with a null check and throws (the common Java pattern: `if (x == null) throw new IllegalArgumentException(...)`) should instead declare that parameter non-null and drop the check entirely — Kotlin's type system enforces it at compile time for every caller in this codebase, which is strictly stronger than a runtime check. Do this even if it means updating or removing a test that exercised the old null-input branch (a Kotlin caller literally cannot pass `null` to a non-null parameter, so that test scenario no longer exists — the compiler is now the enforcement). If the migration in progress genuinely cannot tighten the parameter (a real external Java caller — out of scope for this migration — passes a value that is sometimes null), fall back to the general rule below instead of hardcoding nullability just for that one case.
+
+For functions taking more than one parameter, or fields, decide per member as follows:
 
 1. **Find every real call site first**, not just the ones in the file being converted. A single grep for `Foo.methodName(` misses:
    - Statically/unqualified-imported calls: `import ...Foo.methodName` then `methodName(x)` with no `Foo.` prefix.
@@ -160,6 +184,7 @@ Java has no compile-time nullability, so every Java parameter/field/return type 
 3. **Watch for the Java-platform-type trap**: an unannotated Java field/method accessed from Kotlin is a flexible platform type (`Foo!`), so the compiler will silently accept passing it to either a nullable or non-null Kotlin parameter — it will NOT flag a mismatch even if the field is null at runtime. This means you cannot rely on "the compiler didn't complain" as proof that tightening a signature is safe. Check the actual data model (`@NotNull` annotations, the upstream API spec, existing `?.`/`!!` usage at other call sites) to decide real-world nullability, not just what compiles.
 4. Same logic applies to **return types**: a function that only returns null for a genuinely absent value (e.g. a blank/absent optional input) should return `T?`; a function that unconditionally transforms its (non-null) input should return `T`.
 5. This is worth extra care specifically because it's easy to get subtly wrong in the *unsafe* direction: tightening a parameter/return type to non-null when a real call site actually can be null does not fail to compile if the source is a Java platform type — it just turns a null into a `NullPointerException` at runtime. When in doubt, re-run `./gradlew test` and `./gradlew itest` after tightening and double check the specific converted class's callers by hand, don't rely on the compiler alone.
+6. **When the evidence is genuinely inconclusive** — call sites disagree, there's no OpenAPI spec or `@NotNull` annotation to check, and the field's real-world optionality can't be determined from the code alone — stop and ask the user rather than guessing. Don't silently default to nullable "to be safe"; that's the exact easy-way-out this section warns against.
 
 Example — a Java-era conversion utility with a real call site that already unwraps before calling, and one that doesn't:
 ```kotlin
@@ -173,6 +198,18 @@ fun convertToLocalDate(date: Date): LocalDate = LocalDate.ofInstant(date.toInsta
 val fataledatum = taskInfo.dueDate?.let(DateTimeConverterUtil::convertToLocalDate)
 ```
 
+**o) Immutability — prefer `val` over `var`**
+
+Java fields are mutable by default, but most converted fields are only ever assigned once (in the constructor, or by JSON-B/JAX-RS deserialization via an `@JsonbCreator`/`@BeanParam`-style constructor). Default to `val`:
+
+- A field only ever assigned in the constructor, or set once via a setter that's really an initializer → `val`, moved into the primary constructor.
+- A field genuinely reassigned after construction (a JAX-RS `@BeanParam`/`@QueryParam` bean whose setters are called by the framework after construction, a builder-style accumulator, cached/lazily-computed state) → `var`, and only for that field — don't widen the whole class to mutable because one field needs it.
+- Same rule for local variables: a value computed once and never reassigned is `val`; reach for `var` only for an actual accumulator/loop counter/reassignment.
+
+This mirrors the nullability rule in (n): check real usage before defaulting to the more permissive option. If it's unclear whether a field is ever reassigned after construction (e.g. a framework calls a setter you can't easily trace), ask the user rather than guessing.
+
+Also follow the [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html) throughout the conversion (naming, formatting, idiomatic collection operations, etc.) — this project's own conventions in `CLAUDE.md` are a superset of them, not a replacement.
+
 ## Step 7 — Update all call sites
 
 Search for all files that still import the old package:
@@ -180,6 +217,12 @@ Search for all files that still import the old package:
 grep -r "import net\.atos\." src/ --include="*.java" --include="*.kt" -l
 ```
 Update imports in every found file (Java callers use the same `nl.info.*` import).
+
+**If a renamed class is a JAX-RS model (a `RESTxxx`/request/response DTO reachable from a `@Path` resource method) — always check the Angular frontend too**, even though it's a different language/build in `src/main/app/`. The acronym-casing rename in (b2) changes the class's simple name, which becomes the OpenAPI schema name (`RESTMailtemplate` → `RestMailtemplate`), which is also the string-literal key the frontend uses to reference that type: `GeneratedType<"RESTMailtemplate">`. This does *not* fail at Kotlin/Java compile time — the backend compiles fine — but it breaks the Angular build (`ng build` / the `npmRunBuild` Gradle task) with TypeScript errors like `Property 'x' does not exist on type 'never'`, because the string literal no longer matches any key in the generated types union. To check and fix this:
+1. Regenerate the spec and types locally: `./gradlew generateOpenApiSpec`, then from `src/main/app/`: `npm run generate:types:zac-openapi` (or just `npm run build`, which does this first). Diff or grep the regenerated `src/generated/types/zac-openapi-types.d.ts` (gitignored, not committed) for the new schema name to confirm it — don't guess the casing.
+2. `grep -rn '"<OldName>"' src/main/app/src --include="*.ts"` to find every frontend file referencing the old name as a `GeneratedType<"...">` string literal (component code and spec files both — specs commonly use `fromPartial<GeneratedType<"OldName">>(...)`).
+3. Update every match to the new name, then rerun `npm run build` (or at minimum `npm run lint` plus a targeted `ng test` on the affected specs) from `src/main/app/` to confirm the frontend compiles and its tests still pass.
+4. This applies to *any* JAX-RS model rename, not just acronym casing — moving a REST model to a new Kotlin class name for any reason has the same effect on the generated frontend types.
 
 ## Step 8 — Verify and fix compilation
 

@@ -44,7 +44,7 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
                     koppelingId = array.getJSONObject(0).getLong("id")
                 }
 
-                And("each koppeling uses the zaak-niet-ontvankelijk mailtemplate") {
+                and("each koppeling uses the zaak-niet-ontvankelijk mailtemplate") {
                     val array = JSONArray(responseBody)
                     for (i in 0 until array.length()) {
                         array.getJSONObject(i).getJSONObject("mailtemplate").also {
@@ -54,7 +54,7 @@ class MailtemplateKoppelingRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the first koppeling can be read by its id") {
+                and("the first koppeling can be read by its id") {
                     val readResponse = itestHttpClient.performGetRequest(
                         url = "$ZAC_API_URI/beheer/mailtemplatekoppeling/$koppelingId",
                         testUser = BEHEERDER_1

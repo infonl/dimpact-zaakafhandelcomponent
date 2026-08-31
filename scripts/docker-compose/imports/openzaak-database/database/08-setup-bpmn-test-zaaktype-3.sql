@@ -230,6 +230,21 @@ VALUES
 
 -- ZAAKTYPEN INFORMATIEOBJECTTYPE
 
+-- e-mail
+INSERT INTO catalogi_zaaktypeinformatieobjecttype
+(id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)
+VALUES
+(
+  (SELECT COALESCE(MAX(id),0) FROM catalogi_zaaktypeinformatieobjecttype) + 1,
+  'c4d5e6f7-a809-4b1c-8d2e-3f4a5b6c7d8e',
+  (SELECT COALESCE(MAX(volgnummer),0) FROM catalogi_zaaktypeinformatieobjecttype) + 1,
+  'inkomend',
+  (SELECT id FROM catalogi_informatieobjecttype WHERE uuid = 'efc332f2-be3b-4bad-9e3c-49a6219c92ad'),
+  NULL,
+  (SELECT id FROM catalogi_zaaktype WHERE uuid = 'e2b2d4f9-3b02-4b3e-b3d5-d26b85a7f37c'),
+  '_etag'
+);
+
 -- bijlage
 INSERT INTO catalogi_zaaktypeinformatieobjecttype
 (id, uuid, volgnummer, richting, informatieobjecttype_id, statustype_id, zaaktype_id, _etag)

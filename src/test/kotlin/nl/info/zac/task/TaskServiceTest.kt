@@ -88,13 +88,13 @@ class TaskServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the indexing service is called") {
+            and("the indexing service is called") {
                 verify(exactly = 1) {
                     indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, false)
                 }
             }
 
-            And("the correct screen events should be created") {
+            and("the correct screen events should be created") {
                 screenEventSlot.size shouldBe 2
                 screenEventSlot.map { it.objectType } shouldContainExactlyInAnyOrder listOf(
                     ScreenEventType.TAAK,
@@ -146,7 +146,7 @@ class TaskServiceTest : BehaviorSpec({
                 }
             }
 
-            And("The indexing service is called") {
+            and("The indexing service is called") {
                 verify(exactly = 1) {
                     indexingService.indexeerDirect(restTaakToekennenGegevens.taakId, ZoekObjectType.TAAK, false)
                 }

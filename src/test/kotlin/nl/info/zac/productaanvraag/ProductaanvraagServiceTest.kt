@@ -15,6 +15,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import io.mockk.verifyOrder
 import nl.info.client.zgw.zrc.model.Rol
 import nl.info.client.zgw.zrc.model.RolNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
@@ -51,6 +52,7 @@ import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.klant.model.contactdetails.ContactDetails
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
+import nl.info.zac.document.inboxdocument.repository.model.createInboxDocument
 import nl.info.zac.flowable.bpmn.BpmnService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
@@ -60,6 +62,7 @@ import nl.info.zac.productaanvraag.model.createBron
 import nl.info.zac.productaanvraag.model.generated.Betrokkene
 import nl.info.zac.productaanvraag.model.generated.Geometry
 import nl.info.zac.test.util.createRandomStringWithAlphanumericCharacters
+import java.net.URI
 import java.time.LocalDate
 import java.util.UUID
 
@@ -89,6 +92,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         drcClientService = drcClientService,
         zrcClientService = zrcClientService
     )
+    val productaanvraagClaimRepository = mockk<ProductaanvraagClaimRepository>(relaxed = true)
 
     val productaanvraagService = ProductaanvraagService(
         objectsClientService = objectsClientService,
@@ -107,7 +111,8 @@ class ProductaanvraagServiceTest : BehaviorSpec({
         configurationService = configurationService,
         klantClientService = klantClientService,
         productaanvraagBetrokkeneService = productaanvraagBetrokkeneService,
-        productaanvraagDocumentService = productaanvraagDocumentService
+        productaanvraagDocumentService = productaanvraagDocumentService,
+        productaanvraagClaimRepository = productaanvraagClaimRepository
     )
 
     afterEach {
@@ -331,6 +336,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } just runs
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
             every { configurationService.readBronOrganisatie() } returns "123443210"
+            every { productaanvraagClaimRepository.claim(any()) } returns true
 
             `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -375,7 +381,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("the productaanvraag email service should be called to send a confirmation of receipt email") {
+                and("the productaanvraag email service should be called to send a confirmation of receipt email") {
                     verify(exactly = 1) {
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             createdZaak,
@@ -386,7 +392,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("no BPMN case process should be started") {
+                and("no BPMN case process should be started") {
                     verify(exactly = 0) {
                         bpmnService.startProcess(any(), any(), any())
                     }
@@ -487,6 +493,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             } just runs
             every { zrcClientService.createRol(capture(roleToBeCreated)) } returns mockk()
             every { configurationService.readBronOrganisatie() } returns "123443210"
+            every { productaanvraagClaimRepository.claim(any()) } returns true
 
             `when`("the productaanvraag is handled") {
                 productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
@@ -536,6 +543,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -666,6 +674,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -767,6 +776,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -849,12 +859,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'."
                     }
                 }
-                And("a CMMN process should be started for the zaak") {
+                and("a CMMN process should be started for the zaak") {
                     verify(exactly = 1) {
                         cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any())
                     }
                 }
-                And("no role should be created") {
+                and("no role should be created") {
                     verify(exactly = 0) {
                         zrcClientService.createRol(any())
                     }
@@ -869,6 +879,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -957,6 +968,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -1044,6 +1056,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -1218,12 +1231,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         toelichting shouldBe "Aangemaakt vanuit ${formulierBron.naam} met kenmerk '${formulierBron.kenmerk}'."
                     }
                 }
-                And("and a CMMN process should be started for the zaak") {
+                and("and a CMMN process should be started for the zaak") {
                     verify(exactly = 1) {
                         cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any())
                     }
                 }
-                And(
+                and(
                     """
                     roles should be created and linked to the zaak for all supported betrokkenen types for which
                     there are role types defined in the ZTC client service, except for the behandelaar betrokkene
@@ -1282,6 +1295,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -1328,17 +1342,17 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         zgwApiService.createZaak(any())
                     }
                 }
-                And("a CMMN process should be started for the zaak") {
+                and("a CMMN process should be started for the zaak") {
                     verify(exactly = 1) {
                         cmmnService.startCase(createdZaak, zaakType, zaaktypeCmmnConfiguration, any())
                     }
                 }
-                And("a zaak object should be created") {
+                and("a zaak object should be created") {
                     verify(exactly = 1) {
                         zrcClientService.createZaakobject(any())
                     }
                 }
-                And("automatic reply email should not be sent") {
+                and("automatic reply email should not be sent") {
                     verify(exactly = 0) {
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             any(),
@@ -1348,7 +1362,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         )
                     }
                 }
-                And("BPMN process should not be started") {
+                and("BPMN process should not be started") {
                     verify(exactly = 0) { bpmnService.startProcess(any(), any(), any()) }
                 }
             }
@@ -1356,6 +1370,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
         given("a productaanvraag-dimpact object registration object missing required aanvraaggegevens") {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
             val formulierBron = createBron()
@@ -1398,6 +1413,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
             val zaakType = createZaakType()
@@ -1465,10 +1481,65 @@ class ProductaanvraagServiceTest : BehaviorSpec({
 
         given(
             """
+            A productaanvraag-dimpact object for which no zaaktype is configured, with an aanvraag PDF and an
+            attachment which are both still present as inbox documents
+            """
+        ) {
+            clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            val productAanvraagType = "fakeProductaanvraagTypeWithoutZaaktype"
+            val productAanvraagORObject = createORObject(
+                record = createObjectRecord(
+                    data = mapOf(
+                        "bron" to createBron(),
+                        "type" to productAanvraagType,
+                        "aanvraaggegevens" to mapOf("fakeKey" to mapOf("fakeSubKey" to "fakeValue")),
+                        "pdf" to URI("https://example.com/documenten/${UUID.randomUUID()}"),
+                        "bijlagen" to listOf(URI("https://example.com/documenten/${UUID.randomUUID()}"))
+                    ),
+                    registrationAt = LocalDate.of(2021, 1, 1)
+                ),
+                uuid = productAanvraagObjectUUID
+            )
+            every { objectsClientService.readObject(productAanvraagObjectUUID) } returns productAanvraagORObject
+            every {
+                zaaktypeCmmnConfigurationBeheerService.findActiveZaaktypeCmmnConfigurationsByProductaanvraagtype(
+                    productAanvraagType
+                )
+            } returns emptyList()
+            every {
+                zaaktypeBpmnConfigurationBeheerService.findConfigurationByProductAanvraagType(productAanvraagType)
+            } returns null
+            every { inboxProductaanvraagService.create(any()) } just runs
+            every { inboxDocumentService.find(any<UUID>()) } returns createInboxDocument()
+            every { inboxDocumentService.deleteIfExists(any<Long>()) } just runs
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                then(
+                    """
+                    the inbox productaanvraag is created before its documents are removed from the inbox,
+                    so that a failure to create it never leaves those documents deleted without an inbox
+                    productaanvraag referring to them
+                    """
+                ) {
+                    verifyOrder {
+                        inboxProductaanvraagService.create(any())
+                        inboxDocumentService.deleteIfExists(any<Long>())
+                    }
+                }
+            }
+        }
+
+        given(
+            """
             A productaanvraag-dimpact object that cannot be read from the objects client service
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             every { objectsClientService.readObject(productAanvraagObjectUUID) } throws RuntimeException("Failed")
 
@@ -1488,6 +1559,16 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         bpmnService.startProcess(any(), any(), any())
                     }
                 }
+
+                then(
+                    """
+                the claim is not marked as done, so that the claim timeout reclaims it and the productaanvraag is retried
+                """
+                ) {
+                    verify(exactly = 0) {
+                        productaanvraagClaimRepository.markDone(any())
+                    }
+                }
             }
         }
 
@@ -1498,6 +1579,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
             val zaakType = createZaakType()
@@ -1585,18 +1667,18 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         values.last() shouldBe groupName
                     }
                 }
-                And("and the productaanvraag and documents should be paired") {
+                and("and the productaanvraag and documents should be paired") {
                     verify(exactly = 1) {
                         zrcClientService.createZaakobject(any())
                         zrcClientService.createZaakInformatieobject(any(), any())
                     }
                 }
-                And("the group role should be created for the assigned group") {
+                and("the group role should be created for the assigned group") {
                     verify(exactly = 1) {
                         zrcClientService.createRol(any<RolOrganisatorischeEenheid>())
                     }
                 }
-                And("the initiator betrokkene role should be added to the zaak") {
+                and("the initiator betrokkene role should be added to the zaak") {
                     verify(exactly = 1) {
                         zrcClientService.createRol(any<RolNatuurlijkPersoon>())
                     }
@@ -1607,12 +1689,12 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         zaak shouldBe createdZaak.url
                     }
                 }
-                And("no CMMN process be started") {
+                and("no CMMN process should be started") {
                     verify(exactly = 0) {
                         cmmnService.startCase(any(), any(), any(), any())
                     }
                 }
-                And("no email notification should be sent") {
+                and("no email notification should be sent") {
                     verify(exactly = 0) {
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             any(),
@@ -1631,6 +1713,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
             val zaakTypeUUID = UUID.randomUUID()
@@ -1698,6 +1781,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val zaakTypeUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
@@ -1763,7 +1847,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         )
                     }
                 }
-                And("the confirmation email is sent using the application-specific email address") {
+                and("the confirmation email is sent using the application-specific email address") {
                     verify(exactly = 1) {
                         productaanvraagEmailService.sendConfirmationOfReceiptEmailFromProductaanvraag(
                             createdZaak,
@@ -1783,6 +1867,7 @@ class ProductaanvraagServiceTest : BehaviorSpec({
             """
         ) {
             clearAllMocks()
+            every { productaanvraagClaimRepository.claim(any()) } returns true
             val productAanvraagObjectUUID = UUID.randomUUID()
             val productAanvraagType = "productaanvraag"
             val zaakType = createZaakType()
@@ -1853,14 +1938,36 @@ class ProductaanvraagServiceTest : BehaviorSpec({
                         )
                     }
                 }
-                And("no CMMN process is started") {
+                and("no CMMN process is started") {
                     verify(exactly = 0) {
                         cmmnService.startCase(any(), any(), any(), any())
                     }
                 }
-                And("a BPMN process is started") {
+                and("a BPMN process is started") {
                     verify(exactly = 1) {
                         bpmnService.startProcess(createdZaak, zaakType, "fakeBpmnProcessKey", any())
+                    }
+                }
+            }
+        }
+    }
+
+    context("Productaanvraag that was already claimed for processing") {
+        given("a productaanvraag object UUID which is already claimed") {
+            clearAllMocks()
+            val productAanvraagObjectUUID = UUID.randomUUID()
+            every { productaanvraagClaimRepository.claim(productAanvraagObjectUUID) } returns false
+
+            `when`("the productaanvraag is handled") {
+                productaanvraagService.handleProductaanvraag(productAanvraagObjectUUID)
+
+                then("the productaanvraag object is not even read and no zaak is created") {
+                    verify(exactly = 0) {
+                        objectsClientService.readObject(any())
+                        zgwApiService.createZaak(any())
+                        cmmnService.startCase(any(), any(), any(), any())
+                        bpmnService.startProcess(any(), any(), any(), any())
+                        inboxProductaanvraagService.create(any())
                     }
                 }
             }

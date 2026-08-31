@@ -31,6 +31,54 @@ class OpenZaakClient(
         )
 
     /**
+     * Creates a zaakeigenschap directly in Open Zaak's ZRC API, bypassing ZAC. Use this to mark a
+     * zaak as zaakspecifiek geautoriseerd in integration tests, by creating a zaakeigenschap with
+     * naam [eigenschapNaam] (e.g. "ZAAK_GEAUTORISEERD") and value [waarde] (e.g. "true"). The
+     * zaaktype of [zaakUUID] must define an eigenschap with that naam in Open Zaak's catalogi API.
+     *
+     * @return [ResponseContent] with the Open Zaak API response (HTTP 201 on success)
+     */
+    fun createZaakeigenschap(
+        zaakUUID: UUID,
+        zaaktypeUUID: UUID,
+        eigenschapNaam: String,
+        waarde: String
+    ): ResponseContent {
+        val eigenschapUrl = getEigenschapUrl(zaaktypeUUID, eigenschapNaam)
+        val requestBody = JSONObject(
+            mapOf(
+                "zaak" to "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID",
+                "eigenschap" to eigenschapUrl,
+                "waarde" to waarde
+            )
+        ).toString()
+        return itestHttpClient.performZgwApiPostRequest(
+            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID/zaakeigenschappen",
+            requestBodyAsString = requestBody
+        )
+    }
+
+    /**
+     * Fetches the URL of an eigenschap with the given naam, defined for the given zaaktype, from
+     * Open Zaak's catalogi API. This returns the URL as Open Zaak itself serves it, which is the
+     * URL format that Open Zaak accepts in the ZRC API when creating a zaakeigenschap.
+     */
+    private fun getEigenschapUrl(zaaktypeUUID: UUID, eigenschapNaam: String): String {
+        val zaaktypeUrl = "$OPEN_ZAAK_EXTERNAL_URI/catalogi/api/v1/zaaktypen/$zaaktypeUUID"
+        val response = itestHttpClient.performZgwApiGetRequest(
+            url = "$OPEN_ZAAK_EXTERNAL_URI/catalogi/api/v1/eigenschappen?zaaktype=$zaaktypeUrl&status=alles"
+        )
+        val results = JSONObject(response.bodyAsString).getJSONArray("results")
+        for (index in 0 until results.length()) {
+            val eigenschap = results.getJSONObject(index)
+            if (eigenschap.getString("naam") == eigenschapNaam) {
+                return eigenschap.getString("url")
+            }
+        }
+        error("No eigenschap with naam '$eigenschapNaam' found for zaaktype '$zaaktypeUrl'")
+    }
+
+    /**
      * Creates an enkelvoudig informatieobject directly in Open Zaak's DRC API,
      * bypassing ZAC. Use this to simulate externally created documents in integration tests.
      *
@@ -44,7 +92,7 @@ class OpenZaakClient(
      *   defaults to the "bijlage" type ([INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID])
      * @param vertrouwelijkheidaanduiding Confidentiality level as a lowercase DRC API enum value
      *   (e.g. "zaakvertrouwelijk", "openbaar"). Note: ZAC API constants like
-     *   [DOCUMENT_VERTROUWELIJKHEIDS_AANDUIDING_VERTROUWELIJK] use uppercase and cannot be passed
+     *   [DOCUMENT_VERTROUWELIJKHEIDAANDUIDING_VERTROUWELIJK] use uppercase and cannot be passed
      *   directly here.
      * @return [ResponseContent] with the Open Zaak API response (HTTP 201 on success)
      */

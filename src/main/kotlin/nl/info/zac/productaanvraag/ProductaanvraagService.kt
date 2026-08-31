@@ -75,7 +75,8 @@ class ProductaanvraagService @Inject constructor(
     private val configurationService: ConfigurationService,
     private val klantClientService: KlantClientService,
     private val productaanvraagBetrokkeneService: ProductaanvraagBetrokkeneService,
-    private val productaanvraagDocumentService: ProductaanvraagDocumentService
+    private val productaanvraagDocumentService: ProductaanvraagDocumentService,
+    private val productaanvraagClaimRepository: ProductaanvraagClaimRepository
 ) {
 
     companion object {
@@ -88,6 +89,13 @@ class ProductaanvraagService @Inject constructor(
 
     fun handleProductaanvraag(productaanvraagObjectUUID: UUID) {
         LOG.info { "Handling productaanvraag with object UUID: $productaanvraagObjectUUID" }
+        if (!productaanvraagClaimRepository.claim(productaanvraagObjectUUID)) {
+            LOG.info {
+                "Productaanvraag with object UUID: '$productaanvraagObjectUUID' is already being handled or has already " +
+                    "been handled. Skipping it."
+            }
+            return
+        }
         productaanvraagObjectUUID
             .runCatching(objectsClientService::readObject)
             .onFailure { LOG.warning("Unable to read object with UUID: $productaanvraagObjectUUID") }
@@ -237,6 +245,7 @@ class ProductaanvraagService @Inject constructor(
                         "No zaak was created. Registering productaanvraag as inbox productaanvraag."
                 )
                 registreerInbox(productaanvraag, productaanvraagObject)
+                productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
             }
         }
     }
@@ -316,17 +325,13 @@ class ProductaanvraagService @Inject constructor(
             betrokkenen.first { it.rolOmschrijvingGeneriek == Betrokkene.RolOmschrijvingGeneriek.INITIATOR }
                 .let { inboxProductaanvraag.initiatorID = it.inpBsn }
         }
-        productaanvraag.pdf?.let { pdfUri ->
-            val pdfUUID = pdfUri.extractUuid()
-            inboxProductaanvraag.aanvraagdocumentUUID = pdfUUID
-            deleteInboxDocument(pdfUUID)
-        }
-        productaanvraag.bijlagen?.let { bijlagen ->
-            inboxProductaanvraag.aantalBijlagen = bijlagen.size
-            bijlagen.forEach { deleteInboxDocument(it.extractUuid()) }
-        }
+        productaanvraag.pdf?.let { inboxProductaanvraag.aanvraagdocumentUUID = it.extractUuid() }
+        productaanvraag.bijlagen?.let { inboxProductaanvraag.aantalBijlagen = it.size }
 
         inboxProductaanvraagService.create(inboxProductaanvraag)
+
+        productaanvraag.pdf?.let { deleteInboxDocument(it.extractUuid()) }
+        productaanvraag.bijlagen?.forEach { deleteInboxDocument(it.extractUuid()) }
     }
 
     private fun processProductaanvraagWithBpmnZaaktype(
@@ -366,6 +371,7 @@ class ProductaanvraagService @Inject constructor(
             processDefinitionKey = zaaktypeBpmnConfiguration.bpmnProcessDefinitionKey,
             zaakData = zaakDataVariablesMap
         )
+        productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
     }
 
     private fun startZaakWithCmmnProcess(
@@ -385,6 +391,7 @@ class ProductaanvraagService @Inject constructor(
             zaaktypeCmmnConfiguration = zaaktypeCmmnConfiguration,
             zaakData = getAanvraaggegevens(productaanvraagObject)
         )
+        productaanvraagClaimRepository.markDone(productaanvraagObject.uuid)
         // First, pair the productaanvraag and assign the zaak to the group and/or user,
         // so that should things fail afterward, at least the productaanvraag has been paired and the zaak has been assigned.
         productaanvraagDocumentService.pairProductaanvraagWithZaak(

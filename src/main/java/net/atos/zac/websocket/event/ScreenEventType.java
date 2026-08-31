@@ -106,6 +106,8 @@ public enum ScreenEventType {
         }
     },
 
+    ZAAK_NOTITIES,
+
     ZAAK_ROLLEN {
         @Override
         public ScreenEvent event(final Opcode opcode, final Zaak zaak) {

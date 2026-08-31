@@ -6,8 +6,9 @@
 # Configures the zaakafhandelparameters of a single zaaktype in ZAC: sets the default group,
 # switches the zaaktype to the CMMN case type "generiek-zaakafhandelmodel", sets the
 # "Geweigerd" resultaattype as the zaakNietOntvankelijkResultaattype, sets the standard
-# GEMEENTE/MEDEWERKER zaakAfzenders, and sets humanTaskParameters for every human task of
-# that case definition.
+# GEMEENTE/MEDEWERKER zaakAfzenders, and sets humanTaskParameters and
+# userEventListenerParameters for every human task and user event listener of that case
+# definition.
 #
 # The zaaktype's current zaakafhandelparameters are read first and only those fields are
 # changed; every other field (including numeric DB ids of already configured nested
@@ -167,11 +168,33 @@ def _merge_human_task_parameter_ids(desired_parameters: list[dict], existing_par
     return merged_parameters
 
 
+def _build_user_event_listener_parameters(case_definition: dict, existing_parameters: list[dict]) -> list[dict]:
+    """Build the desired userEventListenerParameters, one entry per user event listener of
+    `case_definition`, carrying over each existing entry's `toelichting` so a value set
+    through the ZAC UI is not cleared by this script.
+    """
+    existing_by_id = {
+        parameter["id"]: parameter for parameter in existing_parameters if "id" in parameter
+    }
+    user_event_listener_parameters = []
+    for user_event_listener_definition in case_definition["userEventListenerDefinitions"]:
+        existing_parameter = existing_by_id.get(user_event_listener_definition["id"])
+        user_event_listener_parameters.append(
+            {
+                "id": user_event_listener_definition["id"],
+                "naam": user_event_listener_definition["naam"],
+                "toelichting": existing_parameter.get("toelichting") if existing_parameter else None,
+            }
+        )
+    return user_event_listener_parameters
+
+
 def configure_zaakafhandelparameters(
     zaaktype_uuid: uuid.UUID, token_manager: zac_client.TokenManager, zac_url: str
 ) -> dict:
     """Set the default group, CMMN case type, zaakNietOntvankelijkResultaattype,
-    zaakAfzenders and humanTaskParameters on a zaaktype's zaakafhandelparameters.
+    zaakAfzenders, humanTaskParameters and userEventListenerParameters on a zaaktype's
+    zaakafhandelparameters.
 
     Returns a result dict with the outcome; raises nothing, so the caller decides how to
     report a failure.
@@ -251,6 +274,9 @@ def configure_zaakafhandelparameters(
     configuration["humanTaskParameters"] = _merge_human_task_parameter_ids(
         human_task_parameters, configuration.get("humanTaskParameters", [])
     )
+    configuration["userEventListenerParameters"] = _build_user_event_listener_parameters(
+        case_definition, configuration.get("userEventListenerParameters", [])
+    )
 
     status, response_body = zac_client.http_request(
         "PUT",
@@ -272,7 +298,8 @@ def configure_zaakafhandelparameters(
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Set the default group, CMMN case type, zaakNietOntvankelijkResultaattype, "
-        "zaakAfzenders and humanTaskParameters on a zaaktype's zaakafhandelparameters."
+        "zaakAfzenders, humanTaskParameters and userEventListenerParameters on a zaaktype's "
+        "zaakafhandelparameters."
     )
     parser.add_argument(
         "zaaktype_uuid",
@@ -308,7 +335,8 @@ def main() -> None:
             f" caseDefinition='{CASE_DEFINITION_KEY}',"
             f" zaakNietOntvankelijkResultaattype='{NIET_ONTVANKELIJK_RESULTAATTYPE_NAAM}',"
             f" zaakAfzenders={[afzender['mail'] for afzender in ZAAK_AFZENDERS]},"
-            f" humanTaskParameters set for every human task of '{CASE_DEFINITION_KEY}'"
+            f" humanTaskParameters and userEventListenerParameters set for every human task"
+            f" and user event listener of '{CASE_DEFINITION_KEY}'"
         )
     else:
         status = f"HTTP {result['status_code']}: " if result["status_code"] is not None else ""

@@ -65,8 +65,8 @@ import { ZakenService } from "../zaken.service";
 })
 export class IntakeAfrondenDialogComponent implements OnDestroy {
   loading = false;
-  zaakOntvankelijkMail?: GeneratedType<"RESTMailtemplate">;
-  zaakNietOntvankelijkMail?: GeneratedType<"RESTMailtemplate">;
+  zaakOntvankelijkMail?: GeneratedType<"RestMailtemplate">;
+  zaakNietOntvankelijkMail?: GeneratedType<"RestMailtemplate">;
   mailBeschikbaar = false;
   sendMailDefault = false;
   protected readonly contactEmailAddress = injectContactEmail(
@@ -187,6 +187,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
                 onderwerp: mailtemplate.onderwerp,
                 body: mailtemplate.body,
                 createDocumentFromMail: true,
+                vertrouwelijkheidaanduiding: "OPENBAAR",
               }
             : null,
       })

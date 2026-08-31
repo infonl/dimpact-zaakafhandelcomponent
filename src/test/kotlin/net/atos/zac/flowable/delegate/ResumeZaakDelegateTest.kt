@@ -82,7 +82,7 @@ class ResumeZaakDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("the zaak resume is called with correct parameters") {
+            and("the zaak resume is called with correct parameters") {
                 verify(exactly = 1) {
                     suspensionZaakHelper.resumeZaak(zaak, reason, any())
                 }
@@ -108,7 +108,7 @@ class ResumeZaakDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("the zaak resume is called with correct parameters") {
+            and("the zaak resume is called with correct parameters") {
                 verify(exactly = 1) {
                     suspensionZaakHelper.resumeZaak(zaak, reason, date)
                 }
@@ -148,7 +148,7 @@ class ResumeZaakDelegateTest : BehaviorSpec({
                 policyException shouldNotBe null
             }
 
-            And("the zaak is not resumed") {
+            and("the zaak is not resumed") {
                 verify(exactly = 0) {
                     suspensionZaakHelper.resumeZaak(any(), any(), any())
                 }
@@ -185,7 +185,7 @@ class ResumeZaakDelegateTest : BehaviorSpec({
                 policyException shouldNotBe null
             }
 
-            And("the zaak is not resumed") {
+            and("the zaak is not resumed") {
                 verify(exactly = 0) {
                     suspensionZaakHelper.resumeZaak(any(), any(), any())
                 }

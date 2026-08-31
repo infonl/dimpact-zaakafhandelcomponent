@@ -9,7 +9,7 @@ import jakarta.json.JsonObject
 import jakarta.json.bind.serializer.DeserializationContext
 import jakarta.json.bind.serializer.JsonbDeserializer
 import jakarta.json.stream.JsonParser
-import net.atos.client.zgw.shared.model.ObjectType
+import nl.info.client.zgw.shared.model.ObjectType
 import nl.info.client.zgw.shared.model.audit.AuditWijziging
 import java.lang.reflect.Type
 

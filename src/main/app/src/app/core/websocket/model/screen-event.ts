@@ -15,6 +15,7 @@ export class ScreenEvent {
   opcode: Opcode;
   objectType: ObjectType;
   objectId: ScreenEventId;
+  readonly actorUserId?: string;
   private _key: string;
 
   constructor(
@@ -22,8 +23,10 @@ export class ScreenEvent {
     objectType: ObjectType,
     objectId: ScreenEventId,
     timestamp?: number,
+    actorUserId?: string,
   ) {
     this._timestamp = timestamp;
+    this.actorUserId = actorUserId;
     this.opcode = opcode;
     this.objectType = objectType;
     this.objectId = objectId;

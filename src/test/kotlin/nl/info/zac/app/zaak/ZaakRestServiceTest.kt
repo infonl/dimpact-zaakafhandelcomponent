@@ -887,7 +887,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                         )
                     }
                 }
-                And("the informatieobject is not removed from the search index and is not added as an inboxdocument") {
+                and("the informatieobject is not removed from the search index and is not added as an inboxdocument") {
                     verify(exactly = 0) {
                         indexingService.removeInformatieobject(informatieobjectUUID)
                         detachedDocumentService.create(
@@ -1223,7 +1223,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 } returns createZaaktypeBpmnConfiguration()
             }
 
-            And("all zaaktypes are authorised") {
+            and("all zaaktypes are authorised") {
                 zaaktypes.forEach {
                     every { policyService.readOverigeRechten(it.omschrijving) } returns createOverigeRechten()
                 }
@@ -1246,7 +1246,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 }
             }
-            And("a user is not authorised for a CMMN zaaktype, because of missing startenZaak right") {
+            and("a user is not authorised for a CMMN zaaktype, because of missing startenZaak right") {
                 clearMocks(ztcClientService, zaaktypeConfigurationService, answers = false)
                 zaaktypes[1].let {
                     every {
@@ -1777,7 +1777,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     updatedRestZaak shouldBe patchedRestZaak
                 }
 
-                And("the communication channel is exposed to zaak data") {
+                and("the communication channel is exposed to zaak data") {
                     verify(exactly = 1) {
                         zaakVariabelenService.setCommunicationChannel(
                             zaak.uuid,
@@ -1786,7 +1786,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                     }
                 }
 
-                And("screen event signals are sent") {
+                and("screen event signals are sent") {
                     verify(exactly = 3) {
                         eventingService.send(any<ScreenEvent>())
                     }

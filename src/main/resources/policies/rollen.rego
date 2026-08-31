@@ -31,6 +31,6 @@ brpZoeken := {
     "rol": "brp_zoeken"
 }
 
-zaakspecifiekAutorisatieBehandelaar := {
-    "rol": "zaakspecifiek_autorisatie_behandelaar"
+zaakspecifiekGeautoriseerd := {
+    "rol": "zaakspecifiek_geautoriseerd"
 }

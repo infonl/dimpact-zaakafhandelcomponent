@@ -45,7 +45,7 @@ class ZaaktypeBpmnConfigurationRestServiceSmartDocumentsTest : BehaviorSpec({
             logger.info { "Response: $storeBody" }
             storeResponse.code shouldBe HTTP_NO_CONTENT
 
-            And("then the mapping is fetched back") {
+            and("then the mapping is fetched back") {
                 val fetchResponse = itestHttpClient.performGetRequest(
                     url = smartDocumentsZaakafhandelParametersUrl,
                     testUser = BEHEERDER_1

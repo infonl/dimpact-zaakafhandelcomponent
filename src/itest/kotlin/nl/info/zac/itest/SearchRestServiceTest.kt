@@ -20,7 +20,7 @@ import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.COMMUNICATIEKANAAL_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_2024_01_01
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_ZAAKVERTROUWELIJK
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZAAKVERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.HUMAN_TASK_AANVULLENDE_INFORMATIE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_FACTUUR_UUID
 import nl.info.zac.itest.config.ItestConfiguration.STATUSTYPE_OMSCHRIJVING_AANVULLENDE_INFORMATIE
@@ -390,7 +390,7 @@ class SearchRestServiceTest : BehaviorSpec({
                             "titel" : "$documentTitle",
                             "type" : "DOCUMENT",
                             "versie" : 1,
-                            "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDS_AANDUIDING_ZAAKVERTROUWELIJK",
+                            "vertrouwelijkheidaanduiding" : "$VERTROUWELIJKHEIDAANDUIDING_ZAAKVERTROUWELIJK",
                             "zaakIdentificatie" : "$zaakIdentification",
                             "zaakRelatie" : "Hoort bij, omgekeerd: kent",
                             "zaakUuid" : "$zaakUuid",

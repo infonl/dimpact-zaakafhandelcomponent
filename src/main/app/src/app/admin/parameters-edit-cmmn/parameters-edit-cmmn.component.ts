@@ -226,7 +226,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
   protected automatischeOntvangstbevestigingFormGroup = this.formBuilder.group({
     enabled: this.formBuilder.control(false),
     templateName:
-      this.formBuilder.control<GeneratedType<"RESTMailtemplate"> | null>(null),
+      this.formBuilder.control<GeneratedType<"RestMailtemplate"> | null>(null),
     emailSender: this.formBuilder.control<GeneratedType<"RESTReplyTo"> | null>(
       null,
     ),
@@ -253,7 +253,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     [];
   protected referentieTabellen: GeneratedType<"RestReferenceTable">[] = [];
   protected zaakbeeindigRedenen: GeneratedType<"RestZaakbeeindigReden">[] = [];
-  protected mailtemplates: GeneratedType<"RESTMailtemplate">[] = [];
+  protected mailtemplates: GeneratedType<"RestMailtemplate">[] = [];
   protected replyTos: GeneratedType<"RESTReplyTo">[] = [];
   protected isLoading = false;
   protected subscriptions$: Subscription[] = [];

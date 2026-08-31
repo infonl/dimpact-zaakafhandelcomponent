@@ -8,6 +8,7 @@ import nl.info.client.zgw.zrc.model.Rol
 import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.delegate.AbstractDelegate
 import net.atos.zac.flowable.delegate.resolveValueAsString
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.NietNatuurlijkPersoonIdentificatie
 import nl.info.zac.app.klant.model.contactdetails.toContactDetails
@@ -74,7 +75,8 @@ class SendConfirmationEmailDelegate : AbstractDelegate() {
                 subject = mailTemplate.onderwerp,
                 body = mailTemplate.body,
                 attachments = null,
-                isCreateDocumentFromMail = true
+                isCreateDocumentFromMail = true,
+                vertrouwelijkheidaanduiding = VertrouwelijkheidaanduidingEnum.OPENBAAR
             ),
             bronnen = zaak.getBronnenFromZaak()
         )

@@ -78,9 +78,9 @@
           <div class="form">
             <zac-formio-wrapper
               *ngIf="formioFormulier"
-              [submission]="{ data: taak.taakdata }"
               [form]="formioFormulier"
-              [taakdata]="taak.taakdata"
+              [zaak]="zaak"
+              [taak]="taak"
               [readOnly]="isReadonly()"
               [submitPending]="isPending()"
               [submitFailed]="hasFailed()"

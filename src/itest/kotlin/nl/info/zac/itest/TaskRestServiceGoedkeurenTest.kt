@@ -17,7 +17,7 @@ import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
-import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR
+import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
@@ -105,7 +105,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 zaakUUID = zaakUUID,
                 fileName = TEST_TXT_FILE_NAME,
                 fileMediaType = TEXT_MIME_TYPE,
-                vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDS_AANDUIDING_OPENBAAR,
+                vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
                 testUser = BEHANDELAAR_1
             )
 
@@ -222,7 +222,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
             }
 
-            And("the document should be signed") {
+            and("the document should be signed") {
                 val response = itestHttpClient.performGetRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieObjectUUID",
                     testUser = BEHANDELAAR_1

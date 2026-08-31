@@ -7,6 +7,7 @@ package net.atos.zac.document
 import rego.v1
 
 import data.net.atos.zac.document.zaaktype_allowed
+import data.net.atos.zac.document.zaak_allowed
 import data.net.atos.zac.document.onvergrendeld_of_vergrendeld_door_user
 import data.net.atos.zac.document.lezen
 import data.net.atos.zac.document.wijzigen
@@ -822,4 +823,109 @@ test_converteren_document_not_definitief_fails if {
     not converteren
         with input.user.rollen as ["behandelaar"]
         with input.document.definitief as false
+}
+
+##################################
+# zaak_allowed / zaakspecifiek geautoriseerde zaak
+##################################
+test_zaak_allowed_not_geautoriseerd if {
+    zaak_allowed with input.document.zaakspecifiekGeautoriseerd as false
+}
+
+test_zaak_allowed_geautoriseerd_with_zaakspecifiek_geautoriseerd_role if {
+    zaak_allowed
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "zaakspecifiek_geautoriseerd" ]
+}
+
+test_zaak_allowed_geautoriseerd_without_role_fails if {
+    not zaak_allowed
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_geautoriseerd_behandelaar_without_flag_fails if {
+    not lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_geautoriseerd_raadpleger_without_flag_fails if {
+    not lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "raadpleger" ]
+}
+
+test_lezen_geautoriseerd_coordinator_without_flag_fails if {
+    not lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "coordinator" ]
+}
+
+# the zaakspecifiek_geautoriseerd role is a flag, not a rights-bearing role: held alone, without
+# also holding a normal application role such as behandelaar, it grants no rights at all
+test_lezen_geautoriseerd_flag_alone_fails if {
+    not lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "zaakspecifiek_geautoriseerd" ]
+}
+
+test_lezen_geautoriseerd_behandelaar_with_flag if {
+    lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "behandelaar", "zaakspecifiek_geautoriseerd" ]
+}
+
+test_lezen_geautoriseerd_recordmanager_without_flag_fails if {
+    not lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager" ]
+}
+
+test_lezen_geautoriseerd_beheerder_without_flag_fails if {
+    not lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "beheerder" ]
+}
+
+test_lezen_geautoriseerd_recordmanager_with_flag if {
+    lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager", "zaakspecifiek_geautoriseerd" ]
+}
+
+test_lezen_geautoriseerd_beheerder_with_flag if {
+    lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "beheerder", "zaakspecifiek_geautoriseerd" ]
+}
+
+test_downloaden_geautoriseerd_behandelaar_without_flag_fails if {
+    not downloaden
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_downloaden_geautoriseerd_flag_alone_fails if {
+    not downloaden
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "zaakspecifiek_geautoriseerd" ]
+}
+
+test_downloaden_geautoriseerd_behandelaar_with_flag if {
+    downloaden
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "behandelaar", "zaakspecifiek_geautoriseerd" ]
+}
+
+test_downloaden_geautoriseerd_recordmanager_without_flag_fails if {
+    not downloaden
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager" ]
+}
+
+test_downloaden_geautoriseerd_recordmanager_with_flag if {
+    downloaden
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.user.rollen as [ "recordmanager", "zaakspecifiek_geautoriseerd" ]
 }

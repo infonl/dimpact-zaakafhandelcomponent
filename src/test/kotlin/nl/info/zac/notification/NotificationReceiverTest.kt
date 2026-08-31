@@ -324,7 +324,7 @@ class NotificationReceiverTest : BehaviorSpec({
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
             }
 
-            And("no processing happens") {
+            and("no processing happens") {
                 verify(exactly = 0) {
                     indexingService.removeInformatieobject(any())
                     eventingService.send(any<ScreenEvent>())

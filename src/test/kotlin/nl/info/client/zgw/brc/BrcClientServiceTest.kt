@@ -12,7 +12,7 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import net.atos.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.brc.model.createBesluit
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.util.ZgwClientHeadersFactory

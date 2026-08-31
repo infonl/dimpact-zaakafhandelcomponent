@@ -4,7 +4,7 @@
  */
 package net.atos.zac.flowable.cmmn.exception
 
-import net.atos.client.zgw.shared.exception.ZgwValidationErrorException
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import org.flowable.common.engine.api.FlowableException
 
 class OpenTaskItemNotFoundException(override val message: String) : RuntimeException(message)

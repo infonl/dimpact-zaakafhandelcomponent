@@ -11,7 +11,6 @@ import {
   VESTIGINGSNUMMER_LENGTH,
 } from "src/app/shared/utils/constants";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { DEFAULT_RETRY_COUNT } from "../../shared/http/zac-query-client";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
 import { KlantenService } from "../klanten.service";
 
@@ -48,15 +47,9 @@ export class BedrijfResolverService {
           identificatieType === "RSIN" && id.length !== KVK_LENGTH ? id : null,
       });
 
-      return this.queryClient.ensureQueryData({
-        ...this.klantenService.readBedrijf(betrokkeneIdentificatie),
-        retry: (count, error) => {
-          if (count < DEFAULT_RETRY_COUNT) return true;
-
-          this.foutAfhandelingService.httpErrorAfhandelen(error);
-          return false;
-        },
-      });
+      return this.queryClient.ensureQueryData(
+        this.klantenService.readBedrijf(betrokkeneIdentificatie),
+      );
     } catch {
       this.handleBetrokkeneError();
     }

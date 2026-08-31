@@ -87,6 +87,7 @@ Available ZAC types are:
 - `ZAC_resultaat`
 - `ZAC_status`
 - `ZAC_process_data`
+- `ZAC_vertrouwelijkheidaanduiding`
 
 #### Undefined ZAC_TYPE
 
@@ -200,6 +201,7 @@ The following functionality is supported by the BPMN process definition:
   - resuming
   - extending
 - Send email
+  - selecting the vertrouwelijkheidaanduiding of the created document
 - Send automatische ontvangstbevestiging
 - User/group
   - listing groups/users
@@ -395,6 +397,7 @@ To send email:
   - `from` - the sender's email address
   - `replyTo` - the replyTo's email address
   - `template` - the name of the email template you want to use
+  - `vertrouwelijkheidaanduiding` - required; the confidentiality level (e.g. `OPENBAAR`, `INTERN`, `VERTROUWELIJK`) given to the PDF document created from the sent email. The service task fails if this field is missing or not one of the known confidentiality levels.
 
 For example:
 
@@ -413,11 +416,51 @@ For example:
         <flowable:field name="template">
           <flowable:string><![CDATA[Algemene e-mail]]></flowable:string>
         </flowable:field>
+        <flowable:field name="vertrouwelijkheidaanduiding">
+          <flowable:string><![CDATA[OPENBAAR]]></flowable:string>
+        </flowable:field>
         <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>
     </serviceTask>
 ```
+
+:warning: A `flowable:string` field (as used above) is a fixed literal value, evaluated as-is — it is **not** substituted with process/zaakdata. To use a value collected earlier in the process (e.g. from a Form.io field, see below), use `flowable:expression` with a `${key}` reference instead, for example:
+
+```xml
+        <flowable:field name="vertrouwelijkheidaanduiding">
+          <flowable:expression><![CDATA[${MAIL_Vertrouwelijkheidaanduiding}]]></flowable:expression>
+        </flowable:field>
+```
+
+#### Selecting the vertrouwelijkheidaanduiding via a Form.io form
+
+To let a user pick the confidentiality level earlier in the process (e.g. on a task form, before the "Send email" service task runs), use:
+
+- A `select` component, with the attribute `ZAC_TYPE` of `ZAC_vertrouwelijkheidaanduiding`
+
+Example:
+
+```json
+{
+  "label": "Vertrouwelijkheidaanduiding",
+  "optionsLabelPosition": "right",
+  "key": "MAIL_Vertrouwelijkheidaanduiding",
+  "widget": "html5",
+  "validate": {
+    "required": true,
+    "onlyAvailableItems": true
+  },
+  "attributes": {
+    "ZAC_TYPE": "ZAC_vertrouwelijkheidaanduiding"
+  },
+  "type": "select",
+  "input": true,
+  "dataSrc": "custom"
+}
+```
+
+The selected value (one of `OPENBAAR`, `BEPERKT_OPENBAAR`, `INTERN`, `ZAAKVERTROUWELIJK`, `VERTROUWELIJK`, `CONFIDENTIEEL`, `GEHEIM`, `ZEER_GEHEIM`) is stored as zaakdata under the field's `key` and can be referenced from `SendEmailDelegate`'s `vertrouwelijkheidaanduiding` field via `${<key>}`, as shown above.
 
 #### Using zaakdata in email templates
 
@@ -472,7 +515,7 @@ Unlike `SendEmailDelegate`, the recipient address is resolved automatically from
 2. Otherwise, the default email address of the initiator of zaak is used. Or if the initiator does not have a default email address, the first email address of the initiator is used3. If no address can be found, no email is sent and the process continues.
 3. If no email address could be found, no email is sent and the process continues.
 
-The email is stored as a document attached to the zaak.
+The email is stored as a document attached to the zaak, always with vertrouwelijkheidaanduiding `OPENBAAR` — unlike `SendEmailDelegate`, this delegate has no `vertrouwelijkheidaanduiding` field and is not configurable.
 
 For example:
 
@@ -881,10 +924,203 @@ Example:
 }
 ```
 
+### Reading zaak and taak data
+
+ZAC puts the whole zaak and the whole taak into the form's template context, so reading a value
+needs no `ZAC_TYPE` and no ZAC property at all — it is Form.io's own `{{ }}` interpolation:
+
+```json
+{
+  "label": "",
+  "type": "content",
+  "key": "ZO_zaaknummer",
+  "input": false,
+  "html": "<strong>Zaaknummer:</strong> {{ zaak.identificatie }}"
+}
+```
+
+Two objects are available, `zaak` and `taak`, and any property of either is reachable by its path:
+
+```
+{{ zaak.identificatie }}                  {{ taak.naam }}
+{{ zaak.zaaktype.omschrijving }}          {{ taak.groep.naam }}
+{{ zaak.resultaat.resultaattype.naam }}   {{ taak.fataledatum }}
+```
+
+Because it is a template and not a field, several values can go in one sentence — which is the main
+thing this can do that a dedicated field type could not:
+
+```html
+Zaak {{ zaak.identificatie }} ({{ zaak.zaaktype.omschrijving }}) is behandeld
+door {{ zaak.behandelaar.naam }}.
+```
+
+`zaak` is the zaak as read from Open Zaak, with its group and behandelaar resolved from the zaak
+rollen via user identity management, and it is re-read every time the task is opened. `taak` is the
+task in the process engine, with its candidate group and assignee resolved the same way.
+
+ZAC removes HTML tags (`<...>`) from every string value of both objects before the form sees them, so
+a `<script>` a user typed into the zaak cannot end up in the page. Quotes and ampersands are
+deliberately left as typed, because the same values are seeded into input fields where `&amp;` would
+show — so this is not a general escape. Interpolate these values as **text**, never into an HTML
+attribute: `<div title="{{ zaak.omschrijving }}">` can still be broken out of.
+
+A property neither object carries — a zaak without a behandelaar, a taak without a groep — renders as
+nothing rather than throwing, and reading on through it (`taak.groep.naam`) is safe. There is no
+field-level error message either way, so an empty result means either "no value" or "wrong path".
+
+#### Where a value is stored
+
+Two stores hold the values a form works with. They differ in scope, not in order — both exist for the
+whole life of the zaak.
+
+| Store                                         | Scope                                | Written when                                                                              | Read in a form by                                            |
+| --------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| **this task's answers** (`taakdata`)          | one task                             | every save of that task, partial or final; it stays as the task's record after completion | the field key, bare: `{{ NF_Uren }}`                         |
+| **the zaak's process variables** (`zaakdata`) | the whole zaak, shared by every task | at process start, and again when a task completes                                         | `{{ zaak.zaakdata.NF_Uren }}`, or a `ZAC_process_data` field |
+
+Completing a task copies **all** of its answers into the process variables, which is why a field key
+needs a prefix of its own — see [Filling an editable field](#filling-an-editable-field).
+
+Neither store holds the zaak itself. `startdatum`, `status`, `resultaat` and the rest are read from
+`zaak` directly, which is what the previous section describes.
+
+#### Filling an editable field
+
+Interpolation only renders text. To put a value **into** an input, use Form.io's own
+`customDefaultValue`, which is JavaScript with the same context available:
+
+```json
+{
+  "label": "Toelichting",
+  "type": "textarea",
+  "key": "IN_toelichting",
+  "input": true,
+  "customDefaultValue": "value = zaak.toelichting"
+}
+```
+
+Anything else JavaScript can express works here as well.
+
+Three rules for filled fields:
+
+1. **A saved answer is never overwritten.** Form.io skips a default value once the submission
+   already carries the key, so what the user typed survives a reopen. This is Form.io's own
+   behaviour, not something ZAC adds.
+2. **Do not format the value of a field that parses its own.** A date picker reads the raw value and
+   formats it for display itself, so give it `value = zaak.startdatum` and leave it to render
+   `24-08-2026` on its own.
+3. **Do not use a process variable name as the `key`.** Completing a task writes every submitted key
+   back as a process variable, so a field keyed `zaakGroep` overwrites that variable. Prefix the keys
+   of your own fields.
+
+That third rule is the difference that matters between the two mechanisms: an interpolated value is
+only rendered and can never be written back, while a filled field becomes part of the submission.
+
 ### Custom functions
 
 ZAC supports custom functions in Form.io `content` components via the `{{ }}` template syntax.
 These functions are evaluated client-side and can be used to display dynamic data in read-only content blocks.
+
+#### Formatting a value for display
+
+A `{{ ... }}` placeholder in a form renders a value exactly as it is stored, which is rarely what the
+form should show: `2026-08-24` instead of `24‑08‑2026`, `true` instead of `Ja`, `[object Object]` for
+anything composite. The following helper functions render a value to the desired format in the task form.
+
+They differ from other BPMN functions offered by ZAC in what you hand them: a **value**, not a field key. So they
+work on anything reachable in the template — a zaak property, a taak property, a process variable or a
+field of the form itself.
+
+| Function                         | Argument(s)                         | Renders                                  | When the value is empty or absent |
+| -------------------------------- | ----------------------------------- | ---------------------------------------- | --------------------------------- |
+| `ZAC_opmaakDatum(value)`         | a date                              | the date as `dd-MM-yyyy`: `24‑08‑2026`   | nothing                           |
+| `ZAC_opmaakBoolean(value, …)`    | a boolean, optionally two labels    | the labels you give, else `true`/`false` | nothing                           |
+| `ZAC_opmaakLijst(value, …)`      | a list, optionally a property name  | the entries joined with commas           | nothing                           |
+| `ZAC_opmaakLegeWaarde(value, …)` | any value, optionally a placeholder | the value itself                         | `-`, or a placeholder of your own |
+
+```
+Zaak {{ zaak.identificatie }} is gestart op {{ ZAC_opmaakDatum(zaak.startdatum) }}
+en {{ ZAC_opmaakBoolean(zaak.isOpen, "loopt nog", "is afgerond") }}.
+```
+
+These four functions are **display-only**. Put them in a `content` component, a label or a description
+— never in the value of an input field. Form.io interpolates the value properties of a component too
+(`defaultValue`, `customDefaultValue`, `calculateValue`), so a formatted value will silently be written
+into the field and end up in the submission, where it is no longer the value the rest of ZAC expects.
+Interpolate the property itself there: `{{ zaak.startdatum }}`, not `{{ ZAC_opmaakDatum(zaak.startdatum) }}`.
+
+##### ZAC_opmaakDatum
+
+Renders a date the same way the rest of ZAC does: `dd-MM-yyyy`, with the non-breaking hyphens that
+keep a date on one line.
+
+```
+{{ ZAC_opmaakDatum(zaak.startdatum) }}     →  24‑08‑2026
+{{ ZAC_opmaakDatum(taak.fataledatum) }}    →  31‑12‑2026
+{{ ZAC_opmaakDatum(zaak.omschrijving) }}   →  the text itself, unchanged
+```
+
+A value that is not a date is passed through untouched rather than replaced by something wrong.
+
+Do **not** use this function to fill a date field. Its output is Dutch notation with non-breaking
+hyphens (`24‑08‑2026`), which no date picker can read back: the field stays empty and the browser
+console fills with `Invalid date provided` from the picker and a deprecation warning from moment.
+
+##### ZAC_opmaakBoolean
+
+Renders a custom text instead of the raw boolean value. Give it two labels — the first for `true`, the second
+for `false` — because a form rarely wants to say "true", it wants to say what the answer means.
+
+```
+{{ ZAC_opmaakBoolean(zaak.isOpen, "Open", "Gesloten") }}                →  Open
+{{ ZAC_opmaakBoolean(zaak.isProcesGestuurd, "Procesgestuurd", "Zaakgestuurd") }}
+                                                                        →  Procesgestuurd
+{{ ZAC_opmaakBoolean(zaak.isHeropend, "Heropend") }}                    →  Nee
+{{ ZAC_opmaakBoolean(zaak.isOpen, "actie.ja", "actie.nee") }}           →  Ja
+{{ ZAC_opmaakBoolean(zaak.isOpen) }}                                    →  true
+```
+
+Give only the first label and `false` still renders `Nee`. A label may also be a translation key, as
+the fourth line shows, so `actie.ja` and `actie.nee` give you Ja and Nee.
+
+Called **without labels** the function hands the boolean back as it is, so Form.io renders it the way
+it renders any other value: `true` or `false`. Use that where the raw value is what you want to show —
+for anything a behandelaar reads, give it labels.
+
+A value that is neither `true` nor `false` is passed through as it is. That matters: pointed at a text
+field, the function shows that text instead of confidently answering "Nee" about something that was
+never a yes-or-no question.
+
+##### ZAC_opmaakLijst
+
+Joins the entries of a list with commas. A second argument names the property to read from each entry,
+for a list of objects.
+
+```
+{{ ZAC_opmaakLijst(zaak.indicaties) }}                    →  OPSCHORTING, VERLENGD
+{{ ZAC_opmaakLijst(zaak.kenmerken, "kenmerk") }}          →  kenmerk-1, kenmerk-2
+{{ ZAC_opmaakLijst(zaak.besluiten, "identificatie") }}    →  BESLUIT-01, BESLUIT-02
+```
+
+Entries that are empty are left out, so a partly filled list does not render stray commas. An empty
+list, or a property the zaak does not have, renders nothing. Without this function a list renders as
+`[object Object],[object Object]`.
+
+##### ZAC_opmaakLegeWaarde
+
+Renders the value, or `-` when there is nothing to show — the same dash the zaak screens use, so it
+means the same thing to the reader. An optional second argument replaces the dash.
+
+```
+{{ ZAC_opmaakLegeWaarde(zaak.omschrijving) }}                        →  the omschrijving
+{{ ZAC_opmaakLegeWaarde(zaak.toelichting) }}                         →  -
+{{ ZAC_opmaakLegeWaarde(zaak.einddatum, "Nog niet bekend") }}        →  Nog niet bekend
+{{ ZAC_opmaakLegeWaarde(zaak.besluiten, "actie.nee") }}              →  Nee
+```
+
+Empty means an empty string, an empty list, a property that holds nothing, and a property the zaak
+does not have at all. Like the labels above, the placeholder may be a translation key.
 
 #### ZAC_getDocumentTitles
 
@@ -922,10 +1158,14 @@ If a document cannot be fetched or has no title, the UUID is used as a fallback.
 
 #### Supported process data variables
 
-- `zaakUUID` - zaak UUID
 - `zaakIdentificatie` - zaak id
 - `zaakCommunicatiekanaal` - zaak communication channel
 - `zaakGroep` - zaak group
-- `zaakBehandelaar` - zaak assigned user
-- `zaaktypeUUID` - zaaktype UUID
+- `zaakBehandelaar` - zaak assigned user, once the zaak has one
 - `zaaktypeOmschrijving` - zaaktype description
+
+`zaakUUID` and `zaaktypeUUID` exist as process variables and a process definition can use them, but
+ZAC deliberately keeps them out of the task data, so a `ZAC_process_data` field with either key stays
+empty. Read `{{ zaak.uuid }}` and `{{ zaak.zaaktype.uuid }}` instead — see
+[Reading zaak and taak data](#reading-zaak-and-taak-data), which also covers every zaak field that is
+not a process variable at all.

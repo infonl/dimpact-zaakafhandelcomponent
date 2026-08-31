@@ -25,7 +25,6 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.client.zgw.shared.model.Results;
 import net.atos.zac.app.bag.converter.RestAdresConverter;
 import net.atos.zac.app.bag.converter.RestBagConverter;
 import net.atos.zac.app.bag.converter.RestNummeraanduidingConverter;
@@ -40,6 +39,7 @@ import net.atos.zac.app.bag.model.RESTListAdressenParameters;
 import net.atos.zac.app.shared.RESTResultaat;
 import nl.info.client.bag.BagClientService;
 import nl.info.client.bag.model.BevraagAdressenParameters;
+import nl.info.client.zgw.shared.model.Results;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.zrc.model.generated.ObjectTypeEnum;
 import nl.info.client.zgw.zrc.model.generated.Zaak;

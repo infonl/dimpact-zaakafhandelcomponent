@@ -80,7 +80,7 @@ class AanvullendeInformatieTaskCompleteTest : BehaviorSpec({
                 responseBody.shouldContainJsonKeyValue("status", "AFGEROND")
             }
 
-            And("the zaak status is set back to `Intake`") {
+            and("the zaak status is set back to `Intake`") {
                 val response = zacClient.retrieveZaak(
                     id = zaakIdentification,
                     testUser = BEHANDELAAR_1

@@ -20,6 +20,7 @@ import net.atos.zac.flowable.FlowableHelper
 import net.atos.zac.flowable.ZaakVariabelenService
 import nl.info.client.klant.KlantClientService
 import nl.info.client.klant.createDigitalAddresses
+import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
@@ -103,6 +104,7 @@ class SendConfirmationEmailDelegateTest : BehaviorSpec({
                     subject shouldBeEqual mailTemplate.onderwerp
                     body shouldBeEqual mailTemplate.body
                     isCreateDocumentFromMail shouldBe true
+                    vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }
                 verify(exactly = 0) { zgwApiService.findInitiatorRoleForZaak(any()) }
             }

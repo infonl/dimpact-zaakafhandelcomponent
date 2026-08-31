@@ -7,7 +7,11 @@ package nl.info.zac.search
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import net.atos.client.zgw.shared.model.Results
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
+import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
@@ -46,13 +50,16 @@ class IndexingService @Inject constructor(
         const val SOLR_INDEXING_ERROR_MESSAGE = "Error occurred during Solr indexing"
 
         private const val SOLR_MAX_RESULTS = 100
-        private const val TAKEN_MAX_RESULTS = 50
+        private const val TAKEN_MAX_RESULTS = 100
+        private const val PAGE_CONVERSION_PARALLELISM = 8
 
         private val LOG = Logger.getLogger(IndexingService::class.java.name)
         private val reindexingViewfinder = ConcurrentHashMap.newKeySet<ZoekObjectType>()
 
         private lateinit var solrClient: SolrClient
     }
+
+    private val pageConversionDispatcher = Dispatchers.IO.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
 
     init {
         solrClient = Http2SolrClient.Builder(
@@ -91,7 +98,11 @@ class IndexingService @Inject constructor(
     fun indexeerDirect(objectIds: List<String>, objectType: ZoekObjectType, performCommit: Boolean) =
         addToSolrIndex(
             getConverter(objectType).let { converter ->
-                objectIds.map { continueOnExceptions(objectType) { converter.convert(it) } }
+                runBlocking(pageConversionDispatcher) {
+                    objectIds.map { objectId ->
+                        async { continueOnExceptions(objectType) { converter.convert(objectId) } }
+                    }.awaitAll()
+                }
             },
             performCommit
         )
@@ -226,7 +237,7 @@ class IndexingService @Inject constructor(
             return
         }
 
-        val numberOfPages: Int = numberOfZaken / Results.NUM_ITEMS_PER_PAGE.toInt() +
+        val numberOfPages: Int = numberOfZaken / Results.DEFAULT_ZGW_PAGE_SIZE.toInt() +
             ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
 
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
@@ -247,7 +258,7 @@ class IndexingService @Inject constructor(
             objectType = ZoekObjectType.ZAAK,
             performCommit = false
         )
-        val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size
+        val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.DEFAULT_ZGW_PAGE_SIZE + ids.size
         LOG.info("[${ZoekObjectType.ZAAK}] Reindexed: $progress / $totalCount ")
     }
 
@@ -264,7 +275,7 @@ class IndexingService @Inject constructor(
             return
         }
 
-        val numberOfPages: Int = numberOfInformatieobjecten / Results.NUM_ITEMS_PER_PAGE.toInt() +
+        val numberOfPages: Int = numberOfInformatieobjecten / Results.DEFAULT_ZGW_PAGE_SIZE.toInt() +
             ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
 
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
@@ -276,7 +287,7 @@ class IndexingService @Inject constructor(
 
     private fun reindexInformatieobjectenPage(pageNumber: Int, totalCount: Int) {
         val informationObjectsResults = drcClientService.listEnkelvoudigInformatieObjecten(
-            EnkelvoudigInformatieobjectListParameters().apply { page = ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS }
+            EnkelvoudigInformatieobjectListParameters().apply { page = pageNumber }
         )
         val ids = informationObjectsResults.results().map { it.url.extractUuid().toString() }
         indexeerDirect(
@@ -284,7 +295,7 @@ class IndexingService @Inject constructor(
             objectType = ZoekObjectType.DOCUMENT,
             performCommit = false
         )
-        val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.NUM_ITEMS_PER_PAGE + ids.size
+        val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.DEFAULT_ZGW_PAGE_SIZE + ids.size
         LOG.info("[${ZoekObjectType.DOCUMENT}] Reindexed: $progress / $totalCount")
     }
 

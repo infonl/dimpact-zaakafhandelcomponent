@@ -41,7 +41,7 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { TranslatePipe } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { merge, of, Subject, takeUntil } from "rxjs";
-import { map, switchMap } from "rxjs/operators";
+import { catchError, map, switchMap } from "rxjs/operators";
 import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { UtilService } from "../../core/service/util.service";
 import { BedrijfZoekComponent } from "../../klanten/zoek/bedrijven/bedrijf-zoek.component";
@@ -180,7 +180,7 @@ export class ZoekComponent implements AfterViewInit, OnDestroy {
           return runQuery(
             this.queryClient,
             this.zoekenService.list(this.getZoekParameters()),
-          );
+          ).pipe(catchError(() => of(null)));
         }),
         map((data) => {
           this.isLoadingResults = false;

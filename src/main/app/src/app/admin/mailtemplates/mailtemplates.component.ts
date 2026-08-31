@@ -112,11 +112,11 @@ export class MailtemplatesComponent
     "id",
   ] as const;
   protected dataSource = new MatTableDataSource<
-    GeneratedType<"RESTMailtemplate">
+    GeneratedType<"RestMailtemplate">
   >();
   private mailKoppelingen: GeneratedType<"RESTMailtemplateKoppeling">[] = [];
   private filterValue = "";
-  protected expandedRow: GeneratedType<"RESTMailtemplate"> | null = null;
+  protected expandedRow: GeneratedType<"RestMailtemplate"> | null = null;
 
   constructor(
     private dialog: MatDialog,
@@ -154,13 +154,13 @@ export class MailtemplatesComponent
   }
 
   protected isDisabled(
-    mailtemplate: GeneratedType<"RESTMailtemplate">,
+    mailtemplate: GeneratedType<"RestMailtemplate">,
   ): boolean {
     return this.getMailtemplateKoppeling(mailtemplate) != null;
   }
 
   protected verwijderMailtemplate(
-    mailtemplate: GeneratedType<"RESTMailtemplate">,
+    mailtemplate: GeneratedType<"RestMailtemplate">,
   ): void {
     this.dialog
       .open(ConfirmDialogComponent, {
@@ -174,7 +174,7 @@ export class MailtemplatesComponent
       });
   }
 
-  protected getKoppelingen(mailtemplate: GeneratedType<"RESTMailtemplate">) {
+  protected getKoppelingen(mailtemplate: GeneratedType<"RestMailtemplate">) {
     return this.mailKoppelingen.reduce((acc, koppeling) => {
       if (koppeling.mailtemplate?.id === mailtemplate.id) {
         acc.push(koppeling);
@@ -184,7 +184,7 @@ export class MailtemplatesComponent
   }
 
   private getMailtemplateKoppeling(
-    mailtemplate: GeneratedType<"RESTMailtemplate">,
+    mailtemplate: GeneratedType<"RestMailtemplate">,
   ) {
     return this.mailKoppelingen.find(
       (koppeling) => koppeling.mailtemplate?.id === mailtemplate.id,

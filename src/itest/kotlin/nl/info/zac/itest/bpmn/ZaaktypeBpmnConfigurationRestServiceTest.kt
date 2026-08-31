@@ -113,7 +113,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 response.code shouldBe HttpURLConnection.HTTP_OK
             }
 
-            And("the expected zaak type data is returned") {
+            and("the expected zaak type data is returned") {
                 responseBody shouldEqualJsonIgnoringExtraneousFields bpmnZaakType1
             }
         }
@@ -132,7 +132,7 @@ class ZaaktypeBpmnConfigurationRestServiceTest : BehaviorSpec({
                 response.code shouldBe HttpURLConnection.HTTP_OK
             }
 
-            And("the expected zaak type data list is returned") {
+            and("the expected zaak type data list is returned") {
                 responseBody shouldEqualJsonIgnoringExtraneousFields
                     "[$bpmnZaakType1, $bpmnZaakType2, $bpmnZaakType3, $bpmnZaakType4, $bpmnZaakType5]"
             }

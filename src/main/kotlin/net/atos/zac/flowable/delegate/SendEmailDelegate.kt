@@ -5,6 +5,8 @@
 package net.atos.zac.flowable.delegate
 
 import net.atos.zac.flowable.FlowableHelper
+import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
+import nl.info.zac.app.shared.toDrcVertrouwelijkheidaanduidingEnum
 import nl.info.zac.mail.model.MailAdres
 import nl.info.zac.mail.model.getBronnenFromZaak
 import nl.info.zac.mailtemplates.model.MailGegevens
@@ -33,10 +35,14 @@ class SendEmailDelegate : AbstractDelegate() {
     // Set by Flowable. Can be either FixedValue or JuelExpression
     lateinit var template: Expression
 
+    // Set by Flowable. Can be either FixedValue or JuelExpression
+    var vertrouwelijkheidaanduiding: Expression? = null
+
     companion object {
         private val LOG = Logger.getLogger(SendEmailDelegate::class.java.name)
     }
 
+    @Suppress("ThrowsCount")
     override fun execute(execution: DelegateExecution) {
         val flowableHelper = FlowableHelper.getInstance()
         val zaak = flowableHelper.zrcClientService.readZaakByID(getZaakIdentificatie(execution))
@@ -54,6 +60,21 @@ class SendEmailDelegate : AbstractDelegate() {
         val fromAddress = from.resolveValueAsString(execution)
         val toAddress = to.resolveValueAsString(execution)
         val replyToAddress = replyTo?.resolveValueAsString(execution)
+        val vertrouwelijkheidaanduidingValue = vertrouwelijkheidaanduiding
+            ?.resolveValueAsString(execution)
+            ?.takeUnless { it.isBlank() }
+            ?.let { value ->
+                val restVertrouwelijkheidaanduiding = try {
+                    RestVertrouwelijkheidaanduiding.valueOf(value)
+                } catch (illegalArgumentException: IllegalArgumentException) {
+                    throw IllegalArgumentException(
+                        "'$value' is not a valid 'vertrouwelijkheidaanduiding'",
+                        illegalArgumentException
+                    )
+                }
+                restVertrouwelijkheidaanduiding.toDrcVertrouwelijkheidaanduidingEnum()
+            }
+            ?: throw IllegalArgumentException("Required field 'vertrouwelijkheidaanduiding' is missing")
 
         val mailTemplate = flowableHelper.mailTemplateService.findMailtemplateByName(templateName)
             ?: throw IllegalArgumentException("Mail template '$templateName' not found")
@@ -69,7 +90,8 @@ class SendEmailDelegate : AbstractDelegate() {
                 subject = mailTemplate.onderwerp,
                 body = mailTemplate.body,
                 attachments = null,
-                isCreateDocumentFromMail = true
+                isCreateDocumentFromMail = true,
+                vertrouwelijkheidaanduiding = vertrouwelijkheidaanduidingValue
             ),
             bronnen = zaak.getBronnenFromZaak()
         )

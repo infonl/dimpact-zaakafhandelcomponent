@@ -26,8 +26,8 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
-import { lastValueFrom, merge, Observable } from "rxjs";
-import { map, startWith, switchMap } from "rxjs/operators";
+import { lastValueFrom, merge, Observable, of } from "rxjs";
+import { catchError, map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -198,7 +198,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
         switchMap(() => {
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
-          return this.loadZaken();
+          return this.loadZaken().pipe(catchError(() => of(null)));
         }),
         map((zoekResultaat) => {
           this.isLoadingResults = false;
@@ -207,6 +207,8 @@ export class KlantZakenTabelComponent implements AfterViewInit {
         }),
       )
       .subscribe((zoekResultaat) => {
+        if (!zoekResultaat) return;
+
         this.zoekResultaat = zoekResultaat;
         this.paginator.length = zoekResultaat.totaal;
         this.dataSource.data = zoekResultaat.resultaten;

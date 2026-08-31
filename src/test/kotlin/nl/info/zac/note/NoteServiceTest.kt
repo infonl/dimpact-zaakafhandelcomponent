@@ -95,12 +95,26 @@ class NoteServiceTest : BehaviorSpec({
         every { entityManager.remove(note) } just Runs
 
         `when`("the note is deleted") {
-            noteService.deleteNote(noteId)
+            val deletedNote = noteService.deleteNote(noteId)
 
-            then("it should remove the note") {
+            then("it should remove the note and return it") {
+                deletedNote shouldBe note
                 verify(exactly = 1) {
                     entityManager.remove(note)
                 }
+            }
+        }
+    }
+
+    given("A note ID for a note that does not exist") {
+        val noteId = 456L
+        every { entityManager.find(Note::class.java, noteId) } returns null
+
+        `when`("the note is deleted") {
+            val deletedNote = noteService.deleteNote(noteId)
+
+            then("it should return null") {
+                deletedNote shouldBe null
             }
         }
     }

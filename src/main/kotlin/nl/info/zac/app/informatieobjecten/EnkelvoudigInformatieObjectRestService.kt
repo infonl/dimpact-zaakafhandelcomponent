@@ -108,18 +108,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         uuid
             .let(drcClientService::readEnkelvoudigInformatieobject)
             .let { enkelvoudigInformatieObject ->
-                zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
-                    .also { zaakInformatieobjecten ->
-                        if (zaakInformatieobjecten.size > 1) {
-                            LOG.log(Level.WARNING) {
-                                "Document with UUID '$uuid' is linked to ${zaakInformatieobjecten.size} zaken; " +
-                                    "using ${zaakInformatieobjecten[0].zaakUUID} to determine document rights."
-                            }
-                        }
-                    }
-                    .firstOrNull()
-                    ?.let { zrcClientService.readZaak(it.zaakUUID) }
-                    .let { zaak -> restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak) }
+                findZaakForDocument(enkelvoudigInformatieObject).let { zaak ->
+                    val documentRechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+                    assertPolicy(documentRechten.lezen)
+                    restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject, zaak, documentRechten)
+                }
             }
 
     @GET
@@ -131,13 +124,35 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         uuid
             .let(drcClientService::readEnkelvoudigInformatieobject)
             .let { currentVersion ->
-                return when {
+                val zaak = findZaakForDocument(currentVersion)
+                val documentRechten = policyService.readDocumentRechten(currentVersion, zaak)
+                assertPolicy(documentRechten.lezen)
+                when {
                     version < currentVersion.versie -> restInformatieobjectConverter.convertToREST(
-                        drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, version)
+                        drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, version),
+                        zaak
                     )
-                    else -> restInformatieobjectConverter.convertToREST(currentVersion)
+                    else -> restInformatieobjectConverter.convertToREST(currentVersion, zaak, documentRechten)
                 }
             }
+
+    /**
+     * A document can be linked to more than one zaak, while the document rights are determined by a single zaak.
+     * The first linked zaak is used, in the order in which the Zaken API returns them.
+     */
+    private fun findZaakForDocument(enkelvoudigInformatieObject: EnkelvoudigInformatieObject): Zaak? =
+        zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject)
+            .also { zaakInformatieobjecten ->
+                if (zaakInformatieobjecten.size > 1) {
+                    LOG.log(Level.WARNING) {
+                        "Document with UUID '${enkelvoudigInformatieObject.url.extractUuid()}' is linked to " +
+                            "${zaakInformatieobjecten.size} zaken; using ${zaakInformatieobjecten[0].zaakUUID} " +
+                            "to determine document rights."
+                    }
+                }
+            }
+            .firstOrNull()
+            ?.let { zrcClientService.readZaak(it.zaakUUID) }
 
     @PUT
     @Path("informatieobjectenList")
@@ -279,7 +294,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("informatieobject/{uuid}/zaakinformatieobjecten")
     fun listZaakInformatieobjecten(@PathParam("uuid") uuid: UUID): List<RestZaakInformatieobject> = uuid
         .let(drcClientService::readEnkelvoudigInformatieobject)
-        .apply { assertPolicy(policyService.readDocumentRechten(this).lezen) }
+        .apply { assertPolicy(policyService.readDocumentRechten(this, findZaakForDocument(this)).lezen) }
         .let(zrcClientService::listZaakinformatieobjecten)
         .map(::toRestZaakInformatieobject)
 
@@ -342,7 +357,12 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @Path("/informatieobject/{uuid}/{versie}/preview")
     fun preview(@PathParam("uuid") uuid: UUID, @PathParam("versie") version: Int?): Response {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
-        assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).lezen)
+        assertPolicy(
+            policyService.readDocumentRechten(
+                enkelvoudigInformatieObject,
+                findZaakForDocument(enkelvoudigInformatieObject)
+            ).lezen
+        )
         return try {
             val inhoud = version?.let {
                 drcClientService.downloadEnkelvoudigInformatieobjectVersie(
@@ -368,10 +388,9 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         val informatieobjecten = uuids
             .map(UUID::fromString)
             .map(drcClientService::readEnkelvoudigInformatieobject)
-        informatieobjecten
-            .map(policyService::readDocumentRechten)
-            .map { it.downloaden }
-            .forEach { assertPolicy(it) }
+        informatieobjecten.forEach {
+            assertPolicy(policyService.readDocumentRechten(it, findZaakForDocument(it)).downloaden)
+        }
         return informatieobjecten
             .let(enkelvoudigInformatieObjectDownloadService::getZipStreamOutput)
             .let(Response::ok)
@@ -385,7 +404,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         @PathParam("uuid") uuid: UUID
     ): RestEnkelvoudigInformatieObjectVersieGegevens =
         drcClientService.readEnkelvoudigInformatieobject(uuid)
-            .also { assertPolicy(policyService.readDocumentRechten(it).lezen) }
+            .also { assertPolicy(policyService.readDocumentRechten(it, findZaakForDocument(it)).lezen) }
             .let(restInformatieobjectConverter::convertToRestEnkelvoudigInformatieObjectVersieGegevens)
 
     @POST
@@ -441,9 +460,11 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     @GET
     @Path("informatieobject/{uuid}/historie")
     fun listInformatieobjectHistory(@PathParam("uuid") informatieobjectUUID: UUID): List<HistoryLine> {
+        val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID)
         assertPolicy(
             policyService.readDocumentRechten(
-                drcClientService.readEnkelvoudigInformatieobject(informatieobjectUUID)
+                enkelvoudigInformatieObject,
+                findZaakForDocument(enkelvoudigInformatieObject)
             ).lezen
         )
         return drcClientService.listAuditTrail(informatieobjectUUID)
@@ -456,7 +477,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         @PathParam("informatieObjectUuid") informatieobjectUuid: UUID
     ): List<String> =
         drcClientService.readEnkelvoudigInformatieobject(informatieobjectUuid)
-            .apply { assertPolicy(policyService.readDocumentRechten(this).lezen) }
+            .apply { assertPolicy(policyService.readDocumentRechten(this, findZaakForDocument(this)).lezen) }
             .let(zrcClientService::listZaakinformatieobjecten)
             .map { zrcClientService.readZaak(it.zaak).identificatie }
 
@@ -502,7 +523,12 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
 
     private fun retrieveDocumentContent(uuid: UUID, version: Int?): Response {
         val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
-        assertPolicy(policyService.readDocumentRechten(enkelvoudigInformatieObject).downloaden)
+        assertPolicy(
+            policyService.readDocumentRechten(
+                enkelvoudigInformatieObject,
+                findZaakForDocument(enkelvoudigInformatieObject)
+            ).downloaden
+        )
         return try {
             val documentContent = version?.let {
                 drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version)

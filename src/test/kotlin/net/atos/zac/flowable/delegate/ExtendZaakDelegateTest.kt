@@ -116,7 +116,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("the zaak and tasks extend is called with correct parameters") {
+            and("the zaak and tasks extend is called with correct parameters") {
                 verify(exactly = 1) {
                     suspensionZaakHelper.extendZaak(
                         zaak,
@@ -129,12 +129,12 @@ class ExtendZaakDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("due date and fatal date are extended") {
+            and("due date and fatal date are extended") {
                 dueDateSlot.captured shouldBe zaak.einddatumGepland.plusDays(extendDays.toLong())
                 fatalDateSlot.captured shouldBe zaak.uiterlijkeEinddatumAfdoening.plusDays(extendDays.toLong())
             }
 
-            And("events are sent") {
+            and("events are sent") {
                 // 1 task event + 1 zaak event
                 verify(exactly = 2) {
                     eventingService.send(any<ScreenEvent>())
@@ -185,7 +185,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
                 exception.errorCode shouldBe ErrorCode.ERROR_CODE_EXTENSION_PERIOD_INVALID
             }
 
-            And("correct expressions resolution is attempted") {
+            and("correct expressions resolution is attempted") {
                 verify(exactly = 1) {
                     aantalDagenExpression.getValue(delegateExecution)
                 }
@@ -195,7 +195,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("no zaak or tasks are extended") {
+            and("no zaak or tasks are extended") {
                 verify(exactly = 0) {
                     suspensionZaakHelper.extendZaak(
                         zaak,
@@ -208,7 +208,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
                 }
             }
 
-            And("no events are sent") {
+            and("no events are sent") {
                 // 1 task event + 1 zaak event
                 verify(exactly = 0) {
                     eventingService.send(any<ScreenEvent>())
@@ -250,7 +250,7 @@ class ExtendZaakDelegateTest : BehaviorSpec({
                 policyException shouldNotBe null
             }
 
-            And("the zaak is not extended") {
+            and("the zaak is not extended") {
                 verify(exactly = 0) {
                     suspensionZaakHelper.extendZaak(any(), any(), any(), any(), any())
                 }

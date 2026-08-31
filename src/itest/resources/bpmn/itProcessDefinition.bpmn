@@ -41,6 +41,9 @@
         <flowable:field name="template">
           <flowable:string><![CDATA[Algemene e-mail]]></flowable:string>
         </flowable:field>
+        <flowable:field name="vertrouwelijkheidaanduiding">
+          <flowable:expression><![CDATA[${MAIL_Vertrouwelijkheidaanduiding}]]></flowable:expression>
+        </flowable:field>
         <design:stencilid><![CDATA[ServiceTask]]></design:stencilid>
         <design:stencilsuperid><![CDATA[Task]]></design:stencilsuperid>
       </extensionElements>

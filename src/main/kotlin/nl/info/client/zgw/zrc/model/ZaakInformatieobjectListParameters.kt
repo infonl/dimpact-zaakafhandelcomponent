@@ -5,7 +5,7 @@
 package nl.info.client.zgw.zrc.model
 
 import jakarta.ws.rs.QueryParam
-import net.atos.client.zgw.shared.model.AbstractListParameters
+import nl.info.client.zgw.shared.model.AbstractListParameters
 import java.net.URI
 
 class ZaakInformatieobjectListParameters : AbstractListParameters() {

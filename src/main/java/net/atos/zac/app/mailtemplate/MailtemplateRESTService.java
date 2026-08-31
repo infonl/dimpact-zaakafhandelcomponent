@@ -17,12 +17,12 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import net.atos.zac.app.admin.converter.RESTMailtemplateConverter;
-import net.atos.zac.app.admin.model.RESTMailtemplate;
 import nl.info.client.zgw.zrc.ZrcClientService;
 import nl.info.client.zgw.zrc.model.generated.Zaak;
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService;
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration;
+import nl.info.zac.app.admin.model.RestMailtemplate;
+import nl.info.zac.app.admin.model.RestMailtemplateKt;
 import nl.info.zac.mailtemplates.MailTemplateService;
 import nl.info.zac.mailtemplates.model.Mail;
 import nl.info.zac.mailtemplates.model.MailTemplate;
@@ -44,7 +44,7 @@ public class MailtemplateRESTService {
 
     @GET
     @Path("{mailtemplateEnum}/{zaakUUID}")
-    public RESTMailtemplate findMailtemplate(
+    public RestMailtemplate findMailtemplate(
             @PathParam("mailtemplateEnum") final Mail mail,
             @PathParam("zaakUUID") final UUID zaakUUID
     ) {
@@ -55,11 +55,11 @@ public class MailtemplateRESTService {
 
         return zaaktypeCmmnConfiguration.getMailtemplateKoppelingen().stream()
                 .filter(koppeling -> koppeling.getMailTemplate().mail.equals(mail))
-                .map(koppeling -> RESTMailtemplateConverter.convert(koppeling.getMailTemplate()))
+                .map(koppeling -> RestMailtemplateKt.toRestMailtemplate(koppeling.getMailTemplate()))
                 .findFirst()
                 .orElseGet(() -> {
                     MailTemplate mailTemplate = mailTemplateService.findDefaultMailtemplate(mail);
-                    return mailTemplate != null ? RESTMailtemplateConverter.convert(mailTemplate) : null;
+                    return mailTemplate != null ? RestMailtemplateKt.toRestMailtemplate(mailTemplate) : null;
                 });
     }
 }
