@@ -291,13 +291,15 @@ class IndexingService @Inject constructor(
      * errors, so an "errors" count only ever reflects an actual per-object failure - with one caveat:
      * [ReindexSummary.totalCount] is the ZGW API's total count captured once before paging starts,
      * while successCount/skippedCount accumulate as paging proceeds afterwards. Objects created or
-     * deleted in the ZGW API while a reindex is running can therefore surface as a small phantom
-     * error count here (or mask a real one), purely from that drift, not from a conversion failure.
+     * deleted in the ZGW API while a reindex is running can therefore surface as a phantom error
+     * count here (or mask a real one), purely from that drift, not from a conversion failure. Since
+     * paging can overshoot the snapshot (e.g. more objects created after the page count was fixed),
+     * the raw difference can go negative, so it is clamped to zero rather than logged as-is.
      */
     private fun reindexFinishedMessage(objectType: ZoekObjectType, summary: ReindexSummary?): String {
         val message = "[$objectType] Reindexing finished"
         val withSummary = summary?.let { (successCount, skippedCount, totalCount) ->
-            val errorCount = totalCount - successCount - skippedCount
+            val errorCount = (totalCount - successCount - skippedCount).coerceAtLeast(0)
             "$message. Reindexed: $successCount / $totalCount, skipped: $skippedCount, " +
                 "not reindexed because of errors: $errorCount"
         } ?: message

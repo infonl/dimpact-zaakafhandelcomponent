@@ -679,6 +679,47 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
+    given("Reindexing zaken through reindex() where more zaken are returned than the count snapshot reported") {
+        val ctx = setupContext()
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList().apply {
+            addAll(listOf(SolrDocument(mapOf("id" to 1)), SolrDocument(mapOf("id" to 2))))
+        }
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+
+        val zakenUuid = listOf(ZaakUuid(UUID.randomUUID()), ZaakUuid(UUID.randomUUID()))
+        val zaakZoekObjecten = listOf(createZaakZoekObject(), createZaakZoekObject())
+
+        every {
+            ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
+        } returns Results(zakenUuid, 1)
+
+        every { ctx.zaakZoekObjectConverter.supports(ZoekObjectType.ZAAK) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
+        zakenUuid.forEachIndexed { index, zaak ->
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+        }
+        every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
+
+        `when`("reindexing of zaken is called") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindex(ZoekObjectType.ZAAK)
+            }
+
+            then("the finished log clamps the negative error count to zero instead of reporting it") {
+                logRecords.map { it.message } shouldContain
+                    "[ZAAK] Reindexing finished. Reindexed: 2 / 1, skipped: 0, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'ZAAK'."
+            }
+        }
+    }
+
     given("Reindexing zaken through reindex() where the zaak count cannot be determined") {
         val ctx = setupContext()
         val queryResponse = mockk<QueryResponse>()
