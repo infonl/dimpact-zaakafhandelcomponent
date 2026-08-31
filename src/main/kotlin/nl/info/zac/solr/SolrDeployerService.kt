@@ -4,14 +4,15 @@
  */
 package nl.info.zac.solr
 
-import jakarta.annotation.Resource
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.context.Initialized
-import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.event.Observes
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -36,7 +37,13 @@ import java.util.logging.Logger
 @AllOpen
 class SolrDeployerService @Inject constructor(
     @ConfigProperty(name = "SOLR_URL") private val solrUrl: String,
-    private val indexingService: IndexingService
+    private val indexingService: IndexingService,
+
+    /**
+     * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
+     * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
+     */
+    private val dispatcher: CoroutineDispatcher
 ) {
     companion object {
         private val LOG = Logger.getLogger(SolrDeployerService::class.java.name)
@@ -45,18 +52,12 @@ class SolrDeployerService @Inject constructor(
         private const val WAIT_FOR_SOLR_SECONDS = 1L
     }
 
-    private lateinit var managedExecutor: ManagedExecutorService
     private lateinit var solrClient: SolrClient
     private lateinit var schemaUpdates: List<SolrSchemaUpdate>
 
     @Inject
     fun setSchemaUpdates(schemaUpdates: Instance<SolrSchemaUpdate>) {
         this.schemaUpdates = schemaUpdates.sortedBy { it.versie }
-    }
-
-    @Resource
-    fun setManagedExecutorService(managedExecutor: ManagedExecutorService) {
-        this.managedExecutor = managedExecutor
     }
 
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
@@ -140,6 +141,8 @@ class SolrDeployerService @Inject constructor(
     }
 
     private fun startReindexing(types: Set<ZoekObjectType>) {
-        managedExecutor.submit { indexingService.reindexAll(types) }
+        CoroutineScope(dispatcher).launch {
+            indexingService.reindexAll(types)
+        }
     }
 }
