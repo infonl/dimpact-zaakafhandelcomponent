@@ -10,7 +10,7 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
 
-The issue tracker should have been provided to you. If `docs/agents/issue-tracker.md` is missing, tell the user to run `/setup-matt-pocock-skills`.
+The issue/spec context should be provided by the user (PR link, ticket, or spec path). If it isn't available, ask for it and continue with a Standards-only review, noting that no spec was provided.
 
 ## Process
 
