@@ -85,8 +85,8 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
                     zaaktypeIdentificatie shouldBe zaakType.identificatie
                     zaakIdentificatie shouldBe zaak.identificatie
                     zaakUuid shouldBe zaak.uuid.toString()
-                    // because the archiefnominatie is null, the zaak should be considered 'afgehandeld'
-                    isZaakAfgehandeld shouldBe true
+                    // because the archiefnominatie is null, the zaak is still open and not considered 'afgehandeld'
+                    isZaakAfgehandeld shouldBe false
                     getDocumentIndicaties().size shouldBe 0
                 }
             }
@@ -133,8 +133,8 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
                     zaaktypeIdentificatie shouldBe zaakType.identificatie
                     zaakIdentificatie shouldBe zaak.identificatie
                     zaakUuid shouldBe zaak.uuid.toString()
-                    // because the archiefnominatie is set, the zaak should not be considered 'afgehandeld'
-                    isZaakAfgehandeld shouldBe false
+                    // because the archiefnominatie is set, the zaak is closed and considered 'afgehandeld'
+                    isZaakAfgehandeld shouldBe true
                     with(getDocumentIndicaties()) {
                         size shouldBe 1
                         first() shouldBe DocumentIndicatie.GEBRUIKSRECHT
