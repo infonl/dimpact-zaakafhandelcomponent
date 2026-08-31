@@ -87,6 +87,6 @@ else
         curl -v -H "X-API-KEY: ${zacInternalEndpointsApiKey}" ${zacBaseURL}/rest/internal/indexeren/herindexeren/ZAAK
     fi
 fi
-echo "Finished reindexing data."
+echo "Finished sending request(s) to ZAC to reindex data."
 
 
