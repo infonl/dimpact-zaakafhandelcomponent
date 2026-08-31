@@ -13,16 +13,11 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import nl.info.zac.authentication.InternalEndpoint
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.util.logging.Level
-import java.util.logging.Logger
 
 /**
  * Internal REST service to reindex data in ZAC's Solr search engine on demand.
@@ -36,47 +31,29 @@ import java.util.logging.Logger
 @AllOpen
 @InternalEndpoint
 class IndexingAdminRestService @Inject constructor(
-    private val indexingService: IndexingService,
-
-    /**
-     * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
-     * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
-     */
-    private val dispatcher: CoroutineDispatcher
+    private val indexingService: IndexingService
 ) {
-    companion object {
-        private val LOG = Logger.getLogger(IndexingAdminRestService::class.java.name)
-    }
-
     /**
-     * Reindexing can be a long-running operation, so it is run asynchronously.
-     * Unlike [reindexAll], [IndexingService.reindex] does not catch every exception itself,
-     * so any unexpected failure must be caught and logged here to remain observable now that
-     * it no longer surfaces as a failed HTTP response.
+     * Reindexing can be a long-running operation, so it is run asynchronously on
+     * [IndexingService]'s own background coroutine scope.
      */
     @GET
     @Path("herindexeren/{type}")
-    @Suppress("TooGenericExceptionCaught")
-    fun reindex(@PathParam("type") type: ZoekObjectType): Response {
-        CoroutineScope(dispatcher).launch {
-            try {
-                indexingService.reindex(type)
-            } catch (exception: Exception) {
-                LOG.log(Level.SEVERE, "[$type] Reindexing failed", exception)
-            }
+    fun reindex(@PathParam("type") type: ZoekObjectType): Response =
+        if (indexingService.reindexAsync(type)) {
+            Response.accepted().build()
+        } else {
+            Response.status(Response.Status.CONFLICT).build()
         }
-        return Response.accepted().build()
-    }
 
     /**
-     * Reindexing can be a long-running operation, so it is run asynchronously.
+     * Reindexing can be a long-running operation, so it is run asynchronously on
+     * [IndexingService]'s own background coroutine scope.
      */
     @GET
     @Path("herindexeren")
     fun reindexAll(): Response {
-        CoroutineScope(dispatcher).launch {
-            indexingService.reindexAll()
-        }
+        indexingService.reindexAllAsync()
         return Response.accepted().build()
     }
 }

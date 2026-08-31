@@ -15,8 +15,6 @@ import io.mockk.mockkConstructor
 import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.runTest
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -30,12 +28,10 @@ import org.apache.solr.client.solrj.request.schema.SchemaRequest.MultiUpdate
 class SolrDeployerServiceTest : BehaviorSpec({
     val indexingService = mockk<IndexingService>()
     val solrUrl = "https://example.com/solr"
-    val testDispatcher = StandardTestDispatcher()
 
     val solrDeployerService = SolrDeployerService(
         solrUrl,
         indexingService,
-        testDispatcher,
     )
 
     afterEach {
@@ -62,23 +58,21 @@ class SolrDeployerServiceTest : BehaviorSpec({
         mockkConstructor(MultiUpdate::class)
         every { anyConstructed<MultiUpdate>().process(any()) } returns null
         every { solrSchemaUpdate.teHerindexerenZoekObjectTypes } returns setOf(ZoekObjectType.ZAAK)
-        every { indexingService.reindexAll(any()) } just runs
+        every { indexingService.reindexAllAsync(any()) } just runs
 
         // prepare the SolrDeployerService by setting the available schema updates
         solrDeployerService.setSchemaUpdates(solrSchemaUpdateInstance)
 
         `when`("the ZAC Solr deployer service is started") {
-            runTest(testDispatcher) {
-                solrDeployerService.onStartup(Any())
-            }
+            solrDeployerService.onStartup(Any())
 
             then(
                 """the Solr schema should be updated to the available version and the complete reindexing
-                   process should be triggered for the zaaktypes that need reindexing"""
+                   process should be triggered asynchronously for the zaaktypes that need reindexing"""
             ) {
                 verify(exactly = 1) {
                     anyConstructed<MultiUpdate>().process(any())
-                    indexingService.reindexAll(setOf(ZoekObjectType.ZAAK))
+                    indexingService.reindexAllAsync(setOf(ZoekObjectType.ZAAK))
                 }
             }
         }

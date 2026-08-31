@@ -105,5 +105,6 @@ through the HTTP response.
 #### Scenario: Reindex already in progress when the endpoint is called again
 - **WHEN** an operator calls the internal REST endpoint for an object type that is already being
   reindexed
-- **THEN** the endpoint still responds immediately, and the existing "not started, still in
-  progress" behavior for that object type is unaffected
+- **THEN** the endpoint responds immediately with 409 Conflict instead of 202 Accepted, no second
+  reindex is launched for that object type, and the existing "not started, still in progress" log
+  line is still written

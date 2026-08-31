@@ -10,9 +10,6 @@ import jakarta.enterprise.event.Observes
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -37,13 +34,7 @@ import java.util.logging.Logger
 @AllOpen
 class SolrDeployerService @Inject constructor(
     @ConfigProperty(name = "SOLR_URL") private val solrUrl: String,
-    private val indexingService: IndexingService,
-
-    /**
-     * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
-     * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
-     */
-    private val dispatcher: CoroutineDispatcher
+    private val indexingService: IndexingService
 ) {
     companion object {
         private val LOG = Logger.getLogger(SolrDeployerService::class.java.name)
@@ -141,8 +132,6 @@ class SolrDeployerService @Inject constructor(
     }
 
     private fun startReindexing(types: Set<ZoekObjectType>) {
-        CoroutineScope(dispatcher).launch {
-            indexingService.reindexAll(types)
-        }
+        indexingService.reindexAllAsync(types)
     }
 }
