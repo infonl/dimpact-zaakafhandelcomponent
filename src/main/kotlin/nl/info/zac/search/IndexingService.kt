@@ -26,9 +26,11 @@ import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.systemUser
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
+import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
@@ -51,6 +53,7 @@ class IndexingService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val flowableTaskService: FlowableTaskService,
+    private val documentZoekObjectConverter: DocumentZoekObjectConverter,
 
     /**
      * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
@@ -262,10 +265,27 @@ class IndexingService @Inject constructor(
             zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject.extractUuid()
         )
 
-    fun addOrUpdateInformatieobjectenForZaak(zaakUUID: UUID) =
+    /**
+     * Reindexes every document of a zaak, reading the zaak's `isZaakspecifiekGeautoriseerd` flag once
+     * and passing it to [DocumentZoekObjectConverter.convert] for every document, instead of each
+     * document's conversion deriving the same zaak-level flag on its own.
+     */
+    fun addOrUpdateInformatieobjectenForZaak(zaakUUID: UUID) {
+        val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
         zrcClientService.listZaakinformatieobjecten(zrcClientService.readZaak(zaakUUID)).forEach {
-            addOrUpdateInformatieobject(it.informatieobject.extractUuid())
+            addToSolrIndex(
+                listOf(
+                    continueOnExceptions(ZoekObjectType.DOCUMENT) {
+                        documentZoekObjectConverter.convert(
+                            it.informatieobject.extractUuid().toString(),
+                            isZaakspecifiekGeautoriseerd
+                        )
+                    }
+                ),
+                performCommit = false
+            )
         }
+    }
 
     fun addOrUpdateTaak(taskID: String) = indexeerDirect(taskID, ZoekObjectType.TAAK, false)
 

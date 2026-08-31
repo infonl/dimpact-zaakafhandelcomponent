@@ -29,10 +29,12 @@ import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.ZaakUuid
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
@@ -70,6 +72,7 @@ private data class TestContext(
     val drcClientService: DrcClientService,
     val flowableTaskService: FlowableTaskService,
     val zrcClientService: ZrcClientService,
+    val documentZoekObjectConverter: DocumentZoekObjectConverter,
     val indexingService: IndexingService,
     val testDispatcher: TestDispatcher
 )
@@ -111,12 +114,14 @@ private fun setupContext(): TestContext {
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
     val testDispatcher = StandardTestDispatcher()
+    val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
 
     val indexingService = IndexingService(
         converterInstances,
         zrcClientService,
         drcClientService,
         flowableTaskService,
+        documentZoekObjectConverter,
         testDispatcher
     )
 
@@ -128,6 +133,7 @@ private fun setupContext(): TestContext {
         drcClientService,
         flowableTaskService,
         zrcClientService,
+        documentZoekObjectConverter,
         indexingService,
         testDispatcher
     )
@@ -267,7 +273,6 @@ class IndexingServiceTest : BehaviorSpec({
     given("A zaak with two documenten attached") {
         val ctx = setupContext()
         val zaak = createZaak()
-        val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
         val zaakInformatieobjecten = listOf(
             createZaakInformatieobjectForReads(zaak = zaak.url),
             createZaakInformatieobjectForReads(zaak = zaak.url)
@@ -276,14 +281,16 @@ class IndexingServiceTest : BehaviorSpec({
 
         every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
-        every { documentZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) } returns true
-        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
-        every { ctx.converterInstancesIterator.hasNext() } returns true
-        every { ctx.converterInstancesIterator.next() } returns documentZoekObjectConverter
+        every { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
         every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
         zaakInformatieobjecten.forEachIndexed { index, zaakInformatieobject ->
             every {
-                documentZoekObjectConverter.convert(zaakInformatieobject.informatieobject.extractUuid().toString())
+                ctx.documentZoekObjectConverter.convert(
+                    zaakInformatieobject.informatieobject.extractUuid().toString(),
+                    true
+                )
             } returns documentZoekObjecten[index]
         }
 
@@ -292,12 +299,20 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("both of the zaak's documenten are (re)indexed in Solr") {
                 verify(exactly = 1) {
-                    documentZoekObjectConverter.convert(
-                        zaakInformatieobjecten[0].informatieobject.extractUuid().toString()
+                    ctx.documentZoekObjectConverter.convert(
+                        zaakInformatieobjecten[0].informatieobject.extractUuid().toString(),
+                        true
                     )
-                    documentZoekObjectConverter.convert(
-                        zaakInformatieobjecten[1].informatieobject.extractUuid().toString()
+                    ctx.documentZoekObjectConverter.convert(
+                        zaakInformatieobjecten[1].informatieobject.extractUuid().toString(),
+                        true
                     )
+                }
+            }
+
+            then("the zaak's zaakspecifiek geautoriseerd flag is read only once, not once per document") {
+                verify(exactly = 1) {
+                    ctx.zrcClientService.listZaakeigenschappen(zaak.uuid)
                 }
             }
         }
