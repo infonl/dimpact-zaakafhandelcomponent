@@ -85,7 +85,6 @@ class SignaleringService @Inject constructor(
         )
     }
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private val zrcFanoutDispatcher = Dispatchers.IO.limitedParallelism(ZRC_FANOUT_PARALLELISM)
 
     /**
