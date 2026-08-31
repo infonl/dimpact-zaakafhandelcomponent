@@ -672,7 +672,7 @@ class IndexingServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     ctx.flowableTaskService.countOpenTasks()
                 }
-                verify(exactly = 2) {
+                verify(exactly = 1) {
                     ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
                 }
             }
@@ -708,10 +708,10 @@ class IndexingServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     ctx.flowableTaskService.countOpenTasks()
                 }
-                verify(exactly = 2) {
+                verify(exactly = 1) {
                     ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
                 }
-                verify(exactly = 2) {
+                verify(exactly = 1) {
                     ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
                 }
             }
@@ -747,10 +747,10 @@ class IndexingServiceTest : BehaviorSpec({
             }
 
             then("the remaining object types are still reindexed") {
-                verify(exactly = 2) {
+                verify(exactly = 1) {
                     ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
                 }
-                verify(exactly = 2) {
+                verify(exactly = 1) {
                     ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
                 }
             }

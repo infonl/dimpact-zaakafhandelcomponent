@@ -306,8 +306,8 @@ class IndexingService @Inject constructor(
             return null
         }
 
-        val numberOfPages: Int = numberOfZaken / Results.DEFAULT_ZGW_PAGE_SIZE.toInt() +
-            ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+        val numberOfPages: Int = (numberOfZaken + Results.DEFAULT_ZGW_PAGE_SIZE.toInt() - 1) /
+            Results.DEFAULT_ZGW_PAGE_SIZE.toInt()
 
         var successCount = 0
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
@@ -345,8 +345,8 @@ class IndexingService @Inject constructor(
             return null
         }
 
-        val numberOfPages: Int = numberOfInformatieobjecten / Results.DEFAULT_ZGW_PAGE_SIZE.toInt() +
-            ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+        val numberOfPages: Int = (numberOfInformatieobjecten + Results.DEFAULT_ZGW_PAGE_SIZE.toInt() - 1) /
+            Results.DEFAULT_ZGW_PAGE_SIZE.toInt()
 
         var successCount = 0
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
