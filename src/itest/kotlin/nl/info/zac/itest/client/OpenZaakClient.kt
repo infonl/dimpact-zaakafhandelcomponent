@@ -44,14 +44,14 @@ class OpenZaakClient(
      * naam [eigenschapNaam] (e.g. "ZAAK_GEAUTORISEERD") and value [waarde] (e.g. "true"). The
      * zaaktype of [zaakUUID] must define an eigenschap with that naam in Open Zaak's catalogi API.
      *
-     * @return [ResponseContent] with the Open Zaak API response (HTTP 201 on success)
+     * @return the URL of the created zaakeigenschap, for use with [sendZaakeigenschapCreateNotification]
      */
     fun createZaakeigenschap(
         zaakUUID: UUID,
         zaaktypeUUID: UUID,
         eigenschapNaam: String,
         waarde: String
-    ): ResponseContent {
+    ): String {
         val eigenschapUrl = getEigenschapUrl(zaaktypeUUID, eigenschapNaam)
         val requestBody = JSONObject(
             mapOf(
@@ -63,16 +63,17 @@ class OpenZaakClient(
         return itestHttpClient.performZgwApiPostRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID/zaakeigenschappen",
             requestBodyAsString = requestBody
-        )
+        ).let { JSONObject(it.bodyAsString).getString("url") }
     }
 
     /**
      * Sends a request to the ZAC notification endpoint to notify ZAC about the creation of a
      * zaakeigenschap, so that ZAC will reindex the zaak (and its taken and documenten) in Solr.
      * Use this after [createZaakeigenschap], which bypasses ZAC and therefore triggers no real
-     * notification.
+     * notification, passing the URL it returned as [zaakeigenschapUrl] so that ZAC can actually
+     * read the zaakeigenschap back when it handles the notification.
      */
-    fun sendZaakeigenschapCreateNotification(zaakUUID: UUID) {
+    fun sendZaakeigenschapCreateNotification(zaakUUID: UUID, zaakeigenschapUrl: String) {
         val zaakUrl = "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUUID"
         itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/notificaties",
@@ -87,7 +88,7 @@ class OpenZaakClient(
                     "kanaal" to "zaken",
                     "resource" to "zaakeigenschap",
                     "hoofdObject" to zaakUrl,
-                    "resourceUrl" to "$zaakUrl/zaakeigenschappen/${UUID.randomUUID()}",
+                    "resourceUrl" to zaakeigenschapUrl,
                     "actie" to "create",
                     "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                 )
