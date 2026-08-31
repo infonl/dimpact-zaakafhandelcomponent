@@ -8,7 +8,6 @@ import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MatButtonHarness } from "@angular/material/button/testing";
 import { MatIconHarness } from "@angular/material/icon/testing";
 import { MatTabGroupHarness } from "@angular/material/tabs/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -64,10 +63,11 @@ describe(ZaakDetailsCardComponent.name, () => {
     return labels.map((label) => label.split(/\s+/).pop());
   };
 
-  // the edit buttons carry no accessible name, so they are reached by the
-  // ligature of the icon they render
-  const editButton = () =>
-    loader.getHarnessOrNull(MatButtonHarness.with({ text: "edit" }));
+  const locatieEditButton = () =>
+    screen().queryByRole("button", { name: "actie.zaak.locatie.wijzigen" });
+
+  const zaakEditButton = () =>
+    screen().queryByRole("button", { name: "actie.zaak.wijzigen" });
 
   const openTab = async (label: RegExp) => {
     const tabGroup = await loader.getHarness(MatTabGroupHarness);
@@ -232,7 +232,7 @@ describe(ZaakDetailsCardComponent.name, () => {
         editLocationDetails,
       );
 
-      await (await editButton())!.click();
+      locatieEditButton()!.click();
 
       expect(editLocationDetails).toHaveBeenCalled();
     });
@@ -241,7 +241,7 @@ describe(ZaakDetailsCardComponent.name, () => {
       renderCard({ zaak: zaakOpLocatie(false) });
       await openTab(/locatie/);
 
-      expect(await editButton()).toBeNull();
+      expect(locatieEditButton()).toBeNull();
     });
   });
 
@@ -253,7 +253,7 @@ describe(ZaakDetailsCardComponent.name, () => {
       });
       fixture.componentInstance.editCaseDetails.subscribe(editCaseDetails);
 
-      await (await editButton())!.click();
+      zaakEditButton()!.click();
 
       expect(editCaseDetails).toHaveBeenCalled();
     });
