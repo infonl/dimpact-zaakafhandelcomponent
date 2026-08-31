@@ -278,12 +278,14 @@ class NotificationReceiver @Inject constructor(
     }
 
     /**
-     * Reindexes the zaak (including its taken) and, asynchronously, its documenten, but only
-     * when the changed zaakeigenschap is ZAAK_GEAUTORISEERD: a zaak can have many eigenschappen that
-     * change far more often than its zaakspecifiek geautoriseerd status, and reindexing the zaak's
-     * documenten requires a ZGW call per document, so reindexing on every zaakeigenschap notificatie
-     * would be expensive on a path that Open Notificaties retries on timeout. A 'destroy' notificatie
-     * cannot be read back to check its naam, so it always triggers a reindex.
+     * Reindexes the zaak (including both its open and its completed taken, since a taak-level flag
+     * can go stale on a completed taak just as easily as on an open one) and, asynchronously, its
+     * documenten, but only when the changed zaakeigenschap is ZAAK_GEAUTORISEERD: a zaak can have
+     * many eigenschappen that change far more often than its zaakspecifiek geautoriseerd status, and
+     * reindexing the zaak's documenten requires a ZGW call per document, so reindexing on every
+     * zaakeigenschap notificatie would be expensive on a path that Open Notificaties retries on
+     * timeout. A 'destroy' notificatie cannot be read back to check its naam, so it always triggers
+     * a reindex.
      */
     private fun handleZaakeigenschapIndexing(notification: Notification) {
         val zaakUUID = notification.mainResourceUrl.extractUuid()
@@ -293,7 +295,8 @@ class NotificationReceiver @Inject constructor(
         ) {
             return
         }
-        indexingService.addOrUpdateZaak(zaakUUID, true)
+        indexingService.addOrUpdateZaak(zaakUUID, false)
+        indexingService.addOrUpdateTakenForZaak(zaakUUID)
         managedExecutor.submit { indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID) }
     }
 

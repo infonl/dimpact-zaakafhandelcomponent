@@ -105,10 +105,13 @@ to describe.
 - [Denormalizing the flag means a zaakeigenschap change made directly in Open Zaak/ZGW after indexing is
   stale in Solr until the zaak is reindexed] → `NotificationReceiver` did not handle `Resource.ZAAKEIGENSCHAP`
   notificaties at all before this story, so this window would otherwise have been unbounded rather than
-  short. Fixed as part of this story: a `zaakeigenschap` notificatie now reindexes the zaak (including its
-  open taken, via the existing `addOrUpdateZaak(zaakUUID, inclusiefTaken = true)` path) and the zaak's
-  documenten, so the flag is refreshed on all three row types within the same short, event-driven window as
-  any other indexed zaak attribute.
+  short. Fixed as part of this story: a `zaakeigenschap` notificatie now reindexes the zaak and, via the new
+  `IndexingService.addOrUpdateTakenForZaak(zaakUUID)`, both its open and its completed taken (a completed
+  taak's flag can go stale just as easily as an open one), plus the zaak's documenten. This is a dedicated
+  call rather than `addOrUpdateZaak(zaakUUID, inclusiefTaken = true)`, whose existing `inclusiefTaken`
+  semantics (open taken only) stay unchanged for its other caller (the `zaak` update notificatie), so that
+  caller does not start paying for a `HistoricTaskInstanceQuery` per notificatie. The flag is refreshed on
+  all three row types within the same short, event-driven window as any other indexed zaak attribute.
 
 ## Migration Plan
 

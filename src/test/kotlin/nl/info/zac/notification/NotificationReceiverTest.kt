@@ -274,7 +274,8 @@ class NotificationReceiverTest : BehaviorSpec({
         every {
             zrcClientService.readZaakeigenschap(zaakUUID, zaakeigenschapUUID)
         } returns createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, uuid = zaakeigenschapUUID)
-        every { indexingService.addOrUpdateZaak(zaakUUID, true) } just Runs
+        every { indexingService.addOrUpdateZaak(zaakUUID, false) } just Runs
+        every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID) } just Runs
         every { managedExecutorService.submit(any()) } answers {
             firstArg<Runnable>().run()
@@ -290,7 +291,8 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    indexingService.addOrUpdateZaak(zaakUUID, true)
+                    indexingService.addOrUpdateZaak(zaakUUID, false)
+                    indexingService.addOrUpdateTakenForZaak(zaakUUID)
                     indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
                 }
             }
@@ -322,6 +324,7 @@ class NotificationReceiverTest : BehaviorSpec({
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 0) {
                     indexingService.addOrUpdateZaak(any(), any())
+                    indexingService.addOrUpdateTakenForZaak(any())
                     indexingService.addOrUpdateInformatieobjectenForZaak(any())
                 }
             }
@@ -341,7 +344,8 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { indexingService.addOrUpdateZaak(zaakUUID, true) } just Runs
+        every { indexingService.addOrUpdateZaak(zaakUUID, false) } just Runs
+        every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID) } just Runs
         every { managedExecutorService.submit(any()) } answers {
             firstArg<Runnable>().run()
@@ -358,7 +362,8 @@ class NotificationReceiverTest : BehaviorSpec({
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
-                    indexingService.addOrUpdateZaak(zaakUUID, true)
+                    indexingService.addOrUpdateZaak(zaakUUID, false)
+                    indexingService.addOrUpdateTakenForZaak(zaakUUID)
                     indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
                 }
                 verify(exactly = 0) {

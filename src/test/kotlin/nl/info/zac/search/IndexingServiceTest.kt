@@ -8,12 +8,15 @@ package nl.info.zac.search
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearMocks
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.mockkStatic
+import io.mockk.spyk
 import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
@@ -295,6 +298,52 @@ class IndexingServiceTest : BehaviorSpec({
                     documentZoekObjectConverter.convert(
                         zaakInformatieobjecten[1].informatieobject.extractUuid().toString()
                     )
+                }
+            }
+        }
+    }
+
+    given("A zaak with one open taak, called with inclusiefTaken true") {
+        val ctx = setupContext()
+        val zaakUUID = UUID.randomUUID()
+        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
+        val indexingServiceSpy = spyk(ctx.indexingService)
+        every { indexingServiceSpy.indexeerDirect(any<String>(), any(), any()) } just Runs
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns listOf(openTask)
+
+        `when`("addOrUpdateZaak is called") {
+            indexingServiceSpy.addOrUpdateZaak(zaakUUID, true)
+
+            then("the zaak and only its open taken are reindexed, without listing its completed taken") {
+                verify(exactly = 1) {
+                    indexingServiceSpy.indexeerDirect(zaakUUID.toString(), ZoekObjectType.ZAAK, false)
+                    ctx.flowableTaskService.listOpenTasksForZaak(zaakUUID)
+                    indexingServiceSpy.indexeerDirect("fakeOpenTaskId", ZoekObjectType.TAAK, false)
+                }
+                verify(exactly = 0) {
+                    ctx.flowableTaskService.listTasksForZaak(any())
+                }
+            }
+        }
+    }
+
+    given("A zaak with one open and one completed taak") {
+        val ctx = setupContext()
+        val zaakUUID = UUID.randomUUID()
+        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
+        val completedTask = mockk<Task>().apply { every { id } returns "fakeCompletedTaskId" }
+        val indexingServiceSpy = spyk(ctx.indexingService)
+        every { indexingServiceSpy.indexeerDirect(any<String>(), any(), any()) } just Runs
+        every { ctx.flowableTaskService.listTasksForZaak(zaakUUID) } returns listOf(openTask, completedTask)
+
+        `when`("addOrUpdateTakenForZaak is called") {
+            indexingServiceSpy.addOrUpdateTakenForZaak(zaakUUID)
+
+            then("both the open and the completed taak are reindexed") {
+                verify(exactly = 1) {
+                    ctx.flowableTaskService.listTasksForZaak(zaakUUID)
+                    indexingServiceSpy.indexeerDirect("fakeOpenTaskId", ZoekObjectType.TAAK, false)
+                    indexingServiceSpy.indexeerDirect("fakeCompletedTaskId", ZoekObjectType.TAAK, false)
                 }
             }
         }

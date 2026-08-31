@@ -235,11 +235,24 @@ class IndexingService @Inject constructor(
     fun addOrUpdateZaak(zaakUUID: UUID, inclusiefTaken: Boolean) {
         indexeerDirect(zaakUUID.toString(), ZoekObjectType.ZAAK, false)
         if (inclusiefTaken) {
-            flowableTaskService.listTasksForZaak(zaakUUID)
+            flowableTaskService.listOpenTasksForZaak(zaakUUID)
                 .map { it.id }
                 .forEach(this::addOrUpdateTaak)
         }
     }
+
+    /**
+     * Reindexes both the open and the completed taken of a zaak. Unlike [addOrUpdateZaak]'s
+     * `inclusiefTaken` flag, this also covers completed taken, since a taak-level flag (such as
+     * `taak_zaakspecifiekGeautoriseerd`) can go stale on a completed taak just as easily as on an
+     * open one. Calling this on every zaak update would add a `HistoricTaskInstanceQuery` per
+     * notificatie, so it is reserved for triggers where a completed taak can plausibly go stale,
+     * such as a zaakeigenschap change.
+     */
+    fun addOrUpdateTakenForZaak(zaakUUID: UUID) =
+        flowableTaskService.listTasksForZaak(zaakUUID)
+            .map { it.id }
+            .forEach(this::addOrUpdateTaak)
 
     fun addOrUpdateInformatieobject(informatieobjectUUID: UUID) =
         indexeerDirect(informatieobjectUUID.toString(), ZoekObjectType.DOCUMENT, false)
