@@ -7,6 +7,8 @@ package nl.info.zac.itest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import nl.info.zac.itest.client.DocumentHelper
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.OpenZaakClient
@@ -19,6 +21,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
 import org.json.JSONObject
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_OK
 
 class EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
@@ -39,10 +42,11 @@ class EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest : Behav
             zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
             testUser = BEHANDELAAR_1
         )
+        val documentTitle = "itestDocumentTitle-${System.currentTimeMillis()}"
         val (documentUuid, _) = documentHelper.uploadDocumentToZaak(
             zaakUuid = zaakUuid,
             fileName = TEST_PDF_FILE_NAME,
-            documentTitle = "itestDocumentTitle-${System.currentTimeMillis()}",
+            documentTitle = documentTitle,
             authorName = FAKE_AUTHOR_NAME,
             testUser = BEHANDELAAR_1
         )
@@ -61,11 +65,26 @@ class EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest : Behav
                 url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid",
                 testUser = BEHANDELAAR_1
             )
-            then("the response should be a 200 HTTP response with rechten.lezen set to false") {
+            then("the response should be a 403 HTTP response and no document data") {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
-                response.code shouldBe HTTP_OK
-                JSONObject(responseBody).getJSONObject("rechten").getBoolean("lezen") shouldBe false
+                response.code shouldBe HTTP_FORBIDDEN
+                responseBody shouldNotContain documentTitle
+            }
+        }
+        `when`(
+            "the document is downloaded by a behandelaar authorized for the zaaktype but without the " +
+                "zaakspecifiek_geautoriseerd application role"
+        ) {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid/download",
+                testUser = BEHANDELAAR_1
+            )
+            then("the response should be a 403 HTTP response and no file content") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                response.code shouldBe HTTP_FORBIDDEN
+                responseBody shouldNotContain "%PDF"
             }
         }
         `when`("the document is read by a user holding the zaakspecifiek_autorisatie_behandelaar role") {
@@ -78,6 +97,16 @@ class EnkelvoudigInformatieObjectRestServiceZaakspecifiekAutorisatieTest : Behav
                 logger.info { "Response: $responseBody" }
                 response.code shouldBe HTTP_OK
                 JSONObject(responseBody).getJSONObject("rechten").getBoolean("lezen") shouldBe true
+            }
+        }
+        `when`("the document is downloaded by a user holding the zaakspecifiek_autorisatie_behandelaar role") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid/download",
+                testUser = ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
+            )
+            then("the response should be a 200 HTTP response with the file content") {
+                response.code shouldBe HTTP_OK
+                response.bodyAsString shouldContain "%PDF"
             }
         }
     }

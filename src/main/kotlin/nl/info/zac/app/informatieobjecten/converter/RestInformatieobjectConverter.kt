@@ -39,6 +39,7 @@ import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObject
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.getFullName
 import nl.info.zac.policy.PolicyService
+import nl.info.zac.policy.output.DocumentRechten
 import nl.info.zac.util.toBase64String
 import org.eclipse.jetty.http.HttpStatus
 import java.time.LocalDate
@@ -75,24 +76,33 @@ class RestInformatieobjectConverter @Inject constructor(
     fun convertToREST(enkelvoudigInformatieObject: EnkelvoudigInformatieObject): RestEnkelvoudigInformatieobject =
         convertToREST(enkelvoudigInformatieObject = enkelvoudigInformatieObject, zaak = null)
 
-    fun convertToREST(enkelvoudigInformatieObject: EnkelvoudigInformatieObject, zaak: Zaak?): RestEnkelvoudigInformatieobject {
+    /**
+     * [documentRechten] can be passed in by callers that already evaluated them, so that reading a
+     * document does not evaluate the same policy twice.
+     */
+    fun convertToREST(
+        enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
+        zaak: Zaak?,
+        documentRechten: DocumentRechten? = null
+    ): RestEnkelvoudigInformatieobject {
         val enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObject.url.extractUuid()
         val lock = if (enkelvoudigInformatieObject.locked) {
             enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID)
         } else {
             null
         }
-        val documentRechten = policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak)
+        val rechten = documentRechten
+            ?: policyService.readDocumentRechten(enkelvoudigInformatieObject, lock, zaak)
         val isBesluitDocument = brcClientService.isInformatieObjectGekoppeldAanBesluit(
             enkelvoudigInformatieObject.url
         )
         val restEnkelvoudigInformatieobject = RestEnkelvoudigInformatieobject(
             uuid = enkelvoudigInformatieObjectUUID,
             identificatie = enkelvoudigInformatieObject.identificatie,
-            rechten = documentRechten.toRestDocumentRechten(),
+            rechten = rechten.toRestDocumentRechten(),
             isBesluitDocument = isBesluitDocument
         )
-        if (documentRechten.lezen) {
+        if (rechten.lezen) {
             convertEnkelvoudigInformatieObject(
                 enkelvoudigInformatieObject = enkelvoudigInformatieObject,
                 lock = lock,
