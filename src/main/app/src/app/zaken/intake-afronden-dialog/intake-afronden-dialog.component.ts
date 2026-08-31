@@ -187,6 +187,7 @@ export class IntakeAfrondenDialogComponent implements OnDestroy {
                 onderwerp: mailtemplate.onderwerp,
                 body: mailtemplate.body,
                 createDocumentFromMail: true,
+                vertrouwelijkheidaanduiding: "OPENBAAR",
               }
             : null,
       })

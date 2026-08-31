@@ -20,16 +20,16 @@ data class RestMailtemplate(
     // ID is optional for POST requests (will be ignored) and required for responses
     var id: Long? = null,
 
-    @field:NotBlank(message = "Mail template name is required")
+    @field:NotBlank
     var mailTemplateNaam: String,
 
-    @field:NotBlank(message = "Subject is required")
+    @field:NotBlank
     var onderwerp: String,
 
-    @field:NotBlank(message = "Body is required")
+    @field:NotBlank
     var body: String,
 
-    @field:NotNull(message = "Mail type is required")
+    @field:NotNull
     var mail: Mail,
 
     var variabelen: Set<MailTemplateVariables> = emptySet(),

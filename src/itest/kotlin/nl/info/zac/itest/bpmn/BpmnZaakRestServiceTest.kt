@@ -177,7 +177,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                         "ZK_Result": "Verleend",
                         "ZK_Status": "Afgerond",
                         "TF_EMAIL_TO": "test-2@example.com",
-                        "MAIL_Vertrouwelijkheidaanduiding": "${ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_ZEER_GEHEIM}"
+                        "MAIL_Vertrouwelijkheidaanduiding": "${ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZEER_GEHEIM}"
                     }
                 """.trimIndent(),
                 testUser = BEHANDELAAR_1
@@ -217,7 +217,7 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 }
             }
 
-            And("the mail-generated PDF document uses the vertrouwelijkheidaanduiding supplied via zaakdata") {
+            and("the mail-generated PDF document uses the vertrouwelijkheidaanduiding supplied via zaakdata") {
                 val informatieobjectenResponse = itestHttpClient.performPutRequest(
                     url = "$ZAC_API_URI/informatieobjecten/informatieobjectenList",
                     requestBodyAsString = """
@@ -232,10 +232,10 @@ class BpmnZaakRestServiceTest : BehaviorSpec({
                 // the email PDF is the only document created for this zaak
                 JSONArray(informatieobjectenResponse.bodyAsString).getJSONObject(0)
                     .getString("vertrouwelijkheidaanduiding") shouldBe
-                    ItestConfiguration.VERTROUWELIJKHEIDS_AANDUIDING_ZEER_GEHEIM
+                    ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZEER_GEHEIM
             }
 
-            And("the task is removed from the task list") {
+            and("the task is removed from the task list") {
                 eventually(10.seconds) {
                     val searchResponseBody = zacClient.searchForTasks(
                         zaakIdentificatie = zaakIdentificatie,

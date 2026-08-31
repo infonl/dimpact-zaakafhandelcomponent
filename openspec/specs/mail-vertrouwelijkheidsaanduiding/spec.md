@@ -15,11 +15,11 @@ The CMMN mail-create form SHALL let the user select a vertrouwelijkheidaanduidin
 - **WHEN** a user selects a vertrouwelijkheidaanduiding (e.g. `VERTROUWELIJK`) and submits the mail-create form
 - **THEN** the request sent to the backend SHALL include that vertrouwelijkheidaanduiding value
 
-### Requirement: RESTMailGegevens carries the confidentiality value
-`RESTMailGegevens` SHALL include a `vertrouwelijkheidaanduiding` field, and converting it to the domain `MailGegevens` SHALL preserve the selected value as the equivalent ZGW confidentiality enum value.
+### Requirement: RestMailGegevens carries the confidentiality value
+`RestMailGegevens` SHALL include a `vertrouwelijkheidaanduiding` field, and converting it to the domain `MailGegevens` SHALL preserve the selected value as the equivalent ZGW confidentiality enum value.
 
-#### Scenario: Converting a RESTMailGegevens payload with a confidentiality value
-- **WHEN** `RESTMailGegevensConverter.convert` is called with a `RESTMailGegevens` instance whose `vertrouwelijkheidaanduiding` is `GEHEIM`
+#### Scenario: Converting a RestMailGegevens payload with a confidentiality value
+- **WHEN** `RestMailGegevensConverter.convert` is called with a `RestMailGegevens` instance whose `vertrouwelijkheidaanduiding` is `GEHEIM`
 - **THEN** the resulting `MailGegevens` SHALL carry the equivalent `VertrouwelijkheidaanduidingEnum.GEHEIM` value
 
 ### Requirement: Mail-generated PDF document uses the supplied confidentiality
@@ -47,11 +47,11 @@ Enforcing this field as mandatory in whatever process-authoring form supplies it
 - **THEN** the mail-generated PDF document SHALL be stored with vertrouwelijkheidaanduiding `INTERN`
 
 ### Requirement: CMMN automatic ontvangstbevestiging always uses Openbaar
-The CMMN acknowledgment ("ontvangstbevestiging") REST endpoint SHALL always create its PDF document with vertrouwelijkheidaanduiding `OPENBAAR`, regardless of any vertrouwelijkheidaanduiding value present on the incoming request.
+The CMMN acknowledgment ("ontvangstbevestiging") dialog SHALL NOT expose a confidentiality selection field, and SHALL always submit `OPENBAAR` as the vertrouwelijkheidaanduiding of the `RestMailGegevens` it sends. The REST endpoint trusts the value it is given for this field rather than overriding it server-side; the guarantee that the resulting document is always Openbaar rests on the frontend, not on backend enforcement.
 
 #### Scenario: CMMN acknowledgment endpoint sends the confirmation mail
-- **WHEN** the CMMN acknowledgment REST endpoint sends the ontvangstbevestiging mail
-- **THEN** the resulting zaak document SHALL be stored with vertrouwelijkheidaanduiding `OPENBAAR`, even if the request carried a different value
+- **WHEN** a user submits the ontvangstbevestiging dialog
+- **THEN** the resulting zaak document SHALL be stored with vertrouwelijkheidaanduiding `OPENBAAR`, and the dialog SHALL NOT offer a way to select a different value
 
 ### Requirement: BPMN SendConfirmationEmailDelegate always uses Openbaar
 `SendConfirmationEmailDelegate` SHALL always create its PDF document with vertrouwelijkheidaanduiding `OPENBAAR`. It SHALL NOT expose a `vertrouwelijkheidaanduiding` (or equivalent) process field — the value is fixed, not configurable, unlike `SendEmailDelegate`.
@@ -77,7 +77,7 @@ Selectable confidentiality is scoped to exactly two flows: the CMMN mail-create 
 
 #### Scenario: "Zaak afhandelen" or "intake afronden" completion mail is sent
 - **WHEN** a user completes a zaak via the "zaak afhandelen" or "intake afronden" dialog with mail sending enabled
-- **THEN** the resulting zaak document SHALL be stored with vertrouwelijkheidaanduiding `OPENBAAR`, and neither dialog SHALL expose a confidentiality selection field
+- **THEN** the dialog SHALL submit `OPENBAAR` as the vertrouwelijkheidaanduiding of the `restMailGegevens` it sends, and the resulting zaak document SHALL be stored with vertrouwelijkheidaanduiding `OPENBAAR`; neither dialog SHALL expose a confidentiality selection field, and the `doUserEventListenerPlanItem` endpoint trusts the value it is given for this field rather than overriding it server-side
 
 ### Requirement: Form.io custom field for selecting vertrouwelijkheidaanduiding
 ZAC SHALL provide a `ZAC_vertrouwelijkheidaanduiding` Form.io custom field type (a `KNOWN_ZAC_FIELDS` entry) that a BPMN task form can use to let a human select one of the 8 confidentiality levels, so the selected value can be carried as a process variable into `SendEmailDelegate`'s `vertrouwelijkheidaanduiding` field.
