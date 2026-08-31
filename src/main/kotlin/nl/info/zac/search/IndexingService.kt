@@ -283,7 +283,11 @@ class IndexingService @Inject constructor(
      * totals from [summary] when reindexing was actually attempted (i.e. [summary] is not `null`), and
      * the current Solr document count for that type (i.e. after reindexing has completed). Skipped
      * objects (the converter legitimately decided not to index them) are reported separately from
-     * errors, so an "errors" count only ever reflects an actual failure.
+     * errors, so an "errors" count only ever reflects an actual per-object failure - with one caveat:
+     * [ReindexSummary.totalCount] is the ZGW API's total count captured once before paging starts,
+     * while successCount/skippedCount accumulate as paging proceeds afterwards. Objects created or
+     * deleted in the ZGW API while a reindex is running can therefore surface as a small phantom
+     * error count here (or mask a real one), purely from that drift, not from a conversion failure.
      */
     private fun reindexFinishedMessage(objectType: ZoekObjectType, summary: ReindexSummary?): String {
         val message = "[$objectType] Reindexing finished"

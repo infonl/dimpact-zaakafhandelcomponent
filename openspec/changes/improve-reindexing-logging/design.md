@@ -122,6 +122,16 @@ routine concurrent traffic.
 - **The hard commit added before the "finished" count adds one expensive, blocking Solr operation per
   object type per reindex run** → accepted; it replaces an unreliable count with a trustworthy one,
   and is a single commit regardless of how many objects were reindexed, not a per-page cost.
+- **The reindexed/error totals can drift on an installation with concurrent writes** → the total used
+  in the "finished" summary line (`ZoekObjectType`'s ZGW API count) is captured once, before paging
+  starts; the reindexed/skipped counts accumulate afterwards, as paging proceeds. A zaak/document
+  created or deleted in the ZGW API while that reindex is still running therefore surfaces as a small
+  phantom error count (or masks a real one), purely from that drift, not from an actual per-object
+  failure. Accepted as a minor, self-correcting inaccuracy (the next reindex re-counts from scratch)
+  rather than solved outright — an atomic snapshot isn't something the ZGW list APIs offer, and
+  re-querying the total again at the end would just move the same race to the other side of the
+  comparison. Documented here and on `reindexFinishedMessage()` so operators reading a nonzero "not
+  reindexed because of errors" on an otherwise healthy, busy environment don't chase a phantom bug.
 
 ## Migration Plan
 
