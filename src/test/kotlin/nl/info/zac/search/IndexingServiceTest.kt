@@ -737,10 +737,11 @@ class IndexingServiceTest : BehaviorSpec({
                 ctx.indexingService.reindex(ZoekObjectType.ZAAK)
             }
 
-            then("the finished log has no reindexed/error summary since no reindexing was attempted") {
+            then("the log reports the reindex as aborted, not finished, with no reindexed/error summary") {
                 logRecords.map { it.message } shouldContain
-                    "[ZAAK] Reindexing finished. Solr index contains 0 documents of type 'ZAAK'."
+                    "[ZAAK] Reindexing aborted. Solr index contains 0 documents of type 'ZAAK'."
                 logRecords.any { it.message.contains("Reindexed:") } shouldBe false
+                logRecords.any { it.message.contains("Reindexing finished") } shouldBe false
             }
         }
     }

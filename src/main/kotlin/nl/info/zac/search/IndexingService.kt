@@ -256,7 +256,7 @@ class IndexingService @Inject constructor(
      * [reindexAll]).
      */
     private fun countInSolrIndex(objectType: ZoekObjectType): Long? =
-        continueOnExceptions(objectType) {
+        continueOnExceptions(objectType, "Error counting Solr documents") {
             solrClient.query(
                 SolrQuery("*:*").apply {
                     addFilterQuery("type:$objectType")
@@ -284,25 +284,24 @@ class IndexingService @Inject constructor(
     }
 
     /**
-     * Builds the "Reindexing finished" log message for [objectType], including the reindexed/skipped/error
-     * totals from [summary] when reindexing was actually attempted (i.e. [summary] is not `null`), and
-     * the current Solr document count for that type (i.e. after reindexing has completed). Skipped
-     * objects (the converter legitimately decided not to index them) are reported separately from
-     * errors, so an "errors" count only ever reflects an actual per-object failure - with one caveat:
-     * [ReindexSummary.totalCount] is the ZGW API's total count captured once before paging starts,
-     * while successCount/skippedCount accumulate as paging proceeds afterwards. Objects created or
-     * deleted in the ZGW API while a reindex is running can therefore surface as a phantom error
-     * count here (or mask a real one), purely from that drift, not from a conversion failure. Since
-     * paging can overshoot the snapshot (e.g. more objects created after the page count was fixed),
-     * the raw difference can go negative, so it is clamped to zero rather than logged as-is.
+     * Builds the "Reindexing finished" (or, when [summary] is `null`, "Reindexing aborted") log message
+     * for [objectType], including the reindexed/skipped/error totals from [summary] when reindexing was
+     * actually attempted, and the current Solr document count for that type (i.e. after reindexing has
+     * completed, or was aborted). Skipped objects (the converter legitimately decided not to index them)
+     * are reported separately from errors, so an "errors" count only ever reflects an actual per-object
+     * failure - with one caveat: [ReindexSummary.totalCount] is the ZGW API's total count captured once
+     * before paging starts, while successCount/skippedCount accumulate as paging proceeds afterwards.
+     * Objects created or deleted in the ZGW API while a reindex is running can therefore surface as a
+     * phantom error count here (or mask a real one), purely from that drift, not from a conversion
+     * failure. Since paging can overshoot the snapshot (e.g. more objects created after the page count
+     * was fixed), the raw difference can go negative, so it is clamped to zero rather than logged as-is.
      */
     private fun reindexFinishedMessage(objectType: ZoekObjectType, summary: ReindexSummary?): String {
-        val message = "[$objectType] Reindexing finished"
         val withSummary = summary?.let { (successCount, skippedCount, totalCount) ->
             val errorCount = (totalCount - successCount - skippedCount).coerceAtLeast(0)
-            "$message. Reindexed: $successCount / $totalCount, skipped: $skippedCount, " +
+            "[$objectType] Reindexing finished. Reindexed: $successCount / $totalCount, skipped: $skippedCount, " +
                 "not reindexed because of errors: $errorCount"
-        } ?: message
+        } ?: "[$objectType] Reindexing aborted"
         return "$withSummary. Solr index contains ${countInSolrIndex(objectType) ?: "unknown"} " +
             "documents of type '$objectType'."
     }
@@ -487,11 +486,15 @@ class IndexingService @Inject constructor(
         }
     }
 
-    private fun <T> continueOnExceptions(objectType: ZoekObjectType, fn: () -> T): T? =
+    private fun <T> continueOnExceptions(
+        objectType: ZoekObjectType,
+        message: String = "Error during indexing",
+        fn: () -> T
+    ): T? =
         try {
             runTranslatingToIndexingException { fn() }
         } catch (indexingException: IndexingException) {
-            LOG.log(Level.WARNING, "[$objectType] Error during indexing", indexingException)
+            LOG.log(Level.WARNING, "[$objectType] $message", indexingException)
             null
         }
 }

@@ -9,6 +9,7 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldStartWith
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZacClient
@@ -50,6 +51,17 @@ private fun String.shouldContainLogLineMatching(regex: Regex) {
     ) {
         regex.containsMatchIn(this) shouldBe true
     }
+}
+
+/**
+ * Unlike [String.removePrefix], which silently returns the receiver unchanged when [previousLogs] is
+ * not actually a prefix, this fails loudly - so a future change that breaks the prefix guarantee (e.g.
+ * a Testcontainers upgrade reordering log frames) surfaces as a test failure instead of the assertions
+ * below silently matching against the full accumulated container log again.
+ */
+private fun String.newLogsSince(previousLogs: String): String {
+    this shouldStartWith previousLogs
+    return substring(previousLogs.length)
 }
 
 private fun reindexingStartedRegex(zoekObjectType: String) = Regex(
@@ -138,7 +150,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
 
             and("the ZAC log reports that zaken reindexing started, finished and its reindex summary") {
                 eventually(10.seconds) {
-                    val newLogs = zacContainerLogs().removePrefix(logsBeforeReindex)
+                    val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
                     newLogs.shouldContainLogLineMatching(reindexingStartedRegex("ZAAK"))
                     newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("ZAAK"))
                 }
@@ -183,7 +195,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
 
             and("the ZAC log reports that taken reindexing started, finished and its reindex summary") {
                 eventually(10.seconds) {
-                    val newLogs = zacContainerLogs().removePrefix(logsBeforeReindex)
+                    val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
                     newLogs.shouldContainLogLineMatching(reindexingStartedRegex("TAAK"))
                     newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("TAAK"))
                 }
@@ -228,7 +240,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
 
             and("the ZAC log reports that documenten reindexing started, finished and its reindex summary") {
                 eventually(10.seconds) {
-                    val newLogs = zacContainerLogs().removePrefix(logsBeforeReindex)
+                    val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
                     newLogs.shouldContainLogLineMatching(reindexingStartedRegex("DOCUMENT"))
                     newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("DOCUMENT"))
                 }
@@ -274,7 +286,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
 
             and("the ZAC log reports the complete reindexing process and the Solr index counts") {
                 eventually(10.seconds) {
-                    val newLogs = zacContainerLogs().removePrefix(logsBeforeReindex)
+                    val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
                     newLogs.shouldContainLogLineMatching(
                         Regex("""Complete reindexing process started for object types: \[TAAK, ZAAK, DOCUMENT]""")
                     )
