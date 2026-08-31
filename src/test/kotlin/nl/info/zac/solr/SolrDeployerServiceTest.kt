@@ -9,8 +9,11 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkConstructor
+import io.mockk.runs
+import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.inject.Instance
@@ -59,7 +62,9 @@ class SolrDeployerServiceTest : BehaviorSpec({
         mockkConstructor(MultiUpdate::class)
         every { anyConstructed<MultiUpdate>().process(any()) } returns null
         every { solrSchemaUpdate.teHerindexerenZoekObjectTypes } returns setOf(ZoekObjectType.ZAAK)
-        every { managedExecutorService.submit(any()) } returns CompletableFuture.completedFuture(null)
+        val submittedRunnable = slot<Runnable>()
+        every { managedExecutorService.submit(capture(submittedRunnable)) } returns CompletableFuture.completedFuture(null)
+        every { indexingService.reindexAll(any()) } just runs
 
         // prepare the SolrDeployerService by setting the executor service and the available schema updates
         solrDeployerService.setManagedExecutorService(managedExecutorService)
@@ -67,11 +72,16 @@ class SolrDeployerServiceTest : BehaviorSpec({
 
         `when`("the ZAC Solr deployer service is started") {
             solrDeployerService.onStartup(Any())
+            submittedRunnable.captured.run()
 
-            then("the Solr schema should be updated to the available version and the zaken should be reindexed") {
+            then(
+                """the Solr schema should be updated to the available version and the complete reindexing
+                   process should be triggered for the zaaktypes that need reindexing"""
+            ) {
                 verify(exactly = 1) {
                     anyConstructed<MultiUpdate>().process(any())
                     managedExecutorService.submit(any())
+                    indexingService.reindexAll(setOf(ZoekObjectType.ZAAK))
                 }
             }
         }
