@@ -5,10 +5,10 @@
 package nl.info.zac.itest
 
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.TaskHelper
 import nl.info.zac.itest.client.ZacClient
@@ -34,6 +34,34 @@ import kotlin.time.Duration.Companion.seconds
 
 private fun zacContainerLogs(): String =
     dockerComposeContainer.getContainerByServiceName(ZAC_CONTAINER_SERVICE_NAME).get().logs
+
+/**
+ * ZAC's own startup already triggers a full `reindexAll()` when the Solr schema is not yet at
+ * its latest version (e.g. a fresh Solr core, such as in CI). Asserting against the container's
+ * entire accumulated log would then make these assertions pass regardless of whether the request
+ * fired by this test actually worked, since the startup reindex's log lines are already present
+ * before that request is ever sent. Diffing against a log snapshot taken right before the request
+ * ensures each assertion only matches lines the request under test actually caused.
+ */
+private fun String.shouldContainLogLineMatching(regex: Regex) {
+    withClue(
+        "expected the ZAC container log lines logged since the request to contain a line matching: " +
+            "${regex.pattern}\n\nLog lines logged since the request:\n$this"
+    ) {
+        regex.containsMatchIn(this) shouldBe true
+    }
+}
+
+private fun reindexingStartedRegex(zoekObjectType: String) = Regex(
+    """\[$zoekObjectType] Reindexing started\. Solr index currently contains (?:\d+|unknown) """ +
+        """documents of type '$zoekObjectType'\."""
+)
+
+private fun reindexingFinishedRegex(zoekObjectType: String) = Regex(
+    """\[$zoekObjectType] Reindexing finished\. Reindexed: \d+ / \d+, skipped: \d+, """ +
+        """not reindexed because of errors: \d+\. Solr index contains (?:\d+|unknown) """ +
+        """documents of type '$zoekObjectType'\."""
+)
 
 class IndexingAdminRestServiceTest : BehaviorSpec({
     val itestHttpClient = ItestHttpClient()
@@ -72,6 +100,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
         )
 
         `when`("""the internal ZAC reindexing endpoint is called for type 'zaak'""") {
+            val logsBeforeReindex = zacContainerLogs()
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/internal/indexeren/herindexeren/ZAAK",
                 headers = mapOf(
@@ -109,14 +138,14 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
 
             and("the ZAC log reports that zaken reindexing started, finished and its reindex summary") {
                 eventually(10.seconds) {
-                    val logs = zacContainerLogs()
-                    logs shouldContain "[ZAAK] Reindexing started. Solr index currently contains"
-                    logs shouldContain "[ZAAK] Reindexing finished. Reindexed:"
-                    logs shouldContain "not reindexed because of errors:"
+                    val newLogs = zacContainerLogs().removePrefix(logsBeforeReindex)
+                    newLogs.shouldContainLogLineMatching(reindexingStartedRegex("ZAAK"))
+                    newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("ZAAK"))
                 }
             }
         }
         `when`("""the reindexing endpoint is called for type 'task'""") {
+            val logsBeforeReindex = zacContainerLogs()
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/internal/indexeren/herindexeren/TAAK",
                 headers = mapOf(
@@ -154,14 +183,14 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
 
             and("the ZAC log reports that taken reindexing started, finished and its reindex summary") {
                 eventually(10.seconds) {
-                    val logs = zacContainerLogs()
-                    logs shouldContain "[TAAK] Reindexing started. Solr index currently contains"
-                    logs shouldContain "[TAAK] Reindexing finished. Reindexed:"
-                    logs shouldContain "not reindexed because of errors:"
+                    val newLogs = zacContainerLogs().removePrefix(logsBeforeReindex)
+                    newLogs.shouldContainLogLineMatching(reindexingStartedRegex("TAAK"))
+                    newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("TAAK"))
                 }
             }
         }
         `when`("""the reindexing endpoint is called for type 'document'""") {
+            val logsBeforeReindex = zacContainerLogs()
             val response = itestHttpClient.performGetRequest(
                 "$ZAC_API_URI/internal/indexeren/herindexeren/DOCUMENT",
                 headers = mapOf(
@@ -199,14 +228,14 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
 
             and("the ZAC log reports that documenten reindexing started, finished and its reindex summary") {
                 eventually(10.seconds) {
-                    val logs = zacContainerLogs()
-                    logs shouldContain "[DOCUMENT] Reindexing started. Solr index currently contains"
-                    logs shouldContain "[DOCUMENT] Reindexing finished. Reindexed:"
-                    logs shouldContain "not reindexed because of errors:"
+                    val newLogs = zacContainerLogs().removePrefix(logsBeforeReindex)
+                    newLogs.shouldContainLogLineMatching(reindexingStartedRegex("DOCUMENT"))
+                    newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("DOCUMENT"))
                 }
             }
         }
         `when`("""the internal ZAC "reindex everything" endpoint is called""") {
+            val logsBeforeReindex = zacContainerLogs()
             val response = itestHttpClient.performGetRequest(
                 url = "$ZAC_API_URI/internal/indexeren/herindexeren",
                 headers = mapOf(
@@ -245,12 +274,16 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
 
             and("the ZAC log reports the complete reindexing process and the Solr index counts") {
                 eventually(10.seconds) {
-                    val logs = zacContainerLogs()
-                    logs shouldContain "Complete reindexing process started for object types:"
-                    logs shouldContain "Complete reindexing process finished for object types:"
+                    val newLogs = zacContainerLogs().removePrefix(logsBeforeReindex)
+                    newLogs.shouldContainLogLineMatching(
+                        Regex("""Complete reindexing process started for object types: \[TAAK, ZAAK, DOCUMENT]""")
+                    )
+                    newLogs.shouldContainLogLineMatching(
+                        Regex("""Complete reindexing process finished for object types: \[TAAK, ZAAK, DOCUMENT]""")
+                    )
                     listOf("ZAAK", "TAAK", "DOCUMENT").forEach { zoekObjectType ->
-                        logs shouldContain "[$zoekObjectType] Reindexing started. Solr index currently contains"
-                        logs shouldContain "[$zoekObjectType] Reindexing finished"
+                        newLogs.shouldContainLogLineMatching(reindexingStartedRegex(zoekObjectType))
+                        newLogs.shouldContainLogLineMatching(reindexingFinishedRegex(zoekObjectType))
                     }
                 }
             }
