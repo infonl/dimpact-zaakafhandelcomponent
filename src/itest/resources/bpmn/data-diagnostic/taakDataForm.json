@@ -1,0 +1,449 @@
+{
+  "display": "form",
+  "name": "taakDataForm",
+  "title": "Taak data overview",
+  "type": "form",
+  "components": [
+    {
+      "type": "content",
+      "key": "uitleg",
+      "input": false,
+      "tableView": false,
+      "html": "<h3>Taak data in a form</h3><p>The same mechanism with the taak as its source: <code>taak.naam</code>, <code>taak.groep.naam</code>, <code>ZAC_opmaakDatum(taak.fataledatum)</code>. These properties are read straight off the task itself, so there is no copy that can go stale.</p><p>Both <code>zaak</code> and <code>taak</code> are in the context of every form, so a property that exists on both is whichever one you name. The last row names the taak where the zaak was meant, and renders as empty without complaint.</p><p>Every other row is wrapped in <code>ZAC_opmaakLegeWaarde</code>, so both behaviours are on screen at once: without it an empty property renders as nothing, with it as a dash. It is the same <code>empty</code> pipe the rest of ZAC uses, so a dash here means the same as a dash in the zaak screen.</p>"
+    },
+    {
+      "type": "panel",
+      "title": "Values",
+      "key": "taak_waarden",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "table",
+          "key": "tabel_taak_waarden",
+          "input": false,
+          "tableView": false,
+          "numRows": 8,
+          "numCols": 2,
+          "header": ["Property", "Value"],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_naam",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>taak.naam</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_naam",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ taak.naam }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_status",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>ZAC_opmaakLegeWaarde(taak.status)</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_status",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ ZAC_opmaakLegeWaarde(taak.status) }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_toelichting",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>taak.toelichting</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_toelichting",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ taak.toelichting }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_groep_naam",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>ZAC_opmaakLegeWaarde(taak.groep.naam)</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_groep_naam",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ ZAC_opmaakLegeWaarde(taak.groep.naam) }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_groep_id",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>taak.groep.id</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_groep_id",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ taak.groep.id }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_behandelaar_naam",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>ZAC_opmaakLegeWaarde(taak.behandelaar.naam)</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_behandelaar_naam",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ ZAC_opmaakLegeWaarde(taak.behandelaar.naam) }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_behandelaar_id",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>taak.behandelaar.id</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_behandelaar_id",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ taak.behandelaar.id }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_id",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>ZAC_opmaakLegeWaarde(taak.id)</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_id",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ ZAC_opmaakLegeWaarde(taak.id) }}"
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Dates",
+      "key": "taak_datums",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "table",
+          "key": "tabel_taak_datums",
+          "input": false,
+          "tableView": false,
+          "numRows": 3,
+          "numCols": 3,
+          "header": ["Property", "Unformatted", "Formatted (datum)"],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_creatiedatumTijd",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>taak.creatiedatumTijd</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_creatiedatumTijd_raw",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ taak.creatiedatumTijd }}"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_creatiedatumTijd_formatted",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ ZAC_opmaakDatum(taak.creatiedatumTijd) }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_toekenningsdatumTijd",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>ZAC_opmaakLegeWaarde(taak.toekenningsdatumTijd)</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_toekenningsdatumTijd_raw",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ ZAC_opmaakLegeWaarde(taak.toekenningsdatumTijd) }}"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_toekenningsdatumTijd_formatted",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ ZAC_opmaakDatum(taak.toekenningsdatumTijd) }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TG_fataledatum",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>taak.fataledatum</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_fataledatum_raw",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ taak.fataledatum }}"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TG_fataledatum_formatted",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ ZAC_opmaakDatum(taak.fataledatum) }}"
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Deliberate mistakes",
+      "key": "opzettelijke_fouten",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "type": "table",
+          "key": "tabel_fouten",
+          "input": false,
+          "tableView": false,
+          "numRows": 1,
+          "numCols": 2,
+          "header": ["Property", "Result"],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "NAAM_TGfout_naam_eerste",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>ZAC_opmaakLegeWaarde(taak.naam.eerste)</code>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "label": "",
+                    "type": "content",
+                    "key": "TGfout_naam_eerste",
+                    "input": false,
+                    "tableView": false,
+                    "html": "{{ ZAC_opmaakLegeWaarde(taak.naam.eerste) }}"
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Complete",
+      "key": "submit",
+      "disableOnInvalid": false,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

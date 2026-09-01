@@ -1,0 +1,387 @@
+{
+  "display": "form",
+  "name": "processDataForm",
+  "title": "Process data overview",
+  "type": "form",
+  "components": [
+    {
+      "type": "content",
+      "key": "uitleg",
+      "input": false,
+      "tableView": false,
+      "html": "<h3>Process data</h3><p>This form is only about the variables a BPMN process holds. Two objects carry them: <code>zaak.zaakdata</code>, the process variables, and <code>taak.taakdata</code>, this task's stored data with the process variables merged in when it was opened. Neither is zaak data or taak data &mdash; for those, see the other two forms.</p><p>The first panel dumps every key each object holds. The second answers the question that follows from it: several process variables are copies of something the zaak already has, and the zaak is the one to read — for coverage, not because the copy is out of date. The third writes a variable, so you can watch one arrive. A misspelled property renders as empty here and is reported in the browser console instead, naming the full path it could not find.</p>"
+    },
+    {
+      "type": "panel",
+      "key": "de_variabelen",
+      "title": "The process variables",
+      "label": "Variabelen",
+      "input": false,
+      "tableView": false,
+      "collapsible": false,
+      "components": [
+        {
+          "type": "content",
+          "key": "variabelen_uitleg",
+          "input": false,
+          "tableView": false,
+          "html": "<h4>Every variable the process holds</h4><p>Two stages of the same data. <code>taak.taakdata</code> is what this task has stored &mdash; the process variables it was opened with, plus anything the form has saved. <code>zaak.zaakdata</code> is the process variables themselves, which only change when a task is completed. Save the field in the third panel and the difference between the two becomes visible.</p><p>Neither can be listed here, because the variables differ per process definition and per run. Address a variable you know by name: <code>zaak.zaakdata.zaakIdentificatie</code>. A variable holding an object or a list needs its own expression to look inside, such as <code>ZAC_opmaakLijst(zaak.zaakdata.documenten, &quot;titel&quot;)</code>.</p>"
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "key": "zaakdata_vs_zaak",
+      "title": "Which one should a form read?",
+      "label": "Vergelijking",
+      "input": false,
+      "tableView": false,
+      "collapsible": false,
+      "components": [
+        {
+          "type": "content",
+          "key": "vergelijking_uitleg",
+          "input": false,
+          "tableView": false,
+          "html": "<h4>Two values, one answer</h4><p>Each row is one value that exists in more than one place. <strong>Read the right-hand column.</strong> Not because the left one is out of date &mdash; ZAC does keep it in step: reassigning the zaak calls <code>changeZaakDataAssignment</code>, and changing the communicatiekanaal calls <code>updateCommunicationChannelZaakVariabele</code>. The reasons are different, and they matter more:</p><ul><li><strong>Coverage.</strong> These eight are all you get. The zaak has startdatum, status, resultaat, omschrijving, toelichting, deadlines, kenmerken, besluiten, related zaken &mdash; none of which is a process variable and none of which ever will be. Reading the zaak means never asking for a new variable to be added.</li><li><strong>The sync is a promise, not a mechanism.</strong> It holds because two specific call sites remember to update it. Any new route that changes a behandelaar has to remember too. The zaak cannot fall out of step with itself.</li><li><strong>Two of them never arrive at all.</strong> <code>zaakUUID</code> and <code>zaaktypeUUID</code> are stripped from the task data by <code>TaskRestService.readFilteredZaakdata</code>, which is why their left cell is empty while the zaak has the value.</li></ul><p>Where a row shows <em>also <code>taak.…</code></em>, the taak carries the same value and reads it from those same process variables, so it is a third copy of the same thing rather than a third option.</p><p>The one row that is not really a comparison: <code>zaakGroep</code> is the group handling the <em>zaak</em>, while <code>taak.groep</code> is the group this <em>task</em> is offered to. Usually equal, not the same thing.</p>"
+        },
+        {
+          "type": "table",
+          "key": "vergelijking",
+          "input": false,
+          "tableView": false,
+          "numRows": 8,
+          "numCols": 2,
+          "header": [
+            "A process variable — only these eight exist",
+            "The zaak — every property, always"
+          ],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_copy_zaakUUID",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.zaakdata.zaakUUID</code><br>{{ zaak.zaakdata.zaakUUID }}<br><span class=\"text-body-secondary small\">also <code>taak.zaakUuid</code></span>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_live_zaakUUID",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.uuid</code><br>{{ zaak.uuid }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_copy_zaakIdentificatie",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.zaakdata.zaakIdentificatie</code><br>{{ zaak.zaakdata.zaakIdentificatie }}<br><span class=\"text-body-secondary small\">also <code>taak.zaakIdentificatie</code></span>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_live_zaakIdentificatie",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.identificatie</code><br>{{ zaak.identificatie }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_copy_zaaktypeUUID",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.zaakdata.zaaktypeUUID</code><br>{{ zaak.zaakdata.zaaktypeUUID }}<br><span class=\"text-body-secondary small\">also <code>taak.zaaktypeUUID</code></span>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_live_zaaktypeUUID",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.zaaktype.uuid</code><br>{{ zaak.zaaktype.uuid }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_copy_zaaktypeOmschrijving",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.zaakdata.zaaktypeOmschrijving</code><br>{{ zaak.zaakdata.zaaktypeOmschrijving }}<br><span class=\"text-body-secondary small\">also <code>taak.zaaktypeOmschrijving</code></span>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_live_zaaktypeOmschrijving",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.zaaktype.omschrijving</code><br>{{ zaak.zaaktype.omschrijving }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_copy_zaakGroep",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.zaakdata.zaakGroep</code><br>{{ zaak.zaakdata.zaakGroep }}<br><span class=\"text-body-secondary small\">also <code>taak.groep.naam</code></span>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_live_zaakGroep",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.groep.naam</code><br>{{ zaak.groep.naam }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_copy_zaakBehandelaar",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.zaakdata.zaakBehandelaar</code><br>{{ zaak.zaakdata.zaakBehandelaar }}<br><span class=\"text-body-secondary small\">also <code>taak.behandelaar.naam</code></span>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_live_zaakBehandelaar",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.behandelaar.naam</code><br>{{ zaak.behandelaar.naam }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_copy_zaakCommunicatiekanaal",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.zaakdata.zaakCommunicatiekanaal</code><br>{{ zaak.zaakdata.zaakCommunicatiekanaal }}"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_live_zaakCommunicatiekanaal",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.communicatiekanaal</code><br>{{ zaak.communicatiekanaal }}"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_copy_initiator",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.zaakdata.initiator</code><br>{{ zaak.zaakdata.initiator }}"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "VGL_live_initiator",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.initiatorIdentificatie.type</code><br>{{ zaak.initiatorIdentificatie.type }}"
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "key": "zelf_schrijven",
+      "title": "Write a process variable",
+      "label": "Schrijven",
+      "input": false,
+      "tableView": false,
+      "collapsible": false,
+      "components": [
+        {
+          "type": "content",
+          "key": "schrijven_uitleg",
+          "input": false,
+          "tableView": false,
+          "html": "<h4>Writing one, and watching it arrive</h4><p>The field below is a <code>ZAC_TYPE</code> of <code>ZAC_process_data</code>: a plain input whose <code>key</code> is the name of a process variable. Type something into it and read it back in the two cells underneath, which show the same key from each of the two objects. Both are empty until the value gets there.</p><ol><li><strong>Save.</strong> The whole submission is stored as one task variable. Reopen the task and the left cell fills in; the right one is still empty.</li><li><strong>Complete.</strong> Now every submitted key is written into the process variables, so the right cell fills in too and the value stays there for the rest of the process.</li></ol><p>That is the whole storage model, and it is not specific to <code>ZAC_process_data</code>: <em>any</em> input in the form is stored under its own <code>key</code> the same way. The attribute only marks the field as an input whose key is meant to be a variable name. Which is also the trap &mdash; key a field <code>zaakGroep</code> and completing the task overwrites that process variable. Prefix the keys of your own fields, as this one does.</p>"
+        },
+        {
+          "label": "A process variable of your own",
+          "type": "textfield",
+          "key": "PD_proefVariabele",
+          "input": true,
+          "tableView": false,
+          "description": "ZAC_TYPE: ZAC_process_data — stored under the key \"PD_proefVariabele\", which is why it is prefixed",
+          "attributes": {
+            "ZAC_TYPE": "ZAC_process_data"
+          }
+        },
+        {
+          "type": "table",
+          "key": "terugleesbaar",
+          "input": false,
+          "tableView": false,
+          "numRows": 1,
+          "numCols": 2,
+          "header": [
+            "Stored on the task",
+            "Stored on the process"
+          ],
+          "caption": "",
+          "striped": true,
+          "bordered": true,
+          "hover": false,
+          "condensed": true,
+          "cloneRows": false,
+          "rows": [
+            [
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "PD_terug_taak",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>taak.taakdata.PD_proefVariabele</code><br>{{ taak.taakdata.PD_proefVariabele }}<br><span class=\"text-body-secondary small\">fills in after Save</span>"
+                  }
+                ]
+              },
+              {
+                "components": [
+                  {
+                    "type": "content",
+                    "key": "PD_terug_zaak",
+                    "input": false,
+                    "tableView": false,
+                    "html": "<code>zaak.zaakdata.PD_proefVariabele</code><br>{{ zaak.zaakdata.PD_proefVariabele }}<br><span class=\"text-body-secondary small\">fills in after Complete</span>"
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Deliberate mistake",
+      "key": "deliberate_mistakes",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "",
+          "type": "content",
+          "key": "PD_fout_typefout",
+          "input": false,
+          "tableView": false,
+          "html": "<span class=\"fw-medium\"><code>zaak.zaakdata.zaakKommunicatiekanaal</code> &mdash; a misspelled variable; empty here, reported in the console: </span>{{ zaak.zaakdata.zaakKommunicatiekanaal }}"
+        },
+        {
+          "label": "",
+          "type": "content",
+          "key": "PD_fout_wildcard_na_lijst",
+          "input": false,
+          "tableView": false,
+          "html": "<span class=\"fw-medium\"><code>zaak.zaakdata.zaakIdentificatie.jaar</code> &mdash; reading on through a variable that holds a single value: </span>{{ zaak.zaakdata.zaakIdentificatie.jaar }}"
+        },
+        {
+          "label": "",
+          "type": "content",
+          "key": "PD_fout_object_zonder_wildcard",
+          "input": false,
+          "tableView": false,
+          "html": "<span class=\"fw-medium\"><code>zaak.zaakdata.initiator</code> &mdash; a variable holding an object, addressed as a whole: </span>{{ zaak.zaakdata.initiator }}"
+        }
+      ]
+    },
+    {
+      "key": "save",
+      "label": "Save",
+      "type": "button",
+      "theme": "secondary",
+      "input": true,
+      "action": "saveState",
+      "state": "draft",
+      "tableView": false
+    },
+    {
+      "type": "button",
+      "label": "Complete",
+      "key": "submit",
+      "disableOnInvalid": false,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

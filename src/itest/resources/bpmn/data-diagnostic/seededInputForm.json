@@ -1,0 +1,263 @@
+{
+  "display": "form",
+  "name": "seededInputForm",
+  "title": "Seeded input fields",
+  "type": "form",
+  "components": [
+    {
+      "type": "content",
+      "key": "uitleg",
+      "input": false,
+      "tableView": false,
+      "html": "<h3>Putting zaak and taak data into editable fields</h3><p>Every field below is a normal Form.io input &mdash; a textfield, a textarea, a date picker &mdash; that Form.io has filled in from the zaak or the taak. The declaration is Form.io's own <code>customDefaultValue</code>: <code>value = zaak.identificatie</code>. No ZAC attribute or property is involved, and each field's description shows the expression that filled it.</p><p>Reading a value for <em>display</em> is done differently, with <code>zaak.identificatie</code> in a content component &mdash; see the other forms. The two are not interchangeable: an interpolated value is only rendered, while a default value becomes part of the submission and is written back as a process variable when the task completes.</p><p>The same helper functions apply, so <code>value = ZAC_opmaakDatum(zaak.startdatum)</code> works. Use one only where the value is read as text: an input that parses its own value &mdash; a date picker &mdash; needs the raw value. Change a value, press <em>Save</em>, then reopen the task: Form.io leaves a default alone once the submission carries the key, so your answer is kept.</p>"
+    },
+    {
+      "type": "panel",
+      "title": "Seeded from the zaak",
+      "key": "seeded_from_zaak",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Zaaknummer (editable)",
+          "type": "textfield",
+          "key": "IN_zaakIdentificatie",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = zaak.identificatie\"",
+          "customDefaultValue": "value = zaak.identificatie"
+        },
+        {
+          "label": "Omschrijving",
+          "type": "textfield",
+          "key": "IN_zaakOmschrijving",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = zaak.omschrijving\"",
+          "customDefaultValue": "value = zaak.omschrijving"
+        },
+        {
+          "label": "Startdatum as text (datum format)",
+          "type": "textfield",
+          "key": "IN_zaakStartdatum",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = ZAC_opmaakDatum(zaak.startdatum)\" — a textfield, so the formatted text is fine here",
+          "customDefaultValue": "value = ZAC_opmaakDatum(zaak.startdatum)"
+        },
+        {
+          "label": "Startdatum in a date picker",
+          "type": "datetime",
+          "key": "IN_zaakStartdatumPicker",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = zaak.startdatum\" — a picker needs the raw ISO value and formats it itself",
+          "format": "dd-MM-yyyy",
+          "enableTime": false,
+          "datePicker": {
+            "disableWeekends": false,
+            "disableWeekdays": false
+          },
+          "widget": {
+            "type": "calendar",
+            "displayInTimezone": "viewer",
+            "locale": "nl",
+            "useLocaleSettings": false,
+            "allowInput": true,
+            "mode": "single",
+            "enableTime": false,
+            "noCalendar": false,
+            "format": "dd-MM-yyyy",
+            "hourIncrement": 1,
+            "minuteIncrement": 1,
+            "time_24hr": true
+          },
+          "customDefaultValue": "value = zaak.startdatum"
+        },
+        {
+          "label": "Opgeschort as a word",
+          "type": "textfield",
+          "key": "IN_zaakOpgeschort",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = ZAC_opmaakBoolean(zaak.isOpgeschort)\"",
+          "customDefaultValue": "value = ZAC_opmaakBoolean(zaak.isOpgeschort)"
+        },
+        {
+          "label": "Toelichting, multi-line",
+          "type": "textarea",
+          "key": "IN_zaakToelichting",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = zaak.toelichting\"",
+          "rows": 3,
+          "customDefaultValue": "value = zaak.toelichting"
+        },
+        {
+          "label": "Zaaktype omschrijving",
+          "type": "textfield",
+          "key": "IN_zaakZaaktype",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = zaak.zaaktype.omschrijving\"",
+          "customDefaultValue": "value = zaak.zaaktype.omschrijving"
+        },
+        {
+          "label": "Indicaties, joined list",
+          "type": "textfield",
+          "key": "IN_zaakIndicaties",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = zaak.indicaties\"",
+          "customDefaultValue": "value = zaak.indicaties"
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Seeded from the taak",
+      "key": "seeded_from_taak",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "Task name",
+          "type": "textfield",
+          "key": "IN_taakNaam",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = taak.naam\"",
+          "customDefaultValue": "value = taak.naam"
+        },
+        {
+          "label": "Task group",
+          "type": "textfield",
+          "key": "IN_taakGroep",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = taak.groep.naam\"",
+          "customDefaultValue": "value = taak.groep.naam"
+        },
+        {
+          "label": "Task assignee",
+          "type": "textfield",
+          "key": "IN_taakBehandelaar",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = ZAC_opmaakLegeWaarde(taak.behandelaar.naam, 'geen')\"",
+          "customDefaultValue": "value = ZAC_opmaakLegeWaarde(taak.behandelaar.naam, 'geen')"
+        },
+        {
+          "label": "Deadline in a date picker",
+          "type": "datetime",
+          "key": "IN_taakFataledatumPicker",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = taak.fataledatum\"",
+          "format": "dd-MM-yyyy",
+          "enableTime": false,
+          "datePicker": {
+            "disableWeekends": false,
+            "disableWeekdays": false
+          },
+          "widget": {
+            "type": "calendar",
+            "displayInTimezone": "viewer",
+            "locale": "nl",
+            "useLocaleSettings": false,
+            "allowInput": true,
+            "mode": "single",
+            "enableTime": false,
+            "noCalendar": false,
+            "format": "dd-MM-yyyy",
+            "hourIncrement": 1,
+            "minuteIncrement": 1,
+            "time_24hr": true
+          },
+          "customDefaultValue": "value = taak.fataledatum"
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "title": "Deliberate mistakes",
+      "key": "seeded_mistakes",
+      "input": false,
+      "tableView": false,
+      "components": [
+        {
+          "label": "an object into an input",
+          "type": "textfield",
+          "key": "IN_fout_object",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = zaak.zaaktype\"",
+          "customDefaultValue": "value = zaak.zaaktype"
+        },
+        {
+          "label": "a path that reads on through a value",
+          "type": "textfield",
+          "key": "IN_fout_pad",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = zaak.identificatie.jaar\"",
+          "customDefaultValue": "value = zaak.identificatie.jaar"
+        },
+        {
+          "label": "Formatted value into a picker",
+          "type": "datetime",
+          "key": "IN_fout_pickerFormaat",
+          "input": true,
+          "tableView": false,
+          "description": "customDefaultValue: \"value = ZAC_opmaakDatum(zaak.startdatum)\" — the picker cannot read 24-08-2026",
+          "format": "dd-MM-yyyy",
+          "enableTime": false,
+          "datePicker": {
+            "disableWeekends": false,
+            "disableWeekdays": false
+          },
+          "widget": {
+            "type": "calendar",
+            "displayInTimezone": "viewer",
+            "locale": "nl",
+            "useLocaleSettings": false,
+            "allowInput": true,
+            "mode": "single",
+            "enableTime": false,
+            "noCalendar": false,
+            "format": "dd-MM-yyyy",
+            "hourIncrement": 1,
+            "minuteIncrement": 1,
+            "time_24hr": true
+          },
+          "customDefaultValue": "value = ZAC_opmaakDatum(zaak.startdatum)"
+        }
+      ]
+    },
+    {
+      "type": "content",
+      "key": "waarschuwing",
+      "input": false,
+      "tableView": false,
+      "html": "<p><strong>Pick keys that are not process variable names.</strong> Completing a task writes every submitted key back as a process variable, so a seeded field keyed <code>zaakGroep</code> would overwrite the process variable of that name. The keys above are prefixed <code>IN_</code> for exactly that reason.</p>"
+    },
+    {
+      "key": "save",
+      "label": "Save",
+      "type": "button",
+      "theme": "secondary",
+      "input": true,
+      "action": "saveState",
+      "state": "draft",
+      "tableView": false
+    },
+    {
+      "type": "button",
+      "label": "Complete",
+      "key": "submit",
+      "disableOnInvalid": false,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}
