@@ -795,8 +795,7 @@ describe(ZaakViewComponent.name, () => {
         .spyOn(bagService, "create")
         .mockReturnValue(of(undefined) as never);
       const openSnackbar = jest.spyOn(utilService, "openSnackbar");
-      // the view already listed them while it was initialising, so only calls
-      // made by the coupling itself may count towards the reload
+      // the view already listed them while initialising, so ignore that call
       const list = jest
         .spyOn(bagService, "list")
         .mockClear()

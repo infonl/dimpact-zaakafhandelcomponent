@@ -981,7 +981,7 @@ describe(ZaakViewComponent.name, () => {
       zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
         ...zaak.zaaktype,
         zaakafhandelparameters: fromPartial<
-          GeneratedType<"RestZaakafhandelParameters">
+          GeneratedType<"RestZaaktypeConfiguration">
         >({
           smartDocuments: { enabledForZaaktype: true, enabledGlobally: true },
           betrokkeneKoppelingen: { kvkKoppelen: true },
