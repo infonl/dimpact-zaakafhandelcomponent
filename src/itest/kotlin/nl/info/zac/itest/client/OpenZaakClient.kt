@@ -44,14 +44,14 @@ class OpenZaakClient(
      * naam [eigenschapNaam] (e.g. "ZAAK_GEAUTORISEERD") and value [waarde] (e.g. "true"). The
      * zaaktype of [zaakUUID] must define an eigenschap with that naam in Open Zaak's catalogi API.
      *
-     * @return [ResponseContent] with the Open Zaak API response (HTTP 201 on success)
+     * @return the UUID of the created zaakeigenschap, for use with [sendZaakeigenschapCreateNotification]
      */
     fun createZaakeigenschap(
         zaakUUID: UUID,
         zaaktypeUUID: UUID,
         eigenschapNaam: String,
         waarde: String
-    ): ResponseContent {
+    ): UUID {
         val eigenschapUrl = getEigenschapUrl(zaaktypeUUID, eigenschapNaam)
         val requestBody = JSONObject(
             mapOf(
@@ -63,16 +63,20 @@ class OpenZaakClient(
         return itestHttpClient.performZgwApiPostRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID/zaakeigenschappen",
             requestBodyAsString = requestBody
-        )
+        ).let { response ->
+            JSONObject(response.bodyAsString).getString("uuid").run(UUID::fromString)
+        }
     }
 
     /**
-     * Sends a request to the ZAC notification endpoint to notify ZAC about the creation of a
-     * zaakeigenschap, so that ZAC will reindex the zaak (and its taken and documenten) in Solr.
-     * Use this after [createZaakeigenschap], which bypasses ZAC and therefore triggers no real
-     * notification.
+     * Sends a request to the ZAC notification endpoint to notify ZAC about the creation of the
+     * zaakeigenschap identified by [zaakeigenschapUUID], so that ZAC will reindex the zaak (and its
+     * taken and documenten) in Solr. Use this after [createZaakeigenschap], which bypasses ZAC and
+     * therefore triggers no real notification, passing the UUID it returned: ZAC reads the
+     * zaakeigenschap back from Open Zaak by this UUID to decide whether to reindex, so a UUID that
+     * does not resolve to a real zaakeigenschap silently skips the reindex.
      */
-    fun sendZaakeigenschapCreateNotification(zaakUUID: UUID) {
+    fun sendZaakeigenschapCreateNotification(zaakUUID: UUID, zaakeigenschapUUID: UUID) {
         val zaakUrl = "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUUID"
         itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/notificaties",
@@ -87,7 +91,7 @@ class OpenZaakClient(
                     "kanaal" to "zaken",
                     "resource" to "zaakeigenschap",
                     "hoofdObject" to zaakUrl,
-                    "resourceUrl" to "$zaakUrl/zaakeigenschappen/${UUID.randomUUID()}",
+                    "resourceUrl" to "$zaakUrl/zaakeigenschappen/$zaakeigenschapUUID",
                     "actie" to "create",
                     "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                 )

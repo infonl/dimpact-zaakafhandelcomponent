@@ -132,7 +132,7 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
             indexDocument = true,
             testUser = BEHANDELAAR_1
         )
-        openZaakClient.createZaakeigenschap(
+        val zaakeigenschapUuid = openZaakClient.createZaakeigenschap(
             zaakUUID = zaakUuid,
             zaaktypeUUID = ZAAKTYPE_CMMN_TEST_2_UUID,
             eigenschapNaam = "ZAAK_GEAUTORISEERD",
@@ -145,7 +145,7 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
         // document becoming invisible to a behandelaar who lacks the zaakspecifiek_geautoriseerd role.
         // Polling the flagged user's view is not a valid signal here, since that user can see the zaak
         // regardless of whether reindexing has finished.
-        openZaakClient.sendZaakeigenschapCreateNotification(zaakUuid)
+        openZaakClient.sendZaakeigenschapCreateNotification(zaakUuid, zaakeigenschapUuid)
         eventually(30.seconds) {
             JSONObject(searchZaak(zaakIdentificatie, BEHANDELAAR_1).bodyAsString).getInt("totaal") shouldBe 0
             JSONObject(searchTaak(zaakIdentificatie, BEHANDELAAR_1).bodyAsString).getInt("totaal") shouldBe 0
