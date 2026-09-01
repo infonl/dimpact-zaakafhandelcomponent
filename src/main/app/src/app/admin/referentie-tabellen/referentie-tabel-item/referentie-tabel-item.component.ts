@@ -10,11 +10,12 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
-import { UtilService } from "../../../core/service/util.service";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from "../../../shared/confirm-dialog/confirm-dialog.component";
+import { runMutation } from "../../../shared/http/run-mutation";
 import { EmptyPipe } from "../../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ReferentieTabelService } from "../../referentie-tabel.service";
@@ -41,7 +42,7 @@ export class ReferentieTabelItemComponent {
 
   private readonly service = inject(ReferentieTabelService);
   private readonly dialog = inject(MatDialog);
-  private readonly utilService = inject(UtilService);
+  private readonly queryClient = inject(QueryClient);
 
   protected addValue() {
     this.dialog.open(ReferentieTabelValueDialogComponent, {
@@ -60,32 +61,19 @@ export class ReferentieTabelItemComponent {
   }
 
   protected deleteValue(value: GeneratedType<"RestReferenceTableValue">) {
-    const tabel = this.tabel();
-    const existing: GeneratedType<"RestReferenceTableValue">[] =
-      tabel.values ?? [];
-    const values = existing.filter((current) => current.id !== value.id);
-    this.dialog
-      .open(ConfirmDialogComponent, {
-        data: new ConfirmDialogData(
-          {
-            key: "msg.referentietabel.waarde-verwijderen-bevestigen",
-            args: { value: value.name },
-          },
-          this.service.updateReferentieTabelWithRefresh(tabel.id!, {
-            code: tabel.code,
-            name: tabel.name,
-            values,
-          }),
-        ),
-      })
-      .afterClosed()
-      .subscribe((confirmed) => {
-        if (confirmed) {
-          this.utilService.openSnackbar(
-            "msg.referentietabel.waarde-verwijderd",
-            { value: value.name },
-          );
-        }
-      });
+    const { mutationOptions, body } = this.service.deleteReferentieTabelValue(
+      this.tabel(),
+      value,
+    );
+
+    this.dialog.open(ConfirmDialogComponent, {
+      data: new ConfirmDialogData(
+        {
+          key: "msg.referentietabel.waarde-verwijderen-bevestigen",
+          args: { value: value.name },
+        },
+        runMutation(this.queryClient, mutationOptions, body),
+      ),
+    });
   }
 }
