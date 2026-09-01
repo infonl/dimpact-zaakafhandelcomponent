@@ -1,5 +1,5 @@
 ---
-name: code-review
+name: review-code-against-specs
 description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
 ---
 
@@ -8,9 +8,7 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 - **Standards**: does the code conform to this repo's documented coding standards?
 - **Spec**: does the code faithfully implement the originating issue / spec?
 
-Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
-
-The issue/spec context should be provided by the user (PR link, ticket, or spec path). If it isn't available, ask for it and continue with a Standards-only review, noting that no spec was provided.
+Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill reconciles their findings against existing PR feedback, verifies what survives, and aggregates the result.
 
 ## Process
 
@@ -26,14 +24,14 @@ Before going further, confirm the fixed point resolves (`git rev-parse <fixed-po
 
 Look for the originating spec, in this order:
 
-1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in `docs/agents/issue-tracker.md`.
+1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched directly with the host CLI (`gh issue view <number>`, `gh pr view <number>`, or the GitLab equivalent) — no separate setup skill required.
 2. A path the user passed as an argument.
 3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
 4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
 
 ### 3. Identify the standards sources
 
-Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
+Start with `CLAUDE.md` — in this repo it's where the Kotlin, Testing Library, SPDX-header, and i18n-key conventions actually live. Also check `CONTRIBUTING.md` and `CODING_STANDARDS.md` if present; treat any of these as optional, since a repo may document none of them.
 
 On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
 
@@ -71,7 +69,22 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 If the spec is missing, skip the Spec sub-agent and note this in the final report.
 
-### 5. Aggregate
+### 5. Reconcile against existing PR feedback
+
+Fetch the PR's existing review comments (`gh pr view <number> --comments` or the host equivalent) before presenting anything.
+
+- Drop any candidate finding that's already been raised, matching on substance rather than exact wording — a re-run must not repeat what's already on the PR.
+- If the same underlying issue shows up on both axes, keep it once, filed under whichever axis states it more precisely. Do not print it twice; "don't merge or rerank findings" (step 7) means don't collapse two *different* issues into one, not print one issue twice.
+- If nothing survives this pass, say so plainly ("no new findings") instead of padding the report to have something to show.
+
+### 6. Verify each survivor
+
+A confident wrong finding costs the author more to disprove than a missed nit costs to live with, so nothing reaches the report unverified:
+
+- State every survivor as a concrete *inputs → wrong outcome* at a specific `file:line`. If a finding can't be pinned down that precisely, drop it — a hedge is not a finding.
+- Don't settle a disputed claim by re-reading the diff. Where a finding asserts something about behavior — "no test would catch this," "this branch is unreachable," "this still works if X is removed" — mutate the code the way the claim implies (revert the fix, delete the binding, flip the boolean, remove the guard) and run the relevant test(s). If the suite still passes, the claim is false; drop it. If it fails, keep the finding and cite the test that caught it.
+
+### 7. Aggregate
 
 Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Do **not** merge or rerank findings, because the two axes are deliberately separate (see _Why two axes_).
 
