@@ -556,4 +556,38 @@ class SearchServiceTest : BehaviorSpec({
             }
         }
     }
+
+    given("A logged-in user who holds the zaakspecifiek_geautoriseerd role as an overall role") {
+        val zaaktypeWithoutFlag = "fakeZaaktypeWithoutFlag"
+        val queryResponse = mockk<QueryResponse>()
+        val solrDocumentList = mockk<SolrDocumentList>()
+        val solrParamsSlot = slot<SolrParams>()
+        val loggedInUser = createLoggedInUser(
+            applicationRolesPerZaaktype = mapOf(
+                zaaktypeWithoutFlag to setOf("fakeApplicationRole1")
+            ),
+            overallRoles = setOf(ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD)
+        )
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { solrClient.query(capture(solrParamsSlot)) } returns queryResponse
+        every { queryResponse.results } returns solrDocumentList
+        every { solrDocumentList.size } returns 0
+        every { solrDocumentList.iterator() } returns mutableListOf<SolrDocument>().iterator()
+        every { solrDocumentList.numFound } returns 0
+        every { queryResponse.facetFields } returns emptyList()
+
+        `when`("searching for all documents of type ZAAK") {
+            zoekService.search(createZoekParameters(zoekObjectType = ZoekObjectType.ZAAK))
+
+            then("no zaakspecifiek geautoriseerd exclusion filter is added, consistent with OPA granting the flag for every zaaktype") {
+                with(solrParamsSlot.captured) {
+                    getParams("fq") shouldBe arrayOf(
+                        """zaaktypeOmschrijving:"$zaaktypeWithoutFlag"""",
+                        "type:ZAAK"
+                    )
+                }
+            }
+        }
+    }
 })
