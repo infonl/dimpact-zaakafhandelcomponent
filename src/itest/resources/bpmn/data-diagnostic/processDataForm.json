@@ -43,7 +43,7 @@
           "key": "vergelijking_uitleg",
           "input": false,
           "tableView": false,
-          "html": "<h4>Two values, one answer</h4><p>Each row is one value that exists in more than one place. <strong>Read the right-hand column.</strong> Not because the left one is out of date &mdash; ZAC does keep it in step: reassigning the zaak calls <code>changeZaakDataAssignment</code>, and changing the communicatiekanaal calls <code>updateCommunicationChannelZaakVariabele</code>. The reasons are different, and they matter more:</p><ul><li><strong>Coverage.</strong> These eight are all you get. The zaak has startdatum, status, resultaat, omschrijving, toelichting, deadlines, kenmerken, besluiten, related zaken &mdash; none of which is a process variable and none of which ever will be. Reading the zaak means never asking for a new variable to be added.</li><li><strong>The sync is a promise, not a mechanism.</strong> It holds because two specific call sites remember to update it. Any new route that changes a behandelaar has to remember too. The zaak cannot fall out of step with itself.</li><li><strong>Two of them never arrive at all.</strong> <code>zaakUUID</code> and <code>zaaktypeUUID</code> are stripped from the task data by <code>TaskRestService.readFilteredZaakdata</code>, which is why their left cell is empty while the zaak has the value.</li></ul><p>Where a row shows <em>also <code>taak.…</code></em>, the taak carries the same value and reads it from those same process variables, so it is a third copy of the same thing rather than a third option.</p><p>The one row that is not really a comparison: <code>zaakGroep</code> is the group handling the <em>zaak</em>, while <code>taak.groep</code> is the group this <em>task</em> is offered to. Usually equal, not the same thing.</p>"
+          "html": "<h4>Two values, one answer</h4><p>Each row is one value that exists in more than one place. <strong>Read the right-hand column.</strong> Not because the left one is out of date &mdash; ZAC does keep it in step: reassigning the zaak calls <code>changeZaakDataAssignment</code>, and changing the communicatiekanaal calls <code>updateCommunicationChannelZaakVariabele</code>. The reasons are different, and they matter more:</p><ul><li><strong>Coverage.</strong> These eight are the only zaak values duplicated as process variables. The zaak has startdatum, status, resultaat, omschrijving, toelichting, deadlines, kenmerken, besluiten, related zaken &mdash; none of which is a process variable and none of which ever will be. Reading the zaak means never asking for a new variable to be added.</li><li><strong>The sync is a promise, not a mechanism.</strong> It holds because two specific call sites remember to update it. Any new route that changes a behandelaar has to remember too. The zaak cannot fall out of step with itself.</li><li><strong>Two of them never arrive at all.</strong> <code>zaakUUID</code> and <code>zaaktypeUUID</code> are stripped from the task data by <code>TaskRestService.readFilteredZaakdata</code>, which is why their left cell is empty while the zaak has the value.</li></ul><p>Where a row shows <em>also <code>taak.…</code></em>, the taak carries the same value and reads it from those same process variables, so it is a third copy of the same thing rather than a third option.</p><p>The one row that is not really a comparison: <code>zaakGroep</code> is the group handling the <em>zaak</em>, while <code>taak.groep</code> is the group this <em>task</em> is offered to. Usually equal, not the same thing.</p>"
         },
         {
           "type": "table",
@@ -53,7 +53,7 @@
           "numRows": 8,
           "numCols": 2,
           "header": [
-            "A process variable — only these eight exist",
+            "A process variable — only these zaak values are duplicated",
             "The zaak — every property, always"
           ],
           "caption": "",
@@ -293,10 +293,7 @@
           "tableView": false,
           "numRows": 1,
           "numCols": 2,
-          "header": [
-            "Stored on the task",
-            "Stored on the process"
-          ],
+          "header": ["Stored on the task", "Stored on the process"],
           "caption": "",
           "striped": true,
           "bordered": true,

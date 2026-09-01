@@ -9,7 +9,7 @@
       "key": "uitleg",
       "input": false,
       "tableView": false,
-      "html": "<h3>Zaak data in a form</h3><p>Every row shows one property of the zaak: on the left the expression, next to it what it renders. ZAC puts the zaak in the form's template context, so <code>zaak.identificatie</code> in a content component is all that is needed &mdash; there is no ZAC attribute or property involved. Nested properties work as you would expect: <code>zaak.zaaktype.omschrijving</code>.</p><p>Three helper functions come with it: <code>ZAC_opmaakDatum(zaak.startdatum)</code> and <code>ZAC_opmaakBoolean(zaak.isOpen)</code> for display, which takes two labels of its own &mdash; <code>ZAC_opmaakBoolean(zaak.isOpgeschort, &quot;Opgeschort&quot;, &quot;Loopt&quot;)</code> &mdash; and falls back to Ja and Nee, and <code>ZAC_opmaakLijst</code> to read one property of every element of a list. Several values can go in one sentence, which is what a content component is for.</p><p><strong>Almost nothing reports a mistake.</strong> A misspelled property renders as empty, and so does a property read through an object the zaak does not have &mdash; <code>zaak.behandelaar.naam</code> on an unassigned zaak is a correct expression, not a mistake, and renders nothing rather than failing. An object renders <code>[object Object]</code>. Only an unknown <em>function</em> is loud, and only in the browser console. The last panel shows each of those. Markup in a zaak value is removed before the form ever sees it, so a value cannot inject anything.</p><p>Every other row is wrapped in <code>ZAC_opmaakLegeWaarde</code>, so both behaviours are on screen at once: without it an empty property renders as nothing, with it as a dash. It is the same <code>empty</code> pipe the rest of ZAC uses, so a dash here means the same as a dash in the zaak screen.</p>"
+      "html": "<h3>Zaak data in a form</h3><p>Every row shows one property of the zaak: on the left the expression, next to it what it renders. ZAC puts the zaak in the form's template context, so <code>zaak.identificatie</code> in a content component is all that is needed &mdash; there is no ZAC attribute or property involved. Nested properties work as you would expect: <code>zaak.zaaktype.omschrijving</code>.</p><p>Helper functions come with it: <code>ZAC_opmaakDatum(zaak.startdatum)</code> and <code>ZAC_opmaakBoolean(zaak.isOpen)</code> for display, which takes two labels of its own &mdash; <code>ZAC_opmaakBoolean(zaak.isOpgeschort, &quot;Opgeschort&quot;, &quot;Loopt&quot;)</code> &mdash; and falls back to Ja and Nee, and <code>ZAC_opmaakLijst</code> to read one property of every element of a list. Several values can go in one sentence, which is what a content component is for.</p><p><strong>Almost nothing reports a mistake.</strong> A misspelled property renders as empty, and so does a property read through an object the zaak does not have &mdash; <code>zaak.behandelaar.naam</code> on an unassigned zaak is a correct expression, not a mistake, and renders nothing rather than failing. An object renders <code>[object Object]</code>. Only an unknown <em>function</em> is loud, and only in the browser console. The last panel shows each of those. Markup in a zaak value is removed before the form ever sees it, so a value cannot inject anything.</p><p>Every other row is wrapped in <code>ZAC_opmaakLegeWaarde</code>, so both behaviours are on screen at once: without it an empty property renders as nothing, with it as a dash. It is the same <code>empty</code> pipe the rest of ZAC uses, so a dash here means the same as a dash in the zaak screen.</p>"
     },
     {
       "type": "panel",
@@ -1736,7 +1736,7 @@
                     "key": "NAAM_besluiten_lijst_datum",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>ZAC_opmaakLijst(zaak.besluiten, \"datum\")</code> &mdash; wrapped in <code>ZAC_opmaakDatum()</code>"
+                    "html": "<code>ZAC_opmaakLijst(zaak.besluiten, \"datum\")</code> &mdash; ISO dates; the helpers cannot format dates inside a list"
                   }
                 ]
               },
@@ -1814,7 +1814,7 @@
                     "key": "NAAM_gerelateerdeZaken_lijst_startdatum",
                     "input": false,
                     "tableView": false,
-                    "html": "<code>ZAC_opmaakLijst(zaak.gerelateerdeZaken, \"startdatum\")</code> &mdash; wrapped in <code>ZAC_opmaakDatum()</code>"
+                    "html": "<code>ZAC_opmaakLijst(zaak.gerelateerdeZaken, \"startdatum\")</code> &mdash; ISO dates; the helpers cannot format dates inside a list"
                   }
                 ]
               },
@@ -1837,7 +1837,7 @@
     },
     {
       "type": "button",
-      "label": "Next",
+      "label": "Complete",
       "key": "submit",
       "disableOnInvalid": false,
       "input": true,
