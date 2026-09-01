@@ -12,6 +12,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.verify
 import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.inject.Instance
@@ -39,8 +40,31 @@ import nl.info.zac.task.TaskService
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
+import java.util.logging.Handler
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 
 const val SECRET = "fakeSecret"
+
+private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
+    val logger = Logger.getLogger(NotificationReceiver::class.java.name)
+    val records = mutableListOf<LogRecord>()
+    val handler = object : Handler() {
+        override fun publish(record: LogRecord) {
+            records.add(record)
+        }
+        override fun flush() = Unit
+        override fun close() = Unit
+    }
+    logger.addHandler(handler)
+    try {
+        block()
+    } finally {
+        logger.removeHandler(handler)
+    }
+    return records
+}
 
 class NotificationReceiverTest : BehaviorSpec({
     val eventingService = mockk<EventingService>()
@@ -321,25 +345,34 @@ class NotificationReceiverTest : BehaviorSpec({
         every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID) } throws
             RuntimeException("fake Solr failure")
-        every { managedExecutorService.submit(any()) } answers {
-            firstArg<Runnable>().run()
+        val submittedDocumentenReindexTask = slot<Runnable>()
+        every { managedExecutorService.submit(capture(submittedDocumentenReindexTask)) } returns
             CompletableFuture.completedFuture(null)
-        }
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
         `when`("notificatieReceive is called with the zaakeigenschap update notificatie") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
             then(
-                "the request still succeeds, the zaak and its taken are still reindexed, and the " +
-                    "failure to reindex the documenten does not propagate and abandon them silently"
+                "the request still succeeds and the zaak and its taken are still reindexed without " +
+                    "waiting for the documenten reindex, and running that submitted task afterwards " +
+                    "on its own thread does not let the failure escape uncaught, but logs it instead"
             ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
                     indexingService.addOrUpdateZaak(zaakUUID, false)
                     indexingService.addOrUpdateTakenForZaak(zaakUUID)
+                }
+                verify(exactly = 0) {
                     indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
                 }
+
+                val logRecords = captureLogRecords { submittedDocumentenReindexTask.captured.run() }
+
+                verify(exactly = 1) {
+                    indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
+                }
+                logRecords.map { it.level } shouldBe listOf(Level.WARNING)
             }
         }
     }
