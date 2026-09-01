@@ -112,12 +112,10 @@ to describe.
 
 ## Migration Plan
 
-Deploy-time only, no manual steps required for the schema change itself: the new `SolrSchemaVx` is picked up
-by `SolrDeployerService` on next startup and applies the schema changes. It does not trigger a reindex —
-`getTeHerindexerenZoekObjectTypes()` is empty for this version — so this deploy causes no reindex load and no
-deploy-time downtime on any environment, regardless of the number of zaken, taken, or documenten. As noted
-above, an environment that needs the field backfilled sooner than the later story can trigger a manual
-reindex of `ZAAK`, `TAAK`, and `DOCUMENT`. A later story in this epic adds the
+Deploy-time only, no manual steps: the new `SolrSchemaVx` is picked up by `SolrDeployerService` on next
+startup and applies the schema changes. It does not trigger a reindex — `getTeHerindexerenZoekObjectTypes()`
+is empty for this version — so this deploy causes no reindex load and no deploy-time downtime on any
+environment, regardless of the number of zaken, taken, or documenten. A later story in this epic adds the
 reindex, once zaken actually start being flagged zaakspecifiek geautoriseerd, following the same
 `SolrDeployerService`/`ManagedExecutorService` background-reindex mechanism used by prior schema versions
 (e.g. `SolrSchemaV7`). No rollback concerns beyond the existing schema-version mechanism (a later deploy
