@@ -8,6 +8,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -37,6 +38,7 @@ import {
 } from "@angular/material/table";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -52,6 +54,7 @@ import {
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { PutBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { ReadMoreComponent } from "../../shared/read-more/read-more.component";
 import {
@@ -143,6 +146,8 @@ export class InboxDocumentenListComponent
     },
   );
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly inboxDocumentenService: InboxDocumentenService,
     private readonly infoService: InformatieObjectenService,
@@ -172,10 +177,13 @@ export class InboxDocumentenListComponent
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
           this.updateListParameters();
-          return this.inboxDocumentenService.list({
-            ...this.listParametersSort,
-            ...this.listParameters,
-          });
+          return runQuery(
+            this.queryClient,
+            this.inboxDocumentenService.list({
+              ...this.listParametersSort,
+              ...this.listParameters,
+            }),
+          );
         }),
         map((data) => {
           this.isLoadingResults = false;
