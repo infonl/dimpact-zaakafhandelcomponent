@@ -1,0 +1,129 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2026 INFO.nl
+  ~ SPDX-License-Identifier: EUPL-1.2+
+-->
+
+<mat-card class="w100">
+  <mat-card-header class="flex-col gap-8">
+    <div class="flex-row">
+      <zac-zaak-indicaties
+        [layout]="indicatiesLayout.EXTENDED"
+        [zaak]="zaak()"
+      ></zac-zaak-indicaties>
+    </div>
+    <section class="flex-row space-between items-center">
+      <div>
+        <mat-card-title>
+          @if (zaak().isZaakspecifiekGeautoriseerd) {
+            <mat-icon
+              title="{{ 'zaak.isZaakspecifiekGeautoriseerd' | translate }}"
+              class="zaakspecifiek-geautoriseerd-icon"
+              >lock</mat-icon
+            >
+          }
+          {{ zaak().identificatie }}
+        </mat-card-title>
+        <mat-card-subtitle>{{
+          zaak().zaaktype.omschrijving
+        }}</mat-card-subtitle>
+      </div>
+    </section>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-tab-group mat-stretch-tabs="false">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>topic</mat-icon>
+          {{ "gegevens.algemeen" | translate }}</ng-template
+        >
+        <zac-zaak-details-algemeen-tab
+          [zaak]="zaak()"
+          [zaakOpschorting]="zaakOpschorting()"
+          (editCaseDetails)="editCaseDetails.emit()"
+        ></zac-zaak-details-algemeen-tab>
+      </mat-tab>
+      @if (zaak().zaakgeometrie) {
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>place</mat-icon>
+            {{ "locatie" | translate }}</ng-template
+          >
+          <div class="table-wrapper">
+            <div class="flex flex-col gap-10 mt-2">
+              <div class="flex flex-row space-between">
+                <zac-static-text
+                  label="coordinates"
+                  [value]="zaak().zaakgeometrie | location"
+                  class="flex-item"
+                />
+                @if (zaak().rechten.wijzigenLocatie) {
+                  @let editLocatieLabel =
+                    "actie.zaak.locatie.wijzigen" | translate;
+                  <button
+                    mat-icon-button
+                    (click)="editLocationDetails.emit()"
+                    [attr.aria-label]="editLocatieLabel"
+                    [title]="editLocatieLabel"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                }
+              </div>
+              <zac-locatie-tonen
+                [currentLocation]="zaak().zaakgeometrie"
+              ></zac-locatie-tonen>
+            </div>
+          </div>
+        </mat-tab>
+      }
+
+      @if (zaak().gerelateerdeZaken?.length) {
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>account_tree</mat-icon>
+            {{ "gerelateerdeZaken" | translate }}</ng-template
+          >
+          <zac-zaak-details-gerelateerde-zaken-tab
+            [gerelateerdeZaken]="zaak().gerelateerdeZaken ?? []"
+            (zaakOntkoppelen)="zaakOntkoppelen.emit($event)"
+          ></zac-zaak-details-gerelateerde-zaken-tab>
+        </mat-tab>
+      }
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>history</mat-icon>
+          {{ "historie" | translate }}
+        </ng-template>
+        <ng-template matTabContent>
+          <zac-zaak-historie [zaak]="zaak()"></zac-zaak-historie>
+        </ng-template>
+      </mat-tab>
+
+      @if (showBetrokkeneKoppelingen()) {
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>groups</mat-icon>
+            {{ "betrokkenen" | translate }}
+          </ng-template>
+
+          <zac-zaak-betrokkene-list [zaak]="zaak()"></zac-zaak-betrokkene-list>
+        </mat-tab>
+      }
+
+      @if (bagObjecten().length > 0) {
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>gps_fixed</mat-icon>
+            {{ "bagObjecten" | translate }}
+          </ng-template>
+          <zac-zaak-details-bag-objecten-tab
+            [bagObjecten]="bagObjecten()"
+            [isOntkoppelenToegestaan]="!!zaak().rechten.behandelen"
+            (bagObjectVerwijderen)="bagObjectVerwijderen.emit($event)"
+          ></zac-zaak-details-bag-objecten-tab>
+        </mat-tab>
+      }
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>

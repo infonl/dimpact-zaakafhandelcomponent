@@ -21,7 +21,6 @@ import { Observable, of } from "rxjs";
 import { createMutationOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../setupJest";
 import { UtilService } from "../../core/service/util.service";
-import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { KlantenService } from "../../klanten/klanten.service";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
@@ -127,10 +126,6 @@ describe(ZaakBetrokkeneListComponent.name, () => {
 
     fixture = TestBed.createComponent(ZaakBetrokkeneListComponent);
     fixture.componentRef.setInput("zaak", fakeZaak);
-    fixture.componentRef.setInput(
-      "zaakRollenListener",
-      fromPartial<WebsocketListener>({}),
-    );
     fixture.detectChanges();
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);

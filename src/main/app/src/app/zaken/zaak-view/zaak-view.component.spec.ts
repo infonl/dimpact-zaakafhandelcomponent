@@ -14,18 +14,21 @@ import {
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatIconHarness } from "@angular/material/icon/testing";
 import {
   MatNavListItemHarness,
   MatSubheaderHarness,
 } from "@angular/material/list/testing";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import {
+  provideQueryClient,
+  queryOptions,
+} from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import moment from "moment";
+import { within } from "@testing-library/angular";
 import { EMPTY, Observable, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
@@ -47,6 +50,7 @@ import { PersoonsgegevensComponent } from "../../klanten/persoonsgegevens/persoo
 import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
+import { RedenDialogFormComponent } from "../../shared/dialog/reden-dialog-form/reden-dialog-form.component";
 import { ZaakIndicatiesComponent } from "../../shared/indicaties/zaak-indicaties/zaak-indicaties.component";
 import { MaterialModule } from "../../shared/material/material.module";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
@@ -58,16 +62,20 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { ZaakBetrokkeneListComponent } from "../zaak-betrokkenen-list/zaak-betrokkene-list.component";
 import { ZaakBrondatumZettenDialogComponent } from "../zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component";
+import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
 import { ZaakTakenComponent } from "../zaak-taken/zaak-taken.component";
 import { ZakenService } from "../zaken.service";
+import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
   let loader: HarnessLoader;
+
+  const screen = () => within(fixture.nativeElement as HTMLElement);
 
   let utilService: UtilService;
   let zakenService: ZakenService;
@@ -123,6 +131,7 @@ describe(ZaakViewComponent.name, () => {
       imports: [
         ZaakDocumentenComponent,
         ZaakBetrokkeneListComponent,
+        ZaakDetailsCardComponent,
         ZaakInitiatorToevoegenComponent,
         BedrijfsgegevensComponent,
         ContactgegevensComponent,
@@ -187,6 +196,29 @@ describe(ZaakViewComponent.name, () => {
 
     takenService = TestBed.inject(TakenService);
     jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));
+
+    jest.spyOn(KlantenService.prototype, "readPersoon").mockReturnValue(
+      queryOptions({
+        queryKey: ["fakePersoon"],
+        queryFn: async () =>
+          fromPartial<GeneratedType<"RestPersoon">>({
+            naam: "fakePersoonNaam",
+            indicaties: [],
+          }),
+      }) as ReturnType<KlantenService["readPersoon"]>,
+    );
+    jest.spyOn(KlantenService.prototype, "readBedrijf").mockReturnValue(
+      queryOptions({
+        queryKey: ["fakeBedrijf"],
+        queryFn: async () =>
+          fromPartial<GeneratedType<"RestBedrijf">>({
+            naam: "fakeBedrijfNaam",
+            identificatieType: "VN",
+            vestigingsnummer: "fakeVestigingsnummer",
+            kvkNummer: "fakeKvkNummer",
+          }),
+      }) as ReturnType<KlantenService["readBedrijf"]>,
+    );
 
     TestBed.inject(KlantenService);
 
@@ -378,86 +410,6 @@ describe(ZaakViewComponent.name, () => {
         expect(button).toBeNull();
       });
     });
-  });
-
-  describe("dateFieldIconMap icon logic", () => {
-    const yesterdayDate = moment().subtract(1, "days").format("YYYY-MM-DD");
-    const today = moment().format("YYYY-MM-DD");
-    const tomorrowDate = moment().add(1, "days").format("YYYY-MM-DD");
-
-    beforeEach(async () => {
-      fixture = TestBed.createComponent(ZaakViewComponent);
-      mockActivatedRoute.data.next({
-        zaak: { ...zaak } as GeneratedType<"RestZaak">,
-      });
-
-      loader = TestbedHarnessEnvironment.loader(fixture);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-    });
-
-    it.each([
-      [
-        {
-          einddatum: null,
-          einddatumGepland: null,
-          uiterlijkeEinddatumAfdoening: yesterdayDate,
-        },
-        1,
-      ],
-      [
-        {
-          einddatum: null,
-          einddatumGepland: yesterdayDate,
-          uiterlijkeEinddatumAfdoening: yesterdayDate,
-        },
-        2,
-      ],
-      [
-        {
-          einddatum: null,
-          einddatumGepland: null,
-          uiterlijkeEinddatumAfdoening: yesterdayDate,
-        },
-        1,
-      ],
-      [
-        {
-          einddatum: null,
-          einddatumGepland: null,
-          uiterlijkeEinddatumAfdoening: null,
-        },
-        0,
-      ],
-      [
-        {
-          einddatum: null,
-          einddatumGepland: tomorrowDate,
-          uiterlijkeEinddatumAfdoening: tomorrowDate,
-        },
-        0,
-      ],
-      [
-        {
-          einddatum: today,
-          einddatumGepland: tomorrowDate,
-          uiterlijkeEinddatumAfdoening: tomorrowDate,
-        },
-        0,
-      ],
-    ])(
-      "shows the correct warning icons for overdue data",
-      async (zaakData, expectedIcons) => {
-        mockActivatedRoute.data.next({ zaak: { ...zaak, ...zaakData } });
-
-        const icons = await loader.getAllHarnesses(
-          MatIconHarness.with({ name: "report_problem" }),
-        );
-
-        expect(icons.length).toBe(expectedIcons);
-      },
-    );
   });
 
   describe("actie.ontvangstbevestiging.versturen", () => {
@@ -880,7 +832,9 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector("zac-notities")).toBeTruthy();
+      expect(
+        screen().getByRole("button", { name: "Notities" }),
+      ).toBeInTheDocument();
     });
 
     it("should render <zac-notities> when notitieRechten.wijzigen is true", () => {
@@ -890,7 +844,9 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector("zac-notities")).toBeTruthy();
+      expect(
+        screen().getByRole("button", { name: "Notities" }),
+      ).toBeInTheDocument();
     });
 
     it("should not render <zac-notities> when both notitieRechten.lezen and wijzigen are false", () => {
@@ -900,7 +856,7 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector("zac-notities")).toBeNull();
+      expect(screen().queryByRole("button", { name: "Notities" })).toBeNull();
     });
 
     it("should not render <zac-notities> when notitieRechten is absent", () => {
@@ -908,7 +864,7 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector("zac-notities")).toBeNull();
+      expect(screen().queryByRole("button", { name: "Notities" })).toBeNull();
     });
   });
 
@@ -939,11 +895,11 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        fixture.nativeElement.querySelector("zac-zaak-initiator-toevoegen"),
-      ).toBeTruthy();
+        screen().getByRole("button", { name: /msg.zaak.geen.initiator/ }),
+      ).toBeInTheDocument();
     });
 
-    it("should show zac-persoongegevens when initiator type is BSN", () => {
+    it("should show zac-persoongegevens when initiator type is BSN", async () => {
       mockActivatedRoute.data.next({
         zaak: {
           ...zaak,
@@ -964,12 +920,15 @@ describe(ZaakViewComponent.name, () => {
       });
       fixture.detectChanges();
 
+      await fixture.whenStable();
+      fixture.detectChanges();
+
       expect(
-        fixture.nativeElement.querySelector("zac-persoongegevens"),
-      ).toBeTruthy();
+        screen().getByRole("button", { name: /fakePersoonNaam/ }),
+      ).toBeInTheDocument();
     });
 
-    it("should show zac-bedrijfsgegevens when initiator type is VN", () => {
+    it("should show zac-bedrijfsgegevens when initiator type is VN", async () => {
       mockActivatedRoute.data.next({
         zaak: {
           ...zaak,
@@ -991,9 +950,12 @@ describe(ZaakViewComponent.name, () => {
       });
       fixture.detectChanges();
 
+      await fixture.whenStable();
+      fixture.detectChanges();
+
       expect(
-        fixture.nativeElement.querySelector("zac-bedrijfsgegevens"),
-      ).toBeTruthy();
+        screen().getByRole("button", { name: /fakeBedrijfNaam/ }),
+      ).toBeInTheDocument();
     });
 
     it("should show zac-contactgegevens when zaakSpecificContactDetails is present", () => {
@@ -1012,8 +974,10 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        fixture.nativeElement.querySelector("zac-contactgegevens"),
-      ).toBeTruthy();
+        screen().getByRole("button", {
+          name: /initiator.aanvraagspecifieke-contactgegevens/,
+        }),
+      ).toBeInTheDocument();
     });
 
     it("should not show zac-contactgegevens when zaakSpecificContactDetails has only empty fields", () => {
@@ -1040,11 +1004,13 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        fixture.nativeElement.querySelector("zac-contactgegevens"),
+        screen().queryByRole("button", {
+          name: /initiator.aanvraagspecifieke-contactgegevens/,
+        }),
       ).toBeNull();
       expect(
-        fixture.nativeElement.querySelector("zac-zaak-initiator-toevoegen"),
-      ).toBeTruthy();
+        screen().getByRole("button", { name: /msg.zaak.geen.initiator/ }),
+      ).toBeInTheDocument();
     });
 
     it("should hide the initiator section when no koppelingen are configured and zaakSpecificContactDetails has only empty fields", () => {
@@ -1073,10 +1039,12 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(
-        fixture.nativeElement.querySelector("zac-contactgegevens"),
+        screen().queryByRole("button", {
+          name: /initiator.aanvraagspecifieke-contactgegevens/,
+        }),
       ).toBeNull();
       expect(
-        fixture.nativeElement.querySelector("zac-zaak-initiator-toevoegen"),
+        screen().queryByRole("button", { name: /msg.zaak.geen.initiator/ }),
       ).toBeNull();
     });
   });
@@ -1416,256 +1384,6 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
-  describe("inactive group indicator", () => {
-    it("should show 'inactief' label when groep is inactive", () => {
-      mockActivatedRoute.data.next({
-        zaak: { ...zaak, groep: { id: "g1", naam: "Groep A", active: false } },
-      });
-      fixture.detectChanges();
-
-      const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector("em")?.textContent?.trim()).toBe("(inactief)");
-    });
-
-    it("should not show 'inactief' label when groep is active", () => {
-      mockActivatedRoute.data.next({
-        zaak: { ...zaak, groep: { id: "g1", naam: "Groep A", active: true } },
-      });
-      fixture.detectChanges();
-
-      const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector("em")).toBeNull();
-    });
-
-    it("should not crash when groep is null", () => {
-      mockActivatedRoute.data.next({ zaak: { ...zaak, groep: null } });
-      fixture.detectChanges();
-
-      const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector("em")).toBeNull();
-    });
-  });
-
-  describe("afleidingswijzeBrondatum", () => {
-    const findAfleidingswijzeField = () =>
-      fixture.debugElement
-        .queryAll((debugElement) => debugElement.name === "zac-static-text")
-        .find(
-          (debugElement) =>
-            debugElement.componentInstance.label === "afleidingswijzeBrondatum",
-        );
-
-    it("should show the field when afleidingswijze is set", () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
-            resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
-              bronArchiefprocedure: fromPartial<
-                GeneratedType<"BrondatumArchiefprocedure">
-              >({
-                afleidingswijze: "TERMIJN",
-              }),
-            }),
-          }),
-        },
-      });
-      fixture.detectChanges();
-
-      const field = findAfleidingswijzeField();
-
-      expect(field).toBeTruthy();
-      expect(field?.componentInstance.value).toBe(
-        "afleidingswijzeBrondatum.TERMIJN",
-      );
-    });
-
-    it("should show the datumKenmerkOmschrijving when afleidingswijze is EIGENSCHAP", () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
-            resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
-              datumKenmerkOmschrijving: "fakeDatumKenmerkOmschrijving",
-              bronArchiefprocedure: fromPartial<
-                GeneratedType<"BrondatumArchiefprocedure">
-              >({
-                afleidingswijze: "EIGENSCHAP",
-              }),
-            }),
-          }),
-        },
-      });
-      fixture.detectChanges();
-
-      const field = findAfleidingswijzeField();
-
-      expect(field).toBeTruthy();
-      expect(field?.componentInstance.value).toBe(
-        "fakeDatumKenmerkOmschrijving",
-      );
-    });
-
-    it("should not show the field when resultaat is absent", () => {
-      mockActivatedRoute.data.next({ zaak: { ...zaak, resultaat: null } });
-      fixture.detectChanges();
-
-      expect(findAfleidingswijzeField()).toBeUndefined();
-    });
-
-    it("should not show the field when resultaattype is absent", () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
-            resultaattype: null,
-          }),
-        },
-      });
-      fixture.detectChanges();
-
-      expect(findAfleidingswijzeField()).toBeUndefined();
-    });
-
-    it("should not show the field when bronArchiefprocedure is absent", () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
-            resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
-              bronArchiefprocedure: null,
-            }),
-          }),
-        },
-      });
-      fixture.detectChanges();
-
-      expect(findAfleidingswijzeField()).toBeUndefined();
-    });
-  });
-
-  describe("zaak detail grid", () => {
-    const gridPlaceholderCount = () =>
-      (fixture.nativeElement as HTMLElement).querySelectorAll(
-        ".zaak-grid .grid-placeholder",
-      ).length;
-
-    const detailFields = () =>
-      fixture.debugElement
-        .queryAll((debugElement) => debugElement.name === "zac-static-text")
-        .map(
-          (debugElement) =>
-            debugElement.componentInstance as StaticTextComponent,
-        );
-
-    const detailFieldLabels = () => detailFields().map(({ label }) => label);
-
-    const findDetailField = (label: string) =>
-      detailFields().find((staticText) => staticText.label === label);
-
-    it("should format date fields with the datum pipe", () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          registratiedatum: "2026-01-15",
-          einddatum: "2026-03-31",
-        },
-      });
-      fixture.detectChanges();
-
-      // the datum pipe renders non-breaking hyphens so a date never wraps
-      expect(findDetailField("registratiedatum")?.value).toBe("15‑01‑2026");
-      expect(findDetailField("einddatum")?.value).toBe("31‑03‑2026");
-    });
-
-    // the edit button occupies the action column, so grant the right that renders
-    // it — otherwise its @else placeholder is counted along with the row closers
-    const zaakWithAllDetailFields = {
-      ...zaak,
-      rechten: { ...zaak.rechten, wijzigen: true },
-      einddatum: "2026-01-15",
-      startdatumBewaartermijn: "2026-02-15",
-      archiefNominatie: "BLIJVEND_BEWAREN",
-      resultaat: fromPartial<GeneratedType<"RestZaakResultaat">>({
-        resultaattype: fromPartial<GeneratedType<"RestResultaattype">>({
-          naam: "fakeResultaattypeNaam",
-          bronArchiefprocedure: fromPartial<
-            GeneratedType<"BrondatumArchiefprocedure">
-          >({
-            afleidingswijze: "TERMIJN",
-          }),
-        }),
-      }),
-    } satisfies GeneratedType<"RestZaak">;
-
-    it("should close every row of three fields when all fields are shown", () => {
-      mockActivatedRoute.data.next({ zaak: zaakWithAllDetailFields });
-      fixture.detectChanges();
-
-      expect(detailFieldLabels()).toEqual(
-        expect.arrayContaining([
-          "status",
-          "registratiedatum",
-          "resultaat",
-          "einddatum",
-          "startdatumBewaartermijn",
-          "afleidingswijzeBrondatum",
-          "archiefNominatie",
-        ]),
-      );
-      // seven visible fields, so rows three and six need closing
-      expect(gridPlaceholderCount()).toBe(2);
-    });
-
-    it("should keep the rows aligned when conditional fields are hidden", () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          rechten: { ...zaak.rechten, wijzigen: true },
-          einddatum: null,
-          startdatumBewaartermijn: null,
-          archiefNominatie: "VERNIETIGEN",
-          resultaat: null,
-        },
-      });
-      fixture.detectChanges();
-
-      const labels = detailFieldLabels();
-
-      expect(labels).toEqual(
-        expect.arrayContaining([
-          "status",
-          "registratiedatum",
-          "resultaat",
-          "archiefNominatie.datum.VERNIETIGEN",
-        ]),
-      );
-      expect(labels).not.toContain("einddatum");
-      expect(labels).not.toContain("startdatumBewaartermijn");
-      expect(labels).not.toContain("afleidingswijzeBrondatum");
-      // four visible fields, so only row three needs closing
-      expect(gridPlaceholderCount()).toBe(1);
-    });
-
-    it("should fill the action column when the user may not edit the zaak", async () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaakWithAllDetailFields,
-          rechten: { ...zaak.rechten, wijzigen: false, toekennen: false },
-        },
-      });
-      fixture.detectChanges();
-
-      const editIcon = await loader.getHarnessOrNull(
-        MatIconHarness.with({ name: "edit" }),
-      );
-
-      expect(editIcon).toBeNull();
-      // the two row closers plus one standing in for the missing edit button
-      expect(gridPlaceholderCount()).toBe(3);
-    });
-  });
-
   describe("zaak from cache", () => {
     beforeEach(() => {
       mockActivatedRoute.data.next({ zaak });
@@ -1815,6 +1533,20 @@ describe(ZaakViewComponent.name, () => {
       expect(utilService.openSnackbar).toHaveBeenCalled();
     });
 
+    it("renders the changed zaak in the details card", async () => {
+      const pending = zaakChangedCallback(zaakChangedEvent);
+      await flushRefetch({
+        ...zaak,
+        status: fromPartial<GeneratedType<"RestZaakStatus">>({
+          naam: "fakeChangedStatusNaam",
+        }),
+      });
+      await pending;
+      fixture.detectChanges();
+
+      expect(screen().getByText("fakeChangedStatusNaam")).toBeInTheDocument();
+    });
+
     it("reloads the bag objecten, which are fetched separately from the zaak", async () => {
       jest.mocked(bagService.list).mockClear();
 
@@ -1904,6 +1636,59 @@ describe(ZaakViewComponent.name, () => {
       zaakRollenCallback(rollenEvent(Opcode.UPDATED));
 
       expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+    });
+
+    it("invalidates the historie query, which lists the rol changes", () => {
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
+
+      zaakRollenCallback(rollenEvent(Opcode.UPDATED));
+
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
+      });
+    });
+  });
+
+  describe("zaak besluiten websocket listener", () => {
+    let zaakBesluitenCallback: (event: ScreenEvent) => void;
+
+    beforeEach(() => {
+      // The documenten list subscribes to the same object type through the
+      // plain `addListener`, so only the snackbar variant is the zaak view's.
+      jest
+        .spyOn(websocketService, "addListenerWithSnackbar")
+        .mockImplementation((_opcode, objectType, _objectId, callback) => {
+          if (objectType === ObjectType.ZAAK_BESLUITEN) {
+            zaakBesluitenCallback = callback as (event: ScreenEvent) => void;
+          }
+          return fromPartial<WebsocketListener>({});
+        });
+
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+    });
+
+    it("puts the reloaded besluiten on the cached zaak", () => {
+      const besluit = fromPartial<GeneratedType<"RestBesluit">>({
+        toelichting: "fakeBesluitToelichting",
+      });
+      jest
+        .spyOn(zakenService, "listBesluitenForZaak")
+        .mockReturnValue(of([besluit]));
+
+      zaakBesluitenCallback(
+        new ScreenEvent(
+          Opcode.UPDATED,
+          ObjectType.ZAAK_BESLUITEN,
+          new ScreenEventId(zaak.uuid),
+        ),
+      );
+
+      expect(
+        testQueryClient.getQueryData(
+          zakenService.readZaakQuery(zaak.uuid).queryKey,
+        ),
+      ).toEqual(expect.objectContaining({ besluiten: [besluit] }));
     });
   });
 
@@ -2046,31 +1831,87 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
-  describe("zaakspecifiek geautoriseerd lock icon", () => {
-    it("shows the lock icon when the zaak is zaakspecifiek geautoriseerd", async () => {
+  describe("wiring between the zaak view and the details card", () => {
+    const detailsCard = () =>
+      fixture.debugElement.query(By.directive(ZaakDetailsCardComponent))
+        .componentInstance as ZaakDetailsCardComponent;
+
+    let openSideNav: jest.SpyInstance;
+
+    beforeEach(() => {
       mockActivatedRoute.data.next({
-        zaak: { ...zaak, isZaakspecifiekGeautoriseerd: true },
+        zaak: {
+          ...zaak,
+          rechten: { ...zaak.rechten, wijzigen: true, wijzigenLocatie: true },
+        },
       });
       fixture.detectChanges();
-
-      const lockIcon = await loader.getHarnessOrNull(
-        MatIconHarness.with({ name: "lock" }),
-      );
-
-      expect(lockIcon).not.toBeNull();
+      openSideNav = jest
+        .spyOn(fixture.componentInstance.actionsSidenav, "open")
+        .mockResolvedValue("open");
     });
 
-    it("does not show the lock icon when the zaak is not zaakspecifiek geautoriseerd", async () => {
-      mockActivatedRoute.data.next({
-        zaak: { ...zaak, isZaakspecifiekGeautoriseerd: false },
-      });
-      fixture.detectChanges();
+    it("opens the wijzigen side action when the card asks to edit the zaak", () => {
+      detailsCard().editCaseDetails.emit();
 
-      const lockIcon = await loader.getHarnessOrNull(
-        MatIconHarness.with({ name: "lock" }),
+      expect(openSideNav).toHaveBeenCalled();
+      expect(fixture.componentInstance["activeSideAction"]).toBe(
+        "actie.zaak.wijzigen",
+      );
+    });
+
+    it("opens the locatie side action when the card asks to edit the locatie", () => {
+      detailsCard().editLocationDetails.emit();
+
+      expect(openSideNav).toHaveBeenCalled();
+      expect(fixture.componentInstance["activeSideAction"]).toBe(
+        "actie.zaak.locatie.koppelen",
+      );
+    });
+
+    it("opens the ontkoppelen dialog for the gerelateerde zaak the card reports", () => {
+      const dialog = TestBed.inject(MatDialog);
+      jest.mocked(dialog.open).mockClear();
+
+      detailsCard().zaakOntkoppelen.emit(
+        fromPartial<GeneratedType<"RestGerelateerdeZaak">>({
+          identificatie: "fakeGerelateerdeZaakIdentificatie",
+          relatieType: "VERVOLG",
+        }),
       );
 
-      expect(lockIcon).toBeNull();
+      expect(jest.mocked(dialog.open).mock.calls.at(-1)![1]).toMatchObject({
+        data: {
+          zaakUuid: zaak.uuid,
+          gekoppeldeZaakIdentificatie: "fakeGerelateerdeZaakIdentificatie",
+          relatieType: "VERVOLG",
+        },
+      });
+    });
+
+    it("opens the verwijder dialog for the bag object the card reports", () => {
+      const zaakDialogService = TestBed.inject(ZaakDialogService);
+      const openVerwijderBagObject = jest
+        .spyOn(zaakDialogService, "openVerwijderBagObject")
+        .mockReturnValue(
+          fromPartial<MatDialogRef<RedenDialogFormComponent>>({
+            afterClosed: () => of(undefined),
+          }),
+        );
+
+      detailsCard().bagObjectVerwijderen.emit(
+        fromPartial<GeneratedType<"RESTBAGObjectGegevens">>({
+          uuid: "fakeBagObjectGegevensUuid",
+          zaakobject: fromPartial<GeneratedType<"RESTBAGObject">>({
+            omschrijving: "fakeBagObjectOmschrijving",
+          }),
+        }),
+      );
+
+      expect(openVerwijderBagObject).toHaveBeenCalledWith(
+        "fakeBagObjectOmschrijving",
+        expect.any(Function),
+      );
     });
   });
 });
