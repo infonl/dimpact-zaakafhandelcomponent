@@ -83,15 +83,6 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   resultaattype?: GeneratedType<"RestResultaattype"> | null;
 };
 
-interface AlgemeenFormControls {
-  caseDefinition: FormControl<GeneratedType<"RESTCaseDefinition"> | null>;
-  defaultGroep: FormControl<GeneratedType<"RestGroup"> | null>;
-  defaultBehandelaar: FormControl<GeneratedType<"RestUser"> | null>;
-  einddatumGeplandWaarschuwing: FormControl<number | null>;
-  uiterlijkeEinddatumAfdoeningWaarschuwing: FormControl<number | null>;
-  productaanvraagtype: FormControl<string | null>;
-}
-
 @Component({
   selector: "zac-parameters-edit-cmmn",
   templateUrl: "./parameters-edit-cmmn.component.html",
@@ -191,7 +182,7 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     }>({ label: "CMMN", value: "CMMN" }, []),
   });
 
-  algemeenFormGroup: FormGroup<AlgemeenFormControls> =
+  algemeenFormGroup =
     this.formBuilder.group({
       caseDefinition:
         this.formBuilder.control<GeneratedType<"RESTCaseDefinition"> | null>(
