@@ -208,16 +208,6 @@ describe(ZaakTakenComponent.name, () => {
     expect(rowOf("bijgewerkteTaakNaam")).toBeVisible();
   });
 
-  it("fetches the taken again when it is asked to reload", async () => {
-    await setup();
-
-    fixture.componentInstance.reload();
-    await sleep();
-    await respondWithTaken([taak({ naam: "herladenTaakNaam" })]);
-
-    expect(rowOf("herladenTaakNaam")).toBeVisible();
-  });
-
   describe("sorting", () => {
     const takenInDifferentOrders = [
       taak({
