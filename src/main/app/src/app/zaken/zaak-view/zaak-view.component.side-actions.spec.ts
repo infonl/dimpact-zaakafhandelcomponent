@@ -291,31 +291,35 @@ describe(ZaakViewComponent.name, () => {
     );
 
     it("does not refetch the zaak when the mail was not sent", () => {
-      const readZaak = jest.spyOn(zakenService, "readZaak");
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
       fixture.componentInstance["mailVerstuurd"](false);
 
       expect(closeSideNav).toHaveBeenCalled();
-      expect(readZaak).not.toHaveBeenCalled();
+      expect(invalidateSpy).not.toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
     });
 
     it("does not refetch the zaak when the ontvangstbevestiging was not sent", () => {
-      const readZaak = jest.spyOn(zakenService, "readZaak");
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
       fixture.componentInstance["ontvangstBevestigd"](false);
 
       expect(closeSideNav).toHaveBeenCalled();
-      expect(readZaak).not.toHaveBeenCalled();
+      expect(invalidateSpy).not.toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
     });
 
     it("refetches the zaak once a taak has been started", () => {
-      const readZaak = jest
-        .spyOn(zakenService, "readZaak")
-        .mockReturnValue(of(zaak));
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
       fixture.componentInstance["taakGestart"]();
 
-      expect(readZaak).toHaveBeenCalledWith(zaak.uuid);
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
     });
   });
 

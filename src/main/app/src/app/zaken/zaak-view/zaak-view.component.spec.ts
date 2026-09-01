@@ -589,13 +589,13 @@ describe(ZaakViewComponent.name, () => {
     });
 
     it("refetches the zaak, which carries the groep, behandelaar and rechten", () => {
-      const readZaakSpy = jest
-        .spyOn(zakenService, "readZaak")
-        .mockReturnValue(of(zaak));
+      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
 
       zaakRollenCallback(rollenEvent(Opcode.UPDATED));
 
-      expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
     });
 
     it("invalidates the historie query, which lists the rol changes", () => {

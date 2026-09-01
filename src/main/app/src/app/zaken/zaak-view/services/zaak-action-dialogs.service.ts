@@ -63,9 +63,9 @@ export class ZaakActionDialogsService {
 
   /** Refetches the zaak into the cache; also used outside any dialog. */
   refreshZaak(zaak: Zaak) {
-    this.zakenService
-      .readZaak(zaak.uuid)
-      .subscribe((refreshed) => this.zakenService.cacheZaak(refreshed));
+    this.queryClient.invalidateQueries({
+      queryKey: this.zakenService.readZaakQuery(zaak.uuid).queryKey,
+    });
   }
 
   private refreshTaken(zaak: Zaak) {

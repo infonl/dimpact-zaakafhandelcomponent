@@ -32,6 +32,7 @@ describe(ZaakActionDialogsService.name, () => {
   let sideActions: ZaakSideActionService;
   let zakenService: ZakenService;
   let takenService: TakenService;
+  let invalidateSpy: jest.SpyInstance;
   let utilService: UtilService;
   let zaakDialogService: ZaakDialogService;
   let openDialog: jest.SpyInstance;
@@ -85,7 +86,7 @@ describe(ZaakActionDialogsService.name, () => {
 
     jest.spyOn(utilService, "openSnackbar").mockImplementation();
     jest.spyOn(zakenService, "cacheZaak").mockImplementation();
-    jest.spyOn(zakenService, "readZaak").mockReturnValue(of(zaak));
+    invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
   });
 
   describe("openAfsluiten", () => {
@@ -99,12 +100,13 @@ describe(ZaakActionDialogsService.name, () => {
     });
 
     it("refetches the zaak, refreshes the taken and reports success when confirmed", () => {
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
       service.openAfsluiten(zaak);
 
       closedWith(true);
 
-      expect(zakenService.readZaak).toHaveBeenCalledWith(zaak.uuid);
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
       });
@@ -121,7 +123,9 @@ describe(ZaakActionDialogsService.name, () => {
 
       expect(sideActions.activeAction()).toBeNull();
       expect(utilService.openSnackbar).not.toHaveBeenCalled();
-      expect(zakenService.readZaak).not.toHaveBeenCalled();
+      expect(invalidateSpy).not.toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
     });
   });
 
@@ -147,7 +151,9 @@ describe(ZaakActionDialogsService.name, () => {
       closedWith(returnedZaak);
 
       expect(zakenService.cacheZaak).toHaveBeenCalledWith(returnedZaak);
-      expect(zakenService.readZaak).not.toHaveBeenCalled();
+      expect(invalidateSpy).not.toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
     });
 
     it("refetches the zaak when the dialog only confirms", () => {
@@ -158,7 +164,9 @@ describe(ZaakActionDialogsService.name, () => {
       service.openAfbreken(zaak);
       closedWith(true);
 
-      expect(zakenService.readZaak).toHaveBeenCalledWith(zaak.uuid);
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.zaak.afgebroken",
       );
@@ -226,7 +234,6 @@ describe(ZaakActionDialogsService.name, () => {
 
   describe("openOpschorten", () => {
     it("caches the returned zaak without refreshing the taken", () => {
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
       const returnedZaak = fromPartial<GeneratedType<"RestZaak">>({
         uuid: zaak.uuid,
       });
@@ -253,7 +260,6 @@ describe(ZaakActionDialogsService.name, () => {
     });
 
     it("caches the returned zaak without refreshing the taken", () => {
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
       const returnedZaak = fromPartial<GeneratedType<"RestZaak">>({
         uuid: zaak.uuid,
       });
@@ -282,7 +288,6 @@ describe(ZaakActionDialogsService.name, () => {
 
   describe("openHeropenen", () => {
     it("refreshes the taken and reports success when the dialog confirms", () => {
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
       jest
         .spyOn(zaakDialogService, "openHeropenen")
         .mockReturnValue(dialogRefClosingWith());
@@ -290,7 +295,9 @@ describe(ZaakActionDialogsService.name, () => {
       service.openHeropenen(zaak);
       closedWith(true);
 
-      expect(zakenService.readZaak).toHaveBeenCalledWith(zaak.uuid);
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
       });
@@ -312,12 +319,12 @@ describe(ZaakActionDialogsService.name, () => {
     });
 
     it("refetches the zaak, refreshes the taken and reports success when confirmed", () => {
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
-
       service.openBrondatumZetten(zaak);
       closedWith(true);
 
-      expect(zakenService.readZaak).toHaveBeenCalledWith(zaak.uuid);
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
       });
@@ -385,7 +392,9 @@ describe(ZaakActionDialogsService.name, () => {
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.planitem.uitgevoerd.INTAKE_AFRONDEN",
       );
-      expect(zakenService.readZaak).toHaveBeenCalledWith(zaak.uuid);
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
     });
   });
 
@@ -414,7 +423,9 @@ describe(ZaakActionDialogsService.name, () => {
 
       closedWith(true);
 
-      expect(zakenService.readZaak).toHaveBeenCalledWith(zaak.uuid);
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
       expect(utilService.openSnackbar).toHaveBeenCalledWith(
         "msg.zaak.ontkoppelen.uitgevoerd",
       );

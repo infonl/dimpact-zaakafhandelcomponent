@@ -171,6 +171,18 @@ describe(ZaakViewComponent.name, () => {
     jest.spyOn(utilService, "setTitle").mockImplementation();
 
     zakenService = TestBed.inject(ZakenService);
+    // Invalidating the zaak query refetches it; serve the refetch from the
+    // cache so the harness has a stable zone to wait on.
+    const readZaakQuery = zakenService.readZaakQuery.bind(zakenService);
+    jest
+      .spyOn(zakenService, "readZaakQuery")
+      .mockImplementation((uuid: string) => ({
+        ...readZaakQuery(uuid),
+        queryFn: async () =>
+          testQueryClient.getQueryData(
+            readZaakQuery(uuid).queryKey,
+          ) as GeneratedType<"RestZaak">,
+      }));
     jest
       .spyOn(zakenService, "readOpschortingZaak")
       .mockReturnValue(
@@ -652,7 +664,6 @@ describe(ZaakViewComponent.name, () => {
 
     it("should update the zaak, reload the taken and show a snackbar when the dialog closes with a result", async () => {
       mockActivatedRoute.data.next({ zaak: brondatumZettenZaak });
-      const readZaakSpy = jest.spyOn(zakenService, "readZaak");
       const snackbarSpy = jest.spyOn(utilService, "openSnackbar");
       jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
 
@@ -664,7 +675,9 @@ describe(ZaakViewComponent.name, () => {
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
       await button.click();
 
-      expect(readZaakSpy).toHaveBeenCalledWith(brondatumZettenZaak.uuid);
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(brondatumZettenZaak.uuid).queryKey,
+      });
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: takenService.listTakenVoorZaakQuery(brondatumZettenZaak.uuid)
           .queryKey,
@@ -712,15 +725,14 @@ describe(ZaakViewComponent.name, () => {
 
     it("falls back to a refetch when the dialog closes with a confirmation-only result", () => {
       jest.spyOn(zakenService, "cacheZaak").mockImplementation();
-      const readZaakSpy = jest
-        .spyOn(zakenService, "readZaak")
-        .mockReturnValue(of(zaak));
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
       jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
 
       dialogs.openAfbreken(zaak);
 
-      expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
       });
@@ -751,15 +763,14 @@ describe(ZaakViewComponent.name, () => {
 
     it("falls back to a refetch when the dialog closes with a confirmation-only result", () => {
       jest.spyOn(zakenService, "cacheZaak").mockImplementation();
-      const readZaakSpy = jest
-        .spyOn(zakenService, "readZaak")
-        .mockReturnValue(of(zaak));
       const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
       jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
 
       dialogs.openHeropenen(zaak);
 
-      expect(readZaakSpy).toHaveBeenCalledWith(zaak.uuid);
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
       });
