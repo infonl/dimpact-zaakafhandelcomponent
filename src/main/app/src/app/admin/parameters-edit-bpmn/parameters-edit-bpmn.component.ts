@@ -47,13 +47,13 @@ import {
   ConfirmDialogData,
 } from "src/app/shared/confirm-dialog/confirm-dialog.component";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
-import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import {
   ProcessModelMethod,
   ProcessModelMethodSelection,
 } from "../model/parameters/process-model-method";
+import { ParametersGegevensComponent } from "../parameters-components/parameters-gegevens/parameters-gegevens.component";
 import { SmartDocumentsFormComponent } from "../parameters-components/smart-documents-form/smart-documents-form.component";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
@@ -96,7 +96,7 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     MatTableModule,
     TranslateModule,
     MaterialFormBuilderModule,
-    StaticTextComponent,
+    ParametersGegevensComponent,
     SmartDocumentsFormComponent,
   ],
 })
@@ -188,20 +188,18 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   protected brpProcessingValues: string[] = [];
   protected brpDoelbindingSetupEnabled = false;
 
-  protected algemeenFormGroup = this.formBuilder.group({
-    bpmnDefinition:
-      this.formBuilder.control<GeneratedType<"RestBpmnProcessDefinition"> | null>(
-        null,
-        [Validators.required],
-      ),
-    defaultGroep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(
-      null,
-      [Validators.required],
-    ),
-    defaultBehandelaar:
-      this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
-    productaanvraagtype: this.formBuilder.control<string | null>(null),
-  });
+  protected algemeenFormGroup =
+    this.formBuilder.group({
+      bpmnDefinition: this.formBuilder.control<
+        GeneratedType<"RestBpmnProcessDefinition"> | null
+      >(null, [Validators.required]),
+      defaultGroep: this.formBuilder.control<
+        GeneratedType<"RestGroup"> | null
+      >(null, [Validators.required]),
+      defaultBehandelaar:
+        this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
+      productaanvraagtype: this.formBuilder.control<string | null>(null),
+    });
 
   constructor(
     private readonly route: ActivatedRoute,

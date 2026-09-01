@@ -61,6 +61,7 @@ import {
   ProcessModelMethod,
   ProcessModelMethodSelection,
 } from "../model/parameters/process-model-method";
+import { ParametersGegevensComponent } from "../parameters-components/parameters-gegevens/parameters-gegevens.component";
 import { SmartDocumentsFormComponent } from "../parameters-components/smart-documents-form/smart-documents-form.component";
 import { ReferentieTabelService } from "../referentie-tabel.service";
 import { ZaakafhandelParametersService } from "../zaakafhandel-parameters.service";
@@ -81,6 +82,15 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
   zaakbeeindigReden?: GeneratedType<"RestZaakbeeindigReden">;
   resultaattype?: GeneratedType<"RestResultaattype"> | null;
 };
+
+interface AlgemeenFormControls {
+  caseDefinition: FormControl<GeneratedType<"RESTCaseDefinition"> | null>;
+  defaultGroep: FormControl<GeneratedType<"RestGroup"> | null>;
+  defaultBehandelaar: FormControl<GeneratedType<"RestUser"> | null>;
+  einddatumGeplandWaarschuwing: FormControl<number | null>;
+  uiterlijkeEinddatumAfdoeningWaarschuwing: FormControl<number | null>;
+  productaanvraagtype: FormControl<string | null>;
+}
 
 @Component({
   selector: "zac-parameters-edit-cmmn",
@@ -106,6 +116,7 @@ type RestPristineZaakbeeindigParameterFormData = Omit<
     TranslateModule,
     MaterialFormBuilderModule,
     SharedModule,
+    ParametersGegevensComponent,
     SmartDocumentsFormComponent,
   ],
 })
@@ -180,27 +191,27 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     }>({ label: "CMMN", value: "CMMN" }, []),
   });
 
-  algemeenFormGroup = this.formBuilder.group({
-    caseDefinition:
-      this.formBuilder.control<GeneratedType<"RESTCaseDefinition"> | null>(
+  algemeenFormGroup: FormGroup<AlgemeenFormControls> =
+    this.formBuilder.group({
+      caseDefinition:
+        this.formBuilder.control<GeneratedType<"RESTCaseDefinition"> | null>(
+          null,
+          [Validators.required],
+        ),
+      defaultGroep: this.formBuilder.control<
+        GeneratedType<"RestGroup"> | null
+      >(null, [Validators.required]),
+      defaultBehandelaar:
+        this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
+      einddatumGeplandWaarschuwing: this.formBuilder.control<number | null>(
         null,
-        [Validators.required],
+        [Validators.min(0), Validators.max(31)],
       ),
-    defaultGroep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(
-      null,
-      [Validators.required],
-    ),
-    defaultBehandelaar:
-      this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
-    einddatumGeplandWaarschuwing: this.formBuilder.control<number | null>(
-      null,
-      [Validators.min(0), Validators.max(31)],
-    ),
-    uiterlijkeEinddatumAfdoeningWaarschuwing: this.formBuilder.control<
-      number | null
-    >(null, [Validators.min(0)]),
-    productaanvraagtype: this.formBuilder.control<string | null>(null),
-  });
+      uiterlijkeEinddatumAfdoeningWaarschuwing: this.formBuilder.control<
+        number | null
+      >(null, [Validators.min(0)]),
+      productaanvraagtype: this.formBuilder.control<string | null>(null),
+    });
 
   humanTasksFormGroup = new FormGroup({});
   userEventListenersFormGroup = new FormGroup({});
