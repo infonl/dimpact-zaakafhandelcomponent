@@ -4,242 +4,177 @@
  */
 
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
-import {
-  ComponentFixture,
-  fakeAsync,
-  TestBed,
-  tick,
-} from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { Subject } from "rxjs";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { fromPartial } from "src/test-helpers";
-import { UtilService } from "../../core/service/util.service";
+import { sleep, testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { ContactmomentenService } from "../contactmomenten.service";
 import { KlantContactmomentenTabelComponent } from "./klant-contactmomenten-tabel.component";
 
-const makeContactmoment = (
-  fields: Partial<GeneratedType<"RestContactmoment">> = {},
-): GeneratedType<"RestContactmoment"> =>
-  ({
-    registratiedatum: null,
-    kanaal: null,
-    tekst: null,
-    initiatiefnemer: null,
-    medewerker: null,
-    ...fields,
-  }) as Partial<
-    GeneratedType<"RestContactmoment">
-  > as unknown as GeneratedType<"RestContactmoment">;
-
-const makeResultaat = (
-  resultaten: GeneratedType<"RestContactmoment">[] = [],
-  totaal = 0,
-): GeneratedType<"RESTResultaatRestContactmoment"> =>
-  fromPartial<GeneratedType<"RESTResultaatRestContactmoment">>({
-    resultaten,
-    totaal,
-  });
-
 describe(KlantContactmomentenTabelComponent.name, () => {
-  let component: KlantContactmomentenTabelComponent;
-  let fixture: ComponentFixture<KlantContactmomentenTabelComponent>;
-  let contactmomentenService: ContactmomentenService;
-  let utilService: UtilService;
-  let listSubject: Subject<GeneratedType<"RESTResultaatRestContactmoment">>;
+  const user = userEvent.setup();
 
-  beforeEach(async () => {
-    listSubject = new Subject();
+  let resolveContactmomenten: (
+    resultaat: GeneratedType<"RESTResultaatRestContactmoment">,
+  ) => void;
+  let detectChanges: () => void;
+  let rerender: (options: {
+    inputs: { bsn?: string; vestigingsnummer?: string };
+  }) => Promise<void>;
 
-    await TestBed.configureTestingModule({
-      imports: [
-        KlantContactmomentenTabelComponent,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
+  const listContactmomenten = jest.fn(() => ({
+    queryKey: ["contactmomenten", listContactmomenten.mock.calls.length],
+    queryFn: () =>
+      new Promise<GeneratedType<"RESTResultaatRestContactmoment">>(
+        (resolve) => (resolveContactmomenten = resolve),
+      ),
+  }));
+
+  function lastSearch() {
+    return listContactmomenten.mock.lastCall![0] as Parameters<
+      ContactmomentenService["listContactmomenten"]
+    >[0];
+  }
+
+  async function setup(inputs: { bsn?: string; vestigingsnummer?: string }) {
+    const rendered = await render(KlantContactmomentenTabelComponent, {
+      inputs,
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [
+        provideQueryClient(testQueryClient),
+        provideHttpClient(),
+        {
+          provide: ContactmomentenService,
+          useValue: fromPartial<ContactmomentenService>({
+            listContactmomenten: listContactmomenten as never,
+          }),
+        },
       ],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
-    }).compileComponents();
+    });
 
-    contactmomentenService = TestBed.inject(ContactmomentenService);
-    utilService = TestBed.inject(UtilService);
+    detectChanges = rendered.detectChanges;
+    rerender = rendered.rerender;
+    await sleep();
+    detectChanges();
+  }
 
-    jest
-      .spyOn(contactmomentenService, "listContactmomenten")
-      .mockReturnValue(listSubject.asObservable());
-    jest.spyOn(utilService, "setLoading").mockImplementation(() => undefined);
+  async function receive(
+    resultaten: GeneratedType<"RestContactmoment">[],
+    totaal = resultaten.length,
+  ) {
+    resolveContactmomenten(
+      fromPartial<GeneratedType<"RESTResultaatRestContactmoment">>({
+        resultaten,
+        totaal,
+      }),
+    );
+    await sleep();
+    // the table creates the row views in one pass and binds their cells in the next
+    detectChanges();
+    detectChanges();
+  }
 
-    fixture = TestBed.createComponent(KlantContactmomentenTabelComponent);
-    component = fixture.componentInstance;
+  it("searches the contactmomenten of a persoon", async () => {
+    await setup({ bsn: "999993896" });
+
+    expect(lastSearch()).toEqual(
+      expect.objectContaining({ bsn: "999993896", page: 0 }),
+    );
   });
 
-  describe("ngOnInit", () => {
-    it("sets bsn on listParameters from input", () => {
-      component.bsn = "123456789";
-      component.ngOnInit();
+  it("searches the contactmomenten of a vestiging", async () => {
+    await setup({ vestigingsnummer: "000099998888" });
 
-      expect(component["listParameters"].bsn).toBe("123456789");
-    });
-
-    it("sets vestigingsnummer on listParameters from input", () => {
-      component.vestigingsnummer = "000099998888";
-      component.ngOnInit();
-
-      expect(component["listParameters"].vestigingsnummer).toBe("000099998888");
-    });
-
-    it("sets both bsn and vestigingsnummer to undefined when inputs are not provided", () => {
-      component.ngOnInit();
-
-      expect(component["listParameters"].bsn).toBeUndefined();
-      expect(component["listParameters"].vestigingsnummer).toBeUndefined();
-    });
+    expect(lastSearch()).toEqual(
+      expect.objectContaining({ vestigingsnummer: "000099998888", page: 0 }),
+    );
   });
 
-  describe("after detectChanges (AfterViewInit triggered)", () => {
-    beforeEach(fakeAsync(() => {
-      component.bsn = "999993896";
-      fixture.detectChanges();
-      tick(0);
-    }));
+  it("searches without a klant when neither a bsn nor a vestigingsnummer is given", async () => {
+    await setup({});
 
-    it("sets isLoadingResults to true while loading", () => {
-      expect(component["isLoadingResults"]).toBe(true);
-    });
-
-    it("calls utilService.setLoading(true) when loading starts", () => {
-      expect(utilService.setLoading).toHaveBeenCalledWith(true);
-    });
-
-    it("calls listContactmomenten with bsn from ngOnInit", () => {
-      expect(contactmomentenService.listContactmomenten).toHaveBeenCalledWith(
-        expect.objectContaining({ bsn: "999993896" }),
-      );
-    });
-
-    describe("after data arrives", () => {
-      const contactmoments = [
-        makeContactmoment({
-          kanaal: "telefoon",
-          initiatiefnemer: "burger",
-          medewerker: "jan.de.vries",
-          tekst: "Vraag over aanvraag",
-        }),
-        makeContactmoment({
-          kanaal: "email",
-          initiatiefnemer: "gemeente",
-          medewerker: "piet.pietersen",
-          tekst: "Bevestiging ontvangen",
-        }),
-      ];
-
-      beforeEach(fakeAsync(() => {
-        listSubject.next(makeResultaat(contactmoments, 2));
-        tick(0);
-        fixture.detectChanges();
-      }));
-
-      it("populates dataSource with returned contactmomenten", () => {
-        expect(component["dataSource"].data).toHaveLength(2);
-        expect(component["dataSource"].data[0].kanaal).toBe("telefoon");
-        expect(component["dataSource"].data[1].kanaal).toBe("email");
-      });
-
-      it("sets isLoadingResults to false after data arrives", () => {
-        expect(component["isLoadingResults"]).toBe(false);
-      });
-
-      it("calls utilService.setLoading(false) after data arrives", () => {
-        expect(utilService.setLoading).toHaveBeenCalledWith(false);
-      });
-
-      it("sets paginator.length to totaal from resultaat", () => {
-        expect(component["paginator"].length).toBe(2);
-      });
-    });
-
-    describe("when resultaat has no resultaten", () => {
-      beforeEach(fakeAsync(() => {
-        listSubject.next(makeResultaat([], 0));
-        tick(0);
-        fixture.detectChanges();
-      }));
-
-      it("sets dataSource.data to empty array", () => {
-        expect(component["dataSource"].data).toHaveLength(0);
-      });
-
-      it("sets paginator.length to 0", () => {
-        expect(component["paginator"].length).toBe(0);
-      });
-
-      it("shows geen-gegevens paragraph in no-data row when not loading", () => {
-        expect(component["isLoadingResults"]).toBe(false);
-        const paragraphs = Array.from(
-          fixture.nativeElement.querySelectorAll(
-            "td p",
-          ) as NodeListOf<HTMLElement>,
-        );
-        const texts = paragraphs.map((p) => p.textContent?.trim());
-        expect(texts).toContain("msg.geen.gegevens.gevonden");
-      });
-
-      it("does not show loading paragraph when not loading", () => {
-        const paragraphs = Array.from(
-          fixture.nativeElement.querySelectorAll(
-            "td p",
-          ) as NodeListOf<HTMLElement>,
-        );
-        const texts = paragraphs.map((p) => p.textContent?.trim());
-        expect(texts).not.toContain("msg.loading");
-      });
-    });
+    expect(lastSearch().bsn).toBeUndefined();
+    expect(lastSearch().vestigingsnummer).toBeUndefined();
   });
 
-  describe("columns", () => {
-    it("defines the expected set of columns", () => {
-      expect(component["columns"]).toEqual([
-        "registratiedatum",
-        "kanaal",
-        "initiatiefnemer",
-        "medewerker",
-        "tekst",
-      ]);
-    });
+  it("announces that it is loading until the contactmomenten arrive", async () => {
+    await setup({ bsn: "999993896" });
+
+    expect(screen.getByText("msg.loading")).toBeVisible();
+
+    await receive([]);
+
+    expect(screen.queryByText("msg.loading")).toBeNull();
   });
 
-  describe("ngOnChanges", () => {
-    it("does not reset paginator when init is false", () => {
-      component["init"] = false;
+  it("lists the contactmomenten it found", async () => {
+    await setup({ bsn: "999993896" });
 
-      expect(() => component.ngOnChanges()).not.toThrow();
-    });
+    await receive([
+      fromPartial<GeneratedType<"RestContactmoment">>({
+        kanaal: "telefoon",
+        initiatiefnemer: "burger",
+        medewerker: "jan.de.vries",
+        tekst: "Vraag over aanvraag",
+      }),
+      fromPartial<GeneratedType<"RestContactmoment">>({
+        kanaal: "email",
+        initiatiefnemer: "gemeente",
+        medewerker: "piet.pietersen",
+        tekst: "Bevestiging ontvangen",
+      }),
+    ]);
 
-    it("re-triggers load when init is true", fakeAsync(() => {
-      component.bsn = "111111111";
-      fixture.detectChanges();
-      tick(0);
-
-      listSubject.next(makeResultaat([], 0));
-      tick(0);
-
-      const listSpy = jest.spyOn(contactmomentenService, "listContactmomenten");
-      listSpy.mockReturnValue(
-        new Subject<
-          GeneratedType<"RESTResultaatRestContactmoment">
-        >().asObservable(),
-      );
-
-      component.ngOnChanges();
-
-      expect(component["paginator"].pageIndex).toBe(0);
-    }));
+    expect(
+      screen.getByRole("columnheader", {
+        name: "contactmoment.registratiedatum",
+      }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("row", {
+        name: /telefoon burger jan\.de\.vries Vraag over aanvraag/,
+      }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("row", {
+        name: /email gemeente piet\.pietersen Bevestiging ontvangen/,
+      }),
+    ).toBeVisible();
+    expect(screen.getByText("1 – 2 of 2")).toBeVisible();
   });
 
-  describe("listParameters initial state", () => {
-    it("initialises page to 0", () => {
-      expect(component["listParameters"].page).toBe(0);
-    });
+  it("shows an empty message when there are no contactmomenten", async () => {
+    await setup({ bsn: "999993896" });
+
+    await receive([]);
+
+    expect(screen.getByText("msg.geen.gegevens.gevonden")).toBeVisible();
+    expect(screen.getByText("0 of 0")).toBeVisible();
+  });
+
+  it("searches the next page of contactmomenten", async () => {
+    await setup({ bsn: "999993896" });
+    await receive([fromPartial<GeneratedType<"RestContactmoment">>({})], 10);
+
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+
+    expect(lastSearch().page).toBe(1);
+  });
+
+  it("returns to the first page when it is pointed at another klant", async () => {
+    await setup({ bsn: "999993896" });
+    await receive([fromPartial<GeneratedType<"RestContactmoment">>({})], 10);
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await sleep();
+
+    await rerender({ inputs: { bsn: "111111111" } });
+    await sleep();
+
+    expect(lastSearch().page).toBe(0);
   });
 });
