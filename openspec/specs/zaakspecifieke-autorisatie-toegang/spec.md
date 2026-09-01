@@ -173,17 +173,36 @@ the underlying reason is that the resource is zaakspecifiek geautoriseerd.
   system already returns for any other policy denial, with no indication that the zaak is zaakspecifiek
   geautoriseerd
 
-### Requirement: Werklijsten and zoekresultaten are not restricted by this capability
+### Requirement: Rechten computed for werklijst and zoekresultaat rows respect zaakspecifieke autorisatie
 
-Rechten computed from a `ZaakZoekObject`, `TaakZoekObject`, or `DocumentZoekObject` (the Solr-backed search
-index representations used for werklijsten and zoekresultaten) SHALL NOT be restricted based on whether the
-underlying zaak is zaakspecifiek geautoriseerd.
+Rechten computed from a `ZaakZoekObject`, `TaakZoekObject`, or `DocumentZoekObject` SHALL reflect whether
+the underlying zaak is zaakspecifiek geautoriseerd, applying the same flag+role rule already enforced for
+the equivalent single-resource (`Zaak`/`TaskInfo`/`EnkelvoudigInformatieObject`) rechten in this capability.
 
-#### Scenario: A zaakspecifiek geautoriseerde zaak's rechten in a werklijst are computed as before
-- **WHEN** rechten are computed for a `ZaakZoekObject`, `TaakZoekObject`, or `DocumentZoekObject` representing
-  a zaakspecifiek geautoriseerde zaak (or its taak/document)
-- **THEN** the computed rechten are identical to what they would be if the underlying zaak were not
-  zaakspecifiek geautoriseerd
+#### Scenario: A zaakspecifiek geautoriseerde zaak's rechten in a werklijst match its detail-view rechten
+- **WHEN** rechten are computed for a `ZaakZoekObject` representing a zaakspecifiek geautoriseerde zaak, for
+  a user who holds a given combination of application roles (with or without `zaakspecifiek_geautoriseerd`)
+  for that zaak's zaaktype
+- **THEN** the computed rechten are identical to the rechten that would be computed for the same zaak's
+  detail view for the same user
+
+#### Scenario: A zaakspecifiek geautoriseerde taak's rechten in a werklijst match its detail-view rechten
+- **WHEN** rechten are computed for a `TaakZoekObject` whose associated zaak is zaakspecifiek geautoriseerd,
+  for a user who holds a given combination of application roles for that zaaktype
+- **THEN** the computed rechten are identical to the rechten that would be computed for the same taak's
+  detail view for the same user
+
+#### Scenario: A zaakspecifiek geautoriseerde document's rechten in a zoekresultaat match its detail-view rechten
+- **WHEN** rechten are computed for a `DocumentZoekObject` whose associated zaak is zaakspecifiek
+  geautoriseerd, for a user who holds a given combination of application roles for that zaaktype
+- **THEN** the computed rechten are identical to the rechten that would be computed for the same document's
+  detail view for the same user
+
+#### Scenario: A non-geautoriseerde zaak's werklijst rechten are unaffected
+- **WHEN** rechten are computed for a `ZaakZoekObject`, `TaakZoekObject`, or `DocumentZoekObject` whose
+  underlying zaak is not zaakspecifiek geautoriseerd
+- **THEN** the computed rechten are unaffected by this requirement, identical to what they were before this
+  capability existed
 
 ### Requirement: The PABC application role string matches the OPA role string
 
