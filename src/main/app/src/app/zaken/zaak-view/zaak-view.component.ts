@@ -38,7 +38,6 @@ import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { detailExpand } from "../../shared/animations/animations";
 import { runMutation } from "../../shared/http/run-mutation";
-import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { TakenService } from "../../taken/taken.service";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
@@ -93,7 +92,38 @@ export class ZaakViewComponent
     () => this.zaakQuery.data()?.isOpgeschort,
   );
 
-  menu: MenuItem[] = [];
+  private readonly userEventListenerPlanItemsQuery = injectQuery(() => {
+    const uuid = this.zaakUuid();
+    return {
+      ...this.planItemsService.listUserEventListenerPlanItemsQuery(uuid ?? ""),
+      enabled: Boolean(uuid),
+    };
+  });
+
+  private readonly humanTaskPlanItemsQuery = injectQuery(() => {
+    const uuid = this.zaakUuid();
+    return {
+      ...this.planItemsService.listHumanTaskPlanItemsQuery(uuid ?? ""),
+      enabled: Boolean(uuid),
+    };
+  });
+
+  protected readonly menu = computed(() => {
+    const zaak = this.zaakQuery.data();
+    if (!zaak) return [];
+
+    const userEventListener = this.userEventListenerPlanItemsQuery.data();
+    const humanTask = this.humanTaskPlanItemsQuery.data();
+    const planItems =
+      userEventListener && humanTask ? { userEventListener, humanTask } : null;
+
+    return buildZaakMenu(
+      zaak,
+      planItems,
+      this.menuHandlers,
+      this.hasBrpSearchRight(),
+    );
+  });
 
   bagObjecten: GeneratedType<"RESTBAGObjectGegevens">[] = [];
   gekoppeldeBagObjecten: GeneratedType<"RESTBAGObject">[] = [];
@@ -184,7 +214,7 @@ export class ZaakViewComponent
         Opcode.UPDATED,
         ObjectType.ZAAK_TAKEN,
         zaak.uuid,
-        () => this.setupMenu(),
+        () => this.invalidatePlanItems(),
       );
 
       this.utilService.setTitle("title.zaak", {
@@ -213,8 +243,14 @@ export class ZaakViewComponent
       const zaak = this.zaakQuery.data();
       if (!zaak) return;
       this.invalidateZaakHistorie();
-      this.setupMenu();
+      this.invalidatePlanItems();
       ViewResourceUtil.actieveZaak = zaak;
+    });
+
+    effect(() => {
+      this.menu();
+      if (!this.viewInitialized) return;
+      untracked(() => this.updateMargins());
     });
   }
 
@@ -233,26 +269,17 @@ export class ZaakViewComponent
     this.websocketService.removeListener(this.zaakTakenListener);
   }
 
-  private setupMenu() {
-    this.menu = buildZaakMenu(this.zaak, null, this.menuHandlers, false);
-
-    const menuSubscription = forkJoin([
-      this.planItemsService.listUserEventListenerPlanItems(this.zaak.uuid),
-      this.planItemsService.listHumanTaskPlanItems(this.zaak.uuid),
-    ]).subscribe(([userEventListenerPlanItems, humanTaskPlanItems]) => {
-      this.menu = buildZaakMenu(
-        this.zaak,
-        {
-          userEventListener: userEventListenerPlanItems,
-          humanTask: humanTaskPlanItems,
-        },
-        this.menuHandlers,
-        this.hasBrpSearchRight(),
-      );
-      this.updateMargins();
+  private invalidatePlanItems() {
+    const uuid = this.zaak.uuid;
+    this.queryClient.invalidateQueries({
+      queryKey:
+        this.planItemsService.listUserEventListenerPlanItemsQuery(uuid)
+          .queryKey,
     });
-
-    this.subscriptions$.push(menuSubscription);
+    this.queryClient.invalidateQueries({
+      queryKey:
+        this.planItemsService.listHumanTaskPlanItemsQuery(uuid).queryKey,
+    });
   }
 
   private readonly menuHandlers: ZaakMenuHandlers = {

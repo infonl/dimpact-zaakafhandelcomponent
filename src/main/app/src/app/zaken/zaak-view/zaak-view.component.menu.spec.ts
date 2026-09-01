@@ -6,7 +6,10 @@
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -59,6 +62,13 @@ import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.
 import { ZaakSideActionService } from "./services/zaak-side-action.service";
 import { ZaakViewComponent } from "./zaak-view.component";
 
+const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
+  queryOptions({
+    queryKey: ["fakePlanItems", planItems],
+    queryFn: () => planItems,
+    initialData: planItems,
+  }) as ReturnType<PlanItemsService["listHumanTaskPlanItemsQuery"]>;
+
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
   let sideActions: ZaakSideActionService;
@@ -69,6 +79,8 @@ describe(ZaakViewComponent.name, () => {
   let zakenService: ZakenService;
   let bagService: BAGService;
   let planItemsService: PlanItemsService;
+  let humanTaskPlanItemsQuerySpy: jest.SpyInstance;
+  let userEventListenerPlanItemsQuerySpy: jest.SpyInstance;
   let dialogRef: MatDialogRef<unknown>;
   let takenService: TakenService;
   let websocketService: WebsocketService;
@@ -169,18 +181,18 @@ describe(ZaakViewComponent.name, () => {
     jest.spyOn(bagService, "list").mockReturnValue(of([]));
 
     planItemsService = TestBed.inject(PlanItemsService);
-    jest
-      .spyOn(planItemsService, "listUserEventListenerPlanItems")
+    userEventListenerPlanItemsQuerySpy = jest
+      .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
       .mockReturnValue(
-        of([
+        planItemsQuery([
           fromPartial<GeneratedType<"RESTPlanItem">>({
             userEventListenerActie: "INTAKE_AFRONDEN",
           }),
         ]),
       );
-    jest
-      .spyOn(planItemsService, "listHumanTaskPlanItems")
-      .mockReturnValue(of([]));
+    humanTaskPlanItemsQuerySpy = jest
+      .spyOn(planItemsService, "listHumanTaskPlanItemsQuery")
+      .mockReturnValue(planItemsQuery([]));
 
     takenService = TestBed.inject(TakenService);
     jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));
@@ -775,15 +787,15 @@ describe(ZaakViewComponent.name, () => {
 
     beforeEach(() => {
       jest
-        .spyOn(planItemsService, "listHumanTaskPlanItems")
-        .mockReturnValue(of([]));
+        .spyOn(planItemsService, "listHumanTaskPlanItemsQuery")
+        .mockReturnValue(planItemsQuery([]));
     });
 
     it("should add header when userEventListenerPlanItems.length > 0 and actionMenuItems.length === 0", async () => {
       jest
-        .spyOn(planItemsService, "listUserEventListenerPlanItems")
+        .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
         .mockReturnValue(
-          of([
+          planItemsQuery([
             fromPartial<GeneratedType<"RESTPlanItem">>({
               userEventListenerActie: "INTAKE_AFRONDEN",
             }),
@@ -800,8 +812,8 @@ describe(ZaakViewComponent.name, () => {
 
     it("should add header when userEventListenerPlanItems.length === 0 and actionMenuItems.length > 0", async () => {
       jest
-        .spyOn(planItemsService, "listUserEventListenerPlanItems")
-        .mockReturnValue(of([]));
+        .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
+        .mockReturnValue(planItemsQuery([]));
 
       mockActivatedRoute.data.next({
         zaak: {
@@ -822,8 +834,8 @@ describe(ZaakViewComponent.name, () => {
 
     it("should not add header when both userEventListenerPlanItems.length === 0 and actionMenuItems.length === 0", async () => {
       jest
-        .spyOn(planItemsService, "listUserEventListenerPlanItems")
-        .mockReturnValue(of([]));
+        .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
+        .mockReturnValue(planItemsQuery([]));
 
       mockActivatedRoute.data.next({ zaak: baseZaak });
 
@@ -908,9 +920,9 @@ describe(ZaakViewComponent.name, () => {
   describe("Menu item ordering", () => {
     it("should sort human task plan items alphabetically by their name", () => {
       jest
-        .spyOn(planItemsService, "listHumanTaskPlanItems")
+        .spyOn(planItemsService, "listHumanTaskPlanItemsQuery")
         .mockReturnValue(
-          of(
+          planItemsQuery(
             [
               "Goedkeuren",
               "Advies extern",
@@ -933,7 +945,7 @@ describe(ZaakViewComponent.name, () => {
       });
       fixture.detectChanges();
 
-      const menu = fixture.componentInstance.menu;
+      const menu = fixture.componentInstance["menu"]();
       const startHeaderIndex = menu.findIndex(
         (menuItem) => menuItem.title === "actie.taak.starten",
       );
@@ -951,6 +963,69 @@ describe(ZaakViewComponent.name, () => {
         "Document verzenden",
         "Goedkeuren",
       ]);
+    });
+  });
+
+  describe("revisiting a zaak whose plan items are still cached", () => {
+    const humanTaskPlanItemsUrl = `/rest/planitems/zaak/${zaak.uuid}/humanTaskPlanItems`;
+    const userEventListenerPlanItemsUrl = `/rest/planitems/zaak/${zaak.uuid}/userEventListenerPlanItems`;
+
+    let httpTestingController: HttpTestingController;
+
+    const flushPlanItems = (humanTasks: GeneratedType<"RESTPlanItem">[]) => {
+      httpTestingController
+        .match((request) => request.url === humanTaskPlanItemsUrl)
+        .forEach((request) => request.flush(humanTasks));
+      httpTestingController
+        .match((request) => request.url === userEventListenerPlanItemsUrl)
+        .forEach((request) => request.flush([]));
+    };
+
+    beforeEach(() => {
+      humanTaskPlanItemsQuerySpy.mockRestore();
+      userEventListenerPlanItemsQuerySpy.mockRestore();
+      httpTestingController = TestBed.inject(HttpTestingController);
+
+      testQueryClient.setQueryData(
+        planItemsService.listHumanTaskPlanItemsQuery(zaak.uuid).queryKey,
+        [
+          fromPartial<GeneratedType<"RESTPlanItem">>({
+            id: "fakeStalePlanItemId",
+            naam: "verouderdeTaakNaam",
+          }),
+        ],
+      );
+    });
+
+    afterEach(() => {
+      httpTestingController
+        .match(() => true)
+        .forEach((request) => request.flush([]));
+    });
+
+    it("refetches them, so the menu is never built from the cached list", async () => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+
+      flushPlanItems([
+        fromPartial<GeneratedType<"RESTPlanItem">>({
+          id: "fakeFreshPlanItemId",
+          naam: "verseTaakNaam",
+        }),
+      ]);
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(
+        await loader.getHarnessOrNull(
+          MatNavListItemHarness.with({ title: "verseTaakNaam" }),
+        ),
+      ).toBeTruthy();
+      expect(
+        await loader.getHarnessOrNull(
+          MatNavListItemHarness.with({ title: "verouderdeTaakNaam" }),
+        ),
+      ).toBeNull();
     });
   });
 

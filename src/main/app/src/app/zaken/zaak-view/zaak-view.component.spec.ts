@@ -58,6 +58,13 @@ import { ZakenService } from "../zaken.service";
 import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
+const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
+  queryOptions({
+    queryKey: ["fakePlanItems", planItems],
+    queryFn: () => planItems,
+    initialData: planItems,
+  }) as ReturnType<PlanItemsService["listHumanTaskPlanItemsQuery"]>;
+
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
 
@@ -168,17 +175,17 @@ describe(ZaakViewComponent.name, () => {
 
     planItemsService = TestBed.inject(PlanItemsService);
     jest
-      .spyOn(planItemsService, "listUserEventListenerPlanItems")
+      .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
       .mockReturnValue(
-        of([
+        planItemsQuery([
           fromPartial<GeneratedType<"RESTPlanItem">>({
             userEventListenerActie: "INTAKE_AFRONDEN",
           }),
         ]),
       );
     jest
-      .spyOn(planItemsService, "listHumanTaskPlanItems")
-      .mockReturnValue(of([]));
+      .spyOn(planItemsService, "listHumanTaskPlanItemsQuery")
+      .mockReturnValue(planItemsQuery([]));
 
     takenService = TestBed.inject(TakenService);
     jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));
@@ -282,8 +289,8 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
     });
 
-    it("should add menu subscription to subscriptions$ array when setupMenu is called", () => {
-      expect(subscriptionsPushSpy).toHaveBeenCalledTimes(1);
+    it("builds the menu without registering a subscription to unsubscribe later", () => {
+      expect(subscriptionsPushSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -395,7 +402,7 @@ describe(ZaakViewComponent.name, () => {
     });
 
     it("rebuilds the action menu when rechten change", () => {
-      const menuTitlesBeforeWrite = fixture.componentInstance.menu.map(
+      const menuTitlesBeforeWrite = fixture.componentInstance["menu"]().map(
         (item) => item.title,
       );
       expect(menuTitlesBeforeWrite).toContain("actie.zaak.opschorten");
@@ -406,7 +413,7 @@ describe(ZaakViewComponent.name, () => {
       });
       fixture.detectChanges();
 
-      const menuTitlesAfterWrite = fixture.componentInstance.menu.map(
+      const menuTitlesAfterWrite = fixture.componentInstance["menu"]().map(
         (item) => item.title,
       );
       expect(menuTitlesAfterWrite).not.toContain("actie.zaak.opschorten");
@@ -662,12 +669,11 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
     });
 
-    it("rebuilds the action menu, whose plan items are fetched separately from the zaak", () => {
-      const listPlanItemsSpy = jest.spyOn(
-        planItemsService,
-        "listHumanTaskPlanItems",
+    it("refreshes the plan items the action menu is built from, which do not travel with the zaak", () => {
+      const invalidateQueries = jest.spyOn(
+        testQueryClient,
+        "invalidateQueries",
       );
-      listPlanItemsSpy.mockClear();
 
       zaakTakenCallback(
         new ScreenEvent(
@@ -677,7 +683,15 @@ describe(ZaakViewComponent.name, () => {
         ),
       );
 
-      expect(listPlanItemsSpy).toHaveBeenCalledWith(zaak.uuid);
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey: planItemsService.listHumanTaskPlanItemsQuery(zaak.uuid)
+          .queryKey,
+      });
+      expect(invalidateQueries).toHaveBeenCalledWith({
+        queryKey: planItemsService.listUserEventListenerPlanItemsQuery(
+          zaak.uuid,
+        ).queryKey,
+      });
     });
   });
 });

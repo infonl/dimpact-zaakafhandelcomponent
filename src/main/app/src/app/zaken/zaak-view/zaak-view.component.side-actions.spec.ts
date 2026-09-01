@@ -53,6 +53,13 @@ import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.
 import { ZaakSideActionService } from "./services/zaak-side-action.service";
 import { ZaakViewComponent } from "./zaak-view.component";
 
+const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
+  queryOptions({
+    queryKey: ["fakePlanItems", planItems],
+    queryFn: () => planItems,
+    initialData: planItems,
+  }) as ReturnType<PlanItemsService["listHumanTaskPlanItemsQuery"]>;
+
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
   let sideActions: ZaakSideActionService;
@@ -162,17 +169,17 @@ describe(ZaakViewComponent.name, () => {
 
     planItemsService = TestBed.inject(PlanItemsService);
     jest
-      .spyOn(planItemsService, "listUserEventListenerPlanItems")
+      .spyOn(planItemsService, "listUserEventListenerPlanItemsQuery")
       .mockReturnValue(
-        of([
+        planItemsQuery([
           fromPartial<GeneratedType<"RESTPlanItem">>({
             userEventListenerActie: "INTAKE_AFRONDEN",
           }),
         ]),
       );
     jest
-      .spyOn(planItemsService, "listHumanTaskPlanItems")
-      .mockReturnValue(of([]));
+      .spyOn(planItemsService, "listHumanTaskPlanItemsQuery")
+      .mockReturnValue(planItemsQuery([]));
 
     takenService = TestBed.inject(TakenService);
     jest.spyOn(takenService, "listTakenVoorZaak").mockReturnValue(of([]));

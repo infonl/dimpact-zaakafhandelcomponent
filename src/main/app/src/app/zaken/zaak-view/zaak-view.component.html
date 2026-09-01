@@ -18,7 +18,7 @@
   >
     <zac-side-nav
       (mode)="menuModeChanged($event)"
-      [menu]="menu"
+      [menu]="menu()"
       [activeItem]="sideActions.activeAction()"
       (activeItemChange)="menuItemChanged($event)"
     ></zac-side-nav>
