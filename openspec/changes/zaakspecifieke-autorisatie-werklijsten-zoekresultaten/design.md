@@ -74,10 +74,7 @@ those zaaktypen *and* `zaakspecifiekGeautoriseerd:true` — e.g.
 `-((zaaktypeOmschrijving:"A" AND zaakspecifiekGeautoriseerd:true) OR (zaaktypeOmschrijving:"B" AND ...))`.
 Zaaktypen where the user *does* hold the flag are left out of this exclusion entirely, so their
 zaakspecifiek geautoriseerde zaken pass through unaffected. When every allowed zaaktype has the flag (or
-there are no allowed zaaktypen), the filter query is omitted. If the user holds `zaakspecifiek_geautoriseerd`
-as an overall role (not scoped to a specific zaaktype), the filter query is omitted entirely — mirroring
-`UserInput`, where `user.rollen` for a zaaktype is `applicationRolesPerZaaktype[zaaktype] + overallRoles`, so
-OPA already grants the flag for every zaaktype in that case. The `zaakspecifiek_geautoriseerd` role-name
+there are no allowed zaaktypen), the filter query is omitted. The `zaakspecifiek_geautoriseerd` role-name
 string is currently only a literal inside `rollen.rego`; this design adds a matching Kotlin constant
 (alongside the existing `ROLE_NAME_BRP_ZOEKEN`-style constants) so the two don't drift independently.
 
