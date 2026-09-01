@@ -289,9 +289,14 @@ class IndexingServiceTest : BehaviorSpec({
             every {
                 ctx.documentZoekObjectConverter.convert(
                     zaakInformatieobject.informatieobject.extractUuid().toString(),
-                    true
+                    any()
                 )
-            } returns documentZoekObjecten[index]
+            } answers {
+                // simulates the converter resolving the document against this same zaak,
+                // which is what actually triggers the memoized flag lookup
+                secondArg<(UUID) -> Boolean>().invoke(zaak.uuid)
+                documentZoekObjecten[index]
+            }
         }
 
         `when`("addOrUpdateInformatieobjectenForZaak is called for the zaak's UUID") {
@@ -301,11 +306,11 @@ class IndexingServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     ctx.documentZoekObjectConverter.convert(
                         zaakInformatieobjecten[0].informatieobject.extractUuid().toString(),
-                        true
+                        any()
                     )
                     ctx.documentZoekObjectConverter.convert(
                         zaakInformatieobjecten[1].informatieobject.extractUuid().toString(),
-                        true
+                        any()
                     )
                 }
             }

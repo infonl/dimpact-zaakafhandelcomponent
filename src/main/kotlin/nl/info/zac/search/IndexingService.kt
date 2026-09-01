@@ -266,20 +266,23 @@ class IndexingService @Inject constructor(
         )
 
     /**
-     * Reindexes every document of a zaak, reading the zaak's `isZaakspecifiekGeautoriseerd` flag once
-     * and passing it to [DocumentZoekObjectConverter.convert] for every document, instead of each
-     * document's conversion deriving the same zaak-level flag on its own.
+     * Reindexes every document of a zaak, memoizing the `isZaakspecifiekGeautoriseerd` flag per zaak
+     * UUID so that documents linked to the same zaak share one lookup, instead of each document's
+     * conversion deriving the flag on its own. The flag is still looked up for whichever zaak
+     * [DocumentZoekObjectConverter.convert] actually resolves the document against, since a document
+     * can be linked to a zaak other than [zaakUUID].
      */
     fun addOrUpdateInformatieobjectenForZaak(zaakUUID: UUID) {
-        val isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
+        val isZaakspecifiekGeautoriseerdByZaakUUID = mutableMapOf<UUID, Boolean>()
         zrcClientService.listZaakinformatieobjecten(zrcClientService.readZaak(zaakUUID)).forEach {
             addToSolrIndex(
                 listOf(
                     continueOnExceptions(ZoekObjectType.DOCUMENT) {
-                        documentZoekObjectConverter.convert(
-                            it.informatieobject.extractUuid().toString(),
-                            isZaakspecifiekGeautoriseerd
-                        )
+                        documentZoekObjectConverter.convert(it.informatieobject.extractUuid().toString()) { uuid ->
+                            isZaakspecifiekGeautoriseerdByZaakUUID.getOrPut(uuid) {
+                                zrcClientService.isZaakspecifiekGeautoriseerd(uuid)
+                            }
+                        }
                     }
                 ),
                 performCommit = false

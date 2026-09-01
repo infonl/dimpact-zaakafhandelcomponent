@@ -37,14 +37,13 @@ class DocumentZoekObjectConverter @Inject constructor(
         convert(id, zrcClientService::isZaakspecifiekGeautoriseerd)
 
     /**
-     * Converts [id], using the given [isZaakspecifiekGeautoriseerd] instead of deriving it from the
-     * document's zaak. Used by [nl.info.zac.search.IndexingService.addOrUpdateInformatieobjectenForZaak]
-     * to reindex every document of one zaak without recomputing the same zaak-level flag once per document.
+     * Converts [id], looking up the zaakspecifiek geautoriseerd flag through [isZaakspecifiekGeautoriseerd]
+     * for whichever zaak the document actually resolves against, rather than always calling
+     * [ZrcClientService.isZaakspecifiekGeautoriseerd] directly. Used by
+     * [nl.info.zac.search.IndexingService.addOrUpdateInformatieobjectenForZaak] to memoize that lookup
+     * per zaak UUID across the documents of one zaak.
      */
-    fun convert(id: String, isZaakspecifiekGeautoriseerd: Boolean): DocumentZoekObject? =
-        convert(id) { isZaakspecifiekGeautoriseerd }
-
-    private fun convert(id: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): DocumentZoekObject? {
+    fun convert(id: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): DocumentZoekObject? {
         val document = drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(id))
         val zaakInformatieobject = zrcClientService.listZaakinformatieobjecten(document).firstOrNull() ?: return null
         return convert(document, zaakInformatieobject, isZaakspecifiekGeautoriseerd)

@@ -178,6 +178,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
 
         `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
             val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
