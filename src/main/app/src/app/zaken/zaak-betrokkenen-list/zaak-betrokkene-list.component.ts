@@ -11,8 +11,6 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
-import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
-import { WebsocketService } from "../../core/websocket/websocket.service";
 import { KlantenService } from "../../klanten/klanten.service";
 import { runMutation } from "../../shared/http/run-mutation";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -42,14 +40,12 @@ import { ZakenService } from "../zaken.service";
 export class ZaakBetrokkeneListComponent {
   private readonly zakenService = inject(ZakenService);
   private readonly klantenService = inject(KlantenService);
-  private readonly websocketService = inject(WebsocketService);
   private readonly zaakDialogService = inject(ZaakDialogService);
   private readonly utilService = inject(UtilService);
   private readonly queryClient = inject(QueryClient);
   private readonly datumPipe = new DatumPipe("nl");
 
   readonly zaak = input.required<GeneratedType<"RestZaak">>();
-  readonly zaakRollenListener = input.required<WebsocketListener>();
 
   protected readonly betrokkenenQuery = injectQuery(() =>
     this.zakenService.listBetrokkenenVoorZaakQuery(this.zaak().uuid),
