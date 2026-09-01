@@ -45,9 +45,12 @@ import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZakenService } from "../zaken.service";
-import { ZaakActionDialogsService } from "./zaak-action-dialogs.service";
-import { ZaakSideActionService } from "./zaak-side-action.service";
-import { buildZaakMenu, ZaakMenuHandlers } from "./zaak-view-menu.builder";
+import { ZaakActionDialogsService } from "./services/zaak-action-dialogs.service";
+import { ZaakSideActionService } from "./services/zaak-side-action.service";
+import {
+  buildZaakMenu,
+  ZaakMenuHandlers,
+} from "./utils/zaak-view-menu.builder";
 import {
   allowBedrijf,
   allowedToAddBetrokkene,
@@ -55,7 +58,7 @@ import {
   initiatorViewType,
   showBetrokkeneKoppelingen,
   showInitiator,
-} from "./zaak-view.predicates";
+} from "./utils/zaak-view.predicates";
 
 @Component({
   templateUrl: "./zaak-view.component.html",

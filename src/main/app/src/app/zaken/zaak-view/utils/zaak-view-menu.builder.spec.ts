@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { fromPartial } from "../../../test-helpers";
-import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
-import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
-import { GeneratedType } from "../../shared/utils/generated-types";
+import { fromPartial } from "../../../../test-helpers";
+import { ButtonMenuItem } from "../../../shared/side-nav/menu-item/button-menu-item";
+import { MenuItem } from "../../../shared/side-nav/menu-item/menu-item";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import {
   buildZaakMenu,
   userEventListenerIcon,

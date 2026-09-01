@@ -54,9 +54,9 @@ import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.comp
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
 import { ZakenService } from "../zaken.service";
-import { ZaakActionDialogsService } from "./zaak-action-dialogs.service";
+import { ZaakActionDialogsService } from "./services/zaak-action-dialogs.service";
 import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
-import { ZaakSideActionService } from "./zaak-side-action.service";
+import { ZaakSideActionService } from "./services/zaak-side-action.service";
 import { ZaakViewComponent } from "./zaak-view.component";
 
 describe(ZaakViewComponent.name, () => {

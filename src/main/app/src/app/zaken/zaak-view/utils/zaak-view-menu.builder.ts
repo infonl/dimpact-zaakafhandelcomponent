@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { ButtonMenuItem } from "../../shared/side-nav/menu-item/button-menu-item";
-import { HeaderMenuItem } from "../../shared/side-nav/menu-item/header-menu-item";
-import { MenuItem } from "../../shared/side-nav/menu-item/menu-item";
-import { GeneratedType } from "../../shared/utils/generated-types";
+import { ButtonMenuItem } from "../../../shared/side-nav/menu-item/button-menu-item";
+import { HeaderMenuItem } from "../../../shared/side-nav/menu-item/header-menu-item";
+import { MenuItem } from "../../../shared/side-nav/menu-item/menu-item";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import {
   allowedToAddBetrokkene,
   hasAfleidingswijzeBrondatumEigenschap,

@@ -4,8 +4,8 @@
  */
 
 import { MatSidenav } from "@angular/material/sidenav";
-import { fromPartial } from "../../../test-helpers";
-import { GeneratedType } from "../../shared/utils/generated-types";
+import { fromPartial } from "../../../../test-helpers";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 import { ZaakSideActionService } from "./zaak-side-action.service";
 
 describe(ZaakSideActionService.name, () => {

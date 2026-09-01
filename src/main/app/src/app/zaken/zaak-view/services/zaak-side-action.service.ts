@@ -5,7 +5,7 @@
 
 import { Injectable, signal } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
-import { GeneratedType } from "../../shared/utils/generated-types";
+import { GeneratedType } from "../../../shared/utils/generated-types";
 
 /**
  * Owns which side action panel the zaak view is showing and the sidenav that

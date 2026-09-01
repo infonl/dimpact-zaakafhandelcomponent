@@ -55,7 +55,7 @@ import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaa
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
-import { ZaakSideActionService } from "./zaak-side-action.service";
+import { ZaakSideActionService } from "./services/zaak-side-action.service";
 import { ZaakViewComponent } from "./zaak-view.component";
 
 describe(ZaakViewComponent.name, () => {
