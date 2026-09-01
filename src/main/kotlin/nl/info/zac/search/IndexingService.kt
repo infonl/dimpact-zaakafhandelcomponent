@@ -4,12 +4,19 @@
  */
 package nl.info.zac.search
 
+import jakarta.annotation.PreDestroy
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.zrc.model.ZaakListParameters
@@ -43,7 +50,13 @@ class IndexingService @Inject constructor(
     private val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
-    private val flowableTaskService: FlowableTaskService
+    private val flowableTaskService: FlowableTaskService,
+
+    /**
+     * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
+     * while in normal operation it will be injected using [nl.info.zac.util.CoroutineDispatcherProducer].
+     */
+    private val dispatcher: CoroutineDispatcher
 ) {
     companion object {
         const val SOLR_CORE = "zac"
@@ -61,10 +74,26 @@ class IndexingService @Inject constructor(
 
     private val pageConversionDispatcher = Dispatchers.IO.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
 
+    /**
+     * Owns every background reindex launched via [reindexAsync]/[reindexAllAsync], so that they can be
+     * cancelled together on [shutdown] instead of leaking daemon coroutines (and the deployment classloader
+     * they pin) past application undeploy. [exceptionHandler] is the single backstop that logs any failure
+     * that escapes a launched reindex since a fire-and-forget coroutine has no caller to propagate to.
+     */
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        LOG.log(Level.SEVERE, "Unexpected failure while reindexing", throwable)
+    }
+    private val coroutineScope = CoroutineScope(SupervisorJob() + dispatcher + exceptionHandler)
+
     init {
         solrClient = Http2SolrClient.Builder(
             "${ConfigProvider.getConfig().getValue("solr.url", String::class.java)}/solr/$SOLR_CORE"
         ).build()
+    }
+
+    @PreDestroy
+    fun shutdown() {
+        coroutineScope.cancel()
     }
 
     /**
@@ -99,6 +128,19 @@ class IndexingService @Inject constructor(
         addToSolrIndex(convertObjects(objectIds, objectType).zoekObjecten(), performCommit)
 
     /**
+     * Launches [reindexAll] in the background on [coroutineScope] and returns immediately. Any
+     * failure that escapes [reindexAll] itself (it already catches per object type) is logged by
+     * [exceptionHandler], the same backstop used by [reindexAsync].
+     *
+     * @param objectTypes the object types to reindex; defaults to all object types
+     */
+    fun reindexAllAsync(objectTypes: Set<ZoekObjectType> = ZoekObjectType.entries.toSet()) {
+        coroutineScope.launch {
+            reindexAll(objectTypes)
+        }
+    }
+
+    /**
      * Reindexes all object types (`ZAAK`, `TAAK`, `DOCUMENT`) as a single, complete reindexing
      * process: logs when the complete process starts and finishes, in addition to the existing
      * per-object-type logging (including Solr document counts) performed by [reindex].
@@ -127,12 +169,44 @@ class IndexingService @Inject constructor(
         LOG.info("Complete reindexing process finished for object types: $orderedObjectTypes")
     }
 
+    /**
+     * Launches [objectType]'s reindex in the background on [coroutineScope] and returns immediately,
+     * unless it is already in progress, in which case nothing is launched.
+     *
+     * @return `true` if reindexing was started, `false` if it was already running for [objectType]
+     */
+    fun reindexAsync(objectType: ZoekObjectType): Boolean {
+        if (!reindexingViewfinder.add(objectType)) {
+            LOG.warning("[$objectType] Reindexing not started, still in progress")
+            return false
+        }
+        coroutineScope.launch {
+            try {
+                reindexReserved(objectType)
+            } finally {
+                reindexingViewfinder.remove(objectType)
+            }
+        }
+        return true
+    }
+
     fun reindex(objectType: ZoekObjectType) {
-        if (reindexingViewfinder.contains(objectType)) {
+        if (!reindexingViewfinder.add(objectType)) {
             LOG.warning("[$objectType] Reindexing not started, still in progress")
             return
         }
-        reindexingViewfinder.add(objectType)
+        try {
+            reindexReserved(objectType)
+        } finally {
+            reindexingViewfinder.remove(objectType)
+        }
+    }
+
+    /**
+     * Performs [objectType]'s reindex. Only called once [objectType] has been reserved in
+     * [reindexingViewfinder], by either [reindex] or [reindexAsync].
+     */
+    private fun reindexReserved(objectType: ZoekObjectType) {
         try {
             systemUser.set(true)
             LOG.info(reindexStartedMessage(objectType))
@@ -154,7 +228,6 @@ class IndexingService @Inject constructor(
             }
             LOG.info(reindexFinishedMessage(objectType, summary))
         } finally {
-            reindexingViewfinder.remove(objectType)
             systemUser.remove()
         }
     }

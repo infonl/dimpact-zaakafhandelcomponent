@@ -17,6 +17,8 @@ import io.mockk.mockkStatic
 import io.mockk.verify
 import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.zrc.model.ZaakListParameters
 import net.atos.zac.flowable.task.FlowableTaskService
@@ -64,7 +66,8 @@ private data class TestContext(
     val drcClientService: DrcClientService,
     val flowableTaskService: FlowableTaskService,
     val zrcClientService: ZrcClientService,
-    val indexingService: IndexingService
+    val indexingService: IndexingService,
+    val testDispatcher: TestDispatcher
 )
 
 private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
@@ -103,12 +106,14 @@ private fun setupContext(): TestContext {
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
+    val testDispatcher = StandardTestDispatcher()
 
     val indexingService = IndexingService(
         converterInstances,
         zrcClientService,
         drcClientService,
-        flowableTaskService
+        flowableTaskService,
+        testDispatcher
     )
 
     return TestContext(
@@ -119,7 +124,8 @@ private fun setupContext(): TestContext {
         drcClientService,
         flowableTaskService,
         zrcClientService,
-        indexingService
+        indexingService,
+        testDispatcher
     )
 }
 
@@ -924,6 +930,138 @@ class IndexingServiceTest : BehaviorSpec({
             then("the complete reindexing process still reports it finished") {
                 logRecords.last().message shouldBe
                     "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
+            }
+        }
+    }
+
+    given("An object type to reindex asynchronously") {
+        val ctx = setupContext()
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+        every { ctx.flowableTaskService.countOpenTasks() } returns 0
+
+        `when`("reindexAsync is called") {
+            val started = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+
+            then(
+                """reindexing is reported as started, but does not run until the coroutine dispatcher
+                   is advanced"""
+            ) {
+                started shouldBe true
+                verify(exactly = 0) {
+                    ctx.flowableTaskService.countOpenTasks()
+                }
+
+                ctx.testDispatcher.scheduler.advanceUntilIdle()
+
+                verify(exactly = 1) {
+                    ctx.flowableTaskService.countOpenTasks()
+                }
+            }
+        }
+    }
+
+    given("An object type whose reindex is already in progress") {
+        val ctx = setupContext()
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+        every { ctx.flowableTaskService.countOpenTasks() } returns 0
+        ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+
+        `when`("reindexAsync is called again before the first launch has run") {
+            val startedAgain = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+
+            then("the second call is rejected instead of running a duplicate reindex") {
+                startedAgain shouldBe false
+
+                // let the still-pending launch from the first call run, so it releases its viewfinder
+                // entry and does not leak into any other test relying on the
+                // (companion-object-shared) viewfinder
+                ctx.testDispatcher.scheduler.advanceUntilIdle()
+            }
+        }
+    }
+
+    given("An asynchronously launched reindex that fails with an error not caught anywhere internally") {
+        val ctx = setupContext()
+        every { ctx.solrClient.query(any()) } throws Error("fakeUnexpectedFailure")
+
+        `when`("reindexAsync is called and the coroutine dispatcher is advanced") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+                ctx.testDispatcher.scheduler.advanceUntilIdle()
+            }
+
+            then("the failure is logged instead of crashing the coroutine, and the object type is released") {
+                logRecords.any {
+                    it.message == "Unexpected failure while reindexing" && it.thrown?.message == "fakeUnexpectedFailure"
+                } shouldBe true
+
+                val startedAgain = ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+                startedAgain shouldBe true
+                ctx.testDispatcher.scheduler.advanceUntilIdle()
+            }
+        }
+    }
+
+    given("A shut down IndexingService") {
+        // uses reindexAllAsync, not reindexAsync: reindexAllAsync does not reserve a viewfinder
+        // entry synchronously before launching, so a cancelled, never-run launch here cannot leak
+        // a permanently "in progress" object type into the (companion-object-shared) viewfinder
+        // that other tests rely on
+        val ctx = setupContext()
+        ctx.indexingService.shutdown()
+
+        `when`("reindexAllAsync is called after shutdown") {
+            ctx.indexingService.reindexAllAsync()
+            ctx.testDispatcher.scheduler.advanceUntilIdle()
+
+            then("the launched reindex never runs, since its coroutine scope was cancelled") {
+                verify(exactly = 0) {
+                    ctx.flowableTaskService.countOpenTasks()
+                }
+            }
+        }
+    }
+
+    given("All object types to reindex asynchronously") {
+        val ctx = setupContext()
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+        every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returns Results(emptyList(), 0)
+        every { ctx.flowableTaskService.countOpenTasks() } returns 0
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
+        } returns Results(emptyList(), 0)
+
+        `when`("reindexAllAsync is called") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindexAllAsync()
+            }
+
+            then(
+                """nothing has run yet, since it launches on the coroutine dispatcher, and the complete
+                   reindexing process runs once that dispatcher is advanced"""
+            ) {
+                logRecords shouldBe emptyList()
+
+                ctx.testDispatcher.scheduler.advanceUntilIdle()
+
+                verify(exactly = 1) {
+                    ctx.flowableTaskService.countOpenTasks()
+                }
             }
         }
     }
