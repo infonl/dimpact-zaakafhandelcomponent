@@ -175,7 +175,6 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
         every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
         every { zrcClientService.readZaak(any<UUID>()) } returns zaak
-        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
         every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false

@@ -255,7 +255,6 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             list = zaakObjectenList,
             count = zaakObjectenList.size
         )
-        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
 
         `when`("the zaak is converted to a zaak zoek object") {
             val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak.uuid.toString())
