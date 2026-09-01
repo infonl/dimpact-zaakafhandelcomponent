@@ -2,7 +2,6 @@
  * SPDX-FileCopyrightText: 2022 Atos, 2024 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
-
 import { NgIf } from "@angular/common";
 import {
   Component,
@@ -35,7 +34,6 @@ import {
 import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
-import { firstValueFrom } from "rxjs";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
@@ -108,20 +106,16 @@ export class ZakenCardComponent
   }));
 
   zakenQuery = injectQuery(() => ({
-    queryKey: ["aan mij toegekende zaken signaleringen", this.parameters()],
+    ...this.signaleringenService.listZakenSignalering(
+      this.parameters().signaleringType!,
+      {
+        page: this.parameters().page,
+        rows: this.parameters().pageSize,
+        sortField: this.parameters().sortField,
+        sortOrder: this.parameters().sortOrder,
+      },
+    ),
     enabled: this.parameters().signaleringType != null,
-    queryFn: () =>
-      firstValueFrom(
-        this.signaleringenService.listZakenSignalering(
-          this.parameters().signaleringType!,
-          {
-            page: this.parameters().page,
-            rows: this.parameters().pageSize,
-            sortField: this.parameters().sortField,
-            sortOrder: this.parameters().sortOrder,
-          },
-        ),
-      ),
   }));
 
   constructor(
