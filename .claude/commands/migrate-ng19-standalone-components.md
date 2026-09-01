@@ -1,15 +1,12 @@
 # Generic TDD Standalone Migration Plan
 
-**Progress: 5 remaining** (2026-06-23)
+**Progress: 2 remaining** (2026-08-27)
 Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spec.ts" | grep -v "material-form-builder" | sort` (from `src/main/app/`)
 
 ## Remaining Components
 
-- `app/app.component.ts`
-- `app/plan-items/process-task-do/process-task-do.component.ts`
-- `app/zaken/besluit-edit/besluit-edit.component.ts`
-- `app/zaken/besluit-view/besluit-view.component.ts`
 - `app/zaken/zaak-view/zaak-view.component.ts`
+- `app/app.component.ts` — do last; migrating it means replacing `AppModule` with `bootstrapApplication`
 
 ---
 
@@ -17,10 +14,10 @@ Re-verify: `grep -rl "standalone: false" src/app --include="*.ts" | grep -v "spe
 
 | Gate | When | Action |
 |---|---|---|
-| **B-10 → B-11** | Baseline spec is green | Say _"Baseline green (N tests). OK to migrate?"_ — **stop and wait** |
-| **B-18** | After lint passes | Say _"Add another component to this branch, or PR now?"_ — **stop and wait** |
-| **C-22** | After commit | Say _"Please verify in browser. All good?"_ — **stop and wait** |
-| **C-23** | After browser OK | Show PR title + body as markdown — **stop and wait** |
+| **B-9 → B-10** | Baseline spec is green | Say _"Baseline green (N tests). OK to migrate?"_ — **stop and wait** |
+| **B-16** | After lint passes | Say _"Add another component to this branch, or PR now?"_ — **stop and wait** |
+| **C-20** | After commit | Say _"Please verify in browser. All good?"_ — **stop and wait** |
+| **C-21** | After browser OK | Show PR title + body as markdown — **stop and wait** |
 
 These gates exist because the user explicitly asked for them and has corrected skipping them multiple times. Problem-solving mode is not an excuse to skip them. If a step fails (e.g. baseline red), fix it — do not jump past the gate.
 
@@ -74,46 +71,42 @@ These gates exist because the user explicitly asked for them and has corrected s
 
 ### Phase A — Start branch (once per PR)
 
-| # | Step                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Gate |
-|---|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|
-| 0 | **Read** ⚠️ ALWAYS EXECUTE — never skip, never rely on memory — run `git show origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me:migration-claims.md` and read the output; note every component already claimed or done by any teammate; do NOT propose any of these as a target                                                                                                                                                                          | — |
-| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing, already-standalone, and anything claimed in step 0; present choice with rationale                                                                                                                                                                                                                                  | **Ask user to confirm first target** |
-| 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main`                                                                                                                                                                                                                                                                                                                                                                                                              | — |
-| 3 | **Claim** — `git fetch origin <claims-branch> && git worktree add /tmp/zac-claims origin/<claims-branch>`; ask user to name the batch (`## {name}`); edit `/tmp/zac-claims/migration-claims.md` to add components; `cd /tmp/zac-claims && git add migration-claims.md && git commit -m "chore: claim ..." && git push origin HEAD:<claims-branch>`; `git worktree remove /tmp/zac-claims` (where `<claims-branch>` = `chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`) | — |
+| # | Step | Gate |
+|---|---|---|
+| 1 | **Analyse** — pull `main`; check open PRs (`gh pr list`) for module files already touched; pick next fewest-deps component(s) from the queue; exclude ATOS, routing and already-standalone components; present choice with rationale | **Ask user to confirm first target** |
+| 2 | **Branch** — `git checkout -b temp/standalone-migration` fresh from `main` | — |
 
 ### Phase B — Per-component loop (repeat until PR)
 
 | # | Step | Gate |
 |---|---|---|
-| 4 | **Read** — component `.ts`, `.html`, declaring module | — |
-| 5 | **Identify imports** — list every directive/component/pipe/module the template needs | — |
-| 6 | **Analyse template** — produce `# \| Behaviour \| ✅/❌` checklist; ≥90% must be covered | **No `it()` until checklist is done** |
-| 7 | **Fix pre-existing TS errors** in component `.ts` only (ViewChild `!`, uninitialised fields, nullables) | — |
-| 8 | **Log pre-existing bugs** — while reading the component, note any logic bugs you spot (error paths not handled, null-checks that always evaluate the same way, duplicate subscriptions, etc.). Do NOT fix them. Add them to `## Known Pre-existing Bugs` at the bottom of this file so they can be addressed in a separate ticket. | — |
-| 9 | **Write spec** — `TestBed` with `imports: [Component, NoopAnimationsModule, TranslateModule.forRoot()]`; harnesses over raw DOM; bracket notation for protected access; `describe(ClassName.name, ...)` | — |
-| 10 | **Run tests** — baseline must be green: `ng test --test-path-pattern="<name>.spec"` | **Fix until green; never proceed on red** |
-| 11 | **Ask permission to migrate** — _"Baseline green (N tests). OK to migrate?"_ | **Wait for user** |
-| 12 | **Migrate** — `standalone: true`, add `imports[]`, apply access modifiers | — |
-| 13 | **Clean module** — remove from `declarations[]`; keep in `exports[]` only if used externally | — |
-| 14 | **Fix new TS errors** introduced by migration only | — |
-| 15 | **Run tests** — must still pass | **Fix until green** |
-| 16 | **Lint** — `npm run lint` from `src/main/app/` | **Fix before continuing** |
-| 17 | **Tick off claim** — worktree pattern: `git fetch origin <claims-branch> && git worktree add /tmp/zac-claims origin/<claims-branch>`; mark `[x]` in `/tmp/zac-claims/migration-claims.md`; commit + push; `git worktree remove /tmp/zac-claims` | — |
-| 18 | **Stop or continue?** — assess conflict risk: list which module files this branch has already touched; flag if any open PR on `main` touches the same files; present recommendation, then ask _"Add another component to this branch, or PR now?"_ | **Wait for user decision** |
-| 19 | → if **continue**: **claim first** — worktree pattern: add next component under `## {USER_NAME}` in `/tmp/zac-claims/migration-claims.md` (ask the user for their name if not already known), commit + push, remove worktree; then go to step 4 | — |
-| 20 | → if **stop**: proceed to Phase C | — |
+| 3 | **Read** — component `.ts`, `.html`, declaring module | — |
+| 4 | **Identify imports** — list every directive/component/pipe/module the template needs | — |
+| 5 | **Analyse template** — produce `# \| Behaviour \| ✅/❌` checklist; ≥90% must be covered | **No `it()` until checklist is done** |
+| 6 | **Fix pre-existing TS errors** in component `.ts` only (ViewChild `!`, uninitialised fields, nullables) | — |
+| 7 | **Log pre-existing bugs** — while reading the component, note any logic bugs you spot (error paths not handled, null-checks that always evaluate the same way, duplicate subscriptions, etc.). Do NOT fix them. Add them to `## Known Pre-existing Bugs` at the bottom of this file so they can be addressed in a separate ticket. | — |
+| 8 | **Write spec** — `TestBed` with `imports: [Component, NoopAnimationsModule, TranslateModule.forRoot()]`; harnesses over raw DOM; bracket notation for protected access; `describe(ClassName.name, ...)` | — |
+| 9 | **Run tests** — baseline must be green: `ng test --test-path-pattern="<name>.spec"` | **Fix until green; never proceed on red** |
+| 10 | **Ask permission to migrate** — _"Baseline green (N tests). OK to migrate?"_ | **Wait for user** |
+| 11 | **Migrate** — `standalone: true`, add `imports[]`, apply access modifiers | — |
+| 12 | **Clean module** — remove from `declarations[]`; keep in `exports[]` only if used externally | — |
+| 13 | **Fix new TS errors** introduced by migration only | — |
+| 14 | **Run tests** — must still pass | **Fix until green** |
+| 15 | **Lint** — `npm run lint` from `src/main/app/` | **Fix before continuing** |
+| 16 | **Stop or continue?** — assess conflict risk: list which module files this branch has already touched; flag if any open PR on `main` touches the same files; present recommendation, then ask _"Add another component to this branch, or PR now?"_ | **Wait for user decision** |
+| 17 | → if **continue**: go to step 3 | — |
+| 18 | → if **stop**: proceed to Phase C | — |
 
 ### Phase C — Ship (once per PR)
 
 | # | Step | Gate |
 |---|---|---|
-| 21 | **Commit** — update plan first (add `## Completed` entries, `## Next Target`, progress counter, new patterns/gotchas); include updated plan MD in same commit | **Never auto-commit** |
-| 22 | **Functional test** — ask _"Please verify in browser (`npm run dev`). All good?"_ | **Wait for user go-ahead** |
-| 23 | **PR draft** — propose title + body as markdown; wait for approval | **Wait for user** |
-| 24 | **Rename branch** — ask for Jira ticket; `git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--Angular-v19-migration--<names>` | **Wait for user approval** |
-| 25 | **Push + open PR** — `git push -u origin <branch>`; `gh pr create` with approved title + body | — |
-| 26 | **Sync plan to collaboration branch** — if the plan MD changed in this PR: `git fetch origin chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me && git worktree add /tmp/zac-claims origin/chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; copy updated plan: `git show <work-branch>:.claude/commands/migrate-ng19-standalone-components.md > /tmp/zac-claims/.claude/commands/migrate-ng19-standalone-components.md`; `cd /tmp/zac-claims && git add .claude/commands/migrate-ng19-standalone-components.md && git commit -m "chore: sync migration plan" && git push origin HEAD:chore/angular-19-migration--collaboration-claims-list--no-merging_keep_me`; `git worktree remove /tmp/zac-claims` | — |
-| 27 | **Next batch?** — _"PR open. Start next branch?"_ → if yes, go to step 1 | **Wait for user** |
+| 19 | **Commit** — update plan first (add `## Completed` entries, `## Next Target`, progress counter, new patterns/gotchas); include updated plan MD in same commit | **Never auto-commit** |
+| 20 | **Functional test** — ask _"Please verify in browser (`npm run dev`). All good?"_ | **Wait for user go-ahead** |
+| 21 | **PR draft** — propose title + body as markdown; wait for approval | **Wait for user** |
+| 22 | **Rename branch** — ask for Jira ticket; `git branch -m temp/standalone-migration chore/PZ-XXXXX--FE--Angular-v19-migration--<names>` | **Wait for user approval** |
+| 23 | **Push + open PR** — `git push -u origin <branch>`; `gh pr create` with approved title + body | — |
+| 24 | **Next batch?** — _"PR open. Start next branch?"_ → if yes, go to step 1 | **Wait for user** |
 
 ---
 
@@ -183,7 +176,7 @@ Solves PZ-XXXXX
 ---
 
 ## Next Target
-TBD — run step 0 (claims check) at start of next session.
+TBD — run step 1 (analyse) at start of next session.
 
 ### Patterns added in batch-18
 | Pattern | Detail |

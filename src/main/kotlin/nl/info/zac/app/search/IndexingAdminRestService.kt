@@ -12,6 +12,7 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
 import nl.info.zac.authentication.InternalEndpoint
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -32,11 +33,27 @@ import nl.info.zac.util.NoArgConstructor
 class IndexingAdminRestService @Inject constructor(
     private val indexingService: IndexingService
 ) {
+    /**
+     * Reindexing can be a long-running operation, so it is run asynchronously on
+     * [IndexingService]'s own background coroutine scope.
+     */
     @GET
     @Path("herindexeren/{type}")
-    fun reindex(@PathParam("type") type: ZoekObjectType) = indexingService.reindex(type)
+    fun reindex(@PathParam("type") type: ZoekObjectType): Response =
+        if (indexingService.reindexAsync(type)) {
+            Response.accepted().build()
+        } else {
+            Response.status(Response.Status.CONFLICT).build()
+        }
 
+    /**
+     * Reindexing can be a long-running operation, so it is run asynchronously on
+     * [IndexingService]'s own background coroutine scope.
+     */
     @GET
     @Path("herindexeren")
-    fun reindexAll() = indexingService.reindexAll()
+    fun reindexAll(): Response {
+        indexingService.reindexAllAsync()
+        return Response.accepted().build()
+    }
 }

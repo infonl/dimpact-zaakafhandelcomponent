@@ -13,9 +13,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.runs
-import io.mockk.slot
 import io.mockk.verify
-import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.inject.Instance
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.IndexingService.Companion.SOLR_CORE
@@ -26,10 +24,8 @@ import org.apache.solr.client.solrj.request.SolrPing
 import org.apache.solr.client.solrj.request.schema.SchemaRequest
 import org.apache.solr.client.solrj.request.schema.SchemaRequest.Fields
 import org.apache.solr.client.solrj.request.schema.SchemaRequest.MultiUpdate
-import java.util.concurrent.CompletableFuture
 
 class SolrDeployerServiceTest : BehaviorSpec({
-    val managedExecutorService = mockk<ManagedExecutorService>()
     val indexingService = mockk<IndexingService>()
     val solrUrl = "https://example.com/solr"
 
@@ -62,26 +58,21 @@ class SolrDeployerServiceTest : BehaviorSpec({
         mockkConstructor(MultiUpdate::class)
         every { anyConstructed<MultiUpdate>().process(any()) } returns null
         every { solrSchemaUpdate.teHerindexerenZoekObjectTypes } returns setOf(ZoekObjectType.ZAAK)
-        val submittedRunnable = slot<Runnable>()
-        every { managedExecutorService.submit(capture(submittedRunnable)) } returns CompletableFuture.completedFuture(null)
-        every { indexingService.reindexAll(any()) } just runs
+        every { indexingService.reindexAllAsync(any()) } just runs
 
-        // prepare the SolrDeployerService by setting the executor service and the available schema updates
-        solrDeployerService.setManagedExecutorService(managedExecutorService)
+        // prepare the SolrDeployerService by setting the available schema updates
         solrDeployerService.setSchemaUpdates(solrSchemaUpdateInstance)
 
         `when`("the ZAC Solr deployer service is started") {
             solrDeployerService.onStartup(Any())
-            submittedRunnable.captured.run()
 
             then(
                 """the Solr schema should be updated to the available version and the complete reindexing
-                   process should be triggered for the zaaktypes that need reindexing"""
+                   process should be triggered asynchronously for the zaaktypes that need reindexing"""
             ) {
                 verify(exactly = 1) {
                     anyConstructed<MultiUpdate>().process(any())
-                    managedExecutorService.submit(any())
-                    indexingService.reindexAll(setOf(ZoekObjectType.ZAAK))
+                    indexingService.reindexAllAsync(setOf(ZoekObjectType.ZAAK))
                 }
             }
         }
