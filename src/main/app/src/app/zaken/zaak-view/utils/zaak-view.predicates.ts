@@ -6,7 +6,10 @@
 import { GeneratedType } from "../../../shared/utils/generated-types";
 
 export type InitiatorViewType =
-  "PERSON" | "COMPANY" | "CONTACT_DETAILS" | "ADD";
+  | "PERSON"
+  | "COMPANY"
+  | "CONTACT_DETAILS"
+  | "ADD";
 
 type Zaak = GeneratedType<"RestZaak">;
 
@@ -29,7 +32,7 @@ export function hasZaakSpecificContactDetails(zaak: Zaak) {
   const { zaakSpecificContactDetails } = zaak;
   return Boolean(
     zaakSpecificContactDetails?.telephoneNumber ||
-    zaakSpecificContactDetails?.emailAddress,
+      zaakSpecificContactDetails?.emailAddress,
   );
 }
 
@@ -60,15 +63,15 @@ export function initiatorViewType(zaak: Zaak): InitiatorViewType {
 export function allowBedrijf(zaak: Zaak) {
   return Boolean(
     zaak.rechten.toevoegenInitiatorBedrijf &&
-    betrokkeneKoppelingen(zaak)?.kvkKoppelen,
+      betrokkeneKoppelingen(zaak)?.kvkKoppelen,
   );
 }
 
 export function allowPersoon(zaak: Zaak, hasBrpSearchRight: boolean) {
   return Boolean(
     zaak.rechten.toevoegenInitiatorPersoon &&
-    betrokkeneKoppelingen(zaak)?.brpKoppelen &&
-    hasBrpSearchRight,
+      betrokkeneKoppelingen(zaak)?.brpKoppelen &&
+      hasBrpSearchRight,
   );
 }
 

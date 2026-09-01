@@ -34,7 +34,7 @@ describe(ZaakActionDialogsService.name, () => {
   let takenService: TakenService;
   let utilService: UtilService;
   let zaakDialogService: ZaakDialogService;
-  let dialog: { open: jest.Mock };
+  let openDialog: jest.SpyInstance;
   let sidenav: { open: jest.Mock; close: jest.Mock };
   let closed: Subject<unknown>;
 
@@ -57,7 +57,6 @@ describe(ZaakActionDialogsService.name, () => {
 
   beforeEach(() => {
     closed = new Subject<unknown>();
-    dialog = { open: jest.fn(() => dialogRefClosingWith()) };
 
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
@@ -65,11 +64,14 @@ describe(ZaakActionDialogsService.name, () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideQueryClient(testQueryClient),
-        { provide: MatDialog, useValue: dialog },
         ZaakSideActionService,
         ZaakActionDialogsService,
       ],
     });
+
+    openDialog = jest
+      .spyOn(TestBed.inject(MatDialog), "open")
+      .mockImplementation(() => dialogRefClosingWith());
 
     service = TestBed.inject(ZaakActionDialogsService);
     sideActions = TestBed.inject(ZaakSideActionService);
@@ -91,7 +93,7 @@ describe(ZaakActionDialogsService.name, () => {
       service.openAfsluiten(zaak);
 
       expect(sidenav.close).toHaveBeenCalled();
-      expect(dialog.open).toHaveBeenCalledWith(ZaakAfhandelenDialogComponent, {
+      expect(openDialog).toHaveBeenCalledWith(ZaakAfhandelenDialogComponent, {
         data: { zaak },
       });
     });
@@ -129,7 +131,7 @@ describe(ZaakActionDialogsService.name, () => {
 
       service.openAfbreken(fromPartial({ ...zaak, isOpgeschort: true }));
 
-      expect(dialog.open).toHaveBeenCalledWith(ActieOnmogelijkDialogComponent);
+      expect(openDialog).toHaveBeenCalledWith(ActieOnmogelijkDialogComponent);
       expect(afbrekenSpy).not.toHaveBeenCalled();
     });
 
@@ -245,7 +247,7 @@ describe(ZaakActionDialogsService.name, () => {
       service.openVerlengen(zaak);
 
       expect(sidenav.close).toHaveBeenCalled();
-      expect(dialog.open).toHaveBeenCalledWith(ZaakVerlengenDialogComponent, {
+      expect(openDialog).toHaveBeenCalledWith(ZaakVerlengenDialogComponent, {
         data: { zaak },
       });
     });
@@ -303,7 +305,7 @@ describe(ZaakActionDialogsService.name, () => {
       service.openBrondatumZetten(zaak);
 
       expect(sidenav.close).toHaveBeenCalled();
-      expect(dialog.open).toHaveBeenCalledWith(
+      expect(openDialog).toHaveBeenCalledWith(
         ZaakBrondatumZettenDialogComponent,
         { data: { zaak } },
       );
@@ -333,7 +335,7 @@ describe(ZaakActionDialogsService.name, () => {
     it("opens the intake afronden dialog for an INTAKE_AFRONDEN plan item", () => {
       service.openPlanItemStarten(zaak, intakePlanItem);
 
-      expect(dialog.open).toHaveBeenCalledWith(IntakeAfrondenDialogComponent, {
+      expect(openDialog).toHaveBeenCalledWith(IntakeAfrondenDialogComponent, {
         data: { zaak, planItem: intakePlanItem },
       });
     });
@@ -349,7 +351,7 @@ describe(ZaakActionDialogsService.name, () => {
 
       service.openPlanItemStarten(opgeschorteZaak, planItem);
 
-      expect(dialog.open).toHaveBeenCalledWith(ActieOnmogelijkDialogComponent, {
+      expect(openDialog).toHaveBeenCalledWith(ActieOnmogelijkDialogComponent, {
         data: { zaak: opgeschorteZaak, planItem },
       });
     });
@@ -398,7 +400,7 @@ describe(ZaakActionDialogsService.name, () => {
     it("hands the dialog the zaak uuid and the relation it should undo", () => {
       service.openZaakOntkoppelen(zaak, gerelateerdeZaak);
 
-      expect(dialog.open).toHaveBeenCalledWith(ZaakOntkoppelenDialogComponent, {
+      expect(openDialog).toHaveBeenCalledWith(ZaakOntkoppelenDialogComponent, {
         data: {
           zaakUuid: zaak.uuid,
           gekoppeldeZaakIdentificatie: "ZAAK-002",

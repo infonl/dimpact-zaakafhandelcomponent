@@ -54,8 +54,8 @@ import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.comp
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
 import { ZakenService } from "../zaken.service";
-import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
 import { ZaakSideActionService } from "./services/zaak-side-action.service";
+import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
 const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
