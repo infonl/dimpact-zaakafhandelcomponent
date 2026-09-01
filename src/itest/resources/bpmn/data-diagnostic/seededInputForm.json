@@ -144,8 +144,8 @@
           "key": "IN_taakBehandelaar",
           "input": true,
           "tableView": false,
-          "description": "customDefaultValue: \"value = ZAC_opmaakLegeWaarde(taak.behandelaar.naam, 'geen')\"",
-          "customDefaultValue": "value = ZAC_opmaakLegeWaarde(taak.behandelaar.naam, 'geen')"
+          "description": "customDefaultValue: \"value = ZAC_opmaakLegeWaarde(taak.behandelaar.naam, 'geen behandelaar in object')\"",
+          "customDefaultValue": "value = ZAC_opmaakLegeWaarde(taak.behandelaar.naam, 'geen behandelaar in object')"
         },
         {
           "label": "Deadline in a date picker",
