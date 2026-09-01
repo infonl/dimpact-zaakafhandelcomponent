@@ -953,4 +953,74 @@ describe(ZaakViewComponent.name, () => {
       ]);
     });
   });
+
+  describe("the panel each menu button opens", () => {
+    const zaakWithEveryPanel = fromPartial<GeneratedType<"RestZaak">>({
+      ...zaak,
+      isOpen: true,
+      isInIntakeFase: false,
+      isBesluittypeAanwezig: true,
+      heeftOntvangstbevestigingVerstuurd: false,
+      zaakdata: { fakeZaakdataKey: "fakeZaakdataValue" },
+      zaakgeometrie: undefined,
+      bpmnProcessDefinition: fromPartial<
+        GeneratedType<"RestZaakBpmnProcessDefinition">
+      >({ processDefinitionKey: "fakeProcessDefinitionKey" }),
+      rechten: {
+        ...zaak.rechten,
+        behandelen: true,
+        wijzigen: true,
+        wijzigenLocatie: true,
+        creerenDocument: true,
+        versturenEmail: true,
+        versturenOntvangstbevestiging: true,
+        bekijkenZaakdata: true,
+        toevoegenBagObject: true,
+        toevoegenInitiatorBedrijf: true,
+      },
+      zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+        ...zaak.zaaktype,
+        zaakafhandelparameters: fromPartial<
+          GeneratedType<"RestZaakafhandelParameters">
+        >({
+          smartDocuments: { enabledForZaaktype: true, enabledGlobally: true },
+          betrokkeneKoppelingen: { kvkKoppelen: true },
+        }),
+      }),
+    });
+
+    const panelsOpenedFromTheMenu = [
+      ["actie.ontvangstbevestiging.versturen", "zac-ontvangstbevestiging"],
+      ["actie.mail.versturen", "zac-mail-create"],
+      ["actie.document.maken", "zac-informatie-object-create-attended"],
+      ["actie.document.toevoegen", "zac-informatie-object-add"],
+      ["actie.document.verzenden", "zac-informatie-verzenden"],
+      ["actie.besluit.vastleggen", "zac-besluit-create"],
+      ["actie.zaakdata.bekijken", "zac-zaakdata"],
+      ["actie.procesverloop.bekijken", "zac-zaak-process-flow"],
+      ["actie.betrokkene.koppelen", "zac-klant-koppel"],
+      ["actie.bagObject.koppelen", "zac-bag-zoek"],
+      ["actie.zaak.koppelen", "zac-zaak-link"],
+      ["actie.zaak.locatie.koppelen", "zac-case-location-edit"],
+    ] as const;
+
+    beforeEach(() => {
+      mockActivatedRoute.data.next({ zaak: zaakWithEveryPanel });
+      fixture.detectChanges();
+    });
+
+    it.each(panelsOpenedFromTheMenu)(
+      "shows %s in the sidenav",
+      async (title, panel) => {
+        const button = await loader.getHarness(
+          MatNavListItemHarness.with({ title }),
+        );
+
+        await button.click();
+        fixture.detectChanges();
+
+        expect(await loader.getChildLoader(panel)).toBeTruthy();
+      },
+    );
+  });
 });
