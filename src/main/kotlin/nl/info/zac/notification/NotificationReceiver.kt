@@ -14,7 +14,6 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders
-import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.event.EventingService
@@ -277,16 +276,18 @@ class NotificationReceiver @Inject constructor(
      * reindexing the zaak's documenten requires a ZGW call per document, so reindexing on every
      * zaakeigenschap notificatie would be expensive on a path that Open Notificaties retries on
      * timeout. A 'destroy' notificatie cannot be read back to check its naam, so it always triggers
-     * a reindex, as does a zaakeigenschap that turns out to already be deleted by the time this
-     * notificatie is processed: it can no longer be read back either, so it is treated the same as a
-     * 'destroy' notificatie rather than aborting the reindex on the 404. Because the documenten are
+     * a reindex, as does a zaakeigenschap that cannot be read back for any other reason: whether it
+     * has already been deleted (a 404) or the read itself failed (e.g. a ZGW timeout or 5xx), the safe
+     * default is to reindex anyway, since a transient read failure only costs one extra reindex, while
+     * silently skipping it would leave the zaak out of sync with Solr with nothing left to retry, as
+     * this handler already reports success back to Open Notificaties. Because the documenten are
      * reindexed asynchronously, there is a short window where the zaak (and its taken) already reflect
      * the new zaakspecifiek geautoriseerd status but its documenten do not yet.
      */
     private fun handleZaakeigenschapIndexing(notification: Notification) {
         val zaakUUID = notification.mainResourceUrl.extractUuid()
         if (notification.action != Action.DELETE &&
-            !isZaakeigenschapGeautoriseerdOrAlreadyDeleted(notification, zaakUUID)
+            !isZaakeigenschapGeautoriseerdOrUnreadable(notification, zaakUUID)
         ) {
             return
         }
@@ -295,12 +296,17 @@ class NotificationReceiver @Inject constructor(
         indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
     }
 
-    @Suppress("SwallowedException")
-    private fun isZaakeigenschapGeautoriseerdOrAlreadyDeleted(notification: Notification, zaakUUID: UUID) =
+    @Suppress("TooGenericExceptionCaught")
+    private fun isZaakeigenschapGeautoriseerdOrUnreadable(notification: Notification, zaakUUID: UUID) =
         try {
             zrcClientService.readZaakeigenschap(zaakUUID, notification.resourceUrl.extractUuid()).naam ==
                 ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
-        } catch (notFoundException: NotFoundException) {
+        } catch (exception: RuntimeException) {
+            LOG.log(
+                Level.WARNING,
+                "Failed to read zaakeigenschap for zaak with UUID '$zaakUUID'; reindexing the zaak defensively",
+                exception
+            )
             true
         }
 
