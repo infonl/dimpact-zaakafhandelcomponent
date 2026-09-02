@@ -263,9 +263,9 @@ describe(buildZaakMenu.name, () => {
             resultaat: fromPartial({
               resultaattype: fromPartial({
                 bronArchiefprocedure: fromPartial({
+                  // ZGW sends lowercase values; the generated union lists the uppercase enum names
                   afleidingswijze:
-                    afleidingswijze as GeneratedType<"RestZaak">["resultaat"] &
-                      never,
+                    afleidingswijze as GeneratedType<"AfleidingswijzeEnum">,
                 }),
               }),
             }),
