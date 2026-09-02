@@ -246,14 +246,16 @@ class IndexingService @Inject constructor(
      */
     fun addOrUpdateZaak(zaakUUID: UUID, inclusiefTaken: Boolean) {
         val isZaakspecifiekGeautoriseerd = memoizedIsZaakspecifiekGeautoriseerd()
-        addToSolrIndex(
-            listOf(
-                continueOnExceptions(ZoekObjectType.ZAAK) {
-                    zaakZoekObjectConverter.convert(zaakUUID.toString(), isZaakspecifiekGeautoriseerd)
-                }
-            ),
-            performCommit = false
-        )
+        continueOnExceptions(ZoekObjectType.ZAAK) {
+            addToSolrIndex(
+                listOf(
+                    continueOnExceptions(ZoekObjectType.ZAAK) {
+                        zaakZoekObjectConverter.convert(zaakUUID.toString(), isZaakspecifiekGeautoriseerd)
+                    }
+                ),
+                performCommit = false
+            )
+        }
         if (inclusiefTaken) {
             flowableTaskService.listOpenTasksForZaak(zaakUUID)
                 .map { it.id }
@@ -295,17 +297,19 @@ class IndexingService @Inject constructor(
     fun addOrUpdateInformatieobjectenForZaak(zaakUUID: UUID) {
         val isZaakspecifiekGeautoriseerd = memoizedIsZaakspecifiekGeautoriseerd()
         zrcClientService.listZaakinformatieobjecten(zrcClientService.readZaak(zaakUUID)).forEach {
-            addToSolrIndex(
-                listOf(
-                    continueOnExceptions(ZoekObjectType.DOCUMENT) {
-                        documentZoekObjectConverter.convert(
-                            it.informatieobject.extractUuid().toString(),
-                            isZaakspecifiekGeautoriseerd
-                        )
-                    }
-                ),
-                performCommit = false
-            )
+            continueOnExceptions(ZoekObjectType.DOCUMENT) {
+                addToSolrIndex(
+                    listOf(
+                        continueOnExceptions(ZoekObjectType.DOCUMENT) {
+                            documentZoekObjectConverter.convert(
+                                it.informatieobject.extractUuid().toString(),
+                                isZaakspecifiekGeautoriseerd
+                            )
+                        }
+                    ),
+                    performCommit = false
+                )
+            }
         }
     }
 
@@ -317,14 +321,16 @@ class IndexingService @Inject constructor(
      * and [addOrUpdateTakenForZaak] to share one memoized lookup across the taken of one zaak.
      */
     private fun addOrUpdateTaak(taskID: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean) =
-        addToSolrIndex(
-            listOf(
-                continueOnExceptions(ZoekObjectType.TAAK) {
-                    taakZoekObjectConverter.convert(taskID, isZaakspecifiekGeautoriseerd)
-                }
-            ),
-            performCommit = false
-        )
+        continueOnExceptions(ZoekObjectType.TAAK) {
+            addToSolrIndex(
+                listOf(
+                    continueOnExceptions(ZoekObjectType.TAAK) {
+                        taakZoekObjectConverter.convert(taskID, isZaakspecifiekGeautoriseerd)
+                    }
+                ),
+                performCommit = false
+            )
+        }
 
     /**
      * Returns an `isZaakspecifiekGeautoriseerd` lookup that memoizes [ZrcClientService.isZaakspecifiekGeautoriseerd]
@@ -642,6 +648,8 @@ class IndexingService @Inject constructor(
     private fun <T> runTranslatingToIndexingException(fn: () -> T): T {
         try {
             return fn()
+        } catch (indexingException: IndexingException) {
+            throw indexingException
         } catch (exception: Exception) {
             throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, exception)
         }
