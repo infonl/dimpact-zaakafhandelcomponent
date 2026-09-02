@@ -11,6 +11,7 @@ import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
+import org.apache.solr.common.util.Utils
 import java.io.ByteArrayOutputStream
 
 class SolrSchemaV8Test : BehaviorSpec({
@@ -45,6 +46,22 @@ class SolrSchemaV8Test : BehaviorSpec({
                     allUpdates shouldContain TaakZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD
                     allUpdates shouldContain DocumentZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD
                 }
+            }
+
+            then("each per-type field is copied into the shared field, and not the other way around") {
+                val copyFieldsBySource = schemaUpdatesJson
+                    .map { Utils.fromJSONString(it) as Map<*, *> }
+                    .mapNotNull { it["add-copy-field"] as? Map<*, *> }
+                    .associate { it["source"] to it["dest"] }
+
+                copyFieldsBySource shouldBe mapOf(
+                    ZaakZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD to
+                        listOf(ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD),
+                    TaakZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD to
+                        listOf(ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD),
+                    DocumentZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD to
+                        listOf(ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD)
+                )
             }
         }
     }
