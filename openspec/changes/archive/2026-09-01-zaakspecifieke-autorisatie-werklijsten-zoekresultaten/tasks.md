@@ -11,11 +11,12 @@
 - [x] 1.3 Add a new `SolrSchemaVx` (next version after the current highest) that adds the three prefixed
       boolean fields and a `copyField` from each into a shared `zaakspecifiekGeautoriseerd` field (mirroring
       the existing `zaaktypeOmschrijving` copyField pattern). Leave `getTeHerindexerenZoekObjectTypes()`
-      empty for this version — no zaak in production is zaakspecifiek geautoriseerd yet, so there is
-      nothing to backfill, and reindexing all zaken/taken/documenten upfront could take a long time on
-      large environments; a later story in this epic lists `ZAAK`, `TAAK`, and `DOCUMENT` there once the
-      flag starts being set for real zaken. Verify with a `SolrSchemaVx` unit test matching the existing
-      `SolrSchemaV*` test pattern.
+      empty for this version: an automated reindex of existing zaken/taken/documenten is **deliberately not
+      done in this PR**, because it can cause load/duration problems on real environments; the reindex is
+      to be triggered **manually**, per environment, at a later time — see design.md for the accepted gap
+      this leaves (existing flagged zaken stay visible until reindexed) and the correction to the earlier,
+      incorrect "no zaak in production is zaakspecifiek geautoriseerd yet" justification. Verify with a
+      `SolrSchemaVx` unit test matching the existing `SolrSchemaV*` test pattern.
 - [x] 1.4 Handle the `zaakeigenschap` notificatie in `NotificationReceiver` (previously unhandled, falling
       through to `else -> {}`): on a `zaakeigenschap` change, reindex the zaak (via
       `addOrUpdateZaak(zaakUUID, inclusiefTaken = false)`), both its open and completed taken (new

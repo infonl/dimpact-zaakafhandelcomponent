@@ -22,10 +22,16 @@ exactly as they would see any other zaak of that zaaktype. No visual indicator i
 - Index the zaak's `ZAAK_GEAUTORISEERD` eigenschap into Solr as a new boolean field on the `ZaakZoekObject`,
   `TaakZoekObject`, and `DocumentZoekObject` documents (denormalized at index time from
   `ZrcClientService.isZaakspecifiekGeautoriseerd`, mirroring how `PolicyService` already reads it for
-  single-resource rechten), via a new Solr schema version. This version does not trigger a reindex of
-  existing data: no zaak in production is zaakspecifiek geautoriseerd yet, so there is nothing to backfill,
-  and reindexing all zaken/taken/documenten upfront could take a long time on large environments. A later
-  story in this epic adds the reindex once the flag starts being set for real zaken.
+  single-resource rechten), via a new Solr schema version. **This version deliberately does not trigger an
+  automated reindex of existing data** — an automated full reindex risks its own production incident
+  (load/duration on large environments) — and that reindex will instead be triggered **manually**, per
+  environment, at a later time. Note: this is *not* because no zaak in production is zaakspecifiek
+  geautoriseerd yet — `2026-08-24-zaakspecifiek-autorisatie-behandelaar-access-control` merged to `main` a
+  week earlier and already enforces the flag on single-resource access, so flagged zaken can already exist.
+  Until each environment's manual reindex runs, any zaak flagged before this deploy and not otherwise
+  touched by a later indexing event remains visible in werklijsten/zoekresultaten/CSV export to users who
+  should no longer see it. See design.md - Risks / Trade-offs and Migration Plan for the accepted gap and
+  the required manual step.
 - Extend `SearchService.search()`'s existing allowed-zaaktypen filter query so that, for a zaaktype where
   the logged-in user holds an application role but not `zaakspecifiek_geautoriseerd`, zaakspecifiek
   geautoriseerde zaken (and their taken/documenten) of that zaaktype are excluded from the Solr result set

@@ -53,17 +53,28 @@ into one shared `zaakspecifiekGeautoriseerd` Solr field — the same pattern alr
 `TAAK`, and `DOCUMENT` result rows, consistent with how the existing allowed-zaaktypen filter already
 works across all three.
 
-### New Solr schema version; automatic reindex deferred to a later phase
+### New Solr schema version; automatic reindex deliberately NOT done in this PR
 
 Add a new `SolrSchemaVx` (next after the current highest version) that adds the three fields and the
 copyField, following the existing versioning mechanism in `SolrDeployerService`/`SolrSchemaUpdate`. It
-lists no zoekobject types in `getTeHerindexerenZoekObjectTypes()` yet: no zaak in production is
-zaakspecifiek geautoriseerd at this point in the epic's rollout, so there is nothing yet for the new
-field to correct, and triggering an automatic reindex of every zaak/taak/document would take a long time
-(potentially days) on environments with a lot of data, for no observable benefit today. A later story in
-this epic lists `ZAAK`, `TAAK`, and `DOCUMENT` in a subsequent schema version once the flag starts being
-set, so previously-indexed documents get reindexed at that point. Until then, the field can be backfilled
-manually on any environment where it is needed sooner.
+lists no zoekobject types in `getTeHerindexerenZoekObjectTypes()`: this schema bump is explicitly shipped
+**without** an automated reindex of existing zaken/taken/documenten. This is an intentional choice, not an
+oversight — an automated full reindex can cause real problems on production environments (load, duration,
+potential downtime for search) and this change deliberately avoids triggering one as a side effect of a
+schema deploy. The reindex will instead be **triggered manually**, on each environment, at a time of that
+environment's choosing, using the existing manual reindex mechanism
+(`/internal/indexeren/herindexeren/{type}`). There is no automated or otherwise surfaced trigger for that
+manual step in this change — it is an operational follow-up, not something this deploy schedules or
+reminds anyone to do.
+
+**Correction to an earlier justification in this document:** an earlier version of this design justified
+skipping the reindex with "no zaak in production is zaakspecifiek geautoriseerd yet." That premise is
+false: [PZ-11909](https://dimpact.atlassian.net/browse/PZ-11909) (archived as
+`2026-08-24-zaakspecifiek-autorisatie-behandelaar-access-control`) merged to `main` a week before this
+change and already enforces the `ZAAK_GEAUTORISEERD` flag on single-resource zaak/taak/document access. Any
+zaak flagged in production between that deploy and this one is real, existing data this schema bump does
+not backfill. See Risks / Trade-offs below for the resulting gap and Migration Plan for the manual step
+required to close it.
 
 ### Filter construction: exclude flagged rows per zaaktype the user lacks the flag for
 
@@ -90,11 +101,21 @@ to describe.
 
 ## Risks / Trade-offs
 
-- [No automatic reindex means every zaak/taak/document indexed before this deploy keeps the new field
-  unset/false until it is next reindexed by its normal event-driven trigger or a later schema version] →
-  Accepted: no zaak in production is zaakspecifiek geautoriseerd yet, so "not flagged" is also the correct
-  value for all pre-existing data — there is nothing to backfill. A later story in this epic adds the
-  reindex once the flag starts being set for real zaken.
+- **[Known gap, NOT fully mitigated] No automatic reindex means every zaak/taak/document indexed before
+  this deploy keeps the new field unset/false until it is next reindexed by its normal event-driven trigger
+  or a manual reindex.** Because `ZAAK_GEAUTORISEERD` has been settable in production since
+  `2026-08-24-zaakspecifiek-autorisatie-behandelaar-access-control` merged (see Decisions above), a zaak
+  flagged before this deploy and not otherwise touched by a later, unrelated indexing event stays indexed
+  with `zaakspecifiekGeautoriseerd:false`. A user without the `zaakspecifiek_geautoriseerd` role for that
+  zaaktype keeps seeing that zaak — and its taken and documenten — in werklijsten, zoekresultaten, and CSV
+  export, indefinitely, until someone reindexes it. This is exactly the exposure this story exists to
+  close, left open for any zaak flagged in the gap between the two deploys. Not accepted as a non-issue:
+  accepted only because a full automated reindex triggered by this schema deploy risks its own production
+  incident (see next bullet), and this design explicitly trades "close the gap immediately" for "close it
+  deliberately, via a manual reindex run by whoever operates each environment, at a time of their choosing."
+  No automated or surfaced reminder/trigger exists in this change for that manual step — it must be tracked
+  and executed as a separate operational action per environment, ideally before or immediately after this
+  deploy rather than left indefinitely.
 - [A future automatic reindex (once triggered) is asynchronous and takes time proportional to the number
   of zaken/taken/documenten] → Same trade-off every prior `SolrSchemaUpdate` already accepts (e.g.
   `SolrSchemaV7`); deferring it here also avoids imposing a multi-day reindex on large environments before
@@ -119,13 +140,16 @@ to describe.
 
 ## Migration Plan
 
-Deploy-time only, no manual steps required for the schema change itself: the new `SolrSchemaVx` is picked up
-by `SolrDeployerService` on next startup and applies the schema changes. It does not trigger a reindex —
-`getTeHerindexerenZoekObjectTypes()` is empty for this version — so this deploy causes no reindex load and no
-deploy-time downtime on any environment, regardless of the number of zaken, taken, or documenten. As noted
-above, an environment that needs the field backfilled sooner than the later story can trigger a manual
-reindex of `ZAAK`, `TAAK`, and `DOCUMENT`. A later story in this epic adds the
-reindex, once zaken actually start being flagged zaakspecifiek geautoriseerd, following the same
-`SolrDeployerService`/`ManagedExecutorService` background-reindex mechanism used by prior schema versions
-(e.g. `SolrSchemaV7`). No rollback concerns beyond the existing schema-version mechanism (a later deploy
-would need its own schema version to revert, same as any other `SolrSchemaUpdate`).
+The schema change itself is deploy-time only, no manual step: the new `SolrSchemaVx` is picked up by
+`SolrDeployerService` on next startup and applies the schema changes. It deliberately does not trigger a
+reindex — `getTeHerindexerenZoekObjectTypes()` is empty for this version, by design, to avoid imposing an
+automated full reindex on any environment (see Decisions and Risks / Trade-offs above for why).
+
+**Required manual follow-up, not automated by this change:** because zaken can already carry
+`ZAAK_GEAUTORISEERD` in production (see Decisions above), each environment operator must trigger a manual
+reindex of `ZAAK`, `TAAK`, and `DOCUMENT` (via `/internal/indexeren/herindexeren/{type}`) themselves — ideally
+around this deploy — to backfill the new field on already-indexed data and close the visibility gap
+described in Risks / Trade-offs. This change does not schedule, remind, or otherwise surface that step; it
+is tracked and executed outside of this PR. No rollback concerns beyond the existing schema-version
+mechanism (a later deploy would need its own schema version to revert, same as any other
+`SolrSchemaUpdate`).
