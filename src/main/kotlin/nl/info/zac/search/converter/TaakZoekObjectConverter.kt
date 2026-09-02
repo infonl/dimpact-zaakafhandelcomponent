@@ -22,6 +22,7 @@ import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
+import java.util.UUID
 
 class TaakZoekObjectConverter @Inject constructor(
     private val identityService: IdentityService,
@@ -30,7 +31,15 @@ class TaakZoekObjectConverter @Inject constructor(
     private val zrcClientService: ZrcClientService
 ) : AbstractZoekObjectConverter<TaakZoekObject>() {
 
-    override fun convert(id: String): TaakZoekObject {
+    override fun convert(id: String): TaakZoekObject =
+        convert(id, zrcClientService::isZaakspecifiekGeautoriseerd)
+
+    /**
+     * Converts [id], looking up the zaakspecifiek geautoriseerd flag through [isZaakspecifiekGeautoriseerd]
+     * instead of always calling [ZrcClientService.isZaakspecifiekGeautoriseerd] directly. Used by
+     * [nl.info.zac.search.IndexingService] to memoize that lookup per zaak UUID across the taken of one zaak.
+     */
+    fun convert(id: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): TaakZoekObject {
         val taskInfo = flowableTaskService.readTask(id)
         val zaakUUID = TaakVariabelenService.readZaakUUID(taskInfo)
         val zaak = zrcClientService.readZaak(zaakUUID)
@@ -52,7 +61,7 @@ class TaakZoekObjectConverter @Inject constructor(
             zaakIdentificatie = readZaakIdentificatie(taskInfo)
             zaakOmschrijving = zaak.omschrijving
             zaakToelichting = zaak.toelichting
-            isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
+            this.isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd(zaakUUID)
             taakData = readTaskData(taskInfo).entries.map { "${it.key}|${it.value}" }
             taakInformatie = readTaskInformation(taskInfo).entries.map { "${it.key}|${it.value}" }
             taskInfo.assignee?.let {

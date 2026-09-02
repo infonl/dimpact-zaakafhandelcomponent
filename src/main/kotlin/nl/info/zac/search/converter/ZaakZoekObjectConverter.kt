@@ -40,14 +40,23 @@ class ZaakZoekObjectConverter @Inject constructor(
     private val flowableTaskService: FlowableTaskService
 ) : AbstractZoekObjectConverter<ZaakZoekObject>() {
 
-    override fun convert(id: String): ZaakZoekObject {
+    override fun convert(id: String): ZaakZoekObject =
+        convert(id, zrcClientService::isZaakspecifiekGeautoriseerd)
+
+    /**
+     * Converts [id], looking up the zaakspecifiek geautoriseerd flag through [isZaakspecifiekGeautoriseerd]
+     * instead of always calling [ZrcClientService.isZaakspecifiekGeautoriseerd] directly. Used by
+     * [nl.info.zac.search.IndexingService] to memoize that lookup per zaak UUID across the taken of one zaak.
+     */
+    fun convert(id: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): ZaakZoekObject {
         val zaak = zrcClientService.readZaak(UUID.fromString(id))
-        return convert(zaak)
+        return convert(zaak, isZaakspecifiekGeautoriseerd)
     }
+
     override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.ZAAK
 
     @Suppress("LongMethod")
-    private fun convert(zaak: Zaak): ZaakZoekObject {
+    private fun convert(zaak: Zaak, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): ZaakZoekObject {
         val roles = zrcClientService.listRollen(zaak)
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakZoekObject = ZaakZoekObject(
@@ -58,7 +67,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             zaaktypeOmschrijving = zaaktype.omschrijving,
             zaaktypeUuid = zaaktype.url.extractUuid().toString()
         ).apply {
-            isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
+            this.isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd(zaak.uuid)
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting
             registratiedatum = zaak.registratiedatum?.let(::convertToDate)
