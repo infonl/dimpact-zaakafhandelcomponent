@@ -39,7 +39,9 @@ class SolrSchemaV8Test : BehaviorSpec({
 
             then("the shared field and each zoekobject's own Solr field are actually defined") {
                 schemaUpdatesJson.joinToString("\n").let { allUpdates ->
-                    allUpdates shouldContain SHARED_FIELD
+                    // quoted so a rename of a prefixed field (e.g. "zaak_zaakspecifiekGeautoriseerd")
+                    // can never satisfy this on a substring match alone
+                    allUpdates shouldContain "\"$SHARED_FIELD\""
                     allUpdates shouldContain ZaakZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD
                     allUpdates shouldContain TaakZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD
                     allUpdates shouldContain DocumentZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD
