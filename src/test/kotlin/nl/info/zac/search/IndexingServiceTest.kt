@@ -166,7 +166,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter andThen ctx.zaakZoekObjectConverter
         zaken.forEachIndexed { index, zaak ->
-            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } returns zaakZoekObjecten[index]
         }
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
@@ -205,10 +205,10 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
-        every { ctx.zaakZoekObjectConverter.convert(zaken[0].uuid.toString()) } returns zaakZoekObjecten[0]
-        every { ctx.zaakZoekObjectConverter.convert(zaken[1].uuid.toString()) } throws
+        every { ctx.zaakZoekObjectConverter.convert(zaken[0].uuid.toString(), any()) } returns zaakZoekObjecten[0]
+        every { ctx.zaakZoekObjectConverter.convert(zaken[1].uuid.toString(), any()) } throws
             RuntimeException("fake conversion failure")
-        every { ctx.zaakZoekObjectConverter.convert(zaken[2].uuid.toString()) } returns zaakZoekObjecten[1]
+        every { ctx.zaakZoekObjectConverter.convert(zaken[2].uuid.toString(), any()) } returns zaakZoekObjecten[1]
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
         `when`(
@@ -246,7 +246,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
         zaken.forEachIndexed { index, zaak ->
-            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } answers {
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } answers {
                 val current = activeConversions.incrementAndGet()
                 maxObservedConcurrency.updateAndGet { previousMax -> maxOf(previousMax, current) }
                 try {
@@ -269,6 +269,44 @@ class IndexingServiceTest : BehaviorSpec({
             then("all zaken in the page are still converted and added to the Solr index") {
                 verify(exactly = 1) {
                     ctx.solrClient.addBeans(match<Collection<*>> { it.size == pageSize })
+                }
+            }
+        }
+    }
+
+    given("A page of documenten, all linked to the same zaak, exceeding the conversion concurrency limit") {
+        val ctx = setupContext()
+        val pageSize = 20
+        val zaakUUID = UUID.randomUUID()
+        val informatieobjectUUIDs = List(pageSize) { UUID.randomUUID().toString() }
+        val documentZoekObjecten = List(pageSize) { createDocumentZoekObject() }
+
+        every { ctx.documentZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns ctx.documentZoekObjectConverter
+        every { ctx.zrcClientService.listZaakeigenschappen(zaakUUID) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+        informatieobjectUUIDs.forEachIndexed { index, informatieobjectUUID ->
+            every { ctx.documentZoekObjectConverter.convert(informatieobjectUUID, any()) } answers {
+                // simulates the converter resolving the memoized flag lookup for the shared zaak,
+                // concurrently with the other documents on this page
+                secondArg<(UUID) -> Boolean>().invoke(zaakUUID)
+                documentZoekObjecten[index]
+            }
+        }
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        `when`("indexeerDirect is called for the page") {
+            ctx.indexingService.indexeerDirect(informatieobjectUUIDs, ZoekObjectType.DOCUMENT, false)
+
+            then(
+                "the shared zaak's zaakspecifiek geautoriseerd flag is looked up only once, despite " +
+                    "every document on the page resolving it concurrently"
+            ) {
+                verify(exactly = 1) {
+                    ctx.zrcClientService.listZaakeigenschappen(zaakUUID)
                 }
             }
         }
@@ -514,7 +552,7 @@ class IndexingServiceTest : BehaviorSpec({
             every { ctx.converterInstancesIterator.hasNext() } returns true andThen true andThen false
             every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter andThen ctx.zaakZoekObjectConverter
             zakenUuid.forEachIndexed { index, zaak ->
-                every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+                every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } returns zaakZoekObjecten[index]
             }
         }
 
@@ -617,7 +655,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter andThen ctx.zaakZoekObjectConverter
         zakenUuid.forEachIndexed { index, zaak ->
-            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } returns zaakZoekObjecten[index]
         }
 
         `when`("reading zaak list throws an `IOException`") {
@@ -682,11 +720,11 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.next() } returns documentZoekObjectConverter
         informatieobjectenPage1.forEachIndexed { index, informatieobject ->
             every {
-                documentZoekObjectConverter.convert(informatieobject.url.extractUuid().toString())
+                documentZoekObjectConverter.convert(informatieobject.url.extractUuid().toString(), any())
             } returns documentZoekObjectenPage1[index]
         }
         every {
-            documentZoekObjectConverter.convert(informatieobjectPage2.url.extractUuid().toString())
+            documentZoekObjectConverter.convert(informatieobjectPage2.url.extractUuid().toString(), any())
         } returns documentZoekObjectPage2
 
         `when`("reindexing of informatieobjecten is called") {
@@ -697,7 +735,65 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.drcClientService.listEnkelvoudigInformatieObjecten(
                         match<EnkelvoudigInformatieobjectListParameters> { it.page == 2 }
                     )
-                    documentZoekObjectConverter.convert(informatieobjectPage2.url.extractUuid().toString())
+                    documentZoekObjectConverter.convert(informatieobjectPage2.url.extractUuid().toString(), any())
+                }
+            }
+        }
+    }
+
+    given("Two documenten on separate reindex pages, both linked to the same zaak") {
+        val ctx = setupContext()
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList().apply {
+            addAll(listOf(SolrDocument(mapOf("id" to 1)), SolrDocument(mapOf("id" to 2))))
+        }
+        val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
+        val zaakUUID = UUID.randomUUID()
+        val informatieobjectPage1 = createEnkelvoudigInformatieObject()
+        val informatieobjectPage2 = createEnkelvoudigInformatieObject()
+
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+        every { ctx.zrcClientService.listZaakeigenschappen(zaakUUID) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(
+                match<EnkelvoudigInformatieobjectListParameters> { it.page == 1 }
+            )
+        } returns Results(listOf(informatieobjectPage1), 102)
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(
+                match<EnkelvoudigInformatieobjectListParameters> { it.page == 2 }
+            )
+        } returns Results(listOf(informatieobjectPage2), 102)
+
+        every { documentZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true
+        every { ctx.converterInstancesIterator.next() } returns documentZoekObjectConverter
+        listOf(informatieobjectPage1, informatieobjectPage2).forEach { informatieobject ->
+            every {
+                documentZoekObjectConverter.convert(informatieobject.url.extractUuid().toString(), any())
+            } answers {
+                secondArg<(UUID) -> Boolean>().invoke(zaakUUID)
+                createDocumentZoekObject()
+            }
+        }
+
+        `when`("reindexing of informatieobjecten is called") {
+            ctx.indexingService.reindex(ZoekObjectType.DOCUMENT)
+
+            then(
+                "the shared zaak's zaakspecifiek geautoriseerd flag is looked up only once across both pages"
+            ) {
+                verify(exactly = 1) {
+                    ctx.zrcClientService.listZaakeigenschappen(zaakUUID)
                 }
             }
         }
@@ -732,7 +828,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns taakZoekObjectConverter
-        every { taakZoekObjectConverter.convert(any()) } throws RuntimeException("fake conversion failure")
+        every { taakZoekObjectConverter.convert(any(), any()) } throws RuntimeException("fake conversion failure")
 
         `when`("reindexing of taken is called") {
             ctx.indexingService.reindex(ZoekObjectType.TAAK)
@@ -776,13 +872,13 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns documentZoekObjectConverter
         every {
-            documentZoekObjectConverter.convert(informatieobjecten[0].url.extractUuid().toString())
+            documentZoekObjectConverter.convert(informatieobjecten[0].url.extractUuid().toString(), any())
         } returns convertedDocumentZoekObject
         every {
-            documentZoekObjectConverter.convert(informatieobjecten[1].url.extractUuid().toString())
+            documentZoekObjectConverter.convert(informatieobjecten[1].url.extractUuid().toString(), any())
         } returns null
         every {
-            documentZoekObjectConverter.convert(informatieobjecten[2].url.extractUuid().toString())
+            documentZoekObjectConverter.convert(informatieobjecten[2].url.extractUuid().toString(), any())
         } throws RuntimeException("fake conversion failure")
         every { ctx.solrClient.addBeans(listOf(convertedDocumentZoekObject)) } returns UpdateResponse()
 
@@ -828,10 +924,10 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
-        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[0].uuid.toString()) } returns zaakZoekObjecten[0]
-        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[1].uuid.toString()) } throws
+        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[0].uuid.toString(), any()) } returns zaakZoekObjecten[0]
+        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[1].uuid.toString(), any()) } throws
             RuntimeException("fake conversion failure")
-        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[2].uuid.toString()) } returns zaakZoekObjecten[1]
+        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[2].uuid.toString(), any()) } returns zaakZoekObjecten[1]
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
         `when`("reindexing of zaken is called") {
@@ -871,7 +967,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
         zakenUuid.forEachIndexed { index, zaak ->
-            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } returns zaakZoekObjecten[index]
         }
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
@@ -920,7 +1016,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
         zakenUuid.forEachIndexed { index, zaak ->
-            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } returns zaakZoekObjecten[index]
         }
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 

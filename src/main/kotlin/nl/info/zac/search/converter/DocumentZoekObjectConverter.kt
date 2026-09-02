@@ -43,7 +43,7 @@ class DocumentZoekObjectConverter @Inject constructor(
      * [nl.info.zac.search.IndexingService.addOrUpdateInformatieobjectenForZaak] to memoize that lookup
      * per zaak UUID across the documents of one zaak.
      */
-    fun convert(id: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): DocumentZoekObject? {
+    override fun convert(id: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): DocumentZoekObject? {
         val document = drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(id))
         val zaakInformatieobject = zrcClientService.listZaakinformatieobjecten(document).firstOrNull() ?: return null
         return convert(document, zaakInformatieobject, isZaakspecifiekGeautoriseerd)

@@ -39,7 +39,7 @@ class TaakZoekObjectConverter @Inject constructor(
      * instead of always calling [ZrcClientService.isZaakspecifiekGeautoriseerd] directly. Used by
      * [nl.info.zac.search.IndexingService] to memoize that lookup per zaak UUID across the taken of one zaak.
      */
-    fun convert(id: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): TaakZoekObject {
+    override fun convert(id: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): TaakZoekObject {
         val taskInfo = flowableTaskService.readTask(id)
         val zaakUUID = TaakVariabelenService.readZaakUUID(taskInfo)
         val zaak = zrcClientService.readZaak(zaakUUID)
