@@ -196,6 +196,16 @@ describe(ZaakActionDialogsService.name, () => {
       expect(readSpy).not.toHaveBeenCalled();
       expect(service.opschorting()).toBeUndefined();
     });
+
+    it("clears previously loaded opschorting when the zaak is no longer opgeschort", () => {
+      service.opschorting.set(
+        fromPartial<GeneratedType<"RESTZaakOpschorting">>({ duurDagen: 14 }),
+      );
+
+      service.loadOpschorting(fromPartial({ ...zaak, isOpgeschort: false }));
+
+      expect(service.opschorting()).toBeUndefined();
+    });
   });
 
   describe("openHervatten", () => {

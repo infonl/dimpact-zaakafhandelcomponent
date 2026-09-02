@@ -54,7 +54,10 @@ export class ZaakActionDialogsService {
   >(undefined);
 
   loadOpschorting(zaak: Zaak) {
-    if (!zaak.isOpgeschort) return;
+    if (!zaak.isOpgeschort) {
+      this.opschorting.set(undefined);
+      return;
+    }
 
     this.zakenService
       .readOpschortingZaak(zaak.uuid)
