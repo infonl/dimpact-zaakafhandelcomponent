@@ -74,7 +74,7 @@ data class TaakZoekObject(
     @Field(ZaakZoekObject.OMSCHRIJVING_FIELD)
     var zaakOmschrijving: String? = null,
 
-    @Field(ZoekObject.Companion.IS_TOEGEKEND_FIELD)
+    @Field(ZoekObject.IS_TOEGEKEND_FIELD)
     var isToegekend: Boolean = false,
 
     @Field(ZAAKSPECIFIEK_GEAUTORISEERD_FIELD)

@@ -4,6 +4,10 @@
  */
 package nl.info.zac.solr.schema
 
+import nl.info.zac.search.model.zoekobject.DocumentZoekObject
+import nl.info.zac.search.model.zoekobject.TaakZoekObject
+import nl.info.zac.search.model.zoekobject.ZaakZoekObject
+import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.solr.FieldType.BOOLEAN
 import nl.info.zac.solr.SolrSchemaUpdate
@@ -26,12 +30,15 @@ class SolrSchemaV8 : SolrSchemaUpdate {
     override val teHerindexerenZoekObjectTypes = emptySet<ZoekObjectType>()
 
     override val schemaUpdates: List<SchemaRequest.Update> = listOf<SchemaRequest.Update>(
-        addField("zaakspecifiekGeautoriseerd", BOOLEAN, docValues = true),
-        addField("zaak_zaakspecifiekGeautoriseerd", BOOLEAN, docValues = true),
-        addCopyField("zaak_zaakspecifiekGeautoriseerd", "zaakspecifiekGeautoriseerd"),
-        addField("taak_zaakspecifiekGeautoriseerd", BOOLEAN, docValues = true),
-        addCopyField("taak_zaakspecifiekGeautoriseerd", "zaakspecifiekGeautoriseerd"),
-        addField("informatieobject_zaakspecifiekGeautoriseerd", BOOLEAN, docValues = true),
-        addCopyField("informatieobject_zaakspecifiekGeautoriseerd", "zaakspecifiekGeautoriseerd")
+        addField(ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD, BOOLEAN, docValues = true),
+        addField(ZaakZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD, BOOLEAN, docValues = true),
+        addCopyField(ZaakZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD, ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD),
+        addField(TaakZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD, BOOLEAN, docValues = true),
+        addCopyField(TaakZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD, ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD),
+        addField(DocumentZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD, BOOLEAN, docValues = true),
+        addCopyField(
+            DocumentZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD,
+            ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD
+        )
     )
 }

@@ -10,9 +10,8 @@ import io.kotest.matchers.string.shouldContain
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
+import nl.info.zac.search.model.zoekobject.ZoekObject
 import java.io.ByteArrayOutputStream
-
-private const val SHARED_FIELD = "zaakspecifiekGeautoriseerd"
 
 class SolrSchemaV8Test : BehaviorSpec({
     given("Solr schema version 8") {
@@ -41,7 +40,7 @@ class SolrSchemaV8Test : BehaviorSpec({
                 schemaUpdatesJson.joinToString("\n").let { allUpdates ->
                     // quoted so a rename of a prefixed field (e.g. "zaak_zaakspecifiekGeautoriseerd")
                     // can never satisfy this on a substring match alone
-                    allUpdates shouldContain "\"$SHARED_FIELD\""
+                    allUpdates shouldContain "\"${ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD}\""
                     allUpdates shouldContain ZaakZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD
                     allUpdates shouldContain TaakZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD
                     allUpdates shouldContain DocumentZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD

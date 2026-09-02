@@ -46,7 +46,6 @@ class SearchService @Inject constructor(
 
         private val NON_EXISTING_ZAAKTYPE = quoted("-NON-EXISTING-ZAAKTYPE-")
         private const val ZAAKTYPE_OMSCHRIJVING_VELD = "zaaktypeOmschrijving"
-        private const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD = "zaakspecifiekGeautoriseerd"
     }
 
     init {
@@ -198,7 +197,7 @@ class SearchService @Inject constructor(
                 null
             } else {
                 "-(" + zaaktypenWithoutFlag.joinToString(" OR ") {
-                    "($ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)} AND $ZAAKSPECIFIEK_GEAUTORISEERD_FIELD:true)"
+                    "($ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)} AND ${ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD}:true)"
                 } + ")"
             }
         }

@@ -125,7 +125,7 @@ data class ZaakZoekObject(
     @Field("zaak_aantalOpenstaandeTaken")
     var aantalOpenstaandeTaken: Long = 0,
 
-    @Field(ZoekObject.Companion.IS_TOEGEKEND_FIELD)
+    @Field(ZoekObject.IS_TOEGEKEND_FIELD)
     var isToegekend: Boolean = false,
 
     @Field("zaak_indicaties")
