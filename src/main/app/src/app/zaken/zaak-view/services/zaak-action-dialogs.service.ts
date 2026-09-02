@@ -61,13 +61,6 @@ export class ZaakActionDialogsService {
       .subscribe((opschorting) => this.opschorting.set(opschorting));
   }
 
-  /** Refetches the zaak into the cache; also used outside any dialog. */
-  refreshZaak(zaak: Zaak) {
-    this.queryClient.invalidateQueries({
-      queryKey: this.zakenService.readZaakQuery(zaak.uuid).queryKey,
-    });
-  }
-
   private refreshTaken(zaak: Zaak) {
     this.queryClient.invalidateQueries({
       queryKey: this.takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
@@ -83,7 +76,7 @@ export class ZaakActionDialogsService {
       this.zakenService.cacheZaak(result);
       return;
     }
-    this.refreshZaak(zaak);
+    this.zakenService.invalidateZaak(zaak.uuid);
   }
 
   private onClosed<T>(closed: Observable<T>, handle: (result: T) => void) {
@@ -113,7 +106,7 @@ export class ZaakActionDialogsService {
         this.utilService.openSnackbar(
           `msg.planitem.uitgevoerd.${planItem.userEventListenerActie}`,
         );
-        this.refreshZaak(zaak);
+        this.zakenService.invalidateZaak(zaak.uuid);
       },
     );
   }
@@ -198,7 +191,7 @@ export class ZaakActionDialogsService {
         .afterClosed(),
       (result) => {
         if (!result) return;
-        this.refreshZaak(zaak);
+        this.zakenService.invalidateZaak(zaak.uuid);
         this.refreshTaken(zaak);
         this.utilService.openSnackbar("msg.zaak.afgesloten");
       },
@@ -214,7 +207,7 @@ export class ZaakActionDialogsService {
         .afterClosed(),
       (result) => {
         if (!result) return;
-        this.refreshZaak(zaak);
+        this.zakenService.invalidateZaak(zaak.uuid);
         this.refreshTaken(zaak);
         this.utilService.openSnackbar("msg.zaak.brondatum.gezet");
       },
@@ -273,7 +266,7 @@ export class ZaakActionDialogsService {
       (result) => {
         if (!result) return;
         this.utilService.openSnackbar("msg.zaak.hervat");
-        this.refreshZaak(zaak);
+        this.zakenService.invalidateZaak(zaak.uuid);
         this.loadOpschorting(zaak);
       },
     );
@@ -296,7 +289,7 @@ export class ZaakActionDialogsService {
       (result) => {
         if (!result) return;
         this.utilService.openSnackbar("msg.zaak.ontkoppelen.uitgevoerd");
-        this.refreshZaak(zaak);
+        this.zakenService.invalidateZaak(zaak.uuid);
       },
     );
   }

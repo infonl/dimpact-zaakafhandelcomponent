@@ -312,7 +312,7 @@ export class ZaakViewComponent
   }
 
   public updateZaak() {
-    this.dialogs.refreshZaak(this.zaak);
+    this.zakenService.invalidateZaak(this.zaak.uuid);
   }
 
   /**
