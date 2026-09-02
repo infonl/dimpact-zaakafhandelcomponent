@@ -6,6 +6,7 @@
 package nl.info.zac.search.model
 
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
@@ -53,7 +54,8 @@ fun createTaakZoekObject(
     zaakIdentificatie: String = "identificatie",
     zaakOmschrijving: String = "fakeOmschrijving",
     behandelaarGebruikersnaam: String? = null,
-    isZaakspecifiekGeautoriseerd: Boolean = false
+    isZaakspecifiekGeautoriseerd: Boolean = false,
+    status: TaakStatus? = null
 ) = TaakZoekObject(
     id = uuidAsString,
     type = type.name,
@@ -67,6 +69,7 @@ fun createTaakZoekObject(
     this.zaakOmschrijving = zaakOmschrijving
     this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
     this.isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
+    status?.let { setStatus(it) }
 }
 
 @Suppress("LongParameterList")

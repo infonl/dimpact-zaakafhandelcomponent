@@ -23,6 +23,7 @@ import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.app.task.model.TaakStatus.AFGEROND
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
@@ -215,6 +216,7 @@ class PolicyService @Inject constructor(
 
     fun readTaakRechten(taakZoekObject: TaakZoekObject): TaakRechten {
         val taakData = TaakData(
+            open = taakZoekObject.getStatus()?.let { it != AFGEROND } ?: false,
             zaaktype = taakZoekObject.zaaktypeOmschrijving,
             zaakspecifiekGeautoriseerd = taakZoekObject.isZaakspecifiekGeautoriseerd
         )

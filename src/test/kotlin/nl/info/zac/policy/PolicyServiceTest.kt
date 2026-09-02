@@ -31,6 +31,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.task.api.createTestTask
+import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
@@ -429,7 +430,8 @@ class PolicyServiceTest : BehaviorSpec({
         ) {
             val zaakType = createZaakType()
             val taakZoekObject = createTaakZoekObject(
-                zaaktypeOmschrijving = zaakType.omschrijving
+                zaaktypeOmschrijving = zaakType.omschrijving,
+                status = TaakStatus.NIET_TOEGEKEND
             )
             val userApplicationRolesForZaakType = setOf("fakeApplicationRole1", "fakeApplicationRole2")
             val loggedInUser = createLoggedInUser(
@@ -456,8 +458,7 @@ class PolicyServiceTest : BehaviorSpec({
                         opaEvaluationClient.readTaakRechten(any<RuleQuery<TaakInput>>())
                     }
                     with(ruleQuerySlot.captured.input.taakData) {
-                        // 'open' is always false for task search objects
-                        open shouldBe false
+                        open shouldBe true
                         zaaktype shouldBe zaakType.omschrijving
                         zaakspecifiekGeautoriseerd shouldBe false
                     }
@@ -885,7 +886,10 @@ class PolicyServiceTest : BehaviorSpec({
                     "zaakUUID" to zaakUUID
                 )
             )
-            val taakZoekObject = createTaakZoekObject(zaaktypeOmschrijving = zaakType.omschrijving)
+            val taakZoekObject = createTaakZoekObject(
+                zaaktypeOmschrijving = zaakType.omschrijving,
+                status = TaakStatus.NIET_TOEGEKEND
+            )
             val expectedTaakRechten = createTaakRechten()
             val taskInfoRuleQuerySlot = slot<RuleQuery<TaakInput>>()
             val taakZoekObjectRuleQuerySlot = slot<RuleQuery<TaakInput>>()
@@ -904,14 +908,13 @@ class PolicyServiceTest : BehaviorSpec({
                 } returns RuleResponse(expectedTaakRechten)
                 val taakZoekObjectRechten = policyService.readTaakRechten(taakZoekObject)
 
-                then("both paths send OPA the same decision-relevant TaakData and return the same rechten") {
+                then("both paths send OPA the same TaakData and return the same rechten") {
                     taakZoekObjectRechten shouldBe taskInfoRechten
 
                     val taskInfoData = taskInfoRuleQuerySlot.captured.input.taakData
                     val taakZoekObjectData = taakZoekObjectRuleQuerySlot.captured.input.taakData
-                    // 'open' is deliberately excluded: a TaakZoekObject does not track it, unlike a TaskInfo
-                    taakZoekObjectData.zaaktype shouldBe taskInfoData.zaaktype
-                    taakZoekObjectData.zaakspecifiekGeautoriseerd shouldBe taskInfoData.zaakspecifiekGeautoriseerd
+                    taakZoekObjectData shouldBe taskInfoData
+                    taakZoekObjectData.open shouldBe true
                     taakZoekObjectData.zaakspecifiekGeautoriseerd shouldBe false
                 }
             }
@@ -928,7 +931,8 @@ class PolicyServiceTest : BehaviorSpec({
             )
             val taakZoekObject = createTaakZoekObject(
                 zaaktypeOmschrijving = zaakType.omschrijving,
-                isZaakspecifiekGeautoriseerd = true
+                isZaakspecifiekGeautoriseerd = true,
+                status = TaakStatus.NIET_TOEGEKEND
             )
             val expectedTaakRechten = createTaakRechten()
             val taskInfoRuleQuerySlot = slot<RuleQuery<TaakInput>>()
@@ -950,9 +954,10 @@ class PolicyServiceTest : BehaviorSpec({
                 } returns RuleResponse(expectedTaakRechten)
                 val taakZoekObjectRechten = policyService.readTaakRechten(taakZoekObject)
 
-                then("both paths send OPA zaakspecifiekGeautoriseerd = true and return the same rechten") {
+                then("both paths send OPA the same TaakData and return the same rechten") {
                     taakZoekObjectRechten shouldBe taskInfoRechten
-                    taskInfoRuleQuerySlot.captured.input.taakData.zaakspecifiekGeautoriseerd shouldBe true
+                    taakZoekObjectRuleQuerySlot.captured.input.taakData shouldBe
+                        taskInfoRuleQuerySlot.captured.input.taakData
                     taakZoekObjectRuleQuerySlot.captured.input.taakData.zaakspecifiekGeautoriseerd shouldBe true
                 }
             }
