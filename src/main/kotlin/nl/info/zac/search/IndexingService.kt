@@ -243,10 +243,15 @@ class IndexingService @Inject constructor(
      * Reindexes the zaak and, when [inclusiefTaken], its open taken, sharing one memoized
      * `isZaakspecifiekGeautoriseerd` lookup between the zaak and all of its open taken instead of
      * each conversion deriving the flag on its own.
+     *
+     * @return `true` if the zaak itself was indexed successfully, `false` if that failed (already
+     * logged by [continueOnExceptions]). Whether its taken were reindexed successfully is not part
+     * of this signal: a taak failure never aborts the remaining taken either, consistent with
+     * [addOrUpdateTakenForZaak].
      */
-    fun addOrUpdateZaak(zaakUUID: UUID, inclusiefTaken: Boolean) {
+    fun addOrUpdateZaak(zaakUUID: UUID, inclusiefTaken: Boolean): Boolean {
         val isZaakspecifiekGeautoriseerd = memoizedIsZaakspecifiekGeautoriseerd()
-        continueOnExceptions(ZoekObjectType.ZAAK) {
+        val zaakIndexed = continueOnExceptions(ZoekObjectType.ZAAK) {
             addToSolrIndex(
                 listOf(
                     continueOnExceptions(ZoekObjectType.ZAAK) {
@@ -255,11 +260,23 @@ class IndexingService @Inject constructor(
                 ),
                 performCommit = false
             )
-        }
+        } != null
         if (inclusiefTaken) {
             flowableTaskService.listOpenTasksForZaak(zaakUUID)
                 .map { it.id }
                 .forEach { addOrUpdateTaak(it, isZaakspecifiekGeautoriseerd) }
+        }
+        return zaakIndexed
+    }
+
+    /**
+     * Like [addOrUpdateZaak], but throws [IndexingException] when indexing the zaak itself failed,
+     * for REST callers that must surface a Solr failure as an HTTP 500 instead of silently
+     * responding with success.
+     */
+    fun addOrUpdateZaakOrThrow(zaakUUID: UUID, inclusiefTaken: Boolean) {
+        if (!addOrUpdateZaak(zaakUUID, inclusiefTaken)) {
+            throw IndexingException("[${ZoekObjectType.ZAAK}] Failed to index zaak '$zaakUUID'")
         }
     }
 

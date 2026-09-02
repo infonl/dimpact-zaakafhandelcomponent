@@ -5,6 +5,7 @@
 
 package nl.info.zac.search
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
@@ -404,7 +405,11 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
 
         `when`("addOrUpdateZaak is called") {
-            ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
+            val zaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
+
+            then("it reports that the zaak itself was indexed successfully") {
+                zaakIndexed shouldBe true
+            }
 
             then("the zaak and only its open taken are reindexed, without listing its completed taken") {
                 verify(exactly = 1) {
@@ -1252,8 +1257,9 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.solrClient.addBeans(listOf(taakZoekObject)) } returns UpdateResponse()
 
         `when`("addOrUpdateZaak is called") {
+            var zaakIndexed = true
             val logRecords = captureLogRecords {
-                ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
+                zaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
             }
 
             then("the zaak's open taak is still indexed despite the zaak's own Solr indexing failing") {
@@ -1266,6 +1272,40 @@ class IndexingServiceTest : BehaviorSpec({
                 logRecords.any {
                     it.message == "[ZAAK] Error during indexing" && it.thrown?.cause?.message == "fake Solr failure"
                 } shouldBe true
+            }
+
+            then("the return value reports that indexing the zaak itself failed") {
+                zaakIndexed shouldBe false
+            }
+        }
+    }
+
+    given("A zaak with an open taak, where indexing the zaak itself to Solr fails, called via addOrUpdateZaakOrThrow") {
+        val ctx = setupContext()
+        val zaakUUID = UUID.randomUUID()
+        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
+        val zaakZoekObject = createZaakZoekObject()
+        val taakZoekObject = createTaakZoekObject()
+
+        every { ctx.zaakZoekObjectConverter.convert(zaakUUID.toString(), any()) } returns zaakZoekObject
+        every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any()) } returns taakZoekObject
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns listOf(openTask)
+        every { ctx.solrClient.addBeans(listOf(zaakZoekObject)) } throws SolrServerException("fake Solr failure")
+        every { ctx.solrClient.addBeans(listOf(taakZoekObject)) } returns UpdateResponse()
+
+        `when`("addOrUpdateZaakOrThrow is called") {
+            val indexingException = shouldThrow<IndexingException> {
+                ctx.indexingService.addOrUpdateZaakOrThrow(zaakUUID, true)
+            }
+
+            then("it throws instead of silently reporting success to the caller") {
+                indexingException.message shouldBe "[ZAAK] Failed to index zaak '$zaakUUID'"
+            }
+
+            then("the zaak's open taak is still indexed despite the zaak itself failing to index") {
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(listOf(taakZoekObject))
+                }
             }
         }
     }

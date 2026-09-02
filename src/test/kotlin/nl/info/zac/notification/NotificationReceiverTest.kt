@@ -271,7 +271,7 @@ class NotificationReceiverTest : BehaviorSpec({
         every {
             zrcClientService.readZaakeigenschap(zaakUUID, zaakeigenschapUUID)
         } returns createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, uuid = zaakeigenschapUUID)
-        every { indexingService.addOrUpdateZaak(zaakUUID, false) } just Runs
+        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
         every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
@@ -338,7 +338,7 @@ class NotificationReceiverTest : BehaviorSpec({
         )
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
-        every { indexingService.addOrUpdateZaak(zaakUUID, false) } just Runs
+        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
         every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
         every { indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
