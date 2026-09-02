@@ -39,7 +39,6 @@ import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-co
 import { detailExpand } from "../../shared/animations/animations";
 import { runMutation } from "../../shared/http/run-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { TakenService } from "../../taken/taken.service";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
@@ -170,7 +169,6 @@ export class ZaakViewComponent
     private bagService: BAGService,
     private policyService: PolicyService,
     private zaakDialogService: ZaakDialogService,
-    private takenService: TakenService,
     protected sideActions: ZaakSideActionService,
     protected dialogs: ZaakActionDialogsService,
   ) {
@@ -357,13 +355,6 @@ export class ZaakViewComponent
       this.utilService.openSnackbar(
         result.msgPart1 + result.msgPart2 + result.msgPart3 + result.msgPart4,
       );
-    });
-  }
-
-  private invalidateZaakTaken() {
-    this.queryClient.invalidateQueries({
-      queryKey: this.takenService.listTakenVoorZaakQuery(this.zaak.uuid)
-        .queryKey,
     });
   }
 

@@ -266,12 +266,6 @@ describe(ZaakTakenComponent.name, () => {
       return screen.getByLabelText("actie.alles.inklappen");
     }
 
-    function detailOf(taaknaam: string) {
-      const rows = screen.getAllByRole("row");
-      const detailRow = rows[rows.indexOf(rowOf(taaknaam)) + 1];
-      return within(detailRow).getByRole("cell").firstElementChild;
-    }
-
     it("expands and collapses every taak at once", async () => {
       await setup([taak({ id: "eersteTaakId" }), taak({ id: "tweedeTaakId" })]);
 
@@ -289,11 +283,11 @@ describe(ZaakTakenComponent.name, () => {
 
       await user.click(rowOf("fakeTaakNaam"));
       fixture.detectChanges();
-      expect(detailOf("fakeTaakNaam")).not.toHaveStyle({ height: "0px" });
+      expect(rowOf("fakeTaakNaam")).toHaveAttribute("aria-expanded", "true");
 
       await user.click(rowOf("fakeTaakNaam"));
       fixture.detectChanges();
-      expect(detailOf("fakeTaakNaam")).toHaveStyle({ height: "0px" });
+      expect(rowOf("fakeTaakNaam")).toHaveAttribute("aria-expanded", "false");
     });
 
     it("counts the taak that was expanded as the only one left", async () => {
@@ -357,6 +351,7 @@ describe(ZaakTakenComponent.name, () => {
 
   describe("the status chip", () => {
     function chipOf(status: string) {
+      // eslint-disable-next-line testing-library/no-node-access -- the mat-chip display chip exposes no role; the test asserts its style class
       return screen.getByText(`taak.status.${status}`).closest("mat-chip");
     }
 
