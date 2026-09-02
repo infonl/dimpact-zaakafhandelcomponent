@@ -102,6 +102,50 @@ class OpenZaakClient(
     }
 
     /**
+     * Deletes the zaakeigenschap identified by [zaakeigenschapUUID] directly in Open Zaak's ZRC API,
+     * bypassing ZAC. Use this, together with [sendZaakeigenschapDestroyNotification], to reverse a
+     * [createZaakeigenschap] once a test no longer needs the zaak flagged as zaakspecifiek
+     * geautoriseerd, so a shared zaaktype is not left with a zaak that stays invisible to behandelaren
+     * without the zaakspecifiek_geautoriseerd role for the rest of the test run.
+     */
+    fun deleteZaakeigenschap(zaakUUID: UUID, zaakeigenschapUUID: UUID) {
+        itestHttpClient.performZgwApiDeleteRequest(
+            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID/zaakeigenschappen/$zaakeigenschapUUID"
+        )
+    }
+
+    /**
+     * Sends a request to the ZAC notification endpoint to notify ZAC about the destruction of the
+     * zaakeigenschap identified by [zaakeigenschapUUID], so that ZAC will reindex the zaak (and its
+     * taken and documenten) in Solr. Use this after [deleteZaakeigenschap], which bypasses ZAC and
+     * therefore triggers no real notification.
+     */
+    fun sendZaakeigenschapDestroyNotification(zaakUUID: UUID, zaakeigenschapUUID: UUID) {
+        val zaakUrl = "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUUID"
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/notificaties",
+            headers = Headers.headersOf(
+                "Content-Type",
+                "application/json",
+                "Authorization",
+                OPEN_NOTIFICATIONS_API_SECRET_KEY
+            ),
+            requestBodyAsString = JSONObject(
+                mapOf(
+                    "kanaal" to "zaken",
+                    "resource" to "zaakeigenschap",
+                    "hoofdObject" to zaakUrl,
+                    "resourceUrl" to "$zaakUrl/zaakeigenschappen/$zaakeigenschapUUID",
+                    "actie" to "destroy",
+                    "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                )
+            ).toString()
+        ).run {
+            code shouldBe HTTP_NO_CONTENT
+        }
+    }
+
+    /**
      * Fetches the URL of an eigenschap with the given naam, defined for the given zaaktype, from
      * Open Zaak's catalogi API. This returns the URL as Open Zaak itself serves it, which is the
      * URL format that Open Zaak accepts in the ZRC API when creating a zaakeigenschap.

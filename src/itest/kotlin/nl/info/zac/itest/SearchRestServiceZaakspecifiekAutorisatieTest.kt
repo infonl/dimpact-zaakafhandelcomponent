@@ -25,14 +25,16 @@ import nl.info.zac.itest.config.ZAAKSPECIFIEK_AUTORISATIE_BEHANDELAAR_1
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.LocalDate
+import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 /**
  * Verifies that once a zaak of a zaaktype that supports zaakspecifieke autorisatie is marked as
  * zaakspecifiek geautoriseerd, and the search index is refreshed to reflect that, the zaak (and its
  * task and document) disappear from werklijst/zoekresultaat searches for a behandelaar who lacks the
- * zaakspecifiek_geautoriseerd application role, while remaining visible, with correct rechten, for a
- * behandelaar who holds it.
+ * zaakspecifiek_geautoriseerd application role - asserted by the polling loop that waits for reindexing
+ * to finish, since there is no other signal to poll for - while remaining visible, with correct
+ * rechten, for a behandelaar who holds it.
  */
 class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}
@@ -42,6 +44,21 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
     val taskHelper = TaskHelper(zacClient)
     val documentHelper = DocumentHelper(zacClient)
     val openZaakClient = OpenZaakClient(itestHttpClient)
+
+    // ZAAKTYPE_CMMN_TEST_2 is shared with other itests. Once these are set, afterSpec unflags the
+    // created zaak again, so it does not stay invisible to BEHANDELAAR_1 (who lacks the
+    // zaakspecifiek_geautoriseerd role) for the rest of the test run.
+    var zaakUuidToUnflag: UUID? = null
+    var zaakeigenschapUuidToDelete: UUID? = null
+
+    afterSpec {
+        val zaakUuid = zaakUuidToUnflag
+        val zaakeigenschapUuid = zaakeigenschapUuidToDelete
+        if (zaakUuid != null && zaakeigenschapUuid != null) {
+            openZaakClient.deleteZaakeigenschap(zaakUuid, zaakeigenschapUuid)
+            openZaakClient.sendZaakeigenschapDestroyNotification(zaakUuid, zaakeigenschapUuid)
+        }
+    }
 
     fun searchZaak(zaakIdentificatie: String, testUser: TestUser) =
         itestHttpClient.performPutRequest(
@@ -138,38 +155,30 @@ class SearchRestServiceZaakspecifiekAutorisatieTest : BehaviorSpec({
             eigenschapNaam = "ZAAK_GEAUTORISEERD",
             waarde = "true"
         )
+        zaakUuidToUnflag = zaakUuid
+        zaakeigenschapUuidToDelete = zaakeigenschapUuid
         // createZaakeigenschap() above bypasses ZAC, so it triggers no real notificatie; simulate the
         // zaakeigenschap notificatie that Open Notificaties would otherwise send, which is handled
         // asynchronously and reindexes the zaak, its (open) taken and its documenten. Then wait for that
         // to complete by polling for the actual effect of the newly set flag: the zaak, its task and its
         // document becoming invisible to a behandelaar who lacks the zaakspecifiek_geautoriseerd role.
         // Polling the flagged user's view is not a valid signal here, since that user can see the zaak
-        // regardless of whether reindexing has finished.
+        // regardless of whether reindexing has finished. This polling loop is also the actual assertion
+        // that the zaak, its task and its document are absent from that behandelaar's results - it is
+        // not merely a readiness probe for a later, separate assertion.
         openZaakClient.sendZaakeigenschapCreateNotification(zaakUuid, zaakeigenschapUuid)
         eventually(30.seconds) {
-            JSONObject(searchZaak(zaakIdentificatie, BEHANDELAAR_1).bodyAsString).getInt("totaal") shouldBe 0
-            JSONObject(searchTaak(zaakIdentificatie, BEHANDELAAR_1).bodyAsString).getInt("totaal") shouldBe 0
-            JSONObject(searchDocument(documentTitle, BEHANDELAAR_1).bodyAsString).getInt("totaal") shouldBe 0
-        }
-
-        `when`(
-            "worklist/search results are requested by a behandelaar authorized for the zaaktype but " +
-                "without the zaakspecifiek_geautoriseerd application role"
-        ) {
-            val zaakResponse = searchZaak(zaakIdentificatie, BEHANDELAAR_1)
-            val taakResponse = searchTaak(zaakIdentificatie, BEHANDELAAR_1)
-            val documentResponse = searchDocument(documentTitle, BEHANDELAAR_1)
-
-            then("the zaakspecifiek geautoriseerde zaak, its task and its document are absent from all results") {
-                logger.info { "Zaak search response: ${zaakResponse.bodyAsString}" }
-                logger.info { "Taak search response: ${taakResponse.bodyAsString}" }
-                logger.info { "Document search response: ${documentResponse.bodyAsString}" }
-                zaakResponse.code shouldBe HTTP_OK
-                taakResponse.code shouldBe HTTP_OK
-                documentResponse.code shouldBe HTTP_OK
-                JSONObject(zaakResponse.bodyAsString).getInt("totaal") shouldBe 0
-                JSONObject(taakResponse.bodyAsString).getInt("totaal") shouldBe 0
-                JSONObject(documentResponse.bodyAsString).getInt("totaal") shouldBe 0
+            searchZaak(zaakIdentificatie, BEHANDELAAR_1).let {
+                it.code shouldBe HTTP_OK
+                JSONObject(it.bodyAsString).getInt("totaal") shouldBe 0
+            }
+            searchTaak(zaakIdentificatie, BEHANDELAAR_1).let {
+                it.code shouldBe HTTP_OK
+                JSONObject(it.bodyAsString).getInt("totaal") shouldBe 0
+            }
+            searchDocument(documentTitle, BEHANDELAAR_1).let {
+                it.code shouldBe HTTP_OK
+                JSONObject(it.bodyAsString).getInt("totaal") shouldBe 0
             }
         }
 
