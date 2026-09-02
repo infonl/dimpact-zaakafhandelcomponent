@@ -14,6 +14,7 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders
+import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 import net.atos.zac.event.EventingService
@@ -276,15 +277,16 @@ class NotificationReceiver @Inject constructor(
      * reindexing the zaak's documenten requires a ZGW call per document, so reindexing on every
      * zaakeigenschap notificatie would be expensive on a path that Open Notificaties retries on
      * timeout. A 'destroy' notificatie cannot be read back to check its naam, so it always triggers
-     * a reindex. Because the documenten are reindexed asynchronously, there is a short window where
-     * the zaak (and its taken) already reflect the new zaakspecifiek geautoriseerd status but its
-     * documenten do not yet.
+     * a reindex, as does a zaakeigenschap that turns out to already be deleted by the time this
+     * notificatie is processed: it can no longer be read back either, so it is treated the same as a
+     * 'destroy' notificatie rather than aborting the reindex on the 404. Because the documenten are
+     * reindexed asynchronously, there is a short window where the zaak (and its taken) already reflect
+     * the new zaakspecifiek geautoriseerd status but its documenten do not yet.
      */
     private fun handleZaakeigenschapIndexing(notification: Notification) {
         val zaakUUID = notification.mainResourceUrl.extractUuid()
         if (notification.action != Action.DELETE &&
-            zrcClientService.readZaakeigenschap(zaakUUID, notification.resourceUrl.extractUuid()).naam !=
-            ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
+            !isZaakeigenschapGeautoriseerdOrAlreadyDeleted(notification, zaakUUID)
         ) {
             return
         }
@@ -292,6 +294,15 @@ class NotificationReceiver @Inject constructor(
         indexingService.addOrUpdateTakenForZaak(zaakUUID)
         indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
     }
+
+    @Suppress("SwallowedException")
+    private fun isZaakeigenschapGeautoriseerdOrAlreadyDeleted(notification: Notification, zaakUUID: UUID) =
+        try {
+            zrcClientService.readZaakeigenschap(zaakUUID, notification.resourceUrl.extractUuid()).naam ==
+                ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
+        } catch (notFoundException: NotFoundException) {
+            true
+        }
 
     @Suppress("TooGenericExceptionCaught")
     private fun handleInboxDocuments(notification: Notification) {

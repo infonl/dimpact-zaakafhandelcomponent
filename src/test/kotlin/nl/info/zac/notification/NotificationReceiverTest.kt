@@ -15,6 +15,7 @@ import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
+import jakarta.ws.rs.NotFoundException
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
 import net.atos.zac.event.EventingService
@@ -358,6 +359,47 @@ class NotificationReceiverTest : BehaviorSpec({
                 }
                 verify(exactly = 0) {
                     zrcClientService.readZaakeigenschap(any(), any())
+                }
+            }
+        }
+    }
+    given(
+        "a request containing an authorization header and a zaakeigenschap update notificatie for a " +
+            "zaakeigenschap that has already been deleted"
+    ) {
+        val zaakUUID = UUID.randomUUID()
+        val zaakeigenschapUUID = UUID.randomUUID()
+        val zaakUri = URI("https://example.com/fakezaak/$zaakUUID")
+        val zaakeigenschapUri = URI("https://example.com/fakezaak/$zaakUUID/zaakeigenschappen/$zaakeigenschapUUID")
+        val notificatie = createNotificatie(
+            channel = Channel.ZAKEN,
+            resource = Resource.ZAAKEIGENSCHAP,
+            resourceUrl = zaakeigenschapUri,
+            mainResourceUrl = zaakUri,
+            action = Action.UPDATE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every {
+            zrcClientService.readZaakeigenschap(zaakUUID, zaakeigenschapUUID)
+        } throws NotFoundException()
+        every { indexingService.addOrUpdateZaak(zaakUUID, false) } returns true
+        every { indexingService.addOrUpdateTakenForZaak(zaakUUID) } just Runs
+        every { indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID) } just Runs
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        `when`("notificatieReceive is called with the zaakeigenschap update notificatie") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then(
+                "the zaak and its taken are reindexed in Solr, and the zaak's documenten are reindexed " +
+                    "asynchronously, the same as for a destroy notificatie"
+            ) {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    indexingService.addOrUpdateZaak(zaakUUID, false)
+                    indexingService.addOrUpdateTakenForZaak(zaakUUID)
+                    indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
                 }
             }
         }
