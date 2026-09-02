@@ -71,3 +71,7 @@ exactly as they would see any other zaak of that zaaktype. No visual indicator i
   pattern, plus a search/werklijst-focused test).
 - No frontend or OPA rego changes: the rego `zaak_allowed`/`taak_allowed`/`document_allowed` guards already
   do the right thing once fed the real flag value.
+- `net.atos.zac.csv.CsvService` is not changed. It reflects over every `ZoekObject` bean property not
+  listed in its `uitzonderingen` exception list, so the new field automatically gains a
+  `zaakspecifiekGeautoriseerd` "Ja"/"Nee" column in the zaken/taken/documenten CSV export, shifting the
+  position of every column after it. This is intended: see design.md - Risks / Trade-offs.

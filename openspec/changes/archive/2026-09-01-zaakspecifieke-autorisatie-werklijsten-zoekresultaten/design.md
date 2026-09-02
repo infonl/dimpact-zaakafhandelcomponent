@@ -109,6 +109,13 @@ to describe.
   semantics (open taken only) stay unchanged for its other caller (the `zaak` update notificatie), so that
   caller does not start paying for a `HistoricTaskInstanceQuery` per notificatie. The flag is refreshed on
   all three row types within the same short, event-driven window as any other indexed zaak attribute.
+- [`CsvService` (`net.atos.zac.csv.CsvService`) builds the zaken/taken/documenten CSV export by reflecting
+  over every `ZoekObject` bean property not listed in its `uitzonderingen` exception list, and that list was
+  not extended for the new field, so every export gains a `zaakspecifiekGeautoriseerd` "Ja"/"Nee" column,
+  shifting the position of every column after it] → Accepted: `CsvService` is generic by design — every prior
+  zoekobject field it was not explicitly told to skip has always appeared in the export the same way, so this
+  is the existing, intended behaviour of that mechanism applied to the new field, not a gap introduced by this
+  story. No column was added to `uitzonderingen`.
 
 ## Migration Plan
 
