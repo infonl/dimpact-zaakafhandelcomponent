@@ -313,6 +313,17 @@ class IndexingService @Inject constructor(
         }
     }
 
+    /**
+     * Launches [addOrUpdateInformatieobjectenForZaak] in the background on [coroutineScope] and returns
+     * immediately. Any failure that escapes it is logged by [exceptionHandler], the same backstop used
+     * by [reindexAsync]/[reindexAllAsync].
+     */
+    fun addOrUpdateInformatieobjectenForZaakAsync(zaakUUID: UUID) {
+        coroutineScope.launch {
+            addOrUpdateInformatieobjectenForZaak(zaakUUID)
+        }
+    }
+
     fun addOrUpdateTaak(taskID: String) = indexeerDirect(taskID, ZoekObjectType.TAAK, false)
 
     /**

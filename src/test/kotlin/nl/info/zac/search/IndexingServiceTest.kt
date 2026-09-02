@@ -1290,6 +1290,54 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
+    given("A zaak's documenten to reindex asynchronously via addOrUpdateInformatieobjectenForZaakAsync") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns emptyList()
+
+        `when`("addOrUpdateInformatieobjectenForZaakAsync is called") {
+            ctx.indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaak.uuid)
+
+            then(
+                "nothing runs yet, since it launches on the coroutine dispatcher, until that " +
+                    "dispatcher is advanced"
+            ) {
+                verify(exactly = 0) {
+                    ctx.zrcClientService.readZaak(zaak.uuid)
+                }
+
+                ctx.testDispatcher.scheduler.advanceUntilIdle()
+
+                verify(exactly = 1) {
+                    ctx.zrcClientService.readZaak(zaak.uuid)
+                }
+            }
+        }
+    }
+
+    given("A zaak whose asynchronous documenten reindex fails with an error not caught anywhere internally") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } throws
+            RuntimeException("fake unexpected failure")
+
+        `when`("addOrUpdateInformatieobjectenForZaakAsync is called and the coroutine dispatcher is advanced") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaak.uuid)
+                ctx.testDispatcher.scheduler.advanceUntilIdle()
+            }
+
+            then("the failure is logged by the same backstop used by reindexAsync, instead of crashing the coroutine") {
+                logRecords.any {
+                    it.message == "Unexpected failure while reindexing" &&
+                        it.thrown?.message == "fake unexpected failure"
+                } shouldBe true
+            }
+        }
+    }
+
     given("All object types to reindex asynchronously") {
         val ctx = setupContext()
         val emptyDocumentList = SolrDocumentList()

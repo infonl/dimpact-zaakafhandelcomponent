@@ -4,7 +4,6 @@
  */
 package nl.info.zac.notification
 
-import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -42,7 +41,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.UUID
 import java.util.logging.Level
 import java.util.logging.Logger
-import jakarta.annotation.Resource as ManagedResource
 
 /**
  * Provides REST endpoints for receiving notifications about events that ZAC needs to know about
@@ -76,13 +74,6 @@ class NotificationReceiver @Inject constructor(
     companion object {
         private val LOG = Logger.getLogger(NotificationReceiver::class.java.getName())
         private const val OBJECTTYPE_KENMERK = "objectType"
-    }
-
-    private lateinit var managedExecutor: ManagedExecutorService
-
-    @ManagedResource
-    fun setManagedExecutorService(managedExecutor: ManagedExecutorService) {
-        this.managedExecutor = managedExecutor
     }
 
     @POST
@@ -289,7 +280,6 @@ class NotificationReceiver @Inject constructor(
      * the zaak (and its taken) already reflect the new zaakspecifiek geautoriseerd status but its
      * documenten do not yet.
      */
-    @Suppress("TooGenericExceptionCaught")
     private fun handleZaakeigenschapIndexing(notification: Notification) {
         val zaakUUID = notification.mainResourceUrl.extractUuid()
         if (notification.action != Action.DELETE &&
@@ -300,13 +290,7 @@ class NotificationReceiver @Inject constructor(
         }
         indexingService.addOrUpdateZaak(zaakUUID, false)
         indexingService.addOrUpdateTakenForZaak(zaakUUID)
-        managedExecutor.submit {
-            try {
-                indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
-            } catch (exception: RuntimeException) {
-                warning("indexing", notification, exception)
-            }
-        }
+        indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaakUUID)
     }
 
     @Suppress("TooGenericExceptionCaught")
