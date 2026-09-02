@@ -188,18 +188,20 @@ export class ParametersEditBpmnComponent implements AfterViewInit, OnDestroy {
   protected brpProcessingValues: string[] = [];
   protected brpDoelbindingSetupEnabled = false;
 
-  protected algemeenFormGroup =
-    this.formBuilder.group({
-      bpmnDefinition: this.formBuilder.control<
-        GeneratedType<"RestBpmnProcessDefinition"> | null
-      >(null, [Validators.required]),
-      defaultGroep: this.formBuilder.control<
-        GeneratedType<"RestGroup"> | null
-      >(null, [Validators.required]),
-      defaultBehandelaar:
-        this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
-      productaanvraagtype: this.formBuilder.control<string | null>(null),
-    });
+  protected algemeenFormGroup = this.formBuilder.group({
+    bpmnDefinition:
+      this.formBuilder.control<GeneratedType<"RestBpmnProcessDefinition"> | null>(
+        null,
+        [Validators.required],
+      ),
+    defaultGroep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(
+      null,
+      [Validators.required],
+    ),
+    defaultBehandelaar:
+      this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
+    productaanvraagtype: this.formBuilder.control<string | null>(null),
+  });
 
   constructor(
     private readonly route: ActivatedRoute,

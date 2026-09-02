@@ -182,27 +182,27 @@ export class ParametersEditCmmnComponent implements OnDestroy, AfterViewInit {
     }>({ label: "CMMN", value: "CMMN" }, []),
   });
 
-  algemeenFormGroup =
-    this.formBuilder.group({
-      caseDefinition:
-        this.formBuilder.control<GeneratedType<"RESTCaseDefinition"> | null>(
-          null,
-          [Validators.required],
-        ),
-      defaultGroep: this.formBuilder.control<
-        GeneratedType<"RestGroup"> | null
-      >(null, [Validators.required]),
-      defaultBehandelaar:
-        this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
-      einddatumGeplandWaarschuwing: this.formBuilder.control<number | null>(
+  algemeenFormGroup = this.formBuilder.group({
+    caseDefinition:
+      this.formBuilder.control<GeneratedType<"RESTCaseDefinition"> | null>(
         null,
-        [Validators.min(0), Validators.max(31)],
+        [Validators.required],
       ),
-      uiterlijkeEinddatumAfdoeningWaarschuwing: this.formBuilder.control<
-        number | null
-      >(null, [Validators.min(0)]),
-      productaanvraagtype: this.formBuilder.control<string | null>(null),
-    });
+    defaultGroep: this.formBuilder.control<GeneratedType<"RestGroup"> | null>(
+      null,
+      [Validators.required],
+    ),
+    defaultBehandelaar:
+      this.formBuilder.control<GeneratedType<"RestUser"> | null>(null),
+    einddatumGeplandWaarschuwing: this.formBuilder.control<number | null>(
+      null,
+      [Validators.min(0), Validators.max(31)],
+    ),
+    uiterlijkeEinddatumAfdoeningWaarschuwing: this.formBuilder.control<
+      number | null
+    >(null, [Validators.min(0)]),
+    productaanvraagtype: this.formBuilder.control<string | null>(null),
+  });
 
   humanTasksFormGroup = new FormGroup({});
   userEventListenersFormGroup = new FormGroup({});
