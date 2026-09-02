@@ -326,6 +326,61 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
+    given("A zaak with two documenten, one of which the converter resolves against a different zaak") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val otherZaakUUID = UUID.randomUUID()
+        val zaakInformatieobjecten = listOf(
+            createZaakInformatieobjectForReads(zaak = zaak.url),
+            createZaakInformatieobjectForReads(zaak = zaak.url)
+        )
+        val documentZoekObjecten = listOf(createDocumentZoekObject(), createDocumentZoekObject())
+
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
+        every { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+        every { ctx.zrcClientService.listZaakeigenschappen(otherZaakUUID) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "false")
+        )
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+        every {
+            ctx.documentZoekObjectConverter.convert(
+                zaakInformatieobjecten[0].informatieobject.extractUuid().toString(),
+                any()
+            )
+        } answers {
+            // resolves against the iterated zaak, like a document only linked to this one zaak
+            secondArg<(UUID) -> Boolean>().invoke(zaak.uuid)
+            documentZoekObjecten[0]
+        }
+        every {
+            ctx.documentZoekObjectConverter.convert(
+                zaakInformatieobjecten[1].informatieobject.extractUuid().toString(),
+                any()
+            )
+        } answers {
+            // resolves against a different zaak, like a document linked to more than one zaak
+            secondArg<(UUID) -> Boolean>().invoke(otherZaakUUID)
+            documentZoekObjecten[1]
+        }
+
+        `when`("addOrUpdateInformatieobjectenForZaak is called for the zaak's UUID") {
+            ctx.indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+
+            then(
+                "the flag is looked up for the zaak the second document actually resolves against, " +
+                    "not forced to the iterated zaak's own flag"
+            ) {
+                verify(exactly = 1) {
+                    ctx.zrcClientService.listZaakeigenschappen(zaak.uuid)
+                    ctx.zrcClientService.listZaakeigenschappen(otherZaakUUID)
+                }
+            }
+        }
+    }
+
     given("A zaak with one open taak, called with inclusiefTaken true") {
         val ctx = setupContext()
         val zaakUUID = UUID.randomUUID()
