@@ -221,4 +221,21 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
             }
         }
     }
+
+    given("a document with no linked zaak at all, converted via the zaak-driven combined reindex entry point") {
+        val documentUUID = UUID.randomUUID()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = documentUUID)
+        val zaak = createZaak()
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
+
+        `when`("convert is called with a zaak supplied, but the document resolves no zaakinformatieobject") {
+            val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString(), zaak) { true }
+
+            then("it returns null, the same as the id-only overload does for an orphan document") {
+                documentZoekObject shouldBe null
+            }
+        }
+    }
 })
