@@ -13,6 +13,7 @@ import io.mockk.verify
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
@@ -190,7 +191,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         }
     }
 
-    given("an already-retrieved zaak, converted via the zaak-driven combined reindex entry point") {
+    given("an already-retrieved zaak and zaakinformatieobject, converted via the zaak-driven combined reindex entry point") {
         val documentUUID = UUID.randomUUID()
         val zaaktypeUUID = UUID.randomUUID()
         val informatieObjectType = createInformatieObjectType()
@@ -203,38 +204,26 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         val zaak = createZaak(zaaktypeUri = zaakType.url, archiefnominatie = null)
 
         every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
-        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
         every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
 
-        `when`("convert is called with the zaak supplied directly") {
-            val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString(), zaak) { true }
+        `when`("convert is called with the zaak and zaakinformatieobject supplied directly") {
+            val documentZoekObject = documentZoekObjectConverter.convert(zaakInformatieobject, zaak) { true }
 
-            then("the document zoek object still resolves its zaak fields from the supplied zaak") {
-                documentZoekObject!!.zaakUuid shouldBe zaak.uuid.toString()
+            then("the document zoek object resolves its zaak fields from the supplied zaak") {
+                documentZoekObject.zaakUuid shouldBe zaak.uuid.toString()
                 documentZoekObject.isZaakspecifiekGeautoriseerd shouldBe true
             }
 
-            then("the zaak is never read again from the ZRC API, since it was already supplied") {
-                verify(exactly = 0) { zrcClientService.readZaak(any<UUID>()) }
-            }
-        }
-    }
-
-    given("a document with no linked zaak at all, converted via the zaak-driven combined reindex entry point") {
-        val documentUUID = UUID.randomUUID()
-        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = documentUUID)
-        val zaak = createZaak()
-
-        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
-        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
-
-        `when`("convert is called with a zaak supplied, but the document resolves no zaakinformatieobject") {
-            val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString(), zaak) { true }
-
-            then("it returns null, the same as the id-only overload does for an orphan document") {
-                documentZoekObject shouldBe null
+            then(
+                "neither the zaak nor the document's own zaak link is looked up again, " +
+                    "since both were already supplied"
+            ) {
+                verify(exactly = 0) {
+                    zrcClientService.readZaak(any<UUID>())
+                    zrcClientService.listZaakinformatieobjecten(any<EnkelvoudigInformatieObject>())
+                }
             }
         }
     }
