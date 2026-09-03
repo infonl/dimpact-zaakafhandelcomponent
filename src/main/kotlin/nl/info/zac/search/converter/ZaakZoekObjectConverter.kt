@@ -55,8 +55,13 @@ class ZaakZoekObjectConverter @Inject constructor(
 
     override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.ZAAK
 
+    /**
+     * Converts the already-retrieved [zaak], without reading it again via [ZrcClientService.readZaak].
+     * Used by [nl.info.zac.search.IndexingService]'s zaak-driven combined reindex, which retrieves [zaak]
+     * once and reuses it for the zaak's own conversion as well as its taken and documenten.
+     */
     @Suppress("LongMethod")
-    private fun convert(zaak: Zaak, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): ZaakZoekObject {
+    fun convert(zaak: Zaak, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): ZaakZoekObject {
         val roles = zrcClientService.listRollen(zaak)
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakZoekObject = ZaakZoekObject(

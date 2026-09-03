@@ -5,6 +5,7 @@
 package nl.info.zac.search.converter
 
 import jakarta.inject.Inject
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.zac.util.time.convertToDate
@@ -46,7 +47,20 @@ class DocumentZoekObjectConverter @Inject constructor(
     override fun convert(id: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): DocumentZoekObject? {
         val document = drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(id))
         val zaakInformatieobject = zrcClientService.listZaakinformatieobjecten(document).firstOrNull() ?: return null
-        return convert(document, zaakInformatieobject, isZaakspecifiekGeautoriseerd)
+        val zaak = zrcClientService.readZaak(zaakInformatieobject.zaakUUID)
+        return convert(document, zaak, zaakInformatieobject, isZaakspecifiekGeautoriseerd)
+    }
+
+    /**
+     * Converts [id], using the already-retrieved [zaak] instead of reading it again via
+     * [ZrcClientService.readZaak]. Used by [nl.info.zac.search.IndexingService]'s zaak-driven combined
+     * reindex, which already retrieved [zaak] for its own [nl.info.zac.search.model.zoekobject.ZaakZoekObject]
+     * conversion.
+     */
+    fun convert(id: String, zaak: Zaak, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): DocumentZoekObject? {
+        val document = drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(id))
+        val zaakInformatieobject = zrcClientService.listZaakinformatieobjecten(document).firstOrNull() ?: return null
+        return convert(document, zaak, zaakInformatieobject, isZaakspecifiekGeautoriseerd)
     }
 
     override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.DOCUMENT
@@ -54,10 +68,10 @@ class DocumentZoekObjectConverter @Inject constructor(
     @Suppress("LongMethod")
     private fun convert(
         informatieobject: EnkelvoudigInformatieObject,
+        zaak: Zaak,
         gekoppeldeZaakInformatieobject: ZaakInformatieObject,
         isZaakspecifiekGeautoriseerd: (UUID) -> Boolean
     ): DocumentZoekObject {
-        val zaak = zrcClientService.readZaak(gekoppeldeZaakInformatieobject.zaakUUID)
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val informatieobjecttype = ztcClientService.readInformatieobjecttype(informatieobject.informatieobjecttype)
         val informatieobjectUUID = informatieobject.url.extractUuid()

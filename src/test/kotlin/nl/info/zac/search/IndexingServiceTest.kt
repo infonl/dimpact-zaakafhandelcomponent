@@ -1562,4 +1562,166 @@ class IndexingServiceTest : BehaviorSpec({
             }
         }
     }
+
+    given("reindexAll() combining ZAAK, TAAK and DOCUMENT for a zaak with one open taak and one linked document") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val documentUUID = UUID.randomUUID()
+        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
+        val zaakInformatieobject = createZaakInformatieobjectForReads(
+            zaak = zaak.url,
+            informatieobject = URI("https://example.com/$documentUUID")
+        )
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = documentUUID)
+        val zaakZoekObject = createZaakZoekObject()
+        val taakZoekObject = createTaakZoekObject()
+        val documentZoekObject = createDocumentZoekObject()
+
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        every {
+            ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
+        } returns Results(listOf(ZaakUuid(zaak.uuid)), 1)
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(openTask)
+        every { ctx.flowableTaskService.countOpenTasks() } returns 1
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns listOf(zaakInformatieobject)
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(match<EnkelvoudigInformatieobjectListParameters> { it.page == 1 })
+        } returns Results(listOf(enkelvoudigInformatieObject), 1)
+
+        every { ctx.zaakZoekObjectConverter.convert(zaak, any()) } returns zaakZoekObject
+        every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", zaak, any()) } returns taakZoekObject
+        every { ctx.documentZoekObjectConverter.convert(documentUUID.toString(), zaak, any()) } returns documentZoekObject
+
+        every { ctx.documentZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns ctx.documentZoekObjectConverter
+
+        `when`("reindexAll is called with the default set of all object types") {
+            ctx.indexingService.reindexAll()
+
+            then("the zaak is retrieved from the ZRC API exactly once, shared by the zaak, its taak and its document") {
+                verify(exactly = 1) {
+                    ctx.zrcClientService.readZaak(zaak.uuid)
+                }
+            }
+
+            then("the zaak, its open taak and its linked document are all reindexed") {
+                verify(exactly = 1) {
+                    ctx.zaakZoekObjectConverter.convert(zaak, any())
+                    ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", zaak, any())
+                    ctx.documentZoekObjectConverter.convert(documentUUID.toString(), zaak, any())
+                }
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(listOf(zaakZoekObject))
+                    ctx.solrClient.addBeans(listOf(taakZoekObject))
+                    ctx.solrClient.addBeans(listOf(documentZoekObject))
+                }
+            }
+
+            then("the document is not reconverted by the orphan sweep, since it was already reindexed via its zaak") {
+                verify(exactly = 0) {
+                    ctx.documentZoekObjectConverter.convert(any<String>(), any<(UUID) -> Boolean>())
+                }
+            }
+        }
+    }
+
+    given("reindexAll() combining ZAAK and DOCUMENT where one document has no linked zaak") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val orphanDocumentUUID = UUID.randomUUID()
+        val orphanEnkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = orphanDocumentUUID)
+        val zaakZoekObject = createZaakZoekObject()
+
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        every {
+            ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
+        } returns Results(listOf(ZaakUuid(zaak.uuid)), 1)
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns emptyList()
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(match<EnkelvoudigInformatieobjectListParameters> { it.page == 1 })
+        } returns Results(listOf(orphanEnkelvoudigInformatieObject), 1)
+        // the orphan sweep falls back to the id-only convert(), which itself looks for a linked zaak
+        // and returns null (skipped) when there is none - exactly like today's independent DOCUMENT pass
+        every {
+            ctx.documentZoekObjectConverter.convert(orphanDocumentUUID.toString(), any<(UUID) -> Boolean>())
+        } returns null
+
+        every { ctx.zaakZoekObjectConverter.convert(zaak, any()) } returns zaakZoekObject
+        every { ctx.documentZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns ctx.documentZoekObjectConverter
+
+        `when`("reindexAll is called for ZAAK and DOCUMENT") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindexAll(setOf(ZoekObjectType.ZAAK, ZoekObjectType.DOCUMENT))
+            }
+
+            then("the orphan document is still found by the sweep and counted as skipped") {
+                verify(exactly = 1) {
+                    ctx.documentZoekObjectConverter.convert(orphanDocumentUUID.toString(), any<(UUID) -> Boolean>())
+                }
+                logRecords.map { it.message } shouldContain
+                    "[DOCUMENT] Reindexing finished. Reindexed: 0 / 1, skipped: 1, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'DOCUMENT'."
+            }
+        }
+    }
+
+    given("reindexAll() combining all object types while TAAK is already being reindexed") {
+        val ctx = setupContext()
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+
+        every { ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>()) } returns Results(emptyList(), 0)
+        every { ctx.flowableTaskService.countOpenTasks() } returns 0
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
+        } returns Results(emptyList(), 0)
+        ctx.indexingService.reindexAsync(ZoekObjectType.TAAK)
+
+        `when`("reindexAll is called while TAAK is already reserved by another in-progress reindex") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindexAll()
+            }
+
+            then("ZAAK and DOCUMENT are still reindexed independently, and TAAK logs that it is still in progress") {
+                logRecords.map { it.message } shouldContain
+                    "[TAAK] Reindexing not started, still in progress"
+                logRecords.map { it.message } shouldContain
+                    "[ZAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'ZAAK'."
+                logRecords.map { it.message } shouldContain
+                    "[DOCUMENT] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'DOCUMENT'."
+
+                // let the still-pending TAAK reindex launched above actually run, so it releases its
+                // viewfinder entry and does not leak into any other test relying on the
+                // (companion-object-shared) viewfinder
+                ctx.testDispatcher.scheduler.advanceUntilIdle()
+            }
+        }
+    }
 })

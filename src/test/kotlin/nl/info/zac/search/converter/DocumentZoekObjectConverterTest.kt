@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -185,6 +186,38 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
 
             then("it should return the expected DocumentZoekObject with a 'bestandsomvang' of 0") {
                 documentZoekObject!!.bestandsomvang shouldBe 0
+            }
+        }
+    }
+
+    given("an already-retrieved zaak, converted via the zaak-driven combined reindex entry point") {
+        val documentUUID = UUID.randomUUID()
+        val zaaktypeUUID = UUID.randomUUID()
+        val informatieObjectType = createInformatieObjectType()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            uuid = documentUUID,
+            indicatieGebruiksrecht = null
+        )
+        val zaakInformatieobject = createZaakInformatieobjectForReads(informatieobject = URI("https://example.com/$documentUUID"))
+        val zaakType = createZaakType(uri = URI("https://example.com/zaaktypes/$zaaktypeUUID"))
+        val zaak = createZaak(zaaktypeUri = zaakType.url, archiefnominatie = null)
+
+        every { drcClientService.readEnkelvoudigInformatieobject(documentUUID) } returns enkelvoudigInformatieObject
+        every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns listOf(zaakInformatieobject)
+        every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
+        every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
+        every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
+
+        `when`("convert is called with the zaak supplied directly") {
+            val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString(), zaak) { true }
+
+            then("the document zoek object still resolves its zaak fields from the supplied zaak") {
+                documentZoekObject!!.zaakUuid shouldBe zaak.uuid.toString()
+                documentZoekObject.isZaakspecifiekGeautoriseerd shouldBe true
+            }
+
+            then("the zaak is never read again from the ZRC API, since it was already supplied") {
+                verify(exactly = 0) { zrcClientService.readZaak(any<UUID>()) }
             }
         }
     }
