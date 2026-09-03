@@ -26,6 +26,8 @@ import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.systemUser
@@ -49,7 +51,7 @@ import java.util.logging.Logger
 
 @Singleton
 @AllOpen
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LargeClass")
 class IndexingService @Inject constructor(
     private val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
     private val zrcClientService: ZrcClientService,
@@ -152,28 +154,100 @@ class IndexingService @Inject constructor(
      * process: logs when the complete process starts and finishes, in addition to the existing
      * per-object-type logging (including Solr document counts) performed by [reindex].
      *
+     * When [objectTypes] includes `ZAAK` together with `TAAK` and/or `DOCUMENT`, those are reindexed
+     * through [reindexCombined], which retrieves each zaak from ZGW at most once and reuses it for that
+     * zaak's own reindex as well as its taken and documenten, instead of each taak/document independently
+     * retrieving the same zaak again. Any object type not covered by that combination (e.g. `TAAK` or
+     * `DOCUMENT` requested without `ZAAK`) still goes through the independent [reindex] path.
+     *
      * @param objectTypes the object types to reindex; defaults to all object types
      */
     @Suppress("TooGenericExceptionCaught")
     fun reindexAll(objectTypes: Set<ZoekObjectType> = ZoekObjectType.entries.toSet()) {
         val orderedObjectTypes = objectTypes.sorted()
         LOG.info("Complete reindexing process started for object types: $orderedObjectTypes")
-        orderedObjectTypes.forEach { objectType ->
+        val combinedObjectTypes = combinableObjectTypes(objectTypes)
+        if (combinedObjectTypes.isNotEmpty()) {
             try {
-                reindex(objectType)
+                reindexCombined(combinedObjectTypes)
             } catch (exception: Exception) {
-                // catches more than IndexingException on purpose: SolrDeployerService now runs every
-                // object type through this one function on a single executor task (rather than one
-                // task per type), so an unguarded exception anywhere in reindex() must not abort the
-                // remaining object types either
+                // matches reindexOrLogFailure's safety net: an unguarded exception from the combined
+                // pass must not abort the remaining object types, nor skip the "process finished" log
                 LOG.log(
                     Level.SEVERE,
-                    "[$objectType] Reindexing failed, continuing with remaining object types",
+                    "[$combinedObjectTypes] Reindexing failed, continuing with remaining object types",
                     exception
                 )
             }
         }
+        orderedObjectTypes.filterNot { it in combinedObjectTypes }.forEach(::reindexOrLogFailure)
         LOG.info("Complete reindexing process finished for object types: $orderedObjectTypes")
+    }
+
+    /**
+     * The subset of [objectTypes] that [reindexCombined] can reindex together: `ZAAK` together with
+     * `TAAK` and/or `DOCUMENT`. Returns an empty set when `ZAAK` is not requested together with at least
+     * one of the other two, since there is then no zaak-pass retrieval for `TAAK`/`DOCUMENT` to reuse.
+     */
+    private fun combinableObjectTypes(objectTypes: Set<ZoekObjectType>): Set<ZoekObjectType> =
+        if (ZoekObjectType.ZAAK in objectTypes &&
+            (ZoekObjectType.TAAK in objectTypes || ZoekObjectType.DOCUMENT in objectTypes)
+        ) {
+            objectTypes.intersect(setOf(ZoekObjectType.ZAAK, ZoekObjectType.TAAK, ZoekObjectType.DOCUMENT))
+        } else {
+            emptySet()
+        }
+
+    /**
+     * Runs [reindex] for [objectType], logging (rather than propagating) any failure that escapes it, so
+     * that [reindexAll] continues with the remaining object types regardless.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private fun reindexOrLogFailure(objectType: ZoekObjectType) {
+        try {
+            reindex(objectType)
+        } catch (exception: Exception) {
+            // catches more than IndexingException on purpose: SolrDeployerService now runs every
+            // object type through this one function on a single executor task (rather than one
+            // task per type), so an unguarded exception anywhere in reindex() must not abort the
+            // remaining object types either
+            LOG.log(
+                Level.SEVERE,
+                "[$objectType] Reindexing failed, continuing with remaining object types",
+                exception
+            )
+        }
+    }
+
+    /**
+     * Reindexes [objectTypes] (`ZAAK` together with `TAAK` and/or `DOCUMENT`) as one zaak-driven combined
+     * pass via [reindexZakenTakenDocumenten], reserving all of [objectTypes] in [reindexingViewfinder]
+     * together so that a standalone trigger for any of them is rejected as "still in progress" for the
+     * duration of the combined pass, consistent with [reindex]'s own single-type reservation. If any of
+     * [objectTypes] is already in progress, none are reserved here; each is instead reindexed
+     * independently via [reindexOrLogFailure], so the free ones still reindex and the busy one logs
+     * "still in progress" exactly as [reindex] does on its own.
+     */
+    private fun reindexCombined(objectTypes: Set<ZoekObjectType>) {
+        val reserved = mutableSetOf<ZoekObjectType>()
+        val allReserved = objectTypes.all { objectType ->
+            reindexingViewfinder.add(objectType).also { added -> if (added) reserved += objectType }
+        }
+        if (!allReserved) {
+            reserved.forEach(reindexingViewfinder::remove)
+            objectTypes.sorted().forEach(::reindexOrLogFailure)
+            return
+        }
+        try {
+            systemUser.set(true)
+            reindexZakenTakenDocumenten(
+                includeTaken = ZoekObjectType.TAAK in objectTypes,
+                includeDocumenten = ZoekObjectType.DOCUMENT in objectTypes
+            )
+        } finally {
+            systemUser.remove()
+            reserved.forEach(reindexingViewfinder::remove)
+        }
     }
 
     /**
@@ -222,21 +296,31 @@ class IndexingService @Inject constructor(
                 ZoekObjectType.DOCUMENT -> reindexAllInformatieobjecten()
                 ZoekObjectType.TAAK -> reindexAllTaken()
             }
-            // only commit when reindexing was actually attempted: existing entities are only
-            // deleted once the total count is known (see e.g. reindexAllZaken), so a null summary
-            // means nothing was deleted either, and there is nothing to make visible
-            if (summary != null) {
-                // ensure the removed/reindexed entities are visible to the searcher before reporting
-                // the finished Solr document count, since bulk (re)indexing never commits per page.
-                // Best-effort: a commit failure here must not discard the reindexing work already
-                // done, nor abort the remaining object types in reindexAll() - the new/removed
-                // entities simply become visible whenever Solr's own autoCommit next fires instead.
-                continueOnExceptions(objectType) { commit() }
-            }
-            LOG.info(reindexFinishedMessage(objectType, summary))
+            finishReindex(objectType, summary)
         } finally {
             systemUser.remove()
         }
+    }
+
+    /**
+     * Commits (when [summary] is non-null) and logs the "Reindexing finished" message for [objectType].
+     * Shared by [reindexReserved] (a single independently reindexed object type) and
+     * [reindexZakenTakenDocumenten] (each object type covered by the zaak-driven combined pass), so both
+     * report completion identically.
+     */
+    private fun finishReindex(objectType: ZoekObjectType, summary: ReindexSummary?) {
+        // only commit when reindexing was actually attempted: existing entities are only
+        // deleted once the total count is known (see e.g. reindexAllZaken), so a null summary
+        // means nothing was deleted either, and there is nothing to make visible
+        if (summary != null) {
+            // ensure the removed/reindexed entities are visible to the searcher before reporting
+            // the finished Solr document count, since bulk (re)indexing never commits per page.
+            // Best-effort: a commit failure here must not discard the reindexing work already
+            // done, nor abort the remaining object types in reindexAll() - the new/removed
+            // entities simply become visible whenever Solr's own autoCommit next fires instead.
+            continueOnExceptions(objectType) { commit() }
+        }
+        LOG.info(reindexFinishedMessage(objectType, summary))
     }
 
     /**
@@ -708,6 +792,315 @@ class IndexingService @Inject constructor(
         val progress = firstResult + tasks.size
         LOG.info("[${ZoekObjectType.TAAK}] Reindexed: $progress / $totalCount")
         return counts
+    }
+
+    private data class ZakenTakenDocumentenCounts(
+        val zaakCounts: ReindexCounts = ReindexCounts(),
+        val takenCounts: ReindexCounts = ReindexCounts(),
+        val documentenCounts: ReindexCounts = ReindexCounts()
+    ) {
+        operator fun plus(other: ZakenTakenDocumentenCounts) =
+            ZakenTakenDocumentenCounts(
+                zaakCounts + other.zaakCounts,
+                takenCounts + other.takenCounts,
+                documentenCounts + other.documentenCounts
+            )
+    }
+
+    /**
+     * Reindexes `ZAAK` together with, when requested, `TAAK` and/or `DOCUMENT`, retrieving each zaak from
+     * ZGW at most once and reusing it for the zaak's own reindex as well as its open taken and its linked
+     * documenten (see [reindexZaakTakenDocumenten]), instead of each taak/document independently
+     * retrieving the same zaak again.
+     *
+     * When the zaak count cannot be determined, `ZAAK` is reported as aborted (as [reindexAllZaken] does
+     * on its own), and `TAAK`/`DOCUMENT` fall back to their existing independent
+     * [reindexAllTaken]/[reindexAllInformatieobjecten] passes for this run instead of being skipped,
+     * consistent with `solr-reindexing-observability`'s "remaining object types still reindex" behavior.
+     */
+    private fun reindexZakenTakenDocumenten(includeTaken: Boolean, includeDocumenten: Boolean) {
+        LOG.info(reindexStartedMessage(ZoekObjectType.ZAAK))
+        if (includeTaken) LOG.info(reindexStartedMessage(ZoekObjectType.TAAK))
+        if (includeDocumenten) LOG.info(reindexStartedMessage(ZoekObjectType.DOCUMENT))
+
+        val numberOfZaken = continueOnExceptions(ZoekObjectType.ZAAK) { countZaken() }
+        if (numberOfZaken == null) {
+            reindexZakenTakenDocumentenFallback(includeTaken, includeDocumenten)
+            return
+        }
+
+        // captured before any deletion happens, consistent with reindexAllTaken/reindexAllInformatieobjecten
+        val numberOfTasks = if (includeTaken) {
+            continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.countOpenTasks() }
+        } else {
+            null
+        }
+        val numberOfInformatieobjecten = if (includeDocumenten) {
+            continueOnExceptions(ZoekObjectType.DOCUMENT) { countInformatieobjecten() }
+        } else {
+            null
+        }
+
+        deleteExistingEntities(ZoekObjectType.ZAAK)
+        if (includeTaken) deleteExistingEntities(ZoekObjectType.TAAK)
+        if (includeDocumenten) deleteExistingEntities(ZoekObjectType.DOCUMENT)
+
+        // tracks which informatieobjecten the zaak-driven stage already indexed, so the orphan sweep
+        // below does not reconvert them - see reindexInformatieobjectenOrphanSweep
+        val alreadyIndexedInformatieobjectUUIDs = ConcurrentHashMap.newKeySet<UUID>()
+        val counts = reindexZakenTakenDocumentenPages(
+            numberOfZaken,
+            includeTaken,
+            includeDocumenten,
+            alreadyIndexedInformatieobjectUUIDs
+        )
+
+        finishReindex(
+            ZoekObjectType.ZAAK,
+            ReindexSummary(counts.zaakCounts.successCount, counts.zaakCounts.skippedCount, numberOfZaken)
+        )
+        if (includeTaken) {
+            finishReindex(
+                ZoekObjectType.TAAK,
+                numberOfTasks?.let {
+                    ReindexSummary(counts.takenCounts.successCount, counts.takenCounts.skippedCount, it.toInt())
+                }
+            )
+        }
+        if (includeDocumenten) {
+            finishReindex(
+                ZoekObjectType.DOCUMENT,
+                numberOfInformatieobjecten?.let { total ->
+                    val documentenCounts = counts.documentenCounts +
+                        reindexInformatieobjectenOrphanSweep(total, alreadyIndexedInformatieobjectUUIDs)
+                    ReindexSummary(documentenCounts.successCount, documentenCounts.skippedCount, total)
+                }
+            )
+        }
+    }
+
+    /**
+     * Falls back to [reindexAllTaken]/[reindexAllInformatieobjecten] for whichever of [includeTaken]/
+     * [includeDocumenten] were requested, since the zaak count being unavailable means there is no
+     * zaak-driven pass for them to be part of - see [reindexZakenTakenDocumenten]'s KDoc.
+     */
+    private fun reindexZakenTakenDocumentenFallback(includeTaken: Boolean, includeDocumenten: Boolean) {
+        LOG.warning("[${ZoekObjectType.ZAAK}] Cannot find zaken count! Aborting reindexing")
+        finishReindex(ZoekObjectType.ZAAK, null)
+        if (includeTaken) finishReindex(ZoekObjectType.TAAK, reindexAllTaken())
+        if (includeDocumenten) finishReindex(ZoekObjectType.DOCUMENT, reindexAllInformatieobjecten())
+    }
+
+    private fun countZaken(): Int =
+        zrcClientService.listZakenUuids(
+            ZaakListParameters().apply {
+                ordering = "-identificatie"
+                page = ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
+            }
+        ).count()
+
+    private fun countInformatieobjecten(): Int =
+        drcClientService.listEnkelvoudigInformatieObjecten(
+            EnkelvoudigInformatieobjectListParameters().apply { page = ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS }
+        ).count()
+
+    private fun reindexZakenTakenDocumentenPages(
+        numberOfZaken: Int,
+        includeTaken: Boolean,
+        includeDocumenten: Boolean,
+        alreadyIndexedInformatieobjectUUIDs: MutableSet<UUID>
+    ): ZakenTakenDocumentenCounts {
+        val numberOfPages: Int = (numberOfZaken + Results.DEFAULT_ZGW_PAGE_SIZE.toInt() - 1) /
+            Results.DEFAULT_ZGW_PAGE_SIZE.toInt()
+        var counts = ZakenTakenDocumentenCounts()
+        for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
+            continueOnExceptions(ZoekObjectType.ZAAK) {
+                reindexZakenTakenDocumentenPage(
+                    pageNumber,
+                    numberOfZaken,
+                    includeTaken,
+                    includeDocumenten,
+                    alreadyIndexedInformatieobjectUUIDs
+                )
+            }?.let { counts += it }
+        }
+        return counts
+    }
+
+    private fun reindexZakenTakenDocumentenPage(
+        pageNumber: Int,
+        totalCount: Int,
+        includeTaken: Boolean,
+        includeDocumenten: Boolean,
+        alreadyIndexedInformatieobjectUUIDs: MutableSet<UUID>
+    ): ZakenTakenDocumentenCounts {
+        val zaakUUIDs = zrcClientService.listZakenUuids(
+            ZaakListParameters().apply {
+                ordering = "-identificatie"
+                page = pageNumber
+            }
+        ).results().map { it.uuid }
+        val isZaakspecifiekGeautoriseerd = memoizedIsZaakspecifiekGeautoriseerd()
+
+        val pageResults = runBlocking(pageConversionDispatcher) {
+            zaakUUIDs.map { zaakUUID ->
+                async {
+                    reindexZaakTakenDocumenten(
+                        zaakUUID,
+                        includeTaken,
+                        includeDocumenten,
+                        isZaakspecifiekGeautoriseerd,
+                        alreadyIndexedInformatieobjectUUIDs
+                    )
+                }
+            }.awaitAll()
+        }
+
+        val zaakOutcomes = pageResults.map { it.first }
+        val takenOutcomes = pageResults.flatMap { it.second }
+        val documentenOutcomes = pageResults.flatMap { it.third }
+        addToSolrIndex(zaakOutcomes.zoekObjecten(), performCommit = false)
+        addToSolrIndex(takenOutcomes.zoekObjecten(), performCommit = false)
+        addToSolrIndex(documentenOutcomes.zoekObjecten(), performCommit = false)
+
+        val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.DEFAULT_ZGW_PAGE_SIZE + zaakUUIDs.size
+        LOG.info("[${ZoekObjectType.ZAAK}] Reindexed: $progress / $totalCount ")
+
+        return ZakenTakenDocumentenCounts(
+            zaakCounts = ReindexCounts(
+                successCount = zaakOutcomes.count { it is ConversionOutcome.Converted },
+                skippedCount = zaakOutcomes.count { it is ConversionOutcome.Skipped }
+            ),
+            takenCounts = ReindexCounts(
+                successCount = takenOutcomes.count { it is ConversionOutcome.Converted },
+                skippedCount = takenOutcomes.count { it is ConversionOutcome.Skipped }
+            ),
+            documentenCounts = ReindexCounts(
+                successCount = documentenOutcomes.count { it is ConversionOutcome.Converted },
+                skippedCount = documentenOutcomes.count { it is ConversionOutcome.Skipped }
+            )
+        )
+    }
+
+    /**
+     * Reindexes [zaakUUID] and, when requested, its open taken and its linked documenten, retrieving the
+     * zaak once via [ZrcClientService.readZaak] and reusing it for all three conversions. If retrieving or
+     * converting the zaak itself fails, its taken and documenten are not attempted either for that zaak -
+     * consistent with them belonging to the zaak, and avoiding retrieval calls likely to fail again for
+     * the same zaak. A listing failure for the taken or documenten of an otherwise successfully indexed
+     * zaak only drops that piece for this zaak (logged, not counted as a conversion error), the same way a
+     * page-listing failure is handled by [reindexAllTaken]/[reindexAllInformatieobjecten].
+     */
+    private fun reindexZaakTakenDocumenten(
+        zaakUUID: UUID,
+        includeTaken: Boolean,
+        includeDocumenten: Boolean,
+        isZaakspecifiekGeautoriseerd: (UUID) -> Boolean,
+        alreadyIndexedInformatieobjectUUIDs: MutableSet<UUID>
+    ): Triple<ConversionOutcome, List<ConversionOutcome>, List<ConversionOutcome>> {
+        val zaakConversion = try {
+            runTranslatingToIndexingException {
+                val zaak = zrcClientService.readZaak(zaakUUID)
+                zaak to zaakZoekObjectConverter.convert(zaak, isZaakspecifiekGeautoriseerd)
+            }
+        } catch (indexingException: IndexingException) {
+            LOG.log(Level.WARNING, "[${ZoekObjectType.ZAAK}] Error during indexing", indexingException)
+            null
+        }
+        if (zaakConversion == null) {
+            return Triple(ConversionOutcome.Errored, emptyList(), emptyList())
+        }
+        val (zaak, zaakZoekObject) = zaakConversion
+
+        val takenOutcomes = if (includeTaken) {
+            continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.listOpenTasksForZaak(zaakUUID) }
+                .orEmpty()
+                .map { task -> convertTaak(task.id, zaak, isZaakspecifiekGeautoriseerd) }
+        } else {
+            emptyList()
+        }
+
+        val documentenOutcomes = if (includeDocumenten) {
+            continueOnExceptions(ZoekObjectType.DOCUMENT) { zrcClientService.listZaakinformatieobjecten(zaak) }
+                .orEmpty()
+                .mapNotNull { zaakInformatieobject ->
+                    val informatieobjectUUID = zaakInformatieobject.informatieobject.extractUuid()
+                    // an informatieobject can be linked to more than one zaak in ZGW; claiming the UUID
+                    // here ensures it is only converted/counted once for this run, via whichever of its
+                    // zaken is processed first, instead of once per zaak it is linked to
+                    if (alreadyIndexedInformatieobjectUUIDs.add(informatieobjectUUID)) {
+                        convertDocument(zaakInformatieobject, zaak, isZaakspecifiekGeautoriseerd)
+                    } else {
+                        null
+                    }
+                }
+        } else {
+            emptyList()
+        }
+
+        return Triple(ConversionOutcome.Converted(zaakZoekObject), takenOutcomes, documentenOutcomes)
+    }
+
+    private fun convertTaak(taskId: String, zaak: Zaak, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): ConversionOutcome =
+        try {
+            ConversionOutcome.Converted(
+                runTranslatingToIndexingException { taakZoekObjectConverter.convert(taskId, zaak, isZaakspecifiekGeautoriseerd) }
+            )
+        } catch (indexingException: IndexingException) {
+            LOG.log(Level.WARNING, "[${ZoekObjectType.TAAK}] Error during indexing", indexingException)
+            ConversionOutcome.Errored
+        }
+
+    private fun convertDocument(
+        zaakInformatieobject: ZaakInformatieObject,
+        zaak: Zaak,
+        isZaakspecifiekGeautoriseerd: (UUID) -> Boolean
+    ): ConversionOutcome =
+        try {
+            ConversionOutcome.Converted(
+                runTranslatingToIndexingException {
+                    documentZoekObjectConverter.convert(zaakInformatieobject, zaak, isZaakspecifiekGeautoriseerd)
+                }
+            )
+        } catch (indexingException: IndexingException) {
+            LOG.log(Level.WARNING, "[${ZoekObjectType.DOCUMENT}] Error during indexing", indexingException)
+            ConversionOutcome.Errored
+        }
+
+    /**
+     * Finds and accounts for documents that have no linked zaak ("orphans"), by paging through the DRC's
+     * full informatieobject listing exactly as [reindexAllInformatieobjecten] does, but skipping any
+     * informatieobject UUID already reindexed via a zaak in [alreadyIndexedInformatieobjectUUIDs]. Only an
+     * orphan (or a document created after the zaak-driven stage already passed its zaak) reaches
+     * [DocumentZoekObjectConverter.convert] here, which still returns `null` for a document with no linked
+     * zaak, counted as skipped exactly as it is today.
+     */
+    private fun reindexInformatieobjectenOrphanSweep(
+        totalCount: Int,
+        alreadyIndexedInformatieobjectUUIDs: Set<UUID>
+    ): ReindexCounts {
+        val numberOfPages: Int = (totalCount + Results.DEFAULT_ZGW_PAGE_SIZE.toInt() - 1) /
+            Results.DEFAULT_ZGW_PAGE_SIZE.toInt()
+        var counts = ReindexCounts()
+        for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
+            continueOnExceptions(ZoekObjectType.DOCUMENT) {
+                reindexInformatieobjectenOrphanSweepPage(pageNumber, alreadyIndexedInformatieobjectUUIDs)
+            }?.let { counts += it }
+        }
+        return counts
+    }
+
+    private fun reindexInformatieobjectenOrphanSweepPage(
+        pageNumber: Int,
+        alreadyIndexedInformatieobjectUUIDs: Set<UUID>
+    ): ReindexCounts {
+        val ids = drcClientService.listEnkelvoudigInformatieObjecten(
+            EnkelvoudigInformatieobjectListParameters().apply { page = pageNumber }
+        ).results()
+            .map { it.url.extractUuid() }
+            .filterNot { it in alreadyIndexedInformatieobjectUUIDs }
+            .map { it.toString() }
+        return indexeerDirectCountingSuccesses(ids, ZoekObjectType.DOCUMENT)
     }
 
     @Suppress("TooGenericExceptionCaught")

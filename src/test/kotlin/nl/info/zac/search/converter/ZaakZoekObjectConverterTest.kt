@@ -40,6 +40,7 @@ import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import java.net.URI
 import java.time.ZoneId
 import java.util.Date
+import java.util.UUID
 
 class ZaakZoekObjectConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
@@ -272,6 +273,36 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     isToegekend shouldBe false
                     betrokkenen shouldBe null
                 }
+            }
+        }
+    }
+
+    given("an already-retrieved zaak, converted via the zaak-driven combined reindex entry point") {
+        val zaakType = createZaakType()
+        val zaak = createZaak(zaaktypeUri = zaakType.url)
+        val zaakObjectenList = emptyList<Zaakobject>()
+
+        every { zrcClientService.listRollen(zaak) } returns emptyList()
+        every { zgwApiService.findInitiatorRoleForZaak(zaak, emptyList()) } returns null
+        every { zgwApiService.findGroepForZaak(zaak, emptyList()) } returns null
+        every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, emptyList()) } returns null
+        every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+        every { flowableTaskService.countOpenTasksForZaak(zaak.uuid) } returns 0
+        every { zrcClientService.listZaakobjecten(any()) } returns createResultsOfZaakObjecten(
+            list = zaakObjectenList,
+            count = zaakObjectenList.size
+        )
+
+        `when`("the zaak is converted via the overload that takes the zaak directly") {
+            val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak) { true }
+
+            then("the zaak zoek object is still correctly populated") {
+                zaakZoekObject.getObjectId() shouldBe zaak.uuid.toString()
+                zaakZoekObject.isZaakspecifiekGeautoriseerd shouldBe true
+            }
+
+            then("the zaak is never read again from the ZRC API, since it was already supplied") {
+                verify(exactly = 0) { zrcClientService.readZaak(any<UUID>()) }
             }
         }
     }
