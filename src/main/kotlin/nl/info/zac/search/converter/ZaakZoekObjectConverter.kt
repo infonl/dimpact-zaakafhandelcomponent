@@ -19,6 +19,7 @@ import nl.info.client.zgw.zrc.util.isHoofdzaak
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.zrc.util.isOpgeschort
 import nl.info.client.zgw.zrc.util.isVerlengd
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.Group
@@ -39,14 +40,23 @@ class ZaakZoekObjectConverter @Inject constructor(
     private val flowableTaskService: FlowableTaskService
 ) : AbstractZoekObjectConverter<ZaakZoekObject>() {
 
-    override fun convert(id: String): ZaakZoekObject {
+    override fun convert(id: String): ZaakZoekObject =
+        convert(id, zrcClientService::isZaakspecifiekGeautoriseerd)
+
+    /**
+     * Converts [id], looking up the zaakspecifiek geautoriseerd flag through [isZaakspecifiekGeautoriseerd]
+     * instead of always calling [ZrcClientService.isZaakspecifiekGeautoriseerd] directly. Used by
+     * [nl.info.zac.search.IndexingService] to memoize that lookup per zaak UUID across the taken of one zaak.
+     */
+    override fun convert(id: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): ZaakZoekObject {
         val zaak = zrcClientService.readZaak(UUID.fromString(id))
-        return convert(zaak)
+        return convert(zaak, isZaakspecifiekGeautoriseerd)
     }
+
     override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.ZAAK
 
     @Suppress("LongMethod")
-    private fun convert(zaak: Zaak): ZaakZoekObject {
+    private fun convert(zaak: Zaak, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): ZaakZoekObject {
         val roles = zrcClientService.listRollen(zaak)
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakZoekObject = ZaakZoekObject(
@@ -57,6 +67,7 @@ class ZaakZoekObjectConverter @Inject constructor(
             zaaktypeOmschrijving = zaaktype.omschrijving,
             zaaktypeUuid = zaaktype.url.extractUuid().toString()
         ).apply {
+            this.isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd(zaak.uuid)
             omschrijving = zaak.omschrijving
             toelichting = zaak.toelichting
             registratiedatum = zaak.registratiedatum?.let(::convertToDate)

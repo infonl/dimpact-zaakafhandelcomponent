@@ -7,7 +7,7 @@ package nl.info.client.zgw.zrc.util
 import nl.info.client.zgw.zrc.ZrcClientService
 import java.util.UUID
 
-private const val ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD = "ZAAK_GEAUTORISEERD"
+const val ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD = "ZAAK_GEAUTORISEERD"
 private const val ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD = "true"
 
 fun ZrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID: UUID): Boolean =

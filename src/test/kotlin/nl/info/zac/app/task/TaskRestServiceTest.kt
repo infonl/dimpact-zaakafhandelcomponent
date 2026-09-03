@@ -245,7 +245,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { taakVariabelenService.setTaskData(task, restTaak.taakdata) } just runs
             every { taakVariabelenService.setTaskinformation(task, null) } just runs
             every { flowableTaskService.completeTask(task) } returns historicTaskInstance
-            every { indexingService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false) } just runs
             every { historicTaskInstance.id } returns restTaak.id
             every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
             every { eventingService.send(any<ScreenEvent>()) } just runs
@@ -309,7 +309,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { policyService.readTaakRechten(task) } returns createTaakRechtenAllDeny(wijzigen = true)
             every { zrcClientService.readZaak(restTaak.zaakUuid) } returns zaak
             every { flowableTaskService.completeTask(task) } returns historicTaskInstance
-            every { indexingService.addOrUpdateZaak(restTaak.zaakUuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(restTaak.zaakUuid, false) } just runs
             every { restTaskConverter.convert(historicTaskInstance) } returns restTaakConverted
             every { httpSessionInstance.get() } returns httpSession
             // in this test we assume there was no document uploaded to the http session beforehand
@@ -396,7 +396,7 @@ class TaskRestServiceTest : BehaviorSpec({
             every { bpmnTaskFormRuntimeService.submit(restTask, assignedTask, zaak) } returns assignedTask
             every { flowableTaskService.completeTask(assignedTask) } returns historicTaskInstance
             every { historicTaskInstance.id } returns restTask.id
-            every { indexingService.addOrUpdateZaak(restTask.zaakUuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false) } just runs
             every { restTaskConverter.convert(historicTaskInstance) } returns restTaskConverted
             every { eventingService.send(any<ScreenEvent>()) } just runs
 

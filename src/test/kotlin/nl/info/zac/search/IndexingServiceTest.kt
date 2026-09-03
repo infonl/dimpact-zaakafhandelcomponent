@@ -5,6 +5,7 @@
 
 package nl.info.zac.search
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
@@ -26,9 +27,12 @@ import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakEigenschap
+import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.ZaakUuid
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
@@ -36,6 +40,7 @@ import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
 import nl.info.zac.search.model.createDocumentZoekObject
+import nl.info.zac.search.model.createTaakZoekObject
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
@@ -61,11 +66,13 @@ import java.util.logging.Logger
 private data class TestContext(
     val solrClient: Http2SolrClient,
     val zaakZoekObjectConverter: ZaakZoekObjectConverter,
+    val taakZoekObjectConverter: TaakZoekObjectConverter,
     val converterInstances: Instance<AbstractZoekObjectConverter<out ZoekObject>>,
     val converterInstancesIterator: MutableIterator<AbstractZoekObjectConverter<out ZoekObject>>,
     val drcClientService: DrcClientService,
     val flowableTaskService: FlowableTaskService,
     val zrcClientService: ZrcClientService,
+    val documentZoekObjectConverter: DocumentZoekObjectConverter,
     val indexingService: IndexingService,
     val testDispatcher: TestDispatcher
 )
@@ -101,29 +108,36 @@ private fun setupContext(): TestContext {
     every { anyConstructed<Http2SolrClient.Builder>().build() } returns solrClient
 
     val zaakZoekObjectConverter = mockk<ZaakZoekObjectConverter>()
+    val taakZoekObjectConverter = mockk<TaakZoekObjectConverter>()
     val converterInstances = mockk<Instance<AbstractZoekObjectConverter<out ZoekObject>>>()
     val converterInstancesIterator = mockk<MutableIterator<AbstractZoekObjectConverter<out ZoekObject>>>()
     val drcClientService = mockk<DrcClientService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val zrcClientService = mockk<ZrcClientService>()
     val testDispatcher = StandardTestDispatcher()
+    val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
 
     val indexingService = IndexingService(
         converterInstances,
         zrcClientService,
         drcClientService,
         flowableTaskService,
+        documentZoekObjectConverter,
+        zaakZoekObjectConverter,
+        taakZoekObjectConverter,
         testDispatcher
     )
 
     return TestContext(
         solrClient,
         zaakZoekObjectConverter,
+        taakZoekObjectConverter,
         converterInstances,
         converterInstancesIterator,
         drcClientService,
         flowableTaskService,
         zrcClientService,
+        documentZoekObjectConverter,
         indexingService,
         testDispatcher
     )
@@ -152,7 +166,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter andThen ctx.zaakZoekObjectConverter
         zaken.forEachIndexed { index, zaak ->
-            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } returns zaakZoekObjecten[index]
         }
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
@@ -191,10 +205,10 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
-        every { ctx.zaakZoekObjectConverter.convert(zaken[0].uuid.toString()) } returns zaakZoekObjecten[0]
-        every { ctx.zaakZoekObjectConverter.convert(zaken[1].uuid.toString()) } throws
+        every { ctx.zaakZoekObjectConverter.convert(zaken[0].uuid.toString(), any()) } returns zaakZoekObjecten[0]
+        every { ctx.zaakZoekObjectConverter.convert(zaken[1].uuid.toString(), any()) } throws
             RuntimeException("fake conversion failure")
-        every { ctx.zaakZoekObjectConverter.convert(zaken[2].uuid.toString()) } returns zaakZoekObjecten[1]
+        every { ctx.zaakZoekObjectConverter.convert(zaken[2].uuid.toString(), any()) } returns zaakZoekObjecten[1]
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
         `when`(
@@ -232,7 +246,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
         zaken.forEachIndexed { index, zaak ->
-            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } answers {
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } answers {
                 val current = activeConversions.incrementAndGet()
                 maxObservedConcurrency.updateAndGet { previousMax -> maxOf(previousMax, current) }
                 try {
@@ -255,6 +269,241 @@ class IndexingServiceTest : BehaviorSpec({
             then("all zaken in the page are still converted and added to the Solr index") {
                 verify(exactly = 1) {
                     ctx.solrClient.addBeans(match<Collection<*>> { it.size == pageSize })
+                }
+            }
+        }
+    }
+
+    given("A page of documenten, all linked to the same zaak, exceeding the conversion concurrency limit") {
+        val ctx = setupContext()
+        val pageSize = 20
+        val zaakUUID = UUID.randomUUID()
+        val informatieobjectUUIDs = List(pageSize) { UUID.randomUUID().toString() }
+        val documentZoekObjecten = List(pageSize) { createDocumentZoekObject() }
+
+        every { ctx.documentZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns ctx.documentZoekObjectConverter
+        every { ctx.zrcClientService.listZaakeigenschappen(zaakUUID) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+        informatieobjectUUIDs.forEachIndexed { index, informatieobjectUUID ->
+            every { ctx.documentZoekObjectConverter.convert(informatieobjectUUID, any()) } answers {
+                // simulates the converter resolving the memoized flag lookup for the shared zaak,
+                // concurrently with the other documents on this page
+                secondArg<(UUID) -> Boolean>().invoke(zaakUUID)
+                documentZoekObjecten[index]
+            }
+        }
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        `when`("indexeerDirect is called for the page") {
+            ctx.indexingService.indexeerDirect(informatieobjectUUIDs, ZoekObjectType.DOCUMENT, false)
+
+            then(
+                "the shared zaak's zaakspecifiek geautoriseerd flag is looked up only once, despite " +
+                    "every document on the page resolving it concurrently"
+            ) {
+                verify(exactly = 1) {
+                    ctx.zrcClientService.listZaakeigenschappen(zaakUUID)
+                }
+            }
+        }
+    }
+
+    given("A zaak with two documenten attached") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val zaakInformatieobjecten = listOf(
+            createZaakInformatieobjectForReads(zaak = zaak.url),
+            createZaakInformatieobjectForReads(zaak = zaak.url)
+        )
+        val documentZoekObjecten = listOf(createDocumentZoekObject(), createDocumentZoekObject())
+
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
+        every { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+        zaakInformatieobjecten.forEachIndexed { index, zaakInformatieobject ->
+            every {
+                ctx.documentZoekObjectConverter.convert(
+                    zaakInformatieobject.informatieobject.extractUuid().toString(),
+                    any()
+                )
+            } answers {
+                // simulates the converter resolving the document against this same zaak,
+                // which is what actually triggers the memoized flag lookup
+                secondArg<(UUID) -> Boolean>().invoke(zaak.uuid)
+                documentZoekObjecten[index]
+            }
+        }
+
+        `when`("addOrUpdateInformatieobjectenForZaak is called for the zaak's UUID") {
+            ctx.indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+
+            then("both of the zaak's documenten are (re)indexed in Solr") {
+                verify(exactly = 1) {
+                    ctx.documentZoekObjectConverter.convert(
+                        zaakInformatieobjecten[0].informatieobject.extractUuid().toString(),
+                        any()
+                    )
+                    ctx.documentZoekObjectConverter.convert(
+                        zaakInformatieobjecten[1].informatieobject.extractUuid().toString(),
+                        any()
+                    )
+                }
+            }
+
+            then("the zaak's zaakspecifiek geautoriseerd flag is read only once, not once per document") {
+                verify(exactly = 1) {
+                    ctx.zrcClientService.listZaakeigenschappen(zaak.uuid)
+                }
+            }
+        }
+    }
+
+    given("A zaak with two documenten, one of which the converter resolves against a different zaak") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val otherZaakUUID = UUID.randomUUID()
+        val zaakInformatieobjecten = listOf(
+            createZaakInformatieobjectForReads(zaak = zaak.url),
+            createZaakInformatieobjectForReads(zaak = zaak.url)
+        )
+        val documentZoekObjecten = listOf(createDocumentZoekObject(), createDocumentZoekObject())
+
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
+        every { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+        every { ctx.zrcClientService.listZaakeigenschappen(otherZaakUUID) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "false")
+        )
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+        every {
+            ctx.documentZoekObjectConverter.convert(
+                zaakInformatieobjecten[0].informatieobject.extractUuid().toString(),
+                any()
+            )
+        } answers {
+            // resolves against the iterated zaak, like a document only linked to this one zaak
+            secondArg<(UUID) -> Boolean>().invoke(zaak.uuid)
+            documentZoekObjecten[0]
+        }
+        every {
+            ctx.documentZoekObjectConverter.convert(
+                zaakInformatieobjecten[1].informatieobject.extractUuid().toString(),
+                any()
+            )
+        } answers {
+            // resolves against a different zaak, like a document linked to more than one zaak
+            secondArg<(UUID) -> Boolean>().invoke(otherZaakUUID)
+            documentZoekObjecten[1]
+        }
+
+        `when`("addOrUpdateInformatieobjectenForZaak is called for the zaak's UUID") {
+            ctx.indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+
+            then(
+                "the flag is looked up for the zaak the second document actually resolves against, " +
+                    "not forced to the iterated zaak's own flag"
+            ) {
+                verify(exactly = 1) {
+                    ctx.zrcClientService.listZaakeigenschappen(zaak.uuid)
+                    ctx.zrcClientService.listZaakeigenschappen(otherZaakUUID)
+                }
+            }
+        }
+    }
+
+    given("A zaak with one open taak, called with inclusiefTaken true") {
+        val ctx = setupContext()
+        val zaakUUID = UUID.randomUUID()
+        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
+        val zaakZoekObject = createZaakZoekObject()
+        val taakZoekObject = createTaakZoekObject()
+
+        every { ctx.zrcClientService.listZaakeigenschappen(zaakUUID) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+        every { ctx.zaakZoekObjectConverter.convert(zaakUUID.toString(), any()) } answers {
+            // simulates the converter resolving the memoized flag lookup for this same zaak
+            secondArg<(UUID) -> Boolean>().invoke(zaakUUID)
+            zaakZoekObject
+        }
+        every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any()) } answers {
+            secondArg<(UUID) -> Boolean>().invoke(zaakUUID)
+            taakZoekObject
+        }
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns listOf(openTask)
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        `when`("addOrUpdateZaak is called") {
+            val zaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
+
+            then("it reports that the zaak itself was indexed successfully") {
+                zaakIndexed shouldBe true
+            }
+
+            then("the zaak and only its open taken are reindexed, without listing its completed taken") {
+                verify(exactly = 1) {
+                    ctx.zaakZoekObjectConverter.convert(zaakUUID.toString(), any())
+                    ctx.flowableTaskService.listOpenTasksForZaak(zaakUUID)
+                    ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any())
+                }
+                verify(exactly = 0) {
+                    ctx.flowableTaskService.listTasksForZaak(any())
+                }
+            }
+
+            then("the zaak's zaakspecifiek geautoriseerd flag is read only once, shared by the zaak and its taak") {
+                verify(exactly = 1) {
+                    ctx.zrcClientService.listZaakeigenschappen(zaakUUID)
+                }
+            }
+        }
+    }
+
+    given("A zaak with one open and one completed taak") {
+        val ctx = setupContext()
+        val zaakUUID = UUID.randomUUID()
+        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
+        val completedTask = mockk<Task>().apply { every { id } returns "fakeCompletedTaskId" }
+        val taakZoekObjecten = listOf(createTaakZoekObject(), createTaakZoekObject())
+
+        every { ctx.zrcClientService.listZaakeigenschappen(zaakUUID) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+        every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any()) } answers {
+            // simulates the converter resolving the memoized flag lookup for this same zaak
+            secondArg<(UUID) -> Boolean>().invoke(zaakUUID)
+            taakZoekObjecten[0]
+        }
+        every { ctx.taakZoekObjectConverter.convert("fakeCompletedTaskId", any()) } answers {
+            secondArg<(UUID) -> Boolean>().invoke(zaakUUID)
+            taakZoekObjecten[1]
+        }
+        every { ctx.flowableTaskService.listTasksForZaak(zaakUUID) } returns listOf(openTask, completedTask)
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        `when`("addOrUpdateTakenForZaak is called") {
+            ctx.indexingService.addOrUpdateTakenForZaak(zaakUUID)
+
+            then("both the open and the completed taak are reindexed") {
+                verify(exactly = 1) {
+                    ctx.flowableTaskService.listTasksForZaak(zaakUUID)
+                    ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any())
+                    ctx.taakZoekObjectConverter.convert("fakeCompletedTaskId", any())
+                }
+            }
+
+            then("the zaak's zaakspecifiek geautoriseerd flag is read only once, not once per taak") {
+                verify(exactly = 1) {
+                    ctx.zrcClientService.listZaakeigenschappen(zaakUUID)
                 }
             }
         }
@@ -303,7 +552,7 @@ class IndexingServiceTest : BehaviorSpec({
             every { ctx.converterInstancesIterator.hasNext() } returns true andThen true andThen false
             every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter andThen ctx.zaakZoekObjectConverter
             zakenUuid.forEachIndexed { index, zaak ->
-                every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+                every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } returns zaakZoekObjecten[index]
             }
         }
 
@@ -406,7 +655,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter andThen ctx.zaakZoekObjectConverter
         zakenUuid.forEachIndexed { index, zaak ->
-            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } returns zaakZoekObjecten[index]
         }
 
         `when`("reading zaak list throws an `IOException`") {
@@ -471,11 +720,11 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.next() } returns documentZoekObjectConverter
         informatieobjectenPage1.forEachIndexed { index, informatieobject ->
             every {
-                documentZoekObjectConverter.convert(informatieobject.url.extractUuid().toString())
+                documentZoekObjectConverter.convert(informatieobject.url.extractUuid().toString(), any())
             } returns documentZoekObjectenPage1[index]
         }
         every {
-            documentZoekObjectConverter.convert(informatieobjectPage2.url.extractUuid().toString())
+            documentZoekObjectConverter.convert(informatieobjectPage2.url.extractUuid().toString(), any())
         } returns documentZoekObjectPage2
 
         `when`("reindexing of informatieobjecten is called") {
@@ -486,7 +735,65 @@ class IndexingServiceTest : BehaviorSpec({
                     ctx.drcClientService.listEnkelvoudigInformatieObjecten(
                         match<EnkelvoudigInformatieobjectListParameters> { it.page == 2 }
                     )
-                    documentZoekObjectConverter.convert(informatieobjectPage2.url.extractUuid().toString())
+                    documentZoekObjectConverter.convert(informatieobjectPage2.url.extractUuid().toString(), any())
+                }
+            }
+        }
+    }
+
+    given("Two documenten on separate reindex pages, both linked to the same zaak") {
+        val ctx = setupContext()
+        val queryResponse = mockk<QueryResponse>()
+        val documentList = SolrDocumentList().apply {
+            addAll(listOf(SolrDocument(mapOf("id" to 1)), SolrDocument(mapOf("id" to 2))))
+        }
+        val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
+        val zaakUUID = UUID.randomUUID()
+        val informatieobjectPage1 = createEnkelvoudigInformatieObject()
+        val informatieobjectPage2 = createEnkelvoudigInformatieObject()
+
+        every { queryResponse.results } returns documentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.deleteById(listOf("1", "2")) } returns UpdateResponse()
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+        every { ctx.zrcClientService.listZaakeigenschappen(zaakUUID) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(
+                match<EnkelvoudigInformatieobjectListParameters> { it.page == 1 }
+            )
+        } returns Results(listOf(informatieobjectPage1), 102)
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(
+                match<EnkelvoudigInformatieobjectListParameters> { it.page == 2 }
+            )
+        } returns Results(listOf(informatieobjectPage2), 102)
+
+        every { documentZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true
+        every { ctx.converterInstancesIterator.next() } returns documentZoekObjectConverter
+        listOf(informatieobjectPage1, informatieobjectPage2).forEach { informatieobject ->
+            every {
+                documentZoekObjectConverter.convert(informatieobject.url.extractUuid().toString(), any())
+            } answers {
+                secondArg<(UUID) -> Boolean>().invoke(zaakUUID)
+                createDocumentZoekObject()
+            }
+        }
+
+        `when`("reindexing of informatieobjecten is called") {
+            ctx.indexingService.reindex(ZoekObjectType.DOCUMENT)
+
+            then(
+                "the shared zaak's zaakspecifiek geautoriseerd flag is looked up only once across both pages"
+            ) {
+                verify(exactly = 1) {
+                    ctx.zrcClientService.listZaakeigenschappen(zaakUUID)
                 }
             }
         }
@@ -521,7 +828,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns taakZoekObjectConverter
-        every { taakZoekObjectConverter.convert(any()) } throws RuntimeException("fake conversion failure")
+        every { taakZoekObjectConverter.convert(any(), any()) } throws RuntimeException("fake conversion failure")
 
         `when`("reindexing of taken is called") {
             ctx.indexingService.reindex(ZoekObjectType.TAAK)
@@ -565,13 +872,13 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns documentZoekObjectConverter
         every {
-            documentZoekObjectConverter.convert(informatieobjecten[0].url.extractUuid().toString())
+            documentZoekObjectConverter.convert(informatieobjecten[0].url.extractUuid().toString(), any())
         } returns convertedDocumentZoekObject
         every {
-            documentZoekObjectConverter.convert(informatieobjecten[1].url.extractUuid().toString())
+            documentZoekObjectConverter.convert(informatieobjecten[1].url.extractUuid().toString(), any())
         } returns null
         every {
-            documentZoekObjectConverter.convert(informatieobjecten[2].url.extractUuid().toString())
+            documentZoekObjectConverter.convert(informatieobjecten[2].url.extractUuid().toString(), any())
         } throws RuntimeException("fake conversion failure")
         every { ctx.solrClient.addBeans(listOf(convertedDocumentZoekObject)) } returns UpdateResponse()
 
@@ -617,10 +924,10 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
-        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[0].uuid.toString()) } returns zaakZoekObjecten[0]
-        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[1].uuid.toString()) } throws
+        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[0].uuid.toString(), any()) } returns zaakZoekObjecten[0]
+        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[1].uuid.toString(), any()) } throws
             RuntimeException("fake conversion failure")
-        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[2].uuid.toString()) } returns zaakZoekObjecten[1]
+        every { ctx.zaakZoekObjectConverter.convert(zakenUuid[2].uuid.toString(), any()) } returns zaakZoekObjecten[1]
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
         `when`("reindexing of zaken is called") {
@@ -660,7 +967,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
         zakenUuid.forEachIndexed { index, zaak ->
-            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } returns zaakZoekObjecten[index]
         }
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
@@ -709,7 +1016,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
         every { ctx.converterInstancesIterator.next() } returns ctx.zaakZoekObjectConverter
         zakenUuid.forEachIndexed { index, zaak ->
-            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString()) } returns zaakZoekObjecten[index]
+            every { ctx.zaakZoekObjectConverter.convert(zaak.uuid.toString(), any()) } returns zaakZoekObjecten[index]
         }
         every { ctx.solrClient.addBeans(zaakZoekObjecten) } returns UpdateResponse()
 
@@ -1028,6 +1335,196 @@ class IndexingServiceTest : BehaviorSpec({
                 verify(exactly = 0) {
                     ctx.flowableTaskService.countOpenTasks()
                 }
+            }
+        }
+    }
+
+    given("A zaak with an open taak, where indexing the zaak itself to Solr fails") {
+        val ctx = setupContext()
+        val zaakUUID = UUID.randomUUID()
+        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
+        val zaakZoekObject = createZaakZoekObject()
+        val taakZoekObject = createTaakZoekObject()
+
+        every { ctx.zaakZoekObjectConverter.convert(zaakUUID.toString(), any()) } returns zaakZoekObject
+        every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any()) } returns taakZoekObject
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns listOf(openTask)
+        every { ctx.solrClient.addBeans(listOf(zaakZoekObject)) } throws SolrServerException("fake Solr failure")
+        every { ctx.solrClient.addBeans(listOf(taakZoekObject)) } returns UpdateResponse()
+
+        `when`("addOrUpdateZaak is called") {
+            var zaakIndexed = true
+            val logRecords = captureLogRecords {
+                zaakIndexed = ctx.indexingService.addOrUpdateZaak(zaakUUID, true)
+            }
+
+            then("the zaak's open taak is still indexed despite the zaak's own Solr indexing failing") {
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(listOf(taakZoekObject))
+                }
+            }
+
+            then("the zaak's Solr indexing failure is logged instead of being thrown to the caller") {
+                logRecords.any {
+                    it.message == "[ZAAK] Error during indexing" && it.thrown?.cause?.message == "fake Solr failure"
+                } shouldBe true
+            }
+
+            then("the return value reports that indexing the zaak itself failed") {
+                zaakIndexed shouldBe false
+            }
+        }
+    }
+
+    given("A zaak with an open taak, where indexing the zaak itself to Solr fails, called via addOrUpdateZaakOrThrow") {
+        val ctx = setupContext()
+        val zaakUUID = UUID.randomUUID()
+        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
+        val zaakZoekObject = createZaakZoekObject()
+        val taakZoekObject = createTaakZoekObject()
+
+        every { ctx.zaakZoekObjectConverter.convert(zaakUUID.toString(), any()) } returns zaakZoekObject
+        every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any()) } returns taakZoekObject
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaakUUID) } returns listOf(openTask)
+        every { ctx.solrClient.addBeans(listOf(zaakZoekObject)) } throws SolrServerException("fake Solr failure")
+        every { ctx.solrClient.addBeans(listOf(taakZoekObject)) } returns UpdateResponse()
+
+        `when`("addOrUpdateZaakOrThrow is called") {
+            val indexingException = shouldThrow<IndexingException> {
+                ctx.indexingService.addOrUpdateZaakOrThrow(zaakUUID, true)
+            }
+
+            then("it throws instead of silently reporting success to the caller") {
+                indexingException.message shouldBe "[ZAAK] Failed to index zaak '$zaakUUID'"
+            }
+
+            then("the zaak's open taak is still indexed despite the zaak itself failing to index") {
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(listOf(taakZoekObject))
+                }
+            }
+        }
+    }
+
+    given("A zaak with two documenten, where indexing the first document to Solr fails") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val zaakInformatieobjecten = listOf(
+            createZaakInformatieobjectForReads(zaak = zaak.url),
+            createZaakInformatieobjectForReads(zaak = zaak.url)
+        )
+        val documentZoekObjecten = listOf(createDocumentZoekObject(), createDocumentZoekObject())
+
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns zaakInformatieobjecten
+        zaakInformatieobjecten.forEachIndexed { index, zaakInformatieobject ->
+            every {
+                ctx.documentZoekObjectConverter.convert(
+                    zaakInformatieobject.informatieobject.extractUuid().toString(),
+                    any()
+                )
+            } returns documentZoekObjecten[index]
+        }
+        every { ctx.solrClient.addBeans(listOf(documentZoekObjecten[0])) } throws
+            SolrServerException("fake Solr failure")
+        every { ctx.solrClient.addBeans(listOf(documentZoekObjecten[1])) } returns UpdateResponse()
+
+        `when`("addOrUpdateInformatieobjectenForZaak is called for the zaak's UUID") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+            }
+
+            then("the second document is still indexed despite the first document's Solr indexing failing") {
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(listOf(documentZoekObjecten[1]))
+                }
+            }
+
+            then("the first document's Solr indexing failure is logged instead of being thrown to the caller") {
+                logRecords.any {
+                    it.message == "[DOCUMENT] Error during indexing" && it.thrown?.cause?.message == "fake Solr failure"
+                } shouldBe true
+            }
+        }
+    }
+
+    given("A zaak with an open and a completed taak, where indexing the open taak to Solr fails") {
+        val ctx = setupContext()
+        val zaakUUID = UUID.randomUUID()
+        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
+        val completedTask = mockk<Task>().apply { every { id } returns "fakeCompletedTaskId" }
+        val taakZoekObjecten = listOf(createTaakZoekObject(), createTaakZoekObject())
+
+        every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", any()) } returns taakZoekObjecten[0]
+        every { ctx.taakZoekObjectConverter.convert("fakeCompletedTaskId", any()) } returns taakZoekObjecten[1]
+        every { ctx.flowableTaskService.listTasksForZaak(zaakUUID) } returns listOf(openTask, completedTask)
+        every { ctx.solrClient.addBeans(listOf(taakZoekObjecten[0])) } throws
+            SolrServerException("fake Solr failure")
+        every { ctx.solrClient.addBeans(listOf(taakZoekObjecten[1])) } returns UpdateResponse()
+
+        `when`("addOrUpdateTakenForZaak is called") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.addOrUpdateTakenForZaak(zaakUUID)
+            }
+
+            then("the completed taak is still indexed despite the open taak's Solr indexing failing") {
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(listOf(taakZoekObjecten[1]))
+                }
+            }
+
+            then("the open taak's Solr indexing failure is logged instead of being thrown to the caller") {
+                logRecords.any {
+                    it.message == "[TAAK] Error during indexing" && it.thrown?.cause?.message == "fake Solr failure"
+                } shouldBe true
+            }
+        }
+    }
+
+    given("A zaak's documenten to reindex asynchronously via addOrUpdateInformatieobjectenForZaakAsync") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns emptyList()
+
+        `when`("addOrUpdateInformatieobjectenForZaakAsync is called") {
+            ctx.indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaak.uuid)
+
+            then(
+                "nothing runs yet, since it launches on the coroutine dispatcher, until that " +
+                    "dispatcher is advanced"
+            ) {
+                verify(exactly = 0) {
+                    ctx.zrcClientService.readZaak(zaak.uuid)
+                }
+
+                ctx.testDispatcher.scheduler.advanceUntilIdle()
+
+                verify(exactly = 1) {
+                    ctx.zrcClientService.readZaak(zaak.uuid)
+                }
+            }
+        }
+    }
+
+    given("A zaak whose asynchronous documenten reindex fails with an error not caught anywhere internally") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } throws
+            RuntimeException("fake unexpected failure")
+
+        `when`("addOrUpdateInformatieobjectenForZaakAsync is called and the coroutine dispatcher is advanced") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.addOrUpdateInformatieobjectenForZaakAsync(zaak.uuid)
+                ctx.testDispatcher.scheduler.advanceUntilIdle()
+            }
+
+            then("the failure is logged by the same backstop used by reindexAsync, instead of crashing the coroutine") {
+                logRecords.any {
+                    it.message == "Unexpected failure while reindexing" &&
+                        it.thrown?.message == "fake unexpected failure"
+                } shouldBe true
             }
         }
     }

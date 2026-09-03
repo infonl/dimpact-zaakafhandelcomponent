@@ -20,6 +20,7 @@ import nl.info.client.zgw.model.createResultaat
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.createResultsOfZaakObjecten
@@ -108,6 +109,9 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
         every { ztcClientService.readResultaattype(resultaat.resultaattype) } returns resultaatType
         every { flowableTaskService.countOpenTasksForZaak(zaak.uuid) } returns 0
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+            createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
+        )
 
         `when`("the zaak is converted to a zaak zoek object") {
             val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak.uuid.toString())
@@ -120,6 +124,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                 with(zaakZoekObject) {
                     getObjectId() shouldBe zaak.uuid.toString()
                     getType() shouldBe ZoekObjectType.ZAAK
+                    isZaakspecifiekGeautoriseerd shouldBe true
                     archiefNominatie shouldBe "VERNIETIGEN"
                     archiefActiedatum shouldBe null
                     identificatie shouldBe zaak.identificatie
@@ -193,6 +198,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             list = zaakObjectenList,
             count = zaakObjectenList.size
         )
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
 
         `when`("the zaak is converted to a zaak zoek object") {
             val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak.uuid.toString())
@@ -205,6 +211,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                 with(zaakZoekObject) {
                     getObjectId() shouldBe zaak.uuid.toString()
                     getType() shouldBe ZoekObjectType.ZAAK
+                    isZaakspecifiekGeautoriseerd shouldBe false
                     identificatie shouldBe zaak.identificatie
                     omschrijving shouldBe zaak.omschrijving
                     toelichting shouldBe zaak.toelichting
@@ -248,6 +255,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
             list = zaakObjectenList,
             count = zaakObjectenList.size
         )
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
 
         `when`("the zaak is converted to a zaak zoek object") {
             val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak.uuid.toString())

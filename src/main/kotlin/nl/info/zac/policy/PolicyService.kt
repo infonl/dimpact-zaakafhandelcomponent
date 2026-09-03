@@ -23,6 +23,7 @@ import nl.info.client.zgw.zrc.util.isVerlengd
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.app.task.model.TaakStatus.AFGEROND
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
@@ -124,8 +125,7 @@ class PolicyService @Inject constructor(
             besloten = null,
             // not taken into account when searching for a zaak
             brondatumBepaald = null,
-            // werklijsten/zoekresultaten are not restricted based on zaakspecifieke autorisatie
-            zaakspecifiekGeautoriseerd = false
+            zaakspecifiekGeautoriseerd = zaakZoekObject.isZaakspecifiekGeautoriseerd
         )
         return evaluationClient.readZaakRechten(
             RuleQuery(
@@ -175,7 +175,8 @@ class PolicyService @Inject constructor(
             vergrendeldDoor = enkelvoudigInformatieobject.vergrendeldDoorGebruikersnaam,
             zaakOpen = !enkelvoudigInformatieobject.isZaakAfgehandeld,
             zaaktype = enkelvoudigInformatieobject.zaaktypeOmschrijving,
-            ondertekend = enkelvoudigInformatieobject.ondertekeningDatum != null
+            ondertekend = enkelvoudigInformatieobject.ondertekeningDatum != null,
+            zaakspecifiekGeautoriseerd = enkelvoudigInformatieobject.isZaakspecifiekGeautoriseerd
         )
         return evaluationClient.readDocumentRechten(
             RuleQuery(
@@ -215,7 +216,9 @@ class PolicyService @Inject constructor(
 
     fun readTaakRechten(taakZoekObject: TaakZoekObject): TaakRechten {
         val taakData = TaakData(
-            zaaktype = taakZoekObject.zaaktypeOmschrijving
+            open = taakZoekObject.getStatus()?.let { it != AFGEROND } ?: false,
+            zaaktype = taakZoekObject.zaaktypeOmschrijving,
+            zaakspecifiekGeautoriseerd = taakZoekObject.isZaakspecifiekGeautoriseerd
         )
         return evaluationClient.readTaakRechten(
             RuleQuery(

@@ -13,6 +13,7 @@ import nl.info.client.zgw.brc.BrcClientService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
@@ -71,6 +72,9 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+            createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
+        )
 
         `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
             val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
@@ -87,6 +91,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
                     zaakUuid shouldBe zaak.uuid.toString()
                     // because the archiefnominatie is null, the zaak is still open and not considered 'afgehandeld'
                     isZaakAfgehandeld shouldBe false
+                    isZaakspecifiekGeautoriseerd shouldBe true
                     getDocumentIndicaties().size shouldBe 0
                 }
             }
@@ -119,6 +124,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
 
         `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
             val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())
@@ -135,6 +141,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
                     zaakUuid shouldBe zaak.uuid.toString()
                     // because the archiefnominatie is set, the zaak is closed and considered 'afgehandeld'
                     isZaakAfgehandeld shouldBe true
+                    isZaakspecifiekGeautoriseerd shouldBe false
                     with(getDocumentIndicaties()) {
                         size shouldBe 1
                         first() shouldBe DocumentIndicatie.GEBRUIKSRECHT
@@ -171,6 +178,7 @@ class DocumentZoekObjectConverterTest : BehaviorSpec({
         every { ztcClientService.readZaaktype(any<URI>()) } returns zaakType
         every { ztcClientService.readInformatieobjecttype(any<URI>()) } returns informatieObjectType
         every { brcClientService.isInformatieObjectGekoppeldAanBesluit(any()) } returns false
+        every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
 
         `when`("convert is called on the UUID of the enkelvoudig informatieobject") {
             val documentZoekObject = documentZoekObjectConverter.convert(documentUUID.toString())

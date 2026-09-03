@@ -6,6 +6,7 @@
 package nl.info.zac.search.model
 
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.search.model.zoekobject.DocumentZoekObject
 import nl.info.zac.search.model.zoekobject.TaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZaakZoekObject
@@ -24,7 +25,8 @@ fun createZaakZoekObject(
     statustypeOmschrijving: String = "fakeStatustypeOmschrijving",
     archiefNominatie: String? = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
     indicatie: ZaakIndicatie? = null,
-    behandelaarGebruikersnaam: String? = null
+    behandelaarGebruikersnaam: String? = null,
+    isZaakspecifiekGeautoriseerd: Boolean = false
 ) = ZaakZoekObject(
     id = uuidAsString,
     type = type.name,
@@ -38,6 +40,7 @@ fun createZaakZoekObject(
     this.statustypeOmschrijving = statustypeOmschrijving
     this.archiefNominatie = archiefNominatie
     this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
+    this.isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
     indicatie?.let { setIndicatie(it, true) }
 }
 
@@ -50,7 +53,9 @@ fun createTaakZoekObject(
     zaaktypeUuid: String = UUID.randomUUID().toString(),
     zaakIdentificatie: String = "identificatie",
     zaakOmschrijving: String = "fakeOmschrijving",
-    behandelaarGebruikersnaam: String? = null
+    behandelaarGebruikersnaam: String? = null,
+    isZaakspecifiekGeautoriseerd: Boolean = false,
+    status: TaakStatus? = null
 ) = TaakZoekObject(
     id = uuidAsString,
     type = type.name,
@@ -63,6 +68,32 @@ fun createTaakZoekObject(
     this.zaakIdentificatie = zaakIdentificatie
     this.zaakOmschrijving = zaakOmschrijving
     this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
+    this.isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
+    status?.let { setStatus(it) }
+}
+
+@Suppress("LongParameterList")
+fun createDocumentZoekObject(
+    uuidAsString: String = UUID.randomUUID().toString(),
+    type: ZoekObjectType = ZoekObjectType.DOCUMENT,
+    zaaktypeIdentificatie: String = "fakeZaaktypeIdentificatie",
+    zaaktypeOmschrijving: String = "fakeZaaktypeOmschrijving",
+    zaaktypeUuid: String = UUID.randomUUID().toString(),
+    zaakIdentificatie: String = "identificatie",
+    zaakUuid: String = UUID.randomUUID().toString(),
+    isZaakAfgehandeld: Boolean = false,
+    isZaakspecifiekGeautoriseerd: Boolean = false
+) = DocumentZoekObject(
+    id = uuidAsString,
+    type = type.name
+).apply {
+    this.zaaktypeIdentificatie = zaaktypeIdentificatie
+    this.zaaktypeUuid = zaaktypeUuid
+    this.zaaktypeOmschrijving = zaaktypeOmschrijving
+    this.zaakIdentificatie = zaakIdentificatie
+    this.zaakUuid = zaakUuid
+    this.isZaakAfgehandeld = isZaakAfgehandeld
+    this.isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
 }
 
 @Suppress("LongParameterList")

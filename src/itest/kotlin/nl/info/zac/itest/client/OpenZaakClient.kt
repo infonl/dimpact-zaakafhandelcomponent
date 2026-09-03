@@ -6,18 +6,26 @@ package nl.info.zac.itest.client
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm.HMAC256
+import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.config.ItestConfiguration.BRON_ORGANISATIE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_FILE_TITLE
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_IN_BEWERKING
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID
+import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
+import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_CLIENT_ID
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_CLIENT_SECRET
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
+import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
+import okhttp3.Headers
 import org.json.JSONObject
 import java.io.File
+import java.net.HttpURLConnection.HTTP_NO_CONTENT
 import java.net.URLDecoder
 import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.Base64
 import java.util.Date
 import java.util.UUID
@@ -36,14 +44,14 @@ class OpenZaakClient(
      * naam [eigenschapNaam] (e.g. "ZAAK_GEAUTORISEERD") and value [waarde] (e.g. "true"). The
      * zaaktype of [zaakUUID] must define an eigenschap with that naam in Open Zaak's catalogi API.
      *
-     * @return [ResponseContent] with the Open Zaak API response (HTTP 201 on success)
+     * @return the UUID of the created zaakeigenschap, for use with [sendZaakeigenschapCreateNotification]
      */
     fun createZaakeigenschap(
         zaakUUID: UUID,
         zaaktypeUUID: UUID,
         eigenschapNaam: String,
         waarde: String
-    ): ResponseContent {
+    ): UUID {
         val eigenschapUrl = getEigenschapUrl(zaaktypeUUID, eigenschapNaam)
         val requestBody = JSONObject(
             mapOf(
@@ -55,7 +63,86 @@ class OpenZaakClient(
         return itestHttpClient.performZgwApiPostRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID/zaakeigenschappen",
             requestBodyAsString = requestBody
+        ).let { response ->
+            JSONObject(response.bodyAsString).getString("uuid").run(UUID::fromString)
+        }
+    }
+
+    /**
+     * Sends a request to the ZAC notification endpoint to notify ZAC about the creation of the
+     * zaakeigenschap identified by [zaakeigenschapUUID], so that ZAC will reindex the zaak (and its
+     * taken and documenten) in Solr. Use this after [createZaakeigenschap], which bypasses ZAC and
+     * therefore triggers no real notification, passing the UUID it returned: ZAC reads the
+     * zaakeigenschap back from Open Zaak by this UUID to decide whether to reindex, so a UUID that
+     * does not resolve to a real zaakeigenschap silently skips the reindex.
+     */
+    fun sendZaakeigenschapCreateNotification(zaakUUID: UUID, zaakeigenschapUUID: UUID) {
+        val zaakUrl = "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUUID"
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/notificaties",
+            headers = Headers.headersOf(
+                "Content-Type",
+                "application/json",
+                "Authorization",
+                OPEN_NOTIFICATIONS_API_SECRET_KEY
+            ),
+            requestBodyAsString = JSONObject(
+                mapOf(
+                    "kanaal" to "zaken",
+                    "resource" to "zaakeigenschap",
+                    "hoofdObject" to zaakUrl,
+                    "resourceUrl" to "$zaakUrl/zaakeigenschappen/$zaakeigenschapUUID",
+                    "actie" to "create",
+                    "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                )
+            ).toString()
+        ).run {
+            code shouldBe HTTP_NO_CONTENT
+        }
+    }
+
+    /**
+     * Deletes the zaakeigenschap identified by [zaakeigenschapUUID] directly in Open Zaak's ZRC API,
+     * bypassing ZAC. Use this, together with [sendZaakeigenschapDestroyNotification], to reverse a
+     * [createZaakeigenschap] once a test no longer needs the zaak flagged as zaakspecifiek
+     * geautoriseerd, so a shared zaaktype is not left with a zaak that stays invisible to behandelaren
+     * without the zaakspecifiek_geautoriseerd role for the rest of the test run.
+     */
+    fun deleteZaakeigenschap(zaakUUID: UUID, zaakeigenschapUUID: UUID) {
+        itestHttpClient.performZgwApiDeleteRequest(
+            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID/zaakeigenschappen/$zaakeigenschapUUID"
         )
+    }
+
+    /**
+     * Sends a request to the ZAC notification endpoint to notify ZAC about the destruction of the
+     * zaakeigenschap identified by [zaakeigenschapUUID], so that ZAC will reindex the zaak (and its
+     * taken and documenten) in Solr. Use this after [deleteZaakeigenschap], which bypasses ZAC and
+     * therefore triggers no real notification.
+     */
+    fun sendZaakeigenschapDestroyNotification(zaakUUID: UUID, zaakeigenschapUUID: UUID) {
+        val zaakUrl = "$OPEN_ZAAK_BASE_URI/zaken/api/v1/zaken/$zaakUUID"
+        itestHttpClient.performJSONPostRequest(
+            url = "$ZAC_API_URI/notificaties",
+            headers = Headers.headersOf(
+                "Content-Type",
+                "application/json",
+                "Authorization",
+                OPEN_NOTIFICATIONS_API_SECRET_KEY
+            ),
+            requestBodyAsString = JSONObject(
+                mapOf(
+                    "kanaal" to "zaken",
+                    "resource" to "zaakeigenschap",
+                    "hoofdObject" to zaakUrl,
+                    "resourceUrl" to "$zaakUrl/zaakeigenschappen/$zaakeigenschapUUID",
+                    "actie" to "destroy",
+                    "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
+                )
+            ).toString()
+        ).run {
+            code shouldBe HTTP_NO_CONTENT
+        }
     }
 
     /**

@@ -343,7 +343,7 @@ class ZaakKoppelenRestService @Inject constructor(
         )
         // Open Zaak only sends a notification for the deelzaak.
         // So we manually send a ScreenEvent for the hoofdzaak.
-        indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
+        indexingService.addOrUpdateZaakOrThrow(hoofdZaak.uuid, false)
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
     }
 
@@ -371,7 +371,7 @@ class ZaakKoppelenRestService @Inject constructor(
         )
         // Hiervoor wordt door open zaak alleen voor de deelzaak een notificatie verstuurd.
         // Dus zelf het ScreenEvent versturen voor de hoofdzaak!
-        indexingService.addOrUpdateZaak(hoofdZaak.uuid, false)
+        indexingService.addOrUpdateZaakOrThrow(hoofdZaak.uuid, false)
         eventingService.send(ScreenEventType.ZAAK.updated(hoofdZaak.uuid))
     }
 
