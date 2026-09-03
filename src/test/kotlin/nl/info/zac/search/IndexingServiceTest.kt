@@ -33,6 +33,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.task.model.TaakSortering
@@ -1599,7 +1600,7 @@ class IndexingServiceTest : BehaviorSpec({
 
         every { ctx.zaakZoekObjectConverter.convert(zaak, any()) } returns zaakZoekObject
         every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", zaak, any()) } returns taakZoekObject
-        every { ctx.documentZoekObjectConverter.convert(documentUUID.toString(), zaak, any()) } returns documentZoekObject
+        every { ctx.documentZoekObjectConverter.convert(zaakInformatieobject, zaak, any()) } returns documentZoekObject
 
         every { ctx.documentZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) } returns true
         every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
@@ -1619,7 +1620,7 @@ class IndexingServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     ctx.zaakZoekObjectConverter.convert(zaak, any())
                     ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", zaak, any())
-                    ctx.documentZoekObjectConverter.convert(documentUUID.toString(), zaak, any())
+                    ctx.documentZoekObjectConverter.convert(zaakInformatieobject, zaak, any())
                 }
                 verify(exactly = 1) {
                     ctx.solrClient.addBeans(listOf(zaakZoekObject))
@@ -1632,6 +1633,70 @@ class IndexingServiceTest : BehaviorSpec({
                 verify(exactly = 0) {
                     ctx.documentZoekObjectConverter.convert(any<String>(), any<(UUID) -> Boolean>())
                 }
+            }
+        }
+    }
+
+    given("reindexAll() combining ZAAK and DOCUMENT where one document is linked to two zaken") {
+        val ctx = setupContext()
+        val zaakA = createZaak()
+        val zaakB = createZaak()
+        val documentUUID = UUID.randomUUID()
+        val zaakInformatieobjectForA = createZaakInformatieobjectForReads(
+            zaak = zaakA.url,
+            informatieobject = URI("https://example.com/$documentUUID")
+        )
+        val zaakInformatieobjectForB = createZaakInformatieobjectForReads(
+            zaak = zaakB.url,
+            informatieobject = URI("https://example.com/$documentUUID")
+        )
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = documentUUID)
+        val zaakZoekObjectA = createZaakZoekObject()
+        val zaakZoekObjectB = createZaakZoekObject()
+        val documentZoekObject = createDocumentZoekObject()
+
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        every {
+            ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
+        } returns Results(listOf(ZaakUuid(zaakA.uuid), ZaakUuid(zaakB.uuid)), 2)
+        every { ctx.zrcClientService.readZaak(zaakA.uuid) } returns zaakA
+        every { ctx.zrcClientService.readZaak(zaakB.uuid) } returns zaakB
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaakA) } returns listOf(zaakInformatieobjectForA)
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaakB) } returns listOf(zaakInformatieobjectForB)
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(match<EnkelvoudigInformatieobjectListParameters> { it.page == 1 })
+        } returns Results(listOf(enkelvoudigInformatieObject), 1)
+        every { ctx.zaakZoekObjectConverter.convert(zaakA, any()) } returns zaakZoekObjectA
+        every { ctx.zaakZoekObjectConverter.convert(zaakB, any()) } returns zaakZoekObjectB
+        every {
+            ctx.documentZoekObjectConverter.convert(any<ZaakInformatieObject>(), any<Zaak>(), any())
+        } returns documentZoekObject
+
+        every { ctx.documentZoekObjectConverter.supports(ZoekObjectType.DOCUMENT) } returns true
+        every { ctx.converterInstances.iterator() } returns ctx.converterInstancesIterator
+        every { ctx.converterInstancesIterator.hasNext() } returns true andThen false
+        every { ctx.converterInstancesIterator.next() } returns ctx.documentZoekObjectConverter
+
+        `when`("reindexAll is called for ZAAK and DOCUMENT") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindexAll(setOf(ZoekObjectType.ZAAK, ZoekObjectType.DOCUMENT))
+            }
+
+            then("the shared document is converted and indexed exactly once, not once per linked zaak") {
+                verify(exactly = 1) {
+                    ctx.documentZoekObjectConverter.convert(any<ZaakInformatieObject>(), any<Zaak>(), any())
+                    ctx.solrClient.addBeans(listOf(documentZoekObject))
+                }
+                logRecords.map { it.message } shouldContain
+                    "[DOCUMENT] Reindexing finished. Reindexed: 1 / 1, skipped: 0, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'DOCUMENT'."
             }
         }
     }
@@ -1789,7 +1854,7 @@ class IndexingServiceTest : BehaviorSpec({
         } returns Results(emptyList(), 0)
         every { ctx.zaakZoekObjectConverter.convert(zaak, any()) } returns zaakZoekObject
         every {
-            ctx.documentZoekObjectConverter.convert(documentUUID.toString(), zaak, any())
+            ctx.documentZoekObjectConverter.convert(zaakInformatieobject, zaak, any())
         } throws RuntimeException("fake document conversion failure")
 
         `when`("reindexAll is called for ZAAK and DOCUMENT") {

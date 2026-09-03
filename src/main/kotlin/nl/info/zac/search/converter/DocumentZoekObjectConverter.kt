@@ -52,14 +52,20 @@ class DocumentZoekObjectConverter @Inject constructor(
     }
 
     /**
-     * Converts [id], using the already-retrieved [zaak] instead of reading it again via
-     * [ZrcClientService.readZaak]. Used by [nl.info.zac.search.IndexingService]'s zaak-driven combined
-     * reindex, which already retrieved [zaak] for its own [nl.info.zac.search.model.zoekobject.ZaakZoekObject]
-     * conversion.
+     * Converts the document identified by [zaakInformatieobject], using the already-retrieved [zaak] it
+     * links to, instead of independently resolving both a zaak (via [ZrcClientService.readZaak]) and a
+     * `ZaakInformatieObject` (via a reverse `listZaakinformatieobjecten` lookup on the document, which
+     * could resolve to a different zaak than [zaak] for a document linked to more than one zaak). Used by
+     * [nl.info.zac.search.IndexingService]'s zaak-driven combined reindex, which already retrieved both
+     * while listing [zaak]'s own linked documenten - so, unlike [convert]'s other overloads, there is no
+     * "document has no linked zaak" case to signal here.
      */
-    fun convert(id: String, zaak: Zaak, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): DocumentZoekObject? {
-        val document = drcClientService.readEnkelvoudigInformatieobject(UUID.fromString(id))
-        val zaakInformatieobject = zrcClientService.listZaakinformatieobjecten(document).firstOrNull() ?: return null
+    fun convert(
+        zaakInformatieobject: ZaakInformatieObject,
+        zaak: Zaak,
+        isZaakspecifiekGeautoriseerd: (UUID) -> Boolean
+    ): DocumentZoekObject {
+        val document = drcClientService.readEnkelvoudigInformatieobject(zaakInformatieobject.informatieobject.extractUuid())
         return convert(document, zaak, zaakInformatieobject, isZaakspecifiekGeautoriseerd)
     }
 

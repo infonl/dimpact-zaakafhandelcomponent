@@ -27,6 +27,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.systemUser
@@ -167,7 +168,17 @@ class IndexingService @Inject constructor(
         LOG.info("Complete reindexing process started for object types: $orderedObjectTypes")
         val combinedObjectTypes = combinableObjectTypes(objectTypes)
         if (combinedObjectTypes.isNotEmpty()) {
-            reindexCombined(combinedObjectTypes)
+            try {
+                reindexCombined(combinedObjectTypes)
+            } catch (exception: Exception) {
+                // matches reindexOrLogFailure's safety net: an unguarded exception from the combined
+                // pass must not abort the remaining object types, nor skip the "process finished" log
+                LOG.log(
+                    Level.SEVERE,
+                    "[$combinedObjectTypes] Reindexing failed, continuing with remaining object types",
+                    exception
+                )
+            }
         }
         orderedObjectTypes.filterNot { it in combinedObjectTypes }.forEach(::reindexOrLogFailure)
         LOG.info("Complete reindexing process finished for object types: $orderedObjectTypes")
@@ -1012,10 +1023,16 @@ class IndexingService @Inject constructor(
         val documentenOutcomes = if (includeDocumenten) {
             continueOnExceptions(ZoekObjectType.DOCUMENT) { zrcClientService.listZaakinformatieobjecten(zaak) }
                 .orEmpty()
-                .map { zaakInformatieobject ->
+                .mapNotNull { zaakInformatieobject ->
                     val informatieobjectUUID = zaakInformatieobject.informatieobject.extractUuid()
-                    alreadyIndexedInformatieobjectUUIDs.add(informatieobjectUUID)
-                    convertDocument(informatieobjectUUID.toString(), zaak, isZaakspecifiekGeautoriseerd)
+                    // an informatieobject can be linked to more than one zaak in ZGW; claiming the UUID
+                    // here ensures it is only converted/counted once for this run, via whichever of its
+                    // zaken is processed first, instead of once per zaak it is linked to
+                    if (alreadyIndexedInformatieobjectUUIDs.add(informatieobjectUUID)) {
+                        convertDocument(zaakInformatieobject, zaak, isZaakspecifiekGeautoriseerd)
+                    } else {
+                        null
+                    }
                 }
         } else {
             emptyList()
@@ -1035,14 +1052,16 @@ class IndexingService @Inject constructor(
         }
 
     private fun convertDocument(
-        informatieobjectId: String,
+        zaakInformatieobject: ZaakInformatieObject,
         zaak: Zaak,
         isZaakspecifiekGeautoriseerd: (UUID) -> Boolean
     ): ConversionOutcome =
         try {
-            runTranslatingToIndexingException {
-                documentZoekObjectConverter.convert(informatieobjectId, zaak, isZaakspecifiekGeautoriseerd)
-            }?.let { ConversionOutcome.Converted(it) } ?: ConversionOutcome.Skipped
+            ConversionOutcome.Converted(
+                runTranslatingToIndexingException {
+                    documentZoekObjectConverter.convert(zaakInformatieobject, zaak, isZaakspecifiekGeautoriseerd)
+                }
+            )
         } catch (indexingException: IndexingException) {
             LOG.log(Level.WARNING, "[${ZoekObjectType.DOCUMENT}] Error during indexing", indexingException)
             ConversionOutcome.Errored
