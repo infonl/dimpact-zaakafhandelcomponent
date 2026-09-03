@@ -41,7 +41,6 @@ private fun createModelTemplateGroup(
 ) = SmartDocumentsTemplateGroup().apply {
     smartDocumentsId = smartDocumentsTemplateGroup.id
     zaaktypeConfiguration = zaakafhandelParams
-    name = smartDocumentsTemplateGroup.name
     parent = parentGroup
     creationDate = ZonedDateTime.now()
 }
@@ -54,7 +53,6 @@ private fun createModelTemplate(
     smartDocumentsId = smartDocumentsTemplate.id
     zaaktypeConfiguration = zaakafhandelParams
     informatieObjectTypeUUID = smartDocumentsTemplate.informatieObjectTypeUUID
-    name = smartDocumentsTemplate.name
     templateGroup = parentGroup
     creationDate = ZonedDateTime.now()
 }
@@ -70,15 +68,23 @@ private fun convertTemplateGroupToStringRepresentation(
         }
     }
 
+// The persisted entity no longer carries a name (see resolveCurrentNames below, which is always
+// applied to this function's output and replaces this placeholder with the current SmartDocuments name).
+private const val PLACEHOLDER_NAME_REPLACED_BY_RESOLVE_CURRENT_NAMES = ""
+
 private fun convertTemplateGroupToRest(
     group: SmartDocumentsTemplateGroup
 ): RestMappedSmartDocumentsTemplateGroup =
     RestMappedSmartDocumentsTemplateGroup(
         id = group.smartDocumentsId,
-        name = group.name,
+        name = PLACEHOLDER_NAME_REPLACED_BY_RESOLVE_CURRENT_NAMES,
         groups = group.children?.map { convertTemplateGroupToRest(it) }?.toSet(),
         templates = group.templates?.map {
-            RestMappedSmartDocumentsTemplate(it.smartDocumentsId, it.name, it.informatieObjectTypeUUID)
+            RestMappedSmartDocumentsTemplate(
+                id = it.smartDocumentsId,
+                name = PLACEHOLDER_NAME_REPLACED_BY_RESOLVE_CURRENT_NAMES,
+                informatieObjectTypeUUID = it.informatieObjectTypeUUID
+            )
         }?.toSet()
     )
 
@@ -96,7 +102,11 @@ private fun convertTemplateGroupToModel(
         }?.toMutableSet()
     }
 
-
+/**
+ * Replaces every persisted `name` in this mapping with the current SmartDocuments name, matched by id,
+ * and drops any group or template whose id no longer exists in SmartDocuments. The persisted
+ * `informatieObjectTypeUUID` per template is preserved unchanged.
+ */
 fun Set<RestMappedSmartDocumentsTemplateGroup>.resolveCurrentNames(
     currentTemplateGroups: Set<RestSmartDocumentsTemplateGroup>
 ): Set<RestMappedSmartDocumentsTemplateGroup> =

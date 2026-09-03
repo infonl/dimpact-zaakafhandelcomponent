@@ -43,9 +43,6 @@ class SmartDocumentsTemplateGroup {
     @Column(name = "smartdocuments_id", nullable = false)
     lateinit var smartDocumentsId: String
 
-    @Column(name = "naam", nullable = false)
-    lateinit var name: String
-
     @Column(name = "aanmaakdatum", nullable = false)
     var creationDate: ZonedDateTime? = null
 
