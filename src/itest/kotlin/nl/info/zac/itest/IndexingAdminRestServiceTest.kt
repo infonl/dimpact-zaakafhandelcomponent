@@ -247,10 +247,10 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 eventually(10.seconds) {
                     val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
                     newLogs.shouldContainLogLineMatching(
-                        Regex("""Complete reindexing process started for object types: \[TAAK, ZAAK, DOCUMENT]""")
+                        Regex("""Complete reindexing process started for object types: \[ZAAK, TAAK, DOCUMENT]""")
                     )
                     newLogs.shouldContainLogLineMatching(
-                        Regex("""Complete reindexing process finished for object types: \[TAAK, ZAAK, DOCUMENT]""")
+                        Regex("""Complete reindexing process finished for object types: \[ZAAK, TAAK, DOCUMENT]""")
                     )
                     listOf("ZAAK", "TAAK", "DOCUMENT").forEach { zoekObjectType ->
                         newLogs.shouldContainLogLineMatching(reindexingStartedRegex(zoekObjectType))

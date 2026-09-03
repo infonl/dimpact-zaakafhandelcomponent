@@ -1081,9 +1081,9 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the complete reindexing process logs its own start and finish, in addition to the per-type ones") {
                 logRecords.first().message shouldBe
-                    "Complete reindexing process started for object types: [TAAK, ZAAK, DOCUMENT]"
+                    "Complete reindexing process started for object types: [ZAAK, TAAK, DOCUMENT]"
                 logRecords.last().message shouldBe
-                    "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
+                    "Complete reindexing process finished for object types: [ZAAK, TAAK, DOCUMENT]"
                 logRecords.map { it.message } shouldContain
                     "[ZAAK] Reindexing started. Solr index currently contains 0 documents of type 'ZAAK'."
                 logRecords.map { it.message } shouldContain
@@ -1104,11 +1104,11 @@ class IndexingServiceTest : BehaviorSpec({
                 ctx.indexingService.reindexAll(hashSetOf(ZoekObjectType.DOCUMENT, ZoekObjectType.ZAAK, ZoekObjectType.TAAK))
             }
 
-            then("the reindex order and logged object type list are still TAAK, ZAAK, DOCUMENT") {
+            then("the reindex order and logged object type list are still ZAAK, TAAK, DOCUMENT") {
                 logRecords.first().message shouldBe
-                    "Complete reindexing process started for object types: [TAAK, ZAAK, DOCUMENT]"
+                    "Complete reindexing process started for object types: [ZAAK, TAAK, DOCUMENT]"
                 logRecords.last().message shouldBe
-                    "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
+                    "Complete reindexing process finished for object types: [ZAAK, TAAK, DOCUMENT]"
             }
         }
     }
@@ -1149,7 +1149,7 @@ class IndexingServiceTest : BehaviorSpec({
         every { queryResponse.results } returns emptyDocumentList
         every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
         every { ctx.solrClient.query(any()) } returns queryResponse
-        // TAAK is reindexed first; only its commit fails, so ZAAK and DOCUMENT commits still succeed
+        // ZAAK is reindexed first; only its commit fails, so TAAK and DOCUMENT commits still succeed
         every { ctx.solrClient.commit(null, true, true) } throws
             SolrServerException("fake commit failure") andThen UpdateResponse() andThen UpdateResponse()
 
@@ -1176,16 +1176,16 @@ class IndexingServiceTest : BehaviorSpec({
                 }
             }
 
-            then("TAAK itself is still reported as finished, not as a failed type") {
+            then("ZAAK itself is still reported as finished, not as a failed type") {
                 logRecords.map { it.message } shouldContain
-                    "[TAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'TAAK'."
-                logRecords.any { it.message.contains("[TAAK] Reindexing failed") } shouldBe false
+                    "[ZAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'ZAAK'."
+                logRecords.any { it.message.contains("[ZAAK] Reindexing failed") } shouldBe false
             }
 
             then("the complete reindexing process still reports it finished") {
                 logRecords.last().message shouldBe
-                    "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
+                    "Complete reindexing process finished for object types: [ZAAK, TAAK, DOCUMENT]"
             }
         }
     }
@@ -1196,8 +1196,8 @@ class IndexingServiceTest : BehaviorSpec({
         val queryResponse = mockk<QueryResponse>()
         every { queryResponse.results } returns emptyDocumentList
         every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
-        // TAAK is reindexed first; its "Reindexing started" Solr document count query fails once,
-        // but that count is purely informational, so TAAK is still reindexed despite it
+        // ZAAK is reindexed first; its "Reindexing started" Solr document count query fails once,
+        // but that count is purely informational, so ZAAK is still reindexed despite it
         every { ctx.solrClient.query(any()) } throws
             SolrServerException("fake count failure") andThen queryResponse andThen queryResponse andThen
             queryResponse andThen queryResponse andThen queryResponse andThen queryResponse
@@ -1214,20 +1214,20 @@ class IndexingServiceTest : BehaviorSpec({
                 ctx.indexingService.reindexAll()
             }
 
-            then("TAAK is still reindexed despite its started-message document count failing") {
+            then("ZAAK is still reindexed despite its started-message document count failing") {
                 verify(exactly = 1) {
-                    ctx.flowableTaskService.countOpenTasks()
+                    ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
                 }
                 logRecords.map { it.message } shouldContain
-                    "[TAAK] Reindexing started. Solr index currently contains unknown documents of type 'TAAK'."
+                    "[ZAAK] Reindexing started. Solr index currently contains unknown documents of type 'ZAAK'."
                 logRecords.map { it.message } shouldContain
-                    "[TAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
-                    "Solr index contains 0 documents of type 'TAAK'."
+                    "[ZAAK] Reindexing finished. Reindexed: 0 / 0, skipped: 0, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'ZAAK'."
             }
 
             then("the remaining object types are still reindexed") {
                 verify(exactly = 1) {
-                    ctx.zrcClientService.listZakenUuids(any<ZaakListParameters>())
+                    ctx.flowableTaskService.countOpenTasks()
                 }
                 verify(exactly = 1) {
                     ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
@@ -1236,7 +1236,7 @@ class IndexingServiceTest : BehaviorSpec({
 
             then("the complete reindexing process still reports it finished") {
                 logRecords.last().message shouldBe
-                    "Complete reindexing process finished for object types: [TAAK, ZAAK, DOCUMENT]"
+                    "Complete reindexing process finished for object types: [ZAAK, TAAK, DOCUMENT]"
             }
         }
     }
