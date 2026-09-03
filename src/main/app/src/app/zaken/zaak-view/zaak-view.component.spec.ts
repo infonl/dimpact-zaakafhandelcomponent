@@ -451,6 +451,44 @@ describe(ZaakViewComponent.name, () => {
       );
       expect(menuTitlesAfterWrite).not.toContain("actie.zaak.opschorten");
     });
+
+    it("does not reload the opschorting when only zaak content changes", () => {
+      mockActivatedRoute.data.next({
+        zaak: { ...opschortbareZaak, isOpgeschort: true },
+      });
+      fixture.detectChanges();
+      jest.mocked(zakenService.readOpschortingZaak).mockClear();
+
+      zakenService.cacheZaak({
+        ...opschortbareZaak,
+        isOpgeschort: true,
+        omschrijving: "fakeUpdatedOmschrijving",
+      });
+      fixture.detectChanges();
+
+      expect(zakenService.readOpschortingZaak).not.toHaveBeenCalled();
+    });
+
+    it("reloads the opschorting when navigating from one opgeschorte zaak to another", () => {
+      mockActivatedRoute.data.next({
+        zaak: { ...opschortbareZaak, isOpgeschort: true },
+      });
+      fixture.detectChanges();
+      jest.mocked(zakenService.readOpschortingZaak).mockClear();
+
+      mockActivatedRoute.data.next({
+        zaak: {
+          ...opschortbareZaak,
+          uuid: "fakeOtherZaakUuid",
+          isOpgeschort: true,
+        },
+      });
+      fixture.detectChanges();
+
+      expect(zakenService.readOpschortingZaak).toHaveBeenCalledWith(
+        "fakeOtherZaakUuid",
+      );
+    });
   });
 
   describe("websocket echo suppression", () => {

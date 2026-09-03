@@ -317,6 +317,23 @@ describe(ZaakActionDialogsService.name, () => {
   });
 
   describe("openHeropenen", () => {
+    it("caches the zaak the dialog returns rather than refetching it", () => {
+      const returnedZaak = fromPartial<GeneratedType<"RestZaak">>({
+        uuid: zaak.uuid,
+      });
+      jest
+        .spyOn(zaakDialogService, "openHeropenen")
+        .mockReturnValue(dialogRefClosingWith());
+
+      service.openHeropenen(zaak);
+      closedWith(returnedZaak);
+
+      expect(zakenService.cacheZaak).toHaveBeenCalledWith(returnedZaak);
+      expect(invalidateSpy).not.toHaveBeenCalledWith({
+        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
+      });
+    });
+
     it("refreshes the taken and reports success when the dialog confirms", () => {
       jest
         .spyOn(zaakDialogService, "openHeropenen")

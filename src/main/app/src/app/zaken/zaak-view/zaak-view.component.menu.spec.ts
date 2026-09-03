@@ -57,7 +57,6 @@ import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.comp
 import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
 import { ZakenService } from "../zaken.service";
-import { ZaakActionDialogsService } from "./services/zaak-action-dialogs.service";
 import { ZaakSideActionService } from "./services/zaak-side-action.service";
 import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
 import { ZaakViewComponent } from "./zaak-view.component";
@@ -72,7 +71,6 @@ const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
   let sideActions: ZaakSideActionService;
-  let dialogs: ZaakActionDialogsService;
   let loader: HarnessLoader;
 
   let utilService: UtilService;
@@ -258,7 +256,6 @@ describe(ZaakViewComponent.name, () => {
     fixture = TestBed.createComponent(ZaakViewComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
     sideActions = fixture.debugElement.injector.get(ZaakSideActionService);
-    dialogs = fixture.debugElement.injector.get(ZaakActionDialogsService);
 
     fixture.componentInstance.actionsSidenav = fromPartial<MatSidenav>({
       close: jest.fn(),
@@ -518,7 +515,7 @@ describe(ZaakViewComponent.name, () => {
     });
   });
 
-  describe("openPlanItemStartenDialog", () => {
+  describe("planitem.INTAKE_AFRONDEN menu item", () => {
     beforeEach(() => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
@@ -698,82 +695,6 @@ describe(ZaakViewComponent.name, () => {
       await button.click();
 
       expect(updateZaakSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("openZaakAfbrekenDialog", () => {
-    beforeEach(() => {
-      mockActivatedRoute.data.next({ zaak });
-      fixture.detectChanges();
-    });
-
-    it("writes the returned zaak into the cache when the dialog closes with one", () => {
-      const cacheZaakSpy = jest
-        .spyOn(zakenService, "cacheZaak")
-        .mockImplementation();
-      const fakeReturnedZaak = fromPartial<GeneratedType<"RestZaak">>({
-        uuid: zaak.uuid,
-      });
-      jest
-        .spyOn(dialogRef, "afterClosed")
-        .mockReturnValue(of(fakeReturnedZaak));
-
-      dialogs.openAfbreken(zaak);
-
-      expect(cacheZaakSpy).toHaveBeenCalledWith(fakeReturnedZaak);
-    });
-
-    it("falls back to a refetch when the dialog closes with a confirmation-only result", () => {
-      jest.spyOn(zakenService, "cacheZaak").mockImplementation();
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
-      jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
-
-      dialogs.openAfbreken(zaak);
-
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
-      });
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
-      });
-    });
-  });
-
-  describe("openZaakHeropenenDialog", () => {
-    beforeEach(() => {
-      mockActivatedRoute.data.next({ zaak });
-      fixture.detectChanges();
-    });
-
-    it("writes the returned zaak into the cache when the dialog closes with one", () => {
-      const cacheZaakSpy = jest
-        .spyOn(zakenService, "cacheZaak")
-        .mockImplementation();
-      const fakeReturnedZaak = fromPartial<GeneratedType<"RestZaak">>({
-        uuid: zaak.uuid,
-      });
-      jest
-        .spyOn(dialogRef, "afterClosed")
-        .mockReturnValue(of(fakeReturnedZaak));
-
-      dialogs.openHeropenen(zaak);
-
-      expect(cacheZaakSpy).toHaveBeenCalledWith(fakeReturnedZaak);
-    });
-
-    it("falls back to a refetch when the dialog closes with a confirmation-only result", () => {
-      jest.spyOn(zakenService, "cacheZaak").mockImplementation();
-      const invalidateSpy = jest.spyOn(testQueryClient, "invalidateQueries");
-      jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
-
-      dialogs.openHeropenen(zaak);
-
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.readZaakQuery(zaak.uuid).queryKey,
-      });
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: takenService.listTakenVoorZaakQuery(zaak.uuid).queryKey,
-      });
     });
   });
 

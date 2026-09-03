@@ -84,12 +84,15 @@ export class ZaakViewComponent
     return this.zaakQuery.data()!;
   }
 
-  // Narrowed off `zaakQuery.data()` so this only changes value (and re-runs
-  // dependent effects) when `isOpgeschort` itself changes, not on every
-  // unrelated zaak content write.
-  private readonly isOpgeschort = computed(
-    () => this.zaakQuery.data()?.isOpgeschort,
-  );
+  // Narrowed to a primitive off `zaakQuery.data()` so dependent effects re-run
+  // when the zaak or its opschorting state changes, but not on every unrelated
+  // zaak content write.
+  private readonly opschortingKey = computed(() => {
+    const zaak = this.zaakQuery.data();
+    return zaak?.isOpgeschort === undefined
+      ? undefined
+      : `${zaak.uuid}:${zaak.isOpgeschort}`;
+  });
 
   private readonly userEventListenerPlanItemsQuery = injectQuery(() => {
     const uuid = this.zaakUuid();
@@ -233,8 +236,7 @@ export class ZaakViewComponent
     });
 
     effect(() => {
-      const isOpgeschort = this.isOpgeschort();
-      if (isOpgeschort === undefined) return;
+      if (!this.opschortingKey()) return;
       untracked(() => this.dialogs.loadOpschorting(this.zaak));
     });
 
