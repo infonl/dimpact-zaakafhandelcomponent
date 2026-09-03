@@ -369,7 +369,7 @@ class ZgwApiService @Inject constructor(
                     ).results()
                 ).also {
                 check(it.size <= 1) {
-                    "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: ${it.size})"
+                    "More than one behandelaar role found for zaak with identificatie '${zaak.identificatie}' and UUID: '${zaak.uuid}' (count: ${it.size})"
                 }
             }
             matchingRoles.firstOrNull()

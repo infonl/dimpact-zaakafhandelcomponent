@@ -240,7 +240,7 @@ class ZgwApiServiceTest : BehaviorSpec({
 
                 then("an exception should be thrown") {
                     exception.message shouldBe
-                        "More than one behandelaar role found for zaak with UUID: '${zaak.uuid}' (count: 2)"
+                        "More than one behandelaar role found for zaak with identificatie '${zaak.identificatie}' and UUID: '${zaak.uuid}' (count: 2)"
                 }
             }
         }
