@@ -256,9 +256,12 @@ describe(ZaakViewComponent.name, () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
 
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
-      });
+      expect(invalidateSpy).toHaveBeenCalledWith(
+        {
+          queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
+        },
+        { cancelRefetch: false },
+      );
     });
 
     it("invalidates the historie query again on a content-only change, without a route re-navigation", () => {
@@ -270,9 +273,39 @@ describe(ZaakViewComponent.name, () => {
       zakenService.cacheZaak({ ...zaak, isOpgeschort: true });
       fixture.detectChanges();
 
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
-      });
+      expect(invalidateSpy).toHaveBeenCalledWith(
+        {
+          queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
+        },
+        { cancelRefetch: false },
+      );
+    });
+  });
+
+  describe("content margins", () => {
+    it("updates them once the view is initialised, also when the menu is already final on the first effect pass", async () => {
+      jest
+        .spyOn(TestBed.inject(PolicyService), "readBrpRechten")
+        .mockReturnValue(
+          queryOptions({
+            queryKey: ["fakeBrpRechten"],
+            queryFn: () =>
+              fromPartial<GeneratedType<"RestBrpRechten">>({ zoeken: true }),
+            initialData: fromPartial<GeneratedType<"RestBrpRechten">>({
+              zoeken: true,
+            }),
+          }) as ReturnType<PolicyService["readBrpRechten"]>,
+        );
+      const updateMargins = jest.spyOn(
+        fixture.componentInstance as unknown as { updateMargins: () => void },
+        "updateMargins",
+      );
+
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+      fixture.detectChanges();
+
+      expect(updateMargins).toHaveBeenCalled();
     });
   });
 
@@ -603,9 +636,12 @@ describe(ZaakViewComponent.name, () => {
 
       zaakRollenCallback(rollenEvent(Opcode.UPDATED));
 
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
-      });
+      expect(invalidateSpy).toHaveBeenCalledWith(
+        {
+          queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
+        },
+        { cancelRefetch: false },
+      );
     });
   });
 
@@ -683,15 +719,21 @@ describe(ZaakViewComponent.name, () => {
         ),
       );
 
-      expect(invalidateQueries).toHaveBeenCalledWith({
-        queryKey: planItemsService.listHumanTaskPlanItemsQuery(zaak.uuid)
-          .queryKey,
-      });
-      expect(invalidateQueries).toHaveBeenCalledWith({
-        queryKey: planItemsService.listUserEventListenerPlanItemsQuery(
-          zaak.uuid,
-        ).queryKey,
-      });
+      expect(invalidateQueries).toHaveBeenCalledWith(
+        {
+          queryKey: planItemsService.listHumanTaskPlanItemsQuery(zaak.uuid)
+            .queryKey,
+        },
+        { cancelRefetch: false },
+      );
+      expect(invalidateQueries).toHaveBeenCalledWith(
+        {
+          queryKey: planItemsService.listUserEventListenerPlanItemsQuery(
+            zaak.uuid,
+          ).queryKey,
+        },
+        { cancelRefetch: false },
+      );
     });
   });
 });

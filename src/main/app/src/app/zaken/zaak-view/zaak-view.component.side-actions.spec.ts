@@ -434,9 +434,12 @@ describe(ZaakViewComponent.name, () => {
       fixture.componentInstance["updateDocumentList"]();
 
       expect(reloadDocumenten).toHaveBeenCalled();
-      expect(invalidateQueries).toHaveBeenCalledWith({
-        queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
-      });
+      expect(invalidateQueries).toHaveBeenCalledWith(
+        {
+          queryKey: zakenService.listHistorieVoorZaakQuery(zaak.uuid).queryKey,
+        },
+        { cancelRefetch: false },
+      );
     });
   });
 

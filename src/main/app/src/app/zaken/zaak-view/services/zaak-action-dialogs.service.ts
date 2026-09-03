@@ -270,7 +270,7 @@ export class ZaakActionDialogsService {
         if (!result) return;
         this.utilService.openSnackbar("msg.zaak.hervat");
         this.zakenService.invalidateZaak(zaak.uuid);
-        this.loadOpschorting(zaak);
+        this.opschorting.set(undefined);
       },
     );
   }

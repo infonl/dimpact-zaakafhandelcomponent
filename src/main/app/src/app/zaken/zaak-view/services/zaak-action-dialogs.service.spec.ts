@@ -208,6 +208,12 @@ describe(ZaakActionDialogsService.name, () => {
     });
   });
 
+  /** The zaak as the menu handler captured it: still opgeschort. */
+  const opgeschorteZaak = fromPartial<GeneratedType<"RestZaak">>({
+    ...zaak,
+    isOpgeschort: true,
+  });
+
   describe("openHervatten", () => {
     it("passes the expected opschort duration from the loaded opschorting", () => {
       service.opschorting.set(
@@ -225,20 +231,34 @@ describe(ZaakActionDialogsService.name, () => {
       );
     });
 
-    it("reloads the opschorting after a successful hervatten", () => {
+    it("clears the opschorting after a successful hervatten, so the details card stops showing the expected duration", () => {
       service.opschorting.set(
         fromPartial<GeneratedType<"RESTZaakOpschorting">>({ duurDagen: 14 }),
       );
-      const loadSpy = jest.spyOn(service, "loadOpschorting");
       jest
         .spyOn(zaakDialogService, "openHervatten")
         .mockReturnValue(dialogRefClosingWith());
 
-      service.openHervatten(zaak);
+      service.openHervatten(opgeschorteZaak);
       closedWith(true);
 
       expect(utilService.openSnackbar).toHaveBeenCalledWith("msg.zaak.hervat");
-      expect(loadSpy).toHaveBeenCalledWith(zaak);
+      expect(service.opschorting()).toBeUndefined();
+    });
+
+    it("does not read the opschorting of a zaak it has just resumed", () => {
+      service.opschorting.set(
+        fromPartial<GeneratedType<"RESTZaakOpschorting">>({ duurDagen: 14 }),
+      );
+      const readSpy = jest.spyOn(zakenService, "readOpschortingZaak");
+      jest
+        .spyOn(zaakDialogService, "openHervatten")
+        .mockReturnValue(dialogRefClosingWith());
+
+      service.openHervatten(opgeschorteZaak);
+      closedWith(true);
+
+      expect(readSpy).not.toHaveBeenCalled();
     });
   });
 

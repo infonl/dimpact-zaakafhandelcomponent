@@ -21,18 +21,26 @@ export interface ZaakMenuPlanItems {
   humanTask: PlanItem[];
 }
 
+/** The menu actions that are the zaak view's own, rather than a dialog's. */
 export interface ZaakMenuHandlers {
   /** Opens the side action panel the side nav itself switches to. */
   openSideAction(): void;
   startHumanTask(planItem: PlanItem): void;
-  startUserEventListener(planItem: PlanItem): void;
-  heropenen(): void;
-  opschorten(): void;
-  verlengen(): void;
-  hervatten(): void;
-  afbreken(): void;
-  afsluiten(): void;
-  brondatumZetten(): void;
+}
+
+/**
+ * The dialogs the menu opens, shaped so that `ZaakActionDialogsService`
+ * satisfies it as it stands.
+ */
+export interface ZaakMenuDialogs {
+  openPlanItemStarten(zaak: Zaak, planItem: PlanItem): void;
+  openHeropenen(zaak: Zaak): void;
+  openOpschorten(zaak: Zaak): void;
+  openVerlengen(zaak: Zaak): void;
+  openHervatten(zaak: Zaak): void;
+  openAfbreken(zaak: Zaak): void;
+  openAfsluiten(zaak: Zaak): void;
+  openBrondatumZetten(zaak: Zaak): void;
 }
 
 export function userEventListenerIcon(
@@ -57,6 +65,7 @@ export function buildZaakMenu(
   zaak: Zaak,
   planItems: ZaakMenuPlanItems | null,
   handlers: ZaakMenuHandlers,
+  dialogs: ZaakMenuDialogs,
   hasBrpSearchRight: boolean,
 ): MenuItem[] {
   const menu: MenuItem[] = [
@@ -66,7 +75,7 @@ export function buildZaakMenu(
 
   if (!planItems) return menu;
 
-  const actionMenuItems = createActionMenuItems(zaak, handlers);
+  const actionMenuItems = createActionMenuItems(zaak, dialogs);
 
   if (zaak.rechten.behandelen) {
     if (planItems.userEventListener.length || actionMenuItems.length) {
@@ -77,7 +86,7 @@ export function buildZaakMenu(
         (planItem) =>
           new ButtonMenuItem(
             "planitem." + planItem.userEventListenerActie,
-            () => handlers.startUserEventListener(planItem),
+            () => dialogs.openPlanItemStarten(zaak, planItem),
             userEventListenerIcon(planItem.userEventListenerActie),
           ),
       ),
@@ -173,14 +182,14 @@ function zaakMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
   return menu;
 }
 
-function createActionMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
+function createActionMenuItems(zaak: Zaak, dialogs: ZaakMenuDialogs) {
   const actionMenuItems: MenuItem[] = [];
 
   if (!zaak.isOpen && zaak.rechten.heropenen) {
     actionMenuItems.push(
       new ButtonMenuItem(
         "actie.zaak.heropenen",
-        () => handlers.heropenen(),
+        () => dialogs.openHeropenen(zaak),
         "restart_alt",
       ),
     );
@@ -198,7 +207,7 @@ function createActionMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
     actionMenuItems.push(
       new ButtonMenuItem(
         "actie.zaak.opschorten",
-        () => handlers.opschorten(),
+        () => dialogs.openOpschorten(zaak),
         "pause",
       ),
     );
@@ -216,7 +225,7 @@ function createActionMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
     actionMenuItems.push(
       new ButtonMenuItem(
         "actie.zaak.verlengen",
-        () => handlers.verlengen(),
+        () => dialogs.openVerlengen(zaak),
         "update",
       ),
     );
@@ -226,7 +235,7 @@ function createActionMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
     actionMenuItems.push(
       new ButtonMenuItem(
         "actie.zaak.hervatten",
-        () => handlers.hervatten(),
+        () => dialogs.openHervatten(zaak),
         "play_circle",
       ),
     );
@@ -236,7 +245,7 @@ function createActionMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
     actionMenuItems.push(
       new ButtonMenuItem(
         "actie.zaak.afbreken",
-        () => handlers.afbreken(),
+        () => dialogs.openAfbreken(zaak),
         "thumb_down_alt",
       ),
     );
@@ -246,7 +255,7 @@ function createActionMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
     actionMenuItems.push(
       new ButtonMenuItem(
         "actie.zaak.afsluiten",
-        () => handlers.afsluiten(),
+        () => dialogs.openAfsluiten(zaak),
         "thumb_up_alt",
       ),
     );
@@ -259,7 +268,7 @@ function createActionMenuItems(zaak: Zaak, handlers: ZaakMenuHandlers) {
     actionMenuItems.push(
       new ButtonMenuItem(
         "actie.zaak.brondatumZetten",
-        () => handlers.brondatumZetten(),
+        () => dialogs.openBrondatumZetten(zaak),
         "calendar_today",
       ),
     );

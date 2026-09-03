@@ -120,6 +120,7 @@ export class ZaakViewComponent
       zaak,
       planItems,
       this.menuHandlers,
+      this.dialogs,
       this.hasBrpSearchRight(),
     );
   });
@@ -130,7 +131,7 @@ export class ZaakViewComponent
   documentToMove!: Partial<GeneratedType<"RestEnkelvoudigInformatieobject">>;
 
   notitieRechten!: GeneratedType<"RestNotitieRechten">;
-  viewInitialized = false;
+  viewInitialized = signal(false);
 
   private zaakListener!: WebsocketListener;
   private zaakRollenListener!: WebsocketListener;
@@ -247,14 +248,14 @@ export class ZaakViewComponent
 
     effect(() => {
       this.menu();
-      if (!this.viewInitialized) return;
+      if (!this.viewInitialized()) return;
       untracked(() => this.updateMargins());
     });
   }
 
   ngAfterViewInit() {
     this.sideActions.register(this.actionsSidenav);
-    this.viewInitialized = true;
+    this.viewInitialized.set(true);
     super.ngAfterViewInit();
   }
 
@@ -269,29 +270,26 @@ export class ZaakViewComponent
 
   private invalidatePlanItems() {
     const uuid = this.zaak.uuid;
-    this.queryClient.invalidateQueries({
-      queryKey:
-        this.planItemsService.listUserEventListenerPlanItemsQuery(uuid)
-          .queryKey,
-    });
-    this.queryClient.invalidateQueries({
-      queryKey:
-        this.planItemsService.listHumanTaskPlanItemsQuery(uuid).queryKey,
-    });
+    this.queryClient.invalidateQueries(
+      {
+        queryKey:
+          this.planItemsService.listUserEventListenerPlanItemsQuery(uuid)
+            .queryKey,
+      },
+      { cancelRefetch: false },
+    );
+    this.queryClient.invalidateQueries(
+      {
+        queryKey:
+          this.planItemsService.listHumanTaskPlanItemsQuery(uuid).queryKey,
+      },
+      { cancelRefetch: false },
+    );
   }
 
   private readonly menuHandlers: ZaakMenuHandlers = {
     openSideAction: () => this.sideActions.open(),
     startHumanTask: (planItem) => this.startHumanTaskPlanItem(planItem),
-    startUserEventListener: (planItem) =>
-      this.dialogs.openPlanItemStarten(this.zaak, planItem),
-    heropenen: () => this.dialogs.openHeropenen(this.zaak),
-    opschorten: () => this.dialogs.openOpschorten(this.zaak),
-    verlengen: () => this.dialogs.openVerlengen(this.zaak),
-    hervatten: () => this.dialogs.openHervatten(this.zaak),
-    afbreken: () => this.dialogs.openAfbreken(this.zaak),
-    afsluiten: () => this.dialogs.openAfsluiten(this.zaak),
-    brondatumZetten: () => this.dialogs.openBrondatumZetten(this.zaak),
   };
 
   private startHumanTaskPlanItem(planItem: GeneratedType<"RESTPlanItem">) {
@@ -359,10 +357,13 @@ export class ZaakViewComponent
   }
 
   private invalidateZaakHistorie() {
-    this.queryClient.invalidateQueries({
-      queryKey: this.zakenService.listHistorieVoorZaakQuery(this.zaak.uuid)
-        .queryKey,
-    });
+    this.queryClient.invalidateQueries(
+      {
+        queryKey: this.zakenService.listHistorieVoorZaakQuery(this.zaak.uuid)
+          .queryKey,
+      },
+      { cancelRefetch: false },
+    );
   }
 
   protected editCaseDetails() {
