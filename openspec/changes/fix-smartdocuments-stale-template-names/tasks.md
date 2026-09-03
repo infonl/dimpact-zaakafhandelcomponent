@@ -1,6 +1,6 @@
 ## 1. Live ID-based name resolution
 
-- [x] 1.1 Add a function that resolves one or more `smartDocumentsId`s (template group and/or template) against the tree returned by `SmartDocumentsService.listTemplates()`, returning the current name(s) or an explicit "not found" per id — `findGroupById`/`findTemplateById` in `RestSmartDocumentsTemplateGroup.kt`, used by `SmartDocumentsTemplatesService.readCurrentTemplateNames`
+- [x] 1.1 Add a function that resolves one or more `smartDocumentsId`s (template group and/or template) against the tree returned by `SmartDocumentsService.listTemplates()`, returning the current name(s) or an explicit "not found" per id — `findGroupById`/`findTemplateById` in `RestSmartDocumentsTemplateGroup.kt`, used by `SmartDocumentsTemplatesService.readCurrentSelection`, which returns the existing `Selection` model (`templateGroup`/`template` fields) instead of a new data class
 - [x] 1.2 Unit test: resolves both a template group name and a template name from a single live tree fetch, given matching ids
 - [x] 1.3 Unit test: reports "not found" distinctly (not an exception swallowed into a default) when an id no longer exists in the live tree
 
@@ -8,7 +8,7 @@
 
 - [x] 2.1 Replace the `getTemplateGroupName`/`getTemplateName` DB lookups in `DocumentCreationService.createDocumentForAttendedFlow` with the resolver from Task 1, using exactly one live fetch for both names
 - [x] 2.2 On a "not found" id, fail the request with a clear, actionable error (mapping needs updating) instead of sending a stale or empty name
-- [x] 2.3 On a live-fetch failure (SmartDocuments unreachable, auth error, timeout), fail the request with a clear error and do NOT fall back to the persisted name — no fallback path exists; any exception from `readCurrentTemplateNames` propagates unchanged
+- [x] 2.3 On a live-fetch failure (SmartDocuments unreachable, auth error, timeout), fail the request with a clear error and do NOT fall back to the persisted name — no fallback path exists; any exception from `readCurrentSelection` propagates unchanged
 - [x] 2.4 Unit test: document creation sends the current SmartDocuments name after a rename and succeeds
 - [x] 2.5 Unit test: document creation fails with the new explicit error when the mapped id no longer exists live
 - [x] 2.6 Unit test: document creation fails with the new explicit error when the live fetch itself errors, and never falls back to the persisted name
@@ -33,5 +33,5 @@
 
 ## 6. Follow-ups (tracked separately, not blocking this change)
 
-- [ ] 6.1 Decide whether to add a short-TTL cache for the live SmartDocuments read, based on post-rollout latency/error-rate metrics
-- [ ] 6.2 Decide whether to deprecate or remove the persisted `naam` columns on `SmartDocumentsTemplate`/`SmartDocumentsTemplateGroup` now that they are no longer read as source of truth
+- [x] 6.1 Decide whether to add a short-TTL cache for the live SmartDocuments read — **decided: no, not now.** No evidence yet that the extra call is actually slow; adding a cache without a measured problem is unnecessary complexity (TTL tuning, invalidation). Revisit only if post-rollout metrics show real latency or rate-limit issues.
+- [x] 6.2 Decide whether to deprecate or remove the persisted `naam` columns on `SmartDocumentsTemplate`/`SmartDocumentsTemplateGroup` — **decided: no, leave them.** They are harmless now that nothing reads them as source of truth, and removing them would require a schema migration for a pure cleanup with no functional benefit. Not worth it for this fix.

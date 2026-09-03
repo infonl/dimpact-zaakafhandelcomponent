@@ -95,3 +95,29 @@ private fun convertTemplateGroupToModel(
             convertTemplateGroupToModel(it, this, zaakafhandelParameterId)
         }?.toMutableSet()
     }
+
+
+fun Set<RestMappedSmartDocumentsTemplateGroup>.resolveCurrentNames(
+    currentTemplateGroups: Set<RestSmartDocumentsTemplateGroup>
+): Set<RestMappedSmartDocumentsTemplateGroup> =
+    mapNotNull { it.resolveCurrentNames(currentTemplateGroups) }.toSet()
+
+private fun RestMappedSmartDocumentsTemplateGroup.resolveCurrentNames(
+    currentTemplateGroups: Set<RestSmartDocumentsTemplateGroup>
+): RestMappedSmartDocumentsTemplateGroup? =
+    currentTemplateGroups.findGroupById(id)?.let { currentGroup ->
+        RestMappedSmartDocumentsTemplateGroup(
+            id = id,
+            name = currentGroup.name,
+            groups = groups?.resolveCurrentNames(currentTemplateGroups),
+            templates = templates?.mapNotNull { template ->
+                currentTemplateGroups.findTemplateById(template.id)?.let { currentTemplate ->
+                    RestMappedSmartDocumentsTemplate(
+                        id = template.id,
+                        name = currentTemplate.name,
+                        informatieObjectTypeUUID = template.informatieObjectTypeUUID
+                    )
+                }
+            }?.toSet()
+        )
+    }
