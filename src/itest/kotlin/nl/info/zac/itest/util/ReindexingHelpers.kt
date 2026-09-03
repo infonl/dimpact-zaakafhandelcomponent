@@ -61,7 +61,10 @@ fun reindexingFinishedRegex(zoekObjectType: String) = Regex(
  * "Reindexing finished" log line rather than relying on the HTTP response.
  */
 suspend fun waitForReindexToFinish(zoekObjectType: String, logsBeforeReindex: String) {
-    eventually(10.seconds) {
+    // a reindex's duration scales with how many entities already exist in the shared itest environment,
+    // which grows as more of the itest suite runs before this call - 10 seconds is too tight once enough
+    // zaken have accumulated (e.g. NotificationZaakDestroyTest running late in the suite)
+    eventually(60.seconds) {
         zacContainerLogs().newLogsSince(logsBeforeReindex).shouldContainLogLineMatching(
             reindexingFinishedRegex(zoekObjectType)
         )
