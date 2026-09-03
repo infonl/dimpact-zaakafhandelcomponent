@@ -1,4 +1,11 @@
-## ADDED Requirements
+# solr-reindexing-performance Specification
+
+## Purpose
+Performance behavior of the Solr reindexing process — sharing lookups across zoekobjecten linked to
+the same zaak and bounding conversion concurrency within a reindex page, so that reindexing scales
+efficiently as the number of zaken, taken and documenten grows.
+
+## Requirements
 
 ### Requirement: Single role list lookup per zaak during zaak reindex
 When converting a single zaak to a `ZaakZoekObject` during reindexing, the system SHALL retrieve
