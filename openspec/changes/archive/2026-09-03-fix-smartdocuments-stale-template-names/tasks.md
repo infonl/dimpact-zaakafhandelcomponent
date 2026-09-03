@@ -28,8 +28,8 @@
 
 ## 5. End-to-end verification
 
-- [ ] 5.1 In a test/acceptance environment, rename a mapped template and a mapped group in SmartDocuments; confirm the "Document maken" picker and the BPMN task form show the new names without re-saving the zaaktype's mapping, and confirm document generation succeeds — **requires manual verification against a real SmartDocuments environment; not performed in this session**
-- [ ] 5.2 Confirm the "template no longer exists" and "SmartDocuments unreachable" error paths surface a clear, correctly-translated message to the user — **requires manual verification; not performed in this session**
+- [x] 5.1 In a test/acceptance environment, rename a mapped template and a mapped group in SmartDocuments; confirm the "Document maken" picker and the BPMN task form show the new names without re-saving the zaaktype's mapping, and confirm document generation succeeds — **confirmed by user: manual test passed, names shown correctly**
+- [x] 5.2 Confirm the "template no longer exists" and "SmartDocuments unreachable" error paths surface a clear, correctly-translated message to the user — **manually verified.** The "not found" path was forced with a temporary hardcoded bad id (reverted afterwards) and surfaces the existing generic `msg.error.smartdocuments.not.configured` translation (shared with other pre-existing `SmartDocumentsConfigurationException` scenarios; the detailed cause is logged server-side, not shown to the user). User confirmed this generic message is acceptable — a more specific message was considered but explicitly not pursued, to keep this fix minimal.
 
 ## 6. Follow-ups (tracked separately, not blocking this change)
 
