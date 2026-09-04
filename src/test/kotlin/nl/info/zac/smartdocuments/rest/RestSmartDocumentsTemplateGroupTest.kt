@@ -149,7 +149,6 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
     }
 
     given("a live SmartDocuments group whose groups and templates fields are null, not an empty set") {
-        // SmartDocuments' own API can return null instead of an empty list for a group with no children
         val liveTemplateGroups = setOf(
             RestSmartDocumentsTemplateGroup(
                 id = UUID.randomUUID().toString(),
