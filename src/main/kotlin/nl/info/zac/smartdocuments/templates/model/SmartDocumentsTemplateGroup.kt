@@ -44,7 +44,7 @@ class SmartDocumentsTemplateGroup {
     lateinit var smartDocumentsId: String
 
     @Column(name = "aanmaakdatum", nullable = false)
-    var creationDate: ZonedDateTime? = null
+    lateinit var creationDate: ZonedDateTime
 
     @ManyToOne
     @JoinColumn(name = "parent_id")

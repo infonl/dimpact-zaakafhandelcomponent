@@ -175,7 +175,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
         entityManager.criteriaBuilder.let { builder ->
             builder.createQuery(SmartDocumentsTemplateGroup::class.java).let { query ->
                 query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
-                    return entityManager.createQuery(
+                    entityManager.createQuery(
                         query.select(root)
                             .where(
                                 builder.and(
@@ -189,9 +189,13 @@ class SmartDocumentsTemplatesService @Inject constructor(
                                     builder.isNull(root.get<SmartDocumentsTemplateGroup>("parent"))
                                 )
                             )
-                    ).resultList.toSet().toRestSmartDocumentsTemplateGroup().resolveCurrentNames(listTemplates())
+                    ).resultList.toSet()
                 }
             }
+        }.toRestSmartDocumentsTemplateGroup().let { persistedMapping ->
+            // Skip the live SmartDocuments read entirely when there is nothing persisted to resolve names for,
+            // e.g. a zaaktype that has a configuration but no SmartDocuments mapping saved yet.
+            if (persistedMapping.isEmpty()) persistedMapping else persistedMapping.resolveCurrentNames(listTemplates())
         }
 
     /**

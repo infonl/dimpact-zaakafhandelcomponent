@@ -12,6 +12,7 @@ import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaBuilder
@@ -266,6 +267,54 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
             then("the information object type UUID is returned") {
                 result shouldBe informationObjectTypeUUID
+            }
+        }
+    }
+
+    given("A zaaktype configuration exists but has no persisted SmartDocuments mapping") {
+        val zaaktypeUUID = UUID.randomUUID()
+        val zaakafhanderParametersId = 1L
+
+        val criteriaBuilder = mockk<CriteriaBuilder>()
+        val criteriaQuery = mockk<CriteriaQuery<SmartDocumentsTemplateGroup>>()
+        val root = mockk<Root<SmartDocumentsTemplateGroup>>()
+        val zaaktypeConfigurationPath = mockk<Path<ZaaktypeConfiguration>>()
+        val longPath = mockk<Path<Long>>()
+        val parentPath = mockk<Path<SmartDocumentsTemplateGroup>>()
+        val equalPredicate = mockk<Predicate>()
+        val isNullPredicate = mockk<Predicate>()
+        val andPredicate = mockk<Predicate>()
+        val zaaktypeConfiguration = mockk<ZaaktypeConfiguration>()
+        val typedQuery = mockk<TypedQuery<SmartDocumentsTemplateGroup>>()
+
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+        every { criteriaBuilder.createQuery(SmartDocumentsTemplateGroup::class.java) } returns criteriaQuery
+        every { criteriaQuery.from(SmartDocumentsTemplateGroup::class.java) } returns root
+        every {
+            root.get<ZaaktypeConfiguration>("zaaktypeConfiguration")
+        } returns zaaktypeConfigurationPath
+        every { zaaktypeConfigurationPath.get<Long>("id") } returns longPath
+        every { root.get<SmartDocumentsTemplateGroup>("parent") } returns parentPath
+        every { criteriaBuilder.equal(longPath, zaakafhanderParametersId) } returns equalPredicate
+        every { criteriaBuilder.isNull(parentPath) } returns isNullPredicate
+        every { criteriaBuilder.and(equalPredicate, isNullPredicate) } returns andPredicate
+        every { criteriaQuery.select(root) } returns criteriaQuery
+        every { criteriaQuery.where(andPredicate) } returns criteriaQuery
+        every { entityManager.createQuery(criteriaQuery) } returns typedQuery
+        every { typedQuery.resultList } returns emptyList()
+
+        every { smartDocumentsService.isEnabled() } returns true
+        every {
+            zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
+        } returns zaaktypeConfiguration
+        every { zaaktypeConfiguration.id } returns zaakafhanderParametersId
+
+        `when`("templates mapping is requested") {
+            val mappings = smartDocumentsTemplatesService.getTemplatesMapping(zaaktypeUUID)
+
+            then("it returns an empty set without making a live SmartDocuments call") {
+                mappings shouldBe emptySet()
+                verify(exactly = 0) { smartDocumentsService.listTemplates() }
             }
         }
     }

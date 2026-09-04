@@ -6,6 +6,7 @@
 package nl.info.zac.smartdocuments.rest
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -212,6 +213,53 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
 
             then("a deleted group is omitted entirely") {
                 resolvedMapping.map { it.id } shouldBe listOf(renamedGroupId)
+            }
+        }
+    }
+
+    given("a persisted template mapping where a template moved to a different group in SmartDocuments") {
+        val groupAId = UUID.randomUUID().toString()
+        val groupBId = UUID.randomUUID().toString()
+        val movedTemplateId = UUID.randomUUID().toString()
+        val informatieObjectTypeUUID = UUID.randomUUID()
+
+        val persistedMapping = setOf(
+            createRestMappedSmartDocumentsTemplateGroup(
+                id = groupAId,
+                name = "group A",
+                groups = emptySet(),
+                templates = setOf(
+                    createRestMappedSmartDocumentsTemplate(
+                        id = movedTemplateId,
+                        name = "old name under group A",
+                        informatieObjectTypeUUID = informatieObjectTypeUUID
+                    )
+                )
+            )
+        )
+        // The template still exists live, but SmartDocuments moved it out of group A into group B
+        val liveTemplateGroups = setOf(
+            createRestSmartDocumentsTemplateGroup(
+                id = groupAId,
+                name = "group A",
+                groups = emptySet(),
+                templates = emptySet()
+            ),
+            createRestSmartDocumentsTemplateGroup(
+                id = groupBId,
+                name = "group B",
+                groups = emptySet(),
+                templates = setOf(
+                    createRestSmartDocumentsTemplate(id = movedTemplateId, name = "new name under group B")
+                )
+            )
+        )
+
+        `when`("current names are resolved against the live tree") {
+            val resolvedMapping = persistedMapping.resolveCurrentNames(liveTemplateGroups)
+
+            then("the moved template is omitted from its old group instead of kept there under a refreshed name") {
+                resolvedMapping.first { it.id == groupAId }.templates!!.shouldBeEmpty()
             }
         }
     }

@@ -116,12 +116,13 @@ private fun RestMappedSmartDocumentsTemplateGroup.resolveCurrentNames(
     currentTemplateGroups: Set<RestSmartDocumentsTemplateGroup>
 ): RestMappedSmartDocumentsTemplateGroup? =
     currentTemplateGroups.findGroupById(id)?.let { currentGroup ->
+        val currentSubGroups = currentGroup.groups ?: emptySet()
         RestMappedSmartDocumentsTemplateGroup(
             id = id,
             name = currentGroup.name,
-            groups = groups?.resolveCurrentNames(currentTemplateGroups),
+            groups = groups?.resolveCurrentNames(currentSubGroups),
             templates = templates?.mapNotNull { template ->
-                currentTemplateGroups.findTemplateById(template.id)?.let { currentTemplate ->
+                setOf(currentGroup).findTemplateById(template.id)?.let { currentTemplate ->
                     RestMappedSmartDocumentsTemplate(
                         id = template.id,
                         name = currentTemplate.name,

@@ -48,3 +48,7 @@ The system SHALL resolve the template group and template names shown to users â€
 #### Scenario: Deleted template is omitted from the picker
 - **WHEN** a `smartDocumentsId` present in the persisted mapping no longer exists in SmartDocuments' current template tree
 - **THEN** the system omits that template from the "Document maken" picker and from the BPMN task form field, the same way an unmapped template is omitted today, instead of showing it under its last-known stale name
+
+#### Scenario: Template moved to a different group in SmartDocuments
+- **WHEN** a mapped template's `smartDocumentsId` still exists in SmartDocuments' current template tree, but has been moved out of the group it was persisted under into a different group
+- **THEN** the system omits that template from its old (persisted) group instead of displaying it there under a merely refreshed name, so the displayed hierarchy never diverges from SmartDocuments' actual current organization â€” forcing the mapping to be updated to reflect the move
