@@ -8,18 +8,25 @@ import { TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 import { fromPartial } from "../../../test-helpers";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
+import { HttpParamsError } from "./http-client";
 import { QUERY_CLIENT } from "./query-client";
 
 describe("QUERY_CLIENT", () => {
   const foutAfhandelen = jest.fn().mockReturnValue(of());
+  const logRefreshFailure = jest.fn();
+  const log = jest.fn().mockReturnValue(logRefreshFailure);
   const error = new HttpErrorResponse({ status: 500 });
 
   beforeEach(() => {
+    jest.clearAllMocks();
     TestBed.configureTestingModule({
       providers: [
         {
           provide: FoutAfhandelingService,
-          useValue: fromPartial<FoutAfhandelingService>({ foutAfhandelen }),
+          useValue: fromPartial<FoutAfhandelingService>({
+            foutAfhandelen,
+            log,
+          }),
         },
       ],
     });
@@ -78,5 +85,58 @@ describe("QUERY_CLIENT", () => {
     });
 
     expect(foutAfhandelen).not.toHaveBeenCalled();
+  });
+
+  it("reports a missing path parameter, which never reaches the server", async () => {
+    const queryClient = TestBed.inject(QUERY_CLIENT);
+    const httpParamsError = new HttpParamsError("fakeMissingParameter");
+
+    await expect(
+      queryClient.fetchQuery({
+        queryKey: ["fakeEndpoint"],
+        queryFn: () => Promise.reject(httpParamsError),
+        retry: false,
+      }),
+    ).rejects.toBe(httpParamsError);
+
+    expect(foutAfhandelen).toHaveBeenCalledWith(httpParamsError);
+  });
+
+  it("reports nothing for a read that says it handles its own failure", async () => {
+    const queryClient = TestBed.inject(QUERY_CLIENT);
+
+    await expect(
+      queryClient.fetchQuery({
+        queryKey: ["fakeEndpoint"],
+        queryFn: () => Promise.reject(error),
+        retry: false,
+        meta: { reportErrors: false },
+      }),
+    ).rejects.toBe(error);
+
+    expect(foutAfhandelen).not.toHaveBeenCalled();
+    expect(log).not.toHaveBeenCalled();
+  });
+
+  it("reports a failed refetch as a snackbar, so it cannot close a dialog the user is in", async () => {
+    const queryClient = TestBed.inject(QUERY_CLIENT);
+    const queryKey = ["fakeEndpoint"];
+
+    await queryClient.fetchQuery({
+      queryKey,
+      queryFn: () => Promise.resolve("fakeResponse"),
+    });
+    await expect(
+      queryClient.fetchQuery({
+        queryKey,
+        queryFn: () => Promise.reject(error),
+        retry: false,
+        staleTime: 0,
+      }),
+    ).rejects.toBe(error);
+
+    expect(foutAfhandelen).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledWith("msg.error.verversen-mislukt");
+    expect(logRefreshFailure).toHaveBeenCalledWith(error);
   });
 });
