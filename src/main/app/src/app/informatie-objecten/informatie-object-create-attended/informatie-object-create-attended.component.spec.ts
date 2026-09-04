@@ -56,7 +56,7 @@ const templateGroup = fromPartial<
     {
       id: "fakeTemplateId2",
       name: "Template Two",
-      informatieObjectTypeUUID: null,
+      informatieObjectTypeUUID: undefined,
     },
   ],
   groups: null,
