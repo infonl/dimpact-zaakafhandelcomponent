@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 INFO.nl
+ * SPDX-FileCopyrightText: 2024, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -948,6 +948,12 @@ dependencyCheck {
 
     // Configure output formats - generates HTML, JSON, and SARIF reports
     formats = listOf("HTML", "JSON", "SARIF")
+
+    // Pin the report output directory to `build/reports`. The dependency-check
+    // plugin otherwise writes into a `build/reports/dependency-check/`
+    // subdirectory, which the security scan workflow does not look in, causing
+    // the generated SARIF/JSON reports to be silently ignored.
+    outputDirectory = layout.buildDirectory.dir("reports")
 
     // The CI workflow runs `dependencyCheckUpdate` as a dedicated, cached step
     // before scanning, so the analysis tasks must not trigger their own NVD
