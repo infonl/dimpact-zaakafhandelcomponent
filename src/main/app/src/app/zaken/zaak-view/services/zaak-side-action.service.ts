@@ -26,12 +26,22 @@ export class ZaakSideActionService {
   /** Opens the sidenav, optionally switching to another panel first. */
   open(action?: string) {
     if (action !== undefined) this.activeAction.set(action);
+    if (!this.reportMissingSidenav("open")) return;
     void this.sidenav?.open();
   }
 
   /** Closes the sidenav without forgetting which panel was showing. */
   close() {
+    if (!this.reportMissingSidenav("close")) return;
     void this.sidenav?.close();
+  }
+
+  private reportMissingSidenav(action: string) {
+    if (this.sidenav) return true;
+    console.error(
+      `Cannot ${action} the zaak side action panel: no sidenav registered`,
+    );
+    return false;
   }
 
   /** Forgets the active panel without touching the sidenav itself. */

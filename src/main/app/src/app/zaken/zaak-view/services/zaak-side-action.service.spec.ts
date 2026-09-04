@@ -19,12 +19,42 @@ describe(ZaakSideActionService.name, () => {
   });
 
   describe("before a sidenav is registered", () => {
+    let consoleError: jest.SpyInstance;
+
+    beforeEach(() => {
+      consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleError.mockRestore();
+    });
+
     it("still records the active action instead of throwing", () => {
       const unregistered = new ZaakSideActionService();
 
       unregistered.open("actie.zaak.wijzigen");
 
       expect(unregistered.activeAction()).toBe("actie.zaak.wijzigen");
+    });
+
+    it("reports opening without a sidenav instead of silently doing nothing", () => {
+      const unregistered = new ZaakSideActionService();
+
+      unregistered.open("actie.zaak.wijzigen");
+
+      expect(consoleError).toHaveBeenCalledWith(
+        "Cannot open the zaak side action panel: no sidenav registered",
+      );
+    });
+
+    it("reports closing without a sidenav instead of silently doing nothing", () => {
+      const unregistered = new ZaakSideActionService();
+
+      unregistered.close();
+
+      expect(consoleError).toHaveBeenCalledWith(
+        "Cannot close the zaak side action panel: no sidenav registered",
+      );
     });
   });
 
