@@ -293,7 +293,6 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
 
     given("a persisted group with no subgroups or templates recorded") {
         val groupId = UUID.randomUUID().toString()
-        // groups and templates default to null here, not an empty set
         val persistedMapping = setOf(
             createRestMappedSmartDocumentsTemplateGroup(id = groupId, name = "old name")
         )

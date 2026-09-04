@@ -193,8 +193,6 @@ class SmartDocumentsTemplatesService @Inject constructor(
                 }
             }
         }.toRestSmartDocumentsTemplateGroup().let { persistedMapping ->
-            // Skip the live SmartDocuments read entirely when there is nothing persisted to resolve names for,
-            // e.g. a zaaktype that has a configuration but no SmartDocuments mapping saved yet.
             if (persistedMapping.isEmpty()) persistedMapping else persistedMapping.resolveCurrentNames(listTemplates())
         }
 
