@@ -35,10 +35,7 @@ import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-paramete
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
-import { BedrijfsgegevensComponent } from "../../klanten/bedrijfsgegevens/bedrijfsgegevens.component";
-import { ContactgegevensComponent } from "../../klanten/contactgegevens/contactgegevens.component";
 import { KlantenService } from "../../klanten/klanten.service";
-import { PersoonsgegevensComponent } from "../../klanten/persoonsgegevens/persoonsgegevens.component";
 import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
@@ -54,11 +51,11 @@ import { TakenService } from "../../taken/taken.service";
 import { ZaakBetrokkeneListComponent } from "../zaak-betrokkenen-list/zaak-betrokkene-list.component";
 import { ZaakBrondatumZettenDialogComponent } from "../zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
-import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakSideActionService } from "./services/zaak-side-action.service";
 import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
+import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiator-panel.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
 const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
@@ -130,10 +127,7 @@ describe(ZaakViewComponent.name, () => {
         ZaakDocumentenComponent,
         ZaakBetrokkeneListComponent,
         ZaakDetailsCardComponent,
-        ZaakInitiatorToevoegenComponent,
-        BedrijfsgegevensComponent,
-        ContactgegevensComponent,
-        PersoonsgegevensComponent,
+        ZaakInitiatorPanelComponent,
         NotitiesComponent,
         ZaakIndicatiesComponent,
         SideNavComponent,

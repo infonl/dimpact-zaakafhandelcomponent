@@ -145,41 +145,12 @@
   </mat-drawer>
   <mat-drawer-content>
     <div class="flex-row flex-wrap gap-12">
-      <section *ngIf="showInitiator()" class="w100 flex-1">
-        <ng-container [ngSwitch]="initiatorViewType()">
-          <zac-zaak-initiator-toevoegen
-            *ngSwitchCase="'ADD'"
-            class="w100 flex-1"
-            [toevoegenToegestaan]="allowedToAddBetrokkene()"
-            (add)="addOrEditZaakInitiator()"
-          >
-          </zac-zaak-initiator-toevoegen>
-          <zac-contactgegevens
-            *ngSwitchCase="'CONTACT_DETAILS'"
-            class="w100 flex-1"
-            [contactDetails]="zaak.zaakSpecificContactDetails!"
-            [toevoegenToegestaan]="allowedToAddBetrokkene()"
-            (add)="addOrEditZaakInitiator()"
-          >
-          </zac-contactgegevens>
-          <zac-persoongegevens
-            *ngSwitchCase="'PERSON'"
-            class="w100 flex-1"
-            [zaak]="zaak"
-            (edit)="addOrEditZaakInitiator()"
-            (delete)="deleteInitiator()"
-          >
-          </zac-persoongegevens>
-          <zac-bedrijfsgegevens
-            *ngSwitchCase="'COMPANY'"
-            class="w100 flex-1"
-            [zaak]="zaak"
-            (edit)="addOrEditZaakInitiator()"
-            (delete)="deleteInitiator()"
-          >
-          </zac-bedrijfsgegevens>
-        </ng-container>
-      </section>
+      <zac-zaak-initiator-panel
+        [zaak]="zaak"
+        [hasBrpSearchRight]="hasBrpSearchRight()"
+        (addOrEdit)="addOrEditZaakInitiator()"
+        (delete)="deleteInitiator()"
+      ></zac-zaak-initiator-panel>
       <zac-zaak-details-card
         class="w50 flex-1"
         [zaak]="zaak"
