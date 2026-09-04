@@ -41,6 +41,7 @@ import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
 import {
   getDefaultZoekParameters,
   hasActiveSearchFilters,
+  ZoekParameters,
 } from "../../zoeken/model/zoek-parameters";
 import { ZoekResultaat } from "../../zoeken/model/zoek-resultaat";
 import { ZoekVeld } from "../../zoeken/model/zoek-veld";
@@ -97,7 +98,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
   protected filterColumns = this.columns.map((n) => n + "_filter");
   protected isLoadingResults = true;
   protected filterChange = new EventEmitter<void>();
-  protected zoekParameters: GeneratedType<"RestZoekParameters"> = {
+  protected zoekParameters: ZoekParameters = {
     ...getDefaultZoekParameters(),
     type: "ZAAK",
   };
@@ -131,7 +132,7 @@ export class KlantZakenTabelComponent implements AfterViewInit {
 
   private loadZaken(): Observable<ZoekResultaat<ZaakZoekObject>> {
     if (this.laatsteBetrokkenheid) {
-      delete this.zoekParameters.zoeken?.[this.laatsteBetrokkenheid];
+      delete this.zoekParameters.zoeken[this.laatsteBetrokkenheid];
     }
 
     this.setZoekParameterBetrokkenheid(this.betrokkeneSelectControl.value!);
@@ -157,17 +158,12 @@ export class KlantZakenTabelComponent implements AfterViewInit {
       hasActiveSearchFilters({
         ...this.zoekParameters,
         filtersType: "ZoekParameters",
-        zoeken: this.zoekParameters.zoeken ?? {},
-        filters: this.zoekParameters.filters ?? {},
-        datums: this.zoekParameters.datums ?? {},
-        type: this.zoekParameters.type as string,
       });
 
     this.changeDetectorRef.detectChanges();
   }
 
   private setZoekParameterBetrokkenheid(betrokkenheid: string) {
-    if (!this.zoekParameters.zoeken) this.zoekParameters.zoeken = {};
     const betrokkene = new BetrokkeneIdentificatie(this.klant());
     this.zoekParameters.zoeken[
       (this.laatsteBetrokkenheid =
