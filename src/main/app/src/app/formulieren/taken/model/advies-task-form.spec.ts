@@ -7,8 +7,10 @@ import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { of } from "rxjs";
-import { fromPartial } from "../../../../test-helpers";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+
+import { testQueryClient } from "../../../../../setupJest";
+import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { AdviesTaskForm } from "./advies-task-form";
@@ -28,13 +30,17 @@ describe(AdviesTaskForm.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideQueryClient(testQueryClient),
+        provideHttpClient(),
+        provideRouter([]),
+      ],
     });
 
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
     listEnkelvoudigInformatieobjectenSpy = jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of([]));
+      .mockReturnValue(createQueryOptions([]) as never);
 
     formulier = TestBed.inject(AdviesTaskForm);
   });
@@ -127,7 +133,7 @@ describe(AdviesTaskForm.name, () => {
 
       it("should pass fetched documents as options", async () => {
         listEnkelvoudigInformatieobjectenSpy.mockReturnValue(
-          of([mockDocument]),
+          createQueryOptions([mockDocument]) as never,
         );
 
         const fields = await formulier.requestForm(mockZaak);

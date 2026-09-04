@@ -619,20 +619,11 @@ export class FormioSetupService {
     taak: GeneratedType<"RestTask">,
     informatieobjectUUIDs?: string[],
   ) {
-    // The uuids belong in the key, or a filtered fetch collides with the full list of the same zaak.
     return this.queryClient.fetchQuery({
-      queryKey: [
-        "availableDocumentsQuery",
-        taak.zaakUuid,
-        informatieobjectUUIDs && [...informatieobjectUUIDs].sort(),
-      ],
-      queryFn: () =>
-        lastValueFrom(
-          this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
-            zaakUUID: taak.zaakUuid,
-            informatieobjectUUIDs,
-          }),
-        ),
+      ...this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
+        zaakUUID: taak.zaakUuid,
+        informatieobjectUUIDs,
+      }),
       staleTime: 0,
     });
   }
