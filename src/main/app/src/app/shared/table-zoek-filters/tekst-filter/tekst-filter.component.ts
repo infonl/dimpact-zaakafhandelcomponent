@@ -23,11 +23,11 @@ import { MatInputModule } from "@angular/material/input";
 })
 export class TekstFilterComponent implements OnInit {
   protected formControl = new FormControl<string | undefined>(undefined);
-  @Input() value: string = "";
-  @Output() changed = new EventEmitter<string | undefined>();
+  @Input() value?: string | null;
+  @Output() changed = new EventEmitter<string>();
 
   ngOnInit(): void {
-    this.formControl.setValue(this.value);
+    this.formControl.setValue(this.value ?? "");
   }
 
   protected change(): void {
