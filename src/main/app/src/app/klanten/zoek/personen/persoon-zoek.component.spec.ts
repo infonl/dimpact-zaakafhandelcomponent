@@ -1,30 +1,18 @@
 /*
- * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2025, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HarnessLoader } from "@angular/cdk/testing";
-import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { provideHttpClient } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
-import {
-  ComponentFixture,
-  fakeAsync,
-  TestBed,
-  tick,
-} from "@angular/core/testing";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputHarness } from "@angular/material/input/testing";
+import { provideNativeDateAdapter } from "@angular/material/core";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
-import { provideTanStackQuery } from "@tanstack/angular-query-experimental";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen, within } from "@testing-library/angular";
+import userEvent from "@testing-library/user-event";
 import { of } from "rxjs";
-import { PolicyService } from "src/app/policy/policy.service";
-import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
-import { MaterialModule } from "src/app/shared/material/material.module";
-import { fromPartial } from "src/test-helpers";
-import { testQueryClient } from "../../../../../setupJest";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
+import { sleep, testQueryClient } from "../../../../../setupJest";
 import { ConfiguratieService } from "../../../configuratie/configuratie.service";
 import { UtilService } from "../../../core/service/util.service";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -32,178 +20,176 @@ import { KlantenService } from "../../klanten.service";
 import { FormCommunicatieService } from "../form-communicatie-service";
 import { PersoonZoekComponent } from "./persoon-zoek.component";
 
-describe(PersoonZoekComponent.name, () => {
-  let component: PersoonZoekComponent;
-  let fixture: ComponentFixture<typeof component>;
-  let klantenService: KlantenService;
-  let loader: HarnessLoader;
+const personenParameters = fromPartial<GeneratedType<"RestPersonenParameters">>(
+  {
+    bsn: "REQ",
+    geboortedatum: "OPT",
+    gemeenteVanInschrijving: "OPT",
+    geslachtsnaam: "NON",
+    huisnummer: "NON",
+    postcode: "NON",
+    straat: "NON",
+    voornamen: "NON",
+    voorvoegsel: "NON",
+  },
+);
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        PersoonZoekComponent,
-        FormsModule,
-        ReactiveFormsModule,
-        MaterialFormBuilderModule,
-        MatIconModule,
-        MaterialModule,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+describe(PersoonZoekComponent.name, () => {
+  const user = userEvent.setup();
+  const listPersonen = jest.fn();
+  let detectChanges: () => void;
+
+  async function setup(
+    gemeenten: GeneratedType<"RestBrpGemeente">[] = [],
+  ): Promise<void> {
+    listPersonen.mockReturnValue(
+      createQueryOptions(
+        fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({
+          resultaten: [],
+        }),
+      ),
+    );
+
+    const rendered = await render(PersoonZoekComponent, {
+      inputs: { zaaktypeUUID: "fakeZaaktypeUuid" },
+      imports: [NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
+        provideQueryClient(testQueryClient),
         provideHttpClient(),
-        provideHttpClientTesting(),
+        provideNativeDateAdapter(),
+        {
+          provide: KlantenService,
+          useValue: fromPartial<KlantenService>({
+            getPersonenParameters: () => of([personenParameters]),
+            listPersonen: listPersonen as never,
+            listAuthorisedBrpGemeenten: () =>
+              ({
+                queryKey: ["brpGemeenten"],
+                queryFn: () => Promise.resolve(gemeenten),
+              }) as never,
+          }),
+        },
+        {
+          provide: ConfiguratieService,
+          useValue: fromPartial<ConfiguratieService>({
+            readGemeenteCode: () => of("1234"),
+          }),
+        },
         {
           provide: UtilService,
-          useValue: {
-            setLoading: jest.fn(),
-          },
+          useValue: fromPartial<UtilService>({ setLoading: jest.fn() }),
         },
         {
           provide: FormCommunicatieService,
-          useValue: {
-            itemSelected$: of({ selected: false, uuid: "test" }),
+          useValue: fromPartial<FormCommunicatieService>({
+            itemSelected$: of({ selected: false, uuid: "fakeUuid" }),
             notifyItemSelected: jest.fn(),
-          },
+          }),
         },
-        provideTanStackQuery(testQueryClient),
       ],
-    }).compileComponents();
+    });
 
-    // Mock the services before first change detection
-    klantenService = TestBed.inject(KlantenService);
-    jest.spyOn(klantenService, "getPersonenParameters").mockReturnValue(
-      of([
-        {
-          bsn: "REQ",
-          geboortedatum: "OPT",
-          gemeenteVanInschrijving: "NON",
-          geslachtsnaam: "NON",
-          huisnummer: "NON",
-          postcode: "NON",
-          straat: "NON",
-          voornamen: "NON",
-          voorvoegsel: "NON",
-        },
-      ]),
+    detectChanges = rendered.detectChanges;
+    await sleep();
+    detectChanges();
+  }
+
+  async function search() {
+    await user.click(screen.getByRole("button", { name: "actie.zoeken" }));
+    await sleep();
+    detectChanges();
+  }
+
+  it("searches for the persoon with the entered bsn", async () => {
+    await setup();
+
+    await user.type(screen.getByLabelText("Bsn"), "999990408");
+    await search();
+
+    expect(listPersonen).toHaveBeenCalledWith(
+      expect.objectContaining({ bsn: "999990408" }),
+      "fakeZaaktypeUuid",
     );
-    jest
-      .spyOn(klantenService, "listPersonen")
-      .mockReturnValue(
-        of(fromPartial<GeneratedType<"RESTResultaatRestPersoon">>({})),
-      );
-
-    const configuratieService = TestBed.inject(ConfiguratieService);
-    jest
-      .spyOn(configuratieService, "readGemeenteCode")
-      .mockReturnValue(of("1234"));
-
-    TestBed.inject(PolicyService);
-
-    fixture = TestBed.createComponent(PersoonZoekComponent);
-    component = fixture.componentInstance;
-
-    fixture.componentRef.setInput("action", "test-action");
-    fixture.componentRef.setInput("context", "test-context");
-    fixture.componentRef.setInput("zaaktypeUUID", "test-zaaktype-uuid");
-
-    loader = TestbedHarnessEnvironment.loader(fixture);
-
-    fixture.detectChanges();
   });
 
-  describe(PersoonZoekComponent.prototype.zoekPersonen.name, () => {
-    it(`should call the ${KlantenService.prototype.listPersonen.name}`, () => {
-      const spy = jest.spyOn(klantenService, "listPersonen");
-      component.zoekPersonen();
+  it("cannot search before a complete combination of fields is filled in", async () => {
+    await setup();
 
-      expect(spy).toHaveBeenCalledWith(
-        expect.any(Object),
-        "test-zaaktype-uuid",
-      );
-    });
+    expect(screen.getByRole("button", { name: "actie.zoeken" })).toBeDisabled();
+  });
 
-    it("should pass the fields in the request when the form is valid", async () => {
-      const spy = jest.spyOn(klantenService, "listPersonen");
+  it("disables the fields that cannot be combined with the bsn", async () => {
+    await setup();
 
-      const inputs = await loader.getAllHarnesses(MatInputHarness);
-      const [bsn] = inputs;
-      await bsn.setValue("999990408");
+    await user.type(screen.getByLabelText("Bsn"), "999990408");
 
-      component.zoekPersonen();
+    for (const label of [
+      "Voornamen",
+      "Voorvoegsel",
+      "Geslachtsnaam",
+      "Straat",
+      "Postcode",
+      "Huisnummer",
+    ]) {
+      expect(screen.getByLabelText(label)).toBeDisabled();
+    }
+  });
 
-      expect(spy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          bsn: "999990408",
-        }),
-        "test-zaaktype-uuid",
-      );
-    });
+  it("keeps the fields that are optional next to the bsn enabled", async () => {
+    await setup();
 
-    it("should disabled all 'NON' fields when a 'REQ' field is filled", async () => {
-      const inputs = await loader.getAllHarnesses(MatInputHarness);
-      const [bsn, , ...rest] = inputs;
+    await user.type(screen.getByLabelText("Bsn"), "999990408");
 
-      await bsn.setValue("999990408");
+    expect(screen.getByLabelText("Geboortedatum")).toBeEnabled();
+    expect(screen.getByLabelText("GemeenteVanInschrijving")).toBeEnabled();
+  });
 
-      for (const input of rest) {
-        expect(await input.isDisabled()).toBe(true);
-      }
-    });
+  it("searches with the gemeente code that was typed in", async () => {
+    await setup();
 
-    it("should not disable all 'OPT' fields when a 'REQ' field is filled", async () => {
-      const inputs = await loader.getAllHarnesses(MatInputHarness);
-      const [bsn, geboortedatum] = inputs;
+    await user.type(screen.getByLabelText("Bsn"), "999990408");
+    await user.type(screen.getByLabelText("GemeenteVanInschrijving"), "1234");
+    await search();
 
-      await bsn.setValue("999990408");
+    expect(listPersonen).toHaveBeenCalledWith(
+      expect.objectContaining({ gemeenteVanInschrijving: "1234" }),
+      "fakeZaaktypeUuid",
+    );
+  });
 
-      expect(await geboortedatum.isDisabled()).toBe(false);
-    });
-
-    it("should extract gemeenteVanInschrijving code when it is an object", () => {
-      const spy = jest.spyOn(klantenService, "listPersonen");
-      component.formGroup.controls.gemeenteVanInschrijving.setValue({
+  it("searches with the code of the gemeente that was chosen", async () => {
+    await setup([
+      fromPartial<GeneratedType<"RestBrpGemeente">>({
         code: "0344",
-      });
+        naam: "Utrecht",
+      }),
+      fromPartial<GeneratedType<"RestBrpGemeente">>({
+        code: "0363",
+        naam: "Amsterdam",
+      }),
+    ]);
 
-      component.zoekPersonen();
+    await user.type(screen.getByLabelText("Bsn"), "999990408");
+    await user.click(screen.getByRole("combobox"));
+    await user.click(screen.getByRole("option", { name: "Amsterdam" }));
+    await search();
 
-      expect(spy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          gemeenteVanInschrijving: "0344",
-        }),
-        "test-zaaktype-uuid",
-      );
-    });
-
-    it("should pass gemeenteVanInschrijving as string when it is a string", () => {
-      const spy = jest.spyOn(klantenService, "listPersonen");
-      component.formGroup.controls.gemeenteVanInschrijving.setValue("1234");
-
-      component.zoekPersonen();
-
-      expect(spy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          gemeenteVanInschrijving: "1234",
-        }),
-        "test-zaaktype-uuid",
-      );
-    });
+    expect(listPersonen).toHaveBeenCalledWith(
+      expect.objectContaining({ gemeenteVanInschrijving: "0363" }),
+      "fakeZaaktypeUuid",
+    );
   });
 
-  describe("brpGemeenten effect", () => {
-    it("should auto-set gemeenteVanInschrijving when exactly one gemeente is returned", fakeAsync(() => {
-      testQueryClient.setQueryData(
-        klantenService.listAuthorisedBrpGemeenten().queryKey,
-        [{ code: "0344", naam: "Utrecht" }],
-      );
+  it("chooses the gemeente when there is only one to choose from", async () => {
+    await setup([
+      fromPartial<GeneratedType<"RestBrpGemeente">>({
+        code: "0344",
+        naam: "Utrecht",
+      }),
+    ]);
 
-      tick();
-      fixture.detectChanges();
+    const gemeente = await screen.findByRole("combobox");
 
-      expect(
-        component.formGroup.controls.gemeenteVanInschrijving.value,
-      ).toEqual({ code: "0344", naam: "Utrecht" });
-    }));
+    expect(await within(gemeente).findByText("Utrecht")).toBeVisible();
   });
 });
