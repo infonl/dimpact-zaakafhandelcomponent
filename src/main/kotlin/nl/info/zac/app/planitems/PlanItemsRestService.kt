@@ -192,7 +192,7 @@ class PlanItemsRestService @Inject constructor(
             taakdata = taakdata,
             zaakUUID = zaakUUID
         )
-        indexingService.addOrUpdateZaak(zaakUUID, false)
+        indexingService.addOrUpdateZaakOrThrow(zaakUUID, false)
     }
 
     @POST

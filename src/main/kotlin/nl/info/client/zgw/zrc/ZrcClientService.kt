@@ -250,6 +250,9 @@ class ZrcClientService @Inject constructor(
         return zrcClient.zaakeigenschapList(zaakUUID)
     }
 
+    fun readZaakeigenschap(zaakUUID: UUID, zaakeigenschapUUID: UUID): ZaakEigenschap =
+        zrcClient.zaakeigenschapRead(zaakUUID, zaakeigenschapUUID)
+
     fun updateZaakeigenschap(
         zaakUUID: UUID,
         uuid: UUID,

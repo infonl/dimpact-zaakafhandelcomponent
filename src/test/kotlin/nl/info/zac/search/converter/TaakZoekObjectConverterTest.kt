@@ -16,6 +16,7 @@ import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -97,6 +98,9 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.TOEGEKEND
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaakType
+            every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns listOf(
+                createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
+            )
 
             every { taskInfo.name } returns "fakeTaskName"
             every { taskInfo.description } returns "fakeToelichting"
@@ -134,6 +138,7 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
                     taakZoekObject.isToegekend shouldBe true
                     taakZoekObject.behandelaarGebruikersnaam shouldBe "fakeAssigneeId"
                     taakZoekObject.groepID shouldBe "fakeGroupId"
+                    taakZoekObject.isZaakspecifiekGeautoriseerd shouldBe true
                 }
             }
         }
@@ -152,6 +157,7 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.NIET_TOEGEKEND
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaakType
+            every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns emptyList()
 
             every { taskInfo.name } returns "fakeTaskName"
             every { taskInfo.description } returns null
@@ -170,6 +176,7 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
                     taakZoekObject.groepID.shouldBeNull()
                     taakZoekObject.groepNaam.shouldBeNull()
                     taakZoekObject.isToegekend shouldBe false
+                    taakZoekObject.isZaakspecifiekGeautoriseerd shouldBe false
                 }
             }
         }

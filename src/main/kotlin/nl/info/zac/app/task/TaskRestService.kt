@@ -250,7 +250,7 @@ class TaskRestService @Inject constructor(
         } ?: processHardCodedFormTask(restTask, zaak)
 
         return flowableTaskService.completeTask(updatedTask).also {
-            indexingService.addOrUpdateZaak(restTask.zaakUuid, false)
+            indexingService.addOrUpdateZaakOrThrow(restTask.zaakUuid, false)
             eventingService.send(ScreenEventType.TAAK.updated(it))
             eventingService.send(ScreenEventType.ZAAK_TAKEN.updated(restTask.zaakUuid))
         }.let(restTaskConverter::convert)

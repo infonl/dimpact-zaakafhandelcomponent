@@ -26,9 +26,13 @@ import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.systemUser
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
+import nl.info.zac.search.converter.DocumentZoekObjectConverter
+import nl.info.zac.search.converter.TaakZoekObjectConverter
+import nl.info.zac.search.converter.ZaakZoekObjectConverter
 import nl.info.zac.search.model.zoekobject.ZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.shared.model.SorteerRichting
@@ -51,6 +55,9 @@ class IndexingService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val drcClientService: DrcClientService,
     private val flowableTaskService: FlowableTaskService,
+    private val documentZoekObjectConverter: DocumentZoekObjectConverter,
+    private val zaakZoekObjectConverter: ZaakZoekObjectConverter,
+    private val taakZoekObjectConverter: TaakZoekObjectConverter,
 
     /**
      * Declare a Kotlin coroutine dispatcher here so that it can be overridden in unit tests with a test dispatcher
@@ -232,13 +239,61 @@ class IndexingService @Inject constructor(
         }
     }
 
-    fun addOrUpdateZaak(zaakUUID: UUID, inclusiefTaken: Boolean) {
-        indexeerDirect(zaakUUID.toString(), ZoekObjectType.ZAAK, false)
+    /**
+     * Reindexes the zaak and, when [inclusiefTaken], its open taken, sharing one memoized
+     * `isZaakspecifiekGeautoriseerd` lookup between the zaak and all of its open taken instead of
+     * each conversion deriving the flag on its own.
+     *
+     * @return `true` if the zaak itself was indexed successfully, `false` if that failed (already
+     * logged by [continueOnExceptions]). Whether its taken were reindexed successfully is not part
+     * of this signal: a taak failure never aborts the remaining taken either, consistent with
+     * [addOrUpdateTakenForZaak].
+     */
+    fun addOrUpdateZaak(zaakUUID: UUID, inclusiefTaken: Boolean): Boolean {
+        val isZaakspecifiekGeautoriseerd = memoizedIsZaakspecifiekGeautoriseerd()
+        val zaakIndexed = continueOnExceptions(ZoekObjectType.ZAAK) {
+            addToSolrIndex(
+                listOf(
+                    continueOnExceptions(ZoekObjectType.ZAAK) {
+                        zaakZoekObjectConverter.convert(zaakUUID.toString(), isZaakspecifiekGeautoriseerd)
+                    }
+                ),
+                performCommit = false
+            )
+        } != null
         if (inclusiefTaken) {
             flowableTaskService.listOpenTasksForZaak(zaakUUID)
                 .map { it.id }
-                .forEach(this::addOrUpdateTaak)
+                .forEach { addOrUpdateTaak(it, isZaakspecifiekGeautoriseerd) }
         }
+        return zaakIndexed
+    }
+
+    /**
+     * Like [addOrUpdateZaak], but throws [IndexingException] when indexing the zaak itself failed,
+     * for REST callers that must surface a Solr failure as an HTTP 500 instead of silently
+     * responding with success.
+     */
+    fun addOrUpdateZaakOrThrow(zaakUUID: UUID, inclusiefTaken: Boolean) {
+        if (!addOrUpdateZaak(zaakUUID, inclusiefTaken)) {
+            throw IndexingException("[${ZoekObjectType.ZAAK}] Failed to index zaak '$zaakUUID'")
+        }
+    }
+
+    /**
+     * Reindexes both the open and the completed taken of a zaak, sharing one memoized
+     * `isZaakspecifiekGeautoriseerd` lookup across all of them. Unlike [addOrUpdateZaak]'s
+     * `inclusiefTaken` flag, this also covers completed taken, since a taak-level flag (such as
+     * `taak_zaakspecifiekGeautoriseerd`) can go stale on a completed taak just as easily as on an
+     * open one. Calling this on every zaak update would add a `HistoricTaskInstanceQuery` per
+     * notificatie, so it is reserved for triggers where a completed taak can plausibly go stale,
+     * such as a zaakeigenschap change.
+     */
+    fun addOrUpdateTakenForZaak(zaakUUID: UUID) {
+        val isZaakspecifiekGeautoriseerd = memoizedIsZaakspecifiekGeautoriseerd()
+        flowableTaskService.listTasksForZaak(zaakUUID)
+            .map { it.id }
+            .forEach { addOrUpdateTaak(it, isZaakspecifiekGeautoriseerd) }
     }
 
     fun addOrUpdateInformatieobject(informatieobjectUUID: UUID) =
@@ -249,7 +304,75 @@ class IndexingService @Inject constructor(
             zrcClientService.readZaakinformatieobject(zaakinformatieobjectUUID).informatieobject.extractUuid()
         )
 
+    /**
+     * Reindexes every document of a zaak, memoizing the `isZaakspecifiekGeautoriseerd` flag per zaak
+     * UUID so that documents linked to the same zaak share one lookup, instead of each document's
+     * conversion deriving the flag on its own. The flag is still looked up for whichever zaak
+     * [DocumentZoekObjectConverter.convert] actually resolves the document against, since a document
+     * can be linked to a zaak other than [zaakUUID].
+     */
+    fun addOrUpdateInformatieobjectenForZaak(zaakUUID: UUID) {
+        val isZaakspecifiekGeautoriseerd = memoizedIsZaakspecifiekGeautoriseerd()
+        zrcClientService.listZaakinformatieobjecten(zrcClientService.readZaak(zaakUUID)).forEach {
+            continueOnExceptions(ZoekObjectType.DOCUMENT) {
+                addToSolrIndex(
+                    listOf(
+                        continueOnExceptions(ZoekObjectType.DOCUMENT) {
+                            documentZoekObjectConverter.convert(
+                                it.informatieobject.extractUuid().toString(),
+                                isZaakspecifiekGeautoriseerd
+                            )
+                        }
+                    ),
+                    performCommit = false
+                )
+            }
+        }
+    }
+
+    /**
+     * Launches [addOrUpdateInformatieobjectenForZaak] in the background on [coroutineScope] and returns
+     * immediately. Any failure that escapes it is logged by [exceptionHandler], the same backstop used
+     * by [reindexAsync]/[reindexAllAsync].
+     */
+    fun addOrUpdateInformatieobjectenForZaakAsync(zaakUUID: UUID) {
+        coroutineScope.launch {
+            addOrUpdateInformatieobjectenForZaak(zaakUUID)
+        }
+    }
+
     fun addOrUpdateTaak(taskID: String) = indexeerDirect(taskID, ZoekObjectType.TAAK, false)
+
+    /**
+     * Converts and indexes [taskID], looking up the zaakspecifiek geautoriseerd flag through
+     * [isZaakspecifiekGeautoriseerd] instead of always deriving it directly. Used by [addOrUpdateZaak]
+     * and [addOrUpdateTakenForZaak] to share one memoized lookup across the taken of one zaak.
+     */
+    private fun addOrUpdateTaak(taskID: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean) =
+        continueOnExceptions(ZoekObjectType.TAAK) {
+            addToSolrIndex(
+                listOf(
+                    continueOnExceptions(ZoekObjectType.TAAK) {
+                        taakZoekObjectConverter.convert(taskID, isZaakspecifiekGeautoriseerd)
+                    }
+                ),
+                performCommit = false
+            )
+        }
+
+    /**
+     * Returns an `isZaakspecifiekGeautoriseerd` lookup that memoizes [ZrcClientService.isZaakspecifiekGeautoriseerd]
+     * per zaak UUID, so that converting several zoekobjecten linked to the same zaak shares one call. Backed
+     * by a [ConcurrentHashMap] so that it is also safe to share across [convertObjects]' concurrent page
+     * conversions, not just the sequential callers ([addOrUpdateZaak], [addOrUpdateTakenForZaak],
+     * [addOrUpdateInformatieobjectenForZaak]).
+     */
+    private fun memoizedIsZaakspecifiekGeautoriseerd(): (UUID) -> Boolean {
+        val isZaakspecifiekGeautoriseerdByZaakUUID = ConcurrentHashMap<UUID, Boolean>()
+        return { zaakUUID ->
+            isZaakspecifiekGeautoriseerdByZaakUUID.computeIfAbsent(zaakUUID, zrcClientService::isZaakspecifiekGeautoriseerd)
+        }
+    }
 
     fun removeZaak(zaakUUID: UUID) = removeFromSolrIndex(zaakUUID.toString())
 
@@ -288,10 +411,11 @@ class IndexingService @Inject constructor(
     private fun convert(
         converter: AbstractZoekObjectConverter<out ZoekObject>,
         objectType: ZoekObjectType,
-        objectId: String
+        objectId: String,
+        isZaakspecifiekGeautoriseerd: (UUID) -> Boolean
     ): ConversionOutcome =
         try {
-            runTranslatingToIndexingException { converter.convert(objectId) }
+            runTranslatingToIndexingException { converter.convert(objectId, isZaakspecifiekGeautoriseerd) }
                 ?.let { ConversionOutcome.Converted(it) }
                 ?: ConversionOutcome.Skipped
         } catch (indexingException: IndexingException) {
@@ -299,11 +423,22 @@ class IndexingService @Inject constructor(
             ConversionOutcome.Errored
         }
 
-    private fun convertObjects(objectIds: List<String>, objectType: ZoekObjectType): List<ConversionOutcome> =
+    /**
+     * Converts [objectIds] concurrently (see [pageConversionDispatcher]), sharing one
+     * [isZaakspecifiekGeautoriseerd] lookup across all of them by default, memoized per zaak UUID via
+     * [memoizedIsZaakspecifiekGeautoriseerd] so that objects linked to the same zaak (e.g. several
+     * documents of one zaak within a reindex page) share one ZGW call instead of each deriving the flag
+     * on its own.
+     */
+    private fun convertObjects(
+        objectIds: List<String>,
+        objectType: ZoekObjectType,
+        isZaakspecifiekGeautoriseerd: (UUID) -> Boolean = memoizedIsZaakspecifiekGeautoriseerd()
+    ): List<ConversionOutcome> =
         getConverter(objectType).let { converter ->
             runBlocking(pageConversionDispatcher) {
                 objectIds.map { objectId ->
-                    async { convert(converter, objectType, objectId) }
+                    async { convert(converter, objectType, objectId, isZaakspecifiekGeautoriseerd) }
                 }.awaitAll()
             }
         }
@@ -314,8 +449,12 @@ class IndexingService @Inject constructor(
      * number of [objectIds] passed in), so that callers can report skips separately from
      * objects that failed to reindex due to errors.
      */
-    private fun indexeerDirectCountingSuccesses(objectIds: List<String>, objectType: ZoekObjectType): ReindexCounts {
-        val outcomes = convertObjects(objectIds, objectType)
+    private fun indexeerDirectCountingSuccesses(
+        objectIds: List<String>,
+        objectType: ZoekObjectType,
+        isZaakspecifiekGeautoriseerd: (UUID) -> Boolean = memoizedIsZaakspecifiekGeautoriseerd()
+    ): ReindexCounts {
+        val outcomes = convertObjects(objectIds, objectType, isZaakspecifiekGeautoriseerd)
         addToSolrIndex(outcomes.zoekObjecten(), performCommit = false)
         return ReindexCounts(
             successCount = outcomes.count { it is ConversionOutcome.Converted },
@@ -477,6 +616,12 @@ class IndexingService @Inject constructor(
         return counts
     }
 
+    /**
+     * Reindexes every informatieobject, sharing one memoized `isZaakspecifiekGeautoriseerd` lookup across
+     * every page of the reindex, instead of each document's conversion deriving the flag on its own — this
+     * reindex can cover every informatieobject in the environment, so several documents linked to the same
+     * zaak sharing one ZGW call matters here far more than within a single page.
+     */
     private fun reindexAllInformatieobjecten(): ReindexSummary? {
         val numberOfInformatieobjecten = continueOnExceptions(ZoekObjectType.DOCUMENT) {
             drcClientService.listEnkelvoudigInformatieObjecten(
@@ -494,26 +639,36 @@ class IndexingService @Inject constructor(
         val numberOfPages: Int = (numberOfInformatieobjecten + Results.DEFAULT_ZGW_PAGE_SIZE.toInt() - 1) /
             Results.DEFAULT_ZGW_PAGE_SIZE.toInt()
 
+        val isZaakspecifiekGeautoriseerd = memoizedIsZaakspecifiekGeautoriseerd()
         var counts = ReindexCounts()
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
             continueOnExceptions(ZoekObjectType.DOCUMENT) {
-                reindexInformatieobjectenPage(pageNumber, numberOfInformatieobjecten)
+                reindexInformatieobjectenPage(pageNumber, numberOfInformatieobjecten, isZaakspecifiekGeautoriseerd)
             }?.let { counts += it }
         }
         return ReindexSummary(counts.successCount, counts.skippedCount, numberOfInformatieobjecten)
     }
 
-    private fun reindexInformatieobjectenPage(pageNumber: Int, totalCount: Int): ReindexCounts {
+    private fun reindexInformatieobjectenPage(
+        pageNumber: Int,
+        totalCount: Int,
+        isZaakspecifiekGeautoriseerd: (UUID) -> Boolean
+    ): ReindexCounts {
         val informationObjectsResults = drcClientService.listEnkelvoudigInformatieObjecten(
             EnkelvoudigInformatieobjectListParameters().apply { page = pageNumber }
         )
         val ids = informationObjectsResults.results().map { it.url.extractUuid().toString() }
-        val counts = indexeerDirectCountingSuccesses(ids, ZoekObjectType.DOCUMENT)
+        val counts = indexeerDirectCountingSuccesses(ids, ZoekObjectType.DOCUMENT, isZaakspecifiekGeautoriseerd)
         val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.DEFAULT_ZGW_PAGE_SIZE + ids.size
         LOG.info("[${ZoekObjectType.DOCUMENT}] Reindexed: $progress / $totalCount")
         return counts
     }
 
+    /**
+     * Reindexes every open taak, sharing one memoized `isZaakspecifiekGeautoriseerd` lookup across every
+     * page of the reindex, instead of each taak's conversion deriving the flag on its own — several open
+     * taken of the same zaak landing in different pages still share one ZGW call this way.
+     */
     private fun reindexAllTaken(): ReindexSummary? {
         val numberOfTasks = continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.countOpenTasks() }
         if (numberOfTasks == null) {
@@ -524,16 +679,21 @@ class IndexingService @Inject constructor(
 
         val numberOfPages: Int = (numberOfTasks.toInt() + TAKEN_MAX_RESULTS - 1) / TAKEN_MAX_RESULTS
 
+        val isZaakspecifiekGeautoriseerd = memoizedIsZaakspecifiekGeautoriseerd()
         var counts = ReindexCounts()
         for (pageNumber in 0 until numberOfPages) {
             continueOnExceptions(ZoekObjectType.TAAK) {
-                reindexTakenPage(pageNumber, numberOfTasks.toInt())
+                reindexTakenPage(pageNumber, numberOfTasks.toInt(), isZaakspecifiekGeautoriseerd)
             }?.let { counts += it }
         }
         return ReindexSummary(counts.successCount, counts.skippedCount, numberOfTasks.toInt())
     }
 
-    private fun reindexTakenPage(pageNumber: Int, totalCount: Int): ReindexCounts {
+    private fun reindexTakenPage(
+        pageNumber: Int,
+        totalCount: Int,
+        isZaakspecifiekGeautoriseerd: (UUID) -> Boolean
+    ): ReindexCounts {
         val firstResult = pageNumber * TAKEN_MAX_RESULTS
         val tasks = flowableTaskService.listOpenTasks(
             TaakSortering.CREATIEDATUM,
@@ -544,7 +704,7 @@ class IndexingService @Inject constructor(
         if (tasks.isEmpty()) {
             return ReindexCounts()
         }
-        val counts = indexeerDirectCountingSuccesses(tasks.map { it.id }, ZoekObjectType.TAAK)
+        val counts = indexeerDirectCountingSuccesses(tasks.map { it.id }, ZoekObjectType.TAAK, isZaakspecifiekGeautoriseerd)
         val progress = firstResult + tasks.size
         LOG.info("[${ZoekObjectType.TAAK}] Reindexed: $progress / $totalCount")
         return counts
@@ -554,6 +714,8 @@ class IndexingService @Inject constructor(
     private fun <T> runTranslatingToIndexingException(fn: () -> T): T {
         try {
             return fn()
+        } catch (indexingException: IndexingException) {
+            throw indexingException
         } catch (exception: Exception) {
             throw IndexingException(SOLR_INDEXING_ERROR_MESSAGE, exception)
         }

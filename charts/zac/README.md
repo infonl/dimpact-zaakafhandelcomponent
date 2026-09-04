@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.310](https://img.shields.io/badge/Version-1.0.310-informational?style=flat-square) ![AppVersion: 5.7](https://img.shields.io/badge/AppVersion-5.7-informational?style=flat-square)
+![Version: 1.0.312](https://img.shields.io/badge/Version-1.0.312-informational?style=flat-square) ![AppVersion: 5.7](https://img.shields.io/badge/AppVersion-5.7-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -90,7 +90,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | gemeente.naam | string | `""` |  |
 | global.curlImage.pullPolicy | string | `"IfNotPresent"` |  |
 | global.curlImage.repository | string | `"curlimages/curl"` | curl docker repository used throughout the chart |
-| global.curlImage.tag | string | `"8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13"` | curl docker tag to pull |
+| global.curlImage.tag | string | `"8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777"` | curl docker tag to pull |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
@@ -263,7 +263,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | opentelemetry-collector.enabled | bool | `false` |  |
 | opentelemetry-collector.image.pullPolicy | string | `"IfNotPresent"` |  |
 | opentelemetry-collector.image.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
-| opentelemetry-collector.image.tag | string | `"0.159.0@sha256:1f2c54a30e713fac6b3ae77a1ec84010c2007e29ced8ec666214fc2f6739c1cc"` |  |
+| opentelemetry-collector.image.tag | string | `"0.160.0@sha256:799dc6cf12c96192af37b5bdba804da8c10b3bc563b43cb90c3f3c58d9572ad6"` |  |
 | opentelemetry-collector.mode | string | `"deployment"` |  |
 | opentelemetry-collector.ports.jaeger-compact.enabled | bool | `false` |  |
 | opentelemetry-collector.ports.jaeger-grpc.enabled | bool | `false` |  |

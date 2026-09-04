@@ -106,8 +106,15 @@ data class DocumentZoekObject(
     private var indicaties: MutableList<String>? = null,
 
     @Field("informatieobject_indicaties_sort")
-    private var indicatiesVolgorde: Long = 0
+    private var indicatiesVolgorde: Long = 0,
+
+    @Field(ZAAKSPECIFIEK_GEAUTORISEERD_FIELD)
+    var isZaakspecifiekGeautoriseerd: Boolean = false
 ) : ZoekObject {
+    companion object {
+        const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD: String = "informatieobject_zaakspecifiekGeautoriseerd"
+    }
+
     override fun getObjectId() = id
 
     override fun getType() = ZoekObjectType.valueOf(type)

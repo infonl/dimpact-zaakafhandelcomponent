@@ -31,6 +31,7 @@ import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createStatusType
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.test.org.flowable.task.api.createTestTask
+import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
@@ -46,6 +47,7 @@ import nl.info.zac.policy.output.createTaakRechten
 import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createZaakRechten
 import nl.info.zac.search.model.ZaakIndicatie
+import nl.info.zac.search.model.createDocumentZoekObject
 import nl.info.zac.search.model.createTaakZoekObject
 import nl.info.zac.search.model.createZaakZoekObject
 import java.net.URI
@@ -309,9 +311,24 @@ class PolicyServiceTest : BehaviorSpec({
                         besloten shouldBe null
                         intake shouldBe null
                         brondatumBepaald shouldBe null
-                        // werklijsten/zoekresultaten are not restricted based on zaakspecifieke autorisatie
                         zaakspecifiekGeautoriseerd shouldBe false
                     }
+                }
+            }
+        }
+
+        given("A ZaakZoekObject representing a zaakspecifiek geautoriseerde zaak") {
+            val zaakZoekObject = createZaakZoekObject(isZaakspecifiekGeautoriseerd = true)
+            val expectedZaakRechten = createZaakRechten()
+            val ruleQuerySlot = slot<RuleQuery<ZaakInput>>()
+            every { opaEvaluationClient.readZaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(expectedZaakRechten)
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
+
+            `when`("policy rights are requested") {
+                policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
+
+                then("zaakspecifiekGeautoriseerd is true in the ZaakData sent to OPA") {
+                    ruleQuerySlot.captured.input.zaakData.zaakspecifiekGeautoriseerd shouldBe true
                 }
             }
         }
@@ -413,7 +430,8 @@ class PolicyServiceTest : BehaviorSpec({
         ) {
             val zaakType = createZaakType()
             val taakZoekObject = createTaakZoekObject(
-                zaaktypeOmschrijving = zaakType.omschrijving
+                zaaktypeOmschrijving = zaakType.omschrijving,
+                status = TaakStatus.NIET_TOEGEKEND
             )
             val userApplicationRolesForZaakType = setOf("fakeApplicationRole1", "fakeApplicationRole2")
             val loggedInUser = createLoggedInUser(
@@ -440,10 +458,8 @@ class PolicyServiceTest : BehaviorSpec({
                         opaEvaluationClient.readTaakRechten(any<RuleQuery<TaakInput>>())
                     }
                     with(ruleQuerySlot.captured.input.taakData) {
-                        // 'open' is always false for task search objects
-                        open shouldBe false
+                        open shouldBe true
                         zaaktype shouldBe zaakType.omschrijving
-                        // werklijsten/zoekresultaten are not restricted based on zaakspecifieke autorisatie
                         zaakspecifiekGeautoriseerd shouldBe false
                     }
                     with(ruleQuerySlot.captured.input.user) {
@@ -451,6 +467,25 @@ class PolicyServiceTest : BehaviorSpec({
                         rollen shouldContainExactlyInAnyOrder userApplicationRolesForZaakType
                         zaaktypen shouldContainExactly listOf(zaakType.omschrijving)
                     }
+                }
+            }
+        }
+
+        given("A TaakZoekObject whose associated zaak is zaakspecifiek geautoriseerd") {
+            val taakZoekObject = createTaakZoekObject(isZaakspecifiekGeautoriseerd = true)
+            val expectedTaakRechten = createTaakRechten()
+            val ruleQuerySlot = slot<RuleQuery<TaakInput>>()
+
+            every { opaEvaluationClient.readTaakRechten(capture(ruleQuerySlot)) } returns RuleResponse(
+                expectedTaakRechten
+            )
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
+
+            `when`("task policy rights are requested for the task search object") {
+                policyService.readTaakRechten(taakZoekObject)
+
+                then("zaakspecifiekGeautoriseerd is true in the TaakData sent to OPA") {
+                    ruleQuerySlot.captured.input.taakData.zaakspecifiekGeautoriseerd shouldBe true
                 }
             }
         }
@@ -668,6 +703,47 @@ class PolicyServiceTest : BehaviorSpec({
         }
     }
 
+    context("Reading documentrechten for searching documents") {
+        given("A DocumentZoekObject whose associated zaak is not zaakspecifiek geautoriseerd") {
+            val documentZoekObject = createDocumentZoekObject()
+            val expectedDocumentRights = createDocumentRechten()
+            val ruleQuerySlot = slot<RuleQuery<DocumentInput>>()
+
+            every { opaEvaluationClient.readDocumentRechten(capture(ruleQuerySlot)) } returns RuleResponse(
+                expectedDocumentRights
+            )
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
+
+            `when`("document policy rights are requested for the document search object") {
+                val documentRights = policyService.readDocumentRechten(documentZoekObject)
+
+                then("zaakspecifiekGeautoriseerd is false in the DocumentData sent to OPA") {
+                    documentRights shouldBe expectedDocumentRights
+                    ruleQuerySlot.captured.input.documentData.zaakspecifiekGeautoriseerd shouldBe false
+                }
+            }
+        }
+
+        given("A DocumentZoekObject whose associated zaak is zaakspecifiek geautoriseerd") {
+            val documentZoekObject = createDocumentZoekObject(isZaakspecifiekGeautoriseerd = true)
+            val expectedDocumentRights = createDocumentRechten()
+            val ruleQuerySlot = slot<RuleQuery<DocumentInput>>()
+
+            every { opaEvaluationClient.readDocumentRechten(capture(ruleQuerySlot)) } returns RuleResponse(
+                expectedDocumentRights
+            )
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
+
+            `when`("document policy rights are requested for the document search object") {
+                policyService.readDocumentRechten(documentZoekObject)
+
+                then("zaakspecifiekGeautoriseerd is true in the DocumentData sent to OPA") {
+                    ruleQuerySlot.captured.input.documentData.zaakspecifiekGeautoriseerd shouldBe true
+                }
+            }
+        }
+    }
+
     context("Reading overige rechten") {
         val functionalRoles = setOf("fakeRole1", "fakeRole2")
 
@@ -702,6 +778,281 @@ class PolicyServiceTest : BehaviorSpec({
                     userData.id shouldBe loggedInUserWithMappings.id
                     userData.rollen shouldBe pabcRolesForZaakType
                     userData.zaaktypen shouldBe setOf(zaaktype)
+                }
+            }
+        }
+    }
+
+    context(
+        """
+        Parity between zoekobject-based rechten and their equivalent single-resource rechten
+        (both mocked OPA responses are the same instance, so the assertion that matters is that
+        both call paths send OPA decision-equivalent input for the same underlying zaak/taak/document)
+        """
+    ) {
+        given("a zaak that is not zaakspecifiek geautoriseerd, read as a Zaak and as a ZaakZoekObject") {
+            val zaaktypeOmschrijving = "fakeZaaktype1"
+            val zaak = createZaak(status = URI("https://example.com/status/${UUID.randomUUID()}"))
+            val zaakType = createZaakType(omschrijving = zaaktypeOmschrijving)
+            val zaakStatus = createZaakStatus()
+            val statusType = createStatusType()
+            val zaakZoekObject = createZaakZoekObject(zaaktypeOmschrijving = zaaktypeOmschrijving)
+            val expectedZaakRechten = createZaakRechten()
+            val zaakRuleQuerySlot = slot<RuleQuery<ZaakInput>>()
+            val zaakZoekObjectRuleQuerySlot = slot<RuleQuery<ZaakInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
+            every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("zaakrechten are read for the zaak and for the equivalent zaak zoek object") {
+                every {
+                    opaEvaluationClient.readZaakRechten(capture(zaakRuleQuerySlot))
+                } returns RuleResponse(expectedZaakRechten)
+                val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
+
+                every {
+                    opaEvaluationClient.readZaakRechten(capture(zaakZoekObjectRuleQuerySlot))
+                } returns RuleResponse(expectedZaakRechten)
+                val zaakZoekObjectRechten = policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
+
+                then("both paths send OPA the same decision-relevant ZaakData and return the same rechten") {
+                    zaakZoekObjectRechten shouldBe zaakRechten
+
+                    val zaakData = zaakRuleQuerySlot.captured.input.zaakData
+                    val zaakZoekObjectData = zaakZoekObjectRuleQuerySlot.captured.input.zaakData
+                    // intake, besloten and brondatumBepaald are deliberately excluded: not tracked for
+                    // a ZaakZoekObject, unlike a Zaak
+                    zaakZoekObjectData.zaaktype shouldBe zaakData.zaaktype
+                    zaakZoekObjectData.open shouldBe zaakData.open
+                    zaakZoekObjectData.opgeschort shouldBe zaakData.opgeschort
+                    zaakZoekObjectData.verlengd shouldBe zaakData.verlengd
+                    zaakZoekObjectData.heropend shouldBe zaakData.heropend
+                    zaakZoekObjectData.zaakspecifiekGeautoriseerd shouldBe zaakData.zaakspecifiekGeautoriseerd
+                    zaakZoekObjectData.zaakspecifiekGeautoriseerd shouldBe false
+                }
+            }
+        }
+
+        given("a zaak that is zaakspecifiek geautoriseerd, read as a Zaak and as a ZaakZoekObject") {
+            val zaaktypeOmschrijving = "fakeZaaktype1"
+            val zaak = createZaak(status = URI("https://example.com/status/${UUID.randomUUID()}"))
+            val zaakType = createZaakType(omschrijving = zaaktypeOmschrijving)
+            val zaakStatus = createZaakStatus()
+            val statusType = createStatusType()
+            val zaakZoekObject = createZaakZoekObject(
+                zaaktypeOmschrijving = zaaktypeOmschrijving,
+                isZaakspecifiekGeautoriseerd = true
+            )
+            val expectedZaakRechten = createZaakRechten()
+            val zaakRuleQuerySlot = slot<RuleQuery<ZaakInput>>()
+            val zaakZoekObjectRuleQuerySlot = slot<RuleQuery<ZaakInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { zrcClientService.readStatus(zaak.status) } returns zaakStatus
+            every { ztcClientService.readStatustype(zaakStatus.statustype) } returns statusType
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
+            )
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("zaakrechten are read for the zaak and for the equivalent zaak zoek object") {
+                every {
+                    opaEvaluationClient.readZaakRechten(capture(zaakRuleQuerySlot))
+                } returns RuleResponse(expectedZaakRechten)
+                val zaakRechten = policyService.readZaakRechten(zaak, loggedInUser)
+
+                every {
+                    opaEvaluationClient.readZaakRechten(capture(zaakZoekObjectRuleQuerySlot))
+                } returns RuleResponse(expectedZaakRechten)
+                val zaakZoekObjectRechten = policyService.readZaakRechtenForZaakZoekObject(zaakZoekObject)
+
+                then("both paths send OPA zaakspecifiekGeautoriseerd = true and return the same rechten") {
+                    zaakZoekObjectRechten shouldBe zaakRechten
+                    zaakRuleQuerySlot.captured.input.zaakData.zaakspecifiekGeautoriseerd shouldBe true
+                    zaakZoekObjectRuleQuerySlot.captured.input.zaakData.zaakspecifiekGeautoriseerd shouldBe true
+                }
+            }
+        }
+
+        given("a task that is not part of a zaakspecifiek geautoriseerde zaak, read as a TaskInfo and as a TaakZoekObject") {
+            val zaakType = createZaakType()
+            val zaakUUID = UUID.randomUUID()
+            val testTask = createTestTask(
+                caseVariables = mapOf(
+                    "zaaktypeOmschrijving" to zaakType.omschrijving,
+                    "zaakUUID" to zaakUUID
+                )
+            )
+            val taakZoekObject = createTaakZoekObject(
+                zaaktypeOmschrijving = zaakType.omschrijving,
+                status = TaakStatus.NIET_TOEGEKEND
+            )
+            val expectedTaakRechten = createTaakRechten()
+            val taskInfoRuleQuerySlot = slot<RuleQuery<TaakInput>>()
+            val taakZoekObjectRuleQuerySlot = slot<RuleQuery<TaakInput>>()
+
+            every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns emptyList()
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("taakrechten are read for the task and for the equivalent taak zoek object") {
+                every {
+                    opaEvaluationClient.readTaakRechten(capture(taskInfoRuleQuerySlot))
+                } returns RuleResponse(expectedTaakRechten)
+                val taskInfoRechten = policyService.readTaakRechten(testTask)
+
+                every {
+                    opaEvaluationClient.readTaakRechten(capture(taakZoekObjectRuleQuerySlot))
+                } returns RuleResponse(expectedTaakRechten)
+                val taakZoekObjectRechten = policyService.readTaakRechten(taakZoekObject)
+
+                then("both paths send OPA the same TaakData and return the same rechten") {
+                    taakZoekObjectRechten shouldBe taskInfoRechten
+
+                    val taskInfoData = taskInfoRuleQuerySlot.captured.input.taakData
+                    val taakZoekObjectData = taakZoekObjectRuleQuerySlot.captured.input.taakData
+                    taakZoekObjectData shouldBe taskInfoData
+                    taakZoekObjectData.open shouldBe true
+                    taakZoekObjectData.zaakspecifiekGeautoriseerd shouldBe false
+                }
+            }
+        }
+
+        given("a task that is part of a zaakspecifiek geautoriseerde zaak, read as a TaskInfo and as a TaakZoekObject") {
+            val zaakType = createZaakType()
+            val zaakUUID = UUID.randomUUID()
+            val testTask = createTestTask(
+                caseVariables = mapOf(
+                    "zaaktypeOmschrijving" to zaakType.omschrijving,
+                    "zaakUUID" to zaakUUID
+                )
+            )
+            val taakZoekObject = createTaakZoekObject(
+                zaaktypeOmschrijving = zaakType.omschrijving,
+                isZaakspecifiekGeautoriseerd = true,
+                status = TaakStatus.NIET_TOEGEKEND
+            )
+            val expectedTaakRechten = createTaakRechten()
+            val taskInfoRuleQuerySlot = slot<RuleQuery<TaakInput>>()
+            val taakZoekObjectRuleQuerySlot = slot<RuleQuery<TaakInput>>()
+
+            every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns listOf(
+                createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
+            )
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("taakrechten are read for the task and for the equivalent taak zoek object") {
+                every {
+                    opaEvaluationClient.readTaakRechten(capture(taskInfoRuleQuerySlot))
+                } returns RuleResponse(expectedTaakRechten)
+                val taskInfoRechten = policyService.readTaakRechten(testTask)
+
+                every {
+                    opaEvaluationClient.readTaakRechten(capture(taakZoekObjectRuleQuerySlot))
+                } returns RuleResponse(expectedTaakRechten)
+                val taakZoekObjectRechten = policyService.readTaakRechten(taakZoekObject)
+
+                then("both paths send OPA the same TaakData and return the same rechten") {
+                    taakZoekObjectRechten shouldBe taskInfoRechten
+                    taakZoekObjectRuleQuerySlot.captured.input.taakData shouldBe
+                        taskInfoRuleQuerySlot.captured.input.taakData
+                    taakZoekObjectRuleQuerySlot.captured.input.taakData.zaakspecifiekGeautoriseerd shouldBe true
+                }
+            }
+        }
+
+        given(
+            "a document linked to a zaak that is not zaakspecifiek geautoriseerd, read as an " +
+                "EnkelvoudigInformatieObject and as a DocumentZoekObject"
+        ) {
+            val zaaktypeOmschrijving = "fakeZaaktype1"
+            val zaak = createZaak()
+            val zaakType = createZaakType(omschrijving = zaaktypeOmschrijving)
+            val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject()
+            val documentZoekObject = createDocumentZoekObject(zaaktypeOmschrijving = zaaktypeOmschrijving)
+            val expectedDocumentRechten = createDocumentRechten()
+            val enkelvoudigInformatieobjectRuleQuerySlot = slot<RuleQuery<DocumentInput>>()
+            val documentZoekObjectRuleQuerySlot = slot<RuleQuery<DocumentInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("documentrechten are read for the document and for the equivalent document zoek object") {
+                every {
+                    opaEvaluationClient.readDocumentRechten(capture(enkelvoudigInformatieobjectRuleQuerySlot))
+                } returns RuleResponse(expectedDocumentRechten)
+                val enkelvoudigInformatieobjectRechten = policyService.readDocumentRechten(
+                    enkelvoudigInformatieobject = enkelvoudigInformatieobject,
+                    lock = null,
+                    zaak = zaak
+                )
+
+                every {
+                    opaEvaluationClient.readDocumentRechten(capture(documentZoekObjectRuleQuerySlot))
+                } returns RuleResponse(expectedDocumentRechten)
+                val documentZoekObjectRechten = policyService.readDocumentRechten(documentZoekObject)
+
+                then("both paths send OPA the same decision-relevant DocumentData and return the same rechten") {
+                    documentZoekObjectRechten shouldBe enkelvoudigInformatieobjectRechten
+
+                    val documentData = enkelvoudigInformatieobjectRuleQuerySlot.captured.input.documentData
+                    val documentZoekObjectData = documentZoekObjectRuleQuerySlot.captured.input.documentData
+                    documentZoekObjectData.zaaktype shouldBe documentData.zaaktype
+                    documentZoekObjectData.zaakOpen shouldBe documentData.zaakOpen
+                    documentZoekObjectData.definitief shouldBe documentData.definitief
+                    documentZoekObjectData.vergrendeld shouldBe documentData.vergrendeld
+                    documentZoekObjectData.vergrendeldDoor shouldBe documentData.vergrendeldDoor
+                    documentZoekObjectData.ondertekend shouldBe documentData.ondertekend
+                    documentZoekObjectData.zaakspecifiekGeautoriseerd shouldBe documentData.zaakspecifiekGeautoriseerd
+                    documentZoekObjectData.zaakspecifiekGeautoriseerd shouldBe false
+                }
+            }
+        }
+
+        given(
+            "a document linked to a zaak that is zaakspecifiek geautoriseerd, read as an " +
+                "EnkelvoudigInformatieObject and as a DocumentZoekObject"
+        ) {
+            val zaaktypeOmschrijving = "fakeZaaktype1"
+            val zaak = createZaak()
+            val zaakType = createZaakType(omschrijving = zaaktypeOmschrijving)
+            val enkelvoudigInformatieobject = createEnkelvoudigInformatieObject()
+            val documentZoekObject = createDocumentZoekObject(
+                zaaktypeOmschrijving = zaaktypeOmschrijving,
+                isZaakspecifiekGeautoriseerd = true
+            )
+            val expectedDocumentRechten = createDocumentRechten()
+            val enkelvoudigInformatieobjectRuleQuerySlot = slot<RuleQuery<DocumentInput>>()
+            val documentZoekObjectRuleQuerySlot = slot<RuleQuery<DocumentInput>>()
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
+            )
+            every { loggedInUserInstance.get() } returns loggedInUser
+
+            `when`("documentrechten are read for the document and for the equivalent document zoek object") {
+                every {
+                    opaEvaluationClient.readDocumentRechten(capture(enkelvoudigInformatieobjectRuleQuerySlot))
+                } returns RuleResponse(expectedDocumentRechten)
+                val enkelvoudigInformatieobjectRechten = policyService.readDocumentRechten(
+                    enkelvoudigInformatieobject = enkelvoudigInformatieobject,
+                    lock = null,
+                    zaak = zaak
+                )
+
+                every {
+                    opaEvaluationClient.readDocumentRechten(capture(documentZoekObjectRuleQuerySlot))
+                } returns RuleResponse(expectedDocumentRechten)
+                val documentZoekObjectRechten = policyService.readDocumentRechten(documentZoekObject)
+
+                then("both paths send OPA zaakspecifiekGeautoriseerd = true and return the same rechten") {
+                    documentZoekObjectRechten shouldBe enkelvoudigInformatieobjectRechten
+                    enkelvoudigInformatieobjectRuleQuerySlot.captured.input.documentData.zaakspecifiekGeautoriseerd shouldBe true
+                    documentZoekObjectRuleQuerySlot.captured.input.documentData.zaakspecifiekGeautoriseerd shouldBe true
                 }
             }
         }

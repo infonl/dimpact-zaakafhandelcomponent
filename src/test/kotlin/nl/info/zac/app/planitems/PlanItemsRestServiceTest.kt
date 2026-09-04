@@ -122,7 +122,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaak.uuid) } returns zaak
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every {
                 cmmnService.startHumanTaskPlanItem(
                     planItemInstanceId,
@@ -144,7 +144,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 then("A CMMN human task plan item is started and the zaak is re-indexed") {
                     verify(exactly = 1) {
                         cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                        indexingService.addOrUpdateZaak(any(), any())
+                        indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
                 }
                 with(taskDataSlot.captured) {
@@ -186,7 +186,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(startenTaak = true)
             every { zaaktypeCmmnConfigurationService.readZaaktypeCmmnConfiguration(zaakTypeUUID) } returns zaaktypeCmmnConfiguration
             every { planItemInstance.planItemDefinitionId } returns planItemInstanceId
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every {
                 cmmnService.startHumanTaskPlanItem(
                     planItemInstanceId,
@@ -209,7 +209,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 then("A CMMN human task plan item is started and the zaak is opgeschort and re-indexed") {
                     verify(exactly = 1) {
                         cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                        indexingService.addOrUpdateZaak(any(), any())
+                        indexingService.addOrUpdateZaakOrThrow(any(), any())
                         suspensionZaakHelper.suspendZaak(any(), any(), any())
                     }
                 }
@@ -246,7 +246,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 then("An exception is thrown and the human task item is not started and the zaak is not indexed") {
                     verify(exactly = 0) {
                         cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                        indexingService.addOrUpdateZaak(any(), any())
+                        indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
                 }
             }
@@ -290,7 +290,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     zaak.uuid
                 )
             } just runs
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("A human task plan item is started") {
@@ -299,7 +299,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 then("The task is created with the zaak fatal date") {
                     verify(exactly = 1) {
                         cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                        indexingService.addOrUpdateZaak(any(), any())
+                        indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
                 }
             }
@@ -354,7 +354,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     zaak.uuid
                 )
             } just runs
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("A human task plan item is started") {
@@ -363,7 +363,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 then("The task is created with its own fatal date") {
                     verify(exactly = 1) {
                         cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                        indexingService.addOrUpdateZaak(any(), any())
+                        indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
                 }
 
@@ -414,7 +414,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     zaak.uuid
                 )
             } just runs
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("A human task plan item is started from user that has access") {
@@ -425,7 +425,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 then("A CMMN human task plan item is started and the zaak is re-indexed") {
                     verify(exactly = 1) {
                         cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                        indexingService.addOrUpdateZaak(any(), any())
+                        indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
                 }
 
@@ -489,7 +489,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                     zaak.uuid
                 )
             } just runs
-            every { indexingService.addOrUpdateZaak(zaak.uuid, false) } just runs
+            every { indexingService.addOrUpdateZaakOrThrow(zaak.uuid, false) } just runs
             every { loggedInUserInstance.get() } returns loggedInUser
 
             `when`("A human task plan item is started from user that has access") {
@@ -500,7 +500,7 @@ class PlanItemsRestServiceTest : BehaviorSpec({
                 then("A CMMN human task plan item is started and the zaak is re-indexed") {
                     verify(exactly = 1) {
                         cmmnService.startHumanTaskPlanItem(any(), any(), any(), any(), any(), any(), any())
-                        indexingService.addOrUpdateZaak(any(), any())
+                        indexingService.addOrUpdateZaakOrThrow(any(), any())
                     }
                 }
 
