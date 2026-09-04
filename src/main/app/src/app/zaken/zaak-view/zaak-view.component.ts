@@ -51,11 +51,8 @@ import {
 } from "./utils/zaak-view-menu.builder";
 import {
   allowBedrijf,
-  allowedToAddBetrokkene,
   allowPersoon,
-  initiatorViewType,
   showBetrokkeneKoppelingen,
-  showInitiator,
 } from "./utils/zaak-view.predicates";
 
 @Component({
@@ -611,18 +608,6 @@ export class ZaakViewComponent
     this.sideActions.activeAction.set(event);
   }
 
-  protected showInitiator() {
-    return showInitiator(this.zaak);
-  }
-
-  protected initiatorViewType() {
-    return initiatorViewType(this.zaak);
-  }
-
-  protected allowedToAddBetrokkene() {
-    return allowedToAddBetrokkene(this.zaak, this.hasBrpSearchRight());
-  }
-
   protected allowBedrijf() {
     return allowBedrijf(this.zaak);
   }
@@ -638,7 +623,7 @@ export class ZaakViewComponent
     );
   }
 
-  private hasBrpSearchRight() {
+  protected hasBrpSearchRight() {
     return Boolean(this.brpRechtenQuery.data()?.zoeken);
   }
 }

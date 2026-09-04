@@ -20,6 +20,7 @@ import { BesluitEditComponent } from "./besluit-edit/besluit-edit.component";
 import { BesluitViewComponent } from "./besluit-view/besluit-view.component";
 import { CaseDetailsEditComponent } from "./zaak-details-wijzigen/zaak-details-wijzigen.component";
 import { ZaakDetailsCardComponent } from "./zaak-view/zaak-details-card/zaak-details-card.component";
+import { ZaakInitiatorPanelComponent } from "./zaak-view/zaak-initiator-panel/zaak-initiator-panel.component";
 
 import { ZaakDocumentenComponent } from "./zaak-documenten/zaak-documenten.component";
 import { ZaakInitiatorToevoegenComponent } from "./zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
@@ -58,6 +59,7 @@ import { ZakenRoutingModule } from "./zaken-routing.module";
     CaseDetailsEditComponent,
     ZaakLinkComponent,
     ZaakDetailsCardComponent,
+    ZaakInitiatorPanelComponent,
   ],
 })
 export class ZakenModule {}

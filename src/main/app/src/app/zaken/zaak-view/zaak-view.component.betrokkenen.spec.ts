@@ -20,7 +20,6 @@ import {
   queryOptions,
 } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
-import { within } from "@testing-library/angular";
 import { Observable, of, ReplaySubject } from "rxjs";
 import { UtilService } from "src/app/core/service/util.service";
 import { StaticTextComponent } from "src/app/shared/static-text/static-text.component";
@@ -31,11 +30,8 @@ import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
-import { BedrijfsgegevensComponent } from "../../klanten/bedrijfsgegevens/bedrijfsgegevens.component";
-import { ContactgegevensComponent } from "../../klanten/contactgegevens/contactgegevens.component";
 import { KlantenService } from "../../klanten/klanten.service";
 import { KlantGegevens } from "../../klanten/model/klanten/klant-gegevens";
-import { PersoonsgegevensComponent } from "../../klanten/persoonsgegevens/persoonsgegevens.component";
 import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { PolicyService } from "../../policy/policy.service";
@@ -51,11 +47,11 @@ import { TakenService } from "../../taken/taken.service";
 import { ZaakBetrokkeneListComponent } from "../zaak-betrokkenen-list/zaak-betrokkene-list.component";
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
-import { ZaakInitiatorToevoegenComponent } from "../zaak-initiator-toevoegen/zaak-initiator-toevoegen.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakSideActionService } from "./services/zaak-side-action.service";
 import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
+import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiator-panel.component";
 import { ZaakViewComponent } from "./zaak-view.component";
 
 const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
@@ -68,8 +64,6 @@ const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
   let sideActions: ZaakSideActionService;
-
-  const screen = () => within(fixture.nativeElement as HTMLElement);
 
   let utilService: UtilService;
   let zakenService: ZakenService;
@@ -126,10 +120,7 @@ describe(ZaakViewComponent.name, () => {
         ZaakDocumentenComponent,
         ZaakBetrokkeneListComponent,
         ZaakDetailsCardComponent,
-        ZaakInitiatorToevoegenComponent,
-        BedrijfsgegevensComponent,
-        ContactgegevensComponent,
-        PersoonsgegevensComponent,
+        ZaakInitiatorPanelComponent,
         NotitiesComponent,
         ZaakIndicatiesComponent,
         SideNavComponent,
@@ -251,187 +242,6 @@ describe(ZaakViewComponent.name, () => {
       });
   });
 
-  describe("initiator view", () => {
-    const koppelingen = fromPartial<GeneratedType<"RestBetrokkeneKoppelingen">>(
-      {
-        brpKoppelen: true,
-        kvkKoppelen: true,
-      },
-    );
-
-    it("should show zac-zaak-initiator-toevoegen when no type matches and no contact details", () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          initiatorIdentificatie: null,
-          zaakSpecificContactDetails: null,
-          zaaktype: {
-            ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaaktypeConfiguration">
-            >({
-              betrokkeneKoppelingen: koppelingen,
-            }),
-          },
-        },
-      });
-      fixture.detectChanges();
-
-      expect(
-        screen().getByRole("button", { name: /msg.zaak.geen.initiator/ }),
-      ).toBeInTheDocument();
-    });
-
-    it("should show zac-persoongegevens when initiator type is BSN", async () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          initiatorIdentificatie: fromPartial({
-            type: "BSN",
-            temporaryPersonId: "test-id",
-          }),
-          zaakSpecificContactDetails: null,
-          zaaktype: {
-            ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaaktypeConfiguration">
-            >({
-              betrokkeneKoppelingen: koppelingen,
-            }),
-          },
-        },
-      });
-      fixture.detectChanges();
-
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(
-        screen().getByRole("button", { name: /fakePersoonNaam/ }),
-      ).toBeInTheDocument();
-    });
-
-    it("should show zac-bedrijfsgegevens when initiator type is VN", async () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          initiatorIdentificatie: fromPartial({
-            type: "VN",
-            vestigingsnummer: "12345678",
-            kvkNummer: "87654321",
-          }),
-          zaakSpecificContactDetails: null,
-          zaaktype: {
-            ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaaktypeConfiguration">
-            >({
-              betrokkeneKoppelingen: koppelingen,
-            }),
-          },
-        },
-      });
-      fixture.detectChanges();
-
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      expect(
-        screen().getByRole("button", { name: /fakeBedrijfNaam/ }),
-      ).toBeInTheDocument();
-    });
-
-    it("should show zac-contactgegevens when zaakSpecificContactDetails is present", () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          initiatorIdentificatie: null,
-          zaakSpecificContactDetails: fromPartial<
-            GeneratedType<"ContactDetails">
-          >({
-            telephoneNumber: "0612345678",
-            emailAddress: "test@example.com",
-          }),
-        },
-      });
-      fixture.detectChanges();
-
-      expect(
-        screen().getByRole("button", {
-          name: /initiator.aanvraagspecifieke-contactgegevens/,
-        }),
-      ).toBeInTheDocument();
-    });
-
-    it("should not show zac-contactgegevens when zaakSpecificContactDetails has only empty fields", () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          initiatorIdentificatie: null,
-          zaakSpecificContactDetails: fromPartial<
-            GeneratedType<"ContactDetails">
-          >({
-            telephoneNumber: null,
-            emailAddress: null,
-          }),
-          zaaktype: {
-            ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaaktypeConfiguration">
-            >({
-              betrokkeneKoppelingen: koppelingen,
-            }),
-          },
-        },
-      });
-      fixture.detectChanges();
-
-      expect(
-        screen().queryByRole("button", {
-          name: /initiator.aanvraagspecifieke-contactgegevens/,
-        }),
-      ).toBeNull();
-      expect(
-        screen().getByRole("button", { name: /msg.zaak.geen.initiator/ }),
-      ).toBeInTheDocument();
-    });
-
-    it("should hide the initiator section when no koppelingen are configured and zaakSpecificContactDetails has only empty fields", () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaak,
-          initiatorIdentificatie: null,
-          zaakSpecificContactDetails: fromPartial<
-            GeneratedType<"ContactDetails">
-          >({
-            telephoneNumber: null,
-            emailAddress: null,
-          }),
-          zaaktype: {
-            ...zaak.zaaktype,
-            zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaaktypeConfiguration">
-            >({
-              betrokkeneKoppelingen: fromPartial<
-                GeneratedType<"RestBetrokkeneKoppelingen">
-              >({ brpKoppelen: false, kvkKoppelen: false }),
-            }),
-          },
-        },
-      });
-      fixture.detectChanges();
-
-      expect(
-        screen().queryByRole("button", {
-          name: /initiator.aanvraagspecifieke-contactgegevens/,
-        }),
-      ).toBeNull();
-      expect(
-        screen().queryByRole("button", { name: /msg.zaak.geen.initiator/ }),
-      ).toBeNull();
-    });
-  });
-
   describe("allowPersoon", () => {
     let policyService: PolicyService;
 
@@ -517,100 +327,6 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(fixture.componentInstance["allowPersoon"]()).toBe(false);
-    });
-  });
-
-  describe("allowedToAddBetrokkene", () => {
-    let policyService: PolicyService;
-
-    const zaakWithBetrokkeneRechten = {
-      ...zaak,
-      rechten: {
-        ...zaak.rechten,
-        toevoegenInitiatorPersoon: true,
-        toevoegenInitiatorBedrijf: true,
-      },
-      zaaktype: {
-        ...zaak.zaaktype,
-        zaakafhandelparameters: fromPartial<
-          GeneratedType<"RestZaaktypeConfiguration">
-        >({
-          betrokkeneKoppelingen: fromPartial<
-            GeneratedType<"RestBetrokkeneKoppelingen">
-          >({ brpKoppelen: true, kvkKoppelen: false }),
-        }),
-      },
-    } satisfies GeneratedType<"RestZaak">;
-
-    beforeEach(() => {
-      policyService = TestBed.inject(PolicyService);
-      mockActivatedRoute.data.next({ zaak: zaakWithBetrokkeneRechten });
-      fixture.detectChanges();
-      testQueryClient.setQueryData(
-        policyService.readBrpRechten().queryKey,
-        fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: true,
-        }),
-      );
-      fixture.detectChanges();
-    });
-
-    it("should return true when brpKoppelen, toevoegenInitiatorPersoon and brpZoeken are true", () => {
-      expect(fixture.componentInstance["allowedToAddBetrokkene"]()).toBe(true);
-    });
-
-    it("should return true when kvkKoppelen and toevoegenInitiatorBedrijf are true regardless of brpZoeken", () => {
-      testQueryClient.setQueryData(
-        policyService.readBrpRechten().queryKey,
-        fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: false,
-        }),
-      );
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaakWithBetrokkeneRechten,
-          zaaktype: {
-            ...zaakWithBetrokkeneRechten.zaaktype,
-            zaakafhandelparameters: fromPartial<
-              GeneratedType<"RestZaaktypeConfiguration">
-            >({
-              betrokkeneKoppelingen: fromPartial<
-                GeneratedType<"RestBetrokkeneKoppelingen">
-              >({ brpKoppelen: false, kvkKoppelen: true }),
-            }),
-          },
-        },
-      });
-      fixture.detectChanges();
-
-      expect(fixture.componentInstance["allowedToAddBetrokkene"]()).toBe(true);
-    });
-
-    it("should return false when brpZoeken is false and kvkKoppelen is false", () => {
-      testQueryClient.setQueryData(
-        policyService.readBrpRechten().queryKey,
-        fromPartial<GeneratedType<"RestBrpRechten">>({
-          zoeken: false,
-        }),
-      );
-      fixture.detectChanges();
-
-      expect(fixture.componentInstance["allowedToAddBetrokkene"]()).toBe(false);
-    });
-
-    it("should return false when toevoegenInitiatorPersoon is false and kvkAllowed is false", () => {
-      mockActivatedRoute.data.next({
-        zaak: {
-          ...zaakWithBetrokkeneRechten,
-          rechten: {
-            ...zaakWithBetrokkeneRechten.rechten,
-            toevoegenInitiatorPersoon: false,
-          },
-        },
-      });
-      fixture.detectChanges();
-
-      expect(fixture.componentInstance["allowedToAddBetrokkene"]()).toBe(false);
     });
   });
 
