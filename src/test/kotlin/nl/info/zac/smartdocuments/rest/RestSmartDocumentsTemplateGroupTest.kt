@@ -148,6 +148,34 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
         }
     }
 
+    given("a live SmartDocuments group whose groups and templates fields are null, not an empty set") {
+        // SmartDocuments' own API can return null instead of an empty list for a group with no children
+        val liveTemplateGroups = setOf(
+            RestSmartDocumentsTemplateGroup(
+                id = UUID.randomUUID().toString(),
+                name = "leaf group",
+                groups = null,
+                templates = null
+            )
+        )
+
+        `when`("finding a group id against it") {
+            val found = liveTemplateGroups.findGroupById("no such group id")
+
+            then("nothing is found, without failing on the null groups field") {
+                found.shouldBeNull()
+            }
+        }
+
+        `when`("finding a template id against it") {
+            val found = liveTemplateGroups.findTemplateById("no such template id")
+
+            then("nothing is found, without failing on the null templates field") {
+                found.shouldBeNull()
+            }
+        }
+    }
+
     given("a persisted template mapping and a live tree with a rename and a deletion") {
         val informatieObjectTypeUUID = UUID.randomUUID()
         val renamedTemplateId = UUID.randomUUID().toString()
@@ -260,6 +288,33 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
 
             then("the moved template is omitted from its old group instead of kept there under a refreshed name") {
                 resolvedMapping.first { it.id == groupAId }.templates!!.shouldBeEmpty()
+            }
+        }
+    }
+
+    given("a persisted group with no subgroups or templates recorded") {
+        val groupId = UUID.randomUUID().toString()
+        // groups and templates default to null here, not an empty set
+        val persistedMapping = setOf(
+            createRestMappedSmartDocumentsTemplateGroup(id = groupId, name = "old name")
+        )
+        val liveTemplateGroups = setOf(
+            createRestSmartDocumentsTemplateGroup(
+                id = groupId,
+                name = "new name",
+                groups = emptySet(),
+                templates = emptySet()
+            )
+        )
+
+        `when`("current names are resolved against the live tree") {
+            val resolvedMapping = persistedMapping.resolveCurrentNames(liveTemplateGroups)
+
+            then("the group is resolved with its current name, and null groups/templates stay null") {
+                val resolvedGroup = resolvedMapping.first { it.id == groupId }
+                resolvedGroup.name shouldBe "new name"
+                resolvedGroup.groups.shouldBeNull()
+                resolvedGroup.templates.shouldBeNull()
             }
         }
     }

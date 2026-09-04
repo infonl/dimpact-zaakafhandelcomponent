@@ -269,21 +269,17 @@ class SmartDocumentsTemplatesService @Inject constructor(
      * @return a [Selection] holding the current template group name and template name
      * @throws SmartDocumentsConfigurationException when either id no longer exists in SmartDocuments
      */
-    fun readCurrentSelection(templateGroupId: String, templateId: String): Selection {
-        LOG.fine {
-            "Resolving current template group name for id $templateGroupId and template name for id $templateId"
+    fun readCurrentSelection(templateGroupId: String, templateId: String): Selection =
+        listTemplates().let { currentTemplateGroups ->
+            Selection(
+                templateGroup = currentTemplateGroups.findGroupById(templateGroupId)?.name
+                    ?: throw SmartDocumentsConfigurationException(
+                        "Template group with id $templateGroupId no longer exists in SmartDocuments"
+                    ),
+                template = currentTemplateGroups.findTemplateById(templateId)?.name
+                    ?: throw SmartDocumentsConfigurationException(
+                        "Template with id $templateId no longer exists in SmartDocuments"
+                    )
+            )
         }
-
-        val currentTemplateGroups = listTemplates()
-        return Selection(
-            templateGroup = currentTemplateGroups.findGroupById(templateGroupId)?.name
-                ?: throw SmartDocumentsConfigurationException(
-                    "Template group with id $templateGroupId no longer exists in SmartDocuments"
-                ),
-            template = currentTemplateGroups.findTemplateById(templateId)?.name
-                ?: throw SmartDocumentsConfigurationException(
-                    "Template with id $templateId no longer exists in SmartDocuments"
-                )
-        )
-    }
 }
