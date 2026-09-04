@@ -18,8 +18,8 @@
   >
     <zac-side-nav
       (mode)="menuModeChanged($event)"
-      [menu]="menu"
-      [activeItem]="activeSideAction"
+      [menu]="menu()"
+      [activeItem]="sideActions.activeAction()"
       (activeItemChange)="menuItemChanged($event)"
     ></zac-side-nav>
   </mat-drawer>
@@ -27,9 +27,9 @@
     #actionsSidenav
     mode="over"
     position="end"
-    [ngSwitch]="activeSideAction"
+    [ngSwitch]="sideActions.activeAction()"
     class="side-nav-container"
-    (closedStart)="activeSideAction = null"
+    (closedStart)="sideActions.clear()"
   >
     <zac-klant-koppel
       *ngSwitchCase="'actie.initiator.koppelen'"
@@ -85,11 +85,11 @@
       (documentSent)="documentSent()"
     ></zac-informatie-verzenden>
     <zac-human-task-do
-      *ngSwitchCase="actiefPlanItem?.naam ?? 'none'"
+      *ngSwitchCase="sideActions.actiefPlanItem()?.naam ?? 'none'"
       (done)="taakGestart()"
       [sideNav]="actionsSidenav"
       [zaak]="zaak"
-      [planItem]="actiefPlanItem"
+      [planItem]="sideActions.actiefPlanItem()"
     ></zac-human-task-do>
     <zac-mail-create
       *ngSwitchCase="'actie.mail.versturen'"
@@ -183,7 +183,7 @@
       <zac-zaak-details-card
         class="w50 flex-1"
         [zaak]="zaak"
-        [zaakOpschorting]="zaakOpschorting"
+        [zaakOpschorting]="dialogs.opschorting()"
         [bagObjecten]="bagObjecten"
         [showBetrokkeneKoppelingen]="showBetrokkeneKoppelingen()"
         (editCaseDetails)="editCaseDetails()"
@@ -200,11 +200,7 @@
           (besluitWijzigen)="besluitWijzigen($event)"
         ></zac-besluit-view>
 
-        <zac-zaak-taken
-          #zaakTakenComponent
-          [zaak]="zaak"
-          class="flex-col flex-1"
-        ></zac-zaak-taken>
+        <zac-zaak-taken [zaak]="zaak" class="flex-col flex-1"></zac-zaak-taken>
       </div>
       <zac-zaak-documenten
         #zaakDocumentenComponent

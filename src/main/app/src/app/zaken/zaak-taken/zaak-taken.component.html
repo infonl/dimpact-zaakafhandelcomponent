@@ -169,6 +169,7 @@
           *matRowDef="let row; columns: takenColumnsToDisplay"
           class="row"
           [class.expanded-row]="row.expanded"
+          [attr.aria-expanded]="row.expanded ? 'true' : 'false'"
           (click)="expandTaak(row)"
         ></tr>
         <tr
