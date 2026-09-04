@@ -12,6 +12,7 @@ import { LOCALE_ID } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -327,6 +328,28 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
 
       expect(fixture.componentInstance["allowPersoon"]()).toBe(false);
+    });
+  });
+
+  describe("what the initiator panel is wired to", () => {
+    const initiatorPanel = () => {
+      mockActivatedRoute.data.next({ zaak });
+      fixture.detectChanges();
+      return fixture.debugElement.query(
+        By.directive(ZaakInitiatorPanelComponent),
+      ).componentInstance as ZaakInitiatorPanelComponent;
+    };
+
+    it("opens the koppel side-action when the panel asks to add or edit", () => {
+      initiatorPanel().addOrEdit.emit();
+
+      expect(sideActions.activeAction()).toBe("actie.initiator.koppelen");
+    });
+
+    it("asks for a reason when the panel asks to ontkoppel the initiator", () => {
+      initiatorPanel().delete.emit();
+
+      expect(jest.mocked(TestBed.inject(MatDialog).open)).toHaveBeenCalled();
     });
   });
 

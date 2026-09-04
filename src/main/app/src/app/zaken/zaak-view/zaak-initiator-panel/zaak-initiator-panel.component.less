@@ -1,0 +1,11 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+// The panel renders nothing for a zaak without koppelingen or contactgegevens.
+// Without this the host would still be a flex item of the parent row, taking a
+// full-width `w100` line plus the row gap.
+:host {
+  display: contents;
+}

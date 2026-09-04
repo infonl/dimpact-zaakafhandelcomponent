@@ -18,6 +18,7 @@ import {
 @Component({
   selector: "zac-zaak-initiator-panel",
   templateUrl: "./zaak-initiator-panel.component.html",
+  styleUrls: ["./zaak-initiator-panel.component.less"],
   standalone: true,
   imports: [
     ZaakInitiatorToevoegenComponent,
