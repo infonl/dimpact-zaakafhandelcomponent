@@ -13,7 +13,6 @@ import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import net.atos.zac.util.MediaTypes
 import nl.info.client.smartdocuments.model.document.File
 import nl.info.client.smartdocuments.model.document.OutputFormat
-import nl.info.client.smartdocuments.model.document.Selection
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.document.Variables
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
@@ -198,11 +197,9 @@ class DocumentCreationService @Inject constructor(
 
     private fun createDocumentForAttendedFlow(creationDataAttended: DocumentCreationDataAttended) =
         SmartDocument(
-            selection = Selection(
-                templateGroup = smartDocumentsTemplatesService.getTemplateGroupName(
-                    creationDataAttended.templateGroupId
-                ),
-                template = smartDocumentsTemplatesService.getTemplateName(creationDataAttended.templateId)
+            selection = smartDocumentsTemplatesService.readCurrentSelection(
+                templateGroupId = creationDataAttended.templateGroupId,
+                templateId = creationDataAttended.templateId
             ),
             variables = Variables(
                 // SmartDocuments use file extensions (without the leading `.`) instead of media types

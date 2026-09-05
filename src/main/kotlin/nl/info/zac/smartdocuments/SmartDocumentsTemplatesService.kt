@@ -10,12 +10,16 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import jakarta.transaction.Transactional.TxType.REQUIRED
 import jakarta.transaction.Transactional.TxType.SUPPORTS
+import nl.info.client.smartdocuments.model.document.Selection
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
+import nl.info.zac.smartdocuments.rest.findGroupById
+import nl.info.zac.smartdocuments.rest.findTemplateById
 import nl.info.zac.smartdocuments.rest.group
+import nl.info.zac.smartdocuments.rest.resolveCurrentNames
 import nl.info.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroupSet
 import nl.info.zac.smartdocuments.rest.toSmartDocumentsTemplateGroupSet
@@ -171,7 +175,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
         entityManager.criteriaBuilder.let { builder ->
             builder.createQuery(SmartDocumentsTemplateGroup::class.java).let { query ->
                 query.from(SmartDocumentsTemplateGroup::class.java).let { root ->
-                    return entityManager.createQuery(
+                    entityManager.createQuery(
                         query.select(root)
                             .where(
                                 builder.and(
@@ -185,9 +189,11 @@ class SmartDocumentsTemplatesService @Inject constructor(
                                     builder.isNull(root.get<SmartDocumentsTemplateGroup>("parent"))
                                 )
                             )
-                    ).resultList.toSet().toRestSmartDocumentsTemplateGroup()
+                    ).resultList.toSet()
                 }
             }
+        }.toRestSmartDocumentsTemplateGroup().let { persistedMapping ->
+            if (persistedMapping.isEmpty()) persistedMapping else persistedMapping.resolveCurrentNames(listTemplates())
         }
 
     /**
@@ -251,66 +257,27 @@ class SmartDocumentsTemplatesService @Inject constructor(
     }
 
     /**
-     * Get the template group name
+     * Resolves the current template group name and template name directly from SmartDocuments, matched by id,
+     * instead of the name persisted in ZAC's own database, and returns them as a ready-to-send [Selection].
+     * Both names are resolved from a single live SmartDocuments read, since a persisted name can go stale
+     * the moment either is renamed in SmartDocuments.
      *
      * @param templateGroupId SmartDocuments' id of a template group
-     * @return template group name
-     */
-    @Suppress("NestedBlockDepth")
-    fun getTemplateGroupName(templateGroupId: String): String {
-        LOG.fine { "Fetching template group name for id $templateGroupId" }
-
-        return entityManager.criteriaBuilder.let { builder ->
-            builder.createQuery(String::class.java).let { criteriaQuery ->
-                criteriaQuery.from(SmartDocumentsTemplateGroup::class.java).let { root ->
-                    criteriaQuery.select(
-                        root.get(SmartDocumentsTemplateGroup::name.name)
-                    ).where(
-                        builder.equal(
-                            root.get<String>(SmartDocumentsTemplateGroup::smartDocumentsId.name),
-                            templateGroupId
-                        )
-                    ).let { selectQuery ->
-                        entityManager.createQuery(selectQuery)
-                            .setMaxResults(1)
-                            .resultList.firstOrNull()
-                    } ?: throw SmartDocumentsConfigurationException(
-                        "Template group with id $templateGroupId is not configured"
-                    )
-                }
-            }
-        }
-    }
-
-    /**
-     * Get the template name
-     *
      * @param templateId SmartDocuments' id of a template
-     * @return template name
+     * @return a [Selection] holding the current template group name and template name
+     * @throws SmartDocumentsConfigurationException when either id no longer exists in SmartDocuments
      */
-    @Suppress("NestedBlockDepth")
-    fun getTemplateName(templateId: String): String {
-        LOG.fine { "Fetching template group name for id $templateId" }
-
-        return entityManager.criteriaBuilder.let { builder ->
-            builder.createQuery(String::class.java).let { criteriaQuery ->
-                criteriaQuery.from(SmartDocumentsTemplate::class.java).let { root ->
-                    criteriaQuery.select(
-                        root.get(SmartDocumentsTemplate::name.name)
-                    ).where(
-                        builder.equal(
-                            root.get<String>(SmartDocumentsTemplate::smartDocumentsId.name),
-                            templateId
-                        )
-                    ).let { selectQuery ->
-                        entityManager.createQuery(selectQuery)
-                            .setMaxResults(1)
-                            .resultList.firstOrNull()
-                    } ?: throw SmartDocumentsConfigurationException(
-                        "Template with id $templateId is not configured"
+    fun readCurrentSelection(templateGroupId: String, templateId: String): Selection =
+        listTemplates().let { currentTemplateGroups ->
+            Selection(
+                templateGroup = currentTemplateGroups.findGroupById(templateGroupId)?.name
+                    ?: throw SmartDocumentsConfigurationException(
+                        "Template group with id $templateGroupId no longer exists in SmartDocuments"
+                    ),
+                template = currentTemplateGroups.findTemplateById(templateId)?.name
+                    ?: throw SmartDocumentsConfigurationException(
+                        "Template with id $templateId no longer exists in SmartDocuments"
                     )
-                }
-            }
+            )
         }
-    }
 }

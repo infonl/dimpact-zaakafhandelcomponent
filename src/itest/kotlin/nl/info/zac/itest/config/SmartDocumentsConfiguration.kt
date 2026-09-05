@@ -9,7 +9,10 @@ import nl.info.zac.itest.config.ItestConfiguration.INFORMATIE_OBJECT_TYPE_BIJLAG
 const val SMART_DOCUMENTS_MOCK_BASE_URI = "http://smartdocuments-wiremock:8080"
 
 /**
- * Constants used in the SmartDocuments WireMock template response
+ * Constants used in the SmartDocuments WireMock template response.
+ * Every id must be unique across the whole tree, matching real SmartDocuments behaviour:
+ * ZAC resolves templates and groups by id alone, never by name or position, so two nodes
+ * sharing an id would make resolution pick the wrong one.
  */
 const val SMART_DOCUMENTS_ROOT_GROUP_ID = "D5037631FF6748269059B353699EFA0C"
 const val SMART_DOCUMENTS_ROOT_GROUP_NAME = "root"
@@ -25,9 +28,9 @@ const val SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_ID = "273C2707E5A844699B653C87ACFD6
 const val SMART_DOCUMENTS_GROUP_1_TEMPLATE_2_NAME = "group 1 template 2"
 const val SMART_DOCUMENTS_GROUP_2_ID = "348097107FA346DC9AEBBE33A5500B79"
 const val SMART_DOCUMENTS_GROUP_2_NAME = "group 2"
-const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_ID = "7B7857BB9959470C82974037304E433D"
+const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_ID = "7B7857BB9959470C82974037304E433E"
 const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME = "group 2 template 1"
-const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID = "273C2707E5A844699B653C87ACFD618E"
+const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID = "273C2707E5A844699B653C87ACFD618F"
 const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME = "group 2 template 2"
 
 const val SMART_DOCUMENTS_FILE_ID = "fakeFileId"
