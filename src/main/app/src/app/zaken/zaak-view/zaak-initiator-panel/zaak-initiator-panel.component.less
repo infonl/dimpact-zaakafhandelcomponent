@@ -1,0 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2026 INFO.nl
+ * SPDX-License-Identifier: EUPL-1.2+
+ */
+
+// Without this an empty panel is still a `w100` flex item of the parent row.
+:host {
+  display: contents;
+}

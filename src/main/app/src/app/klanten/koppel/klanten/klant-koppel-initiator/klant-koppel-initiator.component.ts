@@ -8,8 +8,9 @@ import { TranslateModule } from "@ngx-translate/core";
 import { MaterialFormBuilderModule } from "src/app/shared/material-form-builder/material-form-builder.module";
 import { SharedModule } from "src/app/shared/shared.module";
 import { GeneratedType } from "../../../../shared/utils/generated-types";
-import { KlantenModule } from "../../../klanten.module";
 import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
+import { BedrijfZoekComponent } from "../../../zoek/bedrijven/bedrijf-zoek.component";
+import { PersoonZoekComponent } from "../../../zoek/personen/persoon-zoek.component";
 
 @Component({
   selector: "zac-klant-koppel-initiator-persoon",
@@ -17,7 +18,8 @@ import { KlantGegevens } from "../../../model/klanten/klant-gegevens";
     SharedModule,
     TranslateModule,
     MaterialFormBuilderModule,
-    KlantenModule,
+    PersoonZoekComponent,
+    BedrijfZoekComponent,
   ],
   template: `
     <ng-template mat-tab-label>

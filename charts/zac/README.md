@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.313](https://img.shields.io/badge/Version-1.0.313-informational?style=flat-square) ![AppVersion: 5.7](https://img.shields.io/badge/AppVersion-5.7-informational?style=flat-square)
+![Version: 1.0.315](https://img.shields.io/badge/Version-1.0.315-informational?style=flat-square) ![AppVersion: 5.7](https://img.shields.io/badge/AppVersion-5.7-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.172.0 |
+| @opentelemetry | opentelemetry-collector | 0.172.1 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -180,7 +180,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.existingConfigmap | string | `nil` |  |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
 | nginx.image.repository | string | `"nginxinc/nginx-unprivileged"` |  |
-| nginx.image.tag | string | `"1.31.4@sha256:343fac1d3d5f58078a466e70108f77f3ce3ce4a097ee91ab2c5097a776869414"` |  |
+| nginx.image.tag | string | `"1.31.5@sha256:f4a6f1ea26f4e500265b60b1935f2a5a0bc0cc5da4ca02ec32b2099426612229"` |  |
 | nginx.livenessProbe.failureThreshold | int | `3` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `60` |  |
 | nginx.livenessProbe.periodSeconds | int | `10` |  |
@@ -327,7 +327,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:38dd9719f0f6e799d04bb8c22fb5eaca3a9fe7ffaf313c296327c6cca02f3c1d"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:389b4a54b6a0b37a028a3f157e4d3b7031cf76def1b14bcaa225ea1e27f79ffb"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` |  |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |

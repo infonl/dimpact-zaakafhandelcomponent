@@ -21,8 +21,8 @@ export class PlanItemsService {
     });
   }
 
-  listHumanTaskPlanItems(zaakUuid: string) {
-    return this.zacHttpClient.GET(
+  listHumanTaskPlanItemsQuery(zaakUuid: string) {
+    return this.zacQueryClient.GET(
       "/rest/planitems/zaak/{uuid}/humanTaskPlanItems",
       {
         path: { uuid: zaakUuid },
@@ -30,8 +30,8 @@ export class PlanItemsService {
     );
   }
 
-  listUserEventListenerPlanItems(zaakUuid: string) {
-    return this.zacHttpClient.GET(
+  listUserEventListenerPlanItemsQuery(zaakUuid: string) {
+    return this.zacQueryClient.GET(
       "/rest/planitems/zaak/{uuid}/userEventListenerPlanItems",
       {
         path: { uuid: zaakUuid },

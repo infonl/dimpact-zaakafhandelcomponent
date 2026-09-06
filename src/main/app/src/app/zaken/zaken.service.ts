@@ -58,6 +58,12 @@ export class ZakenService {
     this.queryClient.setQueryData(this.readZaakQuery(zaak.uuid).queryKey, zaak);
   }
 
+  invalidateZaak(uuid: string) {
+    this.queryClient.invalidateQueries({
+      queryKey: this.readZaakQuery(uuid).queryKey,
+    });
+  }
+
   readZaakByID(identificatie: string) {
     return this.zacHttpClient.GET("/rest/zaken/zaak/id/{identificatie}", {
       path: { identificatie },
