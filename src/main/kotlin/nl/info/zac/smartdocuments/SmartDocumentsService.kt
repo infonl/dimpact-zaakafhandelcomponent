@@ -18,6 +18,7 @@ import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.template.SmartDocumentsTemplatesResponse
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
+import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
@@ -80,7 +81,7 @@ class SmartDocumentsService @Inject constructor(
     private fun determineUserName(): String =
         fixedUserName.orElseGet {
             if (loggedInUserInstance.isUnsatisfied) {
-                throw IllegalStateException(
+                throw SmartDocumentsConfigurationException(
                     "No SmartDocuments fixed user name configured and no user is currently logged in"
                 )
             }

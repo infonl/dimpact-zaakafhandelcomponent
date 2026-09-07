@@ -22,6 +22,7 @@ import nl.info.client.smartdocuments.rest.DownloadedFile
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.documentcreation.model.createData
+import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.util.toBase64String
 import java.net.URI
 import java.util.Optional
@@ -186,7 +187,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         )
 
         `when`("list templates is called") {
-            val exception = shouldThrow<IllegalStateException> {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
                 smartDocumentsService.listTemplates()
             }
 
