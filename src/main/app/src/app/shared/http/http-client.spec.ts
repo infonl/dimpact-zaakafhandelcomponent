@@ -5,6 +5,7 @@
 
 import {
   HttpEventType,
+  HttpHeaderResponse,
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
@@ -156,6 +157,40 @@ describe(HttpClient.name, () => {
         type: HttpEventType.UploadProgress,
         loaded: 100,
         total: 100,
+      });
+      request.flush({ uuid: "document-1" });
+      httpTestingController.verify();
+    });
+
+    it("keeps the upload at 100% when the response events arrive, rather than falling back to 0%", (done) => {
+      const emitted: unknown[] = [];
+
+      httpclient
+        .POST_WITH_PROGRESS(path, new FormData() as never, parameters)
+        .subscribe({
+          next: (progress) => emitted.push(progress),
+          complete: () => {
+            expect(emitted).toEqual([
+              { state: "uploading", percentage: 0 },
+              { state: "uploading", percentage: 100 },
+              { state: "done", body: { uuid: "document-1" } },
+            ]);
+            done();
+          },
+        });
+
+      const request = httpTestingController.expectOne(
+        "/rest/informatieobjecten/informatieobject/zaak-1/reference-1?taakObject=false",
+      );
+      request.event({
+        type: HttpEventType.UploadProgress,
+        loaded: 100,
+        total: 100,
+      });
+      request.event(new HttpHeaderResponse({ status: 200 }));
+      request.event({
+        type: HttpEventType.DownloadProgress,
+        loaded: 10,
       });
       request.flush({ uuid: "document-1" });
       httpTestingController.verify();

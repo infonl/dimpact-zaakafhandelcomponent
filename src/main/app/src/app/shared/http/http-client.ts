@@ -15,7 +15,7 @@ import type {
   HttpMethod,
   PathsWithMethod,
 } from "openapi-typescript-helpers";
-import { map } from "rxjs";
+import { filter, map } from "rxjs";
 import { paths } from "../../../generated/types/zac-openapi-types";
 import { NullableIfOptional } from "../utils/generated-types";
 
@@ -130,6 +130,14 @@ export class HttpClient {
         reportProgress: true,
       })
       .pipe(
+        // the response events that follow the upload carry no upload information; without
+        // dropping them the indicator falls back to 0% just as the upload reaches 100%
+        filter(
+          (event) =>
+            event.type === HttpEventType.Sent ||
+            event.type === HttpEventType.UploadProgress ||
+            event.type === HttpEventType.Response,
+        ),
         map((event): UploadProgress<Response<Path, Method>> => {
           switch (event.type) {
             case HttpEventType.UploadProgress:
