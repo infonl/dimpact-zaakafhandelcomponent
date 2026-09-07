@@ -119,10 +119,25 @@ private fun setupContext(): TestContext {
     val testDispatcher = StandardTestDispatcher()
     val documentZoekObjectConverter = mockk<DocumentZoekObjectConverter>()
 
-    val indexingService = IndexingService(
+    val reindexSupportService = ReindexSupportService(
         converterInstances,
         zrcClientService,
         drcClientService,
+        flowableTaskService
+    )
+    val zaakGedrevenReindexService = ZaakGedrevenReindexService(
+        reindexSupportService,
+        zrcClientService,
+        drcClientService,
+        flowableTaskService,
+        documentZoekObjectConverter,
+        zaakZoekObjectConverter,
+        taakZoekObjectConverter
+    )
+    val indexingService = IndexingService(
+        reindexSupportService,
+        zaakGedrevenReindexService,
+        zrcClientService,
         flowableTaskService,
         documentZoekObjectConverter,
         zaakZoekObjectConverter,
