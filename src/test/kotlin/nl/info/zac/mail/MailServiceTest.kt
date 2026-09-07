@@ -4,6 +4,7 @@
  */
 package nl.info.zac.mail
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -41,6 +42,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.configuration.exception.FileTooLargeToOpenException
 import nl.info.zac.mail.model.Bronnen
 import nl.info.zac.mailtemplates.MailTemplateHelper
 import nl.info.zac.mailtemplates.model.MailTemplateVariables
@@ -482,6 +484,46 @@ class MailServiceTest : BehaviorSpec({
                 verify(exactly = 1) {
                     mailTemplateHelper.resolveZaakdataVariables(bodyWithZaakdataVariable, emptyMap())
                 }
+            }
+        }
+    }
+
+    given("an attachment whose documents registry entry reports no file size") {
+        val mailServiceWithSmallInMemoryLimit = MailService(
+            configurationService,
+            zgwApiService,
+            ztcClientService,
+            drcClientService,
+            mailTemplateHelper,
+            officeConverterClientService,
+            loggedInUserInstance,
+            FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 1L)
+        )
+        val task = mockk<Task>()
+        val attachmentUuid = UUID.randomUUID()
+        val mailGegevens = createMailGegevens(attachments = attachmentUuid.toString())
+        val bronnen = Bronnen.Builder().add(task).build()
+
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.subject) } returns "fakeResolvedSubject1"
+        every { mailTemplateHelper.resolveTaskVariables("fakeResolvedSubject1", task) } returns "fakeResolvedSubject2"
+        every {
+            mailTemplateHelper.resolveZaakdataVariables("fakeResolvedSubject2", emptyMap())
+        } returns "fakeResolvedSubject2"
+        every { mailTemplateHelper.resolveGemeenteVariable(mailGegevens.body) } returns "fakeResolvedBody1"
+        every { mailTemplateHelper.resolveTaskVariables("fakeResolvedBody1", task) } returns "fakeResolvedBody2"
+        every { mailTemplateHelper.resolveZaakdataVariables("fakeResolvedBody2", emptyMap()) } returns "fakeResolvedBody2"
+        every { drcClientService.readEnkelvoudigInformatieobject(attachmentUuid) } returns
+            createEnkelvoudigInformatieObject(bestandsomvang = null)
+        every { drcClientService.downloadEnkelvoudigInformatieobject(attachmentUuid) } returns
+            ByteArrayInputStream(ByteArray(2 * 1024 * 1024))
+
+        `when`("its content turns out to exceed the maximum that can be held in memory") {
+            val fileTooLargeToOpenException = shouldThrow<FileTooLargeToOpenException> {
+                mailServiceWithSmallInMemoryLimit.sendMail(mailGegevens, bronnen)
+            }
+
+            then("it is refused on the bytes that arrive, rather than on the size that was not reported") {
+                fileTooLargeToOpenException.message shouldContain "MAX_IN_MEMORY_FILE_SIZE_MB=1"
             }
         }
     }

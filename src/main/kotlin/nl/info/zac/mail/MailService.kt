@@ -280,8 +280,10 @@ class MailService @Inject constructor(
             .map(UUIDUtil::uuid)
             .map { uuid ->
                 val infoObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
-                fileSizeConfiguration.assertFileCanBeHeldInMemory(infoObject.bestandsomvang?.toLong() ?: 0)
-                val content = drcClientService.downloadEnkelvoudigInformatieobject(uuid).use { it.readAllBytes() }
+                infoObject.bestandsomvang?.let { fileSizeConfiguration.assertFileCanBeHeldInMemory(it.toLong()) }
+                val content = drcClientService.downloadEnkelvoudigInformatieobject(uuid).use {
+                    fileSizeConfiguration.readWithinInMemoryLimit(it)
+                }
                 Attachment(
                     contentType = infoObject.formaat,
                     filename = infoObject.bestandsnaam,

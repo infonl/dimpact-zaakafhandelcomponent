@@ -15,6 +15,7 @@ import nl.info.zac.configuration.FileSizeConfiguration.Companion.IN_MEMORY_OPERA
 import nl.info.zac.configuration.exception.FileSizeExceededException
 import nl.info.zac.configuration.exception.FileTooLargeToOpenException
 import nl.info.zac.configuration.exception.InvalidFileSizeConfigurationException
+import java.io.ByteArrayInputStream
 
 class FileSizeConfigurationTest : BehaviorSpec({
     val maxHeapMB = Runtime.getRuntime().maxMemory() / BYTES_PER_MB
@@ -69,6 +70,30 @@ class FileSizeConfigurationTest : BehaviorSpec({
                 fileSizeConfiguration.isUploadedInParts(
                     largestSupportedInMemoryFileSizeMB * BYTES_PER_MB + 1
                 ) shouldBe true
+            }
+        }
+    }
+
+    given("a maximum in-memory file size of 1 MB") {
+        val fileSizeConfiguration = FileSizeConfiguration(maxFileSizeMB = 500L, maxInMemoryFileSizeMB = 1L)
+
+        `when`("content of exactly that size is read into memory") {
+            val bytes = ByteArray(BYTES_PER_MB.toInt()) { it.toByte() }
+
+            then("it is returned in full") {
+                fileSizeConfiguration.readWithinInMemoryLimit(ByteArrayInputStream(bytes)) shouldBe bytes
+            }
+        }
+
+        `when`("content beyond that size is read into memory") {
+            val fileTooLargeToOpenException = shouldThrow<FileTooLargeToOpenException> {
+                fileSizeConfiguration.readWithinInMemoryLimit(
+                    ByteArrayInputStream(ByteArray(BYTES_PER_MB.toInt() + 1))
+                )
+            }
+
+            then("it is refused on the bytes that arrive, so that content of unreported size cannot exhaust the heap") {
+                fileTooLargeToOpenException.message shouldContain "MAX_IN_MEMORY_FILE_SIZE_MB=1"
             }
         }
     }

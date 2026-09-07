@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
+import jakarta.ws.rs.core.Response
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
@@ -32,6 +33,7 @@ import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
 import org.eclipse.microprofile.rest.client.inject.RestClient
+import java.io.FilterInputStream
 import java.io.InputStream
 import java.net.URI
 import java.util.UUID
@@ -99,12 +101,9 @@ class DrcClientService @Inject constructor(
      * caller both has to consume it and to close it.
      */
     fun downloadEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID: UUID): InputStream =
-        drcClient.enkelvoudigInformatieobjectDownload(enkelvoudigInformatieobjectUUID).let { response ->
-            response.readEntity(InputStream::class.java)
-                ?: throw DrcRuntimeException(
-                    "Content of enkelvoudig informatieobject with uuid " +
-                        "'$enkelvoudigInformatieobjectUUID' could not be read."
-                )
+        drcClient.enkelvoudigInformatieobjectDownload(enkelvoudigInformatieobjectUUID).toContentStream {
+            "Content of enkelvoudig informatieobject with uuid " +
+                "'$enkelvoudigInformatieobjectUUID' could not be read."
         }
 
     /**
@@ -118,12 +117,9 @@ class DrcClientService @Inject constructor(
         drcClient.enkelvoudigInformatieobjectDownloadVersie(
             uuid = enkelvoudigInformatieobjectUUID,
             versie = version
-        ).let { response ->
-            response.readEntity(InputStream::class.java)
-                ?: throw DrcRuntimeException(
-                    "Content of enkelvoudig informatieobject with uuid '$enkelvoudigInformatieobjectUUID' " +
-                        "and version '$version' could not be read."
-                )
+        ).toContentStream {
+            "Content of enkelvoudig informatieobject with uuid '$enkelvoudigInformatieobjectUUID' " +
+                "and version '$version' could not be read."
         }
 
     fun listAuditTrail(enkelvoudigInformatieobjectUUID: UUID): List<AuditTrailRegel> =
@@ -270,6 +266,14 @@ class DrcClientService @Inject constructor(
                     "${content.sizeInBytes} bytes, so its content cannot be uploaded in parts."
             )
         }
+        val announcedSizeInBytes = orderedParts.sumOf { it.omvang.toLong() }
+        if (announcedSizeInBytes != content.sizeInBytes) {
+            throw DrcRuntimeException(
+                "The documents registry announced bestandsdelen of $announcedSizeInBytes bytes in total for " +
+                    "document with uuid '$documentUUID' of ${content.sizeInBytes} bytes, so uploading its " +
+                    "content in parts would not store it in full."
+            )
+        }
         content.inputStream().use { contentStream ->
             orderedParts.forEach { part ->
                 // one part is held in memory at a time, and the documents registry decides how large
@@ -283,6 +287,32 @@ class DrcClientService @Inject constructor(
                     contentType = body.contentType,
                     bestandsDeel = body.toByteArray()
                 )
+            }
+        }
+    }
+
+    /**
+     * Hands out the entity of this response as a stream that also closes the response itself.
+     *
+     * The response is not read into memory, so it holds on to the connection for as long as the
+     * stream is open. The caller only ever sees the stream, and so has no other way to release it.
+     */
+    private fun Response.toContentStream(errorMessage: () -> String): InputStream {
+        var isHandedOver = false
+        try {
+            val entityStream = readEntity(InputStream::class.java) ?: throw DrcRuntimeException(errorMessage())
+            return object : FilterInputStream(entityStream) {
+                override fun close() {
+                    try {
+                        super.close()
+                    } finally {
+                        this@toContentStream.close()
+                    }
+                }
+            }.also { isHandedOver = true }
+        } finally {
+            if (!isHandedOver) {
+                close()
             }
         }
     }

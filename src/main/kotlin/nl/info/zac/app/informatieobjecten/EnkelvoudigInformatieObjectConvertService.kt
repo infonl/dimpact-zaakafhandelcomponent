@@ -41,7 +41,7 @@ class EnkelvoudigInformatieObjectConvertService @Inject constructor(
         if (document.status != StatusEnum.DEFINITIEF) {
             throw EnkelvoudigInformatieObjectConversionException()
         }
-        fileSizeConfiguration.assertFileCanBeHeldInMemory(document.bestandsomvang?.toLong() ?: 0)
+        document.bestandsomvang?.let { fileSizeConfiguration.assertFileCanBeHeldInMemory(it.toLong()) }
         drcClientService.downloadEnkelvoudigInformatieobject(
             enkelvoudigInformatieobjectUUID
         ).use { documentInputStream ->
@@ -50,7 +50,7 @@ class EnkelvoudigInformatieObjectConvertService @Inject constructor(
                 document.bestandsnaam
             ).use { pdfInputStream ->
                 val pdf = EnkelvoudigInformatieObjectWithLockRequest()
-                val inhoud = pdfInputStream.readAllBytes()
+                val inhoud = fileSizeConfiguration.readWithinInMemoryLimit(pdfInputStream)
                 pdf.inhoud = inhoud.toBase64String()
                 pdf.formaat = MediaTypes.Application.PDF.mediaType
                 pdf.bestandsnaam = StringUtils.substringBeforeLast(document.bestandsnaam, ".") + ".pdf"

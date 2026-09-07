@@ -69,6 +69,25 @@ class DocumentContentReaderTest : BehaviorSpec({
         }
     }
 
+    given("an upload stream") {
+        val inputStream = object : ByteArrayInputStream(ByteArray(BYTES_PER_MB.toInt() * 3)) {
+            var isClosed = false
+
+            override fun close() {
+                isClosed = true
+                super.close()
+            }
+        }
+
+        `when`("it has been read") {
+            documentContentReader.read(inputStream).use { }
+
+            then("it is closed, so that what backs it is released as soon as the upload has been read") {
+                inputStream.isClosed shouldBe true
+            }
+        }
+    }
+
     given("an empty document") {
         `when`("it is read") {
             val inputValidationFailedException = shouldThrow<InputValidationFailedException> {

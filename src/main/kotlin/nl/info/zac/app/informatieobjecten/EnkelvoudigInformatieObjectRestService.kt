@@ -371,13 +371,18 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 findZaakForDocument(enkelvoudigInformatieObject)
             ).lezen
         )
+        val streamedDocument = readStreamedVersion(
+            uuid = uuid,
+            version = version,
+            currentVersion = enkelvoudigInformatieObject
+        )
         return Response.ok(streamDocumentContent(uuid = uuid, version = version))
             .header(
                 "Content-Disposition",
-                """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
+                """inline; filename="${streamedDocument.bestandsnaam}""""
             )
-            .header("Content-Type", enkelvoudigInformatieObject.formaat)
-            .header(HttpHeaders.CONTENT_LENGTH, enkelvoudigInformatieObject.bestandsomvang)
+            .header("Content-Type", streamedDocument.formaat)
+            .header(HttpHeaders.CONTENT_LENGTH, streamedDocument.bestandsomvang)
             .build()
     }
 
@@ -543,14 +548,27 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 findZaakForDocument(enkelvoudigInformatieObject)
             ).downloaden
         )
+        val streamedDocument = readStreamedVersion(
+            uuid = uuid,
+            version = version,
+            currentVersion = enkelvoudigInformatieObject
+        )
         return Response.ok(streamDocumentContent(uuid = uuid, version = version))
             .header(
                 "Content-Disposition",
-                """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
+                """attachment; filename="${streamedDocument.bestandsnaam}""""
             )
-            .header(HttpHeaders.CONTENT_LENGTH, enkelvoudigInformatieObject.bestandsomvang)
+            .header(HttpHeaders.CONTENT_LENGTH, streamedDocument.bestandsomvang)
             .build()
     }
+
+    /**
+     * The metadata of the version that is actually streamed. A previous version may have a different
+     * size and file name than the current one, so describing the response with the current metadata
+     * would give the client a `Content-Length` that does not match the bytes it receives.
+     */
+    private fun readStreamedVersion(uuid: UUID, version: Int?, currentVersion: EnkelvoudigInformatieObject) =
+        version?.let { drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, it) } ?: currentVersion
 
     private fun streamDocumentContent(uuid: UUID, version: Int?) =
         StreamingOutput { outputStream ->

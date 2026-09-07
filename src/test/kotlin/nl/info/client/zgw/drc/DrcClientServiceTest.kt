@@ -138,31 +138,45 @@ class DrcClientServiceTest : BehaviorSpec({
         val uuid = UUID.randomUUID()
 
         `when`("downloadEnkelvoudigInformatieobject is called") {
-            then("it returns the content stream without buffering it in memory first") {
-                val content = ByteArrayInputStream("fakeContent".toByteArray())
-                val response = mockk<Response>()
-                every { response.readEntity(InputStream::class.java) } returns content
-                every { drcClient.enkelvoudigInformatieobjectDownload(uuid) } returns response
+            val content = ByteArrayInputStream("fakeContent".toByteArray())
+            val response = mockk<Response>()
+            every { response.readEntity(InputStream::class.java) } returns content
+            every { response.close() } just runs
+            every { drcClient.enkelvoudigInformatieobjectDownload(uuid) } returns response
 
-                val result = drcClientService.downloadEnkelvoudigInformatieobject(uuid)
+            val result = drcClientService.downloadEnkelvoudigInformatieobject(uuid)
 
-                result shouldBe content
+            then(
+                "it returns the content stream without buffering it in memory first, and releases the " +
+                    "response only once the caller closes that stream"
+            ) {
+                result.readBytes() shouldBe "fakeContent".toByteArray()
                 verify(exactly = 0) { response.bufferEntity() }
+                verify(exactly = 0) { response.close() }
+
+                result.close()
+
+                verify(exactly = 1) { response.close() }
             }
         }
 
         `when`("the response has no entity and downloadEnkelvoudigInformatieobject is called") {
             val response = mockk<Response>()
             every { response.readEntity(InputStream::class.java) } returns null
+            every { response.close() } just runs
             every { drcClient.enkelvoudigInformatieobjectDownload(uuid) } returns response
 
             val drcRuntimeException = shouldThrow<DrcRuntimeException> {
                 drcClientService.downloadEnkelvoudigInformatieobject(uuid)
             }
 
-            then("it should throw a DrcRuntimeException") {
+            then(
+                "it should throw a DrcRuntimeException and release the response, because no stream reaches " +
+                    "the caller that could release it"
+            ) {
                 drcRuntimeException.message shouldBe
                     "Content of enkelvoudig informatieobject with uuid '$uuid' could not be read."
+                verify(exactly = 1) { response.close() }
             }
         }
     }
@@ -310,6 +324,44 @@ class DrcClientServiceTest : BehaviorSpec({
 
             then("the documents registry is reported as not supporting uploads in parts") {
                 drcRuntimeException.message shouldContain "announced no bestandsdelen"
+            }
+        }
+
+        content.close()
+    }
+
+    given("A document too large to fit in memory for which parts are announced that do not cover it") {
+        val temporaryFile = Files.createTempFile("fakeDocument", null)
+            .also { Files.write(it, "0123456789".toByteArray()) }
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        val documentUUID = UUID.randomUUID()
+        val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
+
+        every {
+            drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(any())
+        } returns createEnkelvoudigInformatieObjectCreateLockSub(
+            uuid = documentUUID,
+            url = documentUrl,
+            bestandsdelen = listOf(
+                createBestandsDeel(volgnummer = 1, omvang = 4),
+                createBestandsDeel(volgnummer = 2, omvang = 4)
+            )
+        )
+        every { drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, any()) } returns mockk()
+        every { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) } returns mockk()
+
+        `when`("it is created") {
+            val drcRuntimeException = shouldThrow<DrcRuntimeException> {
+                drcClientService.createEnkelvoudigInformatieobject(
+                    createEnkelvoudigInformatieObjectCreateLockRequest(),
+                    content
+                )
+            }
+
+            then("nothing is uploaded, so that a document is never silently stored truncated") {
+                drcRuntimeException.message shouldContain "bestandsdelen of 8 bytes in total"
+                verify(exactly = 0) { drcClient.bestandsdeelUpdate(any(), any(), any()) }
+                verify(exactly = 1) { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) }
             }
         }
 

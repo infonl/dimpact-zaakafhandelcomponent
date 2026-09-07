@@ -14,6 +14,7 @@ import nl.info.zac.configuration.exception.InvalidFileSizeConfigurationException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
+import java.io.InputStream
 import java.util.logging.Logger
 
 /**
@@ -73,6 +74,15 @@ class FileSizeConfiguration @Inject constructor(
 
     val maxInMemoryFileSizeBytes = maxInMemoryFileSizeMB * BYTES_PER_MB
 
+    /**
+     * The in-memory maximum as an array length. A byte array cannot hold more than [Int.MAX_VALUE]
+     * bytes however large the configured maximum is, and reading one byte beyond the limit has to
+     * stay within that too.
+     */
+    val inMemoryLimitAsInt = maxInMemoryFileSizeBytes
+        .coerceAtMost(Int.MAX_VALUE.toLong() - Byte.MAX_VALUE)
+        .toInt()
+
     fun onStartup(@Observes @Initialized(ApplicationScoped::class) @Suppress("UNUSED_PARAMETER") event: Any) {
         validate()
         LOG.info {
@@ -100,6 +110,22 @@ class FileSizeConfiguration @Inject constructor(
                     "for operations that cannot stream ($ENV_VAR_MAX_IN_MEMORY_FILE_SIZE_MB=$maxInMemoryFileSizeMB)"
             )
         }
+    }
+
+    /**
+     * Reads [inputStream] completely, refusing content beyond the in-memory maximum.
+     *
+     * The size the documents registry reports is optional, so a document that reports no size at all
+     * passes [assertFileCanBeHeldInMemory]. Counting the bytes that actually arrive is what keeps
+     * such a document from being read onto the heap in full.
+     *
+     * @throws FileTooLargeToOpenException when the content exceeds the in-memory maximum.
+     */
+    fun readWithinInMemoryLimit(inputStream: InputStream): ByteArray {
+        // read one byte beyond the limit so that content of exactly the limit is still accepted
+        val bytes = inputStream.readNBytes(inMemoryLimitAsInt + 1)
+        assertFileCanBeHeldInMemory(bytes.size.toLong())
+        return bytes
     }
 
     fun isUploadedInParts(fileSizeBytes: Long) = fileSizeBytes > maxInMemoryFileSizeBytes

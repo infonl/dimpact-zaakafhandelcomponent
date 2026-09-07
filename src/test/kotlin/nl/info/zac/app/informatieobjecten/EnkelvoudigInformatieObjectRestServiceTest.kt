@@ -19,6 +19,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.StreamingOutput
 import net.atos.zac.event.EventingService
 import net.atos.zac.websocket.event.ScreenEvent
@@ -1236,9 +1237,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val uuid = UUID.randomUUID()
         val version = 2
         val byteArrayInputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
-        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            bestandsnaam = "fakeCurrentVersionFileName",
+            bestandsomvang = 9999
+        )
+        val requestedVersion = createEnkelvoudigInformatieObject(
+            bestandsnaam = "fakeRequestedVersionFileName",
+            bestandsomvang = 3
+        )
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, version) } returns requestedVersion
         every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null).downloaden } returns true
         every { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) } returns byteArrayInputStream
@@ -1248,9 +1257,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             then("the specific version is streamed to the client") {
                 response.status shouldBe 200
-                response.headers["Content-Disposition"]!!.first() shouldBe
-                    """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
                 writeStreamingOutput(response.entity) shouldBe byteArrayOf(1, 2, 3)
+            }
+
+            and("the response is described by that version and not by the current one") {
+                response.headers["Content-Disposition"]!!.first() shouldBe
+                    """attachment; filename="fakeRequestedVersionFileName""""
+                response.headers[HttpHeaders.CONTENT_LENGTH]!!.first() shouldBe 3
             }
         }
     }
@@ -1259,9 +1272,18 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val uuid = UUID.randomUUID()
         val version = 3
         val byteArrayInputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
-        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            bestandsnaam = "fakeCurrentVersionFileName",
+            bestandsomvang = 9999
+        )
+        val requestedVersion = createEnkelvoudigInformatieObject(
+            bestandsnaam = "fakeRequestedVersionFileName",
+            formaat = "fakeRequestedVersionFormaat",
+            bestandsomvang = 3
+        )
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, version) } returns requestedVersion
         every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null) } returns createDocumentRechten()
         every { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) } returns byteArrayInputStream
@@ -1271,11 +1293,15 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             then("the specific version is streamed inline") {
                 response.status shouldBe 200
-                response.headers["Content-Disposition"]!!.first() shouldBe
-                    """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
-                response.headers["Content-Type"]!!.first() shouldBe enkelvoudigInformatieObject.formaat
                 writeStreamingOutput(response.entity) shouldBe byteArrayOf(1, 2, 3)
                 verify(exactly = 1) { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) }
+            }
+
+            and("the response is described by that version and not by the current one") {
+                response.headers["Content-Disposition"]!!.first() shouldBe
+                    """inline; filename="fakeRequestedVersionFileName""""
+                response.headers["Content-Type"]!!.first() shouldBe "fakeRequestedVersionFormaat"
+                response.headers[HttpHeaders.CONTENT_LENGTH]!!.first() shouldBe 3
             }
         }
     }

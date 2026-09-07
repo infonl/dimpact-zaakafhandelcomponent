@@ -41,13 +41,11 @@ class DocumentContentReader @Inject constructor(
      * @throws FileSizeExceededException when the document is larger than the configured maximum.
      * @throws InputValidationFailedException when the document is empty.
      */
-    fun read(inputStream: InputStream): DocumentContent {
-        val inMemoryLimit = fileSizeConfiguration.maxInMemoryFileSizeBytes
-            .coerceAtMost(Int.MAX_VALUE.toLong() - Byte.MAX_VALUE)
-            .toInt()
+    fun read(inputStream: InputStream): DocumentContent = inputStream.use {
+        val inMemoryLimit = fileSizeConfiguration.inMemoryLimitAsInt
         // read one byte beyond the limit so that a document of exactly the limit still stays in memory
-        val head = inputStream.readNBytes(inMemoryLimit + 1)
-        return if (head.size <= inMemoryLimit) {
+        val head = it.readNBytes(inMemoryLimit + 1)
+        if (head.size <= inMemoryLimit) {
             if (head.isEmpty()) {
                 throw InputValidationFailedException(
                     errorCode = ERROR_CODE_DOCUMENT_UPLOAD_INVALID,
@@ -57,7 +55,7 @@ class DocumentContentReader @Inject constructor(
             fileSizeConfiguration.assertFileSizeAllowed(head.size.toLong())
             InMemoryDocumentContent(head)
         } else {
-            spillToTemporaryFile(head = head, remainder = inputStream)
+            spillToTemporaryFile(head = head, remainder = it)
         }
     }
 
