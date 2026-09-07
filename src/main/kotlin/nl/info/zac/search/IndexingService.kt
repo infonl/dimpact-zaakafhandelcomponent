@@ -810,6 +810,16 @@ class IndexingService @Inject constructor(
     }
 
     /**
+     * The per-zaak conversion outcomes produced by [reindexZaakTakenDocumenten]: the zaak itself, and the
+     * outcomes of its open taken and its linked documenten.
+     */
+    private data class ZaakTakenDocumentenOutcomes(
+        val zaakOutcome: ConversionOutcome,
+        val takenOutcomes: List<ConversionOutcome>,
+        val documentenOutcomes: List<ConversionOutcome>
+    )
+
+    /**
      * Which of `TAAK`/`DOCUMENT` to reindex together with `ZAAK` in [reindexZakenTakenDocumenten] and the
      * functions it drives. Bundling the two flags in one value type, instead of passing them as adjacent
      * `Boolean` parameters through every function in that call chain, removes the risk of one being swapped
@@ -996,9 +1006,9 @@ class IndexingService @Inject constructor(
             }.awaitAll()
         }
 
-        val zaakOutcomes = pageResults.map { it.first }
-        val takenOutcomes = pageResults.flatMap { it.second }
-        val documentenOutcomes = pageResults.flatMap { it.third }
+        val zaakOutcomes = pageResults.map { it.zaakOutcome }
+        val takenOutcomes = pageResults.flatMap { it.takenOutcomes }
+        val documentenOutcomes = pageResults.flatMap { it.documentenOutcomes }
         addToSolrIndex(zaakOutcomes.zoekObjecten(), performCommit = false)
         addToSolrIndex(takenOutcomes.zoekObjecten(), performCommit = false)
         addToSolrIndex(documentenOutcomes.zoekObjecten(), performCommit = false)
@@ -1036,7 +1046,7 @@ class IndexingService @Inject constructor(
         scope: ReindexScope,
         isZaakspecifiekGeautoriseerd: (UUID) -> Boolean,
         alreadyIndexedInformatieobjectUUIDs: MutableSet<UUID>
-    ): Triple<ConversionOutcome, List<ConversionOutcome>, List<ConversionOutcome>> {
+    ): ZaakTakenDocumentenOutcomes {
         val zaakConversion = try {
             runTranslatingToIndexingException {
                 val zaak = zrcClientService.readZaak(zaakUUID)
@@ -1047,7 +1057,7 @@ class IndexingService @Inject constructor(
             null
         }
         if (zaakConversion == null) {
-            return Triple(ConversionOutcome.Errored, emptyList(), emptyList())
+            return ZaakTakenDocumentenOutcomes(ConversionOutcome.Errored, emptyList(), emptyList())
         }
         val (zaak, zaakZoekObject) = zaakConversion
 
@@ -1077,7 +1087,7 @@ class IndexingService @Inject constructor(
             emptyList()
         }
 
-        return Triple(ConversionOutcome.Converted(zaakZoekObject), takenOutcomes, documentenOutcomes)
+        return ZaakTakenDocumentenOutcomes(ConversionOutcome.Converted(zaakZoekObject), takenOutcomes, documentenOutcomes)
     }
 
     private fun convertTaak(taskId: String, zaak: Zaak, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): ConversionOutcome =
