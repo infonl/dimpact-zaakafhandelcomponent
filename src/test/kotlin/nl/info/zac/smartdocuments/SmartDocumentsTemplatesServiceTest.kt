@@ -150,7 +150,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
     given("A missing mapping") {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaakafhanderParametersId = 1L
+        val zaakafhandelParametersId = 1L
         val templateGroupId = "template group id"
         val templateId = "template id"
 
@@ -172,7 +172,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
         every { criteriaBuilder.createQuery(UUID::class.java) } returns criteriaQuery
         every { criteriaBuilder.and(any<Predicate>(), any<Predicate>(), any<Predicate>()) } returns predicate
-        every { criteriaBuilder.equal(longPath, zaakafhanderParametersId) } returns predicate
+        every { criteriaBuilder.equal(longPath, zaakafhandelParametersId) } returns predicate
         every { criteriaBuilder.equal(stringPath, templateGroupId) } returns predicate
         every { criteriaBuilder.equal(templatePath, templateId) } returns predicate
 
@@ -191,7 +191,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every {
             zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
         } returns zaaktypeConfiguration
-        every { zaaktypeConfiguration.id } returns zaakafhanderParametersId
+        every { zaaktypeConfiguration.id } returns zaakafhandelParametersId
 
         every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
         every { typedQuery.resultList } returns emptyList()
@@ -214,7 +214,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
     given("An existing mapping") {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaakafhanderParametersId = 1L
+        val zaakafhandelParametersId = 1L
         val templateGroupId = "template group id"
         val templateId = "template id"
         val informationObjectTypeUUID = UUID.randomUUID()
@@ -237,7 +237,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
         every { criteriaBuilder.createQuery(UUID::class.java) } returns criteriaQuery
         every { criteriaBuilder.and(any<Predicate>(), any<Predicate>(), any<Predicate>()) } returns predicate
-        every { criteriaBuilder.equal(longPath, zaakafhanderParametersId) } returns predicate
+        every { criteriaBuilder.equal(longPath, zaakafhandelParametersId) } returns predicate
         every { criteriaBuilder.equal(stringPath, templateGroupId) } returns predicate
         every { criteriaBuilder.equal(templatePath, templateId) } returns predicate
 
@@ -256,7 +256,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every {
             zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
         } returns zaaktypeConfiguration
-        every { zaaktypeConfiguration.id } returns zaakafhanderParametersId
+        every { zaaktypeConfiguration.id } returns zaakafhandelParametersId
 
         every { typedQuery.setMaxResults(any<Int>()) } returns typedQuery
         every { typedQuery.resultList } returns listOf(informationObjectTypeUUID)
@@ -276,7 +276,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
 
     given("A zaaktype configuration exists but has no persisted SmartDocuments mapping") {
         val zaaktypeUUID = UUID.randomUUID()
-        val zaakafhanderParametersId = 1L
+        val zaakafhandelParametersId = 1L
 
         val criteriaBuilder = mockk<CriteriaBuilder>()
         val criteriaQuery = mockk<CriteriaQuery<SmartDocumentsTemplateGroup>>()
@@ -298,7 +298,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         } returns zaaktypeConfigurationPath
         every { zaaktypeConfigurationPath.get<Long>("id") } returns longPath
         every { root.get<SmartDocumentsTemplateGroup>("parent") } returns parentPath
-        every { criteriaBuilder.equal(longPath, zaakafhanderParametersId) } returns equalPredicate
+        every { criteriaBuilder.equal(longPath, zaakafhandelParametersId) } returns equalPredicate
         every { criteriaBuilder.isNull(parentPath) } returns isNullPredicate
         every { criteriaBuilder.and(equalPredicate, isNullPredicate) } returns andPredicate
         every { criteriaQuery.select(root) } returns criteriaQuery
@@ -310,7 +310,7 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
         every {
             zaaktypeConfigurationService.readZaaktypeConfiguration(zaaktypeUUID)
         } returns zaaktypeConfiguration
-        every { zaaktypeConfiguration.id } returns zaakafhanderParametersId
+        every { zaaktypeConfiguration.id } returns zaakafhandelParametersId
 
         `when`("templates mapping is requested") {
             val mappings = smartDocumentsTemplatesService.getTemplatesMapping(zaaktypeUUID)

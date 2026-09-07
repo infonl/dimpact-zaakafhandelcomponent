@@ -68,8 +68,6 @@ private fun convertTemplateGroupToStringRepresentation(
         }
     }
 
-// The persisted entity no longer carries a name (see resolveCurrentNames below, which is always
-// applied to this function's output and replaces this placeholder with the current SmartDocuments name).
 private const val PLACEHOLDER_NAME_REPLACED_BY_RESOLVE_CURRENT_NAMES = ""
 
 private fun convertTemplateGroupToRest(
@@ -110,7 +108,7 @@ private fun convertTemplateGroupToModel(
  */
 fun Set<RestMappedSmartDocumentsTemplateGroup>.resolveCurrentNames(
     currentTemplateGroups: Set<RestSmartDocumentsTemplateGroup>
-): Set<RestMappedSmartDocumentsTemplateGroup> =
+) =
     mapNotNull { it.resolveCurrentNames(currentTemplateGroups.findGroupById(it.id)) }.toSet()
 
 private fun RestMappedSmartDocumentsTemplateGroup.resolveCurrentNames(

@@ -274,7 +274,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
      * @return a [Selection] holding the current template group name and template name
      * @throws SmartDocumentsConfigurationException when either id no longer exists in SmartDocuments
      */
-    fun readCurrentSelection(templateGroupId: String, templateId: String): Selection =
+    fun readCurrentSelection(templateGroupId: String, templateId: String) =
         listTemplates().let { currentTemplateGroups ->
             Selection(
                 templateGroup = currentTemplateGroups.findGroupById(templateGroupId)?.name
