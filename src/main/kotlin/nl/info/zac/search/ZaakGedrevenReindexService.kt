@@ -29,20 +29,12 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
 import java.util.logging.Logger
 
-/**
- * Which of `TAAK`/`DOCUMENT` to reindex together with `ZAAK` in [ZaakGedrevenReindexService.reindex] and the
- * functions it drives. Bundling the two flags in one value type, instead of passing them as adjacent
- * `Boolean` parameters through every function in that call chain, removes the risk of one being swapped
- * for the other undetected at any call site.
- */
 internal data class ReindexScope(val includeTaken: Boolean, val includeDocumenten: Boolean)
 
 /**
  * Reindexes `ZAAK` together with, when requested, `TAAK` and/or `DOCUMENT` as one zaak-driven combined pass,
  * retrieving each zaak from ZGW at most once and reusing it for the zaak's own reindex as well as its open
- * taken and its linked documenten, instead of each taak/document independently retrieving the same zaak
- * again. Invoked from `IndexingService.reindexCombined`, which reserves the requested object types and
- * wraps the call in `systemUser`.
+ * taken and its linked documenten.
  */
 @Singleton
 @AllOpen
@@ -57,8 +49,6 @@ class ZaakGedrevenReindexService @Inject constructor(
     private val taakZoekObjectConverter: TaakZoekObjectConverter
 ) {
     companion object {
-        // deliberately keeps the pre-split logger name/identity so that log-based tests and any external
-        // log-based tooling keyed off "nl.info.zac.search.IndexingService" keep working unchanged
         private val LOG = Logger.getLogger(IndexingService::class.java.name)
     }
 
@@ -75,10 +65,6 @@ class ZaakGedrevenReindexService @Inject constructor(
             )
     }
 
-    /**
-     * The per-zaak conversion outcomes produced by [reindexZaakTakenDocumenten]: the zaak itself, and the
-     * outcomes of its open taken and its linked documenten.
-     */
     private data class ReindexZaakTakenDocumentenOutcome(
         val zaakOutcome: ConversionOutcome,
         val takenOutcomes: List<ConversionOutcome>,
@@ -119,7 +105,6 @@ class ZaakGedrevenReindexService @Inject constructor(
             return
         }
 
-        // captured before any deletion happens, consistent with reindexAllTaken/reindexAllInformatieobjecten
         val plan = determineTaakDocumentReindexPlan(scope)
 
         reindexSupportService.deleteExistingEntities(ZoekObjectType.ZAAK)
@@ -127,7 +112,7 @@ class ZaakGedrevenReindexService @Inject constructor(
         if (plan.effectiveScope.includeDocumenten) reindexSupportService.deleteExistingEntities(ZoekObjectType.DOCUMENT)
 
         // tracks which informatieobjecten the zaak-driven stage already indexed, so the orphan sweep
-        // below does not reconvert them - see reindexInformatieobjectenOrphanSweep
+        // below does not reconvert them
         val alreadyIndexedInformatieobjectUUIDs = ConcurrentHashMap.newKeySet<UUID>()
         val counts = reindexPages(
             numberOfZaken,
@@ -162,8 +147,7 @@ class ZaakGedrevenReindexService @Inject constructor(
     /**
      * Determines the `TAAK`/`DOCUMENT` counts for the combined zaak-driven pass, and the [ReindexScope]
      * that should actually be reindexed for this run - only the parts of [requestedScope] whose own count
-     * succeeded, so a count failure leaves that type untouched (see [reindex]'s KDoc) instead of deleting
-     * and repopulating data whose true total is unknown.
+     * succeeded, so a count failure leaves that type untouched.
      */
     private fun determineTaakDocumentReindexPlan(requestedScope: ReindexScope): TaakDocumentReindexPlan {
         val numberOfTasks = if (requestedScope.includeTaken) {
@@ -195,7 +179,7 @@ class ZaakGedrevenReindexService @Inject constructor(
     /**
      * Falls back to [ReindexSupportService.reindexAllTaken]/[ReindexSupportService.reindexAllInformatieobjecten]
      * for whichever of [scope]'s `TAAK`/`DOCUMENT` were requested, since the zaak count being unavailable
-     * means there is no zaak-driven pass for them to be part of - see [reindex]'s KDoc.
+     * means there is no zaak-driven pass for them to be part of.
      */
     private fun reindexFallback(scope: ReindexScope) {
         LOG.warning("[${ZoekObjectType.ZAAK}] Cannot find zaken count! Aborting reindexing")

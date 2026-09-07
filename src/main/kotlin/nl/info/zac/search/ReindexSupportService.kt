@@ -56,10 +56,7 @@ internal data class ReindexSummary(val successCount: Int, val skippedCount: Int,
  * Owns the Solr client and the generic machinery shared by every reindex path in this package: converting
  * and adding/removing Solr documents, the [ConversionOutcome]/[ReindexCounts]/[ReindexSummary] accounting
  * types, "Reindexing started/finished" message building, and the independent per-object-type reindex
- * algorithms ([reindexAllZaken]/[reindexAllInformatieobjecten]/[reindexAllTaken]). Extracted out of
- * [IndexingService] so that both it and [ZaakGedrevenReindexService] (the zaak-driven combined pass, which
- * falls back to [reindexAllTaken]/[reindexAllInformatieobjecten] when the zaak count cannot be determined)
- * depend on one shared collaborator instead of one depending on the other.
+ * algorithms ([reindexAllZaken]/[reindexAllInformatieobjecten]/[reindexAllTaken]).
  */
 @Singleton
 @AllOpen
@@ -75,8 +72,6 @@ class ReindexSupportService @Inject constructor(
         private const val TAKEN_MAX_RESULTS = 100
         private const val PAGE_CONVERSION_PARALLELISM = 8
 
-        // deliberately keeps the pre-split logger name/identity so that log-based tests and any external
-        // log-based tooling keyed off "nl.info.zac.search.IndexingService" keep working unchanged
         private val LOG = Logger.getLogger(IndexingService::class.java.name)
     }
 
@@ -88,7 +83,6 @@ class ReindexSupportService @Inject constructor(
 
     fun commit() {
         runTranslatingToIndexingException {
-            // this overload waits until the solr searcher is done, which is what we want
             solrClient.commit(null, true, true)
         }
     }
@@ -114,7 +108,7 @@ class ReindexSupportService @Inject constructor(
         }
 
     /**
-     * Converts [objectIds] concurrently (see [pageConversionDispatcher]), sharing one
+     * Converts [objectIds] concurrently, sharing one
      * [isZaakspecifiekGeautoriseerd] lookup across all of them by default, memoized per zaak UUID via
      * [memoizedIsZaakspecifiekGeautoriseerd] so that objects linked to the same zaak (e.g. several
      * documents of one zaak within a reindex page) share one ZGW call instead of each deriving the flag
