@@ -12,6 +12,7 @@ import io.kotest.matchers.string.shouldContain
 import nl.info.zac.configuration.FileSizeConfiguration.Companion.BYTES_PER_MB
 import nl.info.zac.configuration.FileSizeConfiguration.Companion.IN_MEMORY_OPERATION_HEAP_BUDGET_FRACTION
 import nl.info.zac.configuration.FileSizeConfiguration.Companion.IN_MEMORY_OPERATION_HEAP_FACTOR
+import nl.info.zac.configuration.FileSizeConfiguration.Companion.MAX_SUPPORTED_FILE_SIZE_MB
 import nl.info.zac.configuration.exception.FileSizeExceededException
 import nl.info.zac.configuration.exception.FileTooLargeToOpenException
 import nl.info.zac.configuration.exception.InvalidFileSizeConfigurationException
@@ -113,6 +114,24 @@ class FileSizeConfigurationTest : BehaviorSpec({
                 invalidFileSizeConfigurationException.message shouldContain "MAX_IN_MEMORY_FILE_SIZE_MB"
                 invalidFileSizeConfigurationException.message shouldContain
                     "Either lower MAX_IN_MEMORY_FILE_SIZE_MB to at most $largestSupportedInMemoryFileSizeMB MB"
+            }
+        }
+    }
+
+    given("a maximum file size beyond what the documents registry can express") {
+        val fileSizeConfiguration = FileSizeConfiguration(
+            maxFileSizeMB = MAX_SUPPORTED_FILE_SIZE_MB + 1L,
+            maxInMemoryFileSizeMB = 80L
+        )
+
+        `when`("the configuration is validated on startup") {
+            val invalidFileSizeConfigurationException = shouldThrow<InvalidFileSizeConfigurationException> {
+                fileSizeConfiguration.onStartup(Any())
+            }
+
+            then("ZAC refuses to start, rather than overflowing the size it reports for a document") {
+                invalidFileSizeConfigurationException.message shouldContain
+                    "MAX_FILE_SIZE_MB (2048) cannot be larger than 2047 MB"
             }
         }
     }

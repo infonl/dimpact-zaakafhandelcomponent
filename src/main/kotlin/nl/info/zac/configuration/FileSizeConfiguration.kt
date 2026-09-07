@@ -67,6 +67,13 @@ class FileSizeConfiguration @Inject constructor(
          */
         const val IN_MEMORY_OPERATION_HEAP_BUDGET_FRACTION = 0.5
 
+        /**
+         * The largest document ZAC can describe to the documents registry. `bestandsomvang` is an
+         * `Int` in the ZGW Documenten API, so a larger document cannot be expressed in bytes without
+         * overflowing it.
+         */
+        const val MAX_SUPPORTED_FILE_SIZE_MB = Int.MAX_VALUE / (1024 * 1024)
+
         private val LOG = Logger.getLogger(FileSizeConfiguration::class.java.name)
     }
 
@@ -141,6 +148,10 @@ class FileSizeConfiguration @Inject constructor(
             maxFileSizeMB <= 0 || maxInMemoryFileSizeMB <= 0 ->
                 "$ENV_VAR_MAX_FILE_SIZE_MB ($maxFileSizeMB) and " +
                     "$ENV_VAR_MAX_IN_MEMORY_FILE_SIZE_MB ($maxInMemoryFileSizeMB) must both be greater than zero"
+            maxFileSizeMB > MAX_SUPPORTED_FILE_SIZE_MB ->
+                "$ENV_VAR_MAX_FILE_SIZE_MB ($maxFileSizeMB) cannot be larger than " +
+                    "$MAX_SUPPORTED_FILE_SIZE_MB MB, because the documents registry expresses the size of a " +
+                    "document as a 32 bit integer number of bytes"
             maxInMemoryFileSizeMB > maxFileSizeMB ->
                 "$ENV_VAR_MAX_IN_MEMORY_FILE_SIZE_MB ($maxInMemoryFileSizeMB) cannot be larger than " +
                     "$ENV_VAR_MAX_FILE_SIZE_MB ($maxFileSizeMB)"

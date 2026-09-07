@@ -168,6 +168,9 @@ install with an actionable message.
 {{- if or (le $maxFileSizeMB 0) (le $maxInMemoryFileSizeMB 0) -}}
 {{- fail "maxFileSizeMB and maxInMemoryFileSizeMB must both be greater than zero" -}}
 {{- end -}}
+{{- if gt $maxFileSizeMB 2047 -}}
+{{- fail (printf "maxFileSizeMB (%d) cannot be larger than 2047, because the documents registry expresses the size of a document as a 32 bit integer number of bytes" $maxFileSizeMB) -}}
+{{- end -}}
 {{- if gt $maxInMemoryFileSizeMB $maxFileSizeMB -}}
 {{- fail (printf "maxInMemoryFileSizeMB (%d) cannot be larger than maxFileSizeMB (%d)" $maxInMemoryFileSizeMB $maxFileSizeMB) -}}
 {{- end -}}

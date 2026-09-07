@@ -303,9 +303,13 @@ class TaskRestService @Inject constructor(
         @PathParam("uuid") uuid: UUID,
         @Valid @MultipartForm data: RestFileUpload
     ): Response {
+        val file = data.file?.takeIf { it.isNotEmpty() } ?: throw InputValidationFailedException(
+            errorCode = ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID,
+            message = "An empty document cannot be uploaded"
+        )
         // a task form attachment is kept in the HTTP session until the form is submitted, so it is
         // bound by the in-memory limit rather than by the much larger maximum document size
-        fileSizeConfiguration.assertFileCanBeHeldInMemory(data.file?.size?.toLong() ?: 0)
+        fileSizeConfiguration.assertFileCanBeHeldInMemory(file.size.toLong())
         httpSession.get().setAttribute("_FILE__${uuid}__$field", data)
         return Response.ok("\"Success\"").build()
     }
