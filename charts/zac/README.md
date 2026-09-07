@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.316](https://img.shields.io/badge/Version-1.0.316-informational?style=flat-square) ![AppVersion: 5.7](https://img.shields.io/badge/AppVersion-5.7-informational?style=flat-square)
+![Version: 1.0.317](https://img.shields.io/badge/Version-1.0.317-informational?style=flat-square) ![AppVersion: 5.7](https://img.shields.io/badge/AppVersion-5.7-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -95,7 +95,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | specifies image pull secrets |
-| ingress.annotations | object | `{}` |  |
+| ingress.annotations | object | `{}` | An ingress in front of ZAC has to allow at least `maxFileSizeMB` plus multipart overhead and needs timeouts long enough to up- or download a document of that size over a slow connection. For the nginx ingress controller that means, next to any annotations of your own:   nginx.ingress.kubernetes.io/proxy-body-size: 600m   nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"   nginx.ingress.kubernetes.io/proxy-send-timeout: "1800" |
 | ingress.className | string | `""` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts[0].host | string | `"chart-example.local"` |  |
@@ -176,7 +176,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.api_proxy.kvk.zoeken.server_secret | string | `"kvk_server"` |  |
 | nginx.api_proxy.kvk.zoeken.ssl_verify | bool | `false` |  |
 | nginx.autoscaling.enabled | bool | `false` |  |
-| nginx.client_max_body_size | string | `"120M"` |  |
+| nginx.client_max_body_size | string | `"600M"` | Has to allow at least `maxFileSizeMB` plus multipart overhead. |
 | nginx.enabled | bool | `false` |  |
 | nginx.existingConfigmap | string | `nil` |  |
 | nginx.image.pullPolicy | string | `"IfNotPresent"` |  |
@@ -188,6 +188,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | nginx.livenessProbe.successThreshold | int | `1` |  |
 | nginx.livenessProbe.timeoutSeconds | int | `5` |  |
 | nginx.podLabels | object | `{}` |  |
+| nginx.proxy_timeout | string | `"1800s"` | Read and send timeout towards ZAC. Uploading or downloading a document of hundreds of megabytes over a slow connection takes far longer than the nginx default of 60s. |
 | nginx.readinessProbe.failureThreshold | int | `3` |  |
 | nginx.readinessProbe.initialDelaySeconds | int | `30` |  |
 | nginx.readinessProbe.periodSeconds | int | `10` |  |
@@ -284,6 +285,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | remoteDebug | bool | `false` | Enable Java remote debugging |
 | replicaCount | int | `1` | The number of replicas to run |
 | resources.requests.cpu | string | `"100m"` |  |
+| resources.requests.ephemeral-storage | string | `"4Gi"` |  |
 | resources.requests.memory | string | `"1Gi"` |  |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | generic security context |
 | service.annotations | object | `{}` |  |
@@ -375,6 +377,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"zookeeper"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for zookeeper |
 | solr.createZacCore | bool | `true` | enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr) |
 | solr.url | string | `""` | The location of an existing solr instance (unmanaged by this chart) to be used by zac |
+| tmpVolumeSize | string | `"4Gi"` | Size of the emptyDir mounted at /tmp. WildFly buffers every request body to a temporary file there and ZAC streams the uploaded document from it, so this has to hold `maxFileSizeMB` for every concurrent upload. Keep `resources.requests.ephemeral-storage` and `resources.limits.ephemeral-storage` in step with it. |
 | tolerations | list | `[]` | set toleration parameters |
 | topologySpreadConstraints | list | `[{"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"ScheduleAnyway"}]` | set topologySpreadConstraints parameters. Note: labelSelector is automatically set by the template to match the deployment's labels |
 | zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
