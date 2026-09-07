@@ -175,7 +175,6 @@ class SmartDocumentsServiceTest : BehaviorSpec({
 
     given("SmartDocuments is enabled, no fixed user name is configured and no user is logged in") {
         every { loggedInUserInstance.isUnsatisfied } returns true
-        every { smartDocumentsClient.get() } returns mockk<SmartDocumentsClient>()
 
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,

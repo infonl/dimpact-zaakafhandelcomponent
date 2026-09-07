@@ -130,11 +130,13 @@ class SmartDocumentsService @Inject constructor(
      *
      * @return A structure describing templates and groups
      */
-    fun listTemplates(): SmartDocumentsTemplatesResponse =
-        smartDocumentsClient.get().listTemplates(
+    fun listTemplates(): SmartDocumentsTemplatesResponse {
+        val userName = determineUserName()
+        return smartDocumentsClient.get().listTemplates(
             authenticationToken = "Basic ${authenticationToken.get()}",
-            userName = determineUserName()
+            userName = userName
         )
+    }
 
     /**
      * Download the generated document from SmartDocuments.
