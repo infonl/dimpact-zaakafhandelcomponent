@@ -16,12 +16,6 @@ import { ZaakSideActionService } from "./zaak-side-action.service";
 
 type Zaak = GeneratedType<"RestZaak">;
 
-/**
- * Owns the betrokkenen of a zaak: coupling an initiator, replacing or removing
- * it, coupling another betrokkene, and refreshing what that makes stale. Scoped
- * to a single zaak view, so it is provided by the component rather than in the
- * root injector.
- */
 @Injectable()
 export class ZaakBetrokkenenService {
   private readonly queryClient = inject(QueryClient);
