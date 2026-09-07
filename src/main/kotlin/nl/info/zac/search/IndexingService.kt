@@ -241,8 +241,10 @@ class IndexingService @Inject constructor(
         try {
             systemUser.set(true)
             reindexZakenTakenDocumenten(
-                includeTaken = ZoekObjectType.TAAK in objectTypes,
-                includeDocumenten = ZoekObjectType.DOCUMENT in objectTypes
+                ReindexScope(
+                    includeTaken = ZoekObjectType.TAAK in objectTypes,
+                    includeDocumenten = ZoekObjectType.DOCUMENT in objectTypes
+                )
             )
         } finally {
             systemUser.remove()
@@ -807,48 +809,57 @@ class IndexingService @Inject constructor(
             )
     }
 
+    /**
+     * Which of `TAAK`/`DOCUMENT` to reindex together with `ZAAK` in [reindexZakenTakenDocumenten] and the
+     * functions it drives. Bundling the two flags in one value type, instead of passing them as adjacent
+     * `Boolean` parameters through every function in that call chain, removes the risk of one being swapped
+     * for the other undetected at any call site.
+     */
+    private data class ReindexScope(val includeTaken: Boolean, val includeDocumenten: Boolean)
+
     private data class TaakDocumentReindexPlan(
         val numberOfTasks: Long?,
         val numberOfInformatieobjecten: Int?,
-        val reindexTaken: Boolean,
-        val reindexDocumenten: Boolean
+        val effectiveScope: ReindexScope
     )
 
     /**
-     * Determines the `TAAK`/`DOCUMENT` counts for the combined zaak-driven pass, and whether each type
-     * should actually be reindexed for this run - only when it was requested and its own count succeeded,
-     * so a count failure leaves that type untouched (see [reindexZakenTakenDocumenten]'s KDoc) instead of
-     * deleting and repopulating data whose true total is unknown.
+     * Determines the `TAAK`/`DOCUMENT` counts for the combined zaak-driven pass, and the [ReindexScope]
+     * that should actually be reindexed for this run - only the parts of [requestedScope] whose own count
+     * succeeded, so a count failure leaves that type untouched (see [reindexZakenTakenDocumenten]'s KDoc)
+     * instead of deleting and repopulating data whose true total is unknown.
      */
-    private fun determineTaakDocumentReindexPlan(includeTaken: Boolean, includeDocumenten: Boolean): TaakDocumentReindexPlan {
-        val numberOfTasks = if (includeTaken) {
+    private fun determineTaakDocumentReindexPlan(requestedScope: ReindexScope): TaakDocumentReindexPlan {
+        val numberOfTasks = if (requestedScope.includeTaken) {
             continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.countOpenTasks() }
         } else {
             null
         }
-        val numberOfInformatieobjecten = if (includeDocumenten) {
+        val numberOfInformatieobjecten = if (requestedScope.includeDocumenten) {
             continueOnExceptions(ZoekObjectType.DOCUMENT) { countInformatieobjecten() }
         } else {
             null
         }
-        if (includeTaken && numberOfTasks == null) {
+        if (requestedScope.includeTaken && numberOfTasks == null) {
             LOG.warning("[${ZoekObjectType.TAAK}] Cannot find tasks count! Aborting reindexing")
         }
-        if (includeDocumenten && numberOfInformatieobjecten == null) {
+        if (requestedScope.includeDocumenten && numberOfInformatieobjecten == null) {
             LOG.warning("[${ZoekObjectType.DOCUMENT}] Cannot find information objects count! Aborting reindexing")
         }
         return TaakDocumentReindexPlan(
             numberOfTasks = numberOfTasks,
             numberOfInformatieobjecten = numberOfInformatieobjecten,
-            reindexTaken = includeTaken && numberOfTasks != null,
-            reindexDocumenten = includeDocumenten && numberOfInformatieobjecten != null
+            effectiveScope = ReindexScope(
+                includeTaken = requestedScope.includeTaken && numberOfTasks != null,
+                includeDocumenten = requestedScope.includeDocumenten && numberOfInformatieobjecten != null
+            )
         )
     }
 
     /**
-     * Reindexes `ZAAK` together with, when requested, `TAAK` and/or `DOCUMENT`, retrieving each zaak from
-     * ZGW at most once and reusing it for the zaak's own reindex as well as its open taken and its linked
-     * documenten (see [reindexZaakTakenDocumenten]), instead of each taak/document independently
+     * Reindexes `ZAAK` together with, when requested by [scope], `TAAK` and/or `DOCUMENT`, retrieving each
+     * zaak from ZGW at most once and reusing it for the zaak's own reindex as well as its open taken and
+     * its linked documenten (see [reindexZaakTakenDocumenten]), instead of each taak/document independently
      * retrieving the same zaak again.
      *
      * When the zaak count cannot be determined, `ZAAK` is reported as aborted (as [reindexAllZaken] does
@@ -861,31 +872,30 @@ class IndexingService @Inject constructor(
      * [reindexAllTaken]/[reindexAllInformatieobjecten] abort without touching existing data when their own
      * count fails.
      */
-    private fun reindexZakenTakenDocumenten(includeTaken: Boolean, includeDocumenten: Boolean) {
+    private fun reindexZakenTakenDocumenten(scope: ReindexScope) {
         LOG.info(reindexStartedMessage(ZoekObjectType.ZAAK))
-        if (includeTaken) LOG.info(reindexStartedMessage(ZoekObjectType.TAAK))
-        if (includeDocumenten) LOG.info(reindexStartedMessage(ZoekObjectType.DOCUMENT))
+        if (scope.includeTaken) LOG.info(reindexStartedMessage(ZoekObjectType.TAAK))
+        if (scope.includeDocumenten) LOG.info(reindexStartedMessage(ZoekObjectType.DOCUMENT))
 
         val numberOfZaken = continueOnExceptions(ZoekObjectType.ZAAK) { countZaken() }
         if (numberOfZaken == null) {
-            reindexZakenTakenDocumentenFallback(includeTaken, includeDocumenten)
+            reindexZakenTakenDocumentenFallback(scope)
             return
         }
 
         // captured before any deletion happens, consistent with reindexAllTaken/reindexAllInformatieobjecten
-        val plan = determineTaakDocumentReindexPlan(includeTaken, includeDocumenten)
+        val plan = determineTaakDocumentReindexPlan(scope)
 
         deleteExistingEntities(ZoekObjectType.ZAAK)
-        if (plan.reindexTaken) deleteExistingEntities(ZoekObjectType.TAAK)
-        if (plan.reindexDocumenten) deleteExistingEntities(ZoekObjectType.DOCUMENT)
+        if (plan.effectiveScope.includeTaken) deleteExistingEntities(ZoekObjectType.TAAK)
+        if (plan.effectiveScope.includeDocumenten) deleteExistingEntities(ZoekObjectType.DOCUMENT)
 
         // tracks which informatieobjecten the zaak-driven stage already indexed, so the orphan sweep
         // below does not reconvert them - see reindexInformatieobjectenOrphanSweep
         val alreadyIndexedInformatieobjectUUIDs = ConcurrentHashMap.newKeySet<UUID>()
         val counts = reindexZakenTakenDocumentenPages(
             numberOfZaken,
-            plan.reindexTaken,
-            plan.reindexDocumenten,
+            plan.effectiveScope,
             alreadyIndexedInformatieobjectUUIDs
         )
 
@@ -893,7 +903,7 @@ class IndexingService @Inject constructor(
             ZoekObjectType.ZAAK,
             ReindexSummary(counts.zaakCounts.successCount, counts.zaakCounts.skippedCount, numberOfZaken)
         )
-        if (includeTaken) {
+        if (scope.includeTaken) {
             finishReindex(
                 ZoekObjectType.TAAK,
                 plan.numberOfTasks?.let {
@@ -901,7 +911,7 @@ class IndexingService @Inject constructor(
                 }
             )
         }
-        if (includeDocumenten) {
+        if (scope.includeDocumenten) {
             finishReindex(
                 ZoekObjectType.DOCUMENT,
                 plan.numberOfInformatieobjecten?.let { total ->
@@ -914,15 +924,15 @@ class IndexingService @Inject constructor(
     }
 
     /**
-     * Falls back to [reindexAllTaken]/[reindexAllInformatieobjecten] for whichever of [includeTaken]/
-     * [includeDocumenten] were requested, since the zaak count being unavailable means there is no
-     * zaak-driven pass for them to be part of - see [reindexZakenTakenDocumenten]'s KDoc.
+     * Falls back to [reindexAllTaken]/[reindexAllInformatieobjecten] for whichever of [scope]'s `TAAK`/
+     * `DOCUMENT` were requested, since the zaak count being unavailable means there is no zaak-driven pass
+     * for them to be part of - see [reindexZakenTakenDocumenten]'s KDoc.
      */
-    private fun reindexZakenTakenDocumentenFallback(includeTaken: Boolean, includeDocumenten: Boolean) {
+    private fun reindexZakenTakenDocumentenFallback(scope: ReindexScope) {
         LOG.warning("[${ZoekObjectType.ZAAK}] Cannot find zaken count! Aborting reindexing")
         finishReindex(ZoekObjectType.ZAAK, null)
-        if (includeTaken) finishReindex(ZoekObjectType.TAAK, reindexAllTaken())
-        if (includeDocumenten) finishReindex(ZoekObjectType.DOCUMENT, reindexAllInformatieobjecten())
+        if (scope.includeTaken) finishReindex(ZoekObjectType.TAAK, reindexAllTaken())
+        if (scope.includeDocumenten) finishReindex(ZoekObjectType.DOCUMENT, reindexAllInformatieobjecten())
     }
 
     private fun countZaken(): Int =
@@ -940,8 +950,7 @@ class IndexingService @Inject constructor(
 
     private fun reindexZakenTakenDocumentenPages(
         numberOfZaken: Int,
-        includeTaken: Boolean,
-        includeDocumenten: Boolean,
+        scope: ReindexScope,
         alreadyIndexedInformatieobjectUUIDs: MutableSet<UUID>
     ): ZakenTakenDocumentenCounts {
         val numberOfPages: Int = (numberOfZaken + Results.DEFAULT_ZGW_PAGE_SIZE.toInt() - 1) /
@@ -952,8 +961,7 @@ class IndexingService @Inject constructor(
                 reindexZakenTakenDocumentenPage(
                     pageNumber,
                     numberOfZaken,
-                    includeTaken,
-                    includeDocumenten,
+                    scope,
                     alreadyIndexedInformatieobjectUUIDs
                 )
             }?.let { counts += it }
@@ -964,8 +972,7 @@ class IndexingService @Inject constructor(
     private fun reindexZakenTakenDocumentenPage(
         pageNumber: Int,
         totalCount: Int,
-        includeTaken: Boolean,
-        includeDocumenten: Boolean,
+        scope: ReindexScope,
         alreadyIndexedInformatieobjectUUIDs: MutableSet<UUID>
     ): ZakenTakenDocumentenCounts {
         val zaakUUIDs = zrcClientService.listZakenUuids(
@@ -981,8 +988,7 @@ class IndexingService @Inject constructor(
                 async {
                     reindexZaakTakenDocumenten(
                         zaakUUID,
-                        includeTaken,
-                        includeDocumenten,
+                        scope,
                         isZaakspecifiekGeautoriseerd,
                         alreadyIndexedInformatieobjectUUIDs
                     )
@@ -1027,8 +1033,7 @@ class IndexingService @Inject constructor(
      */
     private fun reindexZaakTakenDocumenten(
         zaakUUID: UUID,
-        includeTaken: Boolean,
-        includeDocumenten: Boolean,
+        scope: ReindexScope,
         isZaakspecifiekGeautoriseerd: (UUID) -> Boolean,
         alreadyIndexedInformatieobjectUUIDs: MutableSet<UUID>
     ): Triple<ConversionOutcome, List<ConversionOutcome>, List<ConversionOutcome>> {
@@ -1046,7 +1051,7 @@ class IndexingService @Inject constructor(
         }
         val (zaak, zaakZoekObject) = zaakConversion
 
-        val takenOutcomes = if (includeTaken) {
+        val takenOutcomes = if (scope.includeTaken) {
             continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.listOpenTasksForZaak(zaakUUID) }
                 .orEmpty()
                 .map { task -> convertTaak(task.id, zaak, isZaakspecifiekGeautoriseerd) }
@@ -1054,7 +1059,7 @@ class IndexingService @Inject constructor(
             emptyList()
         }
 
-        val documentenOutcomes = if (includeDocumenten) {
+        val documentenOutcomes = if (scope.includeDocumenten) {
             continueOnExceptions(ZoekObjectType.DOCUMENT) { zrcClientService.listZaakinformatieobjecten(zaak) }
                 .orEmpty()
                 .mapNotNull { zaakInformatieobject ->
