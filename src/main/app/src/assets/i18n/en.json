@@ -523,7 +523,7 @@
   "mailtemplate.variabele.ZAAK_LINK": "A clickable link to the case in the zaakafhandelcomponent.",
   "mailtemplate.variabele.ZAAK_NUMMER": "The case identification.",
   "mailtemplate.variabele.ZAAK_OMSCHRIJVING": "The case description",
-  "mailtemplate.variabele.ZAAK_REGISTRATIEDATUM": "The case's creation date.",
+  "mailtemplate.variabele.ZAAK_REGISTRATIEDATUM": "The case's registration date.",
   "mailtemplate.variabele.ZAAK_STARTDATUM": "The case's start date.",
   "mailtemplate.variabele.ZAAK_STATUS": "The case status.",
   "mailtemplate.variabele.ZAAK_STREEFDATUM": "The case's due date.",

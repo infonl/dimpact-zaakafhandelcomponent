@@ -523,7 +523,7 @@
   "mailtemplate.variabele.ZAAK_LINK": "Een klikbare link naar de zaak in de zaakafhandelcomponent.",
   "mailtemplate.variabele.ZAAK_NUMMER": "De indentificatie van de zaak.",
   "mailtemplate.variabele.ZAAK_OMSCHRIJVING": "De omschrijving van de zaak.",
-  "mailtemplate.variabele.ZAAK_REGISTRATIEDATUM": "De aanmaakdatum van de zaak. ",
+  "mailtemplate.variabele.ZAAK_REGISTRATIEDATUM": "De registratiedatum van de zaak.",
   "mailtemplate.variabele.ZAAK_STARTDATUM": "De startdatum van de zaak.",
   "mailtemplate.variabele.ZAAK_STATUS": "De status van de zaak.",
   "mailtemplate.variabele.ZAAK_STREEFDATUM": "De streefdatum van de zaak.",
