@@ -22,8 +22,8 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
 
 class WebSocketServerEndPointTest : BehaviorSpec({
-    val registry = mockk<SessionRegistry>()
-    val endpoint = WebSocketServerEndPoint(registry)
+    val sessionRegistry = mockk<SessionRegistry>()
+    val endpoint = WebSocketServerEndPoint(sessionRegistry)
 
     afterEach {
         checkUnnecessaryStub()
@@ -98,6 +98,7 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         every { wsSession.userProperties } returns wsUserProperties
         every { endpointConfig.userProperties } returns mutableMapOf<String, Any>(HTTP_SESSION to httpSession)
         every { httpSession.getAttribute(LOGGED_IN_USER_SESSION_ATTRIBUTE) } returns loggedInUser
+        every { sessionRegistry.addSession(wsSession) } just runs
 
         `when`("open is called") {
             endpoint.open(wsSession, endpointConfig)
@@ -105,19 +106,23 @@ class WebSocketServerEndPointTest : BehaviorSpec({
             then("the WebSocket session is opened and the user ID is stored in session properties") {
                 wsUserProperties[LOGGED_IN_USER_SESSION_ATTRIBUTE] shouldBe "user-123"
             }
+
+            then("the session is registered in the session registry so it can receive heartbeats") {
+                verify(exactly = 1) { sessionRegistry.addSession(wsSession) }
+            }
         }
     }
 
     given("an open WebSocket session receiving a non-null subscription message") {
         val wsSession = mockk<Session>(relaxed = true)
         val message = SubscriptionType.DELETE_ALL.message()
-        every { registry.deleteAll(wsSession) } just runs
+        every { sessionRegistry.deleteAll(wsSession) } just runs
 
         `when`("the message is processed") {
             endpoint.processMessage(message, wsSession)
 
             then("the message is registered with the session registry") {
-                verify(exactly = 1) { registry.deleteAll(wsSession) }
+                verify(exactly = 1) { sessionRegistry.deleteAll(wsSession) }
             }
         }
     }
@@ -128,8 +133,8 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         `when`("the message is processed") {
             endpoint.processMessage(null, wsSession)
 
-            then("no registry operation is performed") {
-                verify(exactly = 0) { registry.deleteAll(wsSession) }
+            then("no sessionRegistry operation is performed") {
+                verify(exactly = 0) { sessionRegistry.deleteAll(wsSession) }
             }
         }
     }
@@ -137,13 +142,18 @@ class WebSocketServerEndPointTest : BehaviorSpec({
     given("a WebSocket session close event") {
         val wsSession = mockk<Session>(relaxed = true)
         val closeReason = CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "normal close")
-        every { registry.deleteAll(wsSession) } just runs
+        every { sessionRegistry.deleteAll(wsSession) } just runs
+        every { sessionRegistry.removeSession(wsSession) } just runs
 
         `when`("close is called") {
             endpoint.close(wsSession, closeReason)
 
             then("DELETE_ALL is processed for the session to prevent resource leaks") {
-                verify(exactly = 1) { registry.deleteAll(wsSession) }
+                verify(exactly = 1) { sessionRegistry.deleteAll(wsSession) }
+            }
+
+            then("the session is removed from the session registry so it no longer receives heartbeats") {
+                verify(exactly = 1) { sessionRegistry.removeSession(wsSession) }
             }
         }
     }

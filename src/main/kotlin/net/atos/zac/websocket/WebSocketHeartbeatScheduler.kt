@@ -31,7 +31,7 @@ import java.util.logging.Logger
 @AllOpen
 @NoArgConstructor
 class WebSocketHeartbeatScheduler @Inject constructor(
-    private val registry: SessionRegistry
+    private val sessionRegistry: SessionRegistry
 ) {
     companion object {
         private val LOG = Logger.getLogger(WebSocketHeartbeatScheduler::class.java.name)
@@ -64,8 +64,8 @@ class WebSocketHeartbeatScheduler @Inject constructor(
         executor.shutdownNow()
     }
 
-    private fun sendHeartbeats() {
-        registry.listAllSessions().forEach(::sendPing)
+    internal fun sendHeartbeats() {
+        sessionRegistry.listAllSessions().forEach(::sendPing)
     }
 
     private fun sendPing(session: Session) {

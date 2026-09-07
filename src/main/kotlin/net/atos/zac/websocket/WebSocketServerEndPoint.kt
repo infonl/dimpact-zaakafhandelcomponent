@@ -30,7 +30,7 @@ import java.util.logging.Logger
     decoders = [WebSocketSubscriptionMessageDecoder::class]
 )
 class WebSocketServerEndPoint @Inject constructor(
-    private val registry: SessionRegistry
+    private val sessionRegistry: SessionRegistry
 ) {
     companion object {
         private val LOG = Logger.getLogger(WebSocketServerEndPoint::class.java.name)
@@ -44,7 +44,7 @@ class WebSocketServerEndPoint @Inject constructor(
             denyAccess(session, "no logged in user")
         } else {
             session.userProperties[LOGGED_IN_USER_SESSION_ATTRIBUTE] = loggedInUser.id
-            registry.addSession(session)
+            sessionRegistry.addSession(session)
             LOG.fine { "WebSocket open for ${user(session)}" }
         }
     }
@@ -53,7 +53,7 @@ class WebSocketServerEndPoint @Inject constructor(
     fun processMessage(message: SubscriptionMessage?, session: Session) {
         if (message != null) {
             LOG.fine { "WebSocket subscription ${message.subscriptionType} for ${user(session)} (${message.event})" }
-            message.register(registry, session)
+            message.register(sessionRegistry, session)
         }
     }
 
@@ -66,7 +66,7 @@ class WebSocketServerEndPoint @Inject constructor(
     @OnClose
     fun close(session: Session, reason: CloseReason) {
         LOG.fine { "WebSocket closed for ${user(session)} (${CloseReason.CloseCodes.getCloseCode(reason.closeCode.code)})" }
-        registry.removeSession(session)
+        sessionRegistry.removeSession(session)
         // Prevent resource leaks by always processing a fictitious DELETE_ALL message when closing.
         processMessage(DELETE_ALL.message(), session)
     }
