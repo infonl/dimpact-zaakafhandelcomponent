@@ -39,11 +39,11 @@ import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-co
 import { detailExpand } from "../../shared/animations/animations";
 import { runMutation } from "../../shared/http/run-mutation";
 import { GeneratedType } from "../../shared/utils/generated-types";
-import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakActionDialogsService } from "./services/zaak-action-dialogs.service";
+import { ZaakBetrokkenenService } from "./services/zaak-betrokkenen.service";
 import { ZaakSideActionService } from "./services/zaak-side-action.service";
 import {
   buildZaakMenu,
@@ -59,13 +59,18 @@ import {
   templateUrl: "./zaak-view.component.html",
   animations: [detailExpand],
   standalone: false,
-  providers: [ZaakSideActionService, ZaakActionDialogsService],
+  providers: [
+    ZaakSideActionService,
+    ZaakActionDialogsService,
+    ZaakBetrokkenenService,
+  ],
 })
 export class ZaakViewComponent
   extends ActionsViewComponent
   implements AfterViewInit, OnDestroy
 {
   private readonly queryClient = inject(QueryClient);
+  private readonly betrokkenen = inject(ZaakBetrokkenenService);
 
   private readonly zaakUuid = signal<string | undefined>(undefined);
 
@@ -195,7 +200,7 @@ export class ZaakViewComponent
         ObjectType.ZAAK_ROLLEN,
         zaak.uuid,
         () => {
-          this.invalidateBetrokkenen();
+          this.betrokkenen.invalidateBetrokkenen(this.zaak);
           this.invalidateZaakHistorie();
           this.updateZaak();
         },
@@ -356,13 +361,7 @@ export class ZaakViewComponent
   }
 
   private invalidateZaakHistorie() {
-    this.queryClient.invalidateQueries(
-      {
-        queryKey: this.zakenService.listHistorieVoorZaakQuery(this.zaak.uuid)
-          .queryKey,
-      },
-      { cancelRefetch: false },
-    );
+    this.zakenService.invalidateHistorie(this.zaak.uuid);
   }
 
   protected editCaseDetails() {
@@ -396,99 +395,15 @@ export class ZaakViewComponent
   }
 
   protected initiatorGeselecteerd(initiator: GeneratedType<"RestPersoon">) {
-    this.sideActions.close();
-
-    if (this.zaak.initiatorIdentificatie) {
-      // We already have an initiator, we need a reason to change it
-      this.zaakDialogService
-        .openWijzigInitiator(initiator.naam, (reden) =>
-          this.zakenService.updateInitiator({
-            zaakUUID: this.zaak.uuid,
-            betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
-            toelichting: reden,
-          }),
-        )
-        .afterClosed()
-        .subscribe((zaak) =>
-          this.handleNewInitiator("msg.initiator.gewijzigd", zaak),
-        );
-      return;
-    }
-
-    this.zakenService
-      .updateInitiator({
-        zaakUUID: this.zaak.uuid,
-        betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
-      })
-      .subscribe((zaak) =>
-        this.handleNewInitiator("msg.initiator.gekoppeld", zaak),
-      );
-  }
-
-  private handleNewInitiator(
-    notification: string,
-    zaak?: GeneratedType<"RestZaak">,
-  ) {
-    if (!zaak) return;
-
-    this.zakenService.cacheZaak(zaak);
-    const naam = [
-      zaak.initiatorIdentificatie?.kvkNummer,
-      zaak.initiatorIdentificatie?.vestigingsnummer,
-    ].filter(Boolean);
-    this.utilService.openSnackbar(notification, {
-      naam: naam.join(" - "),
-    });
-    this.invalidateZaakHistorie();
+    this.betrokkenen.initiatorGeselecteerd(this.zaak, initiator);
   }
 
   protected deleteInitiator() {
-    this.zaakDialogService
-      .openOntkoppelInitiator((reden) =>
-        runMutation(this.queryClient, this.zakenService.deleteInitiator(), {
-          zaakUuid: this.zaak.uuid,
-          reden,
-        }),
-      )
-      .afterClosed()
-      .subscribe((result) => {
-        this.sideActions.clear();
-        if (result) {
-          this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
-          this.zakenService.readZaak(this.zaak.uuid).subscribe((zaak) => {
-            this.zakenService.cacheZaak(zaak);
-            this.invalidateZaakHistorie();
-          });
-        }
-      });
+    this.betrokkenen.deleteInitiator(this.zaak);
   }
 
   protected betrokkeneGeselecteerd(klantgegevens: KlantGegevens) {
-    this.sideActions.close();
-    this.zakenService
-      .createBetrokkene({
-        zaakUUID: this.zaak.uuid,
-        roltypeUUID: klantgegevens.betrokkeneRoltype.uuid!,
-        roltoelichting: klantgegevens.betrokkeneToelichting,
-        betrokkeneIdentificatie: new BetrokkeneIdentificatie(
-          klantgegevens.klant,
-        ),
-      })
-      .subscribe((zaak) => {
-        this.zakenService.cacheZaak(zaak);
-        this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
-          roltype: klantgegevens.betrokkeneRoltype.naam,
-        });
-        this.invalidateZaakHistorie();
-        this.invalidateBetrokkenen();
-      });
-  }
-
-  private invalidateBetrokkenen() {
-    this.queryClient.invalidateQueries({
-      queryKey: this.zakenService.listBetrokkenenVoorZaakQuery(this.zaak.uuid)
-        .queryKey,
-    });
+    this.betrokkenen.betrokkeneGeselecteerd(this.zaak, klantgegevens);
   }
 
   private loadBagObjecten() {
