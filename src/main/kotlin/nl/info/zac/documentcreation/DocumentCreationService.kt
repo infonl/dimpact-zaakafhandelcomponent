@@ -91,7 +91,7 @@ class DocumentCreationService @Inject constructor(
                     // In the ZAC SmartDocuments flow, a separate browser tab is used for the SmartDocuments callback process.
                     // This means that the ZAC authorization token may have expired by the time the document is downloaded.
                     // When this happens, no policy checks can be done, as we no longer have a valid token.
-                    // All policy checks need to be performed on document creation request time.
+                    // All policy checks need to be performed at document creation request time.
                     skipPolicyCheck = true
                 )
             }
