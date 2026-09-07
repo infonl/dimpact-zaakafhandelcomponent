@@ -62,7 +62,7 @@ class DocumentCreationService @Inject constructor(
     }
 
     /**
-     * Download a generated SmartDocuments file and store it as an Informatieobject
+     * Download a generated SmartDocuments document and store it in the ZGW zaak registry.
      */
     fun storeDocument(
         zaak: Zaak,
@@ -77,7 +77,7 @@ class DocumentCreationService @Inject constructor(
         smartDocumentsService.downloadDocument(fileId).let { file ->
             createEnkelvoudigInformatieObjectCreateLockRequest(
                 file = file,
-                format = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType,
+                format = file.outputFormat,
                 informatieobjecttypeUrl = ztcClientService.readInformatieobjecttype(informatieobjecttypeUuid).url,
                 title = title,
                 description = description,
@@ -88,10 +88,10 @@ class DocumentCreationService @Inject constructor(
                     zaak = zaak,
                     enkelvoudigInformatieObjectCreateLockRequest = it,
                     taskId = taskId,
-                    // We open SmartDocuments in a new tab. This means that authorization token we have from Keycloak
-                    // will expire in some time (60-90 seconds usually). After this time no policy checks can be done,
-                    // as we no longer have a valid token. All policy checks need to be performed on document creation
-                    // request time.
+                    // In the ZAC SmartDocuments flow, a separate browser tab is used for the SmartDocuments callback process.
+                    // This means that the ZAC authorization token may have expired by the time the document is downloaded.
+                    // When this happens, no policy checks can be done, as we no longer have a valid token.
+                    // All policy checks need to be performed on document creation request time.
                     skipPolicyCheck = true
                 )
             }
