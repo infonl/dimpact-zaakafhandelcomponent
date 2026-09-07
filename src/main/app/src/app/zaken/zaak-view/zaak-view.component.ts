@@ -70,7 +70,7 @@ export class ZaakViewComponent
   implements AfterViewInit, OnDestroy
 {
   private readonly queryClient = inject(QueryClient);
-  private readonly betrokkenen = inject(ZaakBetrokkenenService);
+  private readonly betrokkenenService = inject(ZaakBetrokkenenService);
 
   private readonly zaakUuid = signal<string | undefined>(undefined);
 
@@ -200,7 +200,7 @@ export class ZaakViewComponent
         ObjectType.ZAAK_ROLLEN,
         zaak.uuid,
         () => {
-          this.betrokkenen.invalidateBetrokkenen(this.zaak);
+          this.betrokkenenService.invalidateBetrokkenen(this.zaak);
           this.invalidateZaakHistorie();
           this.updateZaak();
         },
@@ -395,15 +395,15 @@ export class ZaakViewComponent
   }
 
   protected initiatorGeselecteerd(initiator: GeneratedType<"RestPersoon">) {
-    this.betrokkenen.initiatorGeselecteerd(this.zaak, initiator);
+    this.betrokkenenService.initiatorGeselecteerd(this.zaak, initiator);
   }
 
   protected deleteInitiator() {
-    this.betrokkenen.deleteInitiator(this.zaak);
+    this.betrokkenenService.deleteInitiator(this.zaak);
   }
 
   protected betrokkeneGeselecteerd(klantgegevens: KlantGegevens) {
-    this.betrokkenen.betrokkeneGeselecteerd(this.zaak, klantgegevens);
+    this.betrokkenenService.betrokkeneGeselecteerd(this.zaak, klantgegevens);
   }
 
   private loadBagObjecten() {
