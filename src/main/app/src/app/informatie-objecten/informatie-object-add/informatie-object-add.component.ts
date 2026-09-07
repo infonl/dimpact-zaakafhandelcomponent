@@ -34,6 +34,8 @@ import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
 
+const DOCUMENT_UPLOAD_PROGRESS_DESCRIPTION = "msg.document.uploaden.voortgang";
+
 @Component({
   selector: "zac-informatie-object-add",
   templateUrl: "./informatie-object-add.component.html",
@@ -84,8 +86,19 @@ export class InformatieObjectAddComponent {
         this.zaakUuid(),
         this.taakId() ?? this.zaakUuid(),
         !!this.taakId(),
+        (percentage) =>
+          this.utilService.setProgress({
+            percentage,
+            description: DOCUMENT_UPLOAD_PROGRESS_DESCRIPTION,
+          }),
       ),
     {
+      onMutate: () =>
+        this.utilService.setProgress({
+          percentage: 0,
+          description: DOCUMENT_UPLOAD_PROGRESS_DESCRIPTION,
+        }),
+      onSettled: () => this.utilService.setProgress(null),
       onSuccess: (data) => {
         this.document.emit(data);
         if (this.form.controls.addOtherInfoObject.value) {

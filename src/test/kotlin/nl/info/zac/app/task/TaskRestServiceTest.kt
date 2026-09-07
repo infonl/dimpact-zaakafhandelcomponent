@@ -48,6 +48,7 @@ import nl.info.zac.app.task.model.createRestTaskDistributeTask
 import nl.info.zac.app.task.model.createRestTaskReleaseData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.model.getFullName
@@ -110,6 +111,7 @@ class TaskRestServiceTest : BehaviorSpec({
         taskService = taskService,
         bpmnTaskFormRuntimeService = bpmnTaskFormRuntimeService,
         zaakVariabelenService = zaakVariabelenService,
+        fileSizeConfiguration = FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L),
         dispatcher = testDispatcher
     )
     val loggedInUser = createLoggedInUser()

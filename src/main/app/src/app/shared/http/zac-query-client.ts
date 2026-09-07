@@ -10,7 +10,7 @@ import {
   queryOptions,
 } from "@tanstack/angular-query-experimental";
 import type { PathsWithMethod } from "openapi-typescript-helpers";
-import { lastValueFrom } from "rxjs";
+import { filter, lastValueFrom, map, tap } from "rxjs";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import type {
   ArgsTuple,
@@ -60,6 +60,44 @@ export class ZacQueryClient {
       refetchOnWindowFocus: false,
       staleTime: StaleTimes.Long,
       gcTime: StaleTimes.Long * 2,
+    });
+  }
+
+  /**
+   * `POST` that reports upload progress through `onProgress` while the request body is being sent.
+   */
+  public POST_WITH_PROGRESS<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods = "post",
+  >(
+    url: Path,
+    onProgress: (percentage: number) => void,
+    ...args: ArgsTuple<PathParameters<Path, Method>>
+  ) {
+    return mutationOptions<
+      Response<Path, Method>,
+      HttpErrorResponse,
+      PostBody<Path, Method>,
+      void
+    >({
+      mutationKey: [url, ...args],
+      mutationFn: (body: PostBody<Path, Method>) =>
+        lastValueFrom(
+          this.httpClient
+            .POST_WITH_PROGRESS<Path, Method>(url, body, ...args)
+            .pipe(
+              tap((progress) => {
+                if (progress.state === "uploading")
+                  onProgress(progress.percentage);
+              }),
+              filter((progress) => progress.state === "done"),
+              map(
+                (progress) =>
+                  (progress as { body: Response<Path, Method> }).body,
+              ),
+            ),
+        ),
+      onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
     });
   }
 

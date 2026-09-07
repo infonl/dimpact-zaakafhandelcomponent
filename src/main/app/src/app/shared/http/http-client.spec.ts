@@ -4,6 +4,7 @@
  */
 
 import {
+  HttpEventType,
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
@@ -113,6 +114,77 @@ describe(HttpClient.name, () => {
       expect(req.request.method).toEqual("POST");
       req.flush(null, { status: 204, statusText: "No Content" });
       httpTestingController.verify();
+    });
+  });
+
+  describe(HttpClient.prototype.POST_WITH_PROGRESS.name, () => {
+    const path =
+      "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}" as const;
+    const parameters = {
+      path: { zaakUuid: "zaak-1", documentReferenceId: "reference-1" },
+      query: { taakObject: false },
+    };
+
+    it("reports how much of the document has been uploaded before reporting the response", (done) => {
+      const emitted: unknown[] = [];
+
+      httpclient
+        .POST_WITH_PROGRESS(path, new FormData() as never, parameters)
+        .subscribe({
+          next: (progress) => emitted.push(progress),
+          complete: () => {
+            expect(emitted).toEqual([
+              { state: "uploading", percentage: 0 },
+              { state: "uploading", percentage: 25 },
+              { state: "uploading", percentage: 100 },
+              { state: "done", body: { uuid: "document-1" } },
+            ]);
+            done();
+          },
+        });
+
+      const request = httpTestingController.expectOne(
+        "/rest/informatieobjecten/informatieobject/zaak-1/reference-1?taakObject=false",
+      );
+      expect(request.request.reportProgress).toBe(true);
+      request.event({
+        type: HttpEventType.UploadProgress,
+        loaded: 25,
+        total: 100,
+      });
+      request.event({
+        type: HttpEventType.UploadProgress,
+        loaded: 100,
+        total: 100,
+      });
+      request.flush({ uuid: "document-1" });
+      httpTestingController.verify();
+    });
+
+    it("reports no percentage while the total size of the document is still unknown", (done) => {
+      const emitted: unknown[] = [];
+
+      httpclient
+        .POST_WITH_PROGRESS(path, new FormData() as never, parameters)
+        .subscribe({
+          next: (progress) => emitted.push(progress),
+          complete: () => {
+            expect(emitted).toContainEqual({
+              state: "uploading",
+              percentage: 0,
+            });
+            expect(emitted).not.toContainEqual(
+              expect.objectContaining({ percentage: NaN }),
+            );
+            done();
+          },
+        });
+
+      const request = httpTestingController.expectOne(
+        "/rest/informatieobjecten/informatieobject/zaak-1/reference-1?taakObject=false",
+      );
+      request.event({ type: HttpEventType.UploadProgress, loaded: 25 });
+      request.flush({ uuid: "document-1" });
     });
   });
 

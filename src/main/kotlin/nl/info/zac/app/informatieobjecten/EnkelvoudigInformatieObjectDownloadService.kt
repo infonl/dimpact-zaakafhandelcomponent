@@ -14,7 +14,6 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectDownloadException
 import java.io.BufferedOutputStream
 import java.io.IOException
-import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -54,7 +53,9 @@ class EnkelvoudigInformatieObjectDownloadService @Inject constructor(
         val zipEntry = ZipEntry(pad)
         try {
             zipOutputStream.putNextEntry(zipEntry)
-            zipOutputStream.write(getInformatieObjectInhoud(informatieobject.url.extractUuid()))
+            drcClientService.downloadEnkelvoudigInformatieobject(informatieobject.url.extractUuid()).use {
+                it.copyTo(zipOutputStream)
+            }
             zipOutputStream.closeEntry()
         } catch (ioException: IOException) {
             throw EnkelvoudigInformatieObjectDownloadException(
@@ -64,9 +65,6 @@ class EnkelvoudigInformatieObjectDownloadService @Inject constructor(
         }
         return pad
     }
-
-    private fun getInformatieObjectInhoud(uuid: UUID): ByteArray =
-        drcClientService.downloadEnkelvoudigInformatieobject(uuid).readBytes()
 
     private fun getInformatieObjectZipPath(enkelvoudigInformatieobject: EnkelvoudigInformatieObject): String {
         val zaakInformatieObjectenList = zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieobject)

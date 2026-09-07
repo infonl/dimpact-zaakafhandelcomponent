@@ -33,8 +33,9 @@ data-source add \
 # Enable the usage of JSON-B for RESTEasy and disable the default preference for Jackson.
 /system-property=resteasy.preferJacksonOverJsonB:add(value=false)
 
-# Enlarge Undertow max POST size
-/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=max-post-size,value=1000000000)
+# Enlarge Undertow max POST size. Has to allow the largest document ZAC accepts plus multipart
+# overhead; this value corresponds to 1GB using the Base 2 format.
+/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=max-post-size,value=1073741824)
 
 # Set read and write socket timeouts to infinite (=0) to avoid websocket timeouts
 # Also see: https://stackoverflow.com/questions/77127050/websocket-server-is-being-timeout-after-90-seconds
@@ -42,10 +43,11 @@ data-source add \
 /subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=write-timeout,value=0)
 
 /subsystem=microprofile-config-smallrye/config-source=props:add(properties={ \
-    # This sets the max post size accepted by the RESTEasy framework in WildFly
-    # NOTE: This needs to be set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads.
-    # This value corresponds to 120MB using the Base 2 format.
-    "dev.resteasy.entity.file.threshold" = "125829120B", \
+    # Size above which RESTEasy writes a request body to a temporary file instead of keeping it on
+    # the heap. Deliberately low: ZAC streams large documents from that temporary file, so spilling
+    # early is what keeps the heap flat no matter how large the uploaded document is.
+    # This value corresponds to 4MB using the Base 2 format.
+    "dev.resteasy.entity.file.threshold" = "4194304B", \
     # We only export traces to the Open Telemetry Collector and not logs or metrics.
     "otel.traces.exporter" = "otlp", \
     "otel.metrics.exporter" = "none", \

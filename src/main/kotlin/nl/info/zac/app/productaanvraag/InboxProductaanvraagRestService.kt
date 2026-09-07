@@ -14,7 +14,9 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
+import jakarta.ws.rs.core.StreamingOutput
 import net.atos.zac.util.MediaTypes
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.zac.app.productaanvraag.converter.toInboxProductaanvraagListParameters
@@ -62,12 +64,16 @@ class InboxProductaanvraagRestService @Inject constructor(
     fun pdfPreview(@PathParam("uuid") uuid: UUID): Response {
         assertPolicy(policyService.readWerklijstRechten().inbox)
         val enkelvoudigInformatieobject = drcClientService.readEnkelvoudigInformatieobject(uuid)
-        return drcClientService.downloadEnkelvoudigInformatieobject(uuid).use { inputStream ->
-            Response.ok(inputStream)
-                .header("Content-Disposition", "inline; filename=\"${enkelvoudigInformatieobject.bestandsnaam}\"")
-                .header("Content-Type", MediaTypes.Application.PDF.mediaType)
-                .build()
-        }
+        return Response.ok(
+            StreamingOutput { outputStream ->
+                drcClientService.downloadEnkelvoudigInformatieobject(uuid).use { it.copyTo(outputStream) }
+                outputStream.flush()
+            }
+        )
+            .header("Content-Disposition", "inline; filename=\"${enkelvoudigInformatieobject.bestandsnaam}\"")
+            .header("Content-Type", MediaTypes.Application.PDF.mediaType)
+            .header(HttpHeaders.CONTENT_LENGTH, enkelvoudigInformatieobject.bestandsomvang)
+            .build()
     }
 
     @DELETE

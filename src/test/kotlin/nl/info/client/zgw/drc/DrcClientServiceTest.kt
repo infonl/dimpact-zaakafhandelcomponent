@@ -24,7 +24,20 @@ import nl.info.client.zgw.drc.model.createLockEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.zac.configuration.ConfigurationService
+import io.kotest.matchers.string.shouldContain
+import nl.info.client.zgw.drc.model.BestandsDeelUploadRequest
+import nl.info.client.zgw.drc.model.createBestandsDeel
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.BestandsDeel
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.util.extractUuid
+import nl.info.zac.document.content.InMemoryDocumentContent
+import nl.info.zac.document.content.TemporaryFileDocumentContent
+import java.net.URI
+import java.nio.file.Files
+import java.util.Base64
 import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.util.UUID
 
 class DrcClientServiceTest : BehaviorSpec({
@@ -124,30 +137,169 @@ class DrcClientServiceTest : BehaviorSpec({
     given("An EnkelvoudigInformatieobject UUID for download") {
         val uuid = UUID.randomUUID()
 
-        `when`("the entity can be buffered and downloadEnkelvoudigInformatieobject is called") {
-            then("it should return the content stream") {
+        `when`("downloadEnkelvoudigInformatieobject is called") {
+            then("it returns the content stream without buffering it in memory first") {
                 val content = ByteArrayInputStream("fakeContent".toByteArray())
                 val response = mockk<Response>()
-                every { response.bufferEntity() } returns true
-                every { response.entity } returns content
+                every { response.readEntity(InputStream::class.java) } returns content
                 every { drcClient.enkelvoudigInformatieobjectDownload(uuid) } returns response
 
                 val result = drcClientService.downloadEnkelvoudigInformatieobject(uuid)
 
                 result shouldBe content
+                verify(exactly = 0) { response.bufferEntity() }
             }
         }
 
-        `when`("the entity cannot be buffered and downloadEnkelvoudigInformatieobject is called") {
+        `when`("the response has no entity and downloadEnkelvoudigInformatieobject is called") {
+            val response = mockk<Response>()
+            every { response.readEntity(InputStream::class.java) } returns null
+            every { drcClient.enkelvoudigInformatieobjectDownload(uuid) } returns response
+
+            val drcRuntimeException = shouldThrow<DrcRuntimeException> {
+                drcClientService.downloadEnkelvoudigInformatieobject(uuid)
+            }
+
             then("it should throw a DrcRuntimeException") {
-                val response = mockk<Response>()
-                every { response.bufferEntity() } returns false
-                every { drcClient.enkelvoudigInformatieobjectDownload(uuid) } returns response
-
-                shouldThrow<DrcRuntimeException> {
-                    drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-                }
+                drcRuntimeException.message shouldBe
+                    "Content of enkelvoudig informatieobject with uuid '$uuid' could not be read."
             }
         }
+    }
+    given("A document that fits in memory") {
+        val content = InMemoryDocumentContent("fakeContent".toByteArray())
+        val createRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
+        val createdDocument = createEnkelvoudigInformatieObject()
+        val requestSlot = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
+
+        every { drcClient.enkelvoudigInformatieobjectCreate(capture(requestSlot)) } returns createdDocument
+
+        `when`("it is created") {
+            val result = drcClientService.createEnkelvoudigInformatieobject(createRequest, content)
+
+            then("its content is sent base64 encoded in the create request itself") {
+                result shouldBe createdDocument
+                requestSlot.captured.inhoud shouldBe
+                    Base64.getEncoder().encodeToString("fakeContent".toByteArray())
+                requestSlot.captured.bestandsomvang shouldBe "fakeContent".toByteArray().size
+            }
+        }
+    }
+
+    given("A document too large to fit in memory") {
+        val bytes = "0123456789".toByteArray()
+        val documentUUID = UUID.randomUUID()
+        val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
+        val firstPart = createBestandsDeel(volgnummer = 1, omvang = 4, lock = "fakeLock")
+        val secondPart = createBestandsDeel(volgnummer = 2, omvang = 6, lock = "fakeLock")
+        val temporaryFile = Files.createTempFile("fakeDocument", null).also { Files.write(it, bytes) }
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        val createRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
+        // the parts are deliberately announced out of order to prove that they are uploaded by volgnummer
+        val createdDocument = createEnkelvoudigInformatieObject(
+            uuid = documentUUID,
+            url = documentUrl,
+            bestandsdelen = listOf(secondPart, firstPart)
+        )
+        val completedDocument = createEnkelvoudigInformatieObject(uuid = documentUUID, url = documentUrl)
+        val requestSlot = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
+        val uploadedParts = mutableListOf<Pair<UUID, ByteArray>>()
+
+        every { drcClient.enkelvoudigInformatieobjectCreate(capture(requestSlot)) } returns createdDocument
+        every { drcClient.bestandsdeelUpdate(any(), any()) } answers {
+            uploadedParts.add(firstArg<UUID>() to secondArg<BestandsDeelUploadRequest>().inhoud!!.readBytes())
+            createBestandsDeel()
+        }
+        val unlockSlot = slot<LockEnkelvoudigInformatieObject>()
+        every {
+            drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, capture(unlockSlot))
+        } returns mockk()
+        every { drcClient.enkelvoudigInformatieobjectRead(documentUUID) } returns completedDocument
+
+        `when`("it is created") {
+            val result = drcClientService.createEnkelvoudigInformatieobject(createRequest, content)
+
+            then("it is created without content and every part is streamed in order") {
+                requestSlot.captured.inhoud shouldBe null
+                requestSlot.captured.bestandsomvang shouldBe bytes.size
+                uploadedParts.map { it.first } shouldBe listOf(
+                    firstPart.url.extractUuid(),
+                    secondPart.url.extractUuid()
+                )
+                uploadedParts.map { String(it.second) } shouldBe listOf("0123", "456789")
+            }
+
+            and("the document is unlocked so that the uploaded content becomes its content") {
+                result shouldBe completedDocument
+                unlockSlot.captured.lock shouldBe "fakeLock"
+            }
+        }
+
+        content.close()
+    }
+
+    given("A document too large to fit in memory whose parts cannot be uploaded") {
+        val bytes = "0123456789".toByteArray()
+        val documentUUID = UUID.randomUUID()
+        val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
+        val temporaryFile = Files.createTempFile("fakeDocument", null).also { Files.write(it, bytes) }
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        val createdDocument = createEnkelvoudigInformatieObject(
+            uuid = documentUUID,
+            url = documentUrl,
+            bestandsdelen = listOf(createBestandsDeel(volgnummer = 1, omvang = 10, lock = "fakeLock"))
+        )
+
+        every { drcClient.enkelvoudigInformatieobjectCreate(any()) } returns createdDocument
+        every {
+            drcClient.bestandsdeelUpdate(any(), any())
+        } throws DrcRuntimeException("fake upload failure")
+        every { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) } returns mockk()
+
+        `when`("it is created") {
+            val drcRuntimeException = shouldThrow<DrcRuntimeException> {
+                drcClientService.createEnkelvoudigInformatieobject(
+                    createEnkelvoudigInformatieObjectCreateLockRequest(),
+                    content
+                )
+            }
+
+            then("the failure surfaces and no document with missing content is left behind") {
+                drcRuntimeException.message shouldBe "fake upload failure"
+                verify(exactly = 1) { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) }
+            }
+        }
+
+        content.close()
+    }
+
+    given("A document too large to fit in memory for which no parts are announced") {
+        val temporaryFile = Files.createTempFile("fakeDocument", null)
+            .also { Files.write(it, "0123456789".toByteArray()) }
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        val documentUUID = UUID.randomUUID()
+        val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
+
+        every { drcClient.enkelvoudigInformatieobjectCreate(any()) } returns createEnkelvoudigInformatieObject(
+            uuid = documentUUID,
+            url = documentUrl,
+            bestandsdelen = emptyList()
+        )
+        every { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) } returns mockk()
+
+        `when`("it is created") {
+            val drcRuntimeException = shouldThrow<DrcRuntimeException> {
+                drcClientService.createEnkelvoudigInformatieobject(
+                    createEnkelvoudigInformatieObjectCreateLockRequest(),
+                    content
+                )
+            }
+
+            then("the documents registry is reported as not supporting uploads in parts") {
+                drcRuntimeException.message shouldContain "announced no bestandsdelen"
+            }
+        }
+
+        content.close()
     }
 })

@@ -120,3 +120,14 @@ fun createOndertekening(
     this.soort = type
     this.datum = date
 }
+
+fun createBestandsDeel(
+    uuid: UUID = UUID.randomUUID(),
+    url: URI = URI("https://example.com/bestandsdelen/$uuid"),
+    volgnummer: Int = 1,
+    omvang: Int = 1024,
+    voltooid: Boolean = false,
+    lock: String? = "fakeLock"
+) = BestandsDeel(url, volgnummer, omvang, voltooid).apply {
+    lock?.let { this.lock = it }
+}

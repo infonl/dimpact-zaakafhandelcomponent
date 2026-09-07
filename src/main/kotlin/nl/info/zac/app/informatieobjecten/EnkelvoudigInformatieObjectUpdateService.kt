@@ -26,6 +26,7 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.document.content.DocumentContent
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.EnkelvoudigInformatieObjectLock
 import nl.info.zac.policy.PolicyService
@@ -63,12 +64,14 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         enkelvoudigInformatieObjectCreateLockRequest: EnkelvoudigInformatieObjectCreateLockRequest,
         taskId: String? = null,
         skipPolicyCheck: Boolean = false,
+        content: DocumentContent? = null,
     ) = zgwApiService.createZaakInformatieobjectForZaak(
         zaak = zaak,
         enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
         titel = enkelvoudigInformatieObjectCreateLockRequest.titel,
         beschrijving = enkelvoudigInformatieObjectCreateLockRequest.beschrijving,
-        omschrijvingVoorwaardenGebruiksrechten = ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN
+        omschrijvingVoorwaardenGebruiksrechten = ConfigurationService.OMSCHRIJVING_VOORWAARDEN_GEBRUIKSRECHTEN,
+        content = content
     ).also {
         taskId?.let { taskId ->
             addZaakInformatieobjectToTaak(taskId, it, skipPolicyCheck)
@@ -100,7 +103,8 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
     fun updateEnkelvoudigInformatieObjectWithLockData(
         enkelvoudigInformatieObjectUUID: UUID,
         enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest,
-        toelichting: String?
+        toelichting: String?,
+        content: DocumentContent? = null
     ): EnkelvoudigInformatieObject {
         var tempLock: EnkelvoudigInformatieObjectLock? = null
         try {
@@ -113,7 +117,14 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
             } else {
                 enkelvoudigInformatieObjectWithLockRequest.lock = enkelvoudigInformatieObjectLock.lock
             }
-            return drcClientService.updateEnkelvoudigInformatieobject(
+            return content?.let {
+                drcClientService.updateEnkelvoudigInformatieobject(
+                    enkelvoudigInformatieobjectUUID = enkelvoudigInformatieObjectUUID,
+                    enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest,
+                    auditExplanation = toelichting,
+                    content = it
+                )
+            } ?: drcClientService.updateEnkelvoudigInformatieobject(
                 enkelvoudigInformatieObjectUUID,
                 enkelvoudigInformatieObjectWithLockRequest,
                 toelichting

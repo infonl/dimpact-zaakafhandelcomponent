@@ -29,18 +29,8 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             }
         }
 
-        `when`("file is empty") {
-            restEnkelvoudigInformatieobject.file = "".toByteArray()
-
-            val result = validator.isValid(restEnkelvoudigInformatieobject, null)
-
-            then("it detects it as invalid") {
-                result shouldBe false
-            }
-        }
-
         `when`("file content is provided") {
-            restEnkelvoudigInformatieobject.file = "fake content".toByteArray()
+            restEnkelvoudigInformatieobject.file = "fake content".byteInputStream()
 
             val result = validator.isValid(restEnkelvoudigInformatieobject, null)
 
@@ -55,7 +45,7 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             .apply {
                 bestandsnaam = null
                 formaat = "application/pdf"
-                file = "fake content".toByteArray()
+                file = "fake content".byteInputStream()
             }
 
         `when`("validated") {
@@ -72,7 +62,7 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             .apply {
                 bestandsnaam = "   "
                 formaat = "application/pdf"
-                file = "fake content".toByteArray()
+                file = "fake content".byteInputStream()
             }
 
         `when`("validated") {
@@ -101,7 +91,7 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             .apply {
                 bestandsnaam = "malicious.exe"
                 formaat = "application/x-msdownload"
-                file = "MZ".toByteArray()
+                file = "MZ".byteInputStream()
             }
 
         `when`("validated") {
@@ -118,7 +108,7 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             .apply {
                 bestandsnaam = "document.pdf"
                 formaat = "image/png"
-                file = "fake content".toByteArray()
+                file = "fake content".byteInputStream()
             }
 
         `when`("validated") {
@@ -135,7 +125,7 @@ class ValidRestEnkelvoudigInformatieobjectFileUploadFormValidatorTest : Behavior
             .apply {
                 bestandsnaam = "report.PDF"
                 formaat = null
-                file = "fake content".toByteArray()
+                file = "fake content".byteInputStream()
             }
 
         `when`("validated") {

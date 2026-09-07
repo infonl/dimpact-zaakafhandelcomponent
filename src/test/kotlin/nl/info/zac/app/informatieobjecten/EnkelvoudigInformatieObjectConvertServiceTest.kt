@@ -18,6 +18,7 @@ import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
+import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.util.toBase64String
 import java.io.ByteArrayInputStream
 import java.util.UUID
@@ -29,7 +30,8 @@ class EnkelvoudigInformatieObjectConvertServiceTest : BehaviorSpec({
     val service = EnkelvoudigInformatieObjectConvertService(
         drcClientService,
         officeConverterClientService,
-        enkelvoudigInformatieObjectUpdateService
+        enkelvoudigInformatieObjectUpdateService,
+        FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L)
     )
 
     afterEach {

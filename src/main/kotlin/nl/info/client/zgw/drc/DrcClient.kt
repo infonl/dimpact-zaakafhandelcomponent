@@ -6,16 +6,19 @@
 package nl.info.client.zgw.drc
 
 import jakarta.ws.rs.BeanParam
+import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.PATCH
 import jakarta.ws.rs.POST
+import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType.APPLICATION_JSON
 import jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM
+import jakarta.ws.rs.core.MediaType.MULTIPART_FORM_DATA
 import jakarta.ws.rs.core.Response
 import nl.info.client.zgw.shared.exception.ZgwErrorExceptionMapper
 import nl.info.client.zgw.shared.exception.ZgwValidationErrorResponseExceptionMapper
@@ -23,8 +26,10 @@ import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.util.JsonbConfiguration
 import nl.info.client.zgw.drc.exception.DrcRuntimeResponseExceptionMapper
+import nl.info.client.zgw.drc.model.BestandsDeelUploadRequest
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.ObjectInformatieobjectListParameters
+import nl.info.client.zgw.drc.model.generated.BestandsDeel
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
@@ -35,6 +40,7 @@ import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
 import java.util.UUID
 
 @RegisterRestClient(configKey = "ZGW-API-Client")
@@ -47,6 +53,19 @@ import java.util.UUID
 @Produces(APPLICATION_JSON)
 @Suppress("TooManyFunctions")
 interface DrcClient {
+
+    /**
+     * The parts are announced by the documents registry in
+     * [EnkelvoudigInformatieObject.getBestandsdelen] when a document is created with a
+     * `bestandsomvang` but without `inhoud`.
+     */
+    @PUT
+    @Path("bestandsdelen/{uuid}")
+    @Consumes(MULTIPART_FORM_DATA)
+    fun bestandsdeelUpdate(
+        @PathParam("uuid") uuid: UUID,
+        @MultipartForm bestandsDeelUploadRequest: BestandsDeelUploadRequest
+    ): BestandsDeel
 
     @POST
     @Path("enkelvoudiginformatieobjecten")

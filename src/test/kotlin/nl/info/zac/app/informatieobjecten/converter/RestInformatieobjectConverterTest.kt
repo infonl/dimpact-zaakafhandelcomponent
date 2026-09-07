@@ -117,7 +117,6 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             taal = "fakeTaal",
             bestandsNaam = "fakeBestandsNaam"
         )
-        val restFileUpload = createRestFileUpload()
         val providedInformatieObjectType = createInformatieObjectType()
 
         every {
@@ -129,7 +128,7 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             val enkelvoudigInformatieObjectData = restInformatieobjectConverter.convertEnkelvoudigInformatieObject(
                 restEnkelvoudigInformatieobject
             )
-            then("the provided data is converted correctly") {
+            then("the metadata is converted, while the content is left to the documents registry client") {
                 with(enkelvoudigInformatieObjectData) {
                     bronorganisatie shouldBe "123443210"
                     creatiedatum shouldHaveSameDayAs LocalDate.now()
@@ -137,8 +136,9 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
                     auteur shouldBe restEnkelvoudigInformatieobject.auteur
                     taal shouldBe restEnkelvoudigInformatieobject.taal
                     informatieobjecttype shouldBe providedInformatieObjectType.url
-                    inhoud shouldBe Base64.getEncoder().encodeToString(restFileUpload.file)
-                    formaat shouldBe restFileUpload.type
+                    inhoud shouldBe null
+                    bestandsomvang shouldBe null
+                    formaat shouldBe restEnkelvoudigInformatieobject.formaat
                     bestandsnaam shouldBe restEnkelvoudigInformatieobject.bestandsnaam
                     status.name shouldBe restEnkelvoudigInformatieobject.status!!.name
                     vertrouwelijkheidaanduiding?.name shouldBe restEnkelvoudigInformatieobject.vertrouwelijkheidaanduiding?.name
@@ -270,11 +270,9 @@ class RestInformatieobjectConverterTest : BehaviorSpec({
             val enkelvoudigInformatieObjectWithLockRequest =
                 restInformatieobjectConverter.convert(restEnkelvoudigInformatieobjectVersieGegevens)
 
-            then("the obejct is correctly converted to a 'enkelvoudiginformatieobject with lock request'") {
+            then("the metadata is converted, while the content is left to the documents registry client") {
                 with(enkelvoudigInformatieObjectWithLockRequest) {
                     bestandsnaam shouldBe restEnkelvoudigInformatieobjectVersieGegevens.bestandsnaam
-                    bestandsomvang shouldBe restEnkelvoudigInformatieobjectVersieGegevens.file!!.size
-                    inhoud shouldBe Base64.getEncoder().encodeToString(restEnkelvoudigInformatieobjectVersieGegevens.file!!)
                     informatieobjecttype shouldBe informatieobjectType.url
                     vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                 }

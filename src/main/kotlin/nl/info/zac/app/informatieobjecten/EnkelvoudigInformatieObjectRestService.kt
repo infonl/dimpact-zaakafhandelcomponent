@@ -19,7 +19,9 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
+import jakarta.ws.rs.core.StreamingOutput
 import jakarta.ws.rs.core.UriInfo
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import net.atos.zac.event.EventingService
@@ -52,6 +54,8 @@ import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.document.content.DocumentContent
+import nl.info.zac.document.content.DocumentContentReader
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
@@ -95,6 +99,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val enkelvoudigInformatieObjectDownloadService: EnkelvoudigInformatieObjectDownloadService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
     private val enkelvoudigInformatieObjectConvertService: EnkelvoudigInformatieObjectConvertService,
+    private val documentContentReader: DocumentContentReader,
 ) {
     companion object {
         private val LOG = Logger.getLogger(EnkelvoudigInformatieObjectRestService::class.java.name)
@@ -226,11 +231,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
         val enkelvoudigInformatieObjectCreateLockRequest = restEnkelvoudigInformatieobject.run(
             restInformatieobjectConverter::convertEnkelvoudigInformatieObject
         )
-        val zaakInformatieobject = enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-            zaak = zaak,
-            enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
-            taskId = if (isTaakObject) documentReferenceId else null
-        )
+        val zaakInformatieobject = documentContentReader.read(restEnkelvoudigInformatieobject.file!!).use { content ->
+            enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                zaak = zaak,
+                enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                taskId = if (isTaakObject) documentReferenceId else null,
+                content = content
+            )
+        }
 
         return restInformatieobjectConverter.convertToREST(zaakInformatieobject)
     }
@@ -363,22 +371,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 findZaakForDocument(enkelvoudigInformatieObject)
             ).lezen
         )
-        return try {
-            val inhoud = version?.let {
-                drcClientService.downloadEnkelvoudigInformatieobjectVersie(
-                    enkelvoudigInformatieobjectUUID = uuid,
-                    version = version
-                )
-            } ?: drcClientService.downloadEnkelvoudigInformatieobject(requireNotNull(uuid))
-            Response.ok(inhoud)
-                .header(
-                    "Content-Disposition",
-                    """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
-                )
-                .header("Content-Type", enkelvoudigInformatieObject.formaat).build()
-        } catch (iOException: IOException) {
-            throw RuntimeException(iOException)
-        }
+        return Response.ok(streamDocumentContent(uuid = uuid, version = version))
+            .header(
+                "Content-Disposition",
+                """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
+            )
+            .header("Content-Type", enkelvoudigInformatieObject.formaat)
+            .header(HttpHeaders.CONTENT_LENGTH, enkelvoudigInformatieObject.bestandsomvang)
+            .build()
     }
 
     @POST
@@ -423,7 +423,21 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             ).toevoegenNieuweVersie
         )
         val updatedDocument = restInformatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens)
-        return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, document, updatedDocument)
+        return enkelvoudigInformatieObjectVersieGegevens.file?.let { uploadedFile ->
+            documentContentReader.read(uploadedFile).use { content ->
+                updateEnkelvoudigInformatieobject(
+                    enkelvoudigInformatieObjectVersieGegevens = enkelvoudigInformatieObjectVersieGegevens,
+                    enkelvoudigInformatieObject = document,
+                    enkelvoudigInformatieObjectWithLockRequest = updatedDocument,
+                    content = content
+                )
+            }
+        } ?: updateEnkelvoudigInformatieobject(
+            enkelvoudigInformatieObjectVersieGegevens = enkelvoudigInformatieObjectVersieGegevens,
+            enkelvoudigInformatieObject = document,
+            enkelvoudigInformatieObjectWithLockRequest = updatedDocument,
+            content = null
+        )
     }
 
     @POST
@@ -529,20 +543,23 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 findZaakForDocument(enkelvoudigInformatieObject)
             ).downloaden
         )
-        return try {
-            val documentContent = version?.let {
-                drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version)
-            } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-            Response.ok(documentContent)
-                .header(
-                    "Content-Disposition",
-                    """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
-                )
-                .build()
-        } catch (ioException: IOException) {
-            throw RuntimeException(ioException)
-        }
+        return Response.ok(streamDocumentContent(uuid = uuid, version = version))
+            .header(
+                "Content-Disposition",
+                """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
+            )
+            .header(HttpHeaders.CONTENT_LENGTH, enkelvoudigInformatieObject.bestandsomvang)
+            .build()
     }
+
+    private fun streamDocumentContent(uuid: UUID, version: Int?) =
+        StreamingOutput { outputStream ->
+            val documentContent = version?.let {
+                drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, it)
+            } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
+            documentContent.use { it.copyTo(outputStream) }
+            outputStream.flush()
+        }
 
     private fun isVerzendenToegestaan(informatieobject: EnkelvoudigInformatieObject): Boolean =
         informatieobject.vertrouwelijkheidaanduiding.let {
@@ -587,12 +604,14 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private fun updateEnkelvoudigInformatieobject(
         enkelvoudigInformatieObjectVersieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens,
         enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
-        enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest
+        enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest,
+        content: DocumentContent?
     ): RestEnkelvoudigInformatieobject =
         enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-            enkelvoudigInformatieObject.url.extractUuid(),
-            enkelvoudigInformatieObjectWithLockRequest,
-            enkelvoudigInformatieObjectVersieGegevens.toelichting
+            enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObject.url.extractUuid(),
+            enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest,
+            toelichting = enkelvoudigInformatieObjectVersieGegevens.toelichting,
+            content = content
         ).let(restInformatieobjectConverter::convertToREST)
 
     private fun toRestZaakInformatieobject(zaakInformatieobject: ZaakInformatieObject): RestZaakInformatieobject {

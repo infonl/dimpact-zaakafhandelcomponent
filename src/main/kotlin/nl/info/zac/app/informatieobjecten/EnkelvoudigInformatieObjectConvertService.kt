@@ -15,6 +15,7 @@ import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLoc
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.util.extractUuid
 import nl.info.zac.app.informatieobjecten.exception.EnkelvoudigInformatieObjectConversionException
+import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
@@ -29,7 +30,8 @@ import java.util.UUID
 class EnkelvoudigInformatieObjectConvertService @Inject constructor(
     private val drcClientService: DrcClientService,
     private val officeConverterClientService: OfficeConverterClientService,
-    private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService
+    private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
+    private val fileSizeConfiguration: FileSizeConfiguration
 ) {
     companion object {
         private const val TOELICHTING_PDF = "Geconverteerd naar PDF"
@@ -39,6 +41,7 @@ class EnkelvoudigInformatieObjectConvertService @Inject constructor(
         if (document.status != StatusEnum.DEFINITIEF) {
             throw EnkelvoudigInformatieObjectConversionException()
         }
+        fileSizeConfiguration.assertFileCanBeHeldInMemory(document.bestandsomvang?.toLong() ?: 0)
         drcClientService.downloadEnkelvoudigInformatieobject(
             enkelvoudigInformatieobjectUUID
         ).use { documentInputStream ->

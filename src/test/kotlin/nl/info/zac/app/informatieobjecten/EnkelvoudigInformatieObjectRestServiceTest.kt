@@ -55,6 +55,8 @@ import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegeven
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
+import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.document.content.DocumentContentReader
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import nl.info.zac.app.zaak.model.RelatieType
@@ -76,6 +78,7 @@ import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.webdav.WebdavHelper
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.net.URI
 import java.time.LocalDate
@@ -117,7 +120,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         policyService = policyService,
         enkelvoudigInformatieObjectDownloadService = enkelvoudigInformatieObjectDownloadService,
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
-        enkelvoudigInformatieObjectConvertService = enkelvoudigInformatieObjectConvertService
+        enkelvoudigInformatieObjectConvertService = enkelvoudigInformatieObjectConvertService,
+        documentContentReader = DocumentContentReader(
+            FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L)
+        )
     )
 
     isolationMode = IsolationMode.InstancePerTest
@@ -141,8 +147,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns responseRestEnkelvoudigInformatieobject
         every {
             enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                zaak,
-                enkelvoudigInformatieObjectData
+                zaak = zaak,
+                enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                taskId = null,
+                content = any()
             )
         } returns zaakInformatieobject
         every { loggedInUserInstance.get() } returns loggedInUser
@@ -166,8 +174,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                        zaak,
-                        enkelvoudigInformatieObjectData
+                        zaak = zaak,
+                        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                        taskId = null,
+                        content = any()
                     )
                 }
             }
@@ -181,8 +191,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
             every {
                 enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                    zaak,
-                    enkelvoudigInformatieObjectData
+                    zaak = zaak,
+                    enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                    taskId = null,
+                    content = any()
                 )
             } throws RuntimeException("fake exception")
 
@@ -198,8 +210,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             then("the enkelvoudig informatieobject is not added to the zaak but is removed from the HTTP session") {
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                        zaak,
-                        enkelvoudigInformatieObjectData
+                        zaak = zaak,
+                        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                        taskId = null,
+                        content = any()
                     )
                 }
             }
@@ -209,7 +223,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 toevoegenDocument = true
             )
-            restEnkelvoudigInformatieobject.file = restFileUpload.file
+            restEnkelvoudigInformatieobject.file = restFileUpload.file!!.inputStream()
             restEnkelvoudigInformatieobject.formaat = restFileUpload.type
 
             val returnedRESTEnkelvoudigInformatieobject =
@@ -224,8 +238,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                        zaak,
-                        enkelvoudigInformatieObjectData
+                        zaak = zaak,
+                        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                        taskId = null,
+                        content = any()
                     )
                 }
             }
@@ -267,8 +283,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns enkelvoudigInformatieObjectData
         every {
             enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                closedZaak,
-                enkelvoudigInformatieObjectData
+                zaak = closedZaak,
+                enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                taskId = null,
+                content = any()
             )
         } returns zaakInformatieobject
         every {
@@ -295,8 +313,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                        closedZaak,
-                        enkelvoudigInformatieObjectData
+                        zaak = closedZaak,
+                        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                        taskId = null,
+                        content = any()
                     )
                 }
             }
@@ -320,9 +340,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns enkelvoudigInformatieObjectWithLockData
         every {
             enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                enkelvoudigInformatieObject.url.extractUuid(),
-                enkelvoudigInformatieObjectWithLockData,
-                null
+                enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObject.url.extractUuid(),
+                enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockData,
+                toelichting = null,
+                content = any()
             )
         } returns enkelvoudigInformatieObject
         every {
@@ -346,9 +367,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                         restEnkelvoudigInformatieObjectVersieGegevens.uuid!!
                     )
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                        enkelvoudigInformatieObject.url.extractUuid(),
-                        enkelvoudigInformatieObjectWithLockData,
-                        null
+                        enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObject.url.extractUuid(),
+                        enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockData,
+                        toelichting = null,
+                        content = any()
                     )
                 }
             }
@@ -746,12 +768,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         `when`("readFile is called") {
             val response = enkelvoudigInformatieObjectRestService.readFile(uuid)
 
-            then("it should return the document content as a response") {
+            then("the document content is streamed to the client") {
                 with(response) {
                     status shouldBe 200
                     headers["Content-Disposition"]!!.first() shouldBe
                         """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
-                    entity shouldBe byteArrayInputStream
+                    writeStreamingOutput(entity) shouldBe byteArrayOf(1, 2, 3)
                 }
             }
         }
@@ -844,14 +866,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null).downloaden } returns true
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } throws IOException("Failed to retrieve content")
 
-        `when`("readFile is called") {
-            val exception = shouldThrow<RuntimeException> {
-                enkelvoudigInformatieObjectRestService.readFile(uuid)
+        `when`("the response of readFile is written") {
+            val ioException = shouldThrow<IOException> {
+                writeStreamingOutput(enkelvoudigInformatieObjectRestService.readFile(uuid).entity)
             }
 
-            then("it should throw a exception") {
-                exception.cause.shouldBeInstanceOf<IOException>()
-                exception.cause?.message shouldBe "Failed to retrieve content"
+            then("the failure surfaces while streaming") {
+                ioException.message shouldBe "Failed to retrieve content"
             }
         }
     }
@@ -1225,11 +1246,11 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         `when`("readFileWithVersion is called") {
             val response = enkelvoudigInformatieObjectRestService.readFileWithVersion(uuid, version)
 
-            then("the specific version is downloaded and returned") {
+            then("the specific version is streamed to the client") {
                 response.status shouldBe 200
                 response.headers["Content-Disposition"]!!.first() shouldBe
                     """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
-                response.entity shouldBe byteArrayInputStream
+                writeStreamingOutput(response.entity) shouldBe byteArrayOf(1, 2, 3)
             }
         }
     }
@@ -1248,11 +1269,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         `when`("preview is called with a version") {
             val response = enkelvoudigInformatieObjectRestService.preview(uuid, version)
 
-            then("the specific version is returned inline") {
+            then("the specific version is streamed inline") {
                 response.status shouldBe 200
                 response.headers["Content-Disposition"]!!.first() shouldBe
                     """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
                 response.headers["Content-Type"]!!.first() shouldBe enkelvoudigInformatieObject.formaat
+                writeStreamingOutput(response.entity) shouldBe byteArrayOf(1, 2, 3)
                 verify(exactly = 1) { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) }
             }
         }
@@ -1271,8 +1293,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         `when`("preview is called without a version") {
             val response = enkelvoudigInformatieObjectRestService.preview(uuid, null)
 
-            then("the current version is returned inline") {
+            then("the current version is streamed inline") {
                 response.status shouldBe 200
+                writeStreamingOutput(response.entity) shouldBe byteArrayOf(1, 2, 3)
                 verify(exactly = 0) { drcClientService.downloadEnkelvoudigInformatieobjectVersie(any(), any()) }
             }
         }
@@ -1823,3 +1846,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 })
+
+private fun writeStreamingOutput(entity: Any?) =
+    ByteArrayOutputStream().also { (entity as StreamingOutput).write(it) }.toByteArray()

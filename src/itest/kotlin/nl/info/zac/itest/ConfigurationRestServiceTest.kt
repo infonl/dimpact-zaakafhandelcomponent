@@ -12,6 +12,7 @@ import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_CODE
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_GEMEENTE_NAAM
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_MAX_FILE_SIZE_IN_MB
+import nl.info.zac.itest.config.ItestConfiguration.CONFIG_MAX_IN_MEMORY_FILE_SIZE_IN_MB
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.RAADPLEGER_1
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringOrder
@@ -103,6 +104,17 @@ class ConfigurationRestServiceTest : BehaviorSpec({
             then("the max upload file size is returned") {
                 response.code shouldBe HTTP_OK
                 response.bodyAsString.toLong() shouldBe CONFIG_MAX_FILE_SIZE_IN_MB
+            }
+        }
+        `when`("the max in-memory file size is retrieved") {
+            val response = itestHttpClient.performGetRequest(
+                url = "$ZAC_API_URI/configuratie/max-in-memory-file-size-mb",
+                testUser = RAADPLEGER_1
+            )
+
+            then("the max in-memory file size is returned") {
+                response.code shouldBe HTTP_OK
+                response.bodyAsString.toLong() shouldBe CONFIG_MAX_IN_MEMORY_FILE_SIZE_IN_MB
             }
         }
         `when`("the allowed file types are retrieved") {

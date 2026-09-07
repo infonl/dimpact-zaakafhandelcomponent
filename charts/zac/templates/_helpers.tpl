@@ -134,3 +134,47 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Maximum heap size in MB, taken from the -Xmx option in .Values.javaOptions.
+Falls back to the 1024m of the default javaOptions when no -Xmx is given.
+*/}}
+{{- define "zaakafhandelcomponent.maxHeapSizeMB" -}}
+{{- $javaOptions := .Values.javaOptions | default "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" -}}
+{{- $match := regexFind "-Xmx[0-9]+[kKmMgG]?" $javaOptions -}}
+{{- if not $match -}}
+1024
+{{- else -}}
+{{- $value := regexFind "[0-9]+" $match | int64 -}}
+{{- $unit := regexFind "[kKmMgG]?$" $match | lower -}}
+{{- if eq $unit "g" -}}
+{{- mul $value 1024 -}}
+{{- else if eq $unit "k" -}}
+{{- div $value 1024 -}}
+{{- else -}}
+{{- $value -}}
+{{- end -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Fails the release when the configured file size limits cannot be served by the configured heap.
+ZAC performs the same check on startup; doing it here as well turns a crash loop into a failed
+install with an actionable message.
+*/}}
+{{- define "zaakafhandelcomponent.validateFileSizeLimits" -}}
+{{- $maxFileSizeMB := .Values.maxFileSizeMB | default 80 | int64 -}}
+{{- $maxInMemoryFileSizeMB := .Values.maxInMemoryFileSizeMB | default 80 | int64 -}}
+{{- if or (le $maxFileSizeMB 0) (le $maxInMemoryFileSizeMB 0) -}}
+{{- fail "maxFileSizeMB and maxInMemoryFileSizeMB must both be greater than zero" -}}
+{{- end -}}
+{{- if gt $maxInMemoryFileSizeMB $maxFileSizeMB -}}
+{{- fail (printf "maxInMemoryFileSizeMB (%d) cannot be larger than maxFileSizeMB (%d)" $maxInMemoryFileSizeMB $maxFileSizeMB) -}}
+{{- end -}}
+{{- $maxHeapSizeMB := include "zaakafhandelcomponent.maxHeapSizeMB" . | int64 -}}
+{{- $availableHeapMB := div $maxHeapSizeMB 2 -}}
+{{- $requiredHeapMB := mul $maxInMemoryFileSizeMB 3 -}}
+{{- if gt $requiredHeapMB $availableHeapMB -}}
+{{- fail (printf "maxInMemoryFileSizeMB (%d) requires at least %d MB of heap but only %d MB of the %d MB heap is available for it. Either lower maxInMemoryFileSizeMB to at most %d or raise -Xmx in javaOptions." $maxInMemoryFileSizeMB $requiredHeapMB $availableHeapMB $maxHeapSizeMB (div $availableHeapMB 3)) -}}
+{{- end -}}
+{{- end }}

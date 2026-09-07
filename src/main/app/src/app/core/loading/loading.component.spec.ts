@@ -9,10 +9,11 @@ import { NgZone, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatProgressBarHarness } from "@angular/material/progress-bar/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { notifyManager } from "@tanstack/query-core";
 import { testQueryClient } from "../../../../setupJest";
-import { UtilService } from "../service/util.service";
+import { Progress, UtilService } from "../service/util.service";
 import { LoadingComponent } from "./loading.component";
 
 describe(LoadingComponent.name, () => {
@@ -25,14 +26,18 @@ describe(LoadingComponent.name, () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LoadingComponent, NoopAnimationsModule],
+      imports: [
+        LoadingComponent,
+        NoopAnimationsModule,
+        TranslateModule.forRoot(),
+      ],
       providers: [
         {
           provide: UtilService,
-          useValue: { loading: signal(false) } satisfies Pick<
-            UtilService,
-            "loading"
-          >,
+          useValue: {
+            loading: signal(false),
+            progress: signal<Progress | null>(null),
+          } satisfies Pick<UtilService, "loading" | "progress">,
         },
         provideQueryClient(testQueryClient),
       ],
@@ -59,6 +64,36 @@ describe(LoadingComponent.name, () => {
 
     it("should show a query progress bar", async () => {
       expect(await progressBarMode()).toBe("query");
+    });
+  });
+
+  describe("when something reports its progress", () => {
+    beforeEach(() => {
+      utilService.progress.set({
+        percentage: 40,
+        description: "msg.document.uploaden.voortgang",
+      });
+      fixture.detectChanges();
+    });
+
+    it("should show how far along it is", async () => {
+      const bar = await loader.getHarness(MatProgressBarHarness);
+      expect(await bar.getMode()).toBe("determinate");
+      expect(await bar.getValue()).toBe(40);
+    });
+
+    it("should name the action it is reporting on, so the bar has an accessible name", async () => {
+      const bar = await loader.getHarness(MatProgressBarHarness);
+      expect(await (await bar.host()).getAttribute("aria-label")).toBe(
+        "msg.document.uploaden.voortgang",
+      );
+    });
+
+    it("should take precedence over the indeterminate bar of the mutation that carries it", async () => {
+      utilService.loading.set(true);
+      fixture.detectChanges();
+
+      expect(await progressBarMode()).toBe("determinate");
     });
   });
 

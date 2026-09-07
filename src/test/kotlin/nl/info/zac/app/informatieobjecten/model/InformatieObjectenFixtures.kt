@@ -10,6 +10,7 @@ import nl.info.zac.app.identity.model.RestUser
 import nl.info.zac.app.shared.RestVertrouwelijkheidaanduiding
 import java.time.LocalDate
 import java.util.UUID
+import java.io.InputStream
 
 fun createRestDocumentVerzendGegevens(
     zaakUuid: UUID = UUID.randomUUID(),
@@ -32,7 +33,7 @@ fun createRestEnkelvoudigInformatieobject(
     auteur: String? = null,
     taal: String? = null,
     informatieobjectTypeUUID: UUID = UUID.randomUUID(),
-    file: ByteArray = "fakeFile".toByteArray(),
+    file: InputStream = "fakeFile".byteInputStream(),
     bestandsNaam: String = "fakeFilename",
     formaat: String = "fakeType",
     indicatieGebruiksrecht: Boolean = false,
@@ -89,7 +90,7 @@ fun createRestEnkelvoudigInformatieObjectVersieGegevens(
     uuid: UUID = UUID.randomUUID(),
     zaakUuid: UUID = UUID.randomUUID(),
     bestandsnaam: String = "fakeFile.txt",
-    file: ByteArray = "fakeFile".toByteArray(),
+    file: InputStream = "fakeFile".byteInputStream(),
     formaat: String = "fakeType",
     informatieobjectTypeUUID: UUID = UUID.randomUUID(),
     vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding =

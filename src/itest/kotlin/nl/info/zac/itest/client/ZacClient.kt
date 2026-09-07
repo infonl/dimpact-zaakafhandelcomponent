@@ -59,6 +59,31 @@ class ZacClient(
         val file = Thread.currentThread().contextClassLoader.getResource(fileName).let {
             File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
         }
+        return createEnkelvoudigInformatieobjectForZaak(
+            zaakUUID = zaakUUID,
+            file = file,
+            fileName = fileName,
+            title = title,
+            authorName = authorName,
+            fileMediaType = fileMediaType,
+            vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
+            testUser = testUser
+        )
+    }
+
+    @Suppress("LongParameterList")
+    fun createEnkelvoudigInformatieobjectForZaak(
+        zaakUUID: UUID,
+        file: File,
+        fileName: String,
+        title: String = DOCUMENT_FILE_TITLE,
+        authorName: String = FAKE_AUTHOR_NAME,
+        fileMediaType: String,
+        vertrouwelijkheidaanduiding: String,
+        testUser: TestUser
+    ): ResponseContent {
+        val createEnkelvoudigInformatieobjectEndpointURI =
+            "$ZAC_API_URI/informatieobjecten/informatieobject/$zaakUUID/$zaakUUID"
         val requestBody =
             MultipartBody.Builder()
                 .setType(MultipartBody.FORM)

@@ -6,7 +6,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { HttpEventType, provideHttpClient } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -30,6 +30,7 @@ import moment from "moment";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
@@ -255,6 +256,82 @@ describe(InformatieObjectAddComponent.name, () => {
       await sleep();
 
       expect(sideNavCloseSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("Upload progress", () => {
+    beforeEach(() => {
+      component["form"].patchValue(mockFormInput);
+      component["form"].markAsDirty();
+      fixture.detectChanges();
+    });
+
+    const submitAndUpload = async () => {
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
+      );
+      await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
+      return httpTestingController.expectOne(
+        `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
+      );
+    };
+
+    it("reports how much of the document has been uploaded to the global progress indicator", async () => {
+      const utilService = TestBed.inject(UtilService);
+      const request = await submitAndUpload();
+
+      expect(request.request.reportProgress).toBe(true);
+      expect(utilService.progress()).toEqual({
+        percentage: 0,
+        description: "msg.document.uploaden.voortgang",
+      });
+
+      request.event({
+        type: HttpEventType.UploadProgress,
+        loaded: 40,
+        total: 100,
+      });
+      await sleep();
+
+      expect(utilService.progress()).toEqual({
+        percentage: 40,
+        description: "msg.document.uploaden.voortgang",
+      });
+    });
+
+    it("stops reporting progress once the upload has finished", async () => {
+      const utilService = TestBed.inject(UtilService);
+      const request = await submitAndUpload();
+
+      request.event({
+        type: HttpEventType.UploadProgress,
+        loaded: 100,
+        total: 100,
+      });
+      request.flush(null);
+      await sleep();
+
+      expect(utilService.progress()).toBeNull();
+    });
+
+    it("stops reporting progress when the upload is refused because the document is too large", async () => {
+      const utilService = TestBed.inject(UtilService);
+      const request = await submitAndUpload();
+
+      request.event({
+        type: HttpEventType.UploadProgress,
+        loaded: 40,
+        total: 100,
+      });
+      request.flush(
+        { message: "msg.error.file.size-exceeded" },
+        { status: 413, statusText: "Payload Too Large" },
+      );
+      await sleep();
+
+      expect(utilService.progress()).toBeNull();
     });
   });
 

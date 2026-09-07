@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { HttpClient as AngularHttp, HttpHeaders } from "@angular/common/http";
+import {
+  HttpClient as AngularHttp,
+  HttpEventType,
+  HttpHeaders,
+} from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { FetchOptions, FetchResponse } from "openapi-fetch";
 import type {
@@ -11,6 +15,7 @@ import type {
   HttpMethod,
   PathsWithMethod,
 } from "openapi-typescript-helpers";
+import { map } from "rxjs";
 import { paths } from "../../../generated/types/zac-openapi-types";
 import { NullableIfOptional } from "../utils/generated-types";
 
@@ -102,6 +107,48 @@ export class HttpClient {
       body,
       this.addHttpOptions(parameters),
     );
+  }
+
+  /**
+   * `POST` that reports how much of the request body has been sent. Uploading a document of
+   * hundreds of megabytes otherwise leaves the user staring at a spinner for minutes.
+   */
+  public POST_WITH_PROGRESS<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods = "post",
+  >(
+    url: Path,
+    body: PostBody<Path, Method>,
+    ...args: ArgsTuple<PathParameters<Path, Method>>
+  ) {
+    const parameters = args.at(0) ?? ({} as PathParameters<Path, Method>);
+
+    return this.http
+      .post<Response<Path, Method>>(this.formatUrl(url, parameters), body, {
+        ...this.addHttpOptions(parameters),
+        observe: "events",
+        reportProgress: true,
+      })
+      .pipe(
+        map((event): UploadProgress<Response<Path, Method>> => {
+          switch (event.type) {
+            case HttpEventType.UploadProgress:
+              return {
+                state: "uploading",
+                percentage: event.total
+                  ? Math.round((100 * event.loaded) / event.total)
+                  : 0,
+              };
+            case HttpEventType.Response:
+              return {
+                state: "done",
+                body: event.body as Response<Path, Method>,
+              };
+            default:
+              return { state: "uploading", percentage: 0 };
+          }
+        }),
+      );
   }
 
   public PUT<
@@ -238,5 +285,9 @@ export class HttpClient {
     return result;
   }
 }
+
+export type UploadProgress<T> =
+  | { state: "uploading"; percentage: number }
+  | { state: "done"; body: T };
 
 export class HttpParamsError extends Error {}

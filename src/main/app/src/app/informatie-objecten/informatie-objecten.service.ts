@@ -64,10 +64,12 @@ export class InformatieObjectenService {
     zaakUuid: string,
     documentReferenceId: string,
     taakObject: boolean,
+    onProgress: (percentage: number) => void = () => undefined,
   ) {
     return mergeMutationOptions(
-      this.zacQueryClient.POST(
+      this.zacQueryClient.POST_WITH_PROGRESS(
         "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
+        onProgress,
         {
           path: { zaakUuid, documentReferenceId },
           query: { taakObject },

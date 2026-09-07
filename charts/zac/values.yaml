@@ -225,8 +225,24 @@ opentelemetry_zaakafhandelcomponent:
    # -- OpenTelemetry collector endpoint URL
   endpoint: ""
 
-# -- Maximum size (in Mega Bytes) of files that can be uploaded.
+# -- Maximum size (in Mega Bytes) of documents that can be uploaded and downloaded.
+# Uploads and downloads are streamed, so this value is bound by the temporary disk space available
+# to ZAC rather than by the heap. See `resources.limits.ephemeral-storage` and the nginx and ingress
+# body size settings, which all have to allow at least this much.
 maxFileSizeMB: 80
+
+# -- Maximum size (in Mega Bytes) of documents for operations that cannot stream and therefore hold
+# the whole document in memory: converting to PDF for preview, sending as a mail attachment and
+# editing through WebDAV. Larger documents can still be uploaded and downloaded.
+# ZAC refuses to start when this value does not fit in the heap configured through `javaOptions`;
+# it needs roughly three times this value, and may use at most half of the heap for it.
+# With the default 1024m heap the ceiling is 170.
+maxInMemoryFileSizeMB: 80
+
+# -- Size of the emptyDir mounted at /tmp. Uploaded and downloaded documents are streamed through
+# temporary files there, so this has to hold `maxFileSizeMB` for every concurrent upload. Keep
+# `resources.requests.ephemeral-storage` and `resources.limits.ephemeral-storage` in step with it.
+tmpVolumeSize: 2Gi
 
 # -- Enable Java remote debugging
 remoteDebug: false
@@ -288,6 +304,12 @@ service:
 ingress:
   enabled: false
   className: ""
+   # -- An ingress in front of ZAC has to allow at least `maxFileSizeMB` plus multipart overhead and
+   # needs timeouts long enough to up- or download a document of that size over a slow connection.
+   # For the nginx ingress controller that means, next to any annotations of your own:
+   #   nginx.ingress.kubernetes.io/proxy-body-size: 600m
+   #   nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"
+   #   nginx.ingress.kubernetes.io/proxy-send-timeout: "1800"
   annotations: {}
    # kubernetes.io/ingress.class: nginx
    # kubernetes.io/tls-acme: "true"
@@ -317,6 +339,7 @@ resources:
   requests:
     cpu: 100m
     memory: 1Gi
+    ephemeral-storage: 2Gi
 
 # -- liveness probe configuration for the main ZAC container
 livenessProbe:
@@ -737,7 +760,11 @@ nginx:
   resources: {}
   useXForwardedHost: false
   allowedHosts: ""
-  client_max_body_size: 120M
+   # -- Has to allow at least `maxFileSizeMB` plus multipart overhead.
+  client_max_body_size: 600M
+   # -- Read and send timeout towards ZAC. Uploading or downloading a document of hundreds of
+   # megabytes over a slow connection takes far longer than the nginx default of 60s.
+  proxy_timeout: 1800s
   topologySpreadConstraints: []
   api_proxy:
     enabled: false

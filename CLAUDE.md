@@ -213,6 +213,51 @@ When you see a variable declaration where the variable name is different from it
 This includes exceptions.
 For example `catch (e: Exception)` should be `catch (exception: Exception)`.
 
+### Catch narrow exceptions, not generic ones
+Never write `catch (exception: Exception)`, `catch (throwable: Throwable)` or `runCatching { }`. Catch the specific
+exception types the code in the `try` block can actually throw, and let everything else propagate. A generic catch
+swallows bugs — a `NullPointerException` or an `IllegalStateException` from a mistake in the `try` block gets treated
+as an expected failure and is silently handled.
+
+```kotlin
+// Before
+try {
+    drcClient.enkelvoudigInformatieobjectDelete(uuid)
+} catch (exception: Exception) {
+    LOG.warning { "Failed to delete document: ${exception.message}" }
+}
+// After
+try {
+    drcClient.enkelvoudigInformatieobjectDelete(uuid)
+} catch (drcRuntimeException: DrcRuntimeException) {
+    LOG.warning { "Failed to delete document: ${drcRuntimeException.message}" }
+} catch (processingException: ProcessingException) {
+    LOG.warning { "Failed to delete document: ${processingException.message}" }
+}
+```
+
+When the goal is cleanup on any failure rather than handling a failure, use `finally` — it needs no catch at all:
+
+```kotlin
+// Before
+try {
+    return writeTo(path)
+} catch (exception: Exception) {
+    Files.deleteIfExists(path)
+    throw exception
+}
+// After
+var isWritten = false
+try {
+    return writeTo(path).also { isWritten = true }
+} finally {
+    if (!isWritten) Files.deleteIfExists(path)
+}
+```
+
+The same goes for `@Suppress("TooGenericExceptionCaught")`: it is a signal that the catch is too broad, not a way to
+silence Detekt.
+
 ### Avoid the use of `requireNotNull`
 When you encounter a nullable variable that is being forcefully unwrapped using `requireNotNull`, consider refactoring the code to handle the null case more gracefully, for example by making the variable non-nullable.
 This can improve the robustness of the code and prevent potential crashes.
@@ -545,5 +590,6 @@ Detailed guides live in `docs/development/`:
 - `testing.md` — comprehensive testing guide
 - `ideConfig.md` — IDE setup
 - `installDockerCompose.md` — local Docker Compose setup
+- `documentFileSizes.md` — the two maximum document sizes and how to raise them
 - `endToEndTypeSafety.md` — type safety approach
 - `paging.md` — REST paging conventions
