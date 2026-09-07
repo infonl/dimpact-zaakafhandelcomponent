@@ -122,8 +122,13 @@ jobs:
                   commits(last: 1) {
                     nodes {
                       commit {
-                        checkSuites(first: 100, filterBy: {checkName: "CodeQL"}) {
+                        checkSuites(first: 100) {
                           nodes {
+                            workflowRun {
+                              workflow {
+                                name
+                              }
+                            }
                             checkRuns(first: 100) {
                               nodes {
                                 name
@@ -137,7 +142,7 @@ jobs:
                   }
                 }
               }
-            }' --jq '[.data.repository.pullRequest.commits.nodes[0].commit.checkSuites.nodes[].checkRuns.nodes[]]')
+            }' --jq '[.data.repository.pullRequest.commits.nodes[0].commit.checkSuites.nodes[] | select(.workflowRun.workflow.name == "CodeQL") | .checkRuns.nodes[] | select(.name | startswith("Analyze ("))]')
 
             TOTAL=$(echo "$CONCLUSIONS" | jq 'length')
             PENDING=$(echo "$CONCLUSIONS" | jq '[.[] | select(.conclusion == null)] | length')
