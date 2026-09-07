@@ -30,6 +30,7 @@ import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.setFunctioneelGebruiker
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.productaanvraag.ProductaanvraagService
 import nl.info.zac.search.IndexingService
@@ -58,6 +59,7 @@ class NotificationReceiver @Inject constructor(
     private val productaanvraagService: ProductaanvraagService,
     private val indexingService: IndexingService,
     private val inboxDocumentService: InboxDocumentService,
+    private val detachedDocumentService: DetachedDocumentService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val cmmnService: CMMNService,
     private val zaakVariabelenService: ZaakVariabelenService,
@@ -87,6 +89,7 @@ class NotificationReceiver @Inject constructor(
         handleProductaanvraag(notification)
         handleIndexing(notification)
         handleInboxDocuments(notification)
+        handleDetachedDocuments(notification)
         handleFlowableProcessData(notification)
         handleZaaktype(notification)
         handleWebsockets(notification)
@@ -329,8 +332,33 @@ class NotificationReceiver @Inject constructor(
                     else -> {}
                 }
             }
+            if (notification.action == Action.DELETE) {
+                when (notification.resource) {
+                    Resource.INFORMATIEOBJECT -> inboxDocumentService.deleteIfExists(
+                        notification.resourceUrl.extractUuid()
+                    )
+                    else -> {}
+                }
+            }
         } catch (exception: RuntimeException) {
             warning("inbox documents", notification, exception)
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun handleDetachedDocuments(notification: Notification) {
+        // Used by "Abonnementen" functionality in OpenNotificaties to check if callback URL is active
+        if (notification.channel == Channel.TEST) return
+        if (notification.action != Action.DELETE) return
+        try {
+            when (notification.resource) {
+                Resource.INFORMATIEOBJECT -> detachedDocumentService.deleteIfExists(
+                    notification.resourceUrl.extractUuid()
+                )
+                else -> {}
+            }
+        } catch (exception: RuntimeException) {
+            warning("detached documents", notification, exception)
         }
     }
 

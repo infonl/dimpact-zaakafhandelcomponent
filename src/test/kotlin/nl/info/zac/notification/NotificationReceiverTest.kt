@@ -31,6 +31,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.admin.ZaaktypeConfigurationService
+import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.document.inboxdocument.repository.model.InboxDocument
 import nl.info.zac.productaanvraag.ProductaanvraagService
@@ -47,6 +48,7 @@ class NotificationReceiverTest : BehaviorSpec({
     val productaanvraagService = mockk<ProductaanvraagService>()
     val indexingService = mockk<IndexingService>()
     val inboxDocumentService = mockk<InboxDocumentService>()
+    val detachedDocumentService = mockk<DetachedDocumentService>()
     val signaleringService = mockk<SignaleringService>()
     val zaaktypeConfigurationService = mockk<ZaaktypeConfigurationService>()
     val cmmnService = mockk<CMMNService>()
@@ -61,6 +63,7 @@ class NotificationReceiverTest : BehaviorSpec({
         productaanvraagService = productaanvraagService,
         indexingService = indexingService,
         inboxDocumentService = inboxDocumentService,
+        detachedDocumentService = detachedDocumentService,
         zaaktypeConfigurationService = zaaktypeConfigurationService,
         cmmnService = cmmnService,
         zaakVariabelenService = zaakVariabelenService,
@@ -490,16 +493,117 @@ class NotificationReceiverTest : BehaviorSpec({
         every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
         every { httpSessionInstance.get() } returns httpSession
         every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
+        every { inboxDocumentService.deleteIfExists(informatieobjectUUID) } just Runs
+        every { detachedDocumentService.deleteIfExists(informatieobjectUUID) } just Runs
         every { eventingService.send(any<ScreenEvent>()) } just Runs
 
         `when`("the notification is handled") {
             val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
 
-            then("the informatieobject is added to the search index and a screen event is sent") {
+            then(
+                "the informatieobject is removed from the search index, its inbox document and detached " +
+                    "document are deleted if they exist, and a screen event is sent"
+            ) {
                 response.status shouldBe Response.Status.NO_CONTENT.statusCode
                 verify(exactly = 1) {
                     indexingService.removeInformatieobject(informatieobjectUUID)
+                    inboxDocumentService.deleteIfExists(informatieobjectUUID)
+                    detachedDocumentService.deleteIfExists(informatieobjectUUID)
                     eventingService.send(any<ScreenEvent>())
+                }
+            }
+        }
+    }
+    given(
+        "a 'destroy informatieobject' notification for which deleting the inbox document fails " +
+            "with a runtime exception"
+    ) {
+        val informatieobjectUUID = UUID.randomUUID()
+        val informatieobjectURI = URI("https://example.com/fakezaak/$informatieobjectUUID")
+        val notificatie = createNotificatie(
+            channel = Channel.INFORMATIEOBJECTEN,
+            resource = Resource.INFORMATIEOBJECT,
+            resourceUrl = informatieobjectURI,
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
+        every { inboxDocumentService.deleteIfExists(informatieobjectUUID) } throws ServiceUnavailableException()
+        every { detachedDocumentService.deleteIfExists(informatieobjectUUID) } just Runs
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        `when`("the notification is handled") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then(
+                "the exception is swallowed and the detached document is still deleted if it exists"
+            ) {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    inboxDocumentService.deleteIfExists(informatieobjectUUID)
+                    detachedDocumentService.deleteIfExists(informatieobjectUUID)
+                }
+            }
+        }
+    }
+    given(
+        "a 'destroy informatieobject' notification for which deleting the detached document fails " +
+            "with a runtime exception"
+    ) {
+        val informatieobjectUUID = UUID.randomUUID()
+        val informatieobjectURI = URI("https://example.com/fakezaak/$informatieobjectUUID")
+        val notificatie = createNotificatie(
+            channel = Channel.INFORMATIEOBJECTEN,
+            resource = Resource.INFORMATIEOBJECT,
+            resourceUrl = informatieobjectURI,
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+        every { indexingService.removeInformatieobject(informatieobjectUUID) } just Runs
+        every { inboxDocumentService.deleteIfExists(informatieobjectUUID) } just Runs
+        every { detachedDocumentService.deleteIfExists(informatieobjectUUID) } throws ServiceUnavailableException()
+        every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+        `when`("the notification is handled") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then(
+                "the exception is swallowed and a 'no content' response is still returned, " +
+                    "instead of the notification handling as a whole failing"
+            ) {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 1) {
+                    inboxDocumentService.deleteIfExists(informatieobjectUUID)
+                    detachedDocumentService.deleteIfExists(informatieobjectUUID)
+                }
+            }
+        }
+    }
+    given(
+        "a 'destroy informatieobject' notification on the TEST channel used to check whether the callback " +
+            "URL is active"
+    ) {
+        val informatieobjectUUID = UUID.randomUUID()
+        val informatieobjectURI = URI("https://example.com/fakezaak/$informatieobjectUUID")
+        val notificatie = createNotificatie(
+            channel = Channel.TEST,
+            resource = Resource.INFORMATIEOBJECT,
+            resourceUrl = informatieobjectURI,
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+
+        `when`("the notification is handled") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then("neither the inbox document nor the detached document is deleted") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 0) {
+                    inboxDocumentService.deleteIfExists(informatieobjectUUID)
+                    detachedDocumentService.deleteIfExists(informatieobjectUUID)
                 }
             }
         }
@@ -532,6 +636,8 @@ class NotificationReceiverTest : BehaviorSpec({
                     eventingService.send(any<ScreenEvent>())
                     signaleringService.deleteSignaleringen(any())
                     signaleringService.deleteSignaleringVerzonden(any())
+                    inboxDocumentService.deleteIfExists(any<UUID>())
+                    detachedDocumentService.deleteIfExists(any<UUID>())
                 }
             }
         }
