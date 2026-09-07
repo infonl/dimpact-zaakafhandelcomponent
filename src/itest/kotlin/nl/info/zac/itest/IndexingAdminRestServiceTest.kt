@@ -80,11 +80,11 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 ).toHeaders()
             )
             then(
-                """the response is successful and at least one zaak is indexed"""
+                """the response is successful and the created zaak is indexed"""
             ) {
                 response.code shouldBe HTTP_ACCEPTED
                 // wait for the indexing to complete
-                eventually(10.seconds) {
+                eventually(20.seconds) {
                     val response = itestHttpClient.performPutRequest(
                         url = "$ZAC_API_URI/zoeken/list",
                         requestBodyAsString = """
@@ -94,7 +94,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                             "alleenAfgeslotenZaken": false,
                             "alleenMijnTaken": false,
                             "zoeken": {},
-                            "filters": {},
+                            "filters": { "ZAAK_IDENTIFICATIE": { "values": [ "$zaakIdentification" ] } },
                             "datums": {},
                             "rows": 100,
                             "page": 0,
@@ -103,12 +103,14 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         """.trimIndent(),
                         testUser = BEHEERDER_1
                     )
-                    JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 0
+                    // "filters" does an exact match, unlike "zoeken" which does a substring match and could
+                    // therefore incorrectly also match zaken created by other, unrelated itest classes
+                    JSONObject(response.bodyAsString).getInt("totaal") shouldBe 1
                 }
             }
 
             and("the ZAC log reports that zaken reindexing started, finished and its reindex summary") {
-                eventually(10.seconds) {
+                eventually(20.seconds) {
                     val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
                     newLogs.shouldContainLogLineMatching(reindexingStartedRegex("ZAAK"))
                     newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("ZAAK"))
@@ -125,11 +127,11 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                 ).toHeaders()
             )
             then(
-                """the response is successful and at least one task is indexed"""
+                """the response is successful and the created task is indexed"""
             ) {
                 response.code shouldBe HTTP_ACCEPTED
                 // wait for the indexing to complete
-                eventually(10.seconds) {
+                eventually(20.seconds) {
                     val response = itestHttpClient.performPutRequest(
                         url = "$ZAC_API_URI/zoeken/list",
                         requestBodyAsString = """
@@ -138,7 +140,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                             "alleenOpenstaandeZaken": false,
                             "alleenAfgeslotenZaken": false,
                             "alleenMijnTaken": false,
-                            "zoeken": {},
+                            "zoeken": { "TAAK_ZAAK_ID": "$zaakIdentification" },
                             "filters": {},
                             "datums": {},
                             "rows": 100,
@@ -148,12 +150,18 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
                         """.trimIndent(),
                         testUser = BEHEERDER_1
                     )
-                    JSONObject(response.bodyAsString).getInt("totaal") shouldBeGreaterThan 0
+                    // there is no "filters" field for a task's zaak identification, only "zoeken", which does
+                    // a substring match, so we exact-match the results ourselves to rule out an unrelated
+                    // task from another itest class whose zaak identification happens to contain ours
+                    JSONObject(response.bodyAsString).getJSONArray("resultaten").let { resultaten ->
+                        (0 until resultaten.length())
+                            .count { resultaten.getJSONObject(it).getString("zaakIdentificatie") == zaakIdentification }
+                    } shouldBe 1
                 }
             }
 
             and("the ZAC log reports that taken reindexing started, finished and its reindex summary") {
-                eventually(10.seconds) {
+                eventually(20.seconds) {
                     val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
                     newLogs.shouldContainLogLineMatching(reindexingStartedRegex("TAAK"))
                     newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("TAAK"))
@@ -174,7 +182,9 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             ) {
                 response.code shouldBe HTTP_ACCEPTED
                 // wait for the indexing to complete
-                eventually(10.seconds) {
+                // there is no search field that scopes a DOCUMENT search to the zaak it belongs to,
+                // so we can only assert that the index is non-empty, not that our own document is in it
+                eventually(20.seconds) {
                     val response = itestHttpClient.performPutRequest(
                         url = "$ZAC_API_URI/zoeken/list",
                         requestBodyAsString = """
@@ -198,7 +208,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             }
 
             and("the ZAC log reports that documenten reindexing started, finished and its reindex summary") {
-                eventually(10.seconds) {
+                eventually(20.seconds) {
                     val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
                     newLogs.shouldContainLogLineMatching(reindexingStartedRegex("DOCUMENT"))
                     newLogs.shouldContainLogLineMatching(reindexingFinishedRegex("DOCUMENT"))
@@ -219,7 +229,7 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             ) {
                 response.code shouldBe HTTP_ACCEPTED
                 listOf("ZAAK", "TAAK", "DOCUMENT").forEach { zoekObjectType ->
-                    eventually(10.seconds) {
+                    eventually(20.seconds) {
                         val searchResponse = itestHttpClient.performPutRequest(
                             url = "$ZAC_API_URI/zoeken/list",
                             requestBodyAsString = """
@@ -244,7 +254,9 @@ class IndexingAdminRestServiceTest : BehaviorSpec({
             }
 
             and("the ZAC log reports the complete reindexing process and the Solr index counts") {
-                eventually(10.seconds) {
+                // reindexing three types sequentially over the whole (ever-growing) Solr index takes
+                // meaningfully longer than reindexing a single type, hence the larger timeout here
+                eventually(60.seconds) {
                     val newLogs = zacContainerLogs().newLogsSince(logsBeforeReindex)
                     newLogs.shouldContainLogLineMatching(
                         Regex("""Complete reindexing process started for object types: \[ZAAK, TAAK, DOCUMENT]""")
