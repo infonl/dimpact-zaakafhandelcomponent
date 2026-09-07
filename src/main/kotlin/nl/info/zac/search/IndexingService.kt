@@ -145,8 +145,6 @@ class IndexingService @Inject constructor(
             try {
                 reindexCombined(combinedObjectTypes)
             } catch (exception: Exception) {
-                // matches reindexOrLogFailure's safety net: an unguarded exception from the combined
-                // pass must not abort the remaining object types, nor skip the "process finished" log
                 LOG.log(
                     Level.SEVERE,
                     "[$combinedObjectTypes] Reindexing failed, continuing with remaining object types",
@@ -181,10 +179,8 @@ class IndexingService @Inject constructor(
         try {
             reindex(objectType)
         } catch (exception: Exception) {
-            // catches more than IndexingException on purpose: SolrDeployerService now runs every
-            // object type through this one function on a single executor task (rather than one
-            // task per type), so an unguarded exception anywhere in reindex() must not abort the
-            // remaining object types either
+            // catches more than IndexingException on purpose
+            // an unguarded exception anywhere in reindex() must not abort the reindexing process
             LOG.log(
                 Level.SEVERE,
                 "[$objectType] Reindexing failed, continuing with remaining object types",
