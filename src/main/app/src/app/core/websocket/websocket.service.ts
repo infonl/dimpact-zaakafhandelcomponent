@@ -1,20 +1,13 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
 import { Injectable, OnDestroy, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { Observable, Subject, forkJoin, of, throwError } from "rxjs";
-import {
-  catchError,
-  delay,
-  retryWhen,
-  switchMap,
-  takeUntil,
-  timeout,
-} from "rxjs/operators";
+import { Observable, Subject, forkJoin, throwError, timer } from "rxjs";
+import { catchError, switchMap, takeUntil, timeout } from "rxjs/operators";
 import { WebSocketSubject, webSocket } from "rxjs/webSocket";
 import { IdentityService } from "../../identity/identity.service";
 import { UtilService } from "../service/util.service";
@@ -44,6 +37,8 @@ export class WebsocketService implements OnDestroy {
   // This must be bigger than the SECONDS_TO_DELAY defined in ScreenEventObserver.java
   private static DEFAULT_SUSPENSION_TIMEOUT = 5; // seconds
 
+  private static RECONNECT_DELAY_MS = 3000;
+
   private readonly PROTOCOL: string = window.location.protocol.replace(
     /^http/,
     "ws",
@@ -60,6 +55,8 @@ export class WebsocketService implements OnDestroy {
   private connection$: WebSocketSubject<
     SocketMessage | SubscriptionMessage
   > | null = null;
+
+  private isDestroyed = false;
 
   private destroyed$ = new Subject<void>();
 
@@ -78,22 +75,20 @@ export class WebsocketService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.isDestroyed = true;
     this.destroyed$.next();
     this.destroyed$.complete();
     this.close();
   }
 
-  private open(url: string) {
-    return of(url).pipe(
-      switchMap((openUrl) => {
-        if (!this.connection$) {
-          this.connection$ = webSocket(openUrl);
-          console.log("Websocket geopend: " + openUrl);
-        }
-        return this.connection$;
-      }),
-      retryWhen((errors) => errors.pipe(delay(7))),
-    );
+  private open(
+    url: string,
+  ): WebSocketSubject<SocketMessage | SubscriptionMessage> {
+    if (!this.connection$) {
+      this.connection$ = webSocket(url);
+      console.log("Websocket geopend: " + url);
+    }
+    return this.connection$;
   }
 
   private receive(url: string) {
@@ -101,8 +96,25 @@ export class WebsocketService implements OnDestroy {
       .pipe(takeUntil(this.destroyed$))
       .subscribe({
         next: (message) => this.onMessage(message as SocketMessage),
-        error: this.onError,
+        error: (error) => {
+          this.onError(error);
+          this.reconnect(url);
+        },
+        complete: () => this.reconnect(url),
       });
+  }
+
+  private reconnect(url: string) {
+    if (this.isDestroyed) {
+      return;
+    }
+    console.warn(
+      `Websocket verbinding gesloten, opnieuw verbinden over ${WebsocketService.RECONNECT_DELAY_MS}ms`,
+    );
+    this.connection$ = null;
+    timer(WebsocketService.RECONNECT_DELAY_MS)
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => this.receive(url));
   }
 
   private send(data: SubscriptionMessage) {
