@@ -45,8 +45,10 @@ What *does* need the same principle applied is `InformatieObjectCreateAttendedCo
 **4. Fail loudly, not silently, when a live lookup fails or a mapped ID no longer exists.**
 Considered falling back to the persisted (stale) name if the live fetch fails, to preserve availability. Rejected: a stale fallback is exactly today's bug — it produces a confusing failure further down the pipe (SmartDocuments itself rejecting the request) instead of a clear one. Failing immediately, with a message that points at the actual cause (mapping needs updating, or SmartDocuments is unreachable), is strictly more useful and is no worse than the current failure mode, which already fails for the same underlying reason.
 
-**5. No schema change; the persisted `naam` columns stay, but stop being treated as a source of truth.**
-Dropping them now would be unrelated schema churn. They remain useful as a last-known-name reference for admins inspecting the mapping, and can be revisited once it's confirmed nothing else depends on them.
+**5. ~~No schema change; the persisted `naam` columns stay~~ — superseded: the columns were removed.**
+Originally decided against touching the schema (see the struck-through rationale below), to keep this fix minimal. After implementation, the user explicitly asked to remove the now-dead `naam` columns rather than leave them, since they were confirmed to be written and read but never actually used for anything (`resolveCurrentNames` always overwrites the value before it reaches any consumer). Done in `V98__remove_smartdocuments_naam_column.sql`, with the `name`/`naam` property removed from both JPA entities and every construction/conversion site updated accordingly.
+
+Original rationale (no longer followed): dropping them would be unrelated schema churn; they remain useful as a last-known-name reference for admins inspecting the mapping, and can be revisited once it's confirmed nothing else depends on them.
 
 ## Risks / Trade-offs
 
@@ -58,7 +60,9 @@ Dropping them now would be unrelated schema churn. They remain useful as a last-
 
 ## Migration Plan
 
-No data migration is required — no schema changes, and existing persisted mappings (`smartDocumentsId` + `informatieObjectTypeUUID`) remain valid inputs to the new live-resolution logic unchanged. Rollout is a standard code deploy. Rollback is a standard revert; there is no persisted-state migration to undo.
+**Updated after implementation** (see Decision 5): a schema migration was added after all — `V98__remove_smartdocuments_naam_column.sql` drops the `naam` column from both SmartDocuments mapping tables. This is a one-way door: rolling back the code alone does not restore the column, since Flyway migrations are not reversed by a code revert. A rollback that needs the column back requires a new forward migration re-adding it. This does not affect application behavior either way — nothing reads `naam` as source of truth — but it does mean "rollback is a standard revert" (as originally stated here) no longer holds.
+
+The rest of this change carries no other data migration: existing persisted mappings (`smartDocumentsId` + `informatieObjectTypeUUID`) remain valid inputs to the new live-resolution logic unchanged. Rollout is a standard code deploy plus the one migration above.
 
 Before rollout, validate against at least one zaaktype with a real SmartDocuments mapping in a test/acceptance environment: rename a mapped template and a mapped group in SmartDocuments, then confirm (a) the "Document maken" picker shows the new names without re-saving the mapping, (b) document generation using that template succeeds, and (c) the BPMN task form field shows the new names.
 

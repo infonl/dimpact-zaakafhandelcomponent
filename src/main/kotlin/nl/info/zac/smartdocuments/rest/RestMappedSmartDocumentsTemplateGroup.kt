@@ -104,25 +104,27 @@ private fun convertTemplateGroupToModel(
 
 /**
  * Replaces every persisted `name` in this mapping with the current SmartDocuments name, matched by id,
- * and drops any group or template whose id no longer exists in SmartDocuments. The persisted
- * `informatieObjectTypeUUID` per template is preserved unchanged.
+ * and drops any group or template whose id no longer exists in SmartDocuments, or that moved to a
+ * different position in the live tree. The persisted `informatieObjectTypeUUID` per template is
+ * preserved unchanged.
  */
 fun Set<RestMappedSmartDocumentsTemplateGroup>.resolveCurrentNames(
     currentTemplateGroups: Set<RestSmartDocumentsTemplateGroup>
 ): Set<RestMappedSmartDocumentsTemplateGroup> =
-    mapNotNull { it.resolveCurrentNames(currentTemplateGroups) }.toSet()
+    mapNotNull { it.resolveCurrentNames(currentTemplateGroups.findGroupById(it.id)) }.toSet()
 
 private fun RestMappedSmartDocumentsTemplateGroup.resolveCurrentNames(
-    currentTemplateGroups: Set<RestSmartDocumentsTemplateGroup>
+    currentGroup: RestSmartDocumentsTemplateGroup?
 ): RestMappedSmartDocumentsTemplateGroup? =
-    currentTemplateGroups.findGroupById(id)?.let { currentGroup ->
-        val currentSubGroups = currentGroup.groups ?: emptySet()
+    currentGroup?.let {
         RestMappedSmartDocumentsTemplateGroup(
             id = id,
             name = currentGroup.name,
-            groups = groups?.resolveCurrentNames(currentSubGroups),
+            groups = groups?.mapNotNull { group ->
+                group.resolveCurrentNames(currentGroup.groups?.find { it.id == group.id })
+            }?.toSet(),
             templates = templates?.mapNotNull { template ->
-                setOf(currentGroup).findTemplateById(template.id)?.let { currentTemplate ->
+                currentGroup.templates?.find { it.id == template.id }?.let { currentTemplate ->
                     RestMappedSmartDocumentsTemplate(
                         id = template.id,
                         name = currentTemplate.name,

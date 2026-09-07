@@ -14,8 +14,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.persistence.EntityManager
+import jakarta.persistence.Query
 import jakarta.persistence.TypedQuery
 import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.CriteriaDelete
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
@@ -26,6 +28,7 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplate
 import nl.info.zac.smartdocuments.templates.model.SmartDocumentsTemplateGroup
+import nl.info.zac.smartdocuments.templates.model.createSmartDocumentsTemplateGroup
 import java.util.UUID
 
 class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
@@ -315,6 +318,57 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
             then("it returns an empty set without making a live SmartDocuments call") {
                 mappings shouldBe emptySet()
                 verify(exactly = 0) { smartDocumentsService.listTemplates() }
+            }
+        }
+    }
+
+    given("A previous zaaktype with a persisted, non-empty SmartDocuments mapping") {
+        val previousZaaktypeUuid = UUID.randomUUID()
+        val newZaaktypeUuid = UUID.randomUUID()
+        val previousZaaktypeConfiguration = mockk<ZaaktypeConfiguration>()
+        val newZaaktypeConfiguration = mockk<ZaaktypeConfiguration>()
+        val persistedGroup = createSmartDocumentsTemplateGroup()
+
+        val criteriaBuilder = mockk<CriteriaBuilder>(relaxed = true)
+        val selectQuery = mockk<CriteriaQuery<SmartDocumentsTemplateGroup>>(relaxed = true)
+        val selectRoot = mockk<Root<SmartDocumentsTemplateGroup>>(relaxed = true)
+        val selectTypedQuery = mockk<TypedQuery<SmartDocumentsTemplateGroup>>(relaxed = true)
+        val deleteQuery = mockk<CriteriaDelete<SmartDocumentsTemplateGroup>>(relaxed = true)
+        val deleteRoot = mockk<Root<SmartDocumentsTemplateGroup>>(relaxed = true)
+        val deleteExecutableQuery = mockk<Query>(relaxed = true)
+
+        every { entityManager.criteriaBuilder } returns criteriaBuilder
+
+        every { criteriaBuilder.createQuery(SmartDocumentsTemplateGroup::class.java) } returns selectQuery
+        every { selectQuery.from(SmartDocumentsTemplateGroup::class.java) } returns selectRoot
+        every { selectQuery.select(selectRoot) } returns selectQuery
+        every { selectQuery.where(any<Predicate>()) } returns selectQuery
+        every { entityManager.createQuery(selectQuery) } returns selectTypedQuery
+        every { selectTypedQuery.resultList } returns listOf(persistedGroup)
+
+        every { criteriaBuilder.createCriteriaDelete(SmartDocumentsTemplateGroup::class.java) } returns deleteQuery
+        every { deleteQuery.from(SmartDocumentsTemplateGroup::class.java) } returns deleteRoot
+        every { deleteQuery.where(any<Predicate>()) } returns deleteQuery
+        every { entityManager.createQuery(deleteQuery) } returns deleteExecutableQuery
+        every { deleteExecutableQuery.executeUpdate() } returns 1
+        every { entityManager.merge(any<SmartDocumentsTemplateGroup>()) } returns persistedGroup
+
+        every { smartDocumentsService.isEnabled() } returns true
+        every {
+            zaaktypeConfigurationService.readZaaktypeConfiguration(previousZaaktypeUuid)
+        } returns previousZaaktypeConfiguration
+        every { previousZaaktypeConfiguration.id } returns 1L
+        every {
+            zaaktypeConfigurationService.readZaaktypeConfiguration(newZaaktypeUuid)
+        } returns newZaaktypeConfiguration
+        every { newZaaktypeConfiguration.id } returns 2L
+
+        `when`("the template mapping is copied to a new zaaktype") {
+            smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(previousZaaktypeUuid, newZaaktypeUuid)
+
+            then("the persisted mapping is copied without ever making a live SmartDocuments call") {
+                verify(exactly = 0) { smartDocumentsService.listTemplates() }
+                verify(exactly = 1) { entityManager.merge(any<SmartDocumentsTemplateGroup>()) }
             }
         }
     }

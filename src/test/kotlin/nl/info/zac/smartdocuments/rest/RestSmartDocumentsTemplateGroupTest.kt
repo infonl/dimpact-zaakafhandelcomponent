@@ -291,6 +291,54 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
         }
     }
 
+    given("a persisted template that moved one level deeper, into a new subgroup of its own original group") {
+        val groupId = UUID.randomUUID().toString()
+        val newDescendantGroupId = UUID.randomUUID().toString()
+        val movedTemplateId = UUID.randomUUID().toString()
+        val informatieObjectTypeUUID = UUID.randomUUID()
+
+        val persistedMapping = setOf(
+            createRestMappedSmartDocumentsTemplateGroup(
+                id = groupId,
+                name = "group",
+                groups = emptySet(),
+                templates = setOf(
+                    createRestMappedSmartDocumentsTemplate(
+                        id = movedTemplateId,
+                        name = "old name directly under the group",
+                        informatieObjectTypeUUID = informatieObjectTypeUUID
+                    )
+                )
+            )
+        )
+
+        val liveTemplateGroups = setOf(
+            createRestSmartDocumentsTemplateGroup(
+                id = groupId,
+                name = "group",
+                groups = setOf(
+                    createRestSmartDocumentsTemplateGroup(
+                        id = newDescendantGroupId,
+                        name = "new descendant subgroup",
+                        groups = emptySet(),
+                        templates = setOf(
+                            createRestSmartDocumentsTemplate(id = movedTemplateId, name = "new name under descendant")
+                        )
+                    )
+                ),
+                templates = emptySet()
+            )
+        )
+
+        `when`("current names are resolved against the live tree") {
+            val resolvedMapping = persistedMapping.resolveCurrentNames(liveTemplateGroups)
+
+            then("the template is omitted, not kept under the group just because it still exists deeper in its subtree") {
+                resolvedMapping.first { it.id == groupId }.templates!!.shouldBeEmpty()
+            }
+        }
+    }
+
     given("a persisted group with no subgroups or templates recorded") {
         val groupId = UUID.randomUUID().toString()
         val persistedMapping = setOf(

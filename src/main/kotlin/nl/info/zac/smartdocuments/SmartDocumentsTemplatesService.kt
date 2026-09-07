@@ -146,12 +146,12 @@ class SmartDocumentsTemplatesService @Inject constructor(
      */
     @Transactional(REQUIRED)
     fun copySmartDocumentsTemplateMappings(previousZaaktypeUuid: UUID, newZaaktypeUuid: UUID) {
-        val templateMappings = getTemplatesMapping(previousZaaktypeUuid)
+        val templateMappings = fetchPersistedMapping(previousZaaktypeUuid)
         storeTemplatesMapping(templateMappings, newZaaktypeUuid)
     }
 
     /**
-     * Lists all template groups for a zaaktypeConfiguration
+     * Lists all template groups for a zaaktypeConfiguration, with names resolved live from SmartDocuments.
      *
      * @param zaaktypeUuid UUID of a zaaktype
      * @return a set of all RESTSmartDocumentsTemplateGroup for the zaaktypeConfiguration
@@ -159,6 +159,15 @@ class SmartDocumentsTemplatesService @Inject constructor(
     fun getTemplatesMapping(
         zaaktypeUuid: UUID
     ): Set<RestMappedSmartDocumentsTemplateGroup> =
+        fetchPersistedMapping(zaaktypeUuid).let { persistedMapping ->
+            if (persistedMapping.isEmpty()) persistedMapping else persistedMapping.resolveCurrentNames(listTemplates())
+        }
+
+    /**
+     * Reads the persisted template mapping for a zaaktypeConfiguration straight from ZAC's own database,
+     * without any live SmartDocuments read.
+     */
+    private fun fetchPersistedMapping(zaaktypeUuid: UUID): Set<RestMappedSmartDocumentsTemplateGroup> =
         if (!smartDocumentsService.isEnabled()) {
             LOG.fine { "Smart documents is disabled. Returning empty set of template groups" }
             emptySet()
@@ -167,7 +176,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
             LOG.fine { "No zaaktype configuration found for zaaktype UUID '$zaaktypeUuid'. Returning empty set of template groups" }
             emptySet()
         } else {
-            LOG.fine { "Fetching template mapping for zaaktype UUID $zaaktypeUuid" }
+            LOG.fine { "Fetching persisted template mapping for zaaktype UUID $zaaktypeUuid" }
             fetchTemplatesMapping(zaaktypeUuid)
         }
 
@@ -192,9 +201,7 @@ class SmartDocumentsTemplatesService @Inject constructor(
                     ).resultList.toSet()
                 }
             }
-        }.toRestSmartDocumentsTemplateGroup().let { persistedMapping ->
-            if (persistedMapping.isEmpty()) persistedMapping else persistedMapping.resolveCurrentNames(listTemplates())
-        }
+        }.toRestSmartDocumentsTemplateGroup()
 
     /**
      * Get the information object type UUID for a pair of group-template in a zaaktypeConfiguration
