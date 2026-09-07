@@ -73,13 +73,3 @@ fun Set<RestSmartDocumentsTemplateGroup>.group(groupNames: List<String>): RestSm
  */
 fun Set<RestSmartDocumentsTemplateGroup>.findGroupById(id: String): RestSmartDocumentsTemplateGroup? =
     firstNotNullOfOrNull { group -> group.takeIf { it.id == id } ?: group.groups?.findGroupById(id) }
-
-/**
- * Finds a template anywhere in the tree by its SmartDocuments id, at any depth.
- * Unlike [group], this never matches on name or position, so a rename of the template
- * or of any of its ancestor groups does not affect the result.
- */
-fun Set<RestSmartDocumentsTemplateGroup>.findTemplateById(id: String): RestSmartDocumentsTemplate? =
-    firstNotNullOfOrNull { group ->
-        group.templates?.find { it.id == id } ?: group.groups?.findTemplateById(id)
-    }

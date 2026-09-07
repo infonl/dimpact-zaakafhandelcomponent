@@ -95,8 +95,7 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
         }
     }
 
-    given("a live SmartDocuments template tree with a nested group and template") {
-        val templateId = UUID.randomUUID().toString()
+    given("a live SmartDocuments template tree with a nested group") {
         val nestedGroupId = UUID.randomUUID().toString()
         val liveTemplateGroups = setOf(
             createRestSmartDocumentsTemplateGroup(
@@ -106,9 +105,7 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
                         id = nestedGroupId,
                         name = "nested group (renamed)",
                         groups = emptySet(),
-                        templates = setOf(
-                            createRestSmartDocumentsTemplate(id = templateId, name = "nested template (renamed)")
-                        )
+                        templates = emptySet()
                     )
                 ),
                 templates = emptySet()
@@ -130,25 +127,9 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
                 found.shouldBeNull()
             }
         }
-
-        `when`("finding the nested template by id") {
-            val found = liveTemplateGroups.findTemplateById(templateId)
-
-            then("it is found regardless of nesting depth") {
-                found?.name shouldBe "nested template (renamed)"
-            }
-        }
-
-        `when`("finding a template id that no longer exists") {
-            val found = liveTemplateGroups.findTemplateById("no such template id")
-
-            then("nothing is found") {
-                found.shouldBeNull()
-            }
-        }
     }
 
-    given("a live SmartDocuments group whose groups and templates fields are null, not an empty set") {
+    given("a live SmartDocuments group whose groups field is null, not an empty set") {
         val liveTemplateGroups = setOf(
             RestSmartDocumentsTemplateGroup(
                 id = UUID.randomUUID().toString(),
@@ -162,14 +143,6 @@ class RestSmartDocumentsTemplateGroupTest : BehaviorSpec({
             val found = liveTemplateGroups.findGroupById("no such group id")
 
             then("nothing is found, without failing on the null groups field") {
-                found.shouldBeNull()
-            }
-        }
-
-        `when`("finding a template id against it") {
-            val found = liveTemplateGroups.findTemplateById("no such template id")
-
-            then("nothing is found, without failing on the null templates field") {
                 found.shouldBeNull()
             }
         }

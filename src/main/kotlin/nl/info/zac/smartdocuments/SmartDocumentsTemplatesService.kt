@@ -17,7 +17,6 @@ import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.smartdocuments.rest.RestMappedSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.RestSmartDocumentsTemplateGroup
 import nl.info.zac.smartdocuments.rest.findGroupById
-import nl.info.zac.smartdocuments.rest.findTemplateById
 import nl.info.zac.smartdocuments.rest.group
 import nl.info.zac.smartdocuments.rest.resolveCurrentNames
 import nl.info.zac.smartdocuments.rest.toRestSmartDocumentsTemplateGroup
@@ -269,21 +268,29 @@ class SmartDocumentsTemplatesService @Inject constructor(
      * Both names are resolved from a single live SmartDocuments read, since a persisted name can go stale
      * the moment either is renamed in SmartDocuments.
      *
+     * The template is looked up as a DIRECT child of the resolved template group, not anywhere in the live
+     * tree: if SmartDocuments moved the template to a different group, the two ids no longer describe one
+     * real selection, so this fails instead of silently sending a mismatched template-group/template pair
+     * to SmartDocuments.
+     *
      * @param templateGroupId SmartDocuments' id of a template group
      * @param templateId SmartDocuments' id of a template
      * @return a [Selection] holding the current template group name and template name
-     * @throws SmartDocumentsConfigurationException when either id no longer exists in SmartDocuments
+     * @throws SmartDocumentsConfigurationException when the group no longer exists, or the template is not
+     * (or no longer) a direct child of that group, in SmartDocuments
      */
     fun readCurrentSelection(templateGroupId: String, templateId: String) =
         listTemplates().let { currentTemplateGroups ->
+            val currentGroup = currentTemplateGroups.findGroupById(templateGroupId)
+                ?: throw SmartDocumentsConfigurationException(
+                    "Template group with id $templateGroupId no longer exists in SmartDocuments"
+                )
             Selection(
-                templateGroup = currentTemplateGroups.findGroupById(templateGroupId)?.name
+                templateGroup = currentGroup.name,
+                template = currentGroup.templates?.find { it.id == templateId }?.name
                     ?: throw SmartDocumentsConfigurationException(
-                        "Template group with id $templateGroupId no longer exists in SmartDocuments"
-                    ),
-                template = currentTemplateGroups.findTemplateById(templateId)?.name
-                    ?: throw SmartDocumentsConfigurationException(
-                        "Template with id $templateId no longer exists in SmartDocuments"
+                        "Template with id $templateId is not (or no longer) a template of template group " +
+                            "with id $templateGroupId in SmartDocuments"
                     )
             )
         }

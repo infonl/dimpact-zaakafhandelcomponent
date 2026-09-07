@@ -27,6 +27,10 @@ When creating a document through the attended SmartDocuments flow, the system SH
 - **WHEN** the live SmartDocuments read needed to resolve the current template group and template name fails (timeout, authentication error, service unavailable)
 - **THEN** the system fails the document-creation request with a clear error, and does NOT fall back to the name persisted in ZAC's database
 
+#### Scenario: Mapped template exists live, but moved to a different template group
+- **WHEN** a user starts document creation for a `smartDocumentsId` template group and a `smartDocumentsId` template that both still exist live, but the template is no longer a direct child of that template group in SmartDocuments' current template tree
+- **THEN** the system fails the request with a clear error, instead of sending SmartDocuments a template group name and template name pair that no longer describes one real selection
+
 ### Requirement: Single live read per document-creation request
 The system SHALL resolve both the template group name and the template name for one document-creation request from a single live SmartDocuments read, not one read per name.
 

@@ -146,6 +146,25 @@ class SmartDocumentsTemplatesServiceTest : BehaviorSpec({
                 exception.message shouldContain "no such template id"
             }
         }
+
+        `when`("the current selection is requested for a template that exists, but not under the given template group") {
+            val nestedGroups = smartDocumentsTemplatesResponse.documentsStructure.templatesStructure
+                .templateGroups.first().templateGroups!!
+            val templateGroup = nestedGroups.first()
+            val templateFromADifferentGroup = nestedGroups.last().templates!!.first()
+
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
+                smartDocumentsTemplatesService.readCurrentSelection(
+                    templateGroupId = templateGroup.id,
+                    templateId = templateFromADifferentGroup.id
+                )
+            }
+
+            then("exception is thrown instead of returning a mismatched template group and template pair") {
+                exception.message shouldContain templateFromADifferentGroup.id
+                exception.message shouldContain templateGroup.id
+            }
+        }
     }
 
     given("A missing mapping") {
