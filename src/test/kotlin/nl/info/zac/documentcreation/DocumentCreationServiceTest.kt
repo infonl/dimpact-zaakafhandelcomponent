@@ -4,6 +4,7 @@
  */
 package nl.info.zac.documentcreation
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -14,6 +15,7 @@ import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.smartdocuments.model.createFile
 import nl.info.client.smartdocuments.model.document.Data
+import nl.info.client.smartdocuments.model.document.Selection
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
@@ -31,6 +33,7 @@ import nl.info.zac.documentcreation.model.createDocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.model.createDocumentCreationDataAttended
 import nl.info.zac.smartdocuments.SmartDocumentsService
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
+import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.util.decodedBase64StringLength
 import java.net.URI
 import java.net.URLEncoder
@@ -186,11 +189,14 @@ class DocumentCreationServiceTest : BehaviorSpec({
             smartDocumentsService.createDocumentAttended(capture(dataSlot), capture(smartDocumentSlot))
         } returns documentCreationAttendedResponse
         every {
-            smartDocumentsTemplatesService.getTemplateGroupName(documentCreationData.templateGroupId)
-        } returns templateGroupName
-        every {
-            smartDocumentsTemplatesService.getTemplateName(documentCreationData.templateId)
-        } returns templateName
+            smartDocumentsTemplatesService.readCurrentSelection(
+                templateGroupId = documentCreationData.templateGroupId,
+                templateId = documentCreationData.templateId
+            )
+        } returns Selection(
+            templateGroup = templateGroupName,
+            template = templateName
+        )
         every { configurationService.readContextUrl() } returns contextUrl
 
         `when`("the 'create document attended' method is called") {
@@ -225,6 +231,74 @@ class DocumentCreationServiceTest : BehaviorSpec({
                             "&templateGroupId=${documentCreationData.templateGroupId}"
                     }
                 }
+            }
+        }
+    }
+
+    given("A mapped template group id that no longer exists in SmartDocuments") {
+        val zaak = createZaak()
+        val documentCreationData = createDocumentCreationDataAttended(zaak = zaak)
+        val loggedInUser = createLoggedInUser()
+        val data = createData()
+        val configurationException = SmartDocumentsConfigurationException(
+            "Template group with id ${documentCreationData.templateGroupId} no longer exists in SmartDocuments"
+        )
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            documentCreationDataService.createData(
+                loggedInUser,
+                documentCreationData.zaak,
+                documentCreationData.taskId
+            )
+        } returns data
+        every {
+            smartDocumentsTemplatesService.readCurrentSelection(
+                templateGroupId = documentCreationData.templateGroupId,
+                templateId = documentCreationData.templateId
+            )
+        } throws configurationException
+
+        `when`("the 'create document attended' method is called") {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
+                documentCreationService.createDocumentAttended(documentCreationData)
+            }
+
+            then("the error is propagated instead of falling back to a stale name") {
+                exception shouldBe configurationException
+            }
+        }
+    }
+
+    given("SmartDocuments is unreachable while resolving the current template names") {
+        val zaak = createZaak()
+        val documentCreationData = createDocumentCreationDataAttended(zaak = zaak)
+        val loggedInUser = createLoggedInUser()
+        val data = createData()
+        val smartDocumentsUnavailable = RuntimeException("SmartDocuments is unreachable")
+
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            documentCreationDataService.createData(
+                loggedInUser,
+                documentCreationData.zaak,
+                documentCreationData.taskId
+            )
+        } returns data
+        every {
+            smartDocumentsTemplatesService.readCurrentSelection(
+                templateGroupId = documentCreationData.templateGroupId,
+                templateId = documentCreationData.templateId
+            )
+        } throws smartDocumentsUnavailable
+
+        `when`("the 'create document attended' method is called") {
+            val exception = shouldThrow<RuntimeException> {
+                documentCreationService.createDocumentAttended(documentCreationData)
+            }
+
+            then("the error is propagated instead of falling back to a stale name") {
+                exception shouldBe smartDocumentsUnavailable
             }
         }
     }
