@@ -384,10 +384,11 @@ class ZaakGedrevenReindexService @Inject constructor(
     ): ReindexCounts {
         val numberOfPages: Int = (totalCount + Results.DEFAULT_ZGW_PAGE_SIZE.toInt() - 1) /
             Results.DEFAULT_ZGW_PAGE_SIZE.toInt()
+        val isZaakspecifiekGeautoriseerd = reindexSupportService.memoizedIsZaakspecifiekGeautoriseerd()
         var counts = ReindexCounts()
         for (pageNumber in ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS..numberOfPages) {
             reindexSupportService.continueOnExceptions(ZoekObjectType.DOCUMENT) {
-                reindexInformatieobjectenOrphanSweepPage(pageNumber, alreadyIndexedInformatieobjectUUIDs)
+                reindexInformatieobjectenOrphanSweepPage(pageNumber, alreadyIndexedInformatieobjectUUIDs, isZaakspecifiekGeautoriseerd)
             }?.let { counts += it }
         }
         return counts
@@ -395,7 +396,8 @@ class ZaakGedrevenReindexService @Inject constructor(
 
     private fun reindexInformatieobjectenOrphanSweepPage(
         pageNumber: Int,
-        alreadyIndexedInformatieobjectUUIDs: Set<UUID>
+        alreadyIndexedInformatieobjectUUIDs: Set<UUID>,
+        isZaakspecifiekGeautoriseerd: (UUID) -> Boolean
     ): ReindexCounts {
         val ids = drcClientService.listEnkelvoudigInformatieObjecten(
             EnkelvoudigInformatieobjectListParameters().apply { page = pageNumber }
@@ -403,6 +405,6 @@ class ZaakGedrevenReindexService @Inject constructor(
             .map { it.url.extractUuid() }
             .filterNot { it in alreadyIndexedInformatieobjectUUIDs }
             .map { it.toString() }
-        return reindexSupportService.indexeerDirectCountingSuccesses(ids, ZoekObjectType.DOCUMENT)
+        return reindexSupportService.indexeerDirectCountingSuccesses(ids, ZoekObjectType.DOCUMENT, isZaakspecifiekGeautoriseerd)
     }
 }
