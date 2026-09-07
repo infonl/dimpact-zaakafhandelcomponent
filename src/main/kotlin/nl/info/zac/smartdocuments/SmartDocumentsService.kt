@@ -74,6 +74,20 @@ class SmartDocumentsService @Inject constructor(
     fun useWizardAuthEnabled() = wizardAuthEnabled.getOrDefault(true)
 
     /**
+     * Determines the username to use for SmartDocuments requests: the configured fixed username if present,
+     * or else the currently logged-in user's id.
+     */
+    private fun determineUserName(): String =
+        fixedUserName.orElseGet {
+            if (loggedInUserInstance.isUnsatisfied) {
+                throw IllegalStateException(
+                    "No SmartDocuments fixed user name configured and no user is currently logged in"
+                )
+            }
+            loggedInUserInstance.get().id
+        }
+
+    /**
      * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).
      */
     fun createDocumentAttended(
@@ -84,10 +98,10 @@ class SmartDocumentsService @Inject constructor(
             data = data,
             smartDocument = smartDocument
         )
-        val userName = fixedUserName.orElse(loggedInUserInstance.get().id).also {
-            LOG.fine("Starting Smart Documents wizard for user: '$it'")
-        }
         return if (useWizardAuthEnabled()) {
+            val userName = determineUserName().also {
+                LOG.fine("Starting Smart Documents wizard for user: '$it'")
+            }
             smartDocumentsClient.get().attendedDeposit(
                 authenticationToken = "Basic ${authenticationToken.get()}",
                 userName = userName,
@@ -118,11 +132,12 @@ class SmartDocumentsService @Inject constructor(
     fun listTemplates(): SmartDocumentsTemplatesResponse =
         smartDocumentsClient.get().listTemplates(
             authenticationToken = "Basic ${authenticationToken.get()}",
-            userName = fixedUserName.orElse(loggedInUserInstance.get().id)
+            userName = determineUserName()
         )
 
     /**
-     * Download generated document
+     * Download the generated document from SmartDocuments.
+     * Currently only supports .docx Word documents.
      */
     fun downloadDocument(fileId: String): File =
         smartDocumentsClient.get().downloadFile(
