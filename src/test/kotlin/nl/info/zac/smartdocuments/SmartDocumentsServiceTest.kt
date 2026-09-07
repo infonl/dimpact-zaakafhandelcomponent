@@ -22,6 +22,7 @@ import nl.info.client.smartdocuments.rest.DownloadedFile
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.documentcreation.model.createData
+import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.util.toBase64String
 import java.net.URI
 import java.util.Optional
@@ -38,7 +39,6 @@ class SmartDocumentsServiceTest : BehaviorSpec({
     }
 
     given("SmartDocuments is enabled") {
-        val loggedInUser = createLoggedInUser()
         val data = createData()
         val variables = Variables(
             outputFormats = listOf(OutputFormat("DOCX")),
@@ -47,8 +47,9 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         )
         val smartDocument = createSmartDocument(variables)
         val attendedResponse = createAttendedResponse()
-        every { loggedInUserInstance.get() } returns loggedInUser
-        every { smartDocumentsClient.get().attendedDeposit(any(), any(), any()) } returns attendedResponse
+        every {
+            smartDocumentsClient.get().attendedDeposit(any(), fixedUserName.get(), any())
+        } returns attendedResponse
 
         val smartDocumentsService = SmartDocumentsService(
             smartDocumentsClient = smartDocumentsClient,
@@ -113,12 +114,9 @@ class SmartDocumentsServiceTest : BehaviorSpec({
     }
 
     given("SmartDocuments is enabled and contains templates") {
-        val loggedInUser = createLoggedInUser()
-        every { loggedInUserInstance.get() } returns loggedInUser
-
         val templatesResponse = createsmartDocumentsTemplatesResponse()
         every {
-            smartDocumentsClient.get().listTemplates(any(), any())
+            smartDocumentsClient.get().listTemplates(any(), fixedUserName.get())
         } returns templatesResponse
 
         val smartDocumentsService = SmartDocumentsService(
@@ -144,6 +142,57 @@ class SmartDocumentsServiceTest : BehaviorSpec({
                         templates!!.first().name shouldBe "Aanvullende informatie nieuw"
                     }
                 }
+            }
+        }
+    }
+
+    given("SmartDocuments is enabled, no fixed user name is configured and a user is logged in") {
+        val loggedInUser = createLoggedInUser()
+        val templatesResponse = createsmartDocumentsTemplatesResponse()
+        every { loggedInUserInstance.isUnsatisfied } returns false
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every {
+            smartDocumentsClient.get().listTemplates(any(), loggedInUser.id)
+        } returns templatesResponse
+
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = Optional.empty()
+        )
+
+        `when`("list templates is called") {
+            val templatesList = smartDocumentsService.listTemplates()
+
+            then("it requests templates for the logged-in user") {
+                templatesList shouldBe templatesResponse
+            }
+        }
+    }
+
+    given("SmartDocuments is enabled, no fixed user name is configured and no user is logged in") {
+        every { loggedInUserInstance.isUnsatisfied } returns true
+
+        val smartDocumentsService = SmartDocumentsService(
+            smartDocumentsClient = smartDocumentsClient,
+            enabled = Optional.of(true),
+            smartDocumentsURL = Optional.of(smartDocumentsURL),
+            authenticationToken = Optional.of(authenticationToken),
+            loggedInUserInstance = loggedInUserInstance,
+            fixedUserName = Optional.empty()
+        )
+
+        `when`("list templates is called") {
+            val exception = shouldThrow<SmartDocumentsConfigurationException> {
+                smartDocumentsService.listTemplates()
+            }
+
+            then("it throws an exception") {
+                exception.message shouldBe
+                    "No SmartDocuments fixed user name configured and no user is currently logged in"
             }
         }
     }
@@ -195,7 +244,6 @@ class SmartDocumentsServiceTest : BehaviorSpec({
     }
 
     given("SmartDocuments is enabled and wizard authentication is disabled") {
-        val loggedInUser = createLoggedInUser()
         val data = createData()
         val variables = Variables(
             outputFormats = listOf(OutputFormat("DOCX")),
@@ -204,8 +252,6 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         )
         val smartDocument = createSmartDocument(variables)
         val attendedResponse = createAttendedResponse()
-
-        every { loggedInUserInstance.get() } returns loggedInUser
 
         every {
             smartDocumentsClient.get().attendedDepositNoAuth(any(), any())

@@ -114,7 +114,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                     vertrouwelijkheidaanduiding shouldBe VertrouwelijkheidaanduidingEnum.OPENBAAR
                     informatieobjecttype shouldBe informatieObjectType.url
                     bestandsnaam shouldBe downloadedFile.fileName
-                    formaat shouldBe "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    formaat shouldBe downloadedFile.outputFormat
                     inhoud shouldBe downloadedFile.document.data
                     bestandsomvang shouldBe downloadedFile.document.data?.decodedBase64StringLength()
                 }
