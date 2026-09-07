@@ -367,4 +367,42 @@ class DrcClientServiceTest : BehaviorSpec({
 
         content.close()
     }
+
+    given("a document whose content stream yields fewer bytes than it reports") {
+        val documentUUID = UUID.randomUUID()
+        val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
+        val temporaryFile = Files.createTempFile("fakeDocument", null)
+            .also { Files.write(it, "0123456789".toByteArray()) }
+        // the size is captured when the content is constructed, so truncating the file afterwards
+        // leaves content that reports more bytes than its stream can yield
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        Files.write(temporaryFile, "0123".toByteArray())
+
+        every {
+            drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(any())
+        } returns createEnkelvoudigInformatieObjectCreateLockSub(
+            uuid = documentUUID,
+            url = documentUrl,
+            bestandsdelen = listOf(createBestandsDeel(volgnummer = 1, omvang = 10))
+        )
+        every { drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, any()) } returns mockk()
+        every { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) } returns mockk()
+
+        `when`("it is created") {
+            val drcRuntimeException = shouldThrow<DrcRuntimeException> {
+                drcClientService.createEnkelvoudigInformatieobject(
+                    createEnkelvoudigInformatieObjectCreateLockRequest(),
+                    content
+                )
+            }
+
+            then("the short part is not uploaded, so that the document is never stored truncated") {
+                drcRuntimeException.message shouldContain "Only 4 of the 10 bytes of bestandsdeel 1"
+                verify(exactly = 0) { drcClient.bestandsdeelUpdate(any(), any(), any()) }
+                verify(exactly = 1) { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) }
+            }
+        }
+
+        content.close()
+    }
 })

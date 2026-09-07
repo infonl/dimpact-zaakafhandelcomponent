@@ -260,34 +260,43 @@ class DrcClientService @Inject constructor(
         content: DocumentContent
     ) {
         val orderedParts = parts.orEmpty().sortedBy(BestandsDeel::getVolgnummer)
-        if (orderedParts.isEmpty()) {
-            throw DrcRuntimeException(
-                "The documents registry announced no bestandsdelen for document with uuid '$documentUUID' of " +
-                    "${content.sizeInBytes} bytes, so its content cannot be uploaded in parts."
-            )
-        }
-        val announcedSizeInBytes = orderedParts.sumOf { it.omvang.toLong() }
-        if (announcedSizeInBytes != content.sizeInBytes) {
-            throw DrcRuntimeException(
-                "The documents registry announced bestandsdelen of $announcedSizeInBytes bytes in total for " +
-                    "document with uuid '$documentUUID' of ${content.sizeInBytes} bytes, so uploading its " +
-                    "content in parts would not store it in full."
-            )
-        }
+        assertPartsCoverContent(documentUUID = documentUUID, parts = orderedParts, content = content)
         content.inputStream().use { contentStream ->
             orderedParts.forEach { part ->
                 // one part is held in memory at a time, and the documents registry decides how large
                 // a part is, so this never scales with the size of the whole document
-                val body = BestandsDeelMultipartBody(
-                    partContent = contentStream.readNBytes(part.omvang),
-                    lock = lock
-                )
+                val partContent = contentStream.readNBytes(part.omvang)
+                if (partContent.size != part.omvang) {
+                    throw DrcRuntimeException(
+                        "Only ${partContent.size} of the ${part.omvang} bytes of bestandsdeel " +
+                            "${part.volgnummer} of document with uuid '$documentUUID' could be read, so " +
+                            "uploading it would store the document truncated."
+                    )
+                }
+                val body = BestandsDeelMultipartBody(partContent = partContent, lock = lock)
                 drcClient.bestandsdeelUpdate(
                     uuid = part.url.extractUuid(),
                     contentType = body.contentType,
                     bestandsDeel = body.toByteArray()
                 )
             }
+        }
+    }
+
+    private fun assertPartsCoverContent(documentUUID: UUID, parts: List<BestandsDeel>, content: DocumentContent) {
+        if (parts.isEmpty()) {
+            throw DrcRuntimeException(
+                "The documents registry announced no bestandsdelen for document with uuid '$documentUUID' of " +
+                    "${content.sizeInBytes} bytes, so its content cannot be uploaded in parts."
+            )
+        }
+        val announcedSizeInBytes = parts.sumOf { it.omvang.toLong() }
+        if (announcedSizeInBytes != content.sizeInBytes) {
+            throw DrcRuntimeException(
+                "The documents registry announced bestandsdelen of $announcedSizeInBytes bytes in total for " +
+                    "document with uuid '$documentUUID' of ${content.sizeInBytes} bytes, so uploading its " +
+                    "content in parts would not store it in full."
+            )
         }
     }
 

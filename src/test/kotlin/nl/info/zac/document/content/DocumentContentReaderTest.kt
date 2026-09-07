@@ -14,6 +14,7 @@ import nl.info.zac.configuration.FileSizeConfiguration.Companion.BYTES_PER_MB
 import nl.info.zac.configuration.exception.FileSizeExceededException
 import nl.info.zac.exception.InputValidationFailedException
 import java.io.ByteArrayInputStream
+import java.nio.file.NoSuchFileException
 
 class DocumentContentReaderTest : BehaviorSpec({
     val documentContentReader = DocumentContentReader(
@@ -50,7 +51,7 @@ class DocumentContentReaderTest : BehaviorSpec({
             and("closing it removes the temporary file") {
                 documentContent.close()
 
-                shouldThrow<Exception> { documentContent.inputStream() }
+                shouldThrow<NoSuchFileException> { documentContent.inputStream() }
             }
         }
     }
