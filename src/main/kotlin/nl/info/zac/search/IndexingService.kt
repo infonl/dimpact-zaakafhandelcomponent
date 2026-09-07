@@ -813,7 +813,7 @@ class IndexingService @Inject constructor(
      * The per-zaak conversion outcomes produced by [reindexZaakTakenDocumenten]: the zaak itself, and the
      * outcomes of its open taken and its linked documenten.
      */
-    private data class ZaakTakenDocumentenOutcomes(
+    private data class ReindexZaakTakenDocumentenOutcome(
         val zaakOutcome: ConversionOutcome,
         val takenOutcomes: List<ConversionOutcome>,
         val documentenOutcomes: List<ConversionOutcome>
@@ -1046,7 +1046,7 @@ class IndexingService @Inject constructor(
         scope: ReindexScope,
         isZaakspecifiekGeautoriseerd: (UUID) -> Boolean,
         alreadyIndexedInformatieobjectUUIDs: MutableSet<UUID>
-    ): ZaakTakenDocumentenOutcomes {
+    ): ReindexZaakTakenDocumentenOutcome {
         val zaakConversion = try {
             runTranslatingToIndexingException {
                 val zaak = zrcClientService.readZaak(zaakUUID)
@@ -1057,7 +1057,7 @@ class IndexingService @Inject constructor(
             null
         }
         if (zaakConversion == null) {
-            return ZaakTakenDocumentenOutcomes(ConversionOutcome.Errored, emptyList(), emptyList())
+            return ReindexZaakTakenDocumentenOutcome(ConversionOutcome.Errored, emptyList(), emptyList())
         }
         val (zaak, zaakZoekObject) = zaakConversion
 
@@ -1087,7 +1087,7 @@ class IndexingService @Inject constructor(
             emptyList()
         }
 
-        return ZaakTakenDocumentenOutcomes(ConversionOutcome.Converted(zaakZoekObject), takenOutcomes, documentenOutcomes)
+        return ReindexZaakTakenDocumentenOutcome(ConversionOutcome.Converted(zaakZoekObject), takenOutcomes, documentenOutcomes)
     }
 
     private fun convertTaak(taskId: String, zaak: Zaak, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): ConversionOutcome =
