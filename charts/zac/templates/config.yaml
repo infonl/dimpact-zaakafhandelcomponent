@@ -13,10 +13,13 @@ data:
   AUTH_SERVER: {{ required "Valid .Values.auth.server entry required!" .Values.auth.server }}
   AUTH_SSL_REQUIRED: {{ .Values.auth.sslRequired | default "all" | quote }}
   BAG_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.bagApi.url entry required!" .Values.bagApi.url }}
+  BRON_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.bron.rsin entry required!" .Values.organizations.bron.rsin | quote }}
   BRP_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.brpApi.url entry required!" .Values.brpApi.url }}
+  BRP_API_KEY_HEADER: {{ .Values.brpApi.apiKey.header | quote }}
   BRP_DOELBINDING_PER_ZAAKTYPE: {{ .Values.brpApi.protocollering.doelbinding.perZaaktype | quote }}
   BRP_PROTOCOLLERING_ENABLED: {{ .Values.brpApi.protocollering.enabled | quote }}
   {{- if .Values.brpApi.protocollering.enabled }}
+  BRP_ORIGIN_OIN: {{ .Values.brpApi.protocollering.originOin.oin | quote }}
   BRP_ORIGIN_OIN_HEADER: {{ .Values.brpApi.protocollering.originOin.header | quote }}
   BRP_DOELBINDING_HEADER: {{ .Values.brpApi.protocollering.doelbinding.header | quote }}
   {{- if .Values.brpApi.protocollering.doelbinding.header }}
@@ -32,19 +35,32 @@ data:
   BRP_VERWERKINGSREGISTER_EXT_WITH_ZAAKTYPE: {{ .Values.brpApi.protocollering.verwerking.extendWithZaaktype | quote }}
   {{- end }}
   BRP_GEBRUIKER_HEADER: {{ .Values.brpApi.protocollering.gebruiker.header | quote }}
+  BRP_TOEPASSING_HEADER: {{ .Values.brpApi.protocollering.toepassing.header | quote }}
+  {{- if .Values.brpApi.protocollering.toepassing.header }}
+  BRP_TOEPASSING: {{ required "Valid .Values.brpApi.protocollering.toepassing.value entry required!" .Values.brpApi.protocollering.toepassing.value | quote }}
+  {{- end }}
   {{- if .Values.brpApi.protocollering.systemUser }}
   BRP_SYSTEM_USER: {{ .Values.brpApi.protocollering.systemUser | quote }}
   {{- end }}
+  {{- end }}
+  BRP_LOG_LEVEL: {{ .Values.brpApi.logLevel | default "INFO" | quote }}
+  {{- if .Values.catalogusDomein }}
+  CATALOGUS_DOMEIN: {{ .Values.catalogusDomein }}
   {{- end }}
   CONTEXT_URL: {{ required "Valid .Values.contextUrl entry required!" .Values.contextUrl }}
   DB_HOST: {{ required "Valid .Values.db.host entry required!" .Values.db.host }}
   DB_NAME: {{ required "Valid .Values.db.name entry required!" .Values.db.name }}
   DB_USER: {{ required "Valid .Values.db.user entry required!" .Values.db.user }}
+  GEMEENTE_CODE: {{ required "Valid .Values.gemeente.code entry required!" .Values.gemeente.code  | quote }}
   GEMEENTE_NAAM: {{ required "Valid .Values.gemeente.naam entry required!" .Values.gemeente.naam }}
+  GEMEENTE_MAIL: {{ required "Valid .Values.gemeente.mail entry required!" .Values.gemeente.mail }}
+  KEYCLOAK_ADMIN_CLIENT_ID: {{ required "Valid .Values.keycloak.adminClient.id entry required!" .Values.keycloak.adminClient.id }}
   KLANTINTERACTIES_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.klantinteractiesApi.url entry required!" .Values.klantinteractiesApi.url }}
   KVK_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.kvkApi.url entry required!" .Values.kvkApi.url }}
   MAX_FILE_SIZE_MB: {{ .Values.maxFileSizeMB | default 80 | quote }}
   MAX_IN_MEMORY_FILE_SIZE_MB: {{ .Values.maxInMemoryFileSizeMB | default 80 | quote }}
+  MP_HEALTH_EMPTY_LIVENESS_CHECKS_STATUS: DOWN
+  MP_HEALTH_EMPTY_READINESS_CHECKS_STATUS: DOWN
   OBJECTS_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.objectenApi.url entry required!" .Values.objectenApi.url }}
   {{- if .Values.office_converter.url }}
   OFFICE_CONVERTER_CLIENT_MP_REST_URL: {{ .Values.office_converter.url }}
@@ -64,6 +80,7 @@ data:
   PABC_API_CLIENT_MP_REST_URL: {{ .Values.pabcApi.url }}
   PRODUCTAANVRAAG_CLAIM_TIMEOUT_MINUTES: {{ .Values.productaanvraag.claimTimeoutMinutes | default 10 | quote }}
   SIGNALERINGEN_DELETE_OLDER_THAN_DAYS: {{ required "Valid .Values.signaleringen.deleteOlderThanDays entry required!" .Values.signaleringen.deleteOlderThanDays | quote }}
+  SMTP_PORT: {{ .Values.mail.smtp.port | quote }}
   SMTP_SERVER: {{ .Values.mail.smtp.server }}
   {{- if index .Values "opentelemetry-collector" "enabled" }}
   OTEL_SDK_DISABLED: "false"
@@ -85,5 +102,6 @@ data:
   SOLR_URL: http://{{ include "zaakafhandelcomponent.solrcloud.fullname" . }}-solrcloud-common
   {{- end }}
   TZ: Europe/Amsterdam
+  VERANTWOORDELIJKE_ORGANISATIE_RSIN: {{ required "Valid .Values.organizations.verantwoordelijke.rsin entry required!" .Values.organizations.verantwoordelijke.rsin | quote }}
   ZGW_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.zgwApis.url entry required!" .Values.zgwApis.url }}
   ZGW_API_CLIENTID: {{ required "Valid .Values.zgwApis.clientId entry required!" .Values.zgwApis.clientId }}
