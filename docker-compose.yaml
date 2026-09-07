@@ -98,9 +98,12 @@ services:
       - ./scripts/docker-compose/imports/openzaak-database:/docker-entrypoint-initdb.d
       - openzaak-database-data:/var/lib/postgresql/data
 
+  # Open Zaak itself. Everything reaches it through the nginx proxy that carries the
+  # `openzaak.local` name, never directly, so that request bodies are always buffered before uwsgi
+  # sees them.
   # This container name must contain a '.' or else Open Zaak will respond with a 400
   # error on certain API requests caused by an internal 'invalid URL' error.
-  openzaak.local:
+  openzaak-app.local:
     image: openzaak/open-zaak:1.29.3@sha256:7ac22da287ac190a0e1c14849a370c433d3511678dcc8f3897007fd6de6dd4ac
     platform: linux/amd64
     environment: &openzaak-env
@@ -162,23 +165,32 @@ services:
       retries: 10
       start_period: 10s
     depends_on:
-      openzaak.local:
+      openzaak-app.local:
         condition: service_healthy
     profiles: [ "opennotificaties", "openformulieren" ]
 
-  # nginx reverse proxy in front of Open Zaak.
-  # Needed to handle ZAC's chunked transfer encoding (Transfer-Encoding: chunked) for large
-  # file uploads. uwsgi in HTTP mode does not buffer chunked request bodies before passing
-  # them to Django. nginx buffers the full request before forwarding it with Content-Length,
-  # matching the production Kubernetes setup where nginx also sits in front of Open Zaak.
-  openzaak-nginx:
+  # nginx reverse proxy in front of Open Zaak, carrying the `openzaak.local` name that every other
+  # container uses. It handles ZAC's chunked transfer encoding (Transfer-Encoding: chunked), which
+  # ZAC uses for large request bodies such as an uploaded document. uwsgi in HTTP mode does not
+  # buffer a chunked request body before passing it to Django, which then sees no fields at all and
+  # returns a 400. nginx buffers the full request and forwards it with a Content-Length, matching
+  # the production Kubernetes setup where nginx also sits in front of Open Zaak.
+  # It passes the `openzaak.local` Host on unchanged, so Open Zaak keeps generating the URLs that
+  # ZAC validates its responses against.
+  openzaak.local:
     image: nginxinc/nginx-unprivileged:1.31.5@sha256:f4a6f1ea26f4e500265b60b1935f2a5a0bc0cc5da4ca02ec32b2099426612229
     ports:
       - "8001:8000"
     volumes:
       - ./scripts/docker-compose/imports/openzaak/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "test -f /tmp/nginx.pid" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 5s
     depends_on:
-      openzaak.local:
+      openzaak-app.local:
         condition: service_healthy
 
   redis:

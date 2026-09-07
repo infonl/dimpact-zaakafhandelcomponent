@@ -239,10 +239,11 @@ maxFileSizeMB: 80
 # With the default 1024m heap the ceiling is 170.
 maxInMemoryFileSizeMB: 80
 
-# -- Size of the emptyDir mounted at /tmp. Uploaded and downloaded documents are streamed through
-# temporary files there, so this has to hold `maxFileSizeMB` for every concurrent upload. Keep
-# `resources.requests.ephemeral-storage` and `resources.limits.ephemeral-storage` in step with it.
-tmpVolumeSize: 2Gi
+# -- Size of the emptyDir mounted at /tmp. WildFly buffers every request body to a temporary file
+# there and ZAC streams the uploaded document from it, so this has to hold `maxFileSizeMB` for every
+# concurrent upload. Keep `resources.requests.ephemeral-storage` and
+# `resources.limits.ephemeral-storage` in step with it.
+tmpVolumeSize: 4Gi
 
 # -- Enable Java remote debugging
 remoteDebug: false
@@ -339,7 +340,7 @@ resources:
   requests:
     cpu: 100m
     memory: 1Gi
-    ephemeral-storage: 2Gi
+    ephemeral-storage: 4Gi
 
 # -- liveness probe configuration for the main ZAC container
 livenessProbe:

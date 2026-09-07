@@ -150,7 +150,7 @@ spec:
       volumes:
         - name: tmp
           emptyDir:
-            sizeLimit: {{ .Values.tmpVolumeSize | default "2Gi" }}
+            sizeLimit: {{ .Values.tmpVolumeSize | default "4Gi" }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

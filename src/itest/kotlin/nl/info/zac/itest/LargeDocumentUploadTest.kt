@@ -4,13 +4,17 @@
  */
 package nl.info.zac.itest
 
+import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.createEnkelvoudigInformatieobjectForZaak
 import nl.info.zac.itest.config.BEHANDELAAR_1
+import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_MAX_IN_MEMORY_FILE_SIZE_IN_MB
+import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
 import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
@@ -53,12 +57,15 @@ class LargeDocumentUploadTest : BehaviorSpec({
                 fileName = "large-document.txt",
                 fileMediaType = TEXT_MIME_TYPE,
                 vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
+                status = DOCUMENT_STATUS_DEFINITIEF,
                 testUser = BEHANDELAAR_1
             )
+            withClue("upload response: ${response.bodyAsString}") {
+                response.code shouldBe HTTP_OK
+            }
             val documentUuid = JSONObject(response.bodyAsString).getString("uuid")
 
             then("the document is stored with its full size, so it was uploaded in parts") {
-                response.code shouldBe HTTP_OK
                 JSONObject(response.bodyAsString).getInt("bestandsomvang") shouldBe fileSizeInBytes
             }
 
@@ -79,7 +86,7 @@ class LargeDocumentUploadTest : BehaviorSpec({
                     url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid/" +
                         "convert?zaak=$zaakUuid",
                     requestBody = "".toRequestBody("application/json".toMediaType()),
-                    testUser = BEHANDELAAR_1
+                    testUser = RECORDMANAGER_1
                 )
 
                 convertResponse.code shouldBe HTTP_ENTITY_TOO_LARGE

@@ -43,11 +43,12 @@ data-source add \
 /subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=write-timeout,value=0)
 
 /subsystem=microprofile-config-smallrye/config-source=props:add(properties={ \
-    # Size above which RESTEasy writes a request body to a temporary file instead of keeping it on
-    # the heap. Deliberately low: ZAC streams large documents from that temporary file, so spilling
-    # early is what keeps the heap flat no matter how large the uploaded document is.
-    # This value corresponds to 4MB using the Base 2 format.
-    "dev.resteasy.entity.file.threshold" = "4194304B", \
+    # RESTEasy buffers a request body to a temporary file and refuses anything larger than this.
+    # It therefore has to be set higher than the maximum file size ZAC accepts, to leave room for
+    # multipart overhead. ZAC streams the uploaded document from that temporary file, so the size of
+    # the document costs temporary disk space rather than heap.
+    # This value corresponds to 768MB using the Base 2 format, for a ZAC maximum of 500MB.
+    "dev.resteasy.entity.file.threshold" = "805306368B", \
     # We only export traces to the Open Telemetry Collector and not logs or metrics.
     "otel.traces.exporter" = "otlp", \
     "otel.metrics.exporter" = "none", \

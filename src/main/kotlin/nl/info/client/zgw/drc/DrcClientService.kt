@@ -7,14 +7,18 @@ package nl.info.client.zgw.drc
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.ProcessingException
+import jakarta.ws.rs.WebApplicationException
 import nl.info.client.zgw.shared.model.Results
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
+import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
-import nl.info.client.zgw.drc.model.BestandsDeelUploadRequest
+import nl.info.client.zgw.drc.model.BestandsDeelMultipartBody
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.generated.BestandsDeel
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockSub
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
@@ -153,7 +157,7 @@ class DrcClientService @Inject constructor(
             drcClient.enkelvoudigInformatieobjectCreate(enkelvoudigInformatieObjectCreateLockRequest)
         } else {
             enkelvoudigInformatieObjectCreateLockRequest.inhoud = null
-            drcClient.enkelvoudigInformatieobjectCreate(enkelvoudigInformatieObjectCreateLockRequest)
+            drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(enkelvoudigInformatieObjectCreateLockRequest)
                 .let { uploadInParts(createdDocument = it, content = content) }
         }
     }
@@ -186,7 +190,12 @@ class DrcClientService @Inject constructor(
         if (content is InMemoryDocumentContent) {
             return updatedDocument
         }
-        uploadParts(documentUUID = enkelvoudigInformatieobjectUUID, document = updatedDocument, content = content)
+        uploadParts(
+            documentUUID = enkelvoudigInformatieobjectUUID,
+            parts = updatedDocument.bestandsdelen,
+            lock = enkelvoudigInformatieObjectWithLockRequest.lock,
+            content = content
+        )
         return readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID)
     }
 
@@ -194,13 +203,19 @@ class DrcClientService @Inject constructor(
         drcClient.gebruiksrechtenCreate(gebruiksrechten)
 
     private fun uploadInParts(
-        createdDocument: EnkelvoudigInformatieObject,
+        createdDocument: EnkelvoudigInformatieObjectCreateLockSub,
         content: DocumentContent
     ): EnkelvoudigInformatieObject {
         val documentUUID = createdDocument.url.extractUuid()
+        val lock = createdDocument.lock
         var isUploaded = false
         try {
-            val lock = uploadParts(documentUUID = documentUUID, document = createdDocument, content = content)
+            uploadParts(
+                documentUUID = documentUUID,
+                parts = createdDocument.bestandsdelen,
+                lock = lock,
+                content = content
+            )
             // creating a document with a bestandsomvang but without inhoud locks it; unlocking is what
             // makes the uploaded content the content of the document
             unlockEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID = documentUUID, lock = lock)
@@ -208,20 +223,35 @@ class DrcClientService @Inject constructor(
             return readEnkelvoudigInformatieobject(documentUUID)
         } finally {
             if (!isUploaded) {
-                deleteDocumentWithIncompleteContent(documentUUID)
+                deleteDocumentWithIncompleteContent(documentUUID = documentUUID, lock = lock)
             }
         }
     }
 
     /**
-     * Best effort: a failure here must not hide the failure that caused it.
+     * Best effort, and deliberately silent: this runs while another failure is on its way out, and
+     * must not replace it. A locked document cannot be deleted, so it is unlocked first.
      */
-    private fun deleteDocumentWithIncompleteContent(documentUUID: UUID) {
+    private fun deleteDocumentWithIncompleteContent(documentUUID: UUID, lock: String) {
         LOG.warning { "Deleting document with uuid '$documentUUID' because uploading its content in parts failed" }
-        try {
+        logFailureToCleanUp(documentUUID) {
+            drcClient.enkelvoudigInformatieobjectUnlock(
+                uuid = documentUUID,
+                lock = LockEnkelvoudigInformatieObject(lock)
+            )
             drcClient.enkelvoudigInformatieobjectDelete(documentUUID)
-        } catch (drcRuntimeException: DrcRuntimeException) {
-            LOG.warning { "Failed to delete document with uuid '$documentUUID': ${drcRuntimeException.message}" }
+        }
+    }
+
+    private fun logFailureToCleanUp(documentUUID: UUID, cleanUp: () -> Unit) {
+        try {
+            cleanUp()
+        } catch (zgwRuntimeException: ZgwRuntimeException) {
+            LOG.warning { "Failed to delete document with uuid '$documentUUID': ${zgwRuntimeException.message}" }
+        } catch (zgwValidationErrorException: ZgwValidationErrorException) {
+            LOG.warning { "Failed to delete document with uuid '$documentUUID': ${zgwValidationErrorException.message}" }
+        } catch (webApplicationException: WebApplicationException) {
+            LOG.warning { "Failed to delete document with uuid '$documentUUID': ${webApplicationException.message}" }
         } catch (processingException: ProcessingException) {
             LOG.warning { "Failed to delete document with uuid '$documentUUID': ${processingException.message}" }
         }
@@ -229,57 +259,31 @@ class DrcClientService @Inject constructor(
 
     private fun uploadParts(
         documentUUID: UUID,
-        document: EnkelvoudigInformatieObject,
+        parts: List<BestandsDeel>?,
+        lock: String,
         content: DocumentContent
-    ): String {
-        val parts = document.bestandsdelen.orEmpty().sortedBy(BestandsDeel::getVolgnummer)
-        if (parts.isEmpty()) {
+    ) {
+        val orderedParts = parts.orEmpty().sortedBy(BestandsDeel::getVolgnummer)
+        if (orderedParts.isEmpty()) {
             throw DrcRuntimeException(
                 "The documents registry announced no bestandsdelen for document with uuid '$documentUUID' of " +
                     "${content.sizeInBytes} bytes, so its content cannot be uploaded in parts."
             )
         }
-        val lock = parts.first().lock
-            ?: throw DrcRuntimeException(
-                "The documents registry announced bestandsdelen without a lock for document with uuid '$documentUUID'."
-            )
         content.inputStream().use { contentStream ->
-            parts.forEach { part ->
+            orderedParts.forEach { part ->
+                // one part is held in memory at a time, and the documents registry decides how large
+                // a part is, so this never scales with the size of the whole document
+                val body = BestandsDeelMultipartBody(
+                    partContent = contentStream.readNBytes(part.omvang),
+                    lock = lock
+                )
                 drcClient.bestandsdeelUpdate(
                     uuid = part.url.extractUuid(),
-                    bestandsDeelUploadRequest = BestandsDeelUploadRequest(
-                        inhoud = BoundedInputStream(contentStream, part.omvang.toLong()),
-                        lock = lock
-                    )
+                    contentType = body.contentType,
+                    bestandsDeel = body.toByteArray()
                 )
             }
         }
-        return lock
-    }
-}
-
-/**
- * Exposes at most [limit] bytes of [delegate] as a stream of its own, so that consecutive parts can
- * be read from a single stream over the document without slicing it into byte arrays first.
- * Closing it deliberately does not close [delegate], which the next part still needs.
- */
-private class BoundedInputStream(private val delegate: InputStream, private val limit: Long) : InputStream() {
-    private var bytesRead = 0L
-
-    override fun read(): Int {
-        if (bytesRead >= limit) return -1
-        return delegate.read().also { if (it != -1) bytesRead++ }
-    }
-
-    override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
-        if (bytesRead >= limit) return -1
-        val allowed = minOf(length.toLong(), limit - bytesRead).toInt()
-        return delegate.read(buffer, offset, allowed).also { if (it != -1) bytesRead += it }
-    }
-
-    override fun available() = minOf(delegate.available().toLong(), limit - bytesRead).toInt()
-
-    override fun close() {
-        // the delegate is shared between parts and is closed by whoever opened it
     }
 }

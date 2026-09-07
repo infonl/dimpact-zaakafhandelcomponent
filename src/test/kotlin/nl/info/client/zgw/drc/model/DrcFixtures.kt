@@ -7,6 +7,7 @@ package nl.info.client.zgw.drc.model
 import nl.info.client.zgw.drc.model.generated.BestandsDeel
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockSub
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
@@ -131,3 +132,20 @@ fun createBestandsDeel(
 ) = BestandsDeel(url, volgnummer, omvang, voltooid).apply {
     lock?.let { this.lock = it }
 }
+
+fun createEnkelvoudigInformatieObjectCreateLockSub(
+    uuid: UUID = UUID.randomUUID(),
+    url: URI = URI("https://example.com/$uuid"),
+    versie: Int = 1234,
+    beginRegistratie: OffsetDateTime = OffsetDateTime.now(),
+    locked: Boolean = true,
+    bestandsdelen: List<BestandsDeel> = emptyList(),
+    lock: String = "fakeLock"
+) = EnkelvoudigInformatieObjectCreateLockSub(
+    url,
+    versie,
+    beginRegistratie,
+    locked,
+    bestandsdelen,
+    lock
+)

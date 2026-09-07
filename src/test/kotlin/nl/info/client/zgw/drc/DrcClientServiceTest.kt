@@ -25,9 +25,9 @@ import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.zac.configuration.ConfigurationService
 import io.kotest.matchers.string.shouldContain
-import nl.info.client.zgw.drc.model.BestandsDeelUploadRequest
 import nl.info.client.zgw.drc.model.createBestandsDeel
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockSub
 import nl.info.client.zgw.drc.model.generated.BestandsDeel
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.util.extractUuid
@@ -196,7 +196,7 @@ class DrcClientServiceTest : BehaviorSpec({
         val content = TemporaryFileDocumentContent(temporaryFile)
         val createRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
         // the parts are deliberately announced out of order to prove that they are uploaded by volgnummer
-        val createdDocument = createEnkelvoudigInformatieObject(
+        val createdDocument = createEnkelvoudigInformatieObjectCreateLockSub(
             uuid = documentUUID,
             url = documentUrl,
             bestandsdelen = listOf(secondPart, firstPart)
@@ -204,10 +204,14 @@ class DrcClientServiceTest : BehaviorSpec({
         val completedDocument = createEnkelvoudigInformatieObject(uuid = documentUUID, url = documentUrl)
         val requestSlot = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
         val uploadedParts = mutableListOf<Pair<UUID, ByteArray>>()
+        val uploadedContentTypes = mutableListOf<String>()
 
-        every { drcClient.enkelvoudigInformatieobjectCreate(capture(requestSlot)) } returns createdDocument
-        every { drcClient.bestandsdeelUpdate(any(), any()) } answers {
-            uploadedParts.add(firstArg<UUID>() to secondArg<BestandsDeelUploadRequest>().inhoud!!.readBytes())
+        every {
+            drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(capture(requestSlot))
+        } returns createdDocument
+        every { drcClient.bestandsdeelUpdate(any(), any(), any()) } answers {
+            uploadedContentTypes.add(secondArg())
+            uploadedParts.add(firstArg<UUID>() to thirdArg<ByteArray>())
             createBestandsDeel()
         }
         val unlockSlot = slot<LockEnkelvoudigInformatieObject>()
@@ -226,7 +230,12 @@ class DrcClientServiceTest : BehaviorSpec({
                     firstPart.url.extractUuid(),
                     secondPart.url.extractUuid()
                 )
-                uploadedParts.map { String(it.second) } shouldBe listOf("0123", "456789")
+                uploadedParts.map { String(it.second) }.forEachIndexed { index, body ->
+                    body shouldContain listOf("0123", "456789")[index]
+                    body shouldContain """name="lock""""
+                    body shouldContain "fakeLock"
+                }
+                uploadedContentTypes.forEach { it shouldContain "multipart/form-data; boundary=" }
             }
 
             and("the document is unlocked so that the uploaded content becomes its content") {
@@ -244,16 +253,17 @@ class DrcClientServiceTest : BehaviorSpec({
         val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
         val temporaryFile = Files.createTempFile("fakeDocument", null).also { Files.write(it, bytes) }
         val content = TemporaryFileDocumentContent(temporaryFile)
-        val createdDocument = createEnkelvoudigInformatieObject(
+        val createdDocument = createEnkelvoudigInformatieObjectCreateLockSub(
             uuid = documentUUID,
             url = documentUrl,
-            bestandsdelen = listOf(createBestandsDeel(volgnummer = 1, omvang = 10, lock = "fakeLock"))
+            bestandsdelen = listOf(createBestandsDeel(volgnummer = 1, omvang = 10))
         )
 
-        every { drcClient.enkelvoudigInformatieobjectCreate(any()) } returns createdDocument
+        every { drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(any()) } returns createdDocument
         every {
-            drcClient.bestandsdeelUpdate(any(), any())
+            drcClient.bestandsdeelUpdate(any(), any(), any())
         } throws DrcRuntimeException("fake upload failure")
+        every { drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, any()) } returns mockk()
         every { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) } returns mockk()
 
         `when`("it is created") {
@@ -280,11 +290,14 @@ class DrcClientServiceTest : BehaviorSpec({
         val documentUUID = UUID.randomUUID()
         val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
 
-        every { drcClient.enkelvoudigInformatieobjectCreate(any()) } returns createEnkelvoudigInformatieObject(
+        every {
+            drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(any())
+        } returns createEnkelvoudigInformatieObjectCreateLockSub(
             uuid = documentUUID,
             url = documentUrl,
             bestandsdelen = emptyList()
         )
+        every { drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, any()) } returns mockk()
         every { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) } returns mockk()
 
         `when`("it is created") {

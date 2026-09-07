@@ -36,8 +36,12 @@ than that one value.
   documents too. It needs roughly three times its value in heap, and may claim at most half the heap,
   so with the default `-Xmx1024m` the ceiling is 170. Raise `javaOptions` to go beyond that.
 - `tmpVolumeSize` and `resources.requests.ephemeral-storage` / `resources.limits.ephemeral-storage`:
-  every upload and download in flight spills to `/tmp`, so these have to hold `maxFileSizeMB` for
-  every concurrent transfer. The default of 2Gi covers roughly four 500MB transfers at once.
+  WildFly buffers every request body to a temporary file under `/tmp` and ZAC streams the document
+  from it, so these have to hold `maxFileSizeMB` for every concurrent transfer. The default of 4Gi
+  covers roughly eight 500MB transfers at once.
+- `dev.resteasy.entity.file.threshold` in `configure-wildfly.cli` caps the size of that temporary
+  file, and therefore has to stay above `maxFileSizeMB` plus multipart overhead. It is 768MB, which
+  leaves room for a 500MB document.
 - `nginx.client_max_body_size`: at least `maxFileSizeMB` plus multipart overhead.
 - `nginx.proxy_timeout`: long enough to move a document of that size over a slow connection.
 
