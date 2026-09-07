@@ -1962,6 +1962,136 @@ class IndexingServiceTest : BehaviorSpec({
         }
     }
 
+    given(
+        "reindexAll() combining ZAAK, TAAK and DOCUMENT where the taak count cannot be determined " +
+            "despite the zaak having an open taak and a linked document"
+    ) {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val documentUUID = UUID.randomUUID()
+        val zaakInformatieobject = createZaakInformatieobjectForReads(
+            zaak = zaak.url,
+            informatieobject = URI("https://example.com/$documentUUID")
+        )
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(uuid = documentUUID)
+        val zaakZoekObject = createZaakZoekObject()
+        val documentZoekObject = createDocumentZoekObject()
+
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        every {
+            ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
+        } returns Results(listOf(ZaakUuid(zaak.uuid)), 1)
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        // the zaak's open taak is never listed - see the "TAAK is left untouched" assertion below
+        every { ctx.flowableTaskService.countOpenTasks() } throws RuntimeException("fake taak count failure")
+        every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns listOf(zaakInformatieobject)
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(match<EnkelvoudigInformatieobjectListParameters> { it.page == 1 })
+        } returns Results(listOf(enkelvoudigInformatieObject), 1)
+
+        every { ctx.zaakZoekObjectConverter.convert(zaak, any()) } returns zaakZoekObject
+        every { ctx.documentZoekObjectConverter.convert(zaakInformatieobject, zaak, any()) } returns documentZoekObject
+
+        `when`("reindexAll is called with the default set of all object types") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindexAll()
+            }
+
+            then("TAAK is left untouched - neither deleted nor repopulated - and reported as aborted") {
+                verify(exactly = 0) {
+                    ctx.flowableTaskService.listOpenTasksForZaak(zaak.uuid)
+                    ctx.taakZoekObjectConverter.convert(any<String>(), any(), any())
+                }
+                logRecords.map { it.message } shouldContain
+                    "[TAAK] Reindexing aborted. Solr index contains 0 documents of type 'TAAK'."
+            }
+
+            then("ZAAK and DOCUMENT still finish normally, unaffected by the TAAK count failure") {
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(listOf(zaakZoekObject))
+                    ctx.solrClient.addBeans(listOf(documentZoekObject))
+                }
+                logRecords.map { it.message } shouldContain
+                    "[ZAAK] Reindexing finished. Reindexed: 1 / 1, skipped: 0, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'ZAAK'."
+                logRecords.map { it.message } shouldContain
+                    "[DOCUMENT] Reindexing finished. Reindexed: 1 / 1, skipped: 0, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'DOCUMENT'."
+            }
+        }
+    }
+
+    given(
+        "reindexAll() combining ZAAK, TAAK and DOCUMENT where the informatieobjecten count cannot be " +
+            "determined despite the zaak having an open taak and a linked document"
+    ) {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val openTask = mockk<Task>().apply { every { id } returns "fakeOpenTaskId" }
+        val zaakZoekObject = createZaakZoekObject()
+        val taakZoekObject = createTaakZoekObject()
+
+        val emptyDocumentList = SolrDocumentList()
+        val queryResponse = mockk<QueryResponse>()
+        every { queryResponse.results } returns emptyDocumentList
+        every { queryResponse.nextCursorMark } returns CursorMarkParams.CURSOR_MARK_START
+        every { ctx.solrClient.query(any()) } returns queryResponse
+        every { ctx.solrClient.commit(null, true, true) } returns UpdateResponse()
+        every { ctx.solrClient.addBeans(any<Collection<*>>()) } returns UpdateResponse()
+
+        every {
+            ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
+        } returns Results(listOf(ZaakUuid(zaak.uuid)), 1)
+        every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { ctx.flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(openTask)
+        every { ctx.flowableTaskService.countOpenTasks() } returns 1
+        // the zaak's linked document is never listed - see the "DOCUMENT is left untouched" assertion below
+        every {
+            ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
+        } throws RuntimeException("fake informatieobjecten count failure")
+
+        every { ctx.zaakZoekObjectConverter.convert(zaak, any()) } returns zaakZoekObject
+        every { ctx.taakZoekObjectConverter.convert("fakeOpenTaskId", zaak, any()) } returns taakZoekObject
+
+        `when`("reindexAll is called with the default set of all object types") {
+            val logRecords = captureLogRecords {
+                ctx.indexingService.reindexAll()
+            }
+
+            then(
+                "DOCUMENT is left untouched - neither deleted, repopulated nor swept for orphans - " +
+                    "and reported as aborted"
+            ) {
+                verify(exactly = 0) {
+                    ctx.zrcClientService.listZaakinformatieobjecten(zaak)
+                    ctx.documentZoekObjectConverter.convert(any<ZaakInformatieObject>(), any(), any())
+                }
+                logRecords.map { it.message } shouldContain
+                    "[DOCUMENT] Reindexing aborted. Solr index contains 0 documents of type 'DOCUMENT'."
+            }
+
+            then("ZAAK and TAAK still finish normally, unaffected by the DOCUMENT count failure") {
+                verify(exactly = 1) {
+                    ctx.solrClient.addBeans(listOf(zaakZoekObject))
+                    ctx.solrClient.addBeans(listOf(taakZoekObject))
+                }
+                logRecords.map { it.message } shouldContain
+                    "[ZAAK] Reindexing finished. Reindexed: 1 / 1, skipped: 0, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'ZAAK'."
+                logRecords.map { it.message } shouldContain
+                    "[TAAK] Reindexing finished. Reindexed: 1 / 1, skipped: 0, not reindexed because of errors: 0. " +
+                    "Solr index contains 0 documents of type 'TAAK'."
+            }
+        }
+    }
+
     given("reindexAll() combining ZAAK and DOCUMENT where the orphan sweep's own page fetch fails") {
         val ctx = setupContext()
         val emptyDocumentList = SolrDocumentList()

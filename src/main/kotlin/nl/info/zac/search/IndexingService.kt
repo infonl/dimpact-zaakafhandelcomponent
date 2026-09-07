@@ -807,6 +807,44 @@ class IndexingService @Inject constructor(
             )
     }
 
+    private data class TaakDocumentReindexPlan(
+        val numberOfTasks: Long?,
+        val numberOfInformatieobjecten: Int?,
+        val reindexTaken: Boolean,
+        val reindexDocumenten: Boolean
+    )
+
+    /**
+     * Determines the `TAAK`/`DOCUMENT` counts for the combined zaak-driven pass, and whether each type
+     * should actually be reindexed for this run - only when it was requested and its own count succeeded,
+     * so a count failure leaves that type untouched (see [reindexZakenTakenDocumenten]'s KDoc) instead of
+     * deleting and repopulating data whose true total is unknown.
+     */
+    private fun determineTaakDocumentReindexPlan(includeTaken: Boolean, includeDocumenten: Boolean): TaakDocumentReindexPlan {
+        val numberOfTasks = if (includeTaken) {
+            continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.countOpenTasks() }
+        } else {
+            null
+        }
+        val numberOfInformatieobjecten = if (includeDocumenten) {
+            continueOnExceptions(ZoekObjectType.DOCUMENT) { countInformatieobjecten() }
+        } else {
+            null
+        }
+        if (includeTaken && numberOfTasks == null) {
+            LOG.warning("[${ZoekObjectType.TAAK}] Cannot find tasks count! Aborting reindexing")
+        }
+        if (includeDocumenten && numberOfInformatieobjecten == null) {
+            LOG.warning("[${ZoekObjectType.DOCUMENT}] Cannot find information objects count! Aborting reindexing")
+        }
+        return TaakDocumentReindexPlan(
+            numberOfTasks = numberOfTasks,
+            numberOfInformatieobjecten = numberOfInformatieobjecten,
+            reindexTaken = includeTaken && numberOfTasks != null,
+            reindexDocumenten = includeDocumenten && numberOfInformatieobjecten != null
+        )
+    }
+
     /**
      * Reindexes `ZAAK` together with, when requested, `TAAK` and/or `DOCUMENT`, retrieving each zaak from
      * ZGW at most once and reusing it for the zaak's own reindex as well as its open taken and its linked
@@ -817,6 +855,11 @@ class IndexingService @Inject constructor(
      * on its own), and `TAAK`/`DOCUMENT` fall back to their existing independent
      * [reindexAllTaken]/[reindexAllInformatieobjecten] passes for this run instead of being skipped,
      * consistent with `solr-reindexing-observability`'s "remaining object types still reindex" behavior.
+     *
+     * When the zaak count succeeds but the `TAAK` and/or `DOCUMENT` count fails, that object type is left
+     * untouched for this run - neither deleted nor repopulated - and reported as aborted, the same way
+     * [reindexAllTaken]/[reindexAllInformatieobjecten] abort without touching existing data when their own
+     * count fails.
      */
     private fun reindexZakenTakenDocumenten(includeTaken: Boolean, includeDocumenten: Boolean) {
         LOG.info(reindexStartedMessage(ZoekObjectType.ZAAK))
@@ -830,28 +873,19 @@ class IndexingService @Inject constructor(
         }
 
         // captured before any deletion happens, consistent with reindexAllTaken/reindexAllInformatieobjecten
-        val numberOfTasks = if (includeTaken) {
-            continueOnExceptions(ZoekObjectType.TAAK) { flowableTaskService.countOpenTasks() }
-        } else {
-            null
-        }
-        val numberOfInformatieobjecten = if (includeDocumenten) {
-            continueOnExceptions(ZoekObjectType.DOCUMENT) { countInformatieobjecten() }
-        } else {
-            null
-        }
+        val plan = determineTaakDocumentReindexPlan(includeTaken, includeDocumenten)
 
         deleteExistingEntities(ZoekObjectType.ZAAK)
-        if (includeTaken) deleteExistingEntities(ZoekObjectType.TAAK)
-        if (includeDocumenten) deleteExistingEntities(ZoekObjectType.DOCUMENT)
+        if (plan.reindexTaken) deleteExistingEntities(ZoekObjectType.TAAK)
+        if (plan.reindexDocumenten) deleteExistingEntities(ZoekObjectType.DOCUMENT)
 
         // tracks which informatieobjecten the zaak-driven stage already indexed, so the orphan sweep
         // below does not reconvert them - see reindexInformatieobjectenOrphanSweep
         val alreadyIndexedInformatieobjectUUIDs = ConcurrentHashMap.newKeySet<UUID>()
         val counts = reindexZakenTakenDocumentenPages(
             numberOfZaken,
-            includeTaken,
-            includeDocumenten,
+            plan.reindexTaken,
+            plan.reindexDocumenten,
             alreadyIndexedInformatieobjectUUIDs
         )
 
@@ -862,7 +896,7 @@ class IndexingService @Inject constructor(
         if (includeTaken) {
             finishReindex(
                 ZoekObjectType.TAAK,
-                numberOfTasks?.let {
+                plan.numberOfTasks?.let {
                     ReindexSummary(counts.takenCounts.successCount, counts.takenCounts.skippedCount, it.toInt())
                 }
             )
@@ -870,7 +904,7 @@ class IndexingService @Inject constructor(
         if (includeDocumenten) {
             finishReindex(
                 ZoekObjectType.DOCUMENT,
-                numberOfInformatieobjecten?.let { total ->
+                plan.numberOfInformatieobjecten?.let { total ->
                     val documentenCounts = counts.documentenCounts +
                         reindexInformatieobjectenOrphanSweep(total, alreadyIndexedInformatieobjectUUIDs)
                     ReindexSummary(documentenCounts.successCount, documentenCounts.skippedCount, total)

@@ -136,6 +136,14 @@ as zaak pages (and, for `DOCUMENT`, the subsequent orphan sweep) are processed.
   anywhere else in the codebase (every read of a taak's zaak assumes it resolves), so this is data
   corruption the reindex should not need to specially detect; if this needs equivalent visibility later, it
   can be added the same way as the document orphan sweep.
+- **[Risk]** Unlike the zaak count, a `TAAK`/`DOCUMENT` count failure inside the combined pass cannot fall
+  back to the independent `reindexAllTaken`/`reindexAllInformatieobjecten` passes without re-walking zaken a
+  second time, defeating the "retrieve each zaak once" goal of this change. → Mitigation: when `flowableTaskService.countOpenTasks()`/`countInformatieobjecten()` fails, that object type is left
+  untouched for the run - neither deleted nor repopulated - and reported as aborted, matching how
+  `reindexAllTaken`/`reindexAllInformatieobjecten` already abort without touching existing data when their
+  own count fails. This also means the `DOCUMENT` orphan sweep (which needs the total to page through) does
+  not run on that path, so orphan documents are neither lost nor double-counted - the previous run's
+  `DOCUMENT` index for them is simply left in place.
 - **[Trade-off]** The `DOCUMENT` orphan sweep still pages through the DRC's entire informatieobject listing
   once per combined reindex, same as today's independent `DOCUMENT` pass, and needs to track which
   informatieobject UUIDs the zaak-driven stage already indexed so it does not reconvert them. → Mitigation:
