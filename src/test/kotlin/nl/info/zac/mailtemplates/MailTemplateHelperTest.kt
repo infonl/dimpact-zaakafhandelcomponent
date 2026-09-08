@@ -153,6 +153,49 @@ class MailTemplateHelperTest : BehaviorSpec({
             }
         }
 
+        given("A zaaktype with a generic description") {
+            val zaakType = createZaakType(omschrijvingGeneriek = "fakeZaakTypeOmschrijvingGeneriek")
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+
+            `when`("a text containing the generic zaaktype description placeholder is resolved") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAKTYPE_OMSCHRIJVING_GENERIEK}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the placeholder is replaced by the generic description of the zaaktype") {
+                    resolvedText shouldBe "fakeText, fakeZaakTypeOmschrijvingGeneriek"
+                }
+            }
+        }
+
+        given("A zaaktype whose optional generic description is not filled in") {
+            val zaakType = createZaakType(
+                omschrijving = "fakeZaakTypeOmschrijving",
+                omschrijvingGeneriek = ""
+            )
+            val zaak = createZaak(zaaktypeUri = zaakType.url)
+
+            every { ztcClientService.readZaaktype(zaak.zaaktype) } returns zaakType
+            every { configurationService.zaakTonenUrl(zaak.identificatie) } returns URI("https://example.com/fakeURL")
+
+            `when`("a text containing the generic zaaktype description placeholder is resolved") {
+                val resolvedText = mailTemplateHelper.resolveZaakVariables(
+                    "fakeText, {ZAAKTYPE_OMSCHRIJVING_GENERIEK}",
+                    zaak,
+                    "userName"
+                )
+
+                then("the placeholder is replaced by an empty string") {
+                    resolvedText shouldBe "fakeText, "
+                }
+            }
+        }
+
         given(
             """
             A zaak with an initiator of role natuurlijk persoon with a BSN and a persoon with a name and a verblijfplaats

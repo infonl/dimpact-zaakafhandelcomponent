@@ -28,7 +28,8 @@ enum class MailTemplateVariables(val resolveVariableAsEmptyString: Boolean) {
     ZAAK_STREEFDATUM(true),
     ZAAK_TOELICHTING(true),
     ZAAK_TYPE(false),
-    ZAAK_URL(false);
+    ZAAK_URL(false),
+    ZAAKTYPE_OMSCHRIJVING_GENERIEK(true);
 
     companion object {
         /** Marks the start of a zaakdata variable placeholder in mail templates, e.g. {ZAAKDATA:someKey}. */
@@ -38,6 +39,7 @@ enum class MailTemplateVariables(val resolveVariableAsEmptyString: Boolean) {
         val ZAAK_VARIABELEN = setOf(
             ZAAK_NUMMER,
             ZAAK_TYPE,
+            ZAAKTYPE_OMSCHRIJVING_GENERIEK,
             ZAAK_STATUS,
             ZAAK_REGISTRATIEDATUM,
             ZAAK_STARTDATUM,
