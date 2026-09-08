@@ -228,6 +228,13 @@ export class ZakenService {
     });
   }
 
+  invalidateHistorie(uuid: string) {
+    this.queryClient.invalidateQueries(
+      { queryKey: this.listHistorieVoorZaakQuery(uuid).queryKey },
+      { cancelRefetch: false },
+    );
+  }
+
   listBetrokkenenVoorZaakQuery(uuid: string) {
     return queryOptions({
       ...this.zacQueryClient.GET("/rest/zaken/zaak/{uuid}/betrokkene", {
