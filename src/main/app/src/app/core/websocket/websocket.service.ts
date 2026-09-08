@@ -62,6 +62,8 @@ export class WebsocketService implements OnDestroy {
 
   private listeners: Record<string, Record<string, EventCallback>> = {};
 
+  private subscribedEvents: Record<string, ScreenEvent> = {};
+
   private suspended: Record<string, EventSuspension> = {};
 
   private readonly queryClient = inject(QueryClient);
@@ -85,10 +87,23 @@ export class WebsocketService implements OnDestroy {
     url: string,
   ): WebSocketSubject<SocketMessage | SubscriptionMessage> {
     if (!this.connection$) {
-      this.connection$ = webSocket(url);
-      console.log("Websocket geopend: " + url);
+      this.connection$ = webSocket({
+        url,
+        openObserver: {
+          next: () => {
+            console.log("Websocket geopend: " + url);
+            this.resubscribeAll();
+          },
+        },
+      });
     }
     return this.connection$;
+  }
+
+  private resubscribeAll() {
+    Object.values(this.subscribedEvents).forEach((event) => {
+      this.send(new SubscriptionMessage(SubscriptionType.CREATE, event));
+    });
   }
 
   private receive(url: string) {
@@ -298,15 +313,18 @@ export class WebsocketService implements OnDestroy {
     );
 
     callbacks[listener.id] = callback;
+    this.subscribedEvents[event.key] = event;
     return listener;
   }
 
   private removeCallback(listener: WebsocketListener): void {
-    const callbacks: Record<string, EventCallback> = this.getCallbacks(
-      listener.event.key,
-    );
+    const key = listener.event.key;
+    const callbacks: Record<string, EventCallback> = this.getCallbacks(key);
     delete callbacks[listener.id];
     delete this.suspended[listener.id];
+    if (Object.keys(callbacks).length === 0) {
+      delete this.subscribedEvents[key];
+    }
   }
 
   private getCallbacks(key: string): Record<string, EventCallback> {
