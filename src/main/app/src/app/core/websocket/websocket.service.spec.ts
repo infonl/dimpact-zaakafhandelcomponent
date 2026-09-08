@@ -133,7 +133,12 @@ describe(WebsocketService.name, () => {
     );
     const scopedSocketIndex = sockets.length;
     const scopedService = childInjector.get(WebsocketService);
-    scopedService.addListener(Opcode.UPDATED, ObjectType.ZAAK, "zaak-1", jest.fn());
+    scopedService.addListener(
+      Opcode.UPDATED,
+      ObjectType.ZAAK,
+      "zaak-1",
+      jest.fn(),
+    );
 
     childInjector.destroy();
     sockets[scopedSocketIndex].complete();
