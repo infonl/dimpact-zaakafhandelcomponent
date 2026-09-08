@@ -139,13 +139,14 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             )
 
             `when`("the 'download file' method is called") {
-                val exception = shouldThrow<IllegalStateException> {
+                val exception = shouldThrow<SmartDocumentsConfigurationException> {
                     smartDocumentsService.downloadDocument(smartDocumentId)
                 }
 
-                then("it fails with an error identifying the unsupported extension") {
+                then("it fails with an error identifying the unsupported extension and file name") {
                     exception.message shouldBe
-                        "Unsupported SmartDocuments output file extension: '.${fileName.substringAfterLast('.')}'"
+                        "Unsupported SmartDocuments output file extension: '.${fileName.substringAfterLast('.')}' " +
+                        "for file name: '$fileName'"
                 }
             }
         }

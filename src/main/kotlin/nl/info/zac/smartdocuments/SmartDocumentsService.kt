@@ -159,6 +159,8 @@ class SmartDocumentsService @Inject constructor(
     private fun outputFormatForFileName(fileName: String): String =
         ".${getExtension(fileName)}".let { extension ->
             MediaTypes.Application.entries.find { extension in it.extensions }?.mediaType
-                ?: error("Unsupported SmartDocuments output file extension: '$extension'")
+                ?: throw SmartDocumentsConfigurationException(
+                    "Unsupported SmartDocuments output file extension: '$extension' for file name: '$fileName'"
+                )
         }
 }
