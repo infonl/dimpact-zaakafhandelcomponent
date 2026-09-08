@@ -83,10 +83,10 @@ describe(DateRangeFilterComponent.name, () => {
       expect(component["hasRange"]()).toBe(false);
     });
 
-    it("should return false when only van is set", () => {
+    it("should return true when only van is set", () => {
       component.range = { van: new Date(2024, 0, 1).toISOString(), tot: null };
 
-      expect(component["hasRange"]()).toBe(false);
+      expect(component["hasRange"]()).toBe(true);
     });
 
     it("should return true when both van and tot are set", () => {
@@ -146,7 +146,7 @@ describe(DateRangeFilterComponent.name, () => {
       expect(emitted).toHaveLength(1);
     });
 
-    it("should not emit changed when only one date is set", () => {
+    it("should emit changed when only one date is set", () => {
       component["dateVan"].setValue(new Date(2024, 0, 1));
       component["dateTM"].setValue(null);
       const emitted: DatumRange[] = [];
@@ -154,7 +154,7 @@ describe(DateRangeFilterComponent.name, () => {
 
       component["change"]();
 
-      expect(emitted).toHaveLength(0);
+      expect(emitted).toHaveLength(1);
     });
   });
 });

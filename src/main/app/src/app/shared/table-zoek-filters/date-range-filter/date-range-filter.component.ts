@@ -87,7 +87,7 @@ export class DateRangeFilterComponent {
   }
 
   protected hasRange(): boolean {
-    return this.currentRange.van != null && this.currentRange.tot != null;
+    return this.currentRange.van != null || this.currentRange.tot != null;
   }
 
   private toDate(value?: string | null) {
