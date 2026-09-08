@@ -61,7 +61,9 @@ class WebSocketHeartbeatScheduler @Inject constructor(
 
     @PreDestroy
     fun stop() {
-        executor.shutdownNow()
+        if (this::executor.isInitialized) {
+            executor.shutdownNow()
+        }
     }
 
     internal fun sendHeartbeats() {

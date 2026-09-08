@@ -38,7 +38,7 @@ class WebSocketServerEndPoint @Inject constructor(
 
     @OnOpen
     fun open(session: Session, conf: EndpointConfig) {
-        val httpSession = conf.userProperties[HTTP_SESSION] as HttpSession?
+        val httpSession = conf.userProperties[HTTP_SESSION] as? HttpSession
         val loggedInUser = httpSession?.let(::getLoggedInUser)
         if (loggedInUser == null) {
             denyAccess(session, "no logged in user")

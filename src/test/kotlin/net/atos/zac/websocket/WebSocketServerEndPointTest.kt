@@ -45,6 +45,22 @@ class WebSocketServerEndPointTest : BehaviorSpec({
         }
     }
 
+    given("a WebSocket open event where the HTTP session property has an unexpected type") {
+        val wsSession = mockk<Session>(relaxed = true)
+        val endpointConfig = mockk<EndpointConfig>()
+        every { endpointConfig.userProperties } returns mutableMapOf<String, Any>(HTTP_SESSION to "not an HttpSession")
+
+        `when`("open is called") {
+            endpoint.open(wsSession, endpointConfig)
+
+            then("access is denied and the WebSocket session is closed with VIOLATED_POLICY, without throwing") {
+                verify(exactly = 1) {
+                    wsSession.close(match { it.closeCode.code == CloseReason.CloseCodes.VIOLATED_POLICY.code })
+                }
+            }
+        }
+    }
+
     given("a WebSocket open event with an HTTP session that has no logged-in user") {
         val wsSession = mockk<Session>(relaxed = true)
         val endpointConfig = mockk<EndpointConfig>()
