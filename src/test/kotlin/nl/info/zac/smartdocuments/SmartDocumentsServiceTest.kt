@@ -108,11 +108,12 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             `when`("the 'download file' method is called") {
                 val file = smartDocumentsService.downloadDocument(smartDocumentId)
 
-                then("no output format is requested and the file's format is derived from its extension") {
-                    with(file) {
-                        fileName shouldBe fileName
-                        outputFormat shouldBe expectedOutputFormat
-                        document.data shouldBe body.toBase64String()
+then("no output format is requested and the file's format is derived from its extension") {
+    with(file) {
+        this.fileName shouldBe fileName
+        outputFormat shouldBe expectedOutputFormat
+        document.data shouldBe body.toBase64String()
+    }
                     }
                     verify(exactly = 1) { smartDocumentsClient.get().downloadFile(smartDocumentId, null) }
                 }
