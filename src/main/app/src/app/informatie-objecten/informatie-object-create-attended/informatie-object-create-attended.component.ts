@@ -31,6 +31,7 @@ import {
   Observable,
   of,
   ReplaySubject,
+  startWith,
   Subject,
   switchMap,
   take,
@@ -165,7 +166,7 @@ export class InformatieObjectCreateAttendedComponent
           this.zaak.zaaktype.uuid,
         ),
       ),
-    );
+    ).pipe(startWith([]));
     this.templateGroups = templateGroupsFetcher;
 
     this.form.controls.templateGroup.valueChanges
