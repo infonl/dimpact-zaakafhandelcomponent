@@ -6,7 +6,7 @@
 @let bekijkenLabel = "actie.zaak.bekijken" | translate;
 @let ontkoppelenLabel = "actie.zaak.ontkoppelen" | translate;
 
-<div class="table-wrapper fixed-height">
+<div class="table-wrapper case-details-fixed-height">
   <table mat-table [dataSource]="gerelateerdeZaken()">
     @for (column of gerelateerdeZaakColumns; track column) {
       <ng-container [matColumnDef]="column">
