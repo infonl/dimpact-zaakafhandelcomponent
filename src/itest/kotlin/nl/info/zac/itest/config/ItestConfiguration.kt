@@ -176,6 +176,7 @@ object ItestConfiguration {
     const val DOCUMENT_STATUS_IN_BEWERKING = "in_bewerking"
     const val TEXT_MIME_TYPE = "text/plain"
     const val PDF_MIME_TYPE = "application/pdf"
+    const val WORD_MIME_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
     /**
      * Constants used in the KVK WireMock template response

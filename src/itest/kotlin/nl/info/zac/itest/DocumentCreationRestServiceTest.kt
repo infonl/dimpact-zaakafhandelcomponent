@@ -19,15 +19,21 @@ import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
+import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
+import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.WORD_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.SMART_DOCUMENTS_FILE_ID
 import nl.info.zac.itest.config.SMART_DOCUMENTS_FILE_TITLE
 import nl.info.zac.itest.config.SMART_DOCUMENTS_MOCK_BASE_URI
+import nl.info.zac.itest.config.SMART_DOCUMENTS_PDF_FILE_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_PDF_FILE_TITLE
 import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_GROUP_ID
 import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID
 import okhttp3.FormBody
 import okhttp3.Headers
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
@@ -45,6 +51,24 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     lateinit var taskId: String
     lateinit var zaakUuid: String
     lateinit var zaakIdentification: String
+
+    // resolves the `formaat` ZAC recorded for the zaak's informatieobject with the given title,
+    // by following the zaak -> zaakinformatieobject -> informatieobject relations in Open Zaak directly
+    fun fetchStoredDocumentFormaat(zaakUuid: String, documentTitle: String): String {
+        val zaakInformatieObjectenResponse = itestHttpClient.performZgwApiGetRequest(
+            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten" +
+                "?zaak=$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUuid"
+        )
+        zaakInformatieObjectenResponse.code shouldBe HTTP_OK
+        val informatieobjectUrl = JSONArray(zaakInformatieObjectenResponse.bodyAsString)
+            .let { array -> (0 until array.length()).map(array::getJSONObject) }
+            .first { it.getString("titel") == documentTitle }
+            .getString("informatieobject")
+
+        val informatieobjectResponse = itestHttpClient.performZgwApiGetRequest(url = informatieobjectUrl)
+        informatieobjectResponse.code shouldBe HTTP_OK
+        return JSONObject(informatieobjectResponse.bodyAsString).getString("formaat")
+    }
 
     given(
         """
@@ -197,6 +221,54 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "?zaak=$zaakIdentification" +
                     "&doc=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
                     "&result=success"
+            }
+
+            then("the document is stored with the Word media type SmartDocuments generated it in") {
+                fetchStoredDocumentFormaat(zaakUuid, SMART_DOCUMENTS_FILE_TITLE) shouldBe WORD_MIME_TYPE
+            }
+        }
+    }
+
+    given("zaak and a PDF file created from template in SmartDocuments") {
+        `when`("SmartDocuments zaak callback is provided with metadata about the new PDF file") {
+            val endpointUrl =
+                "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
+                    "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
+                    "&title=" + SMART_DOCUMENTS_PDF_FILE_TITLE.urlEncode() +
+                    "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
+                    "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
+                    "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
+
+            logger.info { "Calling $endpointUrl endpoint" }
+            val response = itestHttpClient.performPostRequest(
+                url = endpointUrl,
+                headers = Headers.headersOf(
+                    "Accept",
+                    "text/html",
+                    "Content-Type",
+                    "multipart/form-data"
+                ),
+                requestBody = FormBody.Builder()
+                    .add("sdDocument", SMART_DOCUMENTS_PDF_FILE_ID)
+                    .build(),
+                testUser = BEHANDELAAR_1
+            )
+
+            then("The response should contain redirect url to our smart-documents-result page") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                val locationHeader = response.headers["Location"]
+                logger.info { "Location header: $locationHeader" }
+
+                response.code shouldBe HTTP_SEE_OTHER
+                locationHeader shouldContain "static/smart-documents-result.html" +
+                    "?zaak=$zaakIdentification" +
+                    "&doc=" + SMART_DOCUMENTS_PDF_FILE_TITLE.urlEncode() +
+                    "&result=success"
+            }
+
+            then("the document is stored with the PDF media type SmartDocuments generated it in") {
+                fetchStoredDocumentFormaat(zaakUuid, SMART_DOCUMENTS_PDF_FILE_TITLE) shouldBe PDF_MIME_TYPE
             }
         }
     }
