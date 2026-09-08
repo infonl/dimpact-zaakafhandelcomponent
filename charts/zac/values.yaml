@@ -229,6 +229,10 @@ opentelemetry_zaakafhandelcomponent:
 # Uploads and downloads are streamed, so this value is bound by the temporary disk space available
 # to ZAC rather than by the heap. See `resources.limits.ephemeral-storage` and the nginx and ingress
 # body size settings, which all have to allow at least this much.
+# Values above 2047 are rejected, because the documents registry expresses the size of a document as
+# a 32 bit integer number of bytes. In practice the ceiling is around 768, the temporary file size
+# WildFly allows through `dev.resteasy.entity.file.threshold`, which is part of the ZAC image and not
+# of this chart. See `docs/development/documentFileSizes.md`.
 maxFileSizeMB: 80
 
 # -- Maximum size (in Mega Bytes) of documents for operations that cannot stream and therefore hold

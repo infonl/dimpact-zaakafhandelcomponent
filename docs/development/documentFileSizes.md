@@ -23,6 +23,21 @@ A document between the two limits can be stored, listed and downloaded, but not 
 edited in Office. Attempting that returns `413 Payload Too Large` with
 `msg.error.file.too-large-to-open`, rather than running the server out of memory.
 
+## How large the maximum can be
+
+`maxFileSizeMB` is configuration, not a fixed product limit, but it cannot be raised without bound:
+
+- **2047 MB** is the absolute ceiling. The ZGW Documenten API expresses `bestandsomvang` as a 32 bit
+  integer number of bytes, so a larger document cannot be described to the documents registry at all.
+  Both `FileSizeConfiguration` and the chart refuse a larger value.
+- **Around 768 MB** is the ceiling in practice. WildFly buffers every request body to a temporary
+  file whose size is capped by `dev.resteasy.entity.file.threshold` in `configure-wildfly.cli`, which
+  is 805306368 bytes. That value lives in the ZAC image rather than in the chart, so going beyond it
+  takes a code change and a new build, not a `values.yaml` change.
+
+Everything below that is a matter of configuration. The section below works out 500 MB, because that
+is the size ZAC has been tested against end to end; the same steps apply to any other value.
+
 ## Raising the maximum document size
 
 ZAC refuses to start when the configured limits do not fit in the heap, and `helm install` fails
@@ -41,7 +56,8 @@ than that one value.
   covers roughly eight 500MB transfers at once.
 - `dev.resteasy.entity.file.threshold` in `configure-wildfly.cli` caps the size of that temporary
   file, and therefore has to stay above `maxFileSizeMB` plus multipart overhead. It is 768MB, which
-  leaves room for a 500MB document.
+  leaves room for a 500MB document. Raising `maxFileSizeMB` beyond that means raising this too, which
+  is a change to the image rather than to the chart.
 - `nginx.client_max_body_size`: at least `maxFileSizeMB` plus multipart overhead.
 - `nginx.proxy_timeout`: long enough to move a document of that size over a slow connection.
 
