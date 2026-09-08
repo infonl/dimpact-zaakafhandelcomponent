@@ -29,7 +29,7 @@ enum class MailTemplateVariables(val resolveVariableAsEmptyString: Boolean) {
     ZAAK_TOELICHTING(true),
     ZAAK_TYPE(false),
     ZAAK_URL(false),
-    ZAAKTYPE_OMSCHRIJVING_GENERIEK(false);
+    ZAAKTYPE_OMSCHRIJVING_GENERIEK(true);
 
     companion object {
         /** Marks the start of a zaakdata variable placeholder in mail templates, e.g. {ZAAKDATA:someKey}. */

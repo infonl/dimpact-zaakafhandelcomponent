@@ -190,8 +190,8 @@ class MailTemplateHelperTest : BehaviorSpec({
                     "userName"
                 )
 
-                then("the placeholder falls back to the regular description of the zaaktype") {
-                    resolvedText shouldBe "fakeText, fakeZaakTypeOmschrijving"
+                then("the placeholder is replaced by an empty string") {
+                    resolvedText shouldBe "fakeText, "
                 }
             }
         }

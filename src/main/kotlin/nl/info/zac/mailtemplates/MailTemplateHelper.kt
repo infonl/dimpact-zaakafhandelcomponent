@@ -115,8 +115,7 @@ class MailTemplateHelper @Inject constructor(
             resolvedTekst = replaceVariable(
                 targetString = resolvedTekst,
                 mailTemplateVariable = MailTemplateVariables.ZAAKTYPE_OMSCHRIJVING_GENERIEK,
-                value = zaaktype.getOmschrijvingGeneriek()?.takeIf(String::isNotBlank)
-                    ?: zaaktype.getOmschrijving()
+                value = zaaktype.getOmschrijvingGeneriek()
             )
         }
         if (MailTemplateVariables.ZAAK_INITIATOR.getVariable() in resolvedTekst ||
