@@ -31,6 +31,8 @@ import nl.info.zac.itest.config.SMART_DOCUMENTS_PDF_FILE_ID
 import nl.info.zac.itest.config.SMART_DOCUMENTS_PDF_FILE_TITLE
 import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_GROUP_ID
 import nl.info.zac.itest.config.SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_XML_FILE_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_XML_FILE_TITLE
 import okhttp3.FormBody
 import okhttp3.Headers
 import org.json.JSONArray
@@ -52,16 +54,21 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
     lateinit var zaakUuid: String
     lateinit var zaakIdentification: String
 
-    // resolves the `formaat` ZAC recorded for the zaak's informatieobject with the given title,
-    // by following the zaak -> zaakinformatieobject -> informatieobject relations in Open Zaak directly
-    fun fetchStoredDocumentFormaat(zaakUuid: String, documentTitle: String): String {
+    // lists the zaak's zaakinformatieobjecten directly from Open Zaak
+    fun fetchZaakInformatieobjecten(zaakUuid: String): List<JSONObject> {
         val zaakInformatieObjectenResponse = itestHttpClient.performZgwApiGetRequest(
             url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaakinformatieobjecten" +
                 "?zaak=$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUuid"
         )
         zaakInformatieObjectenResponse.code shouldBe HTTP_OK
-        val informatieobjectUrl = JSONArray(zaakInformatieObjectenResponse.bodyAsString)
+        return JSONArray(zaakInformatieObjectenResponse.bodyAsString)
             .let { array -> (0 until array.length()).map(array::getJSONObject) }
+    }
+
+    // resolves the `formaat` ZAC recorded for the zaak's informatieobject with the given title,
+    // by following the zaak -> zaakinformatieobject -> informatieobject relations in Open Zaak directly
+    fun fetchStoredDocumentFormaat(zaakUuid: String, documentTitle: String): String {
+        val informatieobjectUrl = fetchZaakInformatieobjecten(zaakUuid)
             .first { it.getString("titel") == documentTitle }
             .getString("informatieobject")
 
@@ -269,6 +276,52 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
 
             then("the document is stored with the PDF media type SmartDocuments generated it in") {
                 fetchStoredDocumentFormaat(zaakUuid, SMART_DOCUMENTS_PDF_FILE_TITLE) shouldBe PDF_MEDIA_TYPE
+            }
+        }
+    }
+
+    given("zaak and an XML file created from template in SmartDocuments, which ZAC does not support") {
+        `when`("SmartDocuments zaak callback is provided with metadata about the new unsupported XML file") {
+            val endpointUrl =
+                "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
+                    "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
+                    "&title=" + SMART_DOCUMENTS_XML_FILE_TITLE.urlEncode() +
+                    "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
+                    "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
+                    "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
+
+            logger.info { "Calling $endpointUrl endpoint" }
+            val response = itestHttpClient.performPostRequest(
+                url = endpointUrl,
+                headers = Headers.headersOf(
+                    "Accept",
+                    "text/html",
+                    "Content-Type",
+                    "multipart/form-data"
+                ),
+                requestBody = FormBody.Builder()
+                    .add("sdDocument", SMART_DOCUMENTS_XML_FILE_ID)
+                    .build(),
+                testUser = BEHANDELAAR_1
+            )
+
+            then("the response should contain redirect url to our smart-documents-result page with a failure result") {
+                val responseBody = response.bodyAsString
+                logger.info { "Response: $responseBody" }
+                val locationHeader = response.headers["Location"]
+                logger.info { "Location header: $locationHeader" }
+
+                response.code shouldBe HTTP_SEE_OTHER
+                locationHeader shouldContain "static/smart-documents-result.html" +
+                    "?zaak=$zaakIdentification" +
+                    "&doc=" + SMART_DOCUMENTS_XML_FILE_TITLE.urlEncode() +
+                    "&result=failure"
+            }
+
+            then("no document is stored for the unsupported file") {
+                fetchZaakInformatieobjecten(zaakUuid).none {
+                    it.getString("titel") == SMART_DOCUMENTS_XML_FILE_TITLE
+                } shouldBe true
             }
         }
     }

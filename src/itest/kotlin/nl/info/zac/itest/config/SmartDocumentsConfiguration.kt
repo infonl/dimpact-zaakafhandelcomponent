@@ -37,6 +37,8 @@ const val SMART_DOCUMENTS_DOCX_FILE_ID = "fakeFileId"
 const val SMART_DOCUMENTS_DOCX_FILE_TITLE = "Smart Documents file"
 const val SMART_DOCUMENTS_PDF_FILE_ID = "fakePdfFileId"
 const val SMART_DOCUMENTS_PDF_FILE_TITLE = "Smart Documents PDF file"
+const val SMART_DOCUMENTS_XML_FILE_ID = "fakeXmlFileId"
+const val SMART_DOCUMENTS_XML_FILE_TITLE = "Smart Documents XML file"
 
 val SMART_DOCUMENTS_TEMPLATE_MAPPINGS = """
             [
