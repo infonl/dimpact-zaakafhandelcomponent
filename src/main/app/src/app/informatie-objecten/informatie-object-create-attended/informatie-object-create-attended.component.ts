@@ -27,7 +27,6 @@ import moment, { Moment } from "moment";
 import {
   EMPTY,
   from,
-  lastValueFrom,
   map,
   Observable,
   of,
@@ -161,15 +160,11 @@ export class InformatieObjectCreateAttendedComponent
     const templateGroupsFetcher: Observable<
       GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]
     > = from(
-      this.queryClient.ensureQueryData({
-        queryKey: ["smartDocumentsTemplatesMapping", this.zaak.zaaktype.uuid],
-        queryFn: () =>
-          lastValueFrom(
-            this.smartDocumentsService.getTemplatesMapping(
-              this.zaak.zaaktype.uuid,
-            ),
-          ),
-      }),
+      this.queryClient.ensureQueryData(
+        this.smartDocumentsService.getTemplatesMappingQuery(
+          this.zaak.zaaktype.uuid,
+        ),
+      ),
     );
     this.templateGroups = templateGroupsFetcher;
 
