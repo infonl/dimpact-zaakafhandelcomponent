@@ -225,7 +225,7 @@ class DrcClientServiceTest : BehaviorSpec({
         } returns createdDocument
         every { drcClient.bestandsdeelUpdate(any(), any(), any()) } answers {
             uploadedContentTypes.add(secondArg())
-            uploadedParts.add(firstArg<UUID>() to thirdArg<ByteArray>())
+            uploadedParts.add(firstArg<UUID>() to thirdArg<InputStream>().readBytes())
             createBestandsDeel()
         }
         val unlockSlot = slot<LockEnkelvoudigInformatieObject>()
@@ -385,6 +385,10 @@ class DrcClientServiceTest : BehaviorSpec({
             url = documentUrl,
             bestandsdelen = listOf(createBestandsDeel(volgnummer = 1, omvang = 10))
         )
+        every { drcClient.bestandsdeelUpdate(any(), any(), any()) } answers {
+            thirdArg<InputStream>().readBytes()
+            createBestandsDeel()
+        }
         every { drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, any()) } returns mockk()
         every { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) } returns mockk()
 
@@ -396,9 +400,8 @@ class DrcClientServiceTest : BehaviorSpec({
                 )
             }
 
-            then("the short part is not uploaded, so that the document is never stored truncated") {
+            then("the document is deleted, so that it is never left behind stored truncated") {
                 drcRuntimeException.message shouldContain "Only 4 of the 10 bytes of bestandsdeel 1"
-                verify(exactly = 0) { drcClient.bestandsdeelUpdate(any(), any(), any()) }
                 verify(exactly = 1) { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) }
             }
         }

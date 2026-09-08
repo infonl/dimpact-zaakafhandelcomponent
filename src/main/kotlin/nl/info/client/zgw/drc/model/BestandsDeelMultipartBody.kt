@@ -4,19 +4,23 @@
  */
 package nl.info.client.zgw.drc.model
 
-import java.io.ByteArrayOutputStream
+import java.io.ByteArrayInputStream
+import java.io.InputStream
+import java.io.SequenceInputStream
+import java.util.Collections
 import java.util.UUID
 
 /**
  * The body of a `PUT /bestandsdelen/{uuid}` request, assembled by hand.
  *
- * The obvious alternative, handing RESTEasy a `MultipartFormDataOutput`, produces a request body of
- * unknown length, which the client then sends with `Transfer-Encoding: chunked`. The documents
- * registry runs behind uwsgi, which does not buffer a chunked body before passing it to Django, so
- * it arrives with no fields at all and is rejected. Assembling the body here means it goes out as a
- * byte array of known length, with a `Content-Length` and no chunking.
+ * The obvious alternative, handing RESTEasy a `MultipartFormDataOutput`, holds the part it writes in
+ * memory. A documents registry is free to announce a single bestandsdeel covering the whole
+ * document, and Open Zaak does exactly that unless `DOCUMENTEN_UPLOAD_CHUNK_SIZE` is lowered, so the
+ * size of a part is the size of the document. Assembling the body here means it can be handed over
+ * as a stream, and the part travels from the content stream to the request without ever being held
+ * on the heap.
  */
-class BestandsDeelMultipartBody(private val partContent: ByteArray, private val lock: String) {
+class BestandsDeelMultipartBody(private val partContent: InputStream, lock: String) {
     companion object {
         private const val CRLF = "\r\n"
     }
@@ -25,18 +29,29 @@ class BestandsDeelMultipartBody(private val partContent: ByteArray, private val 
 
     val contentType = "multipart/form-data; boundary=$boundary"
 
-    fun toByteArray(): ByteArray = ByteArrayOutputStream().apply {
-        writeAscii("--$boundary$CRLF")
-        writeAscii("""Content-Disposition: form-data; name="inhoud"; filename="bestandsdeel"$CRLF""")
-        writeAscii("Content-Type: application/octet-stream$CRLF$CRLF")
-        write(partContent)
-        writeAscii(CRLF)
-        writeAscii("--$boundary$CRLF")
-        writeAscii("""Content-Disposition: form-data; name="lock"$CRLF$CRLF""")
-        writeAscii(lock)
-        writeAscii(CRLF)
-        writeAscii("--$boundary--$CRLF")
-    }.toByteArray()
+    private val beforePartContent = (
+        "--$boundary$CRLF" +
+            """Content-Disposition: form-data; name="inhoud"; filename="bestandsdeel"$CRLF""" +
+            "Content-Type: application/octet-stream$CRLF$CRLF"
+        ).toAsciiByteArray()
 
-    private fun ByteArrayOutputStream.writeAscii(text: String) = write(text.toByteArray(Charsets.US_ASCII))
+    private val afterPartContent = (
+        CRLF +
+            "--$boundary$CRLF" +
+            """Content-Disposition: form-data; name="lock"$CRLF$CRLF""" +
+            "$lock$CRLF" +
+            "--$boundary--$CRLF"
+        ).toAsciiByteArray()
+
+    fun inputStream(): InputStream = SequenceInputStream(
+        Collections.enumeration(
+            listOf(
+                ByteArrayInputStream(beforePartContent),
+                partContent,
+                ByteArrayInputStream(afterPartContent)
+            )
+        )
+    )
 }
+
+private fun String.toAsciiByteArray() = toByteArray(Charsets.US_ASCII)

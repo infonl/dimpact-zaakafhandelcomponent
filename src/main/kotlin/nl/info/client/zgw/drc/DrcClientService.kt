@@ -14,6 +14,7 @@ import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.shared.exception.ZgwValidationErrorException
 import nl.info.client.zgw.shared.model.audit.AuditTrailRegel
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
+import nl.info.client.zgw.drc.model.BestandsDeelInputStream
 import nl.info.client.zgw.drc.model.BestandsDeelMultipartBody
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.generated.BestandsDeel
@@ -263,22 +264,22 @@ class DrcClientService @Inject constructor(
         assertPartsCoverContent(documentUUID = documentUUID, parts = orderedParts, content = content)
         content.inputStream().use { contentStream ->
             orderedParts.forEach { part ->
-                // one part is held in memory at a time, and the documents registry decides how large
-                // a part is, so this never scales with the size of the whole document
-                val partContent = contentStream.readNBytes(part.omvang)
-                if (partContent.size != part.omvang) {
-                    throw DrcRuntimeException(
-                        "Only ${partContent.size} of the ${part.omvang} bytes of bestandsdeel " +
-                            "${part.volgnummer} of document with uuid '$documentUUID' could be read, so " +
-                            "uploading it would store the document truncated."
-                    )
-                }
+                // the part travels straight from the content stream into the request, so however
+                // large the documents registry announced it, it is never held on the heap
+                val partContent = BestandsDeelInputStream(content = contentStream, sizeInBytes = part.omvang)
                 val body = BestandsDeelMultipartBody(partContent = partContent, lock = lock)
                 drcClient.bestandsdeelUpdate(
                     uuid = part.url.extractUuid(),
                     contentType = body.contentType,
-                    bestandsDeel = body.toByteArray()
+                    bestandsDeel = body.inputStream()
                 )
+                if (partContent.bytesRead != part.omvang) {
+                    throw DrcRuntimeException(
+                        "Only ${partContent.bytesRead} of the ${part.omvang} bytes of bestandsdeel " +
+                            "${part.volgnummer} of document with uuid '$documentUUID' could be read, so " +
+                            "keeping the document would store it truncated."
+                    )
+                }
             }
         }
     }

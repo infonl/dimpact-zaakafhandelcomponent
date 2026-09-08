@@ -75,7 +75,12 @@ nginx.ingress.kubernetes.io/proxy-send-timeout: "1800"
 
 - Open Zaak 1.7 or newer, which is what supports uploading a document in parts (`bestandsdelen`).
   Against an older version a document larger than `maxInMemoryFileSizeMB` cannot be stored at all.
-- The nginx in front of Open Zaak needs the same `client_max_body_size` and timeouts.
+- The nginx in front of Open Zaak needs the same `client_max_body_size` and timeouts. A part is as
+  large as the documents registry decides, and Open Zaak's `DOCUMENTEN_UPLOAD_CHUNK_SIZE` defaults to
+  `MIN_UPLOAD_SIZE`, 4 GiB, so by default it announces a single bestandsdeel covering the whole
+  document. That nginx therefore has to accept a request body the size of the document, not the size
+  of a chunk. ZAC streams a part rather than buffering it, so however the registry divides a
+  document, uploading it costs ZAC no heap.
 - Enough storage for the documents themselves.
 
 ## Where the limits are enforced

@@ -40,6 +40,7 @@ import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
+import java.io.InputStream
 import java.util.UUID
 
 @RegisterRestClient(configKey = "ZGW-API-Client")
@@ -63,7 +64,7 @@ interface DrcClient {
     fun bestandsdeelUpdate(
         @PathParam("uuid") uuid: UUID,
         @HeaderParam(CONTENT_TYPE) contentType: String,
-        bestandsDeel: ByteArray
+        bestandsDeel: InputStream
     ): BestandsDeel
 
     @POST
