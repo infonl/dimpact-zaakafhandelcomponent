@@ -128,7 +128,7 @@ fun createRolType(
 fun createZaakType(
     uri: URI = URI("https://example.com/zaaktypes/${UUID.randomUUID()}"),
     omschrijving: String = "fakeZaakTypeOmschrijving",
-    omschrijvingGeneriek: String? = "fakeZaakTypeOmschrijvingGeneriek",
+    omschrijvingGeneriek: String? = null,
     informatieObjectTypen: List<URI>? = listOf(
         URI("fakeInformatieObjectType/${UUID.randomUUID()}"),
         URI("fakeInformatieObjectType/${UUID.randomUUID()}")
