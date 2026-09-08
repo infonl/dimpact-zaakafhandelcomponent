@@ -530,6 +530,7 @@
   "mailtemplate.variabele.ZAAK_TOELICHTING": "De toelichting van de zaak.",
   "mailtemplate.variabele.ZAAK_TYPE": "Het zaaktype.",
   "mailtemplate.variabele.ZAAK_URL": "De zaakafhandelcomponent-URL van de zaak.",
+  "mailtemplate.variabele.ZAAKTYPE_OMSCHRIJVING_GENERIEK": "De generieke omschrijving van het zaaktype.",
   "planitem.INTAKE_AFRONDEN": "Intake afronden",
   "planitem.INTAKE_AFRONDEN.toelichting": "Deze zaak zal als niet ontvankelijk wordt bevonden, en zal direct worden afgehandeld.",
   "planitem.INTAKE_AFRONDEN.toelichting.opgeshort": "Deze actie is niet mogelijk omdat de zaak momenteel is opgeschort. De zaak moet eerst hervat worden.",

@@ -107,9 +107,17 @@ class MailTemplateHelper @Inject constructor(
                 .getOmschrijving()
             resolvedTekst = replaceVariable(resolvedTekst, MailTemplateVariables.ZAAK_STATUS, statusOmschrijving)
         }
-        if (resolvedTekst.contains(MailTemplateVariables.ZAAK_TYPE.getVariable())) {
-            val zaaktypeOmschrijving = ztcClientService.readZaaktype(zaak.getZaaktype()).getOmschrijving()
-            resolvedTekst = replaceVariable(resolvedTekst, MailTemplateVariables.ZAAK_TYPE, zaaktypeOmschrijving)
+        if (MailTemplateVariables.ZAAK_TYPE.getVariable() in resolvedTekst ||
+            MailTemplateVariables.ZAAKTYPE_OMSCHRIJVING_GENERIEK.getVariable() in resolvedTekst
+        ) {
+            val zaaktype = ztcClientService.readZaaktype(zaak.getZaaktype())
+            resolvedTekst = replaceVariable(resolvedTekst, MailTemplateVariables.ZAAK_TYPE, zaaktype.getOmschrijving())
+            resolvedTekst = replaceVariable(
+                targetString = resolvedTekst,
+                mailTemplateVariable = MailTemplateVariables.ZAAKTYPE_OMSCHRIJVING_GENERIEK,
+                value = zaaktype.getOmschrijvingGeneriek()?.takeIf(String::isNotBlank)
+                    ?: zaaktype.getOmschrijving()
+            )
         }
         if (MailTemplateVariables.ZAAK_INITIATOR.getVariable() in resolvedTekst ||
             MailTemplateVariables.ZAAK_INITIATOR_ADRES.getVariable() in resolvedTekst

@@ -24,6 +24,7 @@ import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZEER_GEHEIM
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
+import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION_GENERIC
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.util.shouldEqualJsonIgnoringExtraneousFields
@@ -201,6 +202,56 @@ class MailRestServiceTest : BehaviorSpec({
                     this shouldContain "<pdfuaid:part>1</pdfuaid:part>"
                     this shouldContain "/StructTreeRoot"
                     this shouldContain "/DisplayDocTitle true"
+                }
+            }
+        }
+    }
+
+    given("A zaak of a zaaktype that has both a regular and a generic description exists") {
+        val (_, zaakUuid) = zaakHelper.createZaak(
+            zaaktypeUuid = ZAAKTYPE_CMMN_TEST_2_UUID,
+            testUser = BEHEERDER_1
+        )
+
+        `when`("a mail is sent whose body contains both zaaktype description variables") {
+            val receiverMail = "zaaktypeDescriptionReceiverTest@example.com"
+
+            val response = itestHttpClient.performJSONPostRequest(
+                url = "$ZAC_API_URI/mail/send/$zaakUuid",
+                headers = Headers.headersOf(
+                    "Content-Type",
+                    "application/json"
+                ),
+                requestBodyAsString = """{
+                    "verzender": "sender@example.com",
+                    "ontvanger": "$receiverMail",
+                    "onderwerp": "subject",
+                    "body": "<p>{ZAAK_TYPE}</p><p>{ZAAKTYPE_OMSCHRIJVING_GENERIEK}</p>",
+                    "bijlagen": "",
+                    "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
+                }
+                """.trimIndent(),
+                testUser = BEHANDELAAR_1
+            )
+
+            then("the response should be 'no-content'") {
+                response.code shouldBe HTTP_NO_CONTENT
+            }
+
+            and("each variable in the delivered mail is replaced by its own description of the zaaktype") {
+                val receivedMailsResponse = itestHttpClient.performGetRequest(
+                    url = "$GREENMAIL_API_URI/user/$receiverMail/messages/",
+                    testUser = BEHANDELAAR_1
+                )
+                receivedMailsResponse.code shouldBe HTTP_OK
+
+                val receivedMails = JSONArray(receivedMailsResponse.bodyAsString)
+                receivedMails.length() shouldBeGreaterThan 0
+                with(receivedMails.getJSONObject(receivedMails.length() - 1).getString("mimeMessage")) {
+                    shouldContain(ZAAKTYPE_CMMN_TEST_2_DESCRIPTION)
+                    shouldContain(ZAAKTYPE_CMMN_TEST_2_DESCRIPTION_GENERIC)
+                    shouldNotContain("{ZAAK_TYPE}")
+                    shouldNotContain("{ZAAKTYPE_OMSCHRIJVING_GENERIEK}")
                 }
             }
         }

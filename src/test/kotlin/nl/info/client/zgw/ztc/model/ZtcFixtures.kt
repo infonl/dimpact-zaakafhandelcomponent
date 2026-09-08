@@ -128,6 +128,7 @@ fun createRolType(
 fun createZaakType(
     uri: URI = URI("https://example.com/zaaktypes/${UUID.randomUUID()}"),
     omschrijving: String = "fakeZaakTypeOmschrijving",
+    omschrijvingGeneriek: String? = "fakeZaakTypeOmschrijvingGeneriek",
     informatieObjectTypen: List<URI>? = listOf(
         URI("fakeInformatieObjectType/${UUID.randomUUID()}"),
         URI("fakeInformatieObjectType/${UUID.randomUUID()}")
@@ -158,6 +159,7 @@ fun createZaakType(
     null
 ).apply {
     this.omschrijving = omschrijving
+    this.omschrijvingGeneriek = omschrijvingGeneriek
     this.besluittypen = besluittypen
     this.identificatie = identification
     this.doorlooptijd = doorloopTijd
