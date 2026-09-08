@@ -31,6 +31,7 @@ import {
   of,
 } from "rxjs";
 import { ReferentieTabelService } from "src/app/admin/referentie-tabel.service";
+import { ZacCheckbox } from "src/app/shared/form/checkbox/checkbox";
 import { ZacDate } from "src/app/shared/form/date/date";
 import { ZacInput } from "src/app/shared/form/input/input";
 import { ZacSelect } from "src/app/shared/form/select/select";
@@ -55,6 +56,7 @@ import { ZakenService } from "../zaken.service";
     MatToolbarModule,
     ReactiveFormsModule,
     TranslatePipe,
+    ZacCheckbox,
     ZacDate,
     ZacInput,
     ZacSelect,
@@ -115,7 +117,18 @@ export class CaseDetailsEditComponent implements OnInit {
       Validators.required,
       Validators.maxLength(80),
     ]),
+    isZaakspecifiekGeautoriseerd: this.formBuilder.control(false),
   });
+
+  /**
+   * Marking a zaak zaakspecifiek geautoriseerd is only offered for a zaaktype that is configured as
+   * zaakspecifiek autoriseerbaar, because the zaakregister has no eigenschap to record it otherwise.
+   */
+  protected readonly showZaakspecifiekGeautoriseerd = computed(() =>
+    Boolean(
+      this.zaak().zaaktype.zaakafhandelparameters?.zaakspecifiekAutoriseerbaar,
+    ),
+  );
 
   protected readonly updateZaakMutation = injectMutation(
     () => this.zakenService.updateMutation(),
@@ -203,6 +216,11 @@ export class CaseDetailsEditComponent implements OnInit {
     this.form.controls.behandelaar.disable();
     if (!zaak.rechten.toekennen) {
       this.form.controls.groep.disable();
+    }
+
+    // the marking cannot be lifted, so once it is set the control is read-only
+    if (zaak.isZaakspecifiekGeautoriseerd || !zaak.rechten.wijzigen) {
+      this.form.controls.isZaakspecifiekGeautoriseerd.disable();
     }
 
     if (!dateChangesAllowed) {
@@ -389,6 +407,8 @@ export class CaseDetailsEditComponent implements OnInit {
           value.uiterlijkeEinddatumAfdoening?.toISOString(),
         omschrijving: value.omschrijving ?? "",
         toelichting: value.toelichting ?? undefined,
+        isZaakspecifiekGeautoriseerd:
+          value.isZaakspecifiekGeautoriseerd || undefined,
       },
     });
   }

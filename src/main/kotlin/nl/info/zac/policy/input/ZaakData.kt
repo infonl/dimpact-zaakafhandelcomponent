@@ -33,4 +33,7 @@ data class ZaakData(
 
     @field:JsonbProperty("zaakspecifiekGeautoriseerd")
     val zaakspecifiekGeautoriseerd: Boolean,
+
+    @field:JsonbProperty("loggedInUserIsGeautoriseerdeMedewerker")
+    val loggedInUserIsGeautoriseerdeMedewerker: Boolean = false,
 )

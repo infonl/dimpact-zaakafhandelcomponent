@@ -14,13 +14,22 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import java.util.UUID
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
+import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakEigenschap
+import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.app.zaak.model.createRESTZaakAssignmentData
 import nl.info.zac.app.zaak.model.createRESTZakenVerdeelGegevens
 import nl.info.zac.app.zaak.model.createRESTZakenVrijgevenGegevens
@@ -28,6 +37,7 @@ import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.app.zaak.model.createRestZaakAssignmentToLoggedInUserData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.exception.ErrorCode
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
@@ -37,7 +47,6 @@ import nl.info.zac.policy.output.createWerklijstRechten
 import nl.info.zac.policy.output.createWerklijstRechtenAllDeny
 import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.zaak.ZaakService
-import java.util.UUID
 
 class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()
@@ -46,6 +55,8 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
     val restZaakConverter = mockk<RestZaakConverter>()
     val restZaakOverzichtConverter = mockk<RestZaakOverzichtConverter>()
     val zaakService = mockk<ZaakService>()
+    val zgwApiService = mockk<ZgwApiService>()
+    val zrcClientService = mockk<ZrcClientService>()
     val testDispatcher = StandardTestDispatcher()
     val zaakAssignAndReleaseRestService = ZaakAssignAndReleaseRestService(
         dispatcher = testDispatcher,
@@ -54,7 +65,9 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
         policyService = policyService,
         restZaakConverter = restZaakConverter,
         restZaakOverzichtConverter = restZaakOverzichtConverter,
-        zaakService = zaakService
+        zaakService = zaakService,
+        zgwApiService = zgwApiService,
+        zrcClientService = zrcClientService
     )
 
     afterEach {
@@ -116,6 +129,7 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             } just runs
             every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
             every { loggedInUserInstance.get() } returns loggedInUser
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
 
             `when`("toekennen policy is assigned to the user") {
                 every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
@@ -162,6 +176,7 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 )
             } just runs
             every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
 
             `when`("toekennen policy is assigned to the logged-in user") {
                 every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
@@ -211,6 +226,7 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 )
             } just runs
             every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
 
             `when`("toekennen policy is assigned to the logged-in user") {
                 every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns createZaakRechtenAllDeny(toekennen = true)
@@ -232,6 +248,102 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                 }
 
                 then("exception is thrown") {}
+            }
+        }
+    }
+
+    context("Assigning or releasing a zaakspecifiek geautoriseerde zaak") {
+        given("a zaakspecifiek geautoriseerde zaak and assignment data naming a different behandelaar") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val loggedInUser = createLoggedInUser()
+            val restZaakAssignmentData = createRESTZaakAssignmentData(behandelaarGebruikersnaam = "fakeOtherUserId")
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechtenAllDeny(toekennen = true)
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+            )
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+            )
+
+            `when`("the zaak is assigned") {
+                val exception = shouldThrow<ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException> {
+                    zaakAssignAndReleaseRestService.assignZaak(restZaakAssignmentData)
+                }
+
+                then("the attempt is refused with its own error code and the zaak keeps its behandelaar") {
+                    exception.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_REASSIGNED
+                    verify(exactly = 0) { zaakService.assignZaak(any(), any(), any(), any()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak and assignment data without a behandelaar") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val loggedInUser = createLoggedInUser()
+            val restZaakAssignmentData = createRESTZaakAssignmentData(behandelaarGebruikersnaam = null)
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechtenAllDeny(toekennen = true)
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+            )
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+            )
+
+            `when`("the zaak is released") {
+                val exception = shouldThrow<ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException> {
+                    zaakAssignAndReleaseRestService.assignZaak(restZaakAssignmentData)
+                }
+
+                then("the attempt is refused with its own error code and the zaak keeps its behandelaar") {
+                    exception.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_RELEASED
+                    verify(exactly = 0) { zaakService.assignZaak(any(), any(), any(), any()) }
+                }
+            }
+        }
+
+        given("a zaakspecifiek geautoriseerde zaak and assignment data repeating its current behandelaar") {
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val restZaak = createRestZaak()
+            val loggedInUser = createLoggedInUser()
+            val restZaakAssignmentData = createRESTZaakAssignmentData(behandelaarGebruikersnaam = "fakeBehandelaarId")
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID) } returns Pair(zaak, zaakType)
+            every {
+                policyService.readZaakRechten(zaak, zaakType, loggedInUser)
+            } returns createZaakRechtenAllDeny(toekennen = true)
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+            )
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+            )
+            every {
+                zaakService.assignZaak(zaak, restZaakAssignmentData.groupId, "fakeBehandelaarId", restZaakAssignmentData.reason)
+            } just runs
+            every { restZaakConverter.toRestZaak(zaak, zaakType, any(), loggedInUser) } returns restZaak
+
+            `when`("the zaak is assigned") {
+                val returnedRestZaak = zaakAssignAndReleaseRestService.assignZaak(restZaakAssignmentData)
+
+                then("the assignment is not refused, so that the group can still be changed") {
+                    returnedRestZaak shouldBe restZaak
+                }
             }
         }
     }

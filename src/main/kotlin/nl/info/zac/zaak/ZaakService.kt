@@ -28,6 +28,7 @@ import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificat
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isHeropend
 import nl.info.client.zgw.zrc.util.isOpen
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.AfleidingswijzeEnum
 import nl.info.client.zgw.ztc.model.generated.OmschrijvingGeneriekEnum
@@ -152,11 +153,12 @@ class ZaakService @Inject constructor(
         val (zakenAssignedList, zakenToSkip) = zaakUUIDs
             .map(zrcClientService::readZaak)
             .partition {
-                isZaakOpen(it) && group.isAuthorisedForApplicationRoleAndZaaktype(
-                    // you are only allowed to assign zaken to 'behandelaren'
-                    zacApplicationRole = BEHANDELAAR,
-                    zaaktypeUuid = it.zaaktype.extractUuid()
-                )
+                isZaakOpen(it) && !isZaakspecifiekGeautoriseerd(it) &&
+                    group.isAuthorisedForApplicationRoleAndZaaktype(
+                        // you are only allowed to assign zaken to 'behandelaren'
+                        zacApplicationRole = BEHANDELAAR,
+                        zaaktypeUuid = it.zaaktype.extractUuid()
+                    )
             }
         zakenToSkip
             .forEach { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it)) }
@@ -313,11 +315,12 @@ class ZaakService @Inject constructor(
         zaakUUIDs
             .map(zrcClientService::readZaak)
             .filter {
-                if (!it.isOpen()) {
-                    LOG.fine("Zaak with UUID '${it.uuid} is not open. Therefore it is not released.")
+                val canBeReleased = it.isOpen() && !isZaakspecifiekGeautoriseerd(it)
+                if (!canBeReleased) {
+                    LOG.fine("Zaak with UUID '${it.uuid} cannot be released. Therefore it is not released.")
                     eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(it))
                 }
-                it.isOpen()
+                canBeReleased
             }
             .forEach { zrcClientService.deleteRol(it, BetrokkeneTypeEnum.MEDEWERKER, explanation) }
         LOG.fine { "Successfully released  ${zaakUUIDs.size} zaken." }
@@ -341,6 +344,13 @@ class ZaakService @Inject constructor(
             eventingService.send(ScreenEventType.ZAAK.updated(zaak.uuid))
         }
     }
+
+    /**
+     * A zaakspecifiek geautoriseerde zaak keeps its behandelaar for as long as the marking stands, so it is
+     * skipped by both batch operations rather than failing the whole batch.
+     */
+    private fun isZaakspecifiekGeautoriseerd(zaak: Zaak) =
+        zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
 
     private fun addRoleToZaak(
         roleType: RolType,

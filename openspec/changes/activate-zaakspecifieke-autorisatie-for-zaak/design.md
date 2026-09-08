@@ -86,25 +86,42 @@ ZGW call on the same path. Short-circuit it: only resolve the behandelaar when t
 zaakspecifiek geautoriseerd — for every other zaak the first disjunct already makes the guard true, so the
 value is irrelevant.
 
-### The zaak's behandelaar is denormalized onto all three zoekobjecten with a shared copyField
+### The medewerkers individually authorised for a zaak are denormalized onto all three zoekobjecten
 
-New `SolrSchemaV9`, mirroring `SolrSchemaV8` exactly: `zaak_zaakBehandelaarGebruikersnaam`,
-`taak_zaakBehandelaarGebruikersnaam`, `informatieobject_zaakBehandelaarGebruikersnaam`, each `copyField`-ed
-into a shared `zaakBehandelaarGebruikersnaam`. The filter query then becomes, per zaaktype without the flag:
+New `SolrSchemaV9`, mirroring `SolrSchemaV8`'s shape: `zaak_zaakGeautoriseerdeMedewerkers`,
+`taak_zaakGeautoriseerdeMedewerkers`, `informatieobject_zaakGeautoriseerdeMedewerkers`, each `copyField`-ed
+into a shared `zaakGeautoriseerdeMedewerkers`. The filter query then becomes, per zaaktype without the flag:
 
 ```
--(zaaktype:X AND zaakspecifiekGeautoriseerd:true AND -zaakBehandelaarGebruikersnaam:"<user>")
+-(zaaktype:X AND zaakspecifiekGeautoriseerd:true AND -zaakGeautoriseerdeMedewerkers:"<user>")
 ```
 
-*Why a separate field on `ZaakZoekObject` rather than reusing `zaak_behandelaarGebruikersnaam`:* the shared
+**The fields are multi-valued even though this change records exactly one medewerker in them** — the zaak's
+current behandelaar. That is deliberate. [PZ-10202](https://dimpact.atlassian.net/browse/PZ-10202) adds
+previous zaakbehandelaars, [PZ-12035](https://dimpact.atlassian.net/browse/PZ-12035) adds current and
+previous taakbehandelaars, and [PZ-12023](https://dimpact.atlassian.net/browse/PZ-12023) adds manually
+authorised medewerkers; all three are stored in Open Zaak as one and the same betrokkene rol type
+(*Zaakspecifiek geautoriseerde medewerker*) and are explicitly indistinguishable from each other. Modelling
+the field as a set now means those stories add *sources* only: no new Solr schema version, and no second
+environment-wide manual reindex on top of the one this change already requires (and on top of
+`SolrSchemaV8`'s, still outstanding). Changing cardinality later is the expensive option; changing it before
+anything is deployed is free.
+
+The same reasoning applies to the policy input, which is named `loggedInUserIsGeautoriseerdeMedewerker`
+rather than after the behandelaar: the rego guard asserts "this user is individually authorised for this
+zaak", which is true today by being its behandelaar and stays true unchanged as the sources widen. The rego
+policies therefore need no edit at all for PZ-10202, PZ-12035 or PZ-12023.
+
+*Why a separate field rather than reusing `zaak_behandelaarGebruikersnaam`:* the shared
 `copyField` target needs one consistent name across all three types, and `TaakZoekObject` already uses
 `taak_behandelaarGebruikersnaam` for the *taak's* behandelaar. Overloading that name across the two meanings
 is exactly the kind of confusion that produces a silent authorization hole. The zaak-level field on
 `ZaakZoekObject` is redundant with `zaak_behandelaarGebruikersnaam` but keeps the copyField uniform.
 
-`TaakZoekObjectConverter` and `DocumentZoekObjectConverter` resolve the zaak's behandelaar through the same
+`TaakZoekObjectConverter` and `DocumentZoekObjectConverter` resolve the set through the same
 memoized-lookup-function parameter that `isZaakspecifiekGeautoriseerd` already uses, so indexing all taken
-of one zaak still costs one rollen lookup.
+of one zaak still costs one rollen lookup. The resolution is lazy, because a zaak conversion already knows
+the set from the rollen it fetches anyway and must not pay for a second lookup.
 
 *Alternative considered:* leave the index alone and post-filter results in `SearchService`. Rejected: it
 breaks paging and result counts, the exact reason PZ-11954 filtered in Solr in the first place.
@@ -198,7 +215,7 @@ changes.
   which is why it is asserted by integration test (task 6.5) rather than only documented.
 - **Existing flagged zaken stay wrongly visible until the manual reindex runs.** Same accepted gap as
   `SolrSchemaV8`, now in the other direction: until `SolrSchemaV9`'s reindex runs, no row carries a
-  zaak-behandelaar, so a behandelaar without the flag will *not* see their own flagged zaak in worklists even
+  geautoriseerde medewerkers, so a behandelaar without the flag will *not* see their own flagged zaak in worklists even
   though they can open it. → Since the only way to create a flagged zaak from ZAC is this change itself, and
   activation reindexes directly, the gap affects only zaken flagged by hand in Open Zaak before deploy.
 - **A recordmanager or beheerder without the PABC mapping loses access to flagged zaken entirely.** They may
@@ -210,16 +227,37 @@ changes.
   as a prerequisite.
 - **Two ZGW reads per rechten evaluation on a flagged zaak.** `listZaakeigenschappen` plus `listRollen`. →
   Short-circuited to flagged zaken only, so unflagged zaken (the overwhelming majority) pay nothing extra.
-- **`CsvService` reflects over every `ZoekObject` bean property**, so the new zaak-behandelaar field
+- **`CsvService` reflects over every `ZoekObject` bean property**, so the new geautoriseerde-medewerkers field
   automatically gains a column in the zaken/taken/documenten CSV export and shifts every column after it,
   exactly as `zaakspecifiekGeautoriseerd` did. → Intended and consistent with the previous change; call it
   out in the release notes.
 
+## Notes for the follow-up stories
+
+The index and the policy guard are shaped for the rest of this epic, so PZ-10202, PZ-12035 and PZ-12023 only
+have to widen what feeds them. Two things they will run into are worth recording here, because neither is
+obvious from the stories themselves.
+
+**A current taakbehandelaar's access cannot be derived from the zaak's rollen.** PZ-12035 deliberately keeps
+the *current* taakbehandelaar in Flowable only and does not write it to Open Zaak; only *previous*
+taakbehandelaars become a *Zaakspecifiek geautoriseerde medewerker* rol. But deciding whether that person may
+see **the zaak itself** in a werklijst or zoekresultaat is a question about the zaak's own Solr row, and the
+assignees of its taken are not in its rollen. So `ZaakZoekObjectConverter` will have to read the zaak's task
+assignees from Flowable — it already calls `flowableTaskService.countOpenTasksForZaak`, so the access is
+there — and denormalize them into the zaak row alongside the rest of the set.
+
+**That makes taak assignment a reindex trigger for the zaak.** Once the zaak row carries its taken's
+assignees, assigning, reassigning, releasing or completing a taak of a zaakspecifiek geautoriseerde zaak has
+to reindex the *zaak*, not only the taak. `IndexingService.addOrUpdateZaak(zaakUUID, inclusiefTaken = true)`
+already reindexes both together, so the work is in calling it from the taak assignment paths rather than in
+new indexing machinery. Nothing in the current change needs it, because a zaak's own behandelaar always is in
+its rollen.
+
 ## Migration Plan
 
-1. Deploy. `SolrSchemaV9` adds the fields without reindexing; the shared `zaakBehandelaarGebruikersnaam`
-   field is simply absent on existing documents, which the negative filter query treats as "not the
-   behandelaar" — fail-closed, never fail-open.
+1. Deploy. `SolrSchemaV9` adds the fields without reindexing; the shared `zaakGeautoriseerdeMedewerkers`
+   field is simply absent on existing documents, which the negative filter query treats as "not authorised"
+   — fail-closed, never fail-open.
 2. Update the PABC configuration on Docker Compose and the INFO test environment to map recordmanager and
    beheerder functional roles to `zaakspecifiek_geautoriseerd`.
 3. Trigger the reindex manually, per environment, at a quiet moment — together with `SolrSchemaV8`'s still

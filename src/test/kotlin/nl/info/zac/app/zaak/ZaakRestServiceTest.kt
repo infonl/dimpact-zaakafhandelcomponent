@@ -19,11 +19,14 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import io.mockk.verifyOrder
 import jakarta.enterprise.inject.Instance
-import nl.info.client.zgw.zrc.model.Rol
-import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
-import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimteRequest
-import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPandRequest
+import java.io.ByteArrayInputStream
+import java.io.InputStream
+import java.net.URI
+import java.time.LocalDate
+import java.time.ZonedDateTime
+import java.util.*
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
 import net.atos.zac.flowable.cmmn.CMMNService
@@ -33,12 +36,14 @@ import nl.info.client.or.`object`.model.createORObject
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
 import nl.info.client.zgw.model.createNietNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoonForReads
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoonForReads
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.model.createZaakStatusSub
 import nl.info.client.zgw.model.createZaakobjectOpenbareRuimte
@@ -47,11 +52,18 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.DeleteGeoJSONGeometry
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.ZaakInformatieobjectListParameters
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.GeoJSONGeometry
 import nl.info.client.zgw.zrc.model.generated.Zaak
+import nl.info.client.zgw.zrc.model.generated.ZaakEigenschap
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectOpenbareRuimteRequest
+import nl.info.client.zgw.zrc.model.zaakobjecten.ZaakobjectPandRequest
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createEigenschap
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService.Companion.INADMISSIBLE_TERMINATION_ID
@@ -70,6 +82,11 @@ import nl.info.zac.app.zaak.converter.RestZaaktypeConverter
 import nl.info.zac.app.zaak.exception.BetrokkeneNotAllowedException
 import nl.info.zac.app.zaak.exception.CommunicationChannelNotFound
 import nl.info.zac.app.zaak.exception.DueDateNotAllowed
+import nl.info.zac.app.zaak.exception.ZaakWithoutBehandelaarCannotBeMarkedException
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException
+import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieCannotBeLiftedException
+import nl.info.zac.app.zaak.exception.ZaakspecifiekeAutorisatieNotAllowedException
+import nl.info.zac.app.zaak.exception.ZaaktypeNotZaakspecifiekAutoriseerbaarException
 import nl.info.zac.app.zaak.model.BetrokkeneIdentificatie
 import nl.info.zac.app.zaak.model.CreateZaakResponse
 import nl.info.zac.app.zaak.model.RestReden
@@ -84,6 +101,7 @@ import nl.info.zac.app.zaak.model.createRESTGeometry
 import nl.info.zac.app.zaak.model.createRESTZaakAanmaakGegevens
 import nl.info.zac.app.zaak.model.createRestDetachDocumentData
 import nl.info.zac.app.zaak.model.createRestGroup
+import nl.info.zac.app.zaak.model.createRestUser
 import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.app.zaak.model.createRestZaakCreateData
 import nl.info.zac.app.zaak.model.createRestZaakDataUpdate
@@ -120,12 +138,6 @@ import nl.info.zac.zaak.ZaakService
 import nl.info.zac.zaak.exception.ZaakWithABesluitCannotBeTerminatedException
 import org.apache.http.HttpStatus
 import org.flowable.task.api.Task
-import java.io.ByteArrayInputStream
-import java.io.InputStream
-import java.net.URI
-import java.time.LocalDate
-import java.time.ZonedDateTime
-import java.util.*
 
 @Suppress("LongParameterList", "LargeClass")
 class ZaakRestServiceTest : BehaviorSpec({
@@ -1749,6 +1761,7 @@ class ZaakRestServiceTest : BehaviorSpec({
             } returns Pair(zaak, zaakType)
             every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
             every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
             every { task.id } returns "id"
             every { eventingService.send(any<ScreenEvent>()) } just runs
             every { restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten, loggedInUser) } returns patchedRestZaak
@@ -1790,6 +1803,297 @@ class ZaakRestServiceTest : BehaviorSpec({
                     verify(exactly = 3) {
                         eventingService.send(any<ScreenEvent>())
                     }
+                }
+            }
+        }
+
+        given("an unmarked zaak of a zaakspecifiek autoriseerbaar zaaktype with the logged-in user as behandelaar") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = createRestUser(id = "fakeBehandelaarId"),
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+                isZaakspecifiekGeautoriseerd = true
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+            val patchedZaak = createZaak()
+            val eigenschap = createEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+            val zaakEigenschapSlot = slot<ZaakEigenschap>()
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every { zrcClientService.listZaakeigenschappen(patchedZaak.uuid) } returns emptyList()
+            every {
+                ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+            } returns eigenschap
+            every {
+                ztcClientService.readEigenschap(patchedZaak.zaaktype, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+            } returns eigenschap
+            every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
+            every {
+                zrcClientService.createEigenschap(patchedZaak.uuid, capture(zaakEigenschapSlot))
+            } returns createZaakEigenschap()
+            every { restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+            every { indexingService.addOrUpdateZaak(zaak.uuid, true) } returns true
+            every { indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid) } just runs
+
+            `when`("the zaak is marked as zaakspecifiek geautoriseerd") {
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+
+                then("the zaakgegevens are patched before the marking is recorded in the zaakregister") {
+                    verifyOrder {
+                        zrcClientService.patchZaak(zaak.uuid, any(), changeDescription)
+                        zrcClientService.createEigenschap(patchedZaak.uuid, any())
+                    }
+                    zaakEigenschapSlot.captured.waarde shouldBe "true"
+                }
+
+                and("the zaak, its taken and its documenten are reindexed right away") {
+                    verify(exactly = 1) {
+                        indexingService.addOrUpdateZaak(zaak.uuid, true)
+                        indexingService.addOrUpdateInformatieobjectenForZaak(zaak.uuid)
+                    }
+                }
+            }
+        }
+
+        given("an unmarked zaak whose zaaktype is not zaakspecifiek autoriseerbaar") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = createRestUser(id = "fakeBehandelaarId"),
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+                isZaakspecifiekGeautoriseerd = true
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+            every { ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD) } returns null
+
+            `when`("the zaak is marked as zaakspecifiek geautoriseerd") {
+                val exception = shouldThrow<ZaaktypeNotZaakspecifiekAutoriseerbaarException> {
+                    zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+                }
+
+                then("the request is refused with its own error code and the zaak is left untouched") {
+                    exception.errorCode shouldBe ErrorCode.ERROR_CODE_ZAAKTYPE_NOT_ZAAKSPECIFIEK_AUTORISEERBAAR
+                    verify(exactly = 0) { zrcClientService.patchZaak(any(), any(), any()) }
+                }
+            }
+        }
+
+        given("an unmarked zaak without a behandelaar") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser()
+            val restZaakCreateData = createRestZaakCreateData(
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+                isZaakspecifiekGeautoriseerd = true
+            ).apply { behandelaar = null }
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+            every {
+                ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+            } returns createEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
+
+            `when`("the zaak is marked as zaakspecifiek geautoriseerd") {
+                val exception = shouldThrow<ZaakWithoutBehandelaarCannotBeMarkedException> {
+                    zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+                }
+
+                then("the request is refused with its own error code and the zaak is left untouched") {
+                    exception.errorCode shouldBe ErrorCode.ERROR_CODE_ZAAK_WITHOUT_BEHANDELAAR_CANNOT_BE_MARKED
+                    verify(exactly = 0) { zrcClientService.patchZaak(any(), any(), any()) }
+                }
+            }
+        }
+
+        given("an unmarked zaak whose behandelaar is someone else than the logged-in user") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeOtherUserId")
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = createRestUser(id = "fakeBehandelaarId"),
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+                isZaakspecifiekGeautoriseerd = true
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+            every {
+                ztcClientService.findEigenschap(zaakType.url, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+            } returns createEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD)
+
+            `when`("that user, who does not hold the zaakspecifiek_geautoriseerd role, marks the zaak") {
+                val exception = shouldThrow<ZaakspecifiekeAutorisatieNotAllowedException> {
+                    zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+                }
+
+                then("the request is refused with its own error code and the zaak is left untouched") {
+                    exception.errorCode shouldBe ErrorCode.ERROR_CODE_ZAAKSPECIFIEKE_AUTORISATIE_NOT_ALLOWED
+                    verify(exactly = 0) { zrcClientService.patchZaak(any(), any(), any()) }
+                }
+            }
+        }
+
+        given("a zaak that is already marked as zaakspecifiek geautoriseerd") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val patchedZaak = createZaak()
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = createRestUser(id = "fakeBehandelaarId"),
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+                isZaakspecifiekGeautoriseerd = true
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+            )
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+            )
+            every { zrcClientService.patchZaak(zaak.uuid, any(), changeDescription) } returns patchedZaak
+            every { restZaakConverter.toRestZaak(patchedZaak, zaakType, zaakRechten, loggedInUser) } returns createRestZaak()
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+
+            `when`("the zaak is marked as zaakspecifiek geautoriseerd again") {
+                zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+
+                then("the update succeeds and no second marking is recorded") {
+                    verify(exactly = 0) { zrcClientService.createEigenschap(any(), any()) }
+                }
+            }
+        }
+
+        given("a zaak that is already marked as zaakspecifiek geautoriseerd and an update lifting the marking") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = createRestUser(id = "fakeBehandelaarId"),
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening,
+                isZaakspecifiekGeautoriseerd = false
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+            )
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+            )
+
+            `when`("the update is requested") {
+                val exception = shouldThrow<ZaakspecifiekeAutorisatieCannotBeLiftedException> {
+                    zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+                }
+
+                then("the request is refused with its own error code and the zaak is left untouched") {
+                    exception.errorCode shouldBe ErrorCode.ERROR_CODE_ZAAKSPECIFIEKE_AUTORISATIE_CANNOT_BE_LIFTED
+                    verify(exactly = 0) { zrcClientService.patchZaak(any(), any(), any()) }
+                }
+            }
+        }
+
+        given("a zaak that is zaakspecifiek geautoriseerd and an update naming a different behandelaar") {
+            val changeDescription = "change description"
+            val zaak = createZaak()
+            val zaakType = createZaakType()
+            val zaakRechten = createZaakRechten()
+            val loggedInUser = createLoggedInUser(id = "fakeBehandelaarId")
+            val restZaakCreateData = createRestZaakCreateData(
+                behandelaar = createRestUser(id = "fakeOtherUserId"),
+                uiterlijkeEinddatumAfdoening = zaak.uiterlijkeEinddatumAfdoening
+            )
+            val restZaakEditMetRedenGegevens =
+                RestZaakEditMetRedenGegevens(zaak = restZaakCreateData, reden = changeDescription)
+
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { zaakService.readZaakAndZaakTypeByZaakUUID(zaak.uuid) } returns Pair(zaak, zaakType)
+            every { policyService.readZaakRechten(zaak, zaakType, loggedInUser) } returns zaakRechten
+            every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
+            every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+            )
+            every {
+                zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
+            } returns createZaaktypeCmmnConfiguration()
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+            )
+
+            `when`("the update is requested") {
+                val exception = shouldThrow<ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException> {
+                    zaakRestService.updateZaak(zaak.uuid, restZaakEditMetRedenGegevens)
+                }
+
+                then("the request is refused with its own error code and the zaak is left untouched") {
+                    exception.errorCode shouldBe
+                        ErrorCode.ERROR_CODE_ZAAKSPECIFIEK_GEAUTORISEERDE_ZAAK_CANNOT_BE_REASSIGNED
+                    verify(exactly = 0) { zrcClientService.patchZaak(any(), any(), any()) }
                 }
             }
         }
@@ -1857,6 +2161,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
                 every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten, loggedInUser) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
+                every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
                 every {
                     zaaktypeConfigurationService.readZaaktypeConfiguration(any<UUID>())
                 } returns createZaaktypeCmmnConfiguration()
@@ -1906,6 +2211,7 @@ class ZaakRestServiceTest : BehaviorSpec({
                 every { identityService.validateIfUserIsInGroup(any(), any()) } just runs
                 every { restZaakConverter.toRestZaak(any(), zaakType, zaakRechten, loggedInUser) } returns restZaak
                 every { zrcClientService.patchZaak(zaak.uuid, any(), any()) } returns zaak
+                every { zrcClientService.listZaakeigenschappen(zaak.uuid) } returns emptyList()
                 every {
                     suspensionZaakHelper.adjustFinalDateForOpenTasks(zaak.uuid, newZaakFinalDate)
                 } returns emptyList()

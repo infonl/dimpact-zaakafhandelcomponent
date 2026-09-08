@@ -72,6 +72,17 @@
           [form]="form"
           key="toelichting"
         ></zac-textarea>
+        @if (showZaakspecifiekGeautoriseerd()) {
+          <zac-checkbox
+            class="col-12"
+            [form]="form"
+            key="isZaakspecifiekGeautoriseerd"
+          >
+            <mat-hint>{{
+              "zaak.zaakspecifiek-geautoriseerd.hint" | translate
+            }}</mat-hint>
+          </zac-checkbox>
+        }
         <zac-input class="col-12" [form]="form" key="reden"> </zac-input>
       </section>
     </fieldset>

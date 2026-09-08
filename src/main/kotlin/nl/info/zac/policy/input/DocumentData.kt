@@ -26,5 +26,8 @@ data class DocumentData(
     val zaakOpen: Boolean = false,
 
     @field:JsonbProperty("zaakspecifiekGeautoriseerd")
-    val zaakspecifiekGeautoriseerd: Boolean = false
+    val zaakspecifiekGeautoriseerd: Boolean = false,
+
+    @field:JsonbProperty("loggedInUserIsGeautoriseerdeMedewerker")
+    val loggedInUserIsGeautoriseerdeMedewerker: Boolean = false
 )

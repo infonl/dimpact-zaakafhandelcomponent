@@ -1478,3 +1478,80 @@ test_brondatum_zetten_geautoriseerd_recordmanager_with_flag if {
         with input.zaak.open as false
         with input.zaak.brondatumBepaald as false
 }
+
+##################################
+# zaak_allowed / current behandelaar of a zaakspecifiek geautoriseerde zaak
+##################################
+test_zaak_allowed_geautoriseerd_current_behandelaar_without_flag if {
+    zaak_allowed
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.zaak.loggedInUserIsGeautoriseerdeMedewerker as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_geautoriseerd_current_behandelaar_without_flag if {
+    lezen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.zaak.loggedInUserIsGeautoriseerdeMedewerker as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_wijzigen_geautoriseerd_current_behandelaar_without_flag if {
+    wijzigen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.zaak.loggedInUserIsGeautoriseerdeMedewerker as true
+        with input.zaak.open as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_behandelen_geautoriseerd_current_behandelaar_without_flag if {
+    behandelen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.zaak.loggedInUserIsGeautoriseerdeMedewerker as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_afbreken_geautoriseerd_current_behandelaar_without_flag if {
+    afbreken
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.zaak.loggedInUserIsGeautoriseerdeMedewerker as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_geautoriseerd_behandelaar_of_another_zaak_fails if {
+    not lezen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.zaak.loggedInUserIsGeautoriseerdeMedewerker as false
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+# being the current behandelaar is a flag just like the zaakspecifiek_geautoriseerd role: held without
+# any application role it grants no rights at all
+test_lezen_geautoriseerd_current_behandelaar_without_any_role_fails if {
+    not lezen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.zaak.loggedInUserIsGeautoriseerdeMedewerker as true
+        with input.user.rollen as [ ]
+}
+
+test_wijzigen_geautoriseerd_current_behandelaar_without_any_role_fails if {
+    not wijzigen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.zaak.loggedInUserIsGeautoriseerdeMedewerker as true
+        with input.zaak.open as true
+        with input.user.rollen as [ ]
+}
+
+test_behandelen_geautoriseerd_current_behandelaar_without_any_role_fails if {
+    not behandelen
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.zaak.loggedInUserIsGeautoriseerdeMedewerker as true
+        with input.user.rollen as [ ]
+}
+
+test_afbreken_geautoriseerd_current_behandelaar_without_any_role_fails if {
+    not afbreken
+        with input.zaak.zaakspecifiekGeautoriseerd as true
+        with input.zaak.loggedInUserIsGeautoriseerdeMedewerker as true
+        with input.user.rollen as [ ]
+}

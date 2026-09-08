@@ -13,14 +13,16 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.runs
 import io.mockk.slot
-import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import io.mockk.verifyOrder
-import nl.info.client.zgw.zrc.model.Rol
-import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
+import java.net.URI
+import java.time.ZonedDateTime
+import java.util.UUID
+import java.util.logging.Level
 import net.atos.zac.event.EventingService
 import net.atos.zac.event.Opcode
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -29,22 +31,26 @@ import net.atos.zac.websocket.event.ScreenEvent
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.pabc.PabcClientService
 import nl.info.client.pabc.model.createPabcGroupRepresentation
-import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createMedewerkerIdentificatie
+import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createRolNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolNietNatuurlijkPersoon
 import nl.info.client.zgw.model.createRolOrganisatorischeEenheid
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.model.createZaakStatus
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.ZgwApiService.Companion.ROLTYPE_OMSCHRIJVING_BEHANDELAAR
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.Rol
+import nl.info.client.zgw.zrc.model.RolNietNatuurlijkPersoon
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
 import nl.info.client.zgw.zrc.model.generated.BetrokkeneTypeEnum
 import nl.info.client.zgw.zrc.model.generated.MedewerkerIdentificatie
 import nl.info.client.zgw.zrc.model.generated.OrganisatorischeEenheidIdentificatie
+import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createBrondatumArchiefprocedure
 import nl.info.client.zgw.ztc.model.createEigenschap
@@ -62,14 +68,10 @@ import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.exception.UserNotInGroupException
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.log.log
 import nl.info.zac.search.IndexingService
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import nl.info.zac.log.log
 import nl.info.zac.zaak.exception.BetrokkeneIsAlreadyAddedToZaakException
-import java.net.URI
-import java.util.logging.Level
-import java.time.ZonedDateTime
-import java.util.UUID
 
 @Suppress("LargeClass")
 class ZaakServiceTest : BehaviorSpec({
@@ -535,6 +537,7 @@ class ZaakServiceTest : BehaviorSpec({
             val screenEventSlot = slot<ScreenEvent>()
             zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
+                every { zrcClientService.listZaakeigenschappen(it.uuid) } returns emptyList()
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
@@ -611,6 +614,7 @@ class ZaakServiceTest : BehaviorSpec({
             zakenList.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
+            every { zrcClientService.listZaakeigenschappen(openZaak.uuid) } returns emptyList()
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
             every {
                 ztcClientService.readRoltype(
@@ -734,6 +738,7 @@ class ZaakServiceTest : BehaviorSpec({
             )
             zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
+                every { zrcClientService.listZaakeigenschappen(it.uuid) } returns emptyList()
                 every {
                     ztcClientService.readRoltype(
                         it.zaaktype,
@@ -855,6 +860,7 @@ class ZaakServiceTest : BehaviorSpec({
             val screenEventSlot = slot<ScreenEvent>()
             zaken.forEach {
                 every { zrcClientService.readZaak(it.uuid) } returns it
+                every { zrcClientService.listZaakeigenschappen(it.uuid) } returns emptyList()
                 every { zrcClientService.deleteRol(it, any(), explanation) } just Runs
             }
             every { eventingService.send(capture(screenEventSlot)) } just Runs
@@ -896,6 +902,7 @@ class ZaakServiceTest : BehaviorSpec({
             zakenList.map {
                 every { zrcClientService.readZaak(it.uuid) } returns it
             }
+            every { zrcClientService.listZaakeigenschappen(openZaak.uuid) } returns emptyList()
             every { zrcClientService.deleteRol(openZaak, any(), explanation) } just Runs
             every { eventingService.send(any<ScreenEvent>()) } just Runs
             `when`(
@@ -918,6 +925,97 @@ class ZaakServiceTest : BehaviorSpec({
                         eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(closedZaak))
                         eventingService.send(ScreenEventType.ZAKEN_VRIJGEVEN.updated(screenEventResourceId))
                     }
+                }
+            }
+        }
+    }
+
+    context("Batch operations on a zaakspecifiek geautoriseerde zaak") {
+        given("one zaakspecifiek geautoriseerde and one ordinary zaak, and a screen event resource id") {
+            val markedZaak = createZaak()
+            val ordinaryZaak = createZaak()
+            val zakenList = listOf(markedZaak, ordinaryZaak)
+            zakenList.forEach { every { zrcClientService.readZaak(it.uuid) } returns it }
+            every { zrcClientService.listZaakeigenschappen(markedZaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+            )
+            every { zrcClientService.listZaakeigenschappen(ordinaryZaak.uuid) } returns emptyList()
+            every { zrcClientService.deleteRol(ordinaryZaak, any(), explanation) } just Runs
+            every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+            `when`("the release zaken function is called") {
+                zaakService.releaseZaken(
+                    zaakUUIDs = zakenList.map { it.uuid },
+                    explanation = explanation,
+                    screenEventResourceId = screenEventResourceId
+                )
+
+                then("the marked zaak keeps its behandelaar and is reported as skipped") {
+                    verify(exactly = 0) {
+                        zrcClientService.deleteRol(markedZaak, BetrokkeneTypeEnum.MEDEWERKER, explanation)
+                    }
+                    verify(exactly = 1) {
+                        eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(markedZaak))
+                    }
+                }
+
+                and("the ordinary zaak in the same batch is still released") {
+                    verify(exactly = 1) {
+                        zrcClientService.deleteRol(ordinaryZaak, BetrokkeneTypeEnum.MEDEWERKER, explanation)
+                    }
+                }
+            }
+        }
+
+        given("one zaakspecifiek geautoriseerde and one ordinary zaak, a group and a user") {
+            val zaaktypeUUID = UUID.randomUUID()
+            val zaaktype = createZaakType(uri = URI.create("https://ztc/zaaktypen/$zaaktypeUUID"))
+            val markedZaak = createZaak(zaaktypeUri = zaaktype.url)
+            val ordinaryZaak = createZaak(zaaktypeUri = zaaktype.url)
+            val zakenList = listOf(markedZaak, ordinaryZaak)
+            val user = createUser()
+            val group = createGroup()
+            val rolTypeBehandelaar = createRolType(omschrijvingGeneriek = OmschrijvingGeneriekEnum.BEHANDELAAR)
+
+            zakenList.forEach { every { zrcClientService.readZaak(it.uuid) } returns it }
+            every { zrcClientService.listZaakeigenschappen(markedZaak.uuid) } returns listOf(
+                createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+            )
+            every { zrcClientService.listZaakeigenschappen(ordinaryZaak.uuid) } returns emptyList()
+            every {
+                ztcClientService.readRoltype(
+                    ordinaryZaak.zaaktype,
+                    OmschrijvingGeneriekEnum.BEHANDELAAR,
+                    ROLTYPE_OMSCHRIJVING_BEHANDELAAR
+                )
+            } returns rolTypeBehandelaar
+            every { zrcClientService.updateRol(ordinaryZaak, any(), explanation) } just Runs
+            every { identityService.isUserInGroup(user.id, group.name) } returns true
+            every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaaktype
+            every {
+                pabcClientService.getGroupsByApplicationRoleAndZaaktype(
+                    applicationRole = "behandelaar",
+                    zaaktypeDescription = zaaktype.omschrijving
+                )
+            } returns listOf(createPabcGroupRepresentation(name = group.name, description = group.description))
+            every { eventingService.send(any<ScreenEvent>()) } just Runs
+
+            `when`("the assign zaken function is called") {
+                zaakService.assignZaken(
+                    zaakUUIDs = zakenList.map { it.uuid },
+                    explanation = explanation,
+                    group = group,
+                    user = user,
+                    screenEventResourceId = screenEventResourceId
+                )
+
+                then("the marked zaak keeps its behandelaar and is reported as skipped") {
+                    verify(exactly = 0) { zrcClientService.updateRol(markedZaak, any(), explanation) }
+                    verify(exactly = 1) { eventingService.send(ScreenEventType.ZAAK_ROLLEN.skipped(markedZaak)) }
+                }
+
+                and("the ordinary zaak in the same batch is still assigned") {
+                    verify(exactly = 2) { zrcClientService.updateRol(ordinaryZaak, any(), explanation) }
                 }
             }
         }

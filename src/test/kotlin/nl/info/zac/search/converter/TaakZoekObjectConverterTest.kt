@@ -5,6 +5,7 @@
 package nl.info.zac.search.converter
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -13,11 +14,15 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
+import java.util.UUID
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
+import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.model.createZaakEigenschap
+import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
@@ -25,23 +30,25 @@ import nl.info.zac.app.task.model.TaakStatus
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
 import nl.info.zac.identity.model.createUser
+import nl.info.zac.search.model.createZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import org.flowable.identitylink.api.IdentityLinkInfo
 import org.flowable.identitylink.api.IdentityLinkType
 import org.flowable.task.api.TaskInfo
-import java.util.UUID
 
 class TaakZoekObjectConverterTest : BehaviorSpec({
     val identityService = mockk<IdentityService>()
     val flowableTaskService = mockk<FlowableTaskService>()
     val ztcClientService = mockk<ZtcClientService>()
     val zrcClientService = mockk<ZrcClientService>()
+    val zgwApiService = mockk<ZgwApiService>()
 
     val taakZoekObjectConverter = TaakZoekObjectConverter(
         identityService = identityService,
         flowableTaskService = flowableTaskService,
         ztcClientService = ztcClientService,
-        zrcClientService = zrcClientService
+        zrcClientService = zrcClientService,
+        zgwApiService = zgwApiService
     )
 
     mockkStatic(TaakVariabelenService::class)
@@ -102,6 +109,9 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns listOf(
                 createZaakEigenschap(naam = "ZAAK_GEAUTORISEERD", waarde = "true")
             )
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns createRolMedewerker(
+                medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeZaakBehandelaarId")
+            )
 
             every { taskInfo.name } returns "fakeTaskName"
             every { taskInfo.description } returns "fakeToelichting"
@@ -141,6 +151,10 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
                     taakZoekObject.groepID shouldBe "fakeGroupId"
                     taakZoekObject.isZaakspecifiekGeautoriseerd shouldBe true
                 }
+
+                and("the behandelaar of the zaak the taak belongs to is recorded separately from the taak's own") {
+                    taakZoekObject.zaakGeautoriseerdeMedewerkers shouldBe listOf("fakeZaakBehandelaarId")
+                }
             }
         }
 
@@ -159,6 +173,7 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every { zrcClientService.readZaak(zaakUUID) } returns zaak
             every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaakType
             every { zrcClientService.listZaakeigenschappen(zaakUUID) } returns emptyList()
+            every { zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak) } returns null
 
             every { taskInfo.name } returns "fakeTaskName"
             every { taskInfo.description } returns null
@@ -178,6 +193,10 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
                     taakZoekObject.groepNaam.shouldBeNull()
                     taakZoekObject.isToegekend shouldBe false
                     taakZoekObject.isZaakspecifiekGeautoriseerd shouldBe false
+                }
+
+                and("no zaak behandelaar is recorded for a zaak that has none") {
+                    taakZoekObject.zaakGeautoriseerdeMedewerkers.shouldBeEmpty()
                 }
             }
         }
@@ -204,7 +223,9 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
             every { taskInfo.identityLinks } returns emptyList()
 
             `when`("convert is called with the zaak supplied directly") {
-                val taakZoekObject = taakZoekObjectConverter.convert(fakeTaskId, zaak) { true }
+                val taakZoekObject = taakZoekObjectConverter.convert(fakeTaskId, zaak) {
+                    createZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = true)
+                }
 
                 then("the taak zoek object still resolves its zaak fields from the supplied zaak") {
                     taakZoekObject.zaakUUID shouldBe zaak.uuid.toString()

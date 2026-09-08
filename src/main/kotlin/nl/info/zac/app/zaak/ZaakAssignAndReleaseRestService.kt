@@ -17,15 +17,21 @@ import jakarta.ws.rs.core.MediaType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.zrc.ZrcClientService
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isOpen
+import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.app.zaak.converter.RestZaakConverter
 import nl.info.zac.app.zaak.converter.RestZaakOverzichtConverter
-import nl.info.zac.app.zaak.model.RestZakenVerdeelGegevens
-import nl.info.zac.app.zaak.model.RestZakenVrijgevenGegevens
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException
+import nl.info.zac.app.zaak.exception.ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException
 import nl.info.zac.app.zaak.model.RestZaak
 import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
+import nl.info.zac.app.zaak.model.RestZakenVerdeelGegevens
+import nl.info.zac.app.zaak.model.RestZakenVrijgevenGegevens
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
@@ -52,7 +58,9 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
     private val policyService: PolicyService,
     private val restZaakConverter: RestZaakConverter,
     private val restZaakOverzichtConverter: RestZaakOverzichtConverter,
-    private val zaakService: ZaakService
+    private val zaakService: ZaakService,
+    private val zgwApiService: ZgwApiService,
+    private val zrcClientService: ZrcClientService
 ) {
     /**
      * Assign one or multiple zaken in a batch operation.
@@ -89,6 +97,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         assertPolicy(zaakRechten.toekennen)
+        checkBehandelaarChangeAllowed(zaak, restZaakAssignmentData.assigneeUserName)
         zaakService.assignZaak(
             zaak,
             restZaakAssignmentData.groupId,
@@ -107,6 +116,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         assertPolicy(zaakRechten.toekennen)
+        checkBehandelaarChangeAllowed(zaak, loggedInUser.id)
         zaakService.assignZaak(
             zaak,
             restZaakAssignmentToLoggedInUserData.groupId,
@@ -127,6 +137,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         val (zaak, zaakType) = zaakService.readZaakAndZaakTypeByZaakUUID(restZaakAssignmentToLoggedInUserData.zaakUUID)
         val zaakRechten = policyService.readZaakRechten(zaak, zaakType, loggedInUser)
         assertPolicy(zaak.isOpen() && zaakRechten.toekennen)
+        checkBehandelaarChangeAllowed(zaak, loggedInUser.id)
 
         zaakService.assignZaak(
             zaak = zaak,
@@ -153,6 +164,24 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
                 explanation = restZakenVrijgevenGegevens.reden,
                 screenEventResourceId = restZakenVrijgevenGegevens.screenEventResourceId
             )
+        }
+    }
+
+    /**
+     * A zaakspecifiek geautoriseerde zaak keeps its behandelaar for as long as the marking stands, so that
+     * the behandelaar who is only reachable through the current-behandelaar exception cannot be locked out
+     * of the zaak. Assigning the zaak to the behandelaar it already has is not a change and is allowed, so
+     * that the group can still be changed.
+     */
+    private fun checkBehandelaarChangeAllowed(zaak: Zaak, newBehandelaarId: String?) {
+        if (!zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)) return
+        val currentBehandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+            ?.betrokkeneIdentificatie
+            ?.identificatie
+        if (newBehandelaarId.isNullOrEmpty()) {
+            if (currentBehandelaarId != null) throw ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException()
+        } else if (newBehandelaarId != currentBehandelaarId) {
+            throw ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException()
         }
     }
 }
