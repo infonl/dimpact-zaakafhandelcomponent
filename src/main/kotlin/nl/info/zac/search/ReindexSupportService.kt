@@ -72,7 +72,7 @@ class ReindexSupportService @Inject constructor(
         private const val TAKEN_MAX_RESULTS = 100
         private const val PAGE_CONVERSION_PARALLELISM = 8
 
-        private val LOG = Logger.getLogger(IndexingService::class.java.name)
+        private val LOG = Logger.getLogger(ReindexSupportService::class.java.name)
     }
 
     internal val pageConversionDispatcher = Dispatchers.IO.limitedParallelism(PAGE_CONVERSION_PARALLELISM)

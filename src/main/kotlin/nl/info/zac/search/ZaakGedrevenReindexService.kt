@@ -49,7 +49,7 @@ class ZaakGedrevenReindexService @Inject constructor(
     private val taakZoekObjectConverter: TaakZoekObjectConverter
 ) {
     companion object {
-        private val LOG = Logger.getLogger(IndexingService::class.java.name)
+        private val LOG = Logger.getLogger(ZaakGedrevenReindexService::class.java.name)
     }
 
     private data class ZakenTakenDocumentenCounts(
