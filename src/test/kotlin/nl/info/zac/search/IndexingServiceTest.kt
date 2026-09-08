@@ -2004,7 +2004,6 @@ class IndexingServiceTest : BehaviorSpec({
             ctx.zrcClientService.listZakenUuids(match<ZaakListParameters> { it.page == 1 })
         } returns Results(listOf(ZaakUuid(zaak.uuid)), 1)
         every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
-        // the zaak's open taak is never listed - see the "TAAK is left untouched" assertion below
         every { ctx.flowableTaskService.countOpenTasks() } throws RuntimeException("fake taak count failure")
         every { ctx.zrcClientService.listZaakinformatieobjecten(zaak) } returns listOf(zaakInformatieobject)
         every {
@@ -2067,7 +2066,6 @@ class IndexingServiceTest : BehaviorSpec({
         every { ctx.zrcClientService.readZaak(zaak.uuid) } returns zaak
         every { ctx.flowableTaskService.listOpenTasksForZaak(zaak.uuid) } returns listOf(openTask)
         every { ctx.flowableTaskService.countOpenTasks() } returns 1
-        // the zaak's linked document is never listed - see the "DOCUMENT is left untouched" assertion below
         every {
             ctx.drcClientService.listEnkelvoudigInformatieObjecten(any<EnkelvoudigInformatieobjectListParameters>())
         } throws RuntimeException("fake informatieobjecten count failure")
