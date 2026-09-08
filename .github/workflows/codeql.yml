@@ -104,7 +104,7 @@ jobs:
       contents: read
       checks: read
       pull-requests: read
-    if: ${{ needs.paths-filter.outputs.changes-requiring-build == 'true' && github.event_name == 'pull_request' }}
+    if: ${{ always() && needs.paths-filter.outputs.changes-requiring-build == 'true' && github.event_name == 'pull_request' }}
     steps:
       - name: Check CodeQL Status
         env:

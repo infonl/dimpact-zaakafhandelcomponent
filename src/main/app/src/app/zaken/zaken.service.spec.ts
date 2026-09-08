@@ -77,6 +77,37 @@ describe("ZaakService", () => {
     });
   });
 
+  describe("invalidateHistorie", () => {
+    it("invalidates the historie of the zaak it is given", () => {
+      const invalidateQueries = jest.spyOn(
+        testQueryClient,
+        "invalidateQueries",
+      );
+
+      service.invalidateHistorie("fakeZaakUuid1");
+
+      expect(invalidateQueries).toHaveBeenCalledWith(
+        {
+          queryKey: service.listHistorieVoorZaakQuery("fakeZaakUuid1").queryKey,
+        },
+        expect.anything(),
+      );
+    });
+
+    it("leaves a refetch that is already running alone, because the zaak view invalidates repeatedly", () => {
+      const invalidateQueries = jest.spyOn(
+        testQueryClient,
+        "invalidateQueries",
+      );
+
+      service.invalidateHistorie("fakeZaakUuid1");
+
+      expect(invalidateQueries).toHaveBeenCalledWith(expect.anything(), {
+        cancelRefetch: false,
+      });
+    });
+  });
+
   describe("deleteInitiator", () => {
     it("addresses the zaak by its uuid and sends the reden as the body", async () => {
       const request = service.deleteInitiator().mutationFn!(
