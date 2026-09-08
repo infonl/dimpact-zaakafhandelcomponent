@@ -90,23 +90,23 @@ class SessionRegistry {
      */
     fun listAllSessions(): Set<Session> = Collections.unmodifiableSet(allSessions)
 
-    private fun glob(event: ScreenEvent): List<ScreenEvent> {
-        if (event.opcode == Opcode.ANY) {
-            val anyOpcode = Opcode.any().toMutableSet()
-            // There will not be any websocket subscriptions with this opcode, so skip it in globbing.
-            anyOpcode.remove(Opcode.CREATED)
-            if (event.objectType == ScreenEventType.ANY) {
-                return anyOpcode.flatMap { operation ->
+    private fun glob(event: ScreenEvent): List<ScreenEvent> =
+        when {
+            event.opcode == Opcode.ANY && event.objectType == ScreenEventType.ANY ->
+                nonCreatedOpcodes().flatMap { operation ->
                     ScreenEventType.any().map { objectType -> ScreenEvent(operation, objectType, event.objectId) }
                 }
-            }
-            return anyOpcode.map { operation -> ScreenEvent(operation, event.objectType, event.objectId) }
+            event.opcode == Opcode.ANY ->
+                nonCreatedOpcodes().map { operation -> ScreenEvent(operation, event.objectType, event.objectId) }
+            event.objectType == ScreenEventType.ANY ->
+                ScreenEventType.any().map { objectType -> ScreenEvent(event.opcode, objectType, event.objectId) }
+            else -> listOf(event)
         }
-        if (event.objectType == ScreenEventType.ANY) {
-            return ScreenEventType.any().map { objectType -> ScreenEvent(event.opcode, objectType, event.objectId) }
-        }
-        return listOf(event)
-    }
+
+    /**
+     * There will not be any websocket subscriptions with opcode CREATED, so it is excluded here.
+     */
+    private fun nonCreatedOpcodes(): Set<Opcode> = Opcode.any().toMutableSet().apply { remove(Opcode.CREATED) }
 
     /**
      * This method is applied to all event arguments to make sure that the objectId being quoted (by Angular?) doesn't cause any problems.
