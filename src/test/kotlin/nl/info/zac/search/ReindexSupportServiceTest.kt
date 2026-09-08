@@ -55,7 +55,7 @@ private data class ReindexSupportServiceTestContext(
 )
 
 private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
-    val logger = Logger.getLogger(IndexingService::class.java.name)
+    val logger = Logger.getLogger(ReindexSupportService::class.java.name)
     val records = mutableListOf<LogRecord>()
     val handler = object : Handler() {
         override fun publish(record: LogRecord) {

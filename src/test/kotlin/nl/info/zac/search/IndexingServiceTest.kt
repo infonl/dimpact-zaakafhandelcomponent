@@ -79,8 +79,17 @@ private data class TestContext(
     val testDispatcher: TestDispatcher
 )
 
+/**
+ * Captures the log records emitted by [IndexingService.reindexAll]/[IndexingService.reindexReserved] and
+ * their collaborators, which log under their own class's logger since each of [IndexingService],
+ * [ReindexSupportService] and [ZaakGedrevenReindexService] owns its own `LOG`.
+ */
 private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
-    val logger = Logger.getLogger(IndexingService::class.java.name)
+    val loggers = listOf(
+        Logger.getLogger(IndexingService::class.java.name),
+        Logger.getLogger(ReindexSupportService::class.java.name),
+        Logger.getLogger(ZaakGedrevenReindexService::class.java.name)
+    )
     val records = mutableListOf<LogRecord>()
     val handler = object : Handler() {
         override fun publish(record: LogRecord) {
@@ -89,11 +98,11 @@ private fun captureLogRecords(block: () -> Unit): List<LogRecord> {
         override fun flush() = Unit
         override fun close() = Unit
     }
-    logger.addHandler(handler)
+    loggers.forEach { it.addHandler(handler) }
     try {
         block()
     } finally {
-        logger.removeHandler(handler)
+        loggers.forEach { it.removeHandler(handler) }
     }
     return records
 }
