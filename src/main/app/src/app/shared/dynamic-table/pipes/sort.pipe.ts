@@ -16,6 +16,6 @@ export class SortPipe implements PipeTransform {
     value: T[],
     property: "key" | "value",
   ) {
-    return value.sort((a, b) => a[property].localeCompare(b[property]));
+    return [...value].sort((a, b) => a[property].localeCompare(b[property]));
   }
 }
