@@ -226,7 +226,7 @@ class MailRestServiceTest : BehaviorSpec({
                     "verzender": "sender@example.com",
                     "ontvanger": "$receiverMail",
                     "onderwerp": "subject",
-                    "body": "<p>{ZAAK_TYPE}</p><p>{ZAAKTYPE_OMSCHRIJVING_GENERIEK}</p>",
+                    "body": "<p>{ZAAKTYPE_OMSCHRIJVING}</p><p>{ZAAKTYPE_OMSCHRIJVING_GENERIEK}</p>",
                     "bijlagen": "",
                     "vertrouwelijkheidaanduiding": "$VERTROUWELIJKHEIDAANDUIDING_OPENBAAR"
                 }
@@ -250,7 +250,7 @@ class MailRestServiceTest : BehaviorSpec({
                 with(receivedMails.getJSONObject(receivedMails.length() - 1).getString("mimeMessage")) {
                     shouldContain(ZAAKTYPE_CMMN_TEST_2_DESCRIPTION)
                     shouldContain(ZAAKTYPE_CMMN_TEST_2_DESCRIPTION_GENERIC)
-                    shouldNotContain("{ZAAK_TYPE}")
+                    shouldNotContain("{ZAAKTYPE_OMSCHRIJVING}")
                     shouldNotContain("{ZAAKTYPE_OMSCHRIJVING_GENERIEK}")
                 }
             }

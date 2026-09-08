@@ -262,7 +262,7 @@ class ZacClient(
                     "variabelen": [
                       "GEMEENTE",
                       "ZAAK_NUMMER",
-                      "ZAAK_TYPE",
+                      "ZAAKTYPE_OMSCHRIJVING",
                       "ZAAKTYPE_OMSCHRIJVING_GENERIEK",
                       "ZAAK_STATUS",
                       "ZAAK_REGISTRATIEDATUM",

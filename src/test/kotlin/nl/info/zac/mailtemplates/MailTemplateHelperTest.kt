@@ -135,7 +135,7 @@ class MailTemplateHelperTest : BehaviorSpec({
 
             `when`("the variables are resolved with a text containing placeholders") {
                 val resolvedText = mailTemplateHelper.resolveZaakVariables(
-                    "fakeText, {ZAAK_NUMMER}, {ZAAK_URL}, {ZAAK_TYPE}, {ZAAK_STATUS}, {ZAAK_STARTDATUM}, " +
+                    "fakeText, {ZAAK_NUMMER}, {ZAAK_URL}, {ZAAKTYPE_OMSCHRIJVING}, {ZAAK_STATUS}, {ZAAK_STARTDATUM}, " +
                         "{ZAAK_BEHANDELAAR_GROEP}, {ZAAK_BEHANDELAAR_MEDEWERKER}, {ZAAK_INITIATOR}",
                     zaak,
                     "userName"
