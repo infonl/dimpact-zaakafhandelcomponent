@@ -53,6 +53,8 @@ interface SmartDocumentsClient {
     @Consumes(MediaType.TEXT_HTML)
     fun downloadFile(
         @QueryParam("id") smartDocumentsId: String,
-        @QueryParam("format") documentFormat: String,
+        // the document format is optional
+        // if it is not specified, the document output format configured in SmartDocuments ('document uitvoer') is used instead
+        @QueryParam("format") documentFormat: String? = null,
     ): DownloadedFile
 }
