@@ -22,12 +22,15 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { injectQuery } from "@tanstack/angular-query-experimental";
+import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
 import {
   EMPTY,
+  from,
+  lastValueFrom,
   map,
   Observable,
+  of,
   ReplaySubject,
   Subject,
   switchMap,
@@ -118,8 +121,9 @@ export class InformatieObjectCreateAttendedComponent
     taskId: this.formBuilder.control<string | null>(null),
   });
 
-  protected templateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[] =
-    [];
+  protected templateGroups: Observable<
+    GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]
+  > = of([]);
   protected templates: GeneratedType<"RestMappedSmartDocumentsTemplate">[] = [];
 
   private readonly loggedInUserQuery = injectQuery(() =>
@@ -138,6 +142,7 @@ export class InformatieObjectCreateAttendedComponent
     private readonly translateService: TranslateService,
     private readonly dialog: MatDialog,
     private readonly formBuilder: FormBuilder,
+    private readonly queryClient: QueryClient,
   ) {
     effect(() => {
       this.form.controls.author.setValue(
@@ -153,8 +158,20 @@ export class InformatieObjectCreateAttendedComponent
     this.form.controls.informationObjectType.disable();
     this.form.controls.confidentiality.disable();
 
-    const templateGroupsFetcher: Observable<typeof this.templateGroups> =
-      this.smartDocumentsService.getTemplatesMapping(this.zaak.zaaktype.uuid);
+    const templateGroupsFetcher: Observable<
+      GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]
+    > = from(
+      this.queryClient.ensureQueryData({
+        queryKey: ["smartDocumentsTemplatesMapping", this.zaak.zaaktype.uuid],
+        queryFn: () =>
+          lastValueFrom(
+            this.smartDocumentsService.getTemplatesMapping(
+              this.zaak.zaaktype.uuid,
+            ),
+          ),
+      }),
+    );
+    this.templateGroups = templateGroupsFetcher;
 
     this.form.controls.templateGroup.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -223,8 +240,6 @@ export class InformatieObjectCreateAttendedComponent
     templateGroupsFetcher
       .pipe(takeUntil(this.destroy$))
       .subscribe((templateGroups) => {
-        this.templateGroups = templateGroups;
-
         if (this.smartDocumentsGroupId !== undefined) {
           const smartDocumentsTemplateGroup = templateGroups.find(
             ({ id }) => id === this.smartDocumentsGroupId,
