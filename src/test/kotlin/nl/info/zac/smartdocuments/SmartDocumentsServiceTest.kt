@@ -86,15 +86,17 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         "abcd.docx" to "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "abcd.pdf" to "application/pdf",
         "abcd.odt" to "application/vnd.oasis.opendocument.text"
-    ).forEach { (fileName, expectedOutputFormat) ->
-        given("SmartDocuments is enabled and a document named '$fileName' is generated and ready for download") {
+    ).forEach { (generatedFileName, expectedOutputFormat) ->
+        given(
+            "SmartDocuments is enabled and a document named '$generatedFileName' is generated and ready for download"
+        ) {
             val smartDocumentId = "sdId"
             val downloadedFile = mockk<DownloadedFile>()
             val body = "body content".toByteArray(Charsets.UTF_8)
 
             every { smartDocumentsClient.get().downloadFile(smartDocumentId, null) } returns downloadedFile
             every { downloadedFile.body() } returns body
-            every { downloadedFile.contentDisposition() } returns "attachment; filename=\"$fileName\""
+            every { downloadedFile.contentDisposition() } returns "attachment; filename=\"$generatedFileName\""
 
             val smartDocumentsService = SmartDocumentsService(
                 smartDocumentsClient = smartDocumentsClient,
@@ -108,12 +110,11 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             `when`("the 'download file' method is called") {
                 val file = smartDocumentsService.downloadDocument(smartDocumentId)
 
-then("no output format is requested and the file's format is derived from its extension") {
-    with(file) {
-        this.fileName shouldBe fileName
-        outputFormat shouldBe expectedOutputFormat
-        document.data shouldBe body.toBase64String()
-    }
+                then("no output format is requested and the file's format is derived from its extension") {
+                    with(file) {
+                        fileName shouldBe generatedFileName
+                        outputFormat shouldBe expectedOutputFormat
+                        document.data shouldBe body.toBase64String()
                     }
                     verify(exactly = 1) { smartDocumentsClient.get().downloadFile(smartDocumentId, null) }
                 }
