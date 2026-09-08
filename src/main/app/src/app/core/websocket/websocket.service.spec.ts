@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { EnvironmentInjector, createEnvironmentInjector } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
@@ -65,7 +66,6 @@ describe(WebsocketService.name, () => {
 
   afterEach(() => {
     jest.useRealTimers();
-    jest.clearAllMocks();
   });
 
   it("opens a single connection on construction", () => {
@@ -127,12 +127,18 @@ describe(WebsocketService.name, () => {
   });
 
   it("does not reconnect after the service is destroyed", () => {
-    service.addListener(Opcode.UPDATED, ObjectType.ZAAK, "zaak-1", jest.fn());
+    const childInjector = createEnvironmentInjector(
+      [WebsocketService],
+      TestBed.inject(EnvironmentInjector),
+    );
+    const scopedSocketIndex = sockets.length;
+    const scopedService = childInjector.get(WebsocketService);
+    scopedService.addListener(Opcode.UPDATED, ObjectType.ZAAK, "zaak-1", jest.fn());
 
-    service.ngOnDestroy();
-    sockets[0].complete();
+    childInjector.destroy();
+    sockets[scopedSocketIndex].complete();
     jest.advanceTimersByTime(3000);
 
-    expect(sockets.length).toBe(1);
+    expect(sockets.length).toBe(scopedSocketIndex + 1);
   });
 });

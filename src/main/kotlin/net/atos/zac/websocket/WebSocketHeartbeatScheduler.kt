@@ -23,9 +23,8 @@ import java.util.logging.Logger
 
 /**
  * Periodically sends a WebSocket ping frame to every open connection, so that a proxy or load balancer between
- * the browser and this server keeps seeing traffic on an otherwise idle connection and does not close it because
- * of its own idle timeout. Browsers reply to a ping frame with a pong frame automatically, without any
- * involvement of the client-side application code.
+ * the client and this server keeps seeing traffic on an otherwise idle connection and does not close it because
+ * of its own idle timeout.
  */
 @ApplicationScoped
 @AllOpen

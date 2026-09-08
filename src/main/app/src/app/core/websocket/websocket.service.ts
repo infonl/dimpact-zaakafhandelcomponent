@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable, OnDestroy, inject } from "@angular/core";
+import { DestroyRef, Injectable, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, Subject, forkJoin, throwError, timer } from "rxjs";
-import { catchError, switchMap, takeUntil, timeout } from "rxjs/operators";
+import { catchError, switchMap, timeout } from "rxjs/operators";
 import { WebSocketSubject, webSocket } from "rxjs/webSocket";
 import { IdentityService } from "../../identity/identity.service";
 import { UtilService } from "../service/util.service";
@@ -33,7 +34,7 @@ type SocketMessage = {
 @Injectable({
   providedIn: "root",
 })
-export class WebsocketService implements OnDestroy {
+export class WebsocketService {
   // This must be bigger than the SECONDS_TO_DELAY defined in ScreenEventObserver.java
   private static DEFAULT_SUSPENSION_TIMEOUT = 5; // seconds
 
@@ -56,9 +57,7 @@ export class WebsocketService implements OnDestroy {
     SocketMessage | SubscriptionMessage
   > | null = null;
 
-  private isDestroyed = false;
-
-  private destroyed$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   private listeners: Record<string, Record<string, EventCallback>> = {};
 
@@ -74,13 +73,7 @@ export class WebsocketService implements OnDestroy {
     private utilService: UtilService,
   ) {
     this.receive(this.URL);
-  }
-
-  ngOnDestroy(): void {
-    this.isDestroyed = true;
-    this.destroyed$.next();
-    this.destroyed$.complete();
-    this.close();
+    this.destroyRef.onDestroy(() => this.close());
   }
 
   private open(
@@ -108,7 +101,7 @@ export class WebsocketService implements OnDestroy {
 
   private receive(url: string) {
     this.open(url)
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (message) => this.onMessage(message as SocketMessage),
         error: (error) => {
@@ -120,15 +113,12 @@ export class WebsocketService implements OnDestroy {
   }
 
   private reconnect(url: string) {
-    if (this.isDestroyed) {
-      return;
-    }
     console.warn(
       `Websocket verbinding gesloten, opnieuw verbinden over ${WebsocketService.RECONNECT_DELAY_MS}ms`,
     );
     this.connection$ = null;
     timer(WebsocketService.RECONNECT_DELAY_MS)
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.receive(url));
   }
 
