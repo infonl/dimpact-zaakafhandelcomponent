@@ -33,8 +33,8 @@ const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_1_NAME = "group 2 template 1"
 const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_ID = "273C2707E5A844699B653C87ACFD618F"
 const val SMART_DOCUMENTS_GROUP_2_TEMPLATE_2_NAME = "group 2 template 2"
 
-const val SMART_DOCUMENTS_FILE_ID = "fakeFileId"
-const val SMART_DOCUMENTS_FILE_TITLE = "Smart Documents file"
+const val SMART_DOCUMENTS_DOCX_FILE_ID = "fakeFileId"
+const val SMART_DOCUMENTS_DOCX_FILE_TITLE = "Smart Documents file"
 const val SMART_DOCUMENTS_PDF_FILE_ID = "fakePdfFileId"
 const val SMART_DOCUMENTS_PDF_FILE_TITLE = "Smart Documents PDF file"
 

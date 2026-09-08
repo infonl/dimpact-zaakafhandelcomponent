@@ -26,7 +26,7 @@ import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
 import nl.info.zac.itest.config.ItestConfiguration.START_DATE
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.TEXT_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAAK_OMSCHRIJVING
@@ -256,7 +256,7 @@ class SignaleringRestServiceTest : BehaviorSpec({
             val response = zacClient.createEnkelvoudigInformatieobjectForZaak(
                 zaakUUID = zaakUUID,
                 fileName = TEST_TXT_FILE_NAME,
-                fileMediaType = TEXT_MIME_TYPE,
+                fileMediaType = TEXT_MEDIA_TYPE,
                 vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
                 testUser = BEHANDELAAR_1,
             )

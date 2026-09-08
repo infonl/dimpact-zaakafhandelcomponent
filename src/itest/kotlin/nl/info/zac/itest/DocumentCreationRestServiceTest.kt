@@ -20,12 +20,12 @@ import nl.info.zac.itest.config.GROUP_BEHANDELAARS_TEST_1
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.FAKE_AUTHOR_NAME
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_EXTERNAL_URI
-import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
-import nl.info.zac.itest.config.ItestConfiguration.WORD_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.PDF_MEDIA_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.DOCX_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_3_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
-import nl.info.zac.itest.config.SMART_DOCUMENTS_FILE_ID
-import nl.info.zac.itest.config.SMART_DOCUMENTS_FILE_TITLE
+import nl.info.zac.itest.config.SMART_DOCUMENTS_DOCX_FILE_ID
+import nl.info.zac.itest.config.SMART_DOCUMENTS_DOCX_FILE_TITLE
 import nl.info.zac.itest.config.SMART_DOCUMENTS_MOCK_BASE_URI
 import nl.info.zac.itest.config.SMART_DOCUMENTS_PDF_FILE_ID
 import nl.info.zac.itest.config.SMART_DOCUMENTS_PDF_FILE_TITLE
@@ -108,7 +108,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "zaakUuid" to zaakUuid,
                         "smartDocumentsTemplateGroupId" to SMART_DOCUMENTS_ROOT_GROUP_ID,
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
-                        "title" to SMART_DOCUMENTS_FILE_TITLE,
+                        "title" to SMART_DOCUMENTS_DOCX_FILE_TITLE,
                         "author" to FAKE_AUTHOR_NAME,
                         "creationDate" to ZonedDateTime.now()
                     )
@@ -140,7 +140,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                         "taskUuid" to taskId,
                         "smartDocumentsTemplateGroupId" to SMART_DOCUMENTS_ROOT_GROUP_ID,
                         "smartDocumentsTemplateId" to SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID,
-                        "title" to SMART_DOCUMENTS_FILE_TITLE,
+                        "title" to SMART_DOCUMENTS_DOCX_FILE_TITLE,
                         "description" to "document description",
                         "author" to FAKE_AUTHOR_NAME,
                         "creationDate" to ZonedDateTime.now()
@@ -190,7 +190,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
-                    "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                    "&title=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
@@ -205,7 +205,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = FormBody.Builder()
-                    .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
+                    .add("sdDocument", SMART_DOCUMENTS_DOCX_FILE_ID)
                     .build(),
                 testUser = BEHANDELAAR_1
             )
@@ -219,12 +219,12 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_SEE_OTHER
                 locationHeader shouldContain "static/smart-documents-result.html" +
                     "?zaak=$zaakIdentification" +
-                    "&doc=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                    "&doc=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
                     "&result=success"
             }
 
             then("the document is stored with the Word media type SmartDocuments generated it in") {
-                fetchStoredDocumentFormaat(zaakUuid, SMART_DOCUMENTS_FILE_TITLE) shouldBe WORD_MIME_TYPE
+                fetchStoredDocumentFormaat(zaakUuid, SMART_DOCUMENTS_DOCX_FILE_TITLE) shouldBe DOCX_MEDIA_TYPE
             }
         }
     }
@@ -268,7 +268,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             }
 
             then("the document is stored with the PDF media type SmartDocuments generated it in") {
-                fetchStoredDocumentFormaat(zaakUuid, SMART_DOCUMENTS_PDF_FILE_TITLE) shouldBe PDF_MIME_TYPE
+                fetchStoredDocumentFormaat(zaakUuid, SMART_DOCUMENTS_PDF_FILE_TITLE) shouldBe PDF_MEDIA_TYPE
             }
         }
     }
@@ -278,7 +278,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/" +
                     "zaak/$zaakUuid/task/$taskId" +
-                    "?title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                    "?title=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
                     "&description=A+file" +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&userName=" + BEHANDELAAR_1.displayName.urlEncode() +
@@ -295,7 +295,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                     "multipart/form-data"
                 ),
                 requestBody = FormBody.Builder()
-                    .add("sdDocument", SMART_DOCUMENTS_FILE_ID)
+                    .add("sdDocument", SMART_DOCUMENTS_DOCX_FILE_ID)
                     .build(),
                 testUser = BEHANDELAAR_1
             )
@@ -310,7 +310,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 locationHeader shouldContain "static/smart-documents-result.html" +
                     "?zaak=$zaakIdentification" +
                     "&taak=$taskId" +
-                    "&doc=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                    "&doc=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
                     "&result=success"
             }
         }
@@ -321,7 +321,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
             val endpointUrl =
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/zaak/$zaakUuid" +
                     "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
-                    "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                    "&title=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
@@ -348,7 +348,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 response.code shouldBe HTTP_SEE_OTHER
                 locationHeader shouldContain "static/smart-documents-result.html" +
                     "?zaak=$zaakIdentification" +
-                    "&doc=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                    "&doc=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
                     "&result=cancelled"
             }
         }
@@ -360,7 +360,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 "$ZAC_API_URI/document-creation/smartdocuments/callback/" +
                     "zaak/$zaakUuid/task/$taskId" +
                     "?userName=" + BEHANDELAAR_1.displayName.urlEncode() +
-                    "&title=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                    "&title=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
                     "&creationDate=" + ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME).urlEncode() +
                     "&templateGroupId=$SMART_DOCUMENTS_ROOT_GROUP_ID" +
                     "&templateId=$SMART_DOCUMENTS_ROOT_TEMPLATE_1_ID"
@@ -388,7 +388,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 locationHeader shouldContain "static/smart-documents-result.html" +
                     "?zaak=$zaakIdentification" +
                     "&taak=$taskId" +
-                    "&doc=" + SMART_DOCUMENTS_FILE_TITLE.urlEncode() +
+                    "&doc=" + SMART_DOCUMENTS_DOCX_FILE_TITLE.urlEncode() +
                     "&result=cancelled"
             }
         }
