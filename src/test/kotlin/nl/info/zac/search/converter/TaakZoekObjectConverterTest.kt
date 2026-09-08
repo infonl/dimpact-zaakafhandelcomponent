@@ -12,6 +12,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
+import io.mockk.verify
 import net.atos.zac.flowable.task.FlowableTaskService
 import net.atos.zac.flowable.task.TaakVariabelenService
 import net.atos.zac.flowable.util.TaskUtil
@@ -177,6 +178,42 @@ class TaakZoekObjectConverterTest : BehaviorSpec({
                     taakZoekObject.groepNaam.shouldBeNull()
                     taakZoekObject.isToegekend shouldBe false
                     taakZoekObject.isZaakspecifiekGeautoriseerd shouldBe false
+                }
+            }
+        }
+
+        given("an already-retrieved zaak, converted via the zaak-driven combined reindex entry point") {
+            val taskInfo = mockk<TaskInfo>()
+            val zaak = createZaak()
+            val zaakType = createZaakType(uri = zaak.zaaktype)
+
+            every { flowableTaskService.readTask(fakeTaskId) } returns taskInfo
+            every { TaakVariabelenService.readZaakUUID(taskInfo) } returns zaak.uuid
+            every { TaakVariabelenService.readZaakIdentificatie(taskInfo) } returns "fakeZaakIdentificatie"
+            every { TaakVariabelenService.readZaaktypeUUID(taskInfo) } returns zaaktypeUUID
+            every { TaakVariabelenService.readTaskData(taskInfo) } returns mapOf()
+            every { TaakVariabelenService.readTaskInformation(taskInfo) } returns mapOf()
+            every { TaskUtil.getTaakStatus(taskInfo) } returns TaakStatus.NIET_TOEGEKEND
+            every { ztcClientService.readZaaktype(zaaktypeUUID) } returns zaakType
+            every { taskInfo.name } returns "fakeTaskName"
+            every { taskInfo.description } returns null
+            every { taskInfo.createTime } returns null
+            every { taskInfo.claimTime } returns null
+            every { taskInfo.dueDate } returns null
+            every { taskInfo.assignee } returns null
+            every { taskInfo.identityLinks } returns emptyList()
+
+            `when`("convert is called with the zaak supplied directly") {
+                val taakZoekObject = taakZoekObjectConverter.convert(fakeTaskId, zaak) { true }
+
+                then("the taak zoek object still resolves its zaak fields from the supplied zaak") {
+                    taakZoekObject.zaakUUID shouldBe zaak.uuid.toString()
+                    taakZoekObject.zaakOmschrijving shouldBe zaak.omschrijving
+                    taakZoekObject.isZaakspecifiekGeautoriseerd shouldBe true
+                }
+
+                then("the zaak is never read again from the ZRC API, since it was already supplied") {
+                    verify(exactly = 0) { zrcClientService.readZaak(any<UUID>()) }
                 }
             }
         }
