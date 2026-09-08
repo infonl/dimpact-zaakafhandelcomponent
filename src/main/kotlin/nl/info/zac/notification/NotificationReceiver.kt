@@ -332,13 +332,8 @@ class NotificationReceiver @Inject constructor(
                     else -> {}
                 }
             }
-            if (notification.action == Action.DELETE) {
-                when (notification.resource) {
-                    Resource.INFORMATIEOBJECT -> inboxDocumentService.deleteIfExists(
-                        notification.resourceUrl.extractUuid()
-                    )
-                    else -> {}
-                }
+            if (notification.action == Action.DELETE && notification.resource == Resource.INFORMATIEOBJECT) {
+                inboxDocumentService.deleteIfExists(notification.resourceUrl.extractUuid())
             }
         } catch (exception: RuntimeException) {
             warning("inbox documents", notification, exception)
@@ -349,14 +344,9 @@ class NotificationReceiver @Inject constructor(
     private fun handleDetachedDocuments(notification: Notification) {
         // Used by "Abonnementen" functionality in OpenNotificaties to check if callback URL is active
         if (notification.channel == Channel.TEST) return
-        if (notification.action != Action.DELETE) return
+        if (notification.action != Action.DELETE || notification.resource != Resource.INFORMATIEOBJECT) return
         try {
-            when (notification.resource) {
-                Resource.INFORMATIEOBJECT -> detachedDocumentService.deleteIfExists(
-                    notification.resourceUrl.extractUuid()
-                )
-                else -> {}
-            }
+            detachedDocumentService.deleteIfExists(notification.resourceUrl.extractUuid())
         } catch (exception: RuntimeException) {
             warning("detached documents", notification, exception)
         }

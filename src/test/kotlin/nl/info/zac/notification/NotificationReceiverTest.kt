@@ -609,6 +609,29 @@ class NotificationReceiverTest : BehaviorSpec({
         }
     }
 
+    given("a 'destroy' notification on the INFORMATIEOBJECTEN channel for a resource other than an informatieobject") {
+        val notificatie = createNotificatie(
+            channel = Channel.INFORMATIEOBJECTEN,
+            resource = Resource.GEBRUIKSRECHTEN,
+            resourceUrl = URI("https://example.com/fakegebruiksrechten/${UUID.randomUUID()}"),
+            action = Action.DELETE
+        )
+        every { httpHeaders.getHeaderString(eq(HttpHeaders.AUTHORIZATION)) } returns SECRET
+        every { httpSessionInstance.get() } returns httpSession
+
+        `when`("the notification is handled") {
+            val response = notificationReceiver.notificatieReceive(httpHeaders, notificatie)
+
+            then("neither the inbox document nor the detached document is deleted") {
+                response.status shouldBe Response.Status.NO_CONTENT.statusCode
+                verify(exactly = 0) {
+                    inboxDocumentService.deleteIfExists(any<UUID>())
+                    detachedDocumentService.deleteIfExists(any<UUID>())
+                }
+            }
+        }
+    }
+
     given("A test callback url notification") {
         val notification = createNotificatie(
             channel = Channel.TEST,
