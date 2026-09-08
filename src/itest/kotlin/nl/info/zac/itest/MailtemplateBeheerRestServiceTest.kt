@@ -192,7 +192,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "variabelen": [
                             "GEMEENTE",
                             "ZAAK_NUMMER",
-                            "ZAAK_TYPE",
+                            "ZAAKTYPE_OMSCHRIJVING",
                             "ZAAKTYPE_OMSCHRIJVING_GENERIEK",
                             "ZAAK_STATUS",
                             "ZAAK_REGISTRATIEDATUM",
@@ -261,7 +261,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                          "variabelen": [
                             "GEMEENTE",
                             "ZAAK_NUMMER",
-                            "ZAAK_TYPE",
+                            "ZAAKTYPE_OMSCHRIJVING",
                             "ZAAKTYPE_OMSCHRIJVING_GENERIEK",
                             "ZAAK_STATUS",
                             "ZAAK_REGISTRATIEDATUM",
@@ -330,7 +330,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "variabelen": [
                             "GEMEENTE",
                             "ZAAK_NUMMER",
-                            "ZAAK_TYPE",
+                            "ZAAKTYPE_OMSCHRIJVING",
                             "ZAAKTYPE_OMSCHRIJVING_GENERIEK",
                             "ZAAK_STATUS",
                             "ZAAK_REGISTRATIEDATUM",
@@ -399,7 +399,7 @@ class MailtemplateBeheerRestServiceTest : BehaviorSpec({
                         "variabelen": [
                             "GEMEENTE",
                             "ZAAK_NUMMER",
-                            "ZAAK_TYPE",
+                            "ZAAKTYPE_OMSCHRIJVING",
                             "ZAAKTYPE_OMSCHRIJVING_GENERIEK",
                             "ZAAK_STATUS",
                             "ZAAK_REGISTRATIEDATUM",
