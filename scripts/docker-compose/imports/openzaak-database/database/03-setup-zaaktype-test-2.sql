@@ -53,7 +53,7 @@ VALUES
     'fd2bf643-c98a-4b00-b2b3-9ae0c41ed425', -- uuid (derived from the URL)
     'test-zaaktype-2', -- identificatie
     'Test zaaktype 2', -- zaaktype_omschrijving
-    'Test zaaktype 2', -- zaaktype_omschrijving_generiek
+    'Generieke omschrijving van test zaaktype 2', -- zaaktype_omschrijving_generiek
     'openbaar', -- vertrouwelijkheidaanduiding
     'Test zaaktype 2', -- doel
     'Test zaaktype 2', -- aanleiding

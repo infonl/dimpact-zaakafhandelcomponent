@@ -53,7 +53,7 @@ VALUES
     'f5a7b8c9-d0e1-2345-f012-345678901bcd',
     'bpmn-test-zaaktype-4',
     'BPMN test zaaktype 4',
-    'BPMN test zaaktype 4',
+    'Generieke omschrijving van BPMN test zaaktype 4',
     'openbaar',
     'BPMN test zaaktype 4',
     'BPMN test zaaktype 4',
