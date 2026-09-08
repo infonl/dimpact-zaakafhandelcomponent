@@ -53,7 +53,7 @@ VALUES
     '26076928-ce07-4d5d-8638-c2d276f6caca', -- uuid (derived from the URL)
     'bpmn-test-zaaktype-1', -- identificatie
     'BPMN test zaaktype 1', -- zaaktype_omschrijving
-    'BPMN test zaaktype 1', -- zaaktype_omschrijving_generiek
+    'Generieke omschrijving van BPMN test zaaktype 1', -- zaaktype_omschrijving_generiek
     'openbaar', -- vertrouwelijkheidaanduiding
     'BPMN test zaaktype 1', -- doel
     'BPMN test zaaktype 1', -- aanleiding
