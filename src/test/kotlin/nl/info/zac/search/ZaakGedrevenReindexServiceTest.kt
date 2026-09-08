@@ -12,7 +12,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
@@ -89,12 +89,28 @@ private fun ZaakGedrevenReindexServiceTestContext.stubRunTranslatingToIndexingEx
 }
 
 /**
+ * Stubs [ReindexSupportService.runConcurrentPageConversions] on the mocked [ReindexSupportService] to
+ * forward to the captured items/conversion, running them sequentially rather than actually concurrently -
+ * the real dispatcher-backed implementation already has its own dedicated test coverage in
+ * ReindexSupportServiceTest.
+ */
+private fun ZaakGedrevenReindexServiceTestContext.stubRunConcurrentPageConversionsForwarding() {
+    val itemsSlot = slot<List<Any?>>()
+    val convertSlot = slot<suspend (Any?) -> Any?>()
+    every {
+        reindexSupportService.runConcurrentPageConversions<Any?, Any?>(capture(itemsSlot), capture(convertSlot))
+    } answers {
+        runBlocking { itemsSlot.captured.map { convertSlot.captured(it) } }
+    }
+}
+
+/**
  * Stubs the [ReindexSupportService] members touched once the zaak-driven pass actually walks at least one
  * page of zaken, so that tests covering that path do not have to repeat this bundle individually.
  */
 private fun ZaakGedrevenReindexServiceTestContext.stubZaakPageProcessing() {
     every { reindexSupportService.memoizedIsZaakspecifiekGeautoriseerd() } returns { false }
-    every { reindexSupportService.pageConversionDispatcher } returns Dispatchers.Unconfined
+    stubRunConcurrentPageConversionsForwarding()
     every { reindexSupportService.deleteExistingEntities(any()) } just Runs
     every { reindexSupportService.addToSolrIndex(any(), any()) } just Runs
 }
@@ -110,6 +126,12 @@ private fun setupContext(): ZaakGedrevenReindexServiceTestContext {
 
     every { reindexSupportService.reindexStartedMessage(any()) } returns "fakeReindexStartedMessage"
     every { reindexSupportService.finishReindex(any(), any()) } just Runs
+    every { reindexSupportService.zaakListParameters(any()) } answers {
+        ZaakListParameters().apply {
+            ordering = "-identificatie"
+            page = firstArg()
+        }
+    }
 
     val zaakGedrevenReindexService = ZaakGedrevenReindexService(
         reindexSupportService,

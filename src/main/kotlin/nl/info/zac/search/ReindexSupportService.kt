@@ -75,7 +75,7 @@ class ReindexSupportService @Inject constructor(
         private val LOG = Logger.getLogger(ReindexSupportService::class.java.name)
     }
 
-    internal val pageConversionDispatcher = Dispatchers.IO.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
+    private val pageConversionDispatcher = Dispatchers.IO.limitedParallelism(PAGE_CONVERSION_PARALLELISM)
 
     private val solrClient: SolrClient = Http2SolrClient.Builder(
         "${ConfigProvider.getConfig().getValue("solr.url", String::class.java)}/solr/${IndexingService.SOLR_CORE}"
@@ -86,6 +86,16 @@ class ReindexSupportService @Inject constructor(
             solrClient.commit(null, true, true)
         }
     }
+
+    /**
+     * Builds the [ZaakListParameters] for [page] of the zaken listing, ordered consistently so that paging
+     * through it in [reindexAllZaken]/[ZaakGedrevenReindexService] sees a stable ordering across pages.
+     */
+    internal fun zaakListParameters(page: Int) =
+        ZaakListParameters().apply {
+            ordering = "-identificatie"
+            this.page = page
+        }
 
     internal fun getConverter(objectType: ZoekObjectType): AbstractZoekObjectConverter<out ZoekObject> =
         converterInstances
@@ -108,6 +118,16 @@ class ReindexSupportService @Inject constructor(
         }
 
     /**
+     * Runs [convert] over [items] concurrently on the dedicated page-conversion dispatcher, so that callers
+     * outside this class (e.g. [ZaakGedrevenReindexService]) share its concurrency limit without reaching
+     * into [pageConversionDispatcher] themselves.
+     */
+    internal fun <T, R> runConcurrentPageConversions(items: List<T>, convert: suspend (T) -> R): List<R> =
+        runBlocking(pageConversionDispatcher) {
+            items.map { item -> async { convert(item) } }.awaitAll()
+        }
+
+    /**
      * Converts [objectIds] concurrently, sharing one
      * [isZaakspecifiekGeautoriseerd] lookup across all of them by default, memoized per zaak UUID via
      * [memoizedIsZaakspecifiekGeautoriseerd] so that objects linked to the same zaak (e.g. several
@@ -120,11 +140,7 @@ class ReindexSupportService @Inject constructor(
         isZaakspecifiekGeautoriseerd: (UUID) -> Boolean = memoizedIsZaakspecifiekGeautoriseerd()
     ): List<ConversionOutcome> =
         getConverter(objectType).let { converter ->
-            runBlocking(pageConversionDispatcher) {
-                objectIds.map { objectId ->
-                    async { convert(converter, objectType, objectId, isZaakspecifiekGeautoriseerd) }
-                }.awaitAll()
-            }
+            runConcurrentPageConversions(objectIds) { objectId -> convert(converter, objectType, objectId, isZaakspecifiekGeautoriseerd) }
         }
 
     /**
@@ -295,12 +311,7 @@ class ReindexSupportService @Inject constructor(
 
     internal fun reindexAllZaken(): ReindexSummary? {
         val numberOfZaken = continueOnExceptions(ZoekObjectType.ZAAK) {
-            zrcClientService.listZakenUuids(
-                ZaakListParameters().apply {
-                    ordering = "-identificatie"
-                    page = ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
-                }
-            ).count()
+            zrcClientService.listZakenUuids(zaakListParameters(ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS)).count()
         }
         if (numberOfZaken == null) {
             LOG.warning("[${ZoekObjectType.ZAAK}] Cannot find zaken count! Aborting reindexing")
@@ -321,12 +332,7 @@ class ReindexSupportService @Inject constructor(
     }
 
     private fun reindexZakenPage(pageNumber: Int, totalCount: Int): ReindexCounts {
-        val zaakResults = zrcClientService.listZakenUuids(
-            ZaakListParameters().apply {
-                ordering = "-identificatie"
-                page = pageNumber
-            }
-        )
+        val zaakResults = zrcClientService.listZakenUuids(zaakListParameters(pageNumber))
         val ids = zaakResults.results().map { it.uuid.toString() }
         val counts = indexeerDirectCountingSuccesses(ids, ZoekObjectType.ZAAK)
         val progress = (pageNumber - ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS) * Results.DEFAULT_ZGW_PAGE_SIZE + ids.size

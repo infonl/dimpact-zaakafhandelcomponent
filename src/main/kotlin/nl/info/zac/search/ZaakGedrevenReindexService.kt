@@ -6,9 +6,6 @@ package nl.info.zac.search
 
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
@@ -16,7 +13,6 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
@@ -194,10 +190,7 @@ class ZaakGedrevenReindexService @Inject constructor(
 
     private fun countZaken(): Int =
         zrcClientService.listZakenUuids(
-            ZaakListParameters().apply {
-                ordering = "-identificatie"
-                page = ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS
-            }
+            reindexSupportService.zaakListParameters(ZgwApiService.FIRST_PAGE_NUMBER_ZGW_APIS)
         ).count()
 
     private fun countInformatieobjecten(): Int =
@@ -232,25 +225,17 @@ class ZaakGedrevenReindexService @Inject constructor(
         scope: ReindexScope,
         alreadyIndexedInformatieobjectUUIDs: MutableSet<UUID>
     ): ZakenTakenDocumentenCounts {
-        val zaakUUIDs = zrcClientService.listZakenUuids(
-            ZaakListParameters().apply {
-                ordering = "-identificatie"
-                page = pageNumber
-            }
-        ).results().map { it.uuid }
+        val zaakUUIDs = zrcClientService.listZakenUuids(reindexSupportService.zaakListParameters(pageNumber))
+            .results().map { it.uuid }
         val isZaakspecifiekGeautoriseerd = reindexSupportService.memoizedIsZaakspecifiekGeautoriseerd()
 
-        val pageResults = runBlocking(reindexSupportService.pageConversionDispatcher) {
-            zaakUUIDs.map { zaakUUID ->
-                async {
-                    reindexZaakTakenDocumenten(
-                        zaakUUID,
-                        scope,
-                        isZaakspecifiekGeautoriseerd,
-                        alreadyIndexedInformatieobjectUUIDs
-                    )
-                }
-            }.awaitAll()
+        val pageResults = reindexSupportService.runConcurrentPageConversions(zaakUUIDs) { zaakUUID ->
+            reindexZaakTakenDocumenten(
+                zaakUUID,
+                scope,
+                isZaakspecifiekGeautoriseerd,
+                alreadyIndexedInformatieobjectUUIDs
+            )
         }
 
         val zaakOutcomes = pageResults.map { it.zaakOutcome }
