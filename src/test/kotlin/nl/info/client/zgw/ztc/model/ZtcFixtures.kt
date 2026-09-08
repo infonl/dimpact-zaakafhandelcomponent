@@ -69,8 +69,9 @@ fun createBrondatumArchiefprocedure(
 fun createEigenschap(
     naam: String = "fakeNaam",
     definitie: String? = "fakeDefinitie",
-    zaaktype: URI = URI("https://example.com/zaaktype/${UUID.randomUUID()}")
-) = Eigenschap().apply {
+    zaaktype: URI = URI("https://example.com/zaaktype/${UUID.randomUUID()}"),
+    url: URI = URI("https://example.com/eigenschap/${UUID.randomUUID()}")
+) = Eigenschap(url, null, null, null, null).apply {
     this.naam = naam
     this.definitie = definitie
     this.zaaktype = zaaktype

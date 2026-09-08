@@ -123,6 +123,18 @@ Notes:
   covers the taken and documenten of a zaakspecifiek geautoriseerde zaak, as well as werklijsten and
   zoekresultaten: a medewerker who lacks `zaakspecifiek_geautoriseerd` for a zaaktype sees no zaakspecifiek
   geautoriseerde zaken (or their taken/documenten) of that zaaktype in worklists or search results.
+- There is one exception to that flag: the **current behandelaar of a zaakspecifiek geautoriseerde zaak keeps
+  their own application role's rights on that zaak**, and on its taken and documenten, without holding
+  `zaakspecifiek_geautoriseerd`. This is what makes it possible for a behandelaar to mark their own zaak
+  without immediately losing access to it. The exception applies to that one zaak only: it does not extend to
+  any other zaakspecifiek geautoriseerde zaak of the same zaaktype. Like the flag itself, being the
+  behandelaar grants no rights of its own - a medewerker who holds no application role for the zaaktype gets
+  nothing from it. The exception applies to worklists and search results as well, so a behandelaar keeps
+  finding their own zaak, its taken and its documenten.
+- **`recordmanager` and `beheerder` have no exemption of their own.** They reach zaakspecifiek geautoriseerde
+  zaken by being granted `zaakspecifiek_geautoriseerd` for the zaaktype through the usual PABC configuration,
+  exactly like any other application role. Granting them that mapping is therefore a deployment prerequisite:
+  without it, they cannot reach a zaakspecifiek geautoriseerde zaak at all, and nothing in ZAC explains why.
 
 ## Technical implementation
 

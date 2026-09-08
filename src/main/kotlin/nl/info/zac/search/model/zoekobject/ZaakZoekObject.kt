@@ -141,7 +141,10 @@ data class ZaakZoekObject(
     var bagObjectIDs: List<String>? = null,
 
     @Field(ZAAKSPECIFIEK_GEAUTORISEERD_FIELD)
-    var isZaakspecifiekGeautoriseerd: Boolean = false
+    var isZaakspecifiekGeautoriseerd: Boolean = false,
+
+    @Field(ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD)
+    var zaakGeautoriseerdeMedewerkers: List<String> = emptyList()
 ) : ZoekObject {
     companion object {
         const val AFGEHANDELD_FIELD: String = "zaak_afgehandeld"
@@ -151,6 +154,7 @@ data class ZaakZoekObject(
         const val TOELICHTING_FIELD: String = "zaak_toelichting"
         const val ZAAK_BETROKKENE_PREFIX: String = "zaak_betrokkene_"
         const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD: String = "zaak_zaakspecifiekGeautoriseerd"
+        const val ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD: String = "zaak_zaakGeautoriseerdeMedewerkers"
     }
 
     override fun getObjectId() = id

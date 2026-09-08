@@ -184,7 +184,9 @@ class SearchService @Inject constructor(
     // Excludes zaakspecifiek geautoriseerde rows for zaaktypen the user holds a role for but not the
     // zaakspecifiek_geautoriseerd flag; returns null when every allowed zaaktype has the flag (or none is
     // allowed). Mirrors OPA's `user.rollen`, which also grants the flag for every zaaktype once it is held
-    // as an overall role (i.e. one not scoped to a specific zaaktype).
+    // as an overall role (i.e. one not scoped to a specific zaaktype), and OPA's exception for medewerkers
+    // individually authorised for a zaak, which keeps that zaak, its taken and its documenten visible to
+    // them. The field is multi-valued, so the negated term matches when the user is any one of them.
     private fun getZaakspecifiekGeautoriseerdFilterQuery(): String? =
         loggedInUserInstance.get()?.let { loggedInUser ->
             if (ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD in loggedInUser.overallRoles) {
@@ -197,7 +199,9 @@ class SearchService @Inject constructor(
                 null
             } else {
                 "-(" + zaaktypenWithoutFlag.joinToString(" OR ") {
-                    "($ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)} AND ${ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD}:true)"
+                    "($ZAAKTYPE_OMSCHRIJVING_VELD:${quoted(it)} " +
+                        "AND ${ZoekObject.ZAAKSPECIFIEK_GEAUTORISEERD_FIELD}:true " +
+                        "AND -${ZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD}:${quoted(loggedInUser.id)})"
                 } + ")"
             }
         }

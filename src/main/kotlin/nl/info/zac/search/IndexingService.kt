@@ -20,6 +20,7 @@ import nl.info.zac.authentication.LoggedInUserProvider.Companion.systemUser
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
+import nl.info.zac.search.model.ZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
 import nl.info.zac.util.AllOpen
 import java.util.UUID
@@ -276,7 +277,7 @@ class IndexingService @Inject constructor(
 
     /**
      * Reindexes the zaak and, when [inclusiefTaken], its open taken, sharing one memoized
-     * `isZaakspecifiekGeautoriseerd` lookup between the zaak and all of its open taken instead of
+     * `zaakAutorisatieGegevens` lookup between the zaak and all of its open taken instead of
      * each conversion deriving the flag on its own.
      *
      * @return `true` if the zaak itself was indexed successfully, `false` if that failed (already
@@ -285,12 +286,12 @@ class IndexingService @Inject constructor(
      * consistent with [addOrUpdateTakenForZaak].
      */
     fun addOrUpdateZaak(zaakUUID: UUID, inclusiefTaken: Boolean): Boolean {
-        val isZaakspecifiekGeautoriseerd = reindexSupportService.memoizedIsZaakspecifiekGeautoriseerd()
+        val zaakAutorisatieGegevens = reindexSupportService.memoizedZaakAutorisatieGegevens()
         val zaakIndexed = reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
             reindexSupportService.addToSolrIndex(
                 listOf(
                     reindexSupportService.continueOnExceptions(ZoekObjectType.ZAAK) {
-                        zaakZoekObjectConverter.convert(zaakUUID.toString(), isZaakspecifiekGeautoriseerd)
+                        zaakZoekObjectConverter.convert(zaakUUID.toString(), zaakAutorisatieGegevens)
                     }
                 ),
                 performCommit = false
@@ -299,7 +300,7 @@ class IndexingService @Inject constructor(
         if (inclusiefTaken) {
             flowableTaskService.listOpenTasksForZaak(zaakUUID)
                 .map { it.id }
-                .forEach { addOrUpdateTaak(it, isZaakspecifiekGeautoriseerd) }
+                .forEach { addOrUpdateTaak(it, zaakAutorisatieGegevens) }
         }
         return zaakIndexed
     }
@@ -317,7 +318,7 @@ class IndexingService @Inject constructor(
 
     /**
      * Reindexes both the open and the completed taken of a zaak, sharing one memoized
-     * `isZaakspecifiekGeautoriseerd` lookup across all of them. Unlike [addOrUpdateZaak]'s
+     * `zaakAutorisatieGegevens` lookup across all of them. Unlike [addOrUpdateZaak]'s
      * `inclusiefTaken` flag, this also covers completed taken, since a taak-level flag (such as
      * `taak_zaakspecifiekGeautoriseerd`) can go stale on a completed taak just as easily as on an
      * open one. Calling this on every zaak update would add a `HistoricTaskInstanceQuery` per
@@ -325,10 +326,10 @@ class IndexingService @Inject constructor(
      * such as a zaakeigenschap change.
      */
     fun addOrUpdateTakenForZaak(zaakUUID: UUID) {
-        val isZaakspecifiekGeautoriseerd = reindexSupportService.memoizedIsZaakspecifiekGeautoriseerd()
+        val zaakAutorisatieGegevens = reindexSupportService.memoizedZaakAutorisatieGegevens()
         flowableTaskService.listTasksForZaak(zaakUUID)
             .map { it.id }
-            .forEach { addOrUpdateTaak(it, isZaakspecifiekGeautoriseerd) }
+            .forEach { addOrUpdateTaak(it, zaakAutorisatieGegevens) }
     }
 
     fun addOrUpdateInformatieobject(informatieobjectUUID: UUID) =
@@ -340,14 +341,14 @@ class IndexingService @Inject constructor(
         )
 
     /**
-     * Reindexes every document of a zaak, memoizing the `isZaakspecifiekGeautoriseerd` flag per zaak
+     * Reindexes every document of a zaak, memoizing the `zaakAutorisatieGegevens` flag per zaak
      * UUID so that documents linked to the same zaak share one lookup, instead of each document's
      * conversion deriving the flag on its own. The flag is still looked up for whichever zaak
      * [DocumentZoekObjectConverter.convert] actually resolves the document against, since a document
      * can be linked to a zaak other than [zaakUUID].
      */
     fun addOrUpdateInformatieobjectenForZaak(zaakUUID: UUID) {
-        val isZaakspecifiekGeautoriseerd = reindexSupportService.memoizedIsZaakspecifiekGeautoriseerd()
+        val zaakAutorisatieGegevens = reindexSupportService.memoizedZaakAutorisatieGegevens()
         zrcClientService.listZaakinformatieobjecten(zrcClientService.readZaak(zaakUUID)).forEach {
             reindexSupportService.continueOnExceptions(ZoekObjectType.DOCUMENT) {
                 reindexSupportService.addToSolrIndex(
@@ -355,7 +356,7 @@ class IndexingService @Inject constructor(
                         reindexSupportService.continueOnExceptions(ZoekObjectType.DOCUMENT) {
                             documentZoekObjectConverter.convert(
                                 it.informatieobject.extractUuid().toString(),
-                                isZaakspecifiekGeautoriseerd
+                                zaakAutorisatieGegevens
                             )
                         }
                     ),
@@ -380,15 +381,15 @@ class IndexingService @Inject constructor(
 
     /**
      * Converts and indexes [taskID], looking up the zaakspecifiek geautoriseerd flag through
-     * [isZaakspecifiekGeautoriseerd] instead of always deriving it directly. Used by [addOrUpdateZaak]
+     * [zaakAutorisatieGegevens] instead of always deriving it directly. Used by [addOrUpdateZaak]
      * and [addOrUpdateTakenForZaak] to share one memoized lookup across the taken of one zaak.
      */
-    private fun addOrUpdateTaak(taskID: String, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean) =
+    private fun addOrUpdateTaak(taskID: String, zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens) =
         reindexSupportService.continueOnExceptions(ZoekObjectType.TAAK) {
             reindexSupportService.addToSolrIndex(
                 listOf(
                     reindexSupportService.continueOnExceptions(ZoekObjectType.TAAK) {
-                        taakZoekObjectConverter.convert(taskID, isZaakspecifiekGeautoriseerd)
+                        taakZoekObjectConverter.convert(taskID, zaakAutorisatieGegevens)
                     }
                 ),
                 performCommit = false

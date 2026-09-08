@@ -319,9 +319,24 @@ export class ZakenWerkvoorraadComponent
     dialogComponent: ComponentType<T>,
     release = false,
   ) {
+    // The backend skips these zaken server-side either way; partitioning here is what lets the user be
+    // told *why* a zaak was left out, which the SKIPPED websocket opcode does not carry.
+    const skippedBecauseGeautoriseerd = this.selection.selected.filter(
+      ({ isZaakspecifiekGeautoriseerd }) => isZaakspecifiekGeautoriseerd,
+    );
+    const skippedBecauseAfgehandeld = this.selection.selected.filter(
+      ({ isZaakspecifiekGeautoriseerd, afgehandeld }) =>
+        !isZaakspecifiekGeautoriseerd && afgehandeld,
+    );
     const zaken = this.selection.selected.filter(
-      ({ behandelaarGebruikersnaam }) =>
-        !release || !!behandelaarGebruikersnaam,
+      ({
+        isZaakspecifiekGeautoriseerd,
+        afgehandeld,
+        behandelaarGebruikersnaam,
+      }) =>
+        !isZaakspecifiekGeautoriseerd &&
+        !afgehandeld &&
+        (!release || !!behandelaarGebruikersnaam),
     );
 
     this.batchProcessService.subscribe({
@@ -393,7 +408,36 @@ export class ZakenWerkvoorraadComponent
             this.utilService.openSnackbar("msg.error.timeout");
           },
         });
+        this.showSkippedZakenMessage(
+          release,
+          skippedBecauseGeautoriseerd.length,
+          skippedBecauseAfgehandeld.length,
+        );
       });
+  }
+
+  private showSkippedZakenMessage(
+    release: boolean,
+    aantalGeautoriseerd: number,
+    aantalAfgehandeld: number,
+  ) {
+    const action = release ? "vrijgeven" : "verdelen";
+    const reasons = [
+      [aantalGeautoriseerd, "zaakspecifiek-geautoriseerd"],
+      [aantalAfgehandeld, "afgehandeld"],
+    ] as const;
+    const messages = reasons
+      .filter(([aantal]) => aantal > 0)
+      .map(([aantal, reason]) =>
+        this.translateService.instant(
+          `msg.zaken.${action}.overgeslagen.${reason}`,
+          { aantal },
+        ),
+      );
+    if (!messages.length) return;
+    // Already-translated sentences: openSnackbar translates its argument, and TranslateService returns
+    // an unknown key unchanged, so joining the two reasons here keeps them in one snackbar.
+    this.utilService.openSnackbar(messages.join(" "), undefined, 8);
   }
 
   ngOnDestroy() {

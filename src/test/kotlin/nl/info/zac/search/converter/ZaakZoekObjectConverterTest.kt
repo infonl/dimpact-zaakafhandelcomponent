@@ -13,7 +13,10 @@ import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
+import java.net.URI
+import java.time.ZoneId
+import java.util.Date
+import java.util.UUID
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.model.createNatuurlijkPersoonIdentificatie
 import nl.info.client.zgw.model.createResultaat
@@ -26,6 +29,7 @@ import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.createResultsOfZaakObjecten
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.generated.ArchiefnominatieEnum
+import nl.info.client.zgw.zrc.model.zaakobjecten.Zaakobject
 import nl.info.client.zgw.zrc.util.isOpen
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createResultaatType
@@ -36,11 +40,8 @@ import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createUser
 import nl.info.zac.search.model.ZaakIndicatie
+import nl.info.zac.search.model.createZaakAutorisatieGegevens
 import nl.info.zac.search.model.zoekobject.ZoekObjectType
-import java.net.URI
-import java.time.ZoneId
-import java.util.Date
-import java.util.UUID
 
 class ZaakZoekObjectConverterTest : BehaviorSpec({
     val zrcClientService = mockk<ZrcClientService>()
@@ -150,6 +151,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     }
                     getZaakIndicaties() shouldNotContain ZaakIndicatie.HEROPEND
                     resultaattypeOmschrijving shouldBe resultaatType.omschrijving
+                    zaakGeautoriseerdeMedewerkers shouldBe listOf(userBehandelaar.id)
                 }
             }
         }
@@ -270,6 +272,7 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
                     initiatorIdentificatie shouldBe null
                     groepID shouldBe null
                     behandelaarGebruikersnaam shouldBe null
+                    zaakGeautoriseerdeMedewerkers shouldBe emptyList()
                     isToegekend shouldBe false
                     betrokkenen shouldBe null
                 }
@@ -294,7 +297,9 @@ class ZaakZoekObjectConverterTest : BehaviorSpec({
         )
 
         `when`("the zaak is converted via the overload that takes the zaak directly") {
-            val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak) { true }
+            val zaakZoekObject = zaakZoekenObjectConverter.convert(zaak) {
+                createZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd = true)
+            }
 
             then("the zaak zoek object is still correctly populated") {
                 zaakZoekObject.getObjectId() shouldBe zaak.uuid.toString()

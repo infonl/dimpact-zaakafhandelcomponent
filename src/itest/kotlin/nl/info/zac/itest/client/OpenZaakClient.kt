@@ -39,6 +39,27 @@ class OpenZaakClient(
         )
 
     /**
+     * Reads the zaakeigenschappen of [zaakUUID] directly from Open Zaak's ZRC API, bypassing ZAC, which
+     * exposes no endpoint for them.
+     */
+    fun getZaakeigenschappenForZaak(zaakUUID: UUID): ResponseContent =
+        itestHttpClient.performZgwApiGetRequest(
+            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/zaken/$zaakUUID/zaakeigenschappen"
+        )
+
+    /**
+     * Deletes the rol identified by [rolUUID] directly in Open Zaak's ZRC API, bypassing ZAC. Use this to
+     * reproduce a behandelaar being removed from a zaak outside ZAC, which ZAC itself refuses for a
+     * zaakspecifiek geautoriseerde zaak but which nothing stops an administrator from doing directly in the
+     * zaakregister.
+     */
+    fun deleteRol(rolUUID: UUID) {
+        itestHttpClient.performZgwApiDeleteRequest(
+            url = "$OPEN_ZAAK_EXTERNAL_URI/zaken/api/v1/rollen/$rolUUID"
+        )
+    }
+
+    /**
      * Creates a zaakeigenschap directly in Open Zaak's ZRC API, bypassing ZAC. Use this to mark a
      * zaak as zaakspecifiek geautoriseerd in integration tests, by creating a zaakeigenschap with
      * naam [eigenschapNaam] (e.g. "ZAAK_GEAUTORISEERD") and value [waarde] (e.g. "true"). The

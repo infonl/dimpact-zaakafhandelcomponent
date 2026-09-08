@@ -26,7 +26,8 @@ fun createZaakZoekObject(
     archiefNominatie: String? = ArchiefnominatieEnum.BLIJVEND_BEWAREN.toString(),
     indicatie: ZaakIndicatie? = null,
     behandelaarGebruikersnaam: String? = null,
-    isZaakspecifiekGeautoriseerd: Boolean = false
+    isZaakspecifiekGeautoriseerd: Boolean = false,
+    zaakGeautoriseerdeMedewerkers: List<String> = emptyList()
 ) = ZaakZoekObject(
     id = uuidAsString,
     type = type.name,
@@ -41,6 +42,7 @@ fun createZaakZoekObject(
     this.archiefNominatie = archiefNominatie
     this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
     this.isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
+    this.zaakGeautoriseerdeMedewerkers = zaakGeautoriseerdeMedewerkers
     indicatie?.let { setIndicatie(it, true) }
 }
 
@@ -55,6 +57,7 @@ fun createTaakZoekObject(
     zaakOmschrijving: String = "fakeOmschrijving",
     behandelaarGebruikersnaam: String? = null,
     isZaakspecifiekGeautoriseerd: Boolean = false,
+    zaakGeautoriseerdeMedewerkers: List<String> = emptyList(),
     status: TaakStatus? = null
 ) = TaakZoekObject(
     id = uuidAsString,
@@ -69,6 +72,7 @@ fun createTaakZoekObject(
     this.zaakOmschrijving = zaakOmschrijving
     this.behandelaarGebruikersnaam = behandelaarGebruikersnaam
     this.isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
+    this.zaakGeautoriseerdeMedewerkers = zaakGeautoriseerdeMedewerkers
     status?.let { setStatus(it) }
 }
 
@@ -82,7 +86,8 @@ fun createDocumentZoekObject(
     zaakIdentificatie: String = "identificatie",
     zaakUuid: String = UUID.randomUUID().toString(),
     isZaakAfgehandeld: Boolean = false,
-    isZaakspecifiekGeautoriseerd: Boolean = false
+    isZaakspecifiekGeautoriseerd: Boolean = false,
+    zaakGeautoriseerdeMedewerkers: List<String> = emptyList()
 ) = DocumentZoekObject(
     id = uuidAsString,
     type = type.name
@@ -94,6 +99,7 @@ fun createDocumentZoekObject(
     this.zaakUuid = zaakUuid
     this.isZaakAfgehandeld = isZaakAfgehandeld
     this.isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
+    this.zaakGeautoriseerdeMedewerkers = zaakGeautoriseerdeMedewerkers
 }
 
 @Suppress("LongParameterList")
@@ -117,3 +123,8 @@ fun createDocumentZoekObject(
     this.zaakUuid = zaakUuid
     this.isZaakAfgehandeld = isZaakAfgehandeld
 }
+
+fun createZaakAutorisatieGegevens(
+    isZaakspecifiekGeautoriseerd: Boolean = false,
+    geautoriseerdeMedewerkers: List<String> = emptyList()
+) = ZaakAutorisatieGegevens(isZaakspecifiekGeautoriseerd) { geautoriseerdeMedewerkers }

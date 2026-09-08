@@ -227,7 +227,8 @@ fun createRestZaakCreateData(
     einddatumGepland: LocalDate? = null,
     communicatiekanaal: String? = "fakeCommunicatiekanaal",
     startDatum: LocalDate = LocalDate.of(2023, 9, 15),
-    vertrouwelijkheidaanduiding: String = RestVertrouwelijkheidaanduiding.OPENBAAR.name
+    vertrouwelijkheidaanduiding: String = RestVertrouwelijkheidaanduiding.OPENBAAR.name,
+    isZaakspecifiekGeautoriseerd: Boolean? = null
 ) = RestZaakCreateData(
     omschrijving = description,
     toelichting = explanation,
@@ -245,7 +246,8 @@ fun createRestZaakCreateData(
     groep = restGroup,
     behandelaar = behandelaar,
     gerelateerdeZaken = listOf(createRESTGerelateerdeZaak()),
-    initiatorIdentificatie = createBetrokkeneIdentificatie()
+    initiatorIdentificatie = createBetrokkeneIdentificatie(),
+    isZaakspecifiekGeautoriseerd = isZaakspecifiekGeautoriseerd
 )
 
 fun createRESTZaakAanmaakGegevens(
@@ -282,7 +284,7 @@ fun createRESTZaakKenmerk() = RestZaakKenmerk("Sample kenmerk", "Sample bron")
 fun createRESTZaakAssignmentData(
     zaakUUID: UUID = UUID.randomUUID(),
     groepId: String = "fakeGroupId",
-    behandelaarGebruikersnaam: String = "fakeBehandelaarGebruikersnaam",
+    behandelaarGebruikersnaam: String? = "fakeBehandelaarGebruikersnaam",
     reden: String = "fakeReden"
 ) = RestZaakAssignmentData(
     zaakUUID = zaakUUID,

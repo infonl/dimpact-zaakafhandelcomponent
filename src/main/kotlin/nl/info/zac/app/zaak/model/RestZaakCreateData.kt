@@ -4,6 +4,7 @@
  */
 package nl.info.zac.app.zaak.model
 
+import jakarta.json.bind.annotation.JsonbProperty
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
 import nl.info.client.zgw.zrc.model.generated.VertrouwelijkheidaanduidingEnum
@@ -29,6 +30,14 @@ data class RestZaakCreateData(
     @field:Valid
     var groep: RestGroup? = null,
     var initiatorIdentificatie: BetrokkeneIdentificatie? = null,
+
+    /**
+     * Whether the zaak should be marked as zaakspecifiek geautoriseerd. `null` means that the request does
+     * not mention the marking at all and leaves it as it is; `true` marks the zaak; `false` on a zaak that
+     * is already marked is refused, since the marking cannot be lifted.
+     */
+    @get:JsonbProperty("isZaakspecifiekGeautoriseerd")
+    var isZaakspecifiekGeautoriseerd: Boolean? = null,
 
     @field:Size(max = OMSCHRIJVING_MAX_LENGTH)
     var omschrijving: String,

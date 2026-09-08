@@ -929,3 +929,31 @@ test_downloaden_geautoriseerd_recordmanager_with_flag if {
         with input.document.zaakspecifiekGeautoriseerd as true
         with input.user.rollen as [ "recordmanager", "zaakspecifiek_geautoriseerd" ]
 }
+
+test_zaak_allowed_geautoriseerd_current_behandelaar_without_flag if {
+    zaak_allowed
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.document.loggedInUserIsGeautoriseerdeMedewerker as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_geautoriseerd_current_behandelaar_without_flag if {
+    lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.document.loggedInUserIsGeautoriseerdeMedewerker as true
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_geautoriseerd_behandelaar_of_another_zaak_fails if {
+    not lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.document.loggedInUserIsGeautoriseerdeMedewerker as false
+        with input.user.rollen as [ "behandelaar" ]
+}
+
+test_lezen_geautoriseerd_current_behandelaar_without_any_role_fails if {
+    not lezen
+        with input.document.zaakspecifiekGeautoriseerd as true
+        with input.document.loggedInUserIsGeautoriseerdeMedewerker as true
+        with input.user.rollen as [ ]
+}
