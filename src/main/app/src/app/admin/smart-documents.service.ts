@@ -8,6 +8,7 @@ import { queryOptions } from "@tanstack/angular-query-experimental";
 import { lastValueFrom, map } from "rxjs";
 import { PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
+import { StaleTimes } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 export interface TemplateMapping {
@@ -39,7 +40,7 @@ export class SmartDocumentsService {
     return queryOptions({
       queryKey: ["smartDocumentsTemplatesMapping", zaakafhandelUUID],
       queryFn: () => lastValueFrom(this.getTemplatesMapping(zaakafhandelUUID)),
-      staleTime: 0,
+      staleTime: StaleTimes.Instant,
     });
   }
 
