@@ -72,9 +72,9 @@ describe(SmartDocumentsFormComponent.name, () => {
   });
 
   it("should call getTemplatesMappingQuery with zaakTypeUuid on init", () => {
-    expect(
-      smartDocumentsService.getTemplatesMappingQuery,
-    ).toHaveBeenCalledWith("test-zaaktype-uuid");
+    expect(smartDocumentsService.getTemplatesMappingQuery).toHaveBeenCalledWith(
+      "test-zaaktype-uuid",
+    );
   });
 
   it("should call listInformatieobjecttypes with zaakTypeUuid on init", () => {
