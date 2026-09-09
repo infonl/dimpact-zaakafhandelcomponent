@@ -39,6 +39,7 @@ export class SmartDocumentsService {
     return queryOptions({
       queryKey: ["smartDocumentsTemplatesMapping", zaakafhandelUUID],
       queryFn: () => lastValueFrom(this.getTemplatesMapping(zaakafhandelUUID)),
+      staleTime: 0,
     });
   }
 

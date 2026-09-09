@@ -255,7 +255,7 @@ export class FormioSetupService {
   }
 
   private getSmartDocumentTemplates(zaaktypeUuid: string) {
-    return this.queryClient.ensureQueryData(
+    return this.queryClient.query(
       this.smartDocumentsService.getTemplatesMappingQuery(zaaktypeUuid),
     );
   }
