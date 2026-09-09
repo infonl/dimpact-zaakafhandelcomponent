@@ -39,9 +39,6 @@ describe(SmartDocumentsFormComponent.name, () => {
       .spyOn(smartDocumentsService, "getAllSmartDocumentsTemplateGroups")
       .mockReturnValue(of([]));
     jest
-      .spyOn(smartDocumentsService, "getTemplatesMapping")
-      .mockReturnValue(of([]));
-    jest
       .spyOn(smartDocumentsService, "addParentIdsToTemplates")
       .mockReturnValue([]);
     jest
@@ -74,10 +71,10 @@ describe(SmartDocumentsFormComponent.name, () => {
     ).toHaveBeenCalled();
   });
 
-  it("should call getTemplatesMapping with zaakTypeUuid on init", () => {
-    expect(smartDocumentsService.getTemplatesMapping).toHaveBeenCalledWith(
-      "test-zaaktype-uuid",
-    );
+  it("should call getTemplatesMappingQuery with zaakTypeUuid on init", () => {
+    expect(
+      smartDocumentsService.getTemplatesMappingQuery,
+    ).toHaveBeenCalledWith("test-zaaktype-uuid");
   });
 
   it("should call listInformatieobjecttypes with zaakTypeUuid on init", () => {
