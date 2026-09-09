@@ -271,7 +271,7 @@ services:
     ports:
       - "8983:8983"
     volumes:
-      - ./scripts/docker-compose/volume-data/solr-data:/var/solr
+      - solr-data:/var/solr
     # run as root to change the permissions of the solr folder
     user: root
     # Change permissions of the solr folder, create the 'zac' core and start solr
@@ -1108,3 +1108,4 @@ volumes:
   pabc-database-data:
   zac-database-data:
   openformulieren-database-data:
+  solr-data:

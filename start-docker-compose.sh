@@ -146,9 +146,6 @@ if [ "$pullZac" = "true" ]; then
     docker compose pull zac
 fi
 
-# Ensure that Docker Compose volume-data directories are created with current user
-mkdir -p $volumeDataFolder/solr-data
-
 # Build comma separated profile list
 profilesList=""
 if [ ${#profiles[@]} -ne 0 ]; then
