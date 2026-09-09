@@ -20,7 +20,7 @@ import nl.info.zac.itest.config.BEHEERDER_1
 import nl.info.zac.itest.config.ItestConfiguration.GREENMAIL_API_URI
 import nl.info.zac.itest.config.ItestConfiguration.TEST_INFORMATIE_OBJECT_TYPE_1_UUID
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.TEXT_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZEER_GEHEIM
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
@@ -54,7 +54,7 @@ class MailRestServiceTest : BehaviorSpec({
             zaakUuid = zaakUuid,
             documentTitle = "${MailRestServiceTest::class.simpleName}-1-$now",
             authorName = "fakeAuthorName",
-            mediaType = TEXT_MIME_TYPE,
+            mediaType = TEXT_MEDIA_TYPE,
             fileName = TEST_TXT_FILE_NAME,
             testUser = BEHEERDER_1
         )

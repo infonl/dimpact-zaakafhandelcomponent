@@ -133,6 +133,26 @@ Where a third-party widget renders nothing queryable — `ngx-editor` sets no ro
 ProseMirror element, OpenLayers draws to a canvas, a file input is `display: none` —
 disable the rule on that line with a comment saying which widget forces it.
 
+### Reuse existing TanStack Query definitions
+Before writing a new `injectQuery`/`ensureQueryData` call, check whether the relevant service already exposes
+a `queryOptions()`-based method for that endpoint (e.g. `SmartDocumentsService.getTemplatesMappingQuery`,
+`InformatieObjectenService.listEnkelvoudigInformatieobjectenQuery`). Reuse it instead of inlining a new
+`{ queryKey, queryFn }` object — duplicating the query key and fetch logic across components risks the keys
+drifting out of sync (breaking the shared cache) and multiplies the places a bug must be fixed.
+```ts
+// Before
+private readonly someQuery = injectQuery(() => ({
+  queryKey: ["smartDocumentsTemplatesMapping", this.zaaktypeUuid],
+  queryFn: () => lastValueFrom(this.smartDocumentsService.getTemplatesMapping(this.zaaktypeUuid)),
+}));
+// After
+private readonly someQuery = injectQuery(() =>
+  this.smartDocumentsService.getTemplatesMappingQuery(this.zaaktypeUuid),
+);
+```
+If no shared method exists yet for the endpoint you need, add one to the relevant service using
+`queryOptions()` from `@tanstack/angular-query-experimental`, so future callers can reuse it too.
+
 ### SPDX License Headers
 All source files require an SPDX header. For `.kt`, `.ts`, `.java`, `.js` files:
 ```
