@@ -117,8 +117,8 @@ describe(ZaakViewComponent.name, () => {
     };
 
     await TestBed.configureTestingModule({
-      declarations: [ZaakViewComponent],
       imports: [
+        ZaakViewComponent,
         ZaakDocumentenComponent,
         ZaakBetrokkeneListComponent,
         ZaakDetailsCardComponent,
