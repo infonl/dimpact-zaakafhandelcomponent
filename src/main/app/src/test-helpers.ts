@@ -76,3 +76,5 @@ export function createQueryOptions<TData>(data: TData) {
     queryFn,
   };
 }
+
+export const flushMicrotasks = () => Promise.resolve();

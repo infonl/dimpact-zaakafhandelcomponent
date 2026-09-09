@@ -8,20 +8,15 @@ import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Subject, of } from "rxjs";
-import { webSocket } from "rxjs/webSocket";
+import { flushMicrotasks } from "src/test-helpers";
 import { IdentityService } from "../../identity/identity.service";
 import { UtilService } from "../service/util.service";
 import { ObjectType } from "./model/object-type";
 import { Opcode } from "./model/opcode";
 import { SubscriptionMessage } from "./model/subscription-message";
 import { SubscriptionType } from "./model/subscription-type";
+import { WEBSOCKET_FACTORY } from "./websocket-factory";
 import { WebsocketService } from "./websocket.service";
-
-jest.mock("rxjs/webSocket", () => ({
-  webSocket: jest.fn(),
-}));
-
-const flushMicrotasks = () => Promise.resolve();
 
 describe(WebsocketService.name, () => {
   let service: WebsocketService;
@@ -30,7 +25,7 @@ describe(WebsocketService.name, () => {
   beforeEach(() => {
     jest.useFakeTimers();
     sockets = [];
-    (webSocket as jest.Mock).mockImplementation(
+    const webSocketFactory = jest.fn(
       (config: { openObserver?: { next: () => void } }) => {
         const socket = new Subject<unknown>();
         // Unlike a plain Subject, the real WebSocketSubject.next() sends a message to the server and
@@ -58,6 +53,7 @@ describe(WebsocketService.name, () => {
             readLoggedInUser: jest.fn().mockReturnValue({ queryKey: [] }),
           },
         },
+        { provide: WEBSOCKET_FACTORY, useValue: webSocketFactory },
       ],
     });
 

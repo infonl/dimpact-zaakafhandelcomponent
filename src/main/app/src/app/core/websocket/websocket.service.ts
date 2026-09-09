@@ -9,7 +9,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import { Observable, Subject, forkJoin, throwError, timer } from "rxjs";
 import { catchError, switchMap, timeout } from "rxjs/operators";
-import { WebSocketSubject, webSocket } from "rxjs/webSocket";
+import { WebSocketSubject } from "rxjs/webSocket";
 import { IdentityService } from "../../identity/identity.service";
 import { UtilService } from "../service/util.service";
 import { isCausedByCurrentUser } from "./is-caused-by-current-user";
@@ -22,6 +22,7 @@ import { ScreenEventId } from "./model/screen-event-id";
 import { SubscriptionMessage } from "./model/subscription-message";
 import { SubscriptionType } from "./model/subscription-type";
 import { WebsocketListener } from "./model/websocket-listener";
+import { WEBSOCKET_FACTORY } from "./websocket-factory";
 
 type SocketMessage = {
   opcode: Opcode;
@@ -67,6 +68,7 @@ export class WebsocketService {
 
   private readonly queryClient = inject(QueryClient);
   private readonly identityService = inject(IdentityService);
+  private readonly webSocketFactory = inject(WEBSOCKET_FACTORY);
 
   constructor(
     private translate: TranslateService,
@@ -80,7 +82,7 @@ export class WebsocketService {
     url: string,
   ): WebSocketSubject<SocketMessage | SubscriptionMessage> {
     if (!this.connection$) {
-      this.connection$ = webSocket({
+      this.connection$ = this.webSocketFactory({
         url,
         openObserver: {
           next: () => {
