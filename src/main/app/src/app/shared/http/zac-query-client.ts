@@ -83,10 +83,6 @@ export class ZacQueryClient {
     );
   }
 
-  /**
-   * `PUT` that shows how much of the request body has been sent on the global progress
-   * indicator, see {@link POST_WITH_PROGRESS}.
-   */
   public PUT_WITH_PROGRESS<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "put",

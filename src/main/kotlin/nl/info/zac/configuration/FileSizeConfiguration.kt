@@ -31,9 +31,6 @@ import java.util.logging.Logger
  *   memory: converting to PDF, sending as a mail attachment and editing through WebDAV. Here the
  *   heap cost is a multiple of the document size, which is why this value is validated against the
  *   heap on startup and is normally much lower than [maxFileSizeMB].
- *
- * It doubles as the threshold above which a document is uploaded to the documents registry in parts
- * rather than as a single base64 encoded request body.
  */
 @ApplicationScoped
 @NoArgConstructor
@@ -119,15 +116,6 @@ class FileSizeConfiguration @Inject constructor(
         }
     }
 
-    /**
-     * Reads [inputStream] completely, refusing content beyond the in-memory maximum.
-     *
-     * The size the documents registry reports is optional, so a document that reports no size at all
-     * passes [assertFileCanBeHeldInMemory]. Counting the bytes that actually arrive is what keeps
-     * such a document from being read onto the heap in full.
-     *
-     * @throws FileTooLargeToOpenException when the content exceeds the in-memory maximum.
-     */
     fun readWithinInMemoryLimit(inputStream: InputStream): ByteArray {
         // read one byte beyond the limit so that content of exactly the limit is still accepted
         val bytes = inputStream.readNBytes(inMemoryLimitAsInt + 1)

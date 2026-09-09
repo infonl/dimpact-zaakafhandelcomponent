@@ -6,13 +6,6 @@ package nl.info.client.zgw.drc.model
 
 import java.io.InputStream
 
-/**
- * The slice of the content of a document that makes up one bestandsdeel.
- *
- * It yields at most [sizeInBytes] bytes and never closes [content], because the parts that follow
- * are read from that same stream. [bytesRead] is how many bytes the consumer actually took, which is
- * less than [sizeInBytes] when the content ran out early.
- */
 class BestandsDeelInputStream(
     private val content: InputStream,
     private val sizeInBytes: Int

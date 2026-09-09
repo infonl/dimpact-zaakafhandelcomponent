@@ -124,9 +124,6 @@ export class HttpClient {
     return this.requestWithProgress<Path, Method>("post", url, body, ...args);
   }
 
-  /**
-   * `PUT` that reports how much of the request body has been sent, see {@link POST_WITH_PROGRESS}.
-   */
   public PUT_WITH_PROGRESS<
     Path extends PathsWithMethod<Paths, Method>,
     Method extends Methods = "put",
@@ -161,8 +158,6 @@ export class HttpClient {
         },
       )
       .pipe(
-        // the response events that follow the upload carry no upload information; without
-        // dropping them the indicator falls back to 0% just as the upload reaches 100%
         filter(
           (event) =>
             event.type === HttpEventType.Sent ||

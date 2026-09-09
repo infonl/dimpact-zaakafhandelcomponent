@@ -7,7 +7,6 @@ package nl.info.zac.document.content
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import nl.info.zac.configuration.FileSizeConfiguration
-import nl.info.zac.configuration.exception.FileSizeExceededException
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.util.AllOpen
@@ -16,9 +15,6 @@ import java.io.InputStream
 import java.nio.file.Files
 
 /**
- * Reads an uploaded document into a [DocumentContent], enforcing the configured maximum file size
- * while doing so.
- *
  * This is where the server-side size limit is actually applied. The frontend refuses oversized
  * documents too, but that check is advisory: it is the byte count observed here that decides,
  * because a client can send anything.
@@ -34,13 +30,6 @@ class DocumentContentReader @Inject constructor(
         private const val COPY_BUFFER_SIZE = 64 * 1024
     }
 
-    /**
-     * Reads [inputStream] completely and returns its content, backed by memory when it fits in the
-     * configured in-memory budget and by a temporary file when it does not.
-     *
-     * @throws FileSizeExceededException when the document is larger than the configured maximum.
-     * @throws InputValidationFailedException when the document is empty.
-     */
     fun read(inputStream: InputStream): DocumentContent = inputStream.use {
         val inMemoryLimit = fileSizeConfiguration.inMemoryLimitAsInt
         // read one byte beyond the limit so that a document of exactly the limit still stays in memory

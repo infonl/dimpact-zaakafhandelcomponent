@@ -136,14 +136,6 @@ class DrcClientService @Inject constructor(
         enkelvoudigInformatieObjectCreateLockRequest
     )
 
-    /**
-     * Creates a document with the given [content].
-     *
-     * Content that fits in memory is sent base64 encoded in the create request itself. Larger
-     * content is uploaded in parts: the document is created with only its `bestandsomvang`, which
-     * makes the documents registry respond with the parts it expects, after which every part is
-     * streamed to it and the document is unlocked.
-     */
     fun createEnkelvoudigInformatieobject(
         enkelvoudigInformatieObjectCreateLockRequest: EnkelvoudigInformatieObjectCreateLockRequest,
         content: DocumentContent
@@ -160,9 +152,6 @@ class DrcClientService @Inject constructor(
     }
 
     /**
-     * Adds a new version of a document with the given [content], following the same two routes as
-     * [createEnkelvoudigInformatieobject].
-     *
      * The document is already locked by the caller, which also set that lock on
      * [enkelvoudigInformatieObjectWithLockRequest]. The parts route reuses that lock and leaves the
      * document locked: unlocking it is what commits the new version, and that is the caller's lock
@@ -264,8 +253,6 @@ class DrcClientService @Inject constructor(
         assertPartsCoverContent(documentUUID = documentUUID, parts = orderedParts, content = content)
         content.inputStream().use { contentStream ->
             orderedParts.forEach { part ->
-                // the part travels straight from the content stream into the request, so however
-                // large the documents registry announced it, it is never held on the heap
                 val partContent = BestandsDeelInputStream(content = contentStream, sizeInBytes = part.omvang)
                 val body = BestandsDeelMultipartBody(partContent = partContent, lock = lock)
                 drcClient.bestandsdeelUpdate(

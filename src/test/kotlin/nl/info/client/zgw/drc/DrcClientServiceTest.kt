@@ -200,7 +200,7 @@ class DrcClientServiceTest : BehaviorSpec({
         }
     }
 
-    given("A document too large to fit in memory") {
+    given("A document too large to fit in memory, whose parts are announced out of volgnummer order") {
         val bytes = "0123456789".toByteArray()
         val documentUUID = UUID.randomUUID()
         val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
@@ -209,7 +209,6 @@ class DrcClientServiceTest : BehaviorSpec({
         val temporaryFile = Files.createTempFile("fakeDocument", null).also { Files.write(it, bytes) }
         val content = TemporaryFileDocumentContent(temporaryFile)
         val createRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
-        // the parts are deliberately announced out of order to prove that they are uploaded by volgnummer
         val createdDocument = createEnkelvoudigInformatieObjectCreateLockSub(
             uuid = documentUUID,
             url = documentUrl,
@@ -237,7 +236,7 @@ class DrcClientServiceTest : BehaviorSpec({
         `when`("it is created") {
             val result = drcClientService.createEnkelvoudigInformatieobject(createRequest, content)
 
-            then("it is created without content and every part is streamed in order") {
+            then("it is created without content and every part is streamed in volgnummer order") {
                 requestSlot.captured.inhoud shouldBe null
                 requestSlot.captured.bestandsomvang shouldBe bytes.size
                 uploadedParts.map { it.first } shouldBe listOf(
@@ -368,13 +367,11 @@ class DrcClientServiceTest : BehaviorSpec({
         content.close()
     }
 
-    given("a document whose content stream yields fewer bytes than it reports") {
+    given("a document whose file was truncated after its size was captured, so that its stream yields fewer bytes than it reports") {
         val documentUUID = UUID.randomUUID()
         val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
         val temporaryFile = Files.createTempFile("fakeDocument", null)
             .also { Files.write(it, "0123456789".toByteArray()) }
-        // the size is captured when the content is constructed, so truncating the file afterwards
-        // leaves content that reports more bytes than its stream can yield
         val content = TemporaryFileDocumentContent(temporaryFile)
         Files.write(temporaryFile, "0123".toByteArray())
 

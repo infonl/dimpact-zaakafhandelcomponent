@@ -7,11 +7,6 @@ import moment from "moment";
 
 const DATE_FIELDS = ["creatiedatum", "ontvangstdatum", "verzenddatum"];
 
-/**
- * Builds the multipart body of a document upload: the file travels under "file" named after
- * `bestandsnaam`, dates in the format the backend parses, objects as JSON and everything else as
- * text. Fields without a value are left out rather than sent as the text "null".
- */
 export function toDocumentFormData(
   document: Record<string, unknown>,
 ): FormData {

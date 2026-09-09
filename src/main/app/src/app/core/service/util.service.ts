@@ -16,8 +16,8 @@ import { ProgressDialogComponent } from "src/app/shared/progress-dialog/progress
 import { OrderUtil } from "../../shared/order/order-util";
 
 /**
- * How far a long-running action has come. `description` is a translation key naming the action, so
- * that the progress indicator has an accessible name that says what is taking time.
+ * `description` is a translation key naming the action, so that the progress indicator has an
+ * accessible name that says what is taking time.
  */
 export type Progress = {
   percentage: number;
@@ -34,10 +34,6 @@ export class UtilService {
 
   readonly loading = signal(false);
 
-  /**
-   * Progress of the long-running action currently in flight, or null when there is none.
-   * Anything that knows how far along it is can set it; the global loading bar renders it.
-   */
   readonly progress = signal<Progress | null>(null);
 
   public headerTitle$: Observable<string> = this.headerTitle.asObservable();

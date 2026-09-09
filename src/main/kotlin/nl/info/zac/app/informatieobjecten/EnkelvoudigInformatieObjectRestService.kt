@@ -554,11 +554,6 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .build()
     }
 
-    /**
-     * The metadata of the version that is actually streamed. A previous version may have a different
-     * size and file name than the current one, so describing the response with the current metadata
-     * would give the client a `Content-Length` that does not match the bytes it receives.
-     */
     private fun readStreamedVersion(uuid: UUID, version: Int?, currentVersion: EnkelvoudigInformatieObject) =
         version?.let { drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, it) } ?: currentVersion
 
