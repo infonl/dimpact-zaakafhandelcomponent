@@ -16,7 +16,7 @@ import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.RECORDMANAGER_1
 import nl.info.zac.itest.config.ItestConfiguration.CONFIG_MAX_IN_MEMORY_FILE_SIZE_IN_MB
 import nl.info.zac.itest.config.ItestConfiguration.DOCUMENT_STATUS_DEFINITIEF
-import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.TEXT_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -57,7 +57,7 @@ class LargeDocumentUploadTest : BehaviorSpec({
                 zaakUUID = zaakUuid,
                 file = file,
                 fileName = "large-document.txt",
-                fileMediaType = TEXT_MIME_TYPE,
+                fileMediaType = TEXT_MEDIA_TYPE,
                 vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
                 status = DOCUMENT_STATUS_DEFINITIEF,
                 testUser = BEHANDELAAR_1
@@ -105,7 +105,7 @@ class LargeDocumentUploadTest : BehaviorSpec({
                     zaakUuid = zaakUuid,
                     file = newVersionFile,
                     fileName = "large-document-v2.txt",
-                    fileMediaType = TEXT_MIME_TYPE,
+                    fileMediaType = TEXT_MEDIA_TYPE,
                     vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
                     testUser = BEHANDELAAR_1
                 )
