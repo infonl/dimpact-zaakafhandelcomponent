@@ -19,6 +19,7 @@ import nl.info.client.smartdocuments.model.template.SmartDocumentsTemplatesRespo
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputFormatException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
@@ -159,7 +160,7 @@ class SmartDocumentsService @Inject constructor(
     private fun outputFormatForFileName(fileName: String): String =
         ".${getExtension(fileName)}".let { extension ->
             MediaTypes.Application.entries.find { extension in it.extensions }?.mediaType
-                ?: throw SmartDocumentsConfigurationException(
+                ?: throw SmartDocumentsUnsupportedOutputFormatException(
                     "Unsupported SmartDocuments output file extension: '$extension' for file name: '$fileName'"
                 )
         }

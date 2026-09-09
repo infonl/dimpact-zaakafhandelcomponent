@@ -24,6 +24,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.documentcreation.model.createData
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputFormatException
 import nl.info.zac.util.toBase64String
 import java.net.URI
 import java.util.Optional
@@ -141,7 +142,7 @@ class SmartDocumentsServiceTest : BehaviorSpec({
             )
 
             `when`("the 'download file' method is called") {
-                val exception = shouldThrow<SmartDocumentsConfigurationException> {
+                val exception = shouldThrow<SmartDocumentsUnsupportedOutputFormatException> {
                     smartDocumentsService.downloadDocument(smartDocumentId)
                 }
 
