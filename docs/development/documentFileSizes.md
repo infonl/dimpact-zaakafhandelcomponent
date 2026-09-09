@@ -10,7 +10,7 @@ editor or converter have very different memory characteristics.
 
 | Setting | Helm value | Environment variable | Default | Applies to |
 |---|---|---|---|---|
-| Maximum document size | `maxFileSizeMB` | `MAX_FILE_SIZE_MB` | 80 | Uploading and downloading a document |
+| Maximum document size | `maxFileSizeMB` | `MAX_FILE_SIZE_MB` | 500 | Uploading and downloading a document |
 | Maximum in-memory document size | `maxInMemoryFileSizeMB` | `MAX_IN_MEMORY_FILE_SIZE_MB` | 80 | Preview through PDF conversion, mail attachments, editing through WebDAV, and the inbox productaanvraag preview |
 
 Uploads and downloads are streamed from beginning to end, and a document larger than
@@ -35,18 +35,19 @@ edited in Office. Attempting that returns `413 Payload Too Large` with
   is 805306368 bytes. That value lives in the ZAC image rather than in the chart, so going beyond it
   takes a code change and a new build, not a `values.yaml` change.
 
-Everything below that is a matter of configuration. The section below works out 500 MB, because that
-is the size ZAC has been tested against end to end; the same steps apply to any other value.
+Everything below that is a matter of configuration. The default is 500 MB, the size ZAC has been
+tested against end to end. The section below lists what that default relies on; the same
+considerations apply when raising it further.
 
-## Raising the maximum document size
+## What the maximum document size relies on
 
 ZAC refuses to start when the configured limits do not fit in the heap, and `helm install` fails
-with the same message before it gets that far. Raising `maxFileSizeMB` to 500 means changing more
-than that one value.
+with the same message before it gets that far. `maxFileSizeMB` is only honoured when the settings
+below allow it too.
 
 ### ZAC
 
-- `maxFileSizeMB: 500`.
+- `maxFileSizeMB`: 500 by default.
 - `maxInMemoryFileSizeMB`: leave at 80 unless preview, mail and WebDAV editing have to support larger
   documents too. It needs roughly three times its value in heap, and may claim at most half the heap,
   so with the default `-Xmx1024m` the ceiling is 170. Raise `javaOptions` to go beyond that.

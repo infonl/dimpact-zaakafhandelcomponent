@@ -49,7 +49,7 @@ class FileSizeConfiguration @Inject constructor(
         const val ENV_VAR_MAX_FILE_SIZE_MB = "MAX_FILE_SIZE_MB"
         const val ENV_VAR_MAX_IN_MEMORY_FILE_SIZE_MB = "MAX_IN_MEMORY_FILE_SIZE_MB"
 
-        const val DEFAULT_MAX_FILE_SIZE_MB = "80"
+        const val DEFAULT_MAX_FILE_SIZE_MB = "500"
         const val DEFAULT_MAX_IN_MEMORY_FILE_SIZE_MB = "80"
 
         const val BYTES_PER_MB = 1024L * 1024L

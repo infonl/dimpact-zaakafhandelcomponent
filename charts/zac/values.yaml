@@ -233,7 +233,7 @@ opentelemetry_zaakafhandelcomponent:
 # a 32 bit integer number of bytes. In practice the ceiling is around 768, the temporary file size
 # WildFly allows through `dev.resteasy.entity.file.threshold`, which is part of the ZAC image and not
 # of this chart. See `docs/development/documentFileSizes.md`.
-maxFileSizeMB: 80
+maxFileSizeMB: 500
 
 # -- Maximum size (in Mega Bytes) of documents for operations that cannot stream and therefore hold
 # the whole document in memory: converting to PDF for preview, sending as a mail attachment and

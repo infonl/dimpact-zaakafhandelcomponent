@@ -163,7 +163,7 @@ ZAC performs the same check on startup; doing it here as well turns a crash loop
 install with an actionable message.
 */}}
 {{- define "zaakafhandelcomponent.validateFileSizeLimits" -}}
-{{- $maxFileSizeMB := .Values.maxFileSizeMB | default 80 | int64 -}}
+{{- $maxFileSizeMB := .Values.maxFileSizeMB | default 500 | int64 -}}
 {{- $maxInMemoryFileSizeMB := .Values.maxInMemoryFileSizeMB | default 80 | int64 -}}
 {{- if or (le $maxFileSizeMB 0) (le $maxInMemoryFileSizeMB 0) -}}
 {{- fail "maxFileSizeMB and maxInMemoryFileSizeMB must both be greater than zero" -}}

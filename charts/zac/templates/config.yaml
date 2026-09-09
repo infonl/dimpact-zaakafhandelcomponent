@@ -57,7 +57,7 @@ data:
   KEYCLOAK_ADMIN_CLIENT_ID: {{ required "Valid .Values.keycloak.adminClient.id entry required!" .Values.keycloak.adminClient.id }}
   KLANTINTERACTIES_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.klantinteractiesApi.url entry required!" .Values.klantinteractiesApi.url }}
   KVK_API_CLIENT_MP_REST_URL: {{ required "Valid .Values.kvkApi.url entry required!" .Values.kvkApi.url }}
-  MAX_FILE_SIZE_MB: {{ .Values.maxFileSizeMB | default 80 | quote }}
+  MAX_FILE_SIZE_MB: {{ .Values.maxFileSizeMB | default 500 | quote }}
   MAX_IN_MEMORY_FILE_SIZE_MB: {{ .Values.maxInMemoryFileSizeMB | default 80 | quote }}
   MP_HEALTH_EMPTY_LIVENESS_CHECKS_STATUS: DOWN
   MP_HEALTH_EMPTY_READINESS_CHECKS_STATUS: DOWN
