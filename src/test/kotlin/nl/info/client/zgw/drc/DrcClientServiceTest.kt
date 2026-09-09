@@ -300,7 +300,7 @@ class DrcClientServiceTest : BehaviorSpec({
                 bodySlot.captured.isNull("inhoud") shouldBe true
             }
 
-            and("the content is uploaded into the parts the registry created for the new version") {
+            and("the content is uploaded into the parts that are read back, as the update response omits them") {
                 uploadedParts.map { it.first } shouldBe listOf(part.url.extractUuid())
                 String(uploadedParts.single().second) shouldContain "0123456789"
             }

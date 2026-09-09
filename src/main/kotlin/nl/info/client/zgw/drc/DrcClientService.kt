@@ -183,8 +183,6 @@ class DrcClientService @Inject constructor(
             uuid = enkelvoudigInformatieobjectUUID,
             body = enkelvoudigInformatieObjectWithLockRequest.toContentReplacingBody()
         )
-        // the update response leaves out the bestandsdelen the registry created for the new
-        // version, so they have to be read back before the content can be uploaded into them
         uploadParts(
             documentUUID = enkelvoudigInformatieobjectUUID,
             parts = readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID).bestandsdelen,
@@ -280,10 +278,6 @@ class DrcClientService @Inject constructor(
         }
     }
 
-    /**
-     * The request as a JSON body whose `inhoud` is an explicit `null`, which is what tells the
-     * documents registry that the content of the new version follows as bestandsdelen.
-     */
     private fun EnkelvoudigInformatieObjectWithLockRequest.toContentReplacingBody(): JsonObject =
         StringReader(JSONB.toJson(this)).use { Json.createReader(it).readObject() }
             .let { Json.createObjectBuilder(it).addNull("inhoud").build() }

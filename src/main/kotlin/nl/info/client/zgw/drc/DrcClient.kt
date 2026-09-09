@@ -125,15 +125,6 @@ interface DrcClient {
         enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest
     ): EnkelvoudigInformatieObject
 
-    /**
-     * Replaces the content of a document with content that is uploaded in parts, so that the
-     * request carries a `bestandsomvang` but no `inhoud`.
-     *
-     * The body is assembled by the caller instead of being taken as a typed request because it has
-     * to carry `inhoud` as an explicit `null`. JSON-B leaves a null property out of the request
-     * altogether, and to the documents registry an absent `inhoud` on a partial update means "keep
-     * the content that is there", which then no longer matches the new `bestandsomvang`.
-     */
     @PATCH
     @Path("enkelvoudiginformatieobjecten/{uuid}")
     fun enkelvoudigInformatieobjectPartialUpdateForPartsUpload(
