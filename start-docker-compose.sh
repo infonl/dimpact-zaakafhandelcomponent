@@ -14,7 +14,7 @@ help()
    echo "Syntax: $0 [-d|e|h|z|b|l|m|t|o|n|a|f]"
    echo
    echo "General:"
-   echo "   -d     Delete local Docker volume data before starting Docker Compose."
+   echo "   -d     Delete local Docker named volumes before starting Docker Compose."
    echo "   -e     Run Docker Compose without using the 1Password CLI tools to retrieve secrets (instead, environment variables must be set manually)."
    echo "   -h     Print this Help."
    echo

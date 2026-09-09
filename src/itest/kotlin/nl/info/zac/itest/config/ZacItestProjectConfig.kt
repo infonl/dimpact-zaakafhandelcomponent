@@ -185,7 +185,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
         logger.info { "Starting integration tests with random seed: '$randomOrderSeed'" }
         try {
             if (!skipDockerComposeStart) {
-                deleteLocalDockerVolumeData()
                 dockerComposeContainer = createDockerComposeContainer()
                 dockerComposeContainer.start()
                 logger.info { "Started ZAC Docker Compose containers" }
@@ -338,27 +337,6 @@ class ZacItestProjectConfig : AbstractProjectConfig() {
                 Wait.forLogMessage(".*Starting GreenMail API server.*", 1)
                     .withStartupTimeout(2.minutes.toJavaDuration())
             )
-    }
-
-    /**
-     * The integration tests assume a clean environment.
-     * For that reason, we first need to remove any local Docker volume data that may have been created
-     *  by a previous run.
-     * Local Docker volume data is created because we reuse the same Docker Compose file that we also
-     * use for running ZAC locally.
-     */
-    private fun deleteLocalDockerVolumeData() {
-        val file = File("${System.getProperty("user.dir")}/scripts/docker-compose/volume-data")
-        if (file.exists()) {
-            logger.info { "Deleting existing folder '$file' because the integration tests assume a clean environment" }
-            file.deleteRecursively().let { deleted ->
-                if (deleted) {
-                    logger.info { "Deleted folder '$file'" }
-                } else {
-                    logger.error { "Failed to delete folder '$file'" }
-                }
-            }
-        }
     }
 
     /**
