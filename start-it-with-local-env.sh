@@ -10,7 +10,7 @@ set -e
 help() {
    echo "Starts the integration tests with a local ZAC Docker Image."
    echo
-   echo "Syntax: $0 [-b|d|s|u|h]"
+   echo "Syntax: $0 [-b|c|d|s|u|h]"
    echo "options:"
    echo "-b     Build a local ZAC Docker image"
    echo "-d     Delete local Docker named volumes before starting Docker Compose"
