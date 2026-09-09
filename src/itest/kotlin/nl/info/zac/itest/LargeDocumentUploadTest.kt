@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.client.ItestHttpClient
 import nl.info.zac.itest.client.ZaakHelper
 import nl.info.zac.itest.client.ZacClient
+import nl.info.zac.itest.client.addEnkelvoudigInformatieobjectVersion
 import nl.info.zac.itest.client.createEnkelvoudigInformatieobjectForZaak
 import nl.info.zac.itest.config.BEHANDELAAR_1
 import nl.info.zac.itest.config.RECORDMANAGER_1
@@ -26,6 +27,7 @@ import java.io.File
 import java.net.HttpURLConnection.HTTP_ENTITY_TOO_LARGE
 import java.net.HttpURLConnection.HTTP_OK
 import java.security.MessageDigest
+import java.util.UUID
 
 private const val BYTES_PER_MB = 1024 * 1024
 private const val LETTERS_IN_THE_ALPHABET = 26
@@ -93,7 +95,38 @@ class LargeDocumentUploadTest : BehaviorSpec({
                 JSONObject(convertResponse.bodyAsString).getString("message") shouldBe
                     "msg.error.file.too-large-to-open"
             }
+
+            and("a new version larger than the maximum in-memory file size is added to it") {
+                val newVersionSizeInBytes = fileSizeInBytes + BYTES_PER_MB
+                val (newVersionContent, newVersionFile) = createTemporaryDocument(newVersionSizeInBytes)
+
+                val newVersionResponse = zacClient.addEnkelvoudigInformatieobjectVersion(
+                    enkelvoudigInformatieobjectUuid = UUID.fromString(documentUuid),
+                    zaakUuid = zaakUuid,
+                    file = newVersionFile,
+                    fileName = "large-document-v2.txt",
+                    fileMediaType = TEXT_MIME_TYPE,
+                    vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
+                    testUser = BEHANDELAAR_1
+                )
+
+                withClue("new version response: ${newVersionResponse.bodyAsString}") {
+                    newVersionResponse.code shouldBe HTTP_OK
+                }
+                JSONObject(newVersionResponse.bodyAsString).run {
+                    getInt("bestandsomvang") shouldBe newVersionSizeInBytes
+                    getInt("versie") shouldBe 2
+                }
+
+                val downloadResponse = itestHttpClient.performGetRequest(
+                    url = "$ZAC_API_URI/informatieobjecten/informatieobject/$documentUuid/download",
+                    testUser = BEHANDELAAR_1
+                )
+                downloadResponse.code shouldBe HTTP_OK
+                downloadResponse.bodyAsBytes.size shouldBe newVersionSizeInBytes
+                MessageDigest.getInstance("SHA-256").digest(downloadResponse.bodyAsBytes) shouldBe
+                    MessageDigest.getInstance("SHA-256").digest(newVersionContent)
+            }
         }
     }
-
 })

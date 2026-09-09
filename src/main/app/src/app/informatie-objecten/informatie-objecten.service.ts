@@ -5,14 +5,12 @@
 
 import { inject, Injectable } from "@angular/core";
 import { queryOptions } from "@tanstack/angular-query-experimental";
-import moment from "moment";
 import { lastValueFrom, map, Observable } from "rxjs";
 import { UtilService } from "../core/service/util.service";
 import { DeleteBody, PostBody, PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { StaleTimes, ZacQueryClient } from "../shared/http/zac-query-client";
-import { appendFileToFormData } from "../shared/utils/file-upload";
 import { GeneratedType } from "../shared/utils/generated-types";
 
 @Injectable({
@@ -64,12 +62,10 @@ export class InformatieObjectenService {
     zaakUuid: string,
     documentReferenceId: string,
     taakObject: boolean,
-    onProgress: (percentage: number) => void = () => undefined,
   ) {
     return mergeMutationOptions(
       this.zacQueryClient.POST_WITH_PROGRESS(
         "/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}",
-        onProgress,
         {
           path: { zaakUuid, documentReferenceId },
           query: { taakObject },
@@ -99,42 +95,21 @@ export class InformatieObjectenService {
     );
   }
 
-  updateEnkelvoudigInformatieobject(
-    uuid: string,
-    zaakUuid: string,
-    infoObject: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
-  ) {
-    const formData = new FormData();
-    const data = { ...infoObject, uuid, zaakUuid };
-    for (const [key, value] of Object.entries(data)) {
-      if (value === undefined || value === null) continue;
-      switch (key) {
-        case "ontvangstdatum":
-        case "verzenddatum":
-          formData.append(
-            key,
-            moment(value.toString()).format("YYYY-MM-DDThh:mmZ"),
-          );
-          break;
-        case "file":
-          appendFileToFormData(
-            formData,
-            value as unknown as Blob,
-            infoObject.bestandsnaam!,
-          );
-          break;
-        case "taal":
-          formData.append(key, JSON.stringify(value));
-          break;
-        default:
-          formData.append(key, value.toString());
-          break;
-      }
-    }
-
-    return this.zacHttpClient.POST(
-      "/rest/informatieobjecten/informatieobject/update",
-      formData as PostBody<"/rest/informatieobjecten/informatieobject/update">,
+  updateEnkelvoudigInformatieobject(uuid: string, zaakUuid: string) {
+    return mergeMutationOptions(
+      this.zacQueryClient.PUT_WITH_PROGRESS(
+        "/rest/informatieobjecten/informatieobject/{uuid}",
+        {
+          path: { uuid },
+          query: { zaak: zaakUuid },
+        },
+      ),
+      {
+        onSuccess: () =>
+          this.utilService.openSnackbar(
+            "msg.document.nieuwe.versie.toegevoegd",
+          ),
+      },
     );
   }
 

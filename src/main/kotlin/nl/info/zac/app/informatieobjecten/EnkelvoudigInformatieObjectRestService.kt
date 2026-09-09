@@ -29,7 +29,6 @@ import net.atos.zac.util.MediaTypes
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZgwApiService
@@ -43,6 +42,7 @@ import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConv
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
+import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieFileUpload
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import nl.info.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
@@ -59,6 +59,8 @@ import nl.info.zac.document.content.DocumentContentReader
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.policy.PolicyService
@@ -227,20 +229,16 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     ): RestEnkelvoudigInformatieobject {
         val zaak = zrcClientService.readZaak(zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).toevoegenDocument)
-
-        val enkelvoudigInformatieObjectCreateLockRequest = restEnkelvoudigInformatieobject.run(
-            restInformatieobjectConverter::convertEnkelvoudigInformatieObject
-        )
-        val zaakInformatieobject = documentContentReader.read(restEnkelvoudigInformatieobject.file!!).use { content ->
+        val enkelvoudigInformatieObjectCreateLockRequest =
+            restInformatieobjectConverter.convertEnkelvoudigInformatieObject(restEnkelvoudigInformatieobject)
+        return restEnkelvoudigInformatieobject.useUploadedContent { content ->
             enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
                 zaak = zaak,
                 enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
                 taskId = if (isTaakObject) documentReferenceId else null,
                 content = content
             )
-        }
-
-        return restInformatieobjectConverter.convertToREST(zaakInformatieobject)
+        }.let(restInformatieobjectConverter::convertToREST)
     }
 
     @POST
@@ -412,37 +410,31 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .also { assertPolicy(policyService.readDocumentRechten(it, findZaakForDocument(it)).lezen) }
             .let(restInformatieobjectConverter::convertToRestEnkelvoudigInformatieObjectVersieGegevens)
 
-    @POST
+    @PUT
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Path("/informatieobject/update")
+    @Path("informatieobject/{uuid}")
     fun updateEnkelvoudigInformatieobjectAndUploadFile(
+        @PathParam("uuid") uuid: UUID,
+        @QueryParam("zaak") zaakUuid: UUID,
         @Valid @MultipartForm enkelvoudigInformatieObjectVersieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens
     ): RestEnkelvoudigInformatieobject {
-        val document = drcClientService.readEnkelvoudigInformatieobject(
-            enkelvoudigInformatieObjectVersieGegevens.uuid!!
-        )
+        val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         assertPolicy(
             policyService.readDocumentRechten(
-                document,
-                zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid!!)
+                enkelvoudigInformatieObject,
+                zrcClientService.readZaak(zaakUuid)
             ).toevoegenNieuweVersie
         )
-        val updatedDocument = restInformatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens)
-        return enkelvoudigInformatieObjectVersieGegevens.file?.let { uploadedFile ->
-            documentContentReader.read(uploadedFile).use { content ->
-                updateEnkelvoudigInformatieobject(
-                    enkelvoudigInformatieObjectVersieGegevens = enkelvoudigInformatieObjectVersieGegevens,
-                    enkelvoudigInformatieObject = document,
-                    enkelvoudigInformatieObjectWithLockRequest = updatedDocument,
-                    content = content
-                )
-            }
-        } ?: updateEnkelvoudigInformatieobject(
-            enkelvoudigInformatieObjectVersieGegevens = enkelvoudigInformatieObjectVersieGegevens,
-            enkelvoudigInformatieObject = document,
-            enkelvoudigInformatieObjectWithLockRequest = updatedDocument,
-            content = null
-        )
+        val enkelvoudigInformatieObjectWithLockRequest =
+            restInformatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens)
+        return enkelvoudigInformatieObjectVersieGegevens.useOptionalUploadedContent { content ->
+            enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                enkelvoudigInformatieObjectUUID = uuid,
+                enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest,
+                toelichting = enkelvoudigInformatieObjectVersieGegevens.toelichting,
+                content = content
+            )
+        }.let(restInformatieobjectConverter::convertToREST)
     }
 
     @POST
@@ -619,18 +611,17 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             }
         }
 
-    private fun updateEnkelvoudigInformatieobject(
-        enkelvoudigInformatieObjectVersieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens,
-        enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
-        enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest,
-        content: DocumentContent?
-    ): RestEnkelvoudigInformatieobject =
-        enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-            enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObject.url.extractUuid(),
-            enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest,
-            toelichting = enkelvoudigInformatieObjectVersieGegevens.toelichting,
-            content = content
-        ).let(restInformatieobjectConverter::convertToREST)
+    private fun <T> RestEnkelvoudigInformatieFileUpload.useUploadedContent(block: (DocumentContent) -> T): T =
+        documentContentReader.read(
+            file ?: throw InputValidationFailedException(
+                errorCode = ERROR_CODE_DOCUMENT_UPLOAD_INVALID,
+                message = "A document cannot be uploaded without a file"
+            )
+        ).use(block)
+
+    private fun <T> RestEnkelvoudigInformatieFileUpload.useOptionalUploadedContent(
+        block: (DocumentContent?) -> T
+    ): T = if (file == null) block(null) else useUploadedContent(block)
 
     private fun toRestZaakInformatieobject(zaakInformatieobject: ZaakInformatieObject): RestZaakInformatieobject {
         val zaak = zrcClientService.readZaak(zaakInformatieobject.zaak)

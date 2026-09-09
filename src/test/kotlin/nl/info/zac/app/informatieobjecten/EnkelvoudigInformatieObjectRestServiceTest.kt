@@ -58,6 +58,8 @@ import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieo
 import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
 import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.document.content.DocumentContentReader
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import nl.info.zac.app.zaak.model.RelatieType
@@ -266,6 +268,43 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
+    given("a document to be added to an open zaak, submitted without a file") {
+        val zaak = createZaak()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject(file = null)
+        val loggedInUser = createLoggedInUser()
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
+            toevoegenDocument = true
+        )
+        every {
+            restInformatieobjectConverter.convertEnkelvoudigInformatieObject(restEnkelvoudigInformatieobject)
+        } returns createEnkelvoudigInformatieObjectCreateLockRequest()
+
+        `when`("the document is added") {
+            val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
+                    zaak.uuid,
+                    "fakeDocumentReferentieId",
+                    false,
+                    restEnkelvoudigInformatieobject
+                )
+            }
+
+            then("the upload is refused as invalid and no document is created") {
+                inputValidationFailedException.errorCode shouldBe ERROR_CODE_DOCUMENT_UPLOAD_INVALID
+                verify(exactly = 0) {
+                    enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                        zaak = any(),
+                        enkelvoudigInformatieObjectCreateLockRequest = any(),
+                        taskId = any(),
+                        content = any()
+                    )
+                }
+            }
+        }
+    }
+
     given("an enkelvoudig informatieobject has been uploaded, and the zaak is closed") {
         val closedZaak = createZaak(
             archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
@@ -328,12 +367,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockRequest()
-        val restEnkelvoudigInformatieObjectVersieGegevens =
-            createRestEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
+        val restEnkelvoudigInformatieObjectVersieGegevens = createRestEnkelvoudigInformatieObjectVersieGegevens()
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val enkelvoudigInformatieObjectUuid = enkelvoudigInformatieObject.url.extractUuid()
 
         every {
-            drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid!!)
+            drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUuid)
         } returns enkelvoudigInformatieObject
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every {
@@ -358,17 +397,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             val returnedRESTEnkelvoudigInformatieobject =
                 enkelvoudigInformatieObjectRestService.updateEnkelvoudigInformatieobjectAndUploadFile(
-                    restEnkelvoudigInformatieObjectVersieGegevens
+                    uuid = enkelvoudigInformatieObjectUuid,
+                    zaakUuid = zaak.uuid,
+                    enkelvoudigInformatieObjectVersieGegevens = restEnkelvoudigInformatieObjectVersieGegevens
                 )
 
             then("the changes are stored in the backing services") {
                 returnedRESTEnkelvoudigInformatieobject shouldBe restEnkelvoudigInformatieobject
                 verify(exactly = 1) {
-                    drcClientService.readEnkelvoudigInformatieobject(
-                        restEnkelvoudigInformatieObjectVersieGegevens.uuid!!
-                    )
+                    drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUuid)
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                        enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObject.url.extractUuid(),
+                        enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObjectUuid,
                         enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockData,
                         toelichting = null,
                         content = any()
@@ -384,12 +423,68 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             val exception = shouldThrow<PolicyException> {
                 enkelvoudigInformatieObjectRestService.updateEnkelvoudigInformatieobjectAndUploadFile(
-                    restEnkelvoudigInformatieObjectVersieGegevens
+                    uuid = enkelvoudigInformatieObjectUuid,
+                    zaakUuid = zaak.uuid,
+                    enkelvoudigInformatieObjectVersieGegevens = restEnkelvoudigInformatieObjectVersieGegevens
                 )
             }
 
             then("it throws exception with no message") {
                 exception.message shouldBe null
+            }
+        }
+    }
+
+    given("an enkelvoudig informatieobject in an open zaak, and a new version that changes only its metadata") {
+        val zaak = createZaak()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
+        val enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockRequest()
+        val restEnkelvoudigInformatieObjectVersieGegevens = createRestEnkelvoudigInformatieObjectVersieGegevens(
+            file = null
+        ).apply { toelichting = "fakeToelichting" }
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val enkelvoudigInformatieObjectUuid = enkelvoudigInformatieObject.url.extractUuid()
+
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUuid)
+        } returns enkelvoudigInformatieObject
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every {
+            policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+        } returns createDocumentRechtenAllDeny(toevoegenNieuweVersie = true)
+        every {
+            restInformatieobjectConverter.convert(restEnkelvoudigInformatieObjectVersieGegevens)
+        } returns enkelvoudigInformatieObjectWithLockData
+        every {
+            enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObjectUuid,
+                enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockData,
+                toelichting = "fakeToelichting",
+                content = null
+            )
+        } returns enkelvoudigInformatieObject
+        every {
+            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
+        } returns restEnkelvoudigInformatieobject
+
+        `when`("the new version is submitted") {
+            val returnedRestEnkelvoudigInformatieobject =
+                enkelvoudigInformatieObjectRestService.updateEnkelvoudigInformatieobjectAndUploadFile(
+                    uuid = enkelvoudigInformatieObjectUuid,
+                    zaakUuid = zaak.uuid,
+                    enkelvoudigInformatieObjectVersieGegevens = restEnkelvoudigInformatieObjectVersieGegevens
+                )
+
+            then("the metadata is stored without any document content") {
+                returnedRestEnkelvoudigInformatieobject shouldBe restEnkelvoudigInformatieobject
+                verify(exactly = 1) {
+                    enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                        enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObjectUuid,
+                        enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockData,
+                        toelichting = "fakeToelichting",
+                        content = null
+                    )
+                }
             }
         }
     }

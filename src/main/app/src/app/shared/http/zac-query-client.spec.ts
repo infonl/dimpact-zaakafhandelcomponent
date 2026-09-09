@@ -15,8 +15,9 @@ import {
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
 import type { MutationFunctionContext } from "@tanstack/angular-query-experimental";
-import { of } from "rxjs";
+import { EMPTY, of } from "rxjs";
 import { fromPartial } from "../../../test-helpers";
+import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import { ZacQueryClient } from "./zac-query-client";
 
@@ -24,6 +25,7 @@ describe(ZacQueryClient.name, () => {
   let zacQueryClient: ZacQueryClient;
   let httpTestingController: HttpTestingController;
   let foutAfhandelingService: FoutAfhandelingService;
+  let utilService: UtilService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -37,6 +39,7 @@ describe(ZacQueryClient.name, () => {
     zacQueryClient = TestBed.inject(ZacQueryClient);
     httpTestingController = TestBed.inject(HttpTestingController);
     foutAfhandelingService = TestBed.inject(FoutAfhandelingService);
+    utilService = TestBed.inject(UtilService);
   });
 
   describe("POST_WITH_PROGRESS", () => {
@@ -49,24 +52,29 @@ describe(ZacQueryClient.name, () => {
     const url =
       "/rest/informatieobjecten/informatieobject/zaak-1/reference-1?taakObject=false";
 
-    it("reports every percentage while uploading and resolves with the response body", async () => {
-      const reported: number[] = [];
-      const options = zacQueryClient.POST_WITH_PROGRESS(
-        path,
-        (percentage) => reported.push(percentage),
-        parameters,
-      );
+    it("shows every percentage on the global progress indicator while uploading and resolves with the response body", async () => {
+      const options = zacQueryClient.POST_WITH_PROGRESS(path, parameters);
 
       const response = options.mutationFn!(
         new FormData() as never,
         fromPartial<MutationFunctionContext>({}),
       );
+      expect(utilService.progress()).toEqual({
+        percentage: 0,
+        description: "msg.document.uploaden.voortgang",
+      });
+
       const request = httpTestingController.expectOne(url);
       request.event({
         type: HttpEventType.UploadProgress,
         loaded: 50,
         total: 100,
       });
+      expect(utilService.progress()).toEqual({
+        percentage: 50,
+        description: "msg.document.uploaden.voortgang",
+      });
+
       request.event({
         type: HttpEventType.UploadProgress,
         loaded: 100,
@@ -75,18 +83,37 @@ describe(ZacQueryClient.name, () => {
       request.flush({ uuid: "document-1" });
 
       expect(await response).toEqual({ uuid: "document-1" });
-      expect(reported).toEqual([0, 50, 100]);
+      expect(utilService.progress()).toEqual({
+        percentage: 100,
+        description: "msg.document.uploaden.voortgang",
+      });
+    });
+
+    it("clears the global progress indicator once the upload has settled", async () => {
+      const options = zacQueryClient.POST_WITH_PROGRESS(path, parameters);
+
+      const response = options.mutationFn!(
+        new FormData() as never,
+        fromPartial<MutationFunctionContext>({}),
+      );
+      httpTestingController.expectOne(url).flush({ uuid: "document-1" });
+      await response;
+      options.onSettled!(
+        { uuid: "document-1" } as never,
+        null,
+        new FormData() as never,
+        undefined,
+        fromPartial<MutationFunctionContext>({}),
+      );
+
+      expect(utilService.progress()).toBeNull();
     });
 
     it("reports the failure when the document is refused as too large", async () => {
       const foutAfhandelenSpy = jest
         .spyOn(foutAfhandelingService, "foutAfhandelen")
-        .mockReturnValue(of(null as never));
-      const options = zacQueryClient.POST_WITH_PROGRESS(
-        path,
-        () => undefined,
-        parameters,
-      );
+        .mockReturnValue(EMPTY);
+      const options = zacQueryClient.POST_WITH_PROGRESS(path, parameters);
 
       const response = options.mutationFn!(
         new FormData() as never,
@@ -107,6 +134,37 @@ describe(ZacQueryClient.name, () => {
         fromPartial<MutationFunctionContext>({}),
       );
       expect(foutAfhandelenSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("PUT_WITH_PROGRESS", () => {
+    it("shows every percentage on the global progress indicator while uploading a new version and resolves with the response body", async () => {
+      const options = zacQueryClient.PUT_WITH_PROGRESS(
+        "/rest/informatieobjecten/informatieobject/{uuid}",
+        { path: { uuid: "document-1" }, query: { zaak: "zaak-1" } },
+      );
+
+      const response = options.mutationFn!(
+        new FormData() as never,
+        fromPartial<MutationFunctionContext>({}),
+      );
+      const request = httpTestingController.expectOne(
+        "/rest/informatieobjecten/informatieobject/document-1?zaak=zaak-1",
+      );
+      expect(request.request.method).toBe("PUT");
+      request.event({
+        type: HttpEventType.UploadProgress,
+        loaded: 50,
+        total: 100,
+      });
+      expect(utilService.progress()).toEqual({
+        percentage: 50,
+        description: "msg.document.uploaden.voortgang",
+      });
+
+      request.flush({ uuid: "document-1", versie: 2 });
+
+      expect(await response).toEqual({ uuid: "document-1", versie: 2 });
     });
   });
 

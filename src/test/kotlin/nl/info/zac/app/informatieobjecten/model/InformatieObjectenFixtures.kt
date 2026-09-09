@@ -33,7 +33,7 @@ fun createRestEnkelvoudigInformatieobject(
     auteur: String? = null,
     taal: String? = null,
     informatieobjectTypeUUID: UUID = UUID.randomUUID(),
-    file: InputStream = "fakeFile".byteInputStream(),
+    file: InputStream? = "fakeFile".byteInputStream(),
     bestandsNaam: String = "fakeFilename",
     formaat: String = "fakeType",
     indicatieGebruiksrecht: Boolean = false,
@@ -88,16 +88,14 @@ fun createRestInformatieobjecttype(
 @Suppress("LongParameterList")
 fun createRestEnkelvoudigInformatieObjectVersieGegevens(
     uuid: UUID = UUID.randomUUID(),
-    zaakUuid: UUID = UUID.randomUUID(),
     bestandsnaam: String = "fakeFile.txt",
-    file: InputStream = "fakeFile".byteInputStream(),
+    file: InputStream? = "fakeFile".byteInputStream(),
     formaat: String = "fakeType",
     informatieobjectTypeUUID: UUID = UUID.randomUUID(),
     vertrouwelijkheidaanduiding: RestVertrouwelijkheidaanduiding =
         RestVertrouwelijkheidaanduiding.OPENBAAR
 ) = RestEnkelvoudigInformatieObjectVersieGegevens(
     uuid = uuid,
-    zaakUuid = zaakUuid,
     informatieobjectTypeUUID = informatieobjectTypeUUID,
     vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding
 ).also {

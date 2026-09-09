@@ -121,14 +121,45 @@ export class HttpClient {
     body: PostBody<Path, Method>,
     ...args: ArgsTuple<PathParameters<Path, Method>>
   ) {
+    return this.requestWithProgress<Path, Method>("post", url, body, ...args);
+  }
+
+  /**
+   * `PUT` that reports how much of the request body has been sent, see {@link POST_WITH_PROGRESS}.
+   */
+  public PUT_WITH_PROGRESS<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods = "put",
+  >(
+    url: Path,
+    body: PutBody<Path, Method>,
+    ...args: ArgsTuple<PathParameters<Path, Method>>
+  ) {
+    return this.requestWithProgress<Path, Method>("put", url, body, ...args);
+  }
+
+  private requestWithProgress<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods,
+  >(
+    method: "post" | "put",
+    url: Path,
+    body: Body<Path, Method>,
+    ...args: ArgsTuple<PathParameters<Path, Method>>
+  ) {
     const parameters = args.at(0) ?? ({} as PathParameters<Path, Method>);
 
     return this.http
-      .post<Response<Path, Method>>(this.formatUrl(url, parameters), body, {
-        ...this.addHttpOptions(parameters),
-        observe: "events",
-        reportProgress: true,
-      })
+      .request<Response<Path, Method>>(
+        method,
+        this.formatUrl(url, parameters),
+        {
+          ...this.addHttpOptions(parameters),
+          body,
+          observe: "events",
+          reportProgress: true,
+        },
+      )
       .pipe(
         // the response events that follow the upload carry no upload information; without
         // dropping them the indicator falls back to 0% just as the upload reaches 100%

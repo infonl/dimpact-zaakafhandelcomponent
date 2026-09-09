@@ -72,3 +72,41 @@ fun ZacClient.createEnkelvoudigInformatieobjectForZaak(
         testUser = testUser
     )
 }
+
+@Suppress("LongParameterList")
+fun ZacClient.addEnkelvoudigInformatieobjectVersion(
+    enkelvoudigInformatieobjectUuid: UUID,
+    zaakUuid: UUID,
+    file: File,
+    fileName: String,
+    title: String = DOCUMENT_FILE_TITLE,
+    fileMediaType: String,
+    vertrouwelijkheidaanduiding: String,
+    testUser: TestUser
+): ResponseContent {
+    val requestBody =
+        MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
+            .addFormDataPart("bestandsnaam", fileName)
+            .addFormDataPart("titel", title)
+            .addFormDataPart("formaat", fileMediaType)
+            .addFormDataPart("vertrouwelijkheidaanduiding", vertrouwelijkheidaanduiding)
+            .addFormDataPart(
+                "file",
+                fileName,
+                file.asRequestBody(fileMediaType.toMediaType())
+            )
+            .build()
+    return itestHttpClient.performPutRequest(
+        url = "$ZAC_API_URI/informatieobjecten/informatieobject/$enkelvoudigInformatieobjectUuid?zaak=$zaakUuid",
+        headers = Headers.headersOf(
+            "Accept",
+            "application/json",
+            "Content-Type",
+            "multipart/form-data"
+        ),
+        requestBody = requestBody,
+        testUser = testUser
+    )
+}

@@ -29,12 +29,10 @@ import { ZacSelect } from "../../shared/form/select/select";
 import { PostBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
-import { appendFileToFormData } from "../../shared/utils/file-upload";
+import { toDocumentFormData } from "../../shared/utils/file-upload";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
-
-const DOCUMENT_UPLOAD_PROGRESS_DESCRIPTION = "msg.document.uploaden.voortgang";
 
 @Component({
   selector: "zac-informatie-object-add",
@@ -86,19 +84,8 @@ export class InformatieObjectAddComponent {
         this.zaakUuid(),
         this.taakId() ?? this.zaakUuid(),
         !!this.taakId(),
-        (percentage) =>
-          this.utilService.setProgress({
-            percentage,
-            description: DOCUMENT_UPLOAD_PROGRESS_DESCRIPTION,
-          }),
       ),
     {
-      onMutate: () =>
-        this.utilService.setProgress({
-          percentage: 0,
-          description: DOCUMENT_UPLOAD_PROGRESS_DESCRIPTION,
-        }),
-      onSettled: () => this.utilService.setProgress(null),
       onSuccess: (data) => {
         this.document.emit(data);
         if (this.form.controls.addOtherInfoObject.value) {
@@ -246,38 +233,6 @@ export class InformatieObjectAddComponent {
       });
   }
 
-  private toInformatieobjectFormData(
-    infoObject: GeneratedType<"RestEnkelvoudigInformatieobject"> & {
-      bestand: File;
-    },
-  ): FormData {
-    const formData = new FormData();
-    for (const [key, value] of Object.entries(infoObject)) {
-      if (value === undefined || value === null) continue;
-      switch (key) {
-        case "creatiedatum":
-        case "ontvangstdatum":
-        case "verzenddatum":
-          formData.append(
-            key,
-            moment(value.toString()).format("YYYY-MM-DDThh:mmZ"),
-          );
-          break;
-        case "bestand":
-          appendFileToFormData(
-            formData,
-            value as Blob,
-            infoObject.bestandsnaam!,
-          );
-          break;
-        default:
-          formData.append(key, value.toString());
-          break;
-      }
-    }
-    return formData;
-  }
-
   protected submit() {
     const value = this.form.getRawValue();
     const payload = {
@@ -295,7 +250,7 @@ export class InformatieObjectAddComponent {
       taal: value.taal!.code,
       auteur: value.auteur!,
     };
-    const formData = this.toInformatieobjectFormData(payload);
+    const formData = toDocumentFormData(payload);
 
     this.createDocumentMutation.mutate(
       formData as unknown as PostBody<"/rest/informatieobjecten/informatieobject/{zaakUuid}/{documentReferenceId}">,
