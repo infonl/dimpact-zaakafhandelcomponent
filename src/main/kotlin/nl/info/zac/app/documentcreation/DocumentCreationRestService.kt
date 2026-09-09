@@ -79,31 +79,9 @@ class DocumentCreationRestService @Inject constructor(
                 assertPolicy(policyService.readTaakRechten(task).creerenDocument)
             }
         }.let { zaak ->
-            createDocument(zaak, restDocumentCreationAttendedData)
+            createSmartDocumentsDocumentAttended(zaak, restDocumentCreationAttendedData)
                 .let { RestDocumentCreationAttendedResponse(it.redirectUrl, it.message) }
         }
-
-    @Suppress("ThrowsCount")
-    private fun createDocument(
-        zaak: Zaak,
-        restDocumentCreationAttendedData: RestDocumentCreationAttendedData
-    ): DocumentCreationAttendedResponse {
-        if (!zaaktypeConfigurationService.isSmartDocumentsEnabled(zaak.zaaktype.extractUuid())) {
-            throw SmartDocumentsDisabledException()
-        }
-        return DocumentCreationDataAttended(
-            zaak = zaak,
-            taskId = restDocumentCreationAttendedData.taskId,
-            templateId = restDocumentCreationAttendedData.smartDocumentsTemplateId
-                ?: throw IllegalArgumentException("SmartDocuments template ID is required"),
-            templateGroupId = restDocumentCreationAttendedData.smartDocumentsTemplateGroupId
-                ?: throw IllegalArgumentException("SmartDocuments template group ID is required"),
-            title = restDocumentCreationAttendedData.title,
-            description = restDocumentCreationAttendedData.description,
-            author = restDocumentCreationAttendedData.author,
-            creationDate = restDocumentCreationAttendedData.creationDate
-        ).let(documentCreationService::createDocumentAttended)
-    }
 
     /**
      * SmartDocuments callback for CMMN zaak
@@ -126,7 +104,7 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
-        createDocument(
+        storeDocument(
             zaakUuid = zaakUuid,
             title = title,
             description = description,
@@ -159,7 +137,7 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("userName") userName: String,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
-        createDocument(
+        storeDocument(
             zaakUuid = zaakUuid,
             taskId = taskId,
             title = title,
@@ -171,7 +149,29 @@ class DocumentCreationRestService @Inject constructor(
             documentCreationService.getInformationObjecttypeUuid(it, templateGroupId, templateId)
         }
 
-    private fun createDocument(
+    @Suppress("ThrowsCount")
+    private fun createSmartDocumentsDocumentAttended(
+        zaak: Zaak,
+        restDocumentCreationAttendedData: RestDocumentCreationAttendedData
+    ): DocumentCreationAttendedResponse {
+        if (!zaaktypeConfigurationService.isSmartDocumentsEnabled(zaak.zaaktype.extractUuid())) {
+            throw SmartDocumentsDisabledException()
+        }
+        return DocumentCreationDataAttended(
+            zaak = zaak,
+            taskId = restDocumentCreationAttendedData.taskId,
+            templateId = restDocumentCreationAttendedData.smartDocumentsTemplateId
+                ?: throw IllegalArgumentException("SmartDocuments template ID is required"),
+            templateGroupId = restDocumentCreationAttendedData.smartDocumentsTemplateGroupId
+                ?: throw IllegalArgumentException("SmartDocuments template group ID is required"),
+            title = restDocumentCreationAttendedData.title,
+            description = restDocumentCreationAttendedData.description,
+            author = restDocumentCreationAttendedData.author,
+            creationDate = restDocumentCreationAttendedData.creationDate
+        ).let(documentCreationService::createDocumentAttended)
+    }
+
+    private fun storeDocument(
         zaakUuid: UUID,
         taskId: String? = null,
         title: String,
@@ -194,7 +194,7 @@ class DocumentCreationRestService @Inject constructor(
             } else {
                 runCatching {
                     fetchInformatieobjecttypeUuidFunction(zaak).let {
-                        documentCreationService.storeDocument(
+                        documentCreationService.downloadAndStoreDocument(
                             zaak = zaak,
                             taskId = taskId,
                             fileId = fileId,

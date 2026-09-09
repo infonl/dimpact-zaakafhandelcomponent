@@ -10,9 +10,7 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.HttpMethod
 import jakarta.ws.rs.core.UriBuilder
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
-import net.atos.zac.util.MediaTypes
 import nl.info.client.smartdocuments.model.document.File
-import nl.info.client.smartdocuments.model.document.OutputFormat
 import nl.info.client.smartdocuments.model.document.SmartDocument
 import nl.info.client.smartdocuments.model.document.Variables
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
@@ -63,7 +61,7 @@ class DocumentCreationService @Inject constructor(
     /**
      * Download a generated SmartDocuments document and store it in the ZGW zaak registry.
      */
-    fun storeDocument(
+    fun downloadAndStoreDocument(
         zaak: Zaak,
         taskId: String? = null,
         fileId: String,
@@ -202,11 +200,6 @@ class DocumentCreationService @Inject constructor(
                 templateId = creationDataAttended.templateId
             ),
             variables = Variables(
-                // SmartDocuments use file extensions (without the leading `.`) instead of media types
-                // as the output format
-                outputFormats = listOf(
-                    OutputFormat(MediaTypes.Application.MS_WORD_OPEN_XML.extensions.first().drop(1))
-                ),
                 redirectMethod = HttpMethod.POST,
                 redirectUrl = documentCreationCallbackUrl(
                     zaakUuid = creationDataAttended.zaak.uuid,

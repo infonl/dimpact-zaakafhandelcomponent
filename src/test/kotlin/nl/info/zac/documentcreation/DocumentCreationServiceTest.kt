@@ -92,7 +92,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
         } returns zaakInformatieobject
 
         `when`("storing a downloaded file is requested") {
-            val returnedZaakInformatieobject = documentCreationService.storeDocument(
+            val returnedZaakInformatieobject = documentCreationService.downloadAndStoreDocument(
                 zaak = zaak,
                 taskId = taakId,
                 fileId = smartDocumentId,
@@ -215,8 +215,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
                     selection.templateGroup shouldBe templateGroupName
                     selection.template shouldBe templateName
                     with(variables!!) {
-                        outputFormats.size shouldBe 1
-                        outputFormats[0].outputFormat shouldBe "docx"
+                        outputFormats shouldBe null
                         redirectMethod shouldBe "POST"
                         redirectUrl shouldBe "$contextUrl/rest/document-creation/smartdocuments/callback" +
                             "/zaak/${zaak.uuid}" +

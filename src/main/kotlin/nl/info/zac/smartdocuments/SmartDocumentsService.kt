@@ -22,6 +22,7 @@ import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
+import org.apache.commons.io.FilenameUtils.getExtension
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.util.Optional
@@ -75,20 +76,6 @@ class SmartDocumentsService @Inject constructor(
     fun useWizardAuthEnabled() = wizardAuthEnabled.getOrDefault(true)
 
     /**
-     * Determines the username to use for SmartDocuments requests: the configured fixed username if present,
-     * or else the currently logged-in user's id.
-     */
-    private fun determineUserName(): String =
-        fixedUserName.orElseGet {
-            if (loggedInUserInstance.isUnsatisfied) {
-                throw SmartDocumentsConfigurationException(
-                    "No SmartDocuments fixed user name configured and no user is currently logged in"
-                )
-            }
-            loggedInUserInstance.get().id
-        }
-
-    /**
      * Sends a request to SmartDocuments to create a document using the Smart Documents wizard (= attended mode).
      */
     fun createDocumentAttended(
@@ -140,19 +127,40 @@ class SmartDocumentsService @Inject constructor(
 
     /**
      * Download the generated document from SmartDocuments.
-     * Currently only supports .docx Word documents.
      */
     fun downloadDocument(fileId: String): File =
         smartDocumentsClient.get().downloadFile(
-            smartDocumentsId = fileId,
-            documentFormat = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType
+            smartDocumentsId = fileId
         ).let { downloadedFile ->
+            val fileName = downloadedFile.contentDisposition()
+                .removePrefix("attachment; filename=\"")
+                .removeSuffix("\"")
             File(
-                fileName = downloadedFile.contentDisposition()
-                    .removePrefix("attachment; filename=\"")
-                    .removeSuffix("\""),
+                fileName = fileName,
                 document = Document(data = downloadedFile.body().toBase64String()),
-                outputFormat = MediaTypes.Application.MS_WORD_OPEN_XML.mediaType
+                outputFormat = outputFormatForFileName(fileName)
             )
+        }
+
+    /**
+     * Determines the username to use for SmartDocuments requests: the configured fixed username if present,
+     * or else the currently logged-in user's id.
+     */
+    private fun determineUserName(): String =
+        fixedUserName.orElseGet {
+            if (loggedInUserInstance.isUnsatisfied) {
+                throw SmartDocumentsConfigurationException(
+                    "No SmartDocuments fixed user name configured and no user is currently logged in"
+                )
+            }
+            loggedInUserInstance.get().id
+        }
+
+    private fun outputFormatForFileName(fileName: String): String =
+        ".${getExtension(fileName)}".let { extension ->
+            MediaTypes.Application.entries.find { extension in it.extensions }?.mediaType
+                ?: throw SmartDocumentsConfigurationException(
+                    "Unsupported SmartDocuments output file extension: '$extension' for file name: '$fileName'"
+                )
         }
 }
