@@ -19,7 +19,7 @@ import nl.info.zac.itest.config.ItestConfiguration.ACTIE_INTAKE_AFRONDEN
 import nl.info.zac.itest.config.ItestConfiguration.DATE_TIME_2000_01_01
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_OPENBAAR
 import nl.info.zac.itest.config.ItestConfiguration.TEST_TXT_FILE_NAME
-import nl.info.zac.itest.config.ItestConfiguration.TEXT_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.TEXT_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_DESCRIPTION
 import nl.info.zac.itest.config.ItestConfiguration.ZAAKTYPE_CMMN_TEST_2_UUID
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
@@ -104,7 +104,7 @@ class TaskRestServiceGoedkeurenTest : BehaviorSpec({
             val response = zacClient.createEnkelvoudigInformatieobjectForZaak(
                 zaakUUID = zaakUUID,
                 fileName = TEST_TXT_FILE_NAME,
-                fileMediaType = TEXT_MIME_TYPE,
+                fileMediaType = TEXT_MEDIA_TYPE,
                 vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
                 testUser = BEHANDELAAR_1
             )

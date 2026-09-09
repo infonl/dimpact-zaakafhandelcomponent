@@ -53,7 +53,7 @@ VALUES
     '7941c3b9-e4a2-4444-b2cb-c211f035cecd',
     'bpmn-test-zaaktype-5',
     'BPMN test zaaktype 5',
-    'BPMN test zaaktype 5',
+    'Generieke omschrijving van BPMN test zaaktype 5',
     'openbaar',
     'BPMN test zaaktype 5',
     'BPMN test zaaktype 5',

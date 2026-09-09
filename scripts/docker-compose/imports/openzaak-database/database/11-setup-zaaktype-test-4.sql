@@ -53,7 +53,7 @@ VALUES
     '4f46d270-c4d8-4cfe-a3a1-cb86ae102656', -- uuid (derived from the URL)
     'test-zaaktype-4', -- identificatie
     'Test zaaktype 4', -- zaaktype_omschrijving
-    'Test zaaktype 4', -- zaaktype_omschrijving_generiek
+    'Generieke omschrijving van test zaaktype 4', -- zaaktype_omschrijving_generiek
     'openbaar', -- vertrouwelijkheidaanduiding
     'Testen afhandelwijze brondatum', -- doel
     'Testen afhandelwijze brondatum', -- aanleiding

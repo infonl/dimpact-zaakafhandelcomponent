@@ -4,7 +4,8 @@
  */
 
 import { Injectable } from "@angular/core";
-import { map } from "rxjs";
+import { queryOptions } from "@tanstack/angular-query-experimental";
+import { lastValueFrom, map } from "rxjs";
 import { PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { GeneratedType } from "../shared/utils/generated-types";
@@ -32,6 +33,13 @@ export class SmartDocumentsService {
         { path: { zaakafhandelUUID } },
       )
       .pipe(map((data) => this.flattenGroups(this.convertApiData(data))));
+  }
+
+  getTemplatesMappingQuery(zaakafhandelUUID: string) {
+    return queryOptions({
+      queryKey: ["smartDocumentsTemplatesMapping", zaakafhandelUUID],
+      queryFn: () => lastValueFrom(this.getTemplatesMapping(zaakafhandelUUID)),
+    });
   }
 
   private convertApiData(

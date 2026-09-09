@@ -11,6 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import jakarta.enterprise.inject.Instance
 import nl.info.client.smartdocuments.SmartDocumentsClient
 import nl.info.client.smartdocuments.model.createAttendedResponse
@@ -23,6 +24,7 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.documentcreation.model.createData
 import nl.info.zac.smartdocuments.exception.SmartDocumentsConfigurationException
+import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputFormatException
 import nl.info.zac.util.toBase64String
 import java.net.URI
 import java.util.Optional
@@ -81,33 +83,73 @@ class SmartDocumentsServiceTest : BehaviorSpec({
         }
     }
 
-    given("SmartDocuments is enabled and a document is generated and ready for download") {
-        val downloadedFile = mockk<DownloadedFile>()
+    listOf(
+        "abcd.docx" to "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "abcd.pdf" to "application/pdf",
+        "abcd.odt" to "application/vnd.oasis.opendocument.text"
+    ).forEach { (generatedFileName, expectedOutputFormat) ->
+        given(
+            "SmartDocuments is enabled and a document named '$generatedFileName' is generated and ready for download"
+        ) {
+            val smartDocumentId = "sdId"
+            val downloadedFile = mockk<DownloadedFile>()
+            val body = "body content".toByteArray(Charsets.UTF_8)
 
-        val fileName = "abcd.docx"
-        val body = "body content".toByteArray(Charsets.UTF_8)
+            every { smartDocumentsClient.get().downloadFile(smartDocumentId, null) } returns downloadedFile
+            every { downloadedFile.body() } returns body
+            every { downloadedFile.contentDisposition() } returns "attachment; filename=\"$generatedFileName\""
 
-        every { smartDocumentsClient.get().downloadFile(any(), any()) } returns downloadedFile
-        every { downloadedFile.body() } returns body
-        every { downloadedFile.contentDisposition() } returns "attachment; filename=\"$fileName\""
+            val smartDocumentsService = SmartDocumentsService(
+                smartDocumentsClient = smartDocumentsClient,
+                enabled = Optional.of(true),
+                smartDocumentsURL = Optional.of(smartDocumentsURL),
+                authenticationToken = Optional.of(authenticationToken),
+                loggedInUserInstance = loggedInUserInstance,
+                fixedUserName = fixedUserName
+            )
 
-        val smartDocumentsService = SmartDocumentsService(
-            smartDocumentsClient = smartDocumentsClient,
-            enabled = Optional.of(true),
-            smartDocumentsURL = Optional.of(smartDocumentsURL),
-            authenticationToken = Optional.of(authenticationToken),
-            loggedInUserInstance = loggedInUserInstance,
-            fixedUserName = fixedUserName
-        )
+            `when`("the 'download file' method is called") {
+                val file = smartDocumentsService.downloadDocument(smartDocumentId)
 
-        `when`("the 'download file' method is called") {
-            val file = smartDocumentsService.downloadDocument("sdId")
+                then("no output format is requested and the file's format is derived from its extension") {
+                    with(file) {
+                        fileName shouldBe generatedFileName
+                        outputFormat shouldBe expectedOutputFormat
+                        document.data shouldBe body.toBase64String()
+                    }
+                    verify(exactly = 1) { smartDocumentsClient.get().downloadFile(smartDocumentId, null) }
+                }
+            }
+        }
+    }
 
-            then("a file object representing the content is returned") {
-                with(file) {
-                    fileName shouldBe fileName
-                    outputFormat shouldBe "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    document.data shouldBe body.toBase64String()
+    listOf("abcd.xml", "abcd.html").forEach { fileName ->
+        given("SmartDocuments is enabled and a downloaded document named '$fileName' has an unsupported format") {
+            val smartDocumentId = "sdId"
+            val downloadedFile = mockk<DownloadedFile>()
+
+            every { smartDocumentsClient.get().downloadFile(smartDocumentId, null) } returns downloadedFile
+            every { downloadedFile.contentDisposition() } returns "attachment; filename=\"$fileName\""
+            every { downloadedFile.body() } returns "body content".toByteArray(Charsets.UTF_8)
+
+            val smartDocumentsService = SmartDocumentsService(
+                smartDocumentsClient = smartDocumentsClient,
+                enabled = Optional.of(true),
+                smartDocumentsURL = Optional.of(smartDocumentsURL),
+                authenticationToken = Optional.of(authenticationToken),
+                loggedInUserInstance = loggedInUserInstance,
+                fixedUserName = fixedUserName
+            )
+
+            `when`("the 'download file' method is called") {
+                val exception = shouldThrow<SmartDocumentsUnsupportedOutputFormatException> {
+                    smartDocumentsService.downloadDocument(smartDocumentId)
+                }
+
+                then("it fails with an error identifying the unsupported extension and file name") {
+                    exception.message shouldBe
+                        "Unsupported SmartDocuments output file extension: '.${fileName.substringAfterLast('.')}' " +
+                        "for file name: '$fileName'"
                 }
             }
         }

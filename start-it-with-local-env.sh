@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # SPDX-FileCopyrightText: 2024 INFO.nl
@@ -10,10 +10,10 @@ set -e
 help() {
    echo "Starts the integration tests with a local ZAC Docker Image."
    echo
-   echo "Syntax: $0 [-b|d|s|u|h]"
+   echo "Syntax: $0 [-b|c|d|s|u|h]"
    echo "options:"
    echo "-b     Build a local ZAC Docker image"
-   echo "-d     Delete local Docker volume data before starting Docker Compose"
+   echo "-d     Delete local Docker named volumes before starting Docker Compose"
    echo "-c     Keep local Docker Compose containers running after test execution"
    echo "-s     Do not start Docker Compose containers before test execution"
    echo "-u     Turn on debug logs"
@@ -27,20 +27,31 @@ echoerr() {
   echo 1>&2;
 }
 
-volumeDataFolder="./scripts/docker-compose/volume-data"
+namedVolumes=(
+  "zac-keycloak-database-data"
+  "openzaak-database-data"
+  "openklant-database-data"
+  "opennotificaties-database-data"
+  "openarchiefbeheer-database-data"
+  "pabc-database-data"
+  "zac-database-data"
+  "openformulieren-database-data"
+  "solr-data"
+  "grafana-data"
+)
 args=""
 
-[ -f fix-permissions.sh ] && ./fix-permissions.sh
-
 build=false
-while getopts ':bdcsurh' OPTION; do
+while getopts ':bdcsuh' OPTION; do
   case "$OPTION" in
     b)
       build=true
       ;;
     d)
-      echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
-      rm -rf $volumeDataFolder
+      echo "Deleting named Docker volumes .."
+      for namedVolume in "${namedVolumes[@]}"; do
+        docker volume rm --force "zac_$namedVolume" >/dev/null 2>&1 || true
+      done
       echo "Done"
       ;;
     c)

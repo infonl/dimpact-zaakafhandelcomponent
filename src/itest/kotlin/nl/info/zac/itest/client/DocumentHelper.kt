@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2025 INFO.nl
+ * SPDX-FileCopyrightText: 2025, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 package nl.info.zac.itest.client
@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 import nl.info.zac.itest.config.ItestConfiguration.VERTROUWELIJKHEIDAANDUIDING_ZAAKVERTROUWELIJK
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_NOTIFICATIONS_API_SECRET_KEY
 import nl.info.zac.itest.config.ItestConfiguration.OPEN_ZAAK_BASE_URI
-import nl.info.zac.itest.config.ItestConfiguration.PDF_MIME_TYPE
+import nl.info.zac.itest.config.ItestConfiguration.PDF_MEDIA_TYPE
 import nl.info.zac.itest.config.ItestConfiguration.ZAC_API_URI
 import nl.info.zac.itest.config.TestUser
 import okhttp3.Headers
@@ -42,7 +42,7 @@ class DocumentHelper(
         fileName: String,
         documentTitle: String,
         authorName: String,
-        mediaType: String = PDF_MIME_TYPE,
+        mediaType: String = PDF_MEDIA_TYPE,
         vertrouwelijkheidsaanduiding: String = VERTROUWELIJKHEIDAANDUIDING_ZAAKVERTROUWELIJK,
         indexDocument: Boolean = false,
         testUser: TestUser
@@ -103,7 +103,13 @@ class DocumentHelper(
         }
     }
 
-    fun sendEnkelvoudigInformatieobjectCreateNotification(informatieobjectUuid: UUID) {
+    fun sendEnkelvoudigInformatieobjectCreateNotification(informatieobjectUuid: UUID) =
+        sendEnkelvoudigInformatieobjectNotification(informatieobjectUuid, action = "create")
+
+    fun sendEnkelvoudigInformatieobjectDestroyNotification(informatieobjectUuid: UUID) =
+        sendEnkelvoudigInformatieobjectNotification(informatieobjectUuid, action = "destroy")
+
+    private fun sendEnkelvoudigInformatieobjectNotification(informatieobjectUuid: UUID, action: String) {
         itestHttpClient.performJSONPostRequest(
             url = "$ZAC_API_URI/notificaties",
             headers = Headers.headersOf(
@@ -118,7 +124,7 @@ class DocumentHelper(
                     "resource" to "enkelvoudiginformatieobject",
                     "hoofdObject" to "$OPEN_ZAAK_BASE_URI/documenten/api/v1/enkelvoudiginformatieobjecten/$informatieobjectUuid",
                     "resourceUrl" to "$OPEN_ZAAK_BASE_URI/documenten/api/v1/enkelvoudiginformatieobjecten/$informatieobjectUuid",
-                    "actie" to "create",
+                    "actie" to action,
                     "aanmaakdatum" to ZonedDateTime.now(ZoneId.of("UTC")).toString()
                 )
             ).toString()

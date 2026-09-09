@@ -174,8 +174,9 @@ object ItestConfiguration {
 
     const val DOCUMENT_STATUS_DEFINITIEF = "definitief"
     const val DOCUMENT_STATUS_IN_BEWERKING = "in_bewerking"
-    const val TEXT_MIME_TYPE = "text/plain"
-    const val PDF_MIME_TYPE = "application/pdf"
+    const val TEXT_MEDIA_TYPE = "text/plain"
+    const val PDF_MEDIA_TYPE = "application/pdf"
+    const val DOCX_MEDIA_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
     /**
      * Constants used in the KVK WireMock template response
@@ -368,6 +369,7 @@ object ItestConfiguration {
     val ZAAKTYPE_CMMN_TEST_2_UUID: UUID = UUID.fromString("fd2bf643-c98a-4b00-b2b3-9ae0c41ed425")
     const val ZAAKTYPE_CMMN_TEST_2_IDENTIFICATIE = "test-zaaktype-2"
     const val ZAAKTYPE_CMMN_TEST_2_DESCRIPTION = "Test zaaktype 2"
+    const val ZAAKTYPE_CMMN_TEST_2_DESCRIPTION_GENERIC = "Generieke omschrijving van test zaaktype 2"
     const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BELANGHEBBENDE = "3bb6928b-76de-4716-ac5f-fa3d7d6eca36"
     const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_BEWINDVOERDER = "966ddb36-6989-4635-8a37-d7af980a37a6"
     const val ZAAKTYPE_CMMN_TEST_2_BETROKKENE_CONTACTPERSOON = "ca31355e-abbf-4675-8700-9d167b194db1"
@@ -505,8 +507,9 @@ object ItestConfiguration {
     const val MAIL_TEMPLATE_TAAK_ADVIES_EXTERN_NAME = "Taak formulierdefinitie: Extern advies (met e-mail)"
     const val MAIL_TEMPLATE_ZAAK_AFGEHANDELD_MAIL = "ZAAK_AFGEHANDELD"
     const val MAIL_TEMPLATE_ZAAK_AFGEHANDELD_NAME = "Zaak afgehandeld"
-    const val MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_BODY = "<p>Beste {ZAAK_INITIATOR},</p><p></p><p>Uw verzoek over {ZAAK_TYPE} met " +
-        "zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. Voor meer informatie gaat u naar Mijn Loket.</p><p></p>" +
+    const val MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_BODY = "<p>Beste {ZAAK_INITIATOR},</p><p></p>" +
+        "<p>Uw verzoek over {ZAAKTYPE_OMSCHRIJVING} met zaaknummer {ZAAK_NUMMER} wordt niet in behandeling genomen. " +
+        "Voor meer informatie gaat u naar Mijn Loket.</p><p></p>" +
         "<p>Met vriendelijke groet,</p><p></p><p>Gemeente Dommeldam</p>"
     const val MAIL_TEMPLATE_ZAAK_NIET_ONTVANKELIJK_SUBJECT = "<p>Wij hebben uw verzoek niet in behandeling genomen (zaaknummer: " +
         "{ZAAK_NUMMER})</p>"

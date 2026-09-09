@@ -271,7 +271,7 @@ services:
     ports:
       - "8983:8983"
     volumes:
-      - ./scripts/docker-compose/volume-data/solr-data:/var/solr
+      - solr-data:/var/solr
     # run as root to change the permissions of the solr folder
     user: root
     # Change permissions of the solr folder, create the 'zac' core and start solr
@@ -450,7 +450,7 @@ services:
     image: grafana/grafana:13.2.1@sha256:f772d434e8fab0049deb2b1b30abd43342bcfca1537614aa8d36080232cf4283
     volumes:
       - ./scripts/docker-compose/imports/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
-      - ./scripts/docker-compose/volume-data/grafana-data:/var/lib/grafana
+      - grafana-data:/var/lib/grafana
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
@@ -1108,3 +1108,5 @@ volumes:
   pabc-database-data:
   zac-database-data:
   openformulieren-database-data:
+  solr-data:
+  grafana-data:

@@ -56,7 +56,7 @@ class ZaakZoekObjectConverter @Inject constructor(
     override fun supports(objectType: ZoekObjectType) = objectType == ZoekObjectType.ZAAK
 
     @Suppress("LongMethod")
-    private fun convert(zaak: Zaak, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): ZaakZoekObject {
+    fun convert(zaak: Zaak, isZaakspecifiekGeautoriseerd: (UUID) -> Boolean): ZaakZoekObject {
         val roles = zrcClientService.listRollen(zaak)
         val zaaktype = ztcClientService.readZaaktype(zaak.zaaktype)
         val zaakZoekObject = ZaakZoekObject(

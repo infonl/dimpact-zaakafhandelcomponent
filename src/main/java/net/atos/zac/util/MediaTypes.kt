@@ -44,6 +44,9 @@ object MediaTypes {
         /** Microsoft Word (OpenXML) */
         MS_WORD_OPEN_XML(arrayOf(".docx"), "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
 
+        /** OpenDocument Text */
+        ODT(arrayOf(".odt"), "application/vnd.oasis.opendocument.text"),
+
         /** Adobe Portable Document Format (PDF) */
         PDF(arrayOf(".pdf"), "application/pdf"),
 
