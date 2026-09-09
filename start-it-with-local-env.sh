@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # SPDX-FileCopyrightText: 2024 INFO.nl
@@ -42,7 +42,7 @@ namedVolumes=(
 args=""
 
 build=false
-while getopts ':bdcsurh' OPTION; do
+while getopts ':bdcsuh' OPTION; do
   case "$OPTION" in
     b)
       build=true
