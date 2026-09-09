@@ -177,6 +177,52 @@ describe(InformatieObjectCreateAttendedComponent.name, () => {
     expect(screen.getByRole("option", { name: "Group Two" })).toBeVisible();
   });
 
+  it("shows a loading indicator for the template groups while SmartDocuments is still answering", async () => {
+    testQueryClient.setQueryData(["/rest/identity/loggedInUser"], loggedInUser);
+    sideNav = fromPartial<MatDrawer>({
+      close: jest.fn().mockResolvedValue(undefined),
+    });
+
+    const { fixture: renderedFixture } = await render(
+      InformatieObjectCreateAttendedComponent,
+      {
+        inputs: { zaak, sideNav },
+        imports: [NoopAnimationsModule, TranslateModule.forRoot()],
+        providers: [
+          provideRouter([]),
+          provideHttpClient(withInterceptorsFromDi()),
+          provideHttpClientTesting(),
+          provideMomentDateAdapter(),
+          provideTanStackQuery(testQueryClient),
+          provideQueryClient(testQueryClient),
+          VertrouwelijkaanduidingToTranslationKeyPipe,
+        ],
+      },
+    );
+    fixture = renderedFixture;
+    httpTestingController = TestBed.inject(HttpTestingController);
+    await sleep();
+    httpTestingController
+      .expectOne(INFORMATIEOBJECTTYPES_URL)
+      .flush([informatieobjecttype]);
+
+    // Deliberately not flushed yet: the SmartDocuments fetch for the template groups is still in flight.
+    await user.click(field("sjabloonGroep"));
+
+    expect(
+      screen.queryByRole("option", { name: "Group One" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /laden/i })).toBeVisible();
+
+    httpTestingController
+      .expectOne(TEMPLATES_URL)
+      .flush([templateGroup, singleTemplateGroup]);
+    await sleep();
+    fixture.detectChanges();
+
+    expect(screen.getByRole("option", { name: "Group One" })).toBeVisible();
+  });
+
   it("offers the templates of the chosen template group", async () => {
     await setup();
 
