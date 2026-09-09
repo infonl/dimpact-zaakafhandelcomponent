@@ -107,6 +107,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
         content: DocumentContent? = null
     ): EnkelvoudigInformatieObject {
         var tempLock: EnkelvoudigInformatieObjectLock? = null
+        var isUpdated = false
         try {
             val enkelvoudigInformatieObjectLock = enkelvoudigInformatieObjectLockService.findLock(
                 enkelvoudigInformatieObjectUUID
@@ -117,7 +118,7 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
             } else {
                 enkelvoudigInformatieObjectWithLockRequest.lock = enkelvoudigInformatieObjectLock.lock
             }
-            return content?.let {
+            val updatedEnkelvoudigInformatieObject = content?.let {
                 drcClientService.updateEnkelvoudigInformatieobject(
                     enkelvoudigInformatieobjectUUID = enkelvoudigInformatieObjectUUID,
                     enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest,
@@ -129,8 +130,11 @@ class EnkelvoudigInformatieObjectUpdateService @Inject constructor(
                 enkelvoudigInformatieObjectWithLockRequest,
                 toelichting
             )
+            isUpdated = true
+            return updatedEnkelvoudigInformatieObject
         } finally {
-            if (tempLock != null) {
+            // unlocking is what commits the new version, so a failed update must leave the document locked
+            if (tempLock != null && isUpdated) {
                 enkelvoudigInformatieObjectLockService.deleteLock(enkelvoudigInformatieObjectUUID)
             }
         }
