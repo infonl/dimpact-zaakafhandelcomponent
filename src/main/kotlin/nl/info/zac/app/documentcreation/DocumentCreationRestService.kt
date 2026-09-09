@@ -34,6 +34,7 @@ import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
 import nl.info.zac.smartdocuments.exception.SmartDocumentsDisabledException
+import nl.info.zac.smartdocuments.exception.SmartDocumentsUnsupportedOutputFormatException
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import java.time.ZonedDateTime
@@ -56,10 +57,11 @@ class DocumentCreationRestService @Inject constructor(
     private val loggedInUserInstance: Instance<LoggedInUser>
 ) {
     companion object {
-        enum class SmartDocumentsWizardResult {
-            SUCCESS,
-            CANCELLED,
-            FAILURE
+        enum class SmartDocumentsWizardResult(val value: String) {
+            SUCCESS("success"),
+            CANCELLED("cancelled"),
+            FAILURE("failure"),
+            UNSUPPORTED_OUTPUT_FORMAT("unsupported-output-format")
         }
 
         private val LOG = Logger.getLogger(DocumentCreationRestService::class.java.name)
@@ -188,7 +190,7 @@ class DocumentCreationRestService @Inject constructor(
                         zaakId = zaak.identificatie,
                         taskId = taskId,
                         documentName = title,
-                        result = SmartDocumentsWizardResult.CANCELLED.toString().lowercase()
+                        result = SmartDocumentsWizardResult.CANCELLED.value
                     )
                 ).build()
             } else {
@@ -209,7 +211,7 @@ class DocumentCreationRestService @Inject constructor(
                                     zaakId = zaak.identificatie,
                                     taskId = taskId,
                                     documentName = title,
-                                    result = SmartDocumentsWizardResult.SUCCESS.toString().lowercase()
+                                    result = SmartDocumentsWizardResult.SUCCESS.value
                                 )
                             ).build()
                         }
@@ -219,13 +221,17 @@ class DocumentCreationRestService @Inject constructor(
                         "Failed to create document for zaak ${zaak.identificatie}" +
                             if (taskId != null) " and task $taskId" else ""
                     }
-                }.getOrElse {
+                }.getOrElse { exception ->
                     Response.seeOther(
                         documentCreationService.documentCreationFinishPageUrl(
                             zaakId = zaak.identificatie,
                             taskId = taskId,
                             documentName = title,
-                            result = SmartDocumentsWizardResult.FAILURE.toString().lowercase()
+                            result = when (exception) {
+                                is SmartDocumentsUnsupportedOutputFormatException ->
+                                    SmartDocumentsWizardResult.UNSUPPORTED_OUTPUT_FORMAT
+                                else -> SmartDocumentsWizardResult.FAILURE
+                            }.value
                         )
                     ).build()
                 }

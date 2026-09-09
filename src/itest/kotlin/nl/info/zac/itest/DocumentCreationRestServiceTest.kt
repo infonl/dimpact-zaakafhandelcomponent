@@ -305,7 +305,10 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 testUser = BEHANDELAAR_1
             )
 
-            then("the response should contain redirect url to our smart-documents-result page with a failure result") {
+            then(
+                "the response should contain redirect url to our smart-documents-result page " +
+                    "with an unsupported-output-format result"
+            ) {
                 val responseBody = response.bodyAsString
                 logger.info { "Response: $responseBody" }
                 val locationHeader = response.headers["Location"]
@@ -315,7 +318,7 @@ class DocumentCreationRestServiceTest : BehaviorSpec({
                 locationHeader shouldContain "static/smart-documents-result.html" +
                     "?zaak=$zaakIdentification" +
                     "&doc=" + SMART_DOCUMENTS_XML_FILE_TITLE.urlEncode() +
-                    "&result=failure"
+                    "&result=unsupported-output-format"
             }
 
             then("no document is stored for the unsupported file") {
