@@ -16,6 +16,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import jakarta.json.JsonObject
 import jakarta.ws.rs.core.Response
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -254,6 +255,59 @@ class DrcClientServiceTest : BehaviorSpec({
             and("the document is unlocked so that the uploaded content becomes its content") {
                 result shouldBe completedDocument
                 unlockSlot.captured.lock shouldBe "fakeLock"
+            }
+        }
+
+        content.close()
+    }
+
+    given("A new version of a document that is too large to fit in memory") {
+        val bytes = "0123456789".toByteArray()
+        val documentUUID = UUID.randomUUID()
+        val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
+        val temporaryFile = Files.createTempFile("fakeDocument", null).also { Files.write(it, bytes) }
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        val updateRequest = createEnkelvoudigInformatieObjectWithLockRequest().apply { lock = "fakeLock" }
+        val part = createBestandsDeel(volgnummer = 1, omvang = bytes.size, lock = "fakeLock")
+        val documentWithParts = createEnkelvoudigInformatieObject(
+            uuid = documentUUID,
+            url = documentUrl,
+            bestandsdelen = listOf(part)
+        )
+        val bodySlot = slot<JsonObject>()
+        val uploadedParts = mutableListOf<Pair<UUID, ByteArray>>()
+
+        every { zgwClientHeadersFactory.setAuditExplanation(any()) } just runs
+        every {
+            drcClient.enkelvoudigInformatieobjectPartialUpdateForPartsUpload(documentUUID, capture(bodySlot))
+        } returns createEnkelvoudigInformatieObject(uuid = documentUUID, url = documentUrl)
+        every { drcClient.enkelvoudigInformatieobjectRead(documentUUID) } returns documentWithParts
+        every { drcClient.bestandsdeelUpdate(any(), any(), any()) } answers {
+            uploadedParts.add(firstArg<UUID>() to thirdArg<InputStream>().readBytes())
+            createBestandsDeel()
+        }
+
+        `when`("the new version is uploaded") {
+            val result = drcClientService.updateEnkelvoudigInformatieobject(
+                enkelvoudigInformatieobjectUUID = documentUUID,
+                enkelvoudigInformatieObjectWithLockRequest = updateRequest,
+                auditExplanation = "fakeAuditExplanation",
+                content = content
+            )
+
+            then("the request announces the new size and clears the content with an explicit null") {
+                bodySlot.captured.getInt("bestandsomvang") shouldBe bytes.size
+                bodySlot.captured.isNull("inhoud") shouldBe true
+            }
+
+            and("the content is uploaded into the parts the registry created for the new version") {
+                uploadedParts.map { it.first } shouldBe listOf(part.url.extractUuid())
+                String(uploadedParts.single().second) shouldContain "0123456789"
+            }
+
+            and("the document is left locked, so that unlocking it commits the new version") {
+                result shouldBe documentWithParts
+                verify(exactly = 0) { drcClient.enkelvoudigInformatieobjectUnlock(any(), any()) }
             }
         }
 

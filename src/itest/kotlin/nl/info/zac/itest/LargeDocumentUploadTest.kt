@@ -96,7 +96,7 @@ class LargeDocumentUploadTest : BehaviorSpec({
                     "msg.error.file.too-large-to-open"
             }
 
-            and("a new version larger than the maximum in-memory file size is added to it") {
+            and("a recordmanager adds a new version larger than the maximum in-memory file size to it") {
                 val newVersionSizeInBytes = fileSizeInBytes + BYTES_PER_MB
                 val (newVersionContent, newVersionFile) = createTemporaryDocument(newVersionSizeInBytes)
 
@@ -107,7 +107,7 @@ class LargeDocumentUploadTest : BehaviorSpec({
                     fileName = "large-document-v2.txt",
                     fileMediaType = TEXT_MEDIA_TYPE,
                     vertrouwelijkheidaanduiding = VERTROUWELIJKHEIDAANDUIDING_OPENBAAR,
-                    testUser = BEHANDELAAR_1
+                    testUser = RECORDMANAGER_1
                 )
 
                 withClue("new version response: ${newVersionResponse.bodyAsString}") {

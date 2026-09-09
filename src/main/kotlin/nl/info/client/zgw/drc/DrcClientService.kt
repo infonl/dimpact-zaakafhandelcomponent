@@ -5,6 +5,9 @@
 package nl.info.client.zgw.drc
 
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.json.Json
+import jakarta.json.JsonObject
+import jakarta.json.bind.JsonbBuilder
 import jakarta.inject.Inject
 import jakarta.ws.rs.ProcessingException
 import jakarta.ws.rs.WebApplicationException
@@ -35,6 +38,7 @@ import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.toBase64String
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.io.FilterInputStream
+import java.io.StringReader
 import java.io.InputStream
 import java.net.URI
 import java.util.UUID
@@ -51,6 +55,7 @@ class DrcClientService @Inject constructor(
 ) {
     companion object {
         private val LOG = Logger.getLogger(DrcClientService::class.java.name)
+        private val JSONB = JsonbBuilder.create()
     }
 
     fun readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID: UUID): EnkelvoudigInformatieObject =
@@ -164,21 +169,25 @@ class DrcClientService @Inject constructor(
         content: DocumentContent
     ): EnkelvoudigInformatieObject {
         enkelvoudigInformatieObjectWithLockRequest.bestandsomvang = content.sizeInBytes.toInt()
-        enkelvoudigInformatieObjectWithLockRequest.inhoud = when (content) {
-            is InMemoryDocumentContent -> content.toByteArray().toBase64String()
-            else -> null
-        }
-        val updatedDocument = updateEnkelvoudigInformatieobject(
-            enkelvoudigInformatieobjectUUID = enkelvoudigInformatieobjectUUID,
-            enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest,
-            auditExplanation = auditExplanation
-        )
         if (content is InMemoryDocumentContent) {
-            return updatedDocument
+            enkelvoudigInformatieObjectWithLockRequest.inhoud = content.toByteArray().toBase64String()
+            return updateEnkelvoudigInformatieobject(
+                enkelvoudigInformatieobjectUUID = enkelvoudigInformatieobjectUUID,
+                enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest,
+                auditExplanation = auditExplanation
+            )
         }
+        enkelvoudigInformatieObjectWithLockRequest.inhoud = null
+        auditExplanation?.let { zgwClientHeadersFactory.setAuditExplanation(it) }
+        drcClient.enkelvoudigInformatieobjectPartialUpdateForPartsUpload(
+            uuid = enkelvoudigInformatieobjectUUID,
+            body = enkelvoudigInformatieObjectWithLockRequest.toContentReplacingBody()
+        )
+        // the update response leaves out the bestandsdelen the registry created for the new
+        // version, so they have to be read back before the content can be uploaded into them
         uploadParts(
             documentUUID = enkelvoudigInformatieobjectUUID,
-            parts = updatedDocument.bestandsdelen,
+            parts = readEnkelvoudigInformatieobject(enkelvoudigInformatieobjectUUID).bestandsdelen,
             lock = enkelvoudigInformatieObjectWithLockRequest.lock,
             content = content
         )
@@ -270,6 +279,14 @@ class DrcClientService @Inject constructor(
             }
         }
     }
+
+    /**
+     * The request as a JSON body whose `inhoud` is an explicit `null`, which is what tells the
+     * documents registry that the content of the new version follows as bestandsdelen.
+     */
+    private fun EnkelvoudigInformatieObjectWithLockRequest.toContentReplacingBody(): JsonObject =
+        StringReader(JSONB.toJson(this)).use { Json.createReader(it).readObject() }
+            .let { Json.createObjectBuilder(it).addNull("inhoud").build() }
 
     private fun assertPartsCoverContent(documentUUID: UUID, parts: List<BestandsDeel>, content: DocumentContent) {
         if (parts.isEmpty()) {
