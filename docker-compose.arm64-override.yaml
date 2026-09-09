@@ -76,9 +76,9 @@ services:
     platform: linux/arm64
 
   pabc-migrations:
-    image: ghcr.io/infonl/pabc-migrations:1.1.1@sha256:651deedc739b8dc0778310e5518cfde503f129656702899bebf2677bb7a0cd3b
+    image: ghcr.io/infonl/pabc-migrations:2.0.0-prerelease@sha256:e5846ce17b245a7f30c2ac41acf0c96cfc9ce5e038abe5ea9cd8f364c020c45d
     platform: linux/arm64
 
   pabc-api:
-    image: ghcr.io/infonl/pabc-api:1.1.1@sha256:223a59a7253511ccf13445096a55434a7b21ceda5bb3590edbd51963fb4ac904
+    image: ghcr.io/infonl/pabc-api:2.0.0-prerelease@sha256:4cb7164cafb5c72997f3caa9404a4133549bf493135d438a6505a36808176e43
     platform: linux/arm64
