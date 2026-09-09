@@ -27,10 +27,19 @@ echoerr() {
   echo 1>&2;
 }
 
-volumeDataFolder="./scripts/docker-compose/volume-data"
+namedVolumes=(
+  "zac-keycloak-database-data"
+  "openzaak-database-data"
+  "openklant-database-data"
+  "opennotificaties-database-data"
+  "openarchiefbeheer-database-data"
+  "pabc-database-data"
+  "zac-database-data"
+  "openformulieren-database-data"
+  "solr-data"
+  "grafana-data"
+)
 args=""
-
-[ -f fix-permissions.sh ] && ./fix-permissions.sh
 
 build=false
 while getopts ':bdcsurh' OPTION; do
@@ -39,8 +48,10 @@ while getopts ':bdcsurh' OPTION; do
       build=true
       ;;
     d)
-      echo "Deleting local Docker volume data folder: '$volumeDataFolder'.."
-      rm -rf $volumeDataFolder
+      echo "Deleting named Docker volumes .."
+      for namedVolume in "${namedVolumes[@]}"; do
+        docker volume rm --force "zac_$namedVolume" >/dev/null 2>&1 || true
+      done
       echo "Done"
       ;;
     c)
