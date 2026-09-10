@@ -747,8 +747,14 @@ services:
       Oidc__RequireHttps: "false"
       KeycloakAdmin__ClientId: "pabc-admin-client"
       KeycloakAdmin__ClientSecret: "pabcAdminClientSecret"
-      ZgwZaakregister__Enabled: "true"
-      ZgwZaakregister__CatalogiBaseUrl: "http://openzaak-nginx:8000/catalogi/api/v1/"
+      # Does not work in this Docker environment as the pabc-api container needs to talk to the Open Zaak
+      # via container openzaak-nginx on port 8000. This would mean that the CatalogiBaseUrl needs to be
+      # set to "http://openzaak-nginx:8000/catalogi/api/v1/". But then the URL does not match the URL configured in
+      # Open Zaak itself, which causes errors such as "Voer een geldige URL in."
+      # As this is not an essential feature to have locally, it was decided to only enable this on the actual
+      # environments.
+      ZgwZaakregister__Enabled: "false"
+      ZgwZaakregister__CatalogiBaseUrl: "http://localhost:8001/catalogi/api/v1/"
       ZgwZaakregister__ClientId: "pabc"
       ZgwZaakregister__ClientSecret: "pabcClientSecretWithExtraPadding"
       ZgwZaakregister__CatalogusDomein: "ALG"
