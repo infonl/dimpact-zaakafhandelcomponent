@@ -11,14 +11,17 @@ import {
   OnChanges,
   OnInit,
   ViewChild,
+  inject,
 } from "@angular/core";
 import { MatCardModule } from "@angular/material/card";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
 import { PutBody } from "../../shared/http/http-client";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import { EmptyPipe } from "../../shared/pipes/empty.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -61,6 +64,8 @@ export class KlantContactmomentenTabelComponent
   private init = false;
   protected isLoadingResults = true;
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly contactmomentenService: ContactmomentenService,
     private readonly utilService: UtilService,
@@ -79,7 +84,7 @@ export class KlantContactmomentenTabelComponent
         switchMap(() => {
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
-          return this.loadContactmomenten();
+          return runQuery(this.queryClient, this.loadContactmomenten());
         }),
         map((resultaat) => {
           this.isLoadingResults = false;

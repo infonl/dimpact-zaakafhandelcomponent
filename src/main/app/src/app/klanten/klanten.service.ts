@@ -125,7 +125,7 @@ export class KlantenService {
     body: PutBody<"/rest/klanten/personen">,
     zaaktypeUuid?: string | null,
   ) {
-    return this.zacHttpClient.PUT("/rest/klanten/personen", body, {
+    return this.zacQueryClient.PUT_QUERY("/rest/klanten/personen", body, {
       ...(zaaktypeUuid && {
         header: { "X-ZAAKTYPE-UUID": zaaktypeUuid },
       }),
@@ -134,7 +134,7 @@ export class KlantenService {
 
   /* istanbul ignore next */
   listBedrijven(body: PutBody<"/rest/klanten/bedrijven">) {
-    return this.zacHttpClient.PUT("/rest/klanten/bedrijven", body);
+    return this.zacQueryClient.PUT_QUERY("/rest/klanten/bedrijven", body);
   }
 
   /* istanbul ignore next */
