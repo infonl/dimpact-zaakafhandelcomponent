@@ -86,9 +86,7 @@ describe(SmartDocumentsFormComponent.name, () => {
   it("should call getTemplatesMappingQuery with zaakTypeUuid on init", async () => {
     const { getTemplatesMappingQuery } = await setup();
 
-    expect(getTemplatesMappingQuery).toHaveBeenCalledWith(
-      "test-zaaktype-uuid",
-    );
+    expect(getTemplatesMappingQuery).toHaveBeenCalledWith("test-zaaktype-uuid");
   });
 
   it("should call listInformatieobjecttypes with zaakTypeUuid on init", async () => {
