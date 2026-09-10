@@ -194,20 +194,20 @@ class DocumentCreationRestService @Inject constructor(
     ): Response {
         // spend the token before the cancellation branch, so a cancelled wizard cannot leave it open to replay
         val documentCreationUser = consumeDocumentCreationUser(documentCreationToken, zaakUuid)
-        return zrcClientService.readZaak(zaakUuid).let { zaak ->
-            if (fileId.isBlank()) {
-                Response.seeOther(
-                    documentCreationService.documentCreationFinishPageUrl(
-                        zaakId = zaak.identificatie,
-                        taskId = taskId,
-                        documentName = title,
-                        result = SmartDocumentsWizardResult.CANCELLED.value
-                    )
-                ).build()
-            } else {
-                runCatching {
-                    val informatieobjecttypeUuid = fetchInformatieobjecttypeUuidFunction(zaak)
-                    val storeDocument = {
+        return runAsDocumentCreationUser(documentCreationUser) {
+            zrcClientService.readZaak(zaakUuid).let { zaak ->
+                if (fileId.isBlank()) {
+                    Response.seeOther(
+                        documentCreationService.documentCreationFinishPageUrl(
+                            zaakId = zaak.identificatie,
+                            taskId = taskId,
+                            documentName = title,
+                            result = SmartDocumentsWizardResult.CANCELLED.value
+                        )
+                    ).build()
+                } else {
+                    runCatching {
+                        val informatieobjecttypeUuid = fetchInformatieobjecttypeUuidFunction(zaak)
                         documentCreationService.downloadAndStoreDocument(
                             zaak = zaak,
                             taskId = taskId,
@@ -218,36 +218,33 @@ class DocumentCreationRestService @Inject constructor(
                             creationDate = creationDate,
                             userName = userName
                         )
+                        Response.seeOther(
+                            documentCreationService.documentCreationFinishPageUrl(
+                                zaakId = zaak.identificatie,
+                                taskId = taskId,
+                                documentName = title,
+                                result = SmartDocumentsWizardResult.SUCCESS.value
+                            )
+                        ).build()
+                    }.onFailure {
+                        LOG.log(Level.WARNING, it) {
+                            "Failed to create document for zaak ${zaak.identificatie}" +
+                                if (taskId != null) " and task $taskId" else ""
+                        }
+                    }.getOrElse { exception ->
+                        Response.seeOther(
+                            documentCreationService.documentCreationFinishPageUrl(
+                                zaakId = zaak.identificatie,
+                                taskId = taskId,
+                                documentName = title,
+                                result = when (exception) {
+                                    is SmartDocumentsUnsupportedOutputFormatException ->
+                                        SmartDocumentsWizardResult.UNSUPPORTED_OUTPUT_FORMAT
+                                    else -> SmartDocumentsWizardResult.FAILURE
+                                }.value
+                            )
+                        ).build()
                     }
-                    // an unknown token leaves the document to the functionele gebruiker rather than failing
-                    documentCreationUser?.let { runAsLoggedInUser(it, storeDocument) }
-                        ?: runAsSystemUser(storeDocument)
-                    Response.seeOther(
-                        documentCreationService.documentCreationFinishPageUrl(
-                            zaakId = zaak.identificatie,
-                            taskId = taskId,
-                            documentName = title,
-                            result = SmartDocumentsWizardResult.SUCCESS.value
-                        )
-                    ).build()
-                }.onFailure {
-                    LOG.log(Level.WARNING, it) {
-                        "Failed to create document for zaak ${zaak.identificatie}" +
-                            if (taskId != null) " and task $taskId" else ""
-                    }
-                }.getOrElse { exception ->
-                    Response.seeOther(
-                        documentCreationService.documentCreationFinishPageUrl(
-                            zaakId = zaak.identificatie,
-                            taskId = taskId,
-                            documentName = title,
-                            result = when (exception) {
-                                is SmartDocumentsUnsupportedOutputFormatException ->
-                                    SmartDocumentsWizardResult.UNSUPPORTED_OUTPUT_FORMAT
-                                else -> SmartDocumentsWizardResult.FAILURE
-                            }.value
-                        )
-                    ).build()
                 }
             }
         }
@@ -263,4 +260,11 @@ class DocumentCreationRestService @Inject constructor(
                 null
             }
         }
+
+    /**
+     * Runs the callback as the user the token identifies. An unknown token leaves it to the
+     * functionele gebruiker rather than failing.
+     */
+    private fun <T> runAsDocumentCreationUser(documentCreationUser: LoggedInUser?, block: () -> T): T =
+        documentCreationUser?.let { runAsLoggedInUser(it, block) } ?: runAsSystemUser(block)
 }

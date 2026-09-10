@@ -27,6 +27,8 @@ import nl.info.client.zgw.zrc.model.ZaakListParameters
 import nl.info.client.zgw.zrc.model.ZaakUuid
 import nl.info.client.zgw.zrc.util.ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD
 import nl.info.zac.app.task.model.TaakSortering
+import nl.info.zac.authentication.LoggedInUserProvider
+import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.search.converter.AbstractZoekObjectConverter
 import nl.info.zac.search.model.createZaakZoekObject
 import nl.info.zac.search.model.zoekobject.ZoekObject
@@ -444,6 +446,25 @@ class ReindexSupportServiceTest : BehaviorSpec({
                     ctx.solrClient.addBeans(listOf(taakZoekObject))
                 }
                 summary shouldBe ReindexSummary(successCount = 1, skippedCount = 0, totalCount = 1)
+            }
+        }
+    }
+
+    context("Running page conversions as the system user") {
+        given("page conversions started inside system user work") {
+            val reindexSupportService = setupContext().reindexSupportService
+
+            `when`("a conversion runs on the page conversion dispatcher") {
+                var wasSystemUserDuringConversion: Boolean? = null
+                runAsSystemUser {
+                    reindexSupportService.runConcurrentPageConversions(listOf("fakeItem")) {
+                        wasSystemUserDuringConversion = LoggedInUserProvider.systemUser.get()
+                    }
+                }
+
+                then("the conversion runs as the system user too, not on an unattributed worker thread") {
+                    wasSystemUserDuringConversion shouldBe true
+                }
             }
         }
     }
