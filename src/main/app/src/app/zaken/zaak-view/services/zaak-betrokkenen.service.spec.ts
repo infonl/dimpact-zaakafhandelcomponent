@@ -143,7 +143,7 @@ describe(ZaakBetrokkenenService.name, () => {
       });
     });
 
-    it("reports the coupling and refreshes the historie when the zaak had no initiator", () => {
+    it("reports the coupling when the zaak had no initiator", () => {
       jest
         .spyOn(zakenService, "updateInitiator")
         .mockReturnValue(of(gekoppeldeZaak));
@@ -155,12 +155,21 @@ describe(ZaakBetrokkenenService.name, () => {
         "msg.initiator.gekoppeld",
         { naam: "fakeKvkNummer - fakeVestigingsnummer" },
       );
-      expect(invalidateSpy).toHaveBeenCalledWith(
+    });
+
+    it("caches the new initiator without invalidating the historie itself, so the zaak view refreshes it once", () => {
+      jest
+        .spyOn(zakenService, "updateInitiator")
+        .mockReturnValue(of(gekoppeldeZaak));
+
+      service.initiatorGeselecteerd(zaakZonderInitiator, initiator);
+
+      expect(invalidateSpy).not.toHaveBeenCalledWith(
         {
           queryKey:
             zakenService.listHistorieVoorZaakQuery("fakeZaakUuid").queryKey,
         },
-        { cancelRefetch: false },
+        expect.anything(),
       );
     });
 
@@ -263,12 +272,22 @@ describe(ZaakBetrokkenenService.name, () => {
       );
       expect(readZaak).toHaveBeenCalledWith("fakeZaakUuid");
       expect(zakenService.cacheZaak).toHaveBeenCalledWith(zaakZonderInitiator);
-      expect(invalidateSpy).toHaveBeenCalledWith(
+    });
+
+    it("caches the refetched zaak without invalidating the historie itself, so the zaak view refreshes it once", () => {
+      jest
+        .spyOn(zakenService, "readZaak")
+        .mockReturnValue(of(zaakZonderInitiator));
+
+      service.deleteInitiator(zaakMetInitiator);
+      closedWith(true);
+
+      expect(invalidateSpy).not.toHaveBeenCalledWith(
         {
           queryKey:
             zakenService.listHistorieVoorZaakQuery("fakeZaakUuid").queryKey,
         },
-        { cancelRefetch: false },
+        expect.anything(),
       );
     });
   });
@@ -293,7 +312,7 @@ describe(ZaakBetrokkenenService.name, () => {
       });
     });
 
-    it("reports the roltype and refreshes both the historie and the betrokkenen", () => {
+    it("reports the roltype and refreshes the betrokkenen", () => {
       jest
         .spyOn(zakenService, "createBetrokkene")
         .mockReturnValue(of(zaakMetInitiator));
@@ -305,6 +324,19 @@ describe(ZaakBetrokkenenService.name, () => {
         "msg.betrokkene.gekoppeld",
         { roltype: "fakeRoltypeNaam" },
       );
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey:
+          zakenService.listBetrokkenenVoorZaakQuery("fakeZaakUuid").queryKey,
+      });
+    });
+
+    it("refreshes the historie itself, because the zaak the server returns is the same one it was given", () => {
+      jest
+        .spyOn(zakenService, "createBetrokkene")
+        .mockReturnValue(of(zaakMetInitiator));
+
+      service.betrokkeneGeselecteerd(zaakMetInitiator, createKlantGegevens());
+
       expect(invalidateSpy).toHaveBeenCalledWith(
         {
           queryKey:
@@ -312,10 +344,6 @@ describe(ZaakBetrokkenenService.name, () => {
         },
         { cancelRefetch: false },
       );
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey:
-          zakenService.listBetrokkenenVoorZaakQuery("fakeZaakUuid").queryKey,
-      });
     });
   });
 

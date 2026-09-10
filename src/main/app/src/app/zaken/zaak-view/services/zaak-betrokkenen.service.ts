@@ -64,7 +64,6 @@ export class ZaakBetrokkenenService {
     this.utilService.openSnackbar(notification, {
       naam: naam.join(" - "),
     });
-    this.zakenService.invalidateHistorie(updatedZaak.uuid);
   }
 
   deleteInitiator(zaak: Zaak) {
@@ -81,10 +80,9 @@ export class ZaakBetrokkenenService {
         if (!result) return;
 
         this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
-        this.zakenService.readZaak(zaak.uuid).subscribe((updatedZaak) => {
-          this.zakenService.cacheZaak(updatedZaak);
-          this.zakenService.invalidateHistorie(zaak.uuid);
-        });
+        this.zakenService
+          .readZaak(zaak.uuid)
+          .subscribe((updatedZaak) => this.zakenService.cacheZaak(updatedZaak));
       });
   }
 
