@@ -565,7 +565,6 @@ export class ZaakViewComponent
         this.sideActions.clear();
         if (!result) return;
 
-        this.invalidateZaakHistorie();
         this.loadBagObjecten();
         this.utilService.openSnackbar("msg.bagObject.ontkoppelen.uitgevoerd", {
           omschrijving: bagObject?.omschrijving,
