@@ -50,7 +50,7 @@ class ZaaktypeConfigurationService @Inject constructor(
             getLastCreatedConfiguration(it.omschrijving)?.let { zaaktypeConfiguration ->
                 when (zaaktypeConfiguration.getConfigurationType()) {
                     CMMN -> zaaktypeCmmnConfigurationBeheerService.upsertZaaktypeCmmnConfiguration(it)
-                    BPMN -> zaaktypeBpmnConfigurationBeheerService.copyConfiguration(it)
+                    BPMN -> zaaktypeBpmnConfigurationBeheerService.upsertConfiguration(it)
                 }
             } ?: LOG.info {
                 "Zaaktype '${it.omschrijving}' with UUID ${zaaktypeUri.extractUuid()} has no known configuration. Ignoring"

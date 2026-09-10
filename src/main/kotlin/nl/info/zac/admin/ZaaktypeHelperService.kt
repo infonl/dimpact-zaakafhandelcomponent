@@ -11,10 +11,13 @@ import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ResultaatType
 import nl.info.client.zgw.ztc.model.generated.ZaakType
+import nl.info.zac.admin.model.ZaaktypeBetrokkeneParameters
+import nl.info.zac.admin.model.ZaaktypeBrpParameters
 import nl.info.zac.admin.model.ZaaktypeCompletionParameters
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @ApplicationScoped
@@ -24,14 +27,46 @@ import java.util.UUID
 class ZaaktypeHelperService @Inject constructor(
     private val ztcClientService: ZtcClientService,
 ) {
-    /**
-     * Remaps the ZaakbeeindigGegevens of the given zaaktype configuration onto the resultaattypen of the given
-     * zaaktype, in place. Passing the configuration as both source and destination is safe: [mapZaakbeeindigGegevens]
-     * resolves all resultaattypen into local variables before it writes anything back.
-     *
-     * @param zaaktypeConfiguration source and destination
-     * @param newZaaktype           zaaktype to read the results from
-     */
+    fun copySharedConfigurationData(
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktype: ZaakType
+    ) {
+        newZaaktypeConfiguration.apply {
+            groepID = previousZaaktypeConfiguration.groepID
+            defaultBehandelaarId = previousZaaktypeConfiguration.defaultBehandelaarId
+            productaanvraagtype = previousZaaktypeConfiguration.productaanvraagtype
+            smartDocumentsEnabled = previousZaaktypeConfiguration.smartDocumentsEnabled
+            creatiedatum = ZonedDateTime.now()
+        }
+        copyBetrokkeneKoppelingen(previousZaaktypeConfiguration, newZaaktypeConfiguration)
+        copyBrpDoelbindingen(previousZaaktypeConfiguration, newZaaktypeConfiguration)
+        mapZaakbeeindigGegevens(previousZaaktypeConfiguration, newZaaktypeConfiguration, newZaaktype)
+    }
+
+    private fun copyBetrokkeneKoppelingen(
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration
+    ) {
+        newZaaktypeConfiguration.zaaktypeBetrokkeneParameters = ZaaktypeBetrokkeneParameters().apply {
+            zaaktypeConfiguration = newZaaktypeConfiguration
+            brpKoppelen = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.brpKoppelen
+            kvkKoppelen = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.kvkKoppelen
+        }
+    }
+
+    private fun copyBrpDoelbindingen(
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration
+    ) {
+        newZaaktypeConfiguration.zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
+            zaaktypeConfiguration = newZaaktypeConfiguration
+            zoekWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.zoekWaarde
+            raadpleegWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.raadpleegWaarde
+            verwerkingregisterWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.verwerkingregisterWaarde
+        }
+    }
+
     fun updateZaakbeeindigGegevens(
         zaaktypeConfiguration: ZaaktypeConfiguration,
         newZaaktype: ZaakType
@@ -48,26 +83,18 @@ class ZaaktypeHelperService @Inject constructor(
             ?.extractUuid()
 
     /**
-     * Copying of the ZaakbeeindigGegevens from the old ZaaktypeConfiguration to the new ZaaktypeConfiguration.
-     * Resultaattypen of the previous configuration are matched to those of the new zaaktype by omschrijving;
-     * parameters without a match are dropped.
-     *
      * Source and destination may be the same instance; everything is read into local variables before the first write.
-     *
-     * @param previousZaaktypeCmmnConfiguration source
-     * @param newZaaktypeCmmnConfiguration      destination
-     * @param newZaaktype                       new zaaktype to read the results from
      */
     fun mapZaakbeeindigGegevens(
-        previousZaaktypeCmmnConfiguration: ZaaktypeConfiguration,
-        newZaaktypeCmmnConfiguration: ZaaktypeConfiguration,
+        previousZaaktypeConfiguration: ZaaktypeConfiguration,
+        newZaaktypeConfiguration: ZaaktypeConfiguration,
         newZaaktype: ZaakType
     ) {
         val newResultaattypen = newZaaktype.resultaattypen.map { ztcClientService.readResultaattype(it) }
-        val nietOntvankelijkResultaattype = previousZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype?.let {
+        val nietOntvankelijkResultaattype = previousZaaktypeConfiguration.nietOntvankelijkResultaattype?.let {
             mapPreviousResultaattypeToNewResultaattype(it, newResultaattypen)
         }
-        val zaakbeeindigParametersCollection = previousZaaktypeCmmnConfiguration.getZaakbeeindigParameters()
+        val zaakbeeindigParametersCollection = previousZaaktypeConfiguration.getZaakbeeindigParameters()
             .mapNotNull { zaakbeeindigParameter ->
                 zaakbeeindigParameter.resultaattype
                     .let { mapPreviousResultaattypeToNewResultaattype(it, newResultaattypen) }
@@ -78,7 +105,7 @@ class ZaaktypeHelperService @Inject constructor(
                         }
                     }
             }.toMutableSet()
-        newZaaktypeCmmnConfiguration.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
-        newZaaktypeCmmnConfiguration.setZaakbeeindigParameters(zaakbeeindigParametersCollection)
+        newZaaktypeConfiguration.nietOntvankelijkResultaattype = nietOntvankelijkResultaattype
+        newZaaktypeConfiguration.setZaakbeeindigParameters(zaakbeeindigParametersCollection)
     }
 }

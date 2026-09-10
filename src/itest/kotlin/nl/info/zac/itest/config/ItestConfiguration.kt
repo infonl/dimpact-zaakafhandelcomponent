@@ -397,6 +397,9 @@ object ItestConfiguration {
     val ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_AFGEBROKEN_UUID: UUID = UUID.fromString(
         "82442c7f-05f2-4e9d-a0ae-c038344809af"
     )
+    val ZAAKTYPE_BPMN_TEST_1_RESULTAATTYPE_VERLEEND_UUID: UUID = UUID.fromString(
+        "538fa40d-3b83-4b32-8e03-d5e0b8fa0e8b"
+    )
 
     val ZAAKTYPE_BPMN_TEST_2_UUID: UUID = UUID.fromString("7c27a4ae-4a2a-4eb2-9db9-6cda578ce56e")
     const val ZAAKTYPE_BPMN_TEST_2_IDENTIFICATIE = "bpmn-test-zaaktype-2"

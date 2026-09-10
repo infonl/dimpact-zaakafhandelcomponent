@@ -114,53 +114,6 @@ abstract class ZaaktypeConfiguration {
     fun getBrpParameters(): ZaaktypeBrpParameters =
         zaaktypeBrpParameters ?: ZaaktypeBrpParameters()
 
-    fun mapBetrokkeneKoppelingen(
-        previousZaaktypeConfiguration: ZaaktypeConfiguration,
-        newZaaktypeConfiguration: ZaaktypeConfiguration
-    ) = newZaaktypeConfiguration.apply {
-        zaaktypeBetrokkeneParameters = ZaaktypeBetrokkeneParameters().apply {
-            zaaktypeConfiguration = newZaaktypeConfiguration
-            brpKoppelen = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.brpKoppelen
-            kvkKoppelen = previousZaaktypeConfiguration.zaaktypeBetrokkeneParameters?.kvkKoppelen
-        }
-    }
-
-    fun mapBrpDoelbindingen(
-        previousZaaktypeConfiguration: ZaaktypeConfiguration,
-        newZaaktypeConfiguration: ZaaktypeConfiguration
-    ) = newZaaktypeConfiguration.apply {
-        zaaktypeBrpParameters = ZaaktypeBrpParameters().apply {
-            zaaktypeConfiguration = newZaaktypeConfiguration
-            zoekWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.zoekWaarde
-            raadpleegWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.raadpleegWaarde
-            verwerkingregisterWaarde = previousZaaktypeConfiguration.zaaktypeBrpParameters?.verwerkingregisterWaarde
-        }
-    }
-
-    fun mapCompletionParameters(
-        previousZaaktypeConfiguration: ZaaktypeConfiguration,
-        newZaaktypeConfiguration: ZaaktypeConfiguration
-    ) {
-        newZaaktypeConfiguration.apply {
-            zaaktypeCompletionParameters = mutableSetOf()
-            previousZaaktypeConfiguration.getZaakbeeindigParameters().forEach { previousParameter ->
-                val newParameter = ZaaktypeCompletionParameters().apply {
-                    id = previousParameter.id
-                    zaaktypeConfiguration = newZaaktypeConfiguration
-                    zaakbeeindigReden = previousParameter.zaakbeeindigReden
-
-                    resultaattype = previousParameter.resultaattype
-                }
-                // If the zaaktypeUuid has changed, this indicates the configuration is being copied.
-                // In that case, we need to reset the id to ensure a new entity is created
-                if (previousZaaktypeConfiguration.zaaktypeUuid != newZaaktypeConfiguration.zaaktypeUuid) {
-                    newParameter.id = null
-                }
-                zaaktypeCompletionParameters?.add(newParameter)
-            }
-        }
-    }
-
     @Suppress("TooGenericExceptionThrown")
     fun readZaakbeeindigParameter(zaakbeeindigRedenId: Long): ZaaktypeCompletionParameters =
         getZaakbeeindigParameters().firstOrNull {

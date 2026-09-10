@@ -21,7 +21,6 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VAR
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
-import java.time.ZonedDateTime
 import java.util.UUID
 import java.util.logging.Logger
 import kotlin.jvm.optionals.getOrNull
@@ -32,7 +31,8 @@ import kotlin.jvm.optionals.getOrNull
 @AllOpen
 class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
     private val entityManager: EntityManager,
-    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService
+    private val smartDocumentsTemplatesService: SmartDocumentsTemplatesService,
+    private val zaaktypeHelperService: ZaaktypeHelperService
 ) {
     companion object {
         private val LOG = Logger.getLogger(ZaaktypeBpmnConfigurationBeheerService::class.java.name)
@@ -158,28 +158,27 @@ class ZaaktypeBpmnConfigurationBeheerService @Inject constructor(
             }
         }
 
-    fun copyConfiguration(zaaktype: ZaakType) {
-        // only copy settings if there is a previous configuration
+    fun upsertConfiguration(zaaktype: ZaakType) {
+        val zaaktypeUuid = zaaktype.url.extractUuid()
+        findConfiguration(zaaktypeUuid)?.let { existingConfiguration ->
+            LOG.info {
+                "BPMN configuration for zaaktype with UUID $zaaktypeUuid is already published. Updating parameters data"
+            }
+            zaaktypeHelperService.updateZaakbeeindigGegevens(existingConfiguration, zaaktype)
+            storeConfiguration(existingConfiguration)
+            return
+        }
         findConfiguration(zaaktype.omschrijving)?.let { previousConfiguration ->
-            val newZaaktypeUuid = zaaktype.url.extractUuid()
             ZaaktypeBpmnConfiguration().apply {
-                id = previousConfiguration.id
-                this.zaaktypeUuid = newZaaktypeUuid
+                this.zaaktypeUuid = zaaktypeUuid
                 zaaktypeOmschrijving = zaaktype.omschrijving
                 bpmnProcessDefinitionKey = previousConfiguration.bpmnProcessDefinitionKey
-                productaanvraagtype = previousConfiguration.productaanvraagtype
-                groepID = previousConfiguration.groepID
-                creatiedatum = ZonedDateTime.now()
-                smartDocumentsEnabled = previousConfiguration.smartDocumentsEnabled
-                mapBetrokkeneKoppelingen(previousConfiguration, this)
-                mapBrpDoelbindingen(previousConfiguration, this)
-                nietOntvankelijkResultaattype = previousConfiguration.nietOntvankelijkResultaattype
-                mapCompletionParameters(previousConfiguration, this)
+                zaaktypeHelperService.copySharedConfigurationData(previousConfiguration, this, zaaktype)
             }.run(::storeConfiguration)
 
             smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(
                 previousConfiguration.zaaktypeUuid,
-                newZaaktypeUuid
+                zaaktypeUuid
             )
         }
     }

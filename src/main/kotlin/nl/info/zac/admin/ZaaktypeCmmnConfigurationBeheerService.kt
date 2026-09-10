@@ -30,7 +30,6 @@ import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 import nl.info.zac.util.validateObject
-import java.time.ZonedDateTime
 import java.util.Date
 import java.util.UUID
 import java.util.logging.Logger
@@ -227,10 +226,13 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
         zaaktype: ZaakType,
         previousZaaktypeCmmnConfiguration: ZaaktypeCmmnConfiguration
     ) {
+        zaaktypeHelperService.copySharedConfigurationData(
+            previousZaaktypeCmmnConfiguration,
+            zaaktypeCmmnConfiguration,
+            zaaktype
+        )
         zaaktypeCmmnConfiguration.apply {
             caseDefinitionID = previousZaaktypeCmmnConfiguration.caseDefinitionID
-            groepID = previousZaaktypeCmmnConfiguration.groepID
-            defaultBehandelaarId = previousZaaktypeCmmnConfiguration.defaultBehandelaarId
             einddatumGeplandWaarschuwing = previousZaaktypeCmmnConfiguration.einddatumGeplandWaarschuwing.takeIf {
                 zaaktype.isServicenormAvailable()
             }
@@ -238,24 +240,12 @@ class ZaaktypeCmmnConfigurationBeheerService @Inject constructor(
                 previousZaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
             intakeMail = previousZaaktypeCmmnConfiguration.intakeMail
             afrondenMail = previousZaaktypeCmmnConfiguration.afrondenMail
-            productaanvraagtype = previousZaaktypeCmmnConfiguration.productaanvraagtype
-            smartDocumentsEnabled = previousZaaktypeCmmnConfiguration.smartDocumentsEnabled
-            uiterlijkeEinddatumAfdoeningWaarschuwing =
-                previousZaaktypeCmmnConfiguration.uiterlijkeEinddatumAfdoeningWaarschuwing
-            creatiedatum = ZonedDateTime.now()
         }
 
         mapHumanTaskParameters(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapUserEventListenerParameters(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        zaaktypeHelperService.mapZaakbeeindigGegevens(
-            previousZaaktypeCmmnConfiguration,
-            zaaktypeCmmnConfiguration,
-            zaaktype
-        )
         mapMailtemplateKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapZaakAfzenders(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        zaaktypeCmmnConfiguration.mapBetrokkeneKoppelingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
-        zaaktypeCmmnConfiguration.mapBrpDoelbindingen(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
         mapAutomaticEmailConfirmation(previousZaaktypeCmmnConfiguration, zaaktypeCmmnConfiguration)
     }
 
