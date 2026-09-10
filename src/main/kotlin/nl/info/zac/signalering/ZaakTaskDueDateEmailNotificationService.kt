@@ -20,6 +20,7 @@ import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.search.SearchService
 import nl.info.zac.search.model.DatumRange
@@ -58,7 +59,7 @@ class ZaakTaskDueDateEmailNotificationService @Inject constructor(
      * Send zaak and task due date email notifications as warnings that the
      * user should take action.
      */
-    fun sendDueDateEmailNotifications() {
+    fun sendDueDateEmailNotifications() = runAsSystemUser {
         sendZaakDueDateEmailNotifications()
         sendTaskDueDateEmailNotifications()
     }

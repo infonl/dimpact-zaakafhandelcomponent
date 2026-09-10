@@ -29,6 +29,7 @@ import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.runAsLoggedInUser
+import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.documentcreation.DocumentCreationService
 import nl.info.zac.documentcreation.DocumentCreationUserStore
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
@@ -217,7 +218,7 @@ class DocumentCreationRestService @Inject constructor(
                     // an unknown token leaves the document to the functionele gebruiker rather than failing
                     userToken?.let(documentCreationUserStore::findUser)
                         ?.let { runAsLoggedInUser(it, storeDocument) }
-                        ?: storeDocument()
+                        ?: runAsSystemUser(storeDocument)
                     Response.seeOther(
                         documentCreationService.documentCreationFinishPageUrl(
                             zaakId = zaak.identificatie,
