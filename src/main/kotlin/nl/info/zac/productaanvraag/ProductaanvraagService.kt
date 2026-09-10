@@ -32,6 +32,8 @@ import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeCmmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeConfiguration
 import nl.info.zac.app.zaak.exception.ExplanationRequiredException
+import nl.info.zac.authentication.LoggedInUserProvider.Companion.OPEN_FORMULIEREN_GEBRUIKER
+import nl.info.zac.authentication.runAsLoggedInUser
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.flowable.bpmn.BpmnService
@@ -96,23 +98,25 @@ class ProductaanvraagService @Inject constructor(
             }
             return
         }
-        productaanvraagObjectUUID
-            .runCatching(objectsClientService::readObject)
-            .onFailure { LOG.warning("Unable to read object with UUID: $productaanvraagObjectUUID") }
-            .onSuccess { modelObject ->
-                modelObject
-                    .takeIf(::isProductaanvraagDimpact)
-                    ?.runCatching {
-                        LOG.info("Handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID")
-                        handleProductaanvraagDimpact(this)
-                    }?.onFailure {
-                        LOG.log(
-                            Level.WARNING,
-                            "Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID",
-                            it
-                        )
-                    }
-            }
+        runAsLoggedInUser(OPEN_FORMULIEREN_GEBRUIKER) {
+            productaanvraagObjectUUID
+                .runCatching(objectsClientService::readObject)
+                .onFailure { LOG.warning("Unable to read object with UUID: $productaanvraagObjectUUID") }
+                .onSuccess { modelObject ->
+                    modelObject
+                        .takeIf(::isProductaanvraagDimpact)
+                        ?.runCatching {
+                            LOG.info("Handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID")
+                            handleProductaanvraagDimpact(this)
+                        }?.onFailure {
+                            LOG.log(
+                                Level.WARNING,
+                                "Failed to handle productaanvraag-Dimpact object UUID: $productaanvraagObjectUUID",
+                                it
+                            )
+                        }
+                }
+        }
     }
 
     fun getAanvraaggegevens(productaanvraagObject: ModelObject): Map<String, Any> =

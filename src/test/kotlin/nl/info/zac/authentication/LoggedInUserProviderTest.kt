@@ -65,9 +65,8 @@ class LoggedInUserProviderTest : BehaviorSpec({
         val httpSessionInstance = mockk<Instance<HttpSession>>()
         val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
 
-        given("no HTTP session and a user carried into the async context") {
+        given("a user carried into the async context") {
             val loggedInUser = createLoggedInUser()
-            every { httpSessionInstance.get() } returns null
 
             `when`("getLoggedInUser is called") {
                 LoggedInUserProvider.asyncContextUser.set(loggedInUser)
@@ -134,6 +133,26 @@ class LoggedInUserProviderTest : BehaviorSpec({
 
                 and("the session user is restored afterwards") {
                     userAfterSystemWork shouldBe loggedInUser
+                }
+            }
+        }
+
+        given("a session user and work explicitly run as another user") {
+            val sessionUser = createLoggedInUser(id = "fakeSessionUserId")
+            val explicitUser = createLoggedInUser(id = "fakeExplicitUserId")
+            every { httpSessionInstance.get() } returns httpSession
+            every { httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE) } returns sessionUser
+
+            `when`("getLoggedInUser is called inside and after that work") {
+                val userDuringExplicitWork = runAsLoggedInUser(explicitUser) { loggedInUserProvider.getLoggedInUser() }
+                val userAfterExplicitWork = loggedInUserProvider.getLoggedInUser()
+
+                then("the explicitly named user wins over the session") {
+                    userDuringExplicitWork shouldBe explicitUser
+                }
+
+                and("the session user applies again afterwards") {
+                    userAfterExplicitWork shouldBe sessionUser
                 }
             }
         }
