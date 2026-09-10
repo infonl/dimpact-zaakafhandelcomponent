@@ -4,7 +4,11 @@
  */
 
 import { Injectable } from "@angular/core";
-import { queryOptions } from "@tanstack/angular-query-experimental";
+import {
+  QueryClient,
+  queryOptions,
+} from "@tanstack/angular-query-experimental";
+import { tap } from "rxjs/operators";
 import { PostBody } from "../shared/http/http-client";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
@@ -21,6 +25,7 @@ export class SmartDocumentsService {
   constructor(
     private readonly zacHttpClient: ZacHttpClient,
     private readonly zacQueryClient: ZacQueryClient,
+    private readonly queryClient: QueryClient,
   ) {}
 
   getAllSmartDocumentsTemplateGroups() {
@@ -35,7 +40,6 @@ export class SmartDocumentsService {
         "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
         { path: { zaakafhandelUUID } },
       ),
-      queryKey: ["smartDocumentsTemplatesMapping", zaakafhandelUUID],
       select: (data) => this.flattenGroups(this.convertApiData(data)),
     });
   }
@@ -55,11 +59,19 @@ export class SmartDocumentsService {
     templateGroups: GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[],
   ) {
     const body = this.convertToApiFormat(templateGroups);
-    return this.zacHttpClient.POST(
-      "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
-      body,
-      { path: { zaakafhandelUUID } },
-    );
+    return this.zacHttpClient
+      .POST(
+        "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
+        body,
+        { path: { zaakafhandelUUID } },
+      )
+      .pipe(tap(() => this.invalidateTemplatesMappingQuery(zaakafhandelUUID)));
+  }
+
+  private invalidateTemplatesMappingQuery(zaakafhandelUUID: string) {
+    return this.queryClient.invalidateQueries({
+      queryKey: this.getTemplatesMappingQuery(zaakafhandelUUID).queryKey,
+    });
   }
 
   private convertToApiFormat(

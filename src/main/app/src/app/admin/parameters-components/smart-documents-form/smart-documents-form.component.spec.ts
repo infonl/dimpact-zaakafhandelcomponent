@@ -11,6 +11,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
+import { createQueryOptions, fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../../../setupJest";
 import { SmartDocumentsService } from "../../smart-documents.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form.component";
@@ -38,6 +39,15 @@ describe(SmartDocumentsFormComponent.name, () => {
     jest
       .spyOn(smartDocumentsService, "getAllSmartDocumentsTemplateGroups")
       .mockReturnValue(of([]));
+    jest
+      .spyOn(smartDocumentsService, "getTemplatesMappingQuery")
+      .mockReturnValue(
+        fromPartial(
+          createQueryOptions<
+            ReturnType<SmartDocumentsService["flattenGroups"]>
+          >([]),
+        ),
+      );
     jest
       .spyOn(smartDocumentsService, "addParentIdsToTemplates")
       .mockReturnValue([]);

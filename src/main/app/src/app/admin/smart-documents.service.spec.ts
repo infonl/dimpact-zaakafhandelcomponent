@@ -10,7 +10,9 @@ import {
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../setupJest";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { GeneratedType } from "../shared/utils/generated-types";
 import {
@@ -44,6 +46,7 @@ describe(SmartDocumentsService.name, () => {
         { provide: TranslateService, useValue: mockTranslateService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
       ],
     });
 

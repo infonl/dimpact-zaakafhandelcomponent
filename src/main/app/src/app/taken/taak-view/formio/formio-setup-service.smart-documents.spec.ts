@@ -66,7 +66,10 @@ describe(FormioSetupService.name, () => {
 
         expect(querySpy).toHaveBeenCalledWith(
           expect.objectContaining({
-            queryKey: ["smartDocumentsTemplatesMapping", "test-zaaktype-uuid"],
+            queryKey: [
+              "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
+              { path: { zaakafhandelUUID: "test-zaaktype-uuid" } },
+            ],
           }),
         );
       });
