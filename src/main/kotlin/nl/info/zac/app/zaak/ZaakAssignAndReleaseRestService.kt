@@ -27,6 +27,7 @@ import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.loggedInUserContext
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -64,8 +65,10 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         // Only the 'zaken taken verdelen' permission is currently required to assign tasks from the list.
         // Checking the user's authorization for each task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
+        // the HTTP session is not in scope inside the coroutine
+        val loggedInUser = loggedInUserInstance.get()
         // this can be a long-running operation, so run it asynchronously
-        CoroutineScope(dispatcher).launch {
+        CoroutineScope(dispatcher).launch(loggedInUserContext(loggedInUser)) {
             zaakService.assignZaken(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,
                 explanation = restZakenVerdeelGegevens.reden,
@@ -146,8 +149,10 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
     @Path("lijst/vrijgeven")
     fun releaseZakenFromList(@Valid restZakenVrijgevenGegevens: RestZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
+        // the HTTP session is not in scope inside the coroutine
+        val loggedInUser = loggedInUserInstance.get()
         // this can be a long-running operation, so run it asynchronously
-        CoroutineScope(dispatcher).launch {
+        CoroutineScope(dispatcher).launch(loggedInUserContext(loggedInUser)) {
             zaakService.releaseZaken(
                 zaakUUIDs = restZakenVrijgevenGegevens.uuids,
                 explanation = restZakenVrijgevenGegevens.reden,

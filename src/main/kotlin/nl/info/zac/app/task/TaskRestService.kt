@@ -58,6 +58,7 @@ import nl.info.zac.app.task.model.RestTaskHistoryLine
 import nl.info.zac.app.task.model.RestTaskReleaseData
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.loggedInUserContext
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
@@ -177,11 +178,13 @@ class TaskRestService @Inject constructor(
         // Only the 'zaken taken verdelen' permission is currently required to assign tasks from the list.
         // Checking the user's authorization for each task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
+        // the HTTP session is not in scope inside the coroutine
+        val loggedInUser = loggedInUserInstance.get()
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(dispatcher).launch {
+        CoroutineScope(dispatcher).launch(loggedInUserContext(loggedInUser)) {
             taskService.assignTasks(
                 restTaskDistributeData = restTaskDistributeData,
-                loggedInUser = loggedInUserInstance.get(),
+                loggedInUser = loggedInUser,
                 screenEventResourceId = restTaskDistributeData.screenEventResourceId
             )
         }
@@ -191,11 +194,13 @@ class TaskRestService @Inject constructor(
     @Path("lijst/vrijgeven")
     fun releaseTaskFromList(@Valid restTaskReleaseData: RestTaskReleaseData) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
+        // the HTTP session is not in scope inside the coroutine
+        val loggedInUser = loggedInUserInstance.get()
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(dispatcher).launch {
+        CoroutineScope(dispatcher).launch(loggedInUserContext(loggedInUser)) {
             taskService.releaseTasks(
                 restTaskReleaseData = restTaskReleaseData,
-                loggedInUser = loggedInUserInstance.get(),
+                loggedInUser = loggedInUser,
                 screenEventResourceId = restTaskReleaseData.screenEventResourceId
             )
         }
