@@ -30,7 +30,7 @@ export class ZaakBetrokkenenService {
     if (zaak.initiatorIdentificatie) {
       this.zaakDialogService
         .openWijzigInitiator(initiator.naam, (reden) =>
-          this.zakenService.updateInitiator({
+          runMutation(this.queryClient, this.zakenService.updateInitiator(), {
             zaakUUID: zaak.uuid,
             betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
             toelichting: reden,
@@ -38,25 +38,26 @@ export class ZaakBetrokkenenService {
         )
         .afterClosed()
         .subscribe((updatedZaak) =>
-          this.handleNewInitiator("msg.initiator.gewijzigd", updatedZaak),
+          this.reportNewInitiator("msg.initiator.gewijzigd", updatedZaak),
         );
       return;
     }
 
-    this.zakenService
-      .updateInitiator({
-        zaakUUID: zaak.uuid,
-        betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
-      })
-      .subscribe((updatedZaak) =>
-        this.handleNewInitiator("msg.initiator.gekoppeld", updatedZaak),
-      );
+    runMutation(this.queryClient, this.zakenService.updateInitiator(), {
+      zaakUUID: zaak.uuid,
+      betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
+    }).subscribe({
+      next: (updatedZaak) =>
+        this.reportNewInitiator("msg.initiator.gekoppeld", updatedZaak),
+      // the mutation already reported the failure; this keeps it from being
+      // raised a second time as an unhandled error
+      error: () => undefined,
+    });
   }
 
-  private handleNewInitiator(notification: string, updatedZaak?: Zaak) {
+  private reportNewInitiator(notification: string, updatedZaak?: Zaak) {
     if (!updatedZaak) return;
 
-    this.zakenService.cacheZaak(updatedZaak);
     const naam = [
       updatedZaak.initiatorIdentificatie?.kvkNummer,
       updatedZaak.initiatorIdentificatie?.vestigingsnummer,
@@ -80,31 +81,27 @@ export class ZaakBetrokkenenService {
         if (!result) return;
 
         this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
-        this.zakenService
-          .readZaak(zaak.uuid)
-          .subscribe((updatedZaak) => this.zakenService.cacheZaak(updatedZaak));
       });
   }
 
   betrokkeneGeselecteerd(zaak: Zaak, klantgegevens: KlantGegevens) {
     this.sideActions.close();
-    this.zakenService
-      .createBetrokkene({
-        zaakUUID: zaak.uuid,
-        roltypeUUID: klantgegevens.betrokkeneRoltype.uuid!,
-        roltoelichting: klantgegevens.betrokkeneToelichting,
-        betrokkeneIdentificatie: new BetrokkeneIdentificatie(
-          klantgegevens.klant,
-        ),
-      })
-      .subscribe((updatedZaak) => {
-        this.zakenService.cacheZaak(updatedZaak);
+    runMutation(this.queryClient, this.zakenService.createBetrokkene(), {
+      zaakUUID: zaak.uuid,
+      roltypeUUID: klantgegevens.betrokkeneRoltype.uuid!,
+      roltoelichting: klantgegevens.betrokkeneToelichting,
+      betrokkeneIdentificatie: new BetrokkeneIdentificatie(klantgegevens.klant),
+    }).subscribe({
+      next: () => {
         this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
           roltype: klantgegevens.betrokkeneRoltype.naam,
         });
-        this.zakenService.invalidateHistorie(zaak.uuid);
         this.invalidateBetrokkenen(zaak);
-      });
+      },
+      // the mutation already reported the failure; this keeps it from being
+      // raised a second time as an unhandled error
+      error: () => undefined,
+    });
   }
 
   invalidateBetrokkenen(zaak: Zaak) {
