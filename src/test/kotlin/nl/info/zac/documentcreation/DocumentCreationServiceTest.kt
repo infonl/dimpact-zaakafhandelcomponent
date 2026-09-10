@@ -50,6 +50,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
     val ztcClientService = mockk<ZtcClientService>()
     val configurationService: ConfigurationService = mockk<ConfigurationService>()
     val loggedInUserInstance = mockk<Instance<LoggedInUser>>()
+    val documentCreationUserStore = mockk<DocumentCreationUserStore>()
     val documentCreationService = DocumentCreationService(
         smartDocumentsService = smartDocumentsService,
         smartDocumentsTemplatesService = smartDocumentsTemplatesService,
@@ -57,7 +58,8 @@ class DocumentCreationServiceTest : BehaviorSpec({
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
         ztcClientService = ztcClientService,
         configurationService = configurationService,
-        loggedInUserInstance = loggedInUserInstance
+        loggedInUserInstance = loggedInUserInstance,
+        documentCreationUserStore = documentCreationUserStore
     )
 
     afterEach {
@@ -198,6 +200,7 @@ class DocumentCreationServiceTest : BehaviorSpec({
             template = templateName
         )
         every { configurationService.readContextUrl() } returns contextUrl
+        every { documentCreationUserStore.createToken(any()) } returns "fakeDocumentCreationToken"
 
         `when`("the 'create document attended' method is called") {
             val documentCreationResponse = documentCreationService.createDocumentAttended(documentCreationData)
@@ -227,7 +230,8 @@ class DocumentCreationServiceTest : BehaviorSpec({
                                 Charsets.UTF_8
                             )}" +
                             "&templateId=${documentCreationData.templateId}" +
-                            "&templateGroupId=${documentCreationData.templateGroupId}"
+                            "&templateGroupId=${documentCreationData.templateGroupId}" +
+                            "&documentCreationToken=fakeDocumentCreationToken"
                     }
                 }
             }
@@ -311,8 +315,10 @@ class DocumentCreationServiceTest : BehaviorSpec({
         val description = "description"
         val creationDate = ZonedDateTime.of(2024, 10, 7, 0, 0, 0, 0, ZoneOffset.UTC)
         val userName = "Full User Name"
+        val documentCreationToken = "fakeDocumentCreationToken"
 
         every { configurationService.readContextUrl() } returns contextUrl
+        every { documentCreationUserStore.createToken(any()) } returns documentCreationToken
 
         `when`("Document creation URL is requested for zaak") {
             val uri = documentCreationService.documentCreationCallbackUrl(
@@ -333,7 +339,8 @@ class DocumentCreationServiceTest : BehaviorSpec({
                     "&creationDate=2024-10-07T00%3A00%3A00Z" +
                     "&description=$description" +
                     "&templateId=$templateId" +
-                    "&templateGroupId=$templateGroupId"
+                    "&templateGroupId=$templateGroupId" +
+                    "&documentCreationToken=$documentCreationToken"
             }
         }
 
@@ -358,7 +365,8 @@ class DocumentCreationServiceTest : BehaviorSpec({
                     "&creationDate=2024-10-07T00%3A00%3A00Z" +
                     "&description=$description" +
                     "&templateId=$templateId" +
-                    "&templateGroupId=$templateGroupId"
+                    "&templateGroupId=$templateGroupId" +
+                    "&documentCreationToken=$documentCreationToken"
             }
         }
     }
