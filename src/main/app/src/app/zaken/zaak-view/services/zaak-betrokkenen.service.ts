@@ -4,7 +4,10 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../core/service/util.service";
 import { KlantGegevens } from "../../../klanten/model/klanten/klant-gegevens";
 import { runMutation } from "../../../shared/http/run-mutation";
@@ -16,9 +19,6 @@ import { ZaakSideActionService } from "./zaak-side-action.service";
 
 type Zaak = GeneratedType<"RestZaak">;
 
-/** The mutation reported the failure already; raising it again would double-report it. */
-const IGNORE_REPORTED_FAILURE = { error: () => undefined };
-
 @Injectable()
 export class ZaakBetrokkenenService {
   private readonly queryClient = inject(QueryClient);
@@ -26,6 +26,12 @@ export class ZaakBetrokkenenService {
   private readonly zaakDialogService = inject(ZaakDialogService);
   private readonly zakenService = inject(ZakenService);
   private readonly sideActions = inject(ZaakSideActionService);
+  private readonly updateInitiatorMutation = injectMutation(() =>
+    this.zakenService.updateInitiator(),
+  );
+  private readonly createBetrokkeneMutation = injectMutation(() =>
+    this.zakenService.createBetrokkene(),
+  );
 
   initiatorGeselecteerd(zaak: Zaak, initiator: GeneratedType<"RestPersoon">) {
     this.sideActions.close();
@@ -46,14 +52,16 @@ export class ZaakBetrokkenenService {
       return;
     }
 
-    runMutation(this.queryClient, this.zakenService.updateInitiator(), {
-      zaakUUID: zaak.uuid,
-      betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
-    }).subscribe({
-      next: (updatedZaak) =>
-        this.reportNewInitiator("msg.initiator.gekoppeld", updatedZaak),
-      ...IGNORE_REPORTED_FAILURE,
-    });
+    this.updateInitiatorMutation.mutate(
+      {
+        zaakUUID: zaak.uuid,
+        betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
+      },
+      {
+        onSuccess: (updatedZaak) =>
+          this.reportNewInitiator("msg.initiator.gekoppeld", updatedZaak),
+      },
+    );
   }
 
   private reportNewInitiator(notification: string, updatedZaak?: Zaak) {
@@ -87,20 +95,24 @@ export class ZaakBetrokkenenService {
 
   betrokkeneGeselecteerd(zaak: Zaak, klantgegevens: KlantGegevens) {
     this.sideActions.close();
-    runMutation(this.queryClient, this.zakenService.createBetrokkene(), {
-      zaakUUID: zaak.uuid,
-      roltypeUUID: klantgegevens.betrokkeneRoltype.uuid!,
-      roltoelichting: klantgegevens.betrokkeneToelichting,
-      betrokkeneIdentificatie: new BetrokkeneIdentificatie(klantgegevens.klant),
-    }).subscribe({
-      next: () => {
-        this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
-          roltype: klantgegevens.betrokkeneRoltype.naam,
-        });
-        this.invalidateBetrokkenen(zaak);
+    this.createBetrokkeneMutation.mutate(
+      {
+        zaakUUID: zaak.uuid,
+        roltypeUUID: klantgegevens.betrokkeneRoltype.uuid!,
+        roltoelichting: klantgegevens.betrokkeneToelichting,
+        betrokkeneIdentificatie: new BetrokkeneIdentificatie(
+          klantgegevens.klant,
+        ),
       },
-      ...IGNORE_REPORTED_FAILURE,
-    });
+      {
+        onSuccess: () => {
+          this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
+            roltype: klantgegevens.betrokkeneRoltype.naam,
+          });
+          this.invalidateBetrokkenen(zaak);
+        },
+      },
+    );
   }
 
   invalidateBetrokkenen(zaak: Zaak) {
