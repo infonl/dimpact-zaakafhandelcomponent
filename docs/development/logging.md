@@ -197,22 +197,44 @@ treated as personal data on its own.
   content, so enabling `FINE` logging on this class effectively logs personal data for every integration
   at once.
 - [`nl/info/client/brp/BrpClientService.kt`](../../src/main/kotlin/nl/info/client/brp/BrpClientService.kt)
-  (`queryPersonen`) — logs the full `PersonenQuery` request (contains the BSN being queried) and the full
-  `PersonenQueryResponse` (contains complete `Persoon` records: name, address, date of birth,
-  nationality, ...) via `toString()`, gated by a configurable log level. This is an intentional,
-  first-class logging path, not an accident — but it means BSNs and full BRP person records can appear
-  in logs whenever that level is enabled.
+  (`queryPersonen`) — logs the full `PersonenQuery` request and `PersonenQueryResponse` via `toString()`,
+  gated by a configurable log level. `queryPersonen` backs every BRP query variant: only the BSN-lookup
+  variant (`RaadpleegMetBurgerservicenummer`) actually queries by BSN, while the others search by name,
+  date of birth, postcode, or address. `updateQuery` also limits the requested response fields to a fixed
+  set (`burgerservicenummer`, `geslacht`, `naam`, `geboorte`, and either `verblijfplaats` +
+  `indicatieCurateleRegister` or `adressering`), so the response is a partial `Persoon` projection rather
+  than a complete record — but that projection still includes the BSN field for any matched person,
+  regardless of which query variant was used. This is an intentional, first-class logging path, not an
+  accident — but it means BSNs and partial BRP person records can appear in logs whenever that level is
+  enabled.
 - [`nl/info/zac/mail/MailService.kt`](../../src/main/kotlin/nl/info/zac/mail/MailService.kt) (`sendMail`) —
   `LOG.fine("Sent mail to ${mailGegevens.to} with subject '$subject'.")`. `MailAdres.toString()` returns
   `"$email ($name)"`, so this logs the recipient's email address and name on every successfully sent
   email, including citizen-facing zaak confirmation emails.
+- [`nl/info/zac/flowable/bpmn/delegate/SendConfirmationEmailDelegate.kt`](../../src/main/kotlin/nl/info/zac/flowable/bpmn/delegate/SendConfirmationEmailDelegate.kt)
+  (lines 67-69) — resolves the confirmation email's recipient (lines 51-57) from the zaak's Open Klant
+  contact details or, failing that, the initiator role's digital address, then logs it: `LOG.fine("Sending
+  mail to '$toAddress' from '$fromAddress' for zaak ...")`. Since `toAddress` is a real citizen or company
+  contact address resolved from Open Klant/ZGW data, this is confirmed personal data, not a placeholder.
+- [`nl/info/zac/app/exception/RestExceptionMapper.kt`](../../src/main/kotlin/nl/info/zac/app/exception/RestExceptionMapper.kt) —
+  its `generateResponse`/`handleZgwValidationErrorException` paths log `exception.message`, and for
+  `ZgwValidationErrorException` specifically, the joined `reason` of each rejected `invalidParams` entry.
+  When the rejected field is something like an `Email`, the log message echoes back the invalid value the
+  user submitted. Confirmed against the live-log sample (see
+  [Validated against live logs](#validated-against-live-logs)), where only test data was observed — but the
+  same echo-the-rejected-value pattern applies to any personal-data field that fails validation.
 - [`nl/info/zac/mailtemplates/MailTemplateHelper.kt`](../../src/main/kotlin/nl/info/zac/mailtemplates/MailTemplateHelper.kt) —
   logs an initiator's `geboorte` (BRP date/place of birth) when that person has no name. The surrounding
   code comment notes the BSN is deliberately *not* logged for privacy reasons, but the date/place of
   birth that *is* logged is still personal data.
 - [`nl/info/zac/authentication/UserPrincipalFilter.kt`](../../src/main/kotlin/nl/info/zac/authentication/UserPrincipalFilter.kt) —
-  logs `User logged in: '<username>' with groups: [...], functional roles: [...]` at `INFO` on every
-  request, unconditionally. Confirmed against a real dev/test log export (see
+  logs `User logged in: '<username>' with groups: [...], functional roles: [...]` at `INFO`, from
+  `setLoggedInUserOnHttpSession` (lines 81-92). This is not per request: it only runs when the HTTP session
+  has no logged-in user yet, or the principal changed (lines 56-75), and the resulting `LoggedInUser` is
+  then cached as a session attribute
+  ([`LoggedInUserProvider.kt`](../../src/main/kotlin/nl/info/zac/authentication/LoggedInUserProvider.kt),
+  line 82) and reused for the rest of the session — so it fires once per session/login, not on every
+  request. Confirmed against a real dev/test log export (see
   [Validated against live logs](#validated-against-live-logs) below): the username is sometimes a full
   email address, and several accounts log in under their real first name rather than a pseudonymous ID.
   This is staff data, not citizen data, but it is personal data under GDPR, and — unlike the BRP/mail
@@ -237,13 +259,34 @@ treated as personal data on its own.
   `INFORMATIEOBJECTEN` channels in the live-log sample below (only resource URLs, UUIDs,
   `vertrouwelijkheidaanduiding`, and RSIN) — still marked suspected because other channels weren't
   observed.
+- [`net/atos/zac/flowable/delegate/SendEmailDelegate.kt`](../../src/main/kotlin/net/atos/zac/flowable/delegate/SendEmailDelegate.kt)
+  (lines 82-84) — logs `to`/`from` addresses resolved from BPMN process variables/expressions:
+  `LOG.fine("Sending mail to '$toAddress' from '$fromAddress' ...")`. Suspected rather than confirmed
+  because these are configured per BPMN process — they may resolve to a citizen address or a fixed
+  organizational mailbox depending on how the process is set up.
+- [`net/atos/zac/websocket/WebSocketServerEndPoint.java`](../../src/main/java/net/atos/zac/websocket/WebSocketServerEndPoint.java) —
+  stores the authenticated user's ID (the same Keycloak `preferred_username` as the `UserPrincipalFilter`
+  finding above) as a websocket session property, then logs it on every `open`/`processMessage`/`error`/
+  `close`/`denyAccess` event. Unlike `UserPrincipalFilter`, this is not once per session: `processMessage`
+  logs it on every subscription message, so it fires far more frequently. Staff data, not citizen data.
+- [`net/atos/zac/flowable/delegate/UpdateZaakAssignmentDelegate.kt`](../../src/main/kotlin/net/atos/zac/flowable/delegate/UpdateZaakAssignmentDelegate.kt)
+  (line 52) — logs a free-text zaak-assignment `reason` at `FINE`, entered by staff and not validated to
+  exclude personal data (e.g. a citizen's name could appear in the explanation).
+- [`nl/info/zac/productaanvraag/ProductaanvraagService.kt`](../../src/main/kotlin/nl/info/zac/productaanvraag/ProductaanvraagService.kt)
+  (`assignZaakToEmployee`, line 149) — logs the assigned employee's username at `INFO`. Same
+  lower-sensitivity staff-data caveat as the `UserPrincipalFilter`/`SmartDocumentsService` findings above.
+- [`nl/info/zac/policy/PolicyService.kt`](../../src/main/kotlin/nl/info/zac/policy/PolicyService.kt)
+  (`assertPolicy(policy, logger, message)`, lines 276-281) — logs the given `message` at `INFO` whenever a
+  policy check fails, before throwing. Of the 167 call sites of `assertPolicy` across the codebase, 6
+  interpolate the denied user's ID into that message (e.g.
+  [`SendEmailDelegate.kt:56`](../../src/main/kotlin/net/atos/zac/flowable/delegate/SendEmailDelegate.kt)).
+  Same category as the `UserPrincipalFilter` finding, but fires per policy denial rather than per session.
 
-Everything else audited (`KvkClientService`, `ProductaanvraagEmailService`, `ProductaanvraagService`,
-`IdentificationService`, `ZgwApiService`, `BesluitService`, `SignaleringService`,
-`SignaleringEventObserver`, and the REST layer such as `EnkelvoudigInformatieObjectRestService`,
-`DocumentCreationRestService`, `InboxDocumentRestService`, `DetachedDocumentRestService`) logs only
-UUIDs, zaak identificaties, template/document titles, or counts — no personal-data values were found
-after tracing the interpolated types.
+Everything else audited (`KvkClientService`, `ProductaanvraagEmailService`, `IdentificationService`,
+`ZgwApiService`, `BesluitService`, `SignaleringService`, `SignaleringEventObserver`, and the REST layer such
+as `EnkelvoudigInformatieObjectRestService`, `DocumentCreationRestService`, `InboxDocumentRestService`,
+`DetachedDocumentRestService`) logs only UUIDs, zaak identificaties, template/document titles, or counts —
+no personal-data values were found after tracing the interpolated types.
 
 ### Frontend — confirmed
 
@@ -280,7 +323,7 @@ Results:
   `BrpClientService`'s full `PersonenQuery`/`PersonenQueryResponse` logging, never actually fired here,
   and neither did `MailService`'s `MailAdres.toString()` line. Consistent with the first follow-up
   recommendation below, but this only confirms the *observed* configuration, not every deployment.
-- **`UserPrincipalFilter` did fire**, on every request: across the file it logged 20 distinct
+- **`UserPrincipalFilter` did fire**, on every session: across the file it logged 20 distinct
   identities, most of them synthetic test accounts (`e2etestuser1`, `beheerder1newiam`, ...), but also
   several real first names and two real email addresses used as the login username, each paired with
   their Keycloak group memberships. This is what upgraded that finding from suspected to confirmed above.
@@ -313,16 +356,34 @@ log-level configuration.
   precisely the class of data (BSN, full BRP person records) that must not depend on that guarantee. If
   request/response diagnostics are genuinely needed for troubleshooting, log a non-identifying
   correlation ID instead of the payload.
-- **Remove `MailService`'s `Sent mail to ...` log line entirely.** There is no operational need to log a
-  citizen's email address and name on every successful send. If mail-delivery troubleshooting requires a
-  trace, log a non-identifying reference (e.g. the zaak UUID or a message ID), not the recipient.
+- **Remove the `Sent mail to ...`/`Sending mail to ...` log lines entirely, in all three places they
+  occur: `MailService.sendMail`, `SendEmailDelegate.kt:82-84`, and
+  `SendConfirmationEmailDelegate.kt:67-69`.** There is no operational need to log a citizen's (or
+  configured sender's) email address and name on every successful send. If mail-delivery troubleshooting
+  requires a trace, log a non-identifying reference (e.g. the zaak UUID or a message ID), not the
+  recipient.
+- **Stop echoing rejected input values into exception/log messages** (`RestExceptionMapper`'s
+  `ZgwValidationErrorException` handling): log the validation error code/reason category, not the value
+  that failed validation. Applies to the same "echo the rejected value" pattern flagged for the frontend's
+  `ViolationPattern` handling below.
 - **Remove frontend `console.*` logging entirely, rather than sanitizing it in place.** None of the
   current call sites (see Frontend — confirmed/suspected above) serve a production purpose that
   outweighs the risk of PII appearing in the browser console/devtools. Where diagnostic signal is
   genuinely needed, it must go through a proper, monitored error-reporting channel — not `console.*`.
 - `UserPrincipalFilter` logs at `INFO`, so disabling `FINE` doesn't help here: log a stable pseudonymous
   identifier (e.g. the Keycloak user ID) instead of the raw username/email, since the latter can double
-  as a real name or email address and this line fires on every request.
+  as a real name or email address and this line fires per session. The same remediation applies to
+  `WebSocketServerEndPoint`, which logs the same identifier far more often (per subscription message).
+- `PolicyService`'s `assertPolicy(policy, logger, message)` fires at `INFO` on every policy denial, so —
+  same as `UserPrincipalFilter` — disabling `FINE` doesn't help. The 6 call sites that interpolate the
+  denied user's ID (e.g. `SendEmailDelegate.kt:56`) should log a stable pseudonymous identifier instead.
+- Drop the free-text `to`/`from` addresses from `SendEmailDelegate`'s FINE log and the free-text
+  assignment `reason` from `UpdateZaakAssignmentDelegate`'s FINE log; neither is validated to exclude
+  personal data, and neither is needed to diagnose a delegate execution (the zaak identification already
+  is).
+- `ProductaanvraagService.assignZaakToEmployee` already logs a technical username rather than a display
+  name, but that username is still staff personal data — apply the same pseudonymization approach used
+  elsewhere for staff identifiers, or drop it to `FINE`.
 - Longer term, replace free-text log statements with **type-safe logging**: a small `LogEvent` sealed
   hierarchy plus a `ZacLogger` wrapper around `java.util.logging.Logger` whose `info`/`warning`/`severe`
   methods only accept a `LogEvent`, not a raw `String`. Each call site would construct a typed event

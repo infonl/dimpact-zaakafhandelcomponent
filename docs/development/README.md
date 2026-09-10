@@ -16,6 +16,8 @@ For example, how to reindex the Solr search index.
 - [CMMN](cmmn.md) - Instructions on how to edit the ZAC's CMMN model.
 - [BPMN](bpmn.md) - components used to support BPMN standard flows. 
 - [REST Paging](paging.md) - REST paging conventions. 
+- [Logging](logging.md) - How logging is currently implemented in ZAC, and required follow-up changes to
+bring it in line with GDPR/AVG requirements.
 
 ## Monitoring
 ZAC exposes two monitoring endpoints through WildFly by default:
