@@ -21,15 +21,15 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 
 | Module | Kind | Step |
 |---|---|---|
-| `zaken/zaken-routing.module.ts` | routing (eager `forChild`) | 1 |
-| `klanten/klanten-routing.module.ts` | routing (eager `forChild`) | 2 |
+| ~~`zaken/zaken-routing.module.ts`~~ | routing (eager `forChild`) | done |
+| ~~`klanten/klanten-routing.module.ts`~~ | routing (eager `forChild`) | done |
 | `informatie-objecten/informatie-objecten-routing.module.ts` | routing (eager `forChild`) | 2 |
 | `fout-afhandeling/fout-afhandeling-routing.module.ts` | routing (eager `forChild`) | 2 |
 | `taken/taken-routing.module.ts` | routing (lazy) | 3 |
 | `documenten/documenten-routing.module.ts` | routing (lazy) | 3 |
 | `productaanvragen/productaanvragen-routing.module.ts` | routing (lazy) | 3 |
-| `zaken/zaken.module.ts` | container | 4 |
-| `klanten/klanten.module.ts` | container | 4 |
+| ~~`zaken/zaken.module.ts`~~ | container | done |
+| ~~`klanten/klanten.module.ts`~~ | container | done |
 | `taken/taken.module.ts` | container | 4 |
 | `informatie-objecten/informatie-objecten.module.ts` | container + provider | 4 |
 | `app-routing.module.ts` | root routing | 5 |
@@ -60,13 +60,61 @@ lazy-loading win in this migration, and it is what steps 1–2 are actually for.
 - Absolute URLs must be identical before and after. Moving a path segment from a
   child array to a mount point is a refactor of *where* the prefix is declared,
   never of the resulting URL.
-- Gate every step on: `ng test`, `tsc --project .`, `./scripts/lint-changed-files.sh`.
-  (`tsconfig.app.json` is `strict: false` — the real type gate is `tsc --project .`.)
+- Gate every step on: `ng test`, `tsc --project .`, `ng lint`, and a production build with a
+  before/after `Initial total`. (`tsconfig.app.json` is `strict: false` — the real type gate is
+  `tsc --project .`. `lint-changed-files.sh` diffs against `main`'s tip, so it reports nothing
+  while edits are uncommitted; lint the touched files directly instead.)
+- **Route configs have no test coverage and cannot get any.** `jest.config.js`
+  `testPathIgnorePatterns` deliberately excludes `*-routing.module.spec.ts` and `*.routes.spec.ts`
+  (PR #6469, 2026-07-07: "Route specs assert exact paths/link arrays — brittle"). Do not add
+  guard specs, and do not rename around the filename filter. Verify routes by build output and
+  manual URL checks. Corollary: a spec matching those names is silently not running even if it
+  tests something unrelated — check before touching one.
+- **Before deleting any container module, ask what it transitively pulls in.** `AppModule`'s
+  import list is the only eager root; a module can be the sole path by which an unrelated
+  feature's routes or providers reach the app.
 - Route arrays are order-sensitive. Never reorder entries while moving a file.
 
 ---
 
-## Step 1 — Zaken slice: routes + lazy mount + `loadComponent`
+## Step 1 — Zaken slice: routes + lazy mount + `loadComponent` — DONE
+
+Committed as "step 1". Delivered as written, plus one addition: `ZaakViewComponent` also had to
+be removed from `ZakenModule`'s `imports`, or the eager `AppModule -> ZakenModule` edge would
+have kept it in the initial bundle and made `loadComponent` a no-op.
+
+Result: `zaak-view-component` split into its own 70.88 kB chunk; all four pre-existing werklijst
+chunks unchanged. Initial total still 3.14 MB / 672.06 kB at this point — the children were still
+eager, which motivated step 1b.
+
+## Step 1b — Unlock the zaken children — DONE
+
+Not in the original plan; added once it turned out `ZakenModule` was pure dead weight (its
+exports' only consumer, `taak-view.component.ts`, imports both components directly, and
+`AppComponent` needs nothing from it).
+
+Blocked by a hidden dependency: `KlantenRoutingModule <- KlantenModule <- ZakenModule <-
+AppModule`. `KlantenModule`'s **only** importer in the app was `ZakenModule`, so `/persoon` and
+`/bedrijf` reached the router solely through it. Deleting `ZakenModule` naively would have
+dropped both routes with no compile error and no test failure.
+
+Done:
+- `klanten-routing.module.ts` -> `klanten/klanten.routes.ts` (`PERSOON_ROUTES`, `BEDRIJF_ROUTES`),
+  two `loadChildren` mount points. Duplicate `:temporaryPersonId` order preserved; repeated
+  `ErrorCardComponent` `data` extracted to a `PERSOON_GEEN_DATA` const.
+- `buildBedrijfRouteLink` -> `klanten/bedrijf-route-link.ts`. **Load-bearing:** the eager
+  `betrokkene-link.component.ts` imports it; leaving it in the routes file would have pulled the
+  lazy route graph back into the eager bundle. Its spec moved too, which incidentally started
+  running it for the first time (+5 tests) — it had been silently excluded by its filename.
+- Deleted `zaken.module.ts` and `klanten.module.ts`; `ZakenModule` removed from `AppModule`.
+
+Result: **3.14 MB / 672.06 kB -> 2.54 MB / 538.14 kB (-20% transfer)**. `zaak-view-component`
+grew 70.88 -> 234.35 kB absorbing its children; new `klanten-routes` chunk at 33.78 kB; every
+pre-existing chunk byte-identical.
+
+Not verified: the three klanten URLs were never exercised in a running app.
+
+## Step 1 (original text, for reference)
 
 Self-contained, delivers a measurable bundle win, and proves the pattern the next
 two steps copy.
@@ -99,21 +147,19 @@ chunk work — there is no point `@defer`-ing a child of an eagerly loaded paren
 - Zaak-view specs: expect harness timeouts, not assertion failures, if async work
   is pending on mount.
 
-## Step 2 — The other three eager `forChild` modules
+## Step 2 — The remaining two eager `forChild` modules — NEXT
 
-`klanten`, `informatie-objecten`, `fout-afhandeling` get the same treatment as
-step 1: `.routes.ts` + real `loadChildren` mount point.
+`klanten` is done (step 1b). Remaining: `informatie-objecten` and `fout-afhandeling` — same
+treatment, `.routes.ts` + real `loadChildren` mount point.
 
 Watch out:
-- `klanten` mounts **two** top-level prefixes (`persoon` and `bedrijf`) plus
-  helper `buildBedrijfRouteLink`, which moves to a sibling file. Two mount points
-  or one shared parent — decide explicitly.
-- `klanten` has **two routes on the identical path** `:temporaryPersonId`: the
-  first guarded by `canMatch: [PersoonResolverGuard]`, the second an unguarded
-  `ErrorCardComponent` fallback. Order is load-bearing; reordering silently breaks
-  the person-not-found page.
-- `ErrorCardComponent` is configured entirely through route `data`
-  (`title`/`text`/`iconName`). Carry that across verbatim.
+- Both are still eager-with-no-mount-point, so apply the reachability check first: what else
+  reaches the app *only* through them?
+- `InformatieObjectenModule` is imported directly by `AppModule` **and** was imported by the
+  now-deleted `ZakenModule`, so it survived step 1b. It still carries the app-wide
+  `RouteReuseStrategy` provider — that must move to bootstrap, not vanish.
+- `informatie-objecten` has two routes on `:uuid` vs `:uuid/:versie` — different shapes, so
+  order is not load-bearing there, unlike klanten's.
 
 ## Step 3 — The three already-lazy routing modules
 
@@ -122,10 +168,11 @@ Watch out:
 the exported symbol change. `documenten` and `productaanvragen` also hold eager
 `component:` refs worth flipping to `loadComponent` while in there.
 
-## Step 4 — Delete the four feature container modules
+## Step 4 — Delete the remaining two feature container modules
 
-`ZakenModule`, `KlantenModule`, `TakenModule`, `InformatieObjectenModule`. After
-steps 1–3 these hold nothing but re-exports of standalone components.
+`ZakenModule` and `KlantenModule` are gone (step 1b). Remaining: `TakenModule` and
+`InformatieObjectenModule`. After step 3 these hold nothing but re-exports of standalone
+components.
 
 - `InformatieObjectenModule` has two real consumers —
   `documenten/inbox-documenten-list` and `documenten/ontkoppelde-documenten-list` —

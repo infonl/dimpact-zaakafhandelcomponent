@@ -26,7 +26,7 @@ import { TextIcon } from "../../shared/edit/text-icon";
 import { StaticTextComponent } from "../../shared/static-text/static-text.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BetrokkeneIdentificatie } from "../../zaken/model/betrokkeneIdentificatie";
-import { buildBedrijfRouteLink } from "../klanten-routing.module";
+import { buildBedrijfRouteLink } from "../bedrijf-route-link";
 import { KlantenService } from "../klanten.service";
 
 @Component({

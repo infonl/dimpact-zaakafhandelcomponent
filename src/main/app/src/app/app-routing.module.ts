@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Atos
+ * SPDX-FileCopyrightText: 2021 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -16,6 +16,20 @@ const routes: Routes = [
       ),
   },
   { path: "gebruiker", component: IdentityComponent },
+  {
+    path: "persoon",
+    loadChildren: () =>
+      import("./klanten/klanten.routes").then(
+        (module) => module.PERSOON_ROUTES,
+      ),
+  },
+  {
+    path: "bedrijf",
+    loadChildren: () =>
+      import("./klanten/klanten.routes").then(
+        (module) => module.BEDRIJF_ROUTES,
+      ),
+  },
   {
     path: "zaken",
     loadChildren: () =>
