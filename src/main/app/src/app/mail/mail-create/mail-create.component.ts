@@ -4,7 +4,7 @@
  */
 
 import { NgIf } from "@angular/common";
-import { Component, input, OnInit, output } from "@angular/core";
+import { Component, OnInit, inject, input, output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDividerModule } from "@angular/material/divider";
@@ -14,11 +14,13 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDrawer } from "@angular/material/sidenav";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../core/service/util.service";
 import { InformatieObjectenService } from "../../informatie-objecten/informatie-objecten.service";
 import { injectContactEmail } from "../../klanten/inject-contact-email";
 import { MailtemplateService } from "../../mailtemplate/mailtemplate.service";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "../../shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { GeneratedType } from "../../shared/utils/generated-types";
@@ -90,6 +92,8 @@ export class MailCreateComponent implements OnInit {
   protected variabelen: string[] = [];
   protected documents: GeneratedType<"RestEnkelvoudigInformatieobject">[] = [];
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly zakenService: ZakenService,
     private readonly informatieObjectenService: InformatieObjectenService,
@@ -122,13 +126,14 @@ export class MailCreateComponent implements OnInit {
         this.form.controls.verzender.setValue(defaultVerzenderVoorZaak);
       });
 
-    this.informatieObjectenService
-      .listEnkelvoudigInformatieobjecten({
+    runQuery(
+      this.queryClient,
+      this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
         zaakUUID: this.zaak().uuid,
-      })
-      .subscribe((documents) => {
-        this.documents = documents;
-      });
+      }),
+    ).subscribe((documents) => {
+      this.documents = documents;
+    });
   }
 
   onFormSubmit() {

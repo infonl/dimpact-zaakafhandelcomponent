@@ -6,9 +6,11 @@
 import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import moment from "moment";
 import { of } from "rxjs";
-import { fromPartial } from "../../../../test-helpers";
+import { testQueryClient } from "../../../../../setupJest";
+import { createQueryOptions, fromPartial } from "../../../../test-helpers";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
 import { GeneratedType } from "../../../shared/utils/generated-types";
@@ -36,7 +38,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
-      providers: [provideHttpClient()],
+      providers: [provideQueryClient(testQueryClient), provideHttpClient()],
     });
 
     informatieObjectenService = TestBed.inject(InformatieObjectenService);
@@ -45,7 +47,7 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
       .mockReturnValue(of([]));
     listEnkelvoudigSpy = jest
       .spyOn(informatieObjectenService, "listEnkelvoudigInformatieobjecten")
-      .mockReturnValue(of([]));
+      .mockReturnValue(createQueryOptions([]) as never);
 
     translateService = TestBed.inject(TranslateService);
     jest.spyOn(translateService, "instant").mockReturnValue("translated-intro");
@@ -269,7 +271,9 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
           ...baseTaak,
           taakdata: { documentenVerzendenPost: "doc-uuid-1;doc-uuid-2" },
         });
-        listEnkelvoudigSpy.mockReturnValue(of([mockDocument1, mockDocument2]));
+        listEnkelvoudigSpy.mockReturnValue(
+          createQueryOptions([mockDocument1, mockDocument2]) as never,
+        );
 
         await formulier.handleForm(taakWithDocs);
 
@@ -286,7 +290,9 @@ describe(DocumentVerzendenPostTaskForm.name, () => {
           ...baseTaak,
           taakdata: { documentenVerzendenPost: "doc-uuid-1;doc-uuid-2" },
         });
-        listEnkelvoudigSpy.mockReturnValue(of([mockDocument1, mockDocument2]));
+        listEnkelvoudigSpy.mockReturnValue(
+          createQueryOptions([mockDocument1, mockDocument2]) as never,
+        );
 
         const fields = await formulier.handleForm(taakWithDocs);
 

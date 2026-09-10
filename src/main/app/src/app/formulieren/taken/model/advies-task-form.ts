@@ -5,7 +5,7 @@
 
 import { inject, Injectable } from "@angular/core";
 import { Validators } from "@angular/forms";
-import { lastValueFrom } from "rxjs";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { mapStringToDocumentenStrings } from "../../../documenten/document-utils";
 import { InformatieObjectenService } from "../../../informatie-objecten/informatie-objecten.service";
 import { FormField } from "../../../shared/form/composed-form/form-field.types";
@@ -19,9 +19,10 @@ export class AdviesTaskForm extends AbstractTaskForm {
   private readonly informatieObjectenService = inject(
     InformatieObjectenService,
   );
+  private readonly queryClient = inject(QueryClient);
 
   async requestForm(zaak: GeneratedType<"RestZaak">): Promise<FormField[]> {
-    const documenten = await lastValueFrom(
+    const documenten = await this.queryClient.fetchQuery(
       this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
         zaakUUID: zaak.uuid,
       }),
@@ -50,7 +51,7 @@ export class AdviesTaskForm extends AbstractTaskForm {
       taak.taakdata?.["relevanteDocumenten"],
     );
 
-    const relevanteDocumenten = await lastValueFrom(
+    const relevanteDocumenten = await this.queryClient.fetchQuery(
       this.informatieObjectenService.listEnkelvoudigInformatieobjecten({
         zaakUUID: taak.zaakUuid,
         informatieobjectUUIDs: relevanteDocumentenUUIDs,

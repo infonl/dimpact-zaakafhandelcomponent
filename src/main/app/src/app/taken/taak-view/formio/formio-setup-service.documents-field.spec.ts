@@ -50,7 +50,10 @@ describe(FormioSetupService.name, () => {
         ]);
         expect(fetchQuerySpy).toHaveBeenCalledWith(
           expect.objectContaining({
-            queryKey: ["availableDocumentsQuery", taak.zaakUuid, undefined],
+            queryKey: [
+              "/rest/informatieobjecten/informatieobjectenList",
+              { zaakUUID: taak.zaakUuid, informatieobjectUUIDs: undefined },
+            ],
           }),
         );
       });

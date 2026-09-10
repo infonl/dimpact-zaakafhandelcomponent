@@ -373,9 +373,11 @@ describe(FormioSetupService.name, () => {
         expect(fetchQuerySpy).toHaveBeenCalledWith(
           expect.objectContaining({
             queryKey: [
-              "availableDocumentsQuery",
-              taak.zaakUuid,
-              [document1.uuid],
+              "/rest/informatieobjecten/informatieobjectenList",
+              {
+                zaakUUID: taak.zaakUuid,
+                informatieobjectUUIDs: [document1.uuid],
+              },
             ],
           }),
         );
