@@ -7,11 +7,16 @@ package nl.info.zac.authentication
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.enterprise.inject.Instance
 import jakarta.servlet.http.HttpSession
+import java.util.logging.Handler
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 
 class LoggedInUserProviderTest : BehaviorSpec({
     val httpSession = mockk<HttpSession>()
@@ -166,6 +171,40 @@ class LoggedInUserProviderTest : BehaviorSpec({
                 then("the exception is propagated and the system user is no longer active") {
                     illegalStateException.message shouldBe "fakeFailure"
                     LoggedInUserProvider.systemUser.get() shouldBe false
+                }
+            }
+        }
+    }
+
+    context("Falling back to the functionele gebruiker") {
+        val httpSessionInstance = mockk<Instance<HttpSession>>()
+        val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
+        val logRecords = mutableListOf<LogRecord>()
+        val logHandler = object : Handler() {
+            override fun publish(record: LogRecord) { logRecords += record }
+            override fun flush() {}
+            override fun close() {}
+        }
+
+        given("no user in scope") {
+            every { httpSessionInstance.get() } returns null
+            Logger.getLogger(LoggedInUserProvider::class.java.name).addHandler(logHandler)
+
+            `when`("getLoggedInUser is called twice from the same place") {
+                logRecords.clear()
+                LoggedInUserProvider.loggedFallbackOrigins.clear()
+                val firstResult = loggedInUserProvider.getLoggedInUser()
+                val secondResult = loggedInUserProvider.getLoggedInUser()
+
+                then("it still returns the functionele gebruiker") {
+                    firstResult shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
+                    secondResult shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
+                }
+
+                and("the fallback is reported once, naming where it happened") {
+                    val warnings = logRecords.filter { it.level == Level.WARNING }
+                    warnings.size shouldBe 1
+                    warnings.first().message shouldContain "LoggedInUserProviderTest"
                 }
             }
         }
