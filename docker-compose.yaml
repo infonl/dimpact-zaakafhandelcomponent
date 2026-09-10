@@ -747,6 +747,11 @@ services:
       Oidc__RequireHttps: "false"
       KeycloakAdmin__ClientId: "pabc-admin-client"
       KeycloakAdmin__ClientSecret: "pabcAdminClientSecret"
+      ZgwZaakregister__Enabled: "true"
+      ZgwZaakregister__CatalogiBaseUrl: "http://openzaak-nginx:8000/catalogi/api/v1/"
+      ZgwZaakregister__ClientId: "pabc"
+      ZgwZaakregister__ClientSecret: "pabcClientSecretWithExtraPadding"
+      ZgwZaakregister__CatalogusDomein: "ALG"
     ports:
       - "8006:8000"
     depends_on:
