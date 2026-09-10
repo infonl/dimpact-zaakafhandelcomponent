@@ -12,7 +12,6 @@ import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory
-import java.util.concurrent.ConcurrentHashMap
 
 @NoArgConstructor
 class ZgwClientHeadersFactory @Inject constructor(
@@ -26,30 +25,24 @@ class ZgwClientHeadersFactory @Inject constructor(
 ) : ClientHeadersFactory {
     companion object {
         private const val X_AUDIT_TOELICHTING_HEADER = "X-Audit-Toelichting"
-        private val auditExplanations = ConcurrentHashMap<String, String>()
+
+        private val auditExplanation: ThreadLocal<String?> = ThreadLocal.withInitial { null }
     }
 
     override fun update(
         incomingHeaders: MultivaluedMap<String, String>,
         outgoingHeaders: MultivaluedMap<String, String>
     ): MultivaluedMap<String, String> {
-        val loggedInUser = loggedInUserInstance.get()
         try {
-            addAuthorizationHeader(outgoingHeaders, loggedInUser)
-            addXAuditToelichtingHeader(outgoingHeaders, loggedInUser)
+            addAuthorizationHeader(outgoingHeaders, loggedInUserInstance.get())
+            addXAuditToelichtingHeader(outgoingHeaders)
             return outgoingHeaders
         } finally {
-            clearAuditExplanation(loggedInUser)
+            auditExplanation.remove()
         }
     }
 
-    fun setAuditExplanation(auditExplanation: String) =
-        loggedInUserInstance.get().let {
-            auditExplanations[it.id] = auditExplanation
-        }
-
-    private fun clearAuditExplanation(loggedInUser: LoggedInUser) =
-        auditExplanations.remove(loggedInUser.id)
+    fun setAuditExplanation(explanation: String) = auditExplanation.set(explanation)
 
     private fun addAuthorizationHeader(
         outgoingHeaders: MultivaluedMap<String, String>,
@@ -57,9 +50,8 @@ class ZgwClientHeadersFactory @Inject constructor(
     ) = outgoingHeaders.add(HttpHeaders.AUTHORIZATION, generateZgwJwtToken(clientId, secret, loggedInUser))
 
     private fun addXAuditToelichtingHeader(
-        outgoingHeaders: MultivaluedMap<String, String>,
-        loggedInUser: LoggedInUser
-    ) = auditExplanations[loggedInUser.id]?.let {
+        outgoingHeaders: MultivaluedMap<String, String>
+    ) = auditExplanation.get()?.let {
         outgoingHeaders.add(X_AUDIT_TOELICHTING_HEADER, it)
     }
 }
