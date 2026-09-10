@@ -18,6 +18,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.json.Json
 import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -48,6 +49,7 @@ import nl.info.zac.app.task.model.createRestTaskDistributeData
 import nl.info.zac.app.task.model.createRestTaskDistributeTask
 import nl.info.zac.app.task.model.createRestTaskReleaseData
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.exception.ErrorCode
@@ -622,6 +624,80 @@ class TaskRestServiceTest : BehaviorSpec({
 
             then("it is kept in the session until the task is submitted") {
                 verify(exactly = 1) { httpSession.setAttribute("_FILE__${uuid}__fakeField", any()) }
+            }
+        }
+    }
+
+    context("Running a batch task operation as the user that started it") {
+        given("a batch task assignment whose user session ends before the coroutine runs") {
+            val screenEventResourceId = "fakeScreenEventResourceId"
+            val restTaakVerdelenGegevens = createRestTaskDistributeData(
+                taken = listOf(createRestTaskDistributeTask()),
+                screenEventResourceId = screenEventResourceId
+            )
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+            var userInContextDuringAssignment: LoggedInUser? = null
+            every { taskService.assignTasks(any(), any(), any()) } answers {
+                userInContextDuringAssignment = LoggedInUserProvider.asyncContextUser.get()
+            }
+
+            `when`("the 'verdelen vanuit lijst' function is called") {
+                var isSessionEnded = false
+                every { loggedInUserInstance.get() } answers {
+                    if (isSessionEnded) LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER else loggedInUser
+                }
+
+                runTest(testDispatcher) {
+                    taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
+                    isSessionEnded = true
+                    advanceUntilIdle()
+                }
+
+                then("the tasks are assigned as the user that started the batch") {
+                    verify(exactly = 1) {
+                        taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+                    }
+                }
+
+                and("the coroutine carries that user, so its ZGW calls run as that user too") {
+                    userInContextDuringAssignment shouldBe loggedInUser
+                }
+            }
+        }
+
+        given("a batch task release whose user session ends before the coroutine runs") {
+            val screenEventResourceId = "fakeScreenEventResourceId"
+            val restTaakVrijgevenGegevens = createRestTaskReleaseData(
+                taken = listOf(createRestTaskDistributeTask()),
+                screenEventResourceId = screenEventResourceId
+            )
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+            var userInContextDuringRelease: LoggedInUser? = null
+            every { taskService.releaseTasks(any(), any(), any()) } answers {
+                userInContextDuringRelease = LoggedInUserProvider.asyncContextUser.get()
+            }
+
+            `when`("the 'vrijgeven vanuit lijst' function is called") {
+                var isSessionEnded = false
+                every { loggedInUserInstance.get() } answers {
+                    if (isSessionEnded) LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER else loggedInUser
+                }
+
+                runTest(testDispatcher) {
+                    taskRestService.releaseTaskFromList(restTaakVrijgevenGegevens)
+                    isSessionEnded = true
+                    advanceUntilIdle()
+                }
+
+                then("the tasks are released as the user that started the batch") {
+                    verify(exactly = 1) {
+                        taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                    }
+                }
+
+                and("the coroutine carries that user, so its ZGW calls run as that user too") {
+                    userInContextDuringRelease shouldBe loggedInUser
+                }
             }
         }
     }
