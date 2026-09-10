@@ -18,6 +18,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.json.Json
 import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import net.atos.zac.event.EventingService
 import net.atos.zac.flowable.ZaakVariabelenService
@@ -38,6 +39,7 @@ import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskInstanceEntityImpl
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.app.model.createRESTUser
 import nl.info.zac.app.task.converter.RestTaskConverter
 import nl.info.zac.app.task.converter.RestTaskHistoryConverter
@@ -573,6 +575,66 @@ class TaskRestServiceTest : BehaviorSpec({
 
                 then("a TaskNotFoundException is thrown") {
                     exception.message shouldBe "Task not found"
+                }
+            }
+        }
+    }
+
+    context("Running a batch task operation as the user that started it") {
+        given("a batch task assignment whose user session ends before the coroutine runs") {
+            val screenEventResourceId = "fakeScreenEventResourceId"
+            val restTaakVerdelenGegevens = createRestTaskDistributeData(
+                taken = listOf(createRestTaskDistributeTask()),
+                screenEventResourceId = screenEventResourceId
+            )
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+            every { taskService.assignTasks(any(), any(), any()) } just Runs
+
+            `when`("the 'verdelen vanuit lijst' function is called") {
+                var isSessionEnded = false
+                every { loggedInUserInstance.get() } answers {
+                    if (isSessionEnded) LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER else loggedInUser
+                }
+
+                runTest(testDispatcher) {
+                    taskRestService.assignTasksFromList(restTaakVerdelenGegevens)
+                    isSessionEnded = true
+                    advanceUntilIdle()
+                }
+
+                then("the tasks are assigned as the user that started the batch") {
+                    verify(exactly = 1) {
+                        taskService.assignTasks(restTaakVerdelenGegevens, loggedInUser, screenEventResourceId)
+                    }
+                }
+            }
+        }
+
+        given("a batch task release whose user session ends before the coroutine runs") {
+            val screenEventResourceId = "fakeScreenEventResourceId"
+            val restTaakVrijgevenGegevens = createRestTaskReleaseData(
+                taken = listOf(createRestTaskDistributeTask()),
+                screenEventResourceId = screenEventResourceId
+            )
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+            every { taskService.releaseTasks(any(), any(), any()) } just Runs
+
+            `when`("the 'vrijgeven vanuit lijst' function is called") {
+                var isSessionEnded = false
+                every { loggedInUserInstance.get() } answers {
+                    if (isSessionEnded) LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER else loggedInUser
+                }
+
+                runTest(testDispatcher) {
+                    taskRestService.releaseTaskFromList(restTaakVrijgevenGegevens)
+                    isSessionEnded = true
+                    advanceUntilIdle()
+                }
+
+                then("the tasks are released as the user that started the batch") {
+                    verify(exactly = 1) {
+                        taskService.releaseTasks(restTaakVrijgevenGegevens, loggedInUser, screenEventResourceId)
+                    }
                 }
             }
         }

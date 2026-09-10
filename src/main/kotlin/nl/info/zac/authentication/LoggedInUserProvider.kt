@@ -8,6 +8,7 @@ import jakarta.enterprise.inject.Instance
 import jakarta.enterprise.inject.Produces
 import jakarta.inject.Inject
 import jakarta.servlet.http.HttpSession
+import kotlinx.coroutines.asContextElement
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEBRUIKER
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
 import java.io.Serial
@@ -41,28 +42,34 @@ class LoggedInUserProvider @Inject constructor(
         )
 
         val systemUser: ThreadLocal<Boolean> = ThreadLocal.withInitial { false }
+
+        /**
+         * The user that started background work, for threads that have no HTTP session of their own.
+         */
+        val asyncContextUser: ThreadLocal<LoggedInUser?> = ThreadLocal.withInitial { null }
     }
 
     /**
      * Produces an authenticated [LoggedInUser] for use in CDI Beans.
      *
-     * If [systemUser] is enabled (set to true) or there is no http session (async context) the
-     * [FUNCTIONEEL_GEBRUIKER] user is returned.
+     * If [systemUser] is enabled (set to true) the [FUNCTIONEEL_GEBRUIKER] user is returned.
      *
      * If http session is available, the authenticated [LoggedInUser] instance is retrieved from the current user
      * session, where it is set via the [UserPrincipalFilter]
      *
-     * @return the currently logged-in user or null if session is available and [FUNCTIONEEL_GEBRUIKER] in case this is
-     * async context or [systemUser] is explicitly requested
+     * Without a session, [asyncContextUser] is used, so background work stays attributed to the user that
+     * started it.
+     *
+     * @return the currently logged-in user, or [FUNCTIONEEL_GEBRUIKER] when no user is in scope
      */
     @Produces
     fun getLoggedInUser() =
         if (systemUser.get() ?: false) {
             FUNCTIONEEL_GEBRUIKER // explicitly requested
         } else {
-            httpSession.get()?.let {
-                getLoggedInUser(it)
-            } ?: FUNCTIONEEL_GEBRUIKER // async context
+            httpSession.get()?.let { getLoggedInUser(it) }
+                ?: asyncContextUser.get() // background work started from a user session
+                ?: FUNCTIONEEL_GEBRUIKER // async context
         }
 }
 
@@ -84,3 +91,9 @@ fun setLoggedInUser(httpSession: HttpSession, loggedInUser: LoggedInUser) =
 
 fun setFunctioneelGebruiker(httpSession: HttpSession) =
     setLoggedInUser(httpSession, FUNCTIONEEL_GEBRUIKER)
+
+/**
+ * Carries [loggedInUser] into a coroutine, which has no HTTP session and may resume on another thread.
+ */
+fun loggedInUserContext(loggedInUser: LoggedInUser) =
+    LoggedInUserProvider.asyncContextUser.asContextElement(loggedInUser)
