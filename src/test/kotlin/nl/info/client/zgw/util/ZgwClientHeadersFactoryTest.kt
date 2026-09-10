@@ -14,7 +14,9 @@ import jakarta.enterprise.inject.Instance
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.MultivaluedHashMap
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.createLoggedInUser
+import java.util.concurrent.CountDownLatch
 
 class ZgwClientHeadersFactoryTest : BehaviorSpec({
     val zgwClientId = "fakeZgwClientId"
@@ -77,6 +79,39 @@ class ZgwClientHeadersFactoryTest : BehaviorSpec({
                     then("the second update should not include the X-Audit-Toelichting header because it was cleared") {
                         outgoingHeadersSecond.containsKey("X-Audit-Toelichting") shouldBe false
                     }
+                }
+            }
+        }
+
+        given("two background operations that both run as the functionele gebruiker") {
+            every { loggedInUserInstance.get() } returns LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
+
+            `when`("both set their own audit explanation before either sends its request") {
+                val firstOutgoingHeaders = MultivaluedHashMap<String, String>()
+                val secondOutgoingHeaders = MultivaluedHashMap<String, String>()
+                val firstExplanationSet = CountDownLatch(1)
+                val secondExplanationSet = CountDownLatch(1)
+
+                val firstOperation = Thread {
+                    zgwClientHeadersFactory.setAuditExplanation("fakeFirstAuditExplanation")
+                    firstExplanationSet.countDown()
+                    secondExplanationSet.await()
+                    zgwClientHeadersFactory.update(MultivaluedHashMap(), firstOutgoingHeaders)
+                }
+                val secondOperation = Thread {
+                    firstExplanationSet.await()
+                    zgwClientHeadersFactory.setAuditExplanation("fakeSecondAuditExplanation")
+                    secondExplanationSet.countDown()
+                    zgwClientHeadersFactory.update(MultivaluedHashMap(), secondOutgoingHeaders)
+                }
+                firstOperation.start()
+                secondOperation.start()
+                firstOperation.join()
+                secondOperation.join()
+
+                then("each request carries its own audit explanation") {
+                    firstOutgoingHeaders.getFirst("X-Audit-Toelichting") shouldBe "fakeFirstAuditExplanation"
+                    secondOutgoingHeaders.getFirst("X-Audit-Toelichting") shouldBe "fakeSecondAuditExplanation"
                 }
             }
         }
