@@ -52,6 +52,21 @@ class LoggedInUserProvider @Inject constructor(
             emptySet()
         )
 
+        /**
+         * System user for a zaak created from a productaanvraag, so it can be told apart from other
+         * system work in the zaakhistorie and be given its own roles. The source of the aanvraag is
+         * not fixed, so it is not named after one: the zaak records it in its toelichting instead.
+         */
+        val PRODUCTAANVRAAG_GEBRUIKER = LoggedInUser(
+            "PA",
+            "",
+            "Productaanvraag",
+            "Productaanvraag",
+            null,
+            emptySet(),
+            emptySet()
+        )
+
         val systemUser: ThreadLocal<Boolean> = ThreadLocal.withInitial { false }
 
         /**
