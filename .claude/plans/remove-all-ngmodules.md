@@ -7,6 +7,19 @@
 
 Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/src/app`.
 
+## Progress — 4 of 18 modules removed
+
+- [x] **Step 1** — zaken routes + lazy mount + `loadComponent` (commit `713c964`)
+- [x] **Step 1b** — klanten mount points; delete `ZakenModule` + `KlantenModule` (commit `a5a4c31`)
+- [ ] **Step 2** — `informatie-objecten` slice (+ `fout-afhandeling`) — NEXT
+- [ ] **Step 3** — already-lazy routing modules (`taken`, `documenten`, `productaanvragen`)
+- [ ] **Step 4** — delete `TakenModule` + `InformatieObjectenModule`
+- [ ] **Step 5** — `app-routing.module.ts` -> `app.routes.ts`
+- [ ] **Step 6** — `bootstrapApplication` + delete `CoreModule`
+- [ ] **Step 7** — dissolve the four shared barrels
+
+Bundle so far: **672.06 kB -> 538.14 kB** initial transfer (−20%).
+
 ## Starting position (verified 2026-09-10, `main`)
 
 - **187 components, all already standalone.** Angular 19+ defaults `standalone: true`;
@@ -21,24 +34,24 @@ Goal: fully standalone Angular frontend — zero `@NgModule` in `src/main/app/sr
 
 | Module | Kind | Step |
 |---|---|---|
-| ~~`zaken/zaken-routing.module.ts`~~ | routing (eager `forChild`) | done |
-| ~~`klanten/klanten-routing.module.ts`~~ | routing (eager `forChild`) | done |
-| `informatie-objecten/informatie-objecten-routing.module.ts` | routing (eager `forChild`) | 2 |
-| `fout-afhandeling/fout-afhandeling-routing.module.ts` | routing (eager `forChild`) | 2 |
-| `taken/taken-routing.module.ts` | routing (lazy) | 3 |
-| `documenten/documenten-routing.module.ts` | routing (lazy) | 3 |
-| `productaanvragen/productaanvragen-routing.module.ts` | routing (lazy) | 3 |
-| ~~`zaken/zaken.module.ts`~~ | container | done |
-| ~~`klanten/klanten.module.ts`~~ | container | done |
-| `taken/taken.module.ts` | container | 4 |
-| `informatie-objecten/informatie-objecten.module.ts` | container + provider | 4 |
-| `app-routing.module.ts` | root routing | 5 |
-| `app.module.ts` | root | 6 |
-| `core/core.module.ts` | providers | 6 |
-| `shared/shared.module.ts` | barrel | 7 |
-| `shared/material/material.module.ts` | barrel | 7 |
-| `shared/pipes/pipes.module.ts` | barrel | 7 |
-| `shared/material-form-builder/material-form-builder.module.ts` | barrel | 7 |
+| [x] `zaken/zaken-routing.module.ts` | routing (eager `forChild`) | done |
+| [x] `klanten/klanten-routing.module.ts` | routing (eager `forChild`) | done |
+| [ ] `informatie-objecten/informatie-objecten-routing.module.ts` | routing (eager `forChild`) | 2 |
+| [ ] `fout-afhandeling/fout-afhandeling-routing.module.ts` | routing (eager `forChild`) | 2 |
+| [ ] `taken/taken-routing.module.ts` | routing (lazy) | 3 |
+| [ ] `documenten/documenten-routing.module.ts` | routing (lazy) | 3 |
+| [ ] `productaanvragen/productaanvragen-routing.module.ts` | routing (lazy) | 3 |
+| [x] `zaken/zaken.module.ts` | container | done |
+| [x] `klanten/klanten.module.ts` | container | done |
+| [ ] `taken/taken.module.ts` | container | 4 |
+| [ ] `informatie-objecten/informatie-objecten.module.ts` | container + provider | 4 |
+| [ ] `app-routing.module.ts` | root routing | 5 |
+| [ ] `app.module.ts` | root | 6 |
+| [ ] `core/core.module.ts` | providers | 6 |
+| [ ] `shared/shared.module.ts` | barrel | 7 |
+| [ ] `shared/material/material.module.ts` | barrel | 7 |
+| [ ] `shared/pipes/pipes.module.ts` | barrel | 7 |
+| [ ] `shared/material-form-builder/material-form-builder.module.ts` | barrel | 7 |
 
 ### Key finding: four modules only *look* lazy
 
