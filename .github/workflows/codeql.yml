@@ -73,7 +73,7 @@ jobs:
 
       - name: Setup JDK
         if: matrix.language == 'java-kotlin'
-        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: "temurin"
@@ -83,14 +83,14 @@ jobs:
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
+        uses: github/codeql-action/init@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.language == 'java-kotlin' && 'autobuild' || 'none' }}
           trap-caching: false
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
+        uses: github/codeql-action/analyze@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
         with:
           category: "/language:${{matrix.language}}"
 
@@ -104,7 +104,7 @@ jobs:
       contents: read
       checks: read
       pull-requests: read
-    if: ${{ always() && needs.paths-filter.outputs.changes-requiring-build == 'true' && github.event_name == 'pull_request' }}
+    if: ${{ always() && github.event_name == 'pull_request' }}
     steps:
       - name: Check CodeQL Status
         env:
@@ -112,18 +112,36 @@ jobs:
         run: |
           # Check the conclusion of CodeQL check runs on the last commit of this PR.
           # Replaces the abandoned eldrick19/code-scanning-status-checker action.
+          #
+          # This job always runs, even when the 'analyze' job was skipped (no
+          # relevant file changes), so it can be set as a required status check
+          # in branch protection without blocking PRs that skip CodeQL entirely.
+          if [ "${{ needs.paths-filter.outputs.changes-requiring-build }}" != "true" ]; then
+            echo "No relevant changes, CodeQL analysis was skipped."
+            exit 0
+          fi
+
           MAX_ATTEMPTS=10
           SLEEP_SECONDS=10
 
           for ATTEMPT in $(seq 1 $MAX_ATTEMPTS); do
+            # filterBy checkName: "CodeQL" matches the GitHub Advanced Security app's own
+            # summary check (always named literally "CodeQL", conclusion unrelated to job
+            # outcome) rather than this workflow's "Analyze (...)" job runs. Select the check
+            # suite by workflow name instead, and only look at its "Analyze (...)" runs.
             CONCLUSIONS=$(gh api graphql -f query='{
               repository(owner: "${{ github.repository_owner }}", name: "${{ github.event.repository.name }}") {
                 pullRequest(number: ${{ github.event.pull_request.number }}) {
                   commits(last: 1) {
                     nodes {
                       commit {
-                        checkSuites(first: 100, filterBy: {checkName: "CodeQL"}) {
+                        checkSuites(first: 100) {
                           nodes {
+                            workflowRun {
+                              workflow {
+                                name
+                              }
+                            }
                             checkRuns(first: 100) {
                               nodes {
                                 name
@@ -137,7 +155,7 @@ jobs:
                   }
                 }
               }
-            }' --jq '[.data.repository.pullRequest.commits.nodes[0].commit.checkSuites.nodes[].checkRuns.nodes[]]')
+            }' --jq '[.data.repository.pullRequest.commits.nodes[0].commit.checkSuites.nodes[] | select(.workflowRun.workflow.name == "CodeQL") | .checkRuns.nodes[] | select(.name | startswith("Analyze "))]')
 
             TOTAL=$(echo "$CONCLUSIONS" | jq 'length')
             PENDING=$(echo "$CONCLUSIONS" | jq '[.[] | select(.conclusion == null)] | length')

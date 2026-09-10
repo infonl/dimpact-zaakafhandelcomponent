@@ -85,6 +85,7 @@ describe(ZaakViewComponent.name, () => {
   const zaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "1234",
     zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+      uuid: "fakeZaaktypeUuid",
       omschrijving: "mock description",
     }),
     indicaties: [],
@@ -111,8 +112,8 @@ describe(ZaakViewComponent.name, () => {
     };
 
     await TestBed.configureTestingModule({
-      declarations: [ZaakViewComponent],
       imports: [
+        ZaakViewComponent,
         ZaakDocumentenComponent,
         ZaakBetrokkeneListComponent,
         ZaakDetailsCardComponent,
@@ -146,7 +147,13 @@ describe(ZaakViewComponent.name, () => {
         // matches the locale the app provides, so dates format as they do in production
         { provide: LOCALE_ID, useValue: "nl-NL" },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(ZaakViewComponent, {
+        add: {
+          providers: [{ provide: MatDialog, useValue: dialogMock }],
+        },
+      })
+      .compileComponents();
 
     utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "setTitle").mockImplementation();

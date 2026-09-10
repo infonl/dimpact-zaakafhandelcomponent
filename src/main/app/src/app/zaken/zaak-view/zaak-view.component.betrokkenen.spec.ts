@@ -116,8 +116,8 @@ describe(ZaakViewComponent.name, () => {
     };
 
     await TestBed.configureTestingModule({
-      declarations: [ZaakViewComponent],
       imports: [
+        ZaakViewComponent,
         ZaakDocumentenComponent,
         ZaakBetrokkeneListComponent,
         ZaakDetailsCardComponent,
@@ -442,23 +442,28 @@ describe(ZaakViewComponent.name, () => {
       expect(updateInitiator).not.toHaveBeenCalled();
     });
 
-    it("couples the initiator straight away when the zaak has none yet", () => {
+    it("couples the initiator straight away when the zaak has none yet", async () => {
       mockActivatedRoute.data.next({ zaak: zaakZonderInitiator });
       fixture.detectChanges();
+      const httpTestingController = TestBed.inject(HttpTestingController);
+      httpTestingController.match(() => true);
       const updatedZaak = fromPartial<GeneratedType<"RestZaak">>({
         ...zaakZonderInitiator,
         initiatorIdentificatie: fromPartial<
           GeneratedType<"BetrokkeneIdentificatie">
         >({ kvkNummer: "fakeKvkNummer" }),
       });
-      const updateInitiator = jest
-        .spyOn(zakenService, "updateInitiator")
-        .mockReturnValue(of(updatedZaak));
       const openSnackbar = jest.spyOn(utilService, "openSnackbar");
 
       fixture.componentInstance["initiatorGeselecteerd"](initiator);
+      await new Promise(requestAnimationFrame);
+      const request = httpTestingController.expectOne((httpRequest) =>
+        httpRequest.url.endsWith("/rest/zaken/initiator"),
+      );
+      request.flush(updatedZaak);
+      await new Promise(requestAnimationFrame);
 
-      expect(updateInitiator).toHaveBeenCalledWith(
+      expect(request.request.body).toEqual(
         expect.objectContaining({ zaakUUID: zaakZonderInitiator.uuid }),
       );
       expect(openSnackbar).toHaveBeenCalledWith("msg.initiator.gekoppeld", {
@@ -466,18 +471,16 @@ describe(ZaakViewComponent.name, () => {
       });
     });
 
-    it("reports the ontkoppelen and refetches the zaak when the dialog confirms", () => {
+    it("reports the ontkoppelen when the dialog confirms, leaving the zaak to the mutation", () => {
       mockActivatedRoute.data.next({ zaak });
       fixture.detectChanges();
       const zaakDialogService = TestBed.inject(ZaakDialogService);
       jest.spyOn(zaakDialogService, "openOntkoppelInitiator").mockReturnValue(
         fromPartial<MatDialogRef<RedenDialogFormComponent>>({
-          afterClosed: () => of(true),
+          afterClosed: () => of(zaakZonderInitiator),
         }),
       );
-      const readZaak = jest
-        .spyOn(zakenService, "readZaak")
-        .mockReturnValue(of(zaak));
+      const readZaak = jest.spyOn(zakenService, "readZaak");
       const openSnackbar = jest.spyOn(utilService, "openSnackbar");
 
       fixture.componentInstance["deleteInitiator"]();
@@ -485,7 +488,7 @@ describe(ZaakViewComponent.name, () => {
       expect(openSnackbar).toHaveBeenCalledWith(
         "msg.initiator.ontkoppelen.uitgevoerd",
       );
-      expect(readZaak).toHaveBeenCalledWith(zaak.uuid);
+      expect(readZaak).not.toHaveBeenCalled();
       expect(sideActions.activeAction()).toBeNull();
     });
   });
@@ -496,10 +499,9 @@ describe(ZaakViewComponent.name, () => {
       fixture.detectChanges();
     });
 
-    it("closes the sidenav and reports the roltype when a betrokkene is coupled", () => {
-      const createBetrokkene = jest
-        .spyOn(zakenService, "createBetrokkene")
-        .mockReturnValue(of(zaak));
+    it("closes the sidenav and reports the roltype when a betrokkene is coupled", async () => {
+      const httpTestingController = TestBed.inject(HttpTestingController);
+      httpTestingController.match(() => true);
       const openSnackbar = jest.spyOn(utilService, "openSnackbar");
       const closeSideNav = jest
         .spyOn(fixture.componentInstance.actionsSidenav, "close")
@@ -519,9 +521,15 @@ describe(ZaakViewComponent.name, () => {
       klantGegevens.betrokkeneToelichting = "fakeToelichting";
 
       fixture.componentInstance["betrokkeneGeselecteerd"](klantGegevens);
+      await new Promise(requestAnimationFrame);
+      const request = httpTestingController.expectOne((httpRequest) =>
+        httpRequest.url.endsWith("/rest/zaken/betrokkene"),
+      );
+      request.flush(zaak);
+      await new Promise(requestAnimationFrame);
 
       expect(closeSideNav).toHaveBeenCalled();
-      expect(createBetrokkene).toHaveBeenCalledWith(
+      expect(request.request.body).toEqual(
         expect.objectContaining({
           zaakUUID: zaak.uuid,
           roltypeUUID: "fakeRoltypeUuid",

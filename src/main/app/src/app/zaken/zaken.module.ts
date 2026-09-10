@@ -32,9 +32,9 @@ import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
 import { ZakenRoutingModule } from "./zaken-routing.module";
 
 @NgModule({
-  declarations: [ZaakViewComponent],
   exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
   imports: [
+    ZaakViewComponent,
     NotitiesComponent,
     SharedModule,
     BesluitViewComponent,
