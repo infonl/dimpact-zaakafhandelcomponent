@@ -7,7 +7,6 @@ import { inject, Injectable } from "@angular/core";
 import { UtilService } from "../core/service/util.service";
 import { PutBody } from "../shared/http/http-client";
 import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
-import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 
 @Injectable({
@@ -15,12 +14,11 @@ import { ZacQueryClient } from "../shared/http/zac-query-client";
 })
 export class InboxProductaanvragenService {
   private basepath = "/rest/inbox-productaanvragen";
-  private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
   private readonly utilService = inject(UtilService);
 
   list(body: PutBody<"/rest/inbox-productaanvragen">) {
-    return this.zacHttpClient.PUT("/rest/inbox-productaanvragen", body);
+    return this.zacQueryClient.PUT_QUERY("/rest/inbox-productaanvragen", body);
   }
 
   delete() {

@@ -8,6 +8,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -39,6 +40,7 @@ import {
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { QueryClient } from "@tanstack/angular-query-experimental";
 import { merge } from "rxjs";
 import { map, startWith, switchMap } from "rxjs/operators";
 import { UtilService } from "../../core/service/util.service";
@@ -52,6 +54,7 @@ import {
 } from "../../shared/confirm-dialog/confirm-dialog.component";
 import { WerklijstComponent } from "../../shared/dynamic-table/datasource/werklijst-component";
 import { injectMutation } from "../../shared/http/inject-mutation";
+import { runQuery } from "../../shared/http/run-query";
 import { DatumPipe } from "../../shared/pipes/datum.pipe";
 import {
   SessionStorageUtil,
@@ -141,6 +144,8 @@ export class InboxProductaanvragenListComponent
     },
   );
 
+  private readonly queryClient = inject(QueryClient);
+
   constructor(
     private readonly inboxProductaanvragenService: InboxProductaanvragenService,
     private readonly infoService: InformatieObjectenService,
@@ -168,7 +173,10 @@ export class InboxProductaanvragenListComponent
           this.isLoadingResults = true;
           this.utilService.setLoading(true);
           this.updateListParameters();
-          return this.inboxProductaanvragenService.list(this.listParameters);
+          return runQuery(
+            this.queryClient,
+            this.inboxProductaanvragenService.list(this.listParameters),
+          );
         }),
         map((data) => {
           this.isLoadingResults = false;
