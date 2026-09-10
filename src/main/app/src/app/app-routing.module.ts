@@ -17,6 +17,11 @@ const routes: Routes = [
   },
   { path: "gebruiker", component: IdentityComponent },
   {
+    path: "zaken",
+    loadChildren: () =>
+      import("./zaken/zaken.routes").then((module) => module.ZAKEN_ROUTES),
+  },
+  {
     path: "taken",
     loadChildren: () =>
       import("./taken/taken.module").then((module) => module.TakenModule),

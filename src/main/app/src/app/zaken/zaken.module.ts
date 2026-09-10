@@ -28,18 +28,14 @@ import { CaseLocationEditComponent } from "./zaak-locatie-wijzigen/zaak-locatie-
 import { ZaakProcessFlowComponent } from "./zaak-process-flow/zaak-process-flow.component";
 import { ZaakTakenComponent } from "./zaak-taken/zaak-taken.component";
 import { ZaakVerkortComponent } from "./zaak-verkort/zaak-verkort.component";
-import { ZaakViewComponent } from "./zaak-view/zaak-view.component";
-import { ZakenRoutingModule } from "./zaken-routing.module";
 
 @NgModule({
   exports: [ZaakVerkortComponent, ZaakDocumentenComponent],
   imports: [
-    ZaakViewComponent,
     NotitiesComponent,
     SharedModule,
     BesluitViewComponent,
     ZaakDocumentenComponent,
-    ZakenRoutingModule,
     KlantenModule,
     InformatieObjectenModule,
     InformatieObjectVerzendenComponent,
