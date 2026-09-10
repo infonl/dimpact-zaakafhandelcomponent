@@ -22,7 +22,10 @@ import jakarta.persistence.criteria.Path
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import nl.info.client.zgw.util.extractUuid
+import nl.info.client.zgw.ztc.ZtcClientService
+import nl.info.client.zgw.ztc.model.createResultaatType
 import nl.info.client.zgw.ztc.model.createZaakType
+import nl.info.client.zgw.ztc.model.generated.ZaakType
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.ZaaktypeBpmnConfiguration.Companion.BPMN_PROCESS_DEFINITION_KEY
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.CREATIEDATUM_VARIABLE_NAME
@@ -30,9 +33,12 @@ import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.PRODUCTAANVRAAGTY
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME
 import nl.info.zac.admin.model.ZaaktypeConfiguration.Companion.ZAAKTYPE_UUID_VARIABLE_NAME
 import nl.info.zac.admin.model.createBetrokkeneKoppelingen
+import nl.info.zac.admin.model.createZaakbeeindigReden
 import nl.info.zac.admin.model.createZaaktypeBpmnConfiguration
 import nl.info.zac.admin.model.createZaaktypeBrpParameters
+import nl.info.zac.admin.model.createZaaktypeCompletionParameters
 import nl.info.zac.smartdocuments.SmartDocumentsTemplatesService
+import java.net.URI
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 
@@ -49,14 +55,18 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
     val creatieDatumOrder = mockk<Order>()
 
     val smartDocumentsTemplatesService = mockk<SmartDocumentsTemplatesService>()
+    val ztcClientService = mockk<ZtcClientService>()
     val zaaktypeBpmnConfigurationBeheerService = ZaaktypeBpmnConfigurationBeheerService(
         entityManager,
-        smartDocumentsTemplatesService
+        smartDocumentsTemplatesService,
+        ZaaktypeHelperService(ztcClientService)
     )
 
     afterEach {
         checkUnnecessaryStub()
     }
+
+    fun resultaattypeUri() = URI("https://example.com/resultaattype/${UUID.randomUUID()}")
 
     given("Multiple zaaktypeBpmnConfigurations with two unique BPMN process definition keys") {
         val uniqueBpmnProcessDefinitionKeys = listOf("fakeBpmnProcessDefinitionKey", "fakeBpmnProcessDefinitionKey2")
@@ -386,35 +396,12 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
         }
     }
 
-    context("copying configuration on a new zaaktype version") {
-        given("no previous configuration") {
-            val zaakType = createZaakType()
-
-            every {
-                zaaktypeBpmnConfigurationBeheerService.findConfiguration(zaakType.omschrijving)
-            } returns null
-
-            `when`("copying configuration") {
-                zaaktypeBpmnConfigurationBeheerService.copyConfiguration(zaakType)
-
-                then("no copying is done") {
-                    verify(exactly = 0) { entityManager.persist(any<Any>()) }
-                    verify(exactly = 0) { entityManager.merge(any<Any>()) }
-                }
-            }
-        }
-
-        given("existing previous configuration") {
-            val zaakType = createZaakType()
-            val newZaaktypeUuid = zaakType.url.extractUuid()
-            val nietOntvankelijkResultaattype = UUID.randomUUID()
-
-            val previousConfiguration = createZaaktypeBpmnConfiguration(
-                zaaktypeBrpParameters = createZaaktypeBrpParameters(raadpleegWaarde = "fakeRaadpleegWaarde"),
-                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(brpKoppelen = false),
-                nietOntvankelijkResultaattype = nietOntvankelijkResultaattype,
-                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
-            )
+    context("upserting the configuration for a zaaktype") {
+        fun stubConfigurationQueries(
+            zaakType: ZaakType,
+            results: List<ZaaktypeBpmnConfiguration?>,
+            previousVersionIsLookedUp: Boolean = true
+        ) {
             every { entityManager.criteriaBuilder } returns criteriaBuilder
             every {
                 criteriaBuilder.createQuery(ZaaktypeBpmnConfiguration::class.java)
@@ -426,39 +413,154 @@ class ZaaktypeBpmnConfigurationBeheerServiceTest : BehaviorSpec({
                 zaaktypeBpmnConfigurationCriteriaQuery.select(zaaktypeBpmnConfigurationRoot)
             } returns zaaktypeBpmnConfigurationCriteriaQuery
             every { zaaktypeBpmnConfigurationCriteriaQuery.where(predicate) } returns zaaktypeBpmnConfigurationCriteriaQuery
-            every { criteriaBuilder.equal(pathString, zaakType.omschrijving) } returns predicate
-            every { criteriaBuilder.equal(pathUuid, newZaaktypeUuid) } returns predicate
-            every { zaaktypeBpmnConfigurationRoot.get<String>(ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME) } returns pathString
+            every { criteriaBuilder.equal(pathUuid, zaakType.url.extractUuid()) } returns predicate
             every { zaaktypeBpmnConfigurationRoot.get<UUID>(ZAAKTYPE_UUID_VARIABLE_NAME) } returns pathUuid
+            if (previousVersionIsLookedUp) {
+                every { criteriaBuilder.equal(pathString, zaakType.omschrijving) } returns predicate
+                every {
+                    zaaktypeBpmnConfigurationRoot.get<String>(ZAAKTYPE_OMSCHRIJVING_VARIABLE_NAME)
+                } returns pathString
+            }
             every { zaaktypeBpmnConfigurationRoot.get<Any>(CREATIEDATUM_VARIABLE_NAME) } returns pathCreatieDatum
             every { criteriaBuilder.desc(pathCreatieDatum) } returns creatieDatumOrder
             every { zaaktypeBpmnConfigurationCriteriaQuery.orderBy(creatieDatumOrder) } returns zaaktypeBpmnConfigurationCriteriaQuery
             every {
                 entityManager.createQuery(zaaktypeBpmnConfigurationCriteriaQuery).setMaxResults(1).resultStream.findFirst().getOrNull()
-            } returns previousConfiguration
+            } returnsMany results
+        }
+
+        given("no configuration for the zaaktype nor for a previous version of it") {
+            val zaakType = createZaakType()
+            stubConfigurationQueries(zaakType, listOf(null, null))
+
+            `when`("upserting the configuration") {
+                zaaktypeBpmnConfigurationBeheerService.upsertConfiguration(zaakType)
+
+                then("nothing is stored") {
+                    verify(exactly = 0) { entityManager.persist(any<Any>()) }
+                    verify(exactly = 0) { entityManager.merge(any<Any>()) }
+                }
+            }
+        }
+
+        given("a configuration for a previous version of the zaaktype whose resultaattypen are not the first ones of the new version") {
+            val previousToegekendResultaattypeUuid = UUID.randomUUID()
+            val previousNietOntvankelijkResultaattypeUuid = UUID.randomUUID()
+            val previousVervallenResultaattypeUuid = UUID.randomUUID()
+            val newVerlengdResultaattypeUri = resultaattypeUri()
+            val newToegekendResultaattypeUri = resultaattypeUri()
+            val newNietOntvankelijkResultaattypeUri = resultaattypeUri()
+            val zaakType = createZaakType(
+                resultTypes = listOf(
+                    newVerlengdResultaattypeUri,
+                    newToegekendResultaattypeUri,
+                    newNietOntvankelijkResultaattypeUri
+                )
+            )
+            val newZaaktypeUuid = zaakType.url.extractUuid()
+            val previousConfiguration = createZaaktypeBpmnConfiguration(
+                zaaktypeBrpParameters = createZaaktypeBrpParameters(raadpleegWaarde = "fakeRaadpleegWaarde"),
+                zaaktypeBetrokkeneParameters = createBetrokkeneKoppelingen(brpKoppelen = false),
+                nietOntvankelijkResultaattype = previousNietOntvankelijkResultaattypeUuid,
+                zaaktypeCompletionParameters = setOf(
+                    createZaaktypeCompletionParameters(
+                        zaakbeeindigReden = createZaakbeeindigReden(name = "fakeZaakbeeindigReden"),
+                        resultaattype = previousToegekendResultaattypeUuid
+                    ),
+                    createZaaktypeCompletionParameters(
+                        id = 5678L,
+                        zaakbeeindigReden = createZaakbeeindigReden(id = 5678L, name = "fakeVervallenReden"),
+                        resultaattype = previousVervallenResultaattypeUuid
+                    )
+                ),
+                groupId = "fakeGroupId",
+                productaanvraagtype = "fakeProductaanvraagtype",
+                bpmnProcessDefinitionKey = "fakeBpmnProcessDefinitionKey"
+            )
+            stubConfigurationQueries(zaakType, listOf(null, previousConfiguration, previousConfiguration))
+            every { ztcClientService.readResultaattype(newVerlengdResultaattypeUri) } returns
+                createResultaatType(url = newVerlengdResultaattypeUri, omschrijving = "Verlengd")
+            every { ztcClientService.readResultaattype(newToegekendResultaattypeUri) } returns
+                createResultaatType(url = newToegekendResultaattypeUri, omschrijving = "Toegekend")
+            every { ztcClientService.readResultaattype(newNietOntvankelijkResultaattypeUri) } returns
+                createResultaatType(url = newNietOntvankelijkResultaattypeUri, omschrijving = "Niet ontvankelijk")
+            every { ztcClientService.readResultaattype(previousToegekendResultaattypeUuid) } returns
+                createResultaatType(omschrijving = "Toegekend")
+            every { ztcClientService.readResultaattype(previousNietOntvankelijkResultaattypeUuid) } returns
+                createResultaatType(omschrijving = "Niet ontvankelijk")
+            every { ztcClientService.readResultaattype(previousVervallenResultaattypeUuid) } returns
+                createResultaatType(omschrijving = "Vervallen in de nieuwe versie")
 
             val configurationSlot = slot<ZaaktypeBpmnConfiguration>()
-            val newConfiguration = createZaaktypeBpmnConfiguration()
-            every {
-                entityManager.merge(capture(configurationSlot))
-            } returns newConfiguration
+            every { entityManager.persist(capture(configurationSlot)) } just Runs
+            every { entityManager.flush() } just Runs
             every { smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(any(), any()) } just Runs
 
-            `when`("copying configuration") {
-                zaaktypeBpmnConfigurationBeheerService.copyConfiguration(zaakType)
+            `when`("upserting the configuration") {
+                zaaktypeBpmnConfigurationBeheerService.upsertConfiguration(zaakType)
 
-                then("correct copy is stored") {
+                then("the resultaattypen are matched by omschrijving onto those of the new zaaktype") {
                     with(configurationSlot.captured) {
                         zaaktypeUuid shouldBe newZaaktypeUuid
+                        nietOntvankelijkResultaattype shouldBe newNietOntvankelijkResultaattypeUri.extractUuid()
+                        getZaakbeeindigParameters().map { it.resultaattype } shouldBe
+                            listOf(newToegekendResultaattypeUri.extractUuid())
+                    }
+                }
+
+                and("the configuration data shared with CMMN configurations is copied") {
+                    with(configurationSlot.captured) {
+                        bpmnProcessDefinitionKey shouldBe "fakeBpmnProcessDefinitionKey"
+                        groepID shouldBe "fakeGroupId"
+                        productaanvraagtype shouldBe "fakeProductaanvraagtype"
                         with(zaaktypeBetrokkeneParameters!!) {
                             kvkKoppelen shouldBe true
                             brpKoppelen shouldBe false
                         }
-                        with(zaaktypeBrpParameters!!) {
-                            raadpleegWaarde shouldBe "fakeRaadpleegWaarde"
-                        }
-                        nietOntvankelijkResultaattype shouldBe nietOntvankelijkResultaattype
+                        zaaktypeBrpParameters!!.raadpleegWaarde shouldBe "fakeRaadpleegWaarde"
                     }
+                }
+
+                and("the SmartDocuments template mappings are copied onto the new zaaktype version") {
+                    verify(exactly = 1) {
+                        smartDocumentsTemplatesService.copySmartDocumentsTemplateMappings(
+                            previousConfiguration.zaaktypeUuid,
+                            newZaaktypeUuid
+                        )
+                    }
+                }
+            }
+        }
+
+        given("an existing configuration for the zaaktype itself") {
+            val previousToegekendResultaattypeUuid = UUID.randomUUID()
+            val newToegekendResultaattypeUri = resultaattypeUri()
+            val zaakType = createZaakType(resultTypes = listOf(newToegekendResultaattypeUri))
+            val existingConfiguration = createZaaktypeBpmnConfiguration(
+                zaaktypeUUID = zaakType.url.extractUuid(),
+                nietOntvankelijkResultaattype = previousToegekendResultaattypeUuid
+            )
+            stubConfigurationQueries(
+                zaakType,
+                listOf(existingConfiguration, existingConfiguration),
+                previousVersionIsLookedUp = false
+            )
+            every { ztcClientService.readResultaattype(newToegekendResultaattypeUri) } returns
+                createResultaatType(url = newToegekendResultaattypeUri, omschrijving = "Toegekend")
+            every { ztcClientService.readResultaattype(previousToegekendResultaattypeUuid) } returns
+                createResultaatType(omschrijving = "Toegekend")
+
+            val configurationSlot = slot<ZaaktypeBpmnConfiguration>()
+            every { entityManager.merge(capture(configurationSlot)) } returns existingConfiguration
+
+            `when`("upserting the configuration") {
+                zaaktypeBpmnConfigurationBeheerService.upsertConfiguration(zaakType)
+
+                then("its resultaattypen are remapped in place instead of a copy being made") {
+                    verify(exactly = 0) { entityManager.persist(any<Any>()) }
+                    configurationSlot.captured shouldBe existingConfiguration
+                    existingConfiguration.nietOntvankelijkResultaattype shouldBe
+                        newToegekendResultaattypeUri.extractUuid()
                 }
             }
         }
