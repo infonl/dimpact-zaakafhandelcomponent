@@ -5,9 +5,11 @@
 
 import { inject, Injectable } from "@angular/core";
 import { PostBody, PutBody } from "../shared/http/http-client";
+import { mergeMutationOptions } from "../shared/http/merge-mutation-options";
 import { ZacHttpClient } from "../shared/http/zac-http-client";
 import { ZacQueryClient } from "../shared/http/zac-query-client";
 import { GeneratedType } from "../shared/utils/generated-types";
+import { ZakenService } from "../zaken/zaken.service";
 
 @Injectable({
   providedIn: "root",
@@ -15,6 +17,7 @@ import { GeneratedType } from "../shared/utils/generated-types";
 export class BAGService {
   private readonly zacHttpClient = inject(ZacHttpClient);
   private readonly zacQueryClient = inject(ZacQueryClient);
+  private readonly zakenService = inject(ZakenService);
 
   listAdressen(body: PutBody<"/rest/bag/adres">) {
     return this.zacHttpClient.PUT("/rest/bag/adres", body);
@@ -31,7 +34,12 @@ export class BAGService {
   }
 
   delete() {
-    return this.zacQueryClient.DELETE("/rest/bag");
+    return mergeMutationOptions(this.zacQueryClient.DELETE("/rest/bag"), {
+      onSuccess: (_data, { zaakUuid }) => {
+        if (!zaakUuid) return;
+        this.zakenService.invalidateHistorie(zaakUuid);
+      },
+    });
   }
 
   read(type: GeneratedType<"BAGObjectType">, id: string) {
