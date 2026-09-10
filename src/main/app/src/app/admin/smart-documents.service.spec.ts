@@ -7,10 +7,14 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from "@angular/common/http";
-import { provideHttpClientTesting } from "@angular/common/http/testing";
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
 import { TranslateService } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { firstValueFrom } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { testQueryClient } from "../../../setupJest";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
@@ -22,6 +26,7 @@ import {
 
 describe(SmartDocumentsService.name, () => {
   let smartDocumentsService: SmartDocumentsService;
+  let httpTestingController: HttpTestingController;
 
   const mockTranslateService = {
     translate: jest.fn(),
@@ -51,6 +56,13 @@ describe(SmartDocumentsService.name, () => {
     });
 
     smartDocumentsService = TestBed.inject(SmartDocumentsService);
+    httpTestingController = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpTestingController.verify();
+    testQueryClient.clear();
+    jest.clearAllMocks();
   });
 
   it(SmartDocumentsService.prototype.addParentIdsToTemplates.name, () => {
@@ -253,5 +265,63 @@ describe(SmartDocumentsService.name, () => {
     expect(result[0].templates).toHaveLength(1); // only mapped template
     expect(result[0].templates![0].id).toBe("template-1");
     expect(result[0].groups![0].templates![0].id).toBe("template-3");
+  });
+
+  it(`${SmartDocumentsService.prototype.getTemplatesMappingQuery.name} resolves the API response flattened into {id, name, templates} groups`, async () => {
+    const apiResponse = fromPartial<
+      GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]
+    >([
+      {
+        id: "group-1",
+        name: "Group 1",
+        templates: [
+          {
+            id: "template-1",
+            name: "Template 1",
+            informatieObjectTypeUUID: "uuid-1",
+          },
+        ],
+      },
+    ]);
+
+    const request = testQueryClient.query(
+      smartDocumentsService.getTemplatesMappingQuery("test-zaaktype-uuid"),
+    );
+
+    httpTestingController
+      .expectOne(
+        "/rest/zaakafhandelparameters/test-zaaktype-uuid/smartdocuments-templates-mapping",
+      )
+      .flush(apiResponse);
+
+    const result = await request;
+
+    expect(result).toEqual([
+      { id: "group-1", name: "Group 1", templates: apiResponse[0].templates },
+    ]);
+  });
+
+  it(`${SmartDocumentsService.prototype.storeTemplatesMapping.name} invalidates the templates mapping query for the zaaktype on success`, async () => {
+    const invalidateQueries = jest
+      .spyOn(testQueryClient, "invalidateQueries")
+      .mockResolvedValue(undefined);
+
+    const request = firstValueFrom(
+      smartDocumentsService.storeTemplatesMapping("test-zaaktype-uuid", []),
+    );
+
+    httpTestingController
+      .expectOne(
+        "/rest/zaakafhandelparameters/test-zaaktype-uuid/smartdocuments-templates-mapping",
+      )
+      .flush(null);
+
+    await request;
+
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey:
+        smartDocumentsService.getTemplatesMappingQuery("test-zaaktype-uuid")
+          .queryKey,
+    });
   });
 });
