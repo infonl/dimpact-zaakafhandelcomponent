@@ -720,7 +720,7 @@ services:
       - pabc-database-data:/var/lib/postgresql/data
 
   pabc-migrations:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:1.1.1@sha256:803596bb1f365a1296a4ef450a35fea5022798190b7b7a467a896c42675e280e
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-migrations:2.0.0-prerelease@sha256:643c03a2e24b9adcbeb9fb2ea21295abe29327d7ce68fba85ec56e93e4868936
     platform: linux/amd64
     environment:
       ConnectionStrings__Pabc: "Host=pabc-database;Port=5432;Username=pabc;Password=pabc;Database=Pabc"
@@ -732,7 +732,7 @@ services:
       - ./scripts/docker-compose/imports/pabc-database/json-mapping/pabc-mapping-data.json:/app/json/pabc-mapping-data.json:ro
 
   pabc-api:
-    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:1.1.1@sha256:80c77b7a22f918fd94e8831ea75b249bdc9bd7a3efc57a5269d6a7086d5366e0
+    image: ghcr.io/platform-autorisatie-beheer-component/pabc-api:2.0.0-prerelease@sha256:c473698be2e2b7fc5b5bc18dde5f72fe569eaf0794fe69d04a0186fc96f4d584
     platform: linux/amd64
     environment:
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
@@ -747,6 +747,17 @@ services:
       Oidc__RequireHttps: "false"
       KeycloakAdmin__ClientId: "pabc-admin-client"
       KeycloakAdmin__ClientSecret: "pabcAdminClientSecret"
+      # Does not work in this Docker environment as the pabc-api container needs to talk to the Open Zaak
+      # via container openzaak-nginx on port 8000. This would mean that the CatalogiBaseUrl needs to be
+      # set to "http://openzaak-nginx:8000/catalogi/api/v1/". But then the URL does not match the URL configured in
+      # Open Zaak itself, which causes errors such as "Voer een geldige URL in."
+      # As this is not an essential feature to have locally, it was decided to only enable this on the actual
+      # environments.
+      ZgwZaakregister__Enabled: "false"
+      ZgwZaakregister__CatalogiBaseUrl: "http://localhost:8001/catalogi/api/v1/"
+      ZgwZaakregister__ClientId: "pabc"
+      ZgwZaakregister__ClientSecret: "pabcClientSecretWithExtraPadding"
+      ZgwZaakregister__CatalogusDomein: "ALG"
     ports:
       - "8006:8000"
     depends_on:

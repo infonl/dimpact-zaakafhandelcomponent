@@ -272,23 +272,13 @@ describe(ZaakBetrokkeneListComponent.name, () => {
       });
     });
 
-    it("writes the returned zaak into the cache when the dialog closes with one", () => {
+    it("leaves the cached zaak to the mutation, which answers with it", () => {
       const cacheZaakSpy = jest.spyOn(zakenService, "cacheZaak");
-      const fakeReturnedZaak = fromPartial<GeneratedType<"RestZaak">>({
-        uuid: fakeZaak.uuid,
-      });
       jest
         .spyOn(dialogRef, "afterClosed")
-        .mockReturnValue(of(fakeReturnedZaak));
-
-      component["deleteBetrokkene"](makeBetrokkene());
-
-      expect(cacheZaakSpy).toHaveBeenCalledWith(fakeReturnedZaak);
-    });
-
-    it("does not write to the cache when the dialog closes with a confirmation-only result", () => {
-      const cacheZaakSpy = jest.spyOn(zakenService, "cacheZaak");
-      jest.spyOn(dialogRef, "afterClosed").mockReturnValue(of(true));
+        .mockReturnValue(
+          of(fromPartial<GeneratedType<"RestZaak">>({ uuid: fakeZaak.uuid })),
+        );
 
       component["deleteBetrokkene"](makeBetrokkene());
 
