@@ -10,14 +10,18 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
-import { LOCALE_ID } from "@angular/core";
+import { Component, input, LOCALE_ID, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import {
   MatNavListItemHarness,
   MatSubheaderHarness,
 } from "@angular/material/list/testing";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import {
+  MatDrawer,
+  MatSidenav,
+  MatSidenavContainer,
+} from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -35,6 +39,7 @@ import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-paramete
 import { BAGService } from "../../bag/bag.service";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
+import { InformatieObjectCreateAttendedComponent } from "../../informatie-objecten/informatie-object-create-attended/informatie-object-create-attended.component";
 import { KlantenService } from "../../klanten/klanten.service";
 import { NotitiesComponent } from "../../notities/notities.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
@@ -51,6 +56,7 @@ import { TakenService } from "../../taken/taken.service";
 import { ZaakBetrokkeneListComponent } from "../zaak-betrokkenen-list/zaak-betrokkene-list.component";
 import { ZaakBrondatumZettenDialogComponent } from "../zaak-brondatum-zetten-dialog/zaak-brondatum-zetten-dialog.component";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
+import { CaseLocationEditComponent } from "../zaak-locatie-wijzigen/zaak-locatie-wijzigen.component";
 import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakSideActionService } from "./services/zaak-side-action.service";
@@ -64,6 +70,29 @@ const planItemsQuery = (planItems: GeneratedType<"RESTPlanItem">[]) =>
     queryFn: () => planItems,
     initialData: planItems,
   }) as ReturnType<PlanItemsService["listHumanTaskPlanItemsQuery"]>;
+
+@Component({
+  selector: "zac-informatie-object-create-attended",
+  standalone: true,
+  template: "",
+})
+class InformatieObjectCreateAttendedStubComponent {
+  readonly sideNav = input<MatDrawer>();
+  readonly zaak = input<GeneratedType<"RestZaak">>();
+  readonly document = output<void>();
+}
+
+// OpenLayers builds a real map on construction, which jsdom has no ResizeObserver for
+@Component({
+  selector: "zac-case-location-edit",
+  standalone: true,
+  template: "",
+})
+class CaseLocationEditStubComponent {
+  readonly sideNav = input<MatDrawer>();
+  readonly zaak = input<GeneratedType<"RestZaak">>();
+  readonly locatie = output<void>();
+}
 
 describe(ZaakViewComponent.name, () => {
   let fixture: ComponentFixture<ZaakViewComponent>;
@@ -96,6 +125,7 @@ describe(ZaakViewComponent.name, () => {
   const zaak = fromPartial<GeneratedType<"RestZaak">>({
     uuid: "1234",
     zaaktype: fromPartial<GeneratedType<"RestZaaktype">>({
+      uuid: "fakeZaaktypeUuid",
       omschrijving: "mock description",
     }),
     indicaties: [],
@@ -122,8 +152,8 @@ describe(ZaakViewComponent.name, () => {
     };
 
     await TestBed.configureTestingModule({
-      declarations: [ZaakViewComponent],
       imports: [
+        ZaakViewComponent,
         ZaakDocumentenComponent,
         ZaakBetrokkeneListComponent,
         ZaakDetailsCardComponent,
@@ -157,7 +187,23 @@ describe(ZaakViewComponent.name, () => {
         // matches the locale the app provides, so dates format as they do in production
         { provide: LOCALE_ID, useValue: "nl-NL" },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(ZaakViewComponent, {
+        remove: {
+          imports: [
+            InformatieObjectCreateAttendedComponent,
+            CaseLocationEditComponent,
+          ],
+        },
+        add: {
+          providers: [{ provide: MatDialog, useValue: dialogMock }],
+          imports: [
+            InformatieObjectCreateAttendedStubComponent,
+            CaseLocationEditStubComponent,
+          ],
+        },
+      })
+      .compileComponents();
 
     utilService = TestBed.inject(UtilService);
     jest.spyOn(utilService, "setTitle").mockImplementation();

@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
+import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -16,13 +17,18 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatDialog } from "@angular/material/dialog";
-import { MatSidenav, MatSidenavContainer } from "@angular/material/sidenav";
+import {
+  MatSidenav,
+  MatSidenavContainer,
+  MatSidenavModule,
+} from "@angular/material/sidenav";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { injectQuery, QueryClient } from "@tanstack/angular-query-experimental";
 import { forkJoin } from "rxjs";
 import { PolicyService } from "src/app/policy/policy.service";
 import { ZaakafhandelParametersService } from "../../admin/zaakafhandel-parameters.service";
+import { BagZoekComponent } from "../../bag/bag-zoek/bag-zoek.component";
 import { BAGService } from "../../bag/bag.service";
 import { UtilService } from "../../core/service/util.service";
 import { isCausedByCurrentUser } from "../../core/websocket/is-caused-by-current-user";
@@ -32,15 +38,34 @@ import { ScreenEvent } from "../../core/websocket/model/screen-event";
 import { WebsocketListener } from "../../core/websocket/model/websocket-listener";
 import { WebsocketService } from "../../core/websocket/websocket.service";
 import { IdentityService } from "../../identity/identity.service";
+import { InformatieObjectAddComponent } from "../../informatie-objecten/informatie-object-add/informatie-object-add.component";
+import { InformatieObjectCreateAttendedComponent } from "../../informatie-objecten/informatie-object-create-attended/informatie-object-create-attended.component";
+import { InformatieObjectLinkComponent } from "../../informatie-objecten/informatie-object-link/informatie-object-link.component";
+import { InformatieObjectVerzendenComponent } from "../../informatie-objecten/informatie-object-verzenden/informatie-object-verzenden.component";
+import { KlantKoppelComponent } from "../../klanten/koppel/klanten/klant-koppel/klant-koppel.component";
 import { KlantGegevens } from "../../klanten/model/klanten/klant-gegevens";
 import { ViewResourceUtil } from "../../locatie/view-resource.util";
+import { MailCreateComponent } from "../../mail/mail-create/mail-create.component";
+import { OntvangstbevestigingComponent } from "../../mail/ontvangstbevestiging/ontvangstbevestiging.component";
+import { NotitiesComponent } from "../../notities/notities.component";
+import { HumanTaskDoComponent } from "../../plan-items/human-task-do/human-task-do.component";
 import { PlanItemsService } from "../../plan-items/plan-items.service";
 import { ActionsViewComponent } from "../../shared/abstract-view/actions-view-component";
 import { detailExpand } from "../../shared/animations/animations";
 import { runMutation } from "../../shared/http/run-mutation";
+import { SideNavComponent } from "../../shared/side-nav/side-nav.component";
 import { GeneratedType } from "../../shared/utils/generated-types";
+import { BesluitCreateComponent } from "../besluit-create/besluit-create.component";
+import { BesluitEditComponent } from "../besluit-edit/besluit-edit.component";
+import { BesluitViewComponent } from "../besluit-view/besluit-view.component";
+import { CaseDetailsEditComponent } from "../zaak-details-wijzigen/zaak-details-wijzigen.component";
 import { ZaakDialogService } from "../zaak-dialog.service";
 import { ZaakDocumentenComponent } from "../zaak-documenten/zaak-documenten.component";
+import { ZaakLinkComponent } from "../zaak-link/zaak-link.component";
+import { CaseLocationEditComponent } from "../zaak-locatie-wijzigen/zaak-locatie-wijzigen.component";
+import { ZaakProcessFlowComponent } from "../zaak-process-flow/zaak-process-flow.component";
+import { ZaakTakenComponent } from "../zaak-taken/zaak-taken.component";
+import { ZaakdataComponent } from "../zaakdata/zaakdata.component";
 import { ZakenService } from "../zaken.service";
 import { ZaakActionDialogsService } from "./services/zaak-action-dialogs.service";
 import { ZaakBetrokkenenService } from "./services/zaak-betrokkenen.service";
@@ -54,11 +79,40 @@ import {
   allowPersoon,
   showBetrokkeneKoppelingen,
 } from "./utils/zaak-view.predicates";
+import { ZaakDetailsCardComponent } from "./zaak-details-card/zaak-details-card.component";
+import { ZaakInitiatorPanelComponent } from "./zaak-initiator-panel/zaak-initiator-panel.component";
 
 @Component({
   templateUrl: "./zaak-view.component.html",
   animations: [detailExpand],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatSidenavModule,
+    BagZoekComponent,
+    BesluitCreateComponent,
+    BesluitEditComponent,
+    BesluitViewComponent,
+    CaseDetailsEditComponent,
+    CaseLocationEditComponent,
+    HumanTaskDoComponent,
+    InformatieObjectAddComponent,
+    InformatieObjectCreateAttendedComponent,
+    InformatieObjectLinkComponent,
+    InformatieObjectVerzendenComponent,
+    KlantKoppelComponent,
+    MailCreateComponent,
+    NotitiesComponent,
+    OntvangstbevestigingComponent,
+    SideNavComponent,
+    ZaakDetailsCardComponent,
+    ZaakDocumentenComponent,
+    ZaakInitiatorPanelComponent,
+    ZaakLinkComponent,
+    ZaakProcessFlowComponent,
+    ZaakTakenComponent,
+    ZaakdataComponent,
+  ],
   providers: [
     ZaakSideActionService,
     ZaakActionDialogsService,
