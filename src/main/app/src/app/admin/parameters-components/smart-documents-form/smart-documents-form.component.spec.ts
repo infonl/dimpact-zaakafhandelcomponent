@@ -5,10 +5,10 @@
 
 import { provideHttpClient } from "@angular/common/http";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { TranslateModule } from "@ngx-translate/core";
 import { provideQueryClient } from "@tanstack/angular-query-experimental";
+import { render, screen } from "@testing-library/angular";
 import { of } from "rxjs";
 import { InformatieObjectenService } from "src/app/informatie-objecten/informatie-objecten.service";
 import { createQueryOptions, fromPartial } from "src/test-helpers";
@@ -17,30 +17,15 @@ import { SmartDocumentsService } from "../../smart-documents.service";
 import { SmartDocumentsFormComponent } from "./smart-documents-form.component";
 
 describe(SmartDocumentsFormComponent.name, () => {
-  let fixture: ComponentFixture<SmartDocumentsFormComponent>;
-  let smartDocumentsService: SmartDocumentsService;
-  let informatieObjectenService: InformatieObjectenService;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        SmartDocumentsFormComponent,
-        TranslateModule.forRoot(),
-        NoopAnimationsModule,
-      ],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideQueryClient(testQueryClient),
-      ],
-    }).compileComponents();
-
-    smartDocumentsService = TestBed.inject(SmartDocumentsService);
-    jest
-      .spyOn(smartDocumentsService, "getAllSmartDocumentsTemplateGroups")
+  async function setup({
+    enabledGlobally,
+    enabledForZaaktype,
+  }: { enabledGlobally?: boolean; enabledForZaaktype?: boolean } = {}) {
+    const getAllSmartDocumentsTemplateGroups = jest
+      .fn()
       .mockReturnValue(of([]));
-    jest
-      .spyOn(smartDocumentsService, "getTemplatesMappingQuery")
+    const getTemplatesMappingQuery = jest
+      .fn()
       .mockReturnValue(
         fromPartial(
           createQueryOptions<
@@ -48,131 +33,159 @@ describe(SmartDocumentsFormComponent.name, () => {
           >([]),
         ),
       );
-    jest
-      .spyOn(smartDocumentsService, "addParentIdsToTemplates")
-      .mockReturnValue([]);
-    jest
-      .spyOn(smartDocumentsService, "addTemplateMappings")
-      .mockReturnValue([]);
-    jest.spyOn(smartDocumentsService, "flattenGroups").mockReturnValue([]);
-    jest
-      .spyOn(smartDocumentsService, "getTemplateMappings")
-      .mockReturnValue([]);
+    const listInformatieobjecttypes = jest.fn().mockReturnValue(of([]));
 
-    informatieObjectenService = TestBed.inject(InformatieObjectenService);
-    jest
-      .spyOn(informatieObjectenService, "listInformatieobjecttypes")
-      .mockReturnValue(of([]));
+    const rendered = await render(SmartDocumentsFormComponent, {
+      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideQueryClient(testQueryClient),
+        {
+          provide: SmartDocumentsService,
+          useValue: fromPartial<SmartDocumentsService>({
+            getAllSmartDocumentsTemplateGroups,
+            getTemplatesMappingQuery,
+            addParentIdsToTemplates: () => [],
+            addTemplateMappings: () => [],
+            flattenGroups: () => [],
+            getTemplateMappings: () => [],
+          }),
+        },
+        {
+          provide: InformatieObjectenService,
+          useValue: fromPartial<InformatieObjectenService>({
+            listInformatieobjecttypes,
+          }),
+        },
+      ],
+      inputs: {
+        zaakTypeUuid: "test-zaaktype-uuid",
+        enabledGlobally,
+        enabledForZaaktype,
+      },
+    });
 
-    fixture = TestBed.createComponent(SmartDocumentsFormComponent);
-    fixture.componentRef.setInput("zaakTypeUuid", "test-zaaktype-uuid");
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+    await rendered.fixture.whenStable();
+    rendered.fixture.detectChanges();
+
+    return {
+      ...rendered,
+      getAllSmartDocumentsTemplateGroups,
+      getTemplatesMappingQuery,
+      listInformatieobjecttypes,
+    };
+  }
+
+  it("should call getAllSmartDocumentsTemplateGroups on init", async () => {
+    const { getAllSmartDocumentsTemplateGroups } = await setup();
+
+    expect(getAllSmartDocumentsTemplateGroups).toHaveBeenCalled();
   });
 
-  it("should render", () => {
-    expect(fixture.componentInstance).toBeTruthy();
-  });
+  it("should call getTemplatesMappingQuery with zaakTypeUuid on init", async () => {
+    const { getTemplatesMappingQuery } = await setup();
 
-  it("should call getAllSmartDocumentsTemplateGroups on init", () => {
-    expect(
-      smartDocumentsService.getAllSmartDocumentsTemplateGroups,
-    ).toHaveBeenCalled();
-  });
-
-  it("should call getTemplatesMappingQuery with zaakTypeUuid on init", () => {
-    expect(smartDocumentsService.getTemplatesMappingQuery).toHaveBeenCalledWith(
+    expect(getTemplatesMappingQuery).toHaveBeenCalledWith(
       "test-zaaktype-uuid",
     );
   });
 
-  it("should call listInformatieobjecttypes with zaakTypeUuid on init", () => {
-    expect(
-      informatieObjectenService.listInformatieobjecttypes,
-    ).toHaveBeenCalledWith("test-zaaktype-uuid");
+  it("should call listInformatieobjecttypes with zaakTypeUuid on init", async () => {
+    const { listInformatieobjecttypes } = await setup();
+
+    expect(listInformatieobjecttypes).toHaveBeenCalledWith(
+      "test-zaaktype-uuid",
+    );
   });
 
-  it("should not render the card when enabledGlobally is false", () => {
-    fixture.componentRef.setInput("enabledGlobally", false);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector("mat-card")).toBeNull();
+  it("should not render the card when enabledGlobally is false", async () => {
+    await setup({ enabledGlobally: false });
+
+    expect(
+      screen.queryByRole("heading", { name: "title.smartdocuments.form" }),
+    ).not.toBeInTheDocument();
   });
 
   describe("when enabledGlobally is true and enabledForZaaktype is false", () => {
-    let localFixture: ComponentFixture<SmartDocumentsFormComponent>;
+    it("should render the card", async () => {
+      await setup({ enabledGlobally: true, enabledForZaaktype: false });
 
-    beforeEach(async () => {
-      localFixture = TestBed.createComponent(SmartDocumentsFormComponent);
-      localFixture.componentRef.setInput("zaakTypeUuid", "test-zaaktype-uuid");
-      localFixture.componentRef.setInput("enabledGlobally", true);
-      localFixture.componentRef.setInput("enabledForZaaktype", false);
-      localFixture.detectChanges();
-      await localFixture.whenStable();
-      localFixture.detectChanges();
-    });
-
-    it("should render the card", () => {
-      expect(localFixture.nativeElement.querySelector("mat-card")).toBeTruthy();
-    });
-
-    it("should initialize enabledForZaaktypeForm with false", () => {
       expect(
-        localFixture.componentInstance.enabledForZaaktypeForm.value
+        screen.getByRole("heading", { name: "title.smartdocuments.form" }),
+      ).toBeVisible();
+    });
+
+    it("should initialize enabledForZaaktypeForm with false", async () => {
+      const { fixture } = await setup({
+        enabledGlobally: true,
+        enabledForZaaktype: false,
+      });
+
+      expect(
+        fixture.componentInstance.enabledForZaaktypeForm.value
           .enabledForZaaktype,
       ).toBe(false);
     });
 
-    it("enabledForZaaktypeValue should return false", () => {
-      expect(localFixture.componentInstance.enabledForZaaktypeValue).toBe(
-        false,
-      );
+    it("enabledForZaaktypeValue should return false", async () => {
+      const { fixture } = await setup({
+        enabledGlobally: true,
+        enabledForZaaktype: false,
+      });
+
+      expect(fixture.componentInstance.enabledForZaaktypeValue).toBe(false);
     });
 
-    it("should show disabled feedback", () => {
+    it("should show disabled feedback", async () => {
+      await setup({ enabledGlobally: true, enabledForZaaktype: false });
+
       expect(
-        localFixture.nativeElement.querySelector(".form-disabled-feedback"),
-      ).toBeTruthy();
+        screen.getByText("msg.smartdocuments.form.disabled"),
+      ).toBeVisible();
     });
 
-    it("should hide the tree form", () => {
-      const treeForms = localFixture.nativeElement.querySelectorAll("mat-tree");
-      expect(treeForms.length).toBe(0);
+    it("should hide the tree form", async () => {
+      await setup({ enabledGlobally: true, enabledForZaaktype: false });
+
+      expect(screen.queryByRole("tree")).not.toBeInTheDocument();
     });
   });
 
   describe("when enabledGlobally is true and enabledForZaaktype is true", () => {
-    let localFixture: ComponentFixture<SmartDocumentsFormComponent>;
+    it("should initialize enabledForZaaktypeForm with true", async () => {
+      const { fixture } = await setup({
+        enabledGlobally: true,
+        enabledForZaaktype: true,
+      });
 
-    beforeEach(async () => {
-      localFixture = TestBed.createComponent(SmartDocumentsFormComponent);
-      localFixture.componentRef.setInput("zaakTypeUuid", "test-zaaktype-uuid");
-      localFixture.componentRef.setInput("enabledGlobally", true);
-      localFixture.componentRef.setInput("enabledForZaaktype", true);
-      localFixture.detectChanges();
-      await localFixture.whenStable();
-      localFixture.detectChanges();
-    });
-
-    it("should initialize enabledForZaaktypeForm with true", () => {
       expect(
-        localFixture.componentInstance.enabledForZaaktypeForm.value
+        fixture.componentInstance.enabledForZaaktypeForm.value
           .enabledForZaaktype,
       ).toBe(true);
     });
 
-    it("enabledForZaaktypeValue should return true", () => {
-      expect(localFixture.componentInstance.enabledForZaaktypeValue).toBe(true);
+    it("enabledForZaaktypeValue should return true", async () => {
+      const { fixture } = await setup({
+        enabledGlobally: true,
+        enabledForZaaktype: true,
+      });
+
+      expect(fixture.componentInstance.enabledForZaaktypeValue).toBe(true);
     });
 
-    it("should hide disabled feedback", () => {
+    it("should hide disabled feedback", async () => {
+      await setup({ enabledGlobally: true, enabledForZaaktype: true });
+
       expect(
-        localFixture.nativeElement.querySelector(".form-disabled-feedback"),
-      ).toBeNull();
+        screen.queryByText("msg.smartdocuments.form.disabled"),
+      ).not.toBeInTheDocument();
     });
 
-    it("should show the tree form", () => {
-      expect(localFixture.nativeElement.querySelector("mat-tree")).toBeTruthy();
+    it("should show the tree form", async () => {
+      await setup({ enabledGlobally: true, enabledForZaaktype: true });
+
+      expect(screen.getByRole("tree")).toBeVisible();
     });
   });
 });
