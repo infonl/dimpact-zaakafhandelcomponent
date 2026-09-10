@@ -604,6 +604,8 @@ SmartDocuments wordt gebruikt om Word-documenten te maken van sjablonen en elk S
 
 Klik op ‘Opslaan’ om de zaps voor het zaaktype te bewaren. Het zaaktype is hierna actief te gebruiken in de ZAC.
 
+**LET OP: het kan tot maximaal 5 minuten duren voordat groep- of sjabloonnaamwijzigingen doorkomen in ZAC.**
+
 # Inrichting in OpenZaak - voor functionaliteiten in ZAC
 
 ## Procestermijnen
