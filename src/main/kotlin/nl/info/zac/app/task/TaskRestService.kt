@@ -58,6 +58,7 @@ import nl.info.zac.app.task.model.RestTaskHistoryLine
 import nl.info.zac.app.task.model.RestTaskReleaseData
 import nl.info.zac.authentication.ActiveSession
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.loggedInUserContext
 import nl.info.zac.configuration.ConfigurationService
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
@@ -178,10 +179,10 @@ class TaskRestService @Inject constructor(
         // Checking the user's authorization for each task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(dispatcher).launch {
+        launchAsLoggedInUser { loggedInUser ->
             taskService.assignTasks(
                 restTaskDistributeData = restTaskDistributeData,
-                loggedInUser = loggedInUserInstance.get(),
+                loggedInUser = loggedInUser,
                 screenEventResourceId = restTaskDistributeData.screenEventResourceId
             )
         }
@@ -192,10 +193,10 @@ class TaskRestService @Inject constructor(
     fun releaseTaskFromList(@Valid restTaskReleaseData: RestTaskReleaseData) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation so run it asynchronously
-        CoroutineScope(dispatcher).launch {
+        launchAsLoggedInUser { loggedInUser ->
             taskService.releaseTasks(
                 restTaskReleaseData = restTaskReleaseData,
-                loggedInUser = loggedInUserInstance.get(),
+                loggedInUser = loggedInUser,
                 screenEventResourceId = restTaskReleaseData.screenEventResourceId
             )
         }
@@ -439,5 +440,14 @@ class TaskRestService @Inject constructor(
             verzenddatum,
             toelichting
         )
+    }
+
+    /**
+     * Runs long-running work on [dispatcher] as the user that started it. The HTTP session is only in
+     * scope on this thread, so the user is read here rather than inside the coroutine.
+     */
+    private fun launchAsLoggedInUser(block: suspend CoroutineScope.(LoggedInUser) -> Unit) {
+        val loggedInUser = loggedInUserInstance.get()
+        CoroutineScope(dispatcher).launch(loggedInUserContext(loggedInUser)) { block(loggedInUser) }
     }
 }

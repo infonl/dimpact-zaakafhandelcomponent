@@ -27,6 +27,7 @@ import nl.info.zac.app.zaak.model.RestZaakAssignmentData
 import nl.info.zac.app.zaak.model.RestZaakAssignmentToLoggedInUserData
 import nl.info.zac.app.zaak.model.RestZaakOverzicht
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.loggedInUserContext
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.policy.PolicyService
 import nl.info.zac.policy.assertPolicy
@@ -65,7 +66,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         // Checking the user's authorization for each task's zaaktype could improve this in the future.
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation, so run it asynchronously
-        CoroutineScope(dispatcher).launch {
+        launchAsLoggedInUser {
             zaakService.assignZaken(
                 zaakUUIDs = restZakenVerdeelGegevens.uuids,
                 explanation = restZakenVerdeelGegevens.reden,
@@ -147,12 +148,21 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
     fun releaseZakenFromList(@Valid restZakenVrijgevenGegevens: RestZakenVrijgevenGegevens) {
         assertPolicy(policyService.readWerklijstRechten().zakenTakenVerdelen)
         // this can be a long-running operation, so run it asynchronously
-        CoroutineScope(dispatcher).launch {
+        launchAsLoggedInUser {
             zaakService.releaseZaken(
                 zaakUUIDs = restZakenVrijgevenGegevens.uuids,
                 explanation = restZakenVrijgevenGegevens.reden,
                 screenEventResourceId = restZakenVrijgevenGegevens.screenEventResourceId
             )
         }
+    }
+
+    /**
+     * Runs long-running work on [dispatcher] as the user that started it. The HTTP session is only in
+     * scope on this thread, so the user is read here rather than inside the coroutine.
+     */
+    private fun launchAsLoggedInUser(block: suspend CoroutineScope.(LoggedInUser) -> Unit) {
+        val loggedInUser = loggedInUserInstance.get()
+        CoroutineScope(dispatcher).launch(loggedInUserContext(loggedInUser)) { block(loggedInUser) }
     }
 }

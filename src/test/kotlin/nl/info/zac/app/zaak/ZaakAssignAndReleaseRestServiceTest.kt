@@ -14,6 +14,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import jakarta.servlet.http.HttpSession
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import nl.info.client.zgw.model.createZaak
@@ -27,6 +28,7 @@ import nl.info.zac.app.zaak.model.createRESTZakenVrijgevenGegevens
 import nl.info.zac.app.zaak.model.createRestZaak
 import nl.info.zac.app.zaak.model.createRestZaakAssignmentToLoggedInUserData
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.authentication.createLoggedInUser
 import nl.info.zac.identity.IdentityService
 import nl.info.zac.identity.model.createGroup
@@ -74,6 +76,7 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             )
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
             every { zaakService.assignZaken(any(), any(), any(), any(), any()) } just runs
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
             every { identityService.readGroup(group.name) } returns group
             every { identityService.readUser(restZakenVerdeelGegevens.behandelaarGebruikersnaam!!) } returns user
 
@@ -246,6 +249,7 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
             )
             every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
             every { zaakService.releaseZaken(any(), any(), any()) } just runs
+            every { loggedInUserInstance.get() } returns createLoggedInUser()
 
             `when`("the release zaken from a list function is called") {
                 runTest(testDispatcher) {
@@ -278,6 +282,69 @@ class ZaakAssignAndReleaseRestServiceTest : BehaviorSpec({
                     verify(exactly = 0) {
                         zaakService.releaseZaken(any(), any(), any())
                     }
+                }
+            }
+        }
+    }
+
+    context("Running a batch operation as the user that started it") {
+        val httpSessionInstance = mockk<Instance<HttpSession>>()
+        val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
+
+        given("a batch assignment started by a logged-in user") {
+            val zaakUUIDs = listOf(UUID.randomUUID())
+            val group = createGroup()
+            val user = createUser()
+            val loggedInUser = createLoggedInUser()
+            val restZakenVerdeelGegevens = createRESTZakenVerdeelGegevens(
+                uuids = zaakUUIDs,
+                groepId = group.name,
+                behandelaarGebruikersnaam = user.id,
+                reden = "fakeReason"
+            )
+            var userResolvedWhileAssigning: LoggedInUser? = null
+            every { httpSessionInstance.get() } returns null
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+            every { identityService.readGroup(group.name) } returns group
+            every { identityService.readUser(user.id) } returns user
+            every { zaakService.assignZaken(any(), any(), any(), any(), any()) } answers {
+                userResolvedWhileAssigning = loggedInUserProvider.getLoggedInUser()
+            }
+
+            `when`("the assign zaken from a list function is called") {
+                runTest(testDispatcher) {
+                    zaakAssignAndReleaseRestService.assignFromList(restZakenVerdeelGegevens)
+                }
+
+                then("the zaken are assigned as the user that started the batch, not as the functionele gebruiker") {
+                    userResolvedWhileAssigning shouldBe loggedInUser
+                }
+            }
+        }
+
+        given("a batch release started by a logged-in user") {
+            val loggedInUser = createLoggedInUser()
+            val restZakenVrijgevenGegevens = createRESTZakenVrijgevenGegevens(
+                uuids = listOf(UUID.randomUUID()),
+                reden = "fakeReason",
+                screenEventResourceId = "fakeScreenEventResourceId"
+            )
+            var userResolvedWhileReleasing: LoggedInUser? = null
+            every { httpSessionInstance.get() } returns null
+            every { loggedInUserInstance.get() } returns loggedInUser
+            every { policyService.readWerklijstRechten() } returns createWerklijstRechten()
+            every { zaakService.releaseZaken(any(), any(), any()) } answers {
+                userResolvedWhileReleasing = loggedInUserProvider.getLoggedInUser()
+            }
+
+            `when`("the release zaken from a list function is called") {
+                runTest(testDispatcher) {
+                    zaakAssignAndReleaseRestService.releaseZakenFromList(restZakenVrijgevenGegevens)
+                }
+
+                then("the zaken are released as the user that started the batch, not as the functionele gebruiker") {
+                    userResolvedWhileReleasing shouldBe loggedInUser
                 }
             }
         }
