@@ -110,3 +110,16 @@ fun <T> runAsLoggedInUser(loggedInUser: LoggedInUser, block: () -> T): T {
         LoggedInUserProvider.asyncContextUser.remove()
     }
 }
+
+/**
+ * Runs [block] as the system user, for work that no user session owns.
+ */
+fun <T> runAsSystemUser(block: () -> T): T {
+    val wasSystemUser = LoggedInUserProvider.systemUser.get() ?: false
+    LoggedInUserProvider.systemUser.set(true)
+    return try {
+        block()
+    } finally {
+        if (wasSystemUser) LoggedInUserProvider.systemUser.set(true) else LoggedInUserProvider.systemUser.remove()
+    }
+}

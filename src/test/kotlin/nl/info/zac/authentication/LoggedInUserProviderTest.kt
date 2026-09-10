@@ -4,6 +4,7 @@
  */
 package nl.info.zac.authentication
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
@@ -128,6 +129,43 @@ class LoggedInUserProviderTest : BehaviorSpec({
 
                 then("the explicitly requested system user wins over the async context") {
                     result shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
+                }
+            }
+        }
+    }
+
+    context("Running work as the system user") {
+        val httpSessionInstance = mockk<Instance<HttpSession>>()
+        val loggedInUserProvider = LoggedInUserProvider(httpSessionInstance)
+
+        given("a logged-in user session") {
+            val loggedInUser = createLoggedInUser()
+            every { httpSessionInstance.get() } returns httpSession
+            every { httpSession.getAttribute(LoggedInUserProvider.LOGGED_IN_USER_SESSION_ATTRIBUTE) } returns loggedInUser
+
+            `when`("work is run as the system user") {
+                val userDuringSystemWork = runAsSystemUser { loggedInUserProvider.getLoggedInUser() }
+                val userAfterSystemWork = loggedInUserProvider.getLoggedInUser()
+
+                then("that work runs as the functionele gebruiker") {
+                    userDuringSystemWork shouldBe LoggedInUserProvider.FUNCTIONEEL_GEBRUIKER
+                }
+
+                and("the session user is restored afterwards") {
+                    userAfterSystemWork shouldBe loggedInUser
+                }
+            }
+        }
+
+        given("work as the system user that throws") {
+            `when`("the exception has propagated") {
+                val illegalStateException = shouldThrow<IllegalStateException> {
+                    runAsSystemUser { throw IllegalStateException("fakeFailure") }
+                }
+
+                then("the exception is propagated and the system user is no longer active") {
+                    illegalStateException.message shouldBe "fakeFailure"
+                    LoggedInUserProvider.systemUser.get() shouldBe false
                 }
             }
         }
