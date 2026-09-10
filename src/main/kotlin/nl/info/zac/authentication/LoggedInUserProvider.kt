@@ -97,3 +97,15 @@ fun setFunctioneelGebruiker(httpSession: HttpSession) =
  */
 fun loggedInUserContext(loggedInUser: LoggedInUser) =
     LoggedInUserProvider.asyncContextUser.asContextElement(loggedInUser)
+
+/**
+ * Runs [block] as [loggedInUser], for work that has no user session of its own.
+ */
+fun <T> runAsLoggedInUser(loggedInUser: LoggedInUser, block: () -> T): T {
+    LoggedInUserProvider.asyncContextUser.set(loggedInUser)
+    return try {
+        block()
+    } finally {
+        LoggedInUserProvider.asyncContextUser.remove()
+    }
+}

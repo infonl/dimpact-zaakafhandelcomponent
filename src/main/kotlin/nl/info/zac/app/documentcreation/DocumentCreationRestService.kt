@@ -28,7 +28,9 @@ import nl.info.zac.admin.ZaaktypeConfigurationService
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedData
 import nl.info.zac.app.documentcreation.model.RestDocumentCreationAttendedResponse
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.authentication.runAsLoggedInUser
 import nl.info.zac.documentcreation.DocumentCreationService
+import nl.info.zac.documentcreation.DocumentCreationUserStore
 import nl.info.zac.documentcreation.model.DocumentCreationAttendedResponse
 import nl.info.zac.documentcreation.model.DocumentCreationDataAttended
 import nl.info.zac.policy.PolicyService
@@ -53,7 +55,8 @@ class DocumentCreationRestService @Inject constructor(
     private val zrcClientService: ZrcClientService,
     private val zaaktypeConfigurationService: ZaaktypeConfigurationService,
     private val flowableTaskService: FlowableTaskService,
-    private val loggedInUserInstance: Instance<LoggedInUser>
+    private val loggedInUserInstance: Instance<LoggedInUser>,
+    private val documentCreationUserStore: DocumentCreationUserStore
 ) {
     companion object {
         enum class SmartDocumentsWizardResult {
@@ -124,6 +127,7 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("description") description: String?,
         @QueryParam("creationDate") creationDate: ZonedDateTime,
         @QueryParam("userName") userName: String,
+        @QueryParam("userToken") userToken: String?,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
         createDocument(
@@ -132,6 +136,7 @@ class DocumentCreationRestService @Inject constructor(
             description = description,
             creationDate = creationDate,
             userName = userName,
+            userToken = userToken,
             fileId = fileId
         ) {
             documentCreationService.getInformationObjecttypeUuid(it, templateGroupId, templateId)
@@ -157,6 +162,7 @@ class DocumentCreationRestService @Inject constructor(
         @QueryParam("description") description: String?,
         @QueryParam("creationDate") creationDate: ZonedDateTime,
         @QueryParam("userName") userName: String,
+        @QueryParam("userToken") userToken: String?,
         @FormParam("sdDocument") @DefaultValue("") fileId: String,
     ): Response =
         createDocument(
@@ -166,6 +172,7 @@ class DocumentCreationRestService @Inject constructor(
             description = description,
             creationDate = creationDate,
             userName = userName,
+            userToken = userToken,
             fileId = fileId
         ) {
             documentCreationService.getInformationObjecttypeUuid(it, templateGroupId, templateId)
@@ -178,6 +185,7 @@ class DocumentCreationRestService @Inject constructor(
         description: String?,
         creationDate: ZonedDateTime,
         userName: String,
+        userToken: String?,
         fileId: String,
         fetchInformatieobjecttypeUuidFunction: (zaak: Zaak) -> UUID,
     ) =
@@ -193,27 +201,31 @@ class DocumentCreationRestService @Inject constructor(
                 ).build()
             } else {
                 runCatching {
-                    fetchInformatieobjecttypeUuidFunction(zaak).let {
+                    val informatieobjecttypeUuid = fetchInformatieobjecttypeUuidFunction(zaak)
+                    val storeDocument = {
                         documentCreationService.storeDocument(
                             zaak = zaak,
                             taskId = taskId,
                             fileId = fileId,
                             title = title,
                             description = description,
-                            informatieobjecttypeUuid = it,
+                            informatieobjecttypeUuid = informatieobjecttypeUuid,
                             creationDate = creationDate,
                             userName = userName
-                        ).let {
-                            Response.seeOther(
-                                documentCreationService.documentCreationFinishPageUrl(
-                                    zaakId = zaak.identificatie,
-                                    taskId = taskId,
-                                    documentName = title,
-                                    result = SmartDocumentsWizardResult.SUCCESS.toString().lowercase()
-                                )
-                            ).build()
-                        }
+                        )
                     }
+                    // an unknown token leaves the document to the functionele gebruiker rather than failing
+                    userToken?.let(documentCreationUserStore::findUser)
+                        ?.let { runAsLoggedInUser(it, storeDocument) }
+                        ?: storeDocument()
+                    Response.seeOther(
+                        documentCreationService.documentCreationFinishPageUrl(
+                            zaakId = zaak.identificatie,
+                            taskId = taskId,
+                            documentName = title,
+                            result = SmartDocumentsWizardResult.SUCCESS.toString().lowercase()
+                        )
+                    ).build()
                 }.onFailure {
                     LOG.log(Level.WARNING, it) {
                         "Failed to create document for zaak ${zaak.identificatie}" +
