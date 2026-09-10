@@ -65,11 +65,7 @@ export class ZakenService {
     });
   }
 
-  /**
-   * Wraps a mutation that answers with the zaak it changed, so that the cache follows the
-   * outcome of the call rather than a comparison of its payload: the historie is refetched
-   * because the server accepted the change, also when the zaak itself comes back unchanged.
-   */
+  /** Refetches the historie even when the zaak itself comes back unchanged. */
   private zaakMutation<TError, TVariables, TOnMutateResult>(
     base: CreateMutationOptions<
       GeneratedType<"RestZaak">,

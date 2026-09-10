@@ -16,6 +16,9 @@ import { ZaakSideActionService } from "./zaak-side-action.service";
 
 type Zaak = GeneratedType<"RestZaak">;
 
+/** The mutation reported the failure already; raising it again would double-report it. */
+const IGNORE_REPORTED_FAILURE = { error: () => undefined };
+
 @Injectable()
 export class ZaakBetrokkenenService {
   private readonly queryClient = inject(QueryClient);
@@ -49,9 +52,7 @@ export class ZaakBetrokkenenService {
     }).subscribe({
       next: (updatedZaak) =>
         this.reportNewInitiator("msg.initiator.gekoppeld", updatedZaak),
-      // the mutation already reported the failure; this keeps it from being
-      // raised a second time as an unhandled error
-      error: () => undefined,
+      ...IGNORE_REPORTED_FAILURE,
     });
   }
 
@@ -98,9 +99,7 @@ export class ZaakBetrokkenenService {
         });
         this.invalidateBetrokkenen(zaak);
       },
-      // the mutation already reported the failure; this keeps it from being
-      // raised a second time as an unhandled error
-      error: () => undefined,
+      ...IGNORE_REPORTED_FAILURE,
     });
   }
 
