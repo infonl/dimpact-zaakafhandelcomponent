@@ -125,7 +125,7 @@ Result: **3.14 MB / 672.06 kB -> 2.54 MB / 538.14 kB (-20% transfer)**. `zaak-vi
 grew 70.88 -> 234.35 kB absorbing its children; new `klanten-routes` chunk at 33.78 kB; every
 pre-existing chunk byte-identical.
 
-Not verified: the three klanten URLs were never exercised in a running app.
+Verified manually in a local DEV environment: `/zaken/*`, `/persoon/<id>`, and `/bedrijf/<id>`.
 
 ## Step 1 (original text, for reference)
 
