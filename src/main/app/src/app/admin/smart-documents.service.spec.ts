@@ -357,17 +357,20 @@ describe(SmartDocumentsService.name, () => {
     });
   });
 
-  it(SmartDocumentsService.prototype.getAllSmartDocumentsTemplateGroups.name, async () => {
-    const templateGroups = [{ id: "group-1", name: "Group 1" }];
+  it(
+    SmartDocumentsService.prototype.getAllSmartDocumentsTemplateGroups.name,
+    async () => {
+      const templateGroups = [{ id: "group-1", name: "Group 1" }];
 
-    const request = firstValueFrom(
-      smartDocumentsService.getAllSmartDocumentsTemplateGroups(),
-    );
+      const request = firstValueFrom(
+        smartDocumentsService.getAllSmartDocumentsTemplateGroups(),
+      );
 
-    httpTestingController
-      .expectOne("/rest/zaakafhandelparameters/smartdocuments-templates")
-      .flush(templateGroups);
+      httpTestingController
+        .expectOne("/rest/zaakafhandelparameters/smartdocuments-templates")
+        .flush(templateGroups);
 
-    await expect(request).resolves.toEqual(templateGroups);
-  });
+      await expect(request).resolves.toEqual(templateGroups);
+    },
+  );
 });
