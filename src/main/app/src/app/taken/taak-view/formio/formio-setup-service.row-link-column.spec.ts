@@ -40,9 +40,7 @@ describe(FormioSetupService.name, () => {
         grid: ExtendedComponentSchema,
         column: ExtendedComponentSchema,
       ) => {
-        jest
-          .spyOn(testQueryClient, "fetchQuery")
-          .mockResolvedValue([document1]);
+        jest.spyOn(testQueryClient, "query").mockResolvedValue([document1]);
 
         await formioSetupService.createFormioForm(
           { components: [{ ...grid, components: [column] }] } as FormioForm,

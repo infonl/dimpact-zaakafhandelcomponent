@@ -89,7 +89,7 @@ describe(FormioSetupService.name, () => {
   describe(FormioSetupService.prototype.createFormioForm.name, () => {
     it("should initialize components for all defined component types", async () => {
       // the datagrid initializers fetch eagerly, so without this the spies call through to http
-      jest.spyOn(testQueryClient, "fetchQuery").mockResolvedValue([]);
+      jest.spyOn(testQueryClient, "query").mockResolvedValue([]);
 
       const mockedComponentsService = formioSetupService as unknown as {
         initializeGroepField: jest.Mock;
@@ -258,7 +258,7 @@ describe(FormioSetupService.name, () => {
 
     it("should invoke behandelaar groups for zaaktype description endpoint", async () => {
       const clientQuerySpy = jest
-        .spyOn(testQueryClient, "ensureQueryData")
+        .spyOn(testQueryClient, "query")
         .mockResolvedValue([]);
 
       const groepComponent: ExtendedComponentSchema = {
@@ -366,7 +366,7 @@ describe(FormioSetupService.name, () => {
 
       formioSetupService.setFormioChangeData({ GroepKey: "group-uuid" });
       const queryClientSpy = jest
-        .spyOn(testQueryClient, "ensureQueryData")
+        .spyOn(testQueryClient, "query")
         .mockResolvedValue([]);
 
       await medewerkerComponent.data.custom();

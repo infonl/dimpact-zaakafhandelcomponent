@@ -44,14 +44,14 @@ describe(FormioSetupService.name, () => {
         [otherTaak.zaakUuid]: [document2],
       };
       const resolvers: (() => void)[] = [];
-      jest.spyOn(testQueryClient, "fetchQuery").mockImplementation(
+      jest.spyOn(testQueryClient, "query").mockImplementation(
         ((options: { queryKey: [string, string, string[] | undefined] }) =>
           new Promise<(typeof document1)[]>((resolve) =>
             // held back so both setups are in flight at once, then released in reverse order
             resolvers.push(() =>
               resolve(documentsPerZaak[options.queryKey[1]]),
             ),
-          )) as typeof testQueryClient.fetchQuery,
+          )) as typeof testQueryClient.query,
       );
 
       const column: ExtendedComponentSchema = { ...regelLinkColumn };
@@ -104,8 +104,8 @@ describe(FormioSetupService.name, () => {
     });
 
     it("should fetch for its own task from a data source called after another task was initialized", async () => {
-      const fetchQuerySpy = jest
-        .spyOn(testQueryClient, "fetchQuery")
+      const querySpy = jest
+        .spyOn(testQueryClient, "query")
         .mockResolvedValue([document1]);
       const component: ExtendedComponentSchema = { ...documentsFieldset };
 
@@ -119,10 +119,10 @@ describe(FormioSetupService.name, () => {
       );
 
       // Form.io calls the data source on render and refresh, long after setup
-      fetchQuerySpy.mockClear();
+      querySpy.mockClear();
       await component.data.custom();
 
-      expect(fetchQuerySpy).toHaveBeenCalledWith(
+      expect(querySpy).toHaveBeenCalledWith(
         expect.objectContaining({
           queryKey: ["availableDocumentsQuery", taak.zaakUuid, undefined],
         }),
@@ -132,8 +132,8 @@ describe(FormioSetupService.name, () => {
 
   describe("fetching the zaak documents", () => {
     it("should always refetch, so a cached list cannot offer documents that have since been signed or unlinked", async () => {
-      const fetchQuerySpy = jest
-        .spyOn(testQueryClient, "fetchQuery")
+      const querySpy = jest
+        .spyOn(testQueryClient, "query")
         .mockResolvedValue([document1]);
       const component: ExtendedComponentSchema = {
         ...unsignedDocumentsFieldset,
@@ -144,7 +144,7 @@ describe(FormioSetupService.name, () => {
         taak,
       );
 
-      expect(fetchQuerySpy).toHaveBeenCalledWith(
+      expect(querySpy).toHaveBeenCalledWith(
         expect.objectContaining({ staleTime: 0 }),
       );
     });
@@ -169,7 +169,7 @@ describe(FormioSetupService.name, () => {
     });
 
     it("should show the stored rows of the selection grid, ticks and signed documents included", async () => {
-      const fetchQuerySpy = jest.spyOn(testQueryClient, "fetchQuery");
+      const querySpy = jest.spyOn(testQueryClient, "query");
       const component: ExtendedComponentSchema = {
         ...unsignedDocumentsFieldset,
       };
@@ -180,12 +180,12 @@ describe(FormioSetupService.name, () => {
       );
 
       expect(component.defaultValue).toEqual(storedRows);
-      expect(fetchQuerySpy).not.toHaveBeenCalled();
+      expect(querySpy).not.toHaveBeenCalled();
     });
 
     it("should tick a document this task submitted that carries a signature now", async () => {
       jest
-        .spyOn(testQueryClient, "fetchQuery")
+        .spyOn(testQueryClient, "query")
         .mockResolvedValue([signedDocument, document1]);
       const component: ExtendedComponentSchema = {
         ...selectedUnsignedDocumentsFieldset,
@@ -221,9 +221,7 @@ describe(FormioSetupService.name, () => {
     });
 
     it("should leave a document this task did not submit unticked, however it was signed since", async () => {
-      jest
-        .spyOn(testQueryClient, "fetchQuery")
-        .mockResolvedValue([signedDocument]);
+      jest.spyOn(testQueryClient, "query").mockResolvedValue([signedDocument]);
       const component: ExtendedComponentSchema = {
         ...selectedUnsignedDocumentsFieldset,
       };
@@ -252,7 +250,7 @@ describe(FormioSetupService.name, () => {
 
     it("should show the signing grid with the current titles", async () => {
       jest
-        .spyOn(testQueryClient, "fetchQuery")
+        .spyOn(testQueryClient, "query")
         .mockResolvedValue([{ ...signedDocument, titel: "Renamed Document" }]);
       const component: ExtendedComponentSchema = {
         ...selectedUnsignedDocumentsFieldset,
@@ -281,7 +279,7 @@ describe(FormioSetupService.name, () => {
     });
 
     it("should keep a document that was removed since, under the title it was submitted with", async () => {
-      jest.spyOn(testQueryClient, "fetchQuery").mockResolvedValue([]);
+      jest.spyOn(testQueryClient, "query").mockResolvedValue([]);
       const component: ExtendedComponentSchema = {
         ...selectedUnsignedDocumentsFieldset,
       };
