@@ -188,6 +188,8 @@ export class KlantZakenTabelComponent implements AfterViewInit {
     return "";
   }
 
+  private lastLoadedPageIndex = 0;
+
   ngAfterViewInit() {
     this.init = true;
     this.filtersChanged();
@@ -207,8 +209,12 @@ export class KlantZakenTabelComponent implements AfterViewInit {
         }),
       )
       .subscribe((zoekResultaat) => {
-        if (!zoekResultaat) return;
+        if (!zoekResultaat) {
+          this.paginator.pageIndex = this.lastLoadedPageIndex;
+          return;
+        }
 
+        this.lastLoadedPageIndex = this.paginator.pageIndex;
         this.zoekResultaat = zoekResultaat;
         this.paginator.length = zoekResultaat.totaal;
         this.dataSource.data = zoekResultaat.resultaten;

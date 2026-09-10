@@ -127,4 +127,59 @@ describe(mergeMutationOptions.name, () => {
 
     expect(seen).toBe("fakeName-1");
   });
+
+  it("should keep the meta of whichever layer defines one", () => {
+    const merged = mergeMutationOptions(
+      { ...base, meta: { reportErrors: false } },
+      {},
+    );
+
+    expect(merged.meta).toEqual({ reportErrors: false });
+  });
+
+  it("should warn that a meta entry of the overrides replaces that of the mutation", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    const merged = mergeMutationOptions(
+      { ...base, meta: { reportErrors: false } },
+      { meta: { reportErrors: true } },
+    );
+
+    expect(merged.meta).toEqual({ reportErrors: true });
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("meta.reportErrors"),
+      { mutation: false, overrides: true },
+    );
+
+    warn.mockRestore();
+  });
+
+  it("should not warn about a meta entry both layers give the same value", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    mergeMutationOptions(
+      { ...base, meta: { reportErrors: false } },
+      { meta: { reportErrors: false } },
+    );
+
+    expect(warn).not.toHaveBeenCalled();
+
+    warn.mockRestore();
+  });
+
+  it("should warn that the onMutate context of the mutation is dropped", async () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    const merged = mergeMutationOptions(base, {
+      onMutate: () => "override context",
+    });
+    await merged.onMutate?.(undefined, mutationContext);
+
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("onMutate context"),
+      { mutation: "base context", overrides: "override context" },
+    );
+
+    warn.mockRestore();
+  });
 });
