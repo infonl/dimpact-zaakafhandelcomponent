@@ -298,6 +298,97 @@ describe(FormioSetupService.name, () => {
       );
     });
 
+    it("should return the referentietabel values for the configured code", async () => {
+      const clientQuerySpy = jest
+        .spyOn(testQueryClient, "query")
+        .mockResolvedValue({ values: ["waarde1", "waarde2"] });
+
+      const component: ExtendedComponentSchema = { ...referenceTableFieldset };
+
+      await formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
+
+      const result = await component.data.custom();
+
+      expect(clientQuerySpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: [
+            "/rest/referentietabellen/code/{code}",
+            { path: { code: "COMMUNICATIEKANAAL" } },
+          ],
+        }),
+      );
+      expect(result).toEqual(["waarde1", "waarde2"]);
+    });
+
+    it("should return the resultaattypes for the zaak's zaaktype", async () => {
+      const resultaattypes = [{ naam: "Verleend" }];
+      const clientQuerySpy = jest
+        .spyOn(testQueryClient, "query")
+        .mockResolvedValue(resultaattypes);
+
+      const component: ExtendedComponentSchema = {
+        key: "resultaat",
+        type: "select",
+        input: true,
+        attributes: {
+          [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.RESULTAAT,
+        },
+      };
+
+      await formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
+
+      const result = await component.data.custom();
+
+      expect(clientQuerySpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: [
+            "/rest/zaken/resultaattypes/{zaaktypeUUID}",
+            { path: { zaaktypeUUID: taak.zaaktypeUUID } },
+          ],
+        }),
+      );
+      expect(result).toEqual(resultaattypes);
+    });
+
+    it("should return the statustypes for the zaak's zaaktype", async () => {
+      const statustypes = [{ naam: "In behandeling" }];
+      const clientQuerySpy = jest
+        .spyOn(testQueryClient, "query")
+        .mockResolvedValue(statustypes);
+
+      const component: ExtendedComponentSchema = {
+        key: "status",
+        type: "select",
+        input: true,
+        attributes: {
+          [ZAC_FIELD_ATTRIBUTE]: KNOWN_ZAC_FIELDS.STATUS,
+        },
+      };
+
+      await formioSetupService.createFormioForm(
+        { components: [component] } as FormioForm,
+        taak,
+      );
+
+      const result = await component.data.custom();
+
+      expect(clientQuerySpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queryKey: [
+            "/rest/zaken/statustypes/{zaaktypeUUID}",
+            { path: { zaaktypeUUID: taak.zaaktypeUUID } },
+          ],
+        }),
+      );
+      expect(result).toEqual(statustypes);
+    });
+
     it("should catch errors from component initializers and call handleFormIOInitError", async () => {
       const component: ExtendedComponentSchema = {
         type: "select",

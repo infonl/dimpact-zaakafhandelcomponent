@@ -301,20 +301,52 @@ describe(SmartDocumentsService.name, () => {
     ]);
   });
 
-  it(`${SmartDocumentsService.prototype.storeTemplatesMapping.name} invalidates the templates mapping query for the zaaktype on success`, async () => {
+  it(`${SmartDocumentsService.prototype.storeTemplatesMapping.name} posts the mapped templates and invalidates the templates mapping query for the zaaktype on success`, async () => {
     const invalidateQueries = jest
       .spyOn(testQueryClient, "invalidateQueries")
       .mockResolvedValue(undefined);
 
+    const templateGroups = fromPartial<
+      GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]
+    >([
+      {
+        id: "group-1",
+        name: "Group 1",
+        templates: [
+          {
+            id: "template-1",
+            name: "Template 1",
+            informatieObjectTypeUUID: "uuid-1",
+          },
+        ],
+      },
+    ]);
+
     const request = firstValueFrom(
-      smartDocumentsService.storeTemplatesMapping("test-zaaktype-uuid", []),
+      smartDocumentsService.storeTemplatesMapping(
+        "test-zaaktype-uuid",
+        templateGroups,
+      ),
     );
 
-    httpTestingController
-      .expectOne(
-        "/rest/zaakafhandelparameters/test-zaaktype-uuid/smartdocuments-templates-mapping",
-      )
-      .flush(null);
+    const postedRequest = httpTestingController.expectOne(
+      "/rest/zaakafhandelparameters/test-zaaktype-uuid/smartdocuments-templates-mapping",
+    );
+    expect(postedRequest.request.body).toEqual([
+      {
+        id: "group-1",
+        name: "Group 1",
+        templates: [
+          {
+            id: "template-1",
+            name: "Template 1",
+            informatieObjectTypeUUID: "uuid-1",
+          },
+        ],
+        groups: null,
+      },
+    ]);
+    postedRequest.flush(null);
 
     await request;
 
@@ -323,5 +355,19 @@ describe(SmartDocumentsService.name, () => {
         smartDocumentsService.getTemplatesMappingQuery("test-zaaktype-uuid")
           .queryKey,
     });
+  });
+
+  it(SmartDocumentsService.prototype.getAllSmartDocumentsTemplateGroups.name, async () => {
+    const templateGroups = [{ id: "group-1", name: "Group 1" }];
+
+    const request = firstValueFrom(
+      smartDocumentsService.getAllSmartDocumentsTemplateGroups(),
+    );
+
+    httpTestingController
+      .expectOne("/rest/zaakafhandelparameters/smartdocuments-templates")
+      .flush(templateGroups);
+
+    await expect(request).resolves.toEqual(templateGroups);
   });
 });
