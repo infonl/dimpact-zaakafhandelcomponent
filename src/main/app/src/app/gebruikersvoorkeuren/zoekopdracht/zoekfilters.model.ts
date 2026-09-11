@@ -6,7 +6,7 @@
 import { GeneratedType } from "../../shared/utils/generated-types";
 
 export type ZoekFilters = {
-  readonly filtersType?:
+  readonly filtersType:
     | "ZoekParameters"
     | "DetachedDocumentListParameters"
     | "InboxDocumentListParameters";

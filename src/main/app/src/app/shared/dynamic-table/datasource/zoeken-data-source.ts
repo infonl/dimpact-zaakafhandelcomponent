@@ -56,10 +56,13 @@ export abstract class ZoekenDataSource<
     private readonly utilService: UtilService,
   ) {
     super();
-    this.zoekParameters = SessionStorageUtil.getItem(
+    this.zoekParameters = {
+      ...getDefaultZoekParameters(),
+      ...SessionStorageUtil.getItem(
       `${werklijst}_ZOEKPARAMETERS` satisfies WerklijstZoekParameter,
       getDefaultZoekParameters(),
-    );
+      ),
+    };
   }
 
   protected abstract initZoekparameters(

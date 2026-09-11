@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022 Atos
+ * SPDX-FileCopyrightText: 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
@@ -17,6 +17,7 @@ export type ZoekParameters = Omit<
   RestZoekParameters,
   "zoeken" | "filters" | "datums" | "sorteerRichting"
 > & {
+  readonly filtersType: "ZoekParameters";
   zoeken: NonNullable<RestZoekParameters["zoeken"]>;
   filters: NonNullable<RestZoekParameters["filters"]>;
   datums: NonNullable<RestZoekParameters["datums"]>;
@@ -25,6 +26,7 @@ export type ZoekParameters = Omit<
 
 export function getDefaultZoekParameters(): ZoekParameters {
   return {
+    filtersType: "ZoekParameters",
     rows: 25,
     page: 0,
     alleenMijnZaken: false,
