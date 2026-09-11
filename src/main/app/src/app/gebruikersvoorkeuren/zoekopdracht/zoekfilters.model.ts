@@ -6,10 +6,11 @@
 import { GeneratedType } from "../../shared/utils/generated-types";
 
 export type ZoekFilters = {
-  readonly filtersType?:
+  readonly filtersType:
     | "ZoekParameters"
     | "DetachedDocumentListParameters"
-    | "InboxDocumentListParameters";
+    | "InboxDocumentListParameters"
+    | "InboxProductaanvraagListParameters";
   zoeken?: Record<string, unknown>;
   filters?: Record<string, undefined | { values: Array<unknown> }>;
   datums?: Record<string, GeneratedType<"RestDatumRange">>;
