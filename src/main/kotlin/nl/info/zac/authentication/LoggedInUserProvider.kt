@@ -57,8 +57,8 @@ class LoggedInUserProvider @Inject constructor(
      * If http session is available, the authenticated [LoggedInUser] instance is retrieved from the current user
      * session, where it is set via the [UserPrincipalFilter]
      *
-     * Without a session, [asyncContextUser] is used, so background work stays attributed to the user that
-     * started it.
+     * [asyncContextUser] takes precedence over the session, so background work stays attributed to the user
+     * that started it even when it runs inside a request whose session is not its own.
      *
      * @return the currently logged-in user, or [FUNCTIONEEL_GEBRUIKER] when no user is in scope
      */
@@ -67,9 +67,10 @@ class LoggedInUserProvider @Inject constructor(
         if (systemUser.get() ?: false) {
             FUNCTIONEEL_GEBRUIKER // explicitly requested
         } else {
-            httpSession.get()?.let { getLoggedInUser(it) }
-                ?: asyncContextUser.get() // background work started from a user session
-                ?: FUNCTIONEEL_GEBRUIKER // async context
+            // an explicitly named user wins over the session, which for background work is not its own
+            asyncContextUser.get()
+                ?: httpSession.get()?.let { getLoggedInUser(it) }
+                ?: FUNCTIONEEL_GEBRUIKER // no user in scope
         }
 }
 
@@ -97,3 +98,15 @@ fun setFunctioneelGebruiker(httpSession: HttpSession) =
  */
 fun loggedInUserContext(loggedInUser: LoggedInUser) =
     LoggedInUserProvider.asyncContextUser.asContextElement(loggedInUser)
+
+/**
+ * Runs [block] as [loggedInUser], for work that has no user session of its own.
+ */
+fun <T> runAsLoggedInUser(loggedInUser: LoggedInUser, block: () -> T): T {
+    LoggedInUserProvider.asyncContextUser.set(loggedInUser)
+    return try {
+        block()
+    } finally {
+        LoggedInUserProvider.asyncContextUser.remove()
+    }
+}
