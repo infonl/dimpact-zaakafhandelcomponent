@@ -659,7 +659,6 @@ Deze actie maakt het mogelijk om een document met sjablonen in een documentcreat
 1 In een zaak kies je actie *Document maken*
 
 2 Kies de sjabloongroep en daarvan het sjabloon van het te maken document en vul de titel in en als gewenst een beschrijving
-> Is een sjabloongroep- of sjabloonnaam net gewijzigd in SmartDocuments? Ververs dan de pagina om de nieuwe namen direct op te halen.
 
 3 Pas als gewenst de creatiedatum en behandelaar aan
 
