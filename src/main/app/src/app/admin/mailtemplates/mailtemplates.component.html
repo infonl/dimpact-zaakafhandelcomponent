@@ -123,10 +123,10 @@
                       | translate
                         : {
                             zaaktype:
-                              koppeling.zaakafhandelParameters.zaaktype
-                                .omschrijving,
+                              koppeling.zaakafhandelParameters?.zaaktype
+                                ?.omschrijving,
                             versie:
-                              koppeling.zaakafhandelParameters.zaaktype.uuid,
+                              koppeling.zaakafhandelParameters?.zaaktype?.uuid,
                           };
                   <div [title]="koppelingLabel">{{ koppelingLabel }}</div>
                 }
