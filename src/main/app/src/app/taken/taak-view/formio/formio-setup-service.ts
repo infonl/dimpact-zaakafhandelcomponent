@@ -220,7 +220,7 @@ export class FormioSetupService {
     component.data = {
       custom: () =>
         this.formioChangeData?.[component.refreshOn]
-          ? this.queryClient.ensureQueryData(
+          ? this.queryClient.query(
               this.zacQueryClient.GET("/rest/identity/groups/{groupId}/users", {
                 path: { groupId: this.formioChangeData?.[component.refreshOn] },
               }),
@@ -241,7 +241,7 @@ export class FormioSetupService {
     component.template = "{{ item.naam }}";
     component.data = {
       custom: async () => {
-        const data = await this.queryClient.ensureQueryData(
+        const data = await this.queryClient.query(
           this.zacQueryClient.GET(
             "/rest/identity/zaaktype/{zaaktypeDescription}/behandelaar-groups",
             {
@@ -255,7 +255,7 @@ export class FormioSetupService {
   }
 
   private getSmartDocumentTemplates(zaaktypeUuid: string) {
-    return this.queryClient.ensureQueryData(
+    return this.queryClient.query(
       this.smartDocumentsService.getTemplatesMappingQuery(zaaktypeUuid),
     );
   }
@@ -343,7 +343,7 @@ export class FormioSetupService {
     component.template = "{{ item.name }}";
     component.data = {
       custom: async () => {
-        const data = await this.queryClient.ensureQueryData(
+        const data = await this.queryClient.query(
           this.referenceTableService.readReferentieTabelByCode(
             referenceTableCode,
           ),
@@ -616,7 +616,7 @@ export class FormioSetupService {
     informatieobjectUUIDs?: string[],
   ) {
     // The uuids belong in the key, or a filtered fetch collides with the full list of the same zaak.
-    return this.queryClient.fetchQuery({
+    return this.queryClient.query({
       queryKey: [
         "availableDocumentsQuery",
         taak.zaakUuid,
@@ -641,7 +641,7 @@ export class FormioSetupService {
     component.template = "{{ item.naam }}";
     component.data = {
       custom: () =>
-        this.queryClient.ensureQueryData(
+        this.queryClient.query(
           this.zacQueryClient.GET("/rest/zaken/resultaattypes/{zaaktypeUUID}", {
             path: { zaaktypeUUID: taak.zaaktypeUUID! },
           }),
@@ -657,7 +657,7 @@ export class FormioSetupService {
     component.template = "{{ item.naam }}";
     component.data = {
       custom: () =>
-        this.queryClient.ensureQueryData(
+        this.queryClient.query(
           this.zakenService.listStatustypes(taak.zaaktypeUUID!),
         ),
     };

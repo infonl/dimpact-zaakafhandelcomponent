@@ -32,8 +32,8 @@ describe(FormioSetupService.name, () => {
     ].name,
     () => {
       it("should set valueProperty, template and a custom data source for a select component", async () => {
-        const fetchQuerySpy = jest
-          .spyOn(testQueryClient, "fetchQuery")
+        const querySpy = jest
+          .spyOn(testQueryClient, "query")
           .mockResolvedValue([document1, document2]);
 
         const component: ExtendedComponentSchema = { ...documentsFieldset };
@@ -48,7 +48,7 @@ describe(FormioSetupService.name, () => {
           document1,
           document2,
         ]);
-        expect(fetchQuerySpy).toHaveBeenCalledWith(
+        expect(querySpy).toHaveBeenCalledWith(
           expect.objectContaining({
             queryKey: ["availableDocumentsQuery", taak.zaakUuid, undefined],
           }),
@@ -57,7 +57,7 @@ describe(FormioSetupService.name, () => {
 
       it("should not filter out already-signed documents", async () => {
         jest
-          .spyOn(testQueryClient, "fetchQuery")
+          .spyOn(testQueryClient, "query")
           .mockResolvedValue([document1, signedDocument]);
 
         const component: ExtendedComponentSchema = { ...documentsFieldset };

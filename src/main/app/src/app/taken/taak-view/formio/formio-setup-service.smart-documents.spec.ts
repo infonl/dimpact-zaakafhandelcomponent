@@ -35,7 +35,7 @@ describe(FormioSetupService.name, () => {
       ];
 
       it("should set valueProperty and template on the component", async () => {
-        jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
+        jest.spyOn(testQueryClient, "query").mockResolvedValue([]);
 
         const component: ExtendedComponentSchema = {
           ...smartDocumentsTemplateGroupsComponent,
@@ -50,8 +50,8 @@ describe(FormioSetupService.name, () => {
       });
 
       it("should query smartdocuments templates mapping with zaaktype UUID", async () => {
-        const ensureQueryDataSpy = jest
-          .spyOn(testQueryClient, "ensureQueryData")
+        const querySpy = jest
+          .spyOn(testQueryClient, "query")
           .mockResolvedValue([]);
 
         const component: ExtendedComponentSchema = {
@@ -64,16 +64,19 @@ describe(FormioSetupService.name, () => {
 
         await component.data.custom();
 
-        expect(ensureQueryDataSpy).toHaveBeenCalledWith(
+        expect(querySpy).toHaveBeenCalledWith(
           expect.objectContaining({
-            queryKey: ["smartDocumentsTemplatesMapping", "test-zaaktype-uuid"],
+            queryKey: [
+              "/rest/zaakafhandelparameters/{zaakafhandelUUID}/smartdocuments-templates-mapping",
+              { path: { zaakafhandelUUID: "test-zaaktype-uuid" } },
+            ],
           }),
         );
       });
 
       it("should return groups mapped to {id, naam, active} sorted by naam", async () => {
         jest
-          .spyOn(testQueryClient, "ensureQueryData")
+          .spyOn(testQueryClient, "query")
           .mockResolvedValue(mockFlattenedGroups);
 
         const component: ExtendedComponentSchema = {
@@ -118,7 +121,7 @@ describe(FormioSetupService.name, () => {
       ];
 
       it("should set valueProperty and template on the component", async () => {
-        jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
+        jest.spyOn(testQueryClient, "query").mockResolvedValue([]);
 
         const component: ExtendedComponentSchema = {
           ...smartDocumentsTemplateGroupTemplatesComponent,
@@ -134,7 +137,7 @@ describe(FormioSetupService.name, () => {
 
       it("should return templates for the matching group from formioChangeData", async () => {
         jest
-          .spyOn(testQueryClient, "ensureQueryData")
+          .spyOn(testQueryClient, "query")
           .mockResolvedValue(mockFlattenedGroups);
 
         const component: ExtendedComponentSchema = {
@@ -178,7 +181,7 @@ describe(FormioSetupService.name, () => {
           },
         ];
         jest
-          .spyOn(testQueryClient, "ensureQueryData")
+          .spyOn(testQueryClient, "query")
           .mockResolvedValue(flattenedGroupsWithUnsortedTemplates);
 
         const component: ExtendedComponentSchema = {
@@ -203,7 +206,7 @@ describe(FormioSetupService.name, () => {
 
       it("should return empty array when no group matches formioChangeData", async () => {
         jest
-          .spyOn(testQueryClient, "ensureQueryData")
+          .spyOn(testQueryClient, "query")
           .mockResolvedValue(mockFlattenedGroups);
 
         const component: ExtendedComponentSchema = {
@@ -224,7 +227,7 @@ describe(FormioSetupService.name, () => {
       });
 
       it("should return empty array when formioChangeData is not set", async () => {
-        jest.spyOn(testQueryClient, "ensureQueryData").mockResolvedValue([]);
+        jest.spyOn(testQueryClient, "query").mockResolvedValue([]);
 
         const component: ExtendedComponentSchema = {
           ...smartDocumentsTemplateGroupTemplatesComponent,
