@@ -6,6 +6,7 @@
 package nl.info.zac.signalering
 
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.checkUnnecessaryStub
 import io.mockk.every
 import io.mockk.just
@@ -20,6 +21,7 @@ import nl.info.client.zgw.model.createZaak
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.model.createZaakType
 import nl.info.zac.admin.ZaaktypeCmmnConfigurationService
+import nl.info.zac.authentication.LoggedInUserProvider
 import nl.info.zac.admin.model.createZaaktypeCmmnConfiguration
 import nl.info.zac.app.search.model.createZoekResultaatForZaakZoekObjecten
 import nl.info.zac.configuration.ConfigurationService
@@ -108,11 +110,16 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
         every { signaleringService.sendSignalering(zaakVerlopendSignalering) } just runs
         every { signaleringService.createSignaleringVerzonden(zaakVerlopendSignalering) } returns mockk()
         every { flowableTaskService.listOpenTasksDueLater() } returns emptyList()
-        every { searchService.search(any()) } returns zoekResultaat
+        var wasSystemUserDuringCronWork: Boolean? = null
+        every { searchService.search(any()) } answers {
+            wasSystemUserDuringCronWork = LoggedInUserProvider.systemUser.get()
+            zoekResultaat
+        }
         every { signaleringService.deleteSignaleringVerzonden(any()) } returns true
 
         `when`("the send due date email notifications method is called") {
             zaakTaskDueDateEmailNotificationService.sendDueDateEmailNotifications()
+            val wasSystemUserAfterCronWork = LoggedInUserProvider.systemUser.get()
 
             then("one zaak due date email notifications should be sent") {
                 verify(exactly = 1) {
@@ -120,6 +127,11 @@ class ZaakTaskDueDateEmailNotificationServiceTest : BehaviorSpec({
                     signaleringService.createSignaleringVerzonden(zaakVerlopendSignalering)
                     signaleringService.deleteSignaleringVerzonden(any())
                 }
+            }
+
+            and("the cron work runs as the system user, and no longer does once it has finished") {
+                wasSystemUserDuringCronWork shouldBe true
+                wasSystemUserAfterCronWork shouldBe false
             }
         }
     }

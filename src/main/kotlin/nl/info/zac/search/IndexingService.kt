@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import net.atos.zac.flowable.task.FlowableTaskService
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
-import nl.info.zac.authentication.LoggedInUserProvider.Companion.systemUser
+import nl.info.zac.authentication.runAsSystemUser
 import nl.info.zac.search.converter.DocumentZoekObjectConverter
 import nl.info.zac.search.converter.TaakZoekObjectConverter
 import nl.info.zac.search.converter.ZaakZoekObjectConverter
@@ -209,15 +209,15 @@ class IndexingService @Inject constructor(
             return
         }
         try {
-            systemUser.set(true)
-            zaakGedrevenReindexService.reindex(
-                ReindexScope(
-                    includeTaken = ZoekObjectType.TAAK in objectTypes,
-                    includeDocumenten = ZoekObjectType.DOCUMENT in objectTypes
+            runAsSystemUser {
+                zaakGedrevenReindexService.reindex(
+                    ReindexScope(
+                        includeTaken = ZoekObjectType.TAAK in objectTypes,
+                        includeDocumenten = ZoekObjectType.DOCUMENT in objectTypes
+                    )
                 )
-            )
+            }
         } finally {
-            systemUser.remove()
             reserved.forEach(reindexingViewfinder::remove)
         }
     }
@@ -260,8 +260,7 @@ class IndexingService @Inject constructor(
      * [reindexingViewfinder], by either [reindex] or [reindexAsync].
      */
     private fun reindexReserved(objectType: ZoekObjectType) {
-        try {
-            systemUser.set(true)
+        runAsSystemUser {
             LOG.info(reindexSupportService.reindexStartedMessage(objectType))
             val summary = when (objectType) {
                 ZoekObjectType.ZAAK -> reindexSupportService.reindexAllZaken()
@@ -269,8 +268,6 @@ class IndexingService @Inject constructor(
                 ZoekObjectType.TAAK -> reindexSupportService.reindexAllTaken()
             }
             reindexSupportService.finishReindex(objectType, summary)
-        } finally {
-            systemUser.remove()
         }
     }
 

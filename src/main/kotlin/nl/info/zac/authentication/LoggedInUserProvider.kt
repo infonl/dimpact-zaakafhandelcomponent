@@ -13,6 +13,8 @@ import nl.info.zac.authentication.LoggedInUserProvider.Companion.FUNCTIONEEL_GEB
 import nl.info.zac.authentication.LoggedInUserProvider.Companion.LOGGED_IN_USER_SESSION_ATTRIBUTE
 import java.io.Serial
 import java.io.Serializable
+import java.util.concurrent.ConcurrentHashMap
+import java.util.logging.Logger
 
 class LoggedInUserProvider @Inject constructor(
     @ActiveSession
@@ -21,6 +23,15 @@ class LoggedInUserProvider @Inject constructor(
     companion object {
         @Serial
         private const val serialVersionUID = 654714651976511004L
+
+        private val LOG = Logger.getLogger(LoggedInUserProvider::class.java.name)
+
+        private const val MAX_LOGGED_FALLBACK_ORIGINS = 100
+        private const val FALLBACK_ORIGIN_FRAMES = 3L
+        private val ZAC_PACKAGES = listOf("nl.info.", "net.atos.")
+
+        /** Origins already reported, so a recurring fallback is logged once instead of on every call. */
+        internal val loggedFallbackOrigins: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
         /**
          * Constant which indicates in which [HttpSession] attribute the current authenticated [LoggedInUser] can be found.
@@ -60,6 +71,9 @@ class LoggedInUserProvider @Inject constructor(
      * [asyncContextUser] takes precedence over the session, so background work stays attributed to the user
      * that started it even when it runs inside a request whose session is not its own.
      *
+     * Work that no user session owns should say so, through [runAsSystemUser] or [runAsLoggedInUser].
+     * Where it does not, this falls back to the [FUNCTIONEEL_GEBRUIKER] and reports where that happened.
+     *
      * @return the currently logged-in user, or [FUNCTIONEEL_GEBRUIKER] when no user is in scope
      */
     @Produces
@@ -70,8 +84,30 @@ class LoggedInUserProvider @Inject constructor(
             // an explicitly named user wins over the session, which for background work is not its own
             asyncContextUser.get()
                 ?: httpSession.get()?.let { getLoggedInUser(it) }
-                ?: FUNCTIONEEL_GEBRUIKER // no user in scope
+                ?: fallBackToFunctioneelGebruiker()
         }
+
+    private fun fallBackToFunctioneelGebruiker(): LoggedInUser {
+        val origin = fallbackOrigin()
+        if (loggedFallbackOrigins.add(origin) && loggedFallbackOrigins.size <= MAX_LOGGED_FALLBACK_ORIGINS) {
+            LOG.warning { "No logged-in user in scope, using the functionele gebruiker. Called from: $origin" }
+        }
+        return FUNCTIONEEL_GEBRUIKER
+    }
+
+    /**
+     * Names the ZAC code that asked for the user. The nearest frames are CDI machinery producing this
+     * bean, which say nothing about the path that needs fixing.
+     */
+    private fun fallbackOrigin(): String =
+        StackWalker.getInstance().walk { frames ->
+            frames
+                .filter { it.className != LoggedInUserProvider::class.java.name }
+                .map { "${it.className}.${it.methodName}" }
+                .filter { ZAC_PACKAGES.any(it::startsWith) }
+                .limit(FALLBACK_ORIGIN_FRAMES)
+                .toList()
+        }.joinToString(" <- ").ifEmpty { "outside ZAC code" }
 }
 
 /**
@@ -110,3 +146,23 @@ fun <T> runAsLoggedInUser(loggedInUser: LoggedInUser, block: () -> T): T {
         LoggedInUserProvider.asyncContextUser.remove()
     }
 }
+
+/**
+ * Runs [block] as the system user, for work that no user session owns.
+ */
+fun <T> runAsSystemUser(block: () -> T): T {
+    val wasSystemUser = LoggedInUserProvider.systemUser.get()
+    LoggedInUserProvider.systemUser.set(true)
+    return try {
+        block()
+    } finally {
+        if (wasSystemUser) LoggedInUserProvider.systemUser.set(true) else LoggedInUserProvider.systemUser.remove()
+    }
+}
+
+/**
+ * Carries the current system user state into a coroutine, which does not inherit the thread it was
+ * started from.
+ */
+fun systemUserContext() =
+    LoggedInUserProvider.systemUser.asContextElement(LoggedInUserProvider.systemUser.get())
