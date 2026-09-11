@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "zaakafhandelcomponent.labels" . | nindent 4 }}
 data:
-  _JAVA_OPTIONS: {{ .Values.javaOptions | default "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" | quote }}
+  _JAVA_OPTIONS: {{ .Values.javaOptions | default (include "zaakafhandelcomponent.defaultJavaOptions" .) | quote }}
   AUTH_ENABLE_PKCE: {{ .Values.auth.enablePkce | default false | quote }}
   AUTH_REALM: {{ required "Valid .Values.auth.realm entry required!" .Values.auth.realm }}
   AUTH_RESOURCE: {{ required "Valid .Values.auth.clientId entry required!" .Values.auth.clientId }}

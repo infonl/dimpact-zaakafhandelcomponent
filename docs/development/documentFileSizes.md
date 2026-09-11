@@ -49,12 +49,22 @@ below allow it too.
 
 - `maxFileSizeMB`: 500 by default.
 - `maxInMemoryFileSizeMB`: leave at 80 unless preview, mail and WebDAV editing have to support larger
-  documents too. It needs roughly three times its value in heap, and may claim at most half the heap,
-  so with the default `-Xmx1024m` the ceiling is 170. Raise `javaOptions` to go beyond that.
+  documents too. It needs roughly three times its value in heap, and may claim at most half the heap.
+- `resources.limits.memory`: the heap is not pinned with `-Xmx`. The JVM sizes it from the memory
+  limit of its cgroup through `-XX:MaxRAMPercentage`, which the default `javaOptions` set to 75%. The
+  default 1Gi limit therefore gives a 768 MB heap, which puts the ceiling for `maxInMemoryFileSizeMB`
+  at 128. Raise the limit rather than the JVM option to go beyond that; an explicit `-Xmx` still wins
+  if a deployment has a reason to pin the heap, and the chart honours it when checking the limits.
 - `tmpVolumeSize` and `resources.requests.ephemeral-storage` / `resources.limits.ephemeral-storage`:
   WildFly buffers every request body to a temporary file under `/tmp` and ZAC streams the document
   from it, so these have to hold `maxFileSizeMB` for every concurrent transfer. The default of 4Gi
   covers roughly eight 500MB transfers at once.
+
+  That 4Gi is a request, so it is also a scheduling requirement: a worker node without that much free
+  ephemeral storage, or a namespace whose quota does not allow it, will not schedule the ZAC pod even
+  with the default values file. Lower `tmpVolumeSize` and both ephemeral-storage values together when
+  an environment cannot spare it. The cost is fewer concurrent transfers, not a lower maximum document
+  size: a single transfer only needs `maxFileSizeMB` plus multipart overhead.
 - `dev.resteasy.entity.file.threshold` in `configure-wildfly.cli` caps the size of that temporary
   file, and therefore has to stay above `maxFileSizeMB` plus multipart overhead. It is 768MB, which
   leaves room for a 500MB document. Raising `maxFileSizeMB` beyond that means raising this too, which
@@ -71,6 +81,11 @@ nginx.ingress.kubernetes.io/proxy-body-size: 600m
 nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"
 nginx.ingress.kubernetes.io/proxy-send-timeout: "1800"
 ```
+
+`ingress.annotations` only reaches an ingress that this chart creates. A deployment that configures
+its ingress at the umbrella chart instead of per sub chart, which is how PodiumD does it, has to
+apply the same annotations there. That makes it a change the party that owns the umbrella chart has
+to make, not one a ZAC release can carry.
 
 ### Open Zaak
 

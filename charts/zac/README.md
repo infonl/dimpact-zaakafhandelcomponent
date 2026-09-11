@@ -95,7 +95,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | image.repository | string | `"ghcr.io/infonl/zaakafhandelcomponent"` |  |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | specifies image pull secrets |
-| ingress.annotations | object | `{}` | An ingress in front of ZAC has to allow at least `maxFileSizeMB` plus multipart overhead and needs timeouts long enough to up- or download a document of that size over a slow connection. For the nginx ingress controller that means, next to any annotations of your own:   nginx.ingress.kubernetes.io/proxy-body-size: 600m   nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"   nginx.ingress.kubernetes.io/proxy-send-timeout: "1800" |
+| ingress.annotations | object | `{}` | An ingress in front of ZAC has to allow at least `maxFileSizeMB` plus multipart overhead and needs timeouts long enough to up- or download a document of that size over a slow connection. For the nginx ingress controller that means, next to any annotations of your own:   nginx.ingress.kubernetes.io/proxy-body-size: 600m   nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"   nginx.ingress.kubernetes.io/proxy-send-timeout: "1800" A deployment that configures its ingress at the umbrella chart rather than per sub chart, as PodiumD does, has to apply the same annotations there instead; this sub chart never sees them. |
 | ingress.className | string | `""` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts[0].host | string | `"chart-example.local"` |  |
@@ -106,7 +106,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | initContainer.resources.requests.cpu | string | `"50m"` |  |
 | initContainer.resources.requests.memory | string | `"256Mi"` |  |
 | initContainer.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | Security context for the curl-based init containers (read-only root filesystem is safe here) |
-| javaOptions | string | `""` | JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime" |
+| javaOptions | string | `""` | JVM startup options. Defaults to "-XX:MaxRAMPercentage=75.0 -Xlog:gc::time,uptime", which leaves the heap to be sized from `resources.limits.memory` by the JVM itself. Prefer changing that limit over pinning the heap here with `-Xmx`. |
 | keycloak.adminClient.id | string | `""` | Keycloak ZAC admin client name |
 | keycloak.adminClient.secret | string | `""` | Keycloak ZAC admin client secret |
 | klantinteractiesApi.token | string | `""` |  |
@@ -120,7 +120,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | mail.smtp.server | string | `""` | SMTP server host (for example, localhost or in-v3.mailjet.com). Required |
 | mail.smtp.username | string | `""` | SMTP server username if authentication is required. Optional |
 | maxFileSizeMB | int | `500` | Maximum size (in Mega Bytes) of documents that can be uploaded and downloaded. Uploads and downloads are streamed, so this value is bound by the temporary disk space available to ZAC rather than by the heap. See `resources.limits.ephemeral-storage` and the nginx and ingress body size settings, which all have to allow at least this much. Values above 2047 are rejected, because the documents registry expresses the size of a document as a 32 bit integer number of bytes. In practice the ceiling is around 768, the temporary file size WildFly allows through `dev.resteasy.entity.file.threshold`, which is part of the ZAC image and not of this chart. See `docs/development/documentFileSizes.md`. |
-| maxInMemoryFileSizeMB | int | `80` | Maximum size (in Mega Bytes) of documents for operations that cannot stream and therefore hold the whole document in memory: converting to PDF for preview, sending as a mail attachment and editing through WebDAV. Larger documents can still be uploaded and downloaded. ZAC refuses to start when this value does not fit in the heap configured through `javaOptions`; it needs roughly three times this value, and may use at most half of the heap for it. With the default 1024m heap the ceiling is 170. |
+| maxInMemoryFileSizeMB | int | `80` | Maximum size (in Mega Bytes) of documents for operations that cannot stream and therefore hold the whole document in memory: converting to PDF for preview, sending as a mail attachment and editing through WebDAV. Larger documents can still be uploaded and downloaded. ZAC refuses to start when this value does not fit in the heap; it needs roughly three times this value, and may use at most half of the heap for it. The heap is 75% of `resources.limits.memory`, so with the default 1Gi limit the heap is 768 MB and the ceiling for this value is 128. Raise `resources.limits.memory` to go beyond that. |
 | nameOverride | string | `""` | name to use |
 | nginx.allowedHosts | string | `""` |  |
 | nginx.api_proxy.bag.apikey_header_name | string | `"apikey"` |  |
@@ -284,6 +284,8 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | productaanvraag.claimTimeoutMinutes | int | `10` | Number of minutes after which a productaanvraag claim that was never completed (for example because ZAC was restarted) may be picked up again by a redelivered notification. |
 | remoteDebug | bool | `false` | Enable Java remote debugging |
 | replicaCount | int | `1` | The number of replicas to run |
+| resources.limits.ephemeral-storage | string | `"4Gi"` |  |
+| resources.limits.memory | string | `"1Gi"` | The JVM sizes its heap from this limit, so this is how the heap available to ZAC is set. With the default `-XX:MaxRAMPercentage=75.0` a 1Gi limit gives a 768 MB heap, which leaves room for a `maxInMemoryFileSizeMB` of up to 128. The chart refuses to render without this limit, because it cannot otherwise tell whether the configured file size limits fit. |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.ephemeral-storage | string | `"4Gi"` |  |
 | resources.requests.memory | string | `"1Gi"` |  |
@@ -377,7 +379,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.zookeeper-operator.zookeeper.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"technology":"zookeeper"}},"matchLabelKeys":["controller-revision-hash"],"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}]` | topologySpreadConstraints for zookeeper |
 | solr.createZacCore | bool | `true` | enable createZacCore to add an initContainer to the ZAC deployment that checks for and creates the zac Solr core during startup (works for both external and operator-managed Solr) |
 | solr.url | string | `""` | The location of an existing solr instance (unmanaged by this chart) to be used by zac |
-| tmpVolumeSize | string | `"4Gi"` | Size of the emptyDir mounted at /tmp. WildFly buffers every request body to a temporary file there and ZAC streams the uploaded document from it, so this has to hold `maxFileSizeMB` for every concurrent upload. Keep `resources.requests.ephemeral-storage` and `resources.limits.ephemeral-storage` in step with it. |
+| tmpVolumeSize | string | `"4Gi"` | Size of the emptyDir mounted at /tmp. WildFly buffers every request body to a temporary file there and ZAC streams the uploaded document from it, so this has to hold `maxFileSizeMB` for every concurrent upload. Keep `resources.requests.ephemeral-storage` and `resources.limits.ephemeral-storage` in step with it. Note that the matching 4Gi ephemeral-storage request is a scheduling requirement: a node without that much free ephemeral storage, or a namespace whose quota does not allow it, will not schedule the pod. Lower all three together when the environment cannot spare it; the cost is fewer concurrent transfers of `maxFileSizeMB`, not a lower maximum document size. |
 | tolerations | list | `[]` | set toleration parameters |
 | topologySpreadConstraints | list | `[{"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"ScheduleAnyway"}]` | set topologySpreadConstraints parameters. Note: labelSelector is automatically set by the template to match the deployment's labels |
 | zacInternalEndpointsApiKey | string | `""` | API key for authentication of internal ZAC endpoints |
