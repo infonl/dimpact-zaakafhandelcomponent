@@ -14,6 +14,7 @@ import nl.info.zac.util.NoArgConstructor
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput
 import java.io.ByteArrayInputStream
+import java.io.InputStream
 
 @ApplicationScoped
 @NoArgConstructor
@@ -26,7 +27,11 @@ class OfficeConverterClientService @Inject constructor(
         private const val PDFUA_ENABLED = "true"
     }
 
-    fun convertToPDF(document: ByteArrayInputStream, filename: String): ByteArrayInputStream {
+    /**
+     * The converted PDF is buffered in memory, so callers first check the document against the
+     * maximum in-memory file size.
+     */
+    fun convertToPDF(document: InputStream, filename: String): ByteArrayInputStream {
         val multipartFormDataOutput = MultipartFormDataOutput().apply {
             addFormData("files", document, APPLICATION_OCTET_STREAM_TYPE, filename)
             addFormData("pdfa", PDFA_FORMAT, TEXT_PLAIN_TYPE)

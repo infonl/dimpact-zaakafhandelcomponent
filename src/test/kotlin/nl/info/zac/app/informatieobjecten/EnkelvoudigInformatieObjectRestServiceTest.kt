@@ -19,6 +19,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.enterprise.inject.Instance
+import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.StreamingOutput
 import net.atos.zac.event.EventingService
 import net.atos.zac.websocket.event.ScreenEvent
@@ -55,6 +56,10 @@ import nl.info.zac.app.informatieobjecten.model.createRestDocumentVerzendGegeven
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.createRestEnkelvoudigInformatieobject
 import nl.info.zac.app.informatieobjecten.model.createRestFileUpload
+import nl.info.zac.configuration.FileSizeConfiguration
+import nl.info.zac.document.content.DocumentContentReader
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjectZoekParameters
 import nl.info.zac.app.informatieobjecten.model.createRestInformatieobjecttype
 import nl.info.zac.app.zaak.model.RelatieType
@@ -76,6 +81,7 @@ import nl.info.zac.policy.output.createZaakRechtenAllDeny
 import nl.info.zac.search.model.DocumentIndicatie
 import nl.info.zac.webdav.WebdavHelper
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.net.URI
 import java.time.LocalDate
@@ -117,7 +123,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         policyService = policyService,
         enkelvoudigInformatieObjectDownloadService = enkelvoudigInformatieObjectDownloadService,
         enkelvoudigInformatieObjectUpdateService = enkelvoudigInformatieObjectUpdateService,
-        enkelvoudigInformatieObjectConvertService = enkelvoudigInformatieObjectConvertService
+        enkelvoudigInformatieObjectConvertService = enkelvoudigInformatieObjectConvertService,
+        documentContentReader = DocumentContentReader(
+            FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L)
+        )
     )
 
     isolationMode = IsolationMode.InstancePerTest
@@ -141,8 +150,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns responseRestEnkelvoudigInformatieobject
         every {
             enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                zaak,
-                enkelvoudigInformatieObjectData
+                zaak = zaak,
+                enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                taskId = null,
+                content = any()
             )
         } returns zaakInformatieobject
         every { loggedInUserInstance.get() } returns loggedInUser
@@ -166,8 +177,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                        zaak,
-                        enkelvoudigInformatieObjectData
+                        zaak = zaak,
+                        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                        taskId = null,
+                        content = any()
                     )
                 }
             }
@@ -181,8 +194,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             )
             every {
                 enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                    zaak,
-                    enkelvoudigInformatieObjectData
+                    zaak = zaak,
+                    enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                    taskId = null,
+                    content = any()
                 )
             } throws RuntimeException("fake exception")
 
@@ -198,8 +213,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             then("the enkelvoudig informatieobject is not added to the zaak but is removed from the HTTP session") {
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                        zaak,
-                        enkelvoudigInformatieObjectData
+                        zaak = zaak,
+                        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                        taskId = null,
+                        content = any()
                     )
                 }
             }
@@ -209,7 +226,7 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
             every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
                 toevoegenDocument = true
             )
-            restEnkelvoudigInformatieobject.file = restFileUpload.file
+            restEnkelvoudigInformatieobject.file = restFileUpload.file!!.inputStream()
             restEnkelvoudigInformatieobject.formaat = restFileUpload.type
 
             val returnedRESTEnkelvoudigInformatieobject =
@@ -224,8 +241,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                        zaak,
-                        enkelvoudigInformatieObjectData
+                        zaak = zaak,
+                        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                        taskId = null,
+                        content = any()
                     )
                 }
             }
@@ -249,6 +268,43 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 
+    given("a document to be added to an open zaak, submitted without a file") {
+        val zaak = createZaak()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject(file = null)
+        val loggedInUser = createLoggedInUser()
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every { loggedInUserInstance.get() } returns loggedInUser
+        every { policyService.readZaakRechten(zaak, loggedInUser) } returns createZaakRechtenAllDeny(
+            toevoegenDocument = true
+        )
+        every {
+            restInformatieobjectConverter.convertEnkelvoudigInformatieObject(restEnkelvoudigInformatieobject)
+        } returns createEnkelvoudigInformatieObjectCreateLockRequest()
+
+        `when`("the document is added") {
+            val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                enkelvoudigInformatieObjectRestService.createEnkelvoudigInformatieobjectAndUploadFile(
+                    zaak.uuid,
+                    "fakeDocumentReferentieId",
+                    false,
+                    restEnkelvoudigInformatieobject
+                )
+            }
+
+            then("the upload is refused as invalid and no document is created") {
+                inputValidationFailedException.errorCode shouldBe ERROR_CODE_DOCUMENT_UPLOAD_INVALID
+                verify(exactly = 0) {
+                    enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                        zaak = any(),
+                        enkelvoudigInformatieObjectCreateLockRequest = any(),
+                        taskId = any(),
+                        content = any()
+                    )
+                }
+            }
+        }
+    }
+
     given("an enkelvoudig informatieobject has been uploaded, and the zaak is closed") {
         val closedZaak = createZaak(
             archiefnominatie = ArchiefnominatieEnum.VERNIETIGEN
@@ -267,8 +323,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns enkelvoudigInformatieObjectData
         every {
             enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                closedZaak,
-                enkelvoudigInformatieObjectData
+                zaak = closedZaak,
+                enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                taskId = null,
+                content = any()
             )
         } returns zaakInformatieobject
         every {
@@ -295,8 +353,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
                 returnedRESTEnkelvoudigInformatieobject shouldBe responseRestEnkelvoudigInformatieobject
                 verify(exactly = 1) {
                     enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-                        closedZaak,
-                        enkelvoudigInformatieObjectData
+                        zaak = closedZaak,
+                        enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectData,
+                        taskId = null,
+                        content = any()
                     )
                 }
             }
@@ -307,12 +367,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val zaak = createZaak()
         val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
         val enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockRequest()
-        val restEnkelvoudigInformatieObjectVersieGegevens =
-            createRestEnkelvoudigInformatieObjectVersieGegevens(zaakUuid = zaak.uuid)
+        val restEnkelvoudigInformatieObjectVersieGegevens = createRestEnkelvoudigInformatieObjectVersieGegevens()
         val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val enkelvoudigInformatieObjectUuid = enkelvoudigInformatieObject.url.extractUuid()
 
         every {
-            drcClientService.readEnkelvoudigInformatieobject(restEnkelvoudigInformatieObjectVersieGegevens.uuid!!)
+            drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUuid)
         } returns enkelvoudigInformatieObject
         every { zrcClientService.readZaak(zaak.uuid) } returns zaak
         every {
@@ -320,9 +380,10 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         } returns enkelvoudigInformatieObjectWithLockData
         every {
             enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                enkelvoudigInformatieObject.url.extractUuid(),
-                enkelvoudigInformatieObjectWithLockData,
-                null
+                enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObject.url.extractUuid(),
+                enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockData,
+                toelichting = null,
+                content = any()
             )
         } returns enkelvoudigInformatieObject
         every {
@@ -336,19 +397,20 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             val returnedRESTEnkelvoudigInformatieobject =
                 enkelvoudigInformatieObjectRestService.updateEnkelvoudigInformatieobjectAndUploadFile(
-                    restEnkelvoudigInformatieObjectVersieGegevens
+                    uuid = enkelvoudigInformatieObjectUuid,
+                    zaakUuid = zaak.uuid,
+                    enkelvoudigInformatieObjectVersieGegevens = restEnkelvoudigInformatieObjectVersieGegevens
                 )
 
             then("the changes are stored in the backing services") {
                 returnedRESTEnkelvoudigInformatieobject shouldBe restEnkelvoudigInformatieobject
                 verify(exactly = 1) {
-                    drcClientService.readEnkelvoudigInformatieobject(
-                        restEnkelvoudigInformatieObjectVersieGegevens.uuid!!
-                    )
+                    drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUuid)
                     enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                        enkelvoudigInformatieObject.url.extractUuid(),
-                        enkelvoudigInformatieObjectWithLockData,
-                        null
+                        enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObjectUuid,
+                        enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockData,
+                        toelichting = null,
+                        content = any()
                     )
                 }
             }
@@ -361,12 +423,68 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
 
             val exception = shouldThrow<PolicyException> {
                 enkelvoudigInformatieObjectRestService.updateEnkelvoudigInformatieobjectAndUploadFile(
-                    restEnkelvoudigInformatieObjectVersieGegevens
+                    uuid = enkelvoudigInformatieObjectUuid,
+                    zaakUuid = zaak.uuid,
+                    enkelvoudigInformatieObjectVersieGegevens = restEnkelvoudigInformatieObjectVersieGegevens
                 )
             }
 
             then("it throws exception with no message") {
                 exception.message shouldBe null
+            }
+        }
+    }
+
+    given("an enkelvoudig informatieobject in an open zaak, and a new version that changes only its metadata") {
+        val zaak = createZaak()
+        val restEnkelvoudigInformatieobject = createRestEnkelvoudigInformatieobject()
+        val enkelvoudigInformatieObjectWithLockData = createEnkelvoudigInformatieObjectWithLockRequest()
+        val restEnkelvoudigInformatieObjectVersieGegevens = createRestEnkelvoudigInformatieObjectVersieGegevens(
+            file = null
+        ).apply { toelichting = "fakeToelichting" }
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val enkelvoudigInformatieObjectUuid = enkelvoudigInformatieObject.url.extractUuid()
+
+        every {
+            drcClientService.readEnkelvoudigInformatieobject(enkelvoudigInformatieObjectUuid)
+        } returns enkelvoudigInformatieObject
+        every { zrcClientService.readZaak(zaak.uuid) } returns zaak
+        every {
+            policyService.readDocumentRechten(enkelvoudigInformatieObject, zaak)
+        } returns createDocumentRechtenAllDeny(toevoegenNieuweVersie = true)
+        every {
+            restInformatieobjectConverter.convert(restEnkelvoudigInformatieObjectVersieGegevens)
+        } returns enkelvoudigInformatieObjectWithLockData
+        every {
+            enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObjectUuid,
+                enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockData,
+                toelichting = "fakeToelichting",
+                content = null
+            )
+        } returns enkelvoudigInformatieObject
+        every {
+            restInformatieobjectConverter.convertToREST(enkelvoudigInformatieObject)
+        } returns restEnkelvoudigInformatieobject
+
+        `when`("the new version is submitted") {
+            val returnedRestEnkelvoudigInformatieobject =
+                enkelvoudigInformatieObjectRestService.updateEnkelvoudigInformatieobjectAndUploadFile(
+                    uuid = enkelvoudigInformatieObjectUuid,
+                    zaakUuid = zaak.uuid,
+                    enkelvoudigInformatieObjectVersieGegevens = restEnkelvoudigInformatieObjectVersieGegevens
+                )
+
+            then("the metadata is stored without any document content") {
+                returnedRestEnkelvoudigInformatieobject shouldBe restEnkelvoudigInformatieobject
+                verify(exactly = 1) {
+                    enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                        enkelvoudigInformatieObjectUUID = enkelvoudigInformatieObjectUuid,
+                        enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockData,
+                        toelichting = "fakeToelichting",
+                        content = null
+                    )
+                }
             }
         }
     }
@@ -746,12 +864,12 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         `when`("readFile is called") {
             val response = enkelvoudigInformatieObjectRestService.readFile(uuid)
 
-            then("it should return the document content as a response") {
+            then("the document content is streamed to the client") {
                 with(response) {
                     status shouldBe 200
                     headers["Content-Disposition"]!!.first() shouldBe
                         """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
-                    entity shouldBe byteArrayInputStream
+                    writeStreamingOutput(entity) shouldBe byteArrayOf(1, 2, 3)
                 }
             }
         }
@@ -844,14 +962,13 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null).downloaden } returns true
         every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } throws IOException("Failed to retrieve content")
 
-        `when`("readFile is called") {
-            val exception = shouldThrow<RuntimeException> {
-                enkelvoudigInformatieObjectRestService.readFile(uuid)
+        `when`("the response of readFile is written") {
+            val ioException = shouldThrow<IOException> {
+                writeStreamingOutput(enkelvoudigInformatieObjectRestService.readFile(uuid).entity)
             }
 
-            then("it should throw a exception") {
-                exception.cause.shouldBeInstanceOf<IOException>()
-                exception.cause?.message shouldBe "Failed to retrieve content"
+            then("the failure surfaces while streaming") {
+                ioException.message shouldBe "Failed to retrieve content"
             }
         }
     }
@@ -1215,9 +1332,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val uuid = UUID.randomUUID()
         val version = 2
         val byteArrayInputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
-        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            bestandsnaam = "fakeCurrentVersionFileName",
+            bestandsomvang = 9999
+        )
+        val requestedVersion = createEnkelvoudigInformatieObject(
+            bestandsnaam = "fakeRequestedVersionFileName",
+            bestandsomvang = 3
+        )
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, version) } returns requestedVersion
         every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null).downloaden } returns true
         every { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) } returns byteArrayInputStream
@@ -1225,11 +1350,15 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         `when`("readFileWithVersion is called") {
             val response = enkelvoudigInformatieObjectRestService.readFileWithVersion(uuid, version)
 
-            then("the specific version is downloaded and returned") {
+            then("the specific version is streamed to the client") {
                 response.status shouldBe 200
+                writeStreamingOutput(response.entity) shouldBe byteArrayOf(1, 2, 3)
+            }
+
+            and("the response is described by that version and not by the current one") {
                 response.headers["Content-Disposition"]!!.first() shouldBe
-                    """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
-                response.entity shouldBe byteArrayInputStream
+                    """attachment; filename="fakeRequestedVersionFileName""""
+                response.headers[HttpHeaders.CONTENT_LENGTH]!!.first() shouldBe 3
             }
         }
     }
@@ -1238,9 +1367,18 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         val uuid = UUID.randomUUID()
         val version = 3
         val byteArrayInputStream = ByteArrayInputStream(byteArrayOf(1, 2, 3))
-        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject()
+        val enkelvoudigInformatieObject = createEnkelvoudigInformatieObject(
+            bestandsnaam = "fakeCurrentVersionFileName",
+            bestandsomvang = 9999
+        )
+        val requestedVersion = createEnkelvoudigInformatieObject(
+            bestandsnaam = "fakeRequestedVersionFileName",
+            formaat = "fakeRequestedVersionFormaat",
+            bestandsomvang = 3
+        )
 
         every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
+        every { drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, version) } returns requestedVersion
         every { zrcClientService.listZaakinformatieobjecten(enkelvoudigInformatieObject) } returns emptyList()
         every { policyService.readDocumentRechten(enkelvoudigInformatieObject, null) } returns createDocumentRechten()
         every { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) } returns byteArrayInputStream
@@ -1248,12 +1386,17 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         `when`("preview is called with a version") {
             val response = enkelvoudigInformatieObjectRestService.preview(uuid, version)
 
-            then("the specific version is returned inline") {
+            then("the specific version is streamed inline") {
                 response.status shouldBe 200
-                response.headers["Content-Disposition"]!!.first() shouldBe
-                    """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
-                response.headers["Content-Type"]!!.first() shouldBe enkelvoudigInformatieObject.formaat
+                writeStreamingOutput(response.entity) shouldBe byteArrayOf(1, 2, 3)
                 verify(exactly = 1) { drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version) }
+            }
+
+            and("the response is described by that version and not by the current one") {
+                response.headers["Content-Disposition"]!!.first() shouldBe
+                    """inline; filename="fakeRequestedVersionFileName""""
+                response.headers["Content-Type"]!!.first() shouldBe "fakeRequestedVersionFormaat"
+                response.headers[HttpHeaders.CONTENT_LENGTH]!!.first() shouldBe 3
             }
         }
     }
@@ -1271,8 +1414,9 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         `when`("preview is called without a version") {
             val response = enkelvoudigInformatieObjectRestService.preview(uuid, null)
 
-            then("the current version is returned inline") {
+            then("the current version is streamed inline") {
                 response.status shouldBe 200
+                writeStreamingOutput(response.entity) shouldBe byteArrayOf(1, 2, 3)
                 verify(exactly = 0) { drcClientService.downloadEnkelvoudigInformatieobjectVersie(any(), any()) }
             }
         }
@@ -1823,3 +1967,6 @@ class EnkelvoudigInformatieObjectRestServiceTest : BehaviorSpec({
         }
     }
 })
+
+private fun writeStreamingOutput(entity: Any?) =
+    ByteArrayOutputStream().also { (entity as StreamingOutput).write(it) }.toByteArray()

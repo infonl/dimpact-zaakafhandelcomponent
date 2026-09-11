@@ -19,6 +19,7 @@ import nl.info.zac.app.configuration.model.toRestTaal
 import nl.info.zac.app.configuration.model.toRestTalen
 import nl.info.zac.configuration.AllowedFileType
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.util.AllOpen
 import nl.info.zac.util.NoArgConstructor
 
@@ -32,7 +33,8 @@ import nl.info.zac.util.NoArgConstructor
 @AllOpen
 @NoArgConstructor
 class ConfigurationRestService @Inject constructor(
-    private val configurationService: ConfigurationService
+    private val configurationService: ConfigurationService,
+    private val fileSizeConfiguration: FileSizeConfiguration
 ) {
     @GET
     @Path("talen")
@@ -44,7 +46,11 @@ class ConfigurationRestService @Inject constructor(
 
     @GET
     @Path("max-file-size-mb")
-    fun readMaxFileSizeMB(): Long = configurationService.readMaxFileSizeMB()
+    fun readMaxFileSizeMB(): Long = fileSizeConfiguration.maxFileSizeMB
+
+    @GET
+    @Path("max-in-memory-file-size-mb")
+    fun readMaxInMemoryFileSizeMB(): Long = fileSizeConfiguration.maxInMemoryFileSizeMB
 
     @GET
     @Path("file-types")

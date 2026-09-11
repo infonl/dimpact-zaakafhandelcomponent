@@ -16,6 +16,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.slot
 import io.mockk.verify
+import jakarta.json.JsonObject
 import jakarta.ws.rs.core.Response
 import nl.info.client.zgw.drc.exception.DrcRuntimeException
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
@@ -24,7 +25,20 @@ import nl.info.client.zgw.drc.model.createLockEnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.LockEnkelvoudigInformatieObject
 import nl.info.client.zgw.util.ZgwClientHeadersFactory
 import nl.info.zac.configuration.ConfigurationService
+import io.kotest.matchers.string.shouldContain
+import nl.info.client.zgw.drc.model.createBestandsDeel
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObjectCreateLockSub
+import nl.info.client.zgw.drc.model.generated.BestandsDeel
+import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
+import nl.info.client.zgw.util.extractUuid
+import nl.info.zac.document.content.InMemoryDocumentContent
+import nl.info.zac.document.content.TemporaryFileDocumentContent
+import java.net.URI
+import java.nio.file.Files
+import java.util.Base64
 import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.util.UUID
 
 class DrcClientServiceTest : BehaviorSpec({
@@ -124,30 +138,325 @@ class DrcClientServiceTest : BehaviorSpec({
     given("An EnkelvoudigInformatieobject UUID for download") {
         val uuid = UUID.randomUUID()
 
-        `when`("the entity can be buffered and downloadEnkelvoudigInformatieobject is called") {
-            then("it should return the content stream") {
-                val content = ByteArrayInputStream("fakeContent".toByteArray())
-                val response = mockk<Response>()
-                every { response.bufferEntity() } returns true
-                every { response.entity } returns content
-                every { drcClient.enkelvoudigInformatieobjectDownload(uuid) } returns response
+        `when`("downloadEnkelvoudigInformatieobject is called") {
+            val content = ByteArrayInputStream("fakeContent".toByteArray())
+            val response = mockk<Response>()
+            every { response.readEntity(InputStream::class.java) } returns content
+            every { response.close() } just runs
+            every { drcClient.enkelvoudigInformatieobjectDownload(uuid) } returns response
 
-                val result = drcClientService.downloadEnkelvoudigInformatieobject(uuid)
+            val result = drcClientService.downloadEnkelvoudigInformatieobject(uuid)
 
-                result shouldBe content
+            then(
+                "it returns the content stream without buffering it in memory first, and releases the " +
+                    "response only once the caller closes that stream"
+            ) {
+                result.readBytes() shouldBe "fakeContent".toByteArray()
+                verify(exactly = 0) { response.bufferEntity() }
+                verify(exactly = 0) { response.close() }
+
+                result.close()
+
+                verify(exactly = 1) { response.close() }
             }
         }
 
-        `when`("the entity cannot be buffered and downloadEnkelvoudigInformatieobject is called") {
-            then("it should throw a DrcRuntimeException") {
-                val response = mockk<Response>()
-                every { response.bufferEntity() } returns false
-                every { drcClient.enkelvoudigInformatieobjectDownload(uuid) } returns response
+        `when`("the response has no entity and downloadEnkelvoudigInformatieobject is called") {
+            val response = mockk<Response>()
+            every { response.readEntity(InputStream::class.java) } returns null
+            every { response.close() } just runs
+            every { drcClient.enkelvoudigInformatieobjectDownload(uuid) } returns response
 
-                shouldThrow<DrcRuntimeException> {
-                    drcClientService.downloadEnkelvoudigInformatieobject(uuid)
+            val drcRuntimeException = shouldThrow<DrcRuntimeException> {
+                drcClientService.downloadEnkelvoudigInformatieobject(uuid)
+            }
+
+            then(
+                "it should throw a DrcRuntimeException and release the response, because no stream reaches " +
+                    "the caller that could release it"
+            ) {
+                drcRuntimeException.message shouldBe
+                    "Content of enkelvoudig informatieobject with uuid '$uuid' could not be read."
+                verify(exactly = 1) { response.close() }
+            }
+        }
+    }
+    given("A document that fits in memory") {
+        val content = InMemoryDocumentContent("fakeContent".toByteArray())
+        val createRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
+        val createdDocument = createEnkelvoudigInformatieObject()
+        val requestSlot = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
+
+        every { drcClient.enkelvoudigInformatieobjectCreate(capture(requestSlot)) } returns createdDocument
+
+        `when`("it is created") {
+            val result = drcClientService.createEnkelvoudigInformatieobject(createRequest, content)
+
+            then("its content is sent base64 encoded in the create request itself") {
+                result shouldBe createdDocument
+                requestSlot.captured.inhoud shouldBe
+                    Base64.getEncoder().encodeToString("fakeContent".toByteArray())
+                requestSlot.captured.bestandsomvang shouldBe "fakeContent".toByteArray().size
+            }
+        }
+    }
+
+    given("A document too large to fit in memory, whose parts are announced out of volgnummer order") {
+        val bytes = "0123456789".toByteArray()
+        val documentUUID = UUID.randomUUID()
+        val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
+        val firstPart = createBestandsDeel(volgnummer = 1, omvang = 4, lock = "fakeLock")
+        val secondPart = createBestandsDeel(volgnummer = 2, omvang = 6, lock = "fakeLock")
+        val temporaryFile = Files.createTempFile("fakeDocument", null).also { Files.write(it, bytes) }
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        val createRequest = createEnkelvoudigInformatieObjectCreateLockRequest()
+        val createdDocument = createEnkelvoudigInformatieObjectCreateLockSub(
+            uuid = documentUUID,
+            url = documentUrl,
+            bestandsdelen = listOf(secondPart, firstPart)
+        )
+        val completedDocument = createEnkelvoudigInformatieObject(uuid = documentUUID, url = documentUrl)
+        val requestSlot = slot<EnkelvoudigInformatieObjectCreateLockRequest>()
+        val uploadedParts = mutableListOf<Pair<UUID, ByteArray>>()
+        val uploadedContentTypes = mutableListOf<String>()
+
+        every {
+            drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(capture(requestSlot))
+        } returns createdDocument
+        every { drcClient.bestandsdeelUpdate(any(), any(), any()) } answers {
+            uploadedContentTypes.add(secondArg())
+            uploadedParts.add(firstArg<UUID>() to thirdArg<InputStream>().readBytes())
+            createBestandsDeel()
+        }
+        val unlockSlot = slot<LockEnkelvoudigInformatieObject>()
+        every {
+            drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, capture(unlockSlot))
+        } returns mockk()
+        every { drcClient.enkelvoudigInformatieobjectRead(documentUUID) } returns completedDocument
+
+        `when`("it is created") {
+            val result = drcClientService.createEnkelvoudigInformatieobject(createRequest, content)
+
+            then("it is created without content and every part is streamed in volgnummer order") {
+                requestSlot.captured.inhoud shouldBe null
+                requestSlot.captured.bestandsomvang shouldBe bytes.size
+                uploadedParts.map { it.first } shouldBe listOf(
+                    firstPart.url.extractUuid(),
+                    secondPart.url.extractUuid()
+                )
+                uploadedParts.map { String(it.second) }.forEachIndexed { index, body ->
+                    body shouldContain listOf("0123", "456789")[index]
+                    body shouldContain """name="lock""""
+                    body shouldContain "fakeLock"
                 }
+                uploadedContentTypes.forEach { it shouldContain "multipart/form-data; boundary=" }
+            }
+
+            and("the document is unlocked so that the uploaded content becomes its content") {
+                result shouldBe completedDocument
+                unlockSlot.captured.lock shouldBe "fakeLock"
             }
         }
+
+        content.close()
+    }
+
+    given("A new version of a document that is too large to fit in memory") {
+        val bytes = "0123456789".toByteArray()
+        val documentUUID = UUID.randomUUID()
+        val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
+        val temporaryFile = Files.createTempFile("fakeDocument", null).also { Files.write(it, bytes) }
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        val updateRequest = createEnkelvoudigInformatieObjectWithLockRequest().apply { lock = "fakeLock" }
+        val part = createBestandsDeel(volgnummer = 1, omvang = bytes.size, lock = "fakeLock")
+        val documentWithParts = createEnkelvoudigInformatieObject(
+            uuid = documentUUID,
+            url = documentUrl,
+            bestandsdelen = listOf(part)
+        )
+        val bodySlot = slot<JsonObject>()
+        val uploadedParts = mutableListOf<Pair<UUID, ByteArray>>()
+
+        every { zgwClientHeadersFactory.setAuditExplanation(any()) } just runs
+        every {
+            drcClient.enkelvoudigInformatieobjectPartialUpdateForPartsUpload(documentUUID, capture(bodySlot))
+        } returns createEnkelvoudigInformatieObject(uuid = documentUUID, url = documentUrl)
+        every { drcClient.enkelvoudigInformatieobjectRead(documentUUID) } returns documentWithParts
+        every { drcClient.bestandsdeelUpdate(any(), any(), any()) } answers {
+            uploadedParts.add(firstArg<UUID>() to thirdArg<InputStream>().readBytes())
+            createBestandsDeel()
+        }
+
+        `when`("the new version is uploaded") {
+            val result = drcClientService.updateEnkelvoudigInformatieobject(
+                enkelvoudigInformatieobjectUUID = documentUUID,
+                enkelvoudigInformatieObjectWithLockRequest = updateRequest,
+                auditExplanation = "fakeAuditExplanation",
+                content = content
+            )
+
+            then("the request announces the new size and clears the content with an explicit null") {
+                bodySlot.captured.getInt("bestandsomvang") shouldBe bytes.size
+                bodySlot.captured.isNull("inhoud") shouldBe true
+            }
+
+            and("the content is uploaded into the parts that are read back, as the update response omits them") {
+                uploadedParts.map { it.first } shouldBe listOf(part.url.extractUuid())
+                String(uploadedParts.single().second) shouldContain "0123456789"
+            }
+
+            and("the document is left locked, so that unlocking it commits the new version") {
+                result shouldBe documentWithParts
+                verify(exactly = 0) { drcClient.enkelvoudigInformatieobjectUnlock(any(), any()) }
+            }
+        }
+
+        content.close()
+    }
+
+    given("A document too large to fit in memory whose parts cannot be uploaded") {
+        val bytes = "0123456789".toByteArray()
+        val documentUUID = UUID.randomUUID()
+        val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
+        val temporaryFile = Files.createTempFile("fakeDocument", null).also { Files.write(it, bytes) }
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        val createdDocument = createEnkelvoudigInformatieObjectCreateLockSub(
+            uuid = documentUUID,
+            url = documentUrl,
+            bestandsdelen = listOf(createBestandsDeel(volgnummer = 1, omvang = 10))
+        )
+
+        every { drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(any()) } returns createdDocument
+        every {
+            drcClient.bestandsdeelUpdate(any(), any(), any())
+        } throws DrcRuntimeException("fake upload failure")
+        every { drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, any()) } returns mockk()
+        every { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) } returns mockk()
+
+        `when`("it is created") {
+            val drcRuntimeException = shouldThrow<DrcRuntimeException> {
+                drcClientService.createEnkelvoudigInformatieobject(
+                    createEnkelvoudigInformatieObjectCreateLockRequest(),
+                    content
+                )
+            }
+
+            then("the failure surfaces and no document with missing content is left behind") {
+                drcRuntimeException.message shouldBe "fake upload failure"
+                verify(exactly = 1) { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) }
+            }
+        }
+
+        content.close()
+    }
+
+    given("A document too large to fit in memory for which no parts are announced") {
+        val temporaryFile = Files.createTempFile("fakeDocument", null)
+            .also { Files.write(it, "0123456789".toByteArray()) }
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        val documentUUID = UUID.randomUUID()
+        val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
+
+        every {
+            drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(any())
+        } returns createEnkelvoudigInformatieObjectCreateLockSub(
+            uuid = documentUUID,
+            url = documentUrl,
+            bestandsdelen = emptyList()
+        )
+        every { drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, any()) } returns mockk()
+        every { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) } returns mockk()
+
+        `when`("it is created") {
+            val drcRuntimeException = shouldThrow<DrcRuntimeException> {
+                drcClientService.createEnkelvoudigInformatieobject(
+                    createEnkelvoudigInformatieObjectCreateLockRequest(),
+                    content
+                )
+            }
+
+            then("the documents registry is reported as not supporting uploads in parts") {
+                drcRuntimeException.message shouldContain "announced no bestandsdelen"
+            }
+        }
+
+        content.close()
+    }
+
+    given("A document too large to fit in memory for which parts are announced that do not cover it") {
+        val temporaryFile = Files.createTempFile("fakeDocument", null)
+            .also { Files.write(it, "0123456789".toByteArray()) }
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        val documentUUID = UUID.randomUUID()
+        val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
+
+        every {
+            drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(any())
+        } returns createEnkelvoudigInformatieObjectCreateLockSub(
+            uuid = documentUUID,
+            url = documentUrl,
+            bestandsdelen = listOf(
+                createBestandsDeel(volgnummer = 1, omvang = 4),
+                createBestandsDeel(volgnummer = 2, omvang = 4)
+            )
+        )
+        every { drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, any()) } returns mockk()
+        every { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) } returns mockk()
+
+        `when`("it is created") {
+            val drcRuntimeException = shouldThrow<DrcRuntimeException> {
+                drcClientService.createEnkelvoudigInformatieobject(
+                    createEnkelvoudigInformatieObjectCreateLockRequest(),
+                    content
+                )
+            }
+
+            then("nothing is uploaded, so that a document is never silently stored truncated") {
+                drcRuntimeException.message shouldContain "bestandsdelen of 8 bytes in total"
+                verify(exactly = 0) { drcClient.bestandsdeelUpdate(any(), any(), any()) }
+                verify(exactly = 1) { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) }
+            }
+        }
+
+        content.close()
+    }
+
+    given("a document whose file was truncated after its size was captured, so that its stream yields fewer bytes than it reports") {
+        val documentUUID = UUID.randomUUID()
+        val documentUrl = URI("https://example.com/enkelvoudiginformatieobjecten/$documentUUID")
+        val temporaryFile = Files.createTempFile("fakeDocument", null)
+            .also { Files.write(it, "0123456789".toByteArray()) }
+        val content = TemporaryFileDocumentContent(temporaryFile)
+        Files.write(temporaryFile, "0123".toByteArray())
+
+        every {
+            drcClient.enkelvoudigInformatieobjectCreateForPartsUpload(any())
+        } returns createEnkelvoudigInformatieObjectCreateLockSub(
+            uuid = documentUUID,
+            url = documentUrl,
+            bestandsdelen = listOf(createBestandsDeel(volgnummer = 1, omvang = 10))
+        )
+        every { drcClient.bestandsdeelUpdate(any(), any(), any()) } answers {
+            thirdArg<InputStream>().readBytes()
+            createBestandsDeel()
+        }
+        every { drcClient.enkelvoudigInformatieobjectUnlock(documentUUID, any()) } returns mockk()
+        every { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) } returns mockk()
+
+        `when`("it is created") {
+            val drcRuntimeException = shouldThrow<DrcRuntimeException> {
+                drcClientService.createEnkelvoudigInformatieobject(
+                    createEnkelvoudigInformatieObjectCreateLockRequest(),
+                    content
+                )
+            }
+
+            then("the document is deleted, so that it is never left behind stored truncated") {
+                drcRuntimeException.message shouldContain "Only 4 of the 10 bytes of bestandsdeel 1"
+                verify(exactly = 1) { drcClient.enkelvoudigInformatieobjectDelete(documentUUID) }
+            }
+        }
+
+        content.close()
     }
 })

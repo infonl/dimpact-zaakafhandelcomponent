@@ -18,11 +18,8 @@ import java.util.UUID
 @NoArgConstructor
 @AllOpen
 data class RestEnkelvoudigInformatieObjectVersieGegevens(
-    @field:FormParam("uuid")
+    /** Populated when reading the current version; a new version names its document in the request path instead. */
     var uuid: UUID? = null,
-
-    @field:FormParam("zaakUuid")
-    var zaakUuid: UUID? = null,
 
     @field:FormParam("titel")
     var titel: String? = null,

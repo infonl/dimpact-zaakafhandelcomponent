@@ -6,7 +6,7 @@
 
 import { HarnessLoader } from "@angular/cdk/testing";
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { provideHttpClient } from "@angular/common/http";
+import { HttpEventType, provideHttpClient } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -30,6 +30,7 @@ import moment from "moment";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
 import { sleep, testQueryClient } from "../../../../setupJest";
+import { UtilService } from "../../core/service/util.service";
 import { IdentityService } from "../../identity/identity.service";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
 import { MaterialModule } from "../../shared/material/material.module";
@@ -258,6 +259,82 @@ describe(InformatieObjectAddComponent.name, () => {
     });
   });
 
+  describe("Upload progress", () => {
+    beforeEach(() => {
+      component["form"].patchValue(mockFormInput);
+      component["form"].markAsDirty();
+      fixture.detectChanges();
+    });
+
+    const submitAndUpload = async () => {
+      const submitButton = await loader.getHarness(
+        MatButtonHarness.with({ text: "actie.toevoegen" }),
+      );
+      await submitButton.click();
+      await new Promise(requestAnimationFrame);
+
+      return httpTestingController.expectOne(
+        `/rest/informatieobjecten/informatieobject/${mockZaak.uuid}/${mockZaak.uuid}?taakObject=false`,
+      );
+    };
+
+    it("reports how much of the document has been uploaded to the global progress indicator", async () => {
+      const utilService = TestBed.inject(UtilService);
+      const request = await submitAndUpload();
+
+      expect(request.request.reportProgress).toBe(true);
+      expect(utilService.progress()).toEqual({
+        percentage: 0,
+        description: "msg.document.uploaden.voortgang",
+      });
+
+      request.event({
+        type: HttpEventType.UploadProgress,
+        loaded: 40,
+        total: 100,
+      });
+      await sleep();
+
+      expect(utilService.progress()).toEqual({
+        percentage: 40,
+        description: "msg.document.uploaden.voortgang",
+      });
+    });
+
+    it("stops reporting progress once the upload has finished", async () => {
+      const utilService = TestBed.inject(UtilService);
+      const request = await submitAndUpload();
+
+      request.event({
+        type: HttpEventType.UploadProgress,
+        loaded: 100,
+        total: 100,
+      });
+      request.flush(null);
+      await sleep();
+
+      expect(utilService.progress()).toBeNull();
+    });
+
+    it("stops reporting progress when the upload is refused because the document is too large", async () => {
+      const utilService = TestBed.inject(UtilService);
+      const request = await submitAndUpload();
+
+      request.event({
+        type: HttpEventType.UploadProgress,
+        loaded: 40,
+        total: 100,
+      });
+      request.flush(
+        { message: "msg.error.file.size-exceeded" },
+        { status: 413, statusText: "Payload Too Large" },
+      );
+      await sleep();
+
+      expect(utilService.progress()).toBeNull();
+    });
+  });
+
   describe("Reset", () => {
     it("should close side nav when cancel button is clicked", async () => {
       const sideNavCloseSpy = jest.spyOn(mockSideNav, "close");
@@ -351,37 +428,6 @@ describe(InformatieObjectAddComponent.name, () => {
         (req.request.body as FormData).entries(),
       );
       expect(formData.status).toBe("DEFINITIEF");
-    });
-  });
-
-  describe("EML file upload handling", () => {
-    it("should convert .eml file to Blob with application/octet-stream and append to FormData", async () => {
-      const emlFile = new File(
-        ["Return-Path: <test@example.com>\r\nSubject: Test EML"],
-        "test-email.eml",
-        { type: "message/rfc822" },
-      );
-
-      type PayloadType = GeneratedType<"RestEnkelvoudigInformatieobject"> & {
-        bestand: File;
-        bestandsnaam: string;
-      };
-
-      const payload: PayloadType = {
-        ...mockFormInput,
-        bestand: emlFile,
-        bestandsnaam: emlFile.name,
-      } as unknown as PayloadType;
-
-      const formData = component["toInformatieobjectFormData"](payload);
-
-      const fileEntry = formData.get("file") as Blob;
-      expect(fileEntry).toBeInstanceOf(Blob);
-      expect(fileEntry.size).toBe(emlFile.size);
-      expect(fileEntry.type).toBe("application/octet-stream");
-
-      const formDataEntries = Object.fromEntries(formData.entries());
-      expect(formDataEntries.bestandsnaam).toBe(emlFile.name);
     });
   });
 

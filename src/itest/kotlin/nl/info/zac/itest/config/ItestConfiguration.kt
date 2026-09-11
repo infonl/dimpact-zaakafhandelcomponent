@@ -38,7 +38,8 @@ object ItestConfiguration {
     const val BETROKKENE_IDENTIFICATION_TYPE_KVK = "RSIN"
     const val BETROKKENE_ROL_TOEVOEGEN_REDEN = "Toegekend door de medewerker tijdens het behandelen van de zaak"
     const val BRON_ORGANISATIE = "123443210"
-    const val CONFIG_MAX_FILE_SIZE_IN_MB = 80L
+    const val CONFIG_MAX_FILE_SIZE_IN_MB = 500L
+    const val CONFIG_MAX_IN_MEMORY_FILE_SIZE_IN_MB = 10L
     const val CONFIG_GEMEENTE_CODE = "9999"
     const val CONFIG_GEMEENTE_NAAM = "FakeZacGemeente"
     const val COMMUNICATIEKANAAL_TEST_1 = "fakeCommunicatiekanaal1"

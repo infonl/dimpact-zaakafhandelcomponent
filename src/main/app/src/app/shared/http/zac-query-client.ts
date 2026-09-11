@@ -10,10 +10,12 @@ import {
   queryOptions,
 } from "@tanstack/angular-query-experimental";
 import type { PathsWithMethod } from "openapi-typescript-helpers";
-import { lastValueFrom } from "rxjs";
+import { filter, lastValueFrom, map, Observable, tap } from "rxjs";
+import { UtilService } from "../../core/service/util.service";
 import { FoutAfhandelingService } from "../../fout-afhandeling/fout-afhandeling.service";
 import type {
   ArgsTuple,
+  Body,
   DeleteBody,
   Methods,
   PatchBody,
@@ -21,11 +23,14 @@ import type {
   Paths,
   PostBody,
   PutBody,
+  UploadProgress,
 } from "./http-client";
 import { HttpClient, Response } from "./http-client";
 
 // From https://tanstack.com/query/latest/docs/framework/angular/guides/query-retries
 const DEFAULT_RETRY_COUNT = 3;
+
+const UPLOAD_PROGRESS_DESCRIPTION = "msg.document.uploaden.voortgang";
 
 /** Retries only what could still succeed: a dropped connection or a server fault. */
 const retryOnServerError = (failureCount: number, error: HttpErrorResponse) => {
@@ -47,6 +52,7 @@ export enum StaleTimes {
 export class ZacQueryClient {
   private readonly foutAfhandelingService = inject(FoutAfhandelingService);
   private readonly httpClient = inject(HttpClient);
+  private readonly utilService = inject(UtilService);
 
   public GET<
     Path extends PathsWithMethod<Paths, Method>,
@@ -60,6 +66,72 @@ export class ZacQueryClient {
       refetchOnWindowFocus: false,
       staleTime: StaleTimes.Long,
       gcTime: StaleTimes.Long * 2,
+    });
+  }
+
+  /**
+   * `POST` that shows how much of the request body has been sent on the global progress
+   * indicator. Uploading a document of hundreds of megabytes otherwise leaves the user staring
+   * at a spinner for minutes.
+   */
+  public POST_WITH_PROGRESS<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods = "post",
+  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
+    return this.mutationWithProgress<Path, Method>(url, args, (body) =>
+      this.httpClient.POST_WITH_PROGRESS<Path, Method>(url, body, ...args),
+    );
+  }
+
+  public PUT_WITH_PROGRESS<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods = "put",
+  >(url: Path, ...args: ArgsTuple<PathParameters<Path, Method>>) {
+    return this.mutationWithProgress<Path, Method>(url, args, (body) =>
+      this.httpClient.PUT_WITH_PROGRESS<Path, Method>(url, body, ...args),
+    );
+  }
+
+  private mutationWithProgress<
+    Path extends PathsWithMethod<Paths, Method>,
+    Method extends Methods,
+  >(
+    url: Path,
+    args: ArgsTuple<PathParameters<Path, Method>>,
+    request: (
+      body: Body<Path, Method>,
+    ) => Observable<UploadProgress<Response<Path, Method>>>,
+  ) {
+    const reportProgress = (percentage: number) =>
+      this.utilService.setProgress({
+        percentage,
+        description: UPLOAD_PROGRESS_DESCRIPTION,
+      });
+
+    return mutationOptions<
+      Response<Path, Method>,
+      HttpErrorResponse,
+      Body<Path, Method>,
+      void
+    >({
+      mutationKey: [url, ...args],
+      mutationFn: (body: Body<Path, Method>) => {
+        reportProgress(0);
+        return lastValueFrom(
+          request(body).pipe(
+            tap((progress) => {
+              if (progress.state === "uploading")
+                reportProgress(progress.percentage);
+            }),
+            filter((progress) => progress.state === "done"),
+            map(
+              (progress) => (progress as { body: Response<Path, Method> }).body,
+            ),
+          ),
+        );
+      },
+      onSettled: () => this.utilService.setProgress(null),
+      onError: (error) => this.foutAfhandelingService.foutAfhandelen(error),
     });
   }
 

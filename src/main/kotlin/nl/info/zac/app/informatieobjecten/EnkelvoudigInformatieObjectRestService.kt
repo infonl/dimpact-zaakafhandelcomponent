@@ -19,7 +19,9 @@ import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
+import jakarta.ws.rs.core.StreamingOutput
 import jakarta.ws.rs.core.UriInfo
 import nl.info.client.zgw.zrc.model.generated.ZaakInformatieObject
 import net.atos.zac.event.EventingService
@@ -27,7 +29,6 @@ import net.atos.zac.util.MediaTypes
 import net.atos.zac.websocket.event.ScreenEventType
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
-import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectWithLockRequest
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.drc.model.generated.VertrouwelijkheidaanduidingEnum
 import nl.info.client.zgw.shared.ZgwApiService
@@ -41,6 +42,7 @@ import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjecttypeConv
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerplaatsGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerwijderenGegevens
 import nl.info.zac.app.informatieobjecten.model.RestDocumentVerzendGegevens
+import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieFileUpload
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieObjectVersieGegevens
 import nl.info.zac.app.informatieobjecten.model.RestEnkelvoudigInformatieobject
 import nl.info.zac.app.informatieobjecten.model.RestGekoppeldeZaakEnkelvoudigInformatieObject
@@ -52,9 +54,13 @@ import nl.info.zac.app.policy.model.toRestZaakRechten
 import nl.info.zac.app.zaak.model.RelatieType
 import nl.info.zac.app.zaak.model.toRestZaakStatus
 import nl.info.zac.authentication.LoggedInUser
+import nl.info.zac.document.content.DocumentContent
+import nl.info.zac.document.content.DocumentContentReader
 import nl.info.zac.document.detacheddocument.DetachedDocumentService
 import nl.info.zac.document.inboxdocument.InboxDocumentService
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
+import nl.info.zac.exception.ErrorCode.ERROR_CODE_DOCUMENT_UPLOAD_INVALID
+import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.history.converter.ZaakHistoryLineConverter
 import nl.info.zac.history.model.HistoryLine
 import nl.info.zac.policy.PolicyService
@@ -95,6 +101,7 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     private val enkelvoudigInformatieObjectDownloadService: EnkelvoudigInformatieObjectDownloadService,
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService,
     private val enkelvoudigInformatieObjectConvertService: EnkelvoudigInformatieObjectConvertService,
+    private val documentContentReader: DocumentContentReader,
 ) {
     companion object {
         private val LOG = Logger.getLogger(EnkelvoudigInformatieObjectRestService::class.java.name)
@@ -222,17 +229,16 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
     ): RestEnkelvoudigInformatieobject {
         val zaak = zrcClientService.readZaak(zaakUuid)
         assertPolicy(policyService.readZaakRechten(zaak, loggedInUserInstance.get()).toevoegenDocument)
-
-        val enkelvoudigInformatieObjectCreateLockRequest = restEnkelvoudigInformatieobject.run(
-            restInformatieobjectConverter::convertEnkelvoudigInformatieObject
-        )
-        val zaakInformatieobject = enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
-            zaak = zaak,
-            enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
-            taskId = if (isTaakObject) documentReferenceId else null
-        )
-
-        return restInformatieobjectConverter.convertToREST(zaakInformatieobject)
+        val enkelvoudigInformatieObjectCreateLockRequest =
+            restInformatieobjectConverter.convertEnkelvoudigInformatieObject(restEnkelvoudigInformatieobject)
+        return restEnkelvoudigInformatieobject.useUploadedContent { content ->
+            enkelvoudigInformatieObjectUpdateService.createZaakInformatieobjectForZaak(
+                zaak = zaak,
+                enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                taskId = if (isTaakObject) documentReferenceId else null,
+                content = content
+            )
+        }.let(restInformatieobjectConverter::convertToREST)
     }
 
     @POST
@@ -363,22 +369,19 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 findZaakForDocument(enkelvoudigInformatieObject)
             ).lezen
         )
-        return try {
-            val inhoud = version?.let {
-                drcClientService.downloadEnkelvoudigInformatieobjectVersie(
-                    enkelvoudigInformatieobjectUUID = uuid,
-                    version = version
-                )
-            } ?: drcClientService.downloadEnkelvoudigInformatieobject(requireNotNull(uuid))
-            Response.ok(inhoud)
-                .header(
-                    "Content-Disposition",
-                    """inline; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
-                )
-                .header("Content-Type", enkelvoudigInformatieObject.formaat).build()
-        } catch (iOException: IOException) {
-            throw RuntimeException(iOException)
-        }
+        val streamedDocument = readStreamedVersion(
+            uuid = uuid,
+            version = version,
+            currentVersion = enkelvoudigInformatieObject
+        )
+        return Response.ok(streamDocumentContent(uuid = uuid, version = version))
+            .header(
+                "Content-Disposition",
+                """inline; filename="${streamedDocument.bestandsnaam}""""
+            )
+            .header("Content-Type", streamedDocument.formaat)
+            .header(HttpHeaders.CONTENT_LENGTH, streamedDocument.bestandsomvang)
+            .build()
     }
 
     @POST
@@ -407,23 +410,31 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             .also { assertPolicy(policyService.readDocumentRechten(it, findZaakForDocument(it)).lezen) }
             .let(restInformatieobjectConverter::convertToRestEnkelvoudigInformatieObjectVersieGegevens)
 
-    @POST
+    @PUT
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Path("/informatieobject/update")
+    @Path("informatieobject/{uuid}")
     fun updateEnkelvoudigInformatieobjectAndUploadFile(
+        @PathParam("uuid") uuid: UUID,
+        @QueryParam("zaak") zaakUuid: UUID,
         @Valid @MultipartForm enkelvoudigInformatieObjectVersieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens
     ): RestEnkelvoudigInformatieobject {
-        val document = drcClientService.readEnkelvoudigInformatieobject(
-            enkelvoudigInformatieObjectVersieGegevens.uuid!!
-        )
+        val enkelvoudigInformatieObject = drcClientService.readEnkelvoudigInformatieobject(uuid)
         assertPolicy(
             policyService.readDocumentRechten(
-                document,
-                zrcClientService.readZaak(enkelvoudigInformatieObjectVersieGegevens.zaakUuid!!)
+                enkelvoudigInformatieObject,
+                zrcClientService.readZaak(zaakUuid)
             ).toevoegenNieuweVersie
         )
-        val updatedDocument = restInformatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens)
-        return updateEnkelvoudigInformatieobject(enkelvoudigInformatieObjectVersieGegevens, document, updatedDocument)
+        val enkelvoudigInformatieObjectWithLockRequest =
+            restInformatieobjectConverter.convert(enkelvoudigInformatieObjectVersieGegevens)
+        return enkelvoudigInformatieObjectVersieGegevens.useOptionalUploadedContent { content ->
+            enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                enkelvoudigInformatieObjectUUID = uuid,
+                enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest,
+                toelichting = enkelvoudigInformatieObjectVersieGegevens.toelichting,
+                content = content
+            )
+        }.let(restInformatieobjectConverter::convertToREST)
     }
 
     @POST
@@ -529,20 +540,31 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
                 findZaakForDocument(enkelvoudigInformatieObject)
             ).downloaden
         )
-        return try {
-            val documentContent = version?.let {
-                drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, version)
-            } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
-            Response.ok(documentContent)
-                .header(
-                    "Content-Disposition",
-                    """attachment; filename="${enkelvoudigInformatieObject.bestandsnaam}""""
-                )
-                .build()
-        } catch (ioException: IOException) {
-            throw RuntimeException(ioException)
-        }
+        val streamedDocument = readStreamedVersion(
+            uuid = uuid,
+            version = version,
+            currentVersion = enkelvoudigInformatieObject
+        )
+        return Response.ok(streamDocumentContent(uuid = uuid, version = version))
+            .header(
+                "Content-Disposition",
+                """attachment; filename="${streamedDocument.bestandsnaam}""""
+            )
+            .header(HttpHeaders.CONTENT_LENGTH, streamedDocument.bestandsomvang)
+            .build()
     }
+
+    private fun readStreamedVersion(uuid: UUID, version: Int?, currentVersion: EnkelvoudigInformatieObject) =
+        version?.let { drcClientService.readEnkelvoudigInformatieobjectVersie(uuid, it) } ?: currentVersion
+
+    private fun streamDocumentContent(uuid: UUID, version: Int?) =
+        StreamingOutput { outputStream ->
+            val documentContent = version?.let {
+                drcClientService.downloadEnkelvoudigInformatieobjectVersie(uuid, it)
+            } ?: drcClientService.downloadEnkelvoudigInformatieobject(uuid)
+            documentContent.use { it.copyTo(outputStream) }
+            outputStream.flush()
+        }
 
     private fun isVerzendenToegestaan(informatieobject: EnkelvoudigInformatieObject): Boolean =
         informatieobject.vertrouwelijkheidaanduiding.let {
@@ -584,16 +606,17 @@ class EnkelvoudigInformatieObjectRestService @Inject constructor(
             }
         }
 
-    private fun updateEnkelvoudigInformatieobject(
-        enkelvoudigInformatieObjectVersieGegevens: RestEnkelvoudigInformatieObjectVersieGegevens,
-        enkelvoudigInformatieObject: EnkelvoudigInformatieObject,
-        enkelvoudigInformatieObjectWithLockRequest: EnkelvoudigInformatieObjectWithLockRequest
-    ): RestEnkelvoudigInformatieobject =
-        enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-            enkelvoudigInformatieObject.url.extractUuid(),
-            enkelvoudigInformatieObjectWithLockRequest,
-            enkelvoudigInformatieObjectVersieGegevens.toelichting
-        ).let(restInformatieobjectConverter::convertToREST)
+    private fun <T> RestEnkelvoudigInformatieFileUpload.useUploadedContent(block: (DocumentContent) -> T): T =
+        documentContentReader.read(
+            file ?: throw InputValidationFailedException(
+                errorCode = ERROR_CODE_DOCUMENT_UPLOAD_INVALID,
+                message = "A document cannot be uploaded without a file"
+            )
+        ).use(block)
+
+    private fun <T> RestEnkelvoudigInformatieFileUpload.useOptionalUploadedContent(
+        block: (DocumentContent?) -> T
+    ): T = if (file == null) block(null) else useUploadedContent(block)
 
     private fun toRestZaakInformatieobject(zaakInformatieobject: ZaakInformatieObject): RestZaakInformatieobject {
         val zaak = zrcClientService.readZaak(zaakInformatieobject.zaak)

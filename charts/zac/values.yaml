@@ -19,7 +19,9 @@ global:
     tag: 8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777
     pullPolicy: IfNotPresent
 
-# -- JVM startup options. defaults to "-Xmx1024m -Xms1024m -Xlog:gc::time,uptime"
+# -- JVM startup options. Defaults to "-XX:MaxRAMPercentage=75.0 -Xlog:gc::time,uptime", which
+# leaves the heap to be sized from `resources.limits.memory` by the JVM itself. Prefer changing that
+# limit over pinning the heap here with `-Xmx`.
 javaOptions: ""
 
 # -- External URL to the zaakafhandelcomponent. (https://zaakafhandelcomponent.example.com)
@@ -225,8 +227,34 @@ opentelemetry_zaakafhandelcomponent:
    # -- OpenTelemetry collector endpoint URL
   endpoint: ""
 
-# -- Maximum size (in Mega Bytes) of files that can be uploaded.
-maxFileSizeMB: 80
+# -- Maximum size (in Mega Bytes) of documents that can be uploaded and downloaded.
+# Uploads and downloads are streamed, so this value is bound by the temporary disk space available
+# to ZAC rather than by the heap. See `resources.limits.ephemeral-storage` and the nginx and ingress
+# body size settings, which all have to allow at least this much.
+# Values above 2047 are rejected, because the documents registry expresses the size of a document as
+# a 32 bit integer number of bytes. In practice the ceiling is around 768, the temporary file size
+# WildFly allows through `dev.resteasy.entity.file.threshold`, which is part of the ZAC image and not
+# of this chart. See `docs/development/documentFileSizes.md`.
+maxFileSizeMB: 500
+
+# -- Maximum size (in Mega Bytes) of documents for operations that cannot stream and therefore hold
+# the whole document in memory: converting to PDF for preview, sending as a mail attachment and
+# editing through WebDAV. Larger documents can still be uploaded and downloaded.
+# ZAC refuses to start when this value does not fit in the heap; it needs roughly three times this
+# value, and may use at most half of the heap for it. The heap is 75% of `resources.limits.memory`,
+# so with the default 1Gi limit the heap is 768 MB and the ceiling for this value is 128. Raise
+# `resources.limits.memory` to go beyond that.
+maxInMemoryFileSizeMB: 80
+
+# -- Size of the emptyDir mounted at /tmp. WildFly buffers every request body to a temporary file
+# there and ZAC streams the uploaded document from it, so this has to hold `maxFileSizeMB` for every
+# concurrent upload. Keep `resources.requests.ephemeral-storage` and
+# `resources.limits.ephemeral-storage` in step with it.
+# Note that the matching 4Gi ephemeral-storage request is a scheduling requirement: a node without
+# that much free ephemeral storage, or a namespace whose quota does not allow it, will not schedule
+# the pod. Lower all three together when the environment cannot spare it; the cost is fewer
+# concurrent transfers of `maxFileSizeMB`, not a lower maximum document size.
+tmpVolumeSize: 4Gi
 
 # -- Enable Java remote debugging
 remoteDebug: false
@@ -288,6 +316,14 @@ service:
 ingress:
   enabled: false
   className: ""
+   # -- An ingress in front of ZAC has to allow at least `maxFileSizeMB` plus multipart overhead and
+   # needs timeouts long enough to up- or download a document of that size over a slow connection.
+   # For the nginx ingress controller that means, next to any annotations of your own:
+   #   nginx.ingress.kubernetes.io/proxy-body-size: 600m
+   #   nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"
+   #   nginx.ingress.kubernetes.io/proxy-send-timeout: "1800"
+   # A deployment that configures its ingress at the umbrella chart rather than per sub chart, as
+   # PodiumD does, has to apply the same annotations there instead; this sub chart never sees them.
   annotations: {}
    # kubernetes.io/ingress.class: nginx
    # kubernetes.io/tls-acme: "true"
@@ -307,16 +343,17 @@ backendConfig:
 
 # specify resource limits and requests if needed, prefilled values are the minimum recommended
 resources:
-   # We usually recommend not specifying default resources and to leave this as a conscious
-   # choice for the user. This also increases the chances charts run on environments with little
-   # resources, such as Minikube. If you do want to specify resources, uncomment the following
-   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-   # limits:
-   #   cpu: 100m
-   #   memory: 128Mi
   requests:
     cpu: 100m
     memory: 1Gi
+    ephemeral-storage: 4Gi
+  limits:
+     # -- The JVM sizes its heap from this limit, so this is how the heap available to ZAC is set.
+     # With the default `-XX:MaxRAMPercentage=75.0` a 1Gi limit gives a 768 MB heap, which leaves
+     # room for a `maxInMemoryFileSizeMB` of up to 128. The chart refuses to render without this
+     # limit, because it cannot otherwise tell whether the configured file size limits fit.
+    memory: 1Gi
+    ephemeral-storage: 4Gi
 
 # -- liveness probe configuration for the main ZAC container
 livenessProbe:
@@ -737,7 +774,11 @@ nginx:
   resources: {}
   useXForwardedHost: false
   allowedHosts: ""
-  client_max_body_size: 120M
+   # -- Has to allow at least `maxFileSizeMB` plus multipart overhead.
+  client_max_body_size: 600M
+   # -- Read and send timeout towards ZAC. Uploading or downloading a document of hundreds of
+   # megabytes over a slow connection takes far longer than the nginx default of 60s.
+  proxy_timeout: 1800s
   topologySpreadConstraints: []
   api_proxy:
     enabled: false

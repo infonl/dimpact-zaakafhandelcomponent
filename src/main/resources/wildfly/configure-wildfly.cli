@@ -33,8 +33,9 @@ data-source add \
 # Enable the usage of JSON-B for RESTEasy and disable the default preference for Jackson.
 /system-property=resteasy.preferJacksonOverJsonB:add(value=false)
 
-# Enlarge Undertow max POST size
-/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=max-post-size,value=1000000000)
+# Enlarge Undertow max POST size. Has to allow the largest document ZAC accepts plus multipart
+# overhead; this value corresponds to 1GB using the Base 2 format.
+/subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=max-post-size,value=1073741824)
 
 # Set read and write socket timeouts to infinite (=0) to avoid websocket timeouts
 # Also see: https://stackoverflow.com/questions/77127050/websocket-server-is-being-timeout-after-90-seconds
@@ -42,10 +43,12 @@ data-source add \
 /subsystem=undertow/server=default-server/http-listener=default:write-attribute(name=write-timeout,value=0)
 
 /subsystem=microprofile-config-smallrye/config-source=props:add(properties={ \
-    # This sets the max post size accepted by the RESTEasy framework in WildFly
-    # NOTE: This needs to be set higher than our max file size setting in ZAC because of the way RESTEasy handles file uploads.
-    # This value corresponds to 120MB using the Base 2 format.
-    "dev.resteasy.entity.file.threshold" = "125829120B", \
+    # RESTEasy buffers a request body to a temporary file and refuses anything larger than this.
+    # It therefore has to be set higher than the maximum file size ZAC accepts, to leave room for
+    # multipart overhead. ZAC streams the uploaded document from that temporary file, so the size of
+    # the document costs temporary disk space rather than heap.
+    # This value corresponds to 768MB using the Base 2 format, for a ZAC maximum of 500MB.
+    "dev.resteasy.entity.file.threshold" = "805306368B", \
     # We only export traces to the Open Telemetry Collector and not logs or metrics.
     "otel.traces.exporter" = "otlp", \
     "otel.metrics.exporter" = "none", \

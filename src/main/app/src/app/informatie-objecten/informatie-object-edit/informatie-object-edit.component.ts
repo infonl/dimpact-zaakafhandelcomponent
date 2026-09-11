@@ -3,15 +3,7 @@
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import {
-  Component,
-  EventEmitter,
-  inject,
-  Input,
-  OnChanges,
-  Output,
-  SimpleChanges,
-} from "@angular/core";
+import { Component, effect, inject, input, output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -24,7 +16,6 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
 import moment, { Moment } from "moment";
-import { lastValueFrom } from "rxjs";
 import { VertrouwelijkaanduidingToTranslationKeyPipe } from "src/app/shared/pipes/vertrouwelijkaanduiding-to-translation-key.pipe";
 import { ConfiguratieService } from "../../configuratie/configuratie.service";
 import { UtilService } from "../../core/service/util.service";
@@ -34,8 +25,10 @@ import { ZacFile } from "../../shared/form/file/file";
 import { ZacFormActions } from "../../shared/form/form-actions/form-actions.component";
 import { ZacInput } from "../../shared/form/input/input";
 import { ZacSelect } from "../../shared/form/select/select";
+import { PutBody } from "../../shared/http/http-client";
 import { injectMutation } from "../../shared/http/inject-mutation";
 import { MaterialFormBuilderModule } from "../../shared/material-form-builder/material-form-builder.module";
+import { toDocumentFormData } from "../../shared/utils/file-upload";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InformatieObjectenService } from "../informatie-objecten.service";
 import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
@@ -61,15 +54,41 @@ import { InformatieobjectStatus } from "../model/informatieobject-status.enum";
     MaterialFormBuilderModule,
   ],
 })
-export class InformatieObjectEditComponent implements OnChanges {
-  @Input()
-  infoObject?: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">;
-  @Input({ required: true }) sideNav!: MatDrawer;
-  @Input({ required: true }) zaakUuid!: string;
+export class InformatieObjectEditComponent {
+  private readonly informatieObjectenService = inject(
+    InformatieObjectenService,
+  );
+  private readonly utilService = inject(UtilService);
+  private readonly configuratieService = inject(ConfiguratieService);
+  private readonly translateService = inject(TranslateService);
+  private readonly identityService = inject(IdentityService);
+  private readonly vertrouwelijkaanduidingToTranslationKeyPipe = inject(
+    VertrouwelijkaanduidingToTranslationKeyPipe,
+  );
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly queryClient = inject(QueryClient);
 
-  @Output() document = new EventEmitter<
-    GeneratedType<"RestEnkelvoudigInformatieobject">
-  >();
+  protected readonly infoObject =
+    input<GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">>();
+  protected readonly sideNav = input.required<MatDrawer>();
+  protected readonly zaakUuid = input.required<string>();
+
+  protected readonly document =
+    output<GeneratedType<"RestEnkelvoudigInformatieobject">>();
+
+  protected readonly updateDocumentMutation = injectMutation(
+    () =>
+      this.informatieObjectenService.updateEnkelvoudigInformatieobject(
+        this.infoObject()?.uuid ?? "",
+        this.zaakUuid(),
+      ),
+    {
+      onSuccess: (document) => {
+        this.document.emit(document);
+        this.resetAndClose();
+      },
+    },
+  );
 
   protected readonly informatieobjectStatussen =
     this.utilService.getEnumAsSelectListExceptFor(
@@ -120,35 +139,13 @@ export class InformatieObjectEditComponent implements OnChanges {
     ]),
   });
 
-  private readonly queryClient = inject(QueryClient);
+  constructor() {
+    effect(() => {
+      const infoObject = this.infoObject();
+      if (!infoObject) return;
+      void this.initForm(infoObject);
+    });
 
-  protected readonly updateDocumentMutation = injectMutation(() => ({
-    mutationFn: (
-      infoObject: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
-    ) =>
-      lastValueFrom(
-        this.informatieObjectenService.updateEnkelvoudigInformatieobject(
-          this.infoObject!.uuid!,
-          this.zaakUuid,
-          infoObject,
-        ),
-      ),
-    onSuccess: (document: GeneratedType<"RestEnkelvoudigInformatieobject">) => {
-      this.document.emit(document);
-      this.utilService.openSnackbar("msg.document.nieuwe.versie.toegevoegd");
-      this.resetAndClose();
-    },
-  }));
-
-  constructor(
-    private readonly informatieObjectenService: InformatieObjectenService,
-    private readonly utilService: UtilService,
-    private readonly configuratieService: ConfiguratieService,
-    private readonly translateService: TranslateService,
-    private readonly identityService: IdentityService,
-    private readonly vertrouwelijkaanduidingToTranslationKeyPipe: VertrouwelijkaanduidingToTranslationKeyPipe,
-    private readonly formBuilder: FormBuilder,
-  ) {
     this.form.controls.ontvangstdatum.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
@@ -194,14 +191,6 @@ export class InformatieObjectEditComponent implements OnChanges {
       });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.infoObject && changes.infoObject.currentValue) {
-      this.infoObject = changes.infoObject.currentValue;
-      if (!this.infoObject) return;
-      void this.initForm(this.infoObject);
-    }
-  }
-
   async initForm(
     infoObject: GeneratedType<"RestEnkelvoudigInformatieObjectVersieGegevens">,
   ) {
@@ -241,7 +230,7 @@ export class InformatieObjectEditComponent implements OnChanges {
     });
 
     this.informatieObjectenService
-      .listInformatieobjecttypesForZaak(this.zaakUuid)
+      .listInformatieobjecttypesForZaak(this.zaakUuid())
       .subscribe((informatieObjectTypes) => {
         this.informatieObjectTypes = informatieObjectTypes;
         this.form.controls.informatieobjectType.patchValue(
@@ -264,21 +253,29 @@ export class InformatieObjectEditComponent implements OnChanges {
 
   protected submit() {
     const value = this.form.getRawValue();
-    this.updateDocumentMutation.mutate({
-      ...value,
-      informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
-      status: value.status?.value as unknown as GeneratedType<"StatusEnum">,
-      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
+    const formData = toDocumentFormData({
+      bestand: value.bestand,
       bestandsnaam: value.bestand?.name,
+      formaat: value.bestand?.type,
+      titel: value.titel,
+      beschrijving: value.beschrijving,
+      informatieobjectTypeUUID: value.informatieobjectType!.uuid!,
+      status: value.status?.value,
+      vertrouwelijkheidaanduiding: value.vertrouwelijkheidaanduiding?.value,
       verzenddatum: value.verzenddatum?.toISOString(),
       ontvangstdatum: value.ontvangstdatum?.toISOString(),
-      file: value.bestand as unknown as string,
-      formaat: value.bestand?.type,
+      taal: value.taal,
+      auteur: value.auteur,
+      toelichting: value.toelichting,
     });
+
+    this.updateDocumentMutation.mutate(
+      formData as unknown as PutBody<"/rest/informatieobjecten/informatieobject/{uuid}">,
+    );
   }
 
   protected resetAndClose() {
-    void this.sideNav.close();
+    void this.sideNav().close();
     this.form.reset();
   }
 }

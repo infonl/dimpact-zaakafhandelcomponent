@@ -27,6 +27,7 @@ import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.exception.ZrcRuntimeException
 import nl.info.client.zgw.ztc.ZtcClientService
 import nl.info.client.zgw.ztc.exception.ZtcRuntimeException
+import nl.info.zac.configuration.exception.FileSizeException
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BAG_CLIENT
 import nl.info.zac.exception.ErrorCode.ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK
@@ -110,6 +111,12 @@ class RestExceptionMapper : ExceptionMapper<Exception> {
             is BetrokkeneIsAlreadyAddedToZaakException -> generateResponse(
                 responseStatus = Response.Status.CONFLICT,
                 errorCode = ERROR_CODE_BETROKKENE_WAS_ALREADY_ADDED_TO_ZAAK,
+                exception = exception,
+                logLevel = Level.FINE
+            )
+            is FileSizeException -> generateResponse(
+                responseStatus = Response.Status.REQUEST_ENTITY_TOO_LARGE,
+                errorCode = exception.errorCode,
                 exception = exception,
                 logLevel = Level.FINE
             )

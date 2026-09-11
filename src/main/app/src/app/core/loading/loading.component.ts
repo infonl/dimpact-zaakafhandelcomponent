@@ -5,6 +5,7 @@
 
 import { Component, computed, inject } from "@angular/core";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { TranslatePipe } from "@ngx-translate/core";
 import {
   QueryClient,
   injectIsFetching,
@@ -16,11 +17,13 @@ import { UtilService } from "../service/util.service";
   selector: "zac-loading",
   templateUrl: "./loading.component.html",
   standalone: true,
-  imports: [MatProgressBarModule],
+  imports: [MatProgressBarModule, TranslatePipe],
 })
 export class LoadingComponent {
   protected readonly utilService = inject(UtilService);
   protected readonly queryClient = inject(QueryClient);
+
+  protected readonly progress = this.utilService.progress;
 
   protected readonly mutatingCount = injectIsMutating();
   protected readonly fetchingCount = injectIsFetching();
