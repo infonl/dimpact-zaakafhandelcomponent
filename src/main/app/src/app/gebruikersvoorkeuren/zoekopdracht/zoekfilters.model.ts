@@ -22,5 +22,5 @@ export type ZoekFilters = {
   reden?: string;
   ontvangstdatum?: GeneratedType<"RestDatumRange">;
   initiatorID?: string;
-  type?: string;
+  type?: string | null;
 };

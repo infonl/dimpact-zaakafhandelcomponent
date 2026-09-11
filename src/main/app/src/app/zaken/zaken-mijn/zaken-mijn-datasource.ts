@@ -5,8 +5,8 @@
 
 import { UtilService } from "../../core/service/util.service";
 import { ZoekenDataSource } from "../../shared/dynamic-table/datasource/zoeken-data-source";
-import { GeneratedType } from "../../shared/utils/generated-types";
 import { ZaakZoekObject } from "../../zoeken/model/zaken/zaak-zoek-object";
+import { ZoekParameters } from "../../zoeken/model/zoek-parameters";
 import { ZoekenService } from "../../zoeken/zoeken.service";
 
 /**
@@ -17,20 +17,16 @@ export class ZakenMijnDatasource extends ZoekenDataSource<ZaakZoekObject> {
     super("MIJN_ZAKEN", zoekenService, utilService);
   }
 
-  protected initZoekparameters(
-    zoekParameters: GeneratedType<"RestZoekParameters">,
-  ) {
+  protected initZoekparameters(zoekParameters: ZoekParameters) {
     return ZakenMijnDatasource.mijnLopendeZaken(zoekParameters);
   }
 
-  public static mijnLopendeZaken(
-    zoekParameters: GeneratedType<"RestZoekParameters">,
-  ) {
+  public static mijnLopendeZaken(zoekParameters: ZoekParameters) {
     return {
       ...zoekParameters,
       type: "ZAAK",
       alleenOpenstaandeZaken: true,
       alleenMijnZaken: true,
-    } satisfies GeneratedType<"RestZoekParameters">;
+    } satisfies ZoekParameters;
   }
 }
