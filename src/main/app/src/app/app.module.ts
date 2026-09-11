@@ -32,7 +32,6 @@ import { InformatieObjectenModule } from "./informatie-objecten/informatie-objec
 import { Paths } from "./shared/http/http-client";
 import { QUERY_CLIENT } from "./shared/http/query-client";
 import { SharedModule } from "./shared/shared.module";
-import { ZakenModule } from "./zaken/zaken.module";
 import { ZoekComponent } from "./zoeken/zoek/zoek.component";
 
 @NgModule({
@@ -44,7 +43,6 @@ import { ZoekComponent } from "./zoeken/zoek/zoek.component";
     CoreModule,
     SharedModule,
     FoutAfhandelingRoutingModule,
-    ZakenModule,
     ZoekComponent,
     InformatieObjectenModule,
     AppRoutingModule,

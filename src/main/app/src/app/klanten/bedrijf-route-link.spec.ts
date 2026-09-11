@@ -4,7 +4,7 @@
  */
 
 import { GeneratedType } from "../shared/utils/generated-types";
-import { buildBedrijfRouteLink } from "./klanten-routing.module";
+import { buildBedrijfRouteLink } from "./bedrijf-route-link";
 
 describe("buildBedrijfRouteLink", () => {
   it("returns undefined when bedrijf is null", () => {
