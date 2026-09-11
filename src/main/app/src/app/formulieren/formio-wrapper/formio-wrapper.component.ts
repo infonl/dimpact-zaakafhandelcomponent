@@ -65,7 +65,7 @@ export class FormioWrapperComponent
   @Output() formSubmit = new EventEmitter<FormioSubmitEvent>();
   @Output() formChange = new EventEmitter<FormioChangeEvent>();
   @Output() createDocument = new EventEmitter<FormioCustomEvent>();
-  @Output() submissionDone = new EventEmitter<boolean>();
+  @Output() submissionDone = new EventEmitter<object>();
   @Output() submissionError = new EventEmitter<FormioSubmitError>();
 
   @HostListener("click", ["$event"])
@@ -124,7 +124,7 @@ export class FormioWrapperComponent
           // it only has to be a non-empty error for Form.io to mark the button as failed.
           this.submissionError.emit({ message: "submit failed" });
         } else {
-          this.submissionDone.emit(true);
+          this.submissionDone.emit({});
         }
       }
       this.applySubmitPending();
@@ -289,11 +289,14 @@ export class FormioWrapperComponent
     );
   }
 
-  onCustomEvent(event: FormioCustomEvent) {
-    if (event.type === "createDocument") {
-      // Emit to parent
+  onCustomEvent(event: object) {
+    if (this.isCreateDocumentEvent(event)) {
       this.createDocument.emit(event);
     }
+  }
+
+  private isCreateDocumentEvent(event: object): event is FormioCustomEvent {
+    return "type" in event && event.type === "createDocument";
   }
 }
 
