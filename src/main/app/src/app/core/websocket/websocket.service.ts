@@ -1,21 +1,15 @@
 /*
- * SPDX-FileCopyrightText: 2021 - 2022 Atos
+ * SPDX-FileCopyrightText: 2021 - 2022 Atos, 2026 INFO.nl
  * SPDX-License-Identifier: EUPL-1.2+
  */
 
-import { Injectable, OnDestroy, inject } from "@angular/core";
+import { DestroyRef, Injectable, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { TranslateService } from "@ngx-translate/core";
 import { QueryClient } from "@tanstack/angular-query-experimental";
-import { Observable, Subject, forkJoin, of, throwError } from "rxjs";
-import {
-  catchError,
-  delay,
-  retryWhen,
-  switchMap,
-  takeUntil,
-  timeout,
-} from "rxjs/operators";
-import { WebSocketSubject, webSocket } from "rxjs/webSocket";
+import { Observable, Subject, forkJoin, throwError, timer } from "rxjs";
+import { catchError, switchMap, timeout } from "rxjs/operators";
+import { WebSocketSubject } from "rxjs/webSocket";
 import { IdentityService } from "../../identity/identity.service";
 import { UtilService } from "../service/util.service";
 import { isCausedByCurrentUser } from "./is-caused-by-current-user";
@@ -28,6 +22,7 @@ import { ScreenEventId } from "./model/screen-event-id";
 import { SubscriptionMessage } from "./model/subscription-message";
 import { SubscriptionType } from "./model/subscription-type";
 import { WebsocketListener } from "./model/websocket-listener";
+import { WEBSOCKET_FACTORY } from "./websocket-factory";
 
 type SocketMessage = {
   opcode: Opcode;
@@ -40,9 +35,11 @@ type SocketMessage = {
 @Injectable({
   providedIn: "root",
 })
-export class WebsocketService implements OnDestroy {
+export class WebsocketService {
   // This must be bigger than the SECONDS_TO_DELAY defined in ScreenEventObserver.java
   private static DEFAULT_SUSPENSION_TIMEOUT = 5; // seconds
+
+  private static RECONNECT_DELAY_MS = 3000;
 
   private readonly PROTOCOL: string = window.location.protocol.replace(
     /^http/,
@@ -61,48 +58,70 @@ export class WebsocketService implements OnDestroy {
     SocketMessage | SubscriptionMessage
   > | null = null;
 
-  private destroyed$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   private listeners: Record<string, Record<string, EventCallback>> = {};
+
+  private subscribedEvents: Record<string, ScreenEvent> = {};
 
   private suspended: Record<string, EventSuspension> = {};
 
   private readonly queryClient = inject(QueryClient);
   private readonly identityService = inject(IdentityService);
+  private readonly webSocketFactory = inject(WEBSOCKET_FACTORY);
 
   constructor(
     private translate: TranslateService,
     private utilService: UtilService,
   ) {
     this.receive(this.URL);
+    this.destroyRef.onDestroy(() => this.close());
   }
 
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
-    this.close();
+  private open(
+    url: string,
+  ): WebSocketSubject<SocketMessage | SubscriptionMessage> {
+    if (!this.connection$) {
+      this.connection$ = this.webSocketFactory({
+        url,
+        openObserver: {
+          next: () => {
+            console.log("Websocket geopend: " + url);
+            this.resubscribeAll();
+          },
+        },
+      });
+    }
+    return this.connection$;
   }
 
-  private open(url: string) {
-    return of(url).pipe(
-      switchMap((openUrl) => {
-        if (!this.connection$) {
-          this.connection$ = webSocket(openUrl);
-          console.log("Websocket geopend: " + openUrl);
-        }
-        return this.connection$;
-      }),
-      retryWhen((errors) => errors.pipe(delay(7))),
-    );
+  private resubscribeAll() {
+    Object.values(this.subscribedEvents).forEach((event) => {
+      this.send(new SubscriptionMessage(SubscriptionType.CREATE, event));
+    });
   }
 
   private receive(url: string) {
     this.open(url)
-      .pipe(takeUntil(this.destroyed$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (message) => this.onMessage(message as SocketMessage),
-        error: this.onError,
+        error: (error) => {
+          this.onError(error);
+          this.reconnect(url);
+        },
+        complete: () => this.reconnect(url),
       });
+  }
+
+  private reconnect(url: string) {
+    console.warn(
+      `Websocket verbinding gesloten, opnieuw verbinden over ${WebsocketService.RECONNECT_DELAY_MS}ms`,
+    );
+    this.connection$ = null;
+    timer(WebsocketService.RECONNECT_DELAY_MS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.receive(url));
   }
 
   private send(data: SubscriptionMessage) {
@@ -286,15 +305,18 @@ export class WebsocketService implements OnDestroy {
     );
 
     callbacks[listener.id] = callback;
+    this.subscribedEvents[event.key] = event;
     return listener;
   }
 
   private removeCallback(listener: WebsocketListener): void {
-    const callbacks: Record<string, EventCallback> = this.getCallbacks(
-      listener.event.key,
-    );
+    const key = listener.event.key;
+    const callbacks: Record<string, EventCallback> = this.getCallbacks(key);
     delete callbacks[listener.id];
     delete this.suspended[listener.id];
+    if (Object.keys(callbacks).length === 0) {
+      delete this.subscribedEvents[key];
+    }
   }
 
   private getCallbacks(key: string): Record<string, EventCallback> {
