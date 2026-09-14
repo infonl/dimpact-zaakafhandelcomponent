@@ -267,12 +267,13 @@ class ZaakGedrevenReindexService @Inject constructor(
 
     /**
      * Reindexes [zaakUUID] and, when requested, its open taken and its linked documenten, retrieving the
-     * zaak once via [ZrcClientService.readZaak] and reusing it for all three conversions. If retrieving or
-     * converting the zaak itself fails, its taken and documenten are not attempted either for that zaak -
-     * consistent with them belonging to the zaak, and avoiding retrieval calls likely to fail again for
-     * the same zaak. A listing failure for the taken or documenten of an otherwise successfully indexed
-     * zaak only drops that piece for this zaak (logged, not counted as a conversion error), the same way a
-     * page-listing failure is handled by [ReindexSupportService.reindexAllTaken]/
+     * zaak once via [ZrcClientService.readZaak] and reusing it for all three conversions, including when
+     * resolving its geautoriseerde medewerkers. If retrieving or converting the zaak itself fails, its
+     * taken and documenten are not attempted either for that zaak - consistent with them belonging to
+     * the zaak, and avoiding retrieval calls likely to fail again for the same zaak. A listing failure
+     * for the taken or documenten of an otherwise successfully indexed zaak only drops that piece for
+     * this zaak (logged, not counted as a conversion error), the same way a page-listing failure is
+     * handled by [ReindexSupportService.reindexAllTaken]/
      * [ReindexSupportService.reindexAllInformatieobjecten].
      */
     private fun reindexZaakTakenDocumenten(
@@ -284,7 +285,13 @@ class ZaakGedrevenReindexService @Inject constructor(
         val zaakConversion = try {
             reindexSupportService.runTranslatingToIndexingException {
                 val zaak = zrcClientService.readZaak(zaakUUID)
-                zaak to zaakZoekObjectConverter.convert(zaak, zaakAutorisatieGegevens)
+                val zaakAutorisatieGegevensForZaak by lazy {
+                    reindexSupportService.zaakAutorisatieGegevens(zaak)
+                }
+                val reusingZaak: (UUID) -> ZaakAutorisatieGegevens = {
+                    if (it == zaakUUID) zaakAutorisatieGegevensForZaak else zaakAutorisatieGegevens(it)
+                }
+                Triple(zaak, reusingZaak, zaakZoekObjectConverter.convert(zaak, reusingZaak))
             }
         } catch (indexingException: IndexingException) {
             LOG.log(Level.WARNING, "[${ZoekObjectType.ZAAK}] Error during indexing", indexingException)
@@ -293,14 +300,14 @@ class ZaakGedrevenReindexService @Inject constructor(
         if (zaakConversion == null) {
             return ReindexZaakTakenDocumentenOutcome(ConversionOutcome.Errored, emptyList(), emptyList())
         }
-        val (zaak, zaakZoekObject) = zaakConversion
+        val (zaak, zaakAutorisatieGegevensReusingZaak, zaakZoekObject) = zaakConversion
 
         val takenOutcomes = if (scope.includeTaken) {
             reindexSupportService.continueOnExceptions(ZoekObjectType.TAAK) {
                 flowableTaskService.listOpenTasksForZaak(zaakUUID)
             }
                 .orEmpty()
-                .map { task -> convertTaak(task.id, zaak, zaakAutorisatieGegevens) }
+                .map { task -> convertTaak(task.id, zaak, zaakAutorisatieGegevensReusingZaak) }
         } else {
             emptyList()
         }
@@ -316,7 +323,7 @@ class ZaakGedrevenReindexService @Inject constructor(
                     // here ensures it is only converted/counted once for this run, via whichever of its
                     // zaken is processed first, instead of once per zaak it is linked to
                     if (alreadyIndexedInformatieobjectUUIDs.add(informatieobjectUUID)) {
-                        convertDocument(zaakInformatieobject, zaak, zaakAutorisatieGegevens)
+                        convertDocument(zaakInformatieobject, zaak, zaakAutorisatieGegevensReusingZaak)
                     } else {
                         null
                     }
