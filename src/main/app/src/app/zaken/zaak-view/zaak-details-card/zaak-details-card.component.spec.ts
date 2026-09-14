@@ -136,7 +136,7 @@ describe(ZaakDetailsCardComponent.name, () => {
       renderCard({ zaak: { ...zaak, isZaakspecifiekGeautoriseerd: true } });
 
       expect(
-        screen().getByTitle("zaak.isZaakspecifiekGeautoriseerd"),
+        screen().getByTitle("zaak.is-zaakspecifiek-geautoriseerd"),
       ).toBeInTheDocument();
     });
 
