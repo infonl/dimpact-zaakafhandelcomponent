@@ -196,6 +196,25 @@ describe(InboxProductaanvragenListComponent.name, () => {
     expect(fixture.componentInstance["sort"].direction).toBe("desc");
   });
 
+  it("restores the default order when a saved search omits only the order", async () => {
+    await setup();
+    await showProductaanvragen([inboxProductaanvraag]);
+
+    fixture.componentInstance["zoekopdrachtChanged"](
+      fromPartial<GeneratedType<"RESTZoekopdracht">>({
+        json: JSON.stringify({ sort: "type", type: "type-B" }),
+      }),
+    );
+
+    expect(fixture.componentInstance["listParameters"]).toMatchObject({
+      sort: "type",
+      order: "desc",
+      type: "type-B",
+    });
+    expect(fixture.componentInstance["sort"].active).toBe("type");
+    expect(fixture.componentInstance["sort"].direction).toBe("desc");
+  });
+
   it("filters on the type that was chosen in the type filter", async () => {
     await setup();
     await showProductaanvragen([inboxProductaanvraag]);
