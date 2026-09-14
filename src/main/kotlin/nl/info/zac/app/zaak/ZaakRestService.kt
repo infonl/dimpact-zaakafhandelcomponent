@@ -610,7 +610,8 @@ class ZaakRestService @Inject constructor(
         )
         if (shouldBeMarkedZaakspecifiekGeautoriseerd) {
             zrcClientService.markZaakspecifiekGeautoriseerd(updatedZaak, ztcClientService)
-            indexingService.addOrUpdateZaak(zaakUUID, inclusiefTaken = true)
+            indexingService.addOrUpdateZaak(zaakUUID, inclusiefTaken = false)
+            indexingService.addOrUpdateTakenForZaak(zaakUUID)
             indexingService.addOrUpdateInformatieobjectenForZaak(zaakUUID)
         }
         restZaakEditMetRedenGegevens.zaak.communicatiekanaal?.let {
