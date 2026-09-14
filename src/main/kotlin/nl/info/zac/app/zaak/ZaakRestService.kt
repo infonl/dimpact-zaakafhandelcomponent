@@ -794,9 +794,10 @@ class ZaakRestService @Inject constructor(
                 if (!zaakType.isZaakspecifiekAutoriseerbaar()) {
                     throw ZaaktypeNotZaakspecifiekAutoriseerbaarException()
                 }
-                val behandelaarId = restZaak.behandelaar?.id
-                    ?: zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.betrokkeneIdentificatie?.identificatie
-                    ?: throw ZaakWithoutBehandelaarCannotBeMarkedException()
+val behandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
+    ?.betrokkeneIdentificatie
+    ?.identificatie
+    ?: throw ZaakWithoutBehandelaarCannotBeMarkedException()
                 if (behandelaarId != loggedInUser.id &&
                     !loggedInUser.isZaakspecifiekGeautoriseerdFor(zaakType.getOmschrijving())
                 ) {
