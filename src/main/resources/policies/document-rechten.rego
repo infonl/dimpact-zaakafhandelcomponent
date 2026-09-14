@@ -45,8 +45,7 @@ zaaktype_allowed if {
 # document whose zaak is not zaakspecifiek geautoriseerd, otherwise only for a user who also holds the
 # zaakspecifiek_geautoriseerd application role - regardless of which other application role(s)
 # (including recordmanager or beheerder) the user holds - or who is individually authorised for the
-# document's zaak (today: its current behandelaar). Like the zaakspecifiek_geautoriseerd role, that grants
-# no permission of its own: every permission rule below also requires an application role.
+# document's zaak (today: its current behandelaar).
 default zaak_allowed := false
 zaak_allowed if {
     not document.zaakspecifiekGeautoriseerd

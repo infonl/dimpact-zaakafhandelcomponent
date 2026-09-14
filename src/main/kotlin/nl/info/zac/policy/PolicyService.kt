@@ -248,11 +248,6 @@ class PolicyService @Inject constructor(
         ).result
     }
 
-    /**
-     * Whether [userId] is individually authorised for [zaak], as opposed to being authorised for its whole
-     * zaaktype by holding the `zaakspecifiek_geautoriseerd` application role. Today that means being the
-     * zaak's current behandelaar.
-     */
     private fun isGeautoriseerdeMedewerkerOf(zaak: Zaak, userId: String) =
         zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)?.betrokkeneIdentificatie?.identificatie == userId
 

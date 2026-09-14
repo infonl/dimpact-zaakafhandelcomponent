@@ -319,8 +319,6 @@ export class ZakenWerkvoorraadComponent
     dialogComponent: ComponentType<T>,
     release = false,
   ) {
-    // The backend skips these zaken server-side either way; partitioning here is what lets the user be
-    // told *why* a zaak was left out, which the SKIPPED websocket opcode does not carry.
     const skippedBecauseGeautoriseerd = this.selection.selected.filter(
       ({ isZaakspecifiekGeautoriseerd }) => isZaakspecifiekGeautoriseerd,
     );
@@ -435,8 +433,8 @@ export class ZakenWerkvoorraadComponent
         ),
       );
     if (!messages.length) return;
-    // Already-translated sentences: openSnackbar translates its argument, and TranslateService returns
-    // an unknown key unchanged, so joining the two reasons here keeps them in one snackbar.
+    // openSnackbar translates its argument and TranslateService passes an unknown key through unchanged,
+    // which is what lets these already-translated sentences be shown as one snackbar
     this.utilService.openSnackbar(messages.join(" "), undefined, 8);
   }
 

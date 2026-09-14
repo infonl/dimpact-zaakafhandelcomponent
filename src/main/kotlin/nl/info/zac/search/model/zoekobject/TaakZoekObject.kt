@@ -86,11 +86,6 @@ data class TaakZoekObject(
     companion object {
         const val BEHANDELAAR_ID_FIELD: String = "taak_behandelaarGebruikersnaam"
         const val ZAAKSPECIFIEK_GEAUTORISEERD_FIELD: String = "taak_zaakspecifiekGeautoriseerd"
-
-        /**
-         * The medewerkers individually authorised for the zaak this taak belongs to. Deliberately distinct
-         * from [BEHANDELAAR_ID_FIELD], which is the behandelaar of the taak itself.
-         */
         const val ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD: String = "taak_zaakGeautoriseerdeMedewerkers"
     }
 

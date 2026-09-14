@@ -185,8 +185,7 @@ class SearchService @Inject constructor(
     // zaakspecifiek_geautoriseerd flag; returns null when every allowed zaaktype has the flag (or none is
     // allowed). Mirrors OPA's `user.rollen`, which also grants the flag for every zaaktype once it is held
     // as an overall role (i.e. one not scoped to a specific zaaktype), and OPA's exception for medewerkers
-    // individually authorised for a zaak, which keeps that zaak, its taken and its documenten visible to
-    // them. The field is multi-valued, so the negated term matches when the user is any one of them.
+    // individually authorised for a zaak.
     private fun getZaakspecifiekGeautoriseerdFilterQuery(): String? =
         loggedInUserInstance.get()?.let { loggedInUser ->
             if (ROLE_NAME_ZAAKSPECIFIEK_GEAUTORISEERD in loggedInUser.overallRoles) {

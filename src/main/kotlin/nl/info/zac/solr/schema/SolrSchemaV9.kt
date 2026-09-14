@@ -22,17 +22,14 @@ import org.apache.solr.client.solrj.request.schema.SchemaRequest
  * and documenten, so that werklijsten and zoekresultaten can keep a zaakspecifiek geautoriseerde zaak
  * visible to them.
  *
- * The fields are multi-valued even though only one medewerker - the zaak's current behandelaar - is
- * recorded in them for now. Widening the set later (previous zaakbehandelaars, current and previous
- * taakbehandelaars, manually added medewerkers) then adds sources only, and needs neither a new Solr schema
- * version nor another manual reindex of every environment.
+ * The fields are multi-valued even though only the zaak's current behandelaar is recorded in them for now,
+ * so that widening the set later needs neither a new Solr schema version nor another manual reindex.
  */
 class SolrSchemaV9 : SolrSchemaUpdate {
     override val versie = 9
 
     // Reindexing existing zaken, taken and documenten is run manually per environment, to avoid a possibly
-    // very long reindex at startup on environments with a lot of data, following the same approach as
-    // SolrSchemaV8.
+    // very long reindex at startup on environments with a lot of data, as in SolrSchemaV8.
     override val teHerindexerenZoekObjectTypes = emptySet<ZoekObjectType>()
 
     override val schemaUpdates: List<SchemaRequest.Update> = listOf<SchemaRequest.Update>(

@@ -51,8 +51,7 @@ class ZaakZoekObjectConverter @Inject constructor(
     /**
      * Converts [id], looking up the zaak-level data through [zaakAutorisatieGegevens] instead of always
      * deriving it directly. Used by [nl.info.zac.search.IndexingService] to memoize that lookup per zaak
-     * UUID across the taken of one zaak. The geautoriseerde medewerkers are not taken from the lookup
-     * here, since this converter already resolves them from the zaak's rollen.
+     * UUID across the taken of one zaak.
      */
     override fun convert(id: String, zaakAutorisatieGegevens: (UUID) -> ZaakAutorisatieGegevens): ZaakZoekObject {
         val zaak = zrcClientService.readZaak(UUID.fromString(id))

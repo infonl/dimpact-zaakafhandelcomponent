@@ -5,11 +5,8 @@
 package nl.info.zac.search.model
 
 /**
- * The zaak-level facts a zoekobject conversion needs but cannot derive from the object it converts.
- *
- * [geautoriseerdeMedewerkers] is resolved lazily because converting a zaak already knows them, while
- * converting a taak or a document would otherwise need an extra call to the zaakregister for every single
- * one of them.
+ * [geautoriseerdeMedewerkers] is resolved lazily because converting a taak or a document would otherwise
+ * need an extra call to the zaakregister for every single one of them.
  */
 class ZaakAutorisatieGegevens(
     val isZaakspecifiekGeautoriseerd: Boolean,

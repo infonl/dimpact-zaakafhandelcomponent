@@ -59,9 +59,7 @@ zaaktype_allowed if {
 # zaak_allowed guards access to a zaakspecifiek geautoriseerde zaak: unrestricted for a zaak that is not
 # zaakspecifiek geautoriseerd, otherwise only for a user who also holds the zaakspecifiek_geautoriseerd
 # application role - regardless of which other application role(s) (including recordmanager or beheerder)
-# the user holds - or who is individually authorised for this zaak (today: its current behandelaar). Like the
-# zaakspecifiek_geautoriseerd role, that grants no permission of its own: every permission rule below also
-# requires an application role.
+# the user holds - or who is individually authorised for this zaak (today: its current behandelaar).
 default zaak_allowed := false
 zaak_allowed if {
     not zaak.zaakspecifiekGeautoriseerd

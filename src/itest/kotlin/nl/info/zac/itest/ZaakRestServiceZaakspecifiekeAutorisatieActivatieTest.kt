@@ -31,13 +31,6 @@ import java.net.HttpURLConnection.HTTP_OK
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-/**
- * Verifies activating zaakspecifieke autorisatie on an individual zaak from ZAC: the preconditions that
- * must hold, the fact that the marking cannot be lifted or the behandelaar changed while it stands, that
- * the behandelaar keeps access to their own marked zaak without holding the zaakspecifiek_geautoriseerd
- * role, and that a recordmanager who is granted that role through the PABC configuration reaches the zaak
- * as well - including a zaak whose behandelaar was removed outside ZAC.
- */
 @Suppress("LargeClass")
 class ZaakRestServiceZaakspecifiekeAutorisatieActivatieTest : BehaviorSpec({
     val logger = KotlinLogging.logger {}

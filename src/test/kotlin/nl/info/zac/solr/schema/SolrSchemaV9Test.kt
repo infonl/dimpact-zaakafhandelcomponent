@@ -33,14 +33,11 @@ class SolrSchemaV9Test : BehaviorSpec({
             }
 
             then("a shared field and a per-type field plus copy field are defined for each zoekobject type") {
-                // shared field + (per-type field, copy field) for ZAAK, TAAK and DOCUMENT
                 solrSchemaV9.schemaUpdates.size shouldBe 1 + 3 * 2
             }
 
             then("the shared field and each zoekobject's own Solr field are actually defined") {
                 schemaUpdatesJson.joinToString("\n").let { allUpdates ->
-                    // quoted so a rename of a prefixed field (e.g. "zaak_zaakGeautoriseerdeMedewerkers")
-                    // can never satisfy this on a substring match alone
                     allUpdates shouldContain "\"${ZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD}\""
                     allUpdates shouldContain ZaakZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD
                     allUpdates shouldContain TaakZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD

@@ -1525,8 +1525,6 @@ test_lezen_geautoriseerd_behandelaar_of_another_zaak_fails if {
         with input.user.rollen as [ "behandelaar" ]
 }
 
-# being the current behandelaar is a flag just like the zaakspecifiek_geautoriseerd role: held without
-# any application role it grants no rights at all
 test_lezen_geautoriseerd_current_behandelaar_without_any_role_fails if {
     not lezen
         with input.zaak.zaakspecifiekGeautoriseerd as true

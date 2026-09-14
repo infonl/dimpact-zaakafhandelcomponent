@@ -120,10 +120,6 @@ export class CaseDetailsEditComponent implements OnInit {
     isZaakspecifiekGeautoriseerd: this.formBuilder.control(false),
   });
 
-  /**
-   * Marking a zaak zaakspecifiek geautoriseerd is only offered for a zaaktype that is configured as
-   * zaakspecifiek autoriseerbaar, because the zaakregister has no eigenschap to record it otherwise.
-   */
   protected readonly showZaakspecifiekGeautoriseerd = computed(() =>
     Boolean(
       this.zaak().zaaktype.zaakafhandelparameters?.zaakspecifiekAutoriseerbaar,
@@ -218,7 +214,6 @@ export class CaseDetailsEditComponent implements OnInit {
       this.form.controls.groep.disable();
     }
 
-    // the marking cannot be lifted, so once it is set the control is read-only
     if (zaak.isZaakspecifiekGeautoriseerd || !zaak.rechten.wijzigen) {
       this.form.controls.isZaakspecifiekGeautoriseerd.disable();
     }

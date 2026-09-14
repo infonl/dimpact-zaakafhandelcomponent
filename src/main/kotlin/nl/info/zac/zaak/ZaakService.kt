@@ -345,10 +345,6 @@ class ZaakService @Inject constructor(
         }
     }
 
-    /**
-     * A zaakspecifiek geautoriseerde zaak keeps its behandelaar for as long as the marking stands, so it is
-     * skipped by both batch operations rather than failing the whole batch.
-     */
     private fun isZaakspecifiekGeautoriseerd(zaak: Zaak) =
         zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)
 

@@ -167,12 +167,6 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
         }
     }
 
-    /**
-     * A zaakspecifiek geautoriseerde zaak keeps its behandelaar for as long as the marking stands, so that
-     * the behandelaar who is only reachable through the current-behandelaar exception cannot be locked out
-     * of the zaak. Assigning the zaak to the behandelaar it already has is not a change and is allowed, so
-     * that the group can still be changed.
-     */
     private fun checkBehandelaarChangeAllowed(zaak: Zaak, newBehandelaarId: String?) {
         if (!zrcClientService.isZaakspecifiekGeautoriseerd(zaak.uuid)) return
         val currentBehandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)

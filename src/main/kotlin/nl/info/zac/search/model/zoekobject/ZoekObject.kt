@@ -20,11 +20,6 @@ interface ZoekObject {
          * The shared Solr field that [ZaakZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD],
          * [TaakZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD], and
          * [DocumentZoekObject.ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD] are each `copyField`-merged into.
-         *
-         * These are the medewerkers individually authorised for the *zaak* the row belongs to, as opposed
-         * to those authorised for its whole zaaktype by holding the `zaakspecifiek_geautoriseerd`
-         * application role. For a taak these are different people than
-         * [TaakZoekObject.BEHANDELAAR_ID_FIELD], the behandelaar of the taak itself.
          */
         const val ZAAK_GEAUTORISEERDE_MEDEWERKERS_FIELD: String = "zaakGeautoriseerdeMedewerkers"
     }

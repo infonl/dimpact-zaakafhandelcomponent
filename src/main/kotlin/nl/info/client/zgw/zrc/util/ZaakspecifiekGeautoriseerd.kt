@@ -18,14 +18,6 @@ fun ZrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID: UUID): Boolean =
         it.naam == ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD && it.waarde == ZAAKEIGENSCHAP_WAARDE_GEAUTORISEERD
     }
 
-/**
- * Records [zaak] as zaakspecifiek geautoriseerd in the zaakregister, and does nothing when it already
- * carries the marking, so that marking a zaak twice never creates a duplicate zaakeigenschap.
- *
- * Throws [nl.info.client.zgw.ztc.exception.EigenschapNotFoundException] when the zaak's zaaktype does not
- * define the [ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD] eigenschap, i.e. when it is not zaakspecifiek
- * autoriseerbaar.
- */
 fun ZrcClientService.markZaakspecifiekGeautoriseerd(zaak: Zaak, ztcClientService: ZtcClientService) {
     if (isZaakspecifiekGeautoriseerd(zaak.uuid)) return
     ztcClientService.readEigenschap(zaak.zaaktype, ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD).let { eigenschap ->

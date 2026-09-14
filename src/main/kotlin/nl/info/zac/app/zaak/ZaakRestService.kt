@@ -772,10 +772,6 @@ class ZaakRestService @Inject constructor(
         }
     }
 
-    /**
-     * Validates the zaakspecifieke autorisatie part of a zaak update, before any change is sent to the
-     * zaakregister, and returns whether the zaak still has to be marked as zaakspecifiek geautoriseerd.
-     */
     @Suppress("ThrowsCount")
     private fun checkZaakspecifiekeAutorisatie(
         zaak: Zaak,
@@ -811,10 +807,6 @@ class ZaakRestService @Inject constructor(
         }
     }
 
-    /**
-     * A zaakspecifiek geautoriseerde zaak keeps the behandelaar it had when it was marked, for as long as
-     * the marking stands.
-     */
     private fun checkBehandelaarUnchanged(zaak: Zaak, restZaak: RestZaakCreateData) {
         val currentBehandelaarId = zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak)
             ?.betrokkeneIdentificatie
