@@ -62,10 +62,6 @@ import { TekstFilterComponent } from "../../shared/table-zoek-filters/tekst-filt
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { InboxProductaanvragenService } from "../inbox-productaanvragen.service";
 
-/**
- * The list parameters as this screen keeps them: it always fills in a sort field
- * and direction, where the wire format leaves both optional.
- */
 type InboxProductaanvraagListParameters =
   GeneratedType<"RestInboxProductaanvraagListParameters"> & {
     sort: string;
