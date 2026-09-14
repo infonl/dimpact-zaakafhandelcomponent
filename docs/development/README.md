@@ -7,6 +7,7 @@ The following ZAC developer documentation is available:
 - [IDE Configuration](ideConfig.md) - Instructions on how to configure your IDE for ZAC development.
 - [Installation](INSTALL.md) - Instructions on how to build, run and test the software.
 - [Running ZAC using Docker Compose](installDockerCompose.md) - Instructions on how to run the software using Docker Compose.
+- [Document file sizes](documentFileSizes.md) - The two maximum document sizes ZAC enforces and what has to be configured to raise them.
 - [End-to-end type safety](endToEndTypeSafety.md) - Instructions on how to develop ZAC using end-to-end type safety.
 - [Testing](testing.md) - Instructions on how to run and develop tests for ZAC.
 - [Updating dependencies](updatingDependencies.md) - Instructions on how to update various types of dependencies in ZAC

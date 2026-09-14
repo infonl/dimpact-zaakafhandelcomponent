@@ -139,4 +139,45 @@ describe("ZaakService", () => {
       await request;
     });
   });
+
+  describe.each([
+    ["updateMutation", () => service.updateMutation()],
+    ["verlengenZaak", () => service.verlengenZaak("fakeZaakUuid1")],
+    ["updateZaakLocatie", () => service.updateZaakLocatie("fakeZaakUuid1")],
+    ["afsluitenMutation", () => service.afsluitenMutation("fakeZaakUuid1")],
+    ["updateInitiator", () => service.updateInitiator()],
+    ["createBetrokkene", () => service.createBetrokkene()],
+    ["deleteInitiator", () => service.deleteInitiator()],
+    ["deleteBetrokkene", () => service.deleteBetrokkene()],
+  ])("%s", (_name, createMutation) => {
+    const zaak = fromPartial<GeneratedType<"RestZaak">>({
+      uuid: "fakeZaakUuid1",
+    });
+
+    it("caches the zaak the server answers with", () => {
+      const cacheZaak = jest.spyOn(service, "cacheZaak");
+
+      createMutation().onSuccess?.(
+        zaak,
+        fromPartial({}),
+        undefined,
+        fromPartial<MutationFunctionContext>({}),
+      );
+
+      expect(cacheZaak).toHaveBeenCalledWith(zaak);
+    });
+
+    it("refreshes the historie of that zaak, because the server accepted the change", () => {
+      const invalidateHistorie = jest.spyOn(service, "invalidateHistorie");
+
+      createMutation().onSuccess?.(
+        zaak,
+        fromPartial({}),
+        undefined,
+        fromPartial<MutationFunctionContext>({}),
+      );
+
+      expect(invalidateHistorie).toHaveBeenCalledWith("fakeZaakUuid1");
+    });
+  });
 });

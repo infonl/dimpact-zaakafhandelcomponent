@@ -12,6 +12,7 @@ import nl.info.client.zgw.zrc.model.RolMedewerker
 import nl.info.client.zgw.zrc.model.RolOrganisatorischeEenheid
 import nl.info.client.zgw.zrc.model.zaakUUID
 import nl.info.client.zgw.drc.DrcClientService
+import nl.info.zac.document.content.DocumentContent
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObject
 import nl.info.client.zgw.drc.model.generated.EnkelvoudigInformatieObjectCreateLockRequest
 import nl.info.client.zgw.drc.model.generated.Gebruiksrechten
@@ -247,9 +248,15 @@ class ZgwApiService @Inject constructor(
         enkelvoudigInformatieObjectCreateLockRequest: EnkelvoudigInformatieObjectCreateLockRequest,
         titel: String,
         beschrijving: String?,
-        omschrijvingVoorwaardenGebruiksrechten: String?
+        omschrijvingVoorwaardenGebruiksrechten: String?,
+        content: DocumentContent? = null
     ): ZaakInformatieObject {
-        val newInformatieObjectData = drcClientService.createEnkelvoudigInformatieobject(
+        val newInformatieObjectData = content?.let {
+            drcClientService.createEnkelvoudigInformatieobject(
+                enkelvoudigInformatieObjectCreateLockRequest = enkelvoudigInformatieObjectCreateLockRequest,
+                content = it
+            )
+        } ?: drcClientService.createEnkelvoudigInformatieobject(
             enkelvoudigInformatieObjectCreateLockRequest
         )
         // Gebruiksrechten are required for every created zaakinformatieobject or else

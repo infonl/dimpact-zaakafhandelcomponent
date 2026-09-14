@@ -161,7 +161,7 @@ export class InformatieObjectCreateAttendedComponent
     const templateGroupsFetcher: Observable<
       GeneratedType<"RestMappedSmartDocumentsTemplateGroup">[]
     > = from(
-      this.queryClient.ensureQueryData(
+      this.queryClient.query(
         this.smartDocumentsService.getTemplatesMappingQuery(
           this.zaak.zaaktype.uuid,
         ),

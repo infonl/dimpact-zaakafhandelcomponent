@@ -10,8 +10,10 @@ import { MatDrawer } from "@angular/material/sidenav";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { provideQueryClient } from "@tanstack/angular-query-experimental";
 import { of } from "rxjs";
 import { fromPartial } from "src/test-helpers";
+import { testQueryClient } from "../../../../setupJest";
 import { GeneratedType } from "../../shared/utils/generated-types";
 import { BAGService } from "../bag.service";
 import { BagZoekComponent } from "./bag-zoek.component";
@@ -37,7 +39,11 @@ describe(BagZoekComponent.name, () => {
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        provideQueryClient(testQueryClient),
+      ],
     }).compileComponents();
 
     bagService = TestBed.inject(BAGService);

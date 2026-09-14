@@ -8,6 +8,7 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
+import { TranslateModule } from "@ngx-translate/core";
 import { FoutAfhandelingService } from "../fout-afhandeling/fout-afhandeling.service";
 import { ConfiguratieService } from "./configuratie.service";
 
@@ -16,7 +17,7 @@ describe("InformatieObjectService", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [],
+      imports: [TranslateModule.forRoot()],
       providers: [
         { provide: FoutAfhandelingService, useValue: {} },
         provideHttpClient(withInterceptorsFromDi()),

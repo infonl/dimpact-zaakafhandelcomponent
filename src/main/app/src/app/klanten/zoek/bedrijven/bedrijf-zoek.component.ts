@@ -34,7 +34,7 @@ import {
 } from "../../../shared/utils/constants";
 import { GeneratedType } from "../../../shared/utils/generated-types";
 import { CustomValidators } from "../../../shared/validators/customValidators";
-import { buildBedrijfRouteLink } from "../../klanten-routing.module";
+import { buildBedrijfRouteLink } from "../../bedrijf-route-link";
 import { KlantenService } from "../../klanten.service";
 import { FormCommunicatieService } from "../form-communicatie-service";
 

@@ -11,6 +11,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import jakarta.ws.rs.core.StreamingOutput
 import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.zac.app.productaanvraag.model.RestInboxProductaanvraagListParameters
@@ -22,6 +23,7 @@ import nl.info.zac.productaanvraag.InboxProductaanvraagService
 import nl.info.zac.productaanvraag.model.InboxProductaanvraagResultaat
 import nl.info.zac.productaanvraag.model.createInboxProductaanvraag
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.util.UUID
 
 class InboxProductaanvraagRestServiceTest : BehaviorSpec({
@@ -121,11 +123,14 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                 every { policyService.readWerklijstRechten() } returns werklijstRechten
                 every { drcClientService.readEnkelvoudigInformatieobject(uuid) } returns enkelvoudigInformatieObject
                 every { drcClientService.downloadEnkelvoudigInformatieobject(uuid) } returns ByteArrayInputStream(
-                    ByteArray(0)
+                    byteArrayOf(1, 2, 3)
                 )
 
-                then("the document is downloaded and a response is returned") {
+                then("the document is streamed to the client") {
                     val response = service.pdfPreview(uuid)
+                    val streamedContent = ByteArrayOutputStream()
+                        .also { (response.entity as StreamingOutput).write(it) }
+                        .toByteArray()
 
                     verify(exactly = 1) {
                         policyService.readWerklijstRechten()
@@ -133,6 +138,7 @@ class InboxProductaanvraagRestServiceTest : BehaviorSpec({
                         drcClientService.downloadEnkelvoudigInformatieobject(uuid)
                     }
                     response.status shouldBe 200
+                    streamedContent shouldBe byteArrayOf(1, 2, 3)
                 }
             }
         }

@@ -14,10 +14,12 @@ import nl.info.zac.app.configuration.model.createTaal
 import nl.info.zac.configuration.BrpConfiguration
 import nl.info.zac.configuration.BrpConfigurationProvider
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.configuration.FileSizeConfiguration
 
 class ConfigurationRestServiceTest : BehaviorSpec({
     val configurationService = mockk<ConfigurationService>()
-    val configurationRestService = ConfigurationRestService(configurationService)
+    val fileSizeConfiguration = FileSizeConfiguration(maxFileSizeMB = 999L, maxInMemoryFileSizeMB = 80L)
+    val configurationRestService = ConfigurationRestService(configurationService, fileSizeConfiguration)
 
     given("Multiple languages are available") {
         val taal1 = createTaal(1L, "nl", "Nederlands", "Dutch", "nl_NL")
@@ -87,8 +89,6 @@ class ConfigurationRestServiceTest : BehaviorSpec({
     }
 
     given("A maximum file size is configured") {
-        every { configurationService.readMaxFileSizeMB() } returns 999L
-
         `when`("readMaxFileSizeMB is called") {
             val result = configurationRestService.readMaxFileSizeMB()
 

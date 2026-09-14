@@ -27,10 +27,12 @@ import nl.info.client.zgw.drc.model.generated.SoortEnum
 import nl.info.client.zgw.drc.model.generated.StatusEnum
 import nl.info.client.zgw.model.createZaakInformatieobjectForReads
 import nl.info.client.zgw.shared.ZgwApiService
+import nl.info.client.zgw.shared.exception.ZgwRuntimeException
 import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.configuration.ConfigurationService
+import nl.info.zac.document.content.InMemoryDocumentContent
 import nl.info.zac.enkelvoudiginformatieobject.EnkelvoudigInformatieObjectLockService
 import nl.info.zac.enkelvoudiginformatieobject.model.createEnkelvoudigInformatieObjectLock
 import nl.info.zac.policy.PolicyService
@@ -242,6 +244,51 @@ class EnkelvoudigInformatieObjectUpdateServiceTest : BehaviorSpec({
                 and("no temporary lock is created nor deleted") {
                     verify(exactly = 0) {
                         enkelvoudigInformatieObjectLockService.createLock(any(), any())
+                        enkelvoudigInformatieObjectLockService.deleteLock(any())
+                    }
+                }
+            }
+        }
+
+        given("An enkelvoudig informatie object, no existing lock and a content upload that fails") {
+            val enkelvoudigInformatieObjectUUID = UUID.randomUUID()
+            val enkelvoudigInformatieObjectWithLockRequest = createEnkelvoudigInformatieObjectWithLockRequest()
+            val explanation = "fakeExplanation"
+            val userId = "fakeUserId"
+            val enkelvoudigInformatieObjectLock = createEnkelvoudigInformatieObjectLock()
+            val content = InMemoryDocumentContent("fakeContent".toByteArray())
+            every { loggedInUserInstance.get().id } returns userId
+            every { enkelvoudigInformatieObjectLockService.findLock(enkelvoudigInformatieObjectUUID) } returns null
+            every {
+                enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, userId)
+            } returns enkelvoudigInformatieObjectLock
+            every {
+                drcClientService.updateEnkelvoudigInformatieobject(
+                    enkelvoudigInformatieobjectUUID = enkelvoudigInformatieObjectUUID,
+                    enkelvoudigInformatieObjectWithLockRequest = enkelvoudigInformatieObjectWithLockRequest,
+                    auditExplanation = explanation,
+                    content = content
+                )
+            } throws ZgwRuntimeException("fakeUploadFailure")
+
+            `when`("updating the object with lock data") {
+                val zgwRuntimeException = shouldThrow<ZgwRuntimeException> {
+                    enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                        enkelvoudigInformatieObjectUUID,
+                        enkelvoudigInformatieObjectWithLockRequest,
+                        explanation,
+                        content
+                    )
+                }
+
+                then("the failure is propagated") {
+                    zgwRuntimeException.message shouldBe "fakeUploadFailure"
+                }
+                and("the temporary lock is kept so that the incomplete content is not committed as a new version") {
+                    verify(exactly = 1) {
+                        enkelvoudigInformatieObjectLockService.createLock(enkelvoudigInformatieObjectUUID, userId)
+                    }
+                    verify(exactly = 0) {
                         enkelvoudigInformatieObjectLockService.deleteLock(any())
                     }
                 }

@@ -38,6 +38,7 @@ import nl.info.test.org.flowable.task.api.createTestTask
 import nl.info.test.org.flowable.task.service.impl.persistence.entity.createHistoricTaskInstanceEntityImpl
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.app.informatieobjecten.converter.RestInformatieobjectConverter
+import nl.info.zac.app.informatieobjecten.model.RestFileUpload
 import nl.info.zac.app.model.createRESTUser
 import nl.info.zac.app.task.converter.RestTaskConverter
 import nl.info.zac.app.task.converter.RestTaskHistoryConverter
@@ -48,6 +49,7 @@ import nl.info.zac.app.task.model.createRestTaskDistributeTask
 import nl.info.zac.app.task.model.createRestTaskReleaseData
 import nl.info.zac.authentication.LoggedInUser
 import nl.info.zac.authentication.createLoggedInUser
+import nl.info.zac.configuration.FileSizeConfiguration
 import nl.info.zac.exception.ErrorCode
 import nl.info.zac.exception.InputValidationFailedException
 import nl.info.zac.identity.model.getFullName
@@ -110,6 +112,7 @@ class TaskRestServiceTest : BehaviorSpec({
         taskService = taskService,
         bpmnTaskFormRuntimeService = bpmnTaskFormRuntimeService,
         zaakVariabelenService = zaakVariabelenService,
+        fileSizeConfiguration = FileSizeConfiguration(maxFileSizeMB = 80L, maxInMemoryFileSizeMB = 80L),
         dispatcher = testDispatcher
     )
     val loggedInUser = createLoggedInUser()
@@ -574,6 +577,51 @@ class TaskRestServiceTest : BehaviorSpec({
                 then("a TaskNotFoundException is thrown") {
                     exception.message shouldBe "Task not found"
                 }
+            }
+        }
+    }
+    given("a task form attachment upload") {
+        val httpSession = mockk<HttpSession>()
+        val uuid = UUID.randomUUID()
+
+        `when`("it carries no file at all") {
+            val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                taskRestService.uploadFile(field = "fakeField", uuid = uuid, data = RestFileUpload())
+            }
+
+            then("it is refused, so that submitting the task cannot fail on a missing attachment") {
+                inputValidationFailedException.message shouldBe "An empty document cannot be uploaded"
+                verify(exactly = 0) { httpSession.setAttribute(any<String>(), any()) }
+            }
+        }
+
+        `when`("it carries an empty file") {
+            val inputValidationFailedException = shouldThrow<InputValidationFailedException> {
+                taskRestService.uploadFile(
+                    field = "fakeField",
+                    uuid = uuid,
+                    data = RestFileUpload(file = ByteArray(0), filename = "fakeFileName.pdf")
+                )
+            }
+
+            then("it is refused as well") {
+                inputValidationFailedException.message shouldBe "An empty document cannot be uploaded"
+                verify(exactly = 0) { httpSession.setAttribute(any<String>(), any()) }
+            }
+        }
+
+        `when`("it carries a file within the in-memory maximum") {
+            every { httpSessionInstance.get() } returns httpSession
+            every { httpSession.setAttribute(any<String>(), any()) } just runs
+
+            taskRestService.uploadFile(
+                field = "fakeField",
+                uuid = uuid,
+                data = RestFileUpload(file = "fakeContent".toByteArray(), filename = "fakeFileName.pdf")
+            )
+
+            then("it is kept in the session until the task is submitted") {
+                verify(exactly = 1) { httpSession.setAttribute("_FILE__${uuid}__fakeField", any()) }
             }
         }
     }
