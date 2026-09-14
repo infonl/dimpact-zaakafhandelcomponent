@@ -285,7 +285,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | remoteDebug | bool | `false` | Enable Java remote debugging |
 | replicaCount | int | `1` | The number of replicas to run |
 | resources.limits.ephemeral-storage | string | `"4Gi"` |  |
-| resources.limits.memory | string | `"2Gi"` | The JVM sizes its heap from this limit, so this is how the heap available to ZAC is set. With the default `-XX:MaxRAMPercentage=75.0` a 1Gi limit gives a 768 MB heap, which leaves room for a `maxInMemoryFileSizeMB` of up to 128. The chart refuses to render without this limit, because it cannot otherwise tell whether the configured file size limits fit. |
+| resources.limits.memory | string | `"2Gi"` | The JVM sizes its heap from this limit, so this is how the heap available to ZAC is set. With the default `-XX:MaxRAMPercentage=75.0` a 2Gi limit gives a 1536 MB heap, which leaves room for a `maxInMemoryFileSizeMB` of up to 256. The chart refuses to render without this limit, because it cannot otherwise tell whether the configured file size limits fit. |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.ephemeral-storage | string | `"4Gi"` |  |
 | resources.requests.memory | string | `"2Gi"` |  |
