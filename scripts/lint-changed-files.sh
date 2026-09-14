@@ -64,6 +64,9 @@ done
 # Filter out test files
 FILTERED_FILES=$(echo "$EXISTING_FILES" | grep -v '\.spec\.' | grep -v '\.test\.' | grep -v 'test-helpers' || true)
 
+# Every changed TypeScript file, spec files included, for the type check
+TS_FILES_TO_TYPECHECK=$(echo "$EXISTING_FILES" | grep -E '\.ts$' || true)
+
 # Spec files are linted separately, against the stricter Testing Library rules
 SPEC_FILES=$(echo "$EXISTING_FILES" | grep '\.spec\.ts$' || true)
 
@@ -85,7 +88,7 @@ if [ -n "$SPEC_FILES" ]; then
     echo ""
 fi
 
-if [ -z "$FILTERED_FILES" ]; then
+if [ -z "$FILTERED_FILES" ] && [ -z "$TS_FILES_TO_TYPECHECK" ]; then
     echo "✅ No source files changed (only test files)"
     exit 0
 fi
@@ -150,64 +153,52 @@ echo ""
 echo "🔍 Running strict TypeScript checking on changed files..."
 
 # Check each TypeScript file individually
-if [ -n "$RELATIVE_FILES" ]; then
-    # Keep only .ts files for the TypeScript compiler
-    RELATIVE_TS_FILES=$(echo "$RELATIVE_FILES" | grep -E '\.ts$' || true)
+# Keep only .ts files for the TypeScript compiler, spec files included
+RELATIVE_TS_FILES=$(echo "$TS_FILES_TO_TYPECHECK" | sed "s|^$APP_DIR/||" | grep -E '\.ts$' || true)
+
+if [ -z "$RELATIVE_TS_FILES" ]; then
+    echo "No TypeScript files to type-check"
+else
+    echo "TypeScript files to check:"
+    echo "$RELATIVE_TS_FILES"
+    echo ""
     
-    if [ -z "$RELATIVE_TS_FILES" ]; then
-        echo "No TypeScript files to type-check"
-    else
-        echo "TypeScript files to check:"
-        echo "$RELATIVE_TS_FILES"
-        echo ""
-        
-        # Check TypeScript compilation for the entire project and filter for changed files
-        echo "Running TypeScript compilation check..."
-        TSC_TEMP_FILE=$(mktemp)
-        # Temporarily disable set -e for this command to handle errors gracefully
-        set +e
+    # Check TypeScript compilation for the entire project and filter for changed files
+    echo "Running TypeScript compilation check..."
+    TSC_TEMP_FILE=$(mktemp)
+    # Temporarily disable set -e for this command to handle errors gracefully
+    set +e
+    # `timeout` is absent on macOS, where its exit code 127 would otherwise read as a clean run
+    if command -v timeout > /dev/null 2>&1; then
         timeout 60s npx tsc --noEmit --project . > "$TSC_TEMP_FILE" 2>&1
-        TSC_EXIT_CODE=$?
-        set -e
-        
-        # Check if timeout occurred
-        if [ $TSC_EXIT_CODE -eq 124 ]; then
-            echo "⚠️  TypeScript check timed out (60s)"
-            rm -f "$TSC_TEMP_FILE"
-        else
-            FAILED_FILES=""
-            # Check each changed TypeScript file for errors
-            for file in $RELATIVE_TS_FILES; do
-                echo ""
-                echo "👀 Checking: $file"
-                # Filter output to only show errors from the current file being checked
-                # TypeScript error format: "src/app/file.ts(line,col): error message"
-                FILTERED_ERRORS=$(grep "^$file(" "$TSC_TEMP_FILE" || true)
-                
-                if [ -n "$FILTERED_ERRORS" ]; then
-                    echo "❌ TypeScript errors found in $file:"
-                    echo "$FILTERED_ERRORS"
-                    FAILED_FILES="$FAILED_FILES$file"$'\n'
-                else
-                    echo "✅ $file passed TypeScript check"
-                fi
-            done
-            
-            if [ -n "$FAILED_FILES" ]; then
-                echo ""
-                echo "❌ TypeScript check failed for changed files with errors in the files themselves"
-                echo "💡 Changed files must follow strict TypeScript standards"
-                echo "💡 Files with errors:"
-                echo "$FAILED_FILES"
-                rm -f "$TSC_TEMP_FILE"
-                exit 1
-            fi
-            
-            echo "✅ All TypeScript files passed strict checking"
-        fi
-        
-        # Clean up temp file
+    else
+        npx tsc --noEmit --project . > "$TSC_TEMP_FILE" 2>&1
+    fi
+    TSC_EXIT_CODE=$?
+    set -e
+    
+    # Check if timeout occurred
+    if [ $TSC_EXIT_CODE -eq 124 ]; then
+        echo "⚠️  TypeScript check timed out (60s)"
         rm -f "$TSC_TEMP_FILE"
+    else
+        FAILED_FILES=""
+        # Check each changed TypeScript file for errors
+        for file in $RELATIVE_TS_FILES; do
+            echo ""
+            echo "👀 Checking: $file"
+            # Filter output to only show errors from the current file being checked
+            # TypeScript error format: "src/app/file.ts(line,col): error message"
+            FILTERED_ERRORS=$(grep "^$file(" "$TSC_TEMP_FILE" || true)
+            
+            if [ -n "$FILTERED_ERRORS" ]; then
+                echo "❌ TypeScript errors found in $file:"
+                echo "$FILTERED_ERRORS"
+                FAILED_FILES="$FAILED_FILES$file"$'\n'
+            else
+                echo "✅ $file passed TypeScript check"
+            fi
+        done
         
         if [ -n "$FAILED_FILES" ]; then
             echo ""
@@ -215,11 +206,26 @@ if [ -n "$RELATIVE_FILES" ]; then
             echo "💡 Changed files must follow strict TypeScript standards"
             echo "💡 Files with errors:"
             echo "$FAILED_FILES"
+            rm -f "$TSC_TEMP_FILE"
             exit 1
         fi
         
         echo "✅ All TypeScript files passed strict checking"
     fi
+    
+    # Clean up temp file
+    rm -f "$TSC_TEMP_FILE"
+    
+    if [ -n "$FAILED_FILES" ]; then
+        echo ""
+        echo "❌ TypeScript check failed for changed files with errors in the files themselves"
+        echo "💡 Changed files must follow strict TypeScript standards"
+        echo "💡 Files with errors:"
+        echo "$FAILED_FILES"
+        exit 1
+    fi
+    
+    echo "✅ All TypeScript files passed strict checking"
 fi
 
 echo ""

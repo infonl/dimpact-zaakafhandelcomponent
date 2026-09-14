@@ -5,7 +5,7 @@
     "types": ["jest", "node"],
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "target": "ES2016",
-    "strict": false,
+    "strict": true,
     "isolatedModules": true
   },
   "angularCompilerOptions": {

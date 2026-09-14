@@ -103,14 +103,28 @@ jobs:
             echo "specs_to_lint=" >> $GITHUB_OUTPUT
           fi
 
+          # Every changed TypeScript file, spec files included, for the type check
+          TS_FILES_TO_TYPECHECK=$(echo "$EXISTING_FILES" | grep -E '\.ts$' || true)
+
+          if [ -n "$TS_FILES_TO_TYPECHECK" ]; then
+            echo "TypeScript files to type-check:"
+            echo "$TS_FILES_TO_TYPECHECK"
+            echo "ts_files_to_typecheck<<EOF" >> $GITHUB_OUTPUT
+            echo "$TS_FILES_TO_TYPECHECK" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "No TypeScript files changed"
+            echo "ts_files_to_typecheck=" >> $GITHUB_OUTPUT
+          fi
+
       - name: Generate OpenAPI specs
-        if: steps.changed-files.outputs.files_to_lint != ''
+        if: steps.changed-files.outputs.files_to_lint != '' || steps.changed-files.outputs.ts_files_to_typecheck != ''
         run: |
           echo "Generating OpenAPI specs..."
           ./gradlew generateOpenApiSpec
 
       - name: Generate OpenAPI TypeScript types
-        if: steps.changed-files.outputs.files_to_lint != ''
+        if: steps.changed-files.outputs.files_to_lint != '' || steps.changed-files.outputs.ts_files_to_typecheck != ''
         working-directory: src/main/app
         run: |
           echo "Generating OpenAPI TypeScript types..."
@@ -158,11 +172,11 @@ jobs:
 
       - name: Type check changed TS files
         id: type-check
-        if: steps.changed-files.outputs.files_to_lint != ''
+        if: steps.changed-files.outputs.ts_files_to_typecheck != ''
         working-directory: src/main/app
         run: |
           # Get changed TypeScript files
-          FILES_TO_CHECK="${{ steps.changed-files.outputs.files_to_lint }}"
+          FILES_TO_CHECK="${{ steps.changed-files.outputs.ts_files_to_typecheck }}"
           if [ -n "$FILES_TO_CHECK" ]; then
             # Convert file paths to be relative to the app directory
             RELATIVE_FILES=$(echo "$FILES_TO_CHECK" | sed 's|^src/main/app/||')
