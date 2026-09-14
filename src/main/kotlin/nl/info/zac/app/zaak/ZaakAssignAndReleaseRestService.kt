@@ -174,7 +174,7 @@ class ZaakAssignAndReleaseRestService @Inject constructor(
             ?.identificatie
         if (newBehandelaarId.isNullOrEmpty()) {
             if (currentBehandelaarId != null) throw ZaakspecifiekGeautoriseerdeZaakCannotBeReleasedException()
-        } else if (newBehandelaarId != currentBehandelaarId) {
+} else if (currentBehandelaarId != null && newBehandelaarId != currentBehandelaarId) {
             throw ZaakspecifiekGeautoriseerdeZaakCannotBeReassignedException()
         }
     }
