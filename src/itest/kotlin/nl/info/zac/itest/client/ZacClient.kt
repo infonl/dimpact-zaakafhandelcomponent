@@ -59,42 +59,14 @@ class ZacClient(
         val file = Thread.currentThread().contextClassLoader.getResource(fileName).let {
             File(URLDecoder.decode(it!!.path, Charsets.UTF_8))
         }
-        val requestBody =
-            MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("bestandsnaam", fileName)
-                .addFormDataPart("titel", title)
-                .addFormDataPart("bestandsomvang", file.length().toString())
-                .addFormDataPart("formaat", fileMediaType)
-                .addFormDataPart(
-                    "file",
-                    fileName,
-                    file.asRequestBody(fileMediaType.toMediaType())
-                )
-                .addFormDataPart("informatieobjectTypeUUID", INFORMATIE_OBJECT_TYPE_BIJLAGE_UUID)
-                .addFormDataPart(
-                    "vertrouwelijkheidaanduiding",
-                    vertrouwelijkheidaanduiding
-                )
-                .addFormDataPart("status", DOCUMENT_STATUS_IN_BEWERKING)
-                .addFormDataPart(
-                    "creatiedatum",
-                    DateTimeFormatter.ofPattern(
-                        "yyyy-MM-dd'T'HH:mm+01:00"
-                    ).format(ZonedDateTime.now())
-                )
-                .addFormDataPart("auteur", authorName)
-                .addFormDataPart("taal", "dut")
-                .build()
-        return itestHttpClient.performPostRequest(
-            url = createEnkelvoudigInformatieobjectEndpointURI,
-            headers = Headers.headersOf(
-                "Accept",
-                "application/json",
-                "Content-Type",
-                "multipart/form-data"
-            ),
-            requestBody = requestBody,
+        return createEnkelvoudigInformatieobjectForZaak(
+            zaakUUID = zaakUUID,
+            file = file,
+            fileName = fileName,
+            title = title,
+            authorName = authorName,
+            fileMediaType = fileMediaType,
+            vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
             testUser = testUser
         )
     }

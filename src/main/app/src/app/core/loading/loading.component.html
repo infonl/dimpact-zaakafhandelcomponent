@@ -3,7 +3,13 @@
   ~ SPDX-License-Identifier: EUPL-1.2+
   -->
 
-@if (isMutating()) {
+@if (progress(); as progress) {
+  <mat-progress-bar
+    mode="determinate"
+    [value]="progress.percentage"
+    [attr.aria-label]="progress.description | translate"
+  ></mat-progress-bar>
+} @else if (isMutating()) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
 } @else if (isLoading()) {
   <mat-progress-bar mode="query"></mat-progress-bar>

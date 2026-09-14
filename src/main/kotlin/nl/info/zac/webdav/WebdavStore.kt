@@ -14,7 +14,7 @@ import nl.info.webdav.IWebdavStore
 import nl.info.webdav.StoredObject
 import nl.info.zac.app.informatieobjecten.EnkelvoudigInformatieObjectUpdateService
 import nl.info.zac.authentication.setLoggedInUser
-import nl.info.zac.util.toBase64String
+import nl.info.zac.document.content.DocumentContentReader
 import org.apache.commons.collections4.map.LRUMap
 import org.apache.commons.io.FilenameUtils
 import java.io.File
@@ -40,6 +40,8 @@ class WebdavStore(@Suppress("UNUSED_PARAMETER") ignoredFake: File) : IWebdavStor
     private val drcClientService: DrcClientService = CDI.current().select(DrcClientService::class.java).get()
     private val enkelvoudigInformatieObjectUpdateService: EnkelvoudigInformatieObjectUpdateService =
         CDI.current().select(EnkelvoudigInformatieObjectUpdateService::class.java).get()
+    private val documentContentReader: DocumentContentReader =
+        CDI.current().select(DocumentContentReader::class.java).get()
 
     override fun begin(principal: Principal?) = null
 
@@ -84,16 +86,14 @@ class WebdavStore(@Suppress("UNUSED_PARAMETER") ignoredFake: File) : IWebdavStor
                 CDI.current().select(HttpSession::class.java).get(),
                 webdavGegevens.loggedInUser
             )
-            val inhoud = content.readBytes()
-            val update = EnkelvoudigInformatieObjectWithLockRequest().apply {
-                this.inhoud = inhoud.toBase64String()
-                bestandsomvang = inhoud.size
+            return documentContentReader.read(content).use { documentContent ->
+                enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
+                    enkelvoudigInformatieObjectUUID = webdavGegevens.enkelvoudigInformatieobjectUUID,
+                    enkelvoudigInformatieObjectWithLockRequest = EnkelvoudigInformatieObjectWithLockRequest(),
+                    toelichting = UPDATE_INHOUD_TOELICHTING,
+                    content = documentContent
+                ).bestandsomvang?.toLong() ?: 0L
             }
-            return enkelvoudigInformatieObjectUpdateService.updateEnkelvoudigInformatieObjectWithLockData(
-                enkelvoudigInformatieObjectUUID = webdavGegevens.enkelvoudigInformatieobjectUUID,
-                enkelvoudigInformatieObjectWithLockRequest = update,
-                toelichting = UPDATE_INHOUD_TOELICHTING
-            ).bestandsomvang?.toLong() ?: 0L
         } finally {
             fileStoredObjectMap.remove(token)
         }

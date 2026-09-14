@@ -134,3 +134,82 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+The JVM startup options ZAC runs with when `javaOptions` does not override them. The heap is sized
+from the container memory limit through `-XX:MaxRAMPercentage` rather than pinned with `-Xmx`, so a
+change to `resources.limits.memory` moves the heap with it.
+*/}}
+{{- define "zaakafhandelcomponent.defaultJavaOptions" -}}
+-XX:MaxRAMPercentage=75.0 -Xlog:gc::time,uptime
+{{- end }}
+
+{{/*
+Converts a memory quantity to a whole number of MB. Accepts the Kubernetes suffixes (`Ki`, `Mi`,
+`Gi`, `Ti`) as well as the JVM ones (`k`, `m`, `g`). The decimal Kubernetes suffixes `K`, `M`, `G`
+and `T` are read as their binary neighbours, which is close enough for a sizing check.
+*/}}
+{{- define "zaakafhandelcomponent.memoryQuantityToMB" -}}
+{{- $quantity := . | toString -}}
+{{- $value := regexFind "[0-9]+" $quantity | int64 -}}
+{{- $unit := regexFind "[a-zA-Z]*$" $quantity | lower -}}
+{{- if or (eq $unit "g") (eq $unit "gi") -}}
+{{- mul $value 1024 -}}
+{{- else if or (eq $unit "t") (eq $unit "ti") -}}
+{{- mul $value 1048576 -}}
+{{- else if or (eq $unit "k") (eq $unit "ki") -}}
+{{- div $value 1024 -}}
+{{- else -}}
+{{- $value -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Maximum heap size in MB.
+
+The JVM sizes its heap from the memory limit of its cgroup, so that limit and the percentage of it
+the heap may claim are what this derives from: `-XX:MaxRAMPercentage` of `resources.limits.memory`.
+An explicit `-Xmx` in `javaOptions` still wins, because it overrides the percentage in the JVM too.
+Without either the heap is whatever the node happens to offer, which the chart cannot know, so the
+release is refused rather than validated against a guess.
+*/}}
+{{- define "zaakafhandelcomponent.maxHeapSizeMB" -}}
+{{- $javaOptions := .Values.javaOptions | default (include "zaakafhandelcomponent.defaultJavaOptions" .) -}}
+{{- $maxHeapOption := regexFind "-Xmx[0-9]+[kKmMgGtT]?[iI]?" $javaOptions -}}
+{{- if $maxHeapOption -}}
+{{- include "zaakafhandelcomponent.memoryQuantityToMB" $maxHeapOption -}}
+{{- else -}}
+{{- $memoryLimit := dig "limits" "memory" "" (.Values.resources | default dict) -}}
+{{- if not $memoryLimit -}}
+{{- fail "resources.limits.memory has to be set, because the JVM sizes its heap from the container memory limit and the chart cannot check maxInMemoryFileSizeMB against a heap it cannot determine. Set resources.limits.memory, or pin the heap with -Xmx in javaOptions." -}}
+{{- end -}}
+{{- $memoryLimitMB := include "zaakafhandelcomponent.memoryQuantityToMB" $memoryLimit | int64 -}}
+{{- $heapPercentage := regexFind "-XX:MaxRAMPercentage=[0-9.]+" $javaOptions | regexFind "[0-9]+" | default "25" | int64 -}}
+{{- div (mul $memoryLimitMB $heapPercentage) 100 -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Fails the release when the configured file size limits cannot be served by the configured heap.
+ZAC performs the same check on startup; doing it here as well turns a crash loop into a failed
+install with an actionable message.
+*/}}
+{{- define "zaakafhandelcomponent.validateFileSizeLimits" -}}
+{{- $maxFileSizeMB := .Values.maxFileSizeMB | default 500 | int64 -}}
+{{- $maxInMemoryFileSizeMB := .Values.maxInMemoryFileSizeMB | default 80 | int64 -}}
+{{- if or (le $maxFileSizeMB 0) (le $maxInMemoryFileSizeMB 0) -}}
+{{- fail "maxFileSizeMB and maxInMemoryFileSizeMB must both be greater than zero" -}}
+{{- end -}}
+{{- if gt $maxFileSizeMB 2047 -}}
+{{- fail (printf "maxFileSizeMB (%d) cannot be larger than 2047, because the documents registry expresses the size of a document as a 32 bit integer number of bytes" $maxFileSizeMB) -}}
+{{- end -}}
+{{- if gt $maxInMemoryFileSizeMB $maxFileSizeMB -}}
+{{- fail (printf "maxInMemoryFileSizeMB (%d) cannot be larger than maxFileSizeMB (%d)" $maxInMemoryFileSizeMB $maxFileSizeMB) -}}
+{{- end -}}
+{{- $maxHeapSizeMB := include "zaakafhandelcomponent.maxHeapSizeMB" . | int64 -}}
+{{- $availableHeapMB := div $maxHeapSizeMB 2 -}}
+{{- $requiredHeapMB := mul $maxInMemoryFileSizeMB 3 -}}
+{{- if gt $requiredHeapMB $availableHeapMB -}}
+{{- fail (printf "maxInMemoryFileSizeMB (%d) requires at least %d MB of heap but only %d MB of the %d MB heap is available for it. Either lower maxInMemoryFileSizeMB to at most %d or raise resources.limits.memory, which is what the heap is sized from." $maxInMemoryFileSizeMB $requiredHeapMB $availableHeapMB $maxHeapSizeMB (div $availableHeapMB 3)) -}}
+{{- end -}}
+{{- end }}

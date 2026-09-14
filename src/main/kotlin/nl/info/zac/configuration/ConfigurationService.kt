@@ -93,16 +93,6 @@ class ConfigurationService @Inject constructor(
 
         const val INFORMATIEOBJECTTYPE_OMSCHRIJVING_EMAIL = "e-mail"
 
-        /**
-         * Maximum file size in MB for file uploads.
-         * Hardcoded due to technical limitations.
-         *
-         * Note that WildFly / RESTEasy also defines a max file upload size.
-         * The value used in WildFly configuration should be set higher to account for overhead. (e.g. 80MB -> 120MB).
-         * We use the Base2 system to calculate the max file size in bytes.
-         */
-        const val MAX_FILE_SIZE_MB: Long = 80
-
         private val LOG = Logger.getLogger(ConfigurationService::class.java.name)
     }
 
@@ -143,8 +133,6 @@ class ConfigurationService @Inject constructor(
         val talen = entityManager.createQuery(query).resultList
         return talen.firstOrNull()
     }
-
-    fun readMaxFileSizeMB() = MAX_FILE_SIZE_MB
 
     fun readDefaultCatalogusURI(): URI = catalogusURI
 

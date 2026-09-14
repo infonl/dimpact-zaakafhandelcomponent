@@ -12,7 +12,7 @@ import { RouterLink } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { GeneratedType } from "src/app/shared/utils/generated-types";
-import { buildBedrijfRouteLink } from "../../klanten/klanten-routing.module";
+import { buildBedrijfRouteLink } from "../../klanten/bedrijf-route-link";
 import { KlantenService } from "../../klanten/klanten.service";
 import { BetrokkeneIdentificatie } from "../model/betrokkeneIdentificatie";
 

@@ -4,7 +4,10 @@
  */
 
 import { inject, Injectable } from "@angular/core";
-import { QueryClient } from "@tanstack/angular-query-experimental";
+import {
+  injectMutation,
+  QueryClient,
+} from "@tanstack/angular-query-experimental";
 import { UtilService } from "../../../core/service/util.service";
 import { KlantGegevens } from "../../../klanten/model/klanten/klant-gegevens";
 import { runMutation } from "../../../shared/http/run-mutation";
@@ -23,6 +26,12 @@ export class ZaakBetrokkenenService {
   private readonly zaakDialogService = inject(ZaakDialogService);
   private readonly zakenService = inject(ZakenService);
   private readonly sideActions = inject(ZaakSideActionService);
+  private readonly updateInitiatorMutation = injectMutation(() =>
+    this.zakenService.updateInitiator(),
+  );
+  private readonly createBetrokkeneMutation = injectMutation(() =>
+    this.zakenService.createBetrokkene(),
+  );
 
   initiatorGeselecteerd(zaak: Zaak, initiator: GeneratedType<"RestPersoon">) {
     this.sideActions.close();
@@ -30,7 +39,7 @@ export class ZaakBetrokkenenService {
     if (zaak.initiatorIdentificatie) {
       this.zaakDialogService
         .openWijzigInitiator(initiator.naam, (reden) =>
-          this.zakenService.updateInitiator({
+          runMutation(this.queryClient, this.zakenService.updateInitiator(), {
             zaakUUID: zaak.uuid,
             betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
             toelichting: reden,
@@ -38,25 +47,26 @@ export class ZaakBetrokkenenService {
         )
         .afterClosed()
         .subscribe((updatedZaak) =>
-          this.handleNewInitiator("msg.initiator.gewijzigd", updatedZaak),
+          this.reportNewInitiator("msg.initiator.gewijzigd", updatedZaak),
         );
       return;
     }
 
-    this.zakenService
-      .updateInitiator({
+    this.updateInitiatorMutation.mutate(
+      {
         zaakUUID: zaak.uuid,
         betrokkeneIdentificatie: new BetrokkeneIdentificatie(initiator),
-      })
-      .subscribe((updatedZaak) =>
-        this.handleNewInitiator("msg.initiator.gekoppeld", updatedZaak),
-      );
+      },
+      {
+        onSuccess: (updatedZaak) =>
+          this.reportNewInitiator("msg.initiator.gekoppeld", updatedZaak),
+      },
+    );
   }
 
-  private handleNewInitiator(notification: string, updatedZaak?: Zaak) {
+  private reportNewInitiator(notification: string, updatedZaak?: Zaak) {
     if (!updatedZaak) return;
 
-    this.zakenService.cacheZaak(updatedZaak);
     const naam = [
       updatedZaak.initiatorIdentificatie?.kvkNummer,
       updatedZaak.initiatorIdentificatie?.vestigingsnummer,
@@ -64,7 +74,6 @@ export class ZaakBetrokkenenService {
     this.utilService.openSnackbar(notification, {
       naam: naam.join(" - "),
     });
-    this.zakenService.invalidateHistorie(updatedZaak.uuid);
   }
 
   deleteInitiator(zaak: Zaak) {
@@ -81,32 +90,29 @@ export class ZaakBetrokkenenService {
         if (!result) return;
 
         this.utilService.openSnackbar("msg.initiator.ontkoppelen.uitgevoerd");
-        this.zakenService.readZaak(zaak.uuid).subscribe((updatedZaak) => {
-          this.zakenService.cacheZaak(updatedZaak);
-          this.zakenService.invalidateHistorie(zaak.uuid);
-        });
       });
   }
 
   betrokkeneGeselecteerd(zaak: Zaak, klantgegevens: KlantGegevens) {
     this.sideActions.close();
-    this.zakenService
-      .createBetrokkene({
+    this.createBetrokkeneMutation.mutate(
+      {
         zaakUUID: zaak.uuid,
         roltypeUUID: klantgegevens.betrokkeneRoltype.uuid!,
         roltoelichting: klantgegevens.betrokkeneToelichting,
         betrokkeneIdentificatie: new BetrokkeneIdentificatie(
           klantgegevens.klant,
         ),
-      })
-      .subscribe((updatedZaak) => {
-        this.zakenService.cacheZaak(updatedZaak);
-        this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
-          roltype: klantgegevens.betrokkeneRoltype.naam,
-        });
-        this.zakenService.invalidateHistorie(zaak.uuid);
-        this.invalidateBetrokkenen(zaak);
-      });
+      },
+      {
+        onSuccess: () => {
+          this.utilService.openSnackbar("msg.betrokkene.gekoppeld", {
+            roltype: klantgegevens.betrokkeneRoltype.naam,
+          });
+          this.invalidateBetrokkenen(zaak);
+        },
+      },
+    );
   }
 
   invalidateBetrokkenen(zaak: Zaak) {
