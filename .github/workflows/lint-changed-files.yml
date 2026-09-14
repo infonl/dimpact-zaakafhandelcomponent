@@ -133,9 +133,12 @@ jobs:
       - name: Lint changed files
         if: steps.changed-files.outputs.files_to_lint != ''
         working-directory: src/main/app
+        env:
+          # Read via the environment: interpolating a PR-controlled filename into the script would let it run commands
+          FILES_TO_LINT_INPUT: ${{ steps.changed-files.outputs.files_to_lint }}
         run: |
           # Convert the files list to space-separated for eslint
-          FILES_TO_LINT="${{ steps.changed-files.outputs.files_to_lint }}"
+          FILES_TO_LINT="$FILES_TO_LINT_INPUT"
 
           # Convert file paths to be relative to the app directory
           RELATIVE_FILES=$(echo "$FILES_TO_LINT" | sed 's|^src/main/app/||')
@@ -152,8 +155,11 @@ jobs:
         id: lint-specs
         if: steps.changed-files.outputs.specs_to_lint != ''
         working-directory: src/main/app
+        env:
+          # Read via the environment: interpolating a PR-controlled filename into the script would let it run commands
+          SPECS_TO_LINT: ${{ steps.changed-files.outputs.specs_to_lint }}
         run: |
-          RELATIVE_SPECS=$(echo "${{ steps.changed-files.outputs.specs_to_lint }}" | sed 's|^src/main/app/||')
+          RELATIVE_SPECS=$(echo "$SPECS_TO_LINT" | sed 's|^src/main/app/||')
 
           echo "🔍 Linting changed spec files against the stricter Testing Library rules..."
           echo "$RELATIVE_SPECS"
@@ -174,9 +180,12 @@ jobs:
         id: type-check
         if: steps.changed-files.outputs.ts_files_to_typecheck != ''
         working-directory: src/main/app
+        env:
+          # Read via the environment: interpolating a PR-controlled filename into the script would let it run commands
+          TS_FILES_TO_TYPECHECK: ${{ steps.changed-files.outputs.ts_files_to_typecheck }}
         run: |
           # Get changed TypeScript files
-          FILES_TO_CHECK="${{ steps.changed-files.outputs.ts_files_to_typecheck }}"
+          FILES_TO_CHECK="$TS_FILES_TO_TYPECHECK"
           if [ -n "$FILES_TO_CHECK" ]; then
             # Convert file paths to be relative to the app directory
             RELATIVE_FILES=$(echo "$FILES_TO_CHECK" | sed 's|^src/main/app/||')

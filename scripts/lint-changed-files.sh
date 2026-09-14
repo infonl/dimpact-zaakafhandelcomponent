@@ -107,13 +107,15 @@ cd "$APP_DIR"
 # Convert file paths to be relative to the app directory
 RELATIVE_FILES=$(echo "$FILTERED_FILES" | sed "s|^$APP_DIR/||")
 
-echo "🔧 Running ESLint on changed files..."
-echo "Files to lint (relative to app directory):"
-echo "$RELATIVE_FILES"
-echo ""
-echo "Current directory: $(pwd)"
-echo "ESLint config file exists: $([ -f .eslintrc.js ] && echo 'Yes' || echo 'No')"
-echo ""
+if [ -n "$RELATIVE_FILES" ]; then
+    echo "🔧 Running ESLint on changed files..."
+    echo "Files to lint (relative to app directory):"
+    echo "$RELATIVE_FILES"
+    echo ""
+    echo "Current directory: $(pwd)"
+    echo "ESLint config file exists: $([ -f .eslintrc.js ] && echo 'Yes' || echo 'No')"
+    echo ""
+fi
 
 # Generate OpenAPI specs first
 echo ""
@@ -137,14 +139,17 @@ if ! npm run generate:types:zac-openapi; then
     exit 1
 fi
 
-# Run regular linting first to check basic issues
-echo ""
-echo "🔍 Running regular lint command to check basic issues..."
-if ! npm run lint; then
+# Run regular linting first to check basic issues, but only when source files changed:
+# `npm run lint` covers the whole app, and CI skips it for a spec-only change as well
+if [ -n "$FILTERED_FILES" ]; then
     echo ""
-    echo "❌ Basic linting failed"
-    echo "💡 Tip: Run 'npm run lint' (in the app directory) to see all linting issues"
-    exit 1
+    echo "🔍 Running regular lint command to check basic issues..."
+    if ! npm run lint; then
+        echo ""
+        echo "❌ Basic linting failed"
+        echo "💡 Tip: Run 'npm run lint' (in the app directory) to see all linting issues"
+        exit 1
+    fi
 fi
 
 # Note: Strict TypeScript checking temporarily disabled due to technical issues
@@ -178,9 +183,10 @@ else
     set -e
     
     # Check if timeout occurred
-    if [ $TSC_EXIT_CODE -eq 124 ]; then
+    if [ "$TSC_EXIT_CODE" -eq 124 ]; then
         echo "⚠️  TypeScript check timed out (60s)"
         rm -f "$TSC_TEMP_FILE"
+        exit 1
     else
         FAILED_FILES=""
         # Check each changed TypeScript file for errors
