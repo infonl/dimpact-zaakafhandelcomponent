@@ -1,6 +1,6 @@
 # zaakafhandelcomponent
 
-![Version: 1.0.317](https://img.shields.io/badge/Version-1.0.317-informational?style=flat-square) ![AppVersion: 5.7](https://img.shields.io/badge/AppVersion-5.7-informational?style=flat-square)
+![Version: 1.0.320](https://img.shields.io/badge/Version-1.0.320-informational?style=flat-square) ![AppVersion: 5.7](https://img.shields.io/badge/AppVersion-5.7-informational?style=flat-square)
 
 A Helm chart for installing Zaakafhandelcomponent
 
@@ -14,7 +14,7 @@ A Helm chart for installing Zaakafhandelcomponent
 
 | Repository | Name | Version |
 |------------|------|---------|
-| @opentelemetry | opentelemetry-collector | 0.172.1 |
+| @opentelemetry | opentelemetry-collector | 0.173.0 |
 | @solr | solr-operator | 0.9.1 |
 
 ## Usage
@@ -285,10 +285,10 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | remoteDebug | bool | `false` | Enable Java remote debugging |
 | replicaCount | int | `1` | The number of replicas to run |
 | resources.limits.ephemeral-storage | string | `"4Gi"` |  |
-| resources.limits.memory | string | `"1Gi"` | The JVM sizes its heap from this limit, so this is how the heap available to ZAC is set. With the default `-XX:MaxRAMPercentage=75.0` a 1Gi limit gives a 768 MB heap, which leaves room for a `maxInMemoryFileSizeMB` of up to 128. The chart refuses to render without this limit, because it cannot otherwise tell whether the configured file size limits fit. |
+| resources.limits.memory | string | `"2Gi"` | The JVM sizes its heap from this limit, so this is how the heap available to ZAC is set. With the default `-XX:MaxRAMPercentage=75.0` a 2Gi limit gives a 1536 MB heap, which leaves room for a `maxInMemoryFileSizeMB` of up to 256. The chart refuses to render without this limit, because it cannot otherwise tell whether the configured file size limits fit. |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.ephemeral-storage | string | `"4Gi"` |  |
-| resources.requests.memory | string | `"1Gi"` |  |
+| resources.requests.memory | string | `"2Gi"` |  |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | generic security context |
 | service.annotations | object | `{}` |  |
 | service.port | int | `80` |  |
@@ -332,7 +332,7 @@ The Github workflow will perform helm-linting and will bump the version if neede
 | solr-operator.solr.enabled | bool | `true` |  |
 | solr-operator.solr.image.pullPolicy | string | `"IfNotPresent"` | solr imagePullPolicy |
 | solr-operator.solr.image.repository | string | `"library/solr"` | solr image repository |
-| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:389b4a54b6a0b37a028a3f157e4d3b7031cf76def1b14bcaa225ea1e27f79ffb"` | solr image tag |
+| solr-operator.solr.image.tag | string | `"9.10.1-slim@sha256:0a931f52cfd9a9afd6d958d246e64115648099c788e41a01adad9f09e6f73594"` | solr image tag |
 | solr-operator.solr.javaMem | string | `"-Xms512m -Xmx768m"` |  |
 | solr-operator.solr.jobs.affinity | object | `{}` | affinity for jobs |
 | solr-operator.solr.jobs.annotations | object | `{}` | annotations for jobs |
