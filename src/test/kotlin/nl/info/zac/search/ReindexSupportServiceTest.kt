@@ -23,6 +23,8 @@ import nl.info.client.zgw.drc.DrcClientService
 import nl.info.client.zgw.drc.model.EnkelvoudigInformatieobjectListParameters
 import nl.info.client.zgw.drc.model.createEnkelvoudigInformatieObject
 import nl.info.client.zgw.model.createZaak
+import nl.info.client.zgw.model.createMedewerkerIdentificatie
+import nl.info.client.zgw.model.createRolMedewerker
 import nl.info.client.zgw.model.createZaakEigenschap
 import nl.info.client.zgw.shared.ZgwApiService
 import nl.info.client.zgw.shared.model.Results
@@ -299,6 +301,31 @@ class ReindexSupportServiceTest : BehaviorSpec({
 
             then("the ZGW API is only queried once for that zaak") {
                 verify(exactly = 1) { ctx.zrcClientService.listZaakeigenschappen(zaakUUID) }
+            }
+        }
+    }
+
+    given("zaakAutorisatieGegevens for a zaak the caller has already read") {
+        val ctx = setupContext()
+        val zaak = createZaak()
+        val rolMedewerker = createRolMedewerker(
+            medewerkerIdentificatie = createMedewerkerIdentificatie(identificatie = "fakeBehandelaarId")
+        )
+        every { ctx.zrcClientService.listZaakeigenschappen(zaak.uuid) } returns listOf(
+            createZaakEigenschap(naam = ZAAKEIGENSCHAP_NAAM_GEAUTORISEERD, waarde = "true")
+        )
+        every { ctx.zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaak, any()) } returns rolMedewerker
+
+        `when`("its geautoriseerde medewerkers are resolved") {
+            val geautoriseerdeMedewerkers =
+                ctx.reindexSupportService.zaakAutorisatieGegevens(zaak).geautoriseerdeMedewerkers
+
+            then("the behandelaar is returned") {
+                geautoriseerdeMedewerkers shouldBe listOf("fakeBehandelaarId")
+            }
+
+            then("the zaak is not read again, since the caller already provided it") {
+                verify(exactly = 0) { ctx.zrcClientService.readZaak(zaak.uuid) }
             }
         }
     }

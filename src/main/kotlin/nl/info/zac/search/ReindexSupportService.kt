@@ -19,6 +19,7 @@ import nl.info.client.zgw.shared.model.Results
 import nl.info.client.zgw.util.extractUuid
 import nl.info.client.zgw.zrc.ZrcClientService
 import nl.info.client.zgw.zrc.model.ZaakListParameters
+import nl.info.client.zgw.zrc.model.generated.Zaak
 import nl.info.client.zgw.zrc.util.isZaakspecifiekGeautoriseerd
 import nl.info.zac.app.task.model.TaakSortering
 import nl.info.zac.authentication.systemUserContext
@@ -309,18 +310,27 @@ class ReindexSupportService @Inject constructor(
         val zaakAutorisatieGegevensByZaakUUID = ConcurrentHashMap<UUID, ZaakAutorisatieGegevens>()
         return { zaakUUID ->
             zaakAutorisatieGegevensByZaakUUID.computeIfAbsent(zaakUUID) {
-                ZaakAutorisatieGegevens(
-                    isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(it)
-                ) {
-                    listOfNotNull(
-                        zgwApiService.findBehandelaarMedewerkerRoleForZaak(zrcClientService.readZaak(zaakUUID))
-                            ?.betrokkeneIdentificatie
-                            ?.identificatie
-                    )
-                }
+                zaakAutorisatieGegevens(zaakUUID) { zrcClientService.readZaak(zaakUUID) }
             }
         }
     }
+
+    /**
+     * Variant for callers that have already read the zaak, so that resolving its geautoriseerde
+     * medewerkers does not read it a second time.
+     */
+    internal fun zaakAutorisatieGegevens(zaak: Zaak) = zaakAutorisatieGegevens(zaak.uuid) { zaak }
+
+    private fun zaakAutorisatieGegevens(zaakUUID: UUID, zaakSupplier: () -> Zaak) =
+        ZaakAutorisatieGegevens(
+            isZaakspecifiekGeautoriseerd = zrcClientService.isZaakspecifiekGeautoriseerd(zaakUUID)
+        ) {
+            listOfNotNull(
+                zgwApiService.findBehandelaarMedewerkerRoleForZaak(zaakSupplier())
+                    ?.betrokkeneIdentificatie
+                    ?.identificatie
+            )
+        }
 
     internal fun reindexAllZaken(): ReindexSummary? {
         val numberOfZaken = continueOnExceptions(ZoekObjectType.ZAAK) {
